@@ -50,15 +50,17 @@ public class TypeLineFilterPanel extends FilterPanel
 	 * type line matches the filter with the specified containment type, and false otherwise.
 	 */
 	@Override
-	public Predicate<Card> getFilter()
+	public CardFilter getFilter()
 	{
+		Predicate<Card> f;
 		if (filter.getText().length() > 0)
 		{
 			List<String> types = Arrays.asList(filter.getText().toLowerCase().split("\\s"));
-			return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(c.allTypes.stream().map(String::toLowerCase).collect(Collectors.toList()), types);
+			f= (c) -> contain.getItemAt(contain.getSelectedIndex()).test(c.allTypes.stream().map(String::toLowerCase).collect(Collectors.toList()), types);
 		}
 		else
-			return (c) -> true;
+			f= (c) -> true;
+		return new CardFilter(f, toString());
 	}
 
 	/**

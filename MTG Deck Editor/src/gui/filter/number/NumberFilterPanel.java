@@ -1,5 +1,6 @@
 package gui.filter.number;
 
+import gui.filter.CardFilter;
 import gui.filter.FilterPanel;
 
 import java.awt.GridBagConstraints;
@@ -99,11 +100,14 @@ public class NumberFilterPanel extends FilterPanel
 	 * then they are treated as 0.
 	 */
 	@Override
-	public Predicate<Card> getFilter()
+	public CardFilter getFilter()
 	{
+		Predicate<Card> f;
 		if (variable.isSelected())
-			return (c) -> operand.apply(c).contains("*");
-		return (c) -> !operand.apply(c).isEmpty() && (comparisonBox.getItemAt(comparisonBox.getSelectedIndex())).test(Card.numericValueOf(operand.apply(c)), (Double)spinner.getValue());
+			f = (c) -> operand.apply(c).contains("*");
+		else
+			f = (c) -> !operand.apply(c).isEmpty() && (comparisonBox.getItemAt(comparisonBox.getSelectedIndex())).test(Card.numericValueOf(operand.apply(c)), (Double)spinner.getValue());
+		return new CardFilter(f, toString());
 	}
 
 	/**

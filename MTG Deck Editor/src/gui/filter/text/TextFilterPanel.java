@@ -1,5 +1,6 @@
 package gui.filter.text;
 
+import gui.filter.CardFilter;
 import gui.filter.FilterPanel;
 
 import java.util.StringJoiner;
@@ -112,24 +113,25 @@ public class TextFilterPanel extends FilterPanel
 	 * characteristic matches the filter expression, and <code>false</code> otherwise.
 	 */
 	@Override
-	public Predicate<Card> getFilter()
+	public CardFilter getFilter()
 	{
+		Predicate<Card> f = (c) -> true;
 		String filterText = filterValue.getText().toLowerCase();
 		// If the filter is a regex, then just match it
 		if (regex.isSelected())
 		{
 			Pattern p = Pattern.compile(filterText);
-			return (c) -> p.matcher(text.apply(c).toLowerCase()).find();
+			f = (c) -> p.matcher(text.apply(c).toLowerCase()).find();
 		}
 		else
 		{
 			// If the filter is a "simple" string, then the characteristic matches if it matches the
 			// filter text in any order with the specified set containment
-			// TODO: only doesn't match when the search string is the entire text in quotes
 			switch (contain.getItemAt(contain.getSelectedIndex()))
 			{
 			case CONTAINS_ALL_OF:
-				return createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase());
+				f = createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase());
+				break;
 			case CONTAINS_ANY_OF:
 				Matcher m = WORD_PATTERN.matcher(filterText);
 				StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
@@ -145,17 +147,20 @@ public class TextFilterPanel extends FilterPanel
 					str.add(toAdd.replace("*", "\\E\\w*\\Q"));
 				}
 				Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
-				return (c) -> p.matcher(text.apply(c)).find();
+				f = (c) -> p.matcher(text.apply(c)).find();
+				break;
 			case CONTAINS_NONE_OF:
-				return createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase()).negate();
+				f = createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase()).negate();
+				break;
 			case CONTAINS_NOT_EXACTLY:
-				return (c) -> !text.apply(c).equalsIgnoreCase(filterText);
+				f = (c) -> !text.apply(c).equalsIgnoreCase(filterText);
+				break;
 			case CONTAINS_EXACTLY:
-				return (c) -> text.apply(c).equalsIgnoreCase(filterText);
-			default:
-				return (c) -> false;
+				f = (c) -> text.apply(c).equalsIgnoreCase(filterText);
+				break;
 			}
 		}
+		return new CardFilter(f, toString());
 	}
 
 	/**

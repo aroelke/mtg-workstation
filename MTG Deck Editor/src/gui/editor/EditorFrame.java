@@ -272,10 +272,17 @@ public class EditorFrame extends JInternalFrame
 			int categories = Integer.valueOf(rd.readLine().trim());
 			for (int i = 0; i < categories; i++)
 			{
-				String repr = rd.readLine().trim();
-				categoryCreator.initializeFromString(repr);
-				addCategory(new CategoryPanel(categoryCreator.name(), repr, deck, categoryCreator.filter()));
-				categoryCreator.reset();
+				try
+				{
+					String repr = rd.readLine().trim();
+					categoryCreator.initializeFromString(repr);
+					addCategory(new CategoryPanel(categoryCreator.name(), repr, deck, categoryCreator.filter()));
+					categoryCreator.reset();
+				}
+				catch (Exception e)
+				{
+					JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 			updateCount();
 			unsaved = false;

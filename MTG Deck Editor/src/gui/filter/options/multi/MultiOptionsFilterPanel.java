@@ -1,5 +1,6 @@
 package gui.filter.options.multi;
 
+import gui.filter.CardFilter;
 import gui.filter.FilterContainer;
 import gui.filter.options.OptionsFilterPanel;
 
@@ -7,7 +8,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import javax.swing.JComboBox;
 import javax.swing.JList;
@@ -97,9 +97,10 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	 * type, and <code>false</code> otherwise.
 	 */
 	@Override
-	public Predicate<Card> getFilter()
+	public CardFilter getFilter()
 	{
-		return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(param.apply(c), optionsBox.getSelectedValuesList());
+		return new CardFilter((c) -> contain.getItemAt(contain.getSelectedIndex()).test(param.apply(c), optionsBox.getSelectedValuesList()),
+							  toString());
 	}
 
 	/**

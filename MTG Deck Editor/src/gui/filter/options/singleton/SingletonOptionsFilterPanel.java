@@ -1,5 +1,6 @@
 package gui.filter.options.singleton;
 
+import gui.filter.CardFilter;
 import gui.filter.FilterContainer;
 import gui.filter.options.OptionsFilterPanel;
 
@@ -7,7 +8,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.Arrays;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import javax.swing.JComboBox;
 import javax.swing.JList;
@@ -98,9 +98,10 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	 * otherwise.
 	 */
 	@Override
-	public Predicate<Card> getFilter()
+	public CardFilter getFilter()
 	{
-		return (c) -> ((Containment)contain.getSelectedItem()).test(optionsBox.getSelectedValuesList(), Arrays.asList(param.apply(c)));
+		return new CardFilter((c) -> ((Containment)contain.getSelectedItem()).test(optionsBox.getSelectedValuesList(), Arrays.asList(param.apply(c))),
+							  toString());
 	}
 
 	/**

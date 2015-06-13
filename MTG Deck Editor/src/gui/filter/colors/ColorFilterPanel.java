@@ -1,5 +1,6 @@
 package gui.filter.colors;
 
+import gui.filter.CardFilter;
 import gui.filter.FilterPanel;
 
 import java.awt.GridBagConstraints;
@@ -8,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -177,7 +177,7 @@ public class ColorFilterPanel extends FilterPanel
 	 * and set containment choice and <code>false</code> otherwise.
 	 */
 	@Override
-	public Predicate<Card> getFilter()
+	public CardFilter getFilter()
 	{
 		List<MTGColor> colors = new ArrayList<MTGColor>();
 		if (whiteCheckBox.isSelected())
@@ -190,7 +190,8 @@ public class ColorFilterPanel extends FilterPanel
 			colors.add(RED.color());
 		if (greenCheckBox.isSelected())
 			colors.add(GREEN.color());
-		return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(colorFunction.apply(c), colors);
+		return new CardFilter((c) -> contain.getItemAt(contain.getSelectedIndex()).test(colorFunction.apply(c), colors),
+							  toString());
 	}
 
 	/**

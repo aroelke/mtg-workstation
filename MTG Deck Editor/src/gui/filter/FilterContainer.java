@@ -13,7 +13,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -21,8 +20,6 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
-import database.Card;
 
 /**
  * This class represents a panel containing one of each FilterPanel.  The active one
@@ -175,7 +172,7 @@ public class FilterContainer extends JPanel
 	/**
 	 * @return The filter from the current FilterPanel.
 	 */
-	public Predicate<Card> getFilter()
+	public CardFilter getFilter()
 	{
 		return currentFilter.getFilter();
 	}
@@ -232,16 +229,6 @@ public class FilterContainer extends JPanel
 	public boolean isEmpty()
 	{
 		return currentFilter.isEmpty();
-	}
-	
-	/**
-	 * @return A String representation of this FilterContainer, which is the String
-	 * representation of its current filter.
-	 */
-	@Override
-	public String toString()
-	{
-		return currentFilter.toString();
 	}
 	
 	/**

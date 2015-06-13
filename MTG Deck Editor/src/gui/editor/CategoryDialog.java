@@ -219,8 +219,8 @@ public class CategoryDialog extends FilterDialog
 		
 		if (filterStrings.size()%2 != 0 || filterStrings.size() == 0)
 		{
-			JOptionPane.showMessageDialog(null, "Illegal category string \"" + s + "\"", "Error", JOptionPane.ERROR_MESSAGE);
 			reset();
+			throw new IllegalArgumentException("Illegal category string \"" + s + "\"");
 		}
 		else
 		{
@@ -232,9 +232,8 @@ public class CategoryDialog extends FilterDialog
 				String mode = filterStrings.get(i);
 				if (!mode.equalsIgnoreCase("AND") && !mode.equalsIgnoreCase("OR"))
 				{
-					JOptionPane.showMessageDialog(null, "Illegal composition mode \"" + mode + "\"", "Error", JOptionPane.ERROR_MESSAGE);
 					reset();
-					return;
+					throw new IllegalArgumentException("Illegal composition mode \"" + mode + "\"");
 				}
 				newPanel.setAnd(mode.equals("AND"));
 				
@@ -317,7 +316,7 @@ public class CategoryDialog extends FilterDialog
 		StringBuilder str = new StringBuilder();
 		str.append("<").append(nameField.getText()).append("> ");
 		for (FilterContainer f: filters)
-			str.append(f.isAnd() ? "AND " : "OR ").append("<").append(f.toString()).append("> ");
+			str.append(f.isAnd() ? "AND " : "OR ").append("<").append(f.getFilter().repr()).append("> ");
 		return str.toString().trim();
 	}
 	

@@ -49,24 +49,29 @@ public class ManaCostFilterPanel extends FilterPanel
 	 * mana cost matches the filter's mana cost with the specified set containment type.
 	 */
 	@Override
-	public Predicate<Card> getFilter()
+	public CardFilter getFilter()
 	{
+		Predicate<Card> f = (c) -> true;
 		ManaCost cost = ManaCost.valueOf(filterValue.getText());
 		switch ((Containment)contain.getSelectedItem())
 		{
 		case CONTAINS_ANY_OF:
-			return (c) -> Containment.CONTAINS_ANY_OF.test(c.mana.symbols(), cost.symbols());
+			f = (c) -> Containment.CONTAINS_ANY_OF.test(c.mana.symbols(), cost.symbols());
+			break;
 		case CONTAINS_ALL_OF:
-			return (c) -> c.mana.isSuperset(cost);
+			f = (c) -> c.mana.isSuperset(cost);
+			break;
 		case CONTAINS_NONE_OF:
-			return (c) -> Containment.CONTAINS_NONE_OF.test(c.mana.symbols(), cost.symbols());
+			f = (c) -> Containment.CONTAINS_NONE_OF.test(c.mana.symbols(), cost.symbols());
+			break;
 		case CONTAINS_EXACTLY:
-			return (c) -> c.mana.equals(cost);
+			f = (c) -> c.mana.equals(cost);
+			break;
 		case CONTAINS_NOT_EXACTLY:
-			return (c) -> !c.mana.equals(cost);
-		default:
-			return (c) -> false;
+			f = (c) -> !c.mana.equals(cost);
+			break;
 		}
+		return new CardFilter(f, toString());
 	}
 
 	/**

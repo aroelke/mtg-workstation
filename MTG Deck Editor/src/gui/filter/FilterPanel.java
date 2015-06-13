@@ -1,10 +1,6 @@
 package gui.filter;
 
-import java.util.function.Predicate;
-
 import javax.swing.JPanel;
-
-import database.Card;
 
 /**
  * This class represents a JPanel that can create a filter for a list of Cards.  It can
@@ -43,7 +39,7 @@ public abstract class FilterPanel extends JPanel
 	 * @return A Predicate representing the filter this FilterPanel has created.
 	 * @see java.util.function.Predicate
 	 */
-	public abstract Predicate<Card> getFilter();
+	public abstract CardFilter getFilter();
 	
 	/**
 	 * @return <code>true</code> if this FilterPanel has no data entered in it, and
@@ -51,13 +47,4 @@ public abstract class FilterPanel extends JPanel
 	 * no changes have been made, so they will always return <code>true</code>.
 	 */
 	public abstract boolean isEmpty();
-	
-	/**
-	 * @return A String representation of this FilterPanel.  Inputting the part of this
-	 * String after the ":" into setContent(.) will correctly set the content of this
-	 * FilterPanel.
-	 * @see gui.filter.FilterPanel#setContent(String)
-	 */
-	@Override
-	public abstract String toString();
 }

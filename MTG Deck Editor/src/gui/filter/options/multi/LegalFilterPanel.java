@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import javax.swing.JCheckBox;
 
+import gui.filter.CardFilter;
 import gui.filter.FilterType;
 import database.Card;
 import database.characteristics.Legality;
@@ -44,10 +45,11 @@ public class LegalFilterPanel extends MultiOptionsFilterPanel<String>
 	 * otherwise.
 	 */
 	@Override
-	public Predicate<Card> getFilter()
+	public CardFilter getFilter()
 	{
+		Predicate<Card> f;
 		if (restrictedBox.isSelected())
-			return super.getFilter().and(new Predicate<Card>()
+			f = super.getFilter().and(new Predicate<Card>()
 			{
 				@Override
 				public boolean test(Card c)
@@ -61,6 +63,9 @@ public class LegalFilterPanel extends MultiOptionsFilterPanel<String>
 				}
 			});
 		else
-			return super.getFilter();
+			f = super.getFilter();
+		return new CardFilter(f, toString());
 	}
+	
+	// TODO: Override toString() to include the restricted check box
 }
