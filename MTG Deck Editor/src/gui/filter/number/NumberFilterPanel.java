@@ -125,7 +125,7 @@ public class NumberFilterPanel extends FilterPanel
 	 * followed by either a * or the comparison to make and the number to compare to.
 	 */
 	@Override
-	public String toString()
+	public String repr()
 	{
 		return code + ":" + (variable.isSelected() ? "*" : comparisonBox.getSelectedItem().toString() + spinner.getValue());
 	}

@@ -197,6 +197,8 @@ public class CategoryDialog extends FilterDialog
 	 * The string should begin with the category's name, and then pairs of "AND" or "OR" and the filter's
 	 * string surrounded by <>.  The name should also be surrounded by <> if it has spaces.
 	 * 
+	 * XXX: This is now broken
+	 * 
 	 * @param s String to parse
 	 */
 	public void initializeFromString(String s)

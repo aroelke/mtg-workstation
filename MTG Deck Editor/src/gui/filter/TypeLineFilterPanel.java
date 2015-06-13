@@ -79,7 +79,7 @@ public class TypeLineFilterPanel extends FilterPanel
 	 * quotes.
 	 */
 	@Override
-	public String toString()
+	public String repr()
 	{
 		return FilterType.TYPE_LINE.code + ":" + contain.getSelectedItem().toString() + "\"" + filter.getText() + "\"";
 	}

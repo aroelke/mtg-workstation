@@ -88,7 +88,7 @@ public class ManaCostFilterPanel extends FilterPanel
 	 * the selected containment type and then the contents of the filter box inside quotes.
 	 */
 	@Override
-	public String toString()
+	public String repr()
 	{
 		return FilterType.MANA_COST.code + ":" + contain.getSelectedItem().toString() + "\"" + ManaCost.valueOf(filterValue.getText()).toString() + "\"";
 	}

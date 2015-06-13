@@ -47,4 +47,20 @@ public abstract class FilterPanel extends JPanel
 	 * no changes have been made, so they will always return <code>true</code>.
 	 */
 	public abstract boolean isEmpty();
+	
+	/**
+	 * TODO: Comment this
+	 * TODO: Store the filters' codes in this class in a protected variable
+	 * @return
+	 */
+	public abstract String repr();
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public String toString()
+	{
+		return "<" + repr() + ">";
+	}
 }

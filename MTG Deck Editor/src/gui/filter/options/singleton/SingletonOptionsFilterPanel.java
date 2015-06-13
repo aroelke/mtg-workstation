@@ -119,7 +119,7 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	 * followed by the list of selected values separated by commas in {}.
 	 */
 	@Override
-	public String toString()
+	public String repr()
 	{
 		return code + ":{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
 	}

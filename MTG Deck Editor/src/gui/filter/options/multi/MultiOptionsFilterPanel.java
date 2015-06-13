@@ -118,7 +118,7 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	 * followed by the list of selected values separated by commas in {}.
 	 */
 	@Override
-	public String toString()
+	public String repr()
 	{
 		return code + ":{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
 	}

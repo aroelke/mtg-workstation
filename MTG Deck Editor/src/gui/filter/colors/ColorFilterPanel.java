@@ -210,7 +210,7 @@ public class ColorFilterPanel extends FilterPanel
 	 * code followed by {} containing its list of colors.
 	 */
 	@Override
-	public String toString()
+	public String repr()
 	{
 		StringJoiner joiner = new StringJoiner("", "\"", "\"");
 		if (whiteCheckBox.isSelected())

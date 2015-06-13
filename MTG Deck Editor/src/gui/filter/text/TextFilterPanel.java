@@ -179,7 +179,7 @@ public class TextFilterPanel extends FilterPanel
 	 * a simple filter and // if it is a regex.
 	 */
 	@Override
-	public String toString()
+	public String repr()
 	{
 		boolean r = regex != null && regex.isSelected();
 		return code + ":" + contain.getSelectedItem().toString() + (r ? "/" : "\"") + filterValue.getText() + (r ? "/" : "\"");
