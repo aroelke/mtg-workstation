@@ -34,7 +34,7 @@ public abstract class FilterDialog extends JDialog
 	 * 
 	 * @return The filter that was created.
 	 */
-	public abstract FilterContainer addFilterPanel();
+	public abstract FilterTypePanel addFilterPanel();
 	
 	/**
 	 * Remove a FilterContainer from the dialog.
@@ -43,5 +43,5 @@ public abstract class FilterDialog extends JDialog
 	 * @return <code>true</code> if the removal was successful, and <code>false</code>
 	 * otherwise.
 	 */
-	public abstract boolean removeFilterPanel(FilterContainer panel);
+	public abstract boolean removeFilterPanel(FilterTypePanel panel);
 }

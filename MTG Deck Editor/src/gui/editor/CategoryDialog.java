@@ -1,6 +1,6 @@
 package gui.editor;
 
-import gui.filter.FilterContainer;
+import gui.filter.FilterTypePanel;
 import gui.filter.FilterDialog;
 import gui.filter.FilterType;
 
@@ -49,7 +49,7 @@ public class CategoryDialog extends FilterDialog
 	/**
 	 * List of panels that each filter a single characteristic of a Card.
 	 */
-	private List<FilterContainer> filters;
+	private List<FilterTypePanel> filters;
 	/**
 	 * Text field for the category's name.
 	 */
@@ -125,7 +125,7 @@ public class CategoryDialog extends FilterDialog
 		closePanel.add(cancelButton);
 		
 		// Initialize the list of filter panels and create the first one
-		filters = new ArrayList<FilterContainer>();
+		filters = new ArrayList<FilterTypePanel>();
 		reset();
 		
 		// When the window closes, reset the filters and dispose of it and make it invisible
@@ -146,9 +146,9 @@ public class CategoryDialog extends FilterDialog
 	 * Add a new filter panel.
 	 */
 	@Override
-	public FilterContainer addFilterPanel()
+	public FilterTypePanel addFilterPanel()
 	{
-		FilterContainer filter = new FilterContainer(this);
+		FilterTypePanel filter = new FilterTypePanel(this);
 		filters.add(filter);
 		contentPanel.add(filter);
 		pack();
@@ -163,7 +163,7 @@ public class CategoryDialog extends FilterDialog
 	 * otherwise.
 	 */
 	@Override
-	public boolean removeFilterPanel(FilterContainer panel)
+	public boolean removeFilterPanel(FilterTypePanel panel)
 	{
 		if (filters.size() > 1 && filters.contains(panel))
 		{
@@ -228,7 +228,7 @@ public class CategoryDialog extends FilterDialog
 		{
 			for (int i = 0; i < filterStrings.size(); i += 2)
 			{
-				FilterContainer newPanel = addFilterPanel();
+				FilterTypePanel newPanel = addFilterPanel();
 		
 				// Figure out if the filter should be ANDed or ORed
 				String mode = filterStrings.get(i);
@@ -262,7 +262,7 @@ public class CategoryDialog extends FilterDialog
 	public Predicate<Card> filter()
 	{
 		Predicate<Card> composedFilter = (c) -> true;
-		for (FilterContainer filter: filters)
+		for (FilterTypePanel filter: filters)
 		{
 			if (filter.isAnd())
 				composedFilter = composedFilter.and(filter.getFilter());
@@ -317,7 +317,7 @@ public class CategoryDialog extends FilterDialog
 	{
 		StringBuilder str = new StringBuilder();
 		str.append("<").append(nameField.getText()).append("> ");
-		for (FilterContainer f: filters)
+		for (FilterTypePanel f: filters)
 			str.append(f.isAnd() ? "AND " : "OR ").append("<").append(f.getFilter().repr()).append("> ");
 		return str.toString().trim();
 	}

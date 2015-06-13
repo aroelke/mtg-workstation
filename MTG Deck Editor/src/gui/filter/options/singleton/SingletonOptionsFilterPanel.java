@@ -1,7 +1,7 @@
 package gui.filter.options.singleton;
 
 import gui.filter.CardFilter;
-import gui.filter.FilterContainer;
+import gui.filter.FilterTypePanel;
 import gui.filter.options.OptionsFilterPanel;
 
 import java.awt.GridBagConstraints;
@@ -67,7 +67,7 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 		
 		// Use a GridBagLayout to push everything up against the panel's left side
 		GridBagLayout layout = new GridBagLayout();
-		layout.rowHeights = new int[] {FilterContainer.ROW_HEIGHT, FilterContainer.ROW_HEIGHT, FilterContainer.ROW_HEIGHT, FilterContainer.ROW_HEIGHT, FilterContainer.ROW_HEIGHT};
+		layout.rowHeights = new int[] {FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT};
 		layout.rowWeights = new double[] {0.0, 0.0, 1.0, 0.0, 0.0};
 		layout.columnWidths = new int[] {0, 0};
 		layout.columnWeights = new double[] {0.0, 1.0};

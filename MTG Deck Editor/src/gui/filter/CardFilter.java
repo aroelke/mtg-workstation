@@ -45,4 +45,15 @@ public class CardFilter implements Predicate<Card>
 	{
 		return new CardFilter(filter.and(other.filter), "<" + filter + " AND " + other.filter + ">");
 	}
+	
+	public CardFilter or(CardFilter other)
+	{
+		return new CardFilter(filter.or(other.filter), "<" + filter + " OR " + other.filter + ">");
+	}
+	
+	@Override
+	public CardFilter negate()
+	{
+		return new CardFilter(filter.negate(), "<NOT " + filter + ">");
+	}
 }

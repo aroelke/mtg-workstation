@@ -1,6 +1,6 @@
 package gui.inventory;
 
-import gui.filter.FilterContainer;
+import gui.filter.FilterTypePanel;
 import gui.filter.FilterDialog;
 
 import java.awt.BorderLayout;
@@ -40,7 +40,7 @@ public class InventoryFilterDialog extends FilterDialog
 	/**
 	 * Panels that each add one term to the filter.
 	 */
-	private List<FilterContainer> filters;
+	private List<FilterTypePanel> filters;
 	/**
 	 * OK button.
 	 */
@@ -94,7 +94,7 @@ public class InventoryFilterDialog extends FilterDialog
 		closePanel.add(cancelButton);
 		
 		// Filter panels
-		filters = new ArrayList<FilterContainer>();
+		filters = new ArrayList<FilterTypePanel>();
 		reset();
 		
 		// When the window closes, rather than deleting it, reset it and make it invisible
@@ -116,9 +116,9 @@ public class InventoryFilterDialog extends FilterDialog
 	 * @return The filter panel that was added.
 	 */
 	@Override
-	public FilterContainer addFilterPanel()
+	public FilterTypePanel addFilterPanel()
 	{
-		FilterContainer filter = new FilterContainer(this);
+		FilterTypePanel filter = new FilterTypePanel(this);
 		filters.add(filter);
 		contentPanel.add(filter);
 		pack();
@@ -133,7 +133,7 @@ public class InventoryFilterDialog extends FilterDialog
 	 * otherwise.
 	 */
 	@Override
-	public boolean removeFilterPanel(FilterContainer panel)
+	public boolean removeFilterPanel(FilterTypePanel panel)
 	{
 		if (filters.size() > 1 && filters.contains(panel))
 		{
@@ -164,7 +164,7 @@ public class InventoryFilterDialog extends FilterDialog
 	 */
 	public void clean()
 	{
-		for (FilterContainer filter: new ArrayList<FilterContainer>(filters))
+		for (FilterTypePanel filter: new ArrayList<FilterTypePanel>(filters))
 		{
 			if (filter.isEmpty())
 			{
@@ -193,7 +193,7 @@ public class InventoryFilterDialog extends FilterDialog
 		else
 		{
 			Predicate<Card> composedFilter = (c) -> true;
-			for (FilterContainer filter: filters)
+			for (FilterTypePanel filter: filters)
 			{
 				if (filter.isAnd())
 					composedFilter = composedFilter.and(filter.getFilter());

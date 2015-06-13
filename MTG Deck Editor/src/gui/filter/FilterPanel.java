@@ -7,6 +7,10 @@ import javax.swing.JPanel;
  * also set its filter based on a content String.  Typically each characteristic of a card
  * can be represented by a <code>Function<Card, ?></code>.
  * 
+ * TODO: Create a FilterGroup panel that can AND or OR all the filters within it (including
+ * other FilterGroups) (the FilterGroup panel will also be a FilterPanel)
+ * TODO: Factor out common characteristics of FilterPanels into here
+ * 
  * @author Alec Roelke
  * @see database.Card
  */
@@ -50,7 +54,6 @@ public abstract class FilterPanel extends JPanel
 	
 	/**
 	 * TODO: Comment this
-	 * TODO: Store the filters' codes in this class in a protected variable
 	 * @return
 	 */
 	public abstract String repr();
