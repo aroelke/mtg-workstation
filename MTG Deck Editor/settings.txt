@@ -1,0 +1,8 @@
+#
+#Sat Jun 13 16:01:09 EDT 2015
+inventory.version_file=version.json
+inventory.source=http\://mtgjson.com/json/
+inventory.version=2.20.3
+inventory.file=AllSets-x.json
+inventory.location=./
+inventory.initialcheck=true
