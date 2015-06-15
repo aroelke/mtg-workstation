@@ -1,6 +1,7 @@
 package gui.filter;
 
-import gui.filter.options.OptionsFilterPanel;
+import gui.filter.editor.FilterEditorPanel;
+import gui.filter.editor.options.OptionsFilterPanel;
 
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -15,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -29,18 +29,17 @@ import javax.swing.border.EmptyBorder;
  * @author Alec
  */
 @SuppressWarnings("serial")
-public class FilterTypePanel extends JPanel
+public class FilterTypePanel extends FilterPanel
 {
 	/**
 	 * Height that a FilterPanel should be, unless it is displaying an option filter
 	 * panel, in which case it is five times this.
 	 */
 	public static final int ROW_HEIGHT = 23;
-	
 	/**
-	 * Parent dialog of this FilterContainer.
+	 * TODO: Comment this
 	 */
-	private FilterDialog parent;
+	public static final int COL_WIDTH = 400;
 	/**
 	 * Combo box to choose what type of filter to display.
 	 */
@@ -52,21 +51,20 @@ public class FilterTypePanel extends JPanel
 	/**
 	 * Remove button.
 	 */
-	private JButton remove;
+	private JButton removeButton;
+	/**
+	 * TODO: Comment this
+	 */
+	private JButton groupButton;
 	/**
 	 * Map of filter type onto filter panel to know what panel to get the filter
 	 * from.
 	 */
-	private Map<FilterType, FilterPanel> filters;
+	private Map<FilterType, FilterEditorPanel> filters;
 	/**
 	 * Currently selected FilterPanel.
 	 */
-	private FilterPanel currentFilter;
-	/**
-	 * Check box for whether or not the filter produced by this panel should be
-	 * ANDed or ORed with the previously generated filter.
-	 */
-	private JCheckBox andCheck;
+	private FilterEditorPanel currentFilter;
 	/**
 	 * When selecting an option filter panel, the size of the frame has to change to fit
 	 * it, which requires modifying the layout.
@@ -74,46 +72,35 @@ public class FilterTypePanel extends JPanel
 	private GridBagLayout layout;
 	
 	/**
-	 * Create a new FilterContainer.  It will default to an empty NameFilterPanel.
+	 * Create a new FilterTypePanel.  It will default to an empty NameFilterPanel.
 	 * 
-	 * @param p
+	 * @param g
 	 */
-	public FilterTypePanel(FilterDialog p)
+	public FilterTypePanel(FilterGroup g)
 	{
-		super();
-		
-		parent = p;
+		super(g);
 		
 		// Create the layout, which ensures correct sizing of this FilterContainer.
 		layout = new GridBagLayout();
 		layout.rowHeights = new int[] {0, 0, ROW_HEIGHT, 0, 0};
 		layout.rowWeights = new double[] {0.0, 0.0, 1.0, 0.0, 0.0};
-		layout.columnWidths = new int[] {0, 0, 400, 0};
-		layout.columnWeights = new double[] {0.0, 0.0, 1.0, 0.0};
+		layout.columnWidths = new int[] {0, COL_WIDTH, 0, 0};
+		layout.columnWeights = new double[] {0.0, 1.0, 0.0, 0.0};
 		setLayout(layout);
 		setBorder(new EmptyBorder(0, 0, 5, 0));
-		
-		// Check box for ANDing or ORing the filter
-		andCheck = new JCheckBox("and");
-		andCheck.setSelected(true);
-		GridBagConstraints andConstraints = new GridBagConstraints();
-		andConstraints.fill = GridBagConstraints.BOTH;
-		andConstraints.gridx = 0;
-		andConstraints.gridy = 2;
-		add(andCheck, andConstraints);
 		
 		// Combo box for choosing the filter type
 		filterTypeBox = new JComboBox<FilterType>(FilterType.values());
 		filterTypeBox.addItemListener(new FilterTypeListener());
 		GridBagConstraints filterTypeConstraints = new GridBagConstraints();
 		filterTypeConstraints.fill = GridBagConstraints.BOTH;
-		filterTypeConstraints.gridx = 1;
+		filterTypeConstraints.gridx = 0;
 		filterTypeConstraints.gridy = 2;
 		add(filterTypeBox, filterTypeConstraints);
 		
 		// Panel containing the filters.  The CardLayout ensures that only one filter
 		// will be shown at once, which is chosen using the above combo box
-		filters = new HashMap<FilterType, FilterPanel>();
+		filters = new HashMap<FilterType, FilterEditorPanel>();
 		filterPanel = new JPanel(new CardLayout()
 		{
 			/*
@@ -155,26 +142,42 @@ public class FilterTypePanel extends JPanel
 		currentFilter = filters.get(FilterType.NAME);
 		GridBagConstraints filterConstraints = new GridBagConstraints();
 		filterConstraints.fill = GridBagConstraints.BOTH;
-		filterConstraints.gridx = 2;
+		filterConstraints.gridx = 1;
 		filterConstraints.gridy = 2;
 		add(filterPanel, filterConstraints);
 		
 		// Remove button
-		remove = new JButton("\u2013");
-		remove.addActionListener((e) -> parent.removeFilterPanel(this));
+		removeButton = new JButton("\u2013");
+		removeButton.addActionListener((e) -> getGroup().removeFilterPanel(this));
 		GridBagConstraints removeConstraints = new GridBagConstraints();
 		removeConstraints.fill = GridBagConstraints.HORIZONTAL;
-		removeConstraints.gridx = 3;
+		removeConstraints.gridx = 2;
 		removeConstraints.gridy = 2;
-		add(remove, removeConstraints);
+		add(removeButton, removeConstraints);
+		
+		// Change to group button
+		groupButton = new JButton("\u2026");
+		groupButton.addActionListener((e) -> getGroup().groupFilterPanel(this));
+		GridBagConstraints groupConstraints = new GridBagConstraints();
+		groupConstraints.fill = GridBagConstraints.HORIZONTAL;
+		groupConstraints.gridx = 3;
+		groupConstraints.gridy = 2;
+		add(groupButton, groupConstraints);
 	}
 	
 	/**
 	 * @return The filter from the current FilterPanel.
 	 */
+	@Override
 	public CardFilter getFilter()
 	{
 		return currentFilter.getFilter();
+	}
+	
+	@Override
+	public void setContents(String contents)
+	{
+		// TODO: Implement this rather than the one below it
 	}
 	
 	/**
@@ -190,42 +193,10 @@ public class FilterTypePanel extends JPanel
 	}
 	
 	/**
-	 * The first filter should always be ANDed, so set its AND box and
-	 * disable it.
-	 * 
-	 * @param b Whether or not this FilterContainer should always be ANDed
-	 */
-	public void alwaysAnd(boolean b)
-	{
-		if (b)
-			andCheck.setSelected(true);
-		andCheck.setEnabled(!b);
-	}
-	
-	/**
-	 * @return <code>true</code> if the AND check box is selected, and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean isAnd()
-	{
-		return andCheck.isSelected();
-	}
-	
-	/**
-	 * Set the AND status of the filter.
-	 * 
-	 * @param and Whether or not the filter should be ANDed.
-	 */
-	public void setAnd(boolean and)
-	{
-		if (andCheck.isEnabled())
-			andCheck.setSelected(and);
-	}
-	
-	/**
 	 * @return <code>true</code> if the current filter has valid data, and
 	 * <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean isEmpty()
 	{
 		return currentFilter.isEmpty();
@@ -247,7 +218,7 @@ public class FilterTypePanel extends JPanel
 			currentFilter = filters.get((FilterType)e.getItem());
 			GridBagConstraints filterConstraints = new GridBagConstraints();
 			filterConstraints.fill = GridBagConstraints.BOTH;
-			filterConstraints.gridx = 2;
+			filterConstraints.gridx = 1;
 			// If the current filter is an option filter, resize the panel (or resize it if it was
 			// an option filter and now isn't
 			if (currentFilter instanceof OptionsFilterPanel)
@@ -265,7 +236,8 @@ public class FilterTypePanel extends JPanel
 			// Refresh the panel
 			remove(filterPanel);
 			add(filterPanel, filterConstraints);
-			parent.pack();
+			// TODO: Deal with the size change in the parent
+			getGroup().pack();
 		}
 	}
 }

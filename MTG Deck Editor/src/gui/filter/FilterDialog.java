@@ -27,21 +27,11 @@ public abstract class FilterDialog extends JDialog
 	{
 		super(frame, title, Dialog.ModalityType.APPLICATION_MODAL);
 		setResizable(false);
+		setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 	}
 	
 	/**
-	 * Add a new FilterContainer to the dialog.
-	 * 
-	 * @return The filter that was created.
+	 * Reset this FilterDialog back to its initial configuration.
 	 */
-	public abstract FilterTypePanel addFilterPanel();
-	
-	/**
-	 * Remove a FilterContainer from the dialog.
-	 * 
-	 * @param panel FilterContainer to remove.
-	 * @return <code>true</code> if the removal was successful, and <code>false</code>
-	 * otherwise.
-	 */
-	public abstract boolean removeFilterPanel(FilterTypePanel panel);
+	public abstract void reset();
 }

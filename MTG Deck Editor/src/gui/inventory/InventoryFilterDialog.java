@@ -1,27 +1,19 @@
 package gui.inventory;
 
-import gui.filter.FilterTypePanel;
+import gui.filter.CardFilter;
 import gui.filter.FilterDialog;
+import gui.filter.FilterGroup;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
-import database.Card;
 
 /**
  * This class represents a dialog box that creates a filter for the Card inventory.
@@ -34,13 +26,9 @@ import database.Card;
 public class InventoryFilterDialog extends FilterDialog
 {
 	/**
-	 * Panel containing filter panels.
+	 * Top-level group representing the entire filter.
 	 */
-	private JPanel contentPanel;
-	/**
-	 * Panels that each add one term to the filter.
-	 */
-	private List<FilterTypePanel> filters;
+	private FilterGroup filter;
 	/**
 	 * OK button.
 	 */
@@ -54,33 +42,15 @@ public class InventoryFilterDialog extends FilterDialog
 	public InventoryFilterDialog(JFrame owner)
 	{
 		super(owner, "Advanced Filter");
-		setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 		
 		OK = false;
 		
 		// Initialize the content panel, which contains the filter panels
-		contentPanel = new JPanel();
-		getContentPane().setLayout(new BorderLayout());
-		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-		contentPanel.setBorder(new EmptyBorder(5, 5, 0, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		
-		// Panel containing close buttons
-		JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
-		getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-
-		// Panel containing the add new filter panel button
-		JPanel addPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		buttonPanel.add(addPanel);
-		
-		// Add new filter panel button
-		JButton addButton = new JButton("Add");
-		addButton.addActionListener((e) -> addFilterPanel());
-		addPanel.add(addButton);
+		getContentPane().add(filter = new FilterGroup(this), BorderLayout.CENTER);
 		
 		// Panel containing OK and cancel buttons
 		JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		buttonPanel.add(closePanel);
+		getContentPane().add(closePanel, BorderLayout.SOUTH);
 		
 		// OK button
 		JButton okButton = new JButton("OK");
@@ -93,9 +63,7 @@ public class InventoryFilterDialog extends FilterDialog
 		cancelButton.addActionListener((e) -> {setVisible(false); dispose();});
 		closePanel.add(cancelButton);
 		
-		// Filter panels
-		filters = new ArrayList<FilterTypePanel>();
-		reset();
+		pack();
 		
 		// When the window closes, rather than deleting it, reset it and make it invisible
 		addWindowListener(new WindowAdapter()
@@ -110,70 +78,16 @@ public class InventoryFilterDialog extends FilterDialog
 		});
 	}
 	
-	/**
-	 * Add a new filter panel to the content panel, which starts with a name filter.
-	 * 
-	 * @return The filter panel that was added.
-	 */
-	@Override
-	public FilterTypePanel addFilterPanel()
-	{
-		FilterTypePanel filter = new FilterTypePanel(this);
-		filters.add(filter);
-		contentPanel.add(filter);
-		pack();
-		return filter;
-	}
-	
-	/**
-	 * Remove the specified filter panel from the content panel.
-	 * 
-	 * @param panel Filter panel to remove
-	 * @return <code>true</code> if the panel was successfully removed and <code>false</code>
-	 * otherwise.
-	 */
-	@Override
-	public boolean removeFilterPanel(FilterTypePanel panel)
-	{
-		if (filters.size() > 1 && filters.contains(panel))
-		{
-			filters.remove(panel);
-			contentPanel.remove(panel);
-			filters.get(0).alwaysAnd(true);
-			pack();
-			return true;
-		}
-		else
-			return false;
-	}
 	
 	/**
 	 * Reset this InventoryFilterDialog to its initial state, with only one filter
 	 * set to a name filter.
 	 */
+	@Override
 	public void reset()
 	{
-		filters.clear();
-		contentPanel.removeAll();
-		addFilterPanel();
-		filters.get(0).alwaysAnd(true);
-	}
-	
-	/**
-	 * Remove empty filters to prepare for when this InventoryFilterDialog is reopened.
-	 */
-	public void clean()
-	{
-		for (FilterTypePanel filter: new ArrayList<FilterTypePanel>(filters))
-		{
-			if (filter.isEmpty())
-			{
-				filters.remove(filter);
-				contentPanel.remove(filter);
-			}
-		}
-		if (filters.isEmpty())
-			addFilterPanel();
+		getContentPane().remove(filter);
+		getContentPane().add(filter = new FilterGroup(this), BorderLayout.CENTER);
 		pack();
 	}
 	
@@ -184,7 +98,7 @@ public class InventoryFilterDialog extends FilterDialog
 	 * @return A <code>Predicate<Card></code> representing the filter composed from each
 	 * filter panel.
 	 */
-	public Predicate<Card> getFilter()
+	public CardFilter getFilter()
 	{
 		OK = false;
 		setVisible(true);
@@ -192,15 +106,7 @@ public class InventoryFilterDialog extends FilterDialog
 			return null;
 		else
 		{
-			Predicate<Card> composedFilter = (c) -> true;
-			for (FilterTypePanel filter: filters)
-			{
-				if (filter.isAnd())
-					composedFilter = composedFilter.and(filter.getFilter());
-				else
-					composedFilter = composedFilter.or(filter.getFilter());
-			}
-			return composedFilter;
+			return filter.getFilter();
 		}
 	}
 	
@@ -217,7 +123,6 @@ public class InventoryFilterDialog extends FilterDialog
 		{
 			OK = true;
 			setVisible(false);
-			clean();
 			dispose();
 		}
 	}

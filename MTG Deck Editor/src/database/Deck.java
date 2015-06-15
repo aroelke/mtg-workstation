@@ -355,7 +355,7 @@ public class Deck
 		private String name;
 		/**
 		 * String representation of this Category.
-		 * @see gui.filter.FilterPanel#setContent(String)
+		 * @see gui.filter.editor.FilterEditorPanel#setContent(String)
 		 */
 		private String repr;
 		/**
@@ -391,7 +391,7 @@ public class Deck
 		
 		/**
 		 * @return This Category's String representation.
-		 * @see gui.filter.FilterPanel#setContent(String)
+		 * @see gui.filter.editor.FilterEditorPanel#setContent(String)
 		 */
 		public String repr()
 		{

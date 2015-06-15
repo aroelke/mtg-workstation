@@ -3,67 +3,34 @@ package gui.filter;
 import javax.swing.JPanel;
 
 /**
- * This class represents a JPanel that can create a filter for a list of Cards.  It can
- * also set its filter based on a content String.  Typically each characteristic of a card
- * can be represented by a <code>Function<Card, ?></code>.
- * 
- * TODO: Create a FilterGroup panel that can AND or OR all the filters within it (including
- * other FilterGroups) (the FilterGroup panel will also be a FilterPanel)
- * TODO: Factor out common characteristics of FilterPanels into here
+ * TODO: Comment this class
  * 
  * @author Alec Roelke
- * @see database.Card
  */
 @SuppressWarnings("serial")
 public abstract class FilterPanel extends JPanel
 {
-	/**
-	 * Create a new FilterPanel.  The appearance of a FilterPanel is filter-specific.
-	 */
-	public FilterPanel()
+	private FilterGroup group;
+	
+	public FilterPanel(FilterGroup g)
 	{
 		super();
+		setGroup(g);
 	}
 	
-	/**
-	 * Set the content of this FilterPanel.  This String has the same format as one
-	 * returned by toString(), which is filter-specific.  It will always start with
-	 * the filter's "code," which is one or more characters identifying the filter,
-	 * followed by a string which the filter will read to determine how to set its
-	 * content.  The actual string that is passed here is just the content string;
-	 * the code is used to determine which kind of filter panel to pass the string
-	 * to.
-	 * 
-	 * @param content String to parse content from
-	 * @see gui.filter.FilterPanel#toString()
-	 */
-	public abstract void setContent(String content);
+	public FilterGroup getGroup()
+	{
+		return group;
+	}
 	
-	/**
-	 * @return A Predicate representing the filter this FilterPanel has created.
-	 * @see java.util.function.Predicate
-	 */
+	public void setGroup(FilterGroup g)
+	{
+		group = g;
+	}
+	
 	public abstract CardFilter getFilter();
 	
-	/**
-	 * @return <code>true</code> if this FilterPanel has no data entered in it, and
-	 * <code>false</code> otherwise.  Some filter panels have valid values even when
-	 * no changes have been made, so they will always return <code>true</code>.
-	 */
+	public abstract void setContents(String contents);
+	
 	public abstract boolean isEmpty();
-	
-	/**
-	 * TODO: Comment this
-	 * @return
-	 */
-	public abstract String repr();
-	
-	/**
-	 * TODO: Comment this
-	 */
-	@Override
-	public String toString()
-	{
-		return "<" + repr() + ">";
-	}
 }

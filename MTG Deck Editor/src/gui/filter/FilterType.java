@@ -1,20 +1,23 @@
 package gui.filter;
 
-import gui.filter.colors.CardColorFilterPanel;
-import gui.filter.colors.ColorIdentityFilterPanel;
-import gui.filter.number.CMCFilterPanel;
-import gui.filter.number.CardNumberFilterPanel;
-import gui.filter.number.LoyaltyFilterPanel;
-import gui.filter.number.PowerFilterPanel;
-import gui.filter.number.ToughnessFilterPanel;
-import gui.filter.options.multi.LegalFilterPanel;
-import gui.filter.options.singleton.BlockFilterPanel;
-import gui.filter.options.singleton.ExpansionFilterPanel;
-import gui.filter.options.singleton.RarityFilterPanel;
-import gui.filter.text.ArtistFilterPanel;
-import gui.filter.text.FlavorFilterPanel;
-import gui.filter.text.NameFilterPanel;
-import gui.filter.text.OracleTextFilterPanel;
+import gui.filter.editor.FilterEditorPanel;
+import gui.filter.editor.ManaCostFilterPanel;
+import gui.filter.editor.TypeLineFilterPanel;
+import gui.filter.editor.colors.CardColorFilterPanel;
+import gui.filter.editor.colors.ColorIdentityFilterPanel;
+import gui.filter.editor.number.CMCFilterPanel;
+import gui.filter.editor.number.CardNumberFilterPanel;
+import gui.filter.editor.number.LoyaltyFilterPanel;
+import gui.filter.editor.number.PowerFilterPanel;
+import gui.filter.editor.number.ToughnessFilterPanel;
+import gui.filter.editor.options.multi.LegalFilterPanel;
+import gui.filter.editor.options.singleton.BlockFilterPanel;
+import gui.filter.editor.options.singleton.ExpansionFilterPanel;
+import gui.filter.editor.options.singleton.RarityFilterPanel;
+import gui.filter.editor.text.ArtistFilterPanel;
+import gui.filter.editor.text.FlavorFilterPanel;
+import gui.filter.editor.text.NameFilterPanel;
+import gui.filter.editor.text.OracleTextFilterPanel;
 
 /**
  * This enum represents a type of filter that can be used to filter Cards.
@@ -62,7 +65,7 @@ public enum FilterType
 	/**
 	 * Panel to create for this FilterType.
 	 */
-	private final Class<? extends FilterPanel> panel;
+	private final Class<? extends FilterEditorPanel> panel;
 	/**
 	 * Code for this FilterType to figure out which panel to set content for.
 	 */
@@ -75,7 +78,7 @@ public enum FilterType
 	 * @param c Code of the new FilterType.
 	 * @param f Filter panel class to create.
 	 */
-	private FilterType(String n, String c, Class<? extends FilterPanel> f)
+	private FilterType(String n, String c, Class<? extends FilterEditorPanel> f)
 	{
 		name = n;
 		code = c;
@@ -87,7 +90,7 @@ public enum FilterType
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	public FilterPanel newInstance() throws InstantiationException, IllegalAccessException
+	public FilterEditorPanel newInstance() throws InstantiationException, IllegalAccessException
 	{
 		return panel.newInstance();
 	}
