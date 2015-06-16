@@ -14,12 +14,15 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import database.Card;
 
 /**
  * This class represents a panel containing one of each FilterPanel.  The active one
@@ -32,14 +35,14 @@ import javax.swing.border.EmptyBorder;
 public class FilterTypePanel extends FilterPanel
 {
 	/**
-	 * Height that a FilterPanel should be, unless it is displaying an option filter
+	 * Height that a FilterTypePanel should be, unless it is displaying an option filter
 	 * panel, in which case it is five times this.
 	 */
 	public static final int ROW_HEIGHT = 23;
 	/**
-	 * TODO: Comment this
+	 * Width that the FilterTypePanel should be, including all buttons and other elements.
 	 */
-	public static final int COL_WIDTH = 400;
+	public static final int COL_WIDTH = 420;
 	/**
 	 * Combo box to choose what type of filter to display.
 	 */
@@ -53,7 +56,7 @@ public class FilterTypePanel extends FilterPanel
 	 */
 	private JButton removeButton;
 	/**
-	 * TODO: Comment this
+	 * Button to convert this FilterTypePanel into a FilterGroup containing it.
 	 */
 	private JButton groupButton;
 	/**
@@ -169,7 +172,7 @@ public class FilterTypePanel extends FilterPanel
 	 * @return The filter from the current FilterPanel.
 	 */
 	@Override
-	public CardFilter getFilter()
+	public Predicate<Card> getFilter()
 	{
 		return currentFilter.getFilter();
 	}
@@ -177,19 +180,9 @@ public class FilterTypePanel extends FilterPanel
 	@Override
 	public void setContents(String contents)
 	{
-		// TODO: Implement this rather than the one below it
-	}
-	
-	/**
-	 * Change to the specified type of filter and set its contents.
-	 * 
-	 * @param filterType Filter type to change to
-	 * @param contents String to parse to set its contents
-	 */
-	public void setContents(FilterType filterType, String contents)
-	{
-		filterTypeBox.setSelectedItem(filterType);
-		currentFilter.setContent(contents);
+		String[] filter = contents.substring(1, contents.length() - 1).split(":", 2);
+		filterTypeBox.setSelectedItem(FilterType.fromCode(filter[0]));
+		currentFilter.setContents(filter[1]);
 	}
 	
 	/**
@@ -200,6 +193,16 @@ public class FilterTypePanel extends FilterPanel
 	public boolean isEmpty()
 	{
 		return currentFilter.isEmpty();
+	}
+	
+	/**
+	 * @return A String representation of this FilterTypePanel, which is its' current filter's
+	 * string surrounded by <>.
+	 */
+	@Override
+	public String toString()
+	{
+		return "<" + currentFilter.toString() + ">";
 	}
 	
 	/**

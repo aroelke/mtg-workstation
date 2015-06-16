@@ -1,6 +1,5 @@
 package gui.filter.editor.options.multi;
 
-import gui.filter.CardFilter;
 import gui.filter.FilterTypePanel;
 import gui.filter.editor.options.OptionsFilterPanel;
 
@@ -8,6 +7,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.swing.JComboBox;
 import javax.swing.JList;
@@ -41,7 +41,7 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	protected JList<T> optionsBox;
 	/**
 	 * Code for determining what type of filter this is from a String.
-	 * @see gui.filter.editor.FilterEditorPanel#setContent(String)
+	 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
 	 */
 	private String code;
 	/**
@@ -97,10 +97,9 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	 * type, and <code>false</code> otherwise.
 	 */
 	@Override
-	public CardFilter getFilter()
+	public Predicate<Card> getFilter()
 	{
-		return new CardFilter((c) -> contain.getItemAt(contain.getSelectedIndex()).test(param.apply(c), optionsBox.getSelectedValuesList()),
-							  toString());
+		return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(param.apply(c), optionsBox.getSelectedValuesList());
 	}
 
 	/**
@@ -118,7 +117,7 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	 * followed by the list of selected values separated by commas in {}.
 	 */
 	@Override
-	public String repr()
+	public String toString()
 	{
 		return code + ":{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
 	}
@@ -129,7 +128,7 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	 * @param content String to parse for values.
 	 */
 	@Override
-	public void setContent(String content)
+	public void setContents(String content)
 	{
 		String[] selectedOptions = content.substring(1, content.length() - 1).split(",");
 		for (String o: selectedOptions)

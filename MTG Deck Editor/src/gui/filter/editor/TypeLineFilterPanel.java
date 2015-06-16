@@ -1,6 +1,5 @@
 package gui.filter.editor;
 
-import gui.filter.CardFilter;
 import gui.filter.FilterType;
 
 import java.util.Arrays;
@@ -53,17 +52,15 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 	 * type line matches the filter with the specified containment type, and false otherwise.
 	 */
 	@Override
-	public CardFilter getFilter()
+	public Predicate<Card> getFilter()
 	{
-		Predicate<Card> f;
 		if (filter.getText().length() > 0)
 		{
 			List<String> types = Arrays.asList(filter.getText().toLowerCase().split("\\s"));
-			f= (c) -> contain.getItemAt(contain.getSelectedIndex()).test(c.allTypes.stream().map(String::toLowerCase).collect(Collectors.toList()), types);
+			return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(c.allTypes.stream().map(String::toLowerCase).collect(Collectors.toList()), types);
 		}
 		else
-			f= (c) -> true;
-		return new CardFilter(f, toString());
+			return (c) -> true;
 	}
 
 	/**
@@ -82,7 +79,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 	 * quotes.
 	 */
 	@Override
-	public String repr()
+	public String toString()
 	{
 		return FilterType.TYPE_LINE.code + ":" + contain.getSelectedItem().toString() + "\"" + filter.getText() + "\"";
 	}
@@ -94,7 +91,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 	 * @param content String to parse for content
 	 */
 	@Override
-	public void setContent(String content)
+	public void setContents(String content)
 	{
 		Matcher m = Pattern.compile("^([^\"']+)[\"']").matcher(content);
 		if (m.find())

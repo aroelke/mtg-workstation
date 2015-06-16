@@ -1,6 +1,5 @@
 package gui.filter.editor.colors;
 
-import gui.filter.CardFilter;
 import gui.filter.editor.FilterEditorPanel;
 
 import java.awt.GridBagConstraints;
@@ -9,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,7 +81,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 	private JCheckBox greenCheckBox;
 	/**
 	 * Code for determining what type of filter this is from a String.
-	 * @see gui.filter.editor.FilterEditorPanel#setContent(String)
+	 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
 	 */
 	private String code;
 	/**
@@ -177,7 +177,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 	 * and set containment choice and <code>false</code> otherwise.
 	 */
 	@Override
-	public CardFilter getFilter()
+	public Predicate<Card> getFilter()
 	{
 		List<MTGColor> colors = new ArrayList<MTGColor>();
 		if (whiteCheckBox.isSelected())
@@ -190,8 +190,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 			colors.add(RED.color());
 		if (greenCheckBox.isSelected())
 			colors.add(GREEN.color());
-		return new CardFilter((c) -> contain.getItemAt(contain.getSelectedIndex()).test(colorFunction.apply(c), colors),
-							  toString());
+		return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(colorFunction.apply(c), colors);
 	}
 
 	/**
@@ -210,7 +209,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 	 * code followed by {} containing its list of colors.
 	 */
 	@Override
-	public String repr()
+	public String toString()
 	{
 		StringJoiner joiner = new StringJoiner("", "\"", "\"");
 		if (whiteCheckBox.isSelected())
@@ -233,7 +232,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 	 * @param content String to read content from
 	 */
 	@Override
-	public void setContent(String content)
+	public void setContents(String content)
 	{
 		Matcher m = Pattern.compile("^([^\"']+)[\"']").matcher(content);
 		if (m.find())

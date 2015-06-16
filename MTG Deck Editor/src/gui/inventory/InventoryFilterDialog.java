@@ -1,6 +1,5 @@
 package gui.inventory;
 
-import gui.filter.CardFilter;
 import gui.filter.FilterDialog;
 import gui.filter.FilterGroup;
 
@@ -10,10 +9,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.function.Predicate;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import database.Card;
 
 /**
  * This class represents a dialog box that creates a filter for the Card inventory.
@@ -98,7 +100,7 @@ public class InventoryFilterDialog extends FilterDialog
 	 * @return A <code>Predicate<Card></code> representing the filter composed from each
 	 * filter panel.
 	 */
-	public CardFilter getFilter()
+	public Predicate<Card> getFilter()
 	{
 		OK = false;
 		setVisible(true);
@@ -106,6 +108,7 @@ public class InventoryFilterDialog extends FilterDialog
 			return null;
 		else
 		{
+			System.out.println(filter.toString());
 			return filter.getFilter();
 		}
 	}

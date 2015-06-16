@@ -1,15 +1,17 @@
 package gui.filter.editor;
 
-import gui.filter.CardFilter;
+import java.util.function.Predicate;
 
 import javax.swing.JPanel;
+
+import database.Card;
 
 /**
  * This class represents a JPanel that can create a filter for a list of Cards.  It can
  * also set its filter based on a content String.  Typically each characteristic of a card
  * can be represented by a <code>Function<Card, ?></code>.
  * 
- * TODO: Factor out common characteristics of FilterPanels into here
+ * TODO: Factor out common characteristics of FilterEditorPanels into here
  * 
  * @author Alec Roelke
  * @see database.Card
@@ -37,13 +39,13 @@ public abstract class FilterEditorPanel extends JPanel
 	 * @param content String to parse content from
 	 * @see gui.filter.editor.FilterEditorPanel#toString()
 	 */
-	public abstract void setContent(String content);
+	public abstract void setContents(String content);
 	
 	/**
 	 * @return A Predicate representing the filter this FilterPanel has created.
 	 * @see java.util.function.Predicate
 	 */
-	public abstract CardFilter getFilter();
+	public abstract Predicate<Card> getFilter();
 	
 	/**
 	 * @return <code>true</code> if this FilterPanel has no data entered in it, and
@@ -51,19 +53,4 @@ public abstract class FilterEditorPanel extends JPanel
 	 * no changes have been made, so they will always return <code>true</code>.
 	 */
 	public abstract boolean isEmpty();
-	
-	/**
-	 * TODO: Comment this
-	 * @return
-	 */
-	public abstract String repr();
-	
-	/**
-	 * TODO: Comment this
-	 */
-	@Override
-	public String toString()
-	{
-		return "<" + repr() + ">";
-	}
 }

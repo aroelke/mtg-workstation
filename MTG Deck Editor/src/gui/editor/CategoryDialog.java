@@ -318,7 +318,7 @@ public class CategoryDialog extends FilterDialog
 		StringBuilder str = new StringBuilder();
 		str.append("<").append(nameField.getText()).append("> ");
 		for (FilterTypePanel f: filters)
-			str.append(f.isAnd() ? "AND " : "OR ").append("<").append(f.getFilter().repr()).append("> ");
+			str.append(f.isAnd() ? "AND " : "OR ").append("<").append(f.getFilter().toString()).append("> ");
 		return str.toString().trim();
 	}
 	

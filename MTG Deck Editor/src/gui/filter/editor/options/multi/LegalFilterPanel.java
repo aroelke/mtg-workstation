@@ -1,5 +1,7 @@
 package gui.filter.editor.options.multi;
 
+import gui.filter.FilterType;
+
 import java.awt.GridBagConstraints;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,8 +9,6 @@ import java.util.function.Predicate;
 
 import javax.swing.JCheckBox;
 
-import gui.filter.CardFilter;
-import gui.filter.FilterType;
 import database.Card;
 import database.characteristics.Legality;
 
@@ -45,11 +45,10 @@ public class LegalFilterPanel extends MultiOptionsFilterPanel<String>
 	 * otherwise.
 	 */
 	@Override
-	public CardFilter getFilter()
+	public Predicate<Card> getFilter()
 	{
-		Predicate<Card> f;
 		if (restrictedBox.isSelected())
-			f = super.getFilter().and(new Predicate<Card>()
+			return super.getFilter().and(new Predicate<Card>()
 			{
 				@Override
 				public boolean test(Card c)
@@ -63,9 +62,9 @@ public class LegalFilterPanel extends MultiOptionsFilterPanel<String>
 				}
 			});
 		else
-			f = super.getFilter();
-		return new CardFilter(f, toString());
+			return super.getFilter();
 	}
 	
 	// TODO: Override toString() to include the restricted check box
+	// TODO: Override setContents(.) to include the restricted check box
 }

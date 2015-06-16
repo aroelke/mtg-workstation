@@ -1,6 +1,5 @@
 package gui.filter.editor.text;
 
-import gui.filter.CardFilter;
 import gui.filter.editor.FilterEditorPanel;
 
 import java.util.StringJoiner;
@@ -51,7 +50,7 @@ public class TextFilterPanel extends FilterEditorPanel
 	private JCheckBox regex;
 	/**
 	 * Code for determining what type of filter this is from a String.
-	 * @see gui.filter.editor.FilterEditorPanel#setContent(String)
+	 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
 	 */
 	private String code;
 	
@@ -113,15 +112,14 @@ public class TextFilterPanel extends FilterEditorPanel
 	 * characteristic matches the filter expression, and <code>false</code> otherwise.
 	 */
 	@Override
-	public CardFilter getFilter()
+	public Predicate<Card> getFilter()
 	{
-		Predicate<Card> f = (c) -> true;
 		String filterText = filterValue.getText().toLowerCase();
 		// If the filter is a regex, then just match it
 		if (regex.isSelected())
 		{
 			Pattern p = Pattern.compile(filterText);
-			f = (c) -> p.matcher(text.apply(c).toLowerCase()).find();
+			return (c) -> p.matcher(text.apply(c).toLowerCase()).find();
 		}
 		else
 		{
@@ -130,8 +128,7 @@ public class TextFilterPanel extends FilterEditorPanel
 			switch (contain.getItemAt(contain.getSelectedIndex()))
 			{
 			case CONTAINS_ALL_OF:
-				f = createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase());
-				break;
+				return createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase());
 			case CONTAINS_ANY_OF:
 				Matcher m = WORD_PATTERN.matcher(filterText);
 				StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
@@ -147,20 +144,17 @@ public class TextFilterPanel extends FilterEditorPanel
 					str.add(toAdd.replace("*", "\\E\\w*\\Q"));
 				}
 				Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
-				f = (c) -> p.matcher(text.apply(c)).find();
-				break;
+				return (c) -> p.matcher(text.apply(c)).find();
 			case CONTAINS_NONE_OF:
-				f = createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase()).negate();
-				break;
+				return createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase()).negate();
 			case CONTAINS_NOT_EXACTLY:
-				f = (c) -> !text.apply(c).equalsIgnoreCase(filterText);
-				break;
+				return (c) -> !text.apply(c).equalsIgnoreCase(filterText);
 			case CONTAINS_EXACTLY:
-				f = (c) -> text.apply(c).equalsIgnoreCase(filterText);
-				break;
+				return (c) -> text.apply(c).equalsIgnoreCase(filterText);
+			default:
+				return (c) -> false;
 			}
 		}
-		return new CardFilter(f, toString());
 	}
 
 	/**
@@ -179,7 +173,7 @@ public class TextFilterPanel extends FilterEditorPanel
 	 * a simple filter and // if it is a regex.
 	 */
 	@Override
-	public String repr()
+	public String toString()
 	{
 		boolean r = regex != null && regex.isSelected();
 		return code + ":" + contain.getSelectedItem().toString() + (r ? "/" : "\"") + filterValue.getText() + (r ? "/" : "\"");
@@ -193,7 +187,7 @@ public class TextFilterPanel extends FilterEditorPanel
 	 * @param content String to parse for settings
 	 */
 	@Override
-	public void setContent(String content)
+	public void setContents(String content)
 	{
 		Matcher m = Pattern.compile("^([^\"'\\/]+)[\"'\\/]").matcher(content);
 		if (m.find())

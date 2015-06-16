@@ -1,6 +1,5 @@
 package gui.filter.editor.options.singleton;
 
-import gui.filter.CardFilter;
 import gui.filter.FilterTypePanel;
 import gui.filter.editor.options.OptionsFilterPanel;
 
@@ -8,6 +7,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.Arrays;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.swing.JComboBox;
 import javax.swing.JList;
@@ -42,7 +42,7 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	private JList<T> optionsBox;
 	/**
 	 * Code for determining what type of filter this is from a String.
-	 * @see gui.filter.editor.FilterEditorPanel#setContent(String)
+	 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
 	 */
 	private String code;
 	/**
@@ -98,10 +98,9 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	 * otherwise.
 	 */
 	@Override
-	public CardFilter getFilter()
+	public Predicate<Card> getFilter()
 	{
-		return new CardFilter((c) -> ((Containment)contain.getSelectedItem()).test(optionsBox.getSelectedValuesList(), Arrays.asList(param.apply(c))),
-							  toString());
+		return (c) -> ((Containment)contain.getSelectedItem()).test(optionsBox.getSelectedValuesList(), Arrays.asList(param.apply(c)));
 	}
 
 	/**
@@ -119,7 +118,7 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	 * followed by the list of selected values separated by commas in {}.
 	 */
 	@Override
-	public String repr()
+	public String toString()
 	{
 		return code + ":{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
 	}
@@ -130,7 +129,7 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	 * @param content String to parse for values.
 	 */
 	@Override
-	public void setContent(String content)
+	public void setContents(String content)
 	{
 		String[] selectedOptions = content.substring(1, content.length() - 1).split(",");
 		for (String o: selectedOptions)

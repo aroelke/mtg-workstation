@@ -1,6 +1,5 @@
 package gui.filter.editor;
 
-import gui.filter.CardFilter;
 import gui.filter.FilterType;
 
 import java.util.function.Predicate;
@@ -52,29 +51,24 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 	 * mana cost matches the filter's mana cost with the specified set containment type.
 	 */
 	@Override
-	public CardFilter getFilter()
+	public Predicate<Card> getFilter()
 	{
-		Predicate<Card> f = (c) -> true;
 		ManaCost cost = ManaCost.valueOf(filterValue.getText());
 		switch ((Containment)contain.getSelectedItem())
 		{
 		case CONTAINS_ANY_OF:
-			f = (c) -> Containment.CONTAINS_ANY_OF.test(c.mana.symbols(), cost.symbols());
-			break;
+			return (c) -> Containment.CONTAINS_ANY_OF.test(c.mana.symbols(), cost.symbols());
 		case CONTAINS_ALL_OF:
-			f = (c) -> c.mana.isSuperset(cost);
-			break;
+			return (c) -> c.mana.isSuperset(cost);
 		case CONTAINS_NONE_OF:
-			f = (c) -> Containment.CONTAINS_NONE_OF.test(c.mana.symbols(), cost.symbols());
-			break;
+			return (c) -> Containment.CONTAINS_NONE_OF.test(c.mana.symbols(), cost.symbols());
 		case CONTAINS_EXACTLY:
-			f = (c) -> c.mana.equals(cost);
-			break;
+			return (c) -> c.mana.equals(cost);
 		case CONTAINS_NOT_EXACTLY:
-			f = (c) -> !c.mana.equals(cost);
-			break;
+			return (c) -> !c.mana.equals(cost);
+		default:
+			return (c) -> false;
 		}
-		return new CardFilter(f, toString());
 	}
 
 	/**
@@ -91,7 +85,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 	 * the selected containment type and then the contents of the filter box inside quotes.
 	 */
 	@Override
-	public String repr()
+	public String toString()
 	{
 		return FilterType.MANA_COST.code + ":" + contain.getSelectedItem().toString() + "\"" + ManaCost.valueOf(filterValue.getText()).toString() + "\"";
 	}
@@ -103,7 +97,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 	 * @param content String to parse for content.
 	 */
 	@Override
-	public void setContent(String content)
+	public void setContents(String content)
 	{
 		Matcher m = Pattern.compile("^([^\"']+)[\"']").matcher(content);
 		if (m.find())

@@ -1,6 +1,5 @@
 package gui.filter.editor.number;
 
-import gui.filter.CardFilter;
 import gui.filter.editor.FilterEditorPanel;
 
 import java.awt.GridBagConstraints;
@@ -100,14 +99,12 @@ public class NumberFilterPanel extends FilterEditorPanel
 	 * then they are treated as 0.
 	 */
 	@Override
-	public CardFilter getFilter()
+	public Predicate<Card> getFilter()
 	{
-		Predicate<Card> f;
 		if (variable.isSelected())
-			f = (c) -> operand.apply(c).contains("*");
+			return (c) -> operand.apply(c).contains("*");
 		else
-			f = (c) -> !operand.apply(c).isEmpty() && (comparisonBox.getItemAt(comparisonBox.getSelectedIndex())).test(Card.numericValueOf(operand.apply(c)), (Double)spinner.getValue());
-		return new CardFilter(f, toString());
+			return (c) -> !operand.apply(c).isEmpty() && (comparisonBox.getItemAt(comparisonBox.getSelectedIndex())).test(Card.numericValueOf(operand.apply(c)), (Double)spinner.getValue());
 	}
 
 	/**
@@ -125,7 +122,7 @@ public class NumberFilterPanel extends FilterEditorPanel
 	 * followed by either a * or the comparison to make and the number to compare to.
 	 */
 	@Override
-	public String repr()
+	public String toString()
 	{
 		return code + ":" + (variable.isSelected() ? "*" : comparisonBox.getSelectedItem().toString() + spinner.getValue());
 	}
@@ -137,7 +134,7 @@ public class NumberFilterPanel extends FilterEditorPanel
 	 * @param content String to parse for content.
 	 */
 	@Override
-	public void setContent(String content)
+	public void setContents(String content)
 	{
 		if (variable.isVisible() && content.equals("*"))
 			variable.setSelected(true);
