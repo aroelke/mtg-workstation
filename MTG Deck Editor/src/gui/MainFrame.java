@@ -185,6 +185,10 @@ public class MainFrame extends JFrame
 		
 		// Initialize properties to their default values, then load the current values
 		// from the properties file
+		// TODO: Add the following properties:
+		// - inventory table columns
+		// - deck table columns
+		// - category table columns
 		properties = new Properties();
 		properties.put("inventory.version_file", "version.json");
 		properties.put("inventory.source", "http://mtgjson.com/json/");
@@ -239,25 +243,25 @@ public class MainFrame extends JFrame
 		
 		// New file menu item
 		JMenuItem newItem = new JMenuItem("New");
-		newItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
+		newItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
 		newItem.addActionListener((e) -> newEditor());
 		fileMenu.add(newItem);
 		
 		// Open file menu item
 		JMenuItem openItem = new JMenuItem("Open...");
-		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
 		openItem.addActionListener((e) -> open());
 		fileMenu.add(openItem);
 		
 		// Close file menu item
 		JMenuItem closeItem = new JMenuItem("Close");
-		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, ActionEvent.CTRL_MASK));
+		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
 		closeItem.addActionListener((e) -> {if (selectedFrame != null) close(selectedFrame);});
 		fileMenu.add(closeItem);
 		
 		// Close all files menu item
 		JMenuItem closeAllItem = new JMenuItem("Close All");
-		closeAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+		closeAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK));
 		closeAllItem.addActionListener((e) -> closeAll());
 		fileMenu.add(closeAllItem);
 		
@@ -265,7 +269,7 @@ public class MainFrame extends JFrame
 		
 		// Save file menu item
 		JMenuItem saveItem = new JMenuItem("Save");
-		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
 		saveItem.addActionListener((e) -> {if (selectedFrame != null) save(selectedFrame);});
 		fileMenu.add(saveItem);
 		
@@ -277,7 +281,7 @@ public class MainFrame extends JFrame
 		
 		// Save all files menu item
 		JMenuItem saveAllItem = new JMenuItem("Save All");
-		saveAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+		saveAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK));
 		saveAllItem.addActionListener((e) -> saveAll());
 		fileMenu.add(saveAllItem);
 		
@@ -286,13 +290,25 @@ public class MainFrame extends JFrame
 		// Exit menu item
 		JMenuItem exitItem = new JMenuItem("Exit");
 		exitItem.addActionListener((e) -> exit());
-		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
+		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.ALT_MASK));
 		fileMenu.add(exitItem);
 		
 		// Edit menu
-//		JMenu editMenu = new JMenu("Edit");
-//		menuBar.add(editMenu);
-		// TODO: Add "Undo," "Redo," and "Preferences" items to the edit menu
+		JMenu editMenu = new JMenu("Edit");
+		menuBar.add(editMenu);
+		// TODO: Add a "Preferences" items to the edit menu with an accompanying dialog
+		
+		// Undo menu item
+		JMenuItem undoItem = new JMenuItem("Undo");
+		undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_MASK));
+		undoItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.undo();});
+		editMenu.add(undoItem);
+		
+		// Redo menu item
+		JMenuItem redoItem = new JMenuItem("Redo");
+		redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+		redoItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.redo();});
+		editMenu.add(redoItem);
 		
 		// Deck menu
 		JMenu deckMenu = new JMenu("Deck");

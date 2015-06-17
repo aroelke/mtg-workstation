@@ -11,8 +11,9 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.ProgressMonitorInputStream;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -260,7 +262,8 @@ public class EditorFrame extends JInternalFrame
 	public EditorFrame(File f, int u, MainFrame p)
 	{
 		this(u, p);
-		try (BufferedReader rd = new BufferedReader(new FileReader(f)))
+		// TODO: Test this
+		try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(p, "Opening " + f.getName(), new FileInputStream(f)))))
 		{
 			int cards = Integer.valueOf(rd.readLine().trim());
 			for (int i = 0; i < cards; i++)
@@ -675,6 +678,22 @@ public class EditorFrame extends JInternalFrame
 			return (save(file));
 	}
 
+	/**
+	 * TODO: Implement and comment this
+	 */
+	public void undo()
+	{
+		
+	}
+	
+	/**
+	 * TODO: Implement and comment this
+	 */
+	public void redo()
+	{
+		
+	}
+	
 	/**
 	 * Mark the deck as having been changed since it has last been saved.
 	 */
