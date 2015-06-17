@@ -21,7 +21,6 @@ public class EditorMain
 	public static void main(String[] args)
 	{
 		// TODO: Allow for opening one or more decks using the command line.
-		// TODO: Show a loading bar for loading the inventory
 		try
 		{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

@@ -1,7 +1,6 @@
 package gui.editor;
 
 import gui.filter.FilterDialog;
-import gui.filter.FilterGroup;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -10,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.function.Predicate;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -22,7 +20,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import database.Card;
 import database.Deck;
 
 /**
@@ -35,10 +32,6 @@ import database.Deck;
 @SuppressWarnings("serial")
 public class CategoryDialog extends FilterDialog
 {
-	/**
-	 * Top-level filter group of this CategoryDialog.
-	 */
-	private FilterGroup filter;
 	/**
 	 * Text field for the category's name.
 	 */
@@ -78,9 +71,6 @@ public class CategoryDialog extends FilterDialog
 		namePanel.add(nameField);
 		getContentPane().add(namePanel, BorderLayout.NORTH);
 		
-		// Panel for editing filters
-		getContentPane().add(filter = new FilterGroup(this), BorderLayout.CENTER);
-		
 		// Panel containing buttons to close the CategoryDialog
 		JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		getContentPane().add(closePanel, BorderLayout.SOUTH);
@@ -94,7 +84,7 @@ public class CategoryDialog extends FilterDialog
 		// Button for rejecting changes and not creating a category or updating an existing
 		// one
 		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener((e) -> {category = null; reset(); setVisible(false); dispose();});
+		cancelButton.addActionListener((e) -> {category = null; reset(); setVisible(false);});
 		closePanel.add(cancelButton);
 		
 		pack();
@@ -108,7 +98,6 @@ public class CategoryDialog extends FilterDialog
 				category = null;
 				reset();
 				setVisible(false);
-				dispose();
 			}
 		});
 	}
@@ -120,28 +109,25 @@ public class CategoryDialog extends FilterDialog
 	@Override
 	public void reset()
 	{
-		getContentPane().remove(filter);
-		getContentPane().add(filter = new FilterGroup(this), BorderLayout.CENTER);
 		nameField.setText("");
-		pack();
+		super.reset();
 	}
 	
 	/**
-	 * Parse a String for filters and create the appropriate filter panels and set their values,
-	 * but don't show the dialog.  Follow this call with createNewCategory() or editCategory() to
-	 * actually open the dialog.
-	 * 
-	 * The string should begin with the category's name, and then inside <> either AND or OR followed
-	 * by filters which are also surrounded by <>.  They may also start with AND or OR which are
-	 * followed by filters.
+	 * Parse a String for filters and create the appropriate filter panels and set their values.
+	 * This should look similar to the parent FilterDialog's argument, except the name precedes
+	 * the opening < inside quotes and separated from it by a space.
 	 * 
 	 * @param s String to parse
+	 * @see FilterDialog#initializeFromString(String)
 	 */
+	@Override
 	public void initializeFromString(String s)
 	{
+		// TODO: Make this work with names that have white space using quotes
 		String[] contents = s.split("\\s+", 2);
 		nameField.setText(contents[0]);
-		filter.setContents(contents[1]);
+		super.initializeFromString(contents[1]);
 	}
 	
 	/**
@@ -150,14 +136,6 @@ public class CategoryDialog extends FilterDialog
 	public String name()
 	{
 		return nameField.getText();
-	}
-	
-	/**
-	 * @return The composite filter of all the panels.
-	 */
-	public Predicate<Card> filter()
-	{
-		return filter.getFilter();
 	}
 	
 	/**
@@ -203,7 +181,7 @@ public class CategoryDialog extends FilterDialog
 	@Override
 	public String toString()
 	{
-		return name() + " " + filter.toString();
+		return name() + " " + super.toString();
 	}
 	
 	/**
@@ -224,9 +202,9 @@ public class CategoryDialog extends FilterDialog
 				try
 				{
 					if (category != null)
-						category.edit(nameField.getText(), CategoryDialog.this.toString(), filter());
+						category.edit(nameField.getText(), CategoryDialog.this.toString(), getFilter());
 					else
-						category = new CategoryPanel(nameField.getText(), CategoryDialog.this.toString(), cards, filter());
+						category = new CategoryPanel(nameField.getText(), CategoryDialog.this.toString(), cards, getFilter());
 					setVisible(false);
 					reset();
 					dispose();

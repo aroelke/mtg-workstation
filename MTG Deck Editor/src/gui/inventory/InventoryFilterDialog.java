@@ -1,7 +1,6 @@
 package gui.inventory;
 
 import gui.filter.FilterDialog;
-import gui.filter.FilterGroup;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -28,10 +27,6 @@ import database.Card;
 public class InventoryFilterDialog extends FilterDialog
 {
 	/**
-	 * Top-level group representing the entire filter.
-	 */
-	private FilterGroup filter;
-	/**
 	 * OK button.
 	 */
 	private boolean OK;
@@ -47,9 +42,6 @@ public class InventoryFilterDialog extends FilterDialog
 		
 		OK = false;
 		
-		// Initialize the content panel, which contains the filter panels
-		getContentPane().add(filter = new FilterGroup(this), BorderLayout.CENTER);
-		
 		// Panel containing OK and cancel buttons
 		JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		getContentPane().add(closePanel, BorderLayout.SOUTH);
@@ -62,7 +54,7 @@ public class InventoryFilterDialog extends FilterDialog
 
 		// Cancel button
 		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener((e) -> {setVisible(false); dispose();});
+		cancelButton.addActionListener((e) -> setVisible(false));
 		closePanel.add(cancelButton);
 		
 		pack();
@@ -75,22 +67,8 @@ public class InventoryFilterDialog extends FilterDialog
 			{
 				reset();
 				setVisible(false);
-				dispose();
 			}
 		});
-	}
-	
-	
-	/**
-	 * Reset this InventoryFilterDialog to its initial state, with only one filter
-	 * set to a name filter.
-	 */
-	@Override
-	public void reset()
-	{
-		getContentPane().remove(filter);
-		getContentPane().add(filter = new FilterGroup(this), BorderLayout.CENTER);
-		pack();
 	}
 	
 	/**
@@ -100,17 +78,14 @@ public class InventoryFilterDialog extends FilterDialog
 	 * @return A <code>Predicate<Card></code> representing the filter composed from each
 	 * filter panel.
 	 */
-	public Predicate<Card> getFilter()
+	public Predicate<Card> createInventoryFilter()
 	{
 		OK = false;
 		setVisible(true);
 		if (!OK)
 			return null;
 		else
-		{
-			System.out.println(filter.toString());
-			return filter.getFilter();
-		}
+			return getFilter();
 	}
 	
 	/**
@@ -126,7 +101,6 @@ public class InventoryFilterDialog extends FilterDialog
 		{
 			OK = true;
 			setVisible(false);
-			dispose();
 		}
 	}
 }

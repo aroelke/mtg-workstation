@@ -230,7 +230,8 @@ public class FilterGroup extends FilterPanel
 			filtersPanel.remove(panel);
 			pack();
 		}
-		// TODO: Throw an exception if the panel isn't in the group (but not if the group's size is 1)
+		else if (!filters.contains(panel))
+			throw new IllegalArgumentException("FilterPanel \"" + panel + "\" not found in this group");
 	}
 	
 	/**
@@ -247,7 +248,8 @@ public class FilterGroup extends FilterPanel
 			addFilterPanel(new FilterGroup(this, panel));
 			pack();
 		}
-		// TODO: Throw an exception if the panel isn't in the group
+		else
+			throw new IllegalArgumentException("FilterPanel \"" + panel + "\" not found in this group");
 	}
 	
 	/**
@@ -269,8 +271,7 @@ public class FilterGroup extends FilterPanel
 				f = f.or(filters.get(i).getFilter());
 			return f;
 		default:
-			// TODO: Throw/display an error (although this should never happen)
-			return null;
+			throw new IllegalStateException("Unknown combination mode \"" + String.valueOf(modeBox.getSelectedItem()) + "\"");
 		}
 	}
 	

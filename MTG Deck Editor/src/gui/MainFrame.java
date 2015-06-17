@@ -570,7 +570,7 @@ public class MainFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Predicate<Card> filter = filterDialog.getFilter();
+				Predicate<Card> filter = filterDialog.createInventoryFilter();
 				if (filter != null)
 				{
 					inventory.updateFilter(filter);

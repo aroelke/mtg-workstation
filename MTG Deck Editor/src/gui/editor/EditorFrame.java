@@ -276,7 +276,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					String repr = rd.readLine().trim();
 					categoryCreator.initializeFromString(repr);
-					addCategory(new CategoryPanel(categoryCreator.name(), repr, deck, categoryCreator.filter()));
+					addCategory(new CategoryPanel(categoryCreator.name(), repr, deck, categoryCreator.getFilter()));
 					categoryCreator.reset();
 				}
 				catch (Exception e)
