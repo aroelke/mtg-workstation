@@ -1,22 +1,16 @@
 package gui.editor;
 
-import gui.filter.FilterTypePanel;
 import gui.filter.FilterDialog;
-import gui.filter.FilterType;
+import gui.filter.FilterGroup;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -27,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 
 import database.Card;
 import database.Deck;
@@ -43,13 +36,9 @@ import database.Deck;
 public class CategoryDialog extends FilterDialog
 {
 	/**
-	 * Panel containing the content of this CategoryDialog.
+	 * TODO: Comment this
 	 */
-	private JPanel contentPanel;
-	/**
-	 * List of panels that each filter a single characteristic of a Card.
-	 */
-	private List<FilterTypePanel> filters;
+	private FilterGroup filter;
 	/**
 	 * Text field for the category's name.
 	 */
@@ -78,7 +67,6 @@ public class CategoryDialog extends FilterDialog
 		category = null;
 		
 		// Initialize the content pane
-		contentPanel = new JPanel();
 		getContentPane().setLayout(new BorderLayout());
 		
 		// Name editing field
@@ -91,26 +79,11 @@ public class CategoryDialog extends FilterDialog
 		getContentPane().add(namePanel, BorderLayout.NORTH);
 		
 		// Panel for editing filters
-		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-		contentPanel.setBorder(new TitledBorder("Filter"));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		
-		// Panel containing buttons
-		JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
-		getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-
-		// Panel containing the button to add a filter to the category
-		JPanel addPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		buttonPanel.add(addPanel);
-		
-		// Button for adding new filters to the category
-		JButton addButton = new JButton("Add");
-		addButton.addActionListener((e) -> addFilterPanel());
-		addPanel.add(addButton);
+		getContentPane().add(filter = new FilterGroup(this), BorderLayout.CENTER);
 		
 		// Panel containing buttons to close the CategoryDialog
 		JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		buttonPanel.add(closePanel);
+		getContentPane().add(closePanel, BorderLayout.SOUTH);
 		
 		// OK button for accepting changes and creating/updating a category
 		JButton okButton = new JButton("OK");
@@ -124,9 +97,7 @@ public class CategoryDialog extends FilterDialog
 		cancelButton.addActionListener((e) -> {category = null; reset(); setVisible(false); dispose();});
 		closePanel.add(cancelButton);
 		
-		// Initialize the list of filter panels and create the first one
-		filters = new ArrayList<FilterTypePanel>();
-		reset();
+		pack();
 		
 		// When the window closes, reset the filters and dispose of it and make it invisible
 		addWindowListener(new WindowAdapter()
@@ -143,50 +114,16 @@ public class CategoryDialog extends FilterDialog
 	}
 	
 	/**
-	 * Add a new filter panel.
+	 * Reset this CategoryDialog to its initial state, with only one filter
+	 * set to a name filter.
 	 */
 	@Override
-	public FilterTypePanel addFilterPanel()
-	{
-		FilterTypePanel filter = new FilterTypePanel(this);
-		filters.add(filter);
-		contentPanel.add(filter);
-		pack();
-		return filter;
-	}
-	
-	/**
-	 * Remove an existing filter panel.
-	 * 
-	 * @param panel Filter panel to remove
-	 * @return <code>true</code> if the panel was successfully removed and <code>false</code>
-	 * otherwise.
-	 */
-	@Override
-	public boolean removeFilterPanel(FilterTypePanel panel)
-	{
-		if (filters.size() > 1 && filters.contains(panel))
-		{
-			filters.remove(panel);
-			contentPanel.remove(panel);
-			filters.get(0).alwaysAnd(true);
-			pack();
-			return true;
-		}
-		else
-			return false;
-	}
-	
-	/**
-	 * Clear the list of filter panels and remove them all from the form.
-	 */
 	public void reset()
 	{
-		filters.clear();
-		contentPanel.removeAll();
-		addFilterPanel();
-		filters.get(0).alwaysAnd(true);
+		getContentPane().remove(filter);
+		getContentPane().add(filter = new FilterGroup(this), BorderLayout.CENTER);
 		nameField.setText("");
+		pack();
 	}
 	
 	/**
@@ -194,58 +131,17 @@ public class CategoryDialog extends FilterDialog
 	 * but don't show the dialog.  Follow this call with createNewCategory() or editCategory() to
 	 * actually open the dialog.
 	 * 
-	 * The string should begin with the category's name, and then pairs of "AND" or "OR" and the filter's
-	 * string surrounded by <>.  The name should also be surrounded by <> if it has spaces.
-	 * 
-	 * XXX: This is now broken
+	 * The string should begin with the category's name, and then inside <> either AND or OR followed
+	 * by filters which are also surrounded by <>.  They may also start with AND or OR which are
+	 * followed by filters.
 	 * 
 	 * @param s String to parse
 	 */
 	public void initializeFromString(String s)
 	{
-		// Split the String by white space, but ignore white space between <>
-		filters.clear();
-		contentPanel.removeAll();
-		Matcher m = Pattern.compile("<([^>]*)>|[^\\s]+").matcher(s);
-		List<String> filterStrings = new ArrayList<String>();
-		while (m.find())
-		{
-			if (m.group(1) != null)
-				filterStrings.add(m.group(1));
-			else
-				filterStrings.add(m.group());
-		}
-		
-		// The first string is the filter's name.
-		nameField.setText(filterStrings.remove(0));
-		
-		if (filterStrings.size()%2 != 0 || filterStrings.size() == 0)
-		{
-			reset();
-			throw new IllegalArgumentException("Illegal category string \"" + s + "\"");
-		}
-		else
-		{
-			for (int i = 0; i < filterStrings.size(); i += 2)
-			{
-				FilterTypePanel newPanel = addFilterPanel();
-		
-				// Figure out if the filter should be ANDed or ORed
-				String mode = filterStrings.get(i);
-				if (!mode.equalsIgnoreCase("AND") && !mode.equalsIgnoreCase("OR"))
-				{
-					reset();
-					throw new IllegalArgumentException("Illegal composition mode \"" + mode + "\"");
-				}
-				newPanel.setAnd(mode.equals("AND"));
-				
-				// Get the new filter panel's contents from the string
-				// See the filter types to see how this works
-				String[] filterString = filterStrings.get(i + 1).split(":", 2);
-				newPanel.setContents(FilterType.fromCode(filterString[0]), filterString[1]);
-			}
-			filters.get(0).alwaysAnd(true);
-		}
+		String[] contents = s.split("\\s+", 2);
+		nameField.setText(contents[0]);
+		filter.setContents(contents[1]);
 	}
 	
 	/**
@@ -261,15 +157,7 @@ public class CategoryDialog extends FilterDialog
 	 */
 	public Predicate<Card> filter()
 	{
-		Predicate<Card> composedFilter = (c) -> true;
-		for (FilterTypePanel filter: filters)
-		{
-			if (filter.isAnd())
-				composedFilter = composedFilter.and(filter.getFilter());
-			else
-				composedFilter = composedFilter.or(filter.getFilter());
-		}
-		return composedFilter;
+		return filter.getFilter();
 	}
 	
 	/**
@@ -315,11 +203,7 @@ public class CategoryDialog extends FilterDialog
 	@Override
 	public String toString()
 	{
-		StringBuilder str = new StringBuilder();
-		str.append("<").append(nameField.getText()).append("> ");
-		for (FilterTypePanel f: filters)
-			str.append(f.isAnd() ? "AND " : "OR ").append("<").append(f.getFilter().toString()).append("> ");
-		return str.toString().trim();
+		return name() + " " + filter.toString();
 	}
 	
 	/**
