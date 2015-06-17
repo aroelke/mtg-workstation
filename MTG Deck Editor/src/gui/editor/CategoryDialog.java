@@ -204,7 +204,6 @@ public class CategoryDialog extends FilterDialog
 						category = new CategoryPanel(nameField.getText(), CategoryDialog.this.toString(), cards, getFilter());
 					setVisible(false);
 					reset();
-					dispose();
 				}
 				catch (Exception x)
 				{
