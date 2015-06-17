@@ -79,7 +79,7 @@ public class FilterTypePanel extends FilterPanel
 	 * 
 	 * @param g
 	 */
-	public FilterTypePanel(FilterGroup g)
+	public FilterTypePanel(FilterGroupPanel g)
 	{
 		super(g);
 		

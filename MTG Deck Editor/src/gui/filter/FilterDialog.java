@@ -23,7 +23,7 @@ public abstract class FilterDialog extends JDialog
 	/**
 	 * This FilterDialog's filter.
 	 */
-	private FilterGroup filter;
+	private FilterGroupPanel filter;
 	
 	/**
 	 * Create a new FilterDialog
@@ -37,8 +37,10 @@ public abstract class FilterDialog extends JDialog
 		setResizable(false);
 		setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 		
+		// The center of the dialog will always be the top-level filter group
+		// Don't put anything in the center!
 		setContentPane(new JPanel(new BorderLayout()));
-		getContentPane().add(filter = new FilterGroup(this), BorderLayout.CENTER);
+		getContentPane().add(filter = new FilterGroupPanel(this), BorderLayout.CENTER);
 	}
 	
 	/**
@@ -47,7 +49,7 @@ public abstract class FilterDialog extends JDialog
 	public void reset()
 	{
 		getContentPane().remove(filter);
-		getContentPane().add(filter = new FilterGroup(this), BorderLayout.CENTER);
+		getContentPane().add(filter = new FilterGroupPanel(this), BorderLayout.CENTER);
 		pack();
 	}
 	

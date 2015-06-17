@@ -21,14 +21,14 @@ public abstract class FilterPanel extends JPanel
 	/**
 	 * The FilterGroup this FilterPanel belongs to.
 	 */
-	private FilterGroup group;
+	private FilterGroupPanel group;
 	
 	/**
 	 * Create a new FilterPanel.
 	 * 
 	 * @param g FilterGroup the new panel should belong to.
 	 */
-	public FilterPanel(FilterGroup g)
+	public FilterPanel(FilterGroupPanel g)
 	{
 		super();
 		setGroup(g);
@@ -37,7 +37,7 @@ public abstract class FilterPanel extends JPanel
 	/**
 	 * @return The FilterGroup this FilterPanel belongs to.
 	 */
-	public FilterGroup getGroup()
+	public FilterGroupPanel getGroup()
 	{
 		return group;
 	}
@@ -47,7 +47,7 @@ public abstract class FilterPanel extends JPanel
 	 * 
 	 * @param g The new FilterGroup
 	 */
-	public void setGroup(FilterGroup g)
+	public void setGroup(FilterGroupPanel g)
 	{
 		group = g;
 	}

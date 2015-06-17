@@ -30,7 +30,7 @@ import database.Card;
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class FilterGroup extends FilterPanel
+public class FilterGroupPanel extends FilterPanel
 {
 	/**
 	 * Parent dialog of this FilterGroup, if it is the top-level one.  Should be
@@ -55,7 +55,7 @@ public class FilterGroup extends FilterPanel
 	 * 
 	 * @param p Parent dialog of the new FilterGroup.
 	 */
-	public FilterGroup(FilterDialog p)
+	public FilterGroupPanel(FilterDialog p)
 	{
 		super(null);
 		parent = p;
@@ -67,7 +67,7 @@ public class FilterGroup extends FilterPanel
 	 * 
 	 * @param g Containing group of the new FilterGroup.
 	 */
-	public FilterGroup(FilterGroup g)
+	public FilterGroupPanel(FilterGroupPanel g)
 	{
 		super(g);
 		parent = null;
@@ -81,7 +81,7 @@ public class FilterGroup extends FilterPanel
 	 * @param p Parent dialog of the new FilterGroup
 	 * @param panel Initial constituent of the new FilterGroup
 	 */
-	public FilterGroup(FilterDialog p, FilterPanel panel)
+	public FilterGroupPanel(FilterDialog p, FilterPanel panel)
 	{
 		this(p, null, Arrays.asList(panel));
 	}
@@ -93,7 +93,7 @@ public class FilterGroup extends FilterPanel
 	 * @param g Containing group of the new FilterGroup
 	 * @param panel Initial constituent of the new FilterGroup
 	 */
-	public FilterGroup(FilterGroup g, FilterPanel panel)
+	public FilterGroupPanel(FilterGroupPanel g, FilterPanel panel)
 	{
 		this(null, g, Arrays.asList(panel));
 	}
@@ -105,7 +105,7 @@ public class FilterGroup extends FilterPanel
 	 * @param p Parent dialog of the new FilterGroup
 	 * @param panel Initial constituents of the new FilterGroup
 	 */
-	public FilterGroup(FilterDialog p, Collection<FilterPanel> panels)
+	public FilterGroupPanel(FilterDialog p, Collection<FilterPanel> panels)
 	{
 		this(p, null, panels);
 	}
@@ -117,7 +117,7 @@ public class FilterGroup extends FilterPanel
 	 * @param g Containing group of the new FilterGroup
 	 * @param panel Initial constituents of the new FilterGroup
 	 */
-	public FilterGroup(FilterGroup g, Collection<FilterPanel> panels)
+	public FilterGroupPanel(FilterGroupPanel g, Collection<FilterPanel> panels)
 	{
 		this(null, g, panels);
 	}
@@ -134,7 +134,7 @@ public class FilterGroup extends FilterPanel
 	 * if p is not
 	 * @param panels
 	 */
-	private FilterGroup(FilterDialog p, FilterGroup g, Collection<FilterPanel> panels)
+	private FilterGroupPanel(FilterDialog p, FilterGroupPanel g, Collection<FilterPanel> panels)
 	{
 		super(g);
 		parent = p;
@@ -237,6 +237,8 @@ public class FilterGroup extends FilterPanel
 	/**
 	 * Enclose the specified FilterPanel in a new FilterGroup.
 	 * 
+	 * TODO: Try to figure out a way to replace the specified FilterPanel in place
+	 * 
 	 * @param panel Panel to enclose
 	 */
 	public void groupFilterPanel(FilterPanel panel)
@@ -245,7 +247,7 @@ public class FilterGroup extends FilterPanel
 		{
 			filters.remove(panel);
 			filtersPanel.remove(panel);
-			addFilterPanel(new FilterGroup(this, panel));
+			addFilterPanel(new FilterGroupPanel(this, panel));
 			pack();
 		}
 		else
@@ -328,7 +330,7 @@ public class FilterGroup extends FilterPanel
 		Pattern p = Pattern.compile("^\\s*<\\s*(?:AND|OR)", Pattern.CASE_INSENSITIVE);
 		for (String constituent: constituentContents)
 		{
-			FilterPanel panel = (p.matcher(constituent).find() ? new FilterGroup(this) : new FilterTypePanel(this));
+			FilterPanel panel = (p.matcher(constituent).find() ? new FilterGroupPanel(this) : new FilterTypePanel(this));
 			panel.setContents(constituent);
 			addFilterPanel(panel);
 		}

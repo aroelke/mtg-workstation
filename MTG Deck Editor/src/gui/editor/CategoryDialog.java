@@ -59,9 +59,6 @@ public class CategoryDialog extends FilterDialog
 		cards = list;
 		category = null;
 		
-		// Initialize the content pane
-		getContentPane().setLayout(new BorderLayout());
-		
 		// Name editing field
 		JPanel namePanel = new JPanel();
 		namePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
