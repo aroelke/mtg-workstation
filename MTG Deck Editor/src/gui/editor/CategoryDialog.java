@@ -36,7 +36,7 @@ import database.Deck;
 public class CategoryDialog extends FilterDialog
 {
 	/**
-	 * TODO: Comment this
+	 * Top-level filter group of this CategoryDialog.
 	 */
 	private FilterGroup filter;
 	/**

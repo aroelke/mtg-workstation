@@ -65,6 +65,27 @@ public class LegalFilterPanel extends MultiOptionsFilterPanel<String>
 			return super.getFilter();
 	}
 	
-	// TODO: Override toString() to include the restricted check box
-	// TODO: Override setContents(.) to include the restricted check box
+	/**
+	 * @return A String representation of this LegalFilterPanel, which is the selected
+	 * containment type followed by a list of selected formats, followed by an "r"
+	 * to search for restricted cards and a "u" for any legal card.
+	 */
+	@Override
+	public String toString()
+	{
+		return super.toString() + (restrictedBox.isSelected() ? "r" : "u");
+	}
+	
+	/**
+	 * Automatically select formats and select whether restricted cards should
+	 * be shown or not by parsing the given String.
+	 * 
+	 * @param s
+	 */
+	@Override
+	public void setContents(String s)
+	{
+		super.setContents(s.substring(0, s.length() - 1));
+		restrictedBox.setSelected(Character.toLowerCase(s.charAt(s.length() - 1)) == 'r');
+	}
 }
