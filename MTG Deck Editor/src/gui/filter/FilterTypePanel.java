@@ -239,7 +239,6 @@ public class FilterTypePanel extends FilterPanel
 			// Refresh the panel
 			remove(filterPanel);
 			add(filterPanel, filterConstraints);
-			// TODO: Deal with the size change in the parent
 			getGroup().pack();
 		}
 	}

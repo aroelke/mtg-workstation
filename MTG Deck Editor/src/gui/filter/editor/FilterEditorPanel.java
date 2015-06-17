@@ -11,8 +11,6 @@ import database.Card;
  * also set its filter based on a content String.  Typically each characteristic of a card
  * can be represented by a <code>Function<Card, ?></code>.
  * 
- * TODO: Factor out common characteristics of FilterEditorPanels into here
- * 
  * @author Alec Roelke
  * @see database.Card
  */

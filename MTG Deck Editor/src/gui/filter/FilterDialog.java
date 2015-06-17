@@ -13,8 +13,6 @@ import database.Card;
 /**
  * This class represents a dialog for editing a filter.
  * 
- * TODO: Try to make the OK button keep working with the enter key
- * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
