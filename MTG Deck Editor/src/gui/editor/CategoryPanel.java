@@ -3,15 +3,19 @@ package gui.editor;
 import gui.ManaCostRenderer;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -129,7 +133,9 @@ public class CategoryPanel extends JPanel
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(false);
 		table.setFillsViewportHeight(true);
-		add(new JScrollPane(table), BorderLayout.CENTER);
+		JScrollPane tablePane = new JScrollPane(table);
+		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
+		add(tablePane, BorderLayout.CENTER);
 	}
 	
 	/**
@@ -259,5 +265,84 @@ public class CategoryPanel extends JPanel
 	public int convertRowIndexToView(int modelRowIndex)
 	{
 		return table.convertRowIndexToView(modelRowIndex);
+	}
+	
+	/**
+	 * This class represents a mouse wheel listener that returns mouse wheel control to an outer scroll
+	 * pane when this one's scroll pane has reached a limit.
+	 * 
+	 * It is adapted from a StackOverflow answer to the same problem, which can be found at
+	 * @link{http://stackoverflow.com/questions/1377887/jtextpane-prevents-scrolling-in-the-parent-jscrollpane}.
+	 * 
+	 * @author Nemi
+	 * @since November 24, 2009
+	 */
+	private class PDMouseWheelListener implements MouseWheelListener
+	{
+		private JScrollBar bar;
+		private int previousValue = 0;
+		private JScrollPane parentScrollPane;
+		private JScrollPane parent;
+
+		private JScrollPane getParentScrollPane()
+		{
+			if (parentScrollPane == null)
+			{
+				Component parent = getParent();
+				while (!(parent instanceof JScrollPane) && parent != null)
+					parent = parent.getParent();
+				parentScrollPane = (JScrollPane)parent;
+			}
+			return parentScrollPane;
+		}
+
+		public PDMouseWheelListener(JScrollPane p)
+		{
+			parent = p;
+			bar = parent.getVerticalScrollBar();
+		}
+		
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e)
+		{
+			JScrollPane parent = getParentScrollPane();
+			if (parent != null)
+			{
+				/*
+				 * Only dispatch if we have reached top/bottom on previous scroll
+				 */
+				 if (e.getWheelRotation() < 0)
+				 {
+					 if (bar.getValue() == 0 && previousValue == 0)
+						 parent.dispatchEvent(cloneEvent(e));
+				 }
+				 else
+				 {
+					 if (bar.getValue() == getMax() && previousValue == getMax())
+						 parent.dispatchEvent(cloneEvent(e));
+				 }
+				 previousValue = bar.getValue();
+			}
+			/* 
+			 * If parent scrollpane doesn't exist, remove this as a listener.
+			 * We have to defer this till now (vs doing it in constructor) 
+			 * because in the constructor this item has no parent yet.
+			 */
+			else
+				this.parent.removeMouseWheelListener(this);
+		}
+		
+		private int getMax()
+		{
+			return bar.getMaximum() - bar.getVisibleAmount();
+		}
+		
+		private MouseWheelEvent cloneEvent(MouseWheelEvent e)
+		{
+			return new MouseWheelEvent(getParentScrollPane(), e.getID(), e
+					.getWhen(), e.getModifiers(), 1, 1, e
+					.getClickCount(), false, e.getScrollType(), e
+					.getScrollAmount(), e.getWheelRotation());
+		}
 	}
 }

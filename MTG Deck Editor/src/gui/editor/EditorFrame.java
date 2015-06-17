@@ -96,7 +96,7 @@ public class EditorFrame extends JInternalFrame
 	 * Whether or not the deck has been saved since it has last been changed.
 	 */
 	private boolean unsaved;
-	
+
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
 	 * "Untitled [u] *"
@@ -110,12 +110,12 @@ public class EditorFrame extends JInternalFrame
 		setBounds(((u - 1)%5)*30, ((u - 1)%5)*30, 600, 600);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
-		
+
 		parent = p;
 		deck = new Deck();
 		file = null;
 		unsaved = false;
-		
+
 		// Panel for showing buttons to add and remove cards
 		// The buttons are concentrated in the middle of the panel
 		JPanel buttonPanel = new JPanel();
@@ -126,7 +126,7 @@ public class EditorFrame extends JInternalFrame
 		buttonLayout.columnWeights = new double[] {1.0};
 		buttonLayout.rowWeights = new double[] {1.0, 0.0, 0.0, 0.0, 1.0};
 		buttonPanel.setLayout(buttonLayout);
-		
+
 		// Add button to add one copy of the currently-selected card to the deck
 		JButton addButton = new JButton("+");
 		addButton.addActionListener((e) -> addCards(parent.getTableSelection(), 1));
@@ -134,7 +134,7 @@ public class EditorFrame extends JInternalFrame
 		addConstraints.fill = GridBagConstraints.HORIZONTAL;
 		addConstraints.gridy = 1;
 		buttonPanel.add(addButton, addConstraints);
-		
+
 		// Remove button to remove one copy of each selected card from the deck
 		JButton removeButton = new JButton("\u2013");
 		removeButton.addActionListener((e) -> removeSelectedCards(1));
@@ -142,7 +142,7 @@ public class EditorFrame extends JInternalFrame
 		removeConstraints.fill = GridBagConstraints.HORIZONTAL;
 		removeConstraints.gridy = 2;
 		buttonPanel.add(removeButton, removeConstraints);
-		
+
 		// Delete button to remove all copies of each selected card from the deck
 		JButton deleteButton = new JButton("X");
 		deleteButton.addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE));
@@ -150,15 +150,15 @@ public class EditorFrame extends JInternalFrame
 		deleteConstraints.fill = GridBagConstraints.HORIZONTAL;
 		deleteConstraints.gridy = 3;
 		buttonPanel.add(deleteButton, deleteConstraints);
-		
+
 		// The first tab is the master list tab, and the second tab is the categories tab
 		listTabs = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
-		
+
 		model = new DeckTableModel(deck, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT,
-													   CardCharacteristic.MANA_COST, CardCharacteristic.TYPE_LINE,
-													   CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
-		
+				CardCharacteristic.MANA_COST, CardCharacteristic.TYPE_LINE,
+				CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
+
 		// Create the table so that it resizes if the window is too big but not if it's too small
 		table = new JTable(model)
 		{
@@ -192,14 +192,14 @@ public class EditorFrame extends JInternalFrame
 			}
 		});
 		listTabs.addTab("Cards", new JScrollPane(table));
-		
+
 		JPanel categoriesPanel = new JPanel(new BorderLayout());
-		
+
 		// Button to add a new category
 		JButton addCategoryButton = new JButton("Add");
 		addCategoryButton.addActionListener((e) -> createCategory());
 		categoriesPanel.add(addCategoryButton, BorderLayout.NORTH);
-		
+
 		// Make sure all parts of the category panel fit inside the window (this is necessary because
 		// JScrollPanes do weird things with non-scroll-savvy components)
 		JPanel categoriesSuperContainer = new ScrollablePanel(new BorderLayout())
@@ -212,27 +212,26 @@ public class EditorFrame extends JInternalFrame
 		};
 		categoriesContainer = new JPanel(new GridLayout(0, 1));
 		categories = new ArrayList<CategoryPanel>();
-		// TODO: Make it so that using the scroll wheel inside a table still scrolls the outer panel if the table is scrollable
 		// TODO: Make it so that the categories are resizable (perhaps with splitpanes)
-		
+
 		// The category panel is a vertically-scrollable panel that contains all categories stacked vertically
 		// The categories should have a constant height, but fit the container horizontally
 		categoriesSuperContainer.add(categoriesContainer, BorderLayout.NORTH);
 		categoriesPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		listTabs.addTab("Categories", categoriesPanel);
-		
+
 		// Panel to show the stats of the deck
 		JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		getContentPane().add(statsPanel, BorderLayout.SOUTH);
-		
+
 		// Label to show the number of cards in a deck
 		countLabel = new JLabel();
 		updateCount();
 		statsPanel.add(countLabel);
-		
+
 		categoryCreator = new CategoryDialog(this, deck);
 		categoryCreator.setLocationRelativeTo(parent);
-		
+
 		// Handle various frame events, including selecting and closing
 		addInternalFrameListener(new InternalFrameAdapter()
 		{
@@ -249,7 +248,7 @@ public class EditorFrame extends JInternalFrame
 			}
 		});
 	}
-	
+
 	/**
 	 * Create an EditorFrame with the specified MainFrame as its parent and the name
 	 * of the specified file.  The deck will be loaded from the file.
@@ -295,7 +294,7 @@ public class EditorFrame extends JInternalFrame
 			categoryCreator.reset();
 		}
 	}
-	
+
 	/**
 	 * @return The names of all the categories in the deck, sorted
 	 * alphabetically.
@@ -306,7 +305,7 @@ public class EditorFrame extends JInternalFrame
 		Collections.sort(names);
 		return names.toArray(new String[names.size()]);
 	}
-	
+
 	/**
 	 * Open the dialog to create a new category for the deck and then
 	 * add it.
@@ -315,7 +314,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		addCategory(categoryCreator.createNewCategory());
 	}
-	
+
 	/**
 	 * Add a category to the deck.
 	 * 
@@ -352,7 +351,7 @@ public class EditorFrame extends JInternalFrame
 			setUnsaved();
 		}
 	}
-	
+
 	/**
 	 * Open the category dialog to edit the category with the given
 	 * name, if there is one.
@@ -376,7 +375,7 @@ public class EditorFrame extends JInternalFrame
 			deckName = getTitle();
 		JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
 	}
-	
+
 	/**
 	 * If the given category exists in this EditorFrame, remove it and
 	 * remove it from the deck.
@@ -392,7 +391,7 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			boolean removed = true;
-			
+
 			removed &= deck.removeCategory(category.name());
 			removed &= categories.remove(category);
 			if (removed)
@@ -400,11 +399,11 @@ public class EditorFrame extends JInternalFrame
 			revalidate();
 			repaint();
 			setUnsaved();
-			
+
 			return removed;
 		}
 	}
-	
+
 	/**
 	 * If a category with the given name exists in the deck, remove it.
 	 * 
@@ -426,7 +425,7 @@ public class EditorFrame extends JInternalFrame
 		JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
 		return false;
 	}
-	
+
 	/**
 	 * Update the card counter to reflect the total number of cards in the deck.
 	 */
@@ -434,7 +433,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		countLabel.setText("Total cards: " + deck.total());
 	}
-	
+
 	/**
 	 * Change the file this EditorFrame is associated with.  If the file has
 	 * not been saved, an error will be thrown instead.
@@ -449,7 +448,7 @@ public class EditorFrame extends JInternalFrame
 		setTitle(f.getName());
 		unsaved = false;
 	}
-	
+
 	/**
 	 * Add the given number of copies of the given Cards to the deck.  The current
 	 * selections in the category and main tables are maintained.
@@ -466,7 +465,7 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			deck.addAll(toAdd, n);
-			
+
 			switch (listTabs.getSelectedIndex())
 			{
 			case 0:
@@ -499,7 +498,7 @@ public class EditorFrame extends JInternalFrame
 			return true;
 		}
 	}
-	
+
 	/**
 	 * Add the given number of copies of the given Card to the deck.  The current
 	 * selections in the category and main tables are maintained.
@@ -513,7 +512,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		return addCards(Arrays.asList(toAdd), n);
 	}
-	
+
 	/**
 	 * Remove a number of copies of the specified Cards from the deck.  The current selections
 	 * for any cards remaining in them in the category and main tables are maintained.
@@ -530,7 +529,7 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			boolean changed = true;
-			
+
 			switch (listTabs.getSelectedIndex())
 			{
 			case 0:
@@ -586,7 +585,7 @@ public class EditorFrame extends JInternalFrame
 			default:
 				break;
 			}
-			
+
 			if (changed)
 			{
 				updateCount();
@@ -597,7 +596,7 @@ public class EditorFrame extends JInternalFrame
 			return changed;
 		}
 	}
-	
+
 	/**
 	 * Helper function which removes a given number of copies of all cards
 	 * selected in the various tables of this EditorFrame.
@@ -613,15 +612,15 @@ public class EditorFrame extends JInternalFrame
 		{
 		case 0:
 			selectedCards = Arrays.stream(table.getSelectedRows())
-								  .mapToObj((r) -> deck.get(table.convertRowIndexToModel(r)))
-								  .collect(Collectors.toList());
+			.mapToObj((r) -> deck.get(table.convertRowIndexToModel(r)))
+			.collect(Collectors.toList());
 			break;
 		case 1:
 			selectedCards = new ArrayList<Card>();
 			for (CategoryPanel category: categories)
 				selectedCards.addAll(Arrays.stream(category.getSelectedRows())
-										   .mapToObj((r) -> deck.getCategory(category.name()).get(category.convertRowIndexToModel(r)))
-										   .collect(Collectors.toList()));
+						.mapToObj((r) -> deck.getCategory(category.name()).get(category.convertRowIndexToModel(r)))
+						.collect(Collectors.toList()));
 			break;
 		default:
 			selectedCards = new ArrayList<Card>();
@@ -629,7 +628,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		return removeCards(selectedCards, n);
 	}
-	
+
 	/**
 	 * @param c Card to look for
 	 * @return The number of copies of the given Card in the deck.
@@ -638,7 +637,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		return deck.count(c);
 	}
-	
+
 	/**
 	 * Save the deck to the given File (like Save As).
 	 * 
@@ -661,7 +660,7 @@ public class EditorFrame extends JInternalFrame
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Save the deck to the current file.
 	 * 
@@ -675,7 +674,7 @@ public class EditorFrame extends JInternalFrame
 		else
 			return (save(file));
 	}
-	
+
 	/**
 	 * Mark the deck as having been changed since it has last been saved.
 	 */
@@ -687,7 +686,7 @@ public class EditorFrame extends JInternalFrame
 			unsaved = true;
 		}
 	}
-	
+
 	/**
 	 * @return <code>true</code> if there are unsaved changes in the deck, and <code>false</code>
 	 * otherwise.
@@ -696,7 +695,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		return unsaved;
 	}
-	
+
 	/**
 	 * If the deck has unsaved changes, allow the user to choose to save it or keep the
 	 * frame open.  If the user saves or declines to save, close the frame.
