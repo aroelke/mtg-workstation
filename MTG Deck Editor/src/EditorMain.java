@@ -21,6 +21,7 @@ public class EditorMain
 	public static void main(String[] args)
 	{
 		// TODO: Allow for opening one or more decks using the command line.
+		// TODO: Try to reduce memory footprint.
 		try
 		{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
