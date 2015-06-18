@@ -198,7 +198,7 @@ public class Deck
 	 */
 	public int count(int index)
 	{
-		return counts.get(get(index));
+		return count(get(index));
 	}
 	
 	/**
@@ -521,7 +521,7 @@ public class Deck
 		public int count(Card c)
 		{
 			if (filter.test(c))
-				return counts.get(c);
+				return Deck.this.count(c);
 			else
 				return 0;
 		}
@@ -535,7 +535,7 @@ public class Deck
 		@Override
 		public int count(int index)
 		{
-			return counts.get(get(index));
+			return count(get(index));
 		}
 		
 		/**

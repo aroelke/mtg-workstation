@@ -3,9 +3,8 @@ package gui.editor;
 import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
-import gui.editor.action.AddCategoryAction;
-import gui.editor.action.DeckAction;
 import gui.editor.action.AddCardsAction;
+import gui.editor.action.DeckAction;
 import gui.editor.action.EditCategoryAction;
 import gui.editor.action.RemoveCardsAction;
 import gui.editor.action.RemoveCategoryAction;
@@ -347,8 +346,8 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (addCategoryUnbuffered(newCategory))
 		{
-			undoBuffer.push(new AddCategoryAction(this, newCategory));
-			redoBuffer.clear();
+//			undoBuffer.push(new AddCategoryAction(this, newCategory));
+//			redoBuffer.clear();
 		}
 	}
 	
@@ -396,49 +395,11 @@ public class EditorFrame extends JInternalFrame
 	
 	/**
 	 * Open the category dialog to edit the category with the given
-	 * name, if there is one, and then update the undo and redo
-	 * buffers.
-	 * 
-	 * TODO: Add the undo buffer update
+	 * name, if there is one, and then update the undo buffer.
 	 * 
 	 * @param name
 	 */
 	public void editCategory(String name)
-	{
-		CategoryPanel toEdit = null;
-		for (CategoryPanel category: categories)
-		{
-			if (category.name().equals(name))
-			{
-				toEdit = category;
-				break;
-			}
-		}
-		if (toEdit == null)
-		{
-			String deckName;
-			if (unsaved)
-				deckName = getTitle().substring(0, getTitle().length() - 2);
-			else
-				deckName = getTitle();
-			JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-		else
-		{
-			categoryCreator.editCategory(toEdit);
-			revalidate();
-			repaint();
-			setUnsaved();
-		}
-	}
-	
-	/**
-	 * Open the category dialog to edit the category with the given
-	 * name, if there is one.
-	 * 
-	 * @param name
-	 */
-	public void editCategoryUnbuffered(String name)
 	{
 		CategoryPanel toEdit = null;
 		for (CategoryPanel category: categories)
@@ -466,8 +427,8 @@ public class EditorFrame extends JInternalFrame
 			revalidate();
 			repaint();
 			setUnsaved();
-			undoBuffer.push(new EditCategoryAction(this, toEdit, name, oldRepr, oldFilter, toEdit.name(), toEdit.repr(), toEdit.filter()));
-			redoBuffer.clear();
+//			undoBuffer.push(new EditCategoryAction(this, toEdit, name, oldRepr, oldFilter, toEdit.name(), toEdit.repr(), toEdit.filter()));
+//			redoBuffer.clear();
 		}
 	}
 
@@ -483,8 +444,8 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (removeCategoryUnbuffered(category))
 		{
-			undoBuffer.push(new RemoveCategoryAction(this, category));
-			redoBuffer.clear();
+//			undoBuffer.push(new RemoveCategoryAction(this, category));
+//			redoBuffer.clear();
 			return true;
 		}
 		else
@@ -841,7 +802,12 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void undo()
 	{
-		
+		if (!undoBuffer.isEmpty())
+		{
+			DeckAction action = undoBuffer.pop();
+			action.undo();
+			redoBuffer.push(action);
+		}
 	}
 	
 	/**
@@ -849,7 +815,12 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void redo()
 	{
-		
+		if (!redoBuffer.isEmpty())
+		{
+			DeckAction action = redoBuffer.pop();
+			action.redo();
+			undoBuffer.push(action);
+		}
 	}
 	
 	/**
