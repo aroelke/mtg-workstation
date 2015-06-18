@@ -164,7 +164,8 @@ public class CategoryPanel extends JPanel
 	 * @return The String representation of the category.
 	 * @see CategoryDialog#initializeFromString(String)
 	 */
-	public String repr()
+	@Override
+	public String toString()
 	{
 		return category.repr();
 	}

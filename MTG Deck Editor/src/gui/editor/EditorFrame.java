@@ -5,9 +5,7 @@ import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
 import gui.editor.action.AddCardsAction;
 import gui.editor.action.DeckAction;
-import gui.editor.action.EditCategoryAction;
 import gui.editor.action.RemoveCardsAction;
-import gui.editor.action.RemoveCategoryAction;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -421,7 +419,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		else
 		{
-			String oldRepr = toEdit.repr();
+			String oldRepr = toEdit.toString();
 			Predicate<Card> oldFilter = toEdit.filter();
 			categoryCreator.editCategory(toEdit);
 			revalidate();

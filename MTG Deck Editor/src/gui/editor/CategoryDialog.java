@@ -167,7 +167,7 @@ public class CategoryDialog extends FilterDialog
 		}
 		
 		category = toEdit;
-		initializeFromString(toEdit.repr());
+		initializeFromString(toEdit.toString());
 		setVisible(true);
 		return category != null;
 	}
