@@ -170,6 +170,14 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
+	 * @return The Card filter for the category.
+	 */
+	public Predicate<Card> filter()
+	{
+		return category.filter();
+	}
+	
+	/**
 	 * Change the parameters of the category.
 	 * 
 	 * @param newName New name for the category

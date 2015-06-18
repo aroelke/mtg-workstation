@@ -1,19 +1,20 @@
 package gui.editor.action;
 
+import gui.editor.EditorFrame;
+
 import java.util.List;
 
 import database.Card;
-import database.Deck;
 
 public class RemoveCardsAction implements DeckAction
 {
-	private Deck deck;
+	private EditorFrame editor;
 	private List<Card> cardsRemoved;
 	private int count;
 	
-	public RemoveCardsAction(Deck d, List<Card> removed, int c)
+	public RemoveCardsAction(EditorFrame e, List<Card> removed, int c)
 	{
-		deck = d;
+		editor = e;
 		cardsRemoved = removed;
 		count = c;
 	}
@@ -21,16 +22,12 @@ public class RemoveCardsAction implements DeckAction
 	@Override
 	public void undo()
 	{
-		deck.addAll(cardsRemoved, count);
+		editor.addCards(cardsRemoved, count);
 	}
 
 	@Override
 	public void redo()
 	{
-		for (Card c: cardsRemoved)
-			if (deck.count(c) < count)
-				throw new IllegalStateException("Not enough copies of " + c.name);
-		for (Card c: cardsRemoved)
-			deck.remove(c, count);
+		editor.removeCards(cardsRemoved, count);
 	}
 }

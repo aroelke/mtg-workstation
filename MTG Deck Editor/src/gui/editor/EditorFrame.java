@@ -373,20 +373,31 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void editCategory(String name)
 	{
+		CategoryPanel toEdit = null;
 		for (CategoryPanel category: categories)
 		{
 			if (category.name().equals(name))
 			{
-				categoryCreator.editCategory(category);
-				return;
+				toEdit = category;
+				break;
 			}
 		}
-		String deckName;
-		if (unsaved)
-			deckName = getTitle().substring(0, getTitle().length() - 2);
+		if (toEdit == null)
+		{
+			String deckName;
+			if (unsaved)
+				deckName = getTitle().substring(0, getTitle().length() - 2);
+			else
+				deckName = getTitle();
+			JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
+		}
 		else
-			deckName = getTitle();
-		JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
+		{
+			categoryCreator.editCategory(toEdit);
+			revalidate();
+			repaint();
+			setUnsaved();
+		}
 	}
 
 	/**
@@ -412,7 +423,6 @@ public class EditorFrame extends JInternalFrame
 			revalidate();
 			repaint();
 			setUnsaved();
-
 			return removed;
 		}
 	}

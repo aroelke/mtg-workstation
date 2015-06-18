@@ -1,40 +1,28 @@
 package gui.editor.action;
 
-import java.util.function.Predicate;
-
-import database.Card;
-import database.Deck;
+import gui.editor.CategoryPanel;
+import gui.editor.EditorFrame;
 
 public class AddCategoryAction implements DeckAction
 {
-	private Deck deck;
-	private String nameAdded;
-	private String reprAdded;
-	private Predicate<Card> filterAdded;
+	private EditorFrame editor;
+	private CategoryPanel addedCategory;
 	
-	public AddCategoryAction(Deck d, String n, String r, Predicate<Card> f)
+	public AddCategoryAction(EditorFrame e, CategoryPanel category)
 	{
-		deck = d;
-		nameAdded = n;
-		reprAdded = r;
-		filterAdded = f;
+		editor = e;
+		addedCategory = category;
 	}
 	
 	@Override
 	public void undo()
 	{
-		if (!deck.containsCategory(nameAdded))
-			throw new IllegalStateException("Deck does not contain category " + nameAdded);
-		else
-			deck.removeCategory(nameAdded);
+		editor.removeCategory(addedCategory);
 	}
-
+	
 	@Override
 	public void redo()
 	{
-		if (deck.containsCategory(nameAdded))
-			throw new IllegalStateException("Deck already contains category " + nameAdded);
-		else
-			deck.addCategory(nameAdded, reprAdded, filterAdded);
+		editor.addCategory(addedCategory);
 	}
 }

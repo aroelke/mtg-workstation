@@ -1,48 +1,50 @@
 package gui.editor.action;
 
+import gui.editor.CategoryPanel;
+import gui.editor.EditorFrame;
+
 import java.util.function.Predicate;
 
 import database.Card;
-import database.Deck;
 
 public class EditCategoryAction implements DeckAction
 {
-	private RemoveCategoryAction former;
-	private AddCategoryAction after;
+	private EditorFrame editor;
+	private CategoryPanel editedCategory;
+	private String formerName;
+	private String formerRepr;
+	private Predicate<Card> formerFilter;
+	private String newName;
+	private String newRepr;
+	private Predicate<Card> newFilter;
 	
-	public EditCategoryAction(Deck d, String nf, String rf, Predicate<Card> ff, String na, String ra, Predicate<Card> fa)
+	public EditCategoryAction(EditorFrame e, CategoryPanel category, String nf, String rf, Predicate<Card> ff, String na, String ra, Predicate<Card> fa)
 	{
-		former = new RemoveCategoryAction(d, nf, rf, ff);
-		after = new AddCategoryAction(d, na, ra, fa);
+		editor = e;
+		editedCategory = category;
+		formerName = nf;
+		formerRepr = rf;
+		formerFilter = ff;
+		newName = na;
+		newRepr = ra;
+		newFilter = fa;
 	}
 	
 	@Override
 	public void undo()
 	{
-		after.undo();
-		try
-		{
-			former.undo();
-		}
-		catch (Exception e)
-		{
-			after.redo();
-			throw e;
-		}
+		editedCategory.edit(formerName, formerRepr, formerFilter);
+		editor.revalidate();
+		editor.repaint();
+		editor.setUnsaved();
 	}
 
 	@Override
 	public void redo()
 	{
-		former.redo();
-		try
-		{
-			after.redo();
-		}
-		catch (Exception e)
-		{
-			former.undo();
-			throw e;
-		}
+		editedCategory.edit(newName, newRepr, newFilter);
+		editor.revalidate();
+		editor.repaint();
+		editor.setUnsaved();
 	}
 }
