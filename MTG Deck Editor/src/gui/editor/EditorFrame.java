@@ -3,6 +3,7 @@ package gui.editor;
 import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
+import gui.editor.action.DeckAction;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import javax.swing.JButton;
@@ -98,6 +100,8 @@ public class EditorFrame extends JInternalFrame
 	 * Whether or not the deck has been saved since it has last been changed.
 	 */
 	private boolean unsaved;
+	private Stack<DeckAction> undoBuffer;
+	private Stack<DeckAction> redoBuffer;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -117,6 +121,8 @@ public class EditorFrame extends JInternalFrame
 		deck = new Deck();
 		file = null;
 		unsaved = false;
+		undoBuffer = new Stack<DeckAction>();
+		redoBuffer = new Stack<DeckAction>();
 
 		// Panel for showing buttons to add and remove cards
 		// The buttons are concentrated in the middle of the panel
@@ -286,15 +292,19 @@ public class EditorFrame extends JInternalFrame
 					JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
-			updateCount();
-			unsaved = false;
-			setFile(f);
 		}
 		catch (Exception e)
 		{
 			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.clear();
 			categoryCreator.reset();
+		}
+		finally
+		{
+			updateCount();
+			unsaved = false;
+			setFile(f);
+			undoBuffer.clear();
 		}
 	}
 
