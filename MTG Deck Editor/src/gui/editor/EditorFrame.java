@@ -3,7 +3,12 @@ package gui.editor;
 import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
+import gui.editor.action.AddCategoryAction;
 import gui.editor.action.DeckAction;
+import gui.editor.action.AddCardsAction;
+import gui.editor.action.EditCategoryAction;
+import gui.editor.action.RemoveCardsAction;
+import gui.editor.action.RemoveCategoryAction;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -22,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.JButton;
@@ -100,6 +106,9 @@ public class EditorFrame extends JInternalFrame
 	 * Whether or not the deck has been saved since it has last been changed.
 	 */
 	private boolean unsaved;
+	/**
+	 * TODO: Comment these
+	 */
 	private Stack<DeckAction> undoBuffer;
 	private Stack<DeckAction> redoBuffer;
 
@@ -305,6 +314,7 @@ public class EditorFrame extends JInternalFrame
 			unsaved = false;
 			setFile(f);
 			undoBuffer.clear();
+			redoBuffer.clear();
 		}
 	}
 
@@ -329,11 +339,27 @@ public class EditorFrame extends JInternalFrame
 	}
 
 	/**
-	 * Add a category to the deck.
+	 * Add a category to the deck and update the undo and redo buffers.
 	 * 
 	 * @param newCategory Category to add.
 	 */
 	public void addCategory(CategoryPanel newCategory)
+	{
+		if (addCategoryUnbuffered(newCategory))
+		{
+			undoBuffer.push(new AddCategoryAction(this, newCategory));
+			redoBuffer.clear();
+		}
+	}
+	
+	/**
+	 * Add a category to the deck but don't update the undo or redo buffers.
+	 * 
+	 * @param newCategory Category to add.
+	 * @return <code>true</code> if the category was successfully added and
+	 * <code>false</code> otherwise.
+	 */
+	public boolean addCategoryUnbuffered(CategoryPanel newCategory)
 	{
 		if (newCategory != null)
 		{
@@ -362,12 +388,18 @@ public class EditorFrame extends JInternalFrame
 			revalidate();
 			repaint();
 			setUnsaved();
+			return true;
 		}
+		else
+			return false;
 	}
-
+	
 	/**
 	 * Open the category dialog to edit the category with the given
-	 * name, if there is one.
+	 * name, if there is one, and then update the undo and redo
+	 * buffers.
+	 * 
+	 * TODO: Add the undo buffer update
 	 * 
 	 * @param name
 	 */
@@ -399,10 +431,49 @@ public class EditorFrame extends JInternalFrame
 			setUnsaved();
 		}
 	}
+	
+	/**
+	 * Open the category dialog to edit the category with the given
+	 * name, if there is one.
+	 * 
+	 * @param name
+	 */
+	public void editCategoryUnbuffered(String name)
+	{
+		CategoryPanel toEdit = null;
+		for (CategoryPanel category: categories)
+		{
+			if (category.name().equals(name))
+			{
+				toEdit = category;
+				break;
+			}
+		}
+		if (toEdit == null)
+		{
+			String deckName;
+			if (unsaved)
+				deckName = getTitle().substring(0, getTitle().length() - 2);
+			else
+				deckName = getTitle();
+			JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+		else
+		{
+			String oldRepr = toEdit.repr();
+			Predicate<Card> oldFilter = toEdit.filter();
+			categoryCreator.editCategory(toEdit);
+			revalidate();
+			repaint();
+			setUnsaved();
+			undoBuffer.push(new EditCategoryAction(this, toEdit, name, oldRepr, oldFilter, toEdit.name(), toEdit.repr(), toEdit.filter()));
+			redoBuffer.clear();
+		}
+	}
 
 	/**
 	 * If the given category exists in this EditorFrame, remove it and
-	 * remove it from the deck.
+	 * remove it from the deck and then update the undo and redo buffers.
 	 * 
 	 * @param category Panel representing the category to be removed
 	 * @return <code>true</code> if the category was successfully removed,
@@ -410,25 +481,19 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean removeCategory(CategoryPanel category)
 	{
-		if (!deck.containsCategory(category.name()))
-			return false;
-		else
+		if (removeCategoryUnbuffered(category))
 		{
-			boolean removed = true;
-
-			removed &= deck.removeCategory(category.name());
-			removed &= categories.remove(category);
-			if (removed)
-				categoriesContainer.remove(category);
-			revalidate();
-			repaint();
-			setUnsaved();
-			return removed;
+			undoBuffer.push(new RemoveCategoryAction(this, category));
+			redoBuffer.clear();
+			return true;
 		}
+		else
+			return false;
 	}
 
 	/**
-	 * If a category with the given name exists in the deck, remove it.
+	 * If a category with the given name exists in the deck, remove it
+	 * and then update the undo and redo buffers.
 	 * 
 	 * @param name Name of the category to look for
 	 * @return <code>true</code> if the category was successfully remove,
@@ -447,6 +512,33 @@ public class EditorFrame extends JInternalFrame
 			deckName = getTitle();
 		JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
 		return false;
+	}
+	
+	/**
+	 * If the given category exists in this EditorFrame, remove it and
+	 * remove it from the deck but don't update the undo and redo buffers.
+	 * 
+	 * @param category Panel representing the category to be removed
+	 * @return <code>true</code> if the category was successfully removed,
+	 * and <code>false</code> otherwise.
+	 */
+	public boolean removeCategoryUnbuffered(CategoryPanel category)
+	{
+		if (!deck.containsCategory(category.name()))
+			return false;
+		else
+		{
+			boolean removed = true;
+
+			removed &= deck.removeCategory(category.name());
+			removed &= categories.remove(category);
+			if (removed)
+				categoriesContainer.remove(category);
+			revalidate();
+			repaint();
+			setUnsaved();
+			return removed;
+		}
 	}
 
 	/**
@@ -474,7 +566,8 @@ public class EditorFrame extends JInternalFrame
 
 	/**
 	 * Add the given number of copies of the given Cards to the deck.  The current
-	 * selections in the category and main tables are maintained.
+	 * selections in the category and main tables are maintained.  Then update the
+	 * undo and redo buffers.
 	 * 
 	 * @param toAdd Cards to add
 	 * @param n Number of copies to add
@@ -482,6 +575,28 @@ public class EditorFrame extends JInternalFrame
 	 * <code>false</code> otherwise, which is only true if the list is empty.
 	 */
 	public boolean addCards(List<Card> toAdd, int n)
+	{
+		if (addCardsUnbuffered(toAdd, n))
+		{
+			undoBuffer.push(new AddCardsAction(this, toAdd, n));
+			redoBuffer.clear();
+			return true;
+		}
+		else
+			return false;
+	}
+
+	/**
+	 * Add the given number of copies of the given Cards to the deck.  The current
+	 * selections in the category and main tables are maintained.  Don't update the
+	 * undo and redo buffers.
+	 * 
+	 * @param toAdd Cards to add
+	 * @param n Number of copies to add
+	 * @return <code>true</code> if the deck changed as a result, and
+	 * <code>false</code> otherwise, which is only true if the list is empty.
+	 */
+	public boolean addCardsUnbuffered(List<Card> toAdd, int n)
 	{
 		if (toAdd.isEmpty())
 			return false;
@@ -521,7 +636,7 @@ public class EditorFrame extends JInternalFrame
 			return true;
 		}
 	}
-
+	
 	/**
 	 * Add the given number of copies of the given Card to the deck.  The current
 	 * selections in the category and main tables are maintained.
@@ -538,7 +653,8 @@ public class EditorFrame extends JInternalFrame
 
 	/**
 	 * Remove a number of copies of the specified Cards from the deck.  The current selections
-	 * for any cards remaining in them in the category and main tables are maintained.
+	 * for any cards remaining in them in the category and main tables are maintained.  Then
+	 * update the undo buffer.
 	 * 
 	 * @param toRemove List of cards to remove
 	 * @param n Number of copies to remove
@@ -546,6 +662,28 @@ public class EditorFrame extends JInternalFrame
 	 * otherwise.
 	 */
 	public boolean removeCards(List<Card> toRemove, int n)
+	{
+		if (removeCardsUnbuffered(toRemove, n))
+		{
+			undoBuffer.push(new RemoveCardsAction(this, toRemove, n));
+			redoBuffer.clear();
+			return true;
+		}
+		else
+			return false;
+	}
+
+	/**
+	 * Remove a number of copies of the specified Cards from the deck.  The current selections
+	 * for any cards remaining in them in the category and main tables are maintained.  Don't
+	 * update the undo buffer.
+	 * 
+	 * @param toRemove List of cards to remove
+	 * @param n Number of copies to remove
+	 * @return <code>true</code> if the deck was changed as a result, and <code>false</code>
+	 * otherwise.
+	 */
+	public boolean removeCardsUnbuffered(List<Card> toRemove, int n)
 	{
 		if (toRemove.isEmpty())
 			return false;
@@ -619,7 +757,7 @@ public class EditorFrame extends JInternalFrame
 			return changed;
 		}
 	}
-
+	
 	/**
 	 * Helper function which removes a given number of copies of all cards
 	 * selected in the various tables of this EditorFrame.

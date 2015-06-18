@@ -22,12 +22,12 @@ public class RemoveCardsAction implements DeckAction
 	@Override
 	public void undo()
 	{
-		editor.addCards(cardsRemoved, count);
+		editor.addCardsUnbuffered(cardsRemoved, count);
 	}
 
 	@Override
 	public void redo()
 	{
-		editor.removeCards(cardsRemoved, count);
+		editor.removeCardsUnbuffered(cardsRemoved, count);
 	}
 }

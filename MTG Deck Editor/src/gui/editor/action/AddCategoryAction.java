@@ -17,12 +17,12 @@ public class AddCategoryAction implements DeckAction
 	@Override
 	public void undo()
 	{
-		editor.removeCategory(addedCategory);
+		editor.removeCategoryUnbuffered(addedCategory);
 	}
 	
 	@Override
 	public void redo()
 	{
-		editor.addCategory(addedCategory);
+		editor.addCategoryUnbuffered(addedCategory);
 	}
 }
