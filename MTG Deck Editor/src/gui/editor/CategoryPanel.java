@@ -167,7 +167,7 @@ public class CategoryPanel extends JPanel
 	@Override
 	public String toString()
 	{
-		return category.repr();
+		return category.toString();
 	}
 	
 	/**

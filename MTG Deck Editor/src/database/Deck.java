@@ -331,7 +331,7 @@ public class Deck
 				wr.println(c.ID + "\t" + count(c));
 			wr.println(String.valueOf(categories.size()));
 			for (Category c: categories.values())
-				wr.println(c.repr());
+				wr.println(c.toString());
 		} 
 	}
 	
@@ -373,7 +373,7 @@ public class Deck
 		 * @param s Name of the new Category
 		 * @param f Filter of the new Category
 		 */
-		public Category(String s, String r, Predicate<Card> f)
+		private Category(String s, String r, Predicate<Card> f)
 		{
 			name = s;
 			repr = r;
@@ -393,7 +393,8 @@ public class Deck
 		 * @return This Category's String representation.
 		 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
 		 */
-		public String repr()
+		@Override
+		public String toString()
 		{
 			return repr;
 		}
