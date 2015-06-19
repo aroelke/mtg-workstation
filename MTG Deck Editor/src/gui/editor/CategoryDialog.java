@@ -3,7 +3,6 @@ package gui.editor;
 import gui.filter.FilterDialog;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,12 +50,12 @@ public class CategoryDialog extends FilterDialog
 	 * @param owner Owner Component of this CategoryDialog
 	 * @param list Master list of Cards in the deck
 	 */
-	public CategoryDialog(Component owner, Deck list)
+	public CategoryDialog(EditorFrame owner)
 	{
 		super(SwingUtilities.windowForComponent(owner), "Advanced Filter");
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		
-		cards = list;
+		cards = owner.deck;
 		category = null;
 		
 		// Name editing field

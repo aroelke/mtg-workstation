@@ -3,9 +3,6 @@ package gui.editor;
 import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
-import gui.editor.action.AddCardsAction;
-import gui.editor.action.DeckAction;
-import gui.editor.action.RemoveCardsAction;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -66,7 +63,7 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Master decklist to which cards are added.
 	 */
-	private Deck deck;
+	protected Deck deck;
 	/**
 	 * Main table showing the cards in the deck.
 	 */
@@ -90,7 +87,7 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * JDialog for creating and editing categories.
 	 */
-	private CategoryDialog categoryCreator;
+	protected CategoryDialog categoryCreator;
 	/**
 	 * Tabbed pane for choosing whether to display the entire deck or the categories.
 	 */
@@ -104,9 +101,14 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private boolean unsaved;
 	/**
-	 * TODO: Comment these
+	 * Stack containing past actions performed on the deck to represent the undo buffer.
 	 */
 	private Stack<DeckAction> undoBuffer;
+	/**
+	 * Stack containing future actions that have been performed on the deck to represent
+	 * the redo buffer.  This contains only things that have been on the undo buffer
+	 * and have been undone, and is cleared when a new action is performed.
+	 */
 	private Stack<DeckAction> redoBuffer;
 
 	/**
@@ -243,7 +245,7 @@ public class EditorFrame extends JInternalFrame
 		updateCount();
 		statsPanel.add(countLabel);
 
-		categoryCreator = new CategoryDialog(this, deck);
+		categoryCreator = new CategoryDialog(this);
 		categoryCreator.setLocationRelativeTo(parent);
 
 		// Handle various frame events, including selecting and closing
@@ -327,6 +329,20 @@ public class EditorFrame extends JInternalFrame
 	}
 
 	/**
+	 * Get the category with the specified name in the deck.
+	 * 
+	 * @param name Name of the category to search for
+	 * @return The category with the specified name, or <code>null</code> if there is none.
+	 */
+	public CategoryPanel getCategory(String name)
+	{
+		for (CategoryPanel category: categories)
+			if (category.name().equals(name))
+				return category;
+		return null;
+	}
+	
+	/**
 	 * Open the dialog to create a new category for the deck and then
 	 * add it.
 	 */
@@ -344,8 +360,8 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (addCategoryUnbuffered(newCategory))
 		{
-//			undoBuffer.push(new AddCategoryAction(this, newCategory));
-//			redoBuffer.clear();
+			undoBuffer.push(new AddCategoryAction(this, newCategory));
+			redoBuffer.clear();
 		}
 	}
 	
@@ -356,7 +372,7 @@ public class EditorFrame extends JInternalFrame
 	 * @return <code>true</code> if the category was successfully added and
 	 * <code>false</code> otherwise.
 	 */
-	public boolean addCategoryUnbuffered(CategoryPanel newCategory)
+	protected boolean addCategoryUnbuffered(CategoryPanel newCategory)
 	{
 		if (newCategory != null)
 		{
@@ -377,8 +393,15 @@ public class EditorFrame extends JInternalFrame
 			});
 			// Add the behavior for the edit category button
 			newCategory.addEditButtonListener((e) -> {
+				String oldName = newCategory.name();
+				String oldRepr = newCategory.toString();
+				Predicate<Card> oldFilter = newCategory.filter();
 				if (categoryCreator.editCategory(newCategory))
+				{
 					setUnsaved();
+					undoBuffer.push(new EditCategoryAction(this, oldName, oldRepr, oldFilter, newCategory.name(), newCategory.toString(), newCategory.filter()));
+					redoBuffer.clear();
+				}
 			});
 			// Add the behavior for the remove category button
 			newCategory.addRemoveButtonListener((e) -> removeCategory(newCategory));
@@ -395,19 +418,11 @@ public class EditorFrame extends JInternalFrame
 	 * Open the category dialog to edit the category with the given
 	 * name, if there is one, and then update the undo buffer.
 	 * 
-	 * @param name
+	 * @param name Name of the category to edit
 	 */
 	public void editCategory(String name)
 	{
-		CategoryPanel toEdit = null;
-		for (CategoryPanel category: categories)
-		{
-			if (category.name().equals(name))
-			{
-				toEdit = category;
-				break;
-			}
-		}
+		CategoryPanel toEdit = getCategory(name);
 		if (toEdit == null)
 		{
 			String deckName;
@@ -425,8 +440,8 @@ public class EditorFrame extends JInternalFrame
 			revalidate();
 			repaint();
 			setUnsaved();
-//			undoBuffer.push(new EditCategoryAction(this, toEdit, name, oldRepr, oldFilter, toEdit.name(), toEdit.repr(), toEdit.filter()));
-//			redoBuffer.clear();
+			undoBuffer.push(new EditCategoryAction(this, name, oldRepr, oldFilter, toEdit.name(), toEdit.toString(), toEdit.filter()));
+			redoBuffer.clear();
 		}
 	}
 
@@ -442,37 +457,14 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (removeCategoryUnbuffered(category))
 		{
-//			undoBuffer.push(new RemoveCategoryAction(this, category));
-//			redoBuffer.clear();
+			undoBuffer.push(new RemoveCategoryAction(this, category));
+			redoBuffer.clear();
 			return true;
 		}
 		else
 			return false;
 	}
 
-	/**
-	 * If a category with the given name exists in the deck, remove it
-	 * and then update the undo and redo buffers.
-	 * 
-	 * @param name Name of the category to look for
-	 * @return <code>true</code> if the category was successfully remove,
-	 * and <code>false</code> otherwise.
-	 * @see EditorFrame#removeCategory(CategoryPanel)
-	 */
-	public boolean removeCategory(String name)
-	{
-		for (CategoryPanel category: new ArrayList<CategoryPanel>(categories))
-			if (category.name().equals(name))
-				return removeCategory(category);
-		String deckName;
-		if (unsaved)
-			deckName = getTitle().substring(0, getTitle().length() - 2);
-		else
-			deckName = getTitle();
-		JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
-		return false;
-	}
-	
 	/**
 	 * If the given category exists in this EditorFrame, remove it and
 	 * remove it from the deck but don't update the undo and redo buffers.
@@ -481,7 +473,7 @@ public class EditorFrame extends JInternalFrame
 	 * @return <code>true</code> if the category was successfully removed,
 	 * and <code>false</code> otherwise.
 	 */
-	public boolean removeCategoryUnbuffered(CategoryPanel category)
+	protected boolean removeCategoryUnbuffered(CategoryPanel category)
 	{
 		if (!deck.containsCategory(category.name()))
 			return false;
@@ -499,7 +491,56 @@ public class EditorFrame extends JInternalFrame
 			return removed;
 		}
 	}
+	
+	/**
+	 * If a category with the given name exists in the deck, remove it
+	 * and then update the undo and redo buffers.
+	 * 
+	 * @param name Name of the category to look for
+	 * @return The category that was removed, or <code>null</code> if
+	 * none was removed.
+	 * @see EditorFrame#removeCategory(CategoryPanel)
+	 */
+	public CategoryPanel removeCategory(String name)
+	{
+		CategoryPanel removed = removeCategoryUnbuffered(name);
+		if (removed != null)
+		{
+			undoBuffer.push(new RemoveCategoryAction(this, removed));
+			redoBuffer.clear();
+		}
+		return removed;
+	}
 
+	/**
+	 * If a category with the given name exists in the deck, remove it
+	 * but don't update the undo and redo buffers.
+	 * 
+	 * @param name Name of the category to look for
+	 * @return The category that was removed, or <code>null</code> if
+	 * none was removed.
+	 * @see EditorFrame#removeCategory(CategoryPanel)
+	 */
+	protected CategoryPanel removeCategoryUnbuffered(String name)
+	{
+		CategoryPanel toRemove = getCategory(name);
+		if (toRemove != null)
+		{
+			removeCategoryUnbuffered(toRemove);
+			return toRemove;
+		}
+		else
+		{
+			String deckName;
+			if (unsaved)
+				deckName = getTitle().substring(0, getTitle().length() - 2);
+			else
+				deckName = getTitle();
+			JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			return null;
+		}
+	}
+	
 	/**
 	 * Update the card counter to reflect the total number of cards in the deck.
 	 */
@@ -555,7 +596,7 @@ public class EditorFrame extends JInternalFrame
 	 * @return <code>true</code> if the deck changed as a result, and
 	 * <code>false</code> otherwise, which is only true if the list is empty.
 	 */
-	public boolean addCardsUnbuffered(List<Card> toAdd, int n)
+	protected boolean addCardsUnbuffered(List<Card> toAdd, int n)
 	{
 		if (toAdd.isEmpty())
 			return false;
@@ -642,7 +683,7 @@ public class EditorFrame extends JInternalFrame
 	 * @return <code>true</code> if the deck was changed as a result, and <code>false</code>
 	 * otherwise.
 	 */
-	public boolean removeCardsUnbuffered(List<Card> toRemove, int n)
+	protected boolean removeCardsUnbuffered(List<Card> toRemove, int n)
 	{
 		if (toRemove.isEmpty())
 			return false;
@@ -679,28 +720,28 @@ public class EditorFrame extends JInternalFrame
 				{
 					List<Card> categorySelectedCards = new ArrayList<Card>();
 					if (category.getSelectedRows().length > 0)
-					{
 						for (int row: category.getSelectedRows())
 							categorySelectedCards.add(deck.getCategory(category.name()).get(category.convertRowIndexToModel(row)));
-						selectedCardsMap.put(category, categorySelectedCards);
-					}
+					selectedCardsMap.put(category, categorySelectedCards);
 				}
 				// Remove cards from the deck
 				for (Card c: toRemove)
 					changed &= deck.remove(c, n);
 				// Update each category panel and then restore the selection as much as possible
-				for (Map.Entry<CategoryPanel, List<Card>> entry: selectedCardsMap.entrySet())
+				for (CategoryPanel category: categories)
 				{
-					entry.getKey().update();
-					for (Card c: entry.getValue())
+					category.update();
+					for (Card c: selectedCardsMap.get(category))
 					{
-						if (deck.getCategory(entry.getKey().name()).contains(c))
+						if (deck.getCategory(category.name()).contains(c))
 						{
-							int row = entry.getKey().convertRowIndexToView(deck.getCategory(entry.getKey().name()).indexOf(c));
-							entry.getKey().addRowSelectionInterval(row, row);
+							int row = category.convertRowIndexToView(deck.getCategory(category.name()).indexOf(c));
+							category.addRowSelectionInterval(row, row);
 						}
 					}
 				}
+				categoriesContainer.revalidate();
+				categoriesContainer.repaint();
 				break;
 			default:
 				break;
@@ -795,8 +836,10 @@ public class EditorFrame extends JInternalFrame
 			return (save(file));
 	}
 
+	// TODO: Cause the tab to change to the category tab when adding or removing categories
+	// and to the main tab when adding or removing cards not in a category
 	/**
-	 * TODO: Implement and comment this
+	 * Undo the last action that was performed on the deck.
 	 */
 	public void undo()
 	{
@@ -809,7 +852,8 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Implement and comment this
+	 * Redo the last action that was undone, assuming nothing was done
+	 * between then and now.
 	 */
 	public void redo()
 	{
