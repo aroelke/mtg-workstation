@@ -1,6 +1,7 @@
 package gui.editor;
 
 import gui.filter.FilterDialog;
+import gui.filter.editor.text.TextFilterPanel;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -8,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.regex.Matcher;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -120,10 +122,20 @@ public class CategoryDialog extends FilterDialog
 	@Override
 	public void initializeFromString(String s)
 	{
-		// TODO: Make this work with names that have white space using quotes
-		String[] contents = s.split("\\s+", 2);
-		nameField.setText(contents[0]);
-		super.initializeFromString(contents[1]);
+		Matcher m = TextFilterPanel.WORD_PATTERN.matcher(s);
+		String name = "";
+		if (m.find())
+		{
+			if (m.group(1) != null)
+				name = m.group(1);
+			else if (m.group(2) != null)
+				name = m.group(2);
+			else
+				name = m.group();
+		}
+		String contents = s.substring(m.end(), s.length()).trim();
+		nameField.setText(name);
+		super.initializeFromString(contents);
 	}
 	
 	/**
@@ -131,7 +143,7 @@ public class CategoryDialog extends FilterDialog
 	 */
 	public String name()
 	{
-		return nameField.getText();
+		return "\"" + nameField.getText() + "\"";
 	}
 	
 	/**

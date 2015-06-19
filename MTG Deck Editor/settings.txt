@@ -1,5 +1,5 @@
 #
-#Fri Jun 19 13:03:31 EDT 2015
+#Fri Jun 19 14:55:27 EDT 2015
 inventory.version_file=version.json
 inventory.source=http\://mtgjson.com/json/
 inventory.version=2.20.3

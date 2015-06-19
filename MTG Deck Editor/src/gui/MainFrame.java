@@ -779,7 +779,6 @@ public class MainFrame extends JFrame
 	 */
 	public void open()
 	{
-		// TODO: Add a progress bar for this
 		switch (fileChooser.showOpenDialog(this))
 		{
 		case JFileChooser.APPROVE_OPTION:
