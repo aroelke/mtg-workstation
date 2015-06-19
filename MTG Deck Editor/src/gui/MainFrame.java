@@ -256,7 +256,7 @@ public class MainFrame extends JFrame
 		// Close file menu item
 		JMenuItem closeItem = new JMenuItem("Close");
 		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
-		closeItem.addActionListener((e) -> {if (selectedFrame != null) close(selectedFrame);});
+		closeItem.addActionListener((e) -> {if (selectedFrame != null) close(selectedFrame); else exit();});
 		fileMenu.add(closeItem);
 		
 		// Close all files menu item
@@ -306,7 +306,7 @@ public class MainFrame extends JFrame
 		
 		// Redo menu item
 		JMenuItem redoItem = new JMenuItem("Redo");
-		redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+		redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_MASK));
 		redoItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.redo();});
 		editMenu.add(redoItem);
 		
@@ -819,6 +819,8 @@ public class MainFrame extends JFrame
 			editors.remove(frame);
 			if (editors.size() > 0)
 				selectFrame(editors.get(0));
+			else
+				selectedFrame = null;
 			return true;
 		}
 	}
