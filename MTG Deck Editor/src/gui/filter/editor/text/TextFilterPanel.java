@@ -129,7 +129,7 @@ public class TextFilterPanel extends FilterEditorPanel
 			{
 			case CONTAINS_ALL_OF:
 				return createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase());
-			case CONTAINS_ANY_OF:
+			case CONTAINS_ANY_OF: case CONTAINS_NONE_OF:
 				Matcher m = WORD_PATTERN.matcher(filterText);
 				StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
 				while (m.find())
@@ -144,9 +144,11 @@ public class TextFilterPanel extends FilterEditorPanel
 					str.add(toAdd.replace("*", "\\E\\w*\\Q"));
 				}
 				Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
-				return (c) -> p.matcher(text.apply(c)).find();
-			case CONTAINS_NONE_OF:
-				return createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase()).negate();
+				Predicate<Card> filter = (c) -> p.matcher(text.apply(c)).find();
+				if (contain.getItemAt(contain.getSelectedIndex()).equals(Containment.CONTAINS_NONE_OF))
+					return filter.negate();
+				else
+					return filter;
 			case CONTAINS_NOT_EXACTLY:
 				return (c) -> !text.apply(c).equalsIgnoreCase(filterText);
 			case CONTAINS_EXACTLY:
