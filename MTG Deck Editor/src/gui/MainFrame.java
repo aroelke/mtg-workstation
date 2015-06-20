@@ -877,27 +877,34 @@ public class MainFrame extends JFrame
 					switch (JOptionPane.showConfirmDialog(null, "File " + f.getName() + " already exists.  Overwrite?", "Warning", JOptionPane.YES_NO_CANCEL_OPTION))
 					{
 					case JOptionPane.YES_OPTION:
+						System.out.println("YES");
 						write = true;
 						done = true;
 						break;
 					case JOptionPane.NO_OPTION:
+						System.out.println("NO");
 						write = false;
 						done = false;
 						break;
 					case JOptionPane.CANCEL_OPTION:
 					case JOptionPane.CLOSED_OPTION:
+						System.out.println("CANCEL/CLOSED");
 						write = false;
 						done = true;
 						break;
 					default:
+						System.out.println("default");
 						write = false;
 						break;
 					}
 				}
 				else
+				{
 					write = true;
+					done = true;
+				}
 				if (write)
-					frame.save(fileChooser.getSelectedFile());
+					frame.save(f);
 				break;
 			case JFileChooser.CANCEL_OPTION:
 			case JFileChooser.ERROR_OPTION:
