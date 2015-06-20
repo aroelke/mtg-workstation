@@ -108,6 +108,8 @@ public abstract class Symbol implements Comparable<Symbol>
 						return PhiSymbol.PHI;
 					case 'H':
 						return HalfColorSymbol.SYMBOLS.get(MTGColor.get(s.substring(1)));
+					case '\u221E':
+						return InfinityManaSymbol.INFINITY_MANA;
 					default:
 						throw new IllegalArgumentException("Illegal symbol string \"" + s + "\"");
 					}

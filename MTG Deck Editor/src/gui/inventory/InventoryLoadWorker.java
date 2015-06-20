@@ -37,6 +37,9 @@ public class InventoryLoadWorker extends SwingWorker<Inventory, String>
 	 * Dialog displaying progress information.
 	 */
 	private InventoryLoadDialog dialog;
+	/**
+	 * File to load from.
+	 */
 	private File file;
 	
 	/**

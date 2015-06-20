@@ -80,6 +80,8 @@ import database.characteristics.CardCharacteristic;
  * the right side is a pane which contains internal frames that allow the user to open, close, and edit
  * multiple decks at once.  See @link{gui.editor.EditorFrame} for details on the editor frames.
  * 
+ * TODO: Add some indication that a card is in the deck in the inventory table if it is
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")

@@ -531,8 +531,13 @@ public class Card
 		Matcher symbols = Pattern.compile("\\{([^}]+)\\}").matcher(html);
 		while (symbols.find())
 		{
-			Symbol symbol = Symbol.valueOf(symbols.group(1));
-			html = html.replace(symbols.group(), symbol.getHTML());
+			try
+			{
+				Symbol symbol = Symbol.valueOf(symbols.group(1));
+				html = html.replace(symbols.group(), symbol.getHTML());
+			}
+			catch (Exception e)
+			{}
 		}
 		html = html.replace("\n", "<br>");
 		return html;
