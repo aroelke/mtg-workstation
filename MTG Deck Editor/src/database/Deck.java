@@ -342,7 +342,6 @@ public class Deck
 	 * methods, the master list will be updated to reflect this only if the card
 	 * passes through the Category's filter.
 	 * 
-	 * TODO: Allow cards that don't pass through the filter to be added to a category
 	 * manually
 	 * 
 	 * @author Alec Roelke

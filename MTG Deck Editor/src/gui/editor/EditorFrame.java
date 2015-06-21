@@ -176,6 +176,7 @@ public class EditorFrame extends JInternalFrame
 				CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
+		// TODO: Allow the user to add cards to a category
 		table = new JTable(model)
 		{
 			@Override
@@ -276,7 +277,6 @@ public class EditorFrame extends JInternalFrame
 	public EditorFrame(File f, int u, MainFrame p)
 	{
 		this(u, p);
-		// TODO: Test this
 		try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(p, "Opening " + f.getName(), new FileInputStream(f)))))
 		{
 			int cards = Integer.valueOf(rd.readLine().trim());
