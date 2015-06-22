@@ -3,15 +3,13 @@ package gui.editor;
 import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
+import gui.TableMouseAdapter;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -220,46 +218,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Table popup menu
 		JPopupMenu tableMenu = new JPopupMenu();
-		// TODO: Make this mouse listener a standalone class
-		// (since all three kinds of table will have the exact same one)
-		table.addMouseListener(new MouseAdapter()
-		{
-			public void popupClick(MouseEvent e)
-			{
-				if (e.isPopupTrigger())
-				{
-					int r = table.rowAtPoint(e.getPoint());
-					if (!table.isRowSelected(r))
-					{
-						if ((e.getModifiers()&InputEvent.CTRL_MASK) == 0)
-							table.setRowSelectionInterval(r, r);
-						else
-							table.addRowSelectionInterval(r, r);
-					}
-					tableMenu.show(e.getComponent(), e.getX(), e.getY());
-				}
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e)
-			{
-				popupClick(e);
-			}
-			
-			@Override
-			public void mouseReleased(MouseEvent e)
-			{
-				popupClick(e);
-				
-				// TODO: Decide if this is correct
-				if (table.rowAtPoint(e.getPoint()) == -1)
-					table.clearSelection();
-			}
-		});
-		// TODO: Try to make right clicking have all the features of left clicking.
-		// Currently you can select single rows (or add the single row to the selection by
-		// holding ctrl) with the right button, but you can't extend a selection (with shift)
-		// or drag it using the right mouse button
+		table.addMouseListener(new TableMouseAdapter(table, tableMenu));
 		
 		// Add single copy item
 		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");

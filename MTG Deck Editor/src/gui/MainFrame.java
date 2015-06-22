@@ -14,10 +14,7 @@ import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
@@ -561,40 +558,7 @@ public class MainFrame extends JFrame
 		
 		// Table popup menu
 		JPopupMenu inventoryMenu = new JPopupMenu();
-		inventoryTable.addMouseListener(new MouseAdapter()
-		{
-			public void popupClick(MouseEvent e)
-			{
-				if (e.isPopupTrigger())
-				{
-					int r = inventoryTable.rowAtPoint(e.getPoint());
-					if (!inventoryTable.isRowSelected(r))
-					{
-						if ((e.getModifiers()&InputEvent.CTRL_MASK) == 0)
-							inventoryTable.setRowSelectionInterval(r, r);
-						else
-							inventoryTable.addRowSelectionInterval(r, r);
-					}
-					inventoryMenu.show(e.getComponent(), e.getX(), e.getY());
-				}
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e)
-			{
-				popupClick(e);
-			}
-			
-			@Override
-			public void mouseReleased(MouseEvent e)
-			{
-				popupClick(e);
-			}
-		});
-		// TODO: Try to make right clicking have all the features of left clicking.
-		// Currently you can select single rows (or add the single row to the selection by
-		// holding ctrl) with the right button, but you can't extend a selection (with shift)
-		// or drag it using the right mouse button
+		inventoryTable.addMouseListener(new TableMouseAdapter(inventoryTable, inventoryMenu));
 		
 		// Add single copy item
 		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
