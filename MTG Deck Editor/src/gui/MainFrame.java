@@ -327,14 +327,14 @@ public class MainFrame extends JFrame
 		// Add single copy item
 		JMenuItem addSingleItem = new JMenuItem("Add Single Copy");
 		addSingleItem.setAccelerator(KeyStroke.getKeyStroke('+'));
-		addSingleItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.addCards(getTableSelection(), 1);});
+		addSingleItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.addCards(getSelectedCards(), 1);});
 		addMenu.add(addSingleItem);
 		
 		// Fill playset item
 		JMenuItem playsetItem = new JMenuItem("Fill Playset");
 		playsetItem.addActionListener((e) -> {
 			if (selectedFrame != null)
-				for (Card c: getTableSelection())
+				for (Card c: getSelectedCards())
 					selectedFrame.addCard(c, 4 - selectedFrame.count(c));
 		});
 		addMenu.add(playsetItem);
@@ -349,7 +349,7 @@ public class MainFrame extends JFrame
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
 				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-					selectedFrame.addCards(getTableSelection(), (Integer)spinner.getValue());
+					selectedFrame.addCards(getSelectedCards(), (Integer)spinner.getValue());
 			}
 		});
 		addMenu.add(addNItem);
@@ -598,14 +598,14 @@ public class MainFrame extends JFrame
 		
 		// Add single copy item
 		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
-		addSinglePopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.addCards(getTableSelection(), 1);});
+		addSinglePopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.addCards(getSelectedCards(), 1);});
 		inventoryMenu.add(addSinglePopupItem);
 		
 		// Fill playset item
 		JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
 		playsetPopupItem.addActionListener((e) -> {
 			if (selectedFrame != null)
-				for (Card c: getTableSelection())
+				for (Card c: getSelectedCards())
 					selectedFrame.addCard(c, 4 - selectedFrame.count(c));
 		});
 		inventoryMenu.add(playsetPopupItem);
@@ -620,7 +620,7 @@ public class MainFrame extends JFrame
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
 				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-					selectedFrame.addCards(getTableSelection(), (Integer)spinner.getValue());
+					selectedFrame.addCards(getSelectedCards(), (Integer)spinner.getValue());
 			}
 		});
 		inventoryMenu.add(addNPopupItem);
@@ -1056,7 +1056,7 @@ public class MainFrame extends JFrame
 	/**
 	 * @return A List containing each currently-selected card in the inventory table.
 	 */
-	public List<Card> getTableSelection()
+	public List<Card> getSelectedCards()
 	{
 		return Arrays.stream(inventoryTable.getSelectedRows())
 					 .mapToObj((r) -> inventory.get(inventoryTable.convertRowIndexToModel(r)))

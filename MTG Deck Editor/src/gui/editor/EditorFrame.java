@@ -9,6 +9,9 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,14 +30,19 @@ import java.util.stream.Collectors;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ProgressMonitorInputStream;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -145,7 +153,7 @@ public class EditorFrame extends JInternalFrame
 
 		// Add button to add one copy of the currently-selected card to the deck
 		JButton addButton = new JButton("+");
-		addButton.addActionListener((e) -> addCards(parent.getTableSelection(), 1));
+		addButton.addActionListener((e) -> addCards(parent.getSelectedCards(), 1));
 		GridBagConstraints addConstraints = new GridBagConstraints();
 		addConstraints.fill = GridBagConstraints.HORIZONTAL;
 		addConstraints.gridy = 1;
@@ -209,7 +217,100 @@ public class EditorFrame extends JInternalFrame
 			}
 		});
 		listTabs.addTab("Cards", new JScrollPane(table));
-
+		
+		// Table popup menu
+		JPopupMenu tableMenu = new JPopupMenu();
+		// TODO: Make this mouse listener a standalone class
+		// (since all three kinds of table will have the exact same one)
+		table.addMouseListener(new MouseAdapter()
+		{
+			public void popupClick(MouseEvent e)
+			{
+				if (e.isPopupTrigger())
+				{
+					int r = table.rowAtPoint(e.getPoint());
+					if (!table.isRowSelected(r))
+					{
+						if ((e.getModifiers()&InputEvent.CTRL_MASK) == 0)
+							table.setRowSelectionInterval(r, r);
+						else
+							table.addRowSelectionInterval(r, r);
+					}
+					tableMenu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+				popupClick(e);
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				popupClick(e);
+				
+				// TODO: Decide if this is correct
+				if (table.rowAtPoint(e.getPoint()) == -1)
+					table.clearSelection();
+			}
+		});
+		// TODO: Try to make right clicking have all the features of left clicking.
+		// Currently you can select single rows (or add the single row to the selection by
+		// holding ctrl) with the right button, but you can't extend a selection (with shift)
+		// or drag it using the right mouse button
+		
+		// Add single copy item
+		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
+		addSinglePopupItem.addActionListener((e) -> {addCards(getSelectedCards(), 1);});
+		tableMenu.add(addSinglePopupItem);
+		
+		// Fill playset item
+		JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
+		playsetPopupItem.addActionListener((e) -> {
+			for (Card c: getSelectedCards())
+				addCard(c, 4 - deck.count(c));
+		});
+		tableMenu.add(playsetPopupItem);
+		
+		// Add variable item
+		JMenuItem addNPopupItem = new JMenuItem("Add Copies...");
+		addNPopupItem.addActionListener((e) -> {
+			JPanel contentPanel = new JPanel(new BorderLayout());
+			contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
+			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+			contentPanel.add(spinner, BorderLayout.SOUTH);
+			if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				addCards(getSelectedCards(), (Integer)spinner.getValue());
+		});
+		tableMenu.add(addNPopupItem);
+		
+		tableMenu.add(new JSeparator());
+		
+		// Remove single copy item
+		JMenuItem removeSinglePopupItem = new JMenuItem("Remove Single Copy");
+		removeSinglePopupItem.addActionListener((e) -> removeSelectedCards(1));
+		tableMenu.add(removeSinglePopupItem);
+		
+		// Remove all item
+		JMenuItem removeAllPopupItem = new JMenuItem("Remove All Copies");
+		removeAllPopupItem.addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE));
+		tableMenu.add(removeAllPopupItem);
+		
+		// Remove variable item
+		JMenuItem removeNPopupItem = new JMenuItem("Remove Copies...");
+		removeNPopupItem.addActionListener((e) -> {
+			JPanel contentPanel = new JPanel(new BorderLayout());
+			contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
+			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+			contentPanel.add(spinner, BorderLayout.SOUTH);
+			if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				removeSelectedCards((Integer)spinner.getValue());
+		});
+		tableMenu.add(removeNPopupItem);
+		
+		// Panel containing categories
 		JPanel categoriesPanel = new JPanel(new BorderLayout());
 
 		// Button to add a new category
@@ -759,6 +860,17 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
+	 * @return The list of Cards corresponding to the current main table selection
+	 * interval.
+	 */
+	public List<Card> getSelectedCards()
+	{
+		return Arrays.stream(table.getSelectedRows())
+				  .mapToObj((r) -> deck.get(table.convertRowIndexToModel(r)))
+				  .collect(Collectors.toList());
+	}
+	
+	/**
 	 * Helper function which removes a given number of copies of all cards
 	 * selected in the various tables of this EditorFrame.
 	 * 
@@ -772,16 +884,14 @@ public class EditorFrame extends JInternalFrame
 		switch (listTabs.getSelectedIndex())
 		{
 		case 0:
-			selectedCards = Arrays.stream(table.getSelectedRows())
-			.mapToObj((r) -> deck.get(table.convertRowIndexToModel(r)))
-			.collect(Collectors.toList());
+			selectedCards = getSelectedCards();
 			break;
 		case 1:
 			selectedCards = new ArrayList<Card>();
 			for (CategoryPanel category: categories)
 				selectedCards.addAll(Arrays.stream(category.getSelectedRows())
-						.mapToObj((r) -> deck.getCategory(category.name()).get(category.convertRowIndexToModel(r)))
-						.collect(Collectors.toList()));
+										   .mapToObj((r) -> deck.getCategory(category.name()).get(category.convertRowIndexToModel(r)))
+										   .collect(Collectors.toList()));
 			break;
 		default:
 			selectedCards = new ArrayList<Card>();
