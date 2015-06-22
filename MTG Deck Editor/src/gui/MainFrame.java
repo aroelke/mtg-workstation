@@ -14,7 +14,10 @@ import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
@@ -49,6 +52,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
@@ -554,6 +558,99 @@ public class MainFrame extends JFrame
 		inventoryTable.setFillsViewportHeight(true);
 		inventoryTable.setShowGrid(false);
 		tablePanel.add(new JScrollPane(inventoryTable), BorderLayout.CENTER);
+		
+		// Table popup menu
+		JPopupMenu inventoryMenu = new JPopupMenu();
+		inventoryTable.addMouseListener(new MouseAdapter()
+		{
+			public void popupClick(MouseEvent e)
+			{
+				if (e.isPopupTrigger())
+				{
+					int r = inventoryTable.rowAtPoint(e.getPoint());
+					if (!inventoryTable.isRowSelected(r))
+					{
+						if ((e.getModifiers()&InputEvent.CTRL_MASK) == 0)
+							inventoryTable.setRowSelectionInterval(r, r);
+						else
+							inventoryTable.addRowSelectionInterval(r, r);
+					}
+					inventoryMenu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+				popupClick(e);
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				popupClick(e);
+			}
+		});
+		// TODO: Try to make right clicking have all the features of left clicking.
+		// Currently you can select single rows (or add the single row to the selection by
+		// holding ctrl) with the right button, but you can't extend a selection (with shift)
+		// or drag it using the right mouse button
+		
+		// Add single copy item
+		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
+		addSinglePopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.addCards(getTableSelection(), 1);});
+		inventoryMenu.add(addSinglePopupItem);
+		
+		// Fill playset item
+		JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
+		playsetPopupItem.addActionListener((e) -> {
+			if (selectedFrame != null)
+				for (Card c: getTableSelection())
+					selectedFrame.addCard(c, 4 - selectedFrame.count(c));
+		});
+		inventoryMenu.add(playsetPopupItem);
+		
+		// Add variable item
+		JMenuItem addNPopupItem = new JMenuItem("Add Copies...");
+		addNPopupItem.addActionListener((e) -> {
+			if (selectedFrame != null)
+			{
+				JPanel contentPanel = new JPanel(new BorderLayout());
+				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
+				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+				contentPanel.add(spinner, BorderLayout.SOUTH);
+				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+					selectedFrame.addCards(getTableSelection(), (Integer)spinner.getValue());
+			}
+		});
+		inventoryMenu.add(addNPopupItem);
+		
+		inventoryMenu.add(new JSeparator());
+		
+		// Remove single copy item
+		JMenuItem removeSinglePopupItem = new JMenuItem("Remove Single Copy");
+		removeSinglePopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeSelectedCards(1);});
+		inventoryMenu.add(removeSinglePopupItem);
+		
+		// Remove all item
+		JMenuItem removeAllPopupItem = new JMenuItem("Remove All Copies");
+		removeAllPopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeSelectedCards(Integer.MAX_VALUE);});
+		inventoryMenu.add(removeAllPopupItem);
+		
+		// Remove variable item
+		JMenuItem removeNPopupItem = new JMenuItem("Remove Copies...");
+		removeNPopupItem.addActionListener((e) -> {
+			if (selectedFrame != null)
+			{
+				JPanel contentPanel = new JPanel(new BorderLayout());
+				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
+				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+				contentPanel.add(spinner, BorderLayout.SOUTH);
+				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+					selectedFrame.removeSelectedCards((Integer)spinner.getValue());
+			}
+		});
+		inventoryMenu.add(removeNPopupItem);
 		
 		// Action to be taken when the user presses the Enter key after entering text into the quick-filter
 		// bar
