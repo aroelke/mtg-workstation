@@ -203,6 +203,16 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
+	 * @param c Card to check for
+	 * @return <code>true</code> if the category contains the given Card, and
+	 * <code>false</code> otherwise.
+	 */
+	public boolean contains(Card c)
+	{
+		return category.contains(c);
+	}
+	
+	/**
 	 * This class represents a mouse wheel listener that returns mouse wheel control to an outer scroll
 	 * pane when this one's scroll pane has reached a limit.
 	 * 

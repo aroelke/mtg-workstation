@@ -56,7 +56,7 @@ public class TableMouseAdapter extends MouseAdapter
 		if (e.isPopupTrigger())
 		{
 			int r = table.rowAtPoint(e.getPoint());
-			if (!table.isRowSelected(r))
+			if (r >= 0 && !table.isRowSelected(r))
 			{
 				if ((e.getModifiers()&InputEvent.CTRL_MASK) == 0)
 					table.setRowSelectionInterval(r, r);

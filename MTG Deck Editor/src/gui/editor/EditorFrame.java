@@ -26,8 +26,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -45,6 +47,8 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import database.Card;
 import database.Deck;
@@ -269,6 +273,42 @@ public class EditorFrame extends JInternalFrame
 		});
 		tableMenu.add(removeNPopupItem);
 		
+		tableMenu.add(new JSeparator());
+		
+		// Set categories submenu
+		JMenu setCategoriesMenu = new JMenu("Set Categories");
+		tableMenu.add(setCategoriesMenu);
+		tableMenu.addPopupMenuListener(new PopupMenuListener()
+		{
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent arg0)
+			{}
+
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0)
+			{}
+
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0)
+			{
+				List<Card> cards = getSelectedCards();
+				if (cards.size() != 1 && !categories.isEmpty())
+					setCategoriesMenu.setEnabled(false);
+				else
+				{
+					setCategoriesMenu.setEnabled(true);
+					setCategoriesMenu.removeAll();
+					for (CategoryPanel category: categories)
+					{
+						JCheckBoxMenuItem containsBox = new JCheckBoxMenuItem(category.name());
+						containsBox.setSelected(category.contains(cards.get(0)));
+						// TODO: Set what happens when a check box is switched
+						setCategoriesMenu.add(containsBox);
+					}
+				}
+			}
+		});
+		
 		// Panel containing categories
 		JPanel categoriesPanel = new JPanel(new BorderLayout());
 
@@ -471,7 +511,7 @@ public class EditorFrame extends JInternalFrame
 			// Add the behavior for clicking on the category's table
 			// Table popup menu
 			JPopupMenu tableMenu = new JPopupMenu();
-			table.addMouseListener(new TableMouseAdapter(table, tableMenu));
+			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 			
 			// Add single copy item
 			JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
@@ -521,6 +561,14 @@ public class EditorFrame extends JInternalFrame
 					removeSelectedCards((Integer)spinner.getValue());
 			});
 			tableMenu.add(removeNPopupItem);
+			
+			tableMenu.add(new JSeparator());
+			
+			// Remove from category item
+			JMenuItem removeFromCategoryItem = new JMenuItem("Remove from Category");
+			// TODO: Implement this
+			tableMenu.add(removeFromCategoryItem);
+			
 			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 			revalidate();
 			repaint();
