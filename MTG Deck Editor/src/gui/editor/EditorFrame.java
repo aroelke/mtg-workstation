@@ -337,27 +337,30 @@ public class EditorFrame extends JInternalFrame
 	public EditorFrame(File f, int u, MainFrame p)
 	{
 		this(u, p);
-		try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(p, "Opening " + f.getName(), new FileInputStream(f)))))
+		try (FileInputStream fi = new FileInputStream(f))
 		{
-			int cards = Integer.valueOf(rd.readLine().trim());
-			for (int i = 0; i < cards; i++)
+			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(p, "Opening " + f.getName(), fi))))
 			{
-				String[] card = rd.readLine().trim().split("\t");
-				deck.add(p.inventory().get(card[0]), Integer.valueOf(card[1]));
-			}
-			int categories = Integer.valueOf(rd.readLine().trim());
-			for (int i = 0; i < categories; i++)
-			{
-				try
+				int cards = Integer.valueOf(rd.readLine().trim());
+				for (int i = 0; i < cards; i++)
 				{
-					String repr = rd.readLine().trim();
-					categoryCreator.initializeFromString(repr);
-					addCategory(new CategoryPanel(categoryCreator.name(), repr, deck, categoryCreator.getFilter()));
-					categoryCreator.reset();
+					String[] card = rd.readLine().trim().split("\t");
+					deck.add(p.inventory().get(card[0]), Integer.valueOf(card[1]));
 				}
-				catch (Exception e)
+				int categories = Integer.valueOf(rd.readLine().trim());
+				for (int i = 0; i < categories; i++)
 				{
-					JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+					try
+					{
+						String repr = rd.readLine().trim();
+						categoryCreator.initializeFromString(repr);
+						addCategory(new CategoryPanel(categoryCreator.name(), repr, deck, categoryCreator.getFilter()));
+						categoryCreator.reset();
+					}
+					catch (Exception e)
+					{
+						JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+					}
 				}
 			}
 		}
