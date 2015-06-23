@@ -209,7 +209,7 @@ public class EditorFrame extends JInternalFrame
 					{
 						parent.selectCard(deck.get(table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
 						for (CategoryPanel c: categories)
-							c.clearSelection();
+							c.table.clearSelection();
 					}
 				}
 			}
@@ -442,20 +442,20 @@ public class EditorFrame extends JInternalFrame
 			categories.add(newCategory);
 			categoriesContainer.add(newCategory);
 			// When a card is selected in a category, the others should deselect
-			newCategory.addListSelectionListener((e) -> {
+			newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
 				if (!lsm.isSelectionEmpty())
 				{
 					if (!e.getValueIsAdjusting())
-						parent.selectCard(deck.getCategory(newCategory.name()).get(newCategory.convertRowIndexToModel(lsm.getMinSelectionIndex())));
+						parent.selectCard(deck.getCategory(newCategory.name()).get(newCategory.table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
 					for (CategoryPanel c: categories)
 						if (newCategory != c)
-							c.clearSelection();
+							c.table.clearSelection();
 					table.clearSelection();
 				}
 			});
 			// Add the behavior for the edit category button
-			newCategory.addEditButtonListener((e) -> {
+			newCategory.editButton.addActionListener((e) -> {
 				String oldName = newCategory.name();
 				String oldRepr = newCategory.toString();
 				Predicate<Card> oldFilter = newCategory.filter();
@@ -467,7 +467,61 @@ public class EditorFrame extends JInternalFrame
 				}
 			});
 			// Add the behavior for the remove category button
-			newCategory.addRemoveButtonListener((e) -> removeCategory(newCategory));
+			newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory));
+			// Add the behavior for clicking on the category's table
+			// Table popup menu
+			JPopupMenu tableMenu = new JPopupMenu();
+			table.addMouseListener(new TableMouseAdapter(table, tableMenu));
+			
+			// Add single copy item
+			JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
+			addSinglePopupItem.addActionListener((e) -> {addCards(newCategory.getSelectedCards(), 1);});
+			tableMenu.add(addSinglePopupItem);
+			
+			// Fill playset item
+			JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
+			playsetPopupItem.addActionListener((e) -> {
+				for (Card c: newCategory.getSelectedCards())
+					addCard(c, 4 - deck.count(c));
+			});
+			tableMenu.add(playsetPopupItem);
+			
+			// Add variable item
+			JMenuItem addNPopupItem = new JMenuItem("Add Copies...");
+			addNPopupItem.addActionListener((e) -> {
+				JPanel contentPanel = new JPanel(new BorderLayout());
+				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
+				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+				contentPanel.add(spinner, BorderLayout.SOUTH);
+				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+					addCards(newCategory.getSelectedCards(), (Integer)spinner.getValue());
+			});
+			tableMenu.add(addNPopupItem);
+			
+			tableMenu.add(new JSeparator());
+			
+			// Remove single copy item
+			JMenuItem removeSinglePopupItem = new JMenuItem("Remove Single Copy");
+			removeSinglePopupItem.addActionListener((e) -> removeSelectedCards(1));
+			tableMenu.add(removeSinglePopupItem);
+			
+			// Remove all item
+			JMenuItem removeAllPopupItem = new JMenuItem("Remove All Copies");
+			removeAllPopupItem.addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE));
+			tableMenu.add(removeAllPopupItem);
+			
+			// Remove variable item
+			JMenuItem removeNPopupItem = new JMenuItem("Remove Copies...");
+			removeNPopupItem.addActionListener((e) -> {
+				JPanel contentPanel = new JPanel(new BorderLayout());
+				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
+				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+				contentPanel.add(spinner, BorderLayout.SOUTH);
+				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+					removeSelectedCards((Integer)spinner.getValue());
+			});
+			tableMenu.add(removeNPopupItem);
+			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 			revalidate();
 			repaint();
 			setUnsaved();
@@ -680,10 +734,10 @@ public class EditorFrame extends JInternalFrame
 				// Maintain the selection in each category
 				for (CategoryPanel c: categories)
 				{
-					selectedRows = c.getSelectedRows();
+					selectedRows = c.table.getSelectedRows();
 					c.update();
 					for (int row: selectedRows)
-						c.addRowSelectionInterval(row, row);
+						c.table.addRowSelectionInterval(row, row);
 				}
 				categoriesContainer.revalidate();
 				categoriesContainer.repaint();
@@ -782,9 +836,9 @@ public class EditorFrame extends JInternalFrame
 				for (CategoryPanel category: categories)
 				{
 					List<Card> categorySelectedCards = new ArrayList<Card>();
-					if (category.getSelectedRows().length > 0)
-						for (int row: category.getSelectedRows())
-							categorySelectedCards.add(deck.getCategory(category.name()).get(category.convertRowIndexToModel(row)));
+					if (category.table.getSelectedRows().length > 0)
+						for (int row: category.table.getSelectedRows())
+							categorySelectedCards.add(deck.getCategory(category.name()).get(category.table.convertRowIndexToModel(row)));
 					selectedCardsMap.put(category, categorySelectedCards);
 				}
 				// Remove cards from the deck
@@ -798,8 +852,8 @@ public class EditorFrame extends JInternalFrame
 					{
 						if (deck.getCategory(category.name()).contains(c))
 						{
-							int row = category.convertRowIndexToView(deck.getCategory(category.name()).indexOf(c));
-							category.addRowSelectionInterval(row, row);
+							int row = category.table.convertRowIndexToView(deck.getCategory(category.name()).indexOf(c));
+							category.table.addRowSelectionInterval(row, row);
 						}
 					}
 				}
@@ -851,9 +905,7 @@ public class EditorFrame extends JInternalFrame
 		case 1:
 			selectedCards = new ArrayList<Card>();
 			for (CategoryPanel category: categories)
-				selectedCards.addAll(Arrays.stream(category.getSelectedRows())
-										   .mapToObj((r) -> deck.getCategory(category.name()).get(category.convertRowIndexToModel(r)))
-										   .collect(Collectors.toList()));
+				selectedCards.addAll(category.getSelectedCards());
 			break;
 		default:
 			selectedCards = new ArrayList<Card>();

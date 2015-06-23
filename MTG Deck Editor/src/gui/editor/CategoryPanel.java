@@ -6,12 +6,12 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -21,7 +21,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionListener;
 
 import database.Card;
 import database.Deck;
@@ -48,7 +47,7 @@ public class CategoryPanel extends JPanel
 	/**
 	 * Table to display the contents of the category.
 	 */
-	private JTable table;
+	protected JTable table;
 	/**
 	 * Model to tell the table how to display the contents of the category.
 	 */
@@ -60,11 +59,11 @@ public class CategoryPanel extends JPanel
 	/**
 	 * Button for editing the category.
 	 */
-	private JButton editButton;
+	protected JButton editButton;
 	/**
 	 * Button to remove the category.
 	 */
-	private JButton removeButton;
+	protected JButton removeButton;
 	/**
 	 * Border showing the name of the category.
 	 */
@@ -194,97 +193,13 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * @return An array containing the rows that are selected in this CategorsPanel's table.
+	 * @return The list of Cards corresponding to the selected rows in the category's table.
 	 */
-	public int[] getSelectedRows()
+	public List<Card> getSelectedCards()
 	{
-		return table.getSelectedRows();
-	}
-	
-	/**
-	 * Select the given row interval in this CategoryPanel's table in addition to the
-	 * selection that may have already been made.
-	 * 
-	 * @param index0 Starting index of the interval
-	 * @param index1 Ending index of the interval
-	 */
-	public void addRowSelectionInterval(int index0, int index1)
-	{
-		table.addRowSelectionInterval(index0, index1);
-	}
-	
-	/**
-	 * Add an action that should be performed when one or more rows in the table are
-	 * selected.
-	 * 
-	 * @param x Listener for a selection event
-	 */
-	public void addListSelectionListener(ListSelectionListener x)
-	{
-		table.getSelectionModel().addListSelectionListener(x);
-	}
-	
-	/**
-	 * Add an action to perform when the edit button is clicked.
-	 * 
-	 * @param x Listener for a click event on the edit button
-	 */
-	public void addEditButtonListener(ActionListener x)
-	{
-		editButton.addActionListener(x);
-	}
-	
-	/**
-	 * Add an action to perform when the remove button is clicked.
-	 * 
-	 * @param x Listener for a click event on the remove button
-	 */
-	public void addRemoveButtonListener(ActionListener x)
-	{
-		removeButton.addActionListener(x);
-	}
-	
-	/**
-	 * Clear the selection in this CategoryPanel's table.  This will fire
-	 * the table's ListSelectionListener.
-	 */
-	public void clearSelection()
-	{
-		table.clearSelection();
-	}
-	
-	/**
-	 * Convert the row index in the view of this CategoryPanel's table to a
-	 * row in its backing data structure.
-	 * 
-	 * @param viewRowIndex Row index to convert
-	 * @return The converted row index.
-	 */
-	public int convertRowIndexToModel(int viewRowIndex)
-	{
-		return table.convertRowIndexToModel(viewRowIndex);
-	}
-	
-	/**
-	 * Converts the row index in the model of thie CategoryPanel's table to
-	 * a row in the view.
-	 * 
-	 * @param modelRowIndex Row index to convert
-	 * @return The converted row index.
-	 */
-	public int convertRowIndexToView(int modelRowIndex)
-	{
-		return table.convertRowIndexToView(modelRowIndex);
-	}
-	
-	/**
-	 * Add a MouseListener to this category's table.
-	 * 
-	 * @param m MouseListener to add to the table
-	 */
-	public void addTableMouseListener(MouseListener m)
-	{
-		table.addMouseListener(m);
+		return Arrays.stream(table.getSelectedRows())
+					 .mapToObj((r) -> category.get(table.convertRowIndexToModel(r)))
+					 .collect(Collectors.toList());
 	}
 	
 	/**
