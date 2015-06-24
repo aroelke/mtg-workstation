@@ -39,7 +39,7 @@ public class CategoryDialog extends FilterDialog
 	/**
 	 * Master list of cards in the deck.
 	 */
-	private Deck cards;
+	private Deck deck;
 	/**
 	 * CategoryPanel that will either be returned or be edited.
 	 */
@@ -56,7 +56,7 @@ public class CategoryDialog extends FilterDialog
 		super(SwingUtilities.windowForComponent(owner), "Advanced Filter");
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		
-		cards = owner.deck;
+		deck = owner.deck;
 		category = null;
 		
 		// Name editing field
@@ -115,23 +115,32 @@ public class CategoryDialog extends FilterDialog
 	 * This should look similar to the parent FilterDialog's argument, except the name precedes
 	 * the opening < inside quotes and separated from it by a space.
 	 * 
+	 * @param n Name of the category
 	 * @param s String to parse
-	 * @see FilterDialog#initializeFromString(String)
+	 * @see FilterDialog#setContents(String)
+	 */
+	public void setContents(String n, String s)
+	{
+		nameField.setText(n.trim());
+		super.setContents(s);
+	}
+	
+	/**
+	 * Parse a String for filters and create the appropriate filter panels and set their values.
+	 * This should look similar to the parent FilterDialog's argument, except the name precedes
+	 * the opening < inside quotes and separated from it by a space.
+	 * 
+	 * @param s String to parse
+	 * @see FilterDialog#setContents(String)
 	 */
 	@Override
-	public void initializeFromString(String s)
+	public void setContents(String s)
 	{
-		// TODO: Figure out what to do with the whitelist and blacklist
 		Matcher m = Deck.CATEGORY_PATTERN.matcher(s);
 		if (m.matches())
-		{
-			String name = m.group(1).trim();
-			String contents = m.group(4).trim();
-			nameField.setText(name);
-			super.initializeFromString(contents);
-		}
+			setContents(m.group(1).trim(), m.group(4));
 		else
-			throw new IllegalArgumentException("Illegal category string " + s);
+			throw new IllegalArgumentException("Illegal content string \"" + s + "\"");
 	}
 	
 	/**
@@ -166,7 +175,7 @@ public class CategoryDialog extends FilterDialog
 	 */
 	public boolean editCategory(CategoryPanel toEdit)
 	{
-		if (!cards.containsCategory(toEdit.name()))
+		if (!deck.containsCategory(toEdit.name()))
 		{
 			JOptionPane.showMessageDialog(null, "Decklist must contain category \"" + toEdit.name() + "\".", "Error", JOptionPane.ERROR_MESSAGE);
 			reset();
@@ -174,7 +183,7 @@ public class CategoryDialog extends FilterDialog
 		}
 		
 		category = toEdit;
-		initializeFromString(toEdit.toString());
+		setContents(toEdit.toString());
 		setVisible(true);
 		return category != null;
 	}
@@ -208,9 +217,9 @@ public class CategoryDialog extends FilterDialog
 				try
 				{
 					if (category != null)
-						category.edit(nameField.getText(), CategoryDialog.super.toString(), getFilter());
+						category.edit(nameField.getText(), CategoryDialog.super.toString(), filter());
 					else
-						category = new CategoryPanel(nameField.getText(), CategoryDialog.super.toString(), cards, getFilter());
+						category = new CategoryPanel(nameField.getText(), CategoryDialog.super.toString(), filter(), deck);
 					setVisible(false);
 					reset();
 				}

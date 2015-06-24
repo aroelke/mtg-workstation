@@ -9,7 +9,9 @@ import java.awt.FlowLayout;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -38,7 +40,7 @@ public class CategoryPanel extends JPanel
 	/**
 	 * Number of rows in the card table to display.
 	 */
-	private static final int ROWS_TO_DISPLAY = 6;
+	private static final int MAX_ROWS_TO_DISPLAY = 6;
 	
 	/**
 	 * Category in the Deck data structure.
@@ -74,10 +76,12 @@ public class CategoryPanel extends JPanel
 	 * 
 	 * @param n Name of the new category
 	 * @param r String representation of the new category
-	 * @param list List of cards in the new category
+	 * @param whitelist Set of Cards that should always be included in the new category
+	 * @param blacklist Set of Cards that should never be included in the new category
 	 * @param p Filter for the new category
+	 * @param list List of cards in the new category
 	 */
-	public CategoryPanel(String n, String r, Deck list, Predicate<Card> p)
+	public CategoryPanel(String n, String r, Set<Card> whitelist, Set<Card> blacklist, Predicate<Card> p, Deck list)
 	{
 		super();
 		
@@ -124,7 +128,7 @@ public class CategoryPanel extends JPanel
 			public Dimension getPreferredScrollableViewportSize()
 			{
 				Dimension d = getPreferredSize();
-				d.height = getRowHeight()*ROWS_TO_DISPLAY;
+				d.height = getRowHeight()*Math.min(MAX_ROWS_TO_DISPLAY, category.size());
 				return d;
 			}
 		};
@@ -136,6 +140,19 @@ public class CategoryPanel extends JPanel
 		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
 		add(tablePane, BorderLayout.CENTER);
+	}
+	
+	/**
+	 * Create a new CategoryPanel with an empty white- and blacklist.
+	 * 
+	 * @param n Name of the new category
+	 * @param r String representation of the new category
+	 * @param p Filter for the new category
+	 * @param list List of cards in the new category
+	 */
+	public CategoryPanel(String n, String r, Predicate<Card> p, Deck list)
+	{
+		this(n, r, new HashSet<Card>(), new HashSet<Card>(), p, list);
 	}
 	
 	/**
@@ -162,7 +179,7 @@ public class CategoryPanel extends JPanel
 	
 	/**
 	 * @return The String representation of the category.
-	 * @see CategoryDialog#initializeFromString(String)
+	 * @see CategoryDialog#setContents(String)
 	 */
 	@Override
 	public String toString()
@@ -222,6 +239,7 @@ public class CategoryPanel extends JPanel
 	public void include(Card c)
 	{
 		category.include(c);
+		update();
 	}
 	
 	/**
@@ -234,6 +252,7 @@ public class CategoryPanel extends JPanel
 	public void exclude(Card c)
 	{
 		category.exclude(c);
+		update();
 	}
 	
 	/**

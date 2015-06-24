@@ -55,7 +55,7 @@ public abstract class FilterPanel extends JPanel
 	/**
 	 * @return The CardFilter created from this FilterPanel's contents.
 	 */
-	public abstract Predicate<Card> getFilter();
+	public abstract Predicate<Card> filter();
 	
 	/**
 	 * Set the contents of this FilterPanel according to the specified String.

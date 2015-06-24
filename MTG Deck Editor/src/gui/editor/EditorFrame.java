@@ -19,10 +19,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import javax.swing.JButton;
@@ -281,15 +284,15 @@ public class EditorFrame extends JInternalFrame
 		tableMenu.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
-			public void popupMenuCanceled(PopupMenuEvent arg0)
+			public void popupMenuCanceled(PopupMenuEvent e)
 			{}
 
 			@Override
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0)
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
 			{}
 
 			@Override
-			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0)
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
 				List<Card> cards = getSelectedCards();
 				if (cards.size() != 1 && !categories.isEmpty())
@@ -302,7 +305,12 @@ public class EditorFrame extends JInternalFrame
 					{
 						JCheckBoxMenuItem containsBox = new JCheckBoxMenuItem(category.name());
 						containsBox.setSelected(category.contains(cards.get(0)));
-						// TODO: Set what happens when a check box is switched
+						containsBox.addActionListener((a) -> {
+							if (((JCheckBoxMenuItem)a.getSource()).isSelected())
+								category.include(cards.get(0));
+							else
+								category.exclude(cards.get(0));
+						});
 						setCategoriesMenu.add(containsBox);
 					}
 				}
@@ -379,13 +387,13 @@ public class EditorFrame extends JInternalFrame
 		this(u, p);
 		try (FileInputStream fi = new FileInputStream(f))
 		{
-			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(p, "Opening " + f.getName(), fi))))
+			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(parent, "Opening " + f.getName(), fi))))
 			{
 				int cards = Integer.valueOf(rd.readLine().trim());
 				for (int i = 0; i < cards; i++)
 				{
 					String[] card = rd.readLine().trim().split("\t");
-					deck.add(p.inventory().get(card[0]), Integer.valueOf(card[1]));
+					deck.add(parent.getCard(card[0]), Integer.valueOf(card[1]));
 				}
 				int categories = Integer.valueOf(rd.readLine().trim());
 				for (int i = 0; i < categories; i++)
@@ -393,9 +401,21 @@ public class EditorFrame extends JInternalFrame
 					try
 					{
 						String repr = rd.readLine().trim();
-						categoryCreator.initializeFromString(repr);
-						addCategory(new CategoryPanel(categoryCreator.name(), repr, deck, categoryCreator.getFilter()));
-						categoryCreator.reset();
+						Matcher m = Deck.CATEGORY_PATTERN.matcher(repr);
+						if (m.matches())
+						{
+							categoryCreator.setContents(m.group(1), m.group(4));
+							Set<Card> whitelist = new HashSet<Card>();
+							for (String id: m.group(2).split(","))
+								whitelist.add(parent.getCard(id));
+							Set<Card> blacklist = new HashSet<Card>();
+							for (String id: m.group(3).split(","))
+								blacklist.add(parent.getCard(id));
+							addCategory(new CategoryPanel(categoryCreator.name(), m.group(4), whitelist, blacklist, categoryCreator.filter(), deck));
+							categoryCreator.reset();
+						}
+						else
+							throw new IllegalArgumentException("Illegal category string \"" + repr + "\"");
 					}
 					catch (Exception e)
 					{
@@ -566,7 +586,27 @@ public class EditorFrame extends JInternalFrame
 			
 			// Remove from category item
 			JMenuItem removeFromCategoryItem = new JMenuItem("Remove from Category");
-			// TODO: Implement this
+			removeFromCategoryItem.addActionListener((e) -> {
+				List<Card> selectedCards = newCategory.getSelectedCards();
+				if (selectedCards.size() == 1)
+					newCategory.exclude(selectedCards.get(0));
+			});
+			tableMenu.addPopupMenuListener(new PopupMenuListener()
+			{
+				@Override
+				public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+				{}
+
+				@Override
+				public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+				{}
+
+				@Override
+				public void popupMenuCanceled(PopupMenuEvent e)
+				{
+					removeFromCategoryItem.setEnabled(newCategory.getSelectedCards().size() == 1);
+				}
+			});
 			tableMenu.add(removeFromCategoryItem);
 			
 			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
@@ -970,7 +1010,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		return deck.count(c);
 	}
-
+	
 	/**
 	 * Save the deck to the given File (like Save As).
 	 * 

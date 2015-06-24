@@ -172,7 +172,7 @@ public class FilterTypePanel extends FilterPanel
 	 * @return The filter from the current FilterPanel.
 	 */
 	@Override
-	public Predicate<Card> getFilter()
+	public Predicate<Card> filter()
 	{
 		return currentFilter.getFilter();
 	}

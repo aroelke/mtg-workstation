@@ -85,7 +85,7 @@ public class InventoryFilterDialog extends FilterDialog
 		if (!OK)
 			return null;
 		else
-			return getFilter();
+			return filter();
 	}
 	
 	/**

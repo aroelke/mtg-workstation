@@ -58,7 +58,7 @@ public class InventoryLoadWorker extends SwingWorker<Inventory, String>
 			if ("progress".equals(e.getPropertyName()))
 			{
 				int p = (Integer)e.getNewValue();
-				dialog.setIndeterminate(p <= 0);
+				dialog.setIndeterminate(p < 0);
 				dialog.setValue(p);
 			}
 		});

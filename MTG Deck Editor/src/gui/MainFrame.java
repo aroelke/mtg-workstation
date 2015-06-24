@@ -987,11 +987,12 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
-	 * @return This MainFrame's Inventory.
+	 * @param id UID of the Card to look for
+	 * @return The Card with the given UID.
 	 */
-	public Inventory inventory()
+	public Card getCard(String id)
 	{
-		return inventory;
+		return inventory.get(id);
 	}
 	
 	/**

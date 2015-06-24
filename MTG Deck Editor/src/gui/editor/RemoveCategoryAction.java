@@ -39,8 +39,8 @@ public class RemoveCategoryAction implements DeckAction
 	@Override
 	public void undo()
 	{
-		editor.categoryCreator.initializeFromString(repr);
-		editor.addCategoryUnbuffered(new CategoryPanel(editor.categoryCreator.name(), repr, editor.deck, editor.categoryCreator.getFilter()));
+		editor.categoryCreator.setContents(repr);
+		editor.addCategoryUnbuffered(new CategoryPanel(editor.categoryCreator.name(), repr, editor.categoryCreator.filter(), editor.deck));
 		editor.categoryCreator.reset();
 	}
 	

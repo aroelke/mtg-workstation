@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class Deck
 {
-	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^<]+)(<[^>]*>)\\s*(<[^>]*>)\\s*(<.*$)");
+	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^<]+)<([^>]*)>\\s*<([^>]*)>\\s*(<.*$)");
 	
 	/**
 	 * List of cards in this Deck.
@@ -409,7 +409,7 @@ public class Deck
 		/**
 		 * @return This Category's String representation.
 		 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
-		 * @see gui.editor.CategoryDialog#initializeFromString(String)
+		 * @see gui.editor.CategoryDialog#setContents(String)
 		 */
 		@Override
 		public String toString()
@@ -669,7 +669,7 @@ public class Deck
 				}
 				repr = r;
 				filter = f;
-				filtrate = masterList.stream().filter(filter).collect(Collectors.toList());
+				filtrate = masterList.stream().filter(this::includes).collect(Collectors.toList());
 				return true;
 			}
 			else

@@ -259,18 +259,18 @@ public class FilterGroupPanel extends FilterPanel
 	 * FilterGroup.
 	 */
 	@Override
-	public Predicate<Card> getFilter()
+	public Predicate<Card> filter()
 	{
-		Predicate<Card> f = filters.get(0).getFilter();
+		Predicate<Card> f = filters.get(0).filter();
 		switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
 		{
 		case AND:
 			for (int i = 1; i < filters.size(); i++)
-				f = f.and(filters.get(i).getFilter());
+				f = f.and(filters.get(i).filter());
 			return f;
 		case OR:
 			for (int i = 1; i < filters.size(); i++)
-				f = f.or(filters.get(i).getFilter());
+				f = f.or(filters.get(i).filter());
 			return f;
 		default:
 			throw new IllegalStateException("Unknown combination mode \"" + String.valueOf(modeBox.getSelectedItem()) + "\"");
@@ -351,6 +351,8 @@ public class FilterGroupPanel extends FilterPanel
 	 * @return A String representation of this FilterGroup, which is either AND or OR
 	 * followed by the String representations of each of its constituents, all of which
 	 * is enclosed by <>.
+	 * 
+	 * TODO: Find another enclosure for filters
 	 */
 	@Override
 	public String toString()

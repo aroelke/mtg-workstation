@@ -61,18 +61,22 @@ public abstract class FilterDialog extends JDialog
 	 * 
 	 * @param s
 	 */
-	public void initializeFromString(String s)
+	public void setContents(String s)
 	{
 		filter.setContents(s);
 	}
 	
-	// TODO: Comment this
-	public Predicate<Card> getFilter()
+	/**
+	 * @return A <code>Predicate<Card></code> representing the filter built.
+	 */
+	public Predicate<Card> filter()
 	{
-		return filter.getFilter();
+		return filter.filter();
 	}
 	
-	// TODO: Comment this
+	/**
+	 * @return A String representation of this FilterDialog.
+	 */
 	@Override
 	public String toString()
 	{
