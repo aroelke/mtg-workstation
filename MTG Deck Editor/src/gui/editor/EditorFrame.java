@@ -9,7 +9,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +27,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JInternalFrame;
@@ -189,7 +189,6 @@ public class EditorFrame extends JInternalFrame
 				CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
-		// TODO: Allow the user to add cards to a category
 		table = new JTable(model)
 		{
 			@Override
@@ -335,9 +334,9 @@ public class EditorFrame extends JInternalFrame
 				return true;
 			}
 		};
-		categoriesContainer = new JPanel(new GridLayout(0, 1));
+		categoriesContainer = new JPanel();
+		categoriesContainer.setLayout(new BoxLayout(categoriesContainer, BoxLayout.Y_AXIS));
 		categories = new ArrayList<CategoryPanel>();
-		// TODO: Make it so that the categories are resizable (perhaps with splitpanes)
 
 		// The category panel is a vertically-scrollable panel that contains all categories stacked vertically
 		// The categories should have a constant height, but fit the container horizontally
@@ -817,6 +816,8 @@ public class EditorFrame extends JInternalFrame
 				model.fireTableDataChanged();
 				for (int row: selectedRows)
 					table.addRowSelectionInterval(row, row);
+				for (CategoryPanel c: categories)
+					c.update();
 				break;
 			case 1:
 				// Maintain the selection in each category
@@ -916,6 +917,8 @@ public class EditorFrame extends JInternalFrame
 						table.addRowSelectionInterval(row, row);
 					}
 				}
+				for (CategoryPanel c: categories)
+					c.update();
 				break;
 			case 1:
 				// Get all of the selected cards from each category (only one category should
