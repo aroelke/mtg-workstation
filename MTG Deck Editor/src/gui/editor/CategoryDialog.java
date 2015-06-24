@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -122,11 +121,12 @@ public class CategoryDialog extends FilterDialog
 	@Override
 	public void initializeFromString(String s)
 	{
-		Matcher m = Pattern.compile("^[^<]*").matcher(s);
-		if (m.find())
+		// TODO: Figure out what to do with the whitelist and blacklist
+		Matcher m = Deck.CATEGORY_PATTERN.matcher(s);
+		if (m.matches())
 		{
-			String name = m.group().trim();
-			String contents = s.substring(m.end(), s.length()).trim();
+			String name = m.group(1).trim();
+			String contents = m.group(4).trim();
 			nameField.setText(name);
 			super.initializeFromString(contents);
 		}
@@ -208,9 +208,9 @@ public class CategoryDialog extends FilterDialog
 				try
 				{
 					if (category != null)
-						category.edit(nameField.getText(), CategoryDialog.this.toString(), getFilter());
+						category.edit(nameField.getText(), CategoryDialog.super.toString(), getFilter());
 					else
-						category = new CategoryPanel(nameField.getText(), CategoryDialog.this.toString(), cards, getFilter());
+						category = new CategoryPanel(nameField.getText(), CategoryDialog.super.toString(), cards, getFilter());
 					setVisible(false);
 					reset();
 				}

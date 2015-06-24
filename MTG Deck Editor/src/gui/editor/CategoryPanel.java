@@ -213,6 +213,30 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
+	 * Include the given Card in the category.  This will remove it from
+	 * the blacklist if it is in the blacklist.  No copies of the Card will
+	 * be added to the deck.
+	 * 
+	 * @param c Card to include in the category
+	 */
+	public void include(Card c)
+	{
+		category.include(c);
+	}
+	
+	/**
+	 * Exclude the given Card from the category.  This will remove it from
+	 * the whitelist if it is in the whitelist.  No copies of the Card will be
+	 * removed from the deck.
+	 * 
+	 * @param c Card to exclude from the category
+	 */
+	public void exclude(Card c)
+	{
+		category.exclude(c);
+	}
+	
+	/**
 	 * This class represents a mouse wheel listener that returns mouse wheel control to an outer scroll
 	 * pane when this one's scroll pane has reached a limit.
 	 * 

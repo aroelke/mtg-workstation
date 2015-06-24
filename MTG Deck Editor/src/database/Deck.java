@@ -7,9 +7,13 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -20,6 +24,8 @@ import java.util.stream.Collectors;
  */
 public class Deck
 {
+	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^<]+)(<[^>]*>)\\s*(<[^>]*>)\\s*(<.*$)");
+	
 	/**
 	 * List of cards in this Deck.
 	 */
@@ -83,7 +89,7 @@ public class Deck
 			{
 				masterList.add(c);
 				for (Category category: categories.values())
-					if (category.filter.test(c))
+					if (category.includes(c))
 						category.filtrate.add(c);
 				counts.put(c, n);
 			}
@@ -142,7 +148,7 @@ public class Deck
 				{
 					masterList.remove(c);
 					for (Category category: categories.values())
-						if (category.filter.test(c))
+						if (category.includes(c))
 							category.filtrate.remove(c);
 				}
 				return true;
@@ -365,6 +371,16 @@ public class Deck
 		 * List representing the filtered view of the master list.
 		 */
 		private List<Card> filtrate;
+		/**
+		 * Blacklist of cards that should not be included even if they
+		 * pass through the filter.
+		 */
+		private Set<Card> blacklist;
+		/**
+		 * Whitelist of cards that should be included even if they do not
+		 * pass through the filter.
+		 */
+		private Set<Card> whitelist;
 		
 		/**
 		 * Create a new Category.
@@ -378,6 +394,8 @@ public class Deck
 			repr = r;
 			filter = f;
 			filtrate = masterList.stream().filter(filter).collect(Collectors.toList());
+			blacklist = new HashSet<Card>();
+			whitelist = new HashSet<Card>();
 		}
 		
 		/**
@@ -391,11 +409,18 @@ public class Deck
 		/**
 		 * @return This Category's String representation.
 		 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
+		 * @see gui.editor.CategoryDialog#initializeFromString(String)
 		 */
 		@Override
 		public String toString()
 		{
-			return repr;
+			StringJoiner white = new StringJoiner(",", "<", ">");
+			for (Card c: whitelist)
+				white.add(c.ID);
+			StringJoiner black = new StringJoiner(",", "<", ">");
+			for (Card c: blacklist)
+				black.add(c.ID);
+			return name + " " + white.toString() + " " + black.toString() + " " + repr;
 		}
 		
 		/**
@@ -418,7 +443,7 @@ public class Deck
 		@Override
 		public boolean add(Card c, int n)
 		{
-			if (filter.test(c))
+			if (includes(c))
 				return Deck.this.add(c, n);
 			else
 				return false;
@@ -469,7 +494,7 @@ public class Deck
 		@Override
 		public boolean remove(Card c, int n)
 		{
-			if (filter.test(c))
+			if (includes(c))
 				return Deck.this.remove(c, n);
 			else
 				return false;
@@ -487,6 +512,48 @@ public class Deck
 		public boolean remove(Card c)
 		{
 			return remove(c, 1);
+		}
+		
+		/**
+		 * Include the given Card in this Category.  This will remove it from
+		 * the blacklist if it is in the blacklist.  No copies of the Card will
+		 * be added to the deck.
+		 * 
+		 * @param c Card to include in this Category
+		 */
+		public void include(Card c)
+		{
+			blacklist.remove(c);
+			if (!filter.test(c))
+				whitelist.add(c);
+			if (!contains(c))
+				filtrate.add(c);
+		}
+		
+		/**
+		 * Exclude the given Card from this Category.  This will remove it from
+		 * the whitelist if it is in the whitelist.  No copies of the Card will be
+		 * removed from the deck.
+		 * 
+		 * @param c Card to exclude from this Category
+		 */
+		public void exclude(Card c)
+		{
+			whitelist.remove(c);
+			if (filter.test(c))
+				blacklist.add(c);
+			if (contains(c))
+				filtrate.remove(c);
+		}
+		
+		/**
+		 * @param c Card to test
+		 * @return <code>true</code> if the given Card can belong to this Category and
+		 * <code>false</code> otherwise.
+		 */
+		public boolean includes(Card c)
+		{
+			return !blacklist.contains(c) && (filter.test(c) || whitelist.contains(c));
 		}
 		
 		/**
@@ -520,7 +587,7 @@ public class Deck
 		@Override
 		public int count(Card c)
 		{
-			if (filter.test(c))
+			if (includes(c))
 				return Deck.this.count(c);
 			else
 				return 0;

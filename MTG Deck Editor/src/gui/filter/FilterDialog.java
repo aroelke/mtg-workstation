@@ -66,11 +66,13 @@ public abstract class FilterDialog extends JDialog
 		filter.setContents(s);
 	}
 	
+	// TODO: Comment this
 	public Predicate<Card> getFilter()
 	{
 		return filter.getFilter();
 	}
 	
+	// TODO: Comment this
 	@Override
 	public String toString()
 	{
