@@ -392,6 +392,8 @@ public class EditorFrame extends JInternalFrame
 				for (int i = 0; i < cards; i++)
 				{
 					String[] card = rd.readLine().trim().split("\t");
+					if (parent.getCard(card[0]) == null)
+						System.out.println(card[0]);
 					deck.add(parent.getCard(card[0]), Integer.valueOf(card[1]));
 				}
 				int categories = Integer.valueOf(rd.readLine().trim());
@@ -406,12 +408,16 @@ public class EditorFrame extends JInternalFrame
 							categoryCreator.setContents(m.group(1), m.group(4));
 							Set<Card> whitelist = new HashSet<Card>();
 							if (!m.group(2).isEmpty())
-								for (String id: m.group(2).split(","))
+								for (String id: m.group(2).split(":"))
 									whitelist.add(parent.getCard(id));
 							Set<Card> blacklist = new HashSet<Card>();
 							if (!m.group(3).isEmpty())
-								for (String id: m.group(3).split(","))
+								for (String id: m.group(3).split(":"))
+								{
+									if (parent.getCard(id) == null)
+										System.out.println(id);
 									blacklist.add(parent.getCard(id));
+								}
 							addCategory(new CategoryPanel(categoryCreator.name(), m.group(4), whitelist, blacklist, categoryCreator.filter(), deck));
 							categoryCreator.reset();
 						}
@@ -420,6 +426,7 @@ public class EditorFrame extends JInternalFrame
 					}
 					catch (Exception e)
 					{
+						e.printStackTrace();
 						JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}

@@ -414,10 +414,10 @@ public class Deck
 		@Override
 		public String toString()
 		{
-			StringJoiner white = new StringJoiner(",", "<", ">");
+			StringJoiner white = new StringJoiner(":", "<", ">");
 			for (Card c: whitelist)
 				white.add(c.ID);
-			StringJoiner black = new StringJoiner(",", "<", ">");
+			StringJoiner black = new StringJoiner(":", "<", ">");
 			for (Card c: blacklist)
 				black.add(c.ID);
 			return name + " " + white.toString() + " " + black.toString() + " " + repr;
