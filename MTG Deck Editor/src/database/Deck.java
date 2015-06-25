@@ -520,14 +520,17 @@ public class Deck
 		 * be added to the deck.
 		 * 
 		 * @param c Card to include in this Category
+		 * @return <code>true</code> if this Category changed as a result of the
+		 * inclusion, and <code>false</code> otherwise.
 		 */
-		public void include(Card c)
+		public boolean include(Card c)
 		{
-			blacklist.remove(c);
+			boolean changed = blacklist.remove(c);
 			if (!filter.test(c))
-				whitelist.add(c);
+				changed |= whitelist.add(c);
 			if (!contains(c))
-				filtrate.add(c);
+				changed |= filtrate.add(c);
+			return changed;
 		}
 		
 		/**
@@ -536,14 +539,17 @@ public class Deck
 		 * removed from the deck.
 		 * 
 		 * @param c Card to exclude from this Category
+		 * @return <code>true</code> if this Category was changed as a result of the
+		 * exclusion, and <code>false</code> otherwise.
 		 */
-		public void exclude(Card c)
+		public boolean exclude(Card c)
 		{
-			whitelist.remove(c);
+			boolean changed = whitelist.remove(c);
 			if (filter.test(c))
-				blacklist.add(c);
+				changed |= blacklist.add(c);
 			if (contains(c))
-				filtrate.remove(c);
+				changed |= filtrate.remove(c);
+			return changed;
 		}
 		
 		/**

@@ -306,9 +306,23 @@ public class EditorFrame extends JInternalFrame
 						containsBox.setSelected(category.contains(cards.get(0)));
 						containsBox.addActionListener((a) -> {
 							if (((JCheckBoxMenuItem)a.getSource()).isSelected())
-								category.include(cards.get(0));
+							{
+								if (category.include(cards.get(0)))
+								{
+									setUnsaved();
+									undoBuffer.push(new IncludeCardAction(EditorFrame.this, category, cards.get(0)));
+									redoBuffer.clear();
+								}
+							}
 							else
-								category.exclude(cards.get(0));
+							{
+								if (category.exclude(cards.get(0)))
+								{
+									setUnsaved();
+									undoBuffer.push(new ExcludeCardAction(EditorFrame.this, category, cards.get(0)));
+									redoBuffer.clear();
+								}
+							}
 						});
 						setCategoriesMenu.add(containsBox);
 					}
@@ -597,7 +611,14 @@ public class EditorFrame extends JInternalFrame
 			removeFromCategoryItem.addActionListener((e) -> {
 				List<Card> selectedCards = newCategory.getSelectedCards();
 				if (selectedCards.size() == 1)
-					newCategory.exclude(selectedCards.get(0));
+				{
+					if (newCategory.exclude(selectedCards.get(0)))
+					{
+						undoBuffer.push(new ExcludeCardAction(EditorFrame.this, newCategory, selectedCards.get(0)));
+						redoBuffer.clear();
+						setUnsaved();
+					}
+				}
 			});
 			tableMenu.addPopupMenuListener(new PopupMenuListener()
 			{

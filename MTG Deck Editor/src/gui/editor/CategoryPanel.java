@@ -239,11 +239,14 @@ public class CategoryPanel extends JPanel
 	 * be added to the deck.
 	 * 
 	 * @param c Card to include in the category
+	 * @return <code>true</code> if the category was changed as a result of
+	 * the inclusion and <code>false</code> otherwise.
 	 */
-	public void include(Card c)
+	public boolean include(Card c)
 	{
-		category.include(c);
+		boolean changed = category.include(c);
 		update();
+		return changed;
 	}
 	
 	/**
@@ -252,11 +255,14 @@ public class CategoryPanel extends JPanel
 	 * removed from the deck.
 	 * 
 	 * @param c Card to exclude from the category
+	 * @return <code>true</code> if the category was changed as a result of the
+	 * exclusion and <code>false</code> otherwise.
 	 */
-	public void exclude(Card c)
+	public boolean exclude(Card c)
 	{
-		category.exclude(c);
+		boolean changed = category.exclude(c);
 		update();
+		return changed;
 	}
 	
 	/**

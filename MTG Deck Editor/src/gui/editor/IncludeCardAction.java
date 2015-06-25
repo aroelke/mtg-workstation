@@ -2,26 +2,55 @@ package gui.editor;
 
 import database.Card;
 
+/**
+ * This class represents an action to include a card in a category.
+ * 
+ * @author Alec Roelke
+ */
 public class IncludeCardAction implements DeckAction
 {
-	private CategoryPanel panel;
+	/**
+	 * EditorFrame the action was performed in.
+	 */
+	private EditorFrame editor;
+	/**
+	 * Name of the category the card was included in.
+	 */
+	private String categoryName;
+	/**
+	 * Card that was included in the category.
+	 */
 	private Card card;
 	
-	public IncludeCardAction(CategoryPanel p, Card c)
+	/**
+	 * Create a new IncludeCardAction.
+	 * 
+	 * @param e Editor for the action
+	 * @param p Category for the action
+	 * @param c Card for the action
+	 */
+	public IncludeCardAction(EditorFrame e, CategoryPanel p, Card c)
 	{
-		panel = p;
+		editor = e;
+		categoryName = p.name();
 		card = c;
 	}
 	
+	/**
+	 * Undo the inclusion of the card in the category, or exclude it.
+	 */
 	@Override
 	public void undo()
 	{
-		panel.exclude(card);
+		editor.getCategory(categoryName).exclude(card);
 	}
 
+	/**
+	 * Redo the inclusion of the card in the category.
+	 */
 	@Override
 	public void redo()
 	{
-		panel.include(card);
+		editor.getCategory(categoryName).include(card);
 	}
 }
