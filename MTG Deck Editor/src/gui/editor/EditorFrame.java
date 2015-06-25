@@ -306,9 +306,23 @@ public class EditorFrame extends JInternalFrame
 						containsBox.setSelected(category.contains(cards.get(0)));
 						containsBox.addActionListener((a) -> {
 							if (((JCheckBoxMenuItem)a.getSource()).isSelected())
-								category.include(cards.get(0));
+							{
+								if (category.include(cards.get(0)))
+								{
+									setUnsaved();
+									undoBuffer.push(new IncludeCardAction(EditorFrame.this, category, cards.get(0)));
+									redoBuffer.clear();
+								}
+							}
 							else
-								category.exclude(cards.get(0));
+							{
+								if (category.exclude(cards.get(0)))
+								{
+									setUnsaved();
+									undoBuffer.push(new ExcludeCardAction(EditorFrame.this, category, cards.get(0)));
+									redoBuffer.clear();
+								}
+							}
 						});
 						setCategoriesMenu.add(containsBox);
 					}
@@ -386,12 +400,14 @@ public class EditorFrame extends JInternalFrame
 		this(u, p);
 		try (FileInputStream fi = new FileInputStream(f))
 		{
-			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(parent, "Opening " + f.getName(), fi))))
+			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(parent, "Opening " + f.getName(), fi), "UTF8")))
 			{
 				int cards = Integer.valueOf(rd.readLine().trim());
 				for (int i = 0; i < cards; i++)
 				{
 					String[] card = rd.readLine().trim().split("\t");
+					if (parent.getCard(card[0]) == null)
+						System.out.println(card[0]);
 					deck.add(parent.getCard(card[0]), Integer.valueOf(card[1]));
 				}
 				int categories = Integer.valueOf(rd.readLine().trim());
@@ -406,12 +422,16 @@ public class EditorFrame extends JInternalFrame
 							categoryCreator.setContents(m.group(1), m.group(4));
 							Set<Card> whitelist = new HashSet<Card>();
 							if (!m.group(2).isEmpty())
-								for (String id: m.group(2).split(","))
+								for (String id: m.group(2).split(":"))
 									whitelist.add(parent.getCard(id));
 							Set<Card> blacklist = new HashSet<Card>();
 							if (!m.group(3).isEmpty())
-								for (String id: m.group(3).split(","))
+								for (String id: m.group(3).split(":"))
+								{
+									if (parent.getCard(id) == null)
+										System.out.println(id);
 									blacklist.add(parent.getCard(id));
+								}
 							addCategory(new CategoryPanel(categoryCreator.name(), m.group(4), whitelist, blacklist, categoryCreator.filter(), deck));
 							categoryCreator.reset();
 						}
@@ -420,6 +440,7 @@ public class EditorFrame extends JInternalFrame
 					}
 					catch (Exception e)
 					{
+						e.printStackTrace();
 						JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -427,6 +448,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.clear();
 			categoryCreator.reset();
@@ -590,7 +612,14 @@ public class EditorFrame extends JInternalFrame
 			removeFromCategoryItem.addActionListener((e) -> {
 				List<Card> selectedCards = newCategory.getSelectedCards();
 				if (selectedCards.size() == 1)
-					newCategory.exclude(selectedCards.get(0));
+				{
+					if (newCategory.exclude(selectedCards.get(0)))
+					{
+						undoBuffer.push(new ExcludeCardAction(EditorFrame.this, newCategory, selectedCards.get(0)));
+						redoBuffer.clear();
+						setUnsaved();
+					}
+				}
 			});
 			tableMenu.addPopupMenuListener(new PopupMenuListener()
 			{

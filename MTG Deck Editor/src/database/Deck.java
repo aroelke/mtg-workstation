@@ -1,8 +1,11 @@
 package database;
 
+import gui.filter.FilterGroupPanel;
+
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +27,10 @@ import java.util.stream.Collectors;
  */
 public class Deck
 {
-	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^<]+)<([^>]*)>\\s*<([^>]*)>\\s*(<.*$)");
+	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^" + FilterGroupPanel.BEGIN_GROUP + "]+)"
+			+ FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
+			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
+			+ "\\s*(" + FilterGroupPanel.BEGIN_GROUP + ".*$)");
 	
 	/**
 	 * List of cards in this Deck.
@@ -148,8 +154,14 @@ public class Deck
 				{
 					masterList.remove(c);
 					for (Category category: categories.values())
-						if (category.includes(c))
+					{
+						if (category.filter.test(c))
+						{
 							category.filtrate.remove(c);
+							category.whitelist.remove(c);
+							category.blacklist.remove(c);
+						}
+					}
 				}
 				return true;
 			}
@@ -330,7 +342,7 @@ public class Deck
 	 */
 	public void save(File file) throws IOException
 	{
-		try (PrintWriter wr = new PrintWriter(new FileWriter(file)))
+		try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8")))
 		{
 			wr.println(String.valueOf(size()));
 			for (Card c: masterList)
@@ -414,10 +426,10 @@ public class Deck
 		@Override
 		public String toString()
 		{
-			StringJoiner white = new StringJoiner(",", "<", ">");
+			StringJoiner white = new StringJoiner(":", String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 			for (Card c: whitelist)
 				white.add(c.ID);
-			StringJoiner black = new StringJoiner(",", "<", ">");
+			StringJoiner black = new StringJoiner(":", String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 			for (Card c: blacklist)
 				black.add(c.ID);
 			return name + " " + white.toString() + " " + black.toString() + " " + repr;
@@ -520,14 +532,17 @@ public class Deck
 		 * be added to the deck.
 		 * 
 		 * @param c Card to include in this Category
+		 * @return <code>true</code> if this Category changed as a result of the
+		 * inclusion, and <code>false</code> otherwise.
 		 */
-		public void include(Card c)
+		public boolean include(Card c)
 		{
-			blacklist.remove(c);
+			boolean changed = blacklist.remove(c);
 			if (!filter.test(c))
-				whitelist.add(c);
+				changed |= whitelist.add(c);
 			if (!contains(c))
-				filtrate.add(c);
+				changed |= filtrate.add(c);
+			return changed;
 		}
 		
 		/**
@@ -536,14 +551,17 @@ public class Deck
 		 * removed from the deck.
 		 * 
 		 * @param c Card to exclude from this Category
+		 * @return <code>true</code> if this Category was changed as a result of the
+		 * exclusion, and <code>false</code> otherwise.
 		 */
-		public void exclude(Card c)
+		public boolean exclude(Card c)
 		{
-			whitelist.remove(c);
+			boolean changed = whitelist.remove(c);
 			if (filter.test(c))
-				blacklist.add(c);
+				changed |= blacklist.add(c);
 			if (contains(c))
-				filtrate.remove(c);
+				changed |= filtrate.remove(c);
+			return changed;
 		}
 		
 		/**

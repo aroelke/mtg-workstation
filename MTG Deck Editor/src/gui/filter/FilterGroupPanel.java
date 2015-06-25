@@ -33,6 +33,15 @@ import database.Card;
 public class FilterGroupPanel extends FilterPanel
 {
 	/**
+	 * Character marking the beginning of a group.
+	 */
+	public static final char BEGIN_GROUP = '\u226A';
+	/**
+	 * Character marking the end of a group.
+	 */
+	public static final char END_GROUP = '\u226B';
+	
+	/**
 	 * Parent dialog of this FilterGroup, if it is the top-level one.  Should be
 	 * <code>null</code> otherwise.
 	 */
@@ -179,6 +188,17 @@ public class FilterGroupPanel extends FilterPanel
 				getGroup().removeFilterPanel(this);
 		});
 		editPanel.add(removeButton);
+		JButton groupButton = new JButton("\u2026");
+		groupButton.addActionListener((e) -> {
+			if (getGroup() != null)
+				getGroup().groupFilterPanel(this);
+			else
+			{
+				parent.groupFilterPanel();
+				parent = null;
+			}
+		});
+		editPanel.add(groupButton);
 		topPanel.add(editPanel);
 		
 		// Panel containing constituent FilterPanels
@@ -296,15 +316,15 @@ public class FilterGroupPanel extends FilterPanel
 		{
 			switch (c)
 			{
-			case '<':
+			case BEGIN_GROUP:
 				depth++;
 				if (depth == 1)
 					str = new StringBuilder();
 				break;
-			case '>':
+			case END_GROUP:
 				if (depth == 1)
 				{
-					str.append('>');
+					str.append(END_GROUP);
 					constituentContents.add(str.toString());
 				}
 				depth--;
@@ -316,7 +336,7 @@ public class FilterGroupPanel extends FilterPanel
 				str.append(c);
 		}
 		if (depth != 0)
-			throw new IllegalArgumentException("Unclosed <> detected in string \"" + contents + "\"");
+			throw new IllegalArgumentException("Unclosed " + String.valueOf(BEGIN_GROUP) + String.valueOf(END_GROUP) + " detected in string \"" + contents + "\"");
 		
 		// Remove all panels from this FilterGroup
 		for (FilterPanel panel: new ArrayList<FilterPanel>(filters))
@@ -327,7 +347,7 @@ public class FilterGroupPanel extends FilterPanel
 		
 		// For each string, determine if it belongs to a FilterGroup or to a FilterTypePanel and then
 		// create the appropriate panel, set its content, and add it
-		Pattern p = Pattern.compile("^\\s*<\\s*(?:AND|OR)", Pattern.CASE_INSENSITIVE);
+		Pattern p = Pattern.compile("^\\s*" + String.valueOf(BEGIN_GROUP) + "\\s*(?:AND|OR)", Pattern.CASE_INSENSITIVE);
 		for (String constituent: constituentContents)
 		{
 			FilterPanel panel = (p.matcher(constituent).find() ? new FilterGroupPanel(this) : new FilterTypePanel(this));
@@ -350,14 +370,14 @@ public class FilterGroupPanel extends FilterPanel
 	/**
 	 * @return A String representation of this FilterGroup, which is either AND or OR
 	 * followed by the String representations of each of its constituents, all of which
-	 * is enclosed by <>.
-	 * 
-	 * TODO: Find another enclosure for filters
+	 * is enclosed by BEGIN_GROUP and END_GROUP.
+	 * @see BEGIN_GROUP
+	 * @see END_GROUP
 	 */
 	@Override
 	public String toString()
 	{
-		StringJoiner join = new StringJoiner(" ", "<", ">");
+		StringJoiner join = new StringJoiner(" ", String.valueOf(BEGIN_GROUP), String.valueOf(END_GROUP));
 		join.add(modeBox.getItemAt(modeBox.getSelectedIndex()) == Mode.AND ? "AND" : "OR");
 		for (FilterPanel filter: filters)
 			join.add(filter.toString());

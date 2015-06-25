@@ -110,6 +110,8 @@ public abstract class Symbol implements Comparable<Symbol>
 						return HalfColorSymbol.SYMBOLS.get(MTGColor.get(s.substring(1)));
 					case '\u221E':
 						return InfinityManaSymbol.INFINITY_MANA;
+					case '½':
+						return HalfManaSymbol.HALF_MANA;
 					default:
 						throw new IllegalArgumentException("Illegal symbol string \"" + s + "\"");
 					}

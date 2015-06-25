@@ -28,7 +28,7 @@ public enum Comparison implements BiPredicate<Double, Double>
 		for (Comparison c: Comparison.values())
 			if (c.comparison == comp)
 				return c;
-		throw new IllegalArgumentException("Illegal comparison character");
+		throw new IllegalArgumentException("Illegal comparison character '" + comp + "'");
 	}
 	
 	/**
