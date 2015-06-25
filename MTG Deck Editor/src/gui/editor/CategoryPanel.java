@@ -88,6 +88,10 @@ public class CategoryPanel extends JPanel
 		if (list.containsCategory(n))
 			throw new IllegalArgumentException("Categories must have unique names");
 		category = list.addCategory(n, r, p);
+		for (Card c: whitelist)
+			category.include(c);
+		for (Card c: blacklist)
+			category.exclude(c);
 		
 		// Each category is surrounded by a border with a title
 		border = new TitledBorder(category.name());

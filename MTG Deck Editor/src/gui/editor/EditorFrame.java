@@ -405,11 +405,13 @@ public class EditorFrame extends JInternalFrame
 						{
 							categoryCreator.setContents(m.group(1), m.group(4));
 							Set<Card> whitelist = new HashSet<Card>();
-							for (String id: m.group(2).split(","))
-								whitelist.add(parent.getCard(id));
+							if (!m.group(2).isEmpty())
+								for (String id: m.group(2).split(","))
+									whitelist.add(parent.getCard(id));
 							Set<Card> blacklist = new HashSet<Card>();
-							for (String id: m.group(3).split(","))
-								blacklist.add(parent.getCard(id));
+							if (!m.group(3).isEmpty())
+								for (String id: m.group(3).split(","))
+									blacklist.add(parent.getCard(id));
 							addCategory(new CategoryPanel(categoryCreator.name(), m.group(4), whitelist, blacklist, categoryCreator.filter(), deck));
 							categoryCreator.reset();
 						}
@@ -584,7 +586,7 @@ public class EditorFrame extends JInternalFrame
 			tableMenu.add(new JSeparator());
 			
 			// Remove from category item
-			JMenuItem removeFromCategoryItem = new JMenuItem("Remove from Category");
+			JMenuItem removeFromCategoryItem = new JMenuItem("Exclude from Category");
 			removeFromCategoryItem.addActionListener((e) -> {
 				List<Card> selectedCards = newCategory.getSelectedCards();
 				if (selectedCards.size() == 1)
