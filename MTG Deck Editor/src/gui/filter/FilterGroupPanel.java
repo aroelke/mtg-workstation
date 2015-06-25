@@ -299,7 +299,8 @@ public class FilterGroupPanel extends FilterPanel
 	
 	/**
 	 * Set the contents of this FilterGroup according to the specified String, and set
-	 * the contents of its constituents as well.  It should be a string enclosed by <>.
+	 * the contents of its constituents as well.  It should be a string enclosed by 
+	 * enclosure characters.
 	 * 
 	 * @param contents String to parse for contents.
 	 */

@@ -214,7 +214,7 @@ public class FilterTypePanel extends FilterPanel
 	@Override
 	public String toString()
 	{
-		return "<" + currentFilter.toString() + ">";
+		return FilterGroupPanel.BEGIN_GROUP + currentFilter.toString() + FilterGroupPanel.END_GROUP;
 	}
 	
 	/**
