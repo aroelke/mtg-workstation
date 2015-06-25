@@ -400,7 +400,7 @@ public class EditorFrame extends JInternalFrame
 		this(u, p);
 		try (FileInputStream fi = new FileInputStream(f))
 		{
-			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(parent, "Opening " + f.getName(), fi))))
+			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(parent, "Opening " + f.getName(), fi), "UTF8")))
 			{
 				int cards = Integer.valueOf(rd.readLine().trim());
 				for (int i = 0; i < cards; i++)

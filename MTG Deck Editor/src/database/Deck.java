@@ -1,8 +1,9 @@
 package database;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -336,7 +337,7 @@ public class Deck
 	 */
 	public void save(File file) throws IOException
 	{
-		try (PrintWriter wr = new PrintWriter(new FileWriter(file)))
+		try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8")))
 		{
 			wr.println(String.valueOf(size()));
 			for (Card c: masterList)

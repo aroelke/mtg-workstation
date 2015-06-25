@@ -181,6 +181,17 @@ public class FilterGroupPanel extends FilterPanel
 				getGroup().removeFilterPanel(this);
 		});
 		editPanel.add(removeButton);
+		JButton groupButton = new JButton("\u2026");
+		groupButton.addActionListener((e) -> {
+			if (getGroup() != null)
+				getGroup().groupFilterPanel(this);
+			else
+			{
+				parent.groupFilterPanel();
+				parent = null;
+			}
+		});
+		editPanel.add(groupButton);
 		topPanel.add(editPanel);
 		
 		// Panel containing constituent FilterPanels

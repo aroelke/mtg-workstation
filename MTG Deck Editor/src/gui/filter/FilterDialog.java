@@ -51,6 +51,15 @@ public abstract class FilterDialog extends JDialog
 		pack();
 	}
 	
+	public void groupFilterPanel()
+	{
+		FilterGroupPanel newFilter = new FilterGroupPanel(this);
+		newFilter.addFilterPanel(filter);
+		getContentPane().remove(filter);
+		getContentPane().add(filter = newFilter, BorderLayout.CENTER);
+		pack();
+	}
+	
 	/**
 	 * Parse a String for filters and create the appropriate filter panels and set their values,
 	 * but don't show the dialog.  Follow this call with a command to show the dialog to actually
