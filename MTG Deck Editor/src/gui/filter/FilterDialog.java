@@ -65,10 +65,13 @@ public abstract class FilterDialog extends JDialog
 	 * but don't show the dialog.  Follow this call with a command to show the dialog to actually
 	 * see the result.
 	 * 
-	 * The string should look like <> with either AND or OR inside followed by filters which are
-	 * also surrounded by <>.  They may also start with AND or OR which are followed by filters.
+	 * The string should look like group enclosures with either AND or OR inside followed by filters which are
+	 * also surrounded by group enclosures.  They may also start with AND or OR which are followed by filters.
 	 * 
 	 * @param s
+	 * @see FilterGroupPanel#BEGIN_GROUP
+	 * @see FilterGroupPanel#END_GROUP
+	 * @see FilterGroupPanel#setContents(String)
 	 */
 	public void setContents(String s)
 	{

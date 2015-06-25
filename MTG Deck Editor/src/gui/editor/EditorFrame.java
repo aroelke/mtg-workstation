@@ -448,6 +448,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.clear();
 			categoryCreator.reset();

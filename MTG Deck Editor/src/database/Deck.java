@@ -1,5 +1,7 @@
 package database;
 
+import gui.filter.FilterGroupPanel;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,7 +27,10 @@ import java.util.stream.Collectors;
  */
 public class Deck
 {
-	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^<]+)<([^>]*)>\\s*<([^>]*)>\\s*(<.*$)");
+	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^" + FilterGroupPanel.BEGIN_GROUP + "]+)"
+			+ FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
+			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
+			+ "\\s*(" + FilterGroupPanel.BEGIN_GROUP + ".*$)");
 	
 	/**
 	 * List of cards in this Deck.
@@ -421,10 +426,10 @@ public class Deck
 		@Override
 		public String toString()
 		{
-			StringJoiner white = new StringJoiner(":", "<", ">");
+			StringJoiner white = new StringJoiner(":", String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 			for (Card c: whitelist)
 				white.add(c.ID);
-			StringJoiner black = new StringJoiner(":", "<", ">");
+			StringJoiner black = new StringJoiner(":", String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 			for (Card c: blacklist)
 				black.add(c.ID);
 			return name + " " + white.toString() + " " + black.toString() + " " + repr;

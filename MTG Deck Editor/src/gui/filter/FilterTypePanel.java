@@ -177,6 +177,16 @@ public class FilterTypePanel extends FilterPanel
 		return currentFilter.getFilter();
 	}
 	
+	/**
+	 * Change to the filter type specified by the string and fill its contents with
+	 * those specified by the string.  The string should be surrounded by group
+	 * enclosures.
+	 * 
+	 * @param contents String to parse for contents
+	 * @see FilterGroupPanel#setContents(String)
+	 * @see FilterGroupPanel#BEGIN_GROUP
+	 * @see FilterGroupPanel#END_GROUP
+	 */
 	@Override
 	public void setContents(String contents)
 	{
@@ -197,7 +207,9 @@ public class FilterTypePanel extends FilterPanel
 	
 	/**
 	 * @return A String representation of this FilterTypePanel, which is its' current filter's
-	 * string surrounded by <>.
+	 * string surrounded by group enclosures.
+	 * @see FilterGroupPanel#BEGIN_GROUP
+	 * @see FilterGroupPanel#END_GROUP
 	 */
 	@Override
 	public String toString()
