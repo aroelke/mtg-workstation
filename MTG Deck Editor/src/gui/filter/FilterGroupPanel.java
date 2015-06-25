@@ -27,6 +27,8 @@ import database.Card;
  * themselves (since a FilterGroup is also a FilterPanel).  The top-level FilterGroup
  * in a dialog will belong to a <code>null</code> group.
  * 
+ * TODO: Give the filter group a ... button
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
