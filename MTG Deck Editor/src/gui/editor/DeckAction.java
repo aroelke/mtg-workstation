@@ -3,8 +3,6 @@ package gui.editor;
 /**
  * This class represents an action that can be performed on a Deck.
  * 
- * TODO: Add actions for including and excluding cards from categories
- * 
  * @author Alec Roelke
  */
 public interface DeckAction

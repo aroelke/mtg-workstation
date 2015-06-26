@@ -113,7 +113,7 @@ public class CategoryDialog extends FilterDialog
 	/**
 	 * Parse a String for filters and create the appropriate filter panels and set their values.
 	 * This should look similar to the parent FilterDialog's argument, except the name precedes
-	 * the opening < inside quotes and separated from it by a space.
+	 * the opening enclosure inside quotes and separated from it by a space.
 	 * 
 	 * @param n Name of the category
 	 * @param s String to parse
@@ -128,7 +128,7 @@ public class CategoryDialog extends FilterDialog
 	/**
 	 * Parse a String for filters and create the appropriate filter panels and set their values.
 	 * This should look similar to the parent FilterDialog's argument, except the name precedes
-	 * the opening < inside quotes and separated from it by a space.
+	 * the opening enclosure inside quotes and separated from it by a space.
 	 * 
 	 * @param s String to parse
 	 * @see FilterDialog#setContents(String)

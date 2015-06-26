@@ -61,6 +61,7 @@ public abstract class FilterPanel extends JPanel
 	 * Set the contents of this FilterPanel according to the specified String.
 	 * 
 	 * @param contents String to parse to set the contents of this FilterPanel.
+	 * @see FilterGroupPanel#setContents(String)
 	 */
 	public abstract void setContents(String contents);
 	
