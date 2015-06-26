@@ -926,7 +926,7 @@ public class EditorFrame extends JInternalFrame
 			return false;
 		else
 		{
-			boolean changed = true;
+			boolean changed = false;
 
 			switch (listTabs.getSelectedIndex())
 			{
@@ -937,7 +937,7 @@ public class EditorFrame extends JInternalFrame
 					selectedCards.add(deck.get(table.convertRowIndexToModel(row)));
 				// Remove cards from the deck
 				for (Card c: toRemove)
-					changed &= deck.remove(c, n);
+					changed |= deck.remove(c, n);
 				// Update the table and then restore as much of the selection as possible
 				model.fireTableDataChanged();
 				for (Card c: selectedCards)
@@ -965,7 +965,7 @@ public class EditorFrame extends JInternalFrame
 				}
 				// Remove cards from the deck
 				for (Card c: toRemove)
-					changed &= deck.remove(c, n);
+					changed |= deck.remove(c, n);
 				// Update each category panel and then restore the selection as much as possible
 				for (CategoryPanel category: categories)
 				{
@@ -985,7 +985,7 @@ public class EditorFrame extends JInternalFrame
 			default:
 				break;
 			}
-
+			
 			if (changed)
 			{
 				updateCount();

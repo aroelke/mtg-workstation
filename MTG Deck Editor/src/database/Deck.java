@@ -150,6 +150,7 @@ public class Deck
 		{
 			if (masterList.contains(c))
 			{
+				int i = count(c);
 				if (counts.compute(c, (k, v) -> v <= n ? null : v - n) == null)
 				{
 					masterList.remove(c);
@@ -163,6 +164,7 @@ public class Deck
 						}
 					}
 				}
+				total -= Math.min(n, i);
 				return true;
 			}
 			else
