@@ -48,6 +48,10 @@ public class Deck
 	 * Total number of cards in this Deck, accounting for multiples.
 	 */
 	private int total;
+	/**
+	 * Number of land cards in this Deck, accounting for multiples.
+	 */
+	private int land;
 	
 	/**
 	 * Create a new, empty Deck with no categories.
@@ -58,6 +62,7 @@ public class Deck
 		counts = new HashMap<Card, Integer>();
 		categories = new HashMap<String, Category>();
 		total = 0;
+		land = 0;
 	}
 	
 	/**
@@ -100,6 +105,8 @@ public class Deck
 				counts.put(c, n);
 			}
 			total += n;
+			if (c.typeContains("land"))
+				land += n;
 			return true;
 		}
 	}
@@ -165,6 +172,8 @@ public class Deck
 					}
 				}
 				total -= Math.min(n, i);
+				if (c.typeContains("land"))
+					land -= Math.min(n, i);
 				return true;
 			}
 			else
@@ -313,6 +322,22 @@ public class Deck
 	public int total()
 	{
 		return total;
+	}
+	
+	/**
+	 * @return The number of land cards in this Deck.
+	 */
+	public int land()
+	{
+		return land;
+	}
+	
+	/**
+	 * @return The number of nonland cards in this Deck.
+	 */
+	public int nonland()
+	{
+		return total - land;
 	}
 	
 	/**

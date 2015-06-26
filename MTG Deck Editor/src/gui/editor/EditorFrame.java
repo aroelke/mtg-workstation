@@ -98,6 +98,14 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private JLabel countLabel;
 	/**
+	 * Label showing the total number of land cards in the deck.
+	 */
+	private JLabel landLabel;
+	/**
+	 * Label showing the total number of nonland cards in the deck.
+	 */
+	private JLabel nonlandLabel;
+	/**
 	 * JDialog for creating and editing categories.
 	 */
 	protected CategoryDialog categoryCreator;
@@ -359,14 +367,18 @@ public class EditorFrame extends JInternalFrame
 		listTabs.addTab("Categories", categoriesPanel);
 
 		// Panel to show the stats of the deck
-		JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
 		getContentPane().add(statsPanel, BorderLayout.SOUTH);
 
-		// Label to show the number of cards in a deck
+		// Labels to counts for total cards, lands, and nonlands
 		countLabel = new JLabel();
-		updateCount();
 		statsPanel.add(countLabel);
-
+		landLabel = new JLabel();
+		statsPanel.add(landLabel);
+		nonlandLabel = new JLabel();
+		statsPanel.add(nonlandLabel);
+		updateCount();
+		
 		categoryCreator = new CategoryDialog(this);
 		categoryCreator.setLocationRelativeTo(parent);
 
@@ -782,6 +794,8 @@ public class EditorFrame extends JInternalFrame
 	public void updateCount()
 	{
 		countLabel.setText("Total cards: " + deck.total());
+		landLabel.setText("Lands: " + deck.land());
+		nonlandLabel.setText("Nonlands: " + deck.nonland());
 	}
 
 	/**
