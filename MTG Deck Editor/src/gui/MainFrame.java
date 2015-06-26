@@ -205,7 +205,7 @@ public class MainFrame extends JFrame
 		}
 		catch (FileNotFoundException e)
 		{
-			JOptionPane.showMessageDialog(null, "File " + PROPERTIES_FILE + " not found.  Using default settings.", "Warning", JOptionPane.WARNING_MESSAGE);
+//			JOptionPane.showMessageDialog(null, "File " + PROPERTIES_FILE + " not found.  Using default settings.", "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		catch (IOException e)
 		{
