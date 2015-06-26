@@ -163,12 +163,9 @@ public class Deck
 					masterList.remove(c);
 					for (Category category: categories.values())
 					{
-						if (category.filter.test(c))
-						{
-							category.filtrate.remove(c);
-							category.whitelist.remove(c);
-							category.blacklist.remove(c);
-						}
+						category.filtrate.remove(c);
+						category.whitelist.remove(c);
+						category.blacklist.remove(c);
 					}
 				}
 				total -= Math.min(n, i);
