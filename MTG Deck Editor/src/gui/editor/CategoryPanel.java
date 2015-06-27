@@ -200,6 +200,22 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
+	 * @return The category's whitelist.
+	 */
+	public Set<Card> whitelist()
+	{
+		return category.whitelist();
+	}
+	
+	/**
+	 * @return The category's blacklist
+	 */
+	public Set<Card> blacklist()
+	{
+		return category.blacklist();
+	}
+	
+	/**
 	 * Change the parameters of the category.
 	 * 
 	 * @param newName New name for the category

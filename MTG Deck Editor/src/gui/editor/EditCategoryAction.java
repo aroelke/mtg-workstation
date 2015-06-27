@@ -72,6 +72,7 @@ public class EditCategoryAction implements DeckAction
 		if (editedCategory != null)
 		{
 			editedCategory.edit(formerName, formerRepr, formerFilter);
+			editor.updateCategorySwitch();
 			editor.revalidate();
 			editor.repaint();
 			editor.setUnsaved();
@@ -90,6 +91,7 @@ public class EditCategoryAction implements DeckAction
 		if (editedCategory != null)
 		{
 			editedCategory.edit(newName, newRepr, newFilter);
+			editor.updateCategorySwitch();
 			editor.revalidate();
 			editor.repaint();
 			editor.setUnsaved();

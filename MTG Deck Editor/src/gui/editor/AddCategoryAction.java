@@ -1,6 +1,7 @@
 package gui.editor;
 
 
+
 /**
  * This class represents an action to add a category to the deck.
  * 
@@ -51,7 +52,7 @@ public class AddCategoryAction implements DeckAction
 	public void redo()
 	{
 		editor.categoryCreator.setContents(repr);
-		editor.addCategoryUnbuffered(new CategoryPanel(editor.categoryCreator.name(), repr, editor.categoryCreator.filter(), editor.deck));
+		editor.addCategoryUnbuffered(new CategoryPanel(editor.categoryCreator.name(), editor.categoryCreator.repr(), editor.categoryCreator.filter(), editor.deck));
 		editor.categoryCreator.reset();
 	}
 }

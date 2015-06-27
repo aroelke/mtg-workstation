@@ -152,6 +152,14 @@ public class CategoryDialog extends FilterDialog
 	}
 	
 	/**
+	 * @return The String representation of this CategoryDialog's filter.
+	 */
+	public String repr()
+	{
+		return super.toString();
+	}
+	
+	/**
 	 * Show the filter dialog and wait until a filter is customized, then return a new category
 	 * from it.  See the OK button action for details on how the category is created.
 	 * 

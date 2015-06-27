@@ -9,6 +9,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,8 +30,10 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -131,6 +135,8 @@ public class EditorFrame extends JInternalFrame
 	 * and have been undone, and is cleared when a new action is performed.
 	 */
 	private Stack<DeckAction> redoBuffer;
+	private JComboBox<String> switchCategoryBox;
+	private DefaultComboBoxModel<String> switchCategoryModel;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -341,10 +347,28 @@ public class EditorFrame extends JInternalFrame
 		// Panel containing categories
 		JPanel categoriesPanel = new JPanel(new BorderLayout());
 
+		// Panel containing components above the category panel
+		JPanel categoryHeaderPanel = new JPanel(new GridLayout(1, 2));
+		categoriesPanel.add(categoryHeaderPanel, BorderLayout.NORTH);
+		
 		// Button to add a new category
+		JPanel addCategoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton addCategoryButton = new JButton("Add");
 		addCategoryButton.addActionListener((e) -> createCategory());
-		categoriesPanel.add(addCategoryButton, BorderLayout.NORTH);
+		addCategoryPanel.add(addCategoryButton);
+		categoryHeaderPanel.add(addCategoryPanel);
+		
+		// Combo box to switch to a different category
+		JPanel switchCategoryPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		switchCategoryBox = new JComboBox<String>(switchCategoryModel = new DefaultComboBoxModel<String>());
+		switchCategoryBox.setEnabled(false);
+		switchCategoryBox.addActionListener((e) -> {
+			CategoryPanel toView = getCategory(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex()));
+			toView.scrollRectToVisible(new Rectangle(toView.getSize()));
+		});
+		switchCategoryPanel.add(new JLabel("Go to category:"));
+		switchCategoryPanel.add(switchCategoryBox);
+		categoryHeaderPanel.add(switchCategoryPanel);
 
 		// Make sure all parts of the category panel fit inside the window (this is necessary because
 		// JScrollPanes do weird things with non-scroll-savvy components)
@@ -359,7 +383,7 @@ public class EditorFrame extends JInternalFrame
 		categoriesContainer = new JPanel();
 		categoriesContainer.setLayout(new BoxLayout(categoriesContainer, BoxLayout.Y_AXIS));
 		categories = new ArrayList<CategoryPanel>();
-
+		
 		// The category panel is a vertically-scrollable panel that contains all categories stacked vertically
 		// The categories should have a constant height, but fit the container horizontally
 		categoriesSuperContainer.add(categoriesContainer, BorderLayout.NORTH);
@@ -556,6 +580,7 @@ public class EditorFrame extends JInternalFrame
 				Predicate<Card> oldFilter = newCategory.filter();
 				if (categoryCreator.editCategory(newCategory))
 				{
+					updateCategorySwitch();
 					setUnsaved();
 					undoBuffer.push(new EditCategoryAction(this, oldName, oldRepr, oldFilter, newCategory.name(), newCategory.toString(), newCategory.filter()));
 					redoBuffer.clear();
@@ -652,6 +677,8 @@ public class EditorFrame extends JInternalFrame
 			tableMenu.add(removeFromCategoryItem);
 			
 			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
+			switchCategoryModel.addElement(newCategory.name());
+			switchCategoryBox.setEnabled(true);
 			revalidate();
 			repaint();
 			setUnsaved();
@@ -684,6 +711,7 @@ public class EditorFrame extends JInternalFrame
 			String oldRepr = toEdit.toString();
 			Predicate<Card> oldFilter = toEdit.filter();
 			categoryCreator.editCategory(toEdit);
+			updateCategorySwitch();
 			revalidate();
 			repaint();
 			setUnsaved();
@@ -732,6 +760,8 @@ public class EditorFrame extends JInternalFrame
 			removed &= categories.remove(category);
 			if (removed)
 				categoriesContainer.remove(category);
+			switchCategoryModel.removeElement(category.name());
+			switchCategoryBox.setEnabled(!categories.isEmpty());
 			revalidate();
 			repaint();
 			setUnsaved();
@@ -785,6 +815,19 @@ public class EditorFrame extends JInternalFrame
 				deckName = getTitle();
 			JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			return null;
+		}
+	}
+	
+	public void updateCategorySwitch()
+	{
+		switchCategoryModel.removeAllElements();
+		if (categories.isEmpty())
+			switchCategoryBox.setEnabled(false);
+		else
+		{
+			switchCategoryBox.setEnabled(true);
+			for (CategoryPanel category: categories)
+				switchCategoryModel.addElement(category.name());
 		}
 	}
 	

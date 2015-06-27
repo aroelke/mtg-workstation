@@ -1,5 +1,9 @@
 package gui.editor;
 
+import java.util.Set;
+
+import database.Card;
+
 /**
  * This class represents an action to remove a category from a deck.
  * 
@@ -19,6 +23,14 @@ public class RemoveCategoryAction implements DeckAction
 	 * String representation of the removed category.
 	 */
 	private String repr;
+	/**
+	 * Whitelist of the removed category.
+	 */
+	private Set<Card> whitelist;
+	/**
+	 * Blacklist of the removed category.
+	 */
+	private Set<Card> blacklist;
 	
 	/**
 	 * Create a new RemoveCategoryAction.
@@ -40,7 +52,7 @@ public class RemoveCategoryAction implements DeckAction
 	public void undo()
 	{
 		editor.categoryCreator.setContents(repr);
-		editor.addCategoryUnbuffered(new CategoryPanel(editor.categoryCreator.name(), repr, editor.categoryCreator.filter(), editor.deck));
+		editor.addCategoryUnbuffered(new CategoryPanel(editor.categoryCreator.name(), editor.categoryCreator.repr(), whitelist, blacklist, editor.categoryCreator.filter(), editor.deck));
 		editor.categoryCreator.reset();
 	}
 	

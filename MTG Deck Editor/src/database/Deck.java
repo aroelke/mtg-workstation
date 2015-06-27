@@ -443,6 +443,22 @@ public class Deck
 		}
 		
 		/**
+		 * @return This Category's whitelist.
+		 */
+		public Set<Card> whitelist()
+		{
+			return whitelist;
+		}
+		
+		/**
+		 * @return This Category's blacklist
+		 */
+		public Set<Card> blacklist()
+		{
+			return blacklist;
+		}
+		
+		/**
 		 * @return This Category's String representation.
 		 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
 		 * @see gui.editor.CategoryDialog#setContents(String)
