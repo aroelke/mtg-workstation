@@ -995,6 +995,7 @@ public class EditorFrame extends JInternalFrame
 				}
 				categoriesContainer.revalidate();
 				categoriesContainer.repaint();
+				model.fireTableDataChanged();
 				break;
 			default:
 				break;
