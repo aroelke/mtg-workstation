@@ -403,6 +403,11 @@ public class EditorFrame extends JInternalFrame
 		statsPanel.add(nonlandLabel);
 		updateCount();
 		
+		// Legality button
+		// TODO: Implement this
+		JButton legalityButton = new JButton("Show Legality");
+		statsPanel.add(legalityButton);
+		
 		categoryCreator = new CategoryDialog(this);
 		categoryCreator.setLocationRelativeTo(parent);
 
