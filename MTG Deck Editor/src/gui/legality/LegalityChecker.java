@@ -23,23 +23,23 @@ import database.characteristics.MTGColor;
  */
 public class LegalityChecker
 {
-	private List<String> legal;
-	private List<String> illegal;
+	private String[] legal;
+	private String[] illegal;
 	private Map<String, List<String>> warnings;
 	
 	public LegalityChecker()
 	{
-		legal = Arrays.asList(Card.formatList);
-		illegal = new ArrayList<String>();
+		legal = new String[] {};
+		illegal = new String[] {};
 		warnings = new HashMap<String, List<String>>();
-		for (String format: legal)
+		for (String format: Card.formatList)
 			warnings.put(format, new ArrayList<String>());
 	}
 	
 	public void checkLegality(Deck deck)
 	{
 		// Deck size
-		for (String format: new ArrayList<String>(legal))
+		for (String format: Card.formatList)
 		{
 			if (format.equalsIgnoreCase("commander"))
 			{
@@ -55,7 +55,7 @@ public class LegalityChecker
 		
 		// Individual card legality
 		for (Card c: deck)
-			for (String format: legal)
+			for (String format: Card.formatList)
 				if (!c.legalIn(format))
 					warnings.get(format).add(c.name + " is illegal in this format");
 		
@@ -78,17 +78,20 @@ public class LegalityChecker
 				warnings.get("Commander").add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
 		}
 			
-		illegal = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
-		Collections.sort(illegal);
-		legal.removeAll(illegal);
+		List<String> illegalList = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
+		Collections.sort(illegalList);
+		List<String> legalList = Arrays.asList(Card.formatList);
+		legalList.removeAll(illegalList);
+		legal = legalList.toArray(legal);
+		illegal = illegalList.toArray(illegal);
 	}
 	
-	public List<String> legalFormats()
+	public String[] legalFormats()
 	{
 		return legal;
 	}
 	
-	public List<String> illegalFormats()
+	public String[] illegalFormats()
 	{
 		return illegal;
 	}
