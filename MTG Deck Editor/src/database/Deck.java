@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
  * 
  * @author Alec Roelke
  */
-public class Deck
+public class Deck implements Iterable<Card>
 {
 	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^" + FilterGroupPanel.BEGIN_GROUP + "]+)"
 			+ FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
@@ -375,6 +376,15 @@ public class Deck
 			for (Category c: categories.values())
 				wr.println(c.toString());
 		} 
+	}
+	
+	/**
+	 * @return An Iterator over the list of Cards in this Deck.
+	 */
+	@Override
+	public Iterator<Card> iterator()
+	{
+		return masterList.iterator();
 	}
 	
 	/**
