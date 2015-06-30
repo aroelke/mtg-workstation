@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import database.Card;
 import database.Deck;
+import database.characteristics.Legality;
 import database.characteristics.MTGColor;
 
 /**
@@ -53,11 +54,30 @@ public class LegalityChecker
 			}
 		}
 		
-		// Individual card legality
+		// Individual card legality and count
 		for (Card c: deck)
+		{
 			for (String format: Card.formatList)
+			{
 				if (!c.legalIn(format))
-					warnings.get(format).add(c.name + " is illegal in this format");
+					warnings.get(format).add(c.name + " is illegal in " + format);
+				else if (!c.supertypeContains("basic"))
+				{
+					if (format.equalsIgnoreCase("commander"))
+					{
+						if (deck.count(c) > 1)
+							warnings.get(format).add("Deck contains more than 1 copy of " + c.name);
+					}
+					else
+					{
+						if (c.legalityIn(format) == Legality.RESTRICTED && deck.count(c) > 1)
+							warnings.get(format).add(c.name + " is restricted in " + format);
+						else if (deck.count(c) > 4)
+							warnings.get(format).add("Deck contains more than 4 copies of " + c.name);
+					}
+				}
+			}
+		}
 		
 		// Commander only: commander exists and matches deck color identity
 		List<Card> possibleCommanders = new ArrayList<Card>();
