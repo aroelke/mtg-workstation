@@ -23,6 +23,8 @@ import database.symbol.Symbol;
  * and its image name (which is its name followed by a number if there is more than one version of the same
  * card in the same set).  All of its values are constant.
  * 
+ * TODO: Handle cards with multiple faces (split cards, flip cards, double-faced cards)
+ * 
  * @author Alec Roelke
  */
 public class Card
