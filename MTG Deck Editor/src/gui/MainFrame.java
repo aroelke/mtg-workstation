@@ -180,6 +180,8 @@ public class MainFrame extends JFrame
 	 */
 	public MainFrame()
 	{
+		super();
+		
 		selectedCard = null;
 		untitled = 0;
 		selectedFrame = null;
@@ -710,6 +712,9 @@ public class MainFrame extends JFrame
 				
 				filterDialog = new InventoryFilterDialog(MainFrame.this);
 				filterDialog.setLocationRelativeTo(MainFrame.this);
+				
+				for (String format: Card.formatList)
+					System.out.println(format);
 			}
 			
 			@Override
