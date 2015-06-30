@@ -58,10 +58,13 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 		{
 		case CONTAINS_ANY_OF:
 			return (c) -> Containment.CONTAINS_ANY_OF.test(c.mana.symbols(), cost.symbols());
-		case CONTAINS_ALL_OF:
-			return (c) -> c.mana.isSuperset(cost);
 		case CONTAINS_NONE_OF:
 			return (c) -> Containment.CONTAINS_NONE_OF.test(c.mana.symbols(), cost.symbols());
+		case CONTAINS_ALL_OF:
+			return (c) -> c.mana.isSuperset(cost);
+		case CONTAINS_NOT_ALL_OF:
+			// TODO: Implement this
+			return (c) -> true;
 		case CONTAINS_EXACTLY:
 			return (c) -> c.mana.equals(cost);
 		case CONTAINS_NOT_EXACTLY:

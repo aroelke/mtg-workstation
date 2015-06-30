@@ -19,13 +19,14 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 				return true;
 		return false;
 	}),
-	CONTAINS_ALL_OF((a, b) -> a.containsAll(b)),
 	CONTAINS_NONE_OF((a, b) -> {
 		for (Object o: b)
 			if (a.contains(o))
 				return false;
 		return true;
 	}),
+	CONTAINS_ALL_OF((a, b) -> a.containsAll(b)),
+	CONTAINS_NOT_ALL_OF((a, b) -> CONTAINS_ANY_OF.test(a,  b) && !a.containsAll(b)),
 	CONTAINS_EXACTLY((a, b) -> a.containsAll(b) && b.containsAll(a)),
 	CONTAINS_NOT_EXACTLY((a, b) -> Collections.disjoint(a, b));
 	

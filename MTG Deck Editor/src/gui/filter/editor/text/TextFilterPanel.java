@@ -149,6 +149,9 @@ public class TextFilterPanel extends FilterEditorPanel
 					return filter.negate();
 				else
 					return filter;
+			case CONTAINS_NOT_ALL_OF:
+				// TODO: Implement this
+				return (c) -> true;
 			case CONTAINS_NOT_EXACTLY:
 				return (c) -> !text.apply(c).equalsIgnoreCase(filterText);
 			case CONTAINS_EXACTLY:
