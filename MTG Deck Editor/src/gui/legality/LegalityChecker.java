@@ -43,12 +43,12 @@ public class LegalityChecker
 		{
 			if (format.equalsIgnoreCase("commander"))
 			{
-				if (deck.size() != 100)
+				if (deck.total() != 100)
 					warnings.get(format).add("Deck does not contain exactly 100 cards");
 			}
 			else
 			{
-				if (deck.size() < 60)
+				if (deck.total() < 60)
 					warnings.get(format).add("Deck contains fewer than 60 cards");
 			}
 		}
@@ -80,7 +80,7 @@ public class LegalityChecker
 			
 		List<String> illegalList = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
 		Collections.sort(illegalList);
-		List<String> legalList = Arrays.asList(Card.formatList);
+		List<String> legalList = new ArrayList<String>(Arrays.asList(Card.formatList));
 		legalList.removeAll(illegalList);
 		legal = legalList.toArray(legal);
 		illegal = illegalList.toArray(illegal);

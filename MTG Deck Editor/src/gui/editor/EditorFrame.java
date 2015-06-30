@@ -4,6 +4,8 @@ import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
 import gui.TableMouseAdapter;
+import gui.legality.LegalityChecker;
+import gui.legality.LegalityPanel;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -135,7 +137,13 @@ public class EditorFrame extends JInternalFrame
 	 * and have been undone, and is cleared when a new action is performed.
 	 */
 	private Stack<DeckAction> redoBuffer;
+	/**
+	 * Combo box showing categories to jump between them.
+	 */
 	private JComboBox<String> switchCategoryBox;
+	/**
+	 * Model for the combo box to display items.
+	 */
 	private DefaultComboBoxModel<String> switchCategoryModel;
 
 	/**
@@ -403,9 +411,13 @@ public class EditorFrame extends JInternalFrame
 		statsPanel.add(nonlandLabel);
 		updateCount();
 		
-		// Legality button
-		// TODO: Implement this
+		// Check legality button
 		JButton legalityButton = new JButton("Show Legality");
+		legalityButton.addActionListener((e) -> {
+			LegalityChecker checker = new LegalityChecker();
+			checker.checkLegality(deck);
+			JOptionPane.showMessageDialog(null, new LegalityPanel(checker), "Legality of " + deckName(), JOptionPane.PLAIN_MESSAGE);
+		});
 		statsPanel.add(legalityButton);
 		
 		categoryCreator = new CategoryDialog(this);
@@ -504,6 +516,16 @@ public class EditorFrame extends JInternalFrame
 		}
 	}
 
+	public String deckName()
+	{
+		String deckName;
+		if (unsaved)
+			deckName = getTitle().substring(0, getTitle().length() - 2);
+		else
+			deckName = getTitle();
+		return deckName;
+	}
+	
 	/**
 	 * @return The names of all the categories in the deck, sorted
 	 * alphabetically.
@@ -703,14 +725,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		CategoryPanel toEdit = getCategory(name);
 		if (toEdit == null)
-		{
-			String deckName;
-			if (unsaved)
-				deckName = getTitle().substring(0, getTitle().length() - 2);
-			else
-				deckName = getTitle();
-			JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
-		}
+			JOptionPane.showMessageDialog(null, "Deck " + deckName() + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
 		else
 		{
 			String oldRepr = toEdit.toString();
@@ -813,16 +828,14 @@ public class EditorFrame extends JInternalFrame
 		}
 		else
 		{
-			String deckName;
-			if (unsaved)
-				deckName = getTitle().substring(0, getTitle().length() - 2);
-			else
-				deckName = getTitle();
-			JOptionPane.showMessageDialog(null, "Deck " + deckName + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Deck " + deckName() + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 	}
 	
+	/**
+	 * Update the categories combo box with all of the current categories.
+	 */
 	public void updateCategorySwitch()
 	{
 		switchCategoryModel.removeAllElements();

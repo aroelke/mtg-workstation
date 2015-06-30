@@ -1,13 +1,15 @@
 package gui.legality;
 
 import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.util.StringJoiner;
 
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
@@ -21,20 +23,14 @@ public class LegalityPanel extends JPanel
 	public LegalityPanel(LegalityChecker legality)
 	{
 		super();
-		GridBagLayout layout = new GridBagLayout();
-		layout.columnWidths = new int[] {0, 0};
-		layout.columnWeights = new double[] {1.0, 1.0};
-		layout.rowHeights = new int[] {0, 0};
-		layout.rowWeights = new double[] {1.0, 0.5};
-		setLayout(layout);
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		JPanel listsPanel = new JPanel(new GridLayout(1, 2));
+		add(listsPanel);
 		
 		JPanel legalPanel = new JPanel(new BorderLayout());
 		legalPanel.setBorder(new TitledBorder("Legal in:"));
-		GridBagConstraints legalConstraints = new GridBagConstraints();
-		legalConstraints.gridx = 0;
-		legalConstraints.gridy = 0;
-		legalConstraints.fill = GridBagConstraints.BOTH;
-		add(legalPanel, legalConstraints);
+		listsPanel.add(legalPanel);
 		
 		JList<String> legalList = new JList<String>(legality.legalFormats());
 		legalList.setSelectionModel(new DefaultListSelectionModel() {
@@ -50,40 +46,34 @@ public class LegalityPanel extends JPanel
 				return ListSelectionModel.SINGLE_SELECTION;
 			}
 		});
-		legalPanel.add(legalList, BorderLayout.CENTER);
+		legalPanel.add(new JScrollPane(legalList), BorderLayout.CENTER);
 		
 		JPanel illegalPanel = new JPanel(new BorderLayout());
 		illegalPanel.setBorder(new TitledBorder("Illegal in:"));
-		GridBagConstraints illegalConstraints = new GridBagConstraints();
-		illegalConstraints.gridx = 1;
-		illegalConstraints.gridy = 0;
-		illegalConstraints.fill = GridBagConstraints.BOTH;
-		add(illegalPanel, illegalConstraints);
+		listsPanel.add(illegalPanel);
 		
 		JList<String> illegalList = new JList<String>(legality.illegalFormats());
 		illegalList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		illegalPanel.add(illegalList, BorderLayout.CENTER);
+		illegalPanel.add(new JScrollPane(illegalList), BorderLayout.CENTER);
 		
 		JPanel warningsPanel = new JPanel(new BorderLayout());
 		warningsPanel.setBorder(new CompoundBorder(new TitledBorder("Warnings"), new BevelBorder(BevelBorder.LOWERED)));
-		GridBagConstraints warningsConstraints = new GridBagConstraints();
-		warningsConstraints.gridx = 0;
-		warningsConstraints.gridy = 1;
-		warningsConstraints.gridwidth = 2;
-		warningsConstraints.fill = GridBagConstraints.BOTH;
-		add(warningsPanel, warningsConstraints);
+		Dimension warningSize = warningsPanel.getPreferredSize();
+		warningSize.height = 100;
+		warningsPanel.setPreferredSize(warningSize);
+		add(warningsPanel);
 		
 		JTextPane warningsPane = new JTextPane();
 		warningsPane.setEditable(false);
-		warningsPane.setContentType("text/html");
 		warningsPane.setFont(UIManager.getFont("Label.font"));
-		warningsPanel.add(warningsPane, BorderLayout.CENTER);
+		warningsPanel.add(new JScrollPane(warningsPane), BorderLayout.CENTER);
 		
 		illegalList.addListSelectionListener((e) -> {
-			StringJoiner join = new StringJoiner("</li>\n<li>", "<ul>\n<li>", "</li>\n</ul>");
+			StringJoiner str = new StringJoiner("\n\u2022 ", "\u2022 ", "");
 			for (String warning: legality.getWarnings(illegalList.getSelectedValue()))
-				join.add(warning);
-			warningsPane.setText(join.toString());
+				str.add(warning);
+			warningsPane.setText(str.toString());
+			warningsPane.setCaretPosition(0);
 		});
 	}
 }

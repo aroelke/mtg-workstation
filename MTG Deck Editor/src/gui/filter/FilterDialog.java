@@ -13,6 +13,8 @@ import database.Card;
 /**
  * This class represents a dialog for editing a filter.
  * 
+ * TODO: Refactor code so that the dialog showing part is taken care of JOptionPane rather than a custom dialog
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
