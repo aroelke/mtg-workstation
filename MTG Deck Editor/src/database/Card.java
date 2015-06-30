@@ -27,7 +27,7 @@ import database.symbol.Symbol;
  * 
  * @author Alec Roelke
  */
-public class Card
+public final class Card
 {
 	/**
 	 * List of all supertypes that appear on cards.
