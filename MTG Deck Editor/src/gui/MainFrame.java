@@ -646,6 +646,7 @@ public class MainFrame extends JFrame
 				FilterGroupPanel filter = new FilterGroupPanel();
 				if (JOptionPane.showOptionDialog(null, filter, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 				{
+					nameFilterField.setText("");
 					inventory.updateFilter(filter.filter());
 					inventoryModel.fireTableDataChanged();
 				}
