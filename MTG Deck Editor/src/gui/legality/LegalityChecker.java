@@ -16,18 +16,34 @@ import database.characteristics.Legality;
 import database.characteristics.MTGColor;
 
 /**
- * TODO: Check for correctness
+ * This class represents a check to see which formats a deck is legal in.  It is meant to
+ * only be used once and then thrown away once viewing the results are complete.  It can
+ * tell what formats a deck is legal and illegal in, and give reasons for why it is
+ * illegal.
+ * 
  * TODO: Comment this
- * TODO: Create the GUI elements for this
  * 
  * @author Alec Roelke
  */
 public class LegalityChecker
 {
+	/**
+	 * Array containing formats the deck is legal in.
+	 */
 	private String[] legal;
+	/**
+	 * Array containing formats the deck is illegal in.
+	 */
 	private String[] illegal;
+	/**
+	 * Map of formats to reasons for being illegal in them.  Contents of the map are lists
+	 * of Strings, which will be empty for legal formats.
+	 */
 	private Map<String, List<String>> warnings;
 	
+	/**
+	 * Craete a new LegalityChecker.
+	 */
 	public LegalityChecker()
 	{
 		legal = new String[] {};
@@ -37,6 +53,12 @@ public class LegalityChecker
 			warnings.put(format, new ArrayList<String>());
 	}
 	
+	/**
+	 * Check which formats a deck is legal in, and the reasons for why it is illegal in
+	 * others.
+	 * 
+	 * @param deck
+	 */
 	public void checkLegality(Deck deck)
 	{
 		// Deck size
@@ -61,7 +83,7 @@ public class LegalityChecker
 			{
 				if (!c.legalIn(format))
 					warnings.get(format).add(c.name + " is illegal in " + format);
-				else if (!c.supertypeContains("basic"))
+				else if (!c.ignoreCountRestriction())
 				{
 					if (format.equalsIgnoreCase("commander"))
 					{
@@ -82,7 +104,7 @@ public class LegalityChecker
 		// Commander only: commander exists and matches deck color identity
 		List<Card> possibleCommanders = new ArrayList<Card>();
 		for (Card c: deck)
-			if (c.supertypeContains("legendary"))
+			if (c.canBeCommander())
 				possibleCommanders.add(c);
 		if (possibleCommanders.isEmpty())
 			warnings.get("Commander").add("Deck does not contain a legendary creature");
@@ -98,6 +120,7 @@ public class LegalityChecker
 				warnings.get("Commander").add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
 		}
 			
+		// Collate the legality lists
 		List<String> illegalList = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
 		Collections.sort(illegalList);
 		List<String> legalList = new ArrayList<String>(Arrays.asList(Card.formatList));
@@ -106,16 +129,27 @@ public class LegalityChecker
 		illegal = illegalList.toArray(illegal);
 	}
 	
+	/**
+	 * @return The list of formats the deck is legal in.
+	 */
 	public String[] legalFormats()
 	{
 		return legal;
 	}
 	
+	/**
+	 * @return The list of formats the deck is illegal in.
+	 */
 	public String[] illegalFormats()
 	{
 		return illegal;
 	}
 	
+	/**
+	 * @param format Format to check reasons for illegality
+	 * @return A list of Strings containing reasons for why the deck is illegal
+	 * in the given format.
+	 */
 	public List<String> getWarnings(String format)
 	{
 		return warnings.get(format);

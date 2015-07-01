@@ -487,6 +487,24 @@ public final class Card
 	}
 	
 	/**
+	 * @return <code>true</code> if this Card can be the commander of a Commander deck and
+	 * <code>false</code> otherwise.
+	 */
+	public boolean canBeCommander()
+	{
+		return supertypeContains("legendary") || text.toLowerCase().contains("can be your commander");
+	}
+	
+	/**
+	 * @return <code>true</code> if a deck can have any number of copies of this Card and
+	 * <code>false</code> otherwise.
+	 */
+	public boolean ignoreCountRestriction()
+	{
+		return supertypeContains("basic") || text.toLowerCase().contains("a deck can have any number");
+	}
+	
+	/**
 	 * @param format Name of the format to check
 	 * @return <code>true</code> if this Card is legal (restricted or unrestricted)
 	 * in the specified format, and <code>false</code> otherwise.

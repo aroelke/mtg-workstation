@@ -17,21 +17,35 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
+/**
+ * This class represents a panel that shows the formats a deck is legal and illegal in.
+ * 
+ * @author Alec Roelke
+ */
 @SuppressWarnings("serial")
 public class LegalityPanel extends JPanel
 {
+	/**
+	 * Create a new LegalityPanel showing the legality of a deck.
+	 * 
+	 * @param legality Legality of a deck.  Make sure to have it calculate
+	 * the legality of a deck, or nothing will be shown.
+	 */
 	public LegalityPanel(LegalityChecker legality)
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
+		// Panel containing format lists
 		JPanel listsPanel = new JPanel(new GridLayout(1, 2));
 		add(listsPanel);
 		
+		// Panel containing legal formats list
 		JPanel legalPanel = new JPanel(new BorderLayout());
 		legalPanel.setBorder(new TitledBorder("Legal in:"));
 		listsPanel.add(legalPanel);
 		
+		// Legal formats list.  Selection is disabled in this list
 		JList<String> legalList = new JList<String>(legality.legalFormats());
 		legalList.setSelectionModel(new DefaultListSelectionModel() {
 			@Override
@@ -48,14 +62,17 @@ public class LegalityPanel extends JPanel
 		});
 		legalPanel.add(new JScrollPane(legalList), BorderLayout.CENTER);
 		
+		// Panel containing illegal formats list
 		JPanel illegalPanel = new JPanel(new BorderLayout());
 		illegalPanel.setBorder(new TitledBorder("Illegal in:"));
 		listsPanel.add(illegalPanel);
 		
+		// Illegal formats list.  Only one element can be selected at a time.
 		JList<String> illegalList = new JList<String>(legality.illegalFormats());
 		illegalList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		illegalPanel.add(new JScrollPane(illegalList), BorderLayout.CENTER);
 		
+		// Panel containing text box that shows why a deck is illegal in a format
 		JPanel warningsPanel = new JPanel(new BorderLayout());
 		warningsPanel.setBorder(new CompoundBorder(new TitledBorder("Warnings"), new BevelBorder(BevelBorder.LOWERED)));
 		Dimension warningSize = warningsPanel.getPreferredSize();
@@ -63,11 +80,13 @@ public class LegalityPanel extends JPanel
 		warningsPanel.setPreferredSize(warningSize);
 		add(warningsPanel);
 		
+		// Text box that shows reasons for illegality
 		JTextPane warningsPane = new JTextPane();
 		warningsPane.setEditable(false);
 		warningsPane.setFont(UIManager.getFont("Label.font"));
 		warningsPanel.add(new JScrollPane(warningsPane), BorderLayout.CENTER);
 		
+		// Click on a list element to show why it is illegal
 		illegalList.addListSelectionListener((e) -> {
 			StringJoiner str = new StringJoiner("\n\u2022 ", "\u2022 ", "");
 			for (String warning: legality.getWarnings(illegalList.getSelectedValue()))
