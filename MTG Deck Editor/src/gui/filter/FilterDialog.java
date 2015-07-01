@@ -40,7 +40,7 @@ public abstract class FilterDialog extends JDialog
 		// The center of the dialog will always be the top-level filter group
 		// Don't put anything in the center!
 		setContentPane(new JPanel(new BorderLayout()));
-		getContentPane().add(filter = new FilterGroupPanel(this), BorderLayout.CENTER);
+		getContentPane().add(filter = new FilterGroupPanel(), BorderLayout.CENTER);
 	}
 	
 	/**
@@ -49,16 +49,7 @@ public abstract class FilterDialog extends JDialog
 	public void reset()
 	{
 		getContentPane().remove(filter);
-		getContentPane().add(filter = new FilterGroupPanel(this), BorderLayout.CENTER);
-		pack();
-	}
-	
-	public void groupFilterPanel()
-	{
-		FilterGroupPanel newFilter = new FilterGroupPanel(this);
-		newFilter.addFilterPanel(filter);
-		getContentPane().remove(filter);
-		getContentPane().add(filter = newFilter, BorderLayout.CENTER);
+		getContentPane().add(filter = new FilterGroupPanel(), BorderLayout.CENTER);
 		pack();
 	}
 	
@@ -78,6 +69,7 @@ public abstract class FilterDialog extends JDialog
 	public void setContents(String s)
 	{
 		filter.setContents(s);
+		pack();
 	}
 	
 	/**

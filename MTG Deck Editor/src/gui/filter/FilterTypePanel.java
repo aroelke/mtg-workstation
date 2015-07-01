@@ -20,6 +20,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import database.Card;
@@ -151,7 +152,10 @@ public class FilterTypePanel extends FilterPanel
 		
 		// Remove button
 		removeButton = new JButton("\u2013");
-		removeButton.addActionListener((e) -> getGroup().removeFilterPanel(this));
+		removeButton.addActionListener((e) -> {
+			getGroup().removeFilterPanel(this);
+			SwingUtilities.windowForComponent(getGroup()).pack();
+		});
 		GridBagConstraints removeConstraints = new GridBagConstraints();
 		removeConstraints.fill = GridBagConstraints.HORIZONTAL;
 		removeConstraints.gridx = 2;
@@ -160,7 +164,10 @@ public class FilterTypePanel extends FilterPanel
 		
 		// Change to group button
 		groupButton = new JButton("\u2026");
-		groupButton.addActionListener((e) -> getGroup().groupFilterPanel(this));
+		groupButton.addActionListener((e) -> {
+			getGroup().groupFilterPanel(this);
+			SwingUtilities.windowForComponent(this).pack();
+		});
 		GridBagConstraints groupConstraints = new GridBagConstraints();
 		groupConstraints.fill = GridBagConstraints.HORIZONTAL;
 		groupConstraints.gridx = 3;
@@ -251,7 +258,7 @@ public class FilterTypePanel extends FilterPanel
 			// Refresh the panel
 			remove(filterPanel);
 			add(filterPanel, filterConstraints);
-			getGroup().pack();
+			SwingUtilities.windowForComponent(FilterTypePanel.this).pack();
 		}
 	}
 }

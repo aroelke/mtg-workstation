@@ -16,6 +16,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
@@ -40,12 +41,6 @@ public class FilterGroupPanel extends FilterPanel
 	 * Character marking the end of a group.
 	 */
 	public static final char END_GROUP = '\u226B';
-	
-	/**
-	 * Parent dialog of this FilterGroup, if it is the top-level one.  Should be
-	 * <code>null</code> otherwise.
-	 */
-	private FilterDialog parent;
 	/**
 	 * Combo box displaying the possible ways that filters can be combined.
 	 */
@@ -58,45 +53,40 @@ public class FilterGroupPanel extends FilterPanel
 	 * Filters comprising this FilterGroup's constituents.
 	 */
 	private List<FilterPanel> filters;
-
+	
 	/**
-	 * Create a new top-level FilterGroup with a single empty FilterTypePanel.
-	 * 
-	 * @param p Parent dialog of the new FilterGroup.
+	 * Create a new top-level FilterGroupPanel with a single empty FilterTypePanel.
 	 */
-	public FilterGroupPanel(FilterDialog p)
+	public FilterGroupPanel()
 	{
-		super(null);
-		parent = p;
-		init(Arrays.asList(new FilterTypePanel(this)));
+		this(null);
 	}
 	
 	/**
-	 * Create a new inner FilterGroup with a single empty FilterTypePanel.
+	 * Create a new inner FilterGroupPanel with a single empty FilterTypePanel.
 	 * 
 	 * @param g Containing group of the new FilterGroup.
 	 */
 	public FilterGroupPanel(FilterGroupPanel g)
 	{
 		super(g);
-		parent = null;
 		init(Arrays.asList(new FilterTypePanel(this)));
 	}
 	
 	/**
-	 * Create a new top-level FilterGroup with the specified FilterPanel as
+	 * Create a new top-level FilterGroupPanel with the specified FilterPanel as
 	 * its only constituent.
 	 * 
 	 * @param p Parent dialog of the new FilterGroup
 	 * @param panel Initial constituent of the new FilterGroup
 	 */
-	public FilterGroupPanel(FilterDialog p, FilterPanel panel)
+	public FilterGroupPanel(FilterPanel panel)
 	{
-		this(p, null, Arrays.asList(panel));
+		this(null, panel);
 	}
 
 	/**
-	 * Create a new inner FilterGroup with the specified FilterPanel as its
+	 * Create a new inner FilterGroupPanel with the specified FilterPanel as its
 	 * only constituent.
 	 * 
 	 * @param g Containing group of the new FilterGroup
@@ -104,54 +94,27 @@ public class FilterGroupPanel extends FilterPanel
 	 */
 	public FilterGroupPanel(FilterGroupPanel g, FilterPanel panel)
 	{
-		this(null, g, Arrays.asList(panel));
+		this(g, Arrays.asList(panel));
 	}
 	
 	/**
-	 * Create a new top-level FilterGroup with the specified FilterPanels as
-	 * its only constituents.
-	 * 
-	 * @param p Parent dialog of the new FilterGroup
-	 * @param panel Initial constituents of the new FilterGroup
-	 */
-	public FilterGroupPanel(FilterDialog p, Collection<FilterPanel> panels)
-	{
-		this(p, null, panels);
-	}
-	
-	/**
-	 * Create a new inner FilterGroup with the specified FilterPanels as its
-	 * only constituents.
-	 * 
-	 * @param g Containing group of the new FilterGroup
-	 * @param panel Initial constituents of the new FilterGroup
-	 */
-	public FilterGroupPanel(FilterGroupPanel g, Collection<FilterPanel> panels)
-	{
-		this(null, g, panels);
-	}
-	
-	/**
-	 * Create a new FilterGroup with the specified FilterPanels as its initial
+	 * Create a new FilterGroupPanel with the specified FilterPanels as its initial
 	 * constituents.  p and g should not both be non-<code>null</code> and should
 	 * not both be <code>null</code>.  If p is non-<code>null</code>, then this is
 	 * a top-level FilterGroup.  Otherwise, it is an inner FilterGroup.
 	 * 
-	 * @param p Parent dialog of the new FilterGroup.  Should be <code>null</code>
-	 * if g is not
 	 * @param g Containing group of the new FilterGroup.  Should be <code>null</code>
 	 * if p is not
 	 * @param panels
 	 */
-	private FilterGroupPanel(FilterDialog p, FilterGroupPanel g, Collection<FilterPanel> panels)
+	private FilterGroupPanel(FilterGroupPanel g, Collection<FilterPanel> panels)
 	{
 		super(g);
-		parent = p;
 		init(panels);
 	}
 	
 	/**
-	 * Initialize this FilterGroup, creating its control buttons and fill out its initial
+	 * Initialize this FilterGroupPanel, creating its control buttons and fill out its initial
 	 * values.
 	 * 
 	 * @param panels Collection of panels that should be this FilterGroup's initial
@@ -178,25 +141,37 @@ public class FilterGroupPanel extends FilterPanel
 		// entirely.  For the top-level FilterGroup, it acts as a reset button.
 		JPanel editPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		JButton addButton = new JButton("+");
-		addButton.addActionListener((e) -> addFilterPanel(new FilterTypePanel(this)));
+		addButton.addActionListener((e) -> {
+			addFilterPanel(new FilterTypePanel(this));
+			SwingUtilities.windowForComponent(this).pack();
+		});
 		editPanel.add(addButton);
 		JButton removeButton = new JButton("\u2013");
 		removeButton.addActionListener((e) -> {
-			if (parent != null)
-				parent.reset();
+			if (getGroup() == null)
+			{
+				clear();
+				addFilterPanel(new FilterTypePanel(this));
+				SwingUtilities.windowForComponent(this).pack();
+			}
 			else
+			{
 				getGroup().removeFilterPanel(this);
+				SwingUtilities.windowForComponent(getGroup()).pack();
+			}
 		});
 		editPanel.add(removeButton);
 		JButton groupButton = new JButton("\u2026");
 		groupButton.addActionListener((e) -> {
-			if (getGroup() != null)
-				getGroup().groupFilterPanel(this);
-			else
+			if (getGroup() == null)
 			{
-				parent.groupFilterPanel();
-				parent = null;
+				FilterGroupPanel child = new FilterGroupPanel(this, filters);
+				clear();
+				addFilterPanel(child);
 			}
+			else
+				getGroup().groupFilterPanel(this);
+			SwingUtilities.windowForComponent(this).pack();
 		});
 		editPanel.add(groupButton);
 		topPanel.add(editPanel);
@@ -210,20 +185,6 @@ public class FilterGroupPanel extends FilterPanel
 	}
 	
 	/**
-	 * Force the window to resize according to the constituents of all of the
-	 * FilterPanels it contains.
-	 */
-	public void pack()
-	{
-		revalidate();
-		repaint();
-		if (parent != null)
-			parent.pack();
-		else
-			getGroup().pack();
-	}
-	
-	/**
 	 * Add the specified FilterPanel to this FilterGroup.
 	 * 
 	 * @param panel FilterPanel to add
@@ -233,7 +194,6 @@ public class FilterGroupPanel extends FilterPanel
 		filtersPanel.add(panel);
 		filters.add(panel);
 		panel.setGroup(this);
-		pack();
 	}
 	
 	/**
@@ -244,14 +204,36 @@ public class FilterGroupPanel extends FilterPanel
 	 */
 	public void removeFilterPanel(FilterPanel panel)
 	{
-		if (filters.size() > 1 && filters.contains(panel))
+		if (filters.contains(panel))
 		{
-			filters.remove(panel);
-			filtersPanel.remove(panel);
-			pack();
+			if (filters.size() > 1)
+			{
+				filters.remove(panel);
+				filtersPanel.remove(panel);
+			}
+			else if (panel instanceof FilterGroupPanel)
+			{
+				filters.remove(panel);
+				filtersPanel.remove(panel);
+				FilterGroupPanel groupPanel = (FilterGroupPanel)panel;
+				for (FilterPanel grouped: groupPanel.filters)
+					addFilterPanel(grouped);
+			}
 		}
-		else if (!filters.contains(panel))
+		else
 			throw new IllegalArgumentException("FilterPanel \"" + panel + "\" not found in this group");
+	}
+	
+	/**
+	 * Remove all filter panels from this FilterGroupPanel.
+	 */
+	public void clear()
+	{
+		for (FilterPanel filter: new ArrayList<FilterPanel>(filters))
+		{
+			filters.remove(filter);
+			filtersPanel.remove(filter);
+		}
 	}
 	
 	/**
@@ -268,7 +250,6 @@ public class FilterGroupPanel extends FilterPanel
 			filters.remove(panel);
 			filtersPanel.remove(panel);
 			addFilterPanel(new FilterGroupPanel(this, panel));
-			pack();
 		}
 		else
 			throw new IllegalArgumentException("FilterPanel \"" + panel + "\" not found in this group");
@@ -355,7 +336,6 @@ public class FilterGroupPanel extends FilterPanel
 			panel.setContents(constituent);
 			addFilterPanel(panel);
 		}
-		pack();
 	}
 	
 	/**
