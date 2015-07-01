@@ -35,6 +35,7 @@ public class LegalityPanel extends JPanel
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setPreferredSize(new Dimension(400, 250));
 		
 		// Panel containing format lists
 		JPanel listsPanel = new JPanel(new GridLayout(1, 2));
@@ -75,9 +76,6 @@ public class LegalityPanel extends JPanel
 		// Panel containing text box that shows why a deck is illegal in a format
 		JPanel warningsPanel = new JPanel(new BorderLayout());
 		warningsPanel.setBorder(new CompoundBorder(new TitledBorder("Warnings"), new BevelBorder(BevelBorder.LOWERED)));
-		Dimension warningSize = warningsPanel.getPreferredSize();
-		warningSize.height = 100;
-		warningsPanel.setPreferredSize(warningSize);
 		add(warningsPanel);
 		
 		// Text box that shows reasons for illegality

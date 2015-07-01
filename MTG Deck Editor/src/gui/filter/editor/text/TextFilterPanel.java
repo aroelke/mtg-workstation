@@ -150,8 +150,7 @@ public class TextFilterPanel extends FilterEditorPanel
 				else
 					return filter;
 			case CONTAINS_NOT_ALL_OF:
-				// TODO: Implement this
-				return (c) -> true;
+				return createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase()).negate();
 			case CONTAINS_NOT_EXACTLY:
 				return (c) -> !text.apply(c).equalsIgnoreCase(filterText);
 			case CONTAINS_EXACTLY:
