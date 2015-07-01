@@ -1,8 +1,8 @@
 package gui;
 
 import gui.editor.EditorFrame;
+import gui.filter.FilterGroupPanel;
 import gui.inventory.InventoryDownloadDialog;
-import gui.inventory.InventoryFilterDialog;
 import gui.inventory.InventoryLoadDialog;
 import gui.inventory.InventoryTableModel;
 
@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -146,10 +145,6 @@ public class MainFrame extends JFrame
 	 */
 	private JFileChooser fileChooser;
 	/**
-	 * Dialog for filtering the inventory.
-	 */
-	private InventoryFilterDialog filterDialog;
-	/**
 	 * Dialog showing inventory load progress.
 	 */
 	private InventoryLoadDialog loadDialog;
@@ -186,7 +181,6 @@ public class MainFrame extends JFrame
 		untitled = 0;
 		selectedFrame = null;
 		editors = new ArrayList<EditorFrame>();
-		filterDialog = null;
 		
 		// Initialize properties to their default values, then load the current values
 		// from the properties file
@@ -625,7 +619,6 @@ public class MainFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				filterDialog.reset();
 				inventory.updateFilter((c) -> c.normalizedName().contains(nameFilterField.getText()));
 				inventoryModel.fireTableDataChanged();
 			}	
@@ -638,7 +631,6 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				nameFilterField.setText("");
-				filterDialog.reset();
 				inventory.updateFilter((c) -> true);
 				inventoryModel.fireTableDataChanged();
 			}
@@ -651,10 +643,10 @@ public class MainFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Predicate<Card> filter = filterDialog.createInventoryFilter();
-				if (filter != null)
+				FilterGroupPanel filter = new FilterGroupPanel();
+				if (JOptionPane.showOptionDialog(null, filter, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 				{
-					inventory.updateFilter(filter);
+					inventory.updateFilter(filter.filter());
 					inventoryModel.fireTableDataChanged();
 				}
 			}
@@ -709,9 +701,6 @@ public class MainFrame extends JFrame
 				if (checkForUpdate() == UPDATE_NEEDED)
 					updateInventory();
 				loadInventory();
-				
-				filterDialog = new InventoryFilterDialog(MainFrame.this);
-				filterDialog.setLocationRelativeTo(MainFrame.this);
 			}
 			
 			@Override
