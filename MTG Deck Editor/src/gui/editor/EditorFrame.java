@@ -362,7 +362,11 @@ public class EditorFrame extends JInternalFrame
 		// Button to add a new category
 		JPanel addCategoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton addCategoryButton = new JButton("Add");
-		addCategoryButton.addActionListener((e) -> createCategory());
+//		addCategoryButton.addActionListener((e) -> createCategory());
+		addCategoryButton.addActionListener((e) -> {
+			CategoryEditorPanel categoryEditor = new CategoryEditorPanel();
+			JOptionPane.showOptionDialog(null, categoryEditor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+		});
 		addCategoryPanel.add(addCategoryButton);
 		categoryHeaderPanel.add(addCategoryPanel);
 		

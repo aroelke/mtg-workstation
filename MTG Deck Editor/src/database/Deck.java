@@ -28,10 +28,22 @@ import java.util.stream.Collectors;
  */
 public class Deck implements Iterable<Card>
 {
+	/**
+	 * Regex pattern for matching category strings and extracting their contents.  The first group
+	 * will be the category's name, the second group will be the UIDs of the cards in its whitelist,
+	 * the third group will the UIDs of the cards in its blacklist, and the fourth group will be
+	 * its filter's String representation.  The second and third groups will not include the group
+	 * enclosing characters, but the fourth will.
+	 * @see gui.filter.FilterGroupPanel#setContents(String)
+	 */
 	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^" + FilterGroupPanel.BEGIN_GROUP + "]+)"
 			+ FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
 			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
 			+ "\\s*(" + FilterGroupPanel.BEGIN_GROUP + ".*$)");
+	/**
+	 * List separator for UIDs of cards in the String representation of a whitelist or a blacklist.
+	 */
+	public static String EXCEPTION_SEPARATOR = ":";
 	
 	/**
 	 * List of cards in this Deck.
