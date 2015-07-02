@@ -2,6 +2,7 @@ package gui.editor;
 
 
 
+
 /**
  * This class represents an action to add a category to the deck.
  * 
