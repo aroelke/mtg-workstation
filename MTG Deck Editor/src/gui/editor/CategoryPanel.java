@@ -219,7 +219,7 @@ public class CategoryPanel extends JPanel
 	 * Change the parameters of the category.
 	 * 
 	 * @param newName New name for the category
-	 * @param newRepr New String representation of the category
+	 * @param newRepr New String representation of the category's filter
 	 * @param newFilter New filter for the category
 	 */
 	public void edit(String newName, String newRepr, Predicate<Card> newFilter)

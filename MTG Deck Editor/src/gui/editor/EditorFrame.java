@@ -362,12 +362,7 @@ public class EditorFrame extends JInternalFrame
 		// Button to add a new category
 		JPanel addCategoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton addCategoryButton = new JButton("Add");
-//		addCategoryButton.addActionListener((e) -> createCategory());
-		addCategoryButton.addActionListener((e) -> {
-			CategoryEditorPanel editor = new CategoryEditorPanel();
-			if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-				addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), deck));
-		});
+		addCategoryButton.addActionListener((e) -> createCategory());
 		addCategoryPanel.add(addCategoryButton);
 		categoryHeaderPanel.add(addCategoryPanel);
 		
@@ -377,7 +372,8 @@ public class EditorFrame extends JInternalFrame
 		switchCategoryBox.setEnabled(false);
 		switchCategoryBox.addActionListener((e) -> {
 			CategoryPanel toView = getCategory(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex()));
-			toView.scrollRectToVisible(new Rectangle(toView.getSize()));
+			if (toView != null)
+				toView.scrollRectToVisible(new Rectangle(toView.getSize()));
 		});
 		switchCategoryPanel.add(new JLabel("Go to category:"));
 		switchCategoryPanel.add(switchCategoryBox);
@@ -464,8 +460,6 @@ public class EditorFrame extends JInternalFrame
 				for (int i = 0; i < cards; i++)
 				{
 					String[] card = rd.readLine().trim().split("\t");
-					if (parent.getCard(card[0]) == null)
-						System.out.println(card[0]);
 					deck.add(parent.getCard(card[0]), Integer.valueOf(card[1]));
 				}
 				int categories = Integer.valueOf(rd.readLine().trim());
@@ -485,11 +479,7 @@ public class EditorFrame extends JInternalFrame
 							Set<Card> blacklist = new HashSet<Card>();
 							if (!m.group(3).isEmpty())
 								for (String id: m.group(3).split(":"))
-								{
-									if (parent.getCard(id) == null)
-										System.out.println(id);
 									blacklist.add(parent.getCard(id));
-								}
 							addCategory(new CategoryPanel(categoryCreator.name(), m.group(4), whitelist, blacklist, categoryCreator.filter(), deck));
 							categoryCreator.reset();
 						}
@@ -532,8 +522,7 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * @return The names of all the categories in the deck, sorted
-	 * alphabetically.
+	 * @return The names of all the categories in the deck, sorted alphabetically.
 	 */
 	public String[] categoryNames()
 	{
@@ -562,7 +551,9 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void createCategory()
 	{
-		addCategory(categoryCreator.createNewCategory());
+		CategoryEditorPanel editor = new CategoryEditorPanel();
+		if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), deck));
 	}
 
 	/**
@@ -607,16 +598,7 @@ public class EditorFrame extends JInternalFrame
 			});
 			// Add the behavior for the edit category button
 			newCategory.editButton.addActionListener((e) -> {
-				String oldName = newCategory.name();
-				String oldRepr = newCategory.toString();
-				Predicate<Card> oldFilter = newCategory.filter();
-				if (categoryCreator.editCategory(newCategory))
-				{
-					updateCategorySwitch();
-					setUnsaved();
-					undoBuffer.push(new EditCategoryAction(this, oldName, oldRepr, oldFilter, newCategory.name(), newCategory.toString(), newCategory.filter()));
-					redoBuffer.clear();
-				}
+				editCategory(newCategory.name());
 			});
 			// Add the behavior for the remove category button
 			newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory));
@@ -735,13 +717,17 @@ public class EditorFrame extends JInternalFrame
 		{
 			String oldRepr = toEdit.toString();
 			Predicate<Card> oldFilter = toEdit.filter();
-			categoryCreator.editCategory(toEdit);
-			updateCategorySwitch();
-			revalidate();
-			repaint();
-			setUnsaved();
-			undoBuffer.push(new EditCategoryAction(this, name, oldRepr, oldFilter, toEdit.name(), toEdit.toString(), toEdit.filter()));
-			redoBuffer.clear();
+			CategoryEditorPanel editor = new CategoryEditorPanel(oldRepr);
+			if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			{
+				toEdit.edit(editor.name(), editor.repr(), editor.filter());
+				updateCategorySwitch();
+				revalidate();
+				repaint();
+				setUnsaved();
+				undoBuffer.push(new EditCategoryAction(this, oldRepr, oldFilter, toEdit.toString(), toEdit.filter()));
+				redoBuffer.clear();
+			}
 		}
 	}
 

@@ -33,7 +33,8 @@ public class Deck implements Iterable<Card>
 	 * will be the category's name, the second group will be the UIDs of the cards in its whitelist,
 	 * the third group will the UIDs of the cards in its blacklist, and the fourth group will be
 	 * its filter's String representation.  The second and third groups will not include the group
-	 * enclosing characters, but the fourth will.
+	 * enclosing characters, but the fourth will.  The first group needs to be trimmed, or the
+	 * trailing white space will be included.
 	 * @see gui.filter.FilterGroupPanel#setContents(String)
 	 */
 	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^" + FilterGroupPanel.BEGIN_GROUP + "]+)"

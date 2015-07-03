@@ -80,7 +80,7 @@ public class CategoryEditorPanel extends JPanel
 		Matcher m = Deck.CATEGORY_PATTERN.matcher(s);
 		if (m.matches())
 		{
-			nameField.setText(m.group(1));
+			nameField.setText(m.group(1).trim());
 			whitelist.addAll(Arrays.asList(m.group(2).split(Deck.EXCEPTION_SEPARATOR)));
 			blacklist.addAll(Arrays.asList(m.group(3).split(Deck.EXCEPTION_SEPARATOR)));
 			filter.setContents(m.group(4));

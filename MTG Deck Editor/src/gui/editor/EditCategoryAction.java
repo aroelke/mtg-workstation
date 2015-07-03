@@ -1,8 +1,10 @@
 package gui.editor;
 
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 
 import database.Card;
+import database.Deck;
 
 /**
  * This class represents an action for editing a category in a deck.
@@ -16,25 +18,17 @@ public class EditCategoryAction implements DeckAction
 	 */
 	private EditorFrame editor;
 	/**
-	 * Name of the category before editing.
-	 */
-	private String formerName;
-	/**
 	 * String representation of the category before editing.
 	 */
-	private String formerRepr;
+	private Matcher formerRepr;
 	/**
 	 * Filter of the category before editing.
 	 */
 	private Predicate<Card> formerFilter;
 	/**
-	 * Name of the category after editing.
-	 */
-	private String newName;
-	/**
 	 * String representation of the category after editing.
 	 */
-	private String newRepr;
+	private Matcher newRepr;
 	/**
 	 * Filter of the category after editing.
 	 */
@@ -44,22 +38,23 @@ public class EditCategoryAction implements DeckAction
 	 * Create a new EditCategoryAction.
 	 * 
 	 * @param e Editor this action was performed on
-	 * @param nf Former name of the category
 	 * @param rf Former String representation of the category
 	 * @param ff Former filter of the category
-	 * @param na New name of the category
 	 * @param ra New String representation of the category
 	 * @param fa New filter of the category
 	 */
-	public EditCategoryAction(EditorFrame e, String nf, String rf, Predicate<Card> ff, String na, String ra, Predicate<Card> fa)
+	public EditCategoryAction(EditorFrame e, String rf, Predicate<Card> ff, String ra, Predicate<Card> fa)
 	{
 		editor = e;
-		formerName = nf;
-		formerRepr = rf;
+		formerRepr = Deck.CATEGORY_PATTERN.matcher(rf);
 		formerFilter = ff;
-		newName = na;
-		newRepr = ra;
+		newRepr = Deck.CATEGORY_PATTERN.matcher(ra);
 		newFilter = fa;
+		
+		if (!formerRepr.matches())
+			throw new IllegalArgumentException("Illegal former category string \"" + rf + "\"");
+		if (!newRepr.matches())
+			throw new IllegalArgumentException("Illegal new category string \"" + ra + "\"");
 	}
 	
 	/**
@@ -68,17 +63,17 @@ public class EditCategoryAction implements DeckAction
 	@Override
 	public void undo()
 	{
-		CategoryPanel editedCategory = editor.getCategory(newName);
+		CategoryPanel editedCategory = editor.getCategory(newRepr.group(1).trim());
 		if (editedCategory != null)
 		{
-			editedCategory.edit(formerName, formerRepr, formerFilter);
+			editedCategory.edit(formerRepr.group(1).trim(), formerRepr.group(4), formerFilter);
 			editor.updateCategorySwitch();
 			editor.revalidate();
 			editor.repaint();
 			editor.setUnsaved();
 		}
 		else
-			throw new IllegalStateException("Deck does not contain a category named " + newName);
+			throw new IllegalStateException("Deck does not contain a category named " + newRepr.group(1));
 	}
 
 	/**
@@ -87,16 +82,16 @@ public class EditCategoryAction implements DeckAction
 	@Override
 	public void redo()
 	{
-		CategoryPanel editedCategory = editor.getCategory(formerName);
+		CategoryPanel editedCategory = editor.getCategory(formerRepr.group(1).trim());
 		if (editedCategory != null)
 		{
-			editedCategory.edit(newName, newRepr, newFilter);
+			editedCategory.edit(newRepr.group(1).trim(), newRepr.group(1), newFilter);
 			editor.updateCategorySwitch();
 			editor.revalidate();
 			editor.repaint();
 			editor.setUnsaved();
 		}
 		else
-			throw new IllegalStateException("Deck does not contain a category named " + formerName);
+			throw new IllegalStateException("Deck does not contain a category named " + formerRepr.group(1).trim());
 	}
 }
