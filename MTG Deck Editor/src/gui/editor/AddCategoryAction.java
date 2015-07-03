@@ -1,10 +1,13 @@
 package gui.editor;
 
+import java.util.Set;
 
-
+import database.Card;
 
 /**
  * This class represents an action to add a category to the deck.
+ * 
+ * TODO: Figure out a way to make this work using only the category string.
  * 
  * @author Alec Roelke
  */
@@ -22,6 +25,8 @@ public class AddCategoryAction implements DeckAction
 	 * String representation of the category added.
 	 */
 	private String repr;
+	private Set<Card> whitelist;
+	private Set<Card> blacklist;
 	
 	/**
 	 * Create a new AddCategoryAction
@@ -34,6 +39,8 @@ public class AddCategoryAction implements DeckAction
 		editor = e;
 		name = category.name();
 		repr = category.toString();
+		whitelist = category.whitelist();
+		blacklist = category.blacklist();
 	}
 	
 	/**
@@ -52,8 +59,7 @@ public class AddCategoryAction implements DeckAction
 	@Override
 	public void redo()
 	{
-		editor.categoryCreator.setContents(repr);
-		editor.addCategoryUnbuffered(new CategoryPanel(editor.categoryCreator.name(), editor.categoryCreator.repr(), editor.categoryCreator.filter(), editor.deck));
-		editor.categoryCreator.reset();
+		CategoryEditorPanel categoryEditor = new CategoryEditorPanel(repr);
+		editor.addCategoryUnbuffered(new CategoryPanel(categoryEditor.name(), categoryEditor.repr(), whitelist, blacklist, categoryEditor.filter(), editor.deck));
 	}
 }

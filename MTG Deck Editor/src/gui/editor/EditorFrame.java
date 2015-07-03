@@ -4,6 +4,7 @@ import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
 import gui.TableMouseAdapter;
+import gui.filter.FilterGroupPanel;
 import gui.legality.LegalityChecker;
 import gui.legality.LegalityPanel;
 
@@ -22,13 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import javax.swing.BoxLayout;
@@ -111,10 +110,6 @@ public class EditorFrame extends JInternalFrame
 	 * Label showing the total number of nonland cards in the deck.
 	 */
 	private JLabel nonlandLabel;
-	/**
-	 * JDialog for creating and editing categories.
-	 */
-	protected CategoryDialog categoryCreator;
 	/**
 	 * Tabbed pane for choosing whether to display the entire deck or the categories.
 	 */
@@ -420,9 +415,6 @@ public class EditorFrame extends JInternalFrame
 			JOptionPane.showMessageDialog(null, new LegalityPanel(checker), "Legality of " + deckName(), JOptionPane.PLAIN_MESSAGE);
 		});
 		statsPanel.add(legalityButton);
-		
-		categoryCreator = new CategoryDialog(this);
-		categoryCreator.setLocationRelativeTo(parent);
 
 		// Handle various frame events, including selecting and closing
 		addInternalFrameListener(new InternalFrameAdapter()
@@ -467,24 +459,10 @@ public class EditorFrame extends JInternalFrame
 				{
 					try
 					{
-						String repr = rd.readLine().trim();
-						Matcher m = Deck.CATEGORY_PATTERN.matcher(repr);
-						if (m.matches())
-						{
-							categoryCreator.setContents(m.group(1), m.group(4));
-							Set<Card> whitelist = new HashSet<Card>();
-							if (!m.group(2).isEmpty())
-								for (String id: m.group(2).split(":"))
-									whitelist.add(parent.getCard(id));
-							Set<Card> blacklist = new HashSet<Card>();
-							if (!m.group(3).isEmpty())
-								for (String id: m.group(3).split(":"))
-									blacklist.add(parent.getCard(id));
-							addCategory(new CategoryPanel(categoryCreator.name(), m.group(4), whitelist, blacklist, categoryCreator.filter(), deck));
-							categoryCreator.reset();
-						}
-						else
-							throw new IllegalArgumentException("Illegal category string \"" + repr + "\"");
+						CategoryEditorPanel editor = new CategoryEditorPanel(rd.readLine().trim());
+						Set<Card> whitelist = editor.whitelist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
+						Set<Card> blacklist = editor.blacklist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
+						addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.filter(), deck));
 					}
 					catch (Exception e)
 					{
@@ -499,7 +477,6 @@ public class EditorFrame extends JInternalFrame
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.clear();
-			categoryCreator.reset();
 		}
 		finally
 		{
@@ -552,8 +529,26 @@ public class EditorFrame extends JInternalFrame
 	public void createCategory()
 	{
 		CategoryEditorPanel editor = new CategoryEditorPanel();
-		if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-			addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), deck));
+		boolean done = false;
+		while (!done)
+		{
+			if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			{
+				if (editor.name().isEmpty())
+				{
+					JOptionPane.showMessageDialog(null, "New category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
+					done = false;
+				}
+				else if (editor.name().contains(String.valueOf(FilterGroupPanel.BEGIN_GROUP)))
+				{
+					JOptionPane.showMessageDialog(null, "Category names cannot contain the character '" + FilterGroupPanel.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
+					done = false;
+				}
+				else
+					done = true;
+			}
+		}
+		addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), deck));
 	}
 
 	/**
@@ -718,15 +713,33 @@ public class EditorFrame extends JInternalFrame
 			String oldRepr = toEdit.toString();
 			Predicate<Card> oldFilter = toEdit.filter();
 			CategoryEditorPanel editor = new CategoryEditorPanel(oldRepr);
-			if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			boolean done = false;
+			while (!done)
 			{
-				toEdit.edit(editor.name(), editor.repr(), editor.filter());
-				updateCategorySwitch();
-				revalidate();
-				repaint();
-				setUnsaved();
-				undoBuffer.push(new EditCategoryAction(this, oldRepr, oldFilter, toEdit.toString(), toEdit.filter()));
-				redoBuffer.clear();
+				if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				{
+					if (editor.name().isEmpty())
+					{
+						JOptionPane.showMessageDialog(null, "New category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
+						done = false;
+					}
+					else if (editor.name().contains(String.valueOf(FilterGroupPanel.BEGIN_GROUP)))
+					{
+						JOptionPane.showMessageDialog(null, "Category names cannot contain the character '" + FilterGroupPanel.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
+						done = false;
+					}
+					else
+					{
+						toEdit.edit(editor.name(), editor.repr(), editor.filter());
+						updateCategorySwitch();
+						revalidate();
+						repaint();
+						setUnsaved();
+						undoBuffer.push(new EditCategoryAction(this, oldRepr, oldFilter, toEdit.toString(), toEdit.filter()));
+						redoBuffer.clear();
+						done = true;
+					}
+				}
 			}
 		}
 	}

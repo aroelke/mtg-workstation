@@ -7,6 +7,8 @@ import database.Card;
 /**
  * This class represents an action to remove a category from a deck.
  * 
+ * TODO: Figure out a way to make this work using only the category string.
+ * 
  * @author Alec Roelke
  */
 public class RemoveCategoryAction implements DeckAction
@@ -43,6 +45,8 @@ public class RemoveCategoryAction implements DeckAction
 		editor = e;
 		name = category.name();
 		repr = category.toString();
+		whitelist = category.whitelist();
+		blacklist = category.blacklist();
 	}
 	
 	/**
@@ -51,9 +55,8 @@ public class RemoveCategoryAction implements DeckAction
 	@Override
 	public void undo()
 	{
-		editor.categoryCreator.setContents(repr);
-		editor.addCategoryUnbuffered(new CategoryPanel(editor.categoryCreator.name(), editor.categoryCreator.repr(), whitelist, blacklist, editor.categoryCreator.filter(), editor.deck));
-		editor.categoryCreator.reset();
+		CategoryEditorPanel categoryEditor = new CategoryEditorPanel(repr);
+		editor.addCategoryUnbuffered(new CategoryPanel(categoryEditor.name(), categoryEditor.repr(), whitelist, blacklist, categoryEditor.filter(), editor.deck));
 	}
 	
 	/**
