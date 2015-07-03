@@ -89,21 +89,38 @@ public class CategoryEditorPanel extends JPanel
 			throw new IllegalArgumentException("Illegal category string \"" + s + "\"");
 	}
 	
+	/**
+	 * @return The name of the category being edited.
+	 */
 	public String name()
 	{
 		return nameField.getText();
 	}
 	
+	/**
+	 * @return The <code>Predicate<Card></code> reprsenting the filter of the category
+	 * being edited.
+	 */
 	public Predicate<Card> filter()
 	{
 		return filter.filter();
 	}
 	
+	/**
+	 * @return The list of UIDs of the cards that should be included in the category
+	 * even if they don't pass through the filter.  This is not editable using this
+	 * panel.
+	 */
 	public Set<String> whitelist()
 	{
 		return whitelist;
 	}
 	
+	/**
+	 * @return The list of UIDs of the cards that should be excluded from the category
+	 * even if they do pass through the filter.  This is not editable using this
+	 * panel.
+	 */
 	public Set<String> blacklist()
 	{
 		return blacklist;
