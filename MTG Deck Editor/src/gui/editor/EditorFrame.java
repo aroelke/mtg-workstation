@@ -69,6 +69,8 @@ import database.characteristics.CardCharacteristic;
  * to a deck and add, edit, and delete categories.  It is contained within the main frame, which has the
  * inventory from which cards can be added.
  * 
+ * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
