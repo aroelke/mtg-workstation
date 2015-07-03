@@ -364,8 +364,9 @@ public class EditorFrame extends JInternalFrame
 		JButton addCategoryButton = new JButton("Add");
 //		addCategoryButton.addActionListener((e) -> createCategory());
 		addCategoryButton.addActionListener((e) -> {
-			CategoryEditorPanel categoryEditor = new CategoryEditorPanel();
-			JOptionPane.showOptionDialog(null, categoryEditor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+			CategoryEditorPanel editor = new CategoryEditorPanel();
+			if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), deck));
 		});
 		addCategoryPanel.add(addCategoryButton);
 		categoryHeaderPanel.add(addCategoryPanel);

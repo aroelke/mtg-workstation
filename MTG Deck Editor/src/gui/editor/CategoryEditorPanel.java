@@ -98,12 +98,20 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
-	 * @return The <code>Predicate<Card></code> reprsenting the filter of the category
+	 * @return The <code>Predicate<Card></code> representing the filter of the category
 	 * being edited.
 	 */
 	public Predicate<Card> filter()
 	{
 		return filter.filter();
+	}
+	
+	/**
+	 * @return The String representation of the filter for the category being edited.
+	 */
+	public String repr()
+	{
+		return filter.toString();
 	}
 	
 	/**

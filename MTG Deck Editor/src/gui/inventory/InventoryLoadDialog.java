@@ -29,6 +29,9 @@ import database.Inventory;
  * This class represents a dialog that shows the progress for loading the
  * inventory and blocking the main frame until it is finished.
  * 
+ * TODO: Enable cancellation of the load
+ * TODO: Use JOptionPane instead of a custom dialog.
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")

@@ -23,6 +23,9 @@ import javax.swing.border.EmptyBorder;
  * inventory file.  It has a label which shows how many bytes have been
  * downloaded and a progress bar that indicates things are happening.
  * 
+ * TODO: Enable cancellation of the download
+ * TODO: Use JOptionPane instead of a custom dialog
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -87,9 +90,24 @@ public class InventoryDownloadDialog extends JDialog
 	 * 
 	 * @param text String indicating how many bytes have been downloaded.
 	 */
-	public void setDownloaded(String text)
+	public void setDownloaded(double downloaded, double toDownload)
 	{
-		progressLabel.setText("Downloading inventory..." + text + " bytes downloaded.");
+		progressBar.setIndeterminate(false);
+		progressBar.setValue((int)(100*downloaded/toDownload));
+		String downloadedStr, toDownloadStr;
+		if (downloaded <= 1024)
+			downloadedStr = String.format("%d", downloaded);
+		else if (downloaded <= 1048576)
+			downloadedStr = String.format("%.1fk", downloaded/1024);
+		else
+			downloadedStr = String.format("%.2fM", downloaded/1048576);
+		if (toDownload <= 1024)
+			toDownloadStr = String.format("%d", toDownload);
+		else if (toDownload <= 1048576)
+			toDownloadStr = String.format("%.1fk", toDownload/1024);
+		else
+			toDownloadStr = String.format("%.2fM", toDownload/1048576);
+		progressLabel.setText("Downloading inventory..." + downloadedStr + "/" + toDownloadStr + " downloaded.");
 	}
 	
 	/**

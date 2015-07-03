@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 
 import javax.swing.SwingWorker;
@@ -30,6 +31,10 @@ public class InventoryDownloadWorker extends SwingWorker<Void, Double>
 	 * File to store the inventory file in.
 	 */
 	private File file;
+	/**
+	 * Number of bytes to download.
+	 */
+	private double bytes;
 	
 	/**
 	 * Create a new InventoryDownloadWorker.  A new one must be created each time
@@ -45,6 +50,7 @@ public class InventoryDownloadWorker extends SwingWorker<Void, Double>
 		parent = p;
 		site = s;
 		file = f;
+		bytes = 0;
 	}
 	
 	/**
@@ -54,13 +60,7 @@ public class InventoryDownloadWorker extends SwingWorker<Void, Double>
 	@Override
 	protected void process(List<Double> chunks)
 	{
-		double bytesDownloaded = chunks.get(chunks.size() - 1);
-		if (bytesDownloaded <= 1024)
-			parent.setDownloaded(String.format("%d", bytesDownloaded));
-		else if (bytesDownloaded <= 1048576)
-			parent.setDownloaded(String.format("%.1fk", bytesDownloaded/1024));
-		else
-			parent.setDownloaded(String.format("%.2fM", bytesDownloaded/1048576));
+		parent.setDownloaded(chunks.get(chunks.size() - 1), bytes);
 	}
 	
 	/**
@@ -70,21 +70,29 @@ public class InventoryDownloadWorker extends SwingWorker<Void, Double>
 	@Override
 	protected Void doInBackground() throws Exception
 	{
-		try (BufferedInputStream in = new BufferedInputStream((site.openStream())))
+		try
 		{
-			try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file)))
+			// TODO: Add ETA
+			URLConnection conn = site.openConnection();
+			bytes = conn.getContentLengthLong();
+			try (BufferedInputStream in = new BufferedInputStream((conn.getInputStream())))
 			{
-				byte[] data = new byte[1024];
-				double size = 0;
-				int x;
-				while ((x = in.read(data, 0, 1024)) >= 0)
+				try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file)))
 				{
-					size += x;
-					out.write(data, 0, x);
-					publish(size);
+					byte[] data = new byte[1024];
+					double size = 0;
+					int x;
+					while ((x = in.read(data, 0, 1024)) >= 0)
+					{
+						size += x;
+						out.write(data, 0, x);
+						publish(size);
+					}
 				}
 			}
 		}
+		finally
+		{}
 		return null;
 	}
 	
