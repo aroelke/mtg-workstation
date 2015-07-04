@@ -3,7 +3,6 @@ package gui.editor;
 import gui.filter.FilterGroupPanel;
 
 import java.awt.BorderLayout;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -81,8 +80,12 @@ public class CategoryEditorPanel extends JPanel
 		if (m.matches())
 		{
 			nameField.setText(m.group(1).trim());
-			whitelist.addAll(Arrays.asList(m.group(2).split(Deck.EXCEPTION_SEPARATOR)));
-			blacklist.addAll(Arrays.asList(m.group(3).split(Deck.EXCEPTION_SEPARATOR)));
+			if (!m.group(2).isEmpty())
+				for (String c: m.group(2).split(Deck.EXCEPTION_SEPARATOR))
+					whitelist.add(c);
+			if (!m.group(3).isEmpty())
+				for (String c: m.group(3).split(Deck.EXCEPTION_SEPARATOR))
+					blacklist.add(c);
 			filter.setContents(m.group(4));
 		}
 		else
