@@ -9,7 +9,6 @@ import gui.inventory.InventoryTableModel;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -53,7 +52,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -61,7 +59,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLDocument;
@@ -188,6 +185,8 @@ public class MainFrame extends JFrame
 		// - inventory table columns
 		// - deck table columns
 		// - category table columns
+		// - file chooser initial directory (last directory it was in)
+		// - last X files (and how many to keep track of)
 		properties = new Properties();
 		properties.put("inventory.version_file", "version.json");
 		properties.put("inventory.source", "http://mtgjson.com/json/");
@@ -283,6 +282,8 @@ public class MainFrame extends JFrame
 		saveAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK));
 		saveAllItem.addActionListener((e) -> saveAll());
 		fileMenu.add(saveAllItem);
+		
+		// TODO: Add submenu for last X files opened
 		
 		fileMenu.add(new JSeparator());
 		
@@ -451,8 +452,7 @@ public class MainFrame extends JFrame
 		
 		/* CONTENT PANE */
 		// Panel containing all content
-		JPanel contentPane = new JPanel(new GridLayout(0, 1, 0, 0));
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		JPanel contentPane = new JPanel(new BorderLayout());
 		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ActionEvent.CTRL_MASK), "Next Frame");
 		contentPane.getActionMap().put("Next Frame", new AbstractAction()
 		{
@@ -477,10 +477,6 @@ public class MainFrame extends JFrame
 			}
 		});
 		setContentPane(contentPane);
-		
-		// Tabs: editor
-		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP);
-		contentPane.add(tabs);
 		
 		// DesktopPane containing editor frames
 		decklistDesktop = new JDesktopPane();
@@ -676,10 +672,7 @@ public class MainFrame extends JFrame
 		JSplitPane editorSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, inventorySplit, decklistDesktop);
 		editorSplit.setOneTouchExpandable(true);
 		editorSplit.setContinuousLayout(true);
-		tabs.addTab("Editor", editorSplit);
-		
-		// TODO: Add a tab for deck analysis
-		// TODO: Add a tab for sample hands
+		contentPane.add(editorSplit, BorderLayout.CENTER);
 		
 		// File chooser
 		fileChooser = new JFileChooser(new File("."));
@@ -699,7 +692,7 @@ public class MainFrame extends JFrame
 			@Override
 			public void windowOpened(WindowEvent e)
 			{
-				if (checkForUpdate() == UPDATE_NEEDED)
+				if (Boolean.valueOf(properties.getProperty("inventory.initialcheck")) && checkForUpdate() == UPDATE_NEEDED)
 					updateInventory();
 				loadInventory();
 			}

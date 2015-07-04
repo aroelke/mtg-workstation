@@ -395,6 +395,12 @@ public class EditorFrame extends JInternalFrame
 		categoriesSuperContainer.add(categoriesContainer, BorderLayout.NORTH);
 		categoriesPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		listTabs.addTab("Categories", categoriesPanel);
+		
+		// TODO: Add tabs for deck analysis
+		// - category pie chart
+		// - mana curve
+		// - color distribution (cards/devotion)
+		// TODO: Add a tab for sample hands
 
 		// Panel to show the stats of the deck
 		JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
