@@ -146,10 +146,6 @@ public class MainFrame extends JFrame
 	 */
 	private JFileChooser fileChooser;
 	/**
-	 * Dialog showing inventory load progress.
-	 */
-	private InventoryLoadDialog loadDialog;
-	/**
 	 * Properties object storing settings.
 	 */
 	private Properties properties;
@@ -680,10 +676,6 @@ public class MainFrame extends JFrame
 		fileChooser = new JFileChooser(new File("."));
 		fileChooser.setMultiSelectionEnabled(false);
 		
-		// Loading dialog
-		loadDialog = new InventoryLoadDialog(this);
-		loadDialog.setLocationRelativeTo(this);
-		
 		// Handle what happens when the window tries to close and when it opens.
 		addWindowListener(new WindowAdapter()
 		{
@@ -730,6 +722,8 @@ public class MainFrame extends JFrame
 	{
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		
+		InventoryLoadDialog loadDialog = new InventoryLoadDialog(this);
+		loadDialog.setLocationRelativeTo(this);
 		inventory = loadDialog.createInventory(inventoryFile);
 		inventory.sort((a, b) -> a.compareName(b));
 		inventoryModel = new InventoryTableModel(inventory, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.EXPANSION_NAME,
