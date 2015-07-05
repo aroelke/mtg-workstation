@@ -114,6 +114,10 @@ public class MainFrame extends JFrame
 	 */
 	private InventoryTableModel inventoryModel;
 	/**
+	 * Panel for editing the inventory filter.
+	 */
+	private FilterGroupPanel filter;
+	/**
 	 * Currently-selected card which will be added to decks.
 	 */
 	private Card selectedCard;
@@ -178,6 +182,7 @@ public class MainFrame extends JFrame
 		untitled = 0;
 		selectedFrame = null;
 		editors = new ArrayList<EditorFrame>();
+		filter = new FilterGroupPanel();
 		
 		// Initialize properties to their default values, then load the current values
 		// from the properties file
@@ -613,8 +618,9 @@ public class MainFrame extends JFrame
 		nameFilterField.addActionListener(new ActionListener()
 		{
 			@Override
-			public void actionPerformed(ActionEvent arg0)
+			public void actionPerformed(ActionEvent e)
 			{
+				filter.clear();
 				inventory.updateFilter((c) -> c.normalizedName().contains(nameFilterField.getText()));
 				inventoryModel.fireTableDataChanged();
 			}	
@@ -627,6 +633,7 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				nameFilterField.setText("");
+				filter.clear();
 				inventory.updateFilter((c) -> true);
 				inventoryModel.fireTableDataChanged();
 			}
@@ -639,7 +646,6 @@ public class MainFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				FilterGroupPanel filter = new FilterGroupPanel();
 				if (JOptionPane.showOptionDialog(null, filter, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 				{
 					nameFilterField.setText("");
