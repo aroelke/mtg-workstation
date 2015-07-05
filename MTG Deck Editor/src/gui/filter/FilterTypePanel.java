@@ -258,7 +258,8 @@ public class FilterTypePanel extends FilterPanel
 			// Refresh the panel
 			remove(filterPanel);
 			add(filterPanel, filterConstraints);
-			SwingUtilities.windowForComponent(FilterTypePanel.this).pack();
+			if (SwingUtilities.windowForComponent(FilterTypePanel.this) != null)
+				SwingUtilities.windowForComponent(FilterTypePanel.this).pack();
 		}
 	}
 }

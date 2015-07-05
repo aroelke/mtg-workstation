@@ -540,6 +540,7 @@ public class EditorFrame extends JInternalFrame
 		boolean done = false;
 		while (!done)
 		{
+			done = true;
 			if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
 				if (editor.name().isEmpty())
@@ -553,10 +554,9 @@ public class EditorFrame extends JInternalFrame
 					done = false;
 				}
 				else
-					done = true;
+					addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), deck));
 			}
 		}
-		addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), deck));
 	}
 
 	/**
@@ -724,6 +724,7 @@ public class EditorFrame extends JInternalFrame
 			boolean done = false;
 			while (!done)
 			{
+				done = true;
 				if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 				{
 					if (editor.name().isEmpty())
@@ -745,7 +746,6 @@ public class EditorFrame extends JInternalFrame
 						setUnsaved();
 						undoBuffer.push(new EditCategoryAction(this, oldRepr, oldFilter, toEdit.toString(), toEdit.filter()));
 						redoBuffer.clear();
-						done = true;
 					}
 				}
 			}
