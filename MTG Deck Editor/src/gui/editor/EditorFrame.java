@@ -474,6 +474,7 @@ public class EditorFrame extends JInternalFrame
 					}
 					catch (Exception e)
 					{
+						// TODO: Remove the stack trace
 						e.printStackTrace();
 						JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 					}
@@ -482,6 +483,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		catch (Exception e)
 		{
+			// TODO: Remove the stack trace
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.clear();

@@ -28,8 +28,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Queue;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -162,6 +167,10 @@ public class MainFrame extends JFrame
 	 * URL pointing to the site to get the inventory from.
 	 */
 	private URL inventorySite;
+	private int recentCount;
+	private Queue<JMenuItem> recentItems;
+	private Map<JMenuItem, File> recents;
+	private JMenu recentsMenu;
 	
 	/**
 	 * Create a new MainFrame.
@@ -175,6 +184,8 @@ public class MainFrame extends JFrame
 		selectedFrame = null;
 		editors = new ArrayList<EditorFrame>();
 		filter = new FilterGroupPanel();
+		recentItems = new LinkedList<JMenuItem>();
+		recents = new HashMap<JMenuItem, File>();
 		
 		// Initialize properties to their default values, then load the current values
 		// from the properties file
@@ -182,7 +193,6 @@ public class MainFrame extends JFrame
 		// - inventory table columns
 		// - deck table columns
 		// - category table columns
-		// - last X files (and how many to keep track of)
 		properties = new Properties();
 		properties.put("inventory.version_file", "version.json");
 		properties.put("inventory.source", "http://mtgjson.com/json/");
@@ -191,6 +201,8 @@ public class MainFrame extends JFrame
 		properties.put("inventory.initialcheck", "true");
 		properties.put("inventory.location", "./");
 		properties.put("initialdir", "./");
+		properties.put("recents.count", "4");
+		properties.put("recents.files", "");
 		try (FileInputStream in = new FileInputStream(PROPERTIES_FILE))
 		{
 			properties.load(in);
@@ -220,6 +232,7 @@ public class MainFrame extends JFrame
 			JOptionPane.showMessageDialog(null, "Bad file URL: " + properties.getProperty("inventory.source") + properties.getProperty("inventory.file"), "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		inventoryFile = new File(properties.getProperty("inventory.location") + properties.getProperty("inventory.file"));
+		recentCount = Integer.valueOf(properties.getProperty("recents.count"));
 		
 		setTitle("MTG Deck Editor");
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -281,6 +294,12 @@ public class MainFrame extends JFrame
 		fileMenu.add(saveAllItem);
 		
 		// TODO: Add submenu for last X files opened
+		recentsMenu = new JMenu("Open Recent");
+		recentsMenu.setEnabled(false);
+		if (!properties.getProperty("recents.files").isEmpty())
+			for (String fname: properties.getProperty("recents.files").split("\\|"))
+				updateRecents(new File(fname));
+		fileMenu.add(recentsMenu);
 		
 		fileMenu.add(new JSeparator());
 		
@@ -705,6 +724,10 @@ public class MainFrame extends JFrame
 			try (FileOutputStream out = new FileOutputStream(PROPERTIES_FILE))
 			{
 				// TODO: Write a header comment
+				StringJoiner str = new StringJoiner("|");
+				for (JMenuItem recent: recentItems)
+					str.add(recents.get(recent).getPath());
+				properties.put("recents.files", str.toString());
 				properties.store(out, "");
 			}
 			catch (IOException e)
@@ -803,6 +826,22 @@ public class MainFrame extends JFrame
 		return downloadDialog.downloadInventory(inventorySite, inventoryFile);
 	}
 	
+	public void updateRecents(File f)
+	{
+		recentsMenu.setEnabled(true);
+		if (recentItems.size() >= recentCount)
+		{
+			JMenuItem eldest = recentItems.poll();
+			recents.remove(eldest);
+			recentsMenu.remove(eldest);
+		}
+		JMenuItem mostRecent = new JMenuItem(f.getPath());
+		recentItems.offer(mostRecent);
+		recents.put(mostRecent, f);
+		mostRecent.addActionListener((e) -> open(f));
+		recentsMenu.add(mostRecent);
+	}
+	
 	/**
 	 * Create a new editor frame.
 	 * 
@@ -827,25 +866,36 @@ public class MainFrame extends JFrame
 		switch (fileChooser.showOpenDialog(this))
 		{
 		case JFileChooser.APPROVE_OPTION:
-			EditorFrame frame = new EditorFrame(fileChooser.getSelectedFile(), ++untitled, this);
-			frame.setVisible(true);
-			editors.add(frame);
-			decklistDesktop.add(frame);
-			properties.put("initialdir", fileChooser.getCurrentDirectory().getPath());
-			try
-			{
-				frame.setSelected(true);
-			}
-			catch (PropertyVetoException e)
-			{
-				JOptionPane.showMessageDialog(null, "Error creating new editor: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			open(fileChooser.getSelectedFile());
+			updateRecents(fileChooser.getSelectedFile());
 			break;
 		case JFileChooser.CANCEL_OPTION:
 		case JFileChooser.ERROR_OPTION:
 			break;
 		default:
 			break;
+		}
+	}
+	
+	/**
+	 * Open the specified file and create an editor for it.
+	 * 
+	 * @param f File to open.
+	 */
+	public void open(File f)
+	{
+		EditorFrame frame = new EditorFrame(f, ++untitled, this);
+		frame.setVisible(true);
+		editors.add(frame);
+		decklistDesktop.add(frame);
+		properties.put("initialdir", fileChooser.getCurrentDirectory().getPath());
+		try
+		{
+			frame.setSelected(true);
+		}
+		catch (PropertyVetoException e)
+		{
+			JOptionPane.showMessageDialog(null, "Error creating new editor: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
