@@ -293,7 +293,7 @@ public class MainFrame extends JFrame
 		saveAllItem.addActionListener((e) -> saveAll());
 		fileMenu.add(saveAllItem);
 		
-		// TODO: Add submenu for last X files opened
+		// Recent files menu
 		recentsMenu = new JMenu("Open Recent");
 		recentsMenu.setEnabled(false);
 		if (!properties.getProperty("recents.files").isEmpty())
@@ -879,6 +879,8 @@ public class MainFrame extends JFrame
 	
 	/**
 	 * Open the specified file and create an editor for it.
+	 * 
+	 * TODO: If the file is already open, instead select its editor
 	 * 
 	 * @param f File to open.
 	 */
