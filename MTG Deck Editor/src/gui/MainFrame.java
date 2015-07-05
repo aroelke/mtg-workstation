@@ -182,7 +182,6 @@ public class MainFrame extends JFrame
 		// - inventory table columns
 		// - deck table columns
 		// - category table columns
-		// - file chooser initial directory (last directory it was in)
 		// - last X files (and how many to keep track of)
 		properties = new Properties();
 		properties.put("inventory.version_file", "version.json");
@@ -191,6 +190,7 @@ public class MainFrame extends JFrame
 		properties.put("inventory.file", "AllSets-x.json");
 		properties.put("inventory.initialcheck", "true");
 		properties.put("inventory.location", "./");
+		properties.put("initialdir", "./");
 		try (FileInputStream in = new FileInputStream(PROPERTIES_FILE))
 		{
 			properties.load(in);
@@ -673,7 +673,7 @@ public class MainFrame extends JFrame
 		contentPane.add(editorSplit, BorderLayout.CENTER);
 		
 		// File chooser
-		fileChooser = new JFileChooser(new File("."));
+		fileChooser = new JFileChooser(properties.getProperty("initialdir"));
 		fileChooser.setMultiSelectionEnabled(false);
 		
 		// Handle what happens when the window tries to close and when it opens.
@@ -704,6 +704,7 @@ public class MainFrame extends JFrame
 		{
 			try (FileOutputStream out = new FileOutputStream(PROPERTIES_FILE))
 			{
+				// TODO: Write a header comment
 				properties.store(out, "");
 			}
 			catch (IOException e)
@@ -790,6 +791,8 @@ public class MainFrame extends JFrame
 	 * Download the latest list of cards from the inventory site (default mtgjson.com).  If the
 	 * download is taking a while, a progress bar will appear.
 	 * 
+	 * TODO: IF the inventory cannot be found, give the user the option to search for it
+	 * 
 	 * @return <code>true</code> if the download was successful, and <code>false</code>
 	 * otherwise.
 	 */
@@ -828,6 +831,7 @@ public class MainFrame extends JFrame
 			frame.setVisible(true);
 			editors.add(frame);
 			decklistDesktop.add(frame);
+			properties.put("initialdir", fileChooser.getCurrentDirectory().getPath());
 			try
 			{
 				frame.setSelected(true);
@@ -916,26 +920,9 @@ public class MainFrame extends JFrame
 				boolean write;
 				if (f.exists())
 				{
-					switch (JOptionPane.showConfirmDialog(null, "File " + f.getName() + " already exists.  Overwrite?", "Warning", JOptionPane.YES_NO_CANCEL_OPTION))
-					{
-					case JOptionPane.YES_OPTION:
-						write = true;
-						done = true;
-						break;
-					case JOptionPane.NO_OPTION:
-						write = false;
-						done = false;
-						break;
-					case JOptionPane.CANCEL_OPTION:
-					case JOptionPane.CLOSED_OPTION:
-						write = false;
-						done = true;
-						break;
-					default:
-						write = false;
-						done = false;
-						break;
-					}
+					int option = JOptionPane.showConfirmDialog(null, "File " + f.getName() + " already exists.  Overwrite?", "Warning", JOptionPane.YES_NO_CANCEL_OPTION);
+					write = (option == JOptionPane.YES_NO_CANCEL_OPTION);
+					done = (option != JOptionPane.NO_OPTION);
 				}
 				else
 				{
@@ -953,6 +940,7 @@ public class MainFrame extends JFrame
 				break;
 			}
 		} while (!done);
+		properties.put("initialdir", fileChooser.getCurrentDirectory().getPath());
 	}
 	
 	/**
