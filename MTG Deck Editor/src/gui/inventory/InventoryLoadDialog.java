@@ -30,7 +30,7 @@ import database.Inventory;
  * inventory and blocking the main frame until it is finished.
  * 
  * TODO: Enable cancellation of the load
- * TODO: Use JOptionPane instead of a custom dialog.
+ * TODO: Merge the dialog and the worker classes
  * 
  * @author Alec Roelke
  */

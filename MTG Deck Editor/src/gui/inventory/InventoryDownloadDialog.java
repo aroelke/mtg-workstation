@@ -24,7 +24,7 @@ import javax.swing.border.EmptyBorder;
  * downloaded and a progress bar that indicates things are happening.
  * 
  * TODO: Enable cancellation of the download
- * TODO: Use JOptionPane instead of a custom dialog
+ * TODO: Merge the dialog and worker classes
  * 
  * @author Alec Roelke
  */
