@@ -166,10 +166,6 @@ public class MainFrame extends JFrame
 	 * URL pointing to the site to get the inventory from.
 	 */
 	private URL inventorySite;
-	/**
-	 * Dialog showing progress downloading the inventory.
-	 */
-	private InventoryDownloadDialog downloadDialog;
 	
 	/**
 	 * Create a new MainFrame.
@@ -688,10 +684,6 @@ public class MainFrame extends JFrame
 		loadDialog = new InventoryLoadDialog(this);
 		loadDialog.setLocationRelativeTo(this);
 		
-		// Downloading filter dialog
-		downloadDialog = new InventoryDownloadDialog(this);
-		downloadDialog.setLocationRelativeTo(this);
-		
 		// Handle what happens when the window tries to close and when it opens.
 		addWindowListener(new WindowAdapter()
 		{
@@ -809,6 +801,8 @@ public class MainFrame extends JFrame
 	 */
 	public boolean updateInventory()
 	{
+		InventoryDownloadDialog downloadDialog = new InventoryDownloadDialog(this);
+		downloadDialog.setLocationRelativeTo(this);
 		return downloadDialog.downloadInventory(inventorySite, inventoryFile);
 	}
 	

@@ -7,7 +7,10 @@ import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JDialog;
@@ -121,17 +124,25 @@ public class InventoryDownloadDialog extends JDialog
 	 */
 	public boolean downloadInventory(URL site, File file)
 	{
-		InventoryDownloadWorker worker = new InventoryDownloadWorker(this, site, file);
+		File tmp = new File(file.getPath() + ".tmp");
+		InventoryDownloadWorker worker = new InventoryDownloadWorker(this, site, tmp);
 		worker.execute();
 		setVisible(true);
 		try
 		{
 			worker.get();
+			Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			return true;
 		}
 		catch (InterruptedException | ExecutionException e)
 		{
 			JOptionPane.showMessageDialog(null, "Error downloading " + file.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			tmp.delete();
+			return false;
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(null, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 	}

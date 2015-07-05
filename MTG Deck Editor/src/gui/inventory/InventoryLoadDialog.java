@@ -30,7 +30,6 @@ import database.Inventory;
  * inventory and blocking the main frame until it is finished.
  * 
  * TODO: Enable cancellation of the load
- * TODO: Merge the dialog and the worker classes
  * 
  * @author Alec Roelke
  */
