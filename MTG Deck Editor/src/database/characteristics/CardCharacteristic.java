@@ -23,6 +23,20 @@ public enum CardCharacteristic
 	LEGAL_IN("Legal In", Legality.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn());
 	
 	/**
+	 * Parse a String for a CardCharacteristic.
+	 * 
+	 * @param s String to parse
+	 * @return The CardCharacteristic that corresponds to the given String.
+	 */
+	public static CardCharacteristic get(String s)
+	{
+		for (CardCharacteristic c: CardCharacteristic.values())
+			if (c.toString().equalsIgnoreCase(s))
+				return c;
+		throw new IllegalArgumentException("Illegal characteristic string \"" + s + "\"");
+	}
+	
+	/**
 	 * Name of the characteristic
 	 */
 	private final String name;

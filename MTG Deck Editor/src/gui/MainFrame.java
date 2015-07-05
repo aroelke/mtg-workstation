@@ -167,10 +167,26 @@ public class MainFrame extends JFrame
 	 * URL pointing to the site to get the inventory from.
 	 */
 	private URL inventorySite;
+	/**
+	 * Number of recent files to display.
+	 */
 	private int recentCount;
+	/**
+	 * Menu items showing recent files to open.
+	 */
 	private Queue<JMenuItem> recentItems;
+	/**
+	 * Map of those menu items onto the files they should open.
+	 */
 	private Map<JMenuItem, File> recents;
+	/**
+	 * Menu containing the recent menu items.
+	 */
 	private JMenu recentsMenu;
+	/**
+	 * List of CardCharacteristics to show in the inventory table.
+	 */
+	private List<CardCharacteristic> inventoryCharacteristics;
 	
 	/**
 	 * Create a new MainFrame.
@@ -186,23 +202,11 @@ public class MainFrame extends JFrame
 		filter = new FilterGroupPanel();
 		recentItems = new LinkedList<JMenuItem>();
 		recents = new HashMap<JMenuItem, File>();
+		inventoryCharacteristics = new ArrayList<CardCharacteristic>();
 		
 		// Initialize properties to their default values, then load the current values
 		// from the properties file
-		// TODO: Add the following properties:
-		// - inventory table columns
-		// - deck table columns
-		// - category table columns
-		properties = new Properties();
-		properties.put("inventory.version_file", "version.json");
-		properties.put("inventory.source", "http://mtgjson.com/json/");
-		properties.put("inventory.version", "");
-		properties.put("inventory.file", "AllSets-x.json");
-		properties.put("inventory.initialcheck", "true");
-		properties.put("inventory.location", "./");
-		properties.put("initialdir", "./");
-		properties.put("recents.count", "4");
-		properties.put("recents.files", "");
+		resetDefaultSettings();
 		try (FileInputStream in = new FileInputStream(PROPERTIES_FILE))
 		{
 			properties.load(in);
@@ -233,6 +237,8 @@ public class MainFrame extends JFrame
 		}
 		inventoryFile = new File(properties.getProperty("inventory.location") + properties.getProperty("inventory.file"));
 		recentCount = Integer.valueOf(properties.getProperty("recents.count"));
+		if (!properties.getProperty("inventory.columns").isEmpty())
+			inventoryCharacteristics = Arrays.stream(properties.getProperty("inventory.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
 		
 		setTitle("MTG Deck Editor");
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -721,19 +727,7 @@ public class MainFrame extends JFrame
 	{
 		if (closeAll())
 		{
-			try (FileOutputStream out = new FileOutputStream(PROPERTIES_FILE))
-			{
-				// TODO: Write a header comment
-				StringJoiner str = new StringJoiner("|");
-				for (JMenuItem recent: recentItems)
-					str.add(recents.get(recent).getPath());
-				properties.put("recents.files", str.toString());
-				properties.store(out, "");
-			}
-			catch (IOException e)
-			{
-				JOptionPane.showMessageDialog(null, "Error writing " + PROPERTIES_FILE + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			saveSettings();
 			System.exit(0);
 		}
 	}
@@ -750,8 +744,7 @@ public class MainFrame extends JFrame
 		loadDialog.setLocationRelativeTo(this);
 		inventory = loadDialog.createInventory(inventoryFile);
 		inventory.sort((a, b) -> a.compareName(b));
-		inventoryModel = new InventoryTableModel(inventory, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.EXPANSION_NAME,
-																		  CardCharacteristic.MANA_COST, CardCharacteristic.TYPE_LINE));
+		inventoryModel = new InventoryTableModel(inventory, inventoryCharacteristics);
 		inventoryTable.setModel(inventoryModel);
 		
 		setCursor(Cursor.getDefaultCursor());
@@ -814,7 +807,7 @@ public class MainFrame extends JFrame
 	 * Download the latest list of cards from the inventory site (default mtgjson.com).  If the
 	 * download is taking a while, a progress bar will appear.
 	 * 
-	 * TODO: IF the inventory cannot be found, give the user the option to search for it
+	 * TODO: If the inventory cannot be found, give the user the option to search for it
 	 * 
 	 * @return <code>true</code> if the download was successful, and <code>false</code>
 	 * otherwise.
@@ -826,6 +819,54 @@ public class MainFrame extends JFrame
 		return downloadDialog.downloadInventory(inventorySite, inventoryFile);
 	}
 	
+	/**
+	 * Set program settings back to their default values
+	 */
+	public void resetDefaultSettings()
+	{
+		// TODO: Add the following properties:
+		// - inventory table columns
+		// - deck table columns
+		// - category table columns
+		
+		properties = new Properties();
+		properties.put("inventory.version_file", "version.json");
+		properties.put("inventory.source", "http://mtgjson.com/json/");
+		properties.put("inventory.version", "");
+		properties.put("inventory.file", "AllSets-x.json");
+		properties.put("inventory.initialcheck", "true");
+		properties.put("inventory.location", "./");
+		properties.put("initialdir", "./");
+		properties.put("recents.count", "4");
+		properties.put("recents.files", "");
+		properties.put("inventory.columns", "Name,Expansion,Mana Cost,Type");
+	}
+	
+	public void saveSettings()
+	{
+		try (FileOutputStream out = new FileOutputStream(PROPERTIES_FILE))
+		{
+			// TODO: Write a header comment
+			StringJoiner str = new StringJoiner("|");
+			for (JMenuItem recent: recentItems)
+				str.add(recents.get(recent).getPath());
+			properties.put("recents.files", str.toString());
+			str = new StringJoiner(",");
+			for (CardCharacteristic c: inventoryCharacteristics)
+				str.add(c.toString());
+			properties.put("inventory.columns", str.toString());
+			properties.store(out, "");
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(null, "Error writing " + PROPERTIES_FILE + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param f
+	 */
 	public void updateRecents(File f)
 	{
 		recentsMenu.setEnabled(true);
