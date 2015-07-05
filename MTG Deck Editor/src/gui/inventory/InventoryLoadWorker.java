@@ -29,6 +29,9 @@ import database.characteristics.Rarity;
 /**
  * This class represents a worker that loads cards from a JSON file in the background.
  * 
+ * TODO: Make this conform to proper use of Swing multithreading
+ * (i.e., don't create the inventory or populate the lists of sets, etc., in doInBackground())
+ * 
  * @author Alec Roelke
  */
 public class InventoryLoadWorker extends SwingWorker<Inventory, String>
@@ -107,6 +110,18 @@ public class InventoryLoadWorker extends SwingWorker<Inventory, String>
 			setProgress(cardsProcessed);
 			for (Map.Entry<String, JsonElement> setNode: root.entrySet())
 			{
+				if (isCancelled())
+				{
+					expansionNames.clear();
+					blockNames.clear();
+					supertypeSet.clear();
+					typeSet.clear();
+					subtypeSet.clear();
+					formatSet.clear();
+					cards.clear();
+					break;
+				}
+				
 				// Create the new Expansion
 				JsonObject setProperties = setNode.getValue().getAsJsonObject();
 				JsonArray setCards = setProperties.get("cards").getAsJsonArray();

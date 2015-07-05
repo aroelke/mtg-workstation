@@ -1,18 +1,17 @@
 package gui.inventory;
 
 import java.awt.BorderLayout;
-import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -42,6 +41,10 @@ public class InventoryDownloadDialog extends JDialog
 	 * Bar to look pretty and indicate things are happening.
 	 */
 	private JProgressBar progressBar;
+	/**
+	 * Worker that downloads the inventory.
+	 */
+	private InventoryDownloadWorker worker;
 	
 	/**
 	 * Create a new InventoryDownloadDialog.
@@ -51,9 +54,11 @@ public class InventoryDownloadDialog extends JDialog
 	public InventoryDownloadDialog(JFrame owner)
 	{
 		super(owner, "Update", Dialog.ModalityType.APPLICATION_MODAL);
-		setPreferredSize(new Dimension(350, 80));
+		setPreferredSize(new Dimension(350, 115));
 		setResizable(false);
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		
+		worker = null;
 		
 		// Content panel
 		JPanel contentPanel = new JPanel(new BorderLayout(0, 2));
@@ -68,22 +73,15 @@ public class InventoryDownloadDialog extends JDialog
 		progressBar.setIndeterminate(true);
 		contentPanel.add(progressBar, BorderLayout.CENTER);
 		
-		// Set the mouse to the wait pointer while this is open
-		// TODO: Figure out a way for this to work for the main frame (which may be difficult, as others have not)
-		addWindowListener(new WindowAdapter()
-		{
-			@Override
-			public void windowOpened(WindowEvent e)
-			{
-				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			}
-			
-			@Override
-			public void windowClosed(WindowEvent e)
-			{
-				setCursor(Cursor.getDefaultCursor());
-			}
+		// Cancel button
+		JPanel cancelPanel = new JPanel();
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener((e) -> {
+			if (worker != null)
+				worker.cancel(true);
 		});
+		cancelPanel.add(cancelButton);
+		contentPanel.add(cancelPanel, BorderLayout.SOUTH);
 		
 		pack();
 	}
@@ -110,7 +108,7 @@ public class InventoryDownloadDialog extends JDialog
 			toDownloadStr = String.format("%.1fk", toDownload/1024);
 		else
 			toDownloadStr = String.format("%.2fM", toDownload/1048576);
-		progressLabel.setText("Downloading inventory..." + downloadedStr + "/" + toDownloadStr + " downloaded.");
+		progressLabel.setText("Downloading inventory..." + downloadedStr + "B/" + toDownloadStr + "B downloaded.");
 	}
 	
 	/**
@@ -125,7 +123,7 @@ public class InventoryDownloadDialog extends JDialog
 	public boolean downloadInventory(URL site, File file)
 	{
 		File tmp = new File(file.getPath() + ".tmp");
-		InventoryDownloadWorker worker = new InventoryDownloadWorker(this, site, tmp);
+		worker = new InventoryDownloadWorker(this, site, tmp);
 		worker.execute();
 		setVisible(true);
 		try
@@ -143,6 +141,11 @@ public class InventoryDownloadDialog extends JDialog
 		catch (IOException e)
 		{
 			JOptionPane.showMessageDialog(null, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		catch (CancellationException e)
+		{
+			tmp.delete();
 			return false;
 		}
 	}

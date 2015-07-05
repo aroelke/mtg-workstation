@@ -46,6 +46,14 @@ public class Inventory
 	}
 	
 	/**
+	 * Create an empty inventory.
+	 */
+	public Inventory()
+	{
+		this(new ArrayList<Card>());
+	}
+	
+	/**
 	 * @param index Index of the Card to get
 	 * @return The Card at the given index.
 	 */

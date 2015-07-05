@@ -1,17 +1,15 @@
 package gui.inventory;
 
-import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -22,7 +20,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
-import database.Card;
 import database.Inventory;
 
 /**
@@ -48,20 +45,26 @@ public class InventoryLoadDialog extends JDialog
 	 * Area showing past and current progress of loading.
 	 */
 	private JTextArea progressArea;
+	/**
+	 * Worker that loads the inventory.
+	 */
+	private InventoryLoadWorker worker;
 	
 	public InventoryLoadDialog(JFrame owner)
 	{
 		super(owner, "Loading Inventory", Dialog.ModalityType.APPLICATION_MODAL);
-		setPreferredSize(new Dimension(350, 200));
+		setPreferredSize(new Dimension(350, 220));
 		setResizable(false);
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		
+		worker = null;
 		
 		// Content panel
 		GridBagLayout layout = new GridBagLayout();
 		layout.columnWidths = new int[] {0};
 		layout.columnWeights = new double[] {1.0};
-		layout.rowHeights = new int[] {0, 0, 0};
-		layout.rowWeights = new double[] {0.0, 0.0, 1.0};
+		layout.rowHeights = new int[] {0, 0, 0, 0};
+		layout.rowWeights = new double[] {0.0, 0.0, 1.0, 0.0};
 		JPanel contentPanel = new JPanel(layout);
 		contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		setContentPane(contentPanel);
@@ -92,24 +95,19 @@ public class InventoryLoadDialog extends JDialog
 		areaConstraints.fill = GridBagConstraints.BOTH;
 		areaConstraints.gridx = 0;
 		areaConstraints.gridy = 2;
+		areaConstraints.insets = new Insets(0, 0, 10, 0);
 		contentPanel.add(new JScrollPane(progressArea), areaConstraints);
 		
-		// Set the mouse to the wait pointer while this is open
-		// TODO: Figure out a way for this to work for the main frame (which may be difficult, as others have not)
-		addWindowListener(new WindowAdapter()
-		{
-			@Override
-			public void windowOpened(WindowEvent e)
-			{
-				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			}
-			
-			@Override
-			public void windowClosed(WindowEvent e)
-			{
-				setCursor(Cursor.getDefaultCursor());
-			}
+		// Cancel button
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener((e) -> {
+			if (worker != null)
+				worker.cancel(false);
 		});
+		GridBagConstraints cancelConstraints = new GridBagConstraints();
+		cancelConstraints.gridx = 0;
+		cancelConstraints.gridy = 3;
+		contentPanel.add(cancelButton, cancelConstraints);
 		
 		pack();
 	}
@@ -154,7 +152,7 @@ public class InventoryLoadDialog extends JDialog
 	 */
 	public Inventory createInventory(File file)
 	{
-		InventoryLoadWorker worker = new InventoryLoadWorker(this, file);
+		worker = new InventoryLoadWorker(this, file);
 		worker.execute();
 		setVisible(true);
 		progressArea.setText("");
@@ -165,7 +163,11 @@ public class InventoryLoadDialog extends JDialog
 		catch (InterruptedException | ExecutionException e)
 		{
 			JOptionPane.showMessageDialog(null, "Error loading inventory: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			return new Inventory(new ArrayList<Card>());
+			return new Inventory();
+		}
+		catch (CancellationException e)
+		{
+			return new Inventory();
 		}
 	}
 }
