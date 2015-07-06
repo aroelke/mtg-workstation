@@ -88,26 +88,31 @@ public class DeckTableModel extends AbstractTableModel
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param row Row of the cell to check
+	 * @param column Column of the cell to check
+	 * @return <code>true</code> if the cell at the specified location is editable and
+	 * <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean isCellEditable(int row, int column)
 	{
-		// TODO: Make a field in CardCharacteristic for this
-		return characteristics.get(column).equals(CardCharacteristic.COUNT);
+		return characteristics.get(column).editFunc != null;
 	}
 	
+	/**
+	 * Set the value of the cell at the specified location if it is editable.
+	 * 
+	 * @param value Value to set
+	 * @param row Row of the cell to set
+	 * @param column Column of the cell to set
+	 */
 	@Override
 	public void setValueAt(Object value, int row, int column)
 	{
-		// TODO: Make a field in CardCharacteristic for this
-		if (isCellEditable(row, column))
+		if (characteristics.get(column).editFunc != null)
 		{
-			if (value instanceof Integer)
-			{
-				Integer v = (Integer)value;
-				cardList.setCount(row, v);
-			}
+			characteristics.get(column).editFunc.accept(cardList, row, value);
+			fireTableRowsUpdated(row, row);
 		}
 	}
 }
