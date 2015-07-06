@@ -112,7 +112,7 @@ public class DeckTableModel extends AbstractTableModel
 		if (characteristics.get(column).editFunc != null)
 		{
 			characteristics.get(column).editFunc.accept(cardList, row, value);
-			fireTableRowsUpdated(row, row);
+			fireTableDataChanged();
 		}
 	}
 }

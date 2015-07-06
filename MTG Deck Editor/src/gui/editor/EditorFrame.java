@@ -58,6 +58,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import util.SpinnerCellEditor;
 import database.Card;
 import database.Deck;
 import database.ManaCost;
@@ -239,6 +240,7 @@ public class EditorFrame extends JInternalFrame
 				}
 			}
 		});
+		table.getColumn("Count").setCellEditor(new SpinnerCellEditor());
 		listTabs.addTab("Cards", new JScrollPane(table));
 		
 		// Table popup menu
@@ -399,7 +401,7 @@ public class EditorFrame extends JInternalFrame
 		// TODO: Add tabs for deck analysis
 		// - category pie chart
 		// - mana curve
-		// - color distribution (cards/devotion)
+		// - color distribution (cards/devotion[max,avg,total])
 		// TODO: Add a tab for sample hands
 
 		// Panel to show the stats of the deck

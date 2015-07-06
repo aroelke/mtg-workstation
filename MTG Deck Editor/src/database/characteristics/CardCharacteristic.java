@@ -1,5 +1,6 @@
 package database.characteristics;
 
+import java.util.List;
 import java.util.function.BiFunction;
 
 import util.TriConsumer;
@@ -26,7 +27,7 @@ public enum CardCharacteristic
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}),
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity, (l, i) -> l.get(i).rarity, null),
-	LEGAL_IN("Legal In", Legality.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn(), null);
+	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn(), null);
 	
 	/**
 	 * Parse a String for a CardCharacteristic.
