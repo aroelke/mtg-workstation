@@ -55,7 +55,7 @@ public class DeckTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		return characteristics.get(columnIndex).deckFunction.apply(cardList, rowIndex);
+		return characteristics.get(columnIndex).deckFunc.apply(cardList, rowIndex);
 	}
 
 	/**

@@ -18,7 +18,7 @@ public enum CardCharacteristic
 	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).set.name, (l, i) -> l.get(i).set.name),
 	MANA_COST("Mana Cost", ManaCost.class, (l, i) -> l.get(i).mana, (l, i) -> l.get(i).mana),
 	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine, (l, i) -> l.get(i).typeLine),
-	COUNT("Count", Integer.class, (l, i) -> 1, (l, i) -> l.count(i)),
+	COUNT("Count", Integer.class, null, (l, i) -> l.count(i)),
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity, (l, i) -> l.get(i).rarity),
 	LEGAL_IN("Legal In", Legality.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn());
 	
@@ -51,7 +51,7 @@ public enum CardCharacteristic
 	/**
 	 * Function taking a list of cards and returning a characteristic of a card from a category of that list.
 	 */
-	public final BiFunction<Deck, Integer, ?> deckFunction;
+	public final BiFunction<Deck, Integer, ?> deckFunc;
 	
 	/**
 	 * Create a CardCharacteristic with the specified name, column class, value function, and category function.
@@ -66,7 +66,7 @@ public enum CardCharacteristic
 		name = n;
 		columnClass = c;
 		inventoryFunc = f;
-		deckFunction = cf;
+		deckFunc = cf;
 	}
 	
 	/**
