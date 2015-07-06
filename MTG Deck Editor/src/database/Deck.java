@@ -214,6 +214,58 @@ public class Deck implements Iterable<Card>
 	}
 	
 	/**
+	 * Set the number of copies of the Card at the given index to be the given value.
+	 * 
+	 * @param index Index to find the Card at
+	 * @param n Number of copies to change to
+	 * @return <code>true</code> if the Card is in the Deck and if the number of copies
+	 * was changed, and <code>false</code> otherwise.
+	 */
+	public boolean setCount(int index, int n)
+	{
+		Card c = masterList.get(index);
+		if (c == null)
+			return false;
+		else
+			return setCount(c, n);
+	}
+	
+	/**
+	 * Set the number of copies of the given Card to be the given value.  If the card
+	 * isn't in the deck, it will be added.
+	 * 
+	 * @param c Card to change
+	 * @param n Number of copies to change to
+	 * @return <code>true</code> if the number of copies was changed or if the card was
+	 * added, and <code>false</code> otherwise.
+	 */
+	public boolean setCount(Card c, int n)
+	{
+		if (contains(c))
+		{
+			if (count(c) != n)
+			{
+				if (n > 0)
+				{
+					counts.put(c, n);
+					return true;
+				}
+				else if (n == 0)
+				{
+					remove(c, Integer.MAX_VALUE);
+					return true;
+				}
+				else
+					return false;
+			}
+			else
+				return false;
+		}
+		else
+			return add(c, n);
+	}
+	
+	/**
 	 * @param o Object to look for
 	 * @return Index of that Object in the master list.
 	 */

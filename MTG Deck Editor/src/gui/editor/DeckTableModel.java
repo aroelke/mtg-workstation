@@ -86,4 +86,28 @@ public class DeckTableModel extends AbstractTableModel
 	{
 		return characteristics.get(column).columnClass;
 	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public boolean isCellEditable(int row, int column)
+	{
+		// TODO: Make a field in CardCharacteristic for this
+		return characteristics.get(column).equals(CardCharacteristic.COUNT);
+	}
+	
+	@Override
+	public void setValueAt(Object value, int row, int column)
+	{
+		// TODO: Make a field in CardCharacteristic for this
+		if (isCellEditable(row, column))
+		{
+			if (value instanceof Integer)
+			{
+				Integer v = (Integer)value;
+				cardList.setCount(row, v);
+			}
+		}
+	}
 }
