@@ -843,6 +843,9 @@ public class MainFrame extends JFrame
 		properties.put("inventory.columns", "Name,Expansion,Mana Cost,Type");
 	}
 	
+	/**
+	 * Write the latest values of the settings to the settings file.
+	 */
 	public void saveSettings()
 	{
 		try (FileOutputStream out = new FileOutputStream(PROPERTIES_FILE))
@@ -865,8 +868,10 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param f
+	 * Update the recently-opened files to add the most recently-opened one, and delete
+	 * the oldest one if too many are there.
+	 * 
+	 * @param f File to add to the list
 	 */
 	public void updateRecents(File f)
 	{
