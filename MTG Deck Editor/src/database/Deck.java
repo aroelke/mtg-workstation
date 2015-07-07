@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
  * This class represents a deck which can have cards added and removed (in quantity) and
  * have several category views (from which cards can also be added or removed).
  * 
+ * TODO: Fix total count
+ * 
  * @author Alec Roelke
  */
 public class Deck implements Iterable<Card>
