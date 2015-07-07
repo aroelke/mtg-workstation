@@ -47,13 +47,65 @@ public class Deck implements Iterable<Card>
 	public static String EXCEPTION_SEPARATOR = ":";
 	
 	/**
+	 * This class represents an entry into a deck.  It has a card and a
+	 * number of copies.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private static class Entry
+	{
+		/**
+		 * Card in this Entry.  It can't be changed.
+		 */
+		private final Card card;
+		/**
+		 * Number of copies of the Card.
+		 */
+		private int count;
+		
+		/**
+		 * Create a new Entry.
+		 * 
+		 * @param c Card for this Entry
+		 * @param n Number of initial copies in this Entry
+		 */
+		public Entry(Card c, int n)
+		{
+			card = c;
+			count = n;
+		}
+		
+		/**
+		 * Add copies to this Entry.
+		 * 
+		 * @param n Copies to add
+		 * @return The new number of copies in this Entry.
+		 */
+		public int add(int n)
+		{
+			return count += n;
+		}
+		
+		/**
+		 * Remove copies from this Entry.  There can't be fewer than
+		 * 0 copies.
+		 * 
+		 * @param n Number of copies to remove.
+		 * @return The new number of copies in this Entry.
+		 */
+		public int remove(int n)
+		{
+			if (n > count)
+				return count = 0;
+			else
+				return count -= n;
+		}
+	}
+	
+	/**
 	 * List of cards in this Deck.
 	 */
-	private List<Card> masterList;
-	/**
-	 * Number of copies of each card in this Deck.
-	 */
-	private Map<Card, Integer> counts;
+	private List<Entry> masterList;
 	/**
 	 * Categories in this Deck.
 	 */
@@ -72,8 +124,7 @@ public class Deck implements Iterable<Card>
 	 */
 	public Deck()
 	{
-		masterList = new ArrayList<Card>();
-		counts = new HashMap<Card, Integer>();
+		masterList = new ArrayList<Entry>();
 		categories = new HashMap<String, Category>();
 		total = 0;
 		land = 0;
@@ -93,6 +144,19 @@ public class Deck implements Iterable<Card>
 	}
 	
 	/**
+	 * @param c Card to search for an Entry.
+	 * @return The Entry corresponding to the Card, or <code>null</code>
+	 * if there is none.
+	 */
+	private Entry getEntry(Card c)
+	{
+		for (Entry e: masterList)
+			if (e.card.equals(c))
+				return e;
+		return null;
+	}
+	
+	/**
 	 * Add some number of Cards to this Deck.  If the number is not positive,
 	 * then no changes are made.
 	 * 
@@ -108,18 +172,16 @@ public class Deck implements Iterable<Card>
 			return false;
 		else
 		{
-			if (masterList.contains(c))
-				counts.compute(c, (k, v) -> v += n);
+			Entry e = getEntry(c);
+			if (e == null)
+				masterList.add(new Entry(c, n));
 			else
-			{
-				masterList.add(c);
-				for (Category category: categories.values())
-					if (category.includes(c))
-						category.filtrate.add(c);
-				counts.put(c, n);
-			}
+				e.add(n);
+			for (Category category: categories.values())
+				if (category.includes(c) && !category.contains(c))
+					category.filtrate.add(c);
 			total += n;
-			if (c.typeContains("land"))
+			if (c.supertypeContains("land"))
 				land += n;
 			return true;
 		}
@@ -169,12 +231,18 @@ public class Deck implements Iterable<Card>
 			return false;
 		else
 		{
-			if (masterList.contains(c))
+			Entry e = getEntry(c);
+			if (e == null)
+				return false;
+			else
 			{
-				int i = count(c);
-				if (counts.compute(c, (k, v) -> v <= n ? null : v - n) == null)
+				total -= e.count;
+				if (c.typeContains("land"))
+					land -= e.count;
+				e.remove(n);
+				if (e.count == 0)
 				{
-					masterList.remove(c);
+					masterList.remove(e);
 					for (Category category: categories.values())
 					{
 						category.filtrate.remove(c);
@@ -182,13 +250,11 @@ public class Deck implements Iterable<Card>
 						category.blacklist.remove(c);
 					}
 				}
-				total -= Math.min(n, i);
+				total += e.count;
 				if (c.typeContains("land"))
-					land -= Math.min(n, i);
+					land += e.count;
 				return true;
 			}
-			else
-				return false;
 		}
 	}
 	
@@ -210,7 +276,7 @@ public class Deck implements Iterable<Card>
 	 */
 	public Card get(int index)
 	{
-		return masterList.get(index);
+		return masterList.get(index).card;
 	}
 	
 	/**
@@ -223,8 +289,14 @@ public class Deck implements Iterable<Card>
 	 */
 	public boolean setCount(int index, int n)
 	{
-		Card c = masterList.get(index);
-		return c != null &&  setCount(c, n);
+		Entry e = masterList.get(index);
+		if (e.count == n)
+			return false;
+		else
+		{
+			e.count = n;
+			return true;
+		}
 	}
 	
 	/**
@@ -238,28 +310,18 @@ public class Deck implements Iterable<Card>
 	 */
 	public boolean setCount(Card c, int n)
 	{
-		if (contains(c))
-		{
-			if (count(c) != n)
-			{
-				if (n > 0)
-				{
-					counts.put(c, n);
-					return true;
-				}
-				else if (n == 0)
-				{
-					remove(c, Integer.MAX_VALUE);
-					return true;
-				}
-				else
-					return false;
-			}
-			else
-				return false;
-		}
-		else
+		Entry e = getEntry(c);
+		if (e == null)
 			return add(c, n);
+		else if (e.count == n)
+			return false;
+		else
+		{
+			e.count = n;
+			if (e.count == 0)
+				remove(c, Integer.MAX_VALUE);
+			return true;
+		}
 	}
 	
 	/**
@@ -277,8 +339,11 @@ public class Deck implements Iterable<Card>
 	 */
 	public int count(Card c)
 	{
-		Integer n = counts.get(c);
-		return n != null ? n : 0;
+		Entry e = getEntry(c);
+		if (e == null)
+			return 0;
+		else
+			return e.count;
 	}
 	
 	/**
@@ -287,7 +352,7 @@ public class Deck implements Iterable<Card>
 	 */
 	public int count(int index)
 	{
-		return count(get(index));
+		return masterList.get(index).count;
 	}
 	
 	/**
@@ -363,7 +428,6 @@ public class Deck implements Iterable<Card>
 	public void clear()
 	{
 		masterList.clear();
-		counts.clear();
 		categories.clear();
 		total = 0;
 	}
@@ -432,8 +496,8 @@ public class Deck implements Iterable<Card>
 		try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8")))
 		{
 			wr.println(String.valueOf(size()));
-			for (Card c: masterList)
-				wr.println(c.ID + "\t" + count(c));
+			for (Entry e: masterList)
+				wr.println(e.card.ID + "\t" + e.count);
 			wr.println(String.valueOf(categories.size()));
 			for (Category c: categories.values())
 				wr.println(c.toString());
@@ -446,7 +510,7 @@ public class Deck implements Iterable<Card>
 	@Override
 	public Iterator<Card> iterator()
 	{
-		return masterList.iterator();
+		return masterList.stream().map((e) -> e.card).iterator();
 	}
 	
 	/**
@@ -501,7 +565,7 @@ public class Deck implements Iterable<Card>
 			name = s;
 			repr = r;
 			filter = f;
-			filtrate = masterList.stream().filter(filter).collect(Collectors.toList());
+			filtrate = masterList.stream().map((e) -> e.card).filter(filter).collect(Collectors.toList());
 			blacklist = new HashSet<Card>();
 			whitelist = new HashSet<Card>();
 		}
@@ -792,10 +856,7 @@ public class Deck implements Iterable<Card>
 		@Override
 		public int total()
 		{
-			int total = 0;
-			for (Card c: filtrate)
-				total += counts.get(c);
-			return total;
+			return total = filtrate.stream().map(Deck.this::getEntry).mapToInt((e) -> e.count).sum();
 		}
 		
 		/**
@@ -830,7 +891,7 @@ public class Deck implements Iterable<Card>
 				}
 				repr = r;
 				filter = f;
-				filtrate = masterList.stream().filter(this::includes).collect(Collectors.toList());
+				filtrate = masterList.stream().map((e) -> e.card).filter(this::includes).collect(Collectors.toList());
 				return true;
 			}
 			else
