@@ -71,7 +71,7 @@ import database.characteristics.CardCharacteristic;
  * inventory from which cards can be added.
  * 
  * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
- * TODO: Removing and keeping the selection no longer works
+ * TODO: Fix what happens when a button is clicked while count is being edited in-table
  * 
  * @author Alec Roelke
  */

@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
  * This class represents a deck which can have cards added and removed (in quantity) and
  * have several category views (from which cards can also be added or removed).
  * 
- * TODO: Fix total count
- * 
  * @author Alec Roelke
  */
 public class Deck implements Iterable<Card>
@@ -183,7 +181,7 @@ public class Deck implements Iterable<Card>
 				if (category.includes(c) && !category.contains(c))
 					category.filtrate.add(c);
 			total += n;
-			if (c.supertypeContains("land"))
+			if (c.typeContains("land"))
 				land += n;
 			return true;
 		}
@@ -332,7 +330,10 @@ public class Deck implements Iterable<Card>
 	 */
 	public int indexOf(Object o)
 	{
-		return masterList.indexOf(o);
+		if (!(o instanceof Card))
+			return -1;
+		else
+			return masterList.indexOf(getEntry((Card)o));
 	}
 	
 	/**
@@ -364,7 +365,7 @@ public class Deck implements Iterable<Card>
 	 */
 	public boolean contains(Object o)
 	{
-		return masterList.contains(o);
+		return o instanceof Card && getEntry((Card)o) != null;
 	}
 	
 	/**
