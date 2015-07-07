@@ -1,34 +1,48 @@
 package util;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.text.ParseException;
-import java.util.EventObject;
 
-import javax.swing.AbstractCellEditor;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
-import javax.swing.border.LineBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.table.TableCellEditor;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 
 /**
  * TODO: Comment this
  * 
- * @author 
+ * @author
  */
 @SuppressWarnings("serial")
-public class SpinnerCellEditor extends AbstractCellEditor implements TableCellEditor
+public class SpinnerCellEditor extends DefaultCellEditor
 {
-	private JSpinner spinner;
-	
+	JSpinner spinner;
+
+	// Initializes the spinner.
 	public SpinnerCellEditor()
 	{
-		spinner = new JSpinner();
-		spinner.setBorder(null);
+		super(new JTextField());
+		spinner = new JSpinner(new SpinnerNumberModel());
+		((JSpinner.NumberEditor)spinner.getEditor()).getTextField().addActionListener((e) -> stopCellEditing());
 	}
-	
+
+	// Prepares the spinner component and returns it.
+	@Override
+	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
+	{
+		spinner.setValue(value);
+		return spinner;
+	}
+
+	// TODO: Decide if this should activate on single or double click
+	// (remove for double, uncomment for single)
+//	@Override
+//	public boolean isCellEditable(EventObject eo)
+//	{
+//		return true;
+//	}
+
+	// Returns the spinners current value.
 	@Override
 	public Object getCellEditorValue()
 	{
@@ -36,32 +50,14 @@ public class SpinnerCellEditor extends AbstractCellEditor implements TableCellEd
 	}
 
 	@Override
-	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
-	{
-		spinner.setValue(value);
-		return spinner;
-	}
-	
-	@Override
-	public boolean isCellEditable(EventObject evt)
-	{
-		return true;
-	}
-	
-	@Override
 	public boolean stopCellEditing()
 	{
-		spinner.setBorder(null);
 		try
 		{
 			spinner.commitEdit();
-			return super.stopCellEditing();
 		}
-		catch (ParseException e)
-		{
-			spinner.setBorder(new LineBorder(Color.RED));
-			spinner.repaint();
-			return false;
-		}
+		catch (java.text.ParseException e)
+		{}
+		return super.stopCellEditing();
 	}
 }
