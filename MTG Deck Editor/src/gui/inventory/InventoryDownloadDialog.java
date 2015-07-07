@@ -25,9 +25,6 @@ import javax.swing.border.EmptyBorder;
  * inventory file.  It has a label which shows how many bytes have been
  * downloaded and a progress bar that indicates things are happening.
  * 
- * TODO: Enable cancellation of the download
- * TODO: Merge the dialog and worker classes
- * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
