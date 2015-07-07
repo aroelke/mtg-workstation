@@ -638,7 +638,7 @@ public class MainFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				filter.clear();
+				filter = new FilterGroupPanel();
 				inventory.updateFilter((c) -> c.normalizedName().contains(nameFilterField.getText()));
 				inventoryModel.fireTableDataChanged();
 			}	
@@ -651,7 +651,7 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				nameFilterField.setText("");
-				filter.clear();
+				filter = new FilterGroupPanel();
 				inventory.updateFilter((c) -> true);
 				inventoryModel.fireTableDataChanged();
 			}
