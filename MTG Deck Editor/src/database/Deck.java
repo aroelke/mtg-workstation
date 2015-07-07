@@ -224,10 +224,7 @@ public class Deck implements Iterable<Card>
 	public boolean setCount(int index, int n)
 	{
 		Card c = masterList.get(index);
-		if (c == null)
-			return false;
-		else
-			return setCount(c, n);
+		return c != null &&  setCount(c, n);
 	}
 	
 	/**
@@ -639,6 +636,37 @@ public class Deck implements Iterable<Card>
 		public boolean remove(Card c)
 		{
 			return remove(c, 1);
+		}
+		
+		/**
+		 * Set the number of copies of the Card at the given index to be the given value.
+		 * 
+		 * @param index Index to find the Card at
+		 * @param n Number of copies to change to
+		 * @return <code>true</code> if the Card is in the Category and if the number of copies
+		 * was changed, and <code>false</code> otherwise.
+		 */
+		@Override
+		public boolean setCount(int index, int n)
+		{
+			Card c = get(index);
+			return c != null && setCount(c, n);
+		}
+		
+		/**
+		 * Set the number of copies of the given Card to be the given value.  If the card
+		 * isn't in the deck, it will be added.  If it isn't included in the category,
+		 * then nothing will happen.
+		 * 
+		 * @param c Card to change
+		 * @param n Number of copies to change to
+		 * @return <code>true</code> if the number of copies was changed or if the card was
+		 * added, and <code>false</code> otherwise.
+		 */
+		@Override
+		public boolean setCount(Card c, int n)
+		{
+			return includes(c) & Deck.this.setCount(c, n);
 		}
 		
 		/**
