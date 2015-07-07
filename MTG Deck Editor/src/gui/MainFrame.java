@@ -68,6 +68,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLDocument;
 
+import util.TableMouseAdapter;
 import database.Card;
 import database.Inventory;
 import database.ManaCost;

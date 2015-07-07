@@ -3,7 +3,6 @@ package gui.editor;
 import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
-import gui.TableMouseAdapter;
 import gui.filter.FilterGroupPanel;
 import gui.legality.LegalityChecker;
 import gui.legality.LegalityPanel;
@@ -59,6 +58,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import util.SpinnerCellEditor;
+import util.TableMouseAdapter;
 import database.Card;
 import database.Deck;
 import database.ManaCost;
