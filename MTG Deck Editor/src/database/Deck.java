@@ -236,9 +236,8 @@ public class Deck implements Iterable<Card>
 				return false;
 			else
 			{
-				total -= e.count;
-				if (c.typeContains("land"))
-					land -= e.count;
+				if (n > e.count)
+					n = e.count;
 				e.remove(n);
 				if (e.count == 0)
 				{
@@ -250,9 +249,9 @@ public class Deck implements Iterable<Card>
 						category.blacklist.remove(c);
 					}
 				}
-				total += e.count;
+				total -= n;
 				if (c.typeContains("land"))
-					land += e.count;
+					land -= n;
 				return true;
 			}
 		}
@@ -315,6 +314,8 @@ public class Deck implements Iterable<Card>
 	 */
 	public boolean setCount(Card c, int n)
 	{
+		if (n < 0)
+			n = 0;
 		Entry e = getEntry(c);
 		if (e == null)
 			return add(c, n);
@@ -867,7 +868,7 @@ public class Deck implements Iterable<Card>
 		@Override
 		public int total()
 		{
-			return total = filtrate.stream().map(Deck.this::getEntry).mapToInt((e) -> e.count).sum();
+			return filtrate.stream().map(Deck.this::getEntry).mapToInt((e) -> e.count).sum();
 		}
 		
 		/**
