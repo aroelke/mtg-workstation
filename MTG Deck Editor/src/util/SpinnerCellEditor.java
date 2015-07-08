@@ -1,6 +1,7 @@
 package util;
 
 import java.awt.Component;
+import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
 import javax.swing.DefaultCellEditor;
@@ -11,7 +12,7 @@ import javax.swing.SpinnerNumberModel;
 
 /**
  * This class represents an editor for a table cell containing integers.  It can
- * be edited using either the keyboard or the spinner arrows that appear on a single
+ * be edited using either the keyboard or the spinner arrows that appear on a double
  * click.
  * 
  * @author
@@ -59,7 +60,10 @@ public class SpinnerCellEditor extends DefaultCellEditor
 	@Override
 	public boolean isCellEditable(EventObject eo)
 	{
-		return true;
+		if (eo instanceof MouseEvent && ((MouseEvent)eo).getClickCount() > 1)
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -85,6 +89,14 @@ public class SpinnerCellEditor extends DefaultCellEditor
 		}
 		catch (java.text.ParseException e)
 		{}
-		return super.stopCellEditing();
+		try
+		{
+			return super.stopCellEditing();
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			cancelCellEditing();
+			return true;
+		}
 	}
 }

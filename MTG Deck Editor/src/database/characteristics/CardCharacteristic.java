@@ -1,9 +1,12 @@
 package database.characteristics;
 
+import gui.editor.EditorFrame;
+
 import java.util.List;
 import java.util.function.BiFunction;
 
 import util.TriConsumer;
+import database.Card;
 import database.Deck;
 import database.Inventory;
 import database.ManaCost;
@@ -20,9 +23,9 @@ public enum CardCharacteristic
 	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).set.name, (l, i) -> l.get(i).set.name, null),
 	MANA_COST("Mana Cost", ManaCost.class, (l, i) -> l.get(i).mana, (l, i) -> l.get(i).mana, null),
 	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine, (l, i) -> l.get(i).typeLine, null),
-	COUNT("Count", Integer.class, null, (l, i) -> l.count(i), (l, i, n) -> {
+	COUNT("Count", Integer.class, null, (l, i) -> l.count(i), (e, c, n) -> {
 		if (n instanceof Integer)
-			l.setCount(i, (Integer)n);
+			e.setCardCount(c, ((Integer)n).intValue());
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}),
@@ -63,7 +66,7 @@ public enum CardCharacteristic
 	 * Function for editing the value corresponding to the characteristic.  It should be null for constant
 	 * characteristics.
 	 */
-	public final TriConsumer<Deck, Integer, Object> editFunc;
+	public final TriConsumer<EditorFrame, Card, Object> editFunc;
 	
 	/**
 	 * Create a CardCharacteristic with the specified name, column class, value function, and category function.
@@ -73,7 +76,7 @@ public enum CardCharacteristic
 	 * @param f Function to get cell values from an Inventory table
 	 * @param cf Function to get cell values from a Deck table
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<Deck, Integer, ?> cf, TriConsumer<Deck, Integer, Object> ef)
+	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<Deck, Integer, ?> cf, TriConsumer<EditorFrame, Card, Object> ef)
 	{
 		name = n;
 		columnClass = c;

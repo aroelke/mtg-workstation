@@ -205,7 +205,7 @@ public class EditorFrame extends JInternalFrame
 		listTabs = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
 
-		model = new DeckTableModel(deck, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT,
+		model = new DeckTableModel(this, deck, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT,
 				CardCharacteristic.MANA_COST, CardCharacteristic.TYPE_LINE,
 				CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
 
@@ -473,7 +473,7 @@ public class EditorFrame extends JInternalFrame
 						CategoryEditorPanel editor = new CategoryEditorPanel(rd.readLine().trim());
 						Set<Card> whitelist = editor.whitelist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
 						Set<Card> blacklist = editor.blacklist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
-						addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.filter(), deck));
+						addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.filter(), this));
 					}
 					catch (Exception e)
 					{
@@ -559,7 +559,7 @@ public class EditorFrame extends JInternalFrame
 					done = false;
 				}
 				else
-					addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), deck));
+					addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), this));
 			}
 		}
 	}
@@ -1087,6 +1087,22 @@ public class EditorFrame extends JInternalFrame
 			revalidate();
 			repaint();
 			return changed;
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * 
+	 * @param c
+	 * @param n
+	 */
+	public void setCardCount(Card c, int n)
+	{
+		if (deck.contains(c) && n != deck.count(c))
+		{
+			undoBuffer.push(new SetCardCountAction(this, c, deck.count(c), n));
+			deck.setCount(c, n);
+			redoBuffer.clear();
 		}
 	}
 	

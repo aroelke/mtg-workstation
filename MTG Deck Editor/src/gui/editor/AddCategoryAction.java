@@ -60,6 +60,6 @@ public class AddCategoryAction implements DeckAction
 	public void redo()
 	{
 		CategoryEditorPanel categoryEditor = new CategoryEditorPanel(repr);
-		editor.addCategoryUnbuffered(new CategoryPanel(categoryEditor.name(), categoryEditor.repr(), whitelist, blacklist, categoryEditor.filter(), editor.deck));
+		editor.addCategoryUnbuffered(new CategoryPanel(categoryEditor.name(), categoryEditor.repr(), whitelist, blacklist, categoryEditor.filter(), editor));
 	}
 }

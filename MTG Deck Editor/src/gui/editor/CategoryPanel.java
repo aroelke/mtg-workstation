@@ -79,15 +79,15 @@ public class CategoryPanel extends JPanel
 	 * @param whitelist Set of Cards that should always be included in the new category
 	 * @param blacklist Set of Cards that should never be included in the new category
 	 * @param p Filter for the new category
-	 * @param list List of cards in the new category
+	 * @param editor EditorFrame containing the new category
 	 */
-	public CategoryPanel(String n, String r, Set<Card> whitelist, Set<Card> blacklist, Predicate<Card> p, Deck list)
+	public CategoryPanel(String n, String r, Set<Card> whitelist, Set<Card> blacklist, Predicate<Card> p, EditorFrame editor)
 	{
 		super();
 		
-		if (list.containsCategory(n))
+		if (editor.deck.containsCategory(n))
 			throw new IllegalArgumentException("Categories must have unique names");
-		category = list.addCategory(n, r, p);
+		category = editor.deck.addCategory(n, r, p);
 		for (Card c: whitelist)
 			category.include(c);
 		for (Card c: blacklist)
@@ -117,9 +117,9 @@ public class CategoryPanel extends JPanel
 		add(countPanel, BorderLayout.NORTH);
 		
 		// Table showing the cards in the category
-		model = new DeckTableModel(category, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT,
-	   													CardCharacteristic.MANA_COST, CardCharacteristic.TYPE_LINE,
-	   													CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
+		model = new DeckTableModel(editor, category, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT,
+								   CardCharacteristic.MANA_COST, CardCharacteristic.TYPE_LINE,
+								   CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
 		table = new JTable(model)
 		{
 			@Override
@@ -152,11 +152,11 @@ public class CategoryPanel extends JPanel
 	 * @param n Name of the new category
 	 * @param r String representation of the new category
 	 * @param p Filter for the new category
-	 * @param list List of cards in the new category
+	 * @param editor EditorFrame containing the new category
 	 */
-	public CategoryPanel(String n, String r, Predicate<Card> p, Deck list)
+	public CategoryPanel(String n, String r, Predicate<Card> p, EditorFrame editor)
 	{
-		this(n, r, new HashSet<Card>(), new HashSet<Card>(), p, list);
+		this(n, r, new HashSet<Card>(), new HashSet<Card>(), p, editor);
 	}
 	
 	/**

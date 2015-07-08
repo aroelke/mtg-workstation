@@ -56,7 +56,7 @@ public class RemoveCategoryAction implements DeckAction
 	public void undo()
 	{
 		CategoryEditorPanel categoryEditor = new CategoryEditorPanel(repr);
-		editor.addCategoryUnbuffered(new CategoryPanel(categoryEditor.name(), categoryEditor.repr(), whitelist, blacklist, categoryEditor.filter(), editor.deck));
+		editor.addCategoryUnbuffered(new CategoryPanel(categoryEditor.name(), categoryEditor.repr(), whitelist, blacklist, categoryEditor.filter(), editor));
 	}
 	
 	/**

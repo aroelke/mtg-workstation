@@ -17,9 +17,13 @@ import database.characteristics.CardCharacteristic;
 public class DeckTableModel extends AbstractTableModel
 {
 	/**
-	 * Master list of cards in the deck.
+	 * Editor containing this model's table.
 	 */
-	private Deck cardList;
+	private EditorFrame editor;
+	/**
+	 * List of Cards the table displays.
+	 */
+	private Deck list;
 	/**
 	 * List of Card characteristics to display in the table.
 	 */
@@ -31,10 +35,11 @@ public class DeckTableModel extends AbstractTableModel
 	 * @param list List of Cards for the new DeckTableModel to show
 	 * @param c List of characteristics of those Cards to show
 	 */
-	public DeckTableModel(Deck list, List<CardCharacteristic> c)
+	public DeckTableModel(EditorFrame e, Deck d, List<CardCharacteristic> c)
 	{
 		super();
-		cardList = list;
+		editor = e;
+		list = d;
 		characteristics = c;
 	}
 	
@@ -44,7 +49,7 @@ public class DeckTableModel extends AbstractTableModel
 	@Override
 	public int getRowCount()
 	{
-		return cardList.size();
+		return editor.deck.size();
 	}
 	
 	/**
@@ -55,7 +60,7 @@ public class DeckTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		return characteristics.get(columnIndex).deckFunc.apply(cardList, rowIndex);
+		return characteristics.get(columnIndex).deckFunc.apply(editor.deck, rowIndex);
 	}
 
 	/**
@@ -111,7 +116,7 @@ public class DeckTableModel extends AbstractTableModel
 	{
 		if (characteristics.get(column).editFunc != null)
 		{
-			characteristics.get(column).editFunc.accept(cardList, row, value);
+			characteristics.get(column).editFunc.accept(editor, list.get(row), value);
 			fireTableDataChanged();
 		}
 	}
