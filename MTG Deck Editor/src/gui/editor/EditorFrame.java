@@ -57,7 +57,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import util.SpinnerCellEditor;
 import util.TableMouseAdapter;
 import database.Card;
 import database.Deck;
@@ -240,8 +239,9 @@ public class EditorFrame extends JInternalFrame
 				}
 			}
 		});
-		// TODO: Only do this if the "Count" column exists
-		table.getColumn("Count").setCellEditor(new SpinnerCellEditor());
+		for (int i = 0; i < table.getColumnCount(); i++)
+			if (model.isCellEditable(0, i))
+				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).editor);
 		listTabs.addTab("Cards", new JScrollPane(table));
 		
 		// Table popup menu
@@ -478,8 +478,6 @@ public class EditorFrame extends JInternalFrame
 					}
 					catch (Exception e)
 					{
-						// TODO: Remove the stack trace
-						e.printStackTrace();
 						JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -487,8 +485,6 @@ public class EditorFrame extends JInternalFrame
 		}
 		catch (Exception e)
 		{
-			// TODO: Remove the stack trace
-			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.clear();
 		}
@@ -1111,15 +1107,16 @@ public class EditorFrame extends JInternalFrame
 				undoBuffer.push(new SetCardCountAction(this, c, deck.count(c), n));
 				deck.setCount(c, n);
 				redoBuffer.clear();
+				updateCount();
 				setUnsaved();
 				if (table.isEditing())
 					table.getCellEditor().cancelCellEditing();
+				revalidate();
+				repaint();
 			}
 		}
 		else
-		{
 			addCard(c, n);
-		}
 	}
 	
 	/**

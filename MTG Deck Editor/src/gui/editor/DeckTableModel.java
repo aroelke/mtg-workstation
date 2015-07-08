@@ -49,7 +49,7 @@ public class DeckTableModel extends AbstractTableModel
 	@Override
 	public int getRowCount()
 	{
-		return editor.deck.size();
+		return list.size();
 	}
 	
 	/**
@@ -60,7 +60,7 @@ public class DeckTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		return characteristics.get(columnIndex).deckFunc.apply(editor.deck, rowIndex);
+		return characteristics.get(columnIndex).deckFunc.apply(list, rowIndex);
 	}
 
 	/**
@@ -70,6 +70,15 @@ public class DeckTableModel extends AbstractTableModel
 	public int getColumnCount()
 	{
 		return characteristics.size();
+	}
+	
+	/**
+	 * @param column Column to check
+	 * @return The CardCharacteristic being displayed in the given column.
+	 */
+	public CardCharacteristic getColumnCharacteristic(int column)
+	{
+		return characteristics.get(column);
 	}
 	
 	/**

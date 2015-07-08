@@ -5,6 +5,9 @@ import gui.editor.EditorFrame;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import javax.swing.table.TableCellEditor;
+
+import util.SpinnerCellEditor;
 import util.TriConsumer;
 import database.Card;
 import database.Deck;
@@ -19,18 +22,18 @@ import database.ManaCost;
  */
 public enum CardCharacteristic
 {
-	NAME("Name", String.class, (l, i) -> l.get(i).name, (l, i) -> l.get(i).name, null),
-	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).set.name, (l, i) -> l.get(i).set.name, null),
-	MANA_COST("Mana Cost", ManaCost.class, (l, i) -> l.get(i).mana, (l, i) -> l.get(i).mana, null),
-	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine, (l, i) -> l.get(i).typeLine, null),
+	NAME("Name", String.class, (l, i) -> l.get(i).name, (l, i) -> l.get(i).name),
+	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).set.name, (l, i) -> l.get(i).set.name),
+	MANA_COST("Mana Cost", ManaCost.class, (l, i) -> l.get(i).mana, (l, i) -> l.get(i).mana),
+	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine, (l, i) -> l.get(i).typeLine),
 	COUNT("Count", Integer.class, null, (l, i) -> l.count(i), (e, c, n) -> {
 		if (n instanceof Integer)
 			e.setCardCount(c, ((Integer)n).intValue());
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
-	}),
-	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity, (l, i) -> l.get(i).rarity, null),
-	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn(), null);
+	}, new SpinnerCellEditor()),
+	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity, (l, i) -> l.get(i).rarity),
+	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn());
 	
 	/**
 	 * Parse a String for a CardCharacteristic.
@@ -67,6 +70,30 @@ public enum CardCharacteristic
 	 * characteristics.
 	 */
 	public final TriConsumer<EditorFrame, Card, Object> editFunc;
+	/**
+	 * The editor that should be used to edit this characteristic.
+	 */
+	public final TableCellEditor editor;
+	
+	/**
+	 * Create a CardCharacteristic with the specified name, column class, value function, and category function.
+	 * 
+	 * @param n Name of the new CardCharacteristic
+	 * @param c Table column class of the new CardCharacteristic
+	 * @param f Function to get cell values from an Inventory table
+	 * @param cf Function to get cell values from a Deck table
+	 * @param ef Function to edit deck values from the cell
+	 * @param e Editor that should be used to perform the editing
+	 */
+	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<Deck, Integer, ?> cf, TriConsumer<EditorFrame, Card, Object> ef, TableCellEditor e)
+	{
+		name = n;
+		columnClass = c;
+		inventoryFunc = f;
+		deckFunc = cf;
+		editFunc = ef;
+		editor = e;
+	}
 	
 	/**
 	 * Create a CardCharacteristic with the specified name, column class, value function, and category function.
@@ -76,13 +103,14 @@ public enum CardCharacteristic
 	 * @param f Function to get cell values from an Inventory table
 	 * @param cf Function to get cell values from a Deck table
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<Deck, Integer, ?> cf, TriConsumer<EditorFrame, Card, Object> ef)
+	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<Deck, Integer, ?> cf)
 	{
 		name = n;
 		columnClass = c;
 		inventoryFunc = f;
 		deckFunc = cf;
-		editFunc = ef;
+		editFunc = null;
+		editor = null;
 	}
 	
 	/**

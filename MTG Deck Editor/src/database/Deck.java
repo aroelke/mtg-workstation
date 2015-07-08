@@ -294,7 +294,12 @@ public class Deck implements Iterable<Card>
 			return false;
 		else
 		{
+			total += n - e.count;
+			if (e.card.typeContains("land"))
+				land += n - e.count;
 			e.count = n;
+			if (e.count == 0)
+				remove(e.card, Integer.MAX_VALUE);
 			return true;
 		}
 	}
@@ -317,6 +322,9 @@ public class Deck implements Iterable<Card>
 			return false;
 		else
 		{
+			total += n - e.count;
+			if (e.card.typeContains("land"))
+				land += n - e.count;
 			e.count = n;
 			if (e.count == 0)
 				remove(c, Integer.MAX_VALUE);

@@ -89,14 +89,6 @@ public class SpinnerCellEditor extends DefaultCellEditor
 		}
 		catch (java.text.ParseException e)
 		{}
-		try
-		{
-			return super.stopCellEditing();
-		}
-		catch (IndexOutOfBoundsException e)
-		{
-			cancelCellEditing();
-			return true;
-		}
+		return super.stopCellEditing();
 	}
 }
