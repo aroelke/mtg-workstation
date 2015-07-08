@@ -21,8 +21,6 @@ import database.characteristics.MTGColor;
  * tell what formats a deck is legal and illegal in, and give reasons for why it is
  * illegal.
  * 
- * TODO: Comment this
- * 
  * @author Alec Roelke
  */
 public class LegalityChecker

@@ -1091,18 +1091,26 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * Set the number of copies of the given card if the deck contains it.  Otherwise
+	 * add the card to the deck.
 	 * 
-	 * @param c
-	 * @param n
+	 * @param c Card to set (or add if it isn't present)
+	 * @param n Number of copies to set to (or add if the card isn't present)
 	 */
 	public void setCardCount(Card c, int n)
 	{
-		if (deck.contains(c) && n != deck.count(c))
+		if (deck.contains(c))
 		{
-			undoBuffer.push(new SetCardCountAction(this, c, deck.count(c), n));
-			deck.setCount(c, n);
-			redoBuffer.clear();
+			if (n != deck.count(c))
+			{
+				undoBuffer.push(new SetCardCountAction(this, c, deck.count(c), n));
+				deck.setCount(c, n);
+				redoBuffer.clear();
+			}
+		}
+		else
+		{
+			addCard(c, n);
 		}
 	}
 	
