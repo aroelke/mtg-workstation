@@ -241,6 +241,7 @@ public class EditorFrame extends JInternalFrame
 				}
 			}
 		});
+		// TODO: Only do this if the "Count" column exists
 		table.getColumn("Count").setCellEditor(new SpinnerCellEditor());
 		listTabs.addTab("Cards", new JScrollPane(table));
 		
@@ -403,6 +404,7 @@ public class EditorFrame extends JInternalFrame
 		// - category pie chart
 		// - mana curve
 		// - color distribution (cards/devotion[max,avg,total])
+		// - mana production distribution
 		// TODO: Add a tab for sample hands
 
 		// Panel to show the stats of the deck
@@ -958,6 +960,8 @@ public class EditorFrame extends JInternalFrame
 				break;
 			}
 			parent.selectCard(toAdd.get(0));
+			if (table.isEditing())
+				table.getCellEditor().cancelCellEditing();
 			updateCount();
 			setUnsaved();
 			revalidate();
@@ -1079,6 +1083,8 @@ public class EditorFrame extends JInternalFrame
 				break;
 			}
 			
+			if (table.isEditing())
+				table.getCellEditor().cancelCellEditing();
 			if (changed)
 			{
 				updateCount();
@@ -1106,6 +1112,9 @@ public class EditorFrame extends JInternalFrame
 				undoBuffer.push(new SetCardCountAction(this, c, deck.count(c), n));
 				deck.setCount(c, n);
 				redoBuffer.clear();
+				setUnsaved();
+				if (table.isEditing())
+					table.getCellEditor().cancelCellEditing();
 			}
 		}
 		else
