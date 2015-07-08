@@ -819,6 +819,7 @@ public class MainFrame extends JFrame
 	public void resetDefaultSettings()
 	{
 		// TODO: Add the following properties:
+		// - table stripe color
 		// - inventory table columns
 		// - deck table columns
 		// - category table columns
