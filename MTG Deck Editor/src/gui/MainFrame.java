@@ -57,7 +57,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
@@ -68,6 +67,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLDocument;
 
+import util.StripedTable;
 import util.TableMouseAdapter;
 import database.Card;
 import database.Inventory;
@@ -114,7 +114,7 @@ public class MainFrame extends JFrame
 	/**
 	 * Table displaying the inventory of all cards.
 	 */
-	private JTable inventoryTable;
+	private StripedTable inventoryTable;
 	/**
 	 * Model for the table displaying the inventory of all cards.
 	 */
@@ -557,14 +557,7 @@ public class MainFrame extends JFrame
 		textPanel.add(new JScrollPane(oracleTextPane), BorderLayout.CENTER);
 		
 		// Create the inventory and put it in the table
-		inventoryTable = new JTable()
-		{
-			@Override
-			public boolean getScrollableTracksViewportWidth()
-			{
-				return getPreferredSize().width < getParent().getWidth();
-			}
-		};
+		inventoryTable = new StripedTable();
 		inventoryTable.setAutoCreateRowSorter(true);
 		inventoryTable.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
 		inventoryTable.setFillsViewportHeight(true);

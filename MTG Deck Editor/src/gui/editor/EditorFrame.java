@@ -57,6 +57,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import util.StripedTable;
 import util.TableMouseAdapter;
 import database.Card;
 import database.Deck;
@@ -87,7 +88,7 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Main table showing the cards in the deck.
 	 */
-	private JTable table;
+	private StripedTable table;
 	/**
 	 * CardListTableModel for showing the deck list.
 	 */
@@ -208,14 +209,7 @@ public class EditorFrame extends JInternalFrame
 				CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
-		table = new JTable(model)
-		{
-			@Override
-			public boolean getScrollableTracksViewportWidth()
-			{
-				return getPreferredSize().width < getParent().getWidth();
-			}
-		};
+		table = new StripedTable(model);
 		table.setFillsViewportHeight(true);
 		table.setAutoCreateRowSorter(true);
 		table.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
