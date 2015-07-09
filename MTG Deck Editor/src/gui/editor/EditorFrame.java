@@ -47,7 +47,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.ProgressMonitorInputStream;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.InternalFrameAdapter;
@@ -450,30 +449,28 @@ public class EditorFrame extends JInternalFrame
 	public EditorFrame(File f, int u, MainFrame p)
 	{
 		this(u, p);
-		try (FileInputStream fi = new FileInputStream(f))
+		// TODO: Add a progress bar to this
+		try (BufferedReader rd = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF8")))
 		{
-			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new ProgressMonitorInputStream(parent, "Opening " + f.getName(), fi), "UTF8")))
+			int cards = Integer.valueOf(rd.readLine().trim());
+			for (int i = 0; i < cards; i++)
 			{
-				int cards = Integer.valueOf(rd.readLine().trim());
-				for (int i = 0; i < cards; i++)
+				String[] card = rd.readLine().trim().split("\t");
+				deck.add(parent.getCard(card[0]), Integer.valueOf(card[1]));
+			}
+			int categories = Integer.valueOf(rd.readLine().trim());
+			for (int i = 0; i < categories; i++)
+			{
+				try
 				{
-					String[] card = rd.readLine().trim().split("\t");
-					deck.add(parent.getCard(card[0]), Integer.valueOf(card[1]));
+					CategoryEditorPanel editor = new CategoryEditorPanel(rd.readLine().trim());
+					Set<Card> whitelist = editor.whitelist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
+					Set<Card> blacklist = editor.blacklist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
+					addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.filter(), this));
 				}
-				int categories = Integer.valueOf(rd.readLine().trim());
-				for (int i = 0; i < categories; i++)
+				catch (Exception e)
 				{
-					try
-					{
-						CategoryEditorPanel editor = new CategoryEditorPanel(rd.readLine().trim());
-						Set<Card> whitelist = editor.whitelist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
-						Set<Card> blacklist = editor.blacklist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
-						addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.filter(), this));
-					}
-					catch (Exception e)
-					{
-						JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-					}
+					JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}

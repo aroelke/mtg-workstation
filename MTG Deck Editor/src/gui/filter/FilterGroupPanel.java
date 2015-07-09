@@ -36,11 +36,11 @@ public class FilterGroupPanel extends FilterPanel
 	/**
 	 * Character marking the beginning of a group.
 	 */
-	public static final char BEGIN_GROUP = '\u226A';
+	public static final char BEGIN_GROUP = '«';
 	/**
 	 * Character marking the end of a group.
 	 */
-	public static final char END_GROUP = '\u226B';
+	public static final char END_GROUP = '»';
 	/**
 	 * Combo box displaying the possible ways that filters can be combined.
 	 */

@@ -208,7 +208,7 @@ public class MainFrame extends JFrame
 		// Initialize properties to their default values, then load the current values
 		// from the properties file
 		resetDefaultSettings();
-		try (FileInputStream in = new FileInputStream(PROPERTIES_FILE))
+		try (InputStreamReader in = new InputStreamReader(new FileInputStream(PROPERTIES_FILE), "UTF8"))
 		{
 			properties.load(in);
 		}
@@ -448,6 +448,8 @@ public class MainFrame extends JFrame
 		// Lands
 		// Commander (?)
 		// Instants/Sorceries
+		JMenu presetMenu = new JMenu("Presets");
+		categoryMenu.add(presetMenu);
 		
 		// Help menu
 		JMenu helpMenu = new JMenu("Help");
