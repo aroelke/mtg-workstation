@@ -24,6 +24,7 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import util.StripedTable;
 import database.Card;
 import database.Deck;
 import database.ManaCost;
@@ -49,7 +50,7 @@ public class CategoryPanel extends JPanel
 	/**
 	 * Table to display the contents of the category.
 	 */
-	protected JTable table;
+	protected StripedTable table;
 	/**
 	 * Model to tell the table how to display the contents of the category.
 	 */
@@ -120,14 +121,8 @@ public class CategoryPanel extends JPanel
 		model = new DeckTableModel(editor, category, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT,
 								   CardCharacteristic.MANA_COST, CardCharacteristic.TYPE_LINE,
 								   CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
-		table = new JTable(model)
+		table = new StripedTable(model)
 		{
-			@Override
-			public boolean getScrollableTracksViewportWidth()
-			{
-				return getPreferredSize().width < getParent().getWidth();
-			}
-			
 			@Override
 			public Dimension getPreferredScrollableViewportSize()
 			{
