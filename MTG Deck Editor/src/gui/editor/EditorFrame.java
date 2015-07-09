@@ -492,6 +492,9 @@ public class EditorFrame extends JInternalFrame
 		}
 	}
 
+	/**
+	 * @return The name of the deck being edited (its file name).
+	 */
 	public String deckName()
 	{
 		String deckName;
@@ -500,6 +503,14 @@ public class EditorFrame extends JInternalFrame
 		else
 			deckName = getTitle();
 		return deckName;
+	}
+	
+	/**
+	 * @return The File containing the deck being edited.
+	 */
+	public File file()
+	{
+		return file;
 	}
 	
 	/**

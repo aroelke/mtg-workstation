@@ -823,6 +823,7 @@ public class MainFrame extends JFrame
 		// - inventory table columns
 		// - deck table columns
 		// - category table columns
+		// - preset categories
 		
 		properties = new Properties();
 		properties.put("inventory.version_file", "version.json");
@@ -869,18 +870,21 @@ public class MainFrame extends JFrame
 	 */
 	public void updateRecents(File f)
 	{
-		recentsMenu.setEnabled(true);
-		if (recentItems.size() >= recentCount)
+		if (!recents.containsValue(f))
 		{
-			JMenuItem eldest = recentItems.poll();
-			recents.remove(eldest);
-			recentsMenu.remove(eldest);
+			recentsMenu.setEnabled(true);
+			if (recentItems.size() >= recentCount)
+			{
+				JMenuItem eldest = recentItems.poll();
+				recents.remove(eldest);
+				recentsMenu.remove(eldest);
+			}
+			JMenuItem mostRecent = new JMenuItem(f.getPath());
+			recentItems.offer(mostRecent);
+			recents.put(mostRecent, f);
+			mostRecent.addActionListener((e) -> open(f));
+			recentsMenu.add(mostRecent);
 		}
-		JMenuItem mostRecent = new JMenuItem(f.getPath());
-		recentItems.offer(mostRecent);
-		recents.put(mostRecent, f);
-		mostRecent.addActionListener((e) -> open(f));
-		recentsMenu.add(mostRecent);
 	}
 	
 	/**
@@ -921,16 +925,26 @@ public class MainFrame extends JFrame
 	/**
 	 * Open the specified file and create an editor for it.
 	 * 
-	 * TODO: If the file is already open, instead select its editor
-	 * 
 	 * @param f File to open.
 	 */
 	public void open(File f)
 	{
-		EditorFrame frame = new EditorFrame(f, ++untitled, this);
-		frame.setVisible(true);
-		editors.add(frame);
-		decklistDesktop.add(frame);
+		EditorFrame frame = null;
+		for (EditorFrame e: editors)
+		{
+			if (e.file().equals(f))
+			{
+				frame = e;
+				break;
+			}
+		}
+		if (frame == null)
+		{
+			frame = new EditorFrame(f, ++untitled, this);
+			frame.setVisible(true);
+			editors.add(frame);
+			decklistDesktop.add(frame);
+		}
 		properties.put("initialdir", fileChooser.getCurrentDirectory().getPath());
 		try
 		{
