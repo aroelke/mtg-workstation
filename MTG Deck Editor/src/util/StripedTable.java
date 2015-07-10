@@ -70,7 +70,7 @@ public class StripedTable extends JTable
 	{
 		Component c = super.prepareRenderer(renderer, row, column);
 		if (!isRowSelected(row))
-			c.setBackground(row%2 == 0 ? getBackground() : stripeColor);
+			c.setBackground(row%2 == 0 ? new Color(getBackground().getRGB()) : stripeColor);
 		return c;
 	}
 }

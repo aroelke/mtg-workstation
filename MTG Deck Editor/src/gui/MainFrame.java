@@ -324,7 +324,6 @@ public class MainFrame extends JFrame
 		// Edit menu
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
-		// TODO: Add a "Preferences" items to the edit menu with an accompanying dialog
 		
 		// Undo menu item
 		JMenuItem undoItem = new JMenuItem("Undo");
@@ -476,8 +475,11 @@ public class MainFrame extends JFrame
 			switch (checkForUpdate())
 			{
 			case UPDATE_NEEDED:
-				updateInventory();
-				loadInventory();
+				if (updateInventory())
+				{
+					properties.put("inventory.version", newestVersion);
+					loadInventory();
+				}
 				break;
 			case NO_UPDATE:
 				JOptionPane.showMessageDialog(null, "Inventory is up to date.");
@@ -489,6 +491,10 @@ public class MainFrame extends JFrame
 			}
 		});
 		helpMenu.add(updateInventoryItem);
+		
+		JMenuItem reloadInventoryItem = new JMenuItem("Reload inventory...");
+		reloadInventoryItem.addActionListener((e) -> loadInventory());
+		helpMenu.add(reloadInventoryItem);
 		
 		/* CONTENT PANE */
 		// Panel containing all content
@@ -946,7 +952,7 @@ public class MainFrame extends JFrame
 		EditorFrame frame = null;
 		for (EditorFrame e: editors)
 		{
-			if (e.file().equals(f))
+			if (e.file() != null && e.file().equals(f))
 			{
 				frame = e;
 				break;
