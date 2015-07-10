@@ -338,6 +338,16 @@ public class MainFrame extends JFrame
 		redoItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.redo();});
 		editMenu.add(redoItem);
 		
+		editMenu.add(new JSeparator());
+		
+		// Preferences menu item
+		JMenuItem preferencesItem = new JMenuItem("Preferences");
+		preferencesItem.addActionListener((e) -> {
+			SettingsDialog settings = new SettingsDialog(this);
+			settings.setVisible(true);
+		});
+		editMenu.add(preferencesItem);
+		
 		// Deck menu
 		JMenu deckMenu = new JMenu("Deck");
 		menuBar.add(deckMenu);
