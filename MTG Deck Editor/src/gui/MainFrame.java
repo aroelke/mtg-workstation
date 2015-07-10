@@ -188,6 +188,10 @@ public class MainFrame extends JFrame
 	 * List of CardCharacteristics to show in the inventory table.
 	 */
 	private List<CardCharacteristic> inventoryCharacteristics;
+	/**
+	 * Newest version number of the inventory.
+	 */
+	private String newestVersion;
 	
 	/**
 	 * Create a new MainFrame.
@@ -240,6 +244,7 @@ public class MainFrame extends JFrame
 		recentCount = Integer.valueOf(properties.getProperty("recents.count"));
 		if (!properties.getProperty("inventory.columns").isEmpty())
 			inventoryCharacteristics = Arrays.stream(properties.getProperty("inventory.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		newestVersion = properties.getProperty("inventory.version");
 		
 		setTitle("MTG Deck Editor");
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -704,7 +709,8 @@ public class MainFrame extends JFrame
 			public void windowOpened(WindowEvent e)
 			{
 				if (Boolean.valueOf(properties.getProperty("inventory.initialcheck")) && checkForUpdate() == UPDATE_NEEDED)
-					updateInventory();
+					if (updateInventory())
+						properties.put("inventory.version", newestVersion);
 				loadInventory();
 			}
 			
@@ -761,9 +767,8 @@ public class MainFrame extends JFrame
 			JOptionPane.showMessageDialog(null, inventoryFile.getName() + " not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE);
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
 			{
-				String newestVersion = in.readLine();
+				newestVersion = in.readLine();
 				newestVersion = newestVersion.substring(1, newestVersion.length() - 1);
-				properties.setProperty("inventory.version", newestVersion);
 			}
 			catch (IOException e)
 			{
@@ -776,15 +781,12 @@ public class MainFrame extends JFrame
 		{
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
 			{
-				String newestVersion = in.readLine();
+				newestVersion = in.readLine();
 				newestVersion = newestVersion.substring(1, newestVersion.length() - 1);
 				if (!newestVersion.equals(properties.get("inventory.version")))
 				{
 					if (JOptionPane.showConfirmDialog(null, "Inventory is out of date.  Download update?", "Update", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-					{
-						properties.setProperty("inventory.version", newestVersion);
 						return UPDATE_NEEDED;
-					}
 					else
 						return UPDATE_CANCELLED;
 				}
