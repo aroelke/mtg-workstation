@@ -4,8 +4,6 @@ import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
 import gui.filter.FilterGroupPanel;
-import gui.legality.LegalityChecker;
-import gui.legality.LegalityPanel;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -60,6 +58,7 @@ import util.StripedTable;
 import util.TableMouseAdapter;
 import database.Card;
 import database.Deck;
+import database.LegalityChecker;
 import database.ManaCost;
 import database.characteristics.CardCharacteristic;
 

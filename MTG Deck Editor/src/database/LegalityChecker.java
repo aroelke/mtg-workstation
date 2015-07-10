@@ -1,4 +1,4 @@
-package gui.legality;
+package database;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import database.Card;
-import database.Deck;
 import database.characteristics.Legality;
 import database.characteristics.MTGColor;
 

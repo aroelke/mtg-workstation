@@ -1,4 +1,4 @@
-package gui.legality;
+package gui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -16,6 +16,8 @@ import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
+
+import database.LegalityChecker;
 
 /**
  * This class represents a panel that shows the formats a deck is legal and illegal in.
