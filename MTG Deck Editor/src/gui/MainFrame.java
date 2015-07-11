@@ -649,59 +649,39 @@ public class MainFrame extends JFrame
 		
 		// Action to be taken when the user presses the Enter key after entering text into the quick-filter
 		// bar
-		nameFilterField.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				filter = new FilterGroupPanel();
-				inventory.updateFilter((c) -> c.normalizedName().contains(nameFilterField.getText().toLowerCase()));
-				inventoryModel.fireTableDataChanged();
-			}	
+		nameFilterField.addActionListener((e) -> {
+			filter = new FilterGroupPanel();
+			inventory.updateFilter((c) -> c.normalizedName().contains(nameFilterField.getText().toLowerCase()));
+			inventoryModel.fireTableDataChanged();
 		});
 		
 		// Action to be taken when the clear button is pressed (reset the filter)
-		clearButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				nameFilterField.setText("");
-				filter = new FilterGroupPanel();
-				inventory.updateFilter((c) -> true);
-				inventoryModel.fireTableDataChanged();
-			}
+		clearButton.addActionListener((e) -> {
+			nameFilterField.setText("");
+			filter = new FilterGroupPanel();
+			inventory.updateFilter((c) -> true);
+			inventoryModel.fireTableDataChanged();
 		});
 		
 		// Action to be taken when the advanced filter button is pressed (show the advanced filter
 		// dialog)
-		advancedFilterButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
+		advancedFilterButton.addActionListener((e) -> {
+			if (JOptionPane.showOptionDialog(null, filter, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
-				if (JOptionPane.showOptionDialog(null, filter, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-				{
-					nameFilterField.setText("");
-					inventory.updateFilter(filter.filter());
-					inventoryModel.fireTableDataChanged();
-				}
+				nameFilterField.setText("");
+				inventory.updateFilter(filter.filter());
+				inventoryModel.fireTableDataChanged();
 			}
 		});
 		
 		// Action to be taken when a selection is made in the inventory table (update the relevant
 		// panels)
-		inventoryTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-		{
-			@Override
-			public void valueChanged(ListSelectionEvent e)
+		inventoryTable.getSelectionModel().addListSelectionListener((e) -> {
+			if (!e.getValueIsAdjusting())
 			{
-				if (!e.getValueIsAdjusting())
-				{
-					ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-					if (!lsm.isSelectionEmpty())
-						selectCard(inventory.get(inventoryTable.convertRowIndexToModel(lsm.getMinSelectionIndex())));
-				}
+				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+				if (!lsm.isSelectionEmpty())
+					selectCard(inventory.get(inventoryTable.convertRowIndexToModel(lsm.getMinSelectionIndex())));
 			}
 		});
 		
