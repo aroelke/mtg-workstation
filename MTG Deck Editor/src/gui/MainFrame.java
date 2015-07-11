@@ -339,7 +339,7 @@ public class MainFrame extends JFrame
 		// Preferences menu item
 		JMenuItem preferencesItem = new JMenuItem("Preferences");
 		preferencesItem.addActionListener((e) -> {
-			SettingsDialog settings = new SettingsDialog(this);
+			SettingsDialog settings = new SettingsDialog(this, properties);
 			settings.setVisible(true);
 		});
 		editMenu.add(preferencesItem);
@@ -582,6 +582,7 @@ public class MainFrame extends JFrame
 		inventoryTable.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
 		inventoryTable.setFillsViewportHeight(true);
 		inventoryTable.setShowGrid(false);
+		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("inventory.stripe")));
 		tablePanel.add(new JScrollPane(inventoryTable), BorderLayout.CENTER);
 		
 		// Table popup menu
@@ -833,6 +834,7 @@ public class MainFrame extends JFrame
 		properties.put("recents.count", "4");
 		properties.put("recents.files", "");
 		properties.put("inventory.columns", "Name,Expansion,Mana Cost,Type");
+		properties.put("inventory.stripe", "#FFCCCCCC");
 	}
 	
 	/**
