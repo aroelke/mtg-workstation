@@ -655,7 +655,7 @@ public class MainFrame extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				filter = new FilterGroupPanel();
-				inventory.updateFilter((c) -> c.normalizedName().contains(nameFilterField.getText()));
+				inventory.updateFilter((c) -> c.normalizedName().contains(nameFilterField.getText().toLowerCase()));
 				inventoryModel.fireTableDataChanged();
 			}	
 		});
