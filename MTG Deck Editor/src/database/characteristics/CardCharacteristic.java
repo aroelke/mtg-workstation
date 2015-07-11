@@ -2,6 +2,8 @@ package database.characteristics;
 
 import gui.editor.EditorFrame;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -47,6 +49,16 @@ public enum CardCharacteristic
 			if (c.toString().equalsIgnoreCase(s))
 				return c;
 		throw new IllegalArgumentException("Illegal characteristic string \"" + s + "\"");
+	}
+	
+	/**
+	 * @return An array containing the CardCharacteristics that can be shown in the inventory table.
+	 */
+	public static CardCharacteristic[] inventoryValues()
+	{
+		ArrayList<CardCharacteristic> characteristics = new ArrayList<CardCharacteristic>(Arrays.asList(values()));
+		characteristics.remove(COUNT);
+		return characteristics.toArray(new CardCharacteristic[characteristics.size()]);
 	}
 	
 	/**
