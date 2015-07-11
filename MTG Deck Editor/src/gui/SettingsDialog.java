@@ -145,7 +145,6 @@ public class SettingsDialog extends JDialog
 		settingsPanel.add(inventoryAppearancePanel, inventoryAppearanceNode.toString());
 		
 		// Columns
-		// TODO: Make this a bunch of check boxes instead
 		JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
 		inventoryColumnsPanel.setBorder(new TitledBorder("Columns"));
 		List<JCheckBox> columnCheckBoxes = new ArrayList<JCheckBox>();
@@ -166,7 +165,13 @@ public class SettingsDialog extends JDialog
 		
 		// Editor
 		JPanel editorPanel = new JPanel();
-		editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.Y_AXIS));
+		GridBagLayout editorLayout = new GridBagLayout();
+		editorLayout.columnWidths = new int[] {0};
+		editorLayout.columnWeights = new double[] {1.0};
+		editorLayout.rowHeights = new int[] {0, 0};
+		editorLayout.rowWeights = new double[] {0.0, 1.0};
+		editorPanel.setLayout(editorLayout);
+		editorPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(editorPanel, editorNode.toString());
 		
 		// Recent count
@@ -176,7 +181,12 @@ public class SettingsDialog extends JDialog
 		recentPanel.add(Box.createRigidArea(new Dimension(5, 0)));
 		JSpinner recentSpinner = new JSpinner(new SpinnerNumberModel(4, 1, Integer.MAX_VALUE, 1));
 		recentPanel.add(recentSpinner);
-		editorPanel.add(recentPanel);
+		GridBagConstraints recentConstraints = new GridBagConstraints();
+		recentConstraints.fill = GridBagConstraints.VERTICAL;
+		recentConstraints.anchor = GridBagConstraints.WEST;
+		recentConstraints.gridx = 0;
+		recentConstraints.gridy = 0;
+		editorPanel.add(recentPanel, recentConstraints);
 		
 		// Tree panel
 		JPanel treePanel = new JPanel(new BorderLayout());
