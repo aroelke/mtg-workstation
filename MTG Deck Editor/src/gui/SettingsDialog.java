@@ -8,7 +8,10 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -19,12 +22,12 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -143,10 +146,15 @@ public class SettingsDialog extends JDialog
 		
 		// Columns
 		// TODO: Make this a bunch of check boxes instead
-		JPanel inventoryColumnsPanel = new JPanel(new BorderLayout());
+		JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
 		inventoryColumnsPanel.setBorder(new TitledBorder("Columns"));
-		JList<CardCharacteristic> inventoryColumnList = new JList<CardCharacteristic>(CardCharacteristic.inventoryValues());
-		inventoryColumnsPanel.add(new JScrollPane(inventoryColumnList));
+		List<JCheckBox> columnCheckBoxes = new ArrayList<JCheckBox>();
+		for (CardCharacteristic characteristic: CardCharacteristic.inventoryValues())
+		{
+			JCheckBox checkBox = new JCheckBox(characteristic.toString());
+			columnCheckBoxes.add(checkBox);
+			inventoryColumnsPanel.add(checkBox);
+		}
 		inventoryAppearancePanel.add(inventoryColumnsPanel);
 		
 		// Stripe color
@@ -160,6 +168,15 @@ public class SettingsDialog extends JDialog
 		JPanel editorPanel = new JPanel();
 		editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.Y_AXIS));
 		settingsPanel.add(editorPanel, editorNode.toString());
+		
+		// Recent count
+		JPanel recentPanel = new JPanel();
+		recentPanel.setLayout(new BoxLayout(recentPanel, BoxLayout.X_AXIS));
+		recentPanel.add(new JLabel("Recent file count:"));
+		recentPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+		JSpinner recentSpinner = new JSpinner(new SpinnerNumberModel(4, 1, Integer.MAX_VALUE, 1));
+		recentPanel.add(recentSpinner);
+		editorPanel.add(recentPanel);
 		
 		// Tree panel
 		JPanel treePanel = new JPanel(new BorderLayout());
