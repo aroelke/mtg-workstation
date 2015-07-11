@@ -6,10 +6,7 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,12 +62,7 @@ public class SettingsDialog extends JDialog
 		
 		// Inventory paths
 		JPanel inventoryPanel = new JPanel();
-		GridBagLayout pathsLayout = new GridBagLayout();
-		pathsLayout.columnWidths = new int[] {0};
-		pathsLayout.columnWeights = new double[] {1.0};
-		pathsLayout.rowHeights = new int[] {0, 0, 0, 0, 0};
-		pathsLayout.rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0};
-		inventoryPanel.setLayout(pathsLayout);
+		inventoryPanel.setLayout(new BoxLayout(inventoryPanel, BoxLayout.Y_AXIS));
 		inventoryPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(inventoryPanel, pathsNode.toString());
 		
@@ -78,66 +70,54 @@ public class SettingsDialog extends JDialog
 		JPanel inventorySitePanel = new JPanel();
 		inventorySitePanel.setLayout(new BoxLayout(inventorySitePanel, BoxLayout.X_AXIS));
 		inventorySitePanel.add(new JLabel("Inventory Site:"));
-		inventorySitePanel.add(Box.createRigidArea(new Dimension(5, 0)));
+		inventorySitePanel.add(Box.createHorizontalStrut(5));
 		JTextField inventorysiteField = new JTextField(15);
 		inventorySitePanel.add(inventorysiteField);
-		GridBagConstraints inventorySiteConstraints = new GridBagConstraints();
-		inventorySiteConstraints.fill = GridBagConstraints.HORIZONTAL;
-		inventorySiteConstraints.anchor = GridBagConstraints.WEST;
-		inventorySiteConstraints.gridx = 0;
-		inventorySiteConstraints.gridy = 0;
-		inventorySiteConstraints.insets = new Insets(0, 0, 5, 0);
-		inventoryPanel.add(inventorySitePanel, inventorySiteConstraints);
+		inventorySitePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventorySitePanel.getPreferredSize().height));
+		inventoryPanel.add(inventorySitePanel);
+		inventoryPanel.add(Box.createVerticalStrut(5));
 		
 		// Inventory file name
 		JPanel inventoryFilePanel = new JPanel();
 		inventoryFilePanel.setLayout(new BoxLayout(inventoryFilePanel, BoxLayout.X_AXIS));
 		inventoryFilePanel.add(new JLabel("Inventory File:"));
-		inventoryFilePanel.add(Box.createRigidArea(new Dimension(5, 0)));
+		inventoryFilePanel.add(Box.createHorizontalStrut(5));
 		JTextField inventoryFileField = new JTextField(10);
 		inventoryFilePanel.add(inventoryFileField);
-		inventoryFilePanel.add(Box.createRigidArea(new Dimension(5, 0)));
+		inventoryFilePanel.add(Box.createHorizontalStrut(5));
 		JLabel currentVersionLabel = new JLabel("(Current version: 1.0.0)");
 		currentVersionLabel.setFont(new Font(currentVersionLabel.getFont().getFontName(), Font.ITALIC, currentVersionLabel.getFont().getSize()));
 		inventoryFilePanel.add(currentVersionLabel);
-		GridBagConstraints inventoryFileConstraints = new GridBagConstraints();
-		inventoryFileConstraints.fill = GridBagConstraints.HORIZONTAL;
-		inventoryFileConstraints.anchor = GridBagConstraints.WEST;
-		inventoryFileConstraints.gridx = 0;
-		inventoryFileConstraints.gridy = 1;
-		inventoryFileConstraints.insets = new Insets(0, 0, 5, 0);
-		inventoryPanel.add(inventoryFilePanel, inventoryFileConstraints);
+		inventoryFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryFilePanel.getPreferredSize().height));
+		inventoryPanel.add(inventoryFilePanel);
+		inventoryPanel.add(Box.createVerticalStrut(5));
 		
 		// Inventory file directory
 		JPanel inventoryDirPanel = new JPanel();
 		inventoryDirPanel.setLayout(new BoxLayout(inventoryDirPanel, BoxLayout.X_AXIS));
 		inventoryDirPanel.add(new JLabel("Inventory File Location:"));
-		inventoryDirPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+		inventoryDirPanel.add(Box.createHorizontalStrut(5));
 		JTextField inventoryDirField = new JTextField(25);
 		inventoryDirPanel.add(inventoryDirField);
-		inventoryDirPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+		inventoryDirPanel.add(Box.createHorizontalStrut(5));
 		JButton inventoryDirButton = new JButton("\u2026");
 		inventoryDirButton.addActionListener((e) -> {
 			if (inventoryChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
 				inventoryDirField.setText(inventoryChooser.getSelectedFile().getPath());
 		});
 		inventoryDirPanel.add(inventoryDirButton);
-		GridBagConstraints inventoryDirConstraints = new GridBagConstraints();
-		inventoryDirConstraints.fill = GridBagConstraints.HORIZONTAL;
-		inventoryDirConstraints.anchor = GridBagConstraints.WEST;
-		inventoryDirConstraints.gridx = 0;
-		inventoryDirConstraints.gridy = 2;
-		inventoryPanel.add(inventoryDirPanel, inventoryDirConstraints);
+		inventoryDirPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryDirPanel.getPreferredSize().height));
+		inventoryPanel.add(inventoryDirPanel);
+		inventoryPanel.add(Box.createVerticalStrut(5));
 		
 		// Check for update on startup
 		JPanel updatePanel = new JPanel(new BorderLayout());
 		JCheckBox updateCheckBox = new JCheckBox("Check for update on program start");
 		updatePanel.add(updateCheckBox, BorderLayout.WEST);
-		GridBagConstraints updateConstraints = new GridBagConstraints();
-		updateConstraints.anchor = GridBagConstraints.WEST;
-		updateConstraints.gridx = 0;
-		updateConstraints.gridy = 3;
-		inventoryPanel.add(updatePanel, updateConstraints);
+		updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
+		inventoryPanel.add(updatePanel);
+		
+		inventoryPanel.add(Box.createVerticalGlue());
 		
 		// Inventory appearance
 		JPanel inventoryAppearancePanel = new JPanel();
@@ -165,12 +145,7 @@ public class SettingsDialog extends JDialog
 		
 		// Editor
 		JPanel editorPanel = new JPanel();
-		GridBagLayout editorLayout = new GridBagLayout();
-		editorLayout.columnWidths = new int[] {0};
-		editorLayout.columnWeights = new double[] {1.0};
-		editorLayout.rowHeights = new int[] {0, 0};
-		editorLayout.rowWeights = new double[] {0.0, 1.0};
-		editorPanel.setLayout(editorLayout);
+		editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.Y_AXIS));
 		editorPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(editorPanel, editorNode.toString());
 		
@@ -178,15 +153,14 @@ public class SettingsDialog extends JDialog
 		JPanel recentPanel = new JPanel();
 		recentPanel.setLayout(new BoxLayout(recentPanel, BoxLayout.X_AXIS));
 		recentPanel.add(new JLabel("Recent file count:"));
-		recentPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+		recentPanel.add(Box.createHorizontalStrut(5));
 		JSpinner recentSpinner = new JSpinner(new SpinnerNumberModel(4, 1, Integer.MAX_VALUE, 1));
 		recentPanel.add(recentSpinner);
-		GridBagConstraints recentConstraints = new GridBagConstraints();
-		recentConstraints.fill = GridBagConstraints.VERTICAL;
-		recentConstraints.anchor = GridBagConstraints.WEST;
-		recentConstraints.gridx = 0;
-		recentConstraints.gridy = 0;
-		editorPanel.add(recentPanel, recentConstraints);
+		recentPanel.setMaximumSize(recentPanel.getPreferredSize());
+		recentPanel.setAlignmentX(LEFT_ALIGNMENT);
+		editorPanel.add(recentPanel);
+		
+		editorPanel.add(Box.createVerticalGlue());
 		
 		// Tree panel
 		JPanel treePanel = new JPanel(new BorderLayout());
