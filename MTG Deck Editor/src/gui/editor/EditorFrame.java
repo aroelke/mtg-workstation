@@ -7,8 +7,6 @@ import gui.filter.FilterGroupPanel;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.io.BufferedReader;
@@ -27,6 +25,7 @@ import java.util.Stack;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -167,36 +166,26 @@ public class EditorFrame extends JInternalFrame
 		// The buttons are concentrated in the middle of the panel
 		JPanel buttonPanel = new JPanel();
 		getContentPane().add(buttonPanel, BorderLayout.WEST);
-		GridBagLayout buttonLayout = new GridBagLayout();
-		buttonLayout.columnWidths = new int[] {0};
-		buttonLayout.rowHeights = new int[] {0, 0, 0, 0, 0};
-		buttonLayout.columnWeights = new double[] {1.0};
-		buttonLayout.rowWeights = new double[] {1.0, 0.0, 0.0, 0.0, 1.0};
-		buttonPanel.setLayout(buttonLayout);
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 
+		buttonPanel.add(Box.createVerticalGlue());
+		
 		// Add button to add one copy of the currently-selected card to the deck
 		JButton addButton = new JButton("+");
 		addButton.addActionListener((e) -> addCards(parent.getSelectedCards(), 1));
-		GridBagConstraints addConstraints = new GridBagConstraints();
-		addConstraints.fill = GridBagConstraints.HORIZONTAL;
-		addConstraints.gridy = 1;
-		buttonPanel.add(addButton, addConstraints);
+		buttonPanel.add(addButton);
 
 		// Remove button to remove one copy of each selected card from the deck
 		JButton removeButton = new JButton("\u2013");
 		removeButton.addActionListener((e) -> removeSelectedCards(1));
-		GridBagConstraints removeConstraints = new GridBagConstraints();
-		removeConstraints.fill = GridBagConstraints.HORIZONTAL;
-		removeConstraints.gridy = 2;
-		buttonPanel.add(removeButton, removeConstraints);
+		buttonPanel.add(removeButton);
 
 		// Delete button to remove all copies of each selected card from the deck
 		JButton deleteButton = new JButton("X");
 		deleteButton.addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE));
-		GridBagConstraints deleteConstraints = new GridBagConstraints();
-		deleteConstraints.fill = GridBagConstraints.HORIZONTAL;
-		deleteConstraints.gridy = 3;
-		buttonPanel.add(deleteButton, deleteConstraints);
+		buttonPanel.add(deleteButton);
+		
+		buttonPanel.add(Box.createVerticalGlue());
 
 		// The first tab is the master list tab, and the second tab is the categories tab
 		listTabs = new JTabbedPane(JTabbedPane.TOP);

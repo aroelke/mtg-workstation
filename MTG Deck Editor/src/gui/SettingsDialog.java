@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +23,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -63,10 +63,21 @@ public class SettingsDialog extends JDialog
 			throw new IllegalArgumentException("Illegal color string \"" + s + "\"");
 	}
 	
-	public SettingsDialog(JFrame owner, Properties properties)
+	private MainFrame parent;
+	private JTextField inventorySiteField;
+	private JTextField inventoryFileField;
+	private JTextField inventoryDirField;
+	private JCheckBox updateCheckBox;
+	private List<JCheckBox> columnCheckBoxes;
+	private JColorChooser inventoryStripeColor;
+	private JSpinner recentSpinner;
+	
+	public SettingsDialog(MainFrame owner, Properties properties)
 	{
 		super(owner, "Preferences", Dialog.ModalityType.APPLICATION_MODAL);
 		setResizable(false);
+		
+		parent = owner;
 		
 		JFileChooser inventoryChooser = new JFileChooser();
 		inventoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -101,7 +112,7 @@ public class SettingsDialog extends JDialog
 		inventorySitePanel.setLayout(new BoxLayout(inventorySitePanel, BoxLayout.X_AXIS));
 		inventorySitePanel.add(new JLabel("Inventory Site:"));
 		inventorySitePanel.add(Box.createHorizontalStrut(5));
-		JTextField inventorySiteField = new JTextField(15);
+		inventorySiteField = new JTextField(15);
 		inventorySiteField.setText(properties.getProperty("inventory.source"));
 		inventorySitePanel.add(inventorySiteField);
 		inventorySitePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventorySitePanel.getPreferredSize().height));
@@ -113,7 +124,7 @@ public class SettingsDialog extends JDialog
 		inventoryFilePanel.setLayout(new BoxLayout(inventoryFilePanel, BoxLayout.X_AXIS));
 		inventoryFilePanel.add(new JLabel("Inventory File:"));
 		inventoryFilePanel.add(Box.createHorizontalStrut(5));
-		JTextField inventoryFileField = new JTextField(10);
+		inventoryFileField = new JTextField(10);
 		inventoryFileField.setText(properties.getProperty("inventory.file"));
 		inventoryFilePanel.add(inventoryFileField);
 		inventoryFilePanel.add(Box.createHorizontalStrut(5));
@@ -129,7 +140,7 @@ public class SettingsDialog extends JDialog
 		inventoryDirPanel.setLayout(new BoxLayout(inventoryDirPanel, BoxLayout.X_AXIS));
 		inventoryDirPanel.add(new JLabel("Inventory File Location:"));
 		inventoryDirPanel.add(Box.createHorizontalStrut(5));
-		JTextField inventoryDirField = new JTextField(25);
+		inventoryDirField = new JTextField(25);
 		inventoryChooser.setSelectedFile(new File(properties.getProperty("inventory.location")));
 		inventoryDirField.setText(inventoryChooser.getSelectedFile().getAbsolutePath());
 		inventoryDirPanel.add(inventoryDirField);
@@ -146,7 +157,7 @@ public class SettingsDialog extends JDialog
 		
 		// Check for update on startup
 		JPanel updatePanel = new JPanel(new BorderLayout());
-		JCheckBox updateCheckBox = new JCheckBox("Check for update on program start");
+		updateCheckBox = new JCheckBox("Check for update on program start");
 		updateCheckBox.setSelected(Boolean.valueOf(properties.getProperty("inventory.initialcheck")));
 		updatePanel.add(updateCheckBox, BorderLayout.WEST);
 		updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
@@ -162,21 +173,20 @@ public class SettingsDialog extends JDialog
 		// Columns
 		JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
 		inventoryColumnsPanel.setBorder(new TitledBorder("Columns"));
-		List<JCheckBox> columnCheckBoxes = new ArrayList<JCheckBox>();
+		columnCheckBoxes = new ArrayList<JCheckBox>();
 		for (CardCharacteristic characteristic: CardCharacteristic.inventoryValues())
 		{
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			columnCheckBoxes.add(checkBox);
 			inventoryColumnsPanel.add(checkBox);
 			checkBox.setSelected(properties.getProperty("inventory.columns").contains(characteristic.toString()));
-			
 		}
 		inventoryAppearancePanel.add(inventoryColumnsPanel);
 		
 		// Stripe color
 		JPanel inventoryColorPanel = new JPanel(new BorderLayout());
 		inventoryColorPanel.setBorder(new TitledBorder("Stripe Color"));
-		JColorChooser inventoryStripeColor = new JColorChooser(stringToColor(properties.getProperty("inventory.stripe")));
+		inventoryStripeColor = new JColorChooser(stringToColor(properties.getProperty("inventory.stripe")));
 		inventoryColorPanel.add(inventoryStripeColor);
 		inventoryAppearancePanel.add(inventoryColorPanel);
 		
@@ -191,7 +201,7 @@ public class SettingsDialog extends JDialog
 		recentPanel.setLayout(new BoxLayout(recentPanel, BoxLayout.X_AXIS));
 		recentPanel.add(new JLabel("Recent file count:"));
 		recentPanel.add(Box.createHorizontalStrut(5));
-		JSpinner recentSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
+		recentSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
 		recentSpinner.getModel().setValue(Integer.valueOf(properties.getProperty("recents.count")));
 		recentPanel.add(recentSpinner);
 		recentPanel.setMaximumSize(recentPanel.getPreferredSize());
@@ -229,10 +239,11 @@ public class SettingsDialog extends JDialog
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		
 		JButton applyButton = new JButton("Apply");
+		applyButton.addActionListener((e) -> confirmSettings());
 		buttonPanel.add(applyButton);
 		
 		JButton okButton = new JButton("OK");
-		okButton.addActionListener((e) -> dispose());
+		okButton.addActionListener((e) -> {confirmSettings(); dispose();});
 		buttonPanel.add(okButton);
 		
 		JButton cancelButton = new JButton("Cancel");
@@ -246,5 +257,22 @@ public class SettingsDialog extends JDialog
 		
 		pack();
 		setLocationRelativeTo(owner);
+	}
+	
+	public void confirmSettings()
+	{
+		Properties properties = new Properties();
+		properties.put("inventory.source", inventorySiteField.getText());
+		properties.put("inventory.file", inventoryFileField.getText());
+		properties.put("inventory.location", inventoryDirField.getText());
+		properties.put("inventory.initialcheck", Boolean.toString(updateCheckBox.isSelected()));
+		StringJoiner join = new StringJoiner(",");
+		for (JCheckBox box: columnCheckBoxes)
+			if (box.isSelected())
+				join.add(box.getText());
+		properties.put("inventory.columns", join.toString());
+		properties.put("inventory.stripe", colorToString(inventoryStripeColor.getColor()));
+		properties.put("recents.count", recentSpinner.getValue().toString());
+		parent.setSettings(properties);
 	}
 }

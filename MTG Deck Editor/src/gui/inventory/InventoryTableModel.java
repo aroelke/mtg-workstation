@@ -38,6 +38,17 @@ public class InventoryTableModel extends AbstractTableModel
 	}
 	
 	/**
+	 * Set which columns are to be displayed by this InventoryTableModel.
+	 * 
+	 * @param c list of CardCharacteristics corresponding to the columns to display
+	 */
+	public void setColumns(List<CardCharacteristic> c)
+	{
+		characteristics = c;
+		fireTableStructureChanged();
+	}
+	
+	/**
 	 * @return The number of columns in the table, which is the number of characteristics
 	 * to display.
 	 */

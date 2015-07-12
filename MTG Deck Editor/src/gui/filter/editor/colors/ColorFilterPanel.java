@@ -2,8 +2,8 @@ package gui.filter.editor.colors;
 
 import gui.filter.editor.FilterEditorPanel;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -12,6 +12,8 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -102,23 +104,16 @@ public class ColorFilterPanel extends FilterEditorPanel
 	public ColorFilterPanel(Function<Card, List<MTGColor>> f, String c)
 	{
 		super();
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		colorFunction = f;
 		code = c;
 		
-		// Use a GridBagLayout to push everything against the left side of the panel
-		GridBagLayout layout = new GridBagLayout();
-		layout.columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		layout.columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0};
-		layout.rowWeights = new double[] {1.0};
-		setLayout(layout);
-		
 		// Set containment combo box
 		contain = new JComboBox<Containment>();
 		contain.setModel(new DefaultComboBoxModel<Containment>(Containment.values()));
-		GridBagConstraints equalConstraints = new GridBagConstraints();
-		equalConstraints.fill = GridBagConstraints.VERTICAL;
-		add(contain, equalConstraints);
+		contain.setMaximumSize(new Dimension(contain.getPreferredSize().width, Integer.MAX_VALUE));
+		add(contain);
 		
 		// White check box
 		whiteCheckBox = new JCheckBox();
@@ -126,9 +121,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 		wCheckConstraints.fill = GridBagConstraints.VERTICAL;
 		add(whiteCheckBox, wCheckConstraints);
 		JLabel whiteSymbolPanel = new JLabel(WHITE.getIcon(13));
-		GridBagConstraints wIconConstraints = new GridBagConstraints();
-		wIconConstraints.fill = GridBagConstraints.VERTICAL;
-		add(whiteSymbolPanel, wIconConstraints);
+		add(whiteSymbolPanel);
 		
 		// Blue check box
 		blueCheckBox = new JCheckBox();
@@ -136,9 +129,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 		uCheckConstraints.fill = GridBagConstraints.VERTICAL;
 		add(blueCheckBox, uCheckConstraints);
 		JLabel blueSymbolPanel = new JLabel(BLUE.getIcon(13));
-		GridBagConstraints uIconConstraints = new GridBagConstraints();
-		uIconConstraints.fill = GridBagConstraints.VERTICAL;
-		add(blueSymbolPanel, uIconConstraints);
+		add(blueSymbolPanel);
 		
 		// Black check box
 		blackCheckBox = new JCheckBox();
@@ -146,9 +137,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 		bCheckConstraints.fill = GridBagConstraints.VERTICAL;
 		add(blackCheckBox, bCheckConstraints);
 		JLabel blackSymbolPanel = new JLabel(BLACK.getIcon(13));
-		GridBagConstraints bIconConstraints = new GridBagConstraints();
-		bIconConstraints.fill = GridBagConstraints.VERTICAL;
-		add(blackSymbolPanel, bIconConstraints);
+		add(blackSymbolPanel);
 		
 		// Red check box
 		redCheckBox = new JCheckBox();
@@ -156,9 +145,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 		rCheckConstraints.fill = GridBagConstraints.VERTICAL;
 		add(redCheckBox, rCheckConstraints);
 		JLabel redSymbolPanel = new JLabel(RED.getIcon(13));
-		GridBagConstraints rIconConstraints = new GridBagConstraints();
-		rIconConstraints.fill = GridBagConstraints.VERTICAL;
-		add(redSymbolPanel, rIconConstraints);
+		add(redSymbolPanel);
 		
 		// Green check box
 		greenCheckBox = new JCheckBox();
@@ -166,9 +153,9 @@ public class ColorFilterPanel extends FilterEditorPanel
 		gCheckConstraints.fill = GridBagConstraints.VERTICAL;
 		add(greenCheckBox, gCheckConstraints);
 		JLabel greenSymbolPanel = new JLabel(GREEN.getIcon(13));
-		GridBagConstraints gIconConstraints = new GridBagConstraints();
-		gIconConstraints.fill = GridBagConstraints.VERTICAL;
-		add(greenSymbolPanel, gIconConstraints);
+		add(greenSymbolPanel);
+		
+		add(Box.createHorizontalGlue());
 	}
 	
 	/**

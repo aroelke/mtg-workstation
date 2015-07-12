@@ -201,7 +201,7 @@ public class MainFrame extends JFrame
 		untitled = 0;
 		selectedFrame = null;
 		editors = new ArrayList<EditorFrame>();
-		filter = new FilterGroupPanel();
+		filter = null;
 		recentItems = new LinkedList<JMenuItem>();
 		recents = new HashMap<JMenuItem, File>();
 		inventoryCharacteristics = new ArrayList<CardCharacteristic>();
@@ -237,12 +237,14 @@ public class MainFrame extends JFrame
 		{
 			JOptionPane.showMessageDialog(null, "Bad file URL: " + properties.getProperty("inventory.source") + properties.getProperty("inventory.file"), "Warning", JOptionPane.WARNING_MESSAGE);
 		}
-		inventoryFile = new File(properties.getProperty("inventory.location") + properties.getProperty("inventory.file"));
+		inventoryFile = new File(properties.getProperty("inventory.location") + File.separator + properties.getProperty("inventory.file"));
 		recentCount = Integer.valueOf(properties.getProperty("recents.count"));
-		if (!properties.getProperty("inventory.columns").isEmpty())
-			inventoryCharacteristics = Arrays.stream(properties.getProperty("inventory.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		if (properties.getProperty("inventory.columns").isEmpty())
+			properties.put("inventory.columns", "Name,Expansion,Mana Cost,Type");
+		inventoryCharacteristics = Arrays.stream(properties.getProperty("inventory.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
 		newestVersion = properties.getProperty("inventory.version");
 		
+		// TODO: Pick a title
 		setTitle("MTG Deck Editor");
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
@@ -476,6 +478,7 @@ public class MainFrame extends JFrame
 				{
 					properties.put("inventory.version", newestVersion);
 					loadInventory();
+					
 				}
 				break;
 			case NO_UPDATE:
@@ -742,6 +745,7 @@ public class MainFrame extends JFrame
 		inventory.sort((a, b) -> a.compareName(b));
 		inventoryModel = new InventoryTableModel(inventory, inventoryCharacteristics);
 		inventoryTable.setModel(inventoryModel);
+		filter = new FilterGroupPanel();
 		
 		setCursor(Cursor.getDefaultCursor());
 	}
@@ -835,6 +839,31 @@ public class MainFrame extends JFrame
 		properties.put("recents.files", "");
 		properties.put("inventory.columns", "Name,Expansion,Mana Cost,Type");
 		properties.put("inventory.stripe", "#FFCCCCCC");
+	}
+	
+	public void setSettings(Properties p)
+	{
+		for (String key: p.stringPropertyNames())
+			properties.put(key, p.getProperty(key));
+		try
+		{
+			inventorySite = new URL(properties.getProperty("inventory.source") + properties.getProperty("inventory.file"));
+		}
+		catch (MalformedURLException e)
+		{
+			JOptionPane.showMessageDialog(null, "Bad file URL: " + properties.getProperty("inventory.source") + properties.getProperty("inventory.file"), "Warning", JOptionPane.WARNING_MESSAGE);
+		}
+		inventoryFile = new File(properties.getProperty("inventory.location") + properties.getProperty("inventory.file"));
+		recentCount = Integer.valueOf(properties.getProperty("recents.count"));
+		// TODO: If recentCount has gotten smaller, update the menu accordingly
+		if (properties.getProperty("inventory.columns").isEmpty())
+			properties.put("inventory.columns", "Name,Expansion,Mana Cost,Type");
+		inventoryCharacteristics = Arrays.stream(properties.getProperty("inventory.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		inventoryModel.setColumns(inventoryCharacteristics);
+		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("inventory.stripe")));
+		
+		revalidate();
+		repaint();
 	}
 	
 	/**
