@@ -68,9 +68,11 @@ public class SettingsDialog extends JDialog
 	private JTextField inventoryFileField;
 	private JTextField inventoryDirField;
 	private JCheckBox updateCheckBox;
-	private List<JCheckBox> columnCheckBoxes;
+	private List<JCheckBox> inventoryColumnCheckBoxes;
 	private JColorChooser inventoryStripeColor;
 	private JSpinner recentSpinner;
+	private List<JCheckBox> editorColumnCheckBoxes;
+	private JColorChooser editorStripeColor;
 	
 	public SettingsDialog(MainFrame owner, Properties properties)
 	{
@@ -173,11 +175,11 @@ public class SettingsDialog extends JDialog
 		// Columns
 		JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
 		inventoryColumnsPanel.setBorder(new TitledBorder("Columns"));
-		columnCheckBoxes = new ArrayList<JCheckBox>();
+		inventoryColumnCheckBoxes = new ArrayList<JCheckBox>();
 		for (CardCharacteristic characteristic: CardCharacteristic.inventoryValues())
 		{
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
-			columnCheckBoxes.add(checkBox);
+			inventoryColumnCheckBoxes.add(checkBox);
 			inventoryColumnsPanel.add(checkBox);
 			checkBox.setSelected(properties.getProperty("inventory.columns").contains(characteristic.toString()));
 		}
@@ -189,6 +191,8 @@ public class SettingsDialog extends JDialog
 		inventoryStripeColor = new JColorChooser(stringToColor(properties.getProperty("inventory.stripe")));
 		inventoryColorPanel.add(inventoryStripeColor);
 		inventoryAppearancePanel.add(inventoryColorPanel);
+		
+		inventoryAppearancePanel.add(Box.createVerticalGlue());
 		
 		// Editor
 		JPanel editorPanel = new JPanel();
@@ -219,8 +223,29 @@ public class SettingsDialog extends JDialog
 		// Editor appearance
 		JPanel editorAppearancePanel = new JPanel();
 		editorAppearancePanel.setLayout(new BoxLayout(editorAppearancePanel, BoxLayout.Y_AXIS));
-		editorAppearancePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(editorAppearancePanel, new TreePath(editorAppearanceNode.getPath()).toString());
+		
+		// Columns
+		JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
+		editorColumnsPanel.setBorder(new TitledBorder("Columns"));
+		editorColumnCheckBoxes = new ArrayList<JCheckBox>();
+		for (CardCharacteristic characteristic: CardCharacteristic.values())
+		{
+			JCheckBox checkBox = new JCheckBox(characteristic.toString());
+			editorColumnCheckBoxes.add(checkBox);
+			editorColumnsPanel.add(checkBox);
+			checkBox.setSelected(properties.getProperty("editor.columns").contains(characteristic.toString()));
+		}
+		editorAppearancePanel.add(editorColumnsPanel);
+		
+		// Stripe color
+		JPanel editorColorPanel = new JPanel(new BorderLayout());
+		editorColorPanel.setBorder(new TitledBorder("Stripe Color"));
+		editorStripeColor = new JColorChooser(stringToColor(properties.getProperty("editor.stripe")));
+		editorColorPanel.add(editorStripeColor);
+		editorAppearancePanel.add(editorColorPanel);
+		
+		editorAppearancePanel.add(Box.createVerticalGlue());
 		
 		// Tree panel
 		JPanel treePanel = new JPanel(new BorderLayout());
@@ -267,12 +292,18 @@ public class SettingsDialog extends JDialog
 		properties.put("inventory.location", inventoryDirField.getText());
 		properties.put("inventory.initialcheck", Boolean.toString(updateCheckBox.isSelected()));
 		StringJoiner join = new StringJoiner(",");
-		for (JCheckBox box: columnCheckBoxes)
+		for (JCheckBox box: inventoryColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
 		properties.put("inventory.columns", join.toString());
 		properties.put("inventory.stripe", colorToString(inventoryStripeColor.getColor()));
 		properties.put("recents.count", recentSpinner.getValue().toString());
+		join = new StringJoiner(",");
+		for (JCheckBox box: editorColumnCheckBoxes)
+			if (box.isSelected())
+				join.add(box.getText());
+		properties.put("editor.columns", join.toString());
+		properties.put("editor.stripe", colorToString(editorStripeColor.getColor()));
 		parent.setSettings(properties);
 	}
 }

@@ -3,6 +3,7 @@ package gui.editor;
 import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
+import gui.SettingsDialog;
 import gui.filter.FilterGroupPanel;
 
 import java.awt.BorderLayout;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
@@ -147,8 +149,9 @@ public class EditorFrame extends JInternalFrame
 	 * 
 	 * @param u Number of the untitled deck
 	 * @param p Parent MainFrame
+	 * @param properties Properties of the editor
 	 */
-	public EditorFrame(int u, MainFrame p)
+	public EditorFrame(int u, MainFrame p, Properties properties)
 	{
 		super("Untitled " + u, true, true, true, true);
 		setBounds(((u - 1)%5)*30, ((u - 1)%5)*30, 600, 600);
@@ -191,9 +194,7 @@ public class EditorFrame extends JInternalFrame
 		listTabs = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
 
-		model = new DeckTableModel(this, deck, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT,
-				CardCharacteristic.MANA_COST, CardCharacteristic.TYPE_LINE,
-				CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
+		model = new DeckTableModel(this, deck, Arrays.stream(properties.getProperty("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
 		table = new StripedTable(model);
@@ -202,6 +203,7 @@ public class EditorFrame extends JInternalFrame
 		table.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(false);
+		table.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("editor.stripe")));
 		// When a card is selected in the master list table, select it for adding
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener()
 		{
@@ -433,10 +435,11 @@ public class EditorFrame extends JInternalFrame
 	 * @param f File to load a deck from
 	 * @param u Number of the new EditorFrame (determines initial position in the window)
 	 * @param p Parent of the new EditorFrame
+	 * @param properties Properties of the editor
 	 */
-	public EditorFrame(File f, int u, MainFrame p)
+	public EditorFrame(File f, int u, MainFrame p, Properties properties)
 	{
-		this(u, p);
+		this(u, p, properties);
 		// TODO: Add a progress bar to this
 		try (BufferedReader rd = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF8")))
 		{
@@ -1275,5 +1278,15 @@ public class EditorFrame extends JInternalFrame
 			dispose();
 			return true;
 		}
+	}
+	
+	/**
+	 * Set the columns that are to be displayed by the tables.
+	 * 
+	 * @param c List of CardCharacteristics corresponding to the columns to display
+	 */
+	public void setTableColumns(List<CardCharacteristic> c)
+	{
+		model.setColumns(c);
 	}
 }

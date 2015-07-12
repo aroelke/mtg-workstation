@@ -44,6 +44,17 @@ public class DeckTableModel extends AbstractTableModel
 	}
 	
 	/**
+	 * Set which columns are to be displayed by this DeckTableModel.
+	 * 
+	 * @param c list of CardCharacteristics corresponding to the columns to display
+	 */
+	public void setColumns(List<CardCharacteristic> c)
+	{
+		characteristics = c;
+		fireTableStructureChanged();
+	}
+	
+	/**
 	 * Get the number of rows in the table.
 	 */
 	@Override

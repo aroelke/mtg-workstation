@@ -834,13 +834,19 @@ public class MainFrame extends JFrame
 		properties.put("inventory.file", "AllSets-x.json");
 		properties.put("inventory.initialcheck", "true");
 		properties.put("inventory.location", "./");
+		properties.put("inventory.columns", "Name,Mana Cost,Type,Expansion");
+		properties.put("inventory.stripe", "#FFCCCCCC");
 		properties.put("initialdir", "./");
 		properties.put("recents.count", "4");
 		properties.put("recents.files", "");
-		properties.put("inventory.columns", "Name,Expansion,Mana Cost,Type");
-		properties.put("inventory.stripe", "#FFCCCCCC");
+		properties.put("editor.columns", "Name,Count,Mana Cost,Type,Expansion,Rarity");
+		properties.put("editor.stripe", "#FFCCCCCC");
 	}
 	
+	/**
+	 * TODO: Comment this
+	 * @param p
+	 */
 	public void setSettings(Properties p)
 	{
 		for (String key: p.stringPropertyNames())
@@ -861,6 +867,13 @@ public class MainFrame extends JFrame
 		inventoryCharacteristics = Arrays.stream(properties.getProperty("inventory.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
 		inventoryModel.setColumns(inventoryCharacteristics);
 		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("inventory.stripe")));
+		if (properties.getProperty("editor.columns").isEmpty())
+			properties.put("editor.columns", "Name,Count,Mana Cost,Type,Expansion,Rarity");
+		List<CardCharacteristic> editorColumns = Arrays.stream(properties.getProperty("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		for (EditorFrame frame: editors)
+		{
+			frame.setTableColumns(editorColumns);
+		}
 		
 		revalidate();
 		repaint();
@@ -923,7 +936,7 @@ public class MainFrame extends JFrame
 	 */
 	public void newEditor()
 	{
-		EditorFrame frame = new EditorFrame(++untitled, this);
+		EditorFrame frame = new EditorFrame(++untitled, this, properties);
 		frame.setVisible(true);
 		editors.add(frame);
 		decklistDesktop.add(frame);
@@ -968,7 +981,7 @@ public class MainFrame extends JFrame
 		}
 		if (frame == null)
 		{
-			frame = new EditorFrame(f, ++untitled, this);
+			frame = new EditorFrame(f, ++untitled, this, properties);
 			frame.setVisible(true);
 			editors.add(frame);
 			decklistDesktop.add(frame);

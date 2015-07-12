@@ -25,15 +25,15 @@ import database.ManaCost;
 public enum CardCharacteristic
 {
 	NAME("Name", String.class, (l, i) -> l.get(i).name, (l, i) -> l.get(i).name),
-	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).set.name, (l, i) -> l.get(i).set.name),
-	MANA_COST("Mana Cost", ManaCost.class, (l, i) -> l.get(i).mana, (l, i) -> l.get(i).mana),
-	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine, (l, i) -> l.get(i).typeLine),
 	COUNT("Count", Integer.class, null, (l, i) -> l.count(i), (e, c, n) -> {
 		if (n instanceof Integer)
 			e.setCardCount(c, ((Integer)n).intValue());
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}, new SpinnerCellEditor()),
+	MANA_COST("Mana Cost", ManaCost.class, (l, i) -> l.get(i).mana, (l, i) -> l.get(i).mana),
+	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine, (l, i) -> l.get(i).typeLine),
+	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).set.name, (l, i) -> l.get(i).set.name),
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity, (l, i) -> l.get(i).rarity),
 	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn());
 	
