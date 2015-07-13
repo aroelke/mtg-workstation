@@ -103,6 +103,10 @@ public class MainFrame extends JFrame
 	 * Update status value: update needed, but was not requested.
 	 */
 	public static final int UPDATE_CANCELLED = 2;
+	/**
+	 * TODO: Comment this
+	 */
+	public static final char CATEGORY_DELIMITER = '∎';
 	
 	/**
 	 * Inventory of all cards.

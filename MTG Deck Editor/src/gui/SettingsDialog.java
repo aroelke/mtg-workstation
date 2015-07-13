@@ -24,7 +24,9 @@ import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -39,6 +41,11 @@ import javax.swing.tree.TreeSelectionModel;
 
 import database.characteristics.CardCharacteristic;
 
+/**
+ * TODO: Comment this class
+ * 
+ * @author Alec Roelke
+ */
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog
 {
@@ -92,7 +99,7 @@ public class SettingsDialog extends JDialog
 		DefaultMutableTreeNode inventoryAppearanceNode = new DefaultMutableTreeNode("Appearance");
 		inventoryNode.add(inventoryAppearanceNode);
 		DefaultMutableTreeNode editorNode = new DefaultMutableTreeNode("Editor");
-		DefaultMutableTreeNode editorCategoriesNode = new DefaultMutableTreeNode("Categories");
+		DefaultMutableTreeNode editorCategoriesNode = new DefaultMutableTreeNode("Preset Categories");
 		editorNode.add(editorCategoriesNode);
 		DefaultMutableTreeNode editorAppearanceNode = new DefaultMutableTreeNode("Appearance");
 		editorNode.add(editorAppearanceNode);
@@ -216,9 +223,26 @@ public class SettingsDialog extends JDialog
 		
 		// Editor categories
 		JPanel categoriesPanel = new JPanel();
-		categoriesPanel.setLayout(new BoxLayout(categoriesPanel, BoxLayout.Y_AXIS));
+		categoriesPanel.setLayout(new BorderLayout(5, 0));
 		categoriesPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
+		
+		// Categories list
+		JList<String> categoriesList = new JList<String>();
+		categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
+		
+		// Category modification buttons
+		JPanel categoryModPanel = new JPanel();
+		categoryModPanel.setLayout(new BoxLayout(categoryModPanel, BoxLayout.Y_AXIS));
+		categoryModPanel.add(Box.createVerticalGlue());
+		JButton addButton = new JButton("+");
+		categoryModPanel.add(addButton);
+		JButton editButton = new JButton("\u2026");
+		categoryModPanel.add(editButton);
+		JButton removeButton = new JButton("\u2212");
+		categoryModPanel.add(removeButton);
+		categoryModPanel.add(Box.createVerticalGlue());
+		categoriesPanel.add(categoryModPanel, BorderLayout.EAST);
 		
 		// Editor appearance
 		JPanel editorAppearancePanel = new JPanel();
@@ -257,7 +281,7 @@ public class SettingsDialog extends JDialog
 		});
 		treePanel.add(tree, BorderLayout.CENTER);
 		treePanel.add(new JSeparator(JSeparator.VERTICAL), BorderLayout.EAST);
-		treePanel.setPreferredSize(new Dimension(110, 0));
+		treePanel.setPreferredSize(new Dimension(130, 0));
 		add(treePanel, BorderLayout.WEST);
 		
 		// Button panel
