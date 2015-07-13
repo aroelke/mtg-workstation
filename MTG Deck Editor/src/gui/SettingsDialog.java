@@ -1,5 +1,8 @@
 package gui;
 
+import gui.editor.CategoryEditorPanel;
+import gui.filter.FilterGroupPanel;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -18,6 +21,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -31,6 +35,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -80,6 +85,7 @@ public class SettingsDialog extends JDialog
 	private JSpinner recentSpinner;
 	private List<JCheckBox> editorColumnCheckBoxes;
 	private JColorChooser editorStripeColor;
+	private CategoryListModel categoriesListModel;
 	
 	public SettingsDialog(MainFrame owner, Properties properties)
 	{
@@ -227,8 +233,12 @@ public class SettingsDialog extends JDialog
 		categoriesPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
 		
-		// Categories list
-		JList<String> categoriesList = new JList<String>();
+		categoriesListModel = new CategoryListModel();
+		if (!properties.getProperty("editor.presets").isEmpty())
+			for (String category: properties.getProperty("editor.presets").split(String.valueOf(MainFrame.CATEGORY_DELIMITER)))
+				categoriesListModel.addElement(category);
+		JList<String> categoriesList = new JList<String>(categoriesListModel);
+		categoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
 		
 		// Category modification buttons
@@ -236,10 +246,16 @@ public class SettingsDialog extends JDialog
 		categoryModPanel.setLayout(new BoxLayout(categoryModPanel, BoxLayout.Y_AXIS));
 		categoryModPanel.add(Box.createVerticalGlue());
 		JButton addButton = new JButton("+");
+		addButton.addActionListener((e) -> {
+			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
+			if (editor != null)
+				categoriesListModel.addElement(editor.toString());
+		});
 		categoryModPanel.add(addButton);
 		JButton editButton = new JButton("\u2026");
 		categoryModPanel.add(editButton);
 		JButton removeButton = new JButton("\u2212");
+		removeButton.addActionListener((e) -> categoriesListModel.remove(categoriesList.getSelectedIndex()));
 		categoryModPanel.add(removeButton);
 		categoryModPanel.add(Box.createVerticalGlue());
 		categoriesPanel.add(categoryModPanel, BorderLayout.EAST);
@@ -329,5 +345,20 @@ public class SettingsDialog extends JDialog
 		properties.put("editor.columns", join.toString());
 		properties.put("editor.stripe", colorToString(editorStripeColor.getColor()));
 		parent.setSettings(properties);
+	}
+	
+	private class CategoryListModel extends DefaultListModel<String>
+	{
+		public CategoryListModel()
+		{
+			super();
+		}
+		
+		@Override
+		public String getElementAt(int index)
+		{
+			String category = super.getElementAt(index);
+			return category.substring(0, category.indexOf(FilterGroupPanel.BEGIN_GROUP));
+		}
 	}
 }

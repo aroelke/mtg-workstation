@@ -845,6 +845,7 @@ public class MainFrame extends JFrame
 		properties.put("recents.files", "");
 		properties.put("editor.columns", "Name,Count,Mana Cost,Type,Expansion,Rarity");
 		properties.put("editor.stripe", "#FFCCCCCC");
+		properties.put("editor.presets", "");
 	}
 	
 	/**

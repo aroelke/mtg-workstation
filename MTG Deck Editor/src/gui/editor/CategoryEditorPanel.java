@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -28,6 +29,39 @@ import database.Deck;
 @SuppressWarnings("serial")
 public class CategoryEditorPanel extends JPanel
 {
+	/**
+	 * TODO: Comment this
+	 * @param s
+	 * @return
+	 */
+	public static CategoryEditorPanel showCategoryEditor(String s)
+	{
+		CategoryEditorPanel editor = new CategoryEditorPanel(s);
+		while (true)
+		{
+			if (JOptionPane.showOptionDialog(null, editor, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			{
+				if (editor.name().isEmpty())
+					JOptionPane.showMessageDialog(null, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
+				else if (editor.name().contains(String.valueOf(FilterGroupPanel.BEGIN_GROUP)))
+					JOptionPane.showMessageDialog(null, "Category names cannot contain the character '" + FilterGroupPanel.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
+				else
+					return editor;
+			}
+			else
+				return null;
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public static CategoryEditorPanel showCategoryEditor()
+	{
+		return showCategoryEditor("");
+	}
+	
 	/**
 	 * Text field for editing the category's name.
 	 */
@@ -76,20 +110,23 @@ public class CategoryEditorPanel extends JPanel
 	public CategoryEditorPanel(String s)
 	{
 		this();
-		Matcher m = Deck.CATEGORY_PATTERN.matcher(s);
-		if (m.matches())
+		if (!s.isEmpty())
 		{
-			nameField.setText(m.group(1).trim());
-			if (!m.group(2).isEmpty())
-				for (String c: m.group(2).split(Deck.EXCEPTION_SEPARATOR))
-					whitelist.add(c);
-			if (!m.group(3).isEmpty())
-				for (String c: m.group(3).split(Deck.EXCEPTION_SEPARATOR))
-					blacklist.add(c);
-			filter.setContents(m.group(4));
+			Matcher m = Deck.CATEGORY_PATTERN.matcher(s);
+			if (m.matches())
+			{
+				nameField.setText(m.group(1).trim());
+				if (!m.group(2).isEmpty())
+					for (String c: m.group(2).split(Deck.EXCEPTION_SEPARATOR))
+						whitelist.add(c);
+				if (!m.group(3).isEmpty())
+					for (String c: m.group(3).split(Deck.EXCEPTION_SEPARATOR))
+						blacklist.add(c);
+				filter.setContents(m.group(4));
+			}
+			else
+				throw new IllegalArgumentException("Illegal category string \"" + s + "\"");
 		}
-		else
-			throw new IllegalArgumentException("Illegal category string \"" + s + "\"");
 	}
 	
 	/**
@@ -135,5 +172,17 @@ public class CategoryEditorPanel extends JPanel
 	public Set<String> blacklist()
 	{
 		return blacklist;
+	}
+	
+	/**
+	 * @return The String representation of the category being edited, which is its name
+	 * followed by the String representation of its filter.  Note the difference with
+	 * Deck.Category's String representation, which also includes a whitelist and blacklist
+	 * while this does not (because they cannot be edited using this panel).
+	 */
+	@Override
+	public String toString()
+	{
+		return nameField.getText() + " " + filter.toString();
 	}
 }

@@ -4,7 +4,6 @@ import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
 import gui.SettingsDialog;
-import gui.filter.FilterGroupPanel;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -70,6 +69,7 @@ import database.characteristics.CardCharacteristic;
  * inventory from which cards can be added.
  * 
  * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
+ * TODO: Make the stripe color and column choices also go into the category panels' tables
  * 
  * @author Alec Roelke
  */
@@ -526,32 +526,13 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Open the dialog to create a new category for the deck and then
-	 * add it.
+	 * Open the dialog to create a new category for the deck and then add it.
 	 */
 	public void createCategory()
 	{
-		CategoryEditorPanel editor = new CategoryEditorPanel();
-		boolean done = false;
-		while (!done)
-		{
-			done = true;
-			if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-			{
-				if (editor.name().isEmpty())
-				{
-					JOptionPane.showMessageDialog(null, "New category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
-					done = false;
-				}
-				else if (editor.name().contains(String.valueOf(FilterGroupPanel.BEGIN_GROUP)))
-				{
-					JOptionPane.showMessageDialog(null, "Category names cannot contain the character '" + FilterGroupPanel.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
-					done = false;
-				}
-				else
-					addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), this));
-			}
-		}
+		CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
+		if (editor != null)
+			addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), this));
 	}
 
 	/**
@@ -715,34 +696,16 @@ public class EditorFrame extends JInternalFrame
 		{
 			String oldRepr = toEdit.toString();
 			Predicate<Card> oldFilter = toEdit.filter();
-			CategoryEditorPanel editor = new CategoryEditorPanel(oldRepr);
-			boolean done = false;
-			while (!done)
+			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(oldRepr);
+			if (editor != null)
 			{
-				done = true;
-				if (JOptionPane.showOptionDialog(null, editor, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-				{
-					if (editor.name().isEmpty())
-					{
-						JOptionPane.showMessageDialog(null, "New category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
-						done = false;
-					}
-					else if (editor.name().contains(String.valueOf(FilterGroupPanel.BEGIN_GROUP)))
-					{
-						JOptionPane.showMessageDialog(null, "Category names cannot contain the character '" + FilterGroupPanel.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
-						done = false;
-					}
-					else
-					{
-						toEdit.edit(editor.name(), editor.repr(), editor.filter());
-						updateCategorySwitch();
-						revalidate();
-						repaint();
-						setUnsaved();
-						undoBuffer.push(new EditCategoryAction(this, oldRepr, oldFilter, toEdit.toString(), toEdit.filter()));
-						redoBuffer.clear();
-					}
-				}
+				toEdit.edit(editor.name(), editor.repr(), editor.filter());
+				updateCategorySwitch();
+				revalidate();
+				repaint();
+				setUnsaved();
+				undoBuffer.push(new EditCategoryAction(this, oldRepr, oldFilter, toEdit.toString(), toEdit.filter()));
+				redoBuffer.clear();
 			}
 		}
 	}

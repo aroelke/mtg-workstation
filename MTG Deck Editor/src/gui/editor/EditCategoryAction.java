@@ -87,7 +87,7 @@ public class EditCategoryAction implements DeckAction
 		CategoryPanel editedCategory = editor.getCategory(formerRepr.group(1).trim());
 		if (editedCategory != null)
 		{
-			editedCategory.edit(newRepr.group(1).trim(), newRepr.group(1), newFilter);
+			editedCategory.edit(newRepr.group(1).trim(), newRepr.group(4), newFilter);
 			editor.updateCategorySwitch();
 			editor.revalidate();
 			editor.repaint();
