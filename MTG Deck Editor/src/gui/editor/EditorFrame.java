@@ -1281,12 +1281,16 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Set the columns that are to be displayed by the tables.
+	 * Set the settings of this EditorFrame
 	 * 
-	 * @param c List of CardCharacteristics corresponding to the columns to display
+	 * @param properties Properties containing the settings to set
+	 * @see MainFrame#resetDefaultSettings()
 	 */
-	public void setTableColumns(List<CardCharacteristic> c)
+	public void setSettings(Properties properties)
 	{
-		model.setColumns(c);
+		model.setColumns(Arrays.stream(properties.getProperty("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		table.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("editor.stripe")));
+		revalidate();
+		repaint();
 	}
 }

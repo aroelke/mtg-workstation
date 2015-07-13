@@ -869,11 +869,8 @@ public class MainFrame extends JFrame
 		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("inventory.stripe")));
 		if (properties.getProperty("editor.columns").isEmpty())
 			properties.put("editor.columns", "Name,Count,Mana Cost,Type,Expansion,Rarity");
-		List<CardCharacteristic> editorColumns = Arrays.stream(properties.getProperty("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
 		for (EditorFrame frame: editors)
-		{
-			frame.setTableColumns(editorColumns);
-		}
+			frame.setSettings(properties);
 		
 		revalidate();
 		repaint();
