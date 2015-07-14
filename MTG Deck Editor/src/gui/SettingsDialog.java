@@ -10,6 +10,8 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
@@ -50,20 +52,39 @@ import javax.swing.tree.TreeSelectionModel;
 import database.characteristics.CardCharacteristic;
 
 /**
- * TODO: Comment this class
+ * This class is a dialog that allows the user to change various properties about
+ * the program.
  * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog
 {
+	//TODO: make property names constants rather than hard-coded
+	
+	/**
+	 * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
+	 */
 	public static Pattern COLOR_PATTERN = Pattern.compile("^#([0-9a-fA-F]{2})?([0-9a-fA-F]{6})$");
 	
+	/**
+	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
+	 * 
+	 * @param col Color to convert
+	 * @return String code of the color.
+	 */
 	public static String colorToString(Color col)
 	{
 		return String.format("#%08X", col.getRGB());
 	}
 	
+	/**
+	 * Decode an ARGB @link{java.awt.Color} from a String of either the format
+	 * <code>#AARRGGBB</code> or <code>#RRGGBB</code>.
+	 * 
+	 * @param s String to parse
+	 * @return The Color corresponding to the String.
+	 */
 	public static Color stringToColor(String s)
 	{
 		Matcher m = COLOR_PATTERN.matcher(s);
@@ -78,28 +99,63 @@ public class SettingsDialog extends JDialog
 			throw new IllegalArgumentException("Illegal color string \"" + s + "\"");
 	}
 	
+	/**
+	 * MainFrame showing the dialog.
+	 */
 	private MainFrame parent;
+	/**
+	 * Text field controlling the web site that the inventory should be downloaded from.
+	 */
 	private JTextField inventorySiteField;
+	/**
+	 * Text field controlling the name of the file to be downloaded.
+	 */
 	private JTextField inventoryFileField;
+	/**
+	 * Text field controlling the directory to store the inventory in once it is downloaded.
+	 */
 	private JTextField inventoryDirField;
+	/**
+	 * Check box indicating whether or not to perform a check for updates on program start.
+	 */
 	private JCheckBox updateCheckBox;
+	/**
+	 * Check boxes indicating which columns to show in the inventory table.
+	 */
 	private List<JCheckBox> inventoryColumnCheckBoxes;
+	/**
+	 * Color chooser for the color of alternate inventory table stripes.
+	 */
 	private JColorChooser inventoryStripeColor;
+	/**
+	 * Spinner for the number of recent files to save.
+	 */
 	private JSpinner recentSpinner;
+	/**
+	 * Check boxes indicating which columns to show in editor tables.
+	 */
 	private List<JCheckBox> editorColumnCheckBoxes;
+	/**
+	 * Color chooser for the color of editor tables' alternate stripes.
+	 */
 	private JColorChooser editorStripeColor;
+	/**
+	 * List of preset categories.
+	 */
 	private CategoryListModel categoriesListModel;
 	
+	/**
+	 * Create a new SettingsDialog.
+	 * 
+	 * @param owner Parent of the dialog
+	 * @param properties Properties of the program that will be edited
+	 */
 	public SettingsDialog(MainFrame owner, Properties properties)
 	{
 		super(owner, "Preferences", Dialog.ModalityType.APPLICATION_MODAL);
 		setResizable(false);
 		
 		parent = owner;
-		
-		JFileChooser inventoryChooser = new JFileChooser();
-		inventoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		inventoryChooser.setAcceptAllFileFilterUsed(false);
 		
 		// Tree
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Preferences");
@@ -159,11 +215,14 @@ public class SettingsDialog extends JDialog
 		inventoryDirPanel.add(new JLabel("Inventory File Location:"));
 		inventoryDirPanel.add(Box.createHorizontalStrut(5));
 		inventoryDirField = new JTextField(25);
+		JFileChooser inventoryChooser = new JFileChooser();
+		inventoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		inventoryChooser.setAcceptAllFileFilterUsed(false);
 		inventoryChooser.setSelectedFile(new File(properties.getProperty("inventory.location")));
 		inventoryDirField.setText(inventoryChooser.getSelectedFile().getAbsolutePath());
 		inventoryDirPanel.add(inventoryDirField);
 		inventoryDirPanel.add(Box.createHorizontalStrut(5));
-		JButton inventoryDirButton = new JButton("\u2026");
+		JButton inventoryDirButton = new JButton("…");
 		inventoryDirButton.addActionListener((e) -> {
 			if (inventoryChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
 				inventoryDirField.setText(inventoryChooser.getSelectedFile().getPath());
@@ -250,23 +309,51 @@ public class SettingsDialog extends JDialog
 				int index = categoriesList.locationToIndex(e.getPoint());
 				Rectangle rec = categoriesList.getCellBounds(index, index);
 				if (rec == null || !rec.contains(e.getPoint()))
+				{
 					categoriesList.clearSelection();
+					if (e.getClickCount() == 2)
+					{
+						CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
+						if (editor != null)
+							categoriesListModel.addElement(editor.toString());
+					}
+				}
+				else
+				{
+					if (e.getClickCount() == 2)
+					{
+						CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(categoriesListModel.getCategoryAt(index));
+						if (editor != null)
+							categoriesListModel.set(index, editor.toString());
+					}
+				}
 			}
 		});
 		categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
 		
 		// Category modification buttons
 		JPanel categoryModPanel = new JPanel();
-		categoryModPanel.setLayout(new BoxLayout(categoryModPanel, BoxLayout.Y_AXIS));
-		categoryModPanel.add(Box.createVerticalGlue());
+		GridBagLayout categoryModLayout = new GridBagLayout();
+		categoryModLayout.columnWidths = new int[] {0};
+		categoryModLayout.columnWeights = new double[] {0.0};
+		categoryModLayout.rowHeights = new int[] {0, 0, 0, 0, 0};
+		categoryModLayout.rowWeights = new double[] {1.0, 0.0, 0.0, 0.0, 1.0};
+		categoryModPanel.setLayout(categoryModLayout);
+		categoriesPanel.add(categoryModPanel, BorderLayout.EAST);
+		
 		JButton addButton = new JButton("+");
 		addButton.addActionListener((e) -> {
 			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
 			if (editor != null)
 				categoriesListModel.addElement(editor.toString());
 		});
-		categoryModPanel.add(addButton);
-		JButton editButton = new JButton("\u2026");
+		GridBagConstraints addConstraints = new GridBagConstraints();
+		addConstraints.gridx = 0;
+		addConstraints.gridy = 1;
+		addConstraints.fill = GridBagConstraints.BOTH;
+		categoryModPanel.add(addButton, addConstraints);
+		
+		JButton editButton = new JButton("…");
 		editButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 			{
@@ -275,15 +362,22 @@ public class SettingsDialog extends JDialog
 					categoriesListModel.set(categoriesList.getSelectedIndex(), editor.toString());
 			}
 		});
-		categoryModPanel.add(editButton);
-		JButton removeButton = new JButton("\u2212");
+		GridBagConstraints editConstraints = new GridBagConstraints();
+		editConstraints.gridx = 0;
+		editConstraints.gridy = 2;
+		editConstraints.fill = GridBagConstraints.BOTH;
+		categoryModPanel.add(editButton, editConstraints);
+		
+		JButton removeButton = new JButton("−");
 		removeButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 				categoriesListModel.remove(categoriesList.getSelectedIndex());
 		});
-		categoryModPanel.add(removeButton);
-		categoryModPanel.add(Box.createVerticalGlue());
-		categoriesPanel.add(categoryModPanel, BorderLayout.EAST);
+		GridBagConstraints removeConstraints = new GridBagConstraints();
+		removeConstraints.gridx = 0;
+		removeConstraints.gridy = 3;
+		removeConstraints.fill = GridBagConstraints.BOTH;
+		categoryModPanel.add(removeButton, removeConstraints);
 		
 		// Editor appearance
 		JPanel editorAppearancePanel = new JPanel();
@@ -349,6 +443,10 @@ public class SettingsDialog extends JDialog
 		setLocationRelativeTo(owner);
 	}
 	
+	/**
+	 * Confirm the settings applied by the components of the dialog and send them to the parent
+	 * MainFrame.
+	 */
 	public void confirmSettings()
 	{
 		Properties properties = new Properties();
@@ -376,20 +474,36 @@ public class SettingsDialog extends JDialog
 		parent.applySettings(properties);
 	}
 	
+	/**
+	 * This class represents a list model for displaying categories.
+	 * 
+	 * @author Alec Roelke
+	 */
 	private class CategoryListModel extends DefaultListModel<String>
 	{
+		/**
+		 * Create a new CategoryListModel.
+		 */
 		public CategoryListModel()
 		{
 			super();
 		}
 		
+		/**
+		 * @param Index into the list to look at.
+		 * @return The name of the category at the index.
+		 */
 		@Override
 		public String getElementAt(int index)
 		{
 			String category = super.getElementAt(index);
-			return category.substring(0, category.indexOf(FilterGroupPanel.BEGIN_GROUP));
+			return category.substring(0, category.indexOf(FilterGroupPanel.BEGIN_GROUP)).trim();
 		}
 		
+		/**
+		 * @param index Index into the list to look at.
+		 * @return The String representation of the category at the index.
+		 */
 		public String getCategoryAt(int index)
 		{
 			return super.getElementAt(index);

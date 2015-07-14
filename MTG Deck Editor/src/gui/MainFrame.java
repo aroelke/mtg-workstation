@@ -107,7 +107,7 @@ public class MainFrame extends JFrame
 	 */
 	public static final int UPDATE_CANCELLED = 2;
 	/**
-	 * TODO: Comment this
+	 * Delimiter for preset categories in the settings file.
 	 */
 	public static final String CATEGORY_DELIMITER = "∎";
 	
@@ -886,13 +886,6 @@ public class MainFrame extends JFrame
 	 */
 	public void resetDefaultSettings()
 	{
-		// TODO: Add the following properties:
-		// - table stripe color
-		// - inventory table columns
-		// - deck table columns
-		// - category table columns
-		// - preset categories
-		
 		properties = new Properties();
 		properties.put("inventory.version_file", "version.json");
 		properties.put("inventory.source", "http://mtgjson.com/json/");
@@ -911,8 +904,9 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param p
+	 * Apply the settings in the given Properties.
+	 * 
+	 * @param p Properties containing the settings to apply.
 	 */
 	public void applySettings(Properties p)
 	{

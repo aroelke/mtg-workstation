@@ -31,9 +31,12 @@ import database.Deck;
 public class CategoryEditorPanel extends JPanel
 {
 	/**
-	 * TODO: Comment this
-	 * @param s
-	 * @return
+	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
+	 * edited.
+	 * 
+	 * @param s String to initialize the panel as
+	 * @return The panel in the state it was last in while editing it, or <code>null</code> if the Cancel button
+	 * was pressed or the dialog was closed.
 	 */
 	public static CategoryEditorPanel showCategoryEditor(String s)
 	{
@@ -55,8 +58,11 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
+	 * edited.  The panel will start off blank.
+	 * 
+	 * @return The panel in the state it was last in while editing it, or <code>null</code> if the Cancel button
+	 * was pressed or the dialog was closed.
 	 */
 	public static CategoryEditorPanel showCategoryEditor()
 	{

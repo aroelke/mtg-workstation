@@ -36,11 +36,11 @@ public class FilterGroupPanel extends FilterPanel
 	/**
 	 * Character marking the beginning of a group.
 	 */
-	public static final char BEGIN_GROUP = '�';
+	public static final char BEGIN_GROUP = '«';
 	/**
 	 * Character marking the end of a group.
 	 */
-	public static final char END_GROUP = '�';
+	public static final char END_GROUP = '»';
 	/**
 	 * Combo box displaying the possible ways that filters can be combined.
 	 */
@@ -146,7 +146,7 @@ public class FilterGroupPanel extends FilterPanel
 			SwingUtilities.windowForComponent(this).pack();
 		});
 		editPanel.add(addButton);
-		JButton removeButton = new JButton("\u2013");
+		JButton removeButton = new JButton("−");
 		removeButton.addActionListener((e) -> {
 			if (getGroup() == null)
 			{
@@ -161,7 +161,7 @@ public class FilterGroupPanel extends FilterPanel
 			}
 		});
 		editPanel.add(removeButton);
-		JButton groupButton = new JButton("\u2026");
+		JButton groupButton = new JButton("…");
 		groupButton.addActionListener((e) -> {
 			if (getGroup() == null)
 			{

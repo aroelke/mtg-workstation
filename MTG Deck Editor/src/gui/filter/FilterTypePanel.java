@@ -151,7 +151,7 @@ public class FilterTypePanel extends FilterPanel
 		add(filterPanel, filterConstraints);
 		
 		// Remove button
-		removeButton = new JButton("\u2013");
+		removeButton = new JButton("−");
 		removeButton.addActionListener((e) -> {
 			getGroup().removeFilterPanel(this);
 			SwingUtilities.windowForComponent(getGroup()).pack();
@@ -163,7 +163,7 @@ public class FilterTypePanel extends FilterPanel
 		add(removeButton, removeConstraints);
 		
 		// Change to group button
-		groupButton = new JButton("\u2026");
+		groupButton = new JButton("…");
 		groupButton.addActionListener((e) -> {
 			getGroup().groupFilterPanel(this);
 			SwingUtilities.windowForComponent(this).pack();

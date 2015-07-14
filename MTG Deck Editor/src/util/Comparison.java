@@ -11,9 +11,9 @@ import java.util.function.BiPredicate;
 public enum Comparison implements BiPredicate<Double, Double>
 {
 	EQ('=', (a, b) -> (a == null && b == null) || (a != null && a.equals(b))),
-	NE('\u2260', (a, b) -> (a == null && b != null) || (a != null && !a.equals(b))),
-	GE('\u2265', (a, b) -> (a == null && b == null) || (a.compareTo(b) >= 0 || a.equals(b))),
-	LE('\u2264', (a, b) -> (a == null && b == null) || (a.compareTo(b) <= 0 || a.equals(b))),
+	NE('≠', (a, b) -> (a == null && b != null) || (a != null && !a.equals(b))),
+	GE('≥', (a, b) -> (a == null && b == null) || (a.compareTo(b) >= 0 || a.equals(b))),
+	LE('≤', (a, b) -> (a == null && b == null) || (a.compareTo(b) <= 0 || a.equals(b))),
 	GT('>', (a, b) -> a.compareTo(b) > 0 && !a.equals(b)),
 	LT('<', (a, b) -> a.compareTo(b) < 0 && !a.equals(b));
 	

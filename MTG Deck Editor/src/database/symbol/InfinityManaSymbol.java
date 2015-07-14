@@ -28,7 +28,7 @@ public class InfinityManaSymbol extends Symbol
 	@Override
 	public String getText()
 	{
-		return "\u221E";
+		return "∞";
 	}
 
 	/**

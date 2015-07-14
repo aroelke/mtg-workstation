@@ -88,7 +88,7 @@ public class LegalityPanel extends JPanel
 		
 		// Click on a list element to show why it is illegal
 		illegalList.addListSelectionListener((e) -> {
-			StringJoiner str = new StringJoiner("\n\u2022 ", "\u2022 ", "");
+			StringJoiner str = new StringJoiner("\n• ", "• ", "");
 			for (String warning: legality.getWarnings(illegalList.getSelectedValue()))
 				str.add(warning);
 			warningsPane.setText(str.toString());

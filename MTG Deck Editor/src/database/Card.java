@@ -236,7 +236,7 @@ public final class Card
 			str.append(String.join(" ", supertype)).append(" ");
 		str.append(String.join(" ", type));
 		if (subtype.size() > 0)
-			str.append(" \u2014 ").append(String.join(" ", subtype));
+			str.append(" — ").append(String.join(" ", subtype));
 		typeLine = str.toString();
 		
 		// Create this Card's color identity

@@ -1,2 +1,9 @@
 eclipse.preferences.version=1
+encoding//src/database/symbol/InfinityManaSymbol.java=UTF-8
+encoding//src/database/symbol/Symbol.java=UTF-8
 encoding//src/gui/MainFrame.java=UTF-8
+encoding//src/gui/SettingsDialog.java=UTF-8
+encoding//src/gui/editor/EditorFrame.java=UTF-8
+encoding//src/gui/filter/FilterGroupPanel.java=UTF-8
+encoding//src/gui/filter/FilterTypePanel.java=UTF-8
+encoding//src/util/Comparison.java=UTF-8
