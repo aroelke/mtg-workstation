@@ -486,14 +486,15 @@ public class MainFrame extends JFrame
 		categoryMenu.add(removeCategoryItem);
 		System.out.println("Created remove category item");
 		
-		presetMenu = new JMenu("Add preset");
+		// Preset categories menu
+		presetMenu = new JMenu("Add Preset");
 		categoryMenu.add(presetMenu);
 		for (String category: properties.getProperty("editor.presets").split(CATEGORY_DELIMITER))
 		{
 			CategoryEditorPanel editor = new CategoryEditorPanel(category);
 			JMenuItem categoryItem = new JMenuItem(editor.name());
 			categoryItem.addActionListener((e) -> {
-				if (selectedFrame != null)
+				if (selectedFrame != null && !selectedFrame.containsCategory(editor.name()))
 					selectedFrame.addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), selectedFrame));
 			});
 			presetMenu.add(categoryItem);

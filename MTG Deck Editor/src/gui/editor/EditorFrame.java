@@ -544,7 +544,13 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void createCategory()
 	{
-		CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
+		CategoryEditorPanel editor = null;
+		do
+		{
+			editor = CategoryEditorPanel.showCategoryEditor(editor != null ? editor.toString() : "");
+			if (editor != null && deck.containsCategory(editor.name()))
+				JOptionPane.showMessageDialog(null, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
+		} while (editor != null && deck.containsCategory(editor.name()));
 		if (editor != null)
 			addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), this));
 	}
@@ -572,7 +578,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	protected boolean addCategoryUnbuffered(CategoryPanel newCategory)
 	{
-		if (newCategory != null && deck.containsCategory(newCategory.name()))
+		if (newCategory != null)
 		{
 			categories.add(newCategory);
 			categoriesContainer.add(newCategory);
@@ -815,6 +821,16 @@ public class EditorFrame extends JInternalFrame
 			JOptionPane.showMessageDialog(null, "Deck " + deckName() + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
+	}
+	
+	/**
+	 * @param name Name of the category to search for
+	 * @return <code>true</code> if the deck contains a category with the given name,
+	 * and <code>false</code> otherwise.
+	 */
+	public boolean containsCategory(String name)
+	{
+		return deck.containsCategory(name);
 	}
 	
 	/**
