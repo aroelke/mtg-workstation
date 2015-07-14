@@ -558,7 +558,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	protected boolean addCategoryUnbuffered(CategoryPanel newCategory)
 	{
-		if (newCategory != null)
+		if (newCategory != null && deck.containsCategory(newCategory.name()))
 		{
 			categories.add(newCategory);
 			categoriesContainer.add(newCategory);

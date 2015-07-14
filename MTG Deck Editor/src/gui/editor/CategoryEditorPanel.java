@@ -5,6 +5,7 @@ import gui.filter.FilterGroupPanel;
 import java.awt.BorderLayout;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 
@@ -183,6 +184,12 @@ public class CategoryEditorPanel extends JPanel
 	@Override
 	public String toString()
 	{
-		return nameField.getText() + " " + filter.toString();
+		StringJoiner white = new StringJoiner(Deck.EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
+		for (String c: whitelist)
+			white.add(c);
+		StringJoiner black = new StringJoiner(Deck.EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
+		for (String c: blacklist)
+			black.add(c);
+		return nameField.getText() + " " + white + " " + black + " " + filter.toString();
 	}
 }

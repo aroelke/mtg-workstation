@@ -88,7 +88,7 @@ public class TableMouseAdapter extends MouseAdapter
 	public void mouseReleased(MouseEvent e)
 	{
 		popupClick(e);
-		if (table.rowAtPoint(e.getPoint()) == -1)
+		if (table.rowAtPoint(e.getPoint()) < 0)
 			table.clearSelection();
 	}
 }

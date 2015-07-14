@@ -614,10 +614,10 @@ public class Deck implements Iterable<Card>
 		@Override
 		public String toString()
 		{
-			StringJoiner white = new StringJoiner(":", String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
+			StringJoiner white = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 			for (Card c: whitelist)
 				white.add(c.ID);
-			StringJoiner black = new StringJoiner(":", String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
+			StringJoiner black = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 			for (Card c: blacklist)
 				black.add(c.ID);
 			return name + " " + white.toString() + " " + black.toString() + " " + repr;

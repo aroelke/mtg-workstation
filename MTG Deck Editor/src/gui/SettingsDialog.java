@@ -11,6 +11,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -235,10 +238,21 @@ public class SettingsDialog extends JDialog
 		
 		categoriesListModel = new CategoryListModel();
 		if (!properties.getProperty("editor.presets").isEmpty())
-			for (String category: properties.getProperty("editor.presets").split(String.valueOf(MainFrame.CATEGORY_DELIMITER)))
+			for (String category: properties.getProperty("editor.presets").split(MainFrame.CATEGORY_DELIMITER))
 				categoriesListModel.addElement(category);
 		JList<String> categoriesList = new JList<String>(categoriesListModel);
 		categoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		categoriesList.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				int index = categoriesList.locationToIndex(e.getPoint());
+				Rectangle rec = categoriesList.getCellBounds(index, index);
+				if (rec == null || !rec.contains(e.getPoint()))
+					categoriesList.clearSelection();
+			}
+		});
 		categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
 		
 		// Category modification buttons
@@ -253,9 +267,20 @@ public class SettingsDialog extends JDialog
 		});
 		categoryModPanel.add(addButton);
 		JButton editButton = new JButton("\u2026");
+		editButton.addActionListener((e) -> {
+			if (categoriesList.getSelectedIndex() >= 0)
+			{
+				CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(categoriesListModel.getCategoryAt(categoriesList.getSelectedIndex()));
+				if (editor != null)
+					categoriesListModel.set(categoriesList.getSelectedIndex(), editor.toString());
+			}
+		});
 		categoryModPanel.add(editButton);
 		JButton removeButton = new JButton("\u2212");
-		removeButton.addActionListener((e) -> categoriesListModel.remove(categoriesList.getSelectedIndex()));
+		removeButton.addActionListener((e) -> {
+			if (categoriesList.getSelectedIndex() >= 0)
+				categoriesListModel.remove(categoriesList.getSelectedIndex());
+		});
 		categoryModPanel.add(removeButton);
 		categoryModPanel.add(Box.createVerticalGlue());
 		categoriesPanel.add(categoryModPanel, BorderLayout.EAST);
@@ -344,7 +369,11 @@ public class SettingsDialog extends JDialog
 				join.add(box.getText());
 		properties.put("editor.columns", join.toString());
 		properties.put("editor.stripe", colorToString(editorStripeColor.getColor()));
-		parent.setSettings(properties);
+		join = new StringJoiner(MainFrame.CATEGORY_DELIMITER);
+		for (int i = 0; i < categoriesListModel.getSize(); i++)
+			join.add(categoriesListModel.getCategoryAt(i));
+		properties.put("editor.presets", join.toString());
+		parent.applySettings(properties);
 	}
 	
 	private class CategoryListModel extends DefaultListModel<String>
@@ -359,6 +388,11 @@ public class SettingsDialog extends JDialog
 		{
 			String category = super.getElementAt(index);
 			return category.substring(0, category.indexOf(FilterGroupPanel.BEGIN_GROUP));
+		}
+		
+		public String getCategoryAt(int index)
+		{
+			return super.getElementAt(index);
 		}
 	}
 }
