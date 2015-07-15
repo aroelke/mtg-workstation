@@ -1295,7 +1295,6 @@ public class EditorFrame extends JInternalFrame
 	
 	/**
 	 * TODO: Comment this class
-	 * TOOD: Figure out a way to properly cancel this
 	 * 
 	 * @author Alec Roelke
 	 */
