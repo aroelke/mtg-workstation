@@ -6,6 +6,7 @@ import gui.ScrollablePanel;
 import gui.SettingsDialog;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.CancellationException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -33,6 +35,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -40,6 +43,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
@@ -48,6 +52,9 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -454,43 +461,42 @@ public class EditorFrame extends JInternalFrame
 	public EditorFrame(File f, int u, MainFrame p, Properties properties)
 	{
 		this(u, p, properties);
-		// TODO: Add a progress bar to this
-		try (BufferedReader rd = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF8")))
+		
+		JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
+		JProgressBar progressBar = new JProgressBar();
+		LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
+		
+		JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
+		progressDialog.setContentPane(progressPanel);
+		progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
+		progressPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		progressBar.setIndeterminate(false);
+		progressPanel.add(progressBar, BorderLayout.CENTER);
+		JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener((e) -> worker.cancel(false));
+		cancelPanel.add(cancelButton);
+		progressPanel.add(cancelPanel, BorderLayout.SOUTH);
+		progressDialog.pack();
+		
+		worker.execute();
+		progressDialog.setLocationRelativeTo(parent);
+		progressDialog.setVisible(true);
+		try
 		{
-			int cards = Integer.valueOf(rd.readLine().trim());
-			for (int i = 0; i < cards; i++)
-			{
-				String[] card = rd.readLine().trim().split("\t");
-				deck.add(parent.getCard(card[0]), Integer.valueOf(card[1]));
-			}
-			int categories = Integer.valueOf(rd.readLine().trim());
-			for (int i = 0; i < categories; i++)
-			{
-				try
-				{
-					CategoryEditorPanel editor = new CategoryEditorPanel(rd.readLine().trim());
-					Set<Card> whitelist = editor.whitelist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
-					Set<Card> blacklist = editor.blacklist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
-					addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.filter(), this));
-				}
-				catch (Exception e)
-				{
-					JOptionPane.showMessageDialog(null, "Error parsing " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-			}
+			worker.get();
 		}
 		catch (Exception e)
 		{
-			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			if (!(e instanceof CancellationException))
+				JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.clear();
-		}
-		finally
-		{
 			updateCount();
-			unsaved = false;
-			setFile(f);
-			undoBuffer.clear();
-			redoBuffer.clear();
+			categories.clear();
+			categoriesContainer.removeAll();
+			updateCategorySwitch();
+			revalidate();
+			repaint();
 		}
 	}
 
@@ -1285,5 +1291,75 @@ public class EditorFrame extends JInternalFrame
 		table.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("editor.stripe")));
 		revalidate();
 		repaint();
+	}
+	
+	/**
+	 * TODO: Comment this class
+	 * TOOD: Figure out a way to properly cancel this
+	 * 
+	 * @author Alec Roelke
+	 */
+	private class LoadWorker extends SwingWorker<Void, Integer>
+	{
+		private File file;
+		private JProgressBar progressBar;
+		private JDialog dialog;
+		
+		public LoadWorker(File f, JProgressBar b, JDialog d)
+		{
+			file = f;
+			progressBar = b;
+			dialog = d;
+		}
+		
+		@Override
+		protected void process(List<Integer> chunks)
+		{
+			int progress = chunks.get(chunks.size() - 1);
+			progressBar.setValue(progress);
+		}
+		
+		@Override
+		protected Void doInBackground() throws Exception
+		{
+			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
+			{
+				int cards = Integer.valueOf(rd.readLine().trim());
+				for (int i = 0; i < cards; i++)
+				{
+					if (this.isCancelled())
+						return null;
+					String[] card = rd.readLine().trim().split("\t");
+					deck.add(parent.getCard(card[0]), Integer.valueOf(card[1]));
+					publish(50*i/cards);
+				}
+				int categories = Integer.valueOf(rd.readLine().trim());
+				for (int i = 0; i < categories; i++)
+				{
+					if (this.isCancelled())
+						return null;
+					CategoryEditorPanel editor = new CategoryEditorPanel(rd.readLine().trim());
+					Set<Card> whitelist = editor.whitelist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
+					Set<Card> blacklist = editor.blacklist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
+					SwingUtilities.invokeLater(() -> {
+						if (!isCancelled())
+							addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.filter(), EditorFrame.this));
+					});
+					publish(50 + 50*i/categories);
+				}
+			}
+			return null;
+		}
+		
+		@Override
+		protected void done()
+		{
+			updateCount();
+			unsaved = false;
+			setFile(file);
+			undoBuffer.clear();
+			redoBuffer.clear();
+			dialog.dispose();
+		}
 	}
 }

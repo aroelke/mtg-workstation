@@ -192,6 +192,9 @@ public class MainFrame extends JFrame
 	 * Newest version number of the inventory.
 	 */
 	private String newestVersion;
+	/**
+	 * Menu showing preset categories.
+	 */
 	private JMenu presetMenu;
 	
 	/**

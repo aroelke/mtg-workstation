@@ -442,6 +442,7 @@ public class Deck implements Iterable<Card>
 		masterList.clear();
 		categories.clear();
 		total = 0;
+		land = 0;
 	}
 	
 	/**
