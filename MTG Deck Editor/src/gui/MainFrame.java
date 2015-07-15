@@ -972,6 +972,25 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Properties getSettings()
+	{
+		return properties;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @return
+	 */
+	public String getSetting(String name)
+	{
+		return properties.getProperty(name);
+	}
+	
+	/**
 	 * Update the recently-opened files to add the most recently-opened one, and delete
 	 * the oldest one if too many are there.
 	 * 
@@ -1004,7 +1023,7 @@ public class MainFrame extends JFrame
 	 */
 	public void newEditor()
 	{
-		EditorFrame frame = new EditorFrame(++untitled, this, properties);
+		EditorFrame frame = new EditorFrame(++untitled, this);
 		frame.setVisible(true);
 		editors.add(frame);
 		decklistDesktop.add(frame);
@@ -1049,7 +1068,7 @@ public class MainFrame extends JFrame
 		}
 		if (frame == null)
 		{
-			frame = new EditorFrame(f, ++untitled, this, properties);
+			frame = new EditorFrame(f, ++untitled, this);
 			frame.setVisible(true);
 			editors.add(frame);
 			decklistDesktop.add(frame);

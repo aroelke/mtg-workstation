@@ -6,6 +6,7 @@ import gui.ScrollablePanel;
 import gui.SettingsDialog;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -157,9 +158,8 @@ public class EditorFrame extends JInternalFrame
 	 * 
 	 * @param u Number of the untitled deck
 	 * @param p Parent MainFrame
-	 * @param properties Properties of the editor
 	 */
-	public EditorFrame(int u, MainFrame p, Properties properties)
+	public EditorFrame(int u, MainFrame p)
 	{
 		super("Untitled " + u, true, true, true, true);
 		setBounds(((u - 1)%5)*30, ((u - 1)%5)*30, 600, 600);
@@ -215,7 +215,7 @@ public class EditorFrame extends JInternalFrame
 		listTabs = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
 
-		model = new DeckTableModel(this, deck, Arrays.stream(properties.getProperty("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		model = new DeckTableModel(this, deck, Arrays.stream(parent.getSetting("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
 		table = new StripedTable(model);
@@ -224,7 +224,7 @@ public class EditorFrame extends JInternalFrame
 		table.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(false);
-		table.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("editor.stripe")));
+		table.setStripeColor(SettingsDialog.stringToColor(parent.getSetting("editor.stripe")));
 		// When a card is selected in the master list table, select it for adding
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener()
 		{
@@ -456,11 +456,10 @@ public class EditorFrame extends JInternalFrame
 	 * @param f File to load a deck from
 	 * @param u Number of the new EditorFrame (determines initial position in the window)
 	 * @param p Parent of the new EditorFrame
-	 * @param properties Properties of the editor
 	 */
-	public EditorFrame(File f, int u, MainFrame p, Properties properties)
+	public EditorFrame(File f, int u, MainFrame p)
 	{
-		this(u, p, properties);
+		this(u, p);
 		
 		JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
 		JProgressBar progressBar = new JProgressBar();
@@ -1287,10 +1286,36 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void setSettings(Properties properties)
 	{
-		model.setColumns(Arrays.stream(properties.getProperty("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
-		table.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("editor.stripe")));
+		List<CardCharacteristic> columns = Arrays.stream(properties.getProperty("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		Color stripe = SettingsDialog.stringToColor(properties.getProperty("editor.stripe"));
+		model.setColumns(columns);
+		table.setStripeColor(stripe);
+		for (CategoryPanel category: categories)
+		{
+			category.setColumns(columns);
+			category.setStripeColor(stripe);
+		}
 		revalidate();
 		repaint();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Properties getSettings()
+	{
+		return parent.getSettings();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @return
+	 */
+	public String getSetting(String name)
+	{
+		return parent.getSetting(name);
 	}
 	
 	/**

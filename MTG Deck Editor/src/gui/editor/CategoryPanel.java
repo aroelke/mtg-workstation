@@ -1,8 +1,10 @@
 package gui.editor;
 
 import gui.ManaCostRenderer;
+import gui.SettingsDialog;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -118,9 +120,7 @@ public class CategoryPanel extends JPanel
 		add(countPanel, BorderLayout.NORTH);
 		
 		// Table showing the cards in the category
-		model = new DeckTableModel(editor, category, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT,
-								   CardCharacteristic.MANA_COST, CardCharacteristic.TYPE_LINE,
-								   CardCharacteristic.EXPANSION_NAME, CardCharacteristic.RARITY));
+		model = new DeckTableModel(editor, category, Arrays.stream(editor.getSetting("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		table = new StripedTable(model)
 		{
 			@Override
@@ -136,6 +136,7 @@ public class CategoryPanel extends JPanel
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(false);
 		table.setFillsViewportHeight(true);
+		table.setStripeColor(SettingsDialog.stringToColor(editor.getSetting("editor.stripe")));
 		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
 		add(tablePane, BorderLayout.CENTER);
@@ -274,6 +275,24 @@ public class CategoryPanel extends JPanel
 		boolean changed = category.exclude(c);
 		update();
 		return changed;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param columns
+	 */
+	public void setColumns(List<CardCharacteristic> columns)
+	{
+		model.setColumns(columns);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param color
+	 */
+	public void setStripeColor(Color color)
+	{
+		table.setStripeColor(color);
 	}
 	
 	/**
