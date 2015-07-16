@@ -1363,8 +1363,8 @@ public class EditorFrame extends JInternalFrame
 					if (this.isCancelled())
 						return null;
 					CategoryEditorPanel editor = new CategoryEditorPanel(rd.readLine().trim());
-					Set<Card> whitelist = editor.whitelist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
-					Set<Card> blacklist = editor.blacklist().stream().map((id) -> parent.getCard(id)).collect(Collectors.toSet());
+					Set<Card> whitelist = editor.whitelist().stream().map(parent::getCard).collect(Collectors.toSet());
+					Set<Card> blacklist = editor.blacklist().stream().map(parent::getCard).collect(Collectors.toSet());
 					SwingUtilities.invokeLater(() -> {
 						if (!isCancelled())
 							addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.filter(), EditorFrame.this));
