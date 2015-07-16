@@ -1378,7 +1378,7 @@ public class EditorFrame extends JInternalFrame
 						return null;
 					String[] card = rd.readLine().trim().split("\t");
 					deck.add(parent.getCard(card[0]), Integer.valueOf(card[1]));
-					publish(50*i/cards);
+					publish(50*(i + 1)/cards);
 				}
 				int categories = Integer.valueOf(rd.readLine().trim());
 				for (int i = 0; i < categories; i++)
@@ -1392,7 +1392,7 @@ public class EditorFrame extends JInternalFrame
 						if (!isCancelled())
 							addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.filter(), EditorFrame.this));
 					});
-					publish(50 + 50*i/categories);
+					publish(50 + 50*(i + 1)/categories);
 				}
 			}
 			return null;
