@@ -65,7 +65,67 @@ public class SettingsDialog extends JDialog
 	/**
 	 * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
 	 */
-	public static Pattern COLOR_PATTERN = Pattern.compile("^#([0-9a-fA-F]{2})?([0-9a-fA-F]{6})$");
+	public static final Pattern COLOR_PATTERN = Pattern.compile("^#([0-9a-fA-F]{2})?([0-9a-fA-F]{6})$");
+	/**
+	 * Name of the file to get settings from.
+	 */
+	public static final String PROPERTIES_FILE = "settings.txt";
+	/**
+	 * File to download to check the latest version of the inventory.
+	 */
+	public static final String VERSION_FILE = "inventory.version_file";
+	/**
+	 * Website to connect to for downloading the inventory.
+	 */
+	public static final String INVENTORY_SOURCE = "inventory.source";
+	/**
+	 * File to download containing the inventory.
+	 */
+	public static final String INVENTORY_FILE = "inventory.file";
+	/**
+	 * Current inventory version.
+	 */
+	public static final String VERSION = "inventory.version";
+	/**
+	 * Whether or not to check for the latest inventory version on startup.
+	 */
+	public static final String INITIAL_CHECK = "inventory.initialcheck";
+	/**
+	 * Directory to store the inventory file in.
+	 */
+	public static final String INVENTORY_LOCATION = "inventory.location";
+	/**
+	 * Columns to display in the inventory table.
+	 */
+	public static final String INVENTORY_COLUMNS = "inventory.columns";
+	/**
+	 * Code for the color of the stripes of the inventory table.
+	 */
+	public static final String INVENTORY_STRIPE = "inventory.stripe";
+	/**
+	 * Directory to start the file chooser in.
+	 */
+	public static final String INITIALDIR = "initialdir";
+	/**
+	 * Number of recently-opened files to save.
+	 */
+	public static final String RECENT_COUNT = "recents.count";
+	/**
+	 * Recently-opened files paths.
+	 */
+	public static final String RECENT_FILES = "recents.files";
+	/**
+	 * Columns to display in editor tables.
+	 */
+	public static final String EDITOR_COLUMNS = "editor.columns";
+	/**
+	 * Stripe color for editor tables.
+	 */
+	public static final String EDITOR_STRIPE = "editor.stripe";
+	/**
+	 * Preset categories that can be added to editors.
+	 */
+	public static final String EDITOR_PRESETS = "editor.presets";
 	
 	/**
 	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
@@ -187,7 +247,7 @@ public class SettingsDialog extends JDialog
 		inventorySitePanel.add(new JLabel("Inventory Site:"));
 		inventorySitePanel.add(Box.createHorizontalStrut(5));
 		inventorySiteField = new JTextField(15);
-		inventorySiteField.setText(properties.getProperty("inventory.source"));
+		inventorySiteField.setText(properties.getProperty(INVENTORY_SOURCE));
 		inventorySitePanel.add(inventorySiteField);
 		inventorySitePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventorySitePanel.getPreferredSize().height));
 		inventoryPanel.add(inventorySitePanel);
@@ -199,10 +259,10 @@ public class SettingsDialog extends JDialog
 		inventoryFilePanel.add(new JLabel("Inventory File:"));
 		inventoryFilePanel.add(Box.createHorizontalStrut(5));
 		inventoryFileField = new JTextField(10);
-		inventoryFileField.setText(properties.getProperty("inventory.file"));
+		inventoryFileField.setText(properties.getProperty(INVENTORY_FILE));
 		inventoryFilePanel.add(inventoryFileField);
 		inventoryFilePanel.add(Box.createHorizontalStrut(5));
-		JLabel currentVersionLabel = new JLabel("(Current version: " + properties.getProperty("inventory.version") + ")");
+		JLabel currentVersionLabel = new JLabel("(Current version: " + properties.getProperty(VERSION) + ")");
 		currentVersionLabel.setFont(new Font(currentVersionLabel.getFont().getFontName(), Font.ITALIC, currentVersionLabel.getFont().getSize()));
 		inventoryFilePanel.add(currentVersionLabel);
 		inventoryFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryFilePanel.getPreferredSize().height));
@@ -218,7 +278,7 @@ public class SettingsDialog extends JDialog
 		JFileChooser inventoryChooser = new JFileChooser();
 		inventoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		inventoryChooser.setAcceptAllFileFilterUsed(false);
-		inventoryChooser.setSelectedFile(new File(properties.getProperty("inventory.location")));
+		inventoryChooser.setSelectedFile(new File(properties.getProperty(INVENTORY_LOCATION)));
 		inventoryDirField.setText(inventoryChooser.getSelectedFile().getAbsolutePath());
 		inventoryDirPanel.add(inventoryDirField);
 		inventoryDirPanel.add(Box.createHorizontalStrut(5));
@@ -235,7 +295,7 @@ public class SettingsDialog extends JDialog
 		// Check for update on startup
 		JPanel updatePanel = new JPanel(new BorderLayout());
 		updateCheckBox = new JCheckBox("Check for update on program start");
-		updateCheckBox.setSelected(Boolean.valueOf(properties.getProperty("inventory.initialcheck")));
+		updateCheckBox.setSelected(Boolean.valueOf(properties.getProperty(INITIALDIR)));
 		updatePanel.add(updateCheckBox, BorderLayout.WEST);
 		updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
 		inventoryPanel.add(updatePanel);
@@ -256,14 +316,14 @@ public class SettingsDialog extends JDialog
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			inventoryColumnCheckBoxes.add(checkBox);
 			inventoryColumnsPanel.add(checkBox);
-			checkBox.setSelected(properties.getProperty("inventory.columns").contains(characteristic.toString()));
+			checkBox.setSelected(properties.getProperty(INVENTORY_COLUMNS).contains(characteristic.toString()));
 		}
 		inventoryAppearancePanel.add(inventoryColumnsPanel);
 		
 		// Stripe color
 		JPanel inventoryColorPanel = new JPanel(new BorderLayout());
 		inventoryColorPanel.setBorder(new TitledBorder("Stripe Color"));
-		inventoryStripeColor = new JColorChooser(stringToColor(properties.getProperty("inventory.stripe")));
+		inventoryStripeColor = new JColorChooser(stringToColor(properties.getProperty(INVENTORY_STRIPE)));
 		inventoryColorPanel.add(inventoryStripeColor);
 		inventoryAppearancePanel.add(inventoryColorPanel);
 		
@@ -281,7 +341,7 @@ public class SettingsDialog extends JDialog
 		recentPanel.add(new JLabel("Recent file count:"));
 		recentPanel.add(Box.createHorizontalStrut(5));
 		recentSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-		recentSpinner.getModel().setValue(Integer.valueOf(properties.getProperty("recents.count")));
+		recentSpinner.getModel().setValue(Integer.valueOf(properties.getProperty(RECENT_COUNT)));
 		recentPanel.add(recentSpinner);
 		recentPanel.setMaximumSize(recentPanel.getPreferredSize());
 		recentPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -296,8 +356,8 @@ public class SettingsDialog extends JDialog
 		settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
 		
 		categoriesListModel = new CategoryListModel();
-		if (!properties.getProperty("editor.presets").isEmpty())
-			for (String category: properties.getProperty("editor.presets").split(MainFrame.CATEGORY_DELIMITER))
+		if (!properties.getProperty(EDITOR_PRESETS).isEmpty())
+			for (String category: properties.getProperty(EDITOR_PRESETS).split(MainFrame.CATEGORY_DELIMITER))
 				categoriesListModel.addElement(category);
 		JList<String> categoriesList = new JList<String>(categoriesListModel);
 		categoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -393,14 +453,14 @@ public class SettingsDialog extends JDialog
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			editorColumnCheckBoxes.add(checkBox);
 			editorColumnsPanel.add(checkBox);
-			checkBox.setSelected(properties.getProperty("editor.columns").contains(characteristic.toString()));
+			checkBox.setSelected(properties.getProperty(EDITOR_COLUMNS).contains(characteristic.toString()));
 		}
 		editorAppearancePanel.add(editorColumnsPanel);
 		
 		// Stripe color
 		JPanel editorColorPanel = new JPanel(new BorderLayout());
 		editorColorPanel.setBorder(new TitledBorder("Stripe Color"));
-		editorStripeColor = new JColorChooser(stringToColor(properties.getProperty("editor.stripe")));
+		editorStripeColor = new JColorChooser(stringToColor(properties.getProperty(EDITOR_STRIPE)));
 		editorColorPanel.add(editorStripeColor);
 		editorAppearancePanel.add(editorColorPanel);
 		
@@ -450,27 +510,27 @@ public class SettingsDialog extends JDialog
 	public void confirmSettings()
 	{
 		Properties properties = new Properties();
-		properties.put("inventory.source", inventorySiteField.getText());
-		properties.put("inventory.file", inventoryFileField.getText());
-		properties.put("inventory.location", inventoryDirField.getText());
-		properties.put("inventory.initialcheck", Boolean.toString(updateCheckBox.isSelected()));
+		properties.put(INVENTORY_SOURCE, inventorySiteField.getText());
+		properties.put(INVENTORY_FILE, inventoryFileField.getText());
+		properties.put(INVENTORY_LOCATION, inventoryDirField.getText());
+		properties.put(INITIALDIR, Boolean.toString(updateCheckBox.isSelected()));
 		StringJoiner join = new StringJoiner(",");
 		for (JCheckBox box: inventoryColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		properties.put("inventory.columns", join.toString());
-		properties.put("inventory.stripe", colorToString(inventoryStripeColor.getColor()));
-		properties.put("recents.count", recentSpinner.getValue().toString());
+		properties.put(INVENTORY_COLUMNS, join.toString());
+		properties.put(INVENTORY_STRIPE, colorToString(inventoryStripeColor.getColor()));
+		properties.put(RECENT_COUNT, recentSpinner.getValue().toString());
 		join = new StringJoiner(",");
 		for (JCheckBox box: editorColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		properties.put("editor.columns", join.toString());
-		properties.put("editor.stripe", colorToString(editorStripeColor.getColor()));
+		properties.put(EDITOR_COLUMNS, join.toString());
+		properties.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
 		join = new StringJoiner(MainFrame.CATEGORY_DELIMITER);
 		for (int i = 0; i < categoriesListModel.getSize(); i++)
 			join.add(categoriesListModel.getCategoryAt(i));
-		properties.put("editor.presets", join.toString());
+		properties.put(EDITOR_PRESETS, join.toString());
 		parent.applySettings(properties);
 	}
 	

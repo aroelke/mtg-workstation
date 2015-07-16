@@ -120,7 +120,7 @@ public class CategoryPanel extends JPanel
 		add(countPanel, BorderLayout.NORTH);
 		
 		// Table showing the cards in the category
-		model = new DeckTableModel(editor, category, Arrays.stream(editor.getSetting("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		model = new DeckTableModel(editor, category, Arrays.stream(editor.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		table = new StripedTable(model)
 		{
 			@Override
@@ -136,7 +136,7 @@ public class CategoryPanel extends JPanel
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(false);
 		table.setFillsViewportHeight(true);
-		table.setStripeColor(SettingsDialog.stringToColor(editor.getSetting("editor.stripe")));
+		table.setStripeColor(SettingsDialog.stringToColor(editor.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
 		add(tablePane, BorderLayout.CENTER);
@@ -278,8 +278,9 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param columns
+	 * Change the columns to display in this category's table.
+	 * 
+	 * @param columns CardCharacteristics to display.
 	 */
 	public void setColumns(List<CardCharacteristic> columns)
 	{
@@ -287,8 +288,9 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param color
+	 * Change the color of alternate stripes in this category's table.
+	 * 
+	 * @param color Color to change stripes to.
 	 */
 	public void setStripeColor(Color color)
 	{

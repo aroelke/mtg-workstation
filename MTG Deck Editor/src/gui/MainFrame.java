@@ -91,10 +91,6 @@ import database.characteristics.CardCharacteristic;
 public class MainFrame extends JFrame
 {
 	/**
-	 * Name of the file to get settings from.
-	 */
-	public static final String PROPERTIES_FILE = "settings.txt";
-	/**
 	 * Update status value: update needed.
 	 */
 	public static final int UPDATE_NEEDED = 0;
@@ -215,7 +211,7 @@ public class MainFrame extends JFrame
 		// Initialize properties to their default values, then load the current values
 		// from the properties file
 		resetDefaultSettings();
-		try (InputStreamReader in = new InputStreamReader(new FileInputStream(PROPERTIES_FILE)))
+		try (InputStreamReader in = new InputStreamReader(new FileInputStream(SettingsDialog.PROPERTIES_FILE)))
 		{
 			properties.load(in);
 		}
@@ -225,29 +221,29 @@ public class MainFrame extends JFrame
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(null, "Error opening " + PROPERTIES_FILE + ": " + e.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		try
 		{
-			versionSite = new URL(properties.getProperty("inventory.source") + properties.getProperty("inventory.version_file"));
+			versionSite = new URL(properties.getProperty(SettingsDialog.INVENTORY_SOURCE) + properties.getProperty(SettingsDialog.VERSION_FILE));
 		}
 		catch (MalformedURLException e)
 		{
-			JOptionPane.showMessageDialog(null, "Bad version URL: " + properties.getProperty("inventory.source") + properties.getProperty("inventory.version_file"), "Warning", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Bad version URL: " + properties.getProperty(SettingsDialog.INVENTORY_SOURCE) + properties.getProperty(SettingsDialog.VERSION_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		try
 		{
-			inventorySite = new URL(properties.getProperty("inventory.source") + properties.getProperty("inventory.file"));
+			inventorySite = new URL(properties.getProperty(SettingsDialog.INVENTORY_SOURCE) + properties.getProperty(SettingsDialog.INVENTORY_FILE));
 		}
 		catch (MalformedURLException e)
 		{
-			JOptionPane.showMessageDialog(null, "Bad file URL: " + properties.getProperty("inventory.source") + properties.getProperty("inventory.file"), "Warning", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Bad file URL: " + properties.getProperty(SettingsDialog.INVENTORY_SOURCE) + properties.getProperty(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
 		}
-		inventoryFile = new File(properties.getProperty("inventory.location") + File.separator + properties.getProperty("inventory.file"));
-		recentCount = Integer.valueOf(properties.getProperty("recents.count"));
-		if (properties.getProperty("inventory.columns").isEmpty())
-			properties.put("inventory.columns", "Name,Expansion,Mana Cost,Type");
-		newestVersion = properties.getProperty("inventory.version");
+		inventoryFile = new File(properties.getProperty(SettingsDialog.INVENTORY_LOCATION) + File.separator + properties.getProperty(SettingsDialog.INVENTORY_FILE));
+		recentCount = Integer.valueOf(properties.getProperty(SettingsDialog.RECENT_COUNT));
+		if (properties.getProperty(SettingsDialog.INVENTORY_COLUMNS).isEmpty())
+			properties.put(SettingsDialog.INVENTORY_COLUMNS, "Name,Expansion,Mana Cost,Type");
+		newestVersion = properties.getProperty(SettingsDialog.VERSION);
 		
 		System.out.println("Loaded properties");
 		
@@ -322,8 +318,8 @@ public class MainFrame extends JFrame
 		// Recent files menu
 		recentsMenu = new JMenu("Open Recent");
 		recentsMenu.setEnabled(false);
-		if (!properties.getProperty("recents.files").isEmpty())
-			for (String fname: properties.getProperty("recents.files").split("\\|"))
+		if (!properties.getProperty(SettingsDialog.RECENT_FILES).isEmpty())
+			for (String fname: properties.getProperty(SettingsDialog.RECENT_FILES).split("\\|"))
 				updateRecents(new File(fname));
 		fileMenu.add(recentsMenu);
 		System.out.println("Created recents menu");
@@ -492,7 +488,7 @@ public class MainFrame extends JFrame
 		// Preset categories menu
 		presetMenu = new JMenu("Add Preset");
 		categoryMenu.add(presetMenu);
-		for (String category: properties.getProperty("editor.presets").split(CATEGORY_DELIMITER))
+		for (String category: properties.getProperty(SettingsDialog.EDITOR_PRESETS).split(CATEGORY_DELIMITER))
 		{
 			CategoryEditorPanel editor = new CategoryEditorPanel(category);
 			JMenuItem categoryItem = new JMenuItem(editor.name());
@@ -517,9 +513,8 @@ public class MainFrame extends JFrame
 			case UPDATE_NEEDED:
 				if (updateInventory())
 				{
-					properties.put("inventory.version", newestVersion);
+					properties.put(SettingsDialog.VERSION, newestVersion);
 					loadInventory();
-					
 				}
 				break;
 			case NO_UPDATE:
@@ -640,7 +635,7 @@ public class MainFrame extends JFrame
 		inventoryTable.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
 		inventoryTable.setFillsViewportHeight(true);
 		inventoryTable.setShowGrid(false);
-		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("inventory.stripe")));
+		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.INVENTORY_STRIPE)));
 		tablePanel.add(new JScrollPane(inventoryTable), BorderLayout.CENTER);
 		System.out.println("Created inventory table");
 		
@@ -764,7 +759,7 @@ public class MainFrame extends JFrame
 		System.out.println("Created split panes");
 		
 		// File chooser
-		fileChooser = new JFileChooser(properties.getProperty("initialdir"));
+		fileChooser = new JFileChooser(properties.getProperty(SettingsDialog.INITIALDIR));
 		fileChooser.setMultiSelectionEnabled(false);
 		System.out.println("Created file chooser");
 		
@@ -774,9 +769,9 @@ public class MainFrame extends JFrame
 			@Override
 			public void windowOpened(WindowEvent e)
 			{
-				if (Boolean.valueOf(properties.getProperty("inventory.initialcheck")) && checkForUpdate() == UPDATE_NEEDED)
+				if (Boolean.valueOf(properties.getProperty(SettingsDialog.INITIALDIR)) && checkForUpdate() == UPDATE_NEEDED)
 					if (updateInventory())
-						properties.put("inventory.version", newestVersion);
+						properties.put(SettingsDialog.VERSION, newestVersion);
 				loadInventory();
 			}
 			
@@ -813,7 +808,7 @@ public class MainFrame extends JFrame
 		loadDialog.setLocationRelativeTo(this);
 		inventory = loadDialog.createInventory(inventoryFile);
 		inventory.sort((a, b) -> a.compareName(b));
-		inventoryModel = new InventoryTableModel(inventory, Arrays.stream(properties.getProperty("inventory.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		inventoryModel = new InventoryTableModel(inventory, Arrays.stream(properties.getProperty(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		inventoryTable.setModel(inventoryModel);
 		filter = new FilterGroupPanel();
 		
@@ -851,7 +846,7 @@ public class MainFrame extends JFrame
 			{
 				newestVersion = in.readLine();
 				newestVersion = newestVersion.substring(1, newestVersion.length() - 1);
-				if (!newestVersion.equals(properties.get("inventory.version")))
+				if (!newestVersion.equals(properties.get(SettingsDialog.VERSION)))
 				{
 					if (JOptionPane.showConfirmDialog(null, "Inventory is out of date.  Download update?", "Update", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
 						return UPDATE_NEEDED;
@@ -891,20 +886,20 @@ public class MainFrame extends JFrame
 	public void resetDefaultSettings()
 	{
 		properties = new Properties();
-		properties.put("inventory.version_file", "version.json");
-		properties.put("inventory.source", "http://mtgjson.com/json/");
-		properties.put("inventory.version", "");
-		properties.put("inventory.file", "AllSets-x.json");
-		properties.put("inventory.initialcheck", "true");
-		properties.put("inventory.location", "./");
-		properties.put("inventory.columns", "Name,Mana Cost,Type,Expansion");
-		properties.put("inventory.stripe", "#FFCCCCCC");
-		properties.put("initialdir", "./");
-		properties.put("recents.count", "4");
-		properties.put("recents.files", "");
-		properties.put("editor.columns", "Name,Count,Mana Cost,Type,Expansion,Rarity");
-		properties.put("editor.stripe", "#FFCCCCCC");
-		properties.put("editor.presets", "Artifacts \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220ECreatures \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220ELands \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220EInstants/Sorceries \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
+		properties.put(SettingsDialog.VERSION_FILE, "version.json");
+		properties.put(SettingsDialog.INVENTORY_SOURCE, "http://mtgjson.com/json/");
+		properties.put(SettingsDialog.VERSION, "");
+		properties.put(SettingsDialog.INVENTORY_FILE, "AllSets-x.json");
+		properties.put(SettingsDialog.INITIALDIR, "true");
+		properties.put(SettingsDialog.INVENTORY_LOCATION, "./");
+		properties.put(SettingsDialog.INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
+		properties.put(SettingsDialog.INVENTORY_STRIPE, "#FFCCCCCC");
+		properties.put(SettingsDialog.INITIALDIR, "./");
+		properties.put(SettingsDialog.RECENT_COUNT, "4");
+		properties.put(SettingsDialog.RECENT_FILES, "");
+		properties.put(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity");
+		properties.put(SettingsDialog.EDITOR_STRIPE, "#FFCCCCCC");
+		properties.put(SettingsDialog.EDITOR_PRESETS, "Artifacts \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220ECreatures \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220ELands \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220EInstants/Sorceries \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
 	}
 	
 	/**
@@ -918,25 +913,25 @@ public class MainFrame extends JFrame
 			properties.put(key, p.getProperty(key));
 		try
 		{
-			inventorySite = new URL(properties.getProperty("inventory.source") + properties.getProperty("inventory.file"));
+			inventorySite = new URL(properties.getProperty(SettingsDialog.INVENTORY_SOURCE) + properties.getProperty(SettingsDialog.INVENTORY_FILE));
 		}
 		catch (MalformedURLException e)
 		{
-			JOptionPane.showMessageDialog(null, "Bad file URL: " + properties.getProperty("inventory.source") + properties.getProperty("inventory.file"), "Warning", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Bad file URL: " + properties.getProperty(SettingsDialog.INVENTORY_SOURCE) + properties.getProperty(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
 		}
-		inventoryFile = new File(properties.getProperty("inventory.location") + properties.getProperty("inventory.file"));
-		recentCount = Integer.valueOf(properties.getProperty("recents.count"));
+		inventoryFile = new File(properties.getProperty(SettingsDialog.INVENTORY_LOCATION) + properties.getProperty(SettingsDialog.INVENTORY_FILE));
+		recentCount = Integer.valueOf(properties.getProperty(SettingsDialog.RECENT_COUNT));
 		// TODO: If recentCount has gotten smaller, update the menu accordingly
-		if (properties.getProperty("inventory.columns").isEmpty())
-			properties.put("inventory.columns", "Name,Expansion,Mana Cost,Type");
-		inventoryModel.setColumns(Arrays.stream(properties.getProperty("inventory.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
-		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty("inventory.stripe")));
-		if (properties.getProperty("editor.columns").isEmpty())
-			properties.put("editor.columns", "Name,Count,Mana Cost,Type,Expansion,Rarity");
+		if (properties.getProperty(SettingsDialog.INVENTORY_COLUMNS).isEmpty())
+			properties.put(SettingsDialog.INVENTORY_COLUMNS, "Name,Expansion,Mana Cost,Type");
+		inventoryModel.setColumns(Arrays.stream(properties.getProperty(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.INVENTORY_STRIPE)));
+		if (properties.getProperty(SettingsDialog.EDITOR_COLUMNS).isEmpty())
+			properties.put(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity");
 		for (EditorFrame frame: editors)
 			frame.setSettings(properties);
 		presetMenu.removeAll();
-		for (String category: properties.getProperty("editor.presets").split(CATEGORY_DELIMITER))
+		for (String category: properties.getProperty(SettingsDialog.EDITOR_PRESETS).split(CATEGORY_DELIMITER))
 		{
 			CategoryEditorPanel editor = new CategoryEditorPanel(category);
 			JMenuItem categoryItem = new JMenuItem(editor.name());
@@ -956,24 +951,23 @@ public class MainFrame extends JFrame
 	 */
 	public void saveSettings()
 	{
-		try (FileOutputStream out = new FileOutputStream(PROPERTIES_FILE))
+		try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE))
 		{
 			// TODO: Write a header comment
 			StringJoiner str = new StringJoiner("|");
 			for (JMenuItem recent: recentItems)
 				str.add(recents.get(recent).getPath());
-			properties.put("recents.files", str.toString());
+			properties.put(SettingsDialog.RECENT_FILES, str.toString());
 			properties.store(out, "");
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(null, "Error writing " + PROPERTIES_FILE + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error writing " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The Properties containing the program's settings.
 	 */
 	public Properties getSettings()
 	{
@@ -981,9 +975,9 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @return
+	 * @param name Name of the property to get
+	 * @return A String containing the value of the setting with the given name,
+	 * or null if there is no such setting.
 	 */
 	public String getSetting(String name)
 	{
@@ -1073,7 +1067,7 @@ public class MainFrame extends JFrame
 			editors.add(frame);
 			decklistDesktop.add(frame);
 		}
-		properties.put("initialdir", fileChooser.getCurrentDirectory().getPath());
+		properties.put(SettingsDialog.INITIALDIR, fileChooser.getCurrentDirectory().getPath());
 		try
 		{
 			frame.setSelected(true);
@@ -1175,7 +1169,7 @@ public class MainFrame extends JFrame
 				break;
 			}
 		} while (!done);
-		properties.put("initialdir", fileChooser.getCurrentDirectory().getPath());
+		properties.put(SettingsDialog.INITIALDIR, fileChooser.getCurrentDirectory().getPath());
 	}
 	
 	/**

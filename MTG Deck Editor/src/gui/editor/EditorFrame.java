@@ -215,7 +215,7 @@ public class EditorFrame extends JInternalFrame
 		listTabs = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
 
-		model = new DeckTableModel(this, deck, Arrays.stream(parent.getSetting("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		model = new DeckTableModel(this, deck, Arrays.stream(parent.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
 		table = new StripedTable(model);
@@ -224,7 +224,7 @@ public class EditorFrame extends JInternalFrame
 		table.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(false);
-		table.setStripeColor(SettingsDialog.stringToColor(parent.getSetting("editor.stripe")));
+		table.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		// When a card is selected in the master list table, select it for adding
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener()
 		{
@@ -1286,8 +1286,8 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void setSettings(Properties properties)
 	{
-		List<CardCharacteristic> columns = Arrays.stream(properties.getProperty("editor.columns").split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
-		Color stripe = SettingsDialog.stringToColor(properties.getProperty("editor.stripe"));
+		List<CardCharacteristic> columns = Arrays.stream(properties.getProperty(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		Color stripe = SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.EDITOR_STRIPE));
 		model.setColumns(columns);
 		table.setStripeColor(stripe);
 		for (CategoryPanel category: categories)
@@ -1300,8 +1300,7 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The Properties containing the program's settings.
 	 */
 	public Properties getSettings()
 	{
@@ -1309,9 +1308,9 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @return
+	 * @param name Name of the property to get
+	 * @return A String containing the value of the setting with the given name,
+	 * or null if there is no such setting.
 	 */
 	public String getSetting(String name)
 	{
@@ -1319,16 +1318,32 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this class
+	 * This class is a worker for loading a deck.
 	 * 
 	 * @author Alec Roelke
 	 */
 	private class LoadWorker extends SwingWorker<Void, Integer>
 	{
+		/**
+		 * File to load the deck from.
+		 */
 		private File file;
+		/**
+		 * Progress bar to display progress to.
+		 */
 		private JProgressBar progressBar;
+		/**
+		 * Dialog containing the progress bar.
+		 */
 		private JDialog dialog;
 		
+		/**
+		 * Create a new LoadWorker.
+		 * 
+		 * @param f File to load the deck from
+		 * @param b Progress bar showing progress
+		 * @param d Dialog containing the progress bar
+		 */
 		public LoadWorker(File f, JProgressBar b, JDialog d)
 		{
 			file = f;
@@ -1336,6 +1351,11 @@ public class EditorFrame extends JInternalFrame
 			dialog = d;
 		}
 		
+		/**
+		 * Update the progress bar with the latest progress.
+		 * 
+		 * @param chunks Progress that has been made
+		 */
 		@Override
 		protected void process(List<Integer> chunks)
 		{
@@ -1343,6 +1363,9 @@ public class EditorFrame extends JInternalFrame
 			progressBar.setValue(progress);
 		}
 		
+		/**
+		 * Load the deck, updating the progress bar all the while.
+		 */
 		@Override
 		protected Void doInBackground() throws Exception
 		{
@@ -1375,6 +1398,9 @@ public class EditorFrame extends JInternalFrame
 			return null;
 		}
 		
+		/**
+		 * When the task is over, close the file and update the frame.
+		 */
 		@Override
 		protected void done()
 		{
