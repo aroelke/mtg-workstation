@@ -3,11 +3,16 @@ package gui.inventory;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -18,6 +23,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -84,31 +91,6 @@ public class InventoryDownloadDialog extends JDialog
 	}
 	
 	/**
-	 * Display the current download progress.
-	 * 
-	 * @param text String indicating how many bytes have been downloaded.
-	 */
-	public void setDownloaded(double downloaded, double toDownload)
-	{
-		progressBar.setIndeterminate(false);
-		progressBar.setValue((int)(100*downloaded/toDownload));
-		String downloadedStr, toDownloadStr;
-		if (downloaded <= 1024)
-			downloadedStr = String.format("%d", downloaded);
-		else if (downloaded <= 1048576)
-			downloadedStr = String.format("%.1fk", downloaded/1024);
-		else
-			downloadedStr = String.format("%.2fM", downloaded/1048576);
-		if (toDownload <= 1024)
-			toDownloadStr = String.format("%d", toDownload);
-		else if (toDownload <= 1048576)
-			toDownloadStr = String.format("%.1fk", toDownload/1024);
-		else
-			toDownloadStr = String.format("%.2fM", toDownload/1048576);
-		progressLabel.setText("Downloading inventory..." + downloadedStr + "B/" + toDownloadStr + "B downloaded.");
-	}
-	
-	/**
 	 * Show this InventoryDownloadDialog and then start a worker that downloads the file.
 	 * When it is complete, return the result.
 	 * 
@@ -120,7 +102,7 @@ public class InventoryDownloadDialog extends JDialog
 	public boolean downloadInventory(URL site, File file)
 	{
 		File tmp = new File(file.getPath() + ".tmp");
-		worker = new InventoryDownloadWorker(this, site, tmp);
+		worker = new InventoryDownloadWorker(site, tmp);
 		worker.execute();
 		setVisible(true);
 		try
@@ -131,6 +113,7 @@ public class InventoryDownloadDialog extends JDialog
 		}
 		catch (InterruptedException | ExecutionException e)
 		{
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error downloading " + file.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			tmp.delete();
 			return false;
@@ -144,6 +127,113 @@ public class InventoryDownloadDialog extends JDialog
 		{
 			tmp.delete();
 			return false;
+		}
+	}
+	
+	/**
+	 * This class represents a worker which downloads the inventory from a website
+	 * in the background.  It is tied to a dialog which blocks input until the
+	 * download is complete.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private class InventoryDownloadWorker extends SwingWorker<Void, Integer>
+	{
+		/**
+		 * URL to download the inventory file from.
+		 */
+		private URL site;
+		/**
+		 * File to store the inventory file in.
+		 */
+		private File file;
+		/**
+		 * Number of bytes to download.
+		 */
+		private String bytes;
+		
+		/**
+		 * Create a new InventoryDownloadWorker.  A new one must be created each time
+		 * a file is to be downloaded.
+		 * 
+		 * @param s URL to download the file from
+		 * @param f File to store it locally in
+		 */
+		public InventoryDownloadWorker(URL s, File f)
+		{
+			super();
+			site = s;
+			file = f;
+		}
+		
+		/**
+		 * Tell the dialog how many bytes were downloaded, sometimes in kB or MB
+		 * if it is too large.
+		 */
+		@Override
+		protected void process(List<Integer> chunks)
+		{
+			int downloaded = chunks.get(chunks.size() - 1);
+			progressBar.setIndeterminate(false);
+			progressBar.setValue(downloaded);
+			String downloadedStr;
+			if (downloaded <= 1024)
+				downloadedStr = String.format("%d", downloaded);
+			else if (downloaded <= 1048576)
+				downloadedStr = String.format("%.1fk", downloaded/1024.0);
+			else
+				downloadedStr = String.format("%.2fM", downloaded/1048576.0);
+			progressLabel.setText("Downloading inventory..." + downloadedStr + "B/" + bytes + "B downloaded.");
+		}
+		
+		/**
+		 * Connect to the site to download the file from, and the download the file,
+		 * periodically reporting how many bytes have been downloaded.
+		 */
+		@Override
+		protected Void doInBackground() throws Exception
+		{
+			try
+			{
+				// TODO: Add ETA
+				URLConnection conn = site.openConnection();
+				int toDownload = conn.getContentLength();
+				if (toDownload <= 1024)
+					bytes = String.format("%d", toDownload);
+				else if (toDownload <= 1048576)
+					bytes = String.format("%.1fk", toDownload/1024.0);
+				else
+					bytes = String.format("%.2fM", toDownload/1048576.0);
+				SwingUtilities.invokeAndWait(() -> progressBar.setMaximum(toDownload));
+				try (BufferedInputStream in = new BufferedInputStream((conn.getInputStream())))
+				{
+					try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file)))
+					{
+						byte[] data = new byte[1024];
+						int size = 0;
+						int x;
+						while ((x = in.read(data, 0, 1024)) >= 0)
+						{
+							size += x;
+							out.write(data, 0, x);
+							publish(size);
+						}
+					}
+				}
+			}
+			finally
+			{}
+			return null;
+		}
+		
+		/**
+		 * When done, close the parent dialog and return control back to its parent.
+		 */
+		@Override
+		protected void done()
+		{
+			setVisible(false);
+			dispose();
 		}
 	}
 }

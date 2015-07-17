@@ -769,9 +769,11 @@ public class MainFrame extends JFrame
 			@Override
 			public void windowOpened(WindowEvent e)
 			{
-				if (Boolean.valueOf(properties.getProperty(SettingsDialog.INITIALDIR)) && checkForUpdate() == UPDATE_NEEDED)
-					if (updateInventory())
-						properties.put(SettingsDialog.VERSION, newestVersion);
+				if (Boolean.valueOf(properties.getProperty(SettingsDialog.INITIAL_CHECK)) || !inventoryFile.exists())
+				{
+					if (checkForUpdate() == UPDATE_NEEDED && updateInventory())
+							properties.put(SettingsDialog.VERSION, newestVersion);
+				}
 				loadInventory();
 			}
 			
