@@ -9,8 +9,6 @@ import database.Deck;
 /**
  * This class represents an action for editing a category in a deck.
  * 
- * TODO: Figure out a way to make this work using only the category string.
- * 
  * @author Alec Roelke
  */
 public class EditCategoryAction implements DeckAction

@@ -7,8 +7,6 @@ import database.Card;
 /**
  * This class represents an action to add a category to the deck.
  * 
- * TODO: Figure out a way to make this work using only the category string.
- * 
  * @author Alec Roelke
  */
 public class AddCategoryAction implements DeckAction
@@ -25,7 +23,13 @@ public class AddCategoryAction implements DeckAction
 	 * String representation of the category added.
 	 */
 	private String repr;
+	/**
+	 * Whitelist of the added category.
+	 */
 	private Set<Card> whitelist;
+	/**
+	 * Blacklist of the added category.
+	 */
 	private Set<Card> blacklist;
 	
 	/**

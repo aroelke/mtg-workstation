@@ -7,8 +7,6 @@ import database.Card;
 /**
  * This class represents an action to remove a category from a deck.
  * 
- * TODO: Figure out a way to make this work using only the category string.
- * 
  * @author Alec Roelke
  */
 public class RemoveCategoryAction implements DeckAction
