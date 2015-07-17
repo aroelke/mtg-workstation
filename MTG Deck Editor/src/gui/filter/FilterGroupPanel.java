@@ -122,7 +122,7 @@ public class FilterGroupPanel extends FilterPanel
 	 */
 	private void init(Collection<FilterPanel> panels)
 	{
-		setBorder(new CompoundBorder(new EmptyBorder(5, 0, 10, 5), new EtchedBorder()));
+		setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 		setLayout(new BorderLayout());
 		filters = new ArrayList<FilterPanel>();
 		
@@ -239,17 +239,17 @@ public class FilterGroupPanel extends FilterPanel
 	/**
 	 * Enclose the specified FilterPanel in a new FilterGroup.
 	 * 
-	 * TODO: Try to figure out a way to replace the specified FilterPanel in place
-	 * 
 	 * @param panel Panel to enclose
 	 */
 	public void groupFilterPanel(FilterPanel panel)
 	{
-		if (filters.contains(panel))
+		int index = filters.indexOf(panel);
+		if (index >= 0)
 		{
-			filters.remove(panel);
-			filtersPanel.remove(panel);
-			addFilterPanel(new FilterGroupPanel(this, panel));
+			filtersPanel.removeAll();
+			filters.set(index, new FilterGroupPanel(this, panel));
+			for (FilterPanel filter: filters)
+				filtersPanel.add(filter);
 		}
 		else
 			throw new IllegalArgumentException("FilterPanel \"" + panel + "\" not found in this group");
