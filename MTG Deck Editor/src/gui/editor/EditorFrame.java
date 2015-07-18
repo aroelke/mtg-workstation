@@ -952,6 +952,8 @@ public class EditorFrame extends JInternalFrame
 			setUnsaved();
 			revalidate();
 			repaint();
+			parent.revalidate();
+			parent.repaint();
 			return true;
 		}
 	}
@@ -1078,6 +1080,8 @@ public class EditorFrame extends JInternalFrame
 			}
 			revalidate();
 			repaint();
+			parent.revalidate();
+			parent.repaint();
 			return changed;
 		}
 	}
@@ -1104,10 +1108,22 @@ public class EditorFrame extends JInternalFrame
 					table.getCellEditor().cancelCellEditing();
 				revalidate();
 				repaint();
+				parent.revalidate();
+				parent.repaint();
 			}
 		}
 		else
 			addCard(c, n);
+	}
+	
+	/**
+	 * @param c Card to look for
+	 * @return <code>true</code> if the specified Card is in the deck, and <code>false</code>
+	 * otherwise.
+	 */
+	public boolean containsCard(Card c)
+	{
+		return deck.contains(c);
 	}
 	
 	/**

@@ -9,8 +9,10 @@ import gui.inventory.InventoryLoadDialog;
 import gui.inventory.InventoryTableModel;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -58,12 +60,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 
 import util.StripedTable;
@@ -72,6 +76,7 @@ import database.Card;
 import database.Inventory;
 import database.ManaCost;
 import database.characteristics.CardCharacteristic;
+import database.characteristics.Rarity;
 
 /**
  * This class represents the main frame of the editor.  It contains several tabs that display information
@@ -633,6 +638,10 @@ public class MainFrame extends JFrame
 		inventoryTable = new StripedTable();
 		inventoryTable.setAutoCreateRowSorter(true);
 		inventoryTable.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
+		inventoryTable.setDefaultRenderer(String.class, new CardTableCellRenderer());
+		inventoryTable.setDefaultRenderer(Integer.class, new CardTableCellRenderer());
+		inventoryTable.setDefaultRenderer(Rarity.class, new CardTableCellRenderer());
+		inventoryTable.setDefaultRenderer(List.class, new CardTableCellRenderer());
 		inventoryTable.setFillsViewportHeight(true);
 		inventoryTable.setShowGrid(false);
 		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.INVENTORY_STRIPE)));
@@ -1239,8 +1248,49 @@ public class MainFrame extends JFrame
 		{
 			frame.setSelected(true);
 			selectedFrame = frame;
+			revalidate();
+			repaint();
 		}
 		catch (PropertyVetoException e)
 		{}
+	}
+	
+	/**
+	 * This class represents a renderer for rendering table cells that display text.  If
+	 * the cell contains text and the card at the row is in the currently-active deck,
+	 * the cell is rendered bold.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private class CardTableCellRenderer extends DefaultTableCellRenderer
+	{
+		/**
+		 * Create a new CardTableCellRenderer.
+		 */
+		public CardTableCellRenderer()
+		{
+			super();
+		}
+		
+		/**
+		 * If the cell is rendered using a JLabel, make that JLabel bold.  Otherwise, just use
+		 * the default renderer.
+		 * 
+		 * @param table JTable to render for
+		 * @param value Value being rendered
+		 * @param isSelected whether or not the cell is selected
+		 * @param hasFocus Whether or not the table has focus
+		 * @param row Row of the cell being rendered
+		 * @param column Column of the cell being rendered
+		 * @return The Component responsible for rendering the table cell.
+		 */
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		{
+			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			if (selectedFrame != null && c instanceof JLabel && selectedFrame.containsCard(inventory.get(table.convertRowIndexToModel(row))))
+				c.setFont(new Font(c.getFont().getFontName(), Font.BOLD, c.getFont().getSize()));
+			return c;
+		}
 	}
 }
