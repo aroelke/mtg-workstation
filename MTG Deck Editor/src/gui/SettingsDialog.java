@@ -300,6 +300,15 @@ public class SettingsDialog extends JDialog
 		
 		inventoryPanel.add(Box.createVerticalGlue());
 		
+		// Warning panel
+		JPanel pathWarningPanel = new JPanel(new BorderLayout());
+		JLabel pathWarningLabel = new JLabel("Warning:  Changing these settings may break functionality");
+		pathWarningLabel.setFont(new Font(pathWarningLabel.getFont().getFontName(), Font.ITALIC, pathWarningLabel.getFont().getSize()));
+		pathWarningLabel.setForeground(Color.RED);
+		pathWarningPanel.add(pathWarningLabel);
+		pathWarningPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, pathWarningLabel.getPreferredSize().height));
+		inventoryPanel.add(pathWarningPanel);
+		
 		// Inventory appearance
 		JPanel inventoryAppearancePanel = new JPanel();
 		inventoryAppearancePanel.setLayout(new BoxLayout(inventoryAppearancePanel, BoxLayout.Y_AXIS));
@@ -341,6 +350,10 @@ public class SettingsDialog extends JDialog
 		recentSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
 		recentSpinner.getModel().setValue(Integer.valueOf(properties.getProperty(RECENT_COUNT)));
 		recentPanel.add(recentSpinner);
+		recentPanel.add(Box.createHorizontalStrut(5));
+		JLabel recentInfoLabel = new JLabel("(Changes will not be visible until program restart)");
+		recentInfoLabel.setFont(new Font(recentInfoLabel.getFont().getFontName(), Font.ITALIC, recentInfoLabel.getFont().getSize()));
+		recentPanel.add(recentInfoLabel);
 		recentPanel.setMaximumSize(recentPanel.getPreferredSize());
 		recentPanel.setAlignmentX(LEFT_ALIGNMENT);
 		editorPanel.add(recentPanel);
