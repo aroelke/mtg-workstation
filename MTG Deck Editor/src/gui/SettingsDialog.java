@@ -60,8 +60,6 @@ import database.characteristics.CardCharacteristic;
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog
 {
-	//TODO: make property names constants rather than hard-coded
-	
 	/**
 	 * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
 	 */

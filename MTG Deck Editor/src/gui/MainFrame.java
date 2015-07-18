@@ -87,7 +87,6 @@ import database.characteristics.Rarity;
  * the right side is a pane which contains internal frames that allow the user to open, close, and edit
  * multiple decks at once.  See @link{gui.editor.EditorFrame} for details on the editor frames.
  * 
- * TODO: Add some indication that a card is in the deck in the inventory table if it is
  * TODO: Remove terminal output showing status of initialization
  * 
  * @author Alec Roelke

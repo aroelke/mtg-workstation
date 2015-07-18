@@ -78,7 +78,6 @@ import database.characteristics.CardCharacteristic;
  * inventory from which cards can be added.
  * 
  * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
- * TODO: Make the stripe color and column choices also go into the category panels' tables
  * 
  * @author Alec Roelke
  */
