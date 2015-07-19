@@ -20,6 +20,9 @@ import database.ManaCost;
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
  * etc.
  * 
+ * TODO: Add constants for the rest of the characteristics
+ * (and add renderers for ones that aren't represented with text)
+ * 
  * @author Alec Roelke
  */
 public enum CardCharacteristic

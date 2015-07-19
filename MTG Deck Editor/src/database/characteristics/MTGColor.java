@@ -1,10 +1,15 @@
 package database.characteristics;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * This enum represents one of the five colors of Magic: The Gathering.
+ * 
+ * TODO: Change the pair and triple classes into a single tuple class
+ * TODO: Come up with a universal sorting algorithm for sorting any number of colors
  * 
  * @author Alec Roelke
  */
@@ -61,7 +66,7 @@ public enum MTGColor
 	 * Sort a list of MTGColors in color order.  If the list contains two colors, it will be
 	 * sorted according to how they appear on a card.  Otherwise, it will be sorted according
 	 * to WUBRG order.  It is recommended to use this rather than using Java's built-in sorting
-	 * functions.
+	 * functions.  The list must not contain any duplicate colors.
 	 * 
 	 * @param colors List of MTGColors to sort.
 	 */
@@ -70,13 +75,17 @@ public enum MTGColor
 		switch (colors.size())
 		{
 		case 2:
-			Pair col = new Pair(colors.get(0), colors.get(1));
+			Pair pair = new Pair(colors.get(0), colors.get(1));
 			colors.clear();
-			colors.add(col.first);
-			colors.add(col.last);
+			colors.add(pair.first);
+			colors.add(pair.last);
+			break;
 		case 3:
-			// TODO: Impose the correct ordering on 3-color lists (assuming there is a single one)
-			Collections.sort(colors);
+			Triple triple = new Triple(colors.get(0), colors.get(1), colors.get(2));
+			colors.clear();
+			colors.add(triple.first);
+			colors.add(triple.middle);
+			colors.add(triple.last);
 			break;
 		case 4:
 			// TODO: Impose the correct ordering on 4-color lists (assuming there is one)
@@ -102,6 +111,24 @@ public enum MTGColor
 	private MTGColor(final String color)
 	{
 		this.color = color;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public MTGColor[] allies()
+	{
+		return new MTGColor[] {values()[ordinal() == 0 ? values().length - 1 : ordinal() - 1], values()[(ordinal() + 1)%values().length]};
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public MTGColor[] enemies()
+	{
+		return new MTGColor[] {values()[(((ordinal() - 2)%values().length) + values().length)%values().length], values()[(ordinal() + 2)%values().length]};
 	}
 	
 	/**
@@ -172,6 +199,8 @@ public enum MTGColor
 		 */
 		public Pair(MTGColor col1, MTGColor col2)
 		{
+			if (col1.equals(col2))
+				throw new IllegalArgumentException("The two colors must be different");
 			if (col1.colorOrder(col2) < 0)
 			{
 				first = col1;
@@ -220,6 +249,53 @@ public enum MTGColor
 		public int compareTo(Pair other)
 		{
 			return first.colorOrder(other.first)*100 + last.colorOrder(other.last);
+		}
+	}
+	
+	/**
+	 * TODO: Comment this class
+	 * @author Alec
+	 */
+	public static class Triple implements Comparable<Triple>
+	{
+		public final MTGColor first;
+		public final MTGColor middle;
+		public final MTGColor last;
+		
+		public Triple(MTGColor col1, MTGColor col2, MTGColor col3)
+		{
+			List<MTGColor> cols = new ArrayList<MTGColor>(Arrays.asList(col1, col2, col3));
+			Collections.sort(cols);
+			while (!(cols.get(0).equals(cols.get(1).allies()[0]) && cols.get(2).equals(cols.get(1).allies()[1])) && !(cols.get(0).equals(cols.get(1).enemies()[0]) && cols.get(2).equals(cols.get(1).enemies()[1])))
+				Collections.rotate(cols, 1);
+			first = cols.get(0);
+			middle = cols.get(1);
+			last = cols.get(2);
+		}
+		
+		@Override
+		public boolean equals(Object other)
+		{
+			if (other == this)
+				return true;
+			if (other == null)
+				return false;
+			if (!(other instanceof Triple))
+				return false;
+			Triple t = (Triple)other;
+			return first.equals(t.first) && middle.equals(t.middle) && last.equals(t.last);
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return first.hashCode()^middle.hashCode()^last.hashCode();
+		}
+		
+		@Override
+		public int compareTo(Triple other)
+		{
+			return middle.colorOrder(other.middle)*10000 + first.colorOrder(other.first)*100 + last.colorOrder(other.last);
 		}
 	}
 }
