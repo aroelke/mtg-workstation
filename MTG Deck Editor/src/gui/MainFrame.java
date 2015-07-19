@@ -17,6 +17,8 @@ import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
@@ -597,6 +599,15 @@ public class MainFrame extends JFrame
 		inventoryTable.setFillsViewportHeight(true);
 		inventoryTable.setShowGrid(false);
 		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.INVENTORY_STRIPE)));
+		inventoryTable.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				if (e.getClickCount()%2 == 0 && selectedFrame != null)
+					selectedFrame.addCards(getSelectedCards(), 1);
+			}
+		});
 		tablePanel.add(new JScrollPane(inventoryTable), BorderLayout.CENTER);
 		
 		// Table popup menu
