@@ -199,6 +199,7 @@ public class TextFilterPanel extends FilterEditorPanel
 			contain.setSelectedItem(Containment.get(m.group(1)));
 			filterValue.setText(content.substring(m.end(), content.length() - 1));
 			regex.setSelected(content.endsWith("/"));
+			contain.setVisible(!regex.isSelected());
 		}
 		else
 			throw new IllegalArgumentException("Illegal content string: " + content);
