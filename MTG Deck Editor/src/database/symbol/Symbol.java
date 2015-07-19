@@ -134,7 +134,7 @@ public abstract class Symbol implements Comparable<Symbol>
 				else if (cols[1].equalsIgnoreCase("P"))
 					return PhyrexianSymbol.SYMBOLS.get(MTGColor.get(cols[0]));
 				else
-					return HybridSymbol.SYMBOLS.get(new MTGColor.Pair(MTGColor.get(cols[0]), MTGColor.get(cols[1])));
+					return HybridSymbol.SYMBOLS.get(new MTGColor.Tuple(MTGColor.get(cols[0]), MTGColor.get(cols[1])));
 			}
 			catch (IllegalArgumentException e)
 			{

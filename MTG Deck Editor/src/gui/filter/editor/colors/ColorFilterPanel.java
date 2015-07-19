@@ -5,6 +5,7 @@ import gui.filter.editor.FilterEditorPanel;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -90,7 +91,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 	 * Characteristic that will be filtered, represented by a Function mapping
 	 * Cards onto lists of MTGColors.
 	 */
-	private Function<Card, List<MTGColor>> colorFunction;
+	private Function<Card, MTGColor.Tuple> colorFunction;
 	
 	/**
 	 * Create a new ColorFilterPanel.  The panel will appear as a combo box
@@ -101,7 +102,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 	 * to filter
 	 * @param c This filter's code
 	 */
-	public ColorFilterPanel(Function<Card, List<MTGColor>> f, String c)
+	public ColorFilterPanel(Function<Card, MTGColor.Tuple> f, String c)
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -177,7 +178,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 			colors.add(RED.color());
 		if (greenCheckBox.isSelected())
 			colors.add(GREEN.color());
-		return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(colorFunction.apply(c), colors);
+		return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(Arrays.asList(colorFunction.apply(c).toArray()), colors);
 	}
 
 	/**

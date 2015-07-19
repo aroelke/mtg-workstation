@@ -77,7 +77,7 @@ public final class Card
 	/**
 	 * This Card's colors.
 	 */
-	public final List<MTGColor> colors;
+	public final MTGColor.Tuple colors;
 	/**
 	 * This Card's supertypes.
 	 */
@@ -157,7 +157,7 @@ public final class Card
 	 * colors of any mana symbols that appear in its rules text that is not
 	 * reminder text, and in abilities that are given it by basic land types.
 	 */
-	public final List<MTGColor> colorIdentity;
+	public final MTGColor.Tuple colorIdentity;
 	
 	/**
 	 * Create a new Card.
@@ -202,7 +202,7 @@ public final class Card
 	{
 		this.name = name;
 		this.mana = new ManaCost(mana);
-		this.colors = Collections.unmodifiableList(colors);
+		this.colors = new MTGColor.Tuple(colors);
 		this.supertypes = Collections.unmodifiableList(supertype);
 		this.types = Collections.unmodifiableList(type);
 		this.subtypes = Collections.unmodifiableList(subtype);
@@ -243,26 +243,23 @@ public final class Card
 		List<MTGColor> identity = new ArrayList<MTGColor>(colors);
 		Matcher m = ManaCost.MANA_COST_PATTERN.matcher(text);
 		while (m.find())
-		{
 			for (MTGColor col: ManaCost.valueOf(m.group()).colors())
-				if (!identity.contains(col))
-					identity.add(col);
-		}
+				identity.add(col);
 		for (String sub: subtype)
 		{
-			if (sub.equalsIgnoreCase("plains") && !identity.contains(MTGColor.WHITE))
+			if (sub.equalsIgnoreCase("plains"))
 				identity.add(MTGColor.WHITE);
-			else if (sub.equalsIgnoreCase("island") && !identity.contains(MTGColor.BLUE))
+			else if (sub.equalsIgnoreCase("island"))
 				identity.add(MTGColor.BLUE);
-			else if (sub.equalsIgnoreCase("swamp") && !identity.contains(MTGColor.BLACK))
+			else if (sub.equalsIgnoreCase("swamp"))
 				identity.add(MTGColor.BLACK);
-			else if (sub.equalsIgnoreCase("mountain") && !identity.contains(MTGColor.RED))
+			else if (sub.equalsIgnoreCase("mountain"))
 				identity.add(MTGColor.RED);
-			else if (sub.equalsIgnoreCase("forest") && !identity.contains(MTGColor.GREEN))
+			else if (sub.equalsIgnoreCase("forest"))
 				identity.add(MTGColor.GREEN);
 		}
 		MTGColor.sort(identity);
-		colorIdentity = Collections.unmodifiableList(identity);
+		colorIdentity = new MTGColor.Tuple(identity);
 /*
 		Matcher m = ManaCost.manaCostPattern.matcher(text);
 		while (m.find())

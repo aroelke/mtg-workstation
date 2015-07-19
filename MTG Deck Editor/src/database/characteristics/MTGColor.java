@@ -2,7 +2,9 @@ package database.characteristics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -72,29 +74,11 @@ public enum MTGColor
 	 */
 	public static void sort(List<MTGColor> colors)
 	{
-		switch (colors.size())
+		if (!colors.isEmpty())
 		{
-		case 2:
-			Pair pair = new Pair(colors.get(0), colors.get(1));
+			Tuple t = new Tuple(colors);
 			colors.clear();
-			colors.add(pair.first);
-			colors.add(pair.last);
-			break;
-		case 3:
-			Triple triple = new Triple(colors.get(0), colors.get(1), colors.get(2));
-			colors.clear();
-			colors.add(triple.first);
-			colors.add(triple.middle);
-			colors.add(triple.last);
-			break;
-		case 4:
-			// TODO: Impose the correct ordering on 4-color lists (assuming there is one)
-			Collections.sort(colors);
-			break;
-		case 5:
-			Collections.sort(colors);
-		default:
-			break;
+			colors.addAll(Arrays.asList(t.toArray()));
 		}
 	}
 	
@@ -175,127 +159,130 @@ public enum MTGColor
 	}
 	
 	/**
-	 * This class represents a pair of colors that is sorted according to color order.
-	 * 
-	 * @author Alec Roelke
+	 * TODO: Comment this
+	 * TODO: Make this a Collection
+	 * @param other
+	 * @return
 	 */
-	public static class Pair implements Comparable<Pair>
+	public int distance(MTGColor other)
 	{
-		/**
-		 * First MTGColor in the pair.
-		 */
-		public final MTGColor first;
-		/**
-		 * Last MTGColor in the pair.
-		 */
-		public final MTGColor last;
-		
-		/**
-		 * Create a new Pair of MTGColors, sorted according to their color order.
-		 * 
-		 * @param col1 One of the colors.
-		 * @param col2 The other color.
-		 * @see database.characteristics.MTGColor#colorOrder(MTGColor)
-		 */
-		public Pair(MTGColor col1, MTGColor col2)
-		{
-			if (col1.equals(col2))
-				throw new IllegalArgumentException("The two colors must be different");
-			if (col1.colorOrder(col2) < 0)
-			{
-				first = col1;
-				last = col2;
-			}
-			else
-			{
-				first = col2;
-				last = col1;
-			}
-		}
-		
-		/**
-		 * @param other Object to compare to.
-		 * @return <code>true</code> if the other object is an MTGColor and is the same color, and
-		 * <code>false</code> otherwise.
-		 */
-		@Override
-		public boolean equals(Object other)
-		{
-			if (other == this)
-				return true;
-			if (other == null)
-				return false;
-			if (!(other instanceof Pair))
-				return false;
-			Pair p = (Pair)other;
-			return first.equals(p.first) && last.equals(p.last); 
-		}
-		
-		/**
-		 * @return an unique identifier for this MTGColor pair.
-		 */
-		@Override
-		public int hashCode()
-		{
-			return first.hashCode()^last.hashCode();
-		}
-
-		/**
-		 * @param other Pair to compare to.
-		 * @return A negative number if this Pair should come before the other one, 0 if they have
-		 * the same ordering, and a positive if it should come after.
-		 */
-		@Override
-		public int compareTo(Pair other)
-		{
-			return first.colorOrder(other.first)*100 + last.colorOrder(other.last);
-		}
+		return (other.ordinal() - ordinal() + values().length)%values().length;
 	}
 	
 	/**
-	 * TODO: Comment this class
+	 * TODO: Comment this
 	 * @author Alec
 	 */
-	public static class Triple implements Comparable<Triple>
+	public static class Tuple implements Comparable<Tuple>
 	{
-		public final MTGColor first;
-		public final MTGColor middle;
-		public final MTGColor last;
+		private List<MTGColor> colors;
 		
-		public Triple(MTGColor col1, MTGColor col2, MTGColor col3)
+		public Tuple(List<MTGColor> cols)
 		{
-			List<MTGColor> cols = new ArrayList<MTGColor>(Arrays.asList(col1, col2, col3));
-			Collections.sort(cols);
-			while (!(cols.get(0).equals(cols.get(1).allies()[0]) && cols.get(2).equals(cols.get(1).allies()[1])) && !(cols.get(0).equals(cols.get(1).enemies()[0]) && cols.get(2).equals(cols.get(1).enemies()[1])))
-				Collections.rotate(cols, 1);
-			first = cols.get(0);
-			middle = cols.get(1);
-			last = cols.get(2);
+			colors = new ArrayList<MTGColor>(new HashSet<MTGColor>(cols));
+			Collections.sort(colors);
+			switch (colors.size())
+			{
+			case 2:
+				if (colors.get(0).colorOrder(colors.get(1)) > 0)
+					Collections.reverse(colors);
+				break;
+			case 3:
+				while (colors.get(0).distance(colors.get(1)) != colors.get(1).distance(colors.get(2)))
+					Collections.rotate(colors, 1);
+				break;
+			case 4:
+				boolean equal;
+				do
+				{
+					equal = true;
+					for (int i = 0; i < 3; i++)
+					{
+						if (colors.get(i).distance(colors.get(i + 1)) != 1)
+						{
+							equal = false;
+							Collections.rotate(colors, 1);
+							break;
+						}
+					}
+				} while (!equal);
+				break;
+			default:
+				break;
+			}
+		}
+		
+		public Tuple(MTGColor... cols)
+		{
+			this(Arrays.asList(cols));
+		}
+		
+		public int size()
+		{
+			return colors.size();
+		}
+		
+		public MTGColor get(int index)
+		{
+			return colors.get(index);
+		}
+		
+		public boolean contains(MTGColor color)
+		{
+			return colors.contains(color);
+		}
+		
+		public boolean containsAll(Collection<MTGColor> cols)
+		{
+			return colors.containsAll(cols);
+		}
+		
+		public boolean containsAll(Tuple cols)
+		{
+			return colors.containsAll(cols.colors);
+		}
+		
+		public MTGColor[] toArray()
+		{
+			return colors.toArray(new MTGColor[colors.size()]);
+		}
+		
+		@Override
+		public int compareTo(Tuple other)
+		{
+			int diff = size() - other.size();
+			if (diff == 0)
+				for (int i = 0; i < size(); i++)
+					diff += get(i).colorOrder(other.get(i))*Math.pow(10, size() - i);
+			return diff;
 		}
 		
 		@Override
 		public boolean equals(Object other)
 		{
-			if (other == this)
-				return true;
 			if (other == null)
 				return false;
-			if (!(other instanceof Triple))
+			if (other == this)
+				return true;
+			if (!(other instanceof Tuple))
 				return false;
-			Triple t = (Triple)other;
-			return first.equals(t.first) && middle.equals(t.middle) && last.equals(t.last);
+			Tuple t = (Tuple)other;
+			return containsAll(t) && t.containsAll(this);
 		}
 		
 		@Override
 		public int hashCode()
 		{
-			return first.hashCode()^middle.hashCode()^last.hashCode();
+			int h = Integer.MAX_VALUE;
+			for (MTGColor col: colors)
+				h ^= col.hashCode();
+			return h;
 		}
 		
 		@Override
-		public int compareTo(Triple other)
+		public String toString()
 		{
-			return middle.colorOrder(other.middle)*10000 + first.colorOrder(other.first)*100 + last.colorOrder(other.last);
+			return colors.toString();
 		}
 	}
 }

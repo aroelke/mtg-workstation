@@ -31,7 +31,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,7 +76,6 @@ import database.Card;
 import database.Inventory;
 import database.ManaCost;
 import database.characteristics.CardCharacteristic;
-import database.characteristics.MTGColor;
 import database.characteristics.Rarity;
 
 /**
@@ -732,16 +730,6 @@ public class MainFrame extends JFrame
 				exit();
 			}
 		});
-		
-		List<MTGColor> colors = new ArrayList<MTGColor>(Arrays.asList(MTGColor.values()));
-		for (int i = 0; i < 25; i++)
-		{
-			Collections.shuffle(colors);
-			List<MTGColor> t = colors.subList(0, 3);
-			System.out.println(t);
-			MTGColor.sort(t);
-			System.out.println("->" + t);
-		}
 	}
 	
 	/**

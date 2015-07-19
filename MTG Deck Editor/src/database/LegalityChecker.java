@@ -108,7 +108,7 @@ public class LegalityChecker
 		{
 			Set<MTGColor> deckColorIdentity = new HashSet<MTGColor>();
 			for (Card c: deck)
-				deckColorIdentity.addAll(c.colors);
+				deckColorIdentity.addAll(Arrays.asList(c.colors.toArray()));
 			for (Card c: new ArrayList<Card>(possibleCommanders))
 				if (!c.colors.containsAll(deckColorIdentity))
 					possibleCommanders.remove(c);

@@ -9,37 +9,37 @@ import database.characteristics.MTGColor;
  * This class represents a two-color hybrid symbol.  It will sort its colors so that they appear in the correct order.
  * 
  * @author Alec Roelke
- * @see database.characteristics.Color.Pair
+ * @see database.characteristics.Color.Tuple
  */
 public class HybridSymbol extends Symbol
 {
 	/**
-	 * Map mapping each pair of colors to their corresponding hybrid symbols.
+	 * Map mapping each Tuple of colors to their corresponding hybrid symbols.
 	 * @see database.symbol.Symbol
 	 */
-	public static final Map<MTGColor.Pair, HybridSymbol> SYMBOLS = new HashMap<MTGColor.Pair, HybridSymbol>();
+	public static final Map<MTGColor.Tuple, HybridSymbol> SYMBOLS = new HashMap<MTGColor.Tuple, HybridSymbol>();
 	static
 	{
-		SYMBOLS.put(new MTGColor.Pair(MTGColor.WHITE, MTGColor.BLUE), new HybridSymbol(new MTGColor.Pair(MTGColor.WHITE, MTGColor.BLUE)));
-		SYMBOLS.put(new MTGColor.Pair(MTGColor.WHITE, MTGColor.BLACK), new HybridSymbol(new MTGColor.Pair(MTGColor.WHITE, MTGColor.BLACK)));
-		SYMBOLS.put(new MTGColor.Pair(MTGColor.BLUE, MTGColor.BLACK), new HybridSymbol(new MTGColor.Pair(MTGColor.BLUE, MTGColor.BLACK)));
-		SYMBOLS.put(new MTGColor.Pair(MTGColor.BLUE, MTGColor.RED), new HybridSymbol(new MTGColor.Pair(MTGColor.BLUE, MTGColor.RED)));
-		SYMBOLS.put(new MTGColor.Pair(MTGColor.BLACK, MTGColor.RED), new HybridSymbol(new MTGColor.Pair(MTGColor.BLACK, MTGColor.RED)));
-		SYMBOLS.put(new MTGColor.Pair(MTGColor.BLACK, MTGColor.GREEN), new HybridSymbol(new MTGColor.Pair(MTGColor.BLACK, MTGColor.GREEN)));
-		SYMBOLS.put(new MTGColor.Pair(MTGColor.RED, MTGColor.GREEN), new HybridSymbol(new MTGColor.Pair(MTGColor.RED, MTGColor.GREEN)));
-		SYMBOLS.put(new MTGColor.Pair(MTGColor.RED, MTGColor.WHITE), new HybridSymbol(new MTGColor.Pair(MTGColor.RED, MTGColor.WHITE)));
-		SYMBOLS.put(new MTGColor.Pair(MTGColor.GREEN, MTGColor.WHITE), new HybridSymbol(new MTGColor.Pair(MTGColor.GREEN, MTGColor.WHITE)));
-		SYMBOLS.put(new MTGColor.Pair(MTGColor.GREEN, MTGColor.BLUE), new HybridSymbol(new MTGColor.Pair(MTGColor.GREEN, MTGColor.BLUE)));
+		SYMBOLS.put(new MTGColor.Tuple(MTGColor.WHITE, MTGColor.BLUE), new HybridSymbol(new MTGColor.Tuple(MTGColor.WHITE, MTGColor.BLUE)));
+		SYMBOLS.put(new MTGColor.Tuple(MTGColor.WHITE, MTGColor.BLACK), new HybridSymbol(new MTGColor.Tuple(MTGColor.WHITE, MTGColor.BLACK)));
+		SYMBOLS.put(new MTGColor.Tuple(MTGColor.BLUE, MTGColor.BLACK), new HybridSymbol(new MTGColor.Tuple(MTGColor.BLUE, MTGColor.BLACK)));
+		SYMBOLS.put(new MTGColor.Tuple(MTGColor.BLUE, MTGColor.RED), new HybridSymbol(new MTGColor.Tuple(MTGColor.BLUE, MTGColor.RED)));
+		SYMBOLS.put(new MTGColor.Tuple(MTGColor.BLACK, MTGColor.RED), new HybridSymbol(new MTGColor.Tuple(MTGColor.BLACK, MTGColor.RED)));
+		SYMBOLS.put(new MTGColor.Tuple(MTGColor.BLACK, MTGColor.GREEN), new HybridSymbol(new MTGColor.Tuple(MTGColor.BLACK, MTGColor.GREEN)));
+		SYMBOLS.put(new MTGColor.Tuple(MTGColor.RED, MTGColor.GREEN), new HybridSymbol(new MTGColor.Tuple(MTGColor.RED, MTGColor.GREEN)));
+		SYMBOLS.put(new MTGColor.Tuple(MTGColor.RED, MTGColor.WHITE), new HybridSymbol(new MTGColor.Tuple(MTGColor.RED, MTGColor.WHITE)));
+		SYMBOLS.put(new MTGColor.Tuple(MTGColor.GREEN, MTGColor.WHITE), new HybridSymbol(new MTGColor.Tuple(MTGColor.GREEN, MTGColor.WHITE)));
+		SYMBOLS.put(new MTGColor.Tuple(MTGColor.GREEN, MTGColor.BLUE), new HybridSymbol(new MTGColor.Tuple(MTGColor.GREEN, MTGColor.BLUE)));
 	}
 	
 	/**
-	 * This HybridSymbol's pair of colors.
+	 * This HybridSymbol's Tuple of colors.
 	 */
-	private final MTGColor.Pair colors;
+	private final MTGColor.Tuple colors;
 	
-	private HybridSymbol(MTGColor.Pair colors)
+	private HybridSymbol(MTGColor.Tuple colors)
 	{
-		super(colors.first.toString().toLowerCase() + "_" + colors.last.toString().toLowerCase() + "_mana.png");
+		super(colors.get(0).toString().toLowerCase() + "_" + colors.get(1).toString().toLowerCase() + "_mana.png");
 		this.colors = colors;
 	}
 	
@@ -50,7 +50,7 @@ public class HybridSymbol extends Symbol
 	@Override
 	public String getText()
 	{
-		return colors.first.shorthand() + "/" + colors.last.shorthand();
+		return colors.get(0).shorthand() + "/" + colors.get(1).shorthand();
 	}
 
 	/**
@@ -72,15 +72,15 @@ public class HybridSymbol extends Symbol
 	public Map<MTGColor, Double> colorWeights()
 	{
 		Map<MTGColor, Double> weights = createWeights(0, 0, 0, 0, 0);
-		weights.put(colors.first, 0.5);
-		weights.put(colors.last, 0.5);
+		weights.put(colors.get(0), 0.5);
+		weights.put(colors.get(1), 0.5);
 		return weights;
 	}
 
 	/**
 	 * @param o Symbol to compare with
 	 * @return A negative number if the other symbol should come after this HybridSymbol,
-	 * the two symbols' Pairs' difference if they are both HybridSymbols, 0 if color order
+	 * the two symbols' Tuples' difference if they are both HybridSymbols, 0 if color order
 	 * doesn't matter, and a postive number if the other symbol should come before.
 	 * @see database.symbol.Symbol#compareTo(Symbol)
 	 */
@@ -101,7 +101,7 @@ public class HybridSymbol extends Symbol
 	}
 
 	/**
-	 * @return <code>true</code> if the other Symbol is a HybridSymbol with the same Pair of MTGColors,
+	 * @return <code>true</code> if the other Symbol is a HybridSymbol with the same Tuple of MTGColors,
 	 * and <code>false</code>otherwise.
 	 * @see database.symbol.Symbol#sameSymbol(Symbol)
 	 */
@@ -109,7 +109,7 @@ public class HybridSymbol extends Symbol
 	public boolean sameSymbol(Symbol other)
 	{
 		return other instanceof HybridSymbol
-			   && colors.first.equals(((HybridSymbol)other).colors.first)
-			   && colors.last.equals(((HybridSymbol)other).colors.last);
+			   && colors.get(0).equals(((HybridSymbol)other).colors.get(0))
+			   && colors.get(1).equals(((HybridSymbol)other).colors.get(1));
 	}
 }
