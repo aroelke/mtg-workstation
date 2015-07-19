@@ -38,7 +38,7 @@ public class LegalityChecker
 	private Map<String, List<String>> warnings;
 	
 	/**
-	 * Craete a new LegalityChecker.
+	 * Create a new LegalityChecker.
 	 */
 	public LegalityChecker()
 	{
@@ -108,7 +108,7 @@ public class LegalityChecker
 		{
 			Set<MTGColor> deckColorIdentity = new HashSet<MTGColor>();
 			for (Card c: deck)
-				deckColorIdentity.addAll(Arrays.asList(c.colors.toArray()));
+				deckColorIdentity.addAll(c.colors);
 			for (Card c: new ArrayList<Card>(possibleCommanders))
 				if (!c.colors.containsAll(deckColorIdentity))
 					possibleCommanders.remove(c);

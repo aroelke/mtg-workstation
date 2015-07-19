@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -173,7 +174,7 @@ public enum MTGColor
 	 * TODO: Comment this
 	 * @author Alec
 	 */
-	public static class Tuple implements Comparable<Tuple>
+	public static class Tuple implements Comparable<Tuple>, Collection<MTGColor>
 	{
 		private List<MTGColor> colors;
 		
@@ -217,9 +218,16 @@ public enum MTGColor
 			this(Arrays.asList(cols));
 		}
 		
+		@Override
 		public int size()
 		{
 			return colors.size();
+		}
+		
+		@Override
+		public boolean isEmpty()
+		{
+			return size() == 0;
 		}
 		
 		public MTGColor get(int index)
@@ -227,24 +235,34 @@ public enum MTGColor
 			return colors.get(index);
 		}
 		
-		public boolean contains(MTGColor color)
+		@Override
+		public boolean contains(Object o)
 		{
-			return colors.contains(color);
+			return colors.contains(o);
 		}
 		
-		public boolean containsAll(Collection<MTGColor> cols)
+		@Override
+		public boolean containsAll(Collection<?> c)
 		{
-			return colors.containsAll(cols);
+			return colors.containsAll(c);
 		}
 		
-		public boolean containsAll(Tuple cols)
+		@Override
+		public Iterator<MTGColor> iterator()
 		{
-			return colors.containsAll(cols.colors);
+			return colors.iterator();
 		}
 		
+		@Override
 		public MTGColor[] toArray()
 		{
 			return colors.toArray(new MTGColor[colors.size()]);
+		}
+		
+		@Override
+		public <T> T[] toArray(T[] a)
+		{
+			return colors.toArray(a);
 		}
 		
 		@Override
@@ -253,7 +271,7 @@ public enum MTGColor
 			int diff = size() - other.size();
 			if (diff == 0)
 				for (int i = 0; i < size(); i++)
-					diff += get(i).colorOrder(other.get(i))*Math.pow(10, size() - i);
+					diff += get(i).compareTo(other.get(i))*Math.pow(10, size() - i);
 			return diff;
 		}
 		
@@ -283,6 +301,42 @@ public enum MTGColor
 		public String toString()
 		{
 			return colors.toString();
+		}
+
+		@Override
+		public boolean add(MTGColor arg0)
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean addAll(Collection<? extends MTGColor> arg0)
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void clear()
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean remove(Object arg0)
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean removeAll(Collection<?> arg0)
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean retainAll(Collection<?> arg0)
+		{
+			throw new UnsupportedOperationException();
 		}
 	}
 }

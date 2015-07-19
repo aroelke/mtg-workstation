@@ -35,6 +35,8 @@ public enum CardCharacteristic
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}, new SpinnerCellEditor()),
 	MANA_COST("Mana Cost", ManaCost.class, (l, i) -> l.get(i).mana, (l, i) -> l.get(i).mana),
+	COLORS("Colors", MTGColor.Tuple.class, (l, i) -> l.get(i).colors, (l, i) -> l.get(i).colors),
+	COLOR_IDENTITY("Color Identity", MTGColor.Tuple.class, (l, i) -> l.get(i).colorIdentity, (l, i) -> l.get(i).colorIdentity),
 	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine, (l, i) -> l.get(i).typeLine),
 	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).set.name, (l, i) -> l.get(i).set.name),
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity, (l, i) -> l.get(i).rarity),

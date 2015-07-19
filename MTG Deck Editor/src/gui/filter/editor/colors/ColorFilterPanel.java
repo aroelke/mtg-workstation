@@ -5,7 +5,6 @@ import gui.filter.editor.FilterEditorPanel;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -178,7 +177,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 			colors.add(RED.color());
 		if (greenCheckBox.isSelected())
 			colors.add(GREEN.color());
-		return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(Arrays.asList(colorFunction.apply(c).toArray()), colors);
+		return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(colorFunction.apply(c), colors);
 	}
 
 	/**
