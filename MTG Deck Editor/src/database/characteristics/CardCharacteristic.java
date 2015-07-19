@@ -20,8 +20,7 @@ import database.ManaCost;
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
  * etc.
  * 
- * TODO: Add constants for the rest of the characteristics
- * (and add renderers for ones that aren't represented with text)
+ * TODO: Figure out how to make power and toughness (and loyalty) sort properly
  * 
  * @author Alec Roelke
  */
@@ -40,6 +39,10 @@ public enum CardCharacteristic
 	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine, (l, i) -> l.get(i).typeLine),
 	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).set.name, (l, i) -> l.get(i).set.name),
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity, (l, i) -> l.get(i).rarity),
+	POWER("Power", String.class, (l, i) -> l.get(i).power, (l, i) -> l.get(i).power),
+	TOUGHNESS("Toughness", String.class, (l, i) -> l.get(i).toughness, (l, i) -> l.get(i).toughness),
+	LOYALTY("Loyalty", String.class, (l, i) -> l.get(i).loyalty, (l, i) -> l.get(i).loyalty),
+	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist, (l, i) -> l.get(i).artist),
 	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn());
 	
 	/**

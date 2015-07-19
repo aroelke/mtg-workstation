@@ -78,6 +78,7 @@ import database.Card;
 import database.Inventory;
 import database.ManaCost;
 import database.characteristics.CardCharacteristic;
+import database.characteristics.MTGColor;
 import database.characteristics.Rarity;
 
 /**
@@ -592,6 +593,7 @@ public class MainFrame extends JFrame
 		inventoryTable = new StripedTable();
 		inventoryTable.setAutoCreateRowSorter(true);
 		inventoryTable.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
+		inventoryTable.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		inventoryTable.setDefaultRenderer(String.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Integer.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Rarity.class, new CardTableCellRenderer());
