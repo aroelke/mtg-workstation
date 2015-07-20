@@ -1,5 +1,6 @@
 package gui.editor;
 
+import gui.ColorRenderer;
 import gui.ManaCostRenderer;
 import gui.SettingsDialog;
 
@@ -31,6 +32,7 @@ import database.Card;
 import database.Deck;
 import database.ManaCost;
 import database.characteristics.CardCharacteristic;
+import database.characteristics.MTGColor;
 
 /**
  * This class represents a panel that shows information about a category in a deck.
@@ -133,6 +135,7 @@ public class CategoryPanel extends JPanel
 		};
 		table.setAutoCreateRowSorter(true);
 		table.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
+		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(false);
 		table.setFillsViewportHeight(true);

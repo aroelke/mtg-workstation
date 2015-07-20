@@ -1,5 +1,6 @@
 package gui.editor;
 
+import gui.ColorRenderer;
 import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
@@ -70,6 +71,7 @@ import database.Deck;
 import database.LegalityChecker;
 import database.ManaCost;
 import database.characteristics.CardCharacteristic;
+import database.characteristics.MTGColor;
 
 /**
  * This class represents an internal frame for editing a deck.  It contains a table that shows all cards
@@ -221,6 +223,7 @@ public class EditorFrame extends JInternalFrame
 		table.setFillsViewportHeight(true);
 		table.setAutoCreateRowSorter(true);
 		table.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
+		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(false);
 		table.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
