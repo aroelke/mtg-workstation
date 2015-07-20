@@ -166,6 +166,7 @@ public class FilterGroupPanel extends FilterPanel
 			if (getGroup() == null)
 			{
 				FilterGroupPanel child = new FilterGroupPanel(this, filters);
+				child.modeBox.setSelectedIndex(modeBox.getSelectedIndex());
 				clear();
 				addFilterPanel(child);
 			}

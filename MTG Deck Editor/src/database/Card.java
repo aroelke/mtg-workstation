@@ -504,12 +504,14 @@ public final class Card
 	/**
 	 * @param format Name of the format to check
 	 * @return <code>true</code> if this Card is legal (restricted or unrestricted)
-	 * in the specified format, and <code>false</code> otherwise.
+	 * in the specified format, and <code>false</code> otherwise.  If the format's
+	 * legality isn't specified by the inventory file, then the card is assumed to be
+	 * legal in it.
 	 */
 	public boolean legalIn(String format)
 	{
 		if (!legality.containsKey(format))
-			return false;
+			return true;
 		else
 			return legality.get(format) != Legality.BANNED;
 	}

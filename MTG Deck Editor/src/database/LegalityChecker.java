@@ -53,6 +53,12 @@ public class LegalityChecker
 	 * Check which formats a deck is legal in, and the reasons for why it is illegal in
 	 * others.
 	 * 
+	 * TODO: Add deck construction rules for:
+	 * - Prismatic (250 card minimum, at least 20 cards of each color and each card counts for up to one color)
+	 * - Tribal Wars Legacy/Standard (1/3 of the cards of the deck must have the same creature type)
+	 * - Freeform (minimum deck size 40, every card should be legal)
+	 * - X Block (only cards with printings in those blocks are legal) (this probably should be handled by the card)
+	 * 
 	 * @param deck
 	 */
 	public void checkLegality(Deck deck)
@@ -64,6 +70,18 @@ public class LegalityChecker
 			{
 				if (deck.total() != 100)
 					warnings.get(format).add("Deck does not contain exactly 100 cards");
+			}
+			else if (format.equalsIgnoreCase("singleton 100"))
+			{
+				if (deck.total() < 100)
+					warnings.get(format).add("Deck does not contain exactly 100 cards");
+				else if (deck.total() > 115)
+					warnings.get(format).add("Sideboard is greater than 15 cards");
+			}
+			else if (format.equalsIgnoreCase("freeform"))
+			{
+				if (deck.total() < 40)
+					warnings.get(format).add("Deck contains fewer than 40 cards");
 			}
 			else
 			{
@@ -81,7 +99,7 @@ public class LegalityChecker
 					warnings.get(format).add(c.name + " is illegal in " + format);
 				else if (!c.ignoreCountRestriction())
 				{
-					if (format.equalsIgnoreCase("commander"))
+					if (format.equalsIgnoreCase("commander") || format.equalsIgnoreCase("singleton 100"))
 					{
 						if (deck.count(c) > 1)
 							warnings.get(format).add("Deck contains more than 1 copy of " + c.name);
