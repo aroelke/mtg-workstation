@@ -25,7 +25,7 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 				return false;
 		return true;
 	}),
-	CONTAINS_ALL_OF((a, b) -> a.containsAll(b)),
+	CONTAINS_ALL_OF(Collection::containsAll),
 	CONTAINS_NOT_ALL_OF((a, b) -> CONTAINS_ANY_OF.test(a,  b) && !a.containsAll(b)),
 	CONTAINS_EXACTLY((a, b) -> a.containsAll(b) && b.containsAll(a)),
 	CONTAINS_NOT_EXACTLY((a, b) -> Collections.disjoint(a, b) && (a.isEmpty() != b.isEmpty()));

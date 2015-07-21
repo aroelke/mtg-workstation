@@ -4,13 +4,16 @@ import gui.filter.FilterType;
 import database.Card;
 
 /**
- * TODO: Comment this
+ * This class represents a panel that can filter cards by their subtype.
  * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class SubtypeFilterPanel extends MultiOptionsFilterPanel<String>
 {
+	/**
+	 * Create a new SubtypeFilterPanel.
+	 */
 	public SubtypeFilterPanel()
 	{
 		super(Card.subtypeList, (c) -> c.subtypes, FilterType.SUBTYPE.code);

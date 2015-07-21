@@ -4,13 +4,16 @@ import gui.filter.FilterType;
 import database.Card;
 
 /**
- * TODO: Comment this
+ * This class represents a panel that can filter cards by their supertype.
  * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class SupertypeFilterPanel extends MultiOptionsFilterPanel<String>
 {
+	/**
+	 * Create a new SupertypeFilterPanel.
+	 */
 	public SupertypeFilterPanel()
 	{
 		super(Card.supertypeList, (c) -> c.supertypes, FilterType.SUPERTYPE.code);
