@@ -166,7 +166,7 @@ public enum MTGColor
 		 * 
 		 * @param cols Colors to make the tuple out of
 		 */
-		public Tuple(List<MTGColor> cols)
+		public Tuple(Collection<MTGColor> cols)
 		{
 			colors = new ArrayList<MTGColor>(new HashSet<MTGColor>(cols));
 			Collections.sort(colors);

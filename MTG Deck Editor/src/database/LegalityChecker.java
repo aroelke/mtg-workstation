@@ -54,9 +54,7 @@ public class LegalityChecker
 	 * others.
 	 * 
 	 * TODO: Add deck construction rules for:
-	 * - Prismatic (250 card minimum, at least 20 cards of each color and each card counts for up to one color)
 	 * - Tribal Wars Legacy/Standard (1/3 of the cards of the deck must have the same creature type)
-	 * - Freeform (minimum deck size 40, every card should be legal)
 	 * - X Block (only cards with printings in those blocks are legal) (this probably should be handled by the card)
 	 * 
 	 * @param deck
@@ -66,7 +64,12 @@ public class LegalityChecker
 		// Deck size
 		for (String format: Card.formatList)
 		{
-			if (format.equalsIgnoreCase("commander"))
+			if (format.equalsIgnoreCase("prismatic"))
+			{
+				if (deck.total() < 250)
+					warnings.get(format).add("Deck contains fewer than 250 cards");
+			}
+			else if (format.equalsIgnoreCase("commander"))
 			{
 				if (deck.total() != 100)
 					warnings.get(format).add("Deck does not contain exactly 100 cards");
@@ -91,6 +94,7 @@ public class LegalityChecker
 		}
 		
 		// Individual card legality and count
+		// TODO: Fix this to work based on card name and not on unique cards
 		for (Card c: deck)
 		{
 			for (String format: Card.formatList)
@@ -124,16 +128,51 @@ public class LegalityChecker
 			warnings.get("Commander").add("Deck does not contain a legendary creature");
 		else
 		{
-			Set<MTGColor> deckColorIdentity = new HashSet<MTGColor>();
+			Set<MTGColor> deckColorIdentitySet = new HashSet<MTGColor>();
 			for (Card c: deck)
-				deckColorIdentity.addAll(c.colors);
+				deckColorIdentitySet.addAll(c.colors);
+			MTGColor.Tuple deckColorIdentity = new MTGColor.Tuple(deckColorIdentitySet);
 			for (Card c: new ArrayList<Card>(possibleCommanders))
 				if (!c.colors.containsAll(deckColorIdentity))
 					possibleCommanders.remove(c);
 			if (possibleCommanders.isEmpty())
 				warnings.get("Commander").add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
 		}
-			
+		
+		// Prismatic only: there are at least 20 cards of each color, and multicolored cards only count once
+		// TODO: Make the algorithm for deciding where to put multicolored cards better
+		HashMap<MTGColor, Integer> colorCount = new HashMap<MTGColor, Integer>();
+		colorCount.put(MTGColor.WHITE, 0);
+		colorCount.put(MTGColor.BLUE, 0);
+		colorCount.put(MTGColor.BLACK, 0);
+		colorCount.put(MTGColor.RED, 0);
+		colorCount.put(MTGColor.GREEN, 0);
+		List<Card> multicoloredCards = new ArrayList<Card>();
+		for (Card c: deck)
+		{
+			if (c.colors.size() == 1)
+				colorCount.compute(c.colors.get(0), (k, v) -> v += deck.count(c));
+			else if (c.colors.size() > 1)
+				for (int i = 0; i < deck.count(c); i++)
+					multicoloredCards.add(c);
+		}
+		if (!colorCount.values().stream().allMatch((v) -> v >= 20))
+		{
+			Collections.sort(multicoloredCards, (a, b) -> a.colors.size() - b.colors.size());
+			for (Card c: multicoloredCards)
+			{
+				int smallest = Integer.MAX_VALUE;
+				MTGColor color = null;
+				for (MTGColor col: c.colors)
+					if (colorCount.get(col) < smallest)
+						smallest = colorCount.get(color = col);
+				colorCount.compute(color, (k, v) -> ++v);
+			}
+		}
+		for (MTGColor color: MTGColor.values())
+			if (colorCount.get(color) < 20)
+				warnings.get("Prismatic").add("Deck contains fewer than 20 " + color.toString().toLowerCase() + " cards");
+		
 		// Collate the legality lists
 		List<String> illegalList = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
 		Collections.sort(illegalList);

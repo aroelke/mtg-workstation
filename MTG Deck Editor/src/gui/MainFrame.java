@@ -1055,6 +1055,8 @@ public class MainFrame extends JFrame
 				selectFrame(editors.get(0));
 			else
 				selectedFrame = null;
+			revalidate();
+			repaint();
 			return true;
 		}
 	}
