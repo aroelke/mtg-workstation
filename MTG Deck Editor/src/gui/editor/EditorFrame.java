@@ -979,6 +979,8 @@ public class EditorFrame extends JInternalFrame
 	 * for any cards remaining in them in the category and main tables are maintained.  Then
 	 * update the undo buffer.
 	 * 
+	 * TODO: Make the undo buffer only count the number of copies of the card that were actually removed
+	 * 
 	 * @param toRemove List of cards to remove
 	 * @param n Number of copies to remove
 	 * @return <code>true</code> if the deck was changed as a result, and <code>false</code>
@@ -1000,6 +1002,8 @@ public class EditorFrame extends JInternalFrame
 	 * Remove a number of copies of the specified Cards from the deck.  The current selections
 	 * for any cards remaining in them in the category and main tables are maintained.  Don't
 	 * update the undo buffer.
+	 * 
+	 * TODO: Make this return the number of copies of the card that were removed
 	 * 
 	 * @param toRemove List of cards to remove
 	 * @param n Number of copies to remove
