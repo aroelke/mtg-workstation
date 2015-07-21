@@ -20,6 +20,8 @@ import database.Card;
  * This class represents a FilterPanel that filters Cards by a characteristic that has one value
  * among several options.
  * 
+ * TODO: Devise a method to allow clearing the list
+ * 
  * @author Alec
  *
  * @param <T> Type of the characteristic that will be filtered

@@ -11,6 +11,9 @@ import gui.filter.editor.number.LoyaltyFilterPanel;
 import gui.filter.editor.number.PowerFilterPanel;
 import gui.filter.editor.number.ToughnessFilterPanel;
 import gui.filter.editor.options.multi.LegalFilterPanel;
+import gui.filter.editor.options.multi.SubtypeFilterPanel;
+import gui.filter.editor.options.multi.SupertypeFilterPanel;
+import gui.filter.editor.options.multi.TypeFilterPanel;
 import gui.filter.editor.options.singleton.BlockFilterPanel;
 import gui.filter.editor.options.singleton.ExpansionFilterPanel;
 import gui.filter.editor.options.singleton.RarityFilterPanel;
@@ -32,6 +35,9 @@ public enum FilterType
 	COLOR("Color", "c", CardColorFilterPanel.class),
 	COLOR_IDENTITY("Color Identity", "ci", ColorIdentityFilterPanel.class),
 	TYPE_LINE("Type Line", "type", TypeLineFilterPanel.class),
+	SUPERTYPE("Supertype", "super", SupertypeFilterPanel.class),
+	TYPE("Type", "cardtype", TypeFilterPanel.class),
+	SUBTYPE("Subtype", "sub", SubtypeFilterPanel.class),
 	EXPANSION("Expansion", "x", ExpansionFilterPanel.class),
 	BLOCK("Block", "b", BlockFilterPanel.class),
 	RARITY("Rarity", "r", RarityFilterPanel.class),
