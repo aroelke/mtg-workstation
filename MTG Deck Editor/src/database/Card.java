@@ -506,12 +506,30 @@ public final class Card
 	 * @return <code>true</code> if this Card is legal (restricted or unrestricted)
 	 * in the specified format, and <code>false</code> otherwise.  If the format's
 	 * legality isn't specified by the inventory file, then the card is assumed to be
-	 * legal in it.
+	 * illegal in it.
 	 */
 	public boolean legalIn(String format)
 	{
-		if (!legality.containsKey(format))
+		if (format.equalsIgnoreCase("classic") || format.equalsIgnoreCase("freeform"))
 			return true;
+		if (format.contains("Block"))
+		{
+			format = format.substring(0, format.indexOf("Block")).trim();
+			if (set.block.equalsIgnoreCase(format))
+				return true;
+			else if (format.equalsIgnoreCase("urza") && set.block.equalsIgnoreCase("urza's"))
+				return true;
+			else if (format.equalsIgnoreCase("lorwyn-shadowmoor") && (set.block.equalsIgnoreCase("lorwyn") || set.block.equalsIgnoreCase("shadowmoor")))
+				return true;
+			else if (format.equalsIgnoreCase("shards of alara") && set.block.equalsIgnoreCase("alara"))
+				return true;
+			else if (format.equalsIgnoreCase("tarkir") && set.block.equalsIgnoreCase("khans of tarkir"))
+				return true;
+			else
+				return false;
+		}
+		else if (!legality.containsKey(format))
+			return false;
 		else
 			return legality.get(format) != Legality.BANNED;
 	}
@@ -521,20 +539,20 @@ public final class Card
 	 */
 	public List<String> legalIn()
 	{
-		return legality.keySet().stream().filter((l) -> legalIn(l)).collect(Collectors.toList());
+		return legality.keySet().stream().filter(this::legalIn).collect(Collectors.toList());
 	}
 	
 	/**
 	 * @param format Name of the format to check
 	 * @return The Legality of this Card in the given format, or BANNED if
-	 * the format can't be found.
+	 * the format can't be found and isn't block, freeform, or classic.
 	 */
 	public Legality legalityIn(String format)
 	{
-		if (!legality.containsKey(format))
-			return Legality.BANNED;
+		if (legalIn(format))
+			return legality.containsKey(format) ? legality.get(format) : Legality.LEGAL;
 		else
-			return legality.get(format);
+			return Legality.BANNED;
 	}
 	
 	/**

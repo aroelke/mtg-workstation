@@ -55,7 +55,6 @@ public class LegalityChecker
 	 * 
 	 * TODO: Add deck construction rules for:
 	 * - Tribal Wars Legacy/Standard (1/3 of the cards of the deck must have the same creature type)
-	 * - X Block (only cards with printings in those blocks are legal) (this probably should be handled by the card)
 	 * 
 	 * @param deck
 	 */
