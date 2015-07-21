@@ -6,6 +6,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -36,27 +37,23 @@ public class ColorRenderer extends DefaultTableCellRenderer
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
+		Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		if (value instanceof MTGColor.Tuple)
 		{
 			MTGColor.Tuple colors = (MTGColor.Tuple)value;
 			JPanel colorPanel = new JPanel();
 			colorPanel.setLayout(new BoxLayout(colorPanel, BoxLayout.X_AXIS));
-			colorPanel.setBorder(new EmptyBorder(0, 1, -1, 0));
+			if (hasFocus)
+				colorPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+			else
+				colorPanel.setBorder(new EmptyBorder(0, 1, -1, 0));
 			for (MTGColor color: colors)
 				colorPanel.add(new JLabel(ColorSymbol.SYMBOLS.get(color).getIcon(13)));
-			if (isSelected)
-			{
-				colorPanel.setBackground(table.getSelectionBackground());
-				colorPanel.setForeground(table.getSelectionForeground());
-			}
-			else
-			{
-				colorPanel.setBackground(table.getBackground());
-				colorPanel.setForeground(table.getForeground());
-			}
+			colorPanel.setBackground(c.getBackground());
+			colorPanel.setForeground(c.getForeground());
 			return colorPanel;
 		}
 		else
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			return c;
 	}
 }

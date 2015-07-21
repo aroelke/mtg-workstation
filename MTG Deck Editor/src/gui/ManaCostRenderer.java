@@ -6,6 +6,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -30,27 +31,23 @@ public class ManaCostRenderer extends DefaultTableCellRenderer
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
+		Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		if (value instanceof ManaCost)
 		{
 			ManaCost cost = (ManaCost)value;
 			JPanel costPanel = new JPanel();
 			costPanel.setLayout(new BoxLayout(costPanel, BoxLayout.X_AXIS));
-			costPanel.setBorder(new EmptyBorder(0, 1, -1, 0));
+			if (hasFocus)
+				costPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+			else
+				costPanel.setBorder(new EmptyBorder(0, 1, -1, 0));
 			for (Symbol sym: cost.symbols())
 				costPanel.add(new JLabel(sym.getIcon(13)));
-			if (isSelected)
-			{
-				costPanel.setBackground(table.getSelectionBackground());
-				costPanel.setForeground(table.getSelectionForeground());
-			}
-			else
-			{
-				costPanel.setBackground(table.getBackground());
-				costPanel.setForeground(table.getForeground());
-			}
+			costPanel.setForeground(c.getForeground());
+			costPanel.setBackground(c.getBackground());
 			return costPanel;
 		}
 		else
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			return c;
 	}
 }
