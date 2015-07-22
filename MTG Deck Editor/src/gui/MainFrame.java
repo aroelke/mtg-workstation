@@ -80,6 +80,7 @@ import database.Inventory;
 import database.ManaCost;
 import database.characteristics.CardCharacteristic;
 import database.characteristics.MTGColor;
+import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
 
 /**
@@ -592,13 +593,13 @@ public class MainFrame extends JFrame
 		
 		// Create the inventory and put it in the table
 		inventoryTable = new StripedTable();
-		inventoryTable.setAutoCreateRowSorter(true);
 		inventoryTable.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
 		inventoryTable.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		inventoryTable.setDefaultRenderer(String.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Integer.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Rarity.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(List.class, new CardTableCellRenderer());
+		inventoryTable.setDefaultRenderer(PowerToughness.class, new CardTableCellRenderer());
 		inventoryTable.setFillsViewportHeight(true);
 		inventoryTable.setShowGrid(false);
 		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.INVENTORY_STRIPE)));

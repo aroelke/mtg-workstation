@@ -39,8 +39,8 @@ public enum CardCharacteristic
 	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine, (l, i) -> l.get(i).typeLine),
 	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).set.name, (l, i) -> l.get(i).set.name),
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity, (l, i) -> l.get(i).rarity),
-	POWER("Power", String.class, (l, i) -> l.get(i).power, (l, i) -> l.get(i).power),
-	TOUGHNESS("Toughness", String.class, (l, i) -> l.get(i).toughness, (l, i) -> l.get(i).toughness),
+	POWER("Power", PowerToughness.class, (l, i) -> l.get(i).power, (l, i) -> l.get(i).power),
+	TOUGHNESS("Toughness", PowerToughness.class, (l, i) -> l.get(i).toughness, (l, i) -> l.get(i).toughness),
 	LOYALTY("Loyalty", String.class, (l, i) -> l.get(i).loyalty, (l, i) -> l.get(i).loyalty),
 	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist, (l, i) -> l.get(i).artist),
 	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn());

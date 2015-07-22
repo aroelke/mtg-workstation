@@ -2,10 +2,15 @@ package util;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.Comparator;
 
 import javax.swing.JTable;
+import javax.swing.SortOrder;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+
+import database.characteristics.PowerToughness;
 
 /**
  * This class represents a table whose alternating occupied rows will be different
@@ -28,6 +33,7 @@ public class StripedTable extends JTable
 	{
 		super();
 		stripeColor = Color.LIGHT_GRAY;
+		setRowSorter(new EmptyTableRowSorter(getModel()));
 	}
 	
 	/**
@@ -39,6 +45,18 @@ public class StripedTable extends JTable
 	{
 		super(model);
 		stripeColor = Color.LIGHT_GRAY;
+		setRowSorter(new EmptyTableRowSorter(model));
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param model
+	 */
+	@Override
+	public void setModel(TableModel model)
+	{
+		super.setModel(model);
+		setRowSorter(new EmptyTableRowSorter(model));
 	}
 	
 	/**
@@ -72,5 +90,39 @@ public class StripedTable extends JTable
 		if (!isRowSelected(row))
 			c.setBackground(row%2 == 0 ? new Color(getBackground().getRGB()) : stripeColor);
 		return c;
+	}
+	
+	private class EmptyTableRowSorter extends TableRowSorter<TableModel>
+	{
+		private TableModel model;
+		
+		public EmptyTableRowSorter(TableModel m)
+		{
+			super(m);
+			model = m;
+		}
+		
+		@Override
+		public Comparator<?> getComparator(int column)
+		{
+			if (model.getColumnClass(column).equals(PowerToughness.class))
+			{
+				boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
+				return (a, b) -> {
+					PowerToughness pt1 = (PowerToughness)a;
+					PowerToughness pt2 = (PowerToughness)b;
+					if (Double.isNaN(pt1.value) && Double.isNaN(pt2.value))
+						return 0;
+					if (Double.isNaN(pt1.value))
+						return ascending ? 1 : -1;
+					else if (Double.isNaN(pt2.value))
+						return ascending ? -1 : 1;
+					else
+						return pt1.compareTo(pt2);
+				};
+			}
+			else
+				return super.getComparator(column);
+		}
 	}
 }

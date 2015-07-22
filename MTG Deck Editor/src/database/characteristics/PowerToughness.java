@@ -20,13 +20,13 @@ public class PowerToughness implements Comparable<PowerToughness>
 	{
 		if (e == null || e.isEmpty())
 		{
-			value = 0.0;
+			value = Double.NaN;
 			expression = "";
 		}
 		else
 		{
 			expression = e.replaceAll("\\s+", "");
-			e = e.replaceAll("[^0-9+-]+","").replaceAll("[+-]$", "");
+			e = e.replaceAll("[^0-9+-.]+","").replaceAll("[+-]$", "");
 			value = e.isEmpty() ? 0.0 : Double.valueOf(e);
 		}
 	}
@@ -39,7 +39,14 @@ public class PowerToughness implements Comparable<PowerToughness>
 	@Override
 	public int compareTo(PowerToughness o)
 	{
-		return (int)(2.0*(value - o.value));
+		if (Double.isNaN(value) && !Double.isNaN(o.value))
+			return 1;
+		else if (!Double.isNaN(value) && Double.isNaN(o.value))
+			return -1;
+		else if (Double.isNaN(value) && Double.isNaN(o.value))
+			return 0;
+		else
+			return (int)(2.0*value - 2.0*o.value);
 	}
 	
 	@Override
