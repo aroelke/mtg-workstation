@@ -381,9 +381,9 @@ public class SettingsDialog extends JDialog
 				Rectangle rec = categoriesList.getCellBounds(index, index);
 				if (rec == null || !rec.contains(e.getPoint()))
 				{
-					categoriesList.clearSelection();
 					if (e.getClickCount() == 2)
 					{
+						categoriesList.clearSelection();
 						CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
 						if (editor != null)
 							categoriesListModel.addElement(editor.toString());
