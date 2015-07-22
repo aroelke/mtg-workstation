@@ -119,10 +119,7 @@ public class LegalityChecker
 		}
 		
 		// Commander only: commander exists and matches deck color identity
-		List<Card> possibleCommanders = new ArrayList<Card>();
-		for (Card c: deck)
-			if (c.canBeCommander())
-				possibleCommanders.add(c);
+		List<Card> possibleCommanders = deck.stream().filter(Card::canBeCommander).collect(Collectors.toList());
 		if (possibleCommanders.isEmpty())
 			warnings.get("Commander").add("Deck does not contain a legendary creature");
 		else
