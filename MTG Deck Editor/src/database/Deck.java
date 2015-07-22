@@ -19,12 +19,11 @@ import java.util.StringJoiner;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and
  * have several category views (from which cards can also be added or removed).
- * 
- * TODO: Make this be a collection/list/set rather than just having one
  * 
  * @author Alec Roelke
  */
@@ -525,7 +524,15 @@ public class Deck implements Iterable<Card>
 	@Override
 	public Iterator<Card> iterator()
 	{
-		return masterList.stream().map((e) -> e.card).iterator();
+		return stream().iterator();
+	}
+	
+	/**
+	 * @return A sequential Stream whose source is this Deck.
+	 */
+	public Stream<Card> stream()
+	{
+		return masterList.stream().map((e) -> e.card);
 	}
 	
 	/**
@@ -911,6 +918,24 @@ public class Deck implements Iterable<Card>
 			}
 			else
 				return false;
+		}
+		
+		/**
+		 * @return An iterator over this Category's Cards.
+		 */
+		@Override
+		public Iterator<Card> iterator()
+		{
+			return filtrate.iterator();
+		}
+		
+		/**
+		 * @return A sequential Stream whose source is this Category.
+		 */
+		@Override
+		public Stream<Card> stream()
+		{
+			return filtrate.stream();
 		}
 		
 		@Override
