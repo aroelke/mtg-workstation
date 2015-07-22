@@ -114,7 +114,7 @@ public class InventoryDownloadDialog extends JDialog
 		catch (InterruptedException | ExecutionException e)
 		{
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Error downloading " + file.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error downloading " + file.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			tmp.delete();
 			return false;
 		}

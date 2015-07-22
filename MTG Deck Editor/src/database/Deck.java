@@ -223,18 +223,17 @@ public class Deck implements Iterable<Card>
 	 * 
 	 * @param c Card to remove
 	 * @param n Number of copies to remove
-	 * @return <code>true</code> if this Deck changed as a result, and
-	 * <code>false</code> otherwise.
+	 * @return The number of copies of the Card that were actually removed.
 	 */
-	public boolean remove(Card c, int n)
+	public int remove(Card c, int n)
 	{
 		if (n < 1)
-			return false;
+			return 0;
 		else
 		{
 			Entry e = getEntry(c);
 			if (e == null)
-				return false;
+				return 0;
 			else
 			{
 				if (n > e.count)
@@ -253,7 +252,7 @@ public class Deck implements Iterable<Card>
 				total -= n;
 				if (c.typeContains("land"))
 					land -= n;
-				return true;
+				return n;
 			}
 		}
 	}
@@ -262,10 +261,9 @@ public class Deck implements Iterable<Card>
 	 * Remove one copy of the given Card from this Deck.
 	 * 
 	 * @param c Card to remove
-	 * @return <code>true</code> if this Deck changed as a result, and
-	 * <code>false</code> otherwise.
+	 * @return 0 if no copies were removed, and 1 if a copy was removed.
 	 */
-	public boolean remove(Card c)
+	public int remove(Card c)
 	{
 		return remove(c, 1);
 	}
@@ -698,16 +696,15 @@ public class Deck implements Iterable<Card>
 		 * 
 		 * @param c Card to add
 		 * @param n Number of copies to remove
-		 * @return <code>true</code> if the Deck was changed as a result, and
-		 * <code>false</code> otherwise.
+		 * @return The numbe of copies of the Card that were actually removed.
 		 */
 		@Override
-		public boolean remove(Card c, int n)
+		public int remove(Card c, int n)
 		{
 			if (includes(c))
 				return Deck.this.remove(c, n);
 			else
-				return false;
+				return 0;
 		}
 		
 		/**
@@ -715,11 +712,10 @@ public class Deck implements Iterable<Card>
 		 * this Category's filter.
 		 * 
 		 * @param c Card to add
-		 * @return <code>true</code> if the Deck was changed as a result, and
-		 * <code>false</code> otherwise.
+		 * @return 0 if the Card was removed, and 1 otherwise.
 		 */
 		@Override
-		public boolean remove(Card c)
+		public int remove(Card c)
 		{
 			return remove(c, 1);
 		}

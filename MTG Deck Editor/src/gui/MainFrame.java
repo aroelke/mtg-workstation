@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.StringJoiner;
+import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -758,6 +759,8 @@ public class MainFrame extends JFrame
 	/**
 	 * Load the inventory and initialize the inventory table.
 	 * @see InventoryLoadDialog
+	 * 
+	 * TODO: If the inventory cannot be found, give the user the option to search for it
 	 */
 	public void loadInventory()
 	{
@@ -826,8 +829,6 @@ public class MainFrame extends JFrame
 	/**
 	 * Download the latest list of cards from the inventory site (default mtgjson.com).  If the
 	 * download is taking a while, a progress bar will appear.
-	 * 
-	 * TODO: If the inventory cannot be found, give the user the option to search for it
 	 * 
 	 * @return <code>true</code> if the download was successful, and <code>false</code>
 	 * otherwise.
@@ -1017,22 +1018,27 @@ public class MainFrame extends JFrame
 				break;
 			}
 		}
-		if (frame == null)
-		{
-			frame = new EditorFrame(f, ++untitled, this);
-			frame.setVisible(true);
-			editors.add(frame);
-			decklistDesktop.add(frame);
-		}
-		properties.put(SettingsDialog.INITIALDIR, fileChooser.getCurrentDirectory().getPath());
 		try
 		{
-			frame.setSelected(true);
+			if (frame == null)
+			{
+				frame = new EditorFrame(f, ++untitled, this);
+				frame.setVisible(true);
+				editors.add(frame);
+				decklistDesktop.add(frame);
+			}
+			properties.put(SettingsDialog.INITIALDIR, fileChooser.getCurrentDirectory().getPath());
+			try
+			{
+				frame.setSelected(true);
+			}
+			catch (PropertyVetoException e)
+			{
+				JOptionPane.showMessageDialog(null, "Error creating new editor: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 		}
-		catch (PropertyVetoException e)
-		{
-			JOptionPane.showMessageDialog(null, "Error creating new editor: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-		}
+		catch (CancellationException e)
+		{}
 	}
 	
 	/**
@@ -1118,7 +1124,10 @@ public class MainFrame extends JFrame
 					done = true;
 				}
 				if (write)
+				{
 					frame.save(f);
+					updateRecents(f);
+				}
 				break;
 			case JFileChooser.CANCEL_OPTION:
 			case JFileChooser.ERROR_OPTION:

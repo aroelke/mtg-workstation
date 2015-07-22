@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
-import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -488,10 +489,9 @@ public class EditorFrame extends JInternalFrame
 		{
 			worker.get();
 		}
-		catch (Exception e)
+		catch (InterruptedException | ExecutionException e)
 		{
-			if (!(e instanceof CancellationException))
-				JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.clear();
 			updateCount();
 			categories.clear();
@@ -974,24 +974,37 @@ public class EditorFrame extends JInternalFrame
 	{
 		return addCards(Arrays.asList(toAdd), n);
 	}
+	
+	/**
+	 * Add the given number of copies of the given Card to the deck.  Selections
+	 * are maintained, but the undo/redo buffer are not updated.
+	 * 
+	 * @param toAdd Card to add
+	 * @param n Number of copies to add
+	 * @return <code>true</code> if the deck changed as a result, which is
+	 * always.
+	 */
+	protected boolean addCardUnbuffered(Card toAdd, int n)
+	{
+		return addCardsUnbuffered(Arrays.asList(toAdd), n);
+	}
 
 	/**
 	 * Remove a number of copies of the specified Cards from the deck.  The current selections
 	 * for any cards remaining in them in the category and main tables are maintained.  Then
 	 * update the undo buffer.
 	 * 
-	 * TODO: Make the undo buffer only count the number of copies of the card that were actually removed
-	 * 
 	 * @param toRemove List of cards to remove
 	 * @param n Number of copies to remove
 	 * @return <code>true</code> if the deck was changed as a result, and <code>false</code>
 	 * otherwise.
 	 */
-	public boolean removeCards(List<Card> toRemove, int n)
+	public boolean removeCards(Collection<Card> toRemove, int n)
 	{
-		if (removeCardsUnbuffered(toRemove, n))
+		Map<Card, Integer> removed = removeCardsUnbuffered(toRemove, n);
+		if (!removed.isEmpty())
 		{
-			undoBuffer.push(new RemoveCardsAction(this, toRemove, n));
+			undoBuffer.push(new RemoveCardsAction(this, removed));
 			redoBuffer.clear();
 			return true;
 		}
@@ -1004,21 +1017,17 @@ public class EditorFrame extends JInternalFrame
 	 * for any cards remaining in them in the category and main tables are maintained.  Don't
 	 * update the undo buffer.
 	 * 
-	 * TODO: Make this return the number of copies of the card that were removed
-	 * 
 	 * @param toRemove List of cards to remove
 	 * @param n Number of copies to remove
-	 * @return <code>true</code> if the deck was changed as a result, and <code>false</code>
-	 * otherwise.
+	 * @return 
 	 */
-	protected boolean removeCardsUnbuffered(List<Card> toRemove, int n)
+	protected Map<Card, Integer> removeCardsUnbuffered(Collection<Card> toRemove, int n)
 	{
+		Map<Card, Integer> removed = new HashMap<Card, Integer>();
 		if (toRemove.isEmpty())
-			return false;
+			return removed;
 		else
 		{
-			boolean changed = false;
-
 			switch (listTabs.getSelectedIndex())
 			{
 			case 0:
@@ -1028,7 +1037,11 @@ public class EditorFrame extends JInternalFrame
 					selectedCards.add(deck.get(table.convertRowIndexToModel(row)));
 				// Remove cards from the deck
 				for (Card c: toRemove)
-					changed |= deck.remove(c, n);
+				{
+					int r = deck.remove(c, n);
+					if (r > 0)
+						removed.put(c, r);
+				}
 				// Update the table and then restore as much of the selection as possible
 				model.fireTableDataChanged();
 				for (Card c: selectedCards)
@@ -1056,7 +1069,11 @@ public class EditorFrame extends JInternalFrame
 				}
 				// Remove cards from the deck
 				for (Card c: toRemove)
-					changed |= deck.remove(c, n);
+				{
+					int r = deck.remove(c, n);
+					if (r > 0)
+						removed.put(c, r);
+				}
 				// Update each category panel and then restore the selection as much as possible
 				for (CategoryPanel category: categories)
 				{
@@ -1080,7 +1097,7 @@ public class EditorFrame extends JInternalFrame
 			
 			if (table.isEditing())
 				table.getCellEditor().cancelCellEditing();
-			if (changed)
+			if (!removed.isEmpty())
 			{
 				updateCount();
 				setUnsaved();
@@ -1089,7 +1106,7 @@ public class EditorFrame extends JInternalFrame
 			repaint();
 			parent.revalidate();
 			parent.repaint();
-			return changed;
+			return removed;
 		}
 	}
 	
@@ -1400,7 +1417,11 @@ public class EditorFrame extends JInternalFrame
 					if (this.isCancelled())
 						return null;
 					String[] card = rd.readLine().trim().split("\t");
-					deck.add(parent.getCard(card[0]), Integer.valueOf(card[1]));
+					Card c = parent.getCard(card[0]);
+					if (c != null)
+						deck.add(c, Integer.valueOf(card[1]));
+					else
+						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
 					publish(50*(i + 1)/cards);
 				}
 				int categories = Integer.valueOf(rd.readLine().trim());

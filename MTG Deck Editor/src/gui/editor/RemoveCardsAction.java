@@ -1,6 +1,7 @@
 package gui.editor;
 
-import java.util.List;
+import java.util.Collections;
+import java.util.Map;
 
 import database.Card;
 
@@ -16,26 +17,20 @@ public class RemoveCardsAction implements DeckAction
 	 */
 	private EditorFrame editor;
 	/**
-	 * Cards that were removed from the deck.
+	 * Map of Cards onto integers indicating which cards and how many were removed.
 	 */
-	private List<Card> cardsRemoved;
-	/**
-	 * Number of each card that was removed.
-	 */
-	private int count;
+	private Map<Card, Integer> removed;
 	
 	/**
 	 * Create a new RemoveCardsAction.
 	 * 
 	 * @param e Editor the action was performed on
-	 * @param removed Cards that were removed
-	 * @param c Number of each card that was removed
+	 * @param r Map indicating cards and counts removed.
 	 */
-	public RemoveCardsAction(EditorFrame e, List<Card> removed, int c)
+	public RemoveCardsAction(EditorFrame e, Map<Card, Integer> r)
 	{
 		editor = e;
-		cardsRemoved = removed;
-		count = c;
+		removed = r;
 	}
 	
 	/**
@@ -44,7 +39,8 @@ public class RemoveCardsAction implements DeckAction
 	@Override
 	public void undo()
 	{
-		editor.addCardsUnbuffered(cardsRemoved, count);
+		for (Map.Entry<Card, Integer> e: removed.entrySet())
+			editor.addCardUnbuffered(e.getKey(), e.getValue());
 	}
 
 	/**
@@ -53,6 +49,6 @@ public class RemoveCardsAction implements DeckAction
 	@Override
 	public void redo()
 	{
-		editor.removeCardsUnbuffered(cardsRemoved, count);
+		editor.removeCardsUnbuffered(removed.keySet(), Collections.max(removed.values()));
 	}
 }
