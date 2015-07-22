@@ -85,7 +85,7 @@ import database.characteristics.Rarity;
  * This class represents the main frame of the editor.  It contains several tabs that display information
  * about decks.
  * 
- * The editor tab is divided into three sections:  On the left side is a database of all cards that can be
+ * The frame is divided into three sections:  On the left side is a database of all cards that can be
  * added to decks with a window below it that displays the Oracle text of the currently-selected card.  On
  * the right side is a pane which contains internal frames that allow the user to open, close, and edit
  * multiple decks at once.  See @link{gui.editor.EditorFrame} for details on the editor frames.
