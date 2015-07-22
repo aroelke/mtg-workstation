@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import database.characteristics.Expansion;
 import database.characteristics.Legality;
 import database.characteristics.MTGColor;
+import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
 import database.symbol.Symbol;
 
@@ -117,11 +118,11 @@ public final class Card
 	/**
 	 * This Card's power, if it is a creature (it's empty otherwise).
 	 */
-	public final String power;
+	public final PowerToughness power;
 	/**
 	 * This Card's toughness, if it is a creature (it's empty otherwise).
 	 */
-	public final String toughness;
+	public final PowerToughness toughness;
 	/**
 	 * This Card's loyalty, if it is a planeswalker (it's empty otherwise).
 	 */
@@ -212,8 +213,8 @@ public final class Card
 		this.flavor = flavor;
 		this.artist = artist;
 		this.number = number;
-		this.power = power;
-		this.toughness = toughness;
+		this.power = new PowerToughness(power);
+		this.toughness = new PowerToughness(toughness);
 		this.loyalty = loyalty;
 		this.layout = layout;
 		this.legality = Collections.unmodifiableMap(legality);
@@ -444,7 +445,7 @@ public final class Card
 	 */
 	public int comparePower(Card other)
 	{
-		return (int)(2*(numericValueOf(power) - numericValueOf(other.power)));
+		return power.compareTo(other.power);
 	}
 	
 	/**
@@ -454,7 +455,7 @@ public final class Card
 	 */
 	public int compareToughness(Card other)
 	{
-		return (int)(2*(numericValueOf(toughness) - numericValueOf(other.toughness)));
+		return toughness.compareTo(other.toughness);
 	}
 	
 	/**

@@ -16,6 +16,6 @@ public class CMCFilterPanel extends NumberFilterPanel
 	 */
 	public CMCFilterPanel()
 	{
-		super((c) -> String.valueOf(c.mana.cmc()), false, FilterType.CMC.code);
+		super((c) -> c.mana.cmc(), false, FilterType.CMC.code);
 	}
 }

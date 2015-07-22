@@ -25,15 +25,26 @@ public class PowerToughness implements Comparable<PowerToughness>
 		}
 		else
 		{
-			expression = e;
-			e = e.replaceAll("[*\\s]+","").replaceAll("-$", "");
+			expression = e.replaceAll("\\s+", "");
+			e = e.replaceAll("[^0-9+-]+","").replaceAll("[+-]$", "");
 			value = e.isEmpty() ? 0.0 : Double.valueOf(e);
 		}
+	}
+	
+	public boolean variable()
+	{
+		return expression.contains("*");
 	}
 	
 	@Override
 	public int compareTo(PowerToughness o)
 	{
 		return (int)(2.0*(value - o.value));
+	}
+	
+	@Override
+	public String toString()
+	{
+		return expression;
 	}
 }
