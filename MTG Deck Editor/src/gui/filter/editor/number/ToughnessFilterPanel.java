@@ -35,7 +35,10 @@ public class ToughnessFilterPanel extends NumberFilterPanel
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The <code>Predicate<Card></code> representing this panel's filter, which is either the same
+	 * as NumberFilterPanel's filter or filters out cards that don't have * in their toughness values.  It will
+	 * also filter out cards that don't have power.
+	 * @see NumberFilterPanel#getFilter()
 	 */
 	@Override
 	public Predicate<Card> getFilter()
@@ -44,12 +47,26 @@ public class ToughnessFilterPanel extends NumberFilterPanel
 		return hasToughness.and(variable.isSelected() ? (c) -> c.toughness.variable() : super.getFilter());
 	}
 	
+	/**
+	 * @return a String representation of this PowerFilterPanel, which is the same as NumberFilterPanel's
+	 * String representation unless variable toughness values are filtered, in which case it is the code
+	 * followed by *.
+	 * @see NumberFilterPanel#toString()
+	 */
 	@Override
 	public String toString()
 	{
 		return variable.isSelected() ? FilterType.TOUGHNESS.code + ":*" : super.toString();
 	}
 	
+	/**
+	 * Parse a String and set this panel's contents accordingly.  If the contents are "*,"
+	 * then the "Contains *" box will be checked.  Otherwise, the drop-down and spinner
+	 * will be populated according to the String.
+	 * 
+	 * @param content String to parse
+	 * @see NumberFilterPanel#setContents(String)
+	 */
 	@Override
 	public void setContents(String content)
 	{

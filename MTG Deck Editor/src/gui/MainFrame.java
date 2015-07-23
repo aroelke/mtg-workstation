@@ -760,8 +760,6 @@ public class MainFrame extends JFrame
 	/**
 	 * Load the inventory and initialize the inventory table.
 	 * @see InventoryLoadDialog
-	 * 
-	 * TODO: If the inventory cannot be found, give the user the option to search for it
 	 */
 	public void loadInventory()
 	{

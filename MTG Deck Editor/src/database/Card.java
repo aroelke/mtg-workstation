@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import database.characteristics.Expansion;
 import database.characteristics.Legality;
+import database.characteristics.Loyalty;
 import database.characteristics.MTGColor;
 import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
@@ -126,7 +127,7 @@ public final class Card
 	/**
 	 * This Card's loyalty, if it is a planeswalker (it's empty otherwise).
 	 */
-	public final String loyalty;
+	public final Loyalty loyalty;
 	/**
 	 * This Card's layout (flip, split, double-faced, etc.)
 	 */
@@ -215,7 +216,7 @@ public final class Card
 		this.number = number;
 		this.power = new PowerToughness(power);
 		this.toughness = new PowerToughness(toughness);
-		this.loyalty = loyalty;
+		this.loyalty = new Loyalty(loyalty);
 		this.layout = layout;
 		this.legality = Collections.unmodifiableMap(legality);
 		this.imageName = imageName;
@@ -464,14 +465,7 @@ public final class Card
 	 */
 	public int compareLoyalty(Card other)
 	{
-		if (loyalty.isEmpty() && other.loyalty.isEmpty())
-			return 0;
-		else if (loyalty.isEmpty())
-			return Integer.MIN_VALUE;
-		else if(other.loyalty.isEmpty())
-			return Integer.MAX_VALUE;
-		else
-			return Integer.valueOf(loyalty) - Integer.valueOf(other.loyalty);
+		return loyalty.compareTo(other.loyalty);
 	}
 	
 	/**

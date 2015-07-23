@@ -21,16 +21,18 @@ public class LoyaltyFilterPanel extends NumberFilterPanel
 	 */
 	public LoyaltyFilterPanel()
 	{
-		super((c) -> c.loyalty.isEmpty() ? 0.0 : Double.valueOf(c.loyalty), false, FilterType.LOYALTY.code);
+		super((c) -> (double)c.loyalty.value, false, FilterType.LOYALTY.code);
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A <code>Predicate<Card></code> representing this panel's filter, which is the same
+	 * as NumberFilterPanel's filter except it also filters out cards without loyalties.
+	 * @see NumberFilterPanel#getFilter()
 	 */
 	@Override
 	public Predicate<Card> getFilter()
 	{
-		Predicate<Card> hasLoyalty = (c) -> !c.loyalty.isEmpty();
+		Predicate<Card> hasLoyalty = (c) -> c.loyalty.value > 0;
 		return hasLoyalty.and(super.getFilter());
 	}
 }
