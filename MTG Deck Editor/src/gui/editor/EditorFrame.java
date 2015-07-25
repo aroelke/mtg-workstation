@@ -383,7 +383,7 @@ public class EditorFrame extends JInternalFrame
 			if (toView != null)
 			{
 				toView.scrollRectToVisible(new Rectangle(toView.getSize()));
-				// TODO: Give CategoryPanel a flash timer so it can flash
+				toView.flash();
 			}
 		});
 		switchCategoryPanel.add(new JLabel("Go to category:"));

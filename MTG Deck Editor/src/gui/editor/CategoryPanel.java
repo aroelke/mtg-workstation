@@ -25,6 +25,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 
 import util.StripedTable;
@@ -75,6 +76,8 @@ public class CategoryPanel extends JPanel
 	 * Border showing the name of the category.
 	 */
 	private TitledBorder border;
+	private Color background;
+	private Timer flashTimer;
 	
 	/**
 	 * Create a new CategoryPanel.
@@ -97,6 +100,8 @@ public class CategoryPanel extends JPanel
 			category.include(c);
 		for (Card c: blacklist)
 			category.exclude(c);
+		background = getBackground();
+		flashTimer = new FlashTimer();
 		
 		// Each category is surrounded by a border with a title
 		border = new TitledBorder(category.name());
@@ -113,9 +118,9 @@ public class CategoryPanel extends JPanel
 		
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		editButton = new JButton("Edit");
+		editButton = new JButton("…");
 		buttonPanel.add(editButton);
-		removeButton = new JButton("-");
+		removeButton = new JButton("−");
 		buttonPanel.add(removeButton);
 		countPanel.add(buttonPanel, BorderLayout.EAST);
 		
@@ -300,6 +305,11 @@ public class CategoryPanel extends JPanel
 		table.setStripeColor(color);
 	}
 	
+	public void flash()
+	{
+		flashTimer.restart();
+	}
+	
 	/**
 	 * This class represents a mouse wheel listener that returns mouse wheel control to an outer scroll
 	 * pane when this one's scroll pane has reached a limit.
@@ -376,6 +386,53 @@ public class CategoryPanel extends JPanel
 					.getWhen(), e.getModifiers(), 1, 1, e
 					.getClickCount(), false, e.getScrollType(), e
 					.getScrollAmount(), e.getWheelRotation());
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @author Alec
+	 *
+	 */
+	private class FlashTimer extends Timer
+	{
+		private final int END = 20;
+		private final Color FLASH = Color.CYAN;
+		
+		private int count;
+		
+		public FlashTimer()
+		{
+			super(20, null);
+			count = 0;
+			addActionListener((e) -> {
+				if (++count > END)
+					stop();
+				else
+				{
+					double ratio = (double)count/(double)END;
+					int r = (int)(FLASH.getRed() + (background.getRed() - FLASH.getRed())*ratio);
+					int g = (int)(FLASH.getGreen() + (background.getGreen() - FLASH.getGreen())*ratio);
+					int b = (int)(FLASH.getBlue() + (background.getBlue() - FLASH.getBlue())*ratio);
+					setBackground(new Color(r, g, b));
+					repaint();
+				}
+			});
+		}
+		
+		@Override
+		public void stop()
+		{
+			super.stop();
+			setBackground(background);
+			repaint();
+		}
+		
+		@Override
+		public void restart()
+		{
+			count = 0;
+			super.restart();
 		}
 	}
 }
