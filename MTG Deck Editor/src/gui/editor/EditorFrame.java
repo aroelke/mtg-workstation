@@ -381,7 +381,10 @@ public class EditorFrame extends JInternalFrame
 		switchCategoryBox.addActionListener((e) -> {
 			CategoryPanel toView = getCategory(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex()));
 			if (toView != null)
+			{
 				toView.scrollRectToVisible(new Rectangle(toView.getSize()));
+				// TODO: Give CategoryPanel a flash timer so it can flash
+			}
 		});
 		switchCategoryPanel.add(new JLabel("Go to category:"));
 		switchCategoryPanel.add(switchCategoryBox);
@@ -698,8 +701,7 @@ public class EditorFrame extends JInternalFrame
 			tableMenu.add(removeFromCategoryItem);
 			
 			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
-			switchCategoryModel.addElement(newCategory.name());
-			switchCategoryBox.setEnabled(true);
+			updateCategorySwitch();
 			revalidate();
 			repaint();
 			setUnsaved();
@@ -778,8 +780,7 @@ public class EditorFrame extends JInternalFrame
 			removed &= categories.remove(category);
 			if (removed)
 				categoriesContainer.remove(category);
-			switchCategoryModel.removeElement(category.name());
-			switchCategoryBox.setEnabled(!categories.isEmpty());
+			updateCategorySwitch();
 			revalidate();
 			repaint();
 			setUnsaved();
@@ -852,7 +853,7 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			switchCategoryBox.setEnabled(true);
-			for (CategoryPanel category: categories)
+			for (CategoryPanel category: categories.stream().sorted((a, b) -> a.name().compareTo(b.name())).collect(Collectors.toList()))
 				switchCategoryModel.addElement(category.name());
 		}
 	}

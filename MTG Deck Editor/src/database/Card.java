@@ -505,9 +505,11 @@ public final class Card
 	 */
 	public boolean legalIn(String format)
 	{
-		if (format.equalsIgnoreCase("classic") || format.equalsIgnoreCase("freeform"))
+		if (format.equalsIgnoreCase("prismatic") && legalIn("classic") && legality.get(format) != Legality.BANNED)
 			return true;
-		if (format.contains("Block"))
+		else if (format.equalsIgnoreCase("classic") || format.equalsIgnoreCase("freeform"))
+			return true;
+		else if (format.contains("Block"))
 		{
 			format = format.substring(0, format.indexOf("Block")).trim();
 			if (set.block.equalsIgnoreCase(format))
@@ -545,7 +547,11 @@ public final class Card
 	public Legality legalityIn(String format)
 	{
 		if (legalIn(format))
+		{
+			if (format.equalsIgnoreCase("prismatic"))
+				format = "classic";
 			return legality.containsKey(format) ? legality.get(format) : Legality.LEGAL;
+		}
 		else
 			return Legality.BANNED;
 	}

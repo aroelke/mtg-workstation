@@ -10,8 +10,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import util.Containment;
 import database.characteristics.Legality;
 import database.characteristics.MTGColor;
+
 
 /**
  * This class represents a check to see which formats a deck is legal in.  It is meant to
@@ -136,37 +138,20 @@ public class LegalityChecker
 		}
 		
 		// Prismatic only: there are at least 20 cards of each color, and multicolored cards only count once
-		// TODO: Make the algorithm for deciding where to put multicolored cards better
-		HashMap<MTGColor, Integer> colorCount = new HashMap<MTGColor, Integer>();
-		colorCount.put(MTGColor.WHITE, 0);
-		colorCount.put(MTGColor.BLUE, 0);
-		colorCount.put(MTGColor.BLACK, 0);
-		colorCount.put(MTGColor.RED, 0);
-		colorCount.put(MTGColor.GREEN, 0);
-		List<Card> multicoloredCards = new ArrayList<Card>();
-		for (Card c: deck)
+		HashMap<MTGColor, List<Card>> colorBins = new HashMap<MTGColor, List<Card>>();
+		for (MTGColor color: MTGColor.values())
+			colorBins.put(color, new ArrayList<Card>());
+		for (Card c: deck.stream().sorted((a, b) -> a.colors.size() - b.colors.size()).collect(Collectors.toList()))
+			for (int i = 0; i < deck.count(c); i++)
+				binCard(c, colorBins, new ArrayList<MTGColor>());
+		for (MTGColor bin: colorBins.keySet())
 		{
-			if (c.colors.size() == 1)
-				colorCount.compute(c.colors.get(0), (k, v) -> v += deck.count(c));
-			else if (c.colors.size() > 1)
-				for (int i = 0; i < deck.count(c); i++)
-					multicoloredCards.add(c);
-		}
-		if (!colorCount.values().stream().allMatch((v) -> v >= 20))
-		{
-			Collections.sort(multicoloredCards, (a, b) -> a.colors.size() - b.colors.size());
-			for (Card c: multicoloredCards)
-			{
-				int smallest = Integer.MAX_VALUE;
-				MTGColor color = null;
-				for (MTGColor col: c.colors)
-					if (colorCount.get(col) < smallest)
-						smallest = colorCount.get(color = col);
-				colorCount.compute(color, (k, v) -> ++v);
-			}
+			System.out.println(bin + ": " + colorBins.get(bin).size());
+			for (Card c: colorBins.get(bin))
+				System.out.println("\t" + c.name);
 		}
 		for (MTGColor color: MTGColor.values())
-			if (colorCount.get(color) < 20)
+			if (colorBins.get(color).size() < 20)
 				warnings.get("Prismatic").add("Deck contains fewer than 20 " + color.toString().toLowerCase() + " cards");
 		
 		// Collate the legality lists
@@ -176,6 +161,38 @@ public class LegalityChecker
 		legalList.removeAll(illegalList);
 		legal = legalList.toArray(legal);
 		illegal = illegalList.toArray(illegal);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * TODO: This almost works; but make it better
+	 * @param c
+	 * @param bins
+	 * @param exclusion
+	 */
+	private void binCard(Card c, HashMap<MTGColor, List<Card>> bins, List<MTGColor> exclusion)
+	{
+		if (c.colors.isEmpty())
+			return;
+		else if (c.colors.size() == 1)
+			bins.get(c.colors.get(0)).add(c);
+		else
+		{
+			MTGColor bin = null;
+			for (MTGColor color: c.colors)
+				if (bin == null || bins.get(color).size() < bins.get(bin).size())
+					bin = color;
+			if (bins.get(bin).size() < 20)
+				bins.get(bin).add(c);
+			else
+			{
+				Card next = bins.get(bin).stream().filter((card) -> !Containment.CONTAINS_ANY_OF.test(card.colors, exclusion)).findFirst().orElse(null);
+				bins.get(bin).add(c);
+				exclusion.add(bin);
+				if (next != null)
+					binCard(next, bins, exclusion);
+			}
+		}
 	}
 	
 	/**
