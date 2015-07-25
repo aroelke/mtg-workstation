@@ -54,8 +54,8 @@ public class SpinnerCellEditor extends DefaultCellEditor
 	}
 
 	/**
-	 * @return <code>true</code>, since the cell will always be editable, no matter what kind
-	 * of EventObject has been passed.
+	 * @return <code>true</code>, if the user double-clicked on the cell, and
+	 * <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean isCellEditable(EventObject eo)
