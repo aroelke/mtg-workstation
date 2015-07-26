@@ -112,6 +112,10 @@ public class Deck implements Iterable<Card>
 	 */
 	private Map<String, Category> categories;
 	/**
+	 * TODO: Comment this
+	 */
+	private Map<Card, List<Category>> cardCategories;
+	/**
 	 * Total number of cards in this Deck, accounting for multiples.
 	 */
 	private int total;
@@ -127,6 +131,7 @@ public class Deck implements Iterable<Card>
 	{
 		masterList = new ArrayList<Entry>();
 		categories = new HashMap<String, Category>();
+		cardCategories = new HashMap<Card, List<Category>>();
 		total = 0;
 		land = 0;
 	}
@@ -175,12 +180,21 @@ public class Deck implements Iterable<Card>
 		{
 			Entry e = getEntry(c);
 			if (e == null)
+			{
 				masterList.add(new Entry(c, n));
+				cardCategories.put(c, new ArrayList<Category>());
+				System.out.println("Created new category list for card " + c.name);
+				for (Category category: categories.values())
+				{
+					if (category.includes(c))
+					{
+						category.filtrate.add(c);
+						cardCategories.compute(c, (k, v) -> {v.add(category); return v;});
+					}
+				}
+			}
 			else
 				e.add(n);
-			for (Category category: categories.values())
-				if (category.includes(c) && !category.contains(c))
-					category.filtrate.add(c);
 			total += n;
 			if (c.typeContains("land"))
 				land += n;
@@ -242,6 +256,7 @@ public class Deck implements Iterable<Card>
 				if (e.count == 0)
 				{
 					masterList.remove(e);
+					cardCategories.remove(c);
 					for (Category category: categories.values())
 					{
 						category.filtrate.remove(c);
@@ -402,6 +417,9 @@ public class Deck implements Iterable<Card>
 		{
 			Category c = new Category(name, repr, filter);
 			categories.put(name, c);
+			for (Card card: masterList.stream().map((e) -> e.card).collect(Collectors.toList()))
+				if (c.includes(card))
+					cardCategories.compute(card, (k, v) -> {v.add(c); return v;});
 			return c;
 		}
 		else
@@ -418,7 +436,11 @@ public class Deck implements Iterable<Card>
 	public boolean removeCategory(String name)
 	{
 		if (categories.containsKey(name))
+		{
+			for (List<Category> list: cardCategories.values())
+				list.remove(categories.get(name));
 			return categories.remove(name) != null;
+		}
 		else
 			return false;
 	}
@@ -431,6 +453,16 @@ public class Deck implements Iterable<Card>
 	public boolean containsCategory(String name)
 	{
 		return categories.containsKey(name);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param c
+	 * @return
+	 */
+	public List<Category> getCategories(Card c)
+	{
+		return cardCategories.get(c);
 	}
 	
 	/**
@@ -767,6 +799,8 @@ public class Deck implements Iterable<Card>
 				changed |= whitelist.add(c);
 			if (!contains(c))
 				changed |= filtrate.add(c);
+			if (cardCategories.get(c) != null && !cardCategories.get(c).contains(this))
+				cardCategories.compute(c, (k, v) -> {v.add(this); return v;});
 			return changed;
 		}
 		
@@ -786,6 +820,8 @@ public class Deck implements Iterable<Card>
 				changed |= blacklist.add(c);
 			if (contains(c))
 				changed |= filtrate.remove(c);
+			if (cardCategories.get(c) != null)
+				cardCategories.compute(c, (k, v) -> {v.remove(this); return v;});
 			return changed;
 		}
 		
