@@ -2,10 +2,10 @@ package database.characteristics;
 
 import gui.editor.EditorFrame;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import javax.swing.table.TableCellEditor;
 
@@ -43,7 +43,8 @@ public enum CardCharacteristic
 	TOUGHNESS("Toughness", PowerToughness.class, (l, i) -> l.get(i).toughness, (l, i) -> l.get(i).toughness),
 	LOYALTY("Loyalty", Loyalty.class, (l, i) -> l.get(i).loyalty, (l, i) -> l.get(i).loyalty),
 	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist, (l, i) -> l.get(i).artist),
-	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn());
+	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn()),
+	CATEGORIES("Categories", List.class, null, (l, i) -> l.getCategories(i));
 	
 	/**
 	 * Parse a String for a CardCharacteristic.
@@ -64,8 +65,7 @@ public enum CardCharacteristic
 	 */
 	public static CardCharacteristic[] inventoryValues()
 	{
-		ArrayList<CardCharacteristic> characteristics = new ArrayList<CardCharacteristic>(Arrays.asList(values()));
-		characteristics.remove(COUNT);
+		List<CardCharacteristic> characteristics = Arrays.stream(values()).filter((v) -> v.inventoryFunc != null).collect(Collectors.toList());
 		return characteristics.toArray(new CardCharacteristic[characteristics.size()]);
 	}
 	

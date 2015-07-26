@@ -183,7 +183,6 @@ public class Deck implements Iterable<Card>
 			{
 				masterList.add(new Entry(c, n));
 				cardCategories.put(c, new ArrayList<Category>());
-				System.out.println("Created new category list for card " + c.name);
 				for (Category category: categories.values())
 				{
 					if (category.includes(c))
@@ -463,6 +462,11 @@ public class Deck implements Iterable<Card>
 	public List<Category> getCategories(Card c)
 	{
 		return cardCategories.get(c);
+	}
+	
+	public List<Category> getCategories(int index)
+	{
+		return cardCategories.get(masterList.get(index).card);
 	}
 	
 	/**
