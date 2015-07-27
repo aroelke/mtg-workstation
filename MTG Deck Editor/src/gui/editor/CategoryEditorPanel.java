@@ -122,14 +122,14 @@ public class CategoryEditorPanel extends JPanel
 			Matcher m = Deck.CATEGORY_PATTERN.matcher(s);
 			if (m.matches())
 			{
-				nameField.setText(m.group(1).trim());
+				nameField.setText(m.group(1));
 				if (!m.group(2).isEmpty())
 					for (String c: m.group(2).split(Deck.EXCEPTION_SEPARATOR))
 						whitelist.add(c);
 				if (!m.group(3).isEmpty())
 					for (String c: m.group(3).split(Deck.EXCEPTION_SEPARATOR))
 						blacklist.add(c);
-				filter.setContents(m.group(4));
+				filter.setContents(m.group(5));
 			}
 			else
 				throw new IllegalArgumentException("Illegal category string \"" + s + "\"");
@@ -196,6 +196,6 @@ public class CategoryEditorPanel extends JPanel
 		StringJoiner black = new StringJoiner(Deck.EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 		for (String c: blacklist)
 			black.add(c);
-		return nameField.getText() + " " + white + " " + black + " " + filter.toString();
+		return FilterGroupPanel.BEGIN_GROUP + nameField.getText() + FilterGroupPanel.END_GROUP + " " + white + " " + black + " " + FilterGroupPanel.BEGIN_GROUP + FilterGroupPanel.END_GROUP + " " + filter.toString();
 	}
 }

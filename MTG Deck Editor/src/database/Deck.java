@@ -2,6 +2,7 @@ package database;
 
 import gui.filter.FilterGroupPanel;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,14 +39,16 @@ public class Deck implements Iterable<Card>
 	 * trailing white space will be included.
 	 * @see gui.filter.FilterGroupPanel#setContents(String)
 	 */
-	public static Pattern CATEGORY_PATTERN = Pattern.compile("^([^" + FilterGroupPanel.BEGIN_GROUP + "]+)"
-			+ FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
+	public static final Pattern CATEGORY_PATTERN = Pattern.compile(
+			"^" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]+)" + FilterGroupPanel.END_GROUP
 			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
-			+ "\\s*(" + FilterGroupPanel.BEGIN_GROUP + ".*$)");
+			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
+			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([0-9A-F-a-f]{6})?" + FilterGroupPanel.END_GROUP
+			+ "\\s*(.*)$");
 	/**
 	 * List separator for UIDs of cards in the String representation of a whitelist or a blacklist.
 	 */
-	public static String EXCEPTION_SEPARATOR = ":";
+	public static final String EXCEPTION_SEPARATOR = ":";
 	
 	/**
 	 * This class represents an entry into a deck.  It has a card and a
@@ -410,11 +413,11 @@ public class Deck implements Iterable<Card>
 	 * @return The new Category that was created, or the existing Category
 	 * if there already was one with that name.
 	 */
-	public Category addCategory(String name, String repr, Predicate<Card> filter)
+	public Category addCategory(String name, Color color, String repr, Predicate<Card> filter)
 	{
 		if (!categories.containsKey(name))
 		{
-			Category c = new Category(name, repr, filter);
+			Category c = new Category(name, color, repr, filter);
 			categories.put(name, c);
 			for (Card card: masterList.stream().map((e) -> e.card).collect(Collectors.toList()))
 				if (c.includes(card))
@@ -609,16 +612,22 @@ public class Deck implements Iterable<Card>
 		 * pass through the filter.
 		 */
 		private Set<Card> whitelist;
+		/**
+		 * TODO: Comment this
+		 */
+		private Color color;
 		
 		/**
 		 * Create a new Category.
 		 * 
 		 * @param s Name of the new Category
+		 * @param col Color of the new Category
 		 * @param f Filter of the new Category
 		 */
-		private Category(String s, String r, Predicate<Card> f)
+		private Category(String s, Color col, String r, Predicate<Card> f)
 		{
 			name = s;
+			color = col;
 			repr = r;
 			filter = f;
 			filtrate = masterList.stream().map((e) -> e.card).filter(filter).collect(Collectors.toList());
@@ -632,6 +641,14 @@ public class Deck implements Iterable<Card>
 		public String name()
 		{
 			return name;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 */
+		public Color color()
+		{
+			return color;
 		}
 		
 		/**
@@ -664,7 +681,7 @@ public class Deck implements Iterable<Card>
 			StringJoiner black = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 			for (Card c: blacklist)
 				black.add(c.ID);
-			return name + " " + white.toString() + " " + black.toString() + " " + repr;
+			return FilterGroupPanel.BEGIN_GROUP + name + FilterGroupPanel.END_GROUP + " " + white.toString() + " " + black.toString() + " " + FilterGroupPanel.BEGIN_GROUP + FilterGroupPanel.END_GROUP + " " + repr;
 		}
 		
 		/**
@@ -999,7 +1016,7 @@ public class Deck implements Iterable<Card>
 		}
 		
 		@Override
-		public Category addCategory(String n, String r, Predicate<Card> f)
+		public Category addCategory(String n, Color col, String r, Predicate<Card> f)
 		{
 			throw new UnsupportedOperationException("Categories can't have categories");
 		}

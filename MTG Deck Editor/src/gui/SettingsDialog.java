@@ -568,7 +568,7 @@ public class SettingsDialog extends JDialog
 		public String getElementAt(int index)
 		{
 			String category = super.getElementAt(index);
-			return category.substring(0, category.indexOf(FilterGroupPanel.BEGIN_GROUP)).trim();
+			return category.substring(category.indexOf(FilterGroupPanel.BEGIN_GROUP) + 1, category.indexOf(FilterGroupPanel.END_GROUP));
 		}
 		
 		/**

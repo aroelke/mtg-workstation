@@ -9,11 +9,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -45,7 +47,11 @@ public class CategoryPanel extends JPanel
 	/**
 	 * Number of rows in the card table to display.
 	 */
-	private static final int MAX_ROWS_TO_DISPLAY = 6;
+	public static final int MAX_ROWS_TO_DISPLAY = 6;
+	/**
+	 * TODO: Comment this
+	 */
+	public static final int COLOR_BUTTON_BORDER = 5;
 	
 	/**
 	 * Category in the Deck data structure.
@@ -85,16 +91,22 @@ public class CategoryPanel extends JPanel
 	 * @param r String representation of the new category
 	 * @param whitelist Set of Cards that should always be included in the new category
 	 * @param blacklist Set of Cards that should never be included in the new category
+	 * @param col Color of the new category
 	 * @param p Filter for the new category
 	 * @param editor EditorFrame containing the new category
 	 */
-	public CategoryPanel(String n, String r, Set<Card> whitelist, Set<Card> blacklist, Predicate<Card> p, EditorFrame editor)
+	public CategoryPanel(String n, String r, Set<Card> whitelist, Set<Card> blacklist, Color col, Predicate<Card> p, EditorFrame editor)
 	{
 		super();
 		
 		if (editor.deck.containsCategory(n))
 			throw new IllegalArgumentException("Categories must have unique names");
-		category = editor.deck.addCategory(n, r, p);
+		if (col == null)
+		{
+			Random rand = new Random();
+			col = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
+		}
+		category = editor.deck.addCategory(n, col, r, p);
 		for (Card c: whitelist)
 			category.include(c);
 		for (Card c: blacklist)
@@ -117,6 +129,16 @@ public class CategoryPanel extends JPanel
 		
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JButton colorButton = new JButton(" ") {
+			@Override
+			public void paintComponent(Graphics g)
+			{
+				super.paintComponent(g);
+				g.setColor(category.color());
+				g.fillRect(COLOR_BUTTON_BORDER, COLOR_BUTTON_BORDER, getWidth() - 2*COLOR_BUTTON_BORDER, getHeight() - 2*COLOR_BUTTON_BORDER);
+			}
+		};
+		buttonPanel.add(colorButton);
 		editButton = new JButton("…");
 		buttonPanel.add(editButton);
 		removeButton = new JButton("−");
@@ -145,6 +167,7 @@ public class CategoryPanel extends JPanel
 		table.setStripeColor(SettingsDialog.stringToColor(editor.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
+		tablePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		add(tablePane, BorderLayout.CENTER);
 	}
 	
@@ -158,7 +181,7 @@ public class CategoryPanel extends JPanel
 	 */
 	public CategoryPanel(String n, String r, Predicate<Card> p, EditorFrame editor)
 	{
-		this(n, r, new HashSet<Card>(), new HashSet<Card>(), p, editor);
+		this(n, r, new HashSet<Card>(), new HashSet<Card>(), null, p, editor);
 	}
 	
 	/**

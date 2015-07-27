@@ -1413,7 +1413,7 @@ public class EditorFrame extends JInternalFrame
 				int cards = Integer.valueOf(rd.readLine().trim());
 				for (int i = 0; i < cards; i++)
 				{
-					if (this.isCancelled())
+					if (isCancelled())
 						return null;
 					String[] card = rd.readLine().trim().split("\t");
 					Card c = parent.getCard(card[0]);
@@ -1426,14 +1426,14 @@ public class EditorFrame extends JInternalFrame
 				int categories = Integer.valueOf(rd.readLine().trim());
 				for (int i = 0; i < categories; i++)
 				{
-					if (this.isCancelled())
+					if (isCancelled())
 						return null;
 					CategoryEditorPanel editor = new CategoryEditorPanel(rd.readLine().trim());
 					Set<Card> whitelist = editor.whitelist().stream().map(parent::getCard).collect(Collectors.toSet());
 					Set<Card> blacklist = editor.blacklist().stream().map(parent::getCard).collect(Collectors.toSet());
 					SwingUtilities.invokeLater(() -> {
 						if (!isCancelled())
-							addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.filter(), EditorFrame.this));
+							addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, Color.BLACK, editor.filter(), EditorFrame.this));
 					});
 					publish(50 + 50*(i + 1)/categories);
 				}

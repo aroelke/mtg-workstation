@@ -63,10 +63,10 @@ public class EditCategoryAction implements DeckAction
 	@Override
 	public void undo()
 	{
-		CategoryPanel editedCategory = editor.getCategory(newRepr.group(1).trim());
+		CategoryPanel editedCategory = editor.getCategory(newRepr.group(1));
 		if (editedCategory != null)
 		{
-			editedCategory.edit(formerRepr.group(1).trim(), formerRepr.group(4), formerFilter);
+			editedCategory.edit(formerRepr.group(1), formerRepr.group(5), formerFilter);
 			editor.updateCategorySwitch();
 			editor.revalidate();
 			editor.repaint();
@@ -82,16 +82,16 @@ public class EditCategoryAction implements DeckAction
 	@Override
 	public void redo()
 	{
-		CategoryPanel editedCategory = editor.getCategory(formerRepr.group(1).trim());
+		CategoryPanel editedCategory = editor.getCategory(formerRepr.group(1));
 		if (editedCategory != null)
 		{
-			editedCategory.edit(newRepr.group(1).trim(), newRepr.group(4), newFilter);
+			editedCategory.edit(newRepr.group(1), newRepr.group(5), newFilter);
 			editor.updateCategorySwitch();
 			editor.revalidate();
 			editor.repaint();
 			editor.setUnsaved();
 		}
 		else
-			throw new IllegalStateException("Deck does not contain a category named " + formerRepr.group(1).trim());
+			throw new IllegalStateException("Deck does not contain a category named " + formerRepr.group(1));
 	}
 }

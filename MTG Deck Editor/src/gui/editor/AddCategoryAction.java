@@ -1,5 +1,6 @@
 package gui.editor;
 
+import java.awt.Color;
 import java.util.Set;
 
 import database.Card;
@@ -64,6 +65,6 @@ public class AddCategoryAction implements DeckAction
 	public void redo()
 	{
 		CategoryEditorPanel categoryEditor = new CategoryEditorPanel(repr);
-		editor.addCategoryUnbuffered(new CategoryPanel(categoryEditor.name(), categoryEditor.repr(), whitelist, blacklist, categoryEditor.filter(), editor));
+		editor.addCategoryUnbuffered(new CategoryPanel(categoryEditor.name(), categoryEditor.repr(), whitelist, blacklist, Color.BLACK, categoryEditor.filter(), editor));
 	}
 }
