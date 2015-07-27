@@ -1,6 +1,5 @@
 package gui.editor;
 
-import gui.CategoriesCellRenderer;
 import gui.ColorButton;
 import gui.ColorRenderer;
 import gui.ManaCostCellRenderer;
@@ -15,6 +14,7 @@ import java.awt.FlowLayout;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -161,6 +161,7 @@ public class CategoryPanel extends JPanel
 		table.setDefaultRenderer(ManaCost.class, new ManaCostCellRenderer());
 		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		table.setDefaultRenderer(List.class, new CategoriesCellRenderer());
+		table.setDefaultRenderer(Date.class, new DateCellRenderer());
 		table.setShowGrid(false);
 		table.setFillsViewportHeight(true);
 		table.setStripeColor(SettingsDialog.stringToColor(editor.getSetting(SettingsDialog.EDITOR_STRIPE)));

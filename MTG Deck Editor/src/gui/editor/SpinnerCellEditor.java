@@ -1,4 +1,4 @@
-package gui;
+package gui.editor;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;

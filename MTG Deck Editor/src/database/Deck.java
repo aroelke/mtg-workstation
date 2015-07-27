@@ -9,8 +9,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,15 +44,19 @@ public class Deck implements Iterable<Card>
 	 * @see gui.filter.FilterGroupPanel#setContents(String)
 	 */
 	public static final Pattern CATEGORY_PATTERN = Pattern.compile(
-			"^" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]+)" + FilterGroupPanel.END_GROUP
-			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
-			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
-			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "(#[0-9A-F-a-f]{6})?" + FilterGroupPanel.END_GROUP
-			+ "\\s*(.*)$");
+			"^" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]+)" + FilterGroupPanel.END_GROUP		// Name
+			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP 	// Whitelist
+			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP	// Blacklist
+			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "(#[0-9A-F-a-f]{6})?" + FilterGroupPanel.END_GROUP						// Color
+			+ "\\s*(.*)$");																										// Filter
 	/**
 	 * List separator for UIDs of cards in the String representation of a whitelist or a blacklist.
 	 */
 	public static final String EXCEPTION_SEPARATOR = ":";
+	/**
+	 * TODO: Comment this
+	 */
+	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMMM d, yyyy");
 	
 	/**
 	 * This class represents an entry into a deck.  It has a card and a
@@ -68,17 +74,23 @@ public class Deck implements Iterable<Card>
 		 * Number of copies of the Card.
 		 */
 		private int count;
+		/**
+		 * Date this Entry was created (the Card was originally added).
+		 */
+		private final Date date;
 		
 		/**
 		 * Create a new Entry.
 		 * 
 		 * @param c Card for this Entry
 		 * @param n Number of initial copies in this Entry
+		 * @param d Date the Card was added
 		 */
-		public Entry(Card c, int n)
+		public Entry(Card c, int n, Date d)
 		{
 			card = c;
 			count = n;
+			date = d;
 		}
 		
 		/**
@@ -173,11 +185,12 @@ public class Deck implements Iterable<Card>
 	 * 
 	 * @param c Card to add
 	 * @param n Number of copies to add
+	 * @param d Date the card was originally added
 	 * @return <code>true</code> if the Deck changed as a result, and
 	 * <code>false</code> otherwise, which is when the number to add
 	 * is less than 1.
 	 */
-	public boolean add(Card c, int n)
+	public boolean add(Card c, int n, Date d)
 	{
 		if (n < 1)
 			return false;
@@ -186,7 +199,7 @@ public class Deck implements Iterable<Card>
 			Entry e = getEntry(c);
 			if (e == null)
 			{
-				masterList.add(new Entry(c, n));
+				masterList.add(new Entry(c, n, d));
 				cardCategories.put(c, new ArrayList<Category>());
 				for (Category category: categories.values())
 				{
@@ -204,6 +217,21 @@ public class Deck implements Iterable<Card>
 				land += n;
 			return true;
 		}
+	}
+	
+	/**
+	 * Add some number of Cards to this Deck.  If the number is not positive,
+	 * then no changes are made.
+	 * 
+	 * @param c Card to add
+	 * @param n Number of copies to add
+	 * @return <code>true</code> if the Deck changed as a result, and
+	 * <code>false</code> otherwise, which is when the number to add
+	 * is less than 1.
+	 */
+	public boolean add(Card c, int n)
+	{
+		return add(c, n, new Date());
 	}
 	
 	/**
@@ -386,6 +414,25 @@ public class Deck implements Iterable<Card>
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param c
+	 * @return
+	 */
+	public Date dateAdded(Card c)
+	{
+		Entry e = getEntry(c);
+		if (e == null)
+			return null;
+		else
+			return e.date;
+	}
+	
+	public Date dateAdded(int index)
+	{
+		return masterList.get(index).date;
+	}
+	
+	/**
 	 * @param o Object to look for
 	 * @return <code>true</code> if this Deck contains one or more copies
 	 * of the given Object, and <code>false</code> otherwise.
@@ -550,7 +597,7 @@ public class Deck implements Iterable<Card>
 		{
 			wr.println(String.valueOf(size()));
 			for (Entry e: masterList)
-				wr.println(e.card.ID + "\t" + e.count);
+				wr.println(e.card.ID + "\t" + e.count + "\t" + DATE_FORMAT.format(e.date));
 			wr.println(String.valueOf(categories.size()));
 			for (Category c: categories.values())
 				wr.println(c.toString());

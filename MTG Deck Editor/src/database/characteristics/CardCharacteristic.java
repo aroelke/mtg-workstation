@@ -1,9 +1,10 @@
 package database.characteristics;
 
-import gui.SpinnerCellEditor;
 import gui.editor.EditorFrame;
+import gui.editor.SpinnerCellEditor;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -44,7 +45,8 @@ public enum CardCharacteristic
 	LOYALTY("Loyalty", Loyalty.class, (l, i) -> l.get(i).loyalty, (l, i) -> l.get(i).loyalty),
 	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist, (l, i) -> l.get(i).artist),
 	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn()),
-	CATEGORIES("Categories", List.class, null, (l, i) -> l.getCategories(i));
+	CATEGORIES("Categories", List.class, null, (l, i) -> l.getCategories(i)),
+	DATE_ADDED("Date Added", Date.class, null, (l, i) -> l.dateAdded(i));
 	
 	/**
 	 * Parse a String for a CardCharacteristic.

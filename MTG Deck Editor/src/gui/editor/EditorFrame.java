@@ -1,6 +1,5 @@
 package gui.editor;
 
-import gui.CategoriesCellRenderer;
 import gui.ColorRenderer;
 import gui.MainFrame;
 import gui.ManaCostCellRenderer;
@@ -26,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -228,6 +228,7 @@ public class EditorFrame extends JInternalFrame
 		table.setDefaultRenderer(ManaCost.class, new ManaCostCellRenderer());
 		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		table.setDefaultRenderer(List.class, new CategoriesCellRenderer());
+		table.setDefaultRenderer(Date.class, new DateCellRenderer());
 		table.setShowGrid(false);
 		table.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		// When a card is selected in the master list table, select it for adding
@@ -1437,7 +1438,7 @@ public class EditorFrame extends JInternalFrame
 					String[] card = rd.readLine().trim().split("\t");
 					Card c = parent.getCard(card[0]);
 					if (c != null)
-						deck.add(c, Integer.valueOf(card[1]));
+						deck.add(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
 					else
 						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
 					publish(50*(i + 1)/cards);
