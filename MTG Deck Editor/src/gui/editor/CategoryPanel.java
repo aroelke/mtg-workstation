@@ -9,7 +9,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
@@ -29,6 +28,7 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 
+import util.ColorButton;
 import util.StripedTable;
 import database.Card;
 import database.Deck;
@@ -48,10 +48,6 @@ public class CategoryPanel extends JPanel
 	 * Number of rows in the card table to display.
 	 */
 	public static final int MAX_ROWS_TO_DISPLAY = 6;
-	/**
-	 * TODO: Comment this
-	 */
-	public static final int COLOR_BUTTON_BORDER = 5;
 	
 	/**
 	 * Category in the Deck data structure.
@@ -104,7 +100,7 @@ public class CategoryPanel extends JPanel
 		if (col == null)
 		{
 			Random rand = new Random();
-			col = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
+			col = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), 1F);
 		}
 		category = editor.deck.addCategory(n, col, r, p);
 		for (Card c: whitelist)
@@ -129,15 +125,7 @@ public class CategoryPanel extends JPanel
 		
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		JButton colorButton = new JButton(" ") {
-			@Override
-			public void paintComponent(Graphics g)
-			{
-				super.paintComponent(g);
-				g.setColor(category.color());
-				g.fillRect(COLOR_BUTTON_BORDER, COLOR_BUTTON_BORDER, getWidth() - 2*COLOR_BUTTON_BORDER, getHeight() - 2*COLOR_BUTTON_BORDER);
-			}
-		};
+		JButton colorButton = new ColorButton(category.color());
 		buttonPanel.add(colorButton);
 		editButton = new JButton("…");
 		buttonPanel.add(editButton);
@@ -238,6 +226,15 @@ public class CategoryPanel extends JPanel
 	public Set<Card> blacklist()
 	{
 		return category.blacklist();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Color color()
+	{
+		return category.color();
 	}
 	
 	/**

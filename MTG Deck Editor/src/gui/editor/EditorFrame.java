@@ -1433,7 +1433,7 @@ public class EditorFrame extends JInternalFrame
 					Set<Card> blacklist = editor.blacklist().stream().map(parent::getCard).collect(Collectors.toSet());
 					SwingUtilities.invokeLater(() -> {
 						if (!isCancelled())
-							addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, Color.BLACK, editor.filter(), EditorFrame.this));
+							addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.color(), editor.filter(), EditorFrame.this));
 					});
 					publish(50 + 50*(i + 1)/categories);
 				}

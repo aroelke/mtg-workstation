@@ -1,5 +1,6 @@
 package database;
 
+import gui.SettingsDialog;
 import gui.filter.FilterGroupPanel;
 
 import java.awt.Color;
@@ -33,17 +34,18 @@ public class Deck implements Iterable<Card>
 	/**
 	 * Regex pattern for matching category strings and extracting their contents.  The first group
 	 * will be the category's name, the second group will be the UIDs of the cards in its whitelist,
-	 * the third group will the UIDs of the cards in its blacklist, and the fourth group will be
-	 * its filter's String representation.  The second and third groups will not include the group
-	 * enclosing characters, but the fourth will.  The first group needs to be trimmed, or the
-	 * trailing white space will be included.
+	 * the third group will the UIDs of the cards in its blacklist, the fourth group will be its color,
+	 * and the fifth group will be its filter's String representation.  The first four groups will
+	 * not include the group enclosing characters, but the fifth will.  The first through third groups
+	 * will be empty strings if they are empty, but the fourth will be null.  The first and fifth groups
+	 * should never be empty.
 	 * @see gui.filter.FilterGroupPanel#setContents(String)
 	 */
 	public static final Pattern CATEGORY_PATTERN = Pattern.compile(
 			"^" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]+)" + FilterGroupPanel.END_GROUP
 			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
 			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP
-			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([0-9A-F-a-f]{6})?" + FilterGroupPanel.END_GROUP
+			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "(#[0-9A-F-a-f]{6})?" + FilterGroupPanel.END_GROUP
 			+ "\\s*(.*)$");
 	/**
 	 * List separator for UIDs of cards in the String representation of a whitelist or a blacklist.
@@ -681,7 +683,11 @@ public class Deck implements Iterable<Card>
 			StringJoiner black = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 			for (Card c: blacklist)
 				black.add(c.ID);
-			return FilterGroupPanel.BEGIN_GROUP + name + FilterGroupPanel.END_GROUP + " " + white.toString() + " " + black.toString() + " " + FilterGroupPanel.BEGIN_GROUP + FilterGroupPanel.END_GROUP + " " + repr;
+			return FilterGroupPanel.BEGIN_GROUP + name + FilterGroupPanel.END_GROUP
+					+ " " + white.toString()
+					+ " " + black.toString()
+					+ " " + FilterGroupPanel.BEGIN_GROUP + SettingsDialog.colorToString(color, 3) + FilterGroupPanel.END_GROUP
+					+ " " + repr;
 		}
 		
 		/**

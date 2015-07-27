@@ -129,11 +129,23 @@ public class SettingsDialog extends JDialog
 	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
 	 * 
 	 * @param col Color to convert
+	 * @param width Minimum width of the color string
+	 * @return String code of the color.
+	 */
+	public static String colorToString(Color col, int width)
+	{
+		return String.format("#%0" + (width*2) + "X", col.getRGB()&((1L << (width*8)) - 1));
+	}
+	
+	/**
+	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
+	 * 
+	 * @param col Color to convert
 	 * @return String code of the color.
 	 */
 	public static String colorToString(Color col)
 	{
-		return String.format("#%08X", col.getRGB());
+		return colorToString(col, 4);
 	}
 	
 	/**

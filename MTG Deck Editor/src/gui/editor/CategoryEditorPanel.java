@@ -1,14 +1,17 @@
 package gui.editor;
 
+import gui.SettingsDialog;
 import gui.filter.FilterGroupPanel;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -16,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import util.ColorButton;
 import database.Card;
 import database.Deck;
 
@@ -87,6 +91,10 @@ public class CategoryEditorPanel extends JPanel
 	 * will not be filled unless a category string is parsed.
 	 */
 	private Set<String> blacklist;
+	/**
+	 * TODO: Comment this
+	 */
+	private ColorButton colorButton;
 	
 	/**
 	 * Create a new CategoryEditorPanel.
@@ -100,6 +108,8 @@ public class CategoryEditorPanel extends JPanel
 		namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
 		namePanel.add(new JLabel("Category Name: "));
 		namePanel.add(nameField = new JTextField());
+		namePanel.add(Box.createHorizontalStrut(5));
+		namePanel.add(colorButton = new ColorButton());
 		add(namePanel, BorderLayout.NORTH);
 		
 		add(filter = new FilterGroupPanel(), BorderLayout.CENTER);
@@ -129,6 +139,8 @@ public class CategoryEditorPanel extends JPanel
 				if (!m.group(3).isEmpty())
 					for (String c: m.group(3).split(Deck.EXCEPTION_SEPARATOR))
 						blacklist.add(c);
+				if (m.group(4) != null)
+					colorButton.color = Color.decode(m.group(4));
 				filter.setContents(m.group(5));
 			}
 			else
@@ -182,6 +194,15 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Color color()
+	{
+		return colorButton.color;
+	}
+	
+	/**
 	 * @return The String representation of the category being edited, which is its name
 	 * followed by the String representation of its filter.  Note the difference with
 	 * Deck.Category's String representation, which also includes a whitelist and blacklist
@@ -196,6 +217,10 @@ public class CategoryEditorPanel extends JPanel
 		StringJoiner black = new StringJoiner(Deck.EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 		for (String c: blacklist)
 			black.add(c);
-		return FilterGroupPanel.BEGIN_GROUP + nameField.getText() + FilterGroupPanel.END_GROUP + " " + white + " " + black + " " + FilterGroupPanel.BEGIN_GROUP + FilterGroupPanel.END_GROUP + " " + filter.toString();
+		return FilterGroupPanel.BEGIN_GROUP + nameField.getText() + FilterGroupPanel.END_GROUP
+				+ " " + white
+				+ " " + black
+				+ " " + FilterGroupPanel.BEGIN_GROUP + SettingsDialog.colorToString(colorButton.color, 3) + FilterGroupPanel.END_GROUP
+				+ " " + filter.toString();
 	}
 }
