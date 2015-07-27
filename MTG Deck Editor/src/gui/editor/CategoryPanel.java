@@ -23,7 +23,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
@@ -141,7 +140,6 @@ public class CategoryPanel extends JPanel
 		table.setAutoCreateRowSorter(true);
 		table.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
 		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(false);
 		table.setFillsViewportHeight(true);
 		table.setStripeColor(SettingsDialog.stringToColor(editor.getSetting(SettingsDialog.EDITOR_STRIPE)));

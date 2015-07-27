@@ -51,7 +51,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
@@ -226,7 +225,6 @@ public class EditorFrame extends JInternalFrame
 		table.setAutoCreateRowSorter(true);
 		table.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
 		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(false);
 		table.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		// When a card is selected in the master list table, select it for adding

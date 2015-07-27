@@ -974,6 +974,24 @@ public class Deck implements Iterable<Card>
 			return filtrate.stream();
 		}
 		
+		/**
+		 * TODO: Comment this
+		 */
+		@Override
+		public List<Category> getCategories(Card c)
+		{
+			if (includes(c))
+				return cardCategories.get(c);
+			else
+				return null;
+		}
+		
+		@Override
+		public List<Category> getCategories(int index)
+		{
+			return getCategories(filtrate.get(index));
+		}
+		
 		@Override
 		public Category getCategory(String n)
 		{
