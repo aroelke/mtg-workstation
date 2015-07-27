@@ -591,7 +591,7 @@ public class MainFrame extends JFrame
 		
 		// Create the inventory and put it in the table
 		inventoryTable = new StripedTable();
-		inventoryTable.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
+		inventoryTable.setDefaultRenderer(ManaCost.class, new ManaCostCellRenderer());
 		inventoryTable.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		inventoryTable.setDefaultRenderer(String.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Integer.class, new CardTableCellRenderer());

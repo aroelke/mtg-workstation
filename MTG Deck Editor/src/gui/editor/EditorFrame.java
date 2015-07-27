@@ -2,7 +2,7 @@ package gui.editor;
 
 import gui.ColorRenderer;
 import gui.MainFrame;
-import gui.ManaCostRenderer;
+import gui.ManaCostCellRenderer;
 import gui.ScrollablePanel;
 import gui.SettingsDialog;
 import gui.StripedTable;
@@ -223,7 +223,7 @@ public class EditorFrame extends JInternalFrame
 		table = new StripedTable(model);
 		table.setFillsViewportHeight(true);
 		table.setAutoCreateRowSorter(true);
-		table.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
+		table.setDefaultRenderer(ManaCost.class, new ManaCostCellRenderer());
 		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		table.setShowGrid(false);
 		table.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));

@@ -19,7 +19,7 @@ import database.symbol.Symbol;
  * @author Alec
  */
 @SuppressWarnings("serial")
-public class ManaCostRenderer extends DefaultTableCellRenderer
+public class ManaCostCellRenderer extends DefaultTableCellRenderer
 {
 	/**
 	 * Create the Component that will display the contents of the specified cell.  If that cell contains
@@ -41,10 +41,10 @@ public class ManaCostRenderer extends DefaultTableCellRenderer
 				costPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
 			else
 				costPanel.setBorder(new EmptyBorder(0, 1, -1, 0));
-			for (Symbol sym: cost.symbols())
-				costPanel.add(new JLabel(sym.getIcon(13)));
 			costPanel.setForeground(c.getForeground());
 			costPanel.setBackground(c.getBackground());
+			for (Symbol sym: cost.symbols())
+				costPanel.add(new JLabel(sym.getIcon(13)));
 			return costPanel;
 		}
 		else

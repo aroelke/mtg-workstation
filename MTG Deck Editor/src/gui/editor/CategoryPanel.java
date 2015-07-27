@@ -2,7 +2,7 @@ package gui.editor;
 
 import gui.ColorButton;
 import gui.ColorRenderer;
-import gui.ManaCostRenderer;
+import gui.ManaCostCellRenderer;
 import gui.SettingsDialog;
 import gui.StripedTable;
 
@@ -148,7 +148,7 @@ public class CategoryPanel extends JPanel
 			}
 		};
 		table.setAutoCreateRowSorter(true);
-		table.setDefaultRenderer(ManaCost.class, new ManaCostRenderer());
+		table.setDefaultRenderer(ManaCost.class, new ManaCostCellRenderer());
 		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		table.setShowGrid(false);
 		table.setFillsViewportHeight(true);
