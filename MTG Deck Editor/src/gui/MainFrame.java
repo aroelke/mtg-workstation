@@ -470,7 +470,7 @@ public class MainFrame extends JFrame
 			JMenuItem categoryItem = new JMenuItem(editor.name());
 			categoryItem.addActionListener((e) -> {
 				if (selectedFrame != null && !selectedFrame.containsCategory(editor.name()))
-					selectedFrame.addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), selectedFrame));
+					selectedFrame.addCategory(new CategoryPanel(editor.name(), editor.color(), editor.repr(), editor.filter(), selectedFrame));
 			});
 			presetMenu.add(categoryItem);
 		}
@@ -893,7 +893,7 @@ public class MainFrame extends JFrame
 			JMenuItem categoryItem = new JMenuItem(editor.name());
 			categoryItem.addActionListener((e) -> {
 				if (selectedFrame != null)
-					selectedFrame.addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), selectedFrame));
+					selectedFrame.addCategory(new CategoryPanel(editor.name(), editor.color(), editor.repr(), editor.filter(), selectedFrame));
 			});
 			presetMenu.add(categoryItem);
 		}

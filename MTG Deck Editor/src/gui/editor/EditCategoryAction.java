@@ -1,5 +1,7 @@
 package gui.editor;
 
+import gui.SettingsDialog;
+
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 
@@ -66,7 +68,7 @@ public class EditCategoryAction implements DeckAction
 		CategoryPanel editedCategory = editor.getCategory(newRepr.group(1));
 		if (editedCategory != null)
 		{
-			editedCategory.edit(formerRepr.group(1), formerRepr.group(5), formerFilter);
+			editedCategory.edit(formerRepr.group(1), SettingsDialog.stringToColor(formerRepr.group(4)), formerRepr.group(5), formerFilter);
 			editor.updateCategorySwitch();
 			editor.revalidate();
 			editor.repaint();
@@ -85,7 +87,7 @@ public class EditCategoryAction implements DeckAction
 		CategoryPanel editedCategory = editor.getCategory(formerRepr.group(1));
 		if (editedCategory != null)
 		{
-			editedCategory.edit(newRepr.group(1), newRepr.group(5), newFilter);
+			editedCategory.edit(newRepr.group(1), SettingsDialog.stringToColor(newRepr.group(4)), newRepr.group(5), newFilter);
 			editor.updateCategorySwitch();
 			editor.revalidate();
 			editor.repaint();

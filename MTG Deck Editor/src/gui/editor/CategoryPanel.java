@@ -1,5 +1,6 @@
 package gui.editor;
 
+import gui.CategoriesCellRenderer;
 import gui.ColorButton;
 import gui.ColorRenderer;
 import gui.ManaCostCellRenderer;
@@ -39,6 +40,8 @@ import database.characteristics.MTGColor;
 /**
  * This class represents a panel that shows information about a category in a deck.
  * 
+ * TODO: Figure out a way to better differentiate the category colors.
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -74,9 +77,16 @@ public class CategoryPanel extends JPanel
 	 */
 	protected JButton removeButton;
 	/**
+	 * TODO: Comment this
+	 */
+	protected ColorButton colorButton;
+	/**
 	 * Border showing the name of the category.
 	 */
 	private TitledBorder border;
+	/**
+	 * TODO: Comment this
+	 */
 	private Color background;
 	private Timer flashTimer;
 	
@@ -100,7 +110,7 @@ public class CategoryPanel extends JPanel
 		if (col == null)
 		{
 			Random rand = new Random();
-			col = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), 1F);
+			col = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
 		}
 		category = editor.deck.addCategory(n, col, r, p);
 		for (Card c: whitelist)
@@ -125,7 +135,7 @@ public class CategoryPanel extends JPanel
 		
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		JButton colorButton = new ColorButton(category.color());
+		colorButton = new ColorButton(category.color());
 		buttonPanel.add(colorButton);
 		editButton = new JButton("…");
 		buttonPanel.add(editButton);
@@ -150,6 +160,7 @@ public class CategoryPanel extends JPanel
 		table.setAutoCreateRowSorter(true);
 		table.setDefaultRenderer(ManaCost.class, new ManaCostCellRenderer());
 		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
+		table.setDefaultRenderer(List.class, new CategoriesCellRenderer());
 		table.setShowGrid(false);
 		table.setFillsViewportHeight(true);
 		table.setStripeColor(SettingsDialog.stringToColor(editor.getSetting(SettingsDialog.EDITOR_STRIPE)));
@@ -163,13 +174,14 @@ public class CategoryPanel extends JPanel
 	 * Create a new CategoryPanel with an empty white- and blacklist.
 	 * 
 	 * @param n Name of the new category
+	 * @param c Color of the new category
 	 * @param r String representation of the new category
 	 * @param p Filter for the new category
 	 * @param editor EditorFrame containing the new category
 	 */
-	public CategoryPanel(String n, String r, Predicate<Card> p, EditorFrame editor)
+	public CategoryPanel(String n, Color c, String r, Predicate<Card> p, EditorFrame editor)
 	{
-		this(n, r, new HashSet<Card>(), new HashSet<Card>(), null, p, editor);
+		this(n, r, new HashSet<Card>(), new HashSet<Card>(), c, p, editor);
 	}
 	
 	/**
@@ -182,6 +194,8 @@ public class CategoryPanel extends JPanel
 		border.setTitle(category.name());
 		table.revalidate();
 		table.repaint();
+		colorButton.color = category.color();
+		colorButton.repaint();
 		revalidate();
 		repaint();
 	}
@@ -229,24 +243,15 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
-	 */
-	public Color color()
-	{
-		return category.color();
-	}
-	
-	/**
 	 * Change the parameters of the category.
 	 * 
 	 * @param newName New name for the category
 	 * @param newRepr New String representation of the category's filter
 	 * @param newFilter New filter for the category
 	 */
-	public void edit(String newName, String newRepr, Predicate<Card> newFilter)
+	public void edit(String newName, Color newColor, String newRepr, Predicate<Card> newFilter)
 	{
-		if (!category.edit(newName, newRepr, newFilter))
+		if (!category.edit(newName, newColor, newRepr, newFilter))
 			throw new IllegalArgumentException("Category \"" + newName + "\" already exists");
 		update();
 	}

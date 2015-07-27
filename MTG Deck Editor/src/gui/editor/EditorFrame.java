@@ -1,5 +1,6 @@
 package gui.editor;
 
+import gui.CategoriesCellRenderer;
 import gui.ColorRenderer;
 import gui.MainFrame;
 import gui.ManaCostCellRenderer;
@@ -39,6 +40,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
@@ -225,6 +227,7 @@ public class EditorFrame extends JInternalFrame
 		table.setAutoCreateRowSorter(true);
 		table.setDefaultRenderer(ManaCost.class, new ManaCostCellRenderer());
 		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
+		table.setDefaultRenderer(List.class, new CategoriesCellRenderer());
 		table.setShowGrid(false);
 		table.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		// When a card is selected in the master list table, select it for adding
@@ -561,7 +564,7 @@ public class EditorFrame extends JInternalFrame
 				JOptionPane.showMessageDialog(null, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
 		} while (editor != null && deck.containsCategory(editor.name()));
 		if (editor != null)
-			addCategory(new CategoryPanel(editor.name(), editor.repr(), editor.filter(), this));
+			addCategory(new CategoryPanel(editor.name(), editor.color(), editor.repr(), editor.filter(), this));
 	}
 
 	/**
@@ -610,6 +613,22 @@ public class EditorFrame extends JInternalFrame
 			});
 			// Add the behavior for the remove category button
 			newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory));
+			// Add the behavior for the color edit button
+			newCategory.colorButton.addActionListener((e) -> {
+				Color newColor = JColorChooser.showDialog(null, "Choose a Color", newCategory.colorButton.color);
+				if (!newColor.equals(newCategory.colorButton.color))
+				{
+					newCategory.colorButton.color = newColor;
+					String oldRepr = newCategory.toString();
+					CategoryEditorPanel editor = new CategoryEditorPanel(oldRepr);
+					newCategory.edit(editor.name(), newCategory.colorButton.color, editor.repr(), editor.filter());
+					setUnsaved();
+					undoBuffer.push(new EditCategoryAction(this, oldRepr, newCategory.filter(), newCategory.toString(), newCategory.filter()));
+					redoBuffer.clear();
+					newCategory.update();
+				}
+			});
+			
 			// Add the behavior for clicking on the category's table
 			// Table popup menu
 			JPopupMenu tableMenu = new JPopupMenu();
@@ -727,7 +746,7 @@ public class EditorFrame extends JInternalFrame
 			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(oldRepr);
 			if (editor != null)
 			{
-				toEdit.edit(editor.name(), editor.repr(), editor.filter());
+				toEdit.edit(editor.name(), editor.color(), editor.repr(), editor.filter());
 				updateCategorySwitch();
 				revalidate();
 				repaint();

@@ -954,13 +954,14 @@ public class Deck implements Iterable<Card>
 		 * Change the properties of this Category.
 		 * 
 		 * @param n New name for this Category (names of categories should be unique!)
+		 * @param c New color for this category
 		 * @param r New String representation of this Category
 		 * @param f New filter for this Category
 		 * @return <code>true</code> if the category was successfully changed, which
 		 * happens if its new name isn't the name of another category or if the name
 		 * isn't changed, and <code>false</code> otherwise.
 		 */
-		public boolean edit(String n, String r, Predicate<Card> f)
+		public boolean edit(String n, Color c, String r, Predicate<Card> f)
 		{
 			if (n.equals(name) || !categories.containsKey(n))
 			{
@@ -970,6 +971,7 @@ public class Deck implements Iterable<Card>
 					name = n;
 					categories.put(name, this);
 				}
+				color = c;
 				repr = r;
 				filter = f;
 				filtrate = masterList.stream().map((e) -> e.card).filter(this::includes).collect(Collectors.toList());
@@ -977,6 +979,15 @@ public class Deck implements Iterable<Card>
 			}
 			else
 				return false;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param c
+		 */
+		public void setColor(Color c)
+		{
+			color = c;
 		}
 		
 		/**

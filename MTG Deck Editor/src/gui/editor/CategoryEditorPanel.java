@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -110,6 +111,10 @@ public class CategoryEditorPanel extends JPanel
 		namePanel.add(nameField = new JTextField());
 		namePanel.add(Box.createHorizontalStrut(5));
 		namePanel.add(colorButton = new ColorButton());
+		colorButton.addActionListener((e) -> {
+			colorButton.color = JColorChooser.showDialog(null, "Choose a Color", colorButton.color);
+			colorButton.repaint();
+		});
 		add(namePanel, BorderLayout.NORTH);
 		
 		add(filter = new FilterGroupPanel(), BorderLayout.CENTER);
