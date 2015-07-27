@@ -1112,7 +1112,7 @@ public class MainFrame extends JFrame
 				if (f.exists())
 				{
 					int option = JOptionPane.showConfirmDialog(null, "File " + f.getName() + " already exists.  Overwrite?", "Warning", JOptionPane.YES_NO_CANCEL_OPTION);
-					write = (option == JOptionPane.YES_NO_CANCEL_OPTION);
+					write = (option == JOptionPane.YES_OPTION);
 					done = (option != JOptionPane.NO_OPTION);
 				}
 				else

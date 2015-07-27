@@ -1250,7 +1250,7 @@ public class EditorFrame extends JInternalFrame
 		if (file == null)
 			return false;
 		else
-			return (save(file));
+			return save(file);
 	}
 
 	// TODO: Cause the tab to change to the category tab when adding or removing categories
