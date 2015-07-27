@@ -1,5 +1,6 @@
 package gui.editor;
 
+import gui.ColorButton;
 import gui.SettingsDialog;
 import gui.filter.FilterGroupPanel;
 
@@ -19,7 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import util.ColorButton;
 import database.Card;
 import database.Deck;
 

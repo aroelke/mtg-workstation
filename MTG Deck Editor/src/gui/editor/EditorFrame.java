@@ -5,6 +5,8 @@ import gui.MainFrame;
 import gui.ManaCostRenderer;
 import gui.ScrollablePanel;
 import gui.SettingsDialog;
+import gui.StripedTable;
+import gui.TableMouseAdapter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -64,8 +66,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import util.StripedTable;
-import util.TableMouseAdapter;
 import database.Card;
 import database.Deck;
 import database.LegalityChecker;

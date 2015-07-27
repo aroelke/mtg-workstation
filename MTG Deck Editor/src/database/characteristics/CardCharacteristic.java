@@ -1,5 +1,6 @@
 package database.characteristics;
 
+import gui.SpinnerCellEditor;
 import gui.editor.EditorFrame;
 
 import java.util.Arrays;
@@ -9,7 +10,6 @@ import java.util.stream.Collectors;
 
 import javax.swing.table.TableCellEditor;
 
-import util.SpinnerCellEditor;
 import util.TriConsumer;
 import database.Card;
 import database.Deck;

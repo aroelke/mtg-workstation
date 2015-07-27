@@ -1,8 +1,10 @@
 package gui.editor;
 
+import gui.ColorButton;
 import gui.ColorRenderer;
 import gui.ManaCostRenderer;
 import gui.SettingsDialog;
+import gui.StripedTable;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -28,8 +30,6 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 
-import util.ColorButton;
-import util.StripedTable;
 import database.Card;
 import database.Deck;
 import database.ManaCost;

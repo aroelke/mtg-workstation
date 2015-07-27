@@ -73,8 +73,6 @@ import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 
-import util.StripedTable;
-import util.TableMouseAdapter;
 import database.Card;
 import database.Inventory;
 import database.ManaCost;
