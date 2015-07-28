@@ -1,5 +1,9 @@
 import gui.MainFrame;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -21,6 +25,14 @@ public class EditorMain
 	 */
 	public static void main(String[] args)
 	{
+		List<File> files = new ArrayList<File>();
+		for (String arg: args)
+		{
+			File f = new File(arg);
+			if (f.exists())
+				files.add(f);
+		}
+		
 		// TODO: Allow for opening one or more decks using the command line.
 		// TODO: Try to reduce memory footprint.
 		// TODO: Decide on nimbus or default look and feel (may require resizing some things)
@@ -37,7 +49,7 @@ public class EditorMain
 			}
 			*/
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
+			SwingUtilities.invokeLater(() -> new MainFrame(files).setVisible(true));
 		}
 		catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
 		{

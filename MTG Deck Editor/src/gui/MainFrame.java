@@ -201,7 +201,7 @@ public class MainFrame extends JFrame
 	/**
 	 * Create a new MainFrame.
 	 */
-	public MainFrame()
+	public MainFrame(List<File> files)
 	{
 		super();
 		
@@ -722,6 +722,9 @@ public class MainFrame extends JFrame
 		// File chooser
 		fileChooser = new JFileChooser(properties.getProperty(SettingsDialog.INITIALDIR));
 		fileChooser.setMultiSelectionEnabled(false);
+		
+		for (File f: files)
+			open(f);
 		
 		// Handle what happens when the window tries to close and when it opens.
 		addWindowListener(new WindowAdapter()

@@ -82,7 +82,6 @@ import database.characteristics.MTGColor;
  * inventory from which cards can be added.
  * 
  * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
- * TODO: Add a column to the main table indicating which categories a card belongs to
  * 
  * @author Alec Roelke
  */
