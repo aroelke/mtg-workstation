@@ -616,13 +616,13 @@ public class EditorFrame extends JInternalFrame
 			newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory));
 			// Add the behavior for the color edit button
 			newCategory.colorButton.addActionListener((e) -> {
-				Color newColor = JColorChooser.showDialog(null, "Choose a Color", newCategory.colorButton.color);
-				if (!newColor.equals(newCategory.colorButton.color))
+				Color newColor = JColorChooser.showDialog(null, "Choose a Color", newCategory.colorButton.color());
+				if (!newColor.equals(newCategory.colorButton.color()))
 				{
-					newCategory.colorButton.color = newColor;
+					newCategory.colorButton.setColor(newColor);
 					String oldRepr = newCategory.toString();
 					CategoryEditorPanel editor = new CategoryEditorPanel(oldRepr);
-					newCategory.edit(editor.name(), newCategory.colorButton.color, editor.repr(), editor.filter());
+					newCategory.edit(editor.name(), newCategory.colorButton.color(), editor.repr(), editor.filter());
 					setUnsaved();
 					undoBuffer.push(new EditCategoryAction(this, oldRepr, newCategory.filter(), newCategory.toString(), newCategory.filter()));
 					redoBuffer.clear();

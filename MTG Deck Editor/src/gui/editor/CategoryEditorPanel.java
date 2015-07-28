@@ -93,7 +93,7 @@ public class CategoryEditorPanel extends JPanel
 	 */
 	private Set<String> blacklist;
 	/**
-	 * TODO: Comment this
+	 * Button displaying the color of the category, and allowing change of that color.
 	 */
 	private ColorButton colorButton;
 	
@@ -112,7 +112,7 @@ public class CategoryEditorPanel extends JPanel
 		namePanel.add(Box.createHorizontalStrut(5));
 		namePanel.add(colorButton = new ColorButton());
 		colorButton.addActionListener((e) -> {
-			colorButton.color = JColorChooser.showDialog(null, "Choose a Color", colorButton.color);
+			colorButton.setColor(JColorChooser.showDialog(null, "Choose a Color", colorButton.color()));
 			colorButton.repaint();
 		});
 		add(namePanel, BorderLayout.NORTH);
@@ -145,7 +145,7 @@ public class CategoryEditorPanel extends JPanel
 					for (String c: m.group(3).split(Deck.EXCEPTION_SEPARATOR))
 						blacklist.add(c);
 				if (m.group(4) != null)
-					colorButton.color = Color.decode(m.group(4));
+					colorButton.setColor(Color.decode(m.group(4)));
 				filter.setContents(m.group(5));
 			}
 			else
@@ -199,12 +199,11 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The color of the category.
 	 */
 	public Color color()
 	{
-		return colorButton.color;
+		return colorButton.color();
 	}
 	
 	/**
@@ -225,7 +224,7 @@ public class CategoryEditorPanel extends JPanel
 		return FilterGroupPanel.BEGIN_GROUP + nameField.getText() + FilterGroupPanel.END_GROUP
 				+ " " + white
 				+ " " + black
-				+ " " + FilterGroupPanel.BEGIN_GROUP + SettingsDialog.colorToString(colorButton.color, 3) + FilterGroupPanel.END_GROUP
+				+ " " + FilterGroupPanel.BEGIN_GROUP + SettingsDialog.colorToString(colorButton.color(), 3) + FilterGroupPanel.END_GROUP
 				+ " " + filter.toString();
 	}
 }

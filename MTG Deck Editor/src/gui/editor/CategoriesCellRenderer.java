@@ -14,13 +14,25 @@ import javax.swing.table.DefaultTableCellRenderer;
 import database.Deck;
 
 /**
- * TODO: Comment this
- * @author Alec
- *
+ * This class represents a renderer that displays which categories a card is in.  Colored boxes
+ * correspond to the colors of the categories a card belongs to.
+ * 
+ * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class CategoriesCellRenderer extends DefaultTableCellRenderer
 {
+	/**
+	 * Create a panel that draws boxes whose colors correspond to the card in the given row.
+	 * 
+	 * @param table Table containing the element to draw
+	 * @param value Value to draw
+	 * @param isSelected Whether or not the cell is selected
+	 * @param hasFocus Whether or not the cell has focus
+	 * @param row Row of the cell being rendered
+	 * @param column Column of the cell being rendered
+	 * @return A component, which will be a JPanel containing several squares if the given value is a List<Deck.Category>.
+	 */
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{

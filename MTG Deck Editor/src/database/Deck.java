@@ -54,7 +54,7 @@ public class Deck implements Iterable<Card>
 	 */
 	public static final String EXCEPTION_SEPARATOR = ":";
 	/**
-	 * TODO: Comment this
+	 * Formatter for dates, usually for formatting the add date of a card.
 	 */
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMMM d, yyyy");
 	
@@ -129,7 +129,7 @@ public class Deck implements Iterable<Card>
 	 */
 	private Map<String, Category> categories;
 	/**
-	 * TODO: Comment this
+	 * Map of Cards onto the lists of Categories they belong to.
 	 */
 	private Map<Card, List<Category>> cardCategories;
 	/**
@@ -414,9 +414,8 @@ public class Deck implements Iterable<Card>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param c
-	 * @return
+	 * @param c Card to look for
+	 * @return The Date the Card was originally added to the Deck.
 	 */
 	public Date dateAdded(Card c)
 	{
@@ -427,6 +426,10 @@ public class Deck implements Iterable<Card>
 			return e.date;
 	}
 	
+	/**
+	 * @param index Index of the Card to look for
+	 * @return The Date the Card was originally added to the deck.
+	 */
 	public Date dateAdded(int index)
 	{
 		return masterList.get(index).date;
@@ -507,15 +510,18 @@ public class Deck implements Iterable<Card>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param c
-	 * @return
+	 * @param c Card to look for
+	 * @return The list of Categories the Card belongs to.
 	 */
 	public List<Category> getCategories(Card c)
 	{
 		return cardCategories.get(c);
 	}
 	
+	/**
+	 * @param index The index of the Card to look for
+	 * @return The list of Categories the Card belongs to.
+	 */
 	public List<Category> getCategories(int index)
 	{
 		return cardCategories.get(masterList.get(index).card);
@@ -662,7 +668,7 @@ public class Deck implements Iterable<Card>
 		 */
 		private Set<Card> whitelist;
 		/**
-		 * TODO: Comment this
+		 * Color of this Category.
 		 */
 		private Color color;
 		
@@ -693,7 +699,7 @@ public class Deck implements Iterable<Card>
 		}
 		
 		/**
-		 * TODO: Comment this
+		 * @return The color of this Category.
 		 */
 		public Color color()
 		{
@@ -1029,15 +1035,6 @@ public class Deck implements Iterable<Card>
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param c
-		 */
-		public void setColor(Color c)
-		{
-			color = c;
-		}
-		
-		/**
 		 * @return An iterator over this Category's Cards.
 		 */
 		@Override
@@ -1056,7 +1053,9 @@ public class Deck implements Iterable<Card>
 		}
 		
 		/**
-		 * TODO: Comment this
+		 * @param c Card to look for
+		 * @return The list of Categories the given Card belongs to, if it
+		 * belongs to this Category.
 		 */
 		@Override
 		public List<Category> getCategories(Card c)
@@ -1067,6 +1066,11 @@ public class Deck implements Iterable<Card>
 				return null;
 		}
 		
+		/**
+		 * @param index Index of the Card to look for
+		 * @return The list of Categories the Card at the given index belongs
+		 * to.
+		 */
 		@Override
 		public List<Category> getCategories(int index)
 		{

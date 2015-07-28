@@ -77,7 +77,7 @@ public class CategoryPanel extends JPanel
 	 */
 	protected JButton removeButton;
 	/**
-	 * TODO: Comment this
+	 * Button displaying and allowing editing of the category's color.
 	 */
 	protected ColorButton colorButton;
 	/**
@@ -85,9 +85,12 @@ public class CategoryPanel extends JPanel
 	 */
 	private TitledBorder border;
 	/**
-	 * TODO: Comment this
+	 * Default background color of this panel.
 	 */
 	private Color background;
+	/**
+	 * Timer timing flashing of the border of this panel when it is skipped to.
+	 */
 	private Timer flashTimer;
 	
 	/**
@@ -195,7 +198,7 @@ public class CategoryPanel extends JPanel
 		border.setTitle(category.name());
 		table.revalidate();
 		table.repaint();
-		colorButton.color = category.color();
+		colorButton.setColor(category.color());
 		colorButton.repaint();
 		revalidate();
 		repaint();
@@ -414,17 +417,30 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @author Alec
-	 *
+	 * This class represents a timer controlling the flash of the panel when it is skipped to.
+	 * The flash will last 400ms.
+	 * 
+	 * @author Alec Roelke
 	 */
 	private class FlashTimer extends Timer
 	{
+		/**
+		 * Amount of ticks until the flash disappears.
+		 */
 		private final int END = 20;
+		/**
+		 * Color of the flash.
+		 */
 		private final Color FLASH = Color.CYAN;
 		
+		/**
+		 * Progress of the flash.
+		 */
 		private int count;
 		
+		/**
+		 * Create a new FlashTimer.
+		 */
 		public FlashTimer()
 		{
 			super(20, null);
@@ -444,6 +460,9 @@ public class CategoryPanel extends JPanel
 			});
 		}
 		
+		/**
+		 * Stop the timer and set the panel to its default background color.
+		 */
 		@Override
 		public void stop()
 		{
@@ -452,6 +471,9 @@ public class CategoryPanel extends JPanel
 			repaint();
 		}
 		
+		/**
+		 * Restart the timer, resetting the progress of the flash.
+		 */
 		@Override
 		public void restart()
 		{

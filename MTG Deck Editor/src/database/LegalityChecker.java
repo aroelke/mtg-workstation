@@ -96,24 +96,40 @@ public class LegalityChecker
 		
 		// Individual card legality and count
 		// TODO: Fix this to work based on card name and not on unique cards
+		Map<Card, Integer> isoNameCounts = new HashMap<Card, Integer>();
+		for (Card c: deck)
+		{
+			boolean counted = false;
+			for (Card name: isoNameCounts.keySet())
+			{
+				if (name.compareName(c) == 0)
+				{
+					isoNameCounts.compute(name, (k, v) -> v += deck.count(name));
+					counted = true;
+					break;
+				}
+			}
+			if (!counted)
+				isoNameCounts.put(c, deck.count(c));
+		}
 		for (Card c: deck)
 		{
 			for (String format: Card.formatList)
 			{
 				if (!c.legalIn(format))
 					warnings.get(format).add(c.name + " is illegal in " + format);
-				else if (!c.ignoreCountRestriction())
+				else if (isoNameCounts.containsKey(c) && !c.ignoreCountRestriction())
 				{
 					if (format.equalsIgnoreCase("commander") || format.equalsIgnoreCase("singleton 100"))
 					{
-						if (deck.count(c) > 1)
+						if (isoNameCounts.get(c) > 1)
 							warnings.get(format).add("Deck contains more than 1 copy of " + c.name);
 					}
 					else
 					{
-						if (c.legalityIn(format) == Legality.RESTRICTED && deck.count(c) > 1)
+						if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts.get(c) > 1)
 							warnings.get(format).add(c.name + " is restricted in " + format);
-						else if (deck.count(c) > 4)
+						else if (isoNameCounts.get(c) > 4)
 							warnings.get(format).add("Deck contains more than 4 copies of " + c.name);
 					}
 				}
@@ -164,11 +180,14 @@ public class LegalityChecker
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * Find the color to classify a Card as to make the deck as close to 20 of each color, with
+	 * no Cards repeating, as possible.  If all classifications have 20 or more Cards, then remove
+	 * one and reclassify it.
+	 * 
 	 * TODO: This almost works; but make it better
-	 * @param c
-	 * @param bins
-	 * @param exclusion
+	 * @param c Card to classify
+	 * @param bins List of colors the Card can be classified as
+	 * @param exclusion List of colors the Card should not be classified as
 	 */
 	private void binCard(Card c, HashMap<MTGColor, List<Card>> bins, List<MTGColor> exclusion)
 	{
