@@ -33,7 +33,6 @@ public class EditorMain
 				files.add(f);
 		}
 		
-		// TODO: Allow for opening one or more decks using the command line.
 		// TODO: Try to reduce memory footprint.
 		// TODO: Decide on nimbus or default look and feel (may require resizing some things)
 		try

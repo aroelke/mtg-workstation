@@ -95,7 +95,6 @@ public class LegalityChecker
 		}
 		
 		// Individual card legality and count
-		// TODO: Fix this to work based on card name and not on unique cards
 		Map<Card, Integer> isoNameCounts = new HashMap<Card, Integer>();
 		for (Card c: deck)
 		{
