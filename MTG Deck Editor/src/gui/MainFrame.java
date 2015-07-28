@@ -723,9 +723,6 @@ public class MainFrame extends JFrame
 		fileChooser = new JFileChooser(properties.getProperty(SettingsDialog.INITIALDIR));
 		fileChooser.setMultiSelectionEnabled(false);
 		
-		for (File f: files)
-			open(f);
-		
 		// Handle what happens when the window tries to close and when it opens.
 		addWindowListener(new WindowAdapter()
 		{
@@ -736,6 +733,9 @@ public class MainFrame extends JFrame
 						&& (checkForUpdate() == UPDATE_NEEDED && updateInventory()))
 					properties.put(SettingsDialog.VERSION, newestVersion);
 				loadInventory();
+				if (!inventory.isEmpty())
+					for (File f: files)
+						open(f);
 			}
 			
 			@Override

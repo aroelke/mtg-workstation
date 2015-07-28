@@ -89,6 +89,15 @@ public class Inventory
 	}
 	
 	/**
+	 * @return <code>true</code> if there are no cards in the inventory (even if
+	 * they're all filtered out), and <code>false</code> otherwise.
+	 */
+	public boolean isEmpty()
+	{
+		return cards.isEmpty();
+	}
+	
+	/**
 	 * Sort the list using the specified Comparator.
 	 * 
 	 * @param comp Comparator to use for sorting
