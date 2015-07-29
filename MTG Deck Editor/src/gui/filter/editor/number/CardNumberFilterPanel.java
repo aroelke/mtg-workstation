@@ -17,6 +17,6 @@ public class CardNumberFilterPanel extends NumberFilterPanel
 	 */
 	public CardNumberFilterPanel()
 	{
-		super((c) -> Double.valueOf(c.number.replace("--", "0")), false, FilterType.CARD_NUMBER.code);
+		super((c) -> Double.valueOf(c.number().replace("--", "0")), false, FilterType.CARD_NUMBER.code);
 	}
 }

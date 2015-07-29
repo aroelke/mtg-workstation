@@ -17,6 +17,6 @@ public class BlockFilterPanel extends SingletonOptionsFilterPanel<String>
 	 */
 	public BlockFilterPanel()
 	{
-		super(Expansion.blocks, (c) -> c.set.block, FilterType.BLOCK.code);
+		super(Expansion.blocks, (c) -> c.expansion().block, FilterType.BLOCK.code);
 	}
 }

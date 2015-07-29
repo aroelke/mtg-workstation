@@ -56,7 +56,7 @@ public class LegalFilterPanel extends MultiOptionsFilterPanel<String>
 					Collection<String> formats = new ArrayList<String>(c.legalIn());
 					formats.retainAll(optionsBox.getSelectedValuesList());
 					for (String format: formats)
-						if (c.legality.get(format) != Legality.RESTRICTED)
+						if (c.legality().get(format) != Legality.RESTRICTED)
 							return false;
 					return true;
 				}

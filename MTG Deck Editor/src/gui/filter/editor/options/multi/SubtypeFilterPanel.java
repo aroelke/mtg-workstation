@@ -16,6 +16,6 @@ public class SubtypeFilterPanel extends MultiOptionsFilterPanel<String>
 	 */
 	public SubtypeFilterPanel()
 	{
-		super(Card.subtypeList, (c) -> c.subtypes, FilterType.SUBTYPE.code);
+		super(Card.subtypeList, (c) -> c.subtypes(), FilterType.SUBTYPE.code);
 	}
 }

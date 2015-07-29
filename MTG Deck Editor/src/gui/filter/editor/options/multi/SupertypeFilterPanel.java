@@ -16,6 +16,6 @@ public class SupertypeFilterPanel extends MultiOptionsFilterPanel<String>
 	 */
 	public SupertypeFilterPanel()
 	{
-		super(Card.supertypeList, (c) -> c.supertypes, FilterType.SUPERTYPE.code);
+		super(Card.supertypeList, (c) -> c.supertypes(), FilterType.SUPERTYPE.code);
 	}
 }

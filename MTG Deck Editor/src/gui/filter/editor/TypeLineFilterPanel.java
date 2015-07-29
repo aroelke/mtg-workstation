@@ -57,7 +57,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 		if (filter.getText().length() > 0)
 		{
 			List<String> types = Arrays.asList(filter.getText().toLowerCase().split("\\s"));
-			return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(c.allTypes.stream().map(String::toLowerCase).collect(Collectors.toList()), types);
+			return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(c.allTypes().stream().map(String::toLowerCase).collect(Collectors.toList()), types);
 		}
 		else
 			return (c) -> true;

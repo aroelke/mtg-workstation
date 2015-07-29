@@ -116,20 +116,20 @@ public class LegalityChecker
 			for (String format: Card.formatList)
 			{
 				if (!c.legalIn(format))
-					warnings.get(format).add(c.name + " is illegal in " + format);
+					warnings.get(format).add(c.name() + " is illegal in " + format);
 				else if (isoNameCounts.containsKey(c) && !c.ignoreCountRestriction())
 				{
 					if (format.equalsIgnoreCase("commander") || format.equalsIgnoreCase("singleton 100"))
 					{
 						if (isoNameCounts.get(c) > 1)
-							warnings.get(format).add("Deck contains more than 1 copy of " + c.name);
+							warnings.get(format).add("Deck contains more than 1 copy of " + c.name());
 					}
 					else
 					{
 						if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts.get(c) > 1)
-							warnings.get(format).add(c.name + " is restricted in " + format);
+							warnings.get(format).add(c.name() + " is restricted in " + format);
 						else if (isoNameCounts.get(c) > 4)
-							warnings.get(format).add("Deck contains more than 4 copies of " + c.name);
+							warnings.get(format).add("Deck contains more than 4 copies of " + c.name());
 					}
 				}
 			}
@@ -143,10 +143,10 @@ public class LegalityChecker
 		{
 			Set<MTGColor> deckColorIdentitySet = new HashSet<MTGColor>();
 			for (Card c: deck)
-				deckColorIdentitySet.addAll(c.colors);
+				deckColorIdentitySet.addAll(c.colors());
 			MTGColor.Tuple deckColorIdentity = new MTGColor.Tuple(deckColorIdentitySet);
 			for (Card c: new ArrayList<Card>(possibleCommanders))
-				if (!c.colors.containsAll(deckColorIdentity))
+				if (!c.colors().containsAll(deckColorIdentity))
 					possibleCommanders.remove(c);
 			if (possibleCommanders.isEmpty())
 				warnings.get("Commander").add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
@@ -156,14 +156,14 @@ public class LegalityChecker
 		HashMap<MTGColor, List<Card>> colorBins = new HashMap<MTGColor, List<Card>>();
 		for (MTGColor color: MTGColor.values())
 			colorBins.put(color, new ArrayList<Card>());
-		for (Card c: deck.stream().sorted((a, b) -> a.colors.size() - b.colors.size()).collect(Collectors.toList()))
+		for (Card c: deck.stream().sorted((a, b) -> a.colors().size() - b.colors().size()).collect(Collectors.toList()))
 			for (int i = 0; i < deck.count(c); i++)
 				binCard(c, colorBins, new ArrayList<MTGColor>());
 		for (MTGColor bin: colorBins.keySet())
 		{
 			System.out.println(bin + ": " + colorBins.get(bin).size());
 			for (Card c: colorBins.get(bin))
-				System.out.println("\t" + c.name);
+				System.out.println("\t" + c.name());
 		}
 		for (MTGColor color: MTGColor.values())
 			if (colorBins.get(color).size() < 20)
@@ -190,21 +190,21 @@ public class LegalityChecker
 	 */
 	private void binCard(Card c, HashMap<MTGColor, List<Card>> bins, List<MTGColor> exclusion)
 	{
-		if (c.colors.isEmpty())
+		if (c.colors().isEmpty())
 			return;
-		else if (c.colors.size() == 1)
-			bins.get(c.colors.get(0)).add(c);
+		else if (c.colors().size() == 1)
+			bins.get(c.colors().get(0)).add(c);
 		else
 		{
 			MTGColor bin = null;
-			for (MTGColor color: c.colors)
+			for (MTGColor color: c.colors())
 				if (bin == null || bins.get(color).size() < bins.get(bin).size())
 					bin = color;
 			if (bins.get(bin).size() < 20)
 				bins.get(bin).add(c);
 			else
 			{
-				Card next = bins.get(bin).stream().filter((card) -> !Containment.CONTAINS_ANY_OF.test(card.colors, exclusion)).findFirst().orElse(null);
+				Card next = bins.get(bin).stream().filter((card) -> !Containment.CONTAINS_ANY_OF.test(card.colors(), exclusion)).findFirst().orElse(null);
 				bins.get(bin).add(c);
 				exclusion.add(bin);
 				if (next != null)

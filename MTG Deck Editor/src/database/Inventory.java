@@ -39,7 +39,7 @@ public class Inventory
 	public Inventory(Collection<Card> list)
 	{
 		cards = new ArrayList<Card>(list);
-		IDs = cards.stream().collect(Collectors.toMap((c) -> c.ID, Function.identity()));
+		IDs = cards.stream().collect(Collectors.toMap((c) -> c.id(), Function.identity()));
 		filtrate = cards;
 	}
 	

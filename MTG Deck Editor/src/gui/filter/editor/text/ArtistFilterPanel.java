@@ -15,6 +15,6 @@ public class ArtistFilterPanel extends TextFilterPanel
 	 */
 	public ArtistFilterPanel()
 	{
-		super((c) -> c.artist, FilterType.ARTIST.code);
+		super((c) -> c.artist(), FilterType.ARTIST.code);
 	}
 }

@@ -24,7 +24,7 @@ public class PowerFilterPanel extends NumberFilterPanel
 	 */
 	public PowerFilterPanel()
 	{
-		super((c) -> c.power.value, true, FilterType.POWER.code);
+		super((c) -> c.power().value, true, FilterType.POWER.code);
 		
 		// Check box for selecting variable values.  If this is selected, then
 		// a numerical comparison is not made and instead the filter will filter
@@ -43,8 +43,8 @@ public class PowerFilterPanel extends NumberFilterPanel
 	@Override
 	public Predicate<Card> getFilter()
 	{
-		Predicate<Card> hasPower = (c) -> !c.power.expression.isEmpty();
-		return hasPower.and(variable.isSelected() ? (c) -> c.power.variable() : super.getFilter());
+		Predicate<Card> hasPower = (c) -> !c.power().expression.isEmpty();
+		return hasPower.and(variable.isSelected() ? (c) -> c.power().variable() : super.getFilter());
 	}
 	
 	/**

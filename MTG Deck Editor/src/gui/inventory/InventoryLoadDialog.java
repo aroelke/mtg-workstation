@@ -369,7 +369,6 @@ public class InventoryLoadDialog extends JDialog
 										  power,
 										  toughness,
 										  loyalty,
-										  layout,
 										  legality,
 										  imageName);
 						

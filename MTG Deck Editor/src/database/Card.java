@@ -49,98 +49,35 @@ public final class Card
 	 */
 	public static String[] formatList = {};
 	
-	/**
-	 * Name of this Card
-	 */
-	public final String name;
-	/**
-	 * Mana cost of this Card
-	 */
-	public final ManaCost mana;
-	/**
-	 * This Card's colors.
-	 */
-	public final MTGColor.Tuple colors;
-	/**
-	 * This Card's supertypes.
-	 */
-	public final List<String> supertypes;
-	/**
-	 * This Card's types.
-	 */
-	public final List<String> types;
-	/**
-	 * This Card's subtypes.
-	 */
-	public final List<String> subtypes;
+	private final Face[] faces;
 	/**
 	 * The Expansion this Card belongs to.
 	 */
-	public final Expansion set;
+	private final Expansion set;
 	/**
 	 * This Card's rarity.
 	 */
-	public final Rarity rarity;
-	/**
-	 * This Card's rules text.
-	 */
-	public final String text;
-	/**
-	 * This Cards flavor text.
-	 */
-	public final String flavor;
-	/**
-	 * This Card's artist.
-	 */
-	public final String artist;
-	/**
-	 * This Card's collector's number.
-	 */
-	public final String number;
-	/**
-	 * This Card's power, if it is a creature (it's empty otherwise).
-	 */
-	public final PowerToughness power;
-	/**
-	 * This Card's toughness, if it is a creature (it's empty otherwise).
-	 */
-	public final PowerToughness toughness;
-	/**
-	 * This Card's loyalty, if it is a planeswalker (it's empty otherwise).
-	 */
-	public final Loyalty loyalty;
-	/**
-	 * This Card's layout (flip, split, double-faced, etc.)
-	 */
-	public final String layout;
+	private final Rarity rarity;
 	/**
 	 * Formats and legality for this Card.
 	 */
-	public final Map<String, Legality> legality;
-	/**
-	 * This Card's image name.
-	 */
-	public final String imageName;
+	private final Map<String, Legality> legality;
 	
 	/**
 	 * List containing all types on this Card.
 	 */
-	public final List<String> allTypes;
+	private final List<String> allTypes;
 	/**
 	 * Unique identifier for this Card, which is its expansion name, name, and 
 	 * image name concatenated together.
 	 */
-	public final String ID;
-	/**
-	 * This Card's type line, which is "[Supertype(s) Type(s) - Subtype(s)]
-	 */
-	public final String typeLine;
+	private final String ID;
 	/**
 	 * This Card's color identity, which is a list containing its colors and
 	 * colors of any mana symbols that appear in its rules text that is not
 	 * reminder text, and in abilities that are given it by basic land types.
 	 */
-	public final MTGColor.Tuple colorIdentity;
+	private final MTGColor.Tuple colorIdentity;
 	
 	/**
 	 * Create a new Card.
@@ -179,48 +116,37 @@ public final class Card
 				String power,
 				String toughness,
 				String loyalty,
-				String layout,
 				Map<String, Legality> legality,
 				String imageName)
 	{
-		this.name = name;
-		this.mana = new ManaCost(mana);
-		this.colors = new MTGColor.Tuple(colors);
-		this.supertypes = Collections.unmodifiableList(supertype);
-		this.types = Collections.unmodifiableList(type);
-		this.subtypes = Collections.unmodifiableList(subtype);
+		faces = new Face[] {new Face(name,
+									 new ManaCost(mana),
+									 new MTGColor.Tuple(colors),
+									 supertype,
+									 type,
+									 subtype,
+									 text,
+									 flavor,
+									 artist,
+									 number,
+									 new PowerToughness(power),
+									 new PowerToughness(toughness),
+									 new Loyalty(loyalty),
+									 imageName)};
 		this.rarity = rarity;
 		this.set = set;
-		this.text = text;
-		this.flavor = flavor;
-		this.artist = artist;
-		this.number = number;
-		this.power = new PowerToughness(power);
-		this.toughness = new PowerToughness(toughness);
-		this.loyalty = new Loyalty(loyalty);
-		this.layout = layout;
 		this.legality = Collections.unmodifiableMap(legality);
-		this.imageName = imageName;
 		
 		// Populate the list of all types
 		List<String> allTypes = new ArrayList<String>();
-		allTypes.addAll(this.supertypes);
-		allTypes.addAll(this.types);
-		allTypes.addAll(this.subtypes);
+		allTypes.addAll(this.supertypes());
+		allTypes.addAll(this.types());
+		allTypes.addAll(this.subtypes());
 		Collections.sort(allTypes);
 		this.allTypes = Collections.unmodifiableList(allTypes);
 		
 		// Create the UID for this Card
-		ID = set.code + name + imageName;
-		
-		// Create the type line for this Card
-		StringBuilder str = new StringBuilder();
-		if (supertype.size() > 0)
-			str.append(String.join(" ", supertype)).append(" ");
-		str.append(String.join(" ", type));
-		if (subtype.size() > 0)
-			str.append(" — ").append(String.join(" ", subtype));
-		typeLine = str.toString();
+		ID = this.set.code + name() + imageName();
 		
 		// Create this Card's color identity
 		List<MTGColor> identity = new ArrayList<MTGColor>(colors);
@@ -253,6 +179,111 @@ public final class Card
 */
 	}
 	
+	public String name()
+	{
+		return faces[0].name;
+	}
+
+	public ManaCost mana()
+	{
+		return faces[0].mana;
+	}
+
+	public MTGColor.Tuple colors()
+	{
+		return faces[0].colors;
+	}
+
+	public List<String> supertypes()
+	{
+		return faces[0].supertypes;
+	}
+
+	public List<String> types()
+	{
+		return faces[0].types;
+	}
+
+	public List<String> subtypes()
+	{
+		return faces[0].subtypes;
+	}
+
+	public String typeLine()
+	{
+		return faces[0].typeLine;
+	}
+	
+	public Expansion expansion()
+	{
+		return set;
+	}
+
+	public Rarity rarity()
+	{
+		return rarity;
+	}
+
+	public String text()
+	{
+		return faces[0].text;
+	}
+
+	public String flavor()
+	{
+		return faces[0].flavor;
+	}
+
+	public String artist()
+	{
+		return faces[0].artist;
+	}
+
+	public String number()
+	{
+		return faces[0].number;
+	}
+
+	public PowerToughness power()
+	{
+		return faces[0].power;
+	}
+
+	public PowerToughness toughness()
+	{
+		return faces[0].toughness;
+	}
+
+	public Loyalty loyalty()
+	{
+		return faces[0].loyalty;
+	}
+
+	public Map<String, Legality> legality()
+	{
+		return legality;
+	}
+
+	public String imageName()
+	{
+		return faces[0].imageName;
+	}
+
+	public List<String> allTypes()
+	{
+		return allTypes;
+	}
+
+	public String id()
+	{
+		return ID;
+	}
+
+	public MTGColor.Tuple colorIdentity()
+	{
+		return colorIdentity;
+	}
+
 	/**
 	 * Compare this Card's name to another lexicographically.
 	 * 
@@ -262,7 +293,7 @@ public final class Card
 	 */
 	public int compareName(Card other)
 	{
-		return Collator.getInstance(Locale.US).compare(name, other.name);
+		return Collator.getInstance(Locale.US).compare(name(), other.name());
 	}
 	
 	/**
@@ -274,7 +305,7 @@ public final class Card
 	 */
 	public String normalizedName()
 	{
-		String normal = new String(name.toLowerCase());
+		String normal = new String(name().toLowerCase());
 		normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
 		normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
 		return normal;
@@ -287,7 +318,7 @@ public final class Card
 	 */
 	public int compareManaCost(Card other)
 	{
-		return mana.compareTo(other.mana);
+		return mana().compareTo(other.mana());
 	}
 	
 	/**
@@ -297,13 +328,13 @@ public final class Card
 	 */
 	public int compareColors(Card other)
 	{
-		if (colors.size() != other.colors.size())
-			return colors.size() - other.colors.size();
+		if (colors().size() != other.colors().size())
+			return colors().size() - other.colors().size();
 		else
 		{
 			int diff = 0;
-			for (int i = 0; i < colors.size(); i++)
-				diff += colors.get(i).compareTo(other.colors.get(i))*Math.pow(10, (4 - i));
+			for (int i = 0; i < colors().size(); i++)
+				diff += colors().get(i).compareTo(other.colors().get(i))*Math.pow(10, (4 - i));
 			return diff;
 		}
 	}
@@ -315,7 +346,7 @@ public final class Card
 	 */
 	public int compareTypeLine(Card other)
 	{
-		return Collator.getInstance(Locale.US).compare(typeLine, other.typeLine);
+		return Collator.getInstance(Locale.US).compare(typeLine(), other.typeLine());
 	}
 	
 	/**
@@ -327,7 +358,7 @@ public final class Card
 	{
 		if (Pattern.compile("\\s").matcher(s).find())
 			throw new IllegalArgumentException("Supertypes don't contain white space");
-		for (String supertype: supertypes)
+		for (String supertype: supertypes())
 			if (s.equalsIgnoreCase(supertype))
 				return true;
 		return false;
@@ -342,7 +373,7 @@ public final class Card
 	{
 		if (Pattern.compile("\\s").matcher(s).find())
 			throw new IllegalArgumentException("Types don't contain white space");
-		for (String type: types)
+		for (String type: types())
 			if (s.equalsIgnoreCase(type))
 				return true;
 		return false;
@@ -357,7 +388,7 @@ public final class Card
 	{
 		if (Pattern.compile("\\s").matcher(s).find())
 			throw new IllegalArgumentException("Subtypes don't contain white space");
-		for (String subtype: subtypes)
+		for (String subtype: subtypes())
 			if (s.equalsIgnoreCase(subtype))
 				return true;
 		return false;
@@ -371,7 +402,7 @@ public final class Card
 	 */
 	public int compareRarity(Card other)
 	{
-		return rarity.compareTo(other.rarity);
+		return rarity().compareTo(other.rarity());
 	}
 	
 	/**
@@ -382,7 +413,7 @@ public final class Card
 	public int compareExpansion(Card other)
 	{
 		Collator collator = Collator.getInstance(Locale.US);
-		return collator.compare(set.name, other.set.name)*1000 + collator.compare(number, other.number);
+		return collator.compare(expansion().name, other.expansion().name)*1000 + collator.compare(number(), other.number());
 	}
 	
 	/**
@@ -392,7 +423,7 @@ public final class Card
 	 */
 	public String normalizedText()
 	{
-		String normal = new String(text.toLowerCase());
+		String normal = new String(text().toLowerCase());
 		normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
 		normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
 		return normal;
@@ -405,7 +436,7 @@ public final class Card
 	 */
 	public String normalizedFlavor()
 	{
-		String normal = new String(flavor.toLowerCase());
+		String normal = new String(flavor().toLowerCase());
 		normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
 		normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
 		return normal;
@@ -417,7 +448,7 @@ public final class Card
 	 */
 	public int compareArtist(Card other)
 	{
-		return Collator.getInstance(Locale.US).compare(artist, other.artist);
+		return Collator.getInstance(Locale.US).compare(artist(), other.artist());
 	}
 	
 	/**
@@ -427,7 +458,7 @@ public final class Card
 	 */
 	public int comparePower(Card other)
 	{
-		return power.compareTo(other.power);
+		return power().compareTo(other.power());
 	}
 	
 	/**
@@ -437,7 +468,7 @@ public final class Card
 	 */
 	public int compareToughness(Card other)
 	{
-		return toughness.compareTo(other.toughness);
+		return toughness().compareTo(other.toughness());
 	}
 	
 	/**
@@ -446,7 +477,7 @@ public final class Card
 	 */
 	public int compareLoyalty(Card other)
 	{
-		return loyalty.compareTo(other.loyalty);
+		return loyalty().compareTo(other.loyalty());
 	}
 	
 	/**
@@ -456,7 +487,7 @@ public final class Card
 	 */
 	public int compareNumber(Card other)
 	{
-		return Collator.getInstance(Locale.US).compare(number, other.number);
+		return Collator.getInstance(Locale.US).compare(number(), other.number());
 	}
 	
 	/**
@@ -465,7 +496,7 @@ public final class Card
 	 */
 	public boolean canBeCommander()
 	{
-		return supertypeContains("legendary") || text.toLowerCase().contains("can be your commander");
+		return supertypeContains("legendary") || text().toLowerCase().contains("can be your commander");
 	}
 	
 	/**
@@ -474,7 +505,7 @@ public final class Card
 	 */
 	public boolean ignoreCountRestriction()
 	{
-		return supertypeContains("basic") || text.toLowerCase().contains("a deck can have any number");
+		return supertypeContains("basic") || text().toLowerCase().contains("a deck can have any number");
 	}
 	
 	/**
@@ -486,30 +517,30 @@ public final class Card
 	 */
 	public boolean legalIn(String format)
 	{
-		if (format.equalsIgnoreCase("prismatic") && legalIn("classic") && legality.get(format) != Legality.BANNED)
+		if (format.equalsIgnoreCase("prismatic") && legalIn("classic") && legality().get(format) != Legality.BANNED)
 			return true;
 		else if (format.equalsIgnoreCase("classic") || format.equalsIgnoreCase("freeform"))
 			return true;
 		else if (format.contains("Block"))
 		{
 			format = format.substring(0, format.indexOf("Block")).trim();
-			if (set.block.equalsIgnoreCase(format))
+			if (expansion().block.equalsIgnoreCase(format))
 				return true;
-			else if (format.equalsIgnoreCase("urza") && set.block.equalsIgnoreCase("urza's"))
+			else if (format.equalsIgnoreCase("urza") && expansion().block.equalsIgnoreCase("urza's"))
 				return true;
-			else if (format.equalsIgnoreCase("lorwyn-shadowmoor") && (set.block.equalsIgnoreCase("lorwyn") || set.block.equalsIgnoreCase("shadowmoor")))
+			else if (format.equalsIgnoreCase("lorwyn-shadowmoor") && (expansion().block.equalsIgnoreCase("lorwyn") || expansion().block.equalsIgnoreCase("shadowmoor")))
 				return true;
-			else if (format.equalsIgnoreCase("shards of alara") && set.block.equalsIgnoreCase("alara"))
+			else if (format.equalsIgnoreCase("shards of alara") && expansion().block.equalsIgnoreCase("alara"))
 				return true;
-			else if (format.equalsIgnoreCase("tarkir") && set.block.equalsIgnoreCase("khans of tarkir"))
+			else if (format.equalsIgnoreCase("tarkir") && expansion().block.equalsIgnoreCase("khans of tarkir"))
 				return true;
 			else
 				return false;
 		}
-		else if (!legality.containsKey(format))
+		else if (!legality().containsKey(format))
 			return false;
 		else
-			return legality.get(format) != Legality.BANNED;
+			return legality().get(format) != Legality.BANNED;
 	}
 	
 	/**
@@ -517,7 +548,7 @@ public final class Card
 	 */
 	public List<String> legalIn()
 	{
-		return legality.keySet().stream().filter(this::legalIn).collect(Collectors.toList());
+		return legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList());
 	}
 	
 	/**
@@ -531,7 +562,7 @@ public final class Card
 		{
 			if (format.equalsIgnoreCase("prismatic"))
 				format = "classic";
-			return legality.containsKey(format) ? legality.get(format) : Legality.LEGAL;
+			return legality().containsKey(format) ? legality().get(format) : Legality.LEGAL;
 		}
 		else
 			return Legality.BANNED;
@@ -543,7 +574,7 @@ public final class Card
 	 */
 	public String HTMLText()
 	{
-		String html = new String(text);
+		String html = new String(text());
 		Matcher reminder = Pattern.compile("(\\([^)]+\\))").matcher(html);
 		while (reminder.find())
 			html = html.replace(reminder.group(), "<i>" + reminder.group() + "</i>");
@@ -568,7 +599,7 @@ public final class Card
 	 */
 	public String HTMLFlavor()
 	{
-		String html = new String(flavor);
+		String html = new String(flavor());
 		Matcher symbols = Pattern.compile("\\{([^}]+)\\}").matcher(html);
 		while (symbols.find())
 		{
@@ -586,27 +617,27 @@ public final class Card
 	public String toPrettyString()
 	{
 		StringBuilder str = new StringBuilder();
-		str.append(name + " " + mana);
-		if (mana.cmc() == (int)mana.cmc())
-			str.append(" (" + (int)mana.cmc() + ")\n");
+		str.append(name() + " " + mana());
+		if (mana().cmc() == (int)mana().cmc())
+			str.append(" (" + (int)mana().cmc() + ")\n");
 		else
-			str.append(" (" + mana.cmc() + ")\n");
+			str.append(" (" + mana().cmc() + ")\n");
 		
-		str.append(typeLine).append("\n");
+		str.append(typeLine()).append("\n");
 		
-		str.append(set.name + " " + rarity + "\n");
+		str.append(expansion().name + " " + rarity() + "\n");
 		
-		if (!text.equals(""))
-			str.append(text + "\n");
-		if (!flavor.equals(""))
-			str.append(flavor + "\n");
+		if (!text().equals(""))
+			str.append(text() + "\n");
+		if (!flavor().equals(""))
+			str.append(flavor() + "\n");
 		
 		if (typeContains("Creature") || typeContains("Summon") && !typeContains("Enchant"))
-			str.append(power + "/" + toughness + "\n");
+			str.append(power() + "/" + toughness() + "\n");
 		else if (typeContains("Planeswalker"))
-			str.append(loyalty + "\n");
+			str.append(loyalty() + "\n");
 		
-		str.append(artist + " " + number + "/" + set.count);
+		str.append(artist() + " " + number() + "/" + expansion().count);
 		
 		return str.toString();
 	}
@@ -619,27 +650,27 @@ public final class Card
 	public String toHTMLString()
 	{
 		StringBuilder str = new StringBuilder();
-		str.append(name + " " + mana.toHTMLString());
-		if (mana.cmc() == (int)mana.cmc())
-			str.append(" (" + (int)mana.cmc() + ")<br>");
+		str.append(name() + " " + mana().toHTMLString());
+		if (mana().cmc() == (int)mana().cmc())
+			str.append(" (" + (int)mana().cmc() + ")<br>");
 		else
-			str.append(" (" + mana.cmc() + ")<br>");
+			str.append(" (" + mana().cmc() + ")<br>");
 		
-		str.append(typeLine).append("<br>");
+		str.append(typeLine()).append("<br>");
 		
-		str.append(set.name + " " + rarity + "<br>");
+		str.append(expansion().name + " " + rarity() + "<br>");
 		
-		if (!text.equals(""))
+		if (!text().equals(""))
 			str.append(HTMLText() + "<br>");
-		if (!flavor.equals(""))
+		if (!flavor().equals(""))
 			str.append(HTMLFlavor() + "<br>");
 		
 		if (typeContains("Creature") || typeContains("Summon") && !typeContains("Enchant"))
-			str.append(power + "/" + toughness + "<br>");
+			str.append(power() + "/" + toughness() + "<br>");
 		else if (typeContains("Planeswalker"))
-			str.append(loyalty + "<br>");
+			str.append(loyalty() + "<br>");
 		
-		str.append(artist + " " + number + "/" + set.count);
+		str.append(artist() + " " + number() + "/" + expansion().count);
 		
 		return str.toString();
 	}
@@ -650,7 +681,7 @@ public final class Card
 	@Override
 	public int hashCode()
 	{
-		return ID.hashCode();
+		return id().hashCode();
 	}
 	
 	/**
@@ -668,6 +699,111 @@ public final class Card
 		if (!(other instanceof Card))
 			return false;
 		Card o = (Card)other;
-		return ID.equals(o.ID);
+		return id().equals(o.id());
+	}
+	
+	private class Face
+	{
+		/**
+		 * Name of this Card
+		 */
+		public final String name;
+		/**
+		 * Mana cost of this Card
+		 */
+		public final ManaCost mana;
+		/**
+		 * This Card's colors.
+		 */
+		public final MTGColor.Tuple colors;
+		/**
+		 * This Card's supertypes.
+		 */
+		public final List<String> supertypes;
+		/**
+		 * This Card's types.
+		 */
+		public final List<String> types;
+		/**
+		 * This Card's subtypes.
+		 */
+		public final List<String> subtypes;
+		/**
+		 * This Card's rules text.
+		 */
+		public final String text;
+		/**
+		 * This Cards flavor text.
+		 */
+		public final String flavor;
+		/**
+		 * This Card's artist.
+		 */
+		public final String artist;
+		/**
+		 * This Card's collector's number.
+		 */
+		public final String number;
+		/**
+		 * This Card's power, if it is a creature (it's empty otherwise).
+		 */
+		public final PowerToughness power;
+		/**
+		 * This Card's toughness, if it is a creature (it's empty otherwise).
+		 */
+		public final PowerToughness toughness;
+		/**
+		 * This Card's loyalty, if it is a planeswalker (it's empty otherwise).
+		 */
+		public final Loyalty loyalty;
+		
+		/**
+		 * This Card's image name.
+		 */
+		public final String imageName;
+		/**
+		 * This Card's type line, which is "[Supertype(s) Type(s) - Subtype(s)]
+		 */
+		public final String typeLine;
+		
+		public Face(String name,
+					ManaCost mana,
+					MTGColor.Tuple colors,
+					List<String> supertypes,
+					List<String> types,
+					List<String> subtypes,
+					String text,
+					String flavor,
+					String artist,
+					String number,
+					PowerToughness power,
+					PowerToughness toughness,
+					Loyalty loyalty,
+					String imageName)
+		{
+			this.name = name;
+			this.mana = mana;
+			this.colors = colors;
+			this.supertypes = supertypes;
+			this.types = types;
+			this.subtypes = subtypes;
+			this.text = text;
+			this.flavor = flavor;
+			this.artist = artist;
+			this.number = number;
+			this.power = power;
+			this.toughness = toughness;
+			this.loyalty = loyalty;
+			this.imageName = imageName;
+			
+			// Create the type line for this Card
+			StringBuilder str = new StringBuilder();
+			if (supertypes.size() > 0)
+				str.append(String.join(" ", supertypes)).append(" ");
+			str.append(String.join(" ", types));
+			if (subtypes.size() > 0)
+				str.append(" — ").append(String.join(" ", subtypes));
+			typeLine = str.toString();
+		}
 	}
 }

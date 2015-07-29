@@ -603,7 +603,7 @@ public class Deck implements Iterable<Card>
 		{
 			wr.println(String.valueOf(size()));
 			for (Entry e: masterList)
-				wr.println(e.card.ID + "\t" + e.count + "\t" + DATE_FORMAT.format(e.date));
+				wr.println(e.card.id() + "\t" + e.count + "\t" + DATE_FORMAT.format(e.date));
 			wr.println(String.valueOf(categories.size()));
 			for (Category c: categories.values())
 				wr.println(c.toString());
@@ -732,10 +732,10 @@ public class Deck implements Iterable<Card>
 		{
 			StringJoiner white = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 			for (Card c: whitelist)
-				white.add(c.ID);
+				white.add(c.id());
 			StringJoiner black = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 			for (Card c: blacklist)
-				black.add(c.ID);
+				black.add(c.id());
 			return FilterGroupPanel.BEGIN_GROUP + name + FilterGroupPanel.END_GROUP
 					+ " " + white.toString()
 					+ " " + black.toString()
@@ -961,7 +961,31 @@ public class Deck implements Iterable<Card>
 		@Override
 		public int count(int index)
 		{
-			return count(get(index));
+			return Deck.this.count(get(index));
+		}
+		
+		/**
+		 * @param c Card to look for
+		 * @return The Date the card was originally added to the deck, if it is in the category,
+		 * and null otherwise.
+		 */
+		@Override
+		public Date dateAdded(Card c)
+		{
+			if (includes(c))
+				return Deck.this.dateAdded(c);
+			else
+				return null;
+		}
+		
+		/**
+		 * @param index Index into the filtered list of the Card to look for
+		 * @return The Date the card was originally added to the deck.
+		 */
+		@Override
+		public Date dateAdded(int index)
+		{
+			return Deck.this.dateAdded(get(index));
 		}
 		
 		/**

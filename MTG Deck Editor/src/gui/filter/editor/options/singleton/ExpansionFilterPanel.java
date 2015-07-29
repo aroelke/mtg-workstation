@@ -17,6 +17,6 @@ public class ExpansionFilterPanel extends SingletonOptionsFilterPanel<String>
 	 */
 	public ExpansionFilterPanel()
 	{
-		super(Expansion.expansions, (c) -> c.set.name, FilterType.EXPANSION.code);
+		super(Expansion.expansions, (c) -> c.expansion().name, FilterType.EXPANSION.code);
 	}
 }
