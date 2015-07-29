@@ -3,10 +3,14 @@ package database;
 import java.text.Collator;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -49,6 +53,9 @@ public final class Card
 	 */
 	public static String[] formatList = {};
 	
+	/**
+	 * TODO: Comment this (and all the getters and Face)
+	 */
 	private final Face[] faces;
 	/**
 	 * The Expansion this Card belongs to.
@@ -138,12 +145,10 @@ public final class Card
 		this.legality = Collections.unmodifiableMap(legality);
 		
 		// Populate the list of all types
-		List<String> allTypes = new ArrayList<String>();
-		allTypes.addAll(this.supertypes());
-		allTypes.addAll(this.types());
-		allTypes.addAll(this.subtypes());
-		Collections.sort(allTypes);
-		this.allTypes = Collections.unmodifiableList(allTypes);
+		allTypes = new ArrayList<String>();
+		allTypes.addAll(supertypes());
+		allTypes.addAll(types());
+		allTypes.addAll(subtypes());
 		
 		// Create the UID for this Card
 		ID = this.set.code + name() + imageName();
@@ -179,11 +184,76 @@ public final class Card
 */
 	}
 	
+	public Card(List<Card> cards)
+	{
+		if (cards.stream().map((c) -> c.rarity).distinct().count() > 1)
+			throw new IllegalArgumentException("All faces must have the same rarity");
+		if (cards.stream().map((c) -> c.set).distinct().count() > 1)
+			throw new IllegalArgumentException("All faces must belong to the same expansion");
+		if (cards.stream().map((c) -> c.legality).distinct().count() > 1)
+			throw new IllegalArgumentException("All faces must have the same format legalities");
+		if (cards.stream().map((c) -> c.faces.length).anyMatch((n) -> n != 1))
+			throw new IllegalArgumentException("Only individual card faces can be joined");
+		
+		// Get the card's faces
+		faces = cards.stream().map((c) -> c.faces[0]).toArray(Face[]::new);
+		
+		// Get the values that are common to all of the faces
+		this.rarity = cards.get(0).rarity;
+		this.set = cards.get(0).set;
+		this.legality = cards.get(0).legality;
+		
+		// Populate the list of all types
+		allTypes = new ArrayList<String>();
+		allTypes.addAll(supertypes());
+		allTypes.addAll(types());
+		allTypes.addAll(subtypes());
+		
+		// Create the UID for this Card
+		ID = set.code + name() + imageName();
+		
+		// Create this Card's color identity
+		List<MTGColor> identity = new ArrayList<MTGColor>();
+		for (Face f: faces)
+		{
+			identity.addAll(f.colors);
+			Matcher m = ManaCost.MANA_COST_PATTERN.matcher(f.text);
+			while (m.find())
+				for (MTGColor col: ManaCost.valueOf(m.group()).colors())
+					identity.add(col);
+			for (String sub: f.subtypes)
+			{
+				if (sub.equalsIgnoreCase("plains"))
+					identity.add(MTGColor.WHITE);
+				else if (sub.equalsIgnoreCase("island"))
+					identity.add(MTGColor.BLUE);
+				else if (sub.equalsIgnoreCase("swamp"))
+					identity.add(MTGColor.BLACK);
+				else if (sub.equalsIgnoreCase("mountain"))
+					identity.add(MTGColor.RED);
+				else if (sub.equalsIgnoreCase("forest"))
+					identity.add(MTGColor.GREEN);
+			}
+		}
+		MTGColor.sort(identity);
+		colorIdentity = new MTGColor.Tuple(identity);
+	}
+	
+	// TODO: Rather than perform these operations every time they are called, precalculate them
+	
 	public String name()
 	{
-		return faces[0].name;
+		StringJoiner str = new StringJoiner(" // ");
+		for (Face face: faces)
+			str.add(face.name);
+		return str.toString();
 	}
 
+	public String[] names()
+	{
+		return Arrays.stream(faces).map((f) -> f.name).toArray(String[]::new);
+	}
+	
 	public ManaCost mana()
 	{
 		return faces[0].mana;
@@ -191,27 +261,47 @@ public final class Card
 
 	public MTGColor.Tuple colors()
 	{
-		return faces[0].colors;
+		ArrayList<MTGColor> colors = new ArrayList<MTGColor>();
+		for (Face face: faces)
+			colors.addAll(face.colors);
+		return new MTGColor.Tuple(colors);
 	}
 
 	public List<String> supertypes()
 	{
-		return faces[0].supertypes;
+		Set<String> supertypes = new HashSet<String>();
+		for (Face face: faces)
+			supertypes.addAll(face.supertypes);
+		return new ArrayList<String>(supertypes);
 	}
 
 	public List<String> types()
 	{
-		return faces[0].types;
+		Set<String> types = new HashSet<String>();
+		for (Face face: faces)
+			types.addAll(face.types);
+		return new ArrayList<String>(types);
 	}
 
 	public List<String> subtypes()
 	{
-		return faces[0].subtypes;
+		Set<String> subtypes = new HashSet<String>();
+		for (Face face: faces)
+			subtypes.addAll(face.subtypes);
+		return new ArrayList<String>(subtypes);
 	}
 
 	public String typeLine()
 	{
-		return faces[0].typeLine;
+		StringJoiner str = new StringJoiner(" // ");
+		for (Face face: faces)
+			str.add(face.typeLine);
+		return str.toString();
+	}
+	
+	public String[] typeLines()
+	{
+		return Arrays.stream(faces).map((f) -> f.typeLine).toArray(String[]::new);
 	}
 	
 	public Expansion expansion()
@@ -226,27 +316,59 @@ public final class Card
 
 	public String text()
 	{
-		return faces[0].text;
+		StringJoiner str = new StringJoiner("\n----------\n");
+		for (Face face: faces)
+			str.add(face.text);
+		return str.toString();
+	}
+	
+	public String[] texts()
+	{
+		return Arrays.stream(faces).map((f) -> f.text).toArray(String[]::new);
 	}
 
 	public String flavor()
 	{
-		return faces[0].flavor;
+		StringJoiner str = new StringJoiner("\n----------\n");
+		for (Face face: faces)
+			str.add(face.flavor);
+		return str.toString();
+	}
+	
+	public String[] flavors()
+	{
+		return Arrays.stream(faces).map((f) -> f.flavor).toArray(String[]::new);
 	}
 
 	public String artist()
 	{
-		return faces[0].artist;
+		StringJoiner str = new StringJoiner(" // ");
+		for (Face face: faces)
+			str.add(face.artist);
+		return str.toString();
+	}
+	
+	public String[] artists()
+	{
+		return Arrays.stream(faces).map((f) -> f.artist).toArray(String[]::new);
 	}
 
 	public String number()
 	{
-		return faces[0].number;
+		StringJoiner str = new StringJoiner(" // ");
+		for (Face face: faces)
+			str.add(face.number);
+		return str.toString();
 	}
 
 	public PowerToughness power()
 	{
 		return faces[0].power;
+	}
+	
+	public PowerToughness[] powers()
+	{
+		return Arrays.stream(faces).map((f) -> f.power).toArray(PowerToughness[]::new);
 	}
 
 	public PowerToughness toughness()
@@ -254,9 +376,19 @@ public final class Card
 		return faces[0].toughness;
 	}
 
+	public PowerToughness[] toughnesses()
+	{
+		return Arrays.stream(faces).map((f) -> f.toughness).toArray(PowerToughness[]::new);
+	}
+	
 	public Loyalty loyalty()
 	{
 		return faces[0].loyalty;
+	}
+	
+	public Loyalty[] loyalties()
+	{
+		return Arrays.stream(faces).map((f) -> f.loyalty).toArray(Loyalty[]::new);
 	}
 
 	public Map<String, Legality> legality()
@@ -267,6 +399,11 @@ public final class Card
 	public String imageName()
 	{
 		return faces[0].imageName;
+	}
+	
+	public String[] imageNames()
+	{
+		return Arrays.stream(faces).map((f) -> f.imageName).toArray(String[]::new);
 	}
 
 	public List<String> allTypes()

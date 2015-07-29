@@ -66,7 +66,7 @@ public enum MTGColor
 	 * Sort a list of MTGColors in color order.  If the list contains two colors, it will be
 	 * sorted according to how they appear on a card.  Otherwise, it will be sorted according
 	 * to WUBRG order.  It is recommended to use this rather than using Java's built-in sorting
-	 * functions.  The list must not contain any duplicate colors.
+	 * functions.  If the list contains any duplicate colors, they will be removed.
 	 * 
 	 * @param colors List of MTGColors to sort.
 	 */
@@ -76,7 +76,7 @@ public enum MTGColor
 		{
 			Tuple t = new Tuple(colors);
 			colors.clear();
-			colors.addAll(Arrays.asList(t.toArray()));
+			colors.addAll(t);
 		}
 	}
 	
