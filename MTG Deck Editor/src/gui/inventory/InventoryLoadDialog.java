@@ -216,6 +216,7 @@ public class InventoryLoadDialog extends JDialog
 			publish("Opening " + file.getName() + "...");
 			
 			ArrayList<Card> cards = new ArrayList<Card>();
+			Map<Card, List<String>> faces = new HashMap<Card, List<String>>();
 			Set<String> expansionNames = new HashSet<String>();
 			Set<String> blockNames = new HashSet<String>();
 			Set<String> supertypeSet = new HashSet<String>();
@@ -233,8 +234,7 @@ public class InventoryLoadDialog extends JDialog
 					numCards += setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray().size();
 				
 				publish("Reading cards from " + file.getName() + "...");
-				int cardsProcessed = 0;
-				setProgress(cardsProcessed);
+				setProgress(0);
 				for (Map.Entry<String, JsonElement> setNode: root.entrySet())
 				{
 					if (isCancelled())
@@ -354,25 +354,36 @@ public class InventoryLoadDialog extends JDialog
 						String imageName = card.get("imageName").getAsString();
 						
 						// Create the new card with all the values acquired above
-						cards.add(new Card(name,
-										   mana,
-										   colors,
-										   supertypes,
-										   types,
-										   subtypes,
-										   rarity,
-										   set,
-										   text,
-										   flavor,
-										   artist,
-										   number,
-										   power,
-										   toughness,
-										   loyalty,
-										   layout,
-										   legality,
-										   imageName));
-						setProgress(++cardsProcessed*100/numCards);
+						Card c = new Card(name,
+										  mana,
+										  colors,
+										  supertypes,
+										  types,
+										  subtypes,
+										  rarity,
+										  set,
+										  text,
+										  flavor,
+										  artist,
+										  number,
+										  power,
+										  toughness,
+										  loyalty,
+										  layout,
+										  legality,
+										  imageName);
+						
+						// Add to map of faces if the card has multiple faces
+						if (layout.equals("split") || layout.equals("flip") || layout.equals("double-faced"))
+						{
+							List<String> names = new ArrayList<String>();
+							for (JsonElement e: card.get("names").getAsJsonArray())
+								names.add(e.getAsString());
+							faces.put(c, names);
+						}
+						
+						cards.add(c);
+						setProgress(cards.size()*100/numCards);
 					}
 				}
 				

@@ -50,25 +50,6 @@ public final class Card
 	public static String[] formatList = {};
 	
 	/**
-	 * Extract a number from a string.  If the string contains a *, its value is treated as
-	 * 0.
-	 * 
-	 * @param s String to parse
-	 * @return Numerical value extracted from the String.
-	 */
-	public static double numericValueOf(String s)
-	{
-		if (s.isEmpty())
-			return 0.0;
-		s = s.replaceAll("\\s+", "");
-		s = s.replaceAll("[+-]\\*|\\*[+]", "");
-		s = s.replaceAll("\\*[-]", "-");
-		s = s.replace("*", "0");
-		s = s.replaceAll("[^0-9+-.]+", "");
-		return Double.valueOf(s);
-	}
-	
-	/**
 	 * Name of this Card
 	 */
 	public final String name;
