@@ -256,9 +256,9 @@ public final class Card
 		return Arrays.stream(faces).map((f) -> f.name).toArray(String[]::new);
 	}
 	
-	public ManaCost[] mana()
+	public ManaCost.Tuple mana()
 	{
-		return Arrays.stream(faces).map((f) -> f.mana).toArray(ManaCost[]::new);
+		return new ManaCost.Tuple(Arrays.stream(faces).map((f) -> f.mana).toArray(ManaCost[]::new));
 	}
 
 	public MTGColor.Tuple colors()
@@ -373,14 +373,14 @@ public final class Card
 		return faces[0].power;
 	}
 	
-	public PowerToughness[] powers()
+	public PowerToughness.Tuple powers()
 	{
-		return Arrays.stream(faces).map((f) -> f.power).toArray(PowerToughness[]::new);
+		return new PowerToughness.Tuple(Arrays.stream(faces).map((f) -> f.power).toArray(PowerToughness[]::new));
 	}
 	
 	public boolean powerVariable()
 	{
-		return Arrays.stream(powers()).anyMatch(PowerToughness::variable);
+		return powers().stream().anyMatch(PowerToughness::variable);
 	}
 
 	public PowerToughness toughness()
@@ -388,14 +388,14 @@ public final class Card
 		return faces[0].toughness;
 	}
 
-	public PowerToughness[] toughnesses()
+	public PowerToughness.Tuple toughnesses()
 	{
-		return Arrays.stream(faces).map((f) -> f.toughness).toArray(PowerToughness[]::new);
+		return new PowerToughness.Tuple(Arrays.stream(faces).map((f) -> f.toughness).toArray(PowerToughness[]::new));
 	}
 	
 	public boolean toughnessVariable()
 	{
-		return Arrays.stream(toughnesses()).anyMatch(PowerToughness::variable);
+		return toughnesses().stream().anyMatch(PowerToughness::variable);
 	}
 	
 	public Loyalty loyalty()
@@ -473,7 +473,7 @@ public final class Card
 	 */
 	public int compareManaCost(Card other)
 	{
-		return mana()[0].compareTo(other.mana()[0]);
+		return mana().get(0).compareTo(other.mana().get(0));
 	}
 	
 	/**
@@ -775,11 +775,11 @@ public final class Card
 	public String toHTMLString()
 	{
 		StringBuilder str = new StringBuilder();
-		str.append(name() + " " + mana()[0].toHTMLString());
-		if (mana()[0].cmc() == (int)mana()[0].cmc())
-			str.append(" (" + (int)mana()[0].cmc() + ")<br>");
+		str.append(name() + " " + mana().get(0).toHTMLString());
+		if (mana().get(0).cmc() == (int)mana().get(0).cmc())
+			str.append(" (" + (int)mana().get(0).cmc() + ")<br>");
 		else
-			str.append(" (" + mana()[0].cmc() + ")<br>");
+			str.append(" (" + mana().get(0).cmc() + ")<br>");
 		
 		str.append(typeLine()).append("<br>");
 		

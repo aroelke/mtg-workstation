@@ -1,7 +1,35 @@
 package database.characteristics;
 
+import java.util.Collection;
+
+/**
+ * TODO: Comment this
+ * @author Alec
+ *
+ */
 public class Loyalty implements Comparable<Loyalty>
 {
+	public static class Tuple extends util.Tuple<Loyalty> implements Comparable<Tuple>
+	{
+		public Tuple(Collection<? extends Loyalty> c)
+		{
+			super(c);
+		}
+		
+		public Tuple(Loyalty... c)
+		{
+			super(c);
+		}
+		
+		@Override
+		public int compareTo(Tuple o)
+		{
+			if (isEmpty() && o.isEmpty())
+				
+		}
+		
+	}
+	
 	public final int value;
 	
 	public Loyalty(int l)

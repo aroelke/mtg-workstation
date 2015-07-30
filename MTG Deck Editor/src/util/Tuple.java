@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Stream;
 
 /**
  * TODO: Comment this
@@ -17,7 +18,7 @@ public class Tuple<E> implements List<E>
 {
 	private List<E> items;
 	
-	public Tuple(Collection<E> c)
+	public Tuple(Collection<? extends E> c)
 	{
 		items = new ArrayList<E>(c);
 	}
@@ -104,6 +105,12 @@ public class Tuple<E> implements List<E>
 	public List<E> subList(int fromIndex, int toIndex)
 	{
 		return items.subList(fromIndex, toIndex);
+	}
+	
+	@Override
+	public Stream<E> stream()
+	{
+		return items.stream();
 	}
 	
 	@Override

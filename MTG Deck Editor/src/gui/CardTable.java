@@ -35,10 +35,6 @@ import database.symbol.Symbol;
  * This class represents a table whose alternating occupied rows will be different
  * colors.
  * 
- * TODO: Figure out a way to make multi-faced power and toughness display in the table
- * and also sort properly
- * TODO: Mana cost also doesn't sort properly
- * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -62,26 +58,30 @@ public class CardTable extends JTable
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			if (value instanceof ManaCost[])
+			if (value instanceof ManaCost.Tuple)
 			{
-				ManaCost[] cost = (ManaCost[])value;
+				ManaCost.Tuple cost = (ManaCost.Tuple)value;
 				JPanel costPanel = new JPanel();
-				for (int i = 0; i < cost.length; i++)
+				for (int i = 0; i < cost.size(); i++)
 				{
-					costPanel.setLayout(new BoxLayout(costPanel, BoxLayout.X_AXIS));
-					if (hasFocus)
-						costPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
-					else
-						costPanel.setBorder(new EmptyBorder(0, 1, -1, 0));
-					costPanel.setForeground(c.getForeground());
-					costPanel.setBackground(c.getBackground());
-					for (Symbol sym: cost[i].symbols())
-						costPanel.add(new JLabel(sym.getIcon(13)));
-					if (i < cost.length - 1)
+					if (!cost.get(i).isEmpty())
 					{
-						costPanel.add(Box.createHorizontalStrut(3));
-						costPanel.add(new JLabel(Card.FACE_SEPARATOR));
-						costPanel.add(Box.createHorizontalStrut(3));
+						if (i > 0)
+						{
+							costPanel.add(Box.createHorizontalStrut(3));
+							costPanel.add(new JLabel(Card.FACE_SEPARATOR));
+							costPanel.add(Box.createHorizontalStrut(3));
+						}
+						
+						costPanel.setLayout(new BoxLayout(costPanel, BoxLayout.X_AXIS));
+						if (hasFocus)
+							costPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+						else
+							costPanel.setBorder(new EmptyBorder(0, 1, cost.size() == 1 ? -1 : 0, 0));
+						costPanel.setForeground(c.getForeground());
+						costPanel.setBackground(c.getBackground());
+						for (Symbol sym: cost.get(i).symbols())
+							costPanel.add(new JLabel(sym.getIcon(13)));
 					}
 				}
 				return costPanel;
@@ -264,10 +264,10 @@ public class CardTable extends JTable
 		public Comparator<?> getComparator(int column)
 		{
 			boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
-			if (model.getColumnClass(column).equals(PowerToughness.class))
+			if (model.getColumnClass(column).equals(PowerToughness.Tuple.class))
 				return (a, b) -> {
-					PowerToughness pt1 = (PowerToughness)a;
-					PowerToughness pt2 = (PowerToughness)b;
+					PowerToughness pt1 = ((PowerToughness.Tuple)a).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)a).get(0));
+					PowerToughness pt2 = ((PowerToughness.Tuple)b).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)b).get(0));
 					if (Double.isNaN(pt1.value) && Double.isNaN(pt2.value))
 						return 0;
 					else if (Double.isNaN(pt1.value))
@@ -330,7 +330,7 @@ public class CardTable extends JTable
 		setFillsViewportHeight(true);
 		setShowGrid(false);
 		
-		setDefaultRenderer(ManaCost[].class, new ManaCostCellRenderer());
+		setDefaultRenderer(ManaCost.Tuple.class, new ManaCostCellRenderer());
 		setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		setDefaultRenderer(List.class, new CategoriesCellRenderer());
 		setDefaultRenderer(Date.class, new DateCellRenderer());

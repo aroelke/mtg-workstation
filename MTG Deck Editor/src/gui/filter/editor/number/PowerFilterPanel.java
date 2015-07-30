@@ -2,8 +2,8 @@ package gui.filter.editor.number;
 
 import gui.filter.FilterType;
 
-import java.util.Arrays;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.swing.JCheckBox;
 
@@ -25,7 +25,7 @@ public class PowerFilterPanel extends NumberFilterPanel
 	 */
 	public PowerFilterPanel()
 	{
-		super((c) -> Arrays.stream(c.powers()).mapToDouble((p) -> p.value).toArray(), FilterType.POWER.code);
+		super((c) -> c.powers().stream().map((p) -> (double)p.value).collect(Collectors.toList()), FilterType.POWER.code);
 		
 		// Check box for selecting variable values.  If this is selected, then
 		// a numerical comparison is not made and instead the filter will filter

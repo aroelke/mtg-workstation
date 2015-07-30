@@ -1,5 +1,10 @@
 package database.characteristics;
 
+import java.util.Collection;
+import java.util.StringJoiner;
+
+import database.Card;
+
 /**
  * This class represents a power value or a toughness value.  If the card is missing
  * power or toughness, the String expression will be blank and the numeric value will
@@ -9,6 +14,51 @@ package database.characteristics;
  */
 public class PowerToughness implements Comparable<PowerToughness>
 {
+	/**
+	 * TODO: Comment this
+	 * @author Alec
+	 *
+	 */
+	public static class Tuple extends util.Tuple<PowerToughness> implements Comparable<Tuple>
+	{
+		public Tuple(Collection<? extends PowerToughness> c)
+		{
+			super(c);
+		}
+		
+		public Tuple(PowerToughness... c)
+		{
+			super(c);
+		}
+		
+		@Override
+		public int compareTo(Tuple o)
+		{
+			if (isEmpty() && o.isEmpty())
+				return 0;
+			else if (isEmpty())
+				return -1;
+			else if (o.isEmpty())
+				return 1;
+			else
+			{
+				PowerToughness first = stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(get(0));
+				PowerToughness second = stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(o.get(0));
+				return first.compareTo(second);
+			}
+		}
+		
+		@Override
+		public String toString()
+		{
+			StringJoiner str = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
+			for (PowerToughness pt: this)
+				if (!Double.isNaN(pt.value))
+					str.add(pt.toString());
+			return str.toString();
+		}
+	}
+	
 	/**
 	 * Numeric value of the power or toughness for sorting.
 	 */

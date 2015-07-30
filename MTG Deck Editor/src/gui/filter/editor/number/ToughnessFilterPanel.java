@@ -2,8 +2,8 @@ package gui.filter.editor.number;
 
 import gui.filter.FilterType;
 
-import java.util.Arrays;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.swing.JCheckBox;
 
@@ -25,7 +25,7 @@ public class ToughnessFilterPanel extends NumberFilterPanel
 	 */
 	public ToughnessFilterPanel()
 	{
-		super((c) -> Arrays.stream(c.toughnesses()).mapToDouble((t) -> t.value).toArray(), FilterType.TOUGHNESS.code);
+		super((c) -> c.toughnesses().stream().map((t) -> (double)t.value).collect(Collectors.toList()), FilterType.TOUGHNESS.code);
 		
 		// Check box for selecting variable values.  If this is selected, then
 		// a numerical comparison is not made and instead the filter will filter

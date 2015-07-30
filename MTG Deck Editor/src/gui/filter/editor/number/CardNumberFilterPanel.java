@@ -3,6 +3,7 @@ package gui.filter.editor.number;
 import gui.filter.FilterType;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * This class represents a FilterPanel that filters cards by collector's
@@ -19,6 +20,6 @@ public class CardNumberFilterPanel extends NumberFilterPanel
 	 */
 	public CardNumberFilterPanel()
 	{
-		super((c) -> Arrays.stream(c.numbers()).mapToDouble((v) -> Double.valueOf(v.replace("--", "0"))).toArray(), FilterType.CARD_NUMBER.code);
+		super((c) -> Arrays.stream(c.numbers()).map((v) -> Double.valueOf(v.replace("--", "0"))).collect(Collectors.toList()), FilterType.CARD_NUMBER.code);
 	}
 }

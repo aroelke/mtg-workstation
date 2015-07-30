@@ -593,7 +593,7 @@ public class MainFrame extends JFrame
 		inventoryTable.setDefaultRenderer(Integer.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Rarity.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(List.class, new CardTableCellRenderer());
-		inventoryTable.setDefaultRenderer(PowerToughness.class, new CardTableCellRenderer());
+		inventoryTable.setDefaultRenderer(PowerToughness.Tuple.class, new CardTableCellRenderer());
 		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.INVENTORY_STRIPE)));
 		inventoryTable.addMouseListener(new MouseAdapter()
 		{

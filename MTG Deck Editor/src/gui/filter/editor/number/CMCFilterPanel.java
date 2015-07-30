@@ -2,7 +2,7 @@ package gui.filter.editor.number;
 
 import gui.filter.FilterType;
 
-import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import database.characteristics.ManaCost;
 
@@ -20,6 +20,6 @@ public class CMCFilterPanel extends NumberFilterPanel
 	 */
 	public CMCFilterPanel()
 	{
-		super((c) -> Arrays.stream(c.mana()).mapToDouble(ManaCost::cmc).toArray(), FilterType.CMC.code);
+		super((c) -> c.mana().stream().map(ManaCost::cmc).collect(Collectors.toList()), FilterType.CMC.code);
 	}
 }

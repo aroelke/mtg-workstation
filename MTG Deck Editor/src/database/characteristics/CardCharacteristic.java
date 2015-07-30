@@ -33,14 +33,14 @@ public enum CardCharacteristic
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}, new SpinnerCellEditor()),
-	MANA_COST("Mana Cost", ManaCost[].class, (l, i) -> l.get(i).mana(), (l, i) -> l.get(i).mana()),
+	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l.get(i).mana(), (l, i) -> l.get(i).mana()),
 	COLORS("Colors", MTGColor.Tuple.class, (l, i) -> l.get(i).colors(), (l, i) -> l.get(i).colors()),
 	COLOR_IDENTITY("Color Identity", MTGColor.Tuple.class, (l, i) -> l.get(i).colorIdentity(), (l, i) -> l.get(i).colorIdentity()),
 	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine(), (l, i) -> l.get(i).typeLine()),
 	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).expansion().name, (l, i) -> l.get(i).expansion().name),
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity(), (l, i) -> l.get(i).rarity()),
-	POWER("Power", PowerToughness.class, (l, i) -> l.get(i).power(), (l, i) -> l.get(i).power()),
-	TOUGHNESS("Toughness", PowerToughness.class, (l, i) -> l.get(i).toughness(), (l, i) -> l.get(i).toughness()),
+	POWER("Power", PowerToughness.Tuple.class, (l, i) -> l.get(i).powers(), (l, i) -> l.get(i).powers()),
+	TOUGHNESS("Toughness", PowerToughness.Tuple.class, (l, i) -> l.get(i).toughnesses(), (l, i) -> l.get(i).toughnesses()),
 	LOYALTY("Loyalty", Loyalty.class, (l, i) -> l.get(i).loyalty(), (l, i) -> l.get(i).loyalty()),
 	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist(), (l, i) -> l.get(i).artist()),
 	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn()),

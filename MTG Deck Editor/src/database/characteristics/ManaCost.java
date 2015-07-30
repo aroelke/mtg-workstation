@@ -1,6 +1,7 @@
 package database.characteristics;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,16 @@ public class ManaCost implements Comparable<ManaCost>
 	 */
 	public static class Tuple extends util.Tuple<ManaCost> implements Comparable<Tuple>
 	{
+		public Tuple(Collection<? extends ManaCost> c)
+		{
+			super(c);
+		}
+		
+		public Tuple(ManaCost... c)
+		{
+			super(c);
+		}
+		
 		@Override
 		public int compareTo(Tuple o)
 		{
@@ -124,6 +135,15 @@ public class ManaCost implements Comparable<ManaCost>
 	public List<Symbol> symbols()
 	{
 		return cost;
+	}
+	
+	/**
+	 * @return <code>true</code> if the mana cost is empty (usually so with lands, for
+	 * example), and <code>false</code> otherwise.
+	 */
+	public boolean isEmpty()
+	{
+		return cost.isEmpty();
 	}
 	
 	/**

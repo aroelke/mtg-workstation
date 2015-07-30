@@ -3,7 +3,7 @@ package gui.filter.editor.number;
 import gui.filter.editor.FilterEditorPanel;
 
 import java.awt.Dimension;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -29,7 +29,7 @@ public class NumberFilterPanel extends FilterEditorPanel
 	/**
 	 * Characteristic of the Card to be filtered.
 	 */
-	private Function<Card, double[]> operand;
+	private Function<Card, Collection<Double>> operand;
 	/**
 	 * Numerical comparison to make with the operand.
 	 */
@@ -44,7 +44,7 @@ public class NumberFilterPanel extends FilterEditorPanel
 	 */
 	private String code;
 	
-	public NumberFilterPanel(Function<Card, double[]> op, String c)
+	public NumberFilterPanel(Function<Card, Collection<Double>> op, String c)
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -73,7 +73,7 @@ public class NumberFilterPanel extends FilterEditorPanel
 	@Override
 	public Predicate<Card> getFilter()
 	{
-		return (c) -> Arrays.stream(operand.apply(c)).anyMatch((v) -> comparisonBox.getItemAt(comparisonBox.getSelectedIndex()).test(v, (double)spinner.getValue()));
+		return (c) -> operand.apply(c).stream().anyMatch((v) -> comparisonBox.getItemAt(comparisonBox.getSelectedIndex()).test(v, (double)spinner.getValue()));
 	}
 
 	/**
