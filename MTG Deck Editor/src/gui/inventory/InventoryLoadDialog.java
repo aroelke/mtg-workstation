@@ -215,7 +215,7 @@ public class InventoryLoadDialog extends JDialog
 		{
 			publish("Opening " + file.getName() + "...");
 			
-			ArrayList<Card> cards = new ArrayList<Card>();
+			List<Card> cards = new ArrayList<Card>();
 			Map<Card, List<String>> faces = new HashMap<Card, List<String>>();
 			Set<String> expansionNames = new HashSet<String>();
 			Set<String> blockNames = new HashSet<String>();
@@ -384,6 +384,24 @@ public class InventoryLoadDialog extends JDialog
 						cards.add(c);
 						setProgress(cards.size()*100/numCards);
 					}
+				}
+				
+				List<Card> facesList = new ArrayList<Card>(faces.keySet());
+				while (!facesList.isEmpty())
+				{
+					Card face = facesList.remove(0);
+					List<String> faceNames = faces.get(face);
+					List<Card> otherFaces = new ArrayList<Card>();
+					for (Card c: facesList)
+					{
+						if (faceNames.contains(c.name()) && c.expansion().equals(face.expansion()))
+							otherFaces.add(c);
+					}
+					facesList.removeAll(otherFaces);
+					otherFaces.add(face);
+					cards.removeAll(otherFaces);
+					otherFaces.sort((a, b) -> faceNames.indexOf(a.name()) - faceNames.indexOf(b.name()));
+					cards.add(new Card(otherFaces));
 				}
 				
 				// Store the lists of expansion and block names and types and sort them alphabetically
