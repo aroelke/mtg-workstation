@@ -200,9 +200,9 @@ public final class Card
 		faces = cards.stream().map((c) -> c.faces[0]).toArray(Face[]::new);
 		
 		// Get the values that are common to all of the faces
-		this.rarity = cards.get(0).rarity;
-		this.set = cards.get(0).set;
-		this.legality = cards.get(0).legality;
+		rarity = cards.get(0).rarity;
+		set = cards.get(0).set;
+		legality = cards.get(0).legality;
 		
 		// Populate the list of all types
 		allTypes = new ArrayList<String>();

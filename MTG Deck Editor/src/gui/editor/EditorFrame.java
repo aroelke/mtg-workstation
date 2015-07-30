@@ -1,11 +1,9 @@
 package gui.editor;
 
-import gui.ColorRenderer;
+import gui.CardTable;
 import gui.MainFrame;
-import gui.ManaCostCellRenderer;
 import gui.ScrollablePanel;
 import gui.SettingsDialog;
-import gui.StripedTable;
 import gui.TableMouseAdapter;
 
 import java.awt.BorderLayout;
@@ -25,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,9 +68,7 @@ import javax.swing.event.PopupMenuListener;
 import database.Card;
 import database.Deck;
 import database.LegalityChecker;
-import database.ManaCost;
 import database.characteristics.CardCharacteristic;
-import database.characteristics.MTGColor;
 
 /**
  * This class represents an internal frame for editing a deck.  It contains a table that shows all cards
@@ -99,7 +94,7 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Main table showing the cards in the deck.
 	 */
-	private StripedTable table;
+	private CardTable table;
 	/**
 	 * CardListTableModel for showing the deck list.
 	 */
@@ -221,14 +216,7 @@ public class EditorFrame extends JInternalFrame
 		model = new DeckTableModel(this, deck, Arrays.stream(parent.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
-		table = new StripedTable(model);
-		table.setFillsViewportHeight(true);
-		table.setAutoCreateRowSorter(true);
-		table.setDefaultRenderer(ManaCost[].class, new ManaCostCellRenderer());
-		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
-		table.setDefaultRenderer(List.class, new CategoriesCellRenderer());
-		table.setDefaultRenderer(Date.class, new DateCellRenderer());
-		table.setShowGrid(false);
+		table = new CardTable(model);
 		table.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		// When a card is selected in the master list table, select it for adding
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener()

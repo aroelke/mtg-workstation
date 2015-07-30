@@ -75,9 +75,7 @@ import javax.swing.text.html.HTMLDocument;
 
 import database.Card;
 import database.Inventory;
-import database.ManaCost;
 import database.characteristics.CardCharacteristic;
-import database.characteristics.MTGColor;
 import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
 
@@ -119,7 +117,7 @@ public class MainFrame extends JFrame
 	/**
 	 * Table displaying the inventory of all cards.
 	 */
-	private StripedTable inventoryTable;
+	private CardTable inventoryTable;
 	/**
 	 * Model for the table displaying the inventory of all cards.
 	 */
@@ -590,16 +588,12 @@ public class MainFrame extends JFrame
 		textPanel.add(new JScrollPane(oracleTextPane), BorderLayout.CENTER);
 		
 		// Create the inventory and put it in the table
-		inventoryTable = new StripedTable();
-		inventoryTable.setDefaultRenderer(ManaCost[].class, new ManaCostCellRenderer());
-		inventoryTable.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
+		inventoryTable = new CardTable();
 		inventoryTable.setDefaultRenderer(String.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Integer.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Rarity.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(List.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(PowerToughness.class, new CardTableCellRenderer());
-		inventoryTable.setFillsViewportHeight(true);
-		inventoryTable.setShowGrid(false);
 		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.INVENTORY_STRIPE)));
 		inventoryTable.addMouseListener(new MouseAdapter()
 		{

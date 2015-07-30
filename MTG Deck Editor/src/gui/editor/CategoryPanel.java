@@ -1,10 +1,8 @@
 package gui.editor;
 
+import gui.CardTable;
 import gui.ColorButton;
-import gui.ColorRenderer;
-import gui.ManaCostCellRenderer;
 import gui.SettingsDialog;
-import gui.StripedTable;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -14,7 +12,6 @@ import java.awt.FlowLayout;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -33,9 +30,7 @@ import javax.swing.border.TitledBorder;
 
 import database.Card;
 import database.Deck;
-import database.ManaCost;
 import database.characteristics.CardCharacteristic;
-import database.characteristics.MTGColor;
 
 /**
  * This class represents a panel that shows information about a category in a deck.
@@ -59,7 +54,7 @@ public class CategoryPanel extends JPanel
 	/**
 	 * Table to display the contents of the category.
 	 */
-	protected StripedTable table;
+	protected CardTable table;
 	/**
 	 * Model to tell the table how to display the contents of the category.
 	 */
@@ -150,7 +145,7 @@ public class CategoryPanel extends JPanel
 		
 		// Table showing the cards in the category
 		model = new DeckTableModel(editor, category, Arrays.stream(editor.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
-		table = new StripedTable(model)
+		table = new CardTable(model)
 		{
 			@Override
 			public Dimension getPreferredScrollableViewportSize()
@@ -161,12 +156,6 @@ public class CategoryPanel extends JPanel
 			}
 		};
 		table.setAutoCreateRowSorter(true);
-		table.setDefaultRenderer(ManaCost.class, new ManaCostCellRenderer());
-		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
-		table.setDefaultRenderer(List.class, new CategoriesCellRenderer());
-		table.setDefaultRenderer(Date.class, new DateCellRenderer());
-		table.setShowGrid(false);
-		table.setFillsViewportHeight(true);
 		table.setStripeColor(SettingsDialog.stringToColor(editor.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
