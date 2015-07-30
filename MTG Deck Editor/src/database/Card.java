@@ -52,6 +52,7 @@ public final class Card
 	 * List of all formats cards can be played in.
 	 */
 	public static String[] formatList = {};
+	public static final String FACE_SEPARATOR = "//";
 	
 	/**
 	 * TODO: Comment this (and all the getters and Face)
@@ -243,7 +244,7 @@ public final class Card
 	
 	public String name()
 	{
-		StringJoiner str = new StringJoiner(" // ");
+		StringJoiner str = new StringJoiner(" " + FACE_SEPARATOR + " ");
 		for (Face face: faces)
 			str.add(face.name);
 		return str.toString();
@@ -254,9 +255,9 @@ public final class Card
 		return Arrays.stream(faces).map((f) -> f.name).toArray(String[]::new);
 	}
 	
-	public ManaCost mana()
+	public ManaCost[] mana()
 	{
-		return faces[0].mana;
+		return Arrays.stream(faces).map((f) -> f.mana).toArray(ManaCost[]::new);
 	}
 
 	public MTGColor.Tuple colors()
@@ -293,7 +294,7 @@ public final class Card
 
 	public String typeLine()
 	{
-		StringJoiner str = new StringJoiner(" // ");
+		StringJoiner str = new StringJoiner(" " + FACE_SEPARATOR + " ");
 		for (Face face: faces)
 			str.add(face.typeLine);
 		return str.toString();
@@ -342,7 +343,7 @@ public final class Card
 
 	public String artist()
 	{
-		StringJoiner str = new StringJoiner(" // ");
+		StringJoiner str = new StringJoiner(" " + FACE_SEPARATOR + " ");
 		for (Face face: faces)
 			str.add(face.artist);
 		return str.toString();
@@ -355,10 +356,15 @@ public final class Card
 
 	public String number()
 	{
-		StringJoiner str = new StringJoiner(" // ");
+		StringJoiner str = new StringJoiner(" " + FACE_SEPARATOR + " ");
 		for (Face face: faces)
 			str.add(face.number);
 		return str.toString();
+	}
+	
+	public String[] numbers()
+	{
+		return Arrays.stream(faces).map((f) -> f.number).toArray(String[]::new);
 	}
 
 	public PowerToughness power()
@@ -370,6 +376,11 @@ public final class Card
 	{
 		return Arrays.stream(faces).map((f) -> f.power).toArray(PowerToughness[]::new);
 	}
+	
+	public boolean powerVariable()
+	{
+		return Arrays.stream(powers()).anyMatch(PowerToughness::variable);
+	}
 
 	public PowerToughness toughness()
 	{
@@ -379,6 +390,11 @@ public final class Card
 	public PowerToughness[] toughnesses()
 	{
 		return Arrays.stream(faces).map((f) -> f.toughness).toArray(PowerToughness[]::new);
+	}
+	
+	public boolean toughnessVariable()
+	{
+		return Arrays.stream(toughnesses()).anyMatch(PowerToughness::variable);
 	}
 	
 	public Loyalty loyalty()
@@ -451,11 +467,12 @@ public final class Card
 	/**
 	 * @param other Card to compare with
 	 * @return The difference between this Card's mana cost and the other one's
-	 * mana cost.
+	 * mana cost.  If the card has multiple faces, the front/left/unflipped one
+	 * is used.
 	 */
 	public int compareManaCost(Card other)
 	{
-		return mana().compareTo(other.mana());
+		return mana()[0].compareTo(other.mana()[0]);
 	}
 	
 	/**
@@ -749,49 +766,19 @@ public final class Card
 	
 	/**
 	 * @return A String containing most of the information contained in this Card,
-	 * formatted to slightly mimic a real Magic: the Gathering card.
-	 */
-	public String toPrettyString()
-	{
-		StringBuilder str = new StringBuilder();
-		str.append(name() + " " + mana());
-		if (mana().cmc() == (int)mana().cmc())
-			str.append(" (" + (int)mana().cmc() + ")\n");
-		else
-			str.append(" (" + mana().cmc() + ")\n");
-		
-		str.append(typeLine()).append("\n");
-		
-		str.append(expansion().name + " " + rarity() + "\n");
-		
-		if (!text().equals(""))
-			str.append(text() + "\n");
-		if (!flavor().equals(""))
-			str.append(flavor() + "\n");
-		
-		if (typeContains("Creature") || typeContains("Summon") && !typeContains("Enchant"))
-			str.append(power() + "/" + toughness() + "\n");
-		else if (typeContains("Planeswalker"))
-			str.append(loyalty() + "\n");
-		
-		str.append(artist() + " " + number() + "/" + expansion().count);
-		
-		return str.toString();
-	}
-	
-	/**
-	 * @return A String containing most of the information contained in this Card,
 	 * formatted to slightly mimic a real Magic: the Gathering card and with symbols
 	 * replaced by HTML for display in HTML-enabled panels.
+	 * 
+	 * TODO: Make this handle multiple faces properly
 	 */
 	public String toHTMLString()
 	{
 		StringBuilder str = new StringBuilder();
-		str.append(name() + " " + mana().toHTMLString());
-		if (mana().cmc() == (int)mana().cmc())
-			str.append(" (" + (int)mana().cmc() + ")<br>");
+		str.append(name() + " " + mana()[0].toHTMLString());
+		if (mana()[0].cmc() == (int)mana()[0].cmc())
+			str.append(" (" + (int)mana()[0].cmc() + ")<br>");
 		else
-			str.append(" (" + mana().cmc() + ")<br>");
+			str.append(" (" + mana()[0].cmc() + ")<br>");
 		
 		str.append(typeLine()).append("<br>");
 		

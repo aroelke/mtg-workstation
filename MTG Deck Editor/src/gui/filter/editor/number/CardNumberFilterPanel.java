@@ -2,6 +2,8 @@ package gui.filter.editor.number;
 
 import gui.filter.FilterType;
 
+import java.util.Arrays;
+
 /**
  * This class represents a FilterPanel that filters cards by collector's
  * number.  If the number is missing (has a "--" value), then it is treated
@@ -17,6 +19,6 @@ public class CardNumberFilterPanel extends NumberFilterPanel
 	 */
 	public CardNumberFilterPanel()
 	{
-		super((c) -> Double.valueOf(c.number().replace("--", "0")), false, FilterType.CARD_NUMBER.code);
+		super((c) -> Arrays.stream(c.numbers()).mapToDouble((v) -> Double.valueOf(v.replace("--", "0"))).toArray(), FilterType.CARD_NUMBER.code);
 	}
 }

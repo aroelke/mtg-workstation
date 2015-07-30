@@ -2,6 +2,7 @@ package gui.filter.editor.number;
 
 import gui.filter.FilterType;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 import database.Card;
@@ -21,7 +22,7 @@ public class LoyaltyFilterPanel extends NumberFilterPanel
 	 */
 	public LoyaltyFilterPanel()
 	{
-		super((c) -> (double)c.loyalty().value, false, FilterType.LOYALTY.code);
+		super((c) -> Arrays.stream(c.loyalties()).mapToDouble((l) -> l.value).toArray(), FilterType.LOYALTY.code);
 	}
 	
 	/**

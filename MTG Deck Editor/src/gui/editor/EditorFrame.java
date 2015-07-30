@@ -224,7 +224,7 @@ public class EditorFrame extends JInternalFrame
 		table = new StripedTable(model);
 		table.setFillsViewportHeight(true);
 		table.setAutoCreateRowSorter(true);
-		table.setDefaultRenderer(ManaCost.class, new ManaCostCellRenderer());
+		table.setDefaultRenderer(ManaCost[].class, new ManaCostCellRenderer());
 		table.setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
 		table.setDefaultRenderer(List.class, new CategoriesCellRenderer());
 		table.setDefaultRenderer(Date.class, new DateCellRenderer());

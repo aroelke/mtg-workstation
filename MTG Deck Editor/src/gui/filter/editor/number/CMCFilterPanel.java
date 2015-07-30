@@ -2,6 +2,10 @@ package gui.filter.editor.number;
 
 import gui.filter.FilterType;
 
+import java.util.Arrays;
+
+import database.ManaCost;
+
 /**
  * This class represents a FilterPanel that filters cards by converted mana cost.
  * All cards have converted mana costs, so empty values don't exist.
@@ -16,6 +20,6 @@ public class CMCFilterPanel extends NumberFilterPanel
 	 */
 	public CMCFilterPanel()
 	{
-		super((c) -> c.mana().cmc(), false, FilterType.CMC.code);
+		super((c) -> Arrays.stream(c.mana()).mapToDouble(ManaCost::cmc).toArray(), FilterType.CMC.code);
 	}
 }

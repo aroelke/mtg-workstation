@@ -2,6 +2,7 @@ package gui.filter.editor.number;
 
 import gui.filter.FilterType;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 import javax.swing.JCheckBox;
@@ -24,7 +25,7 @@ public class PowerFilterPanel extends NumberFilterPanel
 	 */
 	public PowerFilterPanel()
 	{
-		super((c) -> c.power().value, true, FilterType.POWER.code);
+		super((c) -> Arrays.stream(c.powers()).mapToDouble((p) -> p.value).toArray(), FilterType.POWER.code);
 		
 		// Check box for selecting variable values.  If this is selected, then
 		// a numerical comparison is not made and instead the filter will filter
@@ -44,7 +45,7 @@ public class PowerFilterPanel extends NumberFilterPanel
 	public Predicate<Card> getFilter()
 	{
 		Predicate<Card> hasPower = (c) -> !c.power().expression.isEmpty();
-		return hasPower.and(variable.isSelected() ? (c) -> c.power().variable() : super.getFilter());
+		return hasPower.and(variable.isSelected() ? Card::powerVariable : super.getFilter());
 	}
 	
 	/**

@@ -21,6 +21,8 @@ import database.ManaCost;
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
  * etc.
  * 
+ * TODO: Make the classes and functions be arrays for multi-face cards where appropriate
+ * 
  * @author Alec Roelke
  */
 public enum CardCharacteristic
@@ -32,7 +34,7 @@ public enum CardCharacteristic
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}, new SpinnerCellEditor()),
-	MANA_COST("Mana Cost", ManaCost.class, (l, i) -> l.get(i).mana(), (l, i) -> l.get(i).mana()),
+	MANA_COST("Mana Cost", ManaCost[].class, (l, i) -> l.get(i).mana(), (l, i) -> l.get(i).mana()),
 	COLORS("Colors", MTGColor.Tuple.class, (l, i) -> l.get(i).colors(), (l, i) -> l.get(i).colors()),
 	COLOR_IDENTITY("Color Identity", MTGColor.Tuple.class, (l, i) -> l.get(i).colorIdentity(), (l, i) -> l.get(i).colorIdentity()),
 	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine(), (l, i) -> l.get(i).typeLine()),

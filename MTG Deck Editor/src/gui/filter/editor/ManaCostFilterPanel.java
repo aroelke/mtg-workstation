@@ -2,6 +2,7 @@ package gui.filter.editor;
 
 import gui.filter.FilterType;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,17 +58,17 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 		switch ((Containment)contain.getSelectedItem())
 		{
 		case CONTAINS_ANY_OF:
-			return (c) -> Containment.CONTAINS_ANY_OF.test(c.mana().symbols(), cost.symbols());
+			return (c) -> Arrays.stream(c.mana()).anyMatch((m) -> Containment.CONTAINS_ANY_OF.test(m.symbols(), cost.symbols()));
 		case CONTAINS_NONE_OF:
-			return (c) -> Containment.CONTAINS_NONE_OF.test(c.mana().symbols(), cost.symbols());
+			return (c) -> Arrays.stream(c.mana()).allMatch((m) -> Containment.CONTAINS_NONE_OF.test(m.symbols(), cost.symbols()));
 		case CONTAINS_ALL_OF:
-			return (c) -> c.mana().isSuperset(cost);
+			return (c) -> Arrays.stream(c.mana()).anyMatch((m) -> m.isSuperset(cost));
 		case CONTAINS_NOT_ALL_OF:
-			return (c) -> !c.mana().isSuperset(cost);
+			return (c) -> Arrays.stream(c.mana()).allMatch((m) -> !m.isSuperset(cost));
 		case CONTAINS_EXACTLY:
-			return (c) -> c.mana().equals(cost);
+			return (c) -> Arrays.stream(c.mana()).anyMatch((m) -> m.equals(cost));
 		case CONTAINS_NOT_EXACTLY:
-			return (c) -> !c.mana().equals(cost);
+			return (c) -> Arrays.stream(c.mana()).allMatch((m) -> !m.equals(cost));
 		default:
 			return (c) -> false;
 		}
