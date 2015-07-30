@@ -15,7 +15,6 @@ import util.TriConsumer;
 import database.Card;
 import database.Deck;
 import database.Inventory;
-import database.ManaCost;
 
 /**
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,

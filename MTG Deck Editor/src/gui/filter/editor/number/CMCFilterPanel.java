@@ -4,7 +4,7 @@ import gui.filter.FilterType;
 
 import java.util.Arrays;
 
-import database.ManaCost;
+import database.characteristics.ManaCost;
 
 /**
  * This class represents a FilterPanel that filters cards by converted mana cost.

@@ -1,4 +1,4 @@
-package database;
+package database.characteristics;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import database.characteristics.MTGColor;
 import database.symbol.Symbol;
 
 /**
@@ -24,6 +23,26 @@ public class ManaCost implements Comparable<ManaCost>
 	 * Pattern for finding mana costs in Strings.
 	 */
 	public static final Pattern MANA_COST_PATTERN = Pattern.compile("(\\{[wubrgWUBRG\\/phPH\\dqQtTcCsSxXyYzZ]+\\})+");
+	
+	/**
+	 * TODO: Comment this
+	 * @author Alec
+	 */
+	public static class Tuple extends util.Tuple<ManaCost> implements Comparable<Tuple>
+	{
+		@Override
+		public int compareTo(Tuple o)
+		{
+			if (isEmpty() && o.isEmpty())
+				return 0;
+			else if (isEmpty())
+				return -1;
+			else if (o.isEmpty())
+				return 1;
+			else
+				return get(0).compareTo(o.get(0));
+		}
+	}
 	
 	/**
 	 * Get the mana cost represented by the given String.  The String should only be a list of symbols,

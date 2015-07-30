@@ -19,6 +19,7 @@ import database.characteristics.Expansion;
 import database.characteristics.Legality;
 import database.characteristics.Loyalty;
 import database.characteristics.MTGColor;
+import database.characteristics.ManaCost;
 import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
 import database.symbol.Symbol;

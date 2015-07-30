@@ -13,7 +13,7 @@ import javax.swing.JTextField;
 
 import util.Containment;
 import database.Card;
-import database.ManaCost;
+import database.characteristics.ManaCost;
 
 /**
  * This class represents a panel that filters Cards by mana cost.  When entering

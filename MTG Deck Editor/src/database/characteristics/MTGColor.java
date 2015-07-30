@@ -151,6 +151,8 @@ public enum MTGColor
 	 * This class represents a sorted list of unique colors in the correct order around
 	 * the color pie.
 	 * 
+	 * TODO: Make this extend util.Tuple
+	 * 
 	 * @author Alec
 	 */
 	public static class Tuple implements Comparable<Tuple>, Collection<MTGColor>

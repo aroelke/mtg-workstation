@@ -24,9 +24,9 @@ import javax.swing.table.TableRowSorter;
 
 import database.Card;
 import database.Deck;
-import database.ManaCost;
 import database.characteristics.Loyalty;
 import database.characteristics.MTGColor;
+import database.characteristics.ManaCost;
 import database.characteristics.PowerToughness;
 import database.symbol.ColorSymbol;
 import database.symbol.Symbol;
@@ -34,6 +34,10 @@ import database.symbol.Symbol;
 /**
  * This class represents a table whose alternating occupied rows will be different
  * colors.
+ * 
+ * TODO: Figure out a way to make multi-faced power and toughness display in the table
+ * and also sort properly
+ * TODO: Mana cost also doesn't sort properly
  * 
  * @author Alec Roelke
  */
