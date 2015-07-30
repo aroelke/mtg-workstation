@@ -76,6 +76,7 @@ import javax.swing.text.html.HTMLDocument;
 import database.Card;
 import database.Inventory;
 import database.characteristics.CardCharacteristic;
+import database.characteristics.Loyalty;
 import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
 
@@ -594,6 +595,7 @@ public class MainFrame extends JFrame
 		inventoryTable.setDefaultRenderer(Rarity.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(List.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(PowerToughness.Tuple.class, new CardTableCellRenderer());
+		inventoryTable.setDefaultRenderer(Loyalty.Tuple.class, new CardTableCellRenderer());
 		inventoryTable.setStripeColor(SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.INVENTORY_STRIPE)));
 		inventoryTable.addMouseListener(new MouseAdapter()
 		{

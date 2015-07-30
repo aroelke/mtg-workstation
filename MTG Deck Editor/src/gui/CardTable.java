@@ -277,10 +277,10 @@ public class CardTable extends JTable
 					else
 						return pt1.compareTo(pt2);
 				};
-			else if (model.getColumnClass(column).equals(Loyalty.class))
+			else if (model.getColumnClass(column).equals(Loyalty.Tuple.class))
 				return (a, b) -> {
-					Loyalty l1 = (Loyalty)a;
-					Loyalty l2 = (Loyalty)b;
+					Loyalty l1 = ((Loyalty.Tuple)a).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)a).get(0));
+					Loyalty l2 = ((Loyalty.Tuple)b).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)b).get(0));
 					if (l1.value < 1 && l2.value < 1)
 						return 0;
 					else if (l1.value < 1)

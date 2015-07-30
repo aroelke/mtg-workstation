@@ -53,6 +53,9 @@ public final class Card
 	 * List of all formats cards can be played in.
 	 */
 	public static String[] formatList = {};
+	/**
+	 * Separator string between characteristics of a multi-face card.
+	 */
 	public static final String FACE_SEPARATOR = "//";
 	
 	/**
@@ -403,9 +406,9 @@ public final class Card
 		return faces[0].loyalty;
 	}
 	
-	public Loyalty[] loyalties()
+	public Loyalty.Tuple loyalties()
 	{
-		return Arrays.stream(faces).map((f) -> f.loyalty).toArray(Loyalty[]::new);
+		return new Loyalty.Tuple(Arrays.stream(faces).map((f) -> f.loyalty).toArray(Loyalty[]::new));
 	}
 
 	public Map<String, Legality> legality()

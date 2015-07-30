@@ -41,7 +41,7 @@ public enum CardCharacteristic
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity(), (l, i) -> l.get(i).rarity()),
 	POWER("Power", PowerToughness.Tuple.class, (l, i) -> l.get(i).powers(), (l, i) -> l.get(i).powers()),
 	TOUGHNESS("Toughness", PowerToughness.Tuple.class, (l, i) -> l.get(i).toughnesses(), (l, i) -> l.get(i).toughnesses()),
-	LOYALTY("Loyalty", Loyalty.class, (l, i) -> l.get(i).loyalty(), (l, i) -> l.get(i).loyalty()),
+	LOYALTY("Loyalty", Loyalty.Tuple.class, (l, i) -> l.get(i).loyalties(), (l, i) -> l.get(i).loyalties()),
 	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist(), (l, i) -> l.get(i).artist()),
 	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn()),
 	CATEGORIES("Categories", List.class, null, (l, i) -> l.getCategories(i)),
