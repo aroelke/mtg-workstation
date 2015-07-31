@@ -15,6 +15,7 @@ public class NameFilterPanel extends TextFilterPanel
 	 */
 	public NameFilterPanel()
 	{
+		// TODO: Correct the documentation of this function
 		super((c) -> c.normalizedName(), FilterType.NAME.code);
 	}
 }

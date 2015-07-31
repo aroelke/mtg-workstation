@@ -248,6 +248,15 @@ public final class Card
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public List<String> names()
+	{
+		return Arrays.stream(faces).map((f) -> f.name).collect(Collectors.toList());
+	}
+	
+	/**
 	 * @return The mana cost of this Card.  This is represented as a tuple, since multi-faced
 	 * cards have multiple costs that need to be treated separately.
 	 */
@@ -343,6 +352,15 @@ public final class Card
 			str.add(face.text);
 		return str.toString();
 	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public List<String> texts()
+	{
+		return Arrays.stream(faces).map((f) -> f.text).collect(Collectors.toList());
+	}
 
 	/**
 	 * @return The flavor texts of all of the faces of this Card concatenated together.
@@ -356,6 +374,15 @@ public final class Card
 			str.add(face.flavor);
 		return str.toString();
 	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public List<String> flavors()
+	{
+		return Arrays.stream(faces).map((f) -> f.flavor).collect(Collectors.toList());
+	}
 
 	/**
 	 * @return This Card's artist.  Currently it assumes that all faces are by the same
@@ -364,6 +391,11 @@ public final class Card
 	public String artist()
 	{
 		return faces[0].artist;
+	}
+	
+	public List<String> artists()
+	{
+		return Arrays.stream(faces).map((f) -> f.artist).collect(Collectors.toList());
 	}
 	
 	/**
@@ -486,12 +518,17 @@ public final class Card
 	 * 
 	 * @return This Card's normalized name.
 	 */
-	public String normalizedName()
+	public List<String> normalizedName()
 	{
-		String normal = new String(name().toLowerCase());
-		normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
-		normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
-		return normal;
+		List<String> names = new ArrayList<String>();
+		for (Face f: faces)
+		{
+			String normal = new String(f.name.toLowerCase());
+			normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
+			normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
+			names.add(normal);
+		}
+		return names;
 	}
 	
 	/**
@@ -529,12 +566,17 @@ public final class Card
 	 * "æ" will be replaced with "ae."
 	 * @see database.Card#normalizedName()
 	 */
-	public String normalizedText()
+	public List<String> normalizedText()
 	{
-		String normal = new String(text().toLowerCase());
-		normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
-		normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
-		return normal;
+		List<String> texts = new ArrayList<String>();
+		for (Face f: faces)
+		{
+			String normal = new String(f.text.toLowerCase());
+			normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
+			normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
+			texts.add(normal);
+		}
+		return texts;
 	}
 	
 	/**
@@ -542,12 +584,17 @@ public final class Card
 	 * "æ" will be replaced with "ae."
 	 * @see database.Card#normalizedName()
 	 */
-	public String normalizedFlavor()
+	public List<String> normalizedFlavor()
 	{
-		String normal = new String(flavor().toLowerCase());
-		normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
-		normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
-		return normal;
+		List<String> flavors = new ArrayList<String>();
+		for (Face f: faces)
+		{
+			String normal = new String(f.flavor.toLowerCase());
+			normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
+			normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
+			flavors.add(normal);
+		}
+		return flavors;
 	}
 	
 	/**

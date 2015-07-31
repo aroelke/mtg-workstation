@@ -15,6 +15,7 @@ public class FlavorFilterPanel extends TextFilterPanel
 	 */
 	public FlavorFilterPanel()
 	{
+		// TODO: Correct the documentation of this function
 		super((c) -> c.normalizedFlavor(), FilterType.FLAVOR_TEXT.code);
 	}
 }

@@ -2,6 +2,7 @@ package gui.filter.editor.text;
 
 import gui.filter.editor.FilterEditorPanel;
 
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -35,7 +36,7 @@ public class TextFilterPanel extends FilterEditorPanel
 	/**
 	 * Function representing the Card characteristic to filter.
 	 */
-	private Function<Card, String> text;
+	private Function<Card, List<String>> text;
 	/**
 	 * Combo box showing the containment options available, if regex matching is disabled.
 	 */
@@ -56,14 +57,16 @@ public class TextFilterPanel extends FilterEditorPanel
 	
 	/**
 	 * Create a regex pattern matcher that searches a string for a set of words and quote-enclosed phrases
-	 * separated by spaces, where * is a wild card. 
+	 * separated by spaces, where * is a wild card.
+	 * 
+	 * TODO: Fix this comment
 	 * 
 	 * @param pattern String pattern to create a regex matcher out of
 	 * @param f Function returning a String whose return value will be searched by the matcher
 	 * @return A Matcher that searches the given function's output for the words and phrases in the given
 	 * String.
 	 */
-	public static <T> Predicate<T> createSimpleMatcher(String pattern, Function<T, String> f)
+	public static Predicate<String> createSimpleMatcher(String pattern)
 	{
 		Matcher m = WORD_PATTERN.matcher(pattern);
 		StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))(?=.*(?:^|$|\\W)\\Q", "^(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W)).*$");
@@ -79,7 +82,7 @@ public class TextFilterPanel extends FilterEditorPanel
 			str.add(toAdd.replace("*", "\\E\\w*\\Q"));
 		}
 		Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
-		return (a) -> p.matcher(f.apply(a)).find();
+		return (s) -> p.matcher(s).find();
 	}
 	
 	/**
@@ -88,7 +91,7 @@ public class TextFilterPanel extends FilterEditorPanel
 	 * @param t Function representing the characteristic to search through
 	 * @param c This filter's code.
 	 */
-	public TextFilterPanel(Function<Card, String> t, String c)
+	public TextFilterPanel(Function<Card, List<String>> t, String c)
 	{
 		super();
 		text = t;
@@ -119,7 +122,7 @@ public class TextFilterPanel extends FilterEditorPanel
 		if (regex.isSelected())
 		{
 			Pattern p = Pattern.compile(filterText);
-			return (c) -> p.matcher(text.apply(c).toLowerCase()).find();
+			return (c) -> text.apply(c).stream().anyMatch((s) -> p.matcher(s.toLowerCase()).find());
 		}
 		else
 		{
@@ -128,7 +131,7 @@ public class TextFilterPanel extends FilterEditorPanel
 			switch (contain.getItemAt(contain.getSelectedIndex()))
 			{
 			case CONTAINS_ALL_OF:
-				return createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase());
+				return (c) -> text.apply(c).stream().map(String::toLowerCase).anyMatch(createSimpleMatcher(filterText));
 			case CONTAINS_ANY_OF: case CONTAINS_NONE_OF:
 				Matcher m = WORD_PATTERN.matcher(filterText);
 				StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
@@ -144,17 +147,16 @@ public class TextFilterPanel extends FilterEditorPanel
 					str.add(toAdd.replace("*", "\\E\\w*\\Q"));
 				}
 				Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
-				Predicate<Card> filter = (c) -> p.matcher(text.apply(c)).find();
 				if (contain.getItemAt(contain.getSelectedIndex()).equals(Containment.CONTAINS_NONE_OF))
-					return filter.negate();
+					return (c) -> text.apply(c).stream().anyMatch((s) -> p.matcher(s.toLowerCase()).find());
 				else
-					return filter;
+					return (c) -> text.apply(c).stream().anyMatch((s) -> !p.matcher(s.toLowerCase()).find());
 			case CONTAINS_NOT_ALL_OF:
-				return createSimpleMatcher(filterText, (Card c) -> text.apply(c).toLowerCase()).negate();
+				return (c) -> text.apply(c).stream().map(String::toLowerCase).anyMatch(createSimpleMatcher(filterText).negate());
 			case CONTAINS_NOT_EXACTLY:
-				return (c) -> !text.apply(c).equalsIgnoreCase(filterText);
+				return (c) -> text.apply(c).stream().anyMatch((s) -> !s.equalsIgnoreCase(filterText));
 			case CONTAINS_EXACTLY:
-				return (c) -> text.apply(c).equalsIgnoreCase(filterText);
+				return (c) -> text.apply(c).stream().anyMatch((s) -> s.equalsIgnoreCase(filterText));
 			default:
 				return (c) -> false;
 			}
