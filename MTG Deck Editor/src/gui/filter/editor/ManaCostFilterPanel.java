@@ -59,15 +59,15 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 		case CONTAINS_ANY_OF:
 			return (c) -> c.mana().stream().anyMatch((m) -> Containment.CONTAINS_ANY_OF.test(m.symbols(), cost.symbols()));
 		case CONTAINS_NONE_OF:
-			return (c) -> c.mana().stream().allMatch((m) -> Containment.CONTAINS_NONE_OF.test(m.symbols(), cost.symbols()));
+			return (c) -> c.mana().stream().anyMatch((m) -> Containment.CONTAINS_NONE_OF.test(m.symbols(), cost.symbols()));
 		case CONTAINS_ALL_OF:
 			return (c) -> c.mana().stream().anyMatch((m) -> m.isSuperset(cost));
 		case CONTAINS_NOT_ALL_OF:
-			return (c) -> c.mana().stream().allMatch((m) -> !m.isSuperset(cost));
+			return (c) -> c.mana().stream().anyMatch((m) -> !m.isSuperset(cost));
 		case CONTAINS_EXACTLY:
 			return (c) -> c.mana().stream().anyMatch((m) -> m.equals(cost));
 		case CONTAINS_NOT_EXACTLY:
-			return (c) -> c.mana().stream().allMatch((m) -> !m.equals(cost));
+			return (c) -> c.mana().stream().anyMatch((m) -> !m.equals(cost));
 		default:
 			return (c) -> false;
 		}

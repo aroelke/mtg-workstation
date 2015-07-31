@@ -30,8 +30,6 @@ import database.symbol.Symbol;
  * and its image name (which is its name followed by a number if there is more than one version of the same
  * card in the same set).  All of its values are constant.
  * 
- * TODO: Handle cards with multiple faces (split cards, flip cards, double-faced cards)
- * 
  * @author Alec Roelke
  */
 public final class Card
@@ -59,7 +57,7 @@ public final class Card
 	public static final String FACE_SEPARATOR = "//";
 	
 	/**
-	 * TODO: Comment this (and all the getters and Face)
+	 * Array containing the faces of this Card.
 	 */
 	private final Face[] faces;
 	/**
@@ -76,10 +74,6 @@ public final class Card
 	private final Map<String, Legality> legality;
 	
 	/**
-	 * List containing all types on this Card.
-	 */
-	private final List<String> allTypes;
-	/**
 	 * Unique identifier for this Card, which is its expansion name, name, and 
 	 * image name concatenated together.
 	 */
@@ -92,7 +86,7 @@ public final class Card
 	private final MTGColor.Tuple colorIdentity;
 	
 	/**
-	 * Create a new Card.
+	 * Create a new Card with a single face.
 	 * 
 	 * @param name The new Card's name
 	 * @param mana The new Card's mana cost
@@ -149,12 +143,6 @@ public final class Card
 		this.set = set;
 		this.legality = Collections.unmodifiableMap(legality);
 		
-		// Populate the list of all types
-		allTypes = new ArrayList<String>();
-		allTypes.addAll(supertypes());
-		allTypes.addAll(types());
-		allTypes.addAll(subtypes());
-		
 		// Create the UID for this Card
 		ID = this.set.code + name() + faces[0].imageName;
 		
@@ -189,6 +177,13 @@ public final class Card
 */
 	}
 	
+	/**
+	 * Create a new Card from the list of single-faced Cards.  Each Card in the list
+	 * represents a face of the new Card, and should be in order that the faces appear
+	 * on the actual card (i.e. front/left/unflipped first).
+	 * 
+	 * @param cards List of faces to create the new card from
+	 */
 	public Card(List<Card> cards)
 	{
 		if (cards.stream().map((c) -> c.rarity).distinct().count() > 1)
@@ -207,12 +202,6 @@ public final class Card
 		rarity = cards.get(0).rarity;
 		set = cards.get(0).set;
 		legality = cards.get(0).legality;
-		
-		// Populate the list of all types
-		allTypes = new ArrayList<String>();
-		allTypes.addAll(supertypes());
-		allTypes.addAll(types());
-		allTypes.addAll(subtypes());
 		
 		// Create the UID for this Card
 		ID = set.code + name() + faces[0].imageName;
@@ -246,6 +235,10 @@ public final class Card
 	
 	// TODO: Rather than perform these operations every time they are called, precalculate them
 	
+	/**
+	 * @return The unified name of this Card.  If the Card has multiple faces, they will be separated
+	 * by a separator.
+	 */
 	public String name()
 	{
 		StringJoiner str = new StringJoiner(" " + FACE_SEPARATOR + " ");
@@ -253,17 +246,19 @@ public final class Card
 			str.add(face.name);
 		return str.toString();
 	}
-
-	public String[] names()
-	{
-		return Arrays.stream(faces).map((f) -> f.name).toArray(String[]::new);
-	}
 	
+	/**
+	 * @return The mana cost of this Card.  This is represented as a tuple, since multi-faced
+	 * cards have multiple costs that need to be treated separately.
+	 */
 	public ManaCost.Tuple mana()
 	{
 		return new ManaCost.Tuple(Arrays.stream(faces).map((f) -> f.mana).toArray(ManaCost[]::new));
 	}
 
+	/**
+	 * @return The colors of this Card, which is the union of the colors of its faces.
+	 */
 	public MTGColor.Tuple colors()
 	{
 		ArrayList<MTGColor> colors = new ArrayList<MTGColor>();
@@ -272,6 +267,10 @@ public final class Card
 		return new MTGColor.Tuple(colors);
 	}
 
+	/**
+	 * @return A list containing all of the supertypes that appear on all of the faces of
+	 * this Card.
+	 */
 	public List<String> supertypes()
 	{
 		Set<String> supertypes = new HashSet<String>();
@@ -280,6 +279,10 @@ public final class Card
 		return new ArrayList<String>(supertypes);
 	}
 
+	/**
+	 * @return A list containing all of the card types that appear on all of the faces of
+	 * this Card.
+	 */
 	public List<String> types()
 	{
 		Set<String> types = new HashSet<String>();
@@ -288,6 +291,10 @@ public final class Card
 		return new ArrayList<String>(types);
 	}
 
+	/**
+	 * @return a list containing all of the subtypes that appear on all of the faces of
+	 * this Card.
+	 */
 	public List<String> subtypes()
 	{
 		Set<String> subtypes = new HashSet<String>();
@@ -296,6 +303,10 @@ public final class Card
 		return new ArrayList<String>(subtypes);
 	}
 
+	/**
+	 * @return The type line of this Card, which is the type lines of its faces separated
+	 * by separators.
+	 */
 	public String typeLine()
 	{
 		StringJoiner str = new StringJoiner(" " + FACE_SEPARATOR + " ");
@@ -304,16 +315,27 @@ public final class Card
 		return str.toString();
 	}
 	
+	/**
+	 * @return The Expansion this Card belongs to.
+	 */
 	public Expansion expansion()
 	{
 		return set;
 	}
 
+	/**
+	 * @return This Card's Rarity.
+	 */
 	public Rarity rarity()
 	{
 		return rarity;
 	}
 
+	/**
+	 * @return The texts of all of the faces of this Card concatenated together.
+	 * This should mostly be used for searching, since using it for display could
+	 * cause confusion.
+	 */
 	public String text()
 	{
 		StringJoiner str = new StringJoiner("\n");
@@ -322,6 +344,11 @@ public final class Card
 		return str.toString();
 	}
 
+	/**
+	 * @return The flavor texts of all of the faces of this Card concatenated together.
+	 * This should mostly be used for searching, since using it for display could cause
+	 * confusion.
+	 */
 	public String flavor()
 	{
 		StringJoiner str = new StringJoiner("\n");
@@ -330,69 +357,111 @@ public final class Card
 		return str.toString();
 	}
 
+	/**
+	 * @return This Card's artist.  Currently it assumes that all faces are by the same
+	 * artist.
+	 */
 	public String artist()
 	{
 		return faces[0].artist;
 	}
-
-	public String number()
-	{
-		StringJoiner str = new StringJoiner(" " + FACE_SEPARATOR + " ");
-		for (Face face: faces)
-			str.add(face.number);
-		return str.toString();
-	}
 	
-	public String[] numbers()
+	/**
+	 * @return The collector numbers of all faces of this Card.
+	 */
+	public String[] number()
 	{
 		return Arrays.stream(faces).map((f) -> f.number).toArray(String[]::new);
 	}
 	
+	/**
+	 * @return A tuple containing the power values of each face of this Card.
+	 */
 	public PowerToughness.Tuple power()
 	{
 		return new PowerToughness.Tuple(Arrays.stream(faces).map((f) -> f.power).toArray(PowerToughness[]::new));
 	}
 	
+	/**
+	 * @return <code>true</code> if any of this Card's faces has a power value that can vary,
+	 * and <code>false</code> otherwise.
+	 */
 	public boolean powerVariable()
 	{
 		return power().stream().anyMatch(PowerToughness::variable);
 	}
 
+	/**
+	 * @return A tuple containing the toughness values of each face of this Card.
+	 */
 	public PowerToughness.Tuple toughness()
 	{
 		return new PowerToughness.Tuple(Arrays.stream(faces).map((f) -> f.toughness).toArray(PowerToughness[]::new));
 	}
 	
+	/**
+	 * @return <code>true</code> if any of this Card's faces has a toughness value that can vary,
+	 * and <code>false</code> otherwise.
+	 */
 	public boolean toughnessVariable()
 	{
 		return toughness().stream().anyMatch(PowerToughness::variable);
 	}
 	
+	/**
+	 * @return A tuple containing the loyalty values of each face of this Card.
+	 */
 	public Loyalty.Tuple loyalty()
 	{
 		return new Loyalty.Tuple(Arrays.stream(faces).map((f) -> f.loyalty).toArray(Loyalty[]::new));
 	}
 
+	/**
+	 * @return A map of formats onto this Card's Legalities in them.
+	 */
 	public Map<String, Legality> legality()
 	{
 		return legality;
 	}
 	
+	/**
+	 * @return The image name of each face of this Card.
+	 */
 	public String[] imageNames()
 	{
 		return Arrays.stream(faces).map((f) -> f.imageName).toArray(String[]::new);
 	}
 
-	public List<String> allTypes()
+	/**
+	 * @return A list containing all supertypes, card types, and subtypes of all of the
+	 * Faces of this Card.
+	 */
+	public List<List<String>> allTypes()
 	{
+		List<List<String>> allTypes = new ArrayList<List<String>>();
+		for (Face f: faces)
+		{
+			List<String> faceTypes = new ArrayList<String>();
+			faceTypes.addAll(f.supertypes);
+			faceTypes.addAll(f.types);
+			faceTypes.addAll(f.subtypes);
+			allTypes.add(faceTypes);
+		}
 		return allTypes;
 	}
 
+	/**
+	 * @return This Card's unique identifier, which is its name, expansion name,
+	 * and front face's image name concatenated together.
+	 */
 	public String id()
 	{
 		return ID;
 	}
 
+	/**
+	 * @return This Card's color identity.
+	 */
 	public MTGColor.Tuple colorIdentity()
 	{
 		return colorIdentity;
@@ -426,45 +495,6 @@ public final class Card
 	}
 	
 	/**
-	 * @param other Card to compare with
-	 * @return The difference between this Card's mana cost and the other one's
-	 * mana cost.  If the card has multiple faces, the front/left/unflipped one
-	 * is used.
-	 */
-	public int compareManaCost(Card other)
-	{
-		return mana().get(0).compareTo(other.mana().get(0));
-	}
-	
-	/**
-	 * @param other Card to compare with
-	 * @return The difference between this Card's colors and the other one's
-	 * colors.
-	 */
-	public int compareColors(Card other)
-	{
-		if (colors().size() != other.colors().size())
-			return colors().size() - other.colors().size();
-		else
-		{
-			int diff = 0;
-			for (int i = 0; i < colors().size(); i++)
-				diff += colors().get(i).compareTo(other.colors().get(i))*Math.pow(10, (4 - i));
-			return diff;
-		}
-	}
-	
-	/**
-	 * @param other Card to compare with
-	 * @return The lexicographical distance between this Card's type line and the other
-	 * one's type line.
-	 */
-	public int compareTypeLine(Card other)
-	{
-		return Collator.getInstance(Locale.US).compare(typeLine(), other.typeLine());
-	}
-	
-	/**
 	 * @param s String to search for.  This String should not contain white space.
 	 * @return <code>true</code> if this Card's supertype list contains the String, and
 	 * <code>false</code> otherwise.
@@ -495,43 +525,6 @@ public final class Card
 	}
 	
 	/**
-	 * @param s String to search for.  This String should not contain white space.
-	 * @return <code>true</code> if this Card's subtype list contains the String, and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean subtypeContains(String s)
-	{
-		if (Pattern.compile("\\s").matcher(s).find())
-			throw new IllegalArgumentException("Subtypes don't contain white space");
-		for (String subtype: subtypes())
-			if (s.equalsIgnoreCase(subtype))
-				return true;
-		return false;
-	}
-	
-	/**
-	 * @param other Card to compare with
-	 * @return A negative number if this Card is more common than the other, 0 if they have
-	 * the same rarity, and a positive number otherwise.  Special is considered more rare
-	 * than mythic rare, and basic land is considered more common than common.
-	 */
-	public int compareRarity(Card other)
-	{
-		return rarity().compareTo(other.rarity());
-	}
-	
-	/**
-	 * @param other Card to compare with
-	 * @return The lexicographical difference between this Card's expansion and the other one, or if
-	 * they have the same expansion, the difference in collector number.
-	 */
-	public int compareExpansion(Card other)
-	{
-		Collator collator = Collator.getInstance(Locale.US);
-		return collator.compare(expansion().name, other.expansion().name)*1000 + collator.compare(number(), other.number());
-	}
-	
-	/**
 	 * @return The normalized, lower case version of this Card's rules text.  For example,
 	 * "æ" will be replaced with "ae."
 	 * @see database.Card#normalizedName()
@@ -555,25 +548,6 @@ public final class Card
 		normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
 		normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
 		return normal;
-	}
-	
-	/**
-	 * @param other Card to compare with
-	 * @return The lexicographical difference between this Card's artist and the other one's artist
-	 */
-	public int compareArtist(Card other)
-	{
-		return Collator.getInstance(Locale.US).compare(artist(), other.artist());
-	}
-	
-	/**
-	 * @param other Card to compare with
-	 * @return The difference between this Card's collector's number and the other one's
-	 * collector's number
-	 */
-	public int compareNumber(Card other)
-	{
-		return Collator.getInstance(Locale.US).compare(number(), other.number());
 	}
 	
 	/**
@@ -658,8 +632,6 @@ public final class Card
 	 * @return A String containing most of the information contained in this Card,
 	 * formatted to slightly mimic a real Magic: the Gathering card and with symbols
 	 * replaced by HTML for display in HTML-enabled panels.
-	 * 
-	 * TODO: Make this handle multiple faces properly
 	 */
 	public String toHTMLString()
 	{
@@ -690,32 +662,6 @@ public final class Card
 			join.add(str.toString());
 		}
 		return join.toString();
-/*
-		StringBuilder str = new StringBuilder();
-		str.append(name() + " " + mana().get(0).toHTMLString());
-		if (mana().get(0).cmc() == (int)mana().get(0).cmc())
-			str.append(" (" + (int)mana().get(0).cmc() + ")<br>");
-		else
-			str.append(" (" + mana().get(0).cmc() + ")<br>");
-		
-		str.append(typeLine()).append("<br>");
-		
-		str.append(expansion().name + " " + rarity() + "<br>");
-		
-		if (!text().equals(""))
-			str.append(HTMLText() + "<br>");
-		if (!flavor().equals(""))
-			str.append(HTMLFlavor() + "<br>");
-		
-		if (typeContains("Creature") || typeContains("Summon") && !typeContains("Enchant"))
-			str.append(power() + "/" + toughness() + "<br>");
-		else if (typeContains("Planeswalker"))
-			str.append(loyalty() + "<br>");
-		
-		str.append(artist() + " " + number() + "/" + expansion().count);
-		
-		return str.toString();
-*/
 	}
 	
 	/**
@@ -724,7 +670,7 @@ public final class Card
 	@Override
 	public int hashCode()
 	{
-		return id().hashCode();
+		return ID.hashCode();
 	}
 	
 	/**
@@ -742,73 +688,101 @@ public final class Card
 		if (!(other instanceof Card))
 			return false;
 		Card o = (Card)other;
-		return id().equals(o.id());
+		return ID.equals(o.ID);
 	}
 	
+	/**
+	 * This class represents a face of a multi-faced card.  A "face" is one of the sides
+	 * of the card if it is double-faced, one of the halves if it is split, and the contents
+	 * of one of the sides if it is a flip card, or the only face if it isn't any of those.
+	 * 
+	 * @author Alec Roelke
+	 */
 	private class Face
 	{
 		/**
-		 * Name of this Card
+		 * Name of this Face.
 		 */
 		public final String name;
 		/**
-		 * Mana cost of this Card
+		 * Mana cost of this Face.  Split cards will have independent mana costs for each
+		 * face, double-faced cards typically will have no mana cost for the back face, and
+		 * flip cards have the same mana cost for both faces.
 		 */
 		public final ManaCost mana;
 		/**
-		 * This Card's colors.
+		 * This Face's colors.
 		 */
 		public final MTGColor.Tuple colors;
 		/**
-		 * This Card's supertypes.
+		 * This Face's supertypes.
 		 */
 		public final List<String> supertypes;
 		/**
-		 * This Card's types.
+		 * This Face's types.
 		 */
 		public final List<String> types;
 		/**
-		 * This Card's subtypes.
+		 * This Face's subtypes.
 		 */
 		public final List<String> subtypes;
 		/**
-		 * This Card's rules text.
+		 * This Face's rules text.
 		 */
 		public final String text;
 		/**
-		 * This Cards flavor text.
+		 * This Face's flavor text.
 		 */
 		public final String flavor;
 		/**
-		 * This Card's artist.
+		 * This Face's artist.
 		 */
 		public final String artist;
 		/**
-		 * This Card's collector's number.
+		 * This Face's collector's number.
 		 */
 		public final String number;
 		/**
-		 * This Card's power, if it is a creature (it's empty otherwise).
+		 * This Face's power, if it is a creature (it's empty otherwise).
 		 */
 		public final PowerToughness power;
 		/**
-		 * This Card's toughness, if it is a creature (it's empty otherwise).
+		 * This Face's toughness, if it is a creature (it's empty otherwise).
 		 */
 		public final PowerToughness toughness;
 		/**
-		 * This Card's loyalty, if it is a planeswalker (it's empty otherwise).
+		 * This Face's loyalty, if it is a planeswalker (it's 0 otherwise).
 		 */
 		public final Loyalty loyalty;
 		
 		/**
-		 * This Card's image name.
+		 * This Face's image name.  If the card is a flip or split card, all Faces
+		 * of that card will have the same image name.
 		 */
 		public final String imageName;
 		/**
-		 * This Card's type line, which is "[Supertype(s) Type(s) - Subtype(s)]
+		 * This Face's type line, which is "[Supertype(s) Type(s) - Subtype(s)]
 		 */
 		public final String typeLine;
 		
+		/**
+		 * Create a new Face.
+		 * 
+		 * @param name Name of the new Face
+		 * @param mana Mana cost of the new Face
+		 * @param colors Colors of the new Face
+		 * @param supertypes Supertypes of the new Face (can be empty)
+		 * @param types Card types of the new Face (should not be empty)
+		 * @param subtypes Subtypes of the new Face (can be empty)
+		 * @param text Rules text of the new Face
+		 * @param flavor Flavor text of the new Face
+		 * @param artist Artist of the new Face
+		 * @param number Collector number of the new Face
+		 * @param power Power of the new Face
+		 * @param toughness Toughness of the new Face
+		 * @param loyalty Loyalty of the new Face
+		 * @param imageName Image name of the new Face
+		 */
 		public Face(String name,
 					ManaCost mana,
 					MTGColor.Tuple colors,
