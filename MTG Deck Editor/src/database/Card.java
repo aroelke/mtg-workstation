@@ -248,15 +248,6 @@ public final class Card
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
-	 */
-	public List<String> names()
-	{
-		return Arrays.stream(faces).map((f) -> f.name).collect(Collectors.toList());
-	}
-	
-	/**
 	 * @return The mana cost of this Card.  This is represented as a tuple, since multi-faced
 	 * cards have multiple costs that need to be treated separately.
 	 */
@@ -352,15 +343,6 @@ public final class Card
 			str.add(face.text);
 		return str.toString();
 	}
-	
-	/**
-	 * TODO: Comment this
-	 * @return
-	 */
-	public List<String> texts()
-	{
-		return Arrays.stream(faces).map((f) -> f.text).collect(Collectors.toList());
-	}
 
 	/**
 	 * @return The flavor texts of all of the faces of this Card concatenated together.
@@ -374,15 +356,6 @@ public final class Card
 			str.add(face.flavor);
 		return str.toString();
 	}
-	
-	/**
-	 * TODO: Comment this
-	 * @return
-	 */
-	public List<String> flavors()
-	{
-		return Arrays.stream(faces).map((f) -> f.flavor).collect(Collectors.toList());
-	}
 
 	/**
 	 * @return This Card's artist.  Currently it assumes that all faces are by the same
@@ -393,6 +366,10 @@ public final class Card
 		return faces[0].artist;
 	}
 	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
 	public List<String> artists()
 	{
 		return Arrays.stream(faces).map((f) -> f.artist).collect(Collectors.toList());
