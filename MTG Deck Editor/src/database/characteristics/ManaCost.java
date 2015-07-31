@@ -26,21 +26,39 @@ public class ManaCost implements Comparable<ManaCost>
 	public static final Pattern MANA_COST_PATTERN = Pattern.compile("(\\{[wubrgWUBRG\\/phPH\\dqQtTcCsSxXyYzZ]+\\})+");
 	
 	/**
-	 * TODO: Comment this
-	 * @author Alec
+	 * This class represents a tuple of ManaCosts.  It is useful for displaying and sorting
+	 * the mana costs of cards that may have mulitiple faces.
+	 * 
+	 * @author Alec Roelke
 	 */
 	public static class Tuple extends util.Tuple<ManaCost> implements Comparable<Tuple>
 	{
+		/**
+		 * Create a new tuple out of the given collection of ManaCosts.
+		 * 
+		 * @param c Collection to create the new tuple out of
+		 */
 		public Tuple(Collection<? extends ManaCost> c)
 		{
 			super(c);
 		}
 		
+		/**
+		 * Create a new tuple out of the given ManaCosts.
+		 * 
+		 * @param c ManaCosts to create the new tuple out of
+		 */
 		public Tuple(ManaCost... c)
 		{
 			super(c);
 		}
 		
+		/**
+		 * @param o Tuple to compare to (must be a ManaCost tuple)
+		 * @return A negative number if the other tuple is empty and this one is not or if the first
+		 * mana cost in this one is less than the first mana cost in the other one, a positive number
+		 * if the opposite is true, or 0 if both costs are the same or if both tuples are empty.
+		 */
 		@Override
 		public int compareTo(Tuple o)
 		{

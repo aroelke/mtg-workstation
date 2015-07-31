@@ -321,7 +321,7 @@ public class CardTable extends JTable
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * Initialize the table.
 	 */
 	private void init()
 	{

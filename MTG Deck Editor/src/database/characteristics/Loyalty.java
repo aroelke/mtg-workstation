@@ -6,24 +6,49 @@ import java.util.StringJoiner;
 import database.Card;
 
 /**
- * TODO: Comment this
- * @author Alec
- *
+ * This class represents a loyalty value for a card.  If the card has no loyalty,
+ * then the value will be 0.
+ * 
+ * @author Alec Roelke
  */
 public class Loyalty implements Comparable<Loyalty>
 {
+	/**
+	 * This class represents a tuple of loyalties, which is useful for displaying and
+	 * sorting cards by loyalty in a table when they are multi-faced cards and may have
+	 * multiple possibilities.
+	 * 
+	 * @author Alec Roelke
+	 */
 	public static class Tuple extends util.Tuple<Loyalty> implements Comparable<Tuple>
 	{
+		/**
+		 * Create a new tuple out of the given collection of loyalties.
+		 * 
+		 * @param c Collection of loyalties to create the tuple out of
+		 */
 		public Tuple(Collection<? extends Loyalty> c)
 		{
 			super(c);
 		}
 		
+		/**
+		 * Create a new tuple out of the given loyalties.
+		 * 
+		 * @param c Loyalties to create the new tuple out of
+		 */
 		public Tuple(Loyalty... c)
 		{
 			super(c);
 		}
 		
+		/**
+		 * @param o Loyalty tuple to compare with (this only works with Loyalty tuples)
+		 * @return A negative number if this tuple has elements and the other is empty or
+		 * if the first element of this tuple is less than the first element of the other,
+		 * a positive number if the opposite is true, or 0 if both are empty or the first
+		 * element of both are the same.
+		 */
 		@Override
 		public int compareTo(Tuple o)
 		{
@@ -41,6 +66,10 @@ public class Loyalty implements Comparable<Loyalty>
 			}
 		}
 		
+		/**
+		 * @return A String representation of this tuple, which is its positive loyalty values separated by
+		 * the String that separates card faces.
+		 */
 		@Override
 		public String toString()
 		{
@@ -52,13 +81,26 @@ public class Loyalty implements Comparable<Loyalty>
 		}
 	}
 	
+	/**
+	 * Value of this Loyalty.
+	 */
 	public final int value;
 	
+	/**
+	 * Create a new Loyalty out of the given integer.
+	 * 
+	 * @param l Integer value of the new Loyalty
+	 */
 	public Loyalty(int l)
 	{
 		value = l;
 	}
 	
+	/**
+	 * Create a new Loyalty out of the given String.
+	 * 
+	 * @param l String to parse to get the value of the new Loyalty
+	 */
 	public Loyalty(String l)
 	{
 		int loyal;
@@ -73,6 +115,12 @@ public class Loyalty implements Comparable<Loyalty>
 		value = loyal;
 	}
 	
+	/**
+	 * @param other Loyalty to compare with
+	 * @return A negative number if this loyalty is less than the other, a positive
+	 * number if it is greater, or 0 if both are the same.  Any value less than 1 is
+	 * treated the same.
+	 */
 	@Override
 	public int compareTo(Loyalty other)
 	{
@@ -86,6 +134,10 @@ public class Loyalty implements Comparable<Loyalty>
 			return value - other.value;
 	}
 	
+	/**
+	 * @return A String representation of this Loyalty, which is its value, unless its value
+	 * is less than 1, in which case it is the empty String.
+	 */
 	@Override
 	public String toString()
 	{

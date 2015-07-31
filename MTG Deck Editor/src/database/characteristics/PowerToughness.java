@@ -15,22 +15,40 @@ import database.Card;
 public class PowerToughness implements Comparable<PowerToughness>
 {
 	/**
-	 * TODO: Comment this
-	 * @author Alec
-	 *
+	 * This class represents a tuple of powers and/or toughnesses.  It is useful for displaying
+	 * and sorting these values for cards that may have multiple faces.
+	 * 
+	 * @author Alec Roelke
 	 */
 	public static class Tuple extends util.Tuple<PowerToughness> implements Comparable<Tuple>
 	{
+		/**
+		 * Create a new tuple out of the given collection of PowerToughnesses.
+		 * 
+		 * @param c Collection of PowerToughnesses to create the tuple out of
+		 */
 		public Tuple(Collection<? extends PowerToughness> c)
 		{
 			super(c);
 		}
 		
+		/**
+		 * Create a new tuple out of the given PowerToughnesses.
+		 * 
+		 * @param c PowerToughnesses to create the tuple out of
+		 */
 		public Tuple(PowerToughness... c)
 		{
 			super(c);
 		}
 		
+		/**
+		 * @param o Tuple to compare to (must be a PowerToughness tuple)
+		 * @return A negative number if this tuple has a value and the other is empty or if
+		 * the first element of this one is less than the first element of the other one, a
+		 * positive number if the opposite is true, or 0 if both tuples are empty or if their
+		 * first elements are the same.
+		 */
 		@Override
 		public int compareTo(Tuple o)
 		{
@@ -48,6 +66,10 @@ public class PowerToughness implements Comparable<PowerToughness>
 			}
 		}
 		
+		/**
+		 * @return A String representation of this tuple, which is its existing values
+		 * separated by the String used to separate elements of multi-faced cards.
+		 */
 		@Override
 		public String toString()
 		{
