@@ -25,7 +25,7 @@ public class ToughnessFilterPanel extends NumberFilterPanel
 	 */
 	public ToughnessFilterPanel()
 	{
-		super((c) -> c.toughnesses().stream().map((t) -> (double)t.value).collect(Collectors.toList()), FilterType.TOUGHNESS.code);
+		super((c) -> c.toughness().stream().map((t) -> (double)t.value).collect(Collectors.toList()), FilterType.TOUGHNESS.code);
 		
 		// Check box for selecting variable values.  If this is selected, then
 		// a numerical comparison is not made and instead the filter will filter
@@ -44,7 +44,7 @@ public class ToughnessFilterPanel extends NumberFilterPanel
 	@Override
 	public Predicate<Card> getFilter()
 	{
-		Predicate<Card> hasToughness = (c) -> !c.toughness().expression.isEmpty();
+		Predicate<Card> hasToughness = (c) -> c.toughness().stream().filter((t) -> !Double.isNaN(t.value)).count() > 0;
 		return hasToughness.and(variable.isSelected() ? Card::toughnessVariable : super.getFilter());
 	}
 	

@@ -156,7 +156,7 @@ public final class Card
 		allTypes.addAll(subtypes());
 		
 		// Create the UID for this Card
-		ID = this.set.code + name() + imageName();
+		ID = this.set.code + name() + faces[0].imageName;
 		
 		// Create this Card's color identity
 		List<MTGColor> identity = new ArrayList<MTGColor>(colors);
@@ -215,7 +215,7 @@ public final class Card
 		allTypes.addAll(subtypes());
 		
 		// Create the UID for this Card
-		ID = set.code + name() + imageName();
+		ID = set.code + name() + faces[0].imageName;
 		
 		// Create this Card's color identity
 		List<MTGColor> identity = new ArrayList<MTGColor>();
@@ -304,11 +304,6 @@ public final class Card
 		return str.toString();
 	}
 	
-	public String[] typeLines()
-	{
-		return Arrays.stream(faces).map((f) -> f.typeLine).toArray(String[]::new);
-	}
-	
 	public Expansion expansion()
 	{
 		return set;
@@ -321,41 +316,23 @@ public final class Card
 
 	public String text()
 	{
-		StringJoiner str = new StringJoiner("\n----------\n");
+		StringJoiner str = new StringJoiner("\n");
 		for (Face face: faces)
 			str.add(face.text);
 		return str.toString();
 	}
-	
-	public String[] texts()
-	{
-		return Arrays.stream(faces).map((f) -> f.text).toArray(String[]::new);
-	}
 
 	public String flavor()
 	{
-		StringJoiner str = new StringJoiner("\n----------\n");
+		StringJoiner str = new StringJoiner("\n");
 		for (Face face: faces)
 			str.add(face.flavor);
 		return str.toString();
 	}
-	
-	public String[] flavors()
-	{
-		return Arrays.stream(faces).map((f) -> f.flavor).toArray(String[]::new);
-	}
 
 	public String artist()
 	{
-		StringJoiner str = new StringJoiner(" " + FACE_SEPARATOR + " ");
-		for (Face face: faces)
-			str.add(face.artist);
-		return str.toString();
-	}
-	
-	public String[] artists()
-	{
-		return Arrays.stream(faces).map((f) -> f.artist).toArray(String[]::new);
+		return faces[0].artist;
 	}
 
 	public String number()
@@ -370,43 +347,28 @@ public final class Card
 	{
 		return Arrays.stream(faces).map((f) -> f.number).toArray(String[]::new);
 	}
-
-	public PowerToughness power()
-	{
-		return faces[0].power;
-	}
 	
-	public PowerToughness.Tuple powers()
+	public PowerToughness.Tuple power()
 	{
 		return new PowerToughness.Tuple(Arrays.stream(faces).map((f) -> f.power).toArray(PowerToughness[]::new));
 	}
 	
 	public boolean powerVariable()
 	{
-		return powers().stream().anyMatch(PowerToughness::variable);
+		return power().stream().anyMatch(PowerToughness::variable);
 	}
 
-	public PowerToughness toughness()
-	{
-		return faces[0].toughness;
-	}
-
-	public PowerToughness.Tuple toughnesses()
+	public PowerToughness.Tuple toughness()
 	{
 		return new PowerToughness.Tuple(Arrays.stream(faces).map((f) -> f.toughness).toArray(PowerToughness[]::new));
 	}
 	
 	public boolean toughnessVariable()
 	{
-		return toughnesses().stream().anyMatch(PowerToughness::variable);
+		return toughness().stream().anyMatch(PowerToughness::variable);
 	}
 	
-	public Loyalty loyalty()
-	{
-		return faces[0].loyalty;
-	}
-	
-	public Loyalty.Tuple loyalties()
+	public Loyalty.Tuple loyalty()
 	{
 		return new Loyalty.Tuple(Arrays.stream(faces).map((f) -> f.loyalty).toArray(Loyalty[]::new));
 	}
@@ -414,11 +376,6 @@ public final class Card
 	public Map<String, Legality> legality()
 	{
 		return legality;
-	}
-
-	public String imageName()
-	{
-		return faces[0].imageName;
 	}
 	
 	public String[] imageNames()
@@ -611,35 +568,6 @@ public final class Card
 	
 	/**
 	 * @param other Card to compare with
-	 * @return The difference between this Card's power and the other one's power, multiplied by 2
-	 * to account for fractional powers.
-	 */
-	public int comparePower(Card other)
-	{
-		return power().compareTo(other.power());
-	}
-	
-	/**
-	 * @param other Card to compare with
-	 * @return The difference between this Card's toughness and the other one's toughness, multiplied
-	 * by 2 to account for fractional powers.
-	 */
-	public int compareToughness(Card other)
-	{
-		return toughness().compareTo(other.toughness());
-	}
-	
-	/**
-	 * @param other Card to compare with
-	 * @return The difference between this Card's loyalty and the other one's loyalty
-	 */
-	public int compareLoyalty(Card other)
-	{
-		return loyalty().compareTo(other.loyalty());
-	}
-	
-	/**
-	 * @param other Card to compare with
 	 * @return The difference between this Card's collector's number and the other one's
 	 * collector's number
 	 */
@@ -727,48 +655,6 @@ public final class Card
 	}
 	
 	/**
-	 * @return This Card's rules text, with the symbols replaced with HTML image tags for
-	 * display in HTML-enabled panels.
-	 */
-	public String HTMLText()
-	{
-		String html = new String(text());
-		Matcher reminder = Pattern.compile("(\\([^)]+\\))").matcher(html);
-		while (reminder.find())
-			html = html.replace(reminder.group(), "<i>" + reminder.group() + "</i>");
-		Matcher symbols = Pattern.compile("\\{([^}]+)\\}").matcher(html);
-		while (symbols.find())
-		{
-			try
-			{
-				Symbol symbol = Symbol.valueOf(symbols.group(1));
-				html = html.replace(symbols.group(), symbol.getHTML());
-			}
-			catch (Exception e)
-			{}
-		}
-		html = html.replace("\n", "<br>");
-		return html;
-	}
-	
-	/**
-	 * @return This Card's flavor text, with the symbols replaced with HTML image tags for
-	 * display in HTML-enabled panels.
-	 */
-	public String HTMLFlavor()
-	{
-		String html = new String(flavor());
-		Matcher symbols = Pattern.compile("\\{([^}]+)\\}").matcher(html);
-		while (symbols.find())
-		{
-			Symbol symbol = Symbol.valueOf(symbols.group(1));
-			html = html.replace(symbols.group(), symbol.getHTML());
-		}
-		html = html.replace("\n", "<br>");
-		return "<i>" + html + "</i>";
-	}
-	
-	/**
 	 * @return A String containing most of the information contained in this Card,
 	 * formatted to slightly mimic a real Magic: the Gathering card and with symbols
 	 * replaced by HTML for display in HTML-enabled panels.
@@ -777,6 +663,34 @@ public final class Card
 	 */
 	public String toHTMLString()
 	{
+		StringJoiner join = new StringJoiner("<br>-----<br>");
+		for (Face f: faces)
+		{
+			StringBuilder str = new StringBuilder();
+			str.append(f.name + (f.mana.isEmpty() ? "" : " " + f.mana.toHTMLString()));
+			if (f.mana.cmc() == (int)f.mana.cmc())
+				str.append(" (" + (int)f.mana.cmc() + ")<br>");
+			else
+				str.append(" (" + f.mana.cmc() + ")<br>");
+			str.append(f.typeLine + "<br>");
+			str.append(set.name + " " + rarity + "<br>");
+			
+			if (!f.text.isEmpty())
+				str.append(f.HTMLText() + "<br>");
+			if (!f.flavor.isEmpty())
+				str.append(f.HTMLFlavor() + "<br>");
+			
+			if (!Double.isNaN(f.power.value) && !Double.isNaN(f.toughness.value))
+				str.append(f.power + "/" + f.toughness + "<br>");
+			else if (f.loyalty.value > 0)
+				str.append(f.loyalty + "<br>");
+			
+			str.append(f.artist + " " + f.number + "/" + set.count);
+			
+			join.add(str.toString());
+		}
+		return join.toString();
+/*
 		StringBuilder str = new StringBuilder();
 		str.append(name() + " " + mana().get(0).toHTMLString());
 		if (mana().get(0).cmc() == (int)mana().get(0).cmc())
@@ -801,6 +715,7 @@ public final class Card
 		str.append(artist() + " " + number() + "/" + expansion().count);
 		
 		return str.toString();
+*/
 	}
 	
 	/**
@@ -932,6 +847,48 @@ public final class Card
 			if (subtypes.size() > 0)
 				str.append(" — ").append(String.join(" ", subtypes));
 			typeLine = str.toString();
+		}
+		
+		/**
+		 * @return This Face's rules text, with the symbols replaced with HTML image tags for
+		 * display in HTML-enabled panels.
+		 */
+		public String HTMLText()
+		{
+			String html = new String(text);
+			Matcher reminder = Pattern.compile("(\\([^)]+\\))").matcher(html);
+			while (reminder.find())
+				html = html.replace(reminder.group(), "<i>" + reminder.group() + "</i>");
+			Matcher symbols = Pattern.compile("\\{([^}]+)\\}").matcher(html);
+			while (symbols.find())
+			{
+				try
+				{
+					Symbol symbol = Symbol.valueOf(symbols.group(1));
+					html = html.replace(symbols.group(), symbol.getHTML());
+				}
+				catch (Exception e)
+				{}
+			}
+			html = html.replace("\n", "<br>");
+			return html;
+		}
+		
+		/**
+		 * @return This Face's flavor text, with the symbols replaced with HTML image tags for
+		 * display in HTML-enabled panels.
+		 */
+		public String HTMLFlavor()
+		{
+			String html = new String(flavor());
+			Matcher symbols = Pattern.compile("\\{([^}]+)\\}").matcher(html);
+			while (symbols.find())
+			{
+				Symbol symbol = Symbol.valueOf(symbols.group(1));
+				html = html.replace(symbols.group(), symbol.getHTML());
+			}
+			html = html.replace("\n", "<br>");
+			return "<i>" + html + "</i>";
 		}
 	}
 }

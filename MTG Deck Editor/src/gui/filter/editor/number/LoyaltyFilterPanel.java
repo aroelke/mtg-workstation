@@ -22,7 +22,7 @@ public class LoyaltyFilterPanel extends NumberFilterPanel
 	 */
 	public LoyaltyFilterPanel()
 	{
-		super((c) -> c.loyalties().stream().map((l) -> (double)l.value).collect(Collectors.toList()), FilterType.LOYALTY.code);
+		super((c) -> c.loyalty().stream().map((l) -> (double)l.value).collect(Collectors.toList()), FilterType.LOYALTY.code);
 	}
 	
 	/**
@@ -33,7 +33,7 @@ public class LoyaltyFilterPanel extends NumberFilterPanel
 	@Override
 	public Predicate<Card> getFilter()
 	{
-		Predicate<Card> hasLoyalty = (c) -> c.loyalty().value > 0;
+		Predicate<Card> hasLoyalty = (c) -> c.loyalty().stream().filter((l) -> l.value > 0).count() > 0;
 		return hasLoyalty.and(super.getFilter());
 	}
 }
