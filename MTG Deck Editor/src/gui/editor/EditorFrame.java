@@ -84,6 +84,15 @@ import database.characteristics.CardCharacteristic;
 public class EditorFrame extends JInternalFrame
 {
 	/**
+	 * Tab number containing the main list of cards.
+	 */
+	public static final int MAIN_TABLE = 0;
+	/**
+	 * Tab number containing categories.
+	 */
+	public static final int CATEGORIES = 1;
+	
+	/**
 	 * Parent MainFrame.
 	 */
 	private MainFrame parent;
@@ -959,7 +968,7 @@ public class EditorFrame extends JInternalFrame
 
 			switch (listTabs.getSelectedIndex())
 			{
-			case 0:
+			case MAIN_TABLE:
 				// Maintain the selection in the master list
 				int[] selectedRows = table.getSelectedRows();
 				model.fireTableDataChanged();
@@ -968,7 +977,7 @@ public class EditorFrame extends JInternalFrame
 				for (CategoryPanel c: categories)
 					c.update();
 				break;
-			case 1:
+			case CATEGORIES:
 				// Maintain the selection in each category
 				for (CategoryPanel c: categories)
 				{
@@ -1065,7 +1074,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			switch (listTabs.getSelectedIndex())
 			{
-			case 0:
+			case MAIN_TABLE:
 				// Get the selected cards first
 				List<Card> selectedCards = new ArrayList<Card>();
 				for (int row: table.getSelectedRows())
@@ -1090,7 +1099,7 @@ public class EditorFrame extends JInternalFrame
 				for (CategoryPanel c: categories)
 					c.update();
 				break;
-			case 1:
+			case CATEGORIES:
 				// Get all of the selected cards from each category (only one category should
 				// have selected cards, but just in case)
 				Map<CategoryPanel, List<Card>> selectedCardsMap = new HashMap<CategoryPanel, List<Card>>();
@@ -1209,10 +1218,10 @@ public class EditorFrame extends JInternalFrame
 		List<Card> selectedCards;
 		switch (listTabs.getSelectedIndex())
 		{
-		case 0:
+		case MAIN_TABLE:
 			selectedCards = getSelectedCards();
 			break;
-		case 1:
+		case CATEGORIES:
 			selectedCards = new ArrayList<Card>();
 			for (CategoryPanel category: categories)
 				selectedCards.addAll(category.getSelectedCards());
