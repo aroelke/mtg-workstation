@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import util.Containment;
@@ -141,10 +139,10 @@ public class LegalityChecker
 			warnings.get("Commander").add("Deck does not contain a legendary creature");
 		else
 		{
-			Set<MTGColor> deckColorIdentitySet = new HashSet<MTGColor>();
+			List<MTGColor> deckColorIdentityList = new ArrayList<MTGColor>();
 			for (Card c: deck)
-				deckColorIdentitySet.addAll(c.colors());
-			MTGColor.Tuple deckColorIdentity = new MTGColor.Tuple(deckColorIdentitySet);
+				deckColorIdentityList.addAll(c.colors());
+			MTGColor.Tuple deckColorIdentity = new MTGColor.Tuple(deckColorIdentityList);
 			for (Card c: new ArrayList<Card>(possibleCommanders))
 				if (!c.colors().containsAll(deckColorIdentity))
 					possibleCommanders.remove(c);

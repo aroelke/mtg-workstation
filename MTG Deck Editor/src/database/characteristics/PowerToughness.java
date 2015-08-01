@@ -1,6 +1,6 @@
 package database.characteristics;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.StringJoiner;
 
 import database.Card;
@@ -27,7 +27,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 		 * 
 		 * @param c Collection of PowerToughnesses to create the tuple out of
 		 */
-		public Tuple(Collection<? extends PowerToughness> c)
+		public Tuple(List<? extends PowerToughness> c)
 		{
 			super(c);
 		}

@@ -1,6 +1,6 @@
 package database.characteristics;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.StringJoiner;
 
 import database.Card;
@@ -27,7 +27,7 @@ public class Loyalty implements Comparable<Loyalty>
 		 * 
 		 * @param c Collection of loyalties to create the tuple out of
 		 */
-		public Tuple(Collection<? extends Loyalty> c)
+		public Tuple(List<? extends Loyalty> c)
 		{
 			super(c);
 		}

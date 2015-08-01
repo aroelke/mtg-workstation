@@ -55,8 +55,6 @@ import database.characteristics.CardCharacteristic;
  * This class is a dialog that allows the user to change various properties about
  * the program.
  * 
- * TODO: Decide if the preset categories' colors should be persistent or not
- * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -81,6 +80,128 @@ public enum MTGColor
 	}
 	
 	/**
+	 * This class represents a sorted list of unique colors in the correct order around
+	 * the color pie.
+	 * 
+	 * @author Alec Roelke
+	 */
+	public static class Tuple extends util.Tuple<MTGColor> implements Comparable<Tuple>
+	{
+		/**
+		 * Helper method for cleaning and sorting a collection of colors before calling the
+		 * super constructor on it.
+		 * 
+		 * @param cols Collection of colors to sort
+		 * @return A cleaned and sorted copy of the given collection of colors.  Each color
+		 * will only appear once.
+		 */
+		private static List<MTGColor> sorted(Collection<MTGColor> cols)
+		{
+			List<MTGColor> colors = new ArrayList<MTGColor>(new HashSet<MTGColor>(cols));
+			Collections.sort(colors);
+			switch (colors.size())
+			{
+			case 0:
+				break;
+			case 2:
+				if (colors.get(0).colorOrder(colors.get(1)) > 0)
+					Collections.reverse(colors);
+				break;
+			case 3:
+				while (colors.get(0).distance(colors.get(1)) != colors.get(1).distance(colors.get(2)))
+					Collections.rotate(colors, 1);
+				break;
+			case 4:
+				boolean equal;
+				do
+				{
+					equal = true;
+					for (int i = 0; i < 3; i++)
+					{
+						if (colors.get(i).distance(colors.get(i + 1)) != 1)
+						{
+							equal = false;
+							Collections.rotate(colors, 1);
+							break;
+						}
+					}
+				} while (!equal);
+				break;
+			default:
+				break;
+			}
+			return colors;
+		}
+		
+		/**
+		 * Create a new tuple out of the given list of colors.  Unique colors will be extracted
+		 * and then sorted around the color pie.
+		 * 
+		 * @param cols Colors to make the tuple out of
+		 */
+		public Tuple(Collection<MTGColor> cols)
+		{
+			super(sorted(cols));
+		}
+		
+		/**
+		 * Create a new tuple out of the given colors.
+		 * 
+		 * @param cols Colors to make the tuple out of
+		 */
+		public Tuple(MTGColor... cols)
+		{
+			this(Arrays.asList(cols));
+		}
+		
+		/**
+		 * @param other Tuple to compare with
+		 * @return A negative number if this tuple comes before the other one, which happens
+		 * if this one has fewer elements or if the colors come before the other one's colors,
+		 * 0 if both tuples are the same, and a positive number otherwise.
+		 */
+		@Override
+		public int compareTo(Tuple other)
+		{
+			int diff = size() - other.size();
+			if (diff == 0)
+				for (int i = 0; i < size(); i++)
+					diff += get(i).compareTo(other.get(i))*Math.pow(10, size() - i);
+			return diff;
+		}
+		
+		/**
+		 * @param other Object to compare with
+		 * @return <code>true</code> if the other object is a Tuple with the same colors
+		 * as this one, and <code>false</code> otherwise.
+		 */
+		@Override
+		public boolean equals(Object other)
+		{
+			if (other == null)
+				return false;
+			if (other == this)
+				return true;
+			if (!(other instanceof Tuple))
+				return false;
+			Tuple t = (Tuple)other;
+			return containsAll(t) && t.containsAll(this);
+		}
+		
+		/**
+		 * @return An int representation of this Tuple.
+		 */
+		@Override
+		public int hashCode()
+		{
+			int h = Integer.MAX_VALUE;
+			for (MTGColor col: this)
+				h ^= col.hashCode();
+			return h;
+		}
+	}
+	
+	/**
 	 * String representation of this MTGColor.
 	 */
 	private final String color;
@@ -145,242 +266,5 @@ public enum MTGColor
 	public int distance(MTGColor other)
 	{
 		return (other.ordinal() - ordinal() + values().length)%values().length;
-	}
-	
-	/**
-	 * This class represents a sorted list of unique colors in the correct order around
-	 * the color pie.
-	 * 
-	 * TODO: Make this extend util.Tuple
-	 * 
-	 * @author Alec
-	 */
-	public static class Tuple implements Comparable<Tuple>, Collection<MTGColor>
-	{
-		/**
-		 * List of colors in the tuple.
-		 */
-		private List<MTGColor> colors;
-		
-		/**
-		 * Create a new tuple out of the given list of colors.  Unique colors will be extracted
-		 * and then sorted around the color pie.
-		 * 
-		 * @param cols Colors to make the tuple out of
-		 */
-		public Tuple(Collection<MTGColor> cols)
-		{
-			colors = new ArrayList<MTGColor>(new HashSet<MTGColor>(cols));
-			Collections.sort(colors);
-			switch (colors.size())
-			{
-			case 2:
-				if (colors.get(0).colorOrder(colors.get(1)) > 0)
-					Collections.reverse(colors);
-				break;
-			case 3:
-				while (colors.get(0).distance(colors.get(1)) != colors.get(1).distance(colors.get(2)))
-					Collections.rotate(colors, 1);
-				break;
-			case 4:
-				boolean equal;
-				do
-				{
-					equal = true;
-					for (int i = 0; i < 3; i++)
-					{
-						if (colors.get(i).distance(colors.get(i + 1)) != 1)
-						{
-							equal = false;
-							Collections.rotate(colors, 1);
-							break;
-						}
-					}
-				} while (!equal);
-				break;
-			default:
-				break;
-			}
-		}
-		
-		/**
-		 * Create a new tuple out of the given colors.
-		 * 
-		 * @param cols Colors to make the tuple out of
-		 */
-		public Tuple(MTGColor... cols)
-		{
-			this(Arrays.asList(cols));
-		}
-		
-		/**
-		 * @return The number of colors in this tuple.
-		 */
-		@Override
-		public int size()
-		{
-			return colors.size();
-		}
-		
-		/**
-		 * @return <code>true</code> if there are no colors in this tuple, and
-		 * <code>false</code> otherwise.
-		 */
-		@Override
-		public boolean isEmpty()
-		{
-			return size() == 0;
-		}
-		
-		/**
-		 * @param index Index of the color to get
-		 * @return The MTGColor at the given index.
-		 */
-		public MTGColor get(int index)
-		{
-			return colors.get(index);
-		}
-		
-		/**
-		 * @param o Object to look for
-		 * @return <code>true</code> if this tuple contains the given object, and
-		 * <code>false</code> otherwise.
-		 */
-		@Override
-		public boolean contains(Object o)
-		{
-			return colors.contains(o);
-		}
-		
-		/**
-		 * @param c Collection of objects to look for
-		 * @return <code>true</code> if this tuple contains all of the objects in the given
-		 * collection, and <code>false</code> otherwise.
-		 */
-		@Override
-		public boolean containsAll(Collection<?> c)
-		{
-			return colors.containsAll(c);
-		}
-		
-		/**
-		 * @return An iterator over the elements in this tuple.
-		 */
-		@Override
-		public Iterator<MTGColor> iterator()
-		{
-			return colors.iterator();
-		}
-		
-		/**
-		 * @return An array containing the elements of this tuple.
-		 */
-		@Override
-		public MTGColor[] toArray()
-		{
-			return colors.toArray(new MTGColor[colors.size()]);
-		}
-		
-		/**
-		 * @param a Array specifying the type of the array to return.
-		 * @return An array containing the elements of this tuple.
-		 */
-		@Override
-		public <T> T[] toArray(T[] a)
-		{
-			return colors.toArray(a);
-		}
-		
-		/**
-		 * @param other Tuple to compare with
-		 * @return A negative number if this tuple comes before the other one, which happens
-		 * if this one has fewer elements or if the colors come before the other one's colors,
-		 * 0 if both tuples are the same, and a positive number otherwise.
-		 */
-		@Override
-		public int compareTo(Tuple other)
-		{
-			int diff = size() - other.size();
-			if (diff == 0)
-				for (int i = 0; i < size(); i++)
-					diff += get(i).compareTo(other.get(i))*Math.pow(10, size() - i);
-			return diff;
-		}
-		
-		/**
-		 * @param other Object to compare with
-		 * @return <code>true</code> if the other object is a Tuple with the same colors
-		 * as this one, and <code>false</code> otherwise.
-		 */
-		@Override
-		public boolean equals(Object other)
-		{
-			if (other == null)
-				return false;
-			if (other == this)
-				return true;
-			if (!(other instanceof Tuple))
-				return false;
-			Tuple t = (Tuple)other;
-			return containsAll(t) && t.containsAll(this);
-		}
-		
-		/**
-		 * @return An int representation of this Tuple.
-		 */
-		@Override
-		public int hashCode()
-		{
-			int h = Integer.MAX_VALUE;
-			for (MTGColor col: colors)
-				h ^= col.hashCode();
-			return h;
-		}
-		
-		/**
-		 * @return A String representation of this Tuple, which is the same as the
-		 * underlying list's String representation.
-		 */
-		@Override
-		public String toString()
-		{
-			return colors.toString();
-		}
-
-		@Override
-		public boolean add(MTGColor c)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean addAll(Collection<? extends MTGColor> c)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void clear()
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean remove(Object o)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean removeAll(Collection<?> c)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean retainAll(Collection<?> c)
-		{
-			throw new UnsupportedOperationException();
-		}
 	}
 }

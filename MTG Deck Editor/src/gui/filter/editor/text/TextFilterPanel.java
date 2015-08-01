@@ -59,12 +59,8 @@ public class TextFilterPanel extends FilterEditorPanel
 	 * Create a regex pattern matcher that searches a string for a set of words and quote-enclosed phrases
 	 * separated by spaces, where * is a wild card.
 	 * 
-	 * TODO: Fix this comment
-	 * 
 	 * @param pattern String pattern to create a regex matcher out of
-	 * @param f Function returning a String whose return value will be searched by the matcher
-	 * @return A Matcher that searches the given function's output for the words and phrases in the given
-	 * String.
+	 * @return A Matcher that searches a String for the words and phrases in the given String.
 	 */
 	public static Predicate<String> createSimpleMatcher(String pattern)
 	{

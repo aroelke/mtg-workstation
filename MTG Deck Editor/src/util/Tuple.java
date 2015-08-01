@@ -26,9 +26,9 @@ public class Tuple<E> implements List<E>
 	/**
 	 * Create a new Tuple out of the given collection of items.
 	 * 
-	 * @param c Collection to create the Tuple out of
+	 * @param c List to create the Tuple out of
 	 */
-	public Tuple(Collection<? extends E> c)
+	public Tuple(List<? extends E> c)
 	{
 		items = new ArrayList<E>(c);
 	}

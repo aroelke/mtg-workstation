@@ -20,8 +20,6 @@ import database.Inventory;
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
  * etc.
  * 
- * TODO: Make the classes and functions be arrays for multi-face cards where appropriate
- * 
  * @author Alec Roelke
  */
 public enum CardCharacteristic

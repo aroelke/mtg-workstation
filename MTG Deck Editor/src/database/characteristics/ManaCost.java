@@ -1,7 +1,6 @@
 package database.characteristics;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +37,7 @@ public class ManaCost implements Comparable<ManaCost>
 		 * 
 		 * @param c Collection to create the new tuple out of
 		 */
-		public Tuple(Collection<? extends ManaCost> c)
+		public Tuple(List<? extends ManaCost> c)
 		{
 			super(c);
 		}
