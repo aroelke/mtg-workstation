@@ -672,7 +672,7 @@ public class MainFrame extends JFrame
 		// bar
 		nameFilterField.addActionListener((e) -> {
 			filter = new FilterGroupPanel();
-			inventory.updateFilter((c) -> c.normalizedName().contains(nameFilterField.getText().toLowerCase()));
+			inventory.updateFilter((c) -> String.join(" " + Card.FACE_SEPARATOR + " ", c.normalizedName()).contains(nameFilterField.getText().toLowerCase()));
 			inventoryModel.fireTableDataChanged();
 		});
 		
@@ -853,7 +853,7 @@ public class MainFrame extends JFrame
 		properties.put(SettingsDialog.INITIALDIR, "./");
 		properties.put(SettingsDialog.RECENT_COUNT, "4");
 		properties.put(SettingsDialog.RECENT_FILES, "");
-		properties.put(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories");
+		properties.put(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
 		properties.put(SettingsDialog.EDITOR_STRIPE, "#FFCCCCCC");
 		properties.put(SettingsDialog.EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
 	}
