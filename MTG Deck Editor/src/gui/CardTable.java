@@ -62,6 +62,13 @@ public class CardTable extends JTable
 			{
 				ManaCost.Tuple cost = (ManaCost.Tuple)value;
 				JPanel costPanel = new JPanel();
+				costPanel.setLayout(new BoxLayout(costPanel, BoxLayout.X_AXIS));
+				if (hasFocus)
+					costPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+				else
+					costPanel.setBorder(new EmptyBorder(0, 1, cost.size() == 1 ? -1 : 0, 0));
+				costPanel.setForeground(c.getForeground());
+				costPanel.setBackground(c.getBackground());
 				for (int i = 0; i < cost.size(); i++)
 				{
 					if (!cost.get(i).isEmpty())
@@ -72,14 +79,6 @@ public class CardTable extends JTable
 							costPanel.add(new JLabel(Card.FACE_SEPARATOR));
 							costPanel.add(Box.createHorizontalStrut(3));
 						}
-						
-						costPanel.setLayout(new BoxLayout(costPanel, BoxLayout.X_AXIS));
-						if (hasFocus)
-							costPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
-						else
-							costPanel.setBorder(new EmptyBorder(0, 1, cost.size() == 1 ? -1 : 0, 0));
-						costPanel.setForeground(c.getForeground());
-						costPanel.setBackground(c.getBackground());
 						for (Symbol sym: cost.get(i).symbols())
 							costPanel.add(new JLabel(sym.getIcon(13)));
 					}

@@ -329,6 +329,8 @@ public class EditorFrame extends JInternalFrame
 								if (category.include(cards.get(0)))
 								{
 									setUnsaved();
+									revalidate();
+									repaint();
 									undoBuffer.push(new IncludeCardAction(EditorFrame.this, category, cards.get(0)));
 									redoBuffer.clear();
 								}
@@ -338,6 +340,8 @@ public class EditorFrame extends JInternalFrame
 								if (category.exclude(cards.get(0)))
 								{
 									setUnsaved();
+									revalidate();
+									repaint();
 									undoBuffer.push(new ExcludeCardAction(EditorFrame.this, category, cards.get(0)));
 									redoBuffer.clear();
 								}

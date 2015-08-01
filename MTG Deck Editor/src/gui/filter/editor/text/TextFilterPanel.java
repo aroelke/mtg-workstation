@@ -148,9 +148,9 @@ public class TextFilterPanel extends FilterEditorPanel
 				}
 				Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
 				if (contain.getItemAt(contain.getSelectedIndex()).equals(Containment.CONTAINS_NONE_OF))
-					return (c) -> text.apply(c).stream().anyMatch((s) -> p.matcher(s.toLowerCase()).find());
-				else
 					return (c) -> text.apply(c).stream().anyMatch((s) -> !p.matcher(s.toLowerCase()).find());
+				else
+					return (c) -> text.apply(c).stream().anyMatch((s) -> p.matcher(s.toLowerCase()).find());
 			case CONTAINS_NOT_ALL_OF:
 				return (c) -> text.apply(c).stream().map(String::toLowerCase).anyMatch(createSimpleMatcher(filterText).negate());
 			case CONTAINS_NOT_EXACTLY:

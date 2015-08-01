@@ -367,8 +367,8 @@ public final class Card
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The list of artists for the faces of this Card (probably they are all
+	 * the same).
 	 */
 	public List<String> artists()
 	{
@@ -491,7 +491,7 @@ public final class Card
 	/**
 	 * Normalize this Card's name so it can be searched using the keyboard ignoring
 	 * case.  For example, the ligature "æ" will be replaced with "ae" regardless of
-	 * case.
+	 * case.  This will be a list containing the name of each face.
 	 * 
 	 * @return This Card's normalized name.
 	 */
@@ -540,7 +540,8 @@ public final class Card
 	
 	/**
 	 * @return The normalized, lower case version of this Card's rules text.  For example,
-	 * "æ" will be replaced with "ae."
+	 * "æ" will be replaced with "ae."  This will be a list containing the rules text of
+	 * each face.
 	 * @see database.Card#normalizedName()
 	 */
 	public List<String> normalizedText()
@@ -558,7 +559,8 @@ public final class Card
 	
 	/**
 	 * @return The normalized, lower case version of this Card's flavor text.  For example,
-	 * "æ" will be replaced with "ae."
+	 * "æ" will be replaced with "ae."  This will be a list containing the flavor text of each
+	 * face.
 	 * @see database.Card#normalizedName()
 	 */
 	public List<String> normalizedFlavor()
