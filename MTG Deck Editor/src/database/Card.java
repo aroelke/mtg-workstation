@@ -255,6 +255,15 @@ public final class Card
 	{
 		return new ManaCost.Tuple(Arrays.stream(faces).map((f) -> f.mana).toArray(ManaCost[]::new));
 	}
+	
+	/**
+	 * @return This Card's converted mana cost, which is the smallest converted mana cost
+	 * among its faces.
+	 */
+	public double cmc()
+	{
+		return mana().stream().mapToDouble(ManaCost::cmc).min().orElse(0.0);
+	}
 
 	/**
 	 * @return The colors of this Card, which is the union of the colors of its faces.

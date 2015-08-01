@@ -120,6 +120,10 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private JLabel nonlandLabel;
 	/**
+	 * Label showing the average CMC of nonland cards in the deck.
+	 */
+	private JLabel avgCMCLabel;
+	/**
 	 * Tabbed pane for choosing whether to display the entire deck or the categories.
 	 */
 	private JTabbedPane listTabs;
@@ -411,26 +415,42 @@ public class EditorFrame extends JInternalFrame
 		// TODO: Add a tab for sample hands
 
 		// Panel to show the stats of the deck
-		JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-		getContentPane().add(statsPanel, BorderLayout.SOUTH);
+		JPanel bottomPanel = new JPanel();
+		GridBagLayout bottomLayout = new GridBagLayout();
+		bottomLayout.columnWidths = new int[] {0, 0};
+		bottomLayout.columnWeights = new double[] {1.0, 1.0};
+		bottomLayout.rowHeights = new int[] {0};
+		bottomLayout.rowWeights = new double[] {1.0};
+		bottomPanel.setLayout(bottomLayout);
+		getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
 		// Labels to counts for total cards, lands, and nonlands
+		JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
 		countLabel = new JLabel();
 		statsPanel.add(countLabel);
 		landLabel = new JLabel();
 		statsPanel.add(landLabel);
 		nonlandLabel = new JLabel();
 		statsPanel.add(nonlandLabel);
+		avgCMCLabel = new JLabel();
+		statsPanel.add(avgCMCLabel);
 		updateCount();
+		GridBagConstraints statsConstraints = new GridBagConstraints();
+		statsConstraints.anchor = GridBagConstraints.WEST;
+		bottomPanel.add(statsPanel, statsConstraints);
 		
 		// Check legality button
+		JPanel legalityPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
 		JButton legalityButton = new JButton("Show Legality");
 		legalityButton.addActionListener((e) -> {
 			LegalityChecker checker = new LegalityChecker();
 			checker.checkLegality(deck);
 			JOptionPane.showMessageDialog(null, new LegalityPanel(checker), "Legality of " + deckName(), JOptionPane.PLAIN_MESSAGE);
 		});
-		statsPanel.add(legalityButton);
+		legalityPanel.add(legalityButton);
+		GridBagConstraints legalityConstraints = new GridBagConstraints();
+		legalityConstraints.anchor = GridBagConstraints.EAST;
+		bottomPanel.add(legalityPanel, legalityConstraints);
 
 		// Handle various frame events, including selecting and closing
 		addInternalFrameListener(new InternalFrameAdapter()
@@ -875,6 +895,11 @@ public class EditorFrame extends JInternalFrame
 		countLabel.setText("Total cards: " + deck.total());
 		landLabel.setText("Lands: " + deck.land());
 		nonlandLabel.setText("Nonlands: " + deck.nonland());
+		double avgCMC = deck.stream().filter((c) -> !c.typeContains("land")).mapToDouble(Card::cmc).average().orElse(0.0);
+		if ((int)avgCMC == avgCMC)
+			avgCMCLabel.setText("Average CMC: " + (int)avgCMC);
+		else
+			avgCMCLabel.setText(String.format("Average CMC: %.2f", avgCMC));
 	}
 
 	/**
