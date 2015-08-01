@@ -20,8 +20,7 @@ public class EditorMain
 	 * Entry point for the program. All it does is set the look and feel to the
 	 * system one and create the GUI.
 	 * 
-	 * @param args
-	 *            Arguments to the program
+	 * @param args Arguments to the program
 	 */
 	public static void main(String[] args)
 	{
