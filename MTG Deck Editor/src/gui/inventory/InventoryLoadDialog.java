@@ -150,7 +150,6 @@ public class InventoryLoadDialog extends JDialog
 		catch (InterruptedException | ExecutionException e)
 		{
 			JOptionPane.showMessageDialog(null, "Error loading inventory: " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
 			return new Inventory();
 		}
 		catch (CancellationException e)

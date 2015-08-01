@@ -152,18 +152,6 @@ public abstract class Symbol implements Comparable<Symbol>
 	{
 		this.iconName = iconName;
 		this.icon = new ImageIcon("images/icons-large/" + iconName);
-/*
-		try
-		{
-			icon = ImageIO.read(new File("images/icons-large/" + iconName));
-		}
-		catch (IOException e)
-		{
-			System.out.println("Can't read file images/icons-large/" + iconName);
-			e.printStackTrace();
-			System.exit(1);
-		}
-*/
 	}
 	
 	/**
