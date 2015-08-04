@@ -71,7 +71,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.text.html.HTMLDocument;
 
 import database.Card;
 import database.Inventory;
@@ -580,12 +579,6 @@ public class MainFrame extends JFrame
 		oracleTextPane.setContentType("text/html");
 		oracleTextPane.setFont(UIManager.getFont("Label.font"));
 		oracleTextPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
-		try
-		{
-			((HTMLDocument)oracleTextPane.getDocument()).setBase(new File(".").toURI().toURL());
-		}
-		catch (MalformedURLException e)
-		{}
 		textPanel.add(new JScrollPane(oracleTextPane), BorderLayout.CENTER);
 		
 		// Create the inventory and put it in the table

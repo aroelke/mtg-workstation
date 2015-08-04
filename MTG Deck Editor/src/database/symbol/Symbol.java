@@ -1,6 +1,8 @@
 package database.symbol;
 
 import java.awt.Image;
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,9 +30,9 @@ public abstract class Symbol implements Comparable<Symbol>
 	 */
 	private ImageIcon icon;
 	/**
-	 * Name of the icon to show.
+	 * Absolute path where the small-sized version of the icon can be found.
 	 */
-	private String iconName;
+	private String smallPath;
 	
 	/**
 	 * Create a map of color weights for a Symbol, where the keys are MTGColors and the values
@@ -150,8 +152,15 @@ public abstract class Symbol implements Comparable<Symbol>
 	 */
 	protected Symbol(String iconName)
 	{
-		this.iconName = iconName;
-		this.icon = new ImageIcon("images/icons-large/" + iconName);
+		icon = new ImageIcon("images/icons-large/" + iconName);
+		try
+		{
+			smallPath = new File(".").getAbsoluteFile().getParentFile().toURI().toURL().toString() + "/images/icons-small/" + iconName;
+		}
+		catch (MalformedURLException e)
+		{
+			smallPath = "";
+		}
 	}
 	
 	/**
@@ -198,7 +207,7 @@ public abstract class Symbol implements Comparable<Symbol>
 	 */
 	public String getHTML()
 	{
-		return "<img src=\"images/icons-small/" + iconName + "\" />";
+		return "<img src=\"" + smallPath + "\" />";
 	}
 	
 	/**

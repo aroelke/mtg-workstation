@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -11,9 +14,11 @@ import java.util.stream.Collectors;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JToolTip;
 import javax.swing.SortOrder;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
@@ -178,6 +183,13 @@ public class CardTable extends JTable
 						}
 					}
 				};
+				StringBuilder tooltip = new StringBuilder();
+				tooltip.append("<html>Categories:<br>");
+				for (Deck.Category category: categories)
+					// TODO: Replace "\u2022" with the actual unicode character
+					tooltip.append("\u2022 ").append(category.name()).append("<br>");
+				tooltip.append("</html>");
+				panel.setToolTipText(tooltip.toString());
 				if (hasFocus)
 					panel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
 				panel.setForeground(c.getForeground());
@@ -380,5 +392,42 @@ public class CardTable extends JTable
 		if (!isRowSelected(row))
 			c.setBackground(row%2 == 0 ? new Color(getBackground().getRGB()) : stripeColor);
 		return c;
+	}
+	
+	/**
+	 * If the contents of a cell are too big to fit in the cell, they (in their text form)
+	 * can be viewed as the cell's tooltip.
+	 * 
+	 * @param e MouseEvent that should be used to determine what tooltip to display.
+	 */
+	@Override
+	public String getToolTipText(MouseEvent e)
+	{
+		String tooltip = super.getToolTipText(e);
+		if (tooltip == null)
+		{
+			Point p = e.getPoint();
+			int col = columnAtPoint(p);
+			int row = rowAtPoint(p);
+			if (col >= 0 && row >= 0)
+			{
+				Rectangle bounds = getCellRect(row, col, false);
+				JComponent c = (JComponent)prepareRenderer(getCellRenderer(row, col), row, col);
+				if (c.getPreferredSize().width > bounds.width)
+					tooltip = "<html><base href = \".\">" + String.valueOf(getValueAt(row, col)) + "</html>";
+			}
+		}
+		return tooltip;
+	}
+	
+	@Override
+	public JToolTip createToolTip()
+	{
+		JToolTip tooltip = super.createToolTip();
+		if (tooltip != null)
+		{
+			
+		}
+		return tooltip;
 	}
 }

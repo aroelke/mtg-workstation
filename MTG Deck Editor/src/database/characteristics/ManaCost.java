@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import database.Card;
 import database.symbol.Symbol;
 
 /**
@@ -69,6 +71,21 @@ public class ManaCost implements Comparable<ManaCost>
 				return 1;
 			else
 				return get(0).compareTo(o.get(0));
+		}
+		
+		/**
+		 * @return A String representation of this tuple, which is the HTML String
+		 * representations of its non-empty ManaCosts separated by card face
+		 * separators.
+		 */
+		@Override
+		public String toString()
+		{
+			StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
+			for (ManaCost cost: this)
+				if (!cost.isEmpty())
+					join.add(cost.toHTMLString());
+			return join.toString();
 		}
 	}
 	
