@@ -17,6 +17,8 @@ import database.CardCollection;
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
  * etc.
  * 
+ * TODO: Come up with an editor for the categories column
+ * 
  * @author Alec Roelke
  */
 public enum CardCharacteristic
