@@ -2,6 +2,7 @@ package gui.editor;
 
 import gui.CardTable;
 import gui.ColorButton;
+import gui.CardTableModel;
 import gui.SettingsDialog;
 
 import java.awt.BorderLayout;
@@ -57,7 +58,7 @@ public class CategoryPanel extends JPanel
 	/**
 	 * Model to tell the table how to display the contents of the category.
 	 */
-	private DeckTableModel model;
+	private CardTableModel model;
 	/**
 	 * Label showing the number of cards in the category.
 	 */
@@ -143,7 +144,7 @@ public class CategoryPanel extends JPanel
 		add(countPanel, BorderLayout.NORTH);
 		
 		// Table showing the cards in the category
-		model = new DeckTableModel(editor, category, Arrays.stream(editor.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		model = new CardTableModel(editor, category, Arrays.stream(editor.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		table = new CardTable(model)
 		{
 			@Override

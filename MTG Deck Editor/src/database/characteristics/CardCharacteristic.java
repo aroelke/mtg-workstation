@@ -3,18 +3,15 @@ package database.characteristics;
 import gui.editor.EditorFrame;
 import gui.editor.SpinnerCellEditor;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import javax.swing.table.TableCellEditor;
 
 import util.TriConsumer;
 import database.Card;
 import database.CardCollection;
-import database.Inventory;
 
 /**
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
@@ -24,26 +21,26 @@ import database.Inventory;
  */
 public enum CardCharacteristic
 {
-	NAME("Name", String.class, (l, i) -> l.get(i).name(), (l, i) -> l.get(i).name()),
-	COUNT("Count", Integer.class, null, (l, i) -> l.count(i), (e, c, n) -> {
+	NAME("Name", String.class, (l, i) -> l.get(i).name()),
+	COUNT("Count", Integer.class, (l, i) -> l.count(i), (e, c, n) -> {
 		if (n instanceof Integer)
 			e.setCardCount(c, ((Integer)n).intValue());
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}, new SpinnerCellEditor()),
-	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l.get(i).mana(), (l, i) -> l.get(i).mana()),
-	COLORS("Colors", MTGColor.Tuple.class, (l, i) -> l.get(i).colors(), (l, i) -> l.get(i).colors()),
-	COLOR_IDENTITY("Color Identity", MTGColor.Tuple.class, (l, i) -> l.get(i).colorIdentity(), (l, i) -> l.get(i).colorIdentity()),
-	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine(), (l, i) -> l.get(i).typeLine()),
-	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).expansion().name, (l, i) -> l.get(i).expansion().name),
-	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity(), (l, i) -> l.get(i).rarity()),
-	POWER("Power", PowerToughness.Tuple.class, (l, i) -> l.get(i).power(), (l, i) -> l.get(i).power()),
-	TOUGHNESS("Toughness", PowerToughness.Tuple.class, (l, i) -> l.get(i).toughness(), (l, i) -> l.get(i).toughness()),
-	LOYALTY("Loyalty", Loyalty.Tuple.class, (l, i) -> l.get(i).loyalty(), (l, i) -> l.get(i).loyalty()),
-	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist(), (l, i) -> l.get(i).artist()),
-	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn(), (l, i) -> l.get(i).legalIn()),
-	CATEGORIES("Categories", List.class, null, (l, i) -> l.getCategories(i)),
-	DATE_ADDED("Date Added", Date.class, null, (l, i) -> l.dateAdded(i));
+	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l.get(i).mana()),
+	COLORS("Colors", MTGColor.Tuple.class, (l, i) -> l.get(i).colors()),
+	COLOR_IDENTITY("Color Identity", MTGColor.Tuple.class, (l, i) -> l.get(i).colorIdentity()),
+	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine()),
+	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).expansion().name),
+	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity()),
+	POWER("Power", PowerToughness.Tuple.class, (l, i) -> l.get(i).power()),
+	TOUGHNESS("Toughness", PowerToughness.Tuple.class, (l, i) -> l.get(i).toughness()),
+	LOYALTY("Loyalty", Loyalty.Tuple.class, (l, i) -> l.get(i).loyalty()),
+	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist()),
+	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn()),
+	CATEGORIES("Categories", List.class, (l, i) -> l.getCategories(i)),
+	DATE_ADDED("Date Added", Date.class, (l, i) -> l.dateAdded(i));
 	
 	/**
 	 * Parse a String for a CardCharacteristic.
@@ -64,8 +61,18 @@ public enum CardCharacteristic
 	 */
 	public static CardCharacteristic[] inventoryValues()
 	{
-		List<CardCharacteristic> characteristics = Arrays.stream(values()).filter((v) -> v.inventoryFunc != null).collect(Collectors.toList());
-		return characteristics.toArray(new CardCharacteristic[characteristics.size()]);
+		return new CardCharacteristic[] {NAME,
+										 MANA_COST,
+										 COLORS,
+										 COLOR_IDENTITY,
+										 TYPE_LINE,
+										 EXPANSION_NAME,
+										 RARITY,
+										 POWER,
+										 TOUGHNESS,
+										 LOYALTY,
+										 ARTIST,
+										 LEGAL_IN};
 	}
 	
 	/**
@@ -77,13 +84,9 @@ public enum CardCharacteristic
 	 */
 	public final Class<?> columnClass;
 	/**
-	 * Function taking a list of cards and returning a characteristic of a card from that list.
-	 */
-	public final BiFunction<Inventory, Integer, ?> inventoryFunc;
-	/**
 	 * Function taking a list of cards and returning a characteristic of a card from a category of that list.
 	 */
-	public final BiFunction<CardCollection, Integer, ?> deckFunc;
+	public final BiFunction<CardCollection, Integer, ?> func;
 	/**
 	 * Function for editing the value corresponding to the characteristic.  It should be null for constant
 	 * characteristics.
@@ -104,12 +107,11 @@ public enum CardCharacteristic
 	 * @param ef Function to edit deck values from the cell
 	 * @param e Editor that should be used to perform the editing
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<CardCollection, Integer, ?> cf, TriConsumer<EditorFrame, Card, Object> ef, TableCellEditor e)
+	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f, TriConsumer<EditorFrame, Card, Object> ef, TableCellEditor e)
 	{
 		name = n;
 		columnClass = c;
-		inventoryFunc = f;
-		deckFunc = cf;
+		func = f;
 		editFunc = ef;
 		editor = e;
 	}
@@ -120,16 +122,10 @@ public enum CardCharacteristic
 	 * @param n Name of the new CardCharacteristic
 	 * @param c Table column class of the new CardCharacteristic
 	 * @param f Function to get cell values from an Inventory table
-	 * @param cf Function to get cell values from a Deck table
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<CardCollection, Integer, ?> cf)
+	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f)
 	{
-		name = n;
-		columnClass = c;
-		inventoryFunc = f;
-		deckFunc = cf;
-		editFunc = null;
-		editor = null;
+		this(n, c, f, null, null);
 	}
 	
 	/**

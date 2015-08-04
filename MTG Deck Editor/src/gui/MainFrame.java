@@ -6,7 +6,6 @@ import gui.editor.EditorFrame;
 import gui.filter.FilterGroupPanel;
 import gui.inventory.InventoryDownloadDialog;
 import gui.inventory.InventoryLoadDialog;
-import gui.inventory.InventoryTableModel;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -123,7 +122,7 @@ public class MainFrame extends JFrame
 	/**
 	 * Model for the table displaying the inventory of all cards.
 	 */
-	private InventoryTableModel inventoryModel;
+	private CardTableModel inventoryModel;
 	/**
 	 * Panel for editing the inventory filter.
 	 */
@@ -761,7 +760,7 @@ public class MainFrame extends JFrame
 		loadDialog.setLocationRelativeTo(this);
 		inventory = loadDialog.createInventory(inventoryFile);
 		inventory.sort((a, b) -> a.compareName(b));
-		inventoryModel = new InventoryTableModel(inventory, Arrays.stream(properties.getProperty(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		inventoryModel = new CardTableModel(inventory, Arrays.stream(properties.getProperty(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		inventoryTable.setModel(inventoryModel);
 		filter = new FilterGroupPanel();
 		

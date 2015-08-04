@@ -1,6 +1,7 @@
 package gui.editor;
 
 import gui.CardTable;
+import gui.CardTableModel;
 import gui.MainFrame;
 import gui.ScrollablePanel;
 import gui.SettingsDialog;
@@ -113,7 +114,7 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * CardListTableModel for showing the deck list.
 	 */
-	private DeckTableModel model;
+	private CardTableModel model;
 	/**
 	 * Panel containing categories.
 	 */
@@ -232,7 +233,7 @@ public class EditorFrame extends JInternalFrame
 		listTabs = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
 
-		model = new DeckTableModel(this, deck, Arrays.stream(parent.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		model = new CardTableModel(this, deck, Arrays.stream(parent.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
 		table = new CardTable(model);

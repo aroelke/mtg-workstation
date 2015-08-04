@@ -1,4 +1,6 @@
-package gui.editor;
+package gui;
+
+import gui.editor.EditorFrame;
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ import database.characteristics.CardCharacteristic;
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class DeckTableModel extends AbstractTableModel
+public class CardTableModel extends AbstractTableModel
 {
 	/**
 	 * Editor containing this model's table.
@@ -31,16 +33,28 @@ public class DeckTableModel extends AbstractTableModel
 	
 	/**
 	 * Create a new DeckTableModel.
-	 * 
-	 * @param list List of Cards for the new DeckTableModel to show
+	 *
+	 * @param e EditorFrame containing the table this model applies to
+	 * @param list List of Cards for the new CardTableModel to show
 	 * @param c List of characteristics of those Cards to show
 	 */
-	public DeckTableModel(EditorFrame e, CardCollection d, List<CardCharacteristic> c)
+	public CardTableModel(EditorFrame e, CardCollection d, List<CardCharacteristic> c)
 	{
 		super();
 		editor = e;
 		list = d;
 		characteristics = c;
+	}
+	
+	/**
+	 * Create a new DeckTableModel.
+	 *
+	 * @param list List of Cards for the new CardTableModel to show
+	 * @param c List of characteristics of those Cards to show
+	 */
+	public CardTableModel(CardCollection d, List<CardCharacteristic> c)
+	{
+		this(null, d, c);
 	}
 	
 	/**
@@ -71,7 +85,7 @@ public class DeckTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		return characteristics.get(columnIndex).deckFunc.apply(list, rowIndex);
+		return characteristics.get(columnIndex).func.apply(list, rowIndex);
 	}
 
 	/**
