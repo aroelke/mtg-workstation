@@ -91,6 +91,10 @@ public class EditorFrame extends JInternalFrame
 	 * Tab number containing categories.
 	 */
 	public static final int CATEGORIES = 1;
+	/**
+	 * Tab number containing sample hands.
+	 */
+	public static final int SAMPLE_HANDS = 2;
 	
 	/**
 	 * Parent MainFrame.
@@ -416,12 +420,31 @@ public class EditorFrame extends JInternalFrame
 		categoriesPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		listTabs.addTab("Categories", categoriesPanel);
 		
+		// Panel containing sample hands
+		JPanel handPanel = new JPanel(new BorderLayout());
+		
+		// Table showing sample hand
+		// TODO: Finish sample hand tab
+		CardTable hand = new CardTable();
+		handPanel.add(new JScrollPane(hand), BorderLayout.CENTER);
+		
+		// Control panel for manipulating the sample hand
+		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		JButton newHandButton = new JButton("New Hand");
+		handModPanel.add(newHandButton);
+		JButton mulliganButton = new JButton("Mulligan");
+		handModPanel.add(mulliganButton);
+		JButton drawCardButton = new JButton("Draw a Card");
+		handModPanel.add(drawCardButton);
+		handPanel.add(handModPanel, BorderLayout.SOUTH);
+		
+		listTabs.addTab("Sample Hand", handPanel);
+		
 		// TODO: Add tabs for deck analysis
 		// - category pie chart
 		// - mana curve
 		// - color distribution (cards/devotion[max,avg,total])
 		// - mana production distribution
-		// TODO: Add a tab for sample hands
 
 		// Panel to show the stats of the deck
 		JPanel bottomPanel = new JPanel();
@@ -994,11 +1017,18 @@ public class EditorFrame extends JInternalFrame
 				categoriesContainer.repaint();
 				break;
 			default:
+				deck.addAll(toAdd, n);
+				model.fireTableDataChanged();
+				for (CategoryPanel c: categories)
+					c.update();
 				break;
 			}
 			parent.selectCard(toAdd.get(0));
 			if (table.isEditing())
 				table.getCellEditor().cancelCellEditing();
+			for (CategoryPanel c: categories)
+				if (c.table.isEditing())
+					c.table.getCellEditor().cancelCellEditing();
 			updateCount();
 			setUnsaved();
 			revalidate();
@@ -1140,11 +1170,19 @@ public class EditorFrame extends JInternalFrame
 				model.fireTableDataChanged();
 				break;
 			default:
+				for (Card c: toRemove)
+					deck.remove(c, n);
+				for (CategoryPanel c: categories)
+					c.update();
+				model.fireTableDataChanged();
 				break;
 			}
 			
 			if (table.isEditing())
 				table.getCellEditor().cancelCellEditing();
+			for (CategoryPanel c: categories)
+				if (c.table.isEditing())
+					c.table.getCellEditor().cancelCellEditing();
 			if (!removed.isEmpty())
 			{
 				updateCount();

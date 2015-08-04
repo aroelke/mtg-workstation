@@ -3,11 +3,15 @@ package database;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import database.Deck.Category;
 
 /**
  * This class represents an inventory of cards that can be added to decks.
@@ -16,7 +20,7 @@ import java.util.stream.Collectors;
  * @author Alec Roelke
  * @see util.CategorizableList
  */
-public class Inventory
+public class Inventory implements CardCollection
 {
 	/**
 	 * Master list of cards.
@@ -83,16 +87,27 @@ public class Inventory
 	/**
 	 * @return The number of Cards in this Inventory.
 	 */
+	@Override
 	public int size()
 	{
 		return filtrate.size();
 	}
 	
 	/**
-	 * @return <code>true</code> if there are no cards in the inventory (even if
-	 * they're all filtered out), and <code>false</code> otherwise.
+	 * @return <code>true</code> if there are no cards in the inventory, or if they're
+	 * all filtered out, and <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean isEmpty()
+	{
+		return filtrate.isEmpty();
+	}
+	
+	/**
+	 * @return <code>true</code> if there are no cards in the inventory, and
+	 * <code>false</code> otherwise.
+	 */
+	public boolean noCards()
 	{
 		return cards.isEmpty();
 	}
@@ -105,5 +120,140 @@ public class Inventory
 	public void sort(Comparator<Card> comp)
 	{
 		cards.sort(comp);
+	}
+
+	/**
+	 * @param Object to look for
+	 * @return <code>true</code> if the inventory contains the given item, and
+	 * <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean contains(Object o)
+	{
+		return cards.contains(o);
+	}
+	
+	/**
+	 * @param coll Collection of objects to look for
+	 * @return <code>true</code> if the inventory contains all of the given items,
+	 * and <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean containsAll(Collection<?> coll)
+	{
+		return cards.containsAll(coll);
+	}
+	
+	/**
+	 * @return An iterator over all the cards in the inventory.
+	 */
+	@Override
+	public Iterator<Card> iterator()
+	{
+		return cards.iterator();
+	}
+	
+	/**
+	 * @return An array containing all the cards in the inventory.
+	 */
+	@Override
+	public Object[] toArray()
+	{
+		return cards.toArray();
+	}
+
+	/**
+	 * @param a Array specifying the runtime type of the returned array
+	 * @return An array containing all the cards in the inventory.  If the
+	 * given array is big enough to fit them all, they are placed in it.  Otherwise,
+	 * a new array is allocated.
+	 */
+	@Override
+	public <T> T[] toArray(T[] a)
+	{
+		return cards.toArray(a);
+	}
+	
+	/**
+	 * @param c Card to look for
+	 * @return 1 if the card is in the inventory and 0 otherwise.
+	 */
+	@Override
+	public int count(Card c)
+	{
+		return contains(c) ? 1 : 0;
+	}
+
+	/**
+	 * @param index Index of the card to look for
+	 * @return 1, since there is only one copy of a card in the inventory
+	 * @throws IndexOutOfBoundsException if the index is out of range
+	 */
+	@Override
+	public int count(int index)
+	{
+		if (index >= size() || index < 0)
+			throw new IndexOutOfBoundsException(String.valueOf(index));
+		return 1;
+	}
+	
+	@Override
+	public boolean add(Card c)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends Card> coll)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void clear()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean remove(Object o)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> coll)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> coll)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<Category> getCategories(Card c)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<Category> getCategories(int index)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Date dateAdded(Card c)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Date dateAdded(int index)
+	{
+		throw new UnsupportedOperationException();
 	}
 }
