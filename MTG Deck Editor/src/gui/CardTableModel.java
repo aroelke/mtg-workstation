@@ -135,7 +135,7 @@ public class CardTableModel extends AbstractTableModel
 	@Override
 	public boolean isCellEditable(int row, int column)
 	{
-		return characteristics.get(column).editFunc != null;
+		return editor != null && characteristics.get(column).editFunc != null;
 	}
 	
 	/**
@@ -148,7 +148,7 @@ public class CardTableModel extends AbstractTableModel
 	@Override
 	public void setValueAt(Object value, int row, int column)
 	{
-		if (characteristics.get(column).editFunc != null)
+		if (isCellEditable(row, column))
 		{
 			characteristics.get(column).editFunc.accept(editor, list.get(row), value);
 			fireTableDataChanged();
