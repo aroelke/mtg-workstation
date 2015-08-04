@@ -637,7 +637,7 @@ public class EditorFrame extends JInternalFrame
 			// Add the behavior for the color edit button
 			newCategory.colorButton.addActionListener((e) -> {
 				Color newColor = JColorChooser.showDialog(null, "Choose a Color", newCategory.colorButton.color());
-				if (!newColor.equals(newCategory.colorButton.color()))
+				if (newColor != null && !newColor.equals(newCategory.colorButton.color()))
 				{
 					newCategory.colorButton.setColor(newColor);
 					String oldRepr = newCategory.toString();
@@ -986,6 +986,7 @@ public class EditorFrame extends JInternalFrame
 					for (int row: selectedRows)
 						c.table.addRowSelectionInterval(row, row);
 				}
+				model.fireTableDataChanged();
 				categoriesContainer.revalidate();
 				categoriesContainer.repaint();
 				break;
