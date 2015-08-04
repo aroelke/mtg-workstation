@@ -743,6 +743,7 @@ public class EditorFrame extends JInternalFrame
 			revalidate();
 			repaint();
 			setUnsaved();
+			listTabs.setSelectedIndex(CATEGORIES);
 			return true;
 		}
 		else
@@ -774,6 +775,7 @@ public class EditorFrame extends JInternalFrame
 				setUnsaved();
 				undoBuffer.push(new EditCategoryAction(this, oldRepr, oldFilter, toEdit.toString(), toEdit.filter()));
 				redoBuffer.clear();
+				listTabs.setSelectedIndex(CATEGORIES);
 			}
 		}
 	}
@@ -822,6 +824,7 @@ public class EditorFrame extends JInternalFrame
 			revalidate();
 			repaint();
 			setUnsaved();
+			listTabs.setSelectedIndex(CATEGORIES);
 			return removed;
 		}
 	}
@@ -1280,8 +1283,6 @@ public class EditorFrame extends JInternalFrame
 			return save(file);
 	}
 
-	// TODO: Cause the tab to change to the category tab when adding or removing categories
-	// and to the main tab when adding or removing cards not in a category
 	/**
 	 * Undo the last action that was performed on the deck.
 	 */

@@ -186,8 +186,7 @@ public class CardTable extends JTable
 				StringBuilder tooltip = new StringBuilder();
 				tooltip.append("<html>Categories:<br>");
 				for (Deck.Category category: categories)
-					// TODO: Replace "\u2022" with the actual unicode character
-					tooltip.append("\u2022 ").append(category.name()).append("<br>");
+					tooltip.append("• ").append(category.name()).append("<br>");
 				tooltip.append("</html>");
 				panel.setToolTipText(tooltip.toString());
 				if (hasFocus)

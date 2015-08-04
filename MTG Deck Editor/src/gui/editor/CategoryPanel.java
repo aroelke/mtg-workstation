@@ -35,8 +35,6 @@ import database.characteristics.CardCharacteristic;
 /**
  * This class represents a panel that shows information about a category in a deck.
  * 
- * TODO: Figure out a way to better differentiate the category colors.
- * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")

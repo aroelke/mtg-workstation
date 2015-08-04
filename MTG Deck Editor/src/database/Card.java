@@ -233,8 +233,6 @@ public final class Card
 		colorIdentity = new MTGColor.Tuple(identity);
 	}
 	
-	// TODO: Rather than perform these operations every time they are called, precalculate them
-	
 	/**
 	 * @return The unified name of this Card.  If the Card has multiple faces, they will be separated
 	 * by a separator.
