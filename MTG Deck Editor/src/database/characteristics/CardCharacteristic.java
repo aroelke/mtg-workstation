@@ -13,7 +13,7 @@ import javax.swing.table.TableCellEditor;
 
 import util.TriConsumer;
 import database.Card;
-import database.Deck;
+import database.CardCollection;
 import database.Inventory;
 
 /**
@@ -83,7 +83,7 @@ public enum CardCharacteristic
 	/**
 	 * Function taking a list of cards and returning a characteristic of a card from a category of that list.
 	 */
-	public final BiFunction<Deck, Integer, ?> deckFunc;
+	public final BiFunction<CardCollection, Integer, ?> deckFunc;
 	/**
 	 * Function for editing the value corresponding to the characteristic.  It should be null for constant
 	 * characteristics.
@@ -104,7 +104,7 @@ public enum CardCharacteristic
 	 * @param ef Function to edit deck values from the cell
 	 * @param e Editor that should be used to perform the editing
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<Deck, Integer, ?> cf, TriConsumer<EditorFrame, Card, Object> ef, TableCellEditor e)
+	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<CardCollection, Integer, ?> cf, TriConsumer<EditorFrame, Card, Object> ef, TableCellEditor e)
 	{
 		name = n;
 		columnClass = c;
@@ -122,7 +122,7 @@ public enum CardCharacteristic
 	 * @param f Function to get cell values from an Inventory table
 	 * @param cf Function to get cell values from a Deck table
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<Deck, Integer, ?> cf)
+	private CardCharacteristic(String n, Class<?> c, BiFunction<Inventory, Integer, ?> f, BiFunction<CardCollection, Integer, ?> cf)
 	{
 		name = n;
 		columnClass = c;

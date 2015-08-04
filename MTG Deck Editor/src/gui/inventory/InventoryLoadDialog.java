@@ -29,6 +29,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import com.google.gson.JsonArray;
@@ -74,7 +75,7 @@ public class InventoryLoadDialog extends JDialog
 		super(owner, "Loading Inventory", Dialog.ModalityType.APPLICATION_MODAL);
 		setPreferredSize(new Dimension(350, 220));
 		setResizable(false);
-		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
 		worker = null;
 		

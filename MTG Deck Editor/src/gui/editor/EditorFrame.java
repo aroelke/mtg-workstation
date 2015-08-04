@@ -55,8 +55,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -179,7 +181,7 @@ public class EditorFrame extends JInternalFrame
 		super("Untitled " + u, true, true, true, true);
 		setBounds(((u - 1)%5)*30, ((u - 1)%5)*30, 600, 600);
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		parent = p;
 		deck = new Deck();
@@ -227,7 +229,7 @@ public class EditorFrame extends JInternalFrame
 		buttonPanel.add(deleteButton, deleteConstraints);
 
 		// The first tab is the master list tab, and the second tab is the categories tab
-		listTabs = new JTabbedPane(JTabbedPane.TOP);
+		listTabs = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
 
 		model = new DeckTableModel(this, deck, Arrays.stream(parent.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
@@ -548,6 +550,7 @@ public class EditorFrame extends JInternalFrame
 			revalidate();
 			repaint();
 		}
+		listTabs.setSelectedIndex(MAIN_TABLE);
 	}
 
 	/**
@@ -990,7 +993,7 @@ public class EditorFrame extends JInternalFrame
 			return false;
 		else
 		{
-			deck.addAll(toAdd, n);
+			deck.increaseAll(toAdd, n);
 
 			switch (listTabs.getSelectedIndex())
 			{
@@ -1017,7 +1020,7 @@ public class EditorFrame extends JInternalFrame
 				categoriesContainer.repaint();
 				break;
 			default:
-				deck.addAll(toAdd, n);
+				deck.increaseAll(toAdd, n);
 				model.fireTableDataChanged();
 				for (CategoryPanel c: categories)
 					c.update();
@@ -1116,7 +1119,7 @@ public class EditorFrame extends JInternalFrame
 				// Remove cards from the deck
 				for (Card c: toRemove)
 				{
-					int r = deck.remove(c, n);
+					int r = deck.decrease(c, n);
 					if (r > 0)
 						removed.put(c, r);
 				}
@@ -1148,7 +1151,7 @@ public class EditorFrame extends JInternalFrame
 				// Remove cards from the deck
 				for (Card c: toRemove)
 				{
-					int r = deck.remove(c, n);
+					int r = deck.decrease(c, n);
 					if (r > 0)
 						removed.put(c, r);
 				}
@@ -1171,7 +1174,7 @@ public class EditorFrame extends JInternalFrame
 				break;
 			default:
 				for (Card c: toRemove)
-					deck.remove(c, n);
+					deck.decrease(c, n);
 				for (CategoryPanel c: categories)
 					c.update();
 				model.fireTableDataChanged();
@@ -1503,7 +1506,7 @@ public class EditorFrame extends JInternalFrame
 					String[] card = rd.readLine().trim().split("\t");
 					Card c = parent.getCard(card[0]);
 					if (c != null)
-						deck.add(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
+						deck.increase(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
 					else
 						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
 					publish(50*(i + 1)/cards);

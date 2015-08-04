@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import database.Deck.Category;
 
@@ -59,6 +60,7 @@ public class Inventory implements CardCollection
 	 * @param index Index of the Card to get
 	 * @return The Card at the given index.
 	 */
+	@Override
 	public Card get(int index)
 	{
 		return filtrate.get(index);
@@ -175,6 +177,15 @@ public class Inventory implements CardCollection
 	}
 	
 	/**
+	 * @return A sequential stream over the filtered card list.
+	 */
+	@Override
+	public Stream<Card> stream()
+	{
+		return filtrate.stream();
+	}
+	
+	/**
 	 * @param c Card to look for
 	 * @return 1 if the card is in the inventory and 0 otherwise.
 	 */
@@ -195,6 +206,27 @@ public class Inventory implements CardCollection
 		if (index >= size() || index < 0)
 			throw new IndexOutOfBoundsException(String.valueOf(index));
 		return 1;
+	}
+	
+	/**
+	 * @param o Object to look for
+	 * @return The index of the object into the inventory, or -1 if it isn't
+	 * in the inventory.
+	 */
+	@Override
+	public int indexOf(Object o)
+	{
+		return filtrate.indexOf(o);
+	}
+	
+	/**
+	 * @return The total number of cards in the inventory, even ones that are filtered
+	 * out.
+	 */
+	@Override
+	public int total()
+	{
+		return cards.size();
 	}
 	
 	@Override
@@ -253,6 +285,48 @@ public class Inventory implements CardCollection
 
 	@Override
 	public Date dateAdded(int index)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean increase(Card c, int n)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean increase(Card c)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean increaseAll(Collection<? extends Card> coll, int n)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int decrease(Card c, int n)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int decrease(Card c)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean setCount(Card c, int n)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean setCount(int index, int n)
 	{
 		throw new UnsupportedOperationException();
 	}

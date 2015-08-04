@@ -24,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
@@ -157,7 +158,7 @@ public class CategoryPanel extends JPanel
 		table.setStripeColor(SettingsDialog.stringToColor(editor.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
-		tablePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		add(tablePane, BorderLayout.CENTER);
 	}
 	

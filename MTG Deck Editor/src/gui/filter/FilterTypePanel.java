@@ -237,7 +237,7 @@ public class FilterTypePanel extends FilterPanel
 			// Get the current filter
 			CardLayout cards = (CardLayout)filterPanel.getLayout();
 			cards.show(filterPanel, String.valueOf(e.getItem()));
-			currentFilter = filters.get((FilterType)e.getItem());
+			currentFilter = filters.get(e.getItem());
 			GridBagConstraints filterConstraints = new GridBagConstraints();
 			filterConstraints.fill = GridBagConstraints.BOTH;
 			filterConstraints.gridx = 1;

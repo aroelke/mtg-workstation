@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  * 
  * @author Alec Roelke
  */
-public class Deck implements Iterable<Card>
+public class Deck implements CardCollection
 {
 	/**
 	 * Regex pattern for matching category strings and extracting their contents.  The first group
@@ -99,7 +99,7 @@ public class Deck implements Iterable<Card>
 		 * @param n Copies to add
 		 * @return The new number of copies in this Entry.
 		 */
-		public int add(int n)
+		public int increase(int n)
 		{
 			return count += n;
 		}
@@ -111,7 +111,7 @@ public class Deck implements Iterable<Card>
 		 * @param n Number of copies to remove.
 		 * @return The new number of copies in this Entry.
 		 */
-		public int remove(int n)
+		public int decrease(int n)
 		{
 			if (n > count)
 				return count = 0;
@@ -163,7 +163,7 @@ public class Deck implements Iterable<Card>
 	{
 		this();
 		for (Card c: cards)
-			add(c, 1);
+			increase(c, 1);
 	}
 	
 	/**
@@ -190,7 +190,7 @@ public class Deck implements Iterable<Card>
 	 * <code>false</code> otherwise, which is when the number to add
 	 * is less than 1.
 	 */
-	public boolean add(Card c, int n, Date d)
+	public boolean increase(Card c, int n, Date d)
 	{
 		if (n < 1)
 			return false;
@@ -211,7 +211,7 @@ public class Deck implements Iterable<Card>
 				}
 			}
 			else
-				e.add(n);
+				e.increase(n);
 			total += n;
 			if (c.typeContains("land"))
 				land += n;
@@ -229,9 +229,10 @@ public class Deck implements Iterable<Card>
 	 * <code>false</code> otherwise, which is when the number to add
 	 * is less than 1.
 	 */
-	public boolean add(Card c, int n)
+	@Override
+	public boolean increase(Card c, int n)
 	{
-		return add(c, n, new Date());
+		return increase(c, n, new Date());
 	}
 	
 	/**
@@ -243,11 +244,12 @@ public class Deck implements Iterable<Card>
 	 * @return <code>true</code> if the Deck was changed as a result, and
 	 * <code>false</code> otherwise.
 	 */
-	public boolean addAll(Collection<? extends Card> coll, int n)
+	@Override
+	public boolean increaseAll(Collection<? extends Card> coll, int n)
 	{
 		boolean changed = false;
 		for (Card c: coll)
-			changed |= add(c, n);
+			changed |= increase(c, n);
 		return changed;
 	}
 	
@@ -258,9 +260,10 @@ public class Deck implements Iterable<Card>
 	 * @return <code>true</code>, since the Deck will always change as
 	 * a result.
 	 */
-	public boolean add(Card c)
+	@Override
+	public boolean increase(Card c)
 	{
-		return add(c, 1);
+		return increase(c, 1);
 	}
 	
 	/**
@@ -271,7 +274,8 @@ public class Deck implements Iterable<Card>
 	 * @param n Number of copies to remove
 	 * @return The number of copies of the Card that were actually removed.
 	 */
-	public int remove(Card c, int n)
+	@Override
+	public int decrease(Card c, int n)
 	{
 		if (n < 1)
 			return 0;
@@ -284,7 +288,7 @@ public class Deck implements Iterable<Card>
 			{
 				if (n > e.count)
 					n = e.count;
-				e.remove(n);
+				e.decrease(n);
 				if (e.count == 0)
 				{
 					masterList.remove(e);
@@ -310,15 +314,17 @@ public class Deck implements Iterable<Card>
 	 * @param c Card to remove
 	 * @return 0 if no copies were removed, and 1 if a copy was removed.
 	 */
-	public int remove(Card c)
+	@Override
+	public int decrease(Card c)
 	{
-		return remove(c, 1);
+		return decrease(c, 1);
 	}
 	
 	/**
 	 * @param index Index to look at in the list
 	 * @return The Card at the given index.
 	 */
+	@Override
 	public Card get(int index)
 	{
 		return masterList.get(index).card;
@@ -332,6 +338,7 @@ public class Deck implements Iterable<Card>
 	 * @return <code>true</code> if the Card is in the Deck and if the number of copies
 	 * was changed, and <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean setCount(int index, int n)
 	{
 		Entry e = masterList.get(index);
@@ -344,7 +351,7 @@ public class Deck implements Iterable<Card>
 				land += n - e.count;
 			e.count = n;
 			if (e.count == 0)
-				remove(e.card, Integer.MAX_VALUE);
+				decrease(e.card, Integer.MAX_VALUE);
 			return true;
 		}
 	}
@@ -358,13 +365,14 @@ public class Deck implements Iterable<Card>
 	 * @return <code>true</code> if the number of copies was changed or if the card was
 	 * added, and <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean setCount(Card c, int n)
 	{
 		if (n < 0)
 			n = 0;
 		Entry e = getEntry(c);
 		if (e == null)
-			return add(c, n);
+			return increase(c, n);
 		else if (e.count == n)
 			return false;
 		else
@@ -374,7 +382,7 @@ public class Deck implements Iterable<Card>
 				land += n - e.count;
 			e.count = n;
 			if (e.count == 0)
-				remove(c, Integer.MAX_VALUE);
+				decrease(c, Integer.MAX_VALUE);
 			return true;
 		}
 	}
@@ -383,6 +391,7 @@ public class Deck implements Iterable<Card>
 	 * @param o Object to look for
 	 * @return Index of that Object in the master list.
 	 */
+	@Override
 	public int indexOf(Object o)
 	{
 		if (!(o instanceof Card))
@@ -395,6 +404,7 @@ public class Deck implements Iterable<Card>
 	 * @param c Card to look at
 	 * @return The number of copies of the given Card in this Deck.
 	 */
+	@Override
 	public int count(Card c)
 	{
 		Entry e = getEntry(c);
@@ -408,6 +418,7 @@ public class Deck implements Iterable<Card>
 	 * @param index Index into the Deck list of the Card to look at
 	 * @return The number of copies of the Card at the given index.
 	 */
+	@Override
 	public int count(int index)
 	{
 		return masterList.get(index).count;
@@ -417,6 +428,7 @@ public class Deck implements Iterable<Card>
 	 * @param c Card to look for
 	 * @return The Date the Card was originally added to the Deck.
 	 */
+	@Override
 	public Date dateAdded(Card c)
 	{
 		Entry e = getEntry(c);
@@ -430,6 +442,7 @@ public class Deck implements Iterable<Card>
 	 * @param index Index of the Card to look for
 	 * @return The Date the Card was originally added to the deck.
 	 */
+	@Override
 	public Date dateAdded(int index)
 	{
 		return masterList.get(index).date;
@@ -440,6 +453,7 @@ public class Deck implements Iterable<Card>
 	 * @return <code>true</code> if this Deck contains one or more copies
 	 * of the given Object, and <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean contains(Object o)
 	{
 		return o instanceof Card && getEntry((Card)o) != null;
@@ -513,6 +527,7 @@ public class Deck implements Iterable<Card>
 	 * @param c Card to look for
 	 * @return The list of Categories the Card belongs to.
 	 */
+	@Override
 	public List<Category> getCategories(Card c)
 	{
 		return cardCategories.get(c);
@@ -522,6 +537,7 @@ public class Deck implements Iterable<Card>
 	 * @param index The index of the Card to look for
 	 * @return The list of Categories the Card belongs to.
 	 */
+	@Override
 	public List<Category> getCategories(int index)
 	{
 		return cardCategories.get(masterList.get(index).card);
@@ -530,6 +546,7 @@ public class Deck implements Iterable<Card>
 	/**
 	 * Reset this Deck to being empty and having no categories.
 	 */
+	@Override
 	public void clear()
 	{
 		masterList.clear();
@@ -541,6 +558,7 @@ public class Deck implements Iterable<Card>
 	/**
 	 * @return The number of unique Cards in this Deck.
 	 */
+	@Override
 	public int size()
 	{
 		return masterList.size();
@@ -549,6 +567,7 @@ public class Deck implements Iterable<Card>
 	/**
 	 * @return The number of Cards in this Deck.
 	 */
+	@Override
 	public int total()
 	{
 		return total;
@@ -574,6 +593,7 @@ public class Deck implements Iterable<Card>
 	 * @return <code>true</code> if there are no cards in this Deck, and
 	 * <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean isEmpty()
 	{
 		return size() == 0;
@@ -622,9 +642,134 @@ public class Deck implements Iterable<Card>
 	/**
 	 * @return A sequential Stream whose source is this Deck.
 	 */
+	@Override
 	public Stream<Card> stream()
 	{
 		return masterList.stream().map((e) -> e.card);
+	}
+	
+	/**
+	 * If the given Card isn't in this Deck, add a copy of it to the Deck.
+	 * 
+	 * @param c Card to add
+	 * @return <code>true</code> if the card wasn't in the deck and was successfully added,
+	 * and <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean add(Card c)
+	{
+		if (contains(c))
+			return false;
+		else
+			return increase(c);
+	}
+
+	/**
+	 * Add each of the given collection of Cards that aren't already in the Deck to the Deck.
+	 * 
+	 * @param coll Collection of Cards to add.
+	 * @return <code>true</code> if any of the Cards were successfully added, and
+	 * <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean addAll(Collection<? extends Card> coll)
+	{
+		boolean changed = false;
+		for (Card c: coll)
+			changed |= add(c);
+		return changed;
+	}
+
+	/**
+	 * @param coll Collection of objects to look for
+	 * @return <code>true</code> if all of the objects in the given collection are present
+	 * in this Deck, and <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean containsAll(Collection<?> coll)
+	{
+		for (Object o: coll)
+			if (!contains(o))
+				return false;
+		return true;
+	}
+
+	/**
+	 * @param o Object to remove
+	 * @return <code>true</code> if the object is a Card and if one or more copies were
+	 * removed, and <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean remove(Object o)
+	{
+		if (!(o instanceof Card))
+			return false;
+		else
+			return decrease((Card)o, Integer.MAX_VALUE) > 0;
+	}
+
+	/**
+	 * Remove as many of the objects in the given list from this Deck as possible.
+	 * 
+	 * @param coll Collection of objects to remove
+	 * @return <code>true</code> if any of the given objects were remove, and
+	 * <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean removeAll(Collection<?> coll)
+	{
+		boolean changed = false;
+		for (Object o: coll)
+			changed |= remove(o);
+		return changed;
+	}
+
+	/**
+	 * Retain only the elements in the given collection that are in this Deck.
+	 * 
+	 * @param coll Collection of elemnts to retain
+	 * @return <code>true</code> if this Deck was changed as a result, and
+	 * <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean retainAll(Collection<?> coll)
+	{
+		boolean changed = false;
+		for (Card c: new ArrayList<Card>(this))
+			if (!coll.contains(c))
+				changed |= remove(c);
+		return changed;
+	}
+
+	/**
+	 * @return An array containin all of the Cards in this Deck.
+	 */
+	@Override
+	public Object[] toArray()
+	{
+		return stream().toArray();
+	}
+
+	/**
+	 * @param a Array indicating runtime type of the data to return
+	 * @return An array containing all of the Cards in this Deck.  If the provided
+	 * array is large enough to fit all of the Cards, it will be filled with them.
+	 * Otherwise, a new array will be allocated.
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T[] toArray(T[] a)
+	{
+		if (a.length >= size())
+		{
+			for (int i = 0; i < size(); i++)
+				a[i] = (T)get(i);
+			return a;
+		}
+		else
+		{
+			return (T[])toArray();
+		}
 	}
 	
 	/**
@@ -634,11 +779,9 @@ public class Deck implements Iterable<Card>
 	 * methods, the master list will be updated to reflect this only if the card
 	 * passes through the Category's filter.
 	 * 
-	 * manually
-	 * 
 	 * @author Alec Roelke
 	 */
-	public class Category extends Deck
+	public class Category implements CardCollection
 	{
 		/**
 		 * Name of this Category.
@@ -761,10 +904,10 @@ public class Deck implements Iterable<Card>
 		 * <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean add(Card c, int n)
+		public boolean increase(Card c, int n)
 		{
 			if (includes(c))
-				return Deck.this.add(c, n);
+				return Deck.this.increase(c, n);
 			else
 				return false;
 		}
@@ -778,9 +921,9 @@ public class Deck implements Iterable<Card>
 		 * <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean add(Card c)
+		public boolean increase(Card c)
 		{
-			return add(c, 1);
+			return increase(c, 1);
 		}
 		
 		/**
@@ -794,11 +937,11 @@ public class Deck implements Iterable<Card>
 		 * <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean addAll(Collection<? extends Card> coll, int n)
+		public boolean increaseAll(Collection<? extends Card> coll, int n)
 		{
 			boolean changed = false;
 			for (Card c: coll)
-				changed |= add(c, n);
+				changed |= increase(c, n);
 			return changed;
 		}
 		
@@ -811,10 +954,10 @@ public class Deck implements Iterable<Card>
 		 * @return The numbe of copies of the Card that were actually removed.
 		 */
 		@Override
-		public int remove(Card c, int n)
+		public int decrease(Card c, int n)
 		{
 			if (includes(c))
-				return Deck.this.remove(c, n);
+				return Deck.this.decrease(c, n);
 			else
 				return 0;
 		}
@@ -827,9 +970,9 @@ public class Deck implements Iterable<Card>
 		 * @return 0 if the Card was removed, and 1 otherwise.
 		 */
 		@Override
-		public int remove(Card c)
+		public int decrease(Card c)
 		{
-			return remove(c, 1);
+			return decrease(c, 1);
 		}
 		
 		/**
@@ -1100,29 +1243,127 @@ public class Deck implements Iterable<Card>
 		{
 			return getCategories(filtrate.get(index));
 		}
-		
+
+		/**
+		 * If the given Card belongs to this Category and isn't in the Deck, add it to the
+		 * Deck.
+		 * 
+		 * @param c Card to add
+		 * @return <code>true</code> if the Card was added and <code>false</code> otherwise.
+		 */
 		@Override
-		public Category getCategory(String n)
+		public boolean add(Card c)
 		{
-			throw new UnsupportedOperationException("Categories can't have categories");
+			if (includes(c))
+				return Deck.this.add(c);
+			else
+				return false;
 		}
-		
+
+		/**
+		 * Add all of the given Cards that can belong to this Category and aren't already
+		 * in the Deck to the Deck.
+		 * 
+		 * @param coll Collection of Cards to add
+		 * @return <code>true</code> if the Deck changed as a result, and <code>false</code>
+		 * otherwise.
+		 */
 		@Override
-		public Category addCategory(String n, Color col, String r, Predicate<Card> f)
+		public boolean addAll(Collection<? extends Card> coll)
 		{
-			throw new UnsupportedOperationException("Categories can't have categories");
+			return Deck.this.addAll(coll.stream().filter(this::includes).collect(Collectors.toList()));
 		}
-		
+
+		// TODO: Decide if this should clear the white- and blacklists or not
 		@Override
-		public boolean removeCategory(String n)
+		public void clear()
 		{
-			throw new UnsupportedOperationException("Categories can't have categories");
+			throw new UnsupportedOperationException();
 		}
-		
+
+		/**
+		 * @param coll Collection of objects to look for
+		 * @return <code>true</code> if this Category contains all of the given objects,
+		 * and <code>false</code> otherwise.
+		 */
 		@Override
-		public boolean containsCategory(String n)
+		public boolean containsAll(Collection<?> coll)
 		{
-			throw new UnsupportedOperationException("Categories can't have categories");
+			for (Object o: coll)
+				if (!contains(o))
+					return false;
+			return true;
+		}
+
+		/**
+		 * Remove the given object from the Deck if it is in this Category.
+		 * 
+		 * @param o Object to remove
+		 * @return <code>true</code> if the given object was successfully remove, and
+		 * <code>false</code> otherwise.
+		 */
+		@Override
+		public boolean remove(Object o)
+		{
+			if (!contains(o))
+				return false;
+			else
+				return Deck.this.remove(o);
+		}
+
+		/**
+		 * Remove all objects from the given collection that are in this Category
+		 * from the Deck.
+		 * 
+		 * @param coll Collection of objects to remove
+		 * @return <code>true</code> if any of the objects were successfully removed
+		 * from the Deck, and <code>false</code> otherwise.
+		 */
+		@Override
+		public boolean removeAll(Collection<?> coll)
+		{
+			boolean changed = false;
+			for (Object o: coll)
+				changed |= remove(o);
+			return changed;
+		}
+
+		/**
+		 * Retain only the Cards in this Category that are also in the given collection.
+		 * 
+		 * @param Collection of objects to retain
+		 * @return <code>true</code> if the Deck was changed as a result, and
+		 * <code>false</code> otherwise.
+		 */
+		@Override
+		public boolean retainAll(Collection<?> coll)
+		{
+			boolean changed = false;
+			for (Card c: new ArrayList<Card>(this))
+				if (!coll.contains(c))
+					changed |= remove(c);
+			return changed;
+		}
+
+		/**
+		 * @return An array containing all of the Cards in this Category.
+		 */
+		@Override
+		public Object[] toArray()
+		{
+			return filtrate.toArray();
+		}
+
+		/**
+		 * @param a Array specifying the runtime type of the data to return
+		 * @return An array containing all of the Cards in this Category.  If
+		 * the provided array can fit those Cards, it is populated with them.
+		 * Otherwise, a new array is allocated.
+		 */
+		@Override
+		public <T> T[] toArray(T[] a)
+		{
+			return filtrate.toArray(a);
 		}
 	}
 }

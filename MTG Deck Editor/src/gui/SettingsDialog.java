@@ -42,6 +42,7 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -498,7 +499,7 @@ public class SettingsDialog extends JDialog
 			((CardLayout)settingsPanel.getLayout()).show(settingsPanel, e.getPath().toString());
 		});
 		treePanel.add(tree, BorderLayout.CENTER);
-		treePanel.add(new JSeparator(JSeparator.VERTICAL), BorderLayout.EAST);
+		treePanel.add(new JSeparator(SwingConstants.VERTICAL), BorderLayout.EAST);
 		treePanel.setPreferredSize(new Dimension(130, 0));
 		add(treePanel, BorderLayout.WEST);
 		
@@ -518,7 +519,7 @@ public class SettingsDialog extends JDialog
 		buttonPanel.add(cancelButton);
 		
 		JPanel bottomPanel = new JPanel(new BorderLayout());
-		bottomPanel.add(new JSeparator(JSeparator.HORIZONTAL), BorderLayout.NORTH);
+		bottomPanel.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.NORTH);
 		bottomPanel.add(buttonPanel, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
 		

@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -60,7 +61,7 @@ public class InventoryDownloadDialog extends JDialog
 		super(owner, "Update", Dialog.ModalityType.APPLICATION_MODAL);
 		setPreferredSize(new Dimension(350, 115));
 		setResizable(false);
-		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
 		worker = null;
 		

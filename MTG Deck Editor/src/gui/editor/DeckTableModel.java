@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import database.Deck;
+import database.CardCollection;
 import database.characteristics.CardCharacteristic;
 
 /**
@@ -23,7 +23,7 @@ public class DeckTableModel extends AbstractTableModel
 	/**
 	 * List of Cards the table displays.
 	 */
-	private Deck list;
+	private CardCollection list;
 	/**
 	 * List of Card characteristics to display in the table.
 	 */
@@ -35,7 +35,7 @@ public class DeckTableModel extends AbstractTableModel
 	 * @param list List of Cards for the new DeckTableModel to show
 	 * @param c List of characteristics of those Cards to show
 	 */
-	public DeckTableModel(EditorFrame e, Deck d, List<CardCharacteristic> c)
+	public DeckTableModel(EditorFrame e, CardCollection d, List<CardCharacteristic> c)
 	{
 		super();
 		editor = e;
