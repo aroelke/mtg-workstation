@@ -1274,13 +1274,6 @@ public class Deck implements CardCollection
 			return Deck.this.addAll(coll.stream().filter(this::includes).collect(Collectors.toList()));
 		}
 
-		// TODO: Decide if this should clear the white- and blacklists or not
-		@Override
-		public void clear()
-		{
-			throw new UnsupportedOperationException();
-		}
-
 		/**
 		 * @param coll Collection of objects to look for
 		 * @return <code>true</code> if this Category contains all of the given objects,
@@ -1364,6 +1357,12 @@ public class Deck implements CardCollection
 		public <T> T[] toArray(T[] a)
 		{
 			return filtrate.toArray(a);
+		}
+		
+		@Override
+		public void clear()
+		{
+			throw new UnsupportedOperationException();
 		}
 	}
 }
