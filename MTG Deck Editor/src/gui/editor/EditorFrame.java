@@ -258,7 +258,7 @@ public class EditorFrame extends JInternalFrame
 		});
 		for (int i = 0; i < table.getColumnCount(); i++)
 			if (model.isCellEditable(0, i))
-				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).editor);
+				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(this));
 		listTabs.addTab("Cards", new JScrollPane(table));
 		
 		// Table popup menu
@@ -339,7 +339,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					setCategoriesMenu.setEnabled(true);
 					setCategoriesMenu.removeAll();
-					for (CategoryPanel category: categories)
+					for (CategoryPanel category: categories.stream().sorted((a, b) -> a.name().compareTo(b.name())).collect(Collectors.toList()))
 					{
 						JCheckBoxMenuItem containsBox = new JCheckBoxMenuItem(category.name());
 						containsBox.setSelected(category.contains(cards.get(0)));

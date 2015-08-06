@@ -29,7 +29,7 @@ public enum CardCharacteristic
 			e.setCardCount(c, ((Integer)n).intValue());
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
-	}, new SpinnerCellEditor()),
+	}),
 	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l.get(i).mana()),
 	COLORS("Colors", MTGColor.Tuple.class, (l, i) -> l.get(i).colors()),
 	COLOR_IDENTITY("Color Identity", MTGColor.Tuple.class, (l, i) -> l.get(i).colorIdentity()),
@@ -94,10 +94,6 @@ public enum CardCharacteristic
 	 * characteristics.
 	 */
 	public final TriConsumer<EditorFrame, Card, Object> editFunc;
-	/**
-	 * The editor that should be used to edit this characteristic.
-	 */
-	public final TableCellEditor editor;
 	
 	/**
 	 * Create a CardCharacteristic with the specified name, column class, value function, and category function.
@@ -109,13 +105,12 @@ public enum CardCharacteristic
 	 * @param ef Function to edit deck values from the cell
 	 * @param e Editor that should be used to perform the editing
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f, TriConsumer<EditorFrame, Card, Object> ef, TableCellEditor e)
+	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f, TriConsumer<EditorFrame, Card, Object> ef)
 	{
 		name = n;
 		columnClass = c;
 		func = f;
 		editFunc = ef;
-		editor = e;
 	}
 	
 	/**
@@ -127,7 +122,23 @@ public enum CardCharacteristic
 	 */
 	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f)
 	{
-		this(n, c, f, null, null);
+		this(n, c, f, null);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param frame
+	 * @return
+	 */
+	public TableCellEditor createCellEditor(EditorFrame frame)
+	{
+		switch (this)
+		{
+		case COUNT:
+			return new SpinnerCellEditor();
+		default:
+			return null;
+		}
 	}
 	
 	/**
