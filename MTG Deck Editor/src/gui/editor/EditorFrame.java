@@ -70,6 +70,7 @@ import javax.swing.event.PopupMenuListener;
 
 import database.Card;
 import database.Deck;
+import database.Hand;
 import database.LegalityChecker;
 import database.characteristics.CardCharacteristic;
 
@@ -169,6 +170,11 @@ public class EditorFrame extends JInternalFrame
 	 * Model for the combo box to display items.
 	 */
 	private DefaultComboBoxModel<String> switchCategoryModel;
+	/**
+	 * TODO: Comment this
+	 */
+	private Hand hand;
+	private CardTableModel handModel;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -426,18 +432,30 @@ public class EditorFrame extends JInternalFrame
 		// Panel containing sample hands
 		JPanel handPanel = new JPanel(new BorderLayout());
 		
-		// Table showing sample hand
-		// TODO: Finish sample hand tab
-		CardTable hand = new CardTable();
-		handPanel.add(new JScrollPane(hand), BorderLayout.CENTER);
+		hand = new Hand(deck);
+		handModel = new CardTableModel(this, hand, Arrays.asList(new CardCharacteristic[] {CardCharacteristic.NAME}));
+		CardTable handTable = new CardTable(handModel);
+		handPanel.add(new JScrollPane(handTable), BorderLayout.CENTER);
 		
 		// Control panel for manipulating the sample hand
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		JButton newHandButton = new JButton("New Hand");
+		newHandButton.addActionListener((e) -> {
+			hand.newHand();
+			handModel.fireTableDataChanged();
+		});
 		handModPanel.add(newHandButton);
 		JButton mulliganButton = new JButton("Mulligan");
+		mulliganButton.addActionListener((e) -> {
+			hand.mulligan();
+			handModel.fireTableDataChanged();
+		});
 		handModPanel.add(mulliganButton);
 		JButton drawCardButton = new JButton("Draw a Card");
+		drawCardButton.addActionListener((e) -> {
+			hand.draw();
+			handModel.fireTableDataChanged();
+		});
 		handModPanel.add(drawCardButton);
 		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		
@@ -552,6 +570,7 @@ public class EditorFrame extends JInternalFrame
 			repaint();
 		}
 		listTabs.setSelectedIndex(MAIN_TABLE);
+		hand.refresh();
 	}
 
 	/**
@@ -1033,6 +1052,8 @@ public class EditorFrame extends JInternalFrame
 			for (CategoryPanel c: categories)
 				if (c.table.isEditing())
 					c.table.getCellEditor().cancelCellEditing();
+			hand.refresh();
+			handModel.fireTableDataChanged();
 			updateCount();
 			setUnsaved();
 			revalidate();
