@@ -63,8 +63,6 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -175,6 +173,8 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private Hand hand;
 	private CardTableModel handModel;
+	private CardTable handTable;
+	private int startingHandSize;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -196,6 +196,7 @@ public class EditorFrame extends JInternalFrame
 		unsaved = false;
 		undoBuffer = new Stack<DeckAction>();
 		redoBuffer = new Stack<DeckAction>();
+		startingHandSize = Integer.valueOf(parent.getSetting(SettingsDialog.HAND_SIZE));
 
 		// Panel for showing buttons to add and remove cards
 		// The buttons are concentrated in the middle of the panel
@@ -245,20 +246,15 @@ public class EditorFrame extends JInternalFrame
 		table = new CardTable(model);
 		table.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		// When a card is selected in the master list table, select it for adding
-		table.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-		{
-			@Override
-			public void valueChanged(ListSelectionEvent e)
+		table.getSelectionModel().addListSelectionListener((e) -> { 
+			if (!e.getValueIsAdjusting())
 			{
-				if (!e.getValueIsAdjusting())
+				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+				if (!lsm.isSelectionEmpty())
 				{
-					ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-					if (!lsm.isSelectionEmpty())
-					{
-						parent.selectCard(deck.get(table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
-						for (CategoryPanel c: categories)
-							c.table.clearSelection();
-					}
+					parent.selectCard(deck.get(table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
+					for (CategoryPanel c: categories)
+						c.table.clearSelection();
 				}
 			}
 		});
@@ -432,16 +428,25 @@ public class EditorFrame extends JInternalFrame
 		// Panel containing sample hands
 		JPanel handPanel = new JPanel(new BorderLayout());
 		
+		// Table showing the cards in hand
+		// TODO: when card images are implemented, make this table unselectable
 		hand = new Hand(deck);
-		handModel = new CardTableModel(this, hand, Arrays.asList(new CardCharacteristic[] {CardCharacteristic.NAME}));
-		CardTable handTable = new CardTable(handModel);
+		handModel = new CardTableModel(this, hand, Arrays.stream(parent.getSetting(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		handTable = new CardTable(handModel);
+		handTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		handTable.getSelectionModel().addListSelectionListener((e) -> {
+			ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+			if (!lsm.isSelectionEmpty())
+				parent.selectCard(parent.getCard(hand.get(handTable.convertRowIndexToModel(lsm.getMinSelectionIndex())).id()));
+		});
+		handTable.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		handPanel.add(new JScrollPane(handTable), BorderLayout.CENTER);
 		
 		// Control panel for manipulating the sample hand
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		JButton newHandButton = new JButton("New Hand");
 		newHandButton.addActionListener((e) -> {
-			hand.newHand();
+			hand.newHand(startingHandSize);
 			handModel.fireTableDataChanged();
 		});
 		handModPanel.add(newHandButton);
@@ -457,6 +462,9 @@ public class EditorFrame extends JInternalFrame
 			handModel.fireTableDataChanged();
 		});
 		handModPanel.add(drawCardButton);
+		// TODO: Implement this
+		JButton probabilityButton = new JButton("Calculate");
+		handModPanel.add(probabilityButton);
 		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		
 		listTabs.addTab("Sample Hand", handPanel);
@@ -1208,6 +1216,8 @@ public class EditorFrame extends JInternalFrame
 			for (CategoryPanel c: categories)
 				if (c.table.isEditing())
 					c.table.getCellEditor().cancelCellEditing();
+			hand.refresh();
+			handModel.fireTableDataChanged();
 			if (!removed.isEmpty())
 			{
 				updateCount();
@@ -1236,6 +1246,12 @@ public class EditorFrame extends JInternalFrame
 			{
 				undoBuffer.push(new SetCardCountAction(this, c, deck.count(c), n));
 				deck.setCount(c, n);
+				model.fireTableDataChanged();
+				for (CategoryPanel category: categories)
+					category.update();
+				hand.refresh();
+				handModel.fireTableDataChanged();
+				
 				redoBuffer.clear();
 				updateCount();
 				setUnsaved();
@@ -1436,6 +1452,7 @@ public class EditorFrame extends JInternalFrame
 	public void setSettings(Properties properties)
 	{
 		List<CardCharacteristic> columns = Arrays.stream(properties.getProperty(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		List<CardCharacteristic> handColumns = Arrays.stream(properties.getProperty(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
 		Color stripe = SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.EDITOR_STRIPE));
 		model.setColumns(columns);
 		table.setStripeColor(stripe);
@@ -1444,6 +1461,9 @@ public class EditorFrame extends JInternalFrame
 			category.setColumns(columns);
 			category.setStripeColor(stripe);
 		}
+		handModel.setColumns(handColumns);
+		handTable.setStripeColor(stripe);
+		startingHandSize = Integer.valueOf(parent.getSetting(SettingsDialog.HAND_SIZE));
 		revalidate();
 		repaint();
 	}

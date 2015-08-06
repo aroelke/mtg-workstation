@@ -17,8 +17,6 @@ import database.Deck.Category;
  */
 public class Hand implements CardCollection
 {
-	public static final int HAND_SIZE = 7;
-	
 	private ArrayList<Card> hand;
 	private int inHand;
 	private Deck deck;
@@ -40,10 +38,10 @@ public class Hand implements CardCollection
 				hand.add(c);
 	}
 	
-	public void newHand()
+	public void newHand(int n)
 	{
 		Collections.shuffle(hand);
-		inHand = HAND_SIZE;
+		inHand = n;
 	}
 	
 	public void mulligan()

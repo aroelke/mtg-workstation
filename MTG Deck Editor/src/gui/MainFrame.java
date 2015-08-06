@@ -840,7 +840,7 @@ public class MainFrame extends JFrame
 		properties.put(SettingsDialog.INVENTORY_SOURCE, "http://mtgjson.com/json/");
 		properties.put(SettingsDialog.VERSION, "");
 		properties.put(SettingsDialog.INVENTORY_FILE, "AllSets-x.json");
-		properties.put(SettingsDialog.INITIALDIR, "true");
+		properties.put(SettingsDialog.INITIAL_CHECK, "true");
 		properties.put(SettingsDialog.INVENTORY_LOCATION, "./");
 		properties.put(SettingsDialog.INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
 		properties.put(SettingsDialog.INVENTORY_STRIPE, "#FFCCCCCC");
@@ -850,6 +850,8 @@ public class MainFrame extends JFrame
 		properties.put(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
 		properties.put(SettingsDialog.EDITOR_STRIPE, "#FFCCCCCC");
 		properties.put(SettingsDialog.EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
+		properties.put(SettingsDialog.HAND_SIZE, "7");
+		properties.put(SettingsDialog.HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
 	}
 	
 	/**

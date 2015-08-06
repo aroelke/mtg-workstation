@@ -125,6 +125,11 @@ public class SettingsDialog extends JDialog
 	 * Preset categories that can be added to editors.
 	 */
 	public static final String EDITOR_PRESETS = "editor.presets";
+	/**
+	 * TODO: Comment these
+	 */
+	public static final String HAND_SIZE = "hand.size";
+	public static final String HAND_COLUMNS = "hand.columns";
 	
 	/**
 	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
@@ -214,6 +219,11 @@ public class SettingsDialog extends JDialog
 	 * List of preset categories.
 	 */
 	private CategoryListModel categoriesListModel;
+	/**
+	 * TODO: Comment these
+	 */
+	private List<JCheckBox> handColumnCheckBoxes;
+	private JSpinner startingSizeSpinner;
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -239,6 +249,8 @@ public class SettingsDialog extends JDialog
 		editorNode.add(editorCategoriesNode);
 		DefaultMutableTreeNode editorAppearanceNode = new DefaultMutableTreeNode("Appearance");
 		editorNode.add(editorAppearanceNode);
+		DefaultMutableTreeNode handAppearanceNode = new DefaultMutableTreeNode("Sample Hand");
+		editorNode.add(handAppearanceNode);
 		root.add(editorNode);
 		
 		// Settings panels
@@ -468,7 +480,7 @@ public class SettingsDialog extends JDialog
 		editorAppearancePanel.setLayout(new BoxLayout(editorAppearancePanel, BoxLayout.Y_AXIS));
 		settingsPanel.add(editorAppearancePanel, new TreePath(editorAppearanceNode.getPath()).toString());
 		
-		// Columns
+		// Editor table columns
 		JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
 		editorColumnsPanel.setBorder(new TitledBorder("Columns"));
 		editorColumnCheckBoxes = new ArrayList<JCheckBox>();
@@ -481,7 +493,7 @@ public class SettingsDialog extends JDialog
 		}
 		editorAppearancePanel.add(editorColumnsPanel);
 		
-		// Stripe color
+		// Editor table stripe color
 		JPanel editorColorPanel = new JPanel(new BorderLayout());
 		editorColorPanel.setBorder(new TitledBorder("Stripe Color"));
 		editorStripeColor = new JColorChooser(stringToColor(properties.getProperty(EDITOR_STRIPE)));
@@ -489,6 +501,46 @@ public class SettingsDialog extends JDialog
 		editorAppearancePanel.add(editorColorPanel);
 		
 		editorAppearancePanel.add(Box.createVerticalGlue());
+		
+		// Sample hand
+		JPanel sampleHandPanel = new JPanel();
+		sampleHandPanel.setLayout(new BoxLayout(sampleHandPanel, BoxLayout.Y_AXIS));
+		settingsPanel.add(sampleHandPanel, new TreePath(handAppearanceNode.getPath()).toString());
+		
+		sampleHandPanel.add(Box.createVerticalStrut(5));
+		
+		// Starting Size
+		JPanel startingSizePanel = new JPanel();
+		startingSizePanel.add(Box.createHorizontalStrut(5));
+		startingSizePanel.setLayout(new BoxLayout(startingSizePanel, BoxLayout.X_AXIS));
+		startingSizePanel.add(new JLabel("Starting Size:"));
+		startingSizePanel.add(Box.createHorizontalStrut(5));
+		startingSizeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
+		startingSizeSpinner.getModel().setValue(Integer.valueOf(properties.getProperty(HAND_SIZE)));
+		startingSizePanel.add(startingSizeSpinner);
+		startingSizePanel.add(Box.createHorizontalGlue());
+		startingSizePanel.setMaximumSize(startingSizePanel.getPreferredSize());
+		startingSizePanel.setAlignmentX(LEFT_ALIGNMENT);
+		sampleHandPanel.add(startingSizePanel);
+		
+		sampleHandPanel.add(Box.createVerticalStrut(5));
+		
+		// Columns
+		JPanel handColumnsPanel = new JPanel(new GridLayout(0, 5));
+		handColumnsPanel.setBorder(new TitledBorder("Columns"));
+		handColumnCheckBoxes = new ArrayList<JCheckBox>();
+		for (CardCharacteristic characteristic: CardCharacteristic.values())
+		{
+			JCheckBox checkBox = new JCheckBox(characteristic.toString());
+			handColumnCheckBoxes.add(checkBox);
+			handColumnsPanel.add(checkBox);
+			checkBox.setSelected(properties.getProperty(HAND_COLUMNS).contains(characteristic.toString()));
+		}
+		handColumnsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, handColumnsPanel.getPreferredSize().height));
+		handColumnsPanel.setAlignmentX(LEFT_ALIGNMENT);
+		sampleHandPanel.add(handColumnsPanel);
+		
+		sampleHandPanel.add(Box.createVerticalGlue());
 		
 		// Tree panel
 		JPanel treePanel = new JPanel(new BorderLayout());
@@ -537,7 +589,7 @@ public class SettingsDialog extends JDialog
 		properties.put(INVENTORY_SOURCE, inventorySiteField.getText());
 		properties.put(INVENTORY_FILE, inventoryFileField.getText());
 		properties.put(INVENTORY_LOCATION, inventoryDirField.getText());
-		properties.put(INITIALDIR, Boolean.toString(updateCheckBox.isSelected()));
+		properties.put(INITIAL_CHECK, Boolean.toString(updateCheckBox.isSelected()));
 		StringJoiner join = new StringJoiner(",");
 		for (JCheckBox box: inventoryColumnCheckBoxes)
 			if (box.isSelected())
@@ -555,6 +607,12 @@ public class SettingsDialog extends JDialog
 		for (int i = 0; i < categoriesListModel.getSize(); i++)
 			join.add(categoriesListModel.getCategoryAt(i));
 		properties.put(EDITOR_PRESETS, join.toString());
+		properties.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
+		join = new StringJoiner(",");
+		for (JCheckBox box: handColumnCheckBoxes)
+			if (box.isSelected())
+				join.add(box.getText());
+		properties.put(HAND_COLUMNS, join.toString());
 		parent.applySettings(properties);
 	}
 	
