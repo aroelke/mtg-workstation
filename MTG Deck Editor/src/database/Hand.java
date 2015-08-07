@@ -12,6 +12,7 @@ import database.Deck.Category;
 
 /**
  * TODO: Comment this
+ * TODO: Create an exclusion list and somehow work it with EditorFrame
  * 
  * @author Alec Roelke
  */
