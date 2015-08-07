@@ -5,6 +5,7 @@ import gui.CardTableModel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -38,20 +39,37 @@ public class CalculateHandPanel extends JPanel
 		listsPanel.setLayout(new BoxLayout(listsPanel, BoxLayout.X_AXIS));
 		add(listsPanel, BorderLayout.CENTER);
 		
-		JPanel handPanel = new JPanel(new BorderLayout());
+		JPanel handPanel = new JPanel();
+		handPanel.setLayout(new BoxLayout(handPanel, BoxLayout.Y_AXIS));
 		handPanel.setBorder(new TitledBorder("Hand"));
 		DefaultListModel<Card> handModel = new DefaultListModel<Card>();
 		JList<Card> hand = new JList<Card>(handModel);
-		handPanel.add(new JScrollPane(hand), BorderLayout.CENTER);
+		JScrollPane handPane = new JScrollPane(hand);
+		handPane.setAlignmentX(LEFT_ALIGNMENT);
+		handPanel.add(handPane, BorderLayout.CENTER);
+		JLabel excludeLabel = new JLabel("Exclude:");
+		excludeLabel.setAlignmentX(LEFT_ALIGNMENT);
+		handPanel.add(Box.createVerticalStrut(3));
+		handPanel.add(excludeLabel);
+		DefaultListModel<Card> excludeModel = new DefaultListModel<Card>();
+		JList<Card> exclude = new JList<Card>(excludeModel);
+		JScrollPane excludePane = new JScrollPane(exclude);
+		excludePane.setAlignmentX(LEFT_ALIGNMENT);
+		handPanel.add(excludePane, BorderLayout.SOUTH);
 		listsPanel.add(handPanel);
 		
 		JPanel cardsPanel = new JPanel();
 		cardsPanel.setLayout(new BoxLayout(cardsPanel, BoxLayout.Y_AXIS));
 		cardsPanel.add(Box.createVerticalGlue());
 		JButton addButton = new JButton("<");
+		addButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, addButton.getMaximumSize().height));
 		cardsPanel.add(addButton);
 		JButton removeButton = new JButton(">");
+		removeButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, removeButton.getMaximumSize().height));
 		cardsPanel.add(removeButton);
+		JButton excludeButton = new JButton("X");
+		excludeButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, excludeButton.getMaximumSize().height));
+		cardsPanel.add(excludeButton);
 		cardsPanel.add(Box.createVerticalGlue());
 		listsPanel.add(cardsPanel);
 		
@@ -114,7 +132,9 @@ public class CalculateHandPanel extends JPanel
 		
 		JPanel resultsPanel = new JPanel(new BorderLayout());
 		resultsPanel.setBorder(new TitledBorder("Results"));
-		JLabel resultsLabel = new JLabel("Opening hand probability: N/A%");
+		JLabel resultsLabel = new JLabel("Probability in opening hand: N/A%");
+		resultsLabel.setVerticalAlignment(JLabel.TOP);
+		resultsLabel.setHorizontalAlignment(JLabel.LEFT);
 		resultsPanel.add(resultsLabel);
 		GridBagConstraints resultsConstraints = new GridBagConstraints();
 		resultsConstraints.gridx = 1;
