@@ -9,7 +9,11 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.Box;
@@ -26,8 +30,15 @@ import javax.swing.border.TitledBorder;
 
 import database.Card;
 import database.Deck;
+import database.Hand;
 import database.characteristics.CardCharacteristic;
 
+/**
+ * TODO: Comment this
+ * TODO: Figure out strange resizing behavior
+ * 
+ * @author Alec Roelke
+ */
 @SuppressWarnings("serial")
 public class CalculateHandPanel extends JPanel
 {
@@ -45,6 +56,7 @@ public class CalculateHandPanel extends JPanel
 		DefaultListModel<Card> handModel = new DefaultListModel<Card>();
 		JList<Card> hand = new JList<Card>(handModel);
 		JScrollPane handPane = new JScrollPane(hand);
+		handPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, handPane.getPreferredSize().height));
 		handPane.setAlignmentX(LEFT_ALIGNMENT);
 		handPanel.add(handPane, BorderLayout.CENTER);
 		JLabel excludeLabel = new JLabel("Exclude:");
@@ -54,6 +66,7 @@ public class CalculateHandPanel extends JPanel
 		DefaultListModel<Card> excludeModel = new DefaultListModel<Card>();
 		JList<Card> exclude = new JList<Card>(excludeModel);
 		JScrollPane excludePane = new JScrollPane(exclude);
+		excludePane.setMaximumSize(new Dimension(Integer.MAX_VALUE, excludePane.getPreferredSize().height));
 		excludePane.setAlignmentX(LEFT_ALIGNMENT);
 		handPanel.add(excludePane, BorderLayout.SOUTH);
 		listsPanel.add(handPanel);
@@ -177,7 +190,40 @@ public class CalculateHandPanel extends JPanel
 		});
 		
 		calculateButton.addActionListener((e) -> {
+			List<Card> need = new ArrayList<Card>();
+			for (int i = 0; i < handModel.size(); i++)
+				need.add(handModel.get(i));
+			Set<Card> excluded = new HashSet<Card>();
+			for (int i = 0; i < excludeModel.size(); i++)
+				excluded.add(excludeModel.get(i));
 			
+			Hand cards = new Hand(d, excluded);
+			int successes = 0;
+			for (int i = 0; i < (Integer)iterationsSpinner.getValue(); i++)
+			{
+				cards.newHand(handSize);
+				do
+				{
+					List<Card> attempt = new ArrayList<Card>(cards.getHand());
+					boolean failed = false;
+					for (Card c: need)
+					{
+						if (!attempt.remove(c))
+						{
+							failed = true;
+							break;
+						}
+					}
+					if (!failed)
+					{
+						successes++;
+						break;
+					}
+					else
+						cards.mulligan();
+				} while (cards.size() >= (Integer)minSizeSpinner.getValue());
+			}
+			resultsLabel.setText(String.format("Probability in opening hand: %.2f%%", 100.0*successes/(Integer)iterationsSpinner.getValue()));
 		});
 	}
 }

@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import database.Deck.Category;
@@ -18,25 +20,33 @@ import database.Deck.Category;
  */
 public class Hand implements CardCollection
 {
-	private ArrayList<Card> hand;
+	private List<Card> hand;
+	private Set<Card> exclusion;
 	private int inHand;
 	private Deck deck;
 	
-	public Hand(Deck d)
+	public Hand(Deck d, Collection<Card> e)
 	{
 		super();
 		hand = new ArrayList<Card>();
+		exclusion = new HashSet<Card>(e);
 		inHand = 0;
 		deck = d;
 		refresh();
+	}
+	
+	public Hand(Deck d)
+	{
+		this(d, new HashSet<Card>());
 	}
 	
 	public void refresh()
 	{
 		clear();
 		for (Card c: deck)
-			for (int i = 0; i < deck.count(c); i++)
-				hand.add(c);
+			if (!exclusion.contains(c))
+				for (int i = 0; i < deck.count(c); i++)
+					hand.add(c);
 	}
 	
 	public void newHand(int n)
@@ -57,6 +67,11 @@ public class Hand implements CardCollection
 	public void draw()
 	{
 		inHand++;
+	}
+	
+	public List<Card> getHand()
+	{
+		return hand.subList(0, size());
 	}
 	
 	@Override
