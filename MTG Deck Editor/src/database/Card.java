@@ -246,6 +246,16 @@ public final class Card
 	}
 	
 	/**
+	 * @return A String representation of this Card, which is its name.  To get a unique identifier
+	 * for the Card, use {@link Card#id()}.
+	 */
+	@Override
+	public String toString()
+	{
+		return name();
+	}
+	
+	/**
 	 * @return The mana cost of this Card.  This is represented as a tuple, since multi-faced
 	 * cards have multiple costs that need to be treated separately.
 	 */
