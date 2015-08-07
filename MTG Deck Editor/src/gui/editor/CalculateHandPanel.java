@@ -144,6 +144,15 @@ public class CalculateHandPanel extends JPanel
 		resultsConstraints.fill = GridBagConstraints.BOTH;
 		bottomPanel.add(resultsPanel, resultsConstraints);
 		
+		hand.addListSelectionListener((e) -> {
+			if (hand.getSelectedIndices().length > 0)
+				exclude.clearSelection();
+		});
+		exclude.addListSelectionListener((e) -> {
+			if (exclude.getSelectedIndices().length > 0)
+				hand.clearSelection();
+		});
+		
 		addButton.addActionListener((e) -> {
 			for (Card c: Arrays.stream(deckTable.getSelectedRows()).mapToObj((r) -> d.get(deckTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
 			{
@@ -158,6 +167,13 @@ public class CalculateHandPanel extends JPanel
 		removeButton.addActionListener((e) -> {
 			for (Card c: Arrays.stream(hand.getSelectedIndices()).mapToObj((r) -> handModel.getElementAt(r)).collect(Collectors.toList()))
 				handModel.removeElement(c);
+			for (Card c: Arrays.stream(exclude.getSelectedIndices()).mapToObj((r) -> excludeModel.getElementAt(r)).collect(Collectors.toList()))
+				excludeModel.removeElement(c);
+		});
+		excludeButton.addActionListener((e) -> {
+			for (Card c: Arrays.stream(deckTable.getSelectedRows()).mapToObj((r) -> d.get(deckTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
+				if (!excludeModel.contains(c))
+					excludeModel.addElement(c);
 		});
 		
 		calculateButton.addActionListener((e) -> {
