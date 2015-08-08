@@ -770,6 +770,8 @@ public class MainFrame extends JFrame
 	/**
 	 * Check to see if the inventory needs to be updated.  If it does, ask the user if it should be.
 	 * 
+	 * TODO: Add a timeout
+	 * 
 	 * @return an integer value representing the state of the update.  It can be:
 	 * UPDATE_NEEDED
 	 * NO_UPDATE

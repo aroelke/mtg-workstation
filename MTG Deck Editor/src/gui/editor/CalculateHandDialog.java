@@ -5,7 +5,8 @@ import gui.CardTableModel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Dialog;
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -20,6 +21,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -40,15 +42,23 @@ import database.characteristics.CardCharacteristic;
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class CalculateHandPanel extends JPanel
+public class CalculateHandDialog extends JDialog
 {
-	public CalculateHandPanel(Deck d, int handSize, Color col)
+	public CalculateHandDialog(Frame owner, Deck d, int handSize, Color col)
 	{
-		super(new BorderLayout(0, 10));
+		super(owner, "Calculate Hand Probability", Dialog.ModalityType.APPLICATION_MODAL);
 		
-		JPanel listsPanel = new JPanel();
-		listsPanel.setLayout(new BoxLayout(listsPanel, BoxLayout.X_AXIS));
-		add(listsPanel, BorderLayout.CENTER);
+		JPanel contentPane = new JPanel();
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+		setContentPane(contentPane);
+		
+		GridBagLayout topLayout = new GridBagLayout();
+		topLayout.columnWidths = new int[] {0, 0, 0};
+		topLayout.columnWeights = new double[] {1.0, 0.0, 1.0};
+		topLayout.rowHeights = new int[] {0, 0, 0, 0, 0};
+		topLayout.rowWeights = new double[] {1.0, 0.0, 0.0, 0.0, 1.0};
+		JPanel listsPanel = new JPanel(topLayout);
+		contentPane.add(listsPanel);
 		
 		JPanel handPanel = new JPanel();
 		handPanel.setLayout(new BoxLayout(handPanel, BoxLayout.Y_AXIS));
@@ -56,9 +66,8 @@ public class CalculateHandPanel extends JPanel
 		DefaultListModel<Card> handModel = new DefaultListModel<Card>();
 		JList<Card> hand = new JList<Card>(handModel);
 		JScrollPane handPane = new JScrollPane(hand);
-		handPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, handPane.getPreferredSize().height));
 		handPane.setAlignmentX(LEFT_ALIGNMENT);
-		handPanel.add(handPane, BorderLayout.CENTER);
+		handPanel.add(handPane);
 		JLabel excludeLabel = new JLabel("Exclude:");
 		excludeLabel.setAlignmentX(LEFT_ALIGNMENT);
 		handPanel.add(Box.createVerticalStrut(3));
@@ -66,25 +75,34 @@ public class CalculateHandPanel extends JPanel
 		DefaultListModel<Card> excludeModel = new DefaultListModel<Card>();
 		JList<Card> exclude = new JList<Card>(excludeModel);
 		JScrollPane excludePane = new JScrollPane(exclude);
-		excludePane.setMaximumSize(new Dimension(Integer.MAX_VALUE, excludePane.getPreferredSize().height));
 		excludePane.setAlignmentX(LEFT_ALIGNMENT);
-		handPanel.add(excludePane, BorderLayout.SOUTH);
-		listsPanel.add(handPanel);
+		handPanel.add(excludePane);
+		GridBagConstraints handConstraints = new GridBagConstraints();
+		handConstraints.gridx = 0;
+		handConstraints.gridy = 0;
+		handConstraints.gridwidth = 1;
+		handConstraints.gridheight = 5;
+		handConstraints.fill = GridBagConstraints.BOTH;
+		listsPanel.add(handPanel, handConstraints);
 		
-		JPanel cardsPanel = new JPanel();
-		cardsPanel.setLayout(new BoxLayout(cardsPanel, BoxLayout.Y_AXIS));
-		cardsPanel.add(Box.createVerticalGlue());
 		JButton addButton = new JButton("<");
-		addButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, addButton.getMaximumSize().height));
-		cardsPanel.add(addButton);
+		GridBagConstraints addConstraints = new GridBagConstraints();
+		addConstraints.gridx = 1;
+		addConstraints.gridy = 1;
+		addConstraints.fill = GridBagConstraints.BOTH;
+		listsPanel.add(addButton, addConstraints);
 		JButton removeButton = new JButton(">");
-		removeButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, removeButton.getMaximumSize().height));
-		cardsPanel.add(removeButton);
+		GridBagConstraints removeConstraints = new GridBagConstraints();
+		removeConstraints.gridx = 1;
+		removeConstraints.gridy = 2;
+		removeConstraints.fill = GridBagConstraints.BOTH;
+		listsPanel.add(removeButton, removeConstraints);
 		JButton excludeButton = new JButton("X");
-		excludeButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, excludeButton.getMaximumSize().height));
-		cardsPanel.add(excludeButton);
-		cardsPanel.add(Box.createVerticalGlue());
-		listsPanel.add(cardsPanel);
+		GridBagConstraints excludeConstraints = new GridBagConstraints();
+		excludeConstraints.gridx = 1;
+		excludeConstraints.gridy = 3;
+		excludeConstraints.fill = GridBagConstraints.BOTH;
+		listsPanel.add(excludeButton, excludeConstraints);
 		
 		JPanel deckPanel = new JPanel(new BorderLayout());
 		deckPanel.setBorder(new TitledBorder("Deck"));
@@ -92,7 +110,13 @@ public class CalculateHandPanel extends JPanel
 		CardTable deckTable = new CardTable(model);
 		deckTable.setStripeColor(col);
 		deckPanel.add(new JScrollPane(deckTable), BorderLayout.CENTER);
-		listsPanel.add(deckPanel);
+		GridBagConstraints deckConstraints = new GridBagConstraints();
+		deckConstraints.gridx = 2;
+		deckConstraints.gridy = 0;
+		deckConstraints.gridwidth = 1;
+		deckConstraints.gridheight = 5;
+		deckConstraints.fill = GridBagConstraints.BOTH;
+		listsPanel.add(deckPanel, deckConstraints);
 		
 		GridBagLayout bottomLayout = new GridBagLayout();
 		bottomLayout.columnWidths = new int[] {0, 0};
@@ -100,7 +124,7 @@ public class CalculateHandPanel extends JPanel
 		bottomLayout.rowHeights = new int[] {0, 0};
 		bottomLayout.rowWeights = new double[] {1.0, 0.0};
 		JPanel bottomPanel = new JPanel(bottomLayout);
-		add(bottomPanel, BorderLayout.SOUTH);
+		contentPane.add(bottomPanel);
 		
 		GridBagLayout controlsLayout = new GridBagLayout();
 		controlsLayout.columnWidths = new int[] {0, 0};
@@ -156,6 +180,8 @@ public class CalculateHandPanel extends JPanel
 		resultsConstraints.gridheight = 2;
 		resultsConstraints.fill = GridBagConstraints.BOTH;
 		bottomPanel.add(resultsPanel, resultsConstraints);
+		
+		pack();
 		
 		hand.addListSelectionListener((e) -> {
 			if (hand.getSelectedIndices().length > 0)

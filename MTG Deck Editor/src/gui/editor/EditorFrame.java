@@ -455,10 +455,7 @@ public class EditorFrame extends JInternalFrame
 		});
 		handModPanel.add(drawCardButton);
 		JButton probabilityButton = new JButton("Calculate");
-		probabilityButton.addActionListener((e) -> JOptionPane.showMessageDialog(null,
-				new CalculateHandPanel(deck, startingHandSize, SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE))),
-				"Calculate Hand Probability",
-				JOptionPane.PLAIN_MESSAGE));
+		probabilityButton.addActionListener((e) -> new CalculateHandDialog(parent, deck, startingHandSize, SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE))).setVisible(true));
 		handModPanel.add(probabilityButton);
 		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		
