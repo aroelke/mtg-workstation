@@ -37,7 +37,6 @@ import database.characteristics.CardCharacteristic;
 
 /**
  * TODO: Comment this
- * TODO: Figure out strange resizing behavior
  * 
  * @author Alec Roelke
  */
@@ -47,6 +46,8 @@ public class CalculateHandDialog extends JDialog
 	public CalculateHandDialog(Frame owner, Deck d, int handSize, Color col)
 	{
 		super(owner, "Calculate Hand Probability", Dialog.ModalityType.APPLICATION_MODAL);
+		setBounds(0, 0, 600, 400);
+		setLocationRelativeTo(owner);
 		
 		JPanel contentPane = new JPanel();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -54,7 +55,7 @@ public class CalculateHandDialog extends JDialog
 		
 		GridBagLayout topLayout = new GridBagLayout();
 		topLayout.columnWidths = new int[] {0, 0, 0};
-		topLayout.columnWeights = new double[] {1.0, 0.0, 1.0};
+		topLayout.columnWeights = new double[] {0.5, 0.0, 1.0};
 		topLayout.rowHeights = new int[] {0, 0, 0, 0, 0};
 		topLayout.rowWeights = new double[] {1.0, 0.0, 0.0, 0.0, 1.0};
 		JPanel listsPanel = new JPanel(topLayout);
@@ -180,8 +181,6 @@ public class CalculateHandDialog extends JDialog
 		resultsConstraints.gridheight = 2;
 		resultsConstraints.fill = GridBagConstraints.BOTH;
 		bottomPanel.add(resultsPanel, resultsConstraints);
-		
-		pack();
 		
 		hand.addListSelectionListener((e) -> {
 			if (hand.getSelectedIndices().length > 0)
