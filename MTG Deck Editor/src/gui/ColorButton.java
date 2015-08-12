@@ -53,7 +53,7 @@ public class ColorButton extends JButton
 	{
 		this(null);
 		Random rand = new Random();
-		setColor(Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), rand.nextFloat()));
+		setColor(Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), (float)Math.sqrt(rand.nextFloat())));
 	}
 	
 	/**
