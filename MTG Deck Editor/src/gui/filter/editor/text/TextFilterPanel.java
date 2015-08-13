@@ -117,7 +117,7 @@ public class TextFilterPanel extends FilterEditorPanel
 		// If the filter is a regex, then just match it
 		if (regex.isSelected())
 		{
-			Pattern p = Pattern.compile(filterText);
+			Pattern p = Pattern.compile(filterText, Pattern.DOTALL);
 			return (c) -> text.apply(c).stream().anyMatch((s) -> p.matcher(s.toLowerCase()).find());
 		}
 		else
