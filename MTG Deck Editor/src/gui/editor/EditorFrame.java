@@ -770,17 +770,17 @@ public class EditorFrame extends JInternalFrame
 			{
 				@Override
 				public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-				{}
+				{
+					removeFromCategoryItem.setEnabled(newCategory.getSelectedCards().size() == 1);
+				}
 
 				@Override
 				public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
 				{}
-
+				
 				@Override
 				public void popupMenuCanceled(PopupMenuEvent e)
-				{
-					removeFromCategoryItem.setEnabled(newCategory.getSelectedCards().size() == 1);
-				}
+				{}
 			});
 			tableMenu.add(removeFromCategoryItem);
 			
