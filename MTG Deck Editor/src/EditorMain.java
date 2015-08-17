@@ -20,6 +20,8 @@ public class EditorMain
 	 * Entry point for the program. All it does is set the look and feel to the
 	 * system one and create the GUI.
 	 * 
+	 * TODO: Add copy/paste mechanics
+	 * 
 	 * @param args Arguments to the program
 	 */
 	public static void main(String[] args)

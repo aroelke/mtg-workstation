@@ -37,6 +37,8 @@ import database.characteristics.CardCharacteristic;
 /**
  * This class represents a panel that shows information about a category in a deck.
  * 
+ * TODO: Add ability to add a category to presets
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
