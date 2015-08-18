@@ -89,8 +89,7 @@ public class EditCategoryAction implements DeckAction
 		{
 			editedCategory.edit(newRepr.group(1), SettingsDialog.stringToColor(newRepr.group(4)), newRepr.group(5), newFilter);
 			editor.updateCategorySwitch();
-			editor.revalidate();
-			editor.repaint();
+			editor.update();
 			editor.setUnsaved();
 		}
 		else

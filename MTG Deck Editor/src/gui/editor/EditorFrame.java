@@ -343,8 +343,7 @@ public class EditorFrame extends JInternalFrame
 								if (category.include(cards.get(0)))
 								{
 									setUnsaved();
-									revalidate();
-									repaint();
+									update();
 									undoBuffer.push(new IncludeCardAction(EditorFrame.this, category, cards.get(0)));
 									redoBuffer.clear();
 								}
@@ -354,8 +353,7 @@ public class EditorFrame extends JInternalFrame
 								if (category.exclude(cards.get(0)))
 								{
 									setUnsaved();
-									revalidate();
-									repaint();
+									update();
 									undoBuffer.push(new ExcludeCardAction(EditorFrame.this, category, cards.get(0)));
 									redoBuffer.clear();
 								}
@@ -818,6 +816,9 @@ public class EditorFrame extends JInternalFrame
 				updateCategorySwitch();
 				revalidate();
 				repaint();
+				table.repaint();
+				for (CategoryPanel category: categories)
+					category.update();
 				setUnsaved();
 				undoBuffer.push(new EditCategoryAction(this, oldRepr, oldFilter, toEdit.toString(), toEdit.filter()));
 				redoBuffer.clear();
@@ -1476,6 +1477,20 @@ public class EditorFrame extends JInternalFrame
 	public String getSetting(String name)
 	{
 		return parent.getSetting(name);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * TODO: Replace all instances of repaint() in EditorFrame with update()
+	 */
+	public void update()
+	{
+		revalidate();
+		repaint();
+		table.revalidate();
+		table.repaint();
+		for (CategoryPanel panel: categories)
+			panel.update();
 	}
 	
 	/**

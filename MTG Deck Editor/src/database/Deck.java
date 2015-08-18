@@ -1195,6 +1195,9 @@ public class Deck implements CardCollection
 				repr = r;
 				filter = f;
 				filtrate = masterList.stream().map((e) -> e.card).filter(this::includes).collect(Collectors.toList());
+				for (Card card: cardCategories.keySet())
+					if (!includes(card))
+						cardCategories.get(card).remove(this);
 				return true;
 			}
 			else
