@@ -151,6 +151,7 @@ public class InventoryLoadDialog extends JDialog
 		catch (InterruptedException | ExecutionException e)
 		{
 			JOptionPane.showMessageDialog(null, "Error loading inventory: " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
 			return new Inventory();
 		}
 		catch (CancellationException e)
@@ -344,10 +345,11 @@ public class InventoryLoadDialog extends JDialog
 						Map<String, Legality> legality = new HashMap<String, Legality>();
 						if (card.has("legalities"))
 						{
-							for (Map.Entry<String, JsonElement> l: card.get("legalities").getAsJsonObject().entrySet())
+							for (JsonElement l: card.get("legalities").getAsJsonArray())
 							{
-								formatSet.add(l.getKey());
-								legality.put(l.getKey(), Legality.get(l.getValue().getAsString()));
+								JsonObject o = l.getAsJsonObject();
+								formatSet.add(o.get("format").getAsString());
+								legality.put(o.get("format").getAsString(), Legality.get(o.get("legality").getAsString()));
 							}
 						}
 						

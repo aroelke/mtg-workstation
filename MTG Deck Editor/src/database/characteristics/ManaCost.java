@@ -141,15 +141,14 @@ public class ManaCost implements Comparable<ManaCost>
 	 * 
 	 * @return List of MTGColors representing all the colors in this ManaCost.
 	 */
-	public List<MTGColor> colors()
+	public MTGColor.Tuple colors()
 	{
 		List<MTGColor> colors = new ArrayList<MTGColor>();
 		for (Symbol sym: cost)
 			for (Map.Entry<MTGColor, Double> weight: sym.colorWeights().entrySet())
-				if (weight.getValue() > 0 && !colors.contains(weight.getKey()))
+				if (weight.getValue() > 0)
 					colors.add(weight.getKey());
-		MTGColor.sort(colors);
-		return colors;
+		return new MTGColor.Tuple(colors);
 	}
 	
 	/**

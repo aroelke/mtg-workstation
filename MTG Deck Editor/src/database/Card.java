@@ -76,6 +76,7 @@ public final class Card
 	/**
 	 * Unique identifier for this Card, which is its expansion name, name, and 
 	 * image name concatenated together.
+	 * TODO: Make use of the mtgjson.com id field
 	 */
 	private final String ID;
 	/**
@@ -148,6 +149,7 @@ public final class Card
 		
 		// Create this Card's color identity
 		List<MTGColor> identity = new ArrayList<MTGColor>(colors);
+		identity.addAll(faces[0].mana.colors());
 		Matcher m = ManaCost.MANA_COST_PATTERN.matcher(text);
 		while (m.find())
 			for (MTGColor col: ManaCost.valueOf(m.group()).colors())
