@@ -119,7 +119,7 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	@Override
 	public String toString()
 	{
-		return code + ":{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
+		return code + ":" + contain.getSelectedItem().toString() + "{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
 	}
 
 	/**
@@ -130,7 +130,9 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	@Override
 	public void setContents(String content)
 	{
-		String[] selectedOptions = content.substring(1, content.length() - 1).split(",");
+		int index = content.indexOf('{');
+		contain.setSelectedItem(Containment.get(content.substring(0, index)));
+		String[] selectedOptions = content.substring(index + 1, content.length() - 1).split(",");
 		for (String o: selectedOptions)
 		{
 			for (int i = 0; i < options.length; i++)
