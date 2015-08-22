@@ -177,9 +177,9 @@ public class CardTable extends JTable
 							int x = i*(s + 1) + 1;
 							int y = 1;
 							g.setColor(categories.get(i).color());
-							g.fillRect(x, y, s - 2, s - 2);
+							g.fillRect(x, y, s - 3, s - 3);
 							g.setColor(Color.BLACK);
-							g.drawRect(x, y, s - 2, s - 2);
+							g.drawRect(x, y, s - 3, s - 3);
 						}
 					}
 				};
@@ -229,6 +229,8 @@ public class CardTable extends JTable
 				JPanel datePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 				if (hasFocus)
 					datePanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+				else
+					datePanel.setBorder(new EmptyBorder(1, 1, 1, 1));
 				datePanel.setForeground(c.getForeground());
 				datePanel.setBackground(c.getBackground());
 				datePanel.add(new JLabel(Deck.DATE_FORMAT.format((Date)value)));
