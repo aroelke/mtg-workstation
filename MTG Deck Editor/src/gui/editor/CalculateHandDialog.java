@@ -5,6 +5,7 @@ import gui.CardTableModel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -12,6 +13,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +45,7 @@ import database.characteristics.CardCharacteristic;
 @SuppressWarnings("serial")
 public class CalculateHandDialog extends JDialog
 {
-	public CalculateHandDialog(Frame owner, Deck d, int handSize, Color col)
+	public CalculateHandDialog(Frame owner, Deck d, Collection<Card> exclusion, int handSize, Color col)
 	{
 		super(owner, "Calculate Hand Probability", Dialog.ModalityType.APPLICATION_MODAL);
 		setBounds(0, 0, 600, 400);
@@ -182,6 +184,9 @@ public class CalculateHandDialog extends JDialog
 		resultsConstraints.fill = GridBagConstraints.BOTH;
 		bottomPanel.add(resultsPanel, resultsConstraints);
 		
+		for (Card c: exclusion)
+			excludeModel.addElement(c);
+		
 		hand.addListSelectionListener((e) -> {
 			if (hand.getSelectedIndices().length > 0)
 				exclude.clearSelection();
@@ -214,7 +219,10 @@ public class CalculateHandDialog extends JDialog
 					excludeModel.addElement(c);
 		});
 		
+		// TODO: Outsource this to a worker
 		calculateButton.addActionListener((e) -> {
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			
 			List<Card> need = new ArrayList<Card>();
 			for (int i = 0; i < handModel.size(); i++)
 				need.add(handModel.get(i));
@@ -247,8 +255,11 @@ public class CalculateHandDialog extends JDialog
 					else
 						cards.mulligan();
 				} while (cards.size() >= (Integer)minSizeSpinner.getValue());
+//				resultsLabel.setText("Finished iteration " + i + ".");
 			}
 			resultsLabel.setText(String.format("Probability in opening hand: %.2f%%", 100.0*successes/(Integer)iterationsSpinner.getValue()));
+			
+			setCursor(Cursor.getDefaultCursor());
 		});
 	}
 }

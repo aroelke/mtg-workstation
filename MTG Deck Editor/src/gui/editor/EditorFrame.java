@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
@@ -45,6 +46,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -81,6 +83,7 @@ import database.characteristics.CardCharacteristic;
  * inventory from which cards can be added.
  * 
  * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
+ * TODO: Use a LinkedHashSet or LinkedHashMap to maintain ordering of categories
  * 
  * @author Alec Roelke
  */
@@ -452,8 +455,58 @@ public class EditorFrame extends JInternalFrame
 			handModel.fireTableDataChanged();
 		});
 		handModPanel.add(drawCardButton);
-		JButton probabilityButton = new JButton("Calculate");
-		probabilityButton.addActionListener((e) -> new CalculateHandDialog(parent, deck, startingHandSize, SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE))).setVisible(true));
+		JButton excludeButton = new JButton("Exclude...");
+		excludeButton.addActionListener((e) -> {
+			JPanel excludePanel = new JPanel();
+			excludePanel.setLayout(new BoxLayout(excludePanel, BoxLayout.X_AXIS));
+			
+			DefaultListModel<Card> excludeModel = new DefaultListModel<Card>();
+			JList<Card> exclude = new JList<Card>(excludeModel);
+			excludePanel.add(new JScrollPane(exclude));
+			
+			JPanel excludeButtonPanel = new JPanel();
+			excludeButtonPanel.setLayout(new BoxLayout(excludeButtonPanel, BoxLayout.Y_AXIS));
+			excludeButtonPanel.add(Box.createVerticalGlue());
+			JButton addExclusionButton = new JButton("<");
+			excludeButtonPanel.add(addExclusionButton);
+			JButton removeExclusionButton = new JButton(">");
+			excludeButtonPanel.add(removeExclusionButton);
+			excludeButtonPanel.add(Box.createVerticalGlue());
+			excludePanel.add(excludeButtonPanel);
+			
+			CardTableModel excludeTableModel = new CardTableModel(deck, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT));
+			CardTable excludeTable = new CardTable(excludeTableModel);
+			excludeTable.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
+			excludePanel.add(new JScrollPane(excludeTable));
+			
+			addExclusionButton.addActionListener((a) -> {
+				for (Card c: Arrays.stream(excludeTable.getSelectedRows()).mapToObj((r) -> deck.get(excludeTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
+				{
+					int n = 0;
+					for (int i = 0; i < excludeModel.size(); i++)
+						if (excludeModel.elementAt(i).equals(c))
+							n++;
+					if (n < deck.count(c))
+						excludeModel.addElement(c);
+				}
+			});
+			removeExclusionButton.addActionListener((f) -> {
+				for (Card c: Arrays.stream(exclude.getSelectedIndices()).mapToObj((r) -> excludeModel.getElementAt(r)).collect(Collectors.toList()))
+					excludeModel.removeElement(c);
+			});
+			
+			for (Card c: hand.excluded())
+				excludeModel.addElement(c);
+			JOptionPane.showMessageDialog(null, excludePanel, "Exclude Cards", JOptionPane.PLAIN_MESSAGE);
+			
+			hand.clearExclusion();
+			for (int i = 0; i < excludeModel.size(); i++)
+				hand.exclude(excludeModel.get(i));
+		});
+		handModPanel.add(excludeButton);
+		JButton probabilityButton = new JButton("Calculate...");
+		probabilityButton.addActionListener((e) -> new CalculateHandDialog(parent, deck, hand.excluded(), startingHandSize,
+				SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE))).setVisible(true));
 		handModPanel.add(probabilityButton);
 		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		

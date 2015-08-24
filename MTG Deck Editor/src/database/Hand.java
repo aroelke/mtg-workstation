@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -14,7 +15,6 @@ import database.Deck.Category;
 
 /**
  * TODO: Comment this
- * TODO: Create an exclusion list and somehow work it with EditorFrame
  * 
  * @author Alec Roelke
  */
@@ -29,7 +29,7 @@ public class Hand implements CardCollection
 	{
 		super();
 		hand = new ArrayList<Card>();
-		exclusion = new HashSet<Card>(e);
+		exclusion = new LinkedHashSet<Card>(e);
 		inHand = 0;
 		deck = d;
 		refresh();
@@ -51,6 +51,7 @@ public class Hand implements CardCollection
 	
 	public void newHand(int n)
 	{
+		refresh();
 		Collections.shuffle(hand);
 		inHand = n;
 	}
@@ -59,6 +60,7 @@ public class Hand implements CardCollection
 	{
 		if (inHand > 0)
 		{
+			refresh();
 			Collections.shuffle(hand);
 			inHand--;
 		}
@@ -72,6 +74,26 @@ public class Hand implements CardCollection
 	public List<Card> getHand()
 	{
 		return hand.subList(0, size());
+	}
+	
+	public void clearExclusion()
+	{
+		exclusion.clear();
+	}
+	
+	public boolean exclude(Card c)
+	{
+		return exclusion.add(c);
+	}
+	
+	public boolean excludeAll(Collection<? extends Card> coll)
+	{
+		return exclusion.addAll(coll);
+	}
+	
+	public List<Card> excluded()
+	{
+		return new ArrayList<Card>(exclusion);
 	}
 	
 	@Override
