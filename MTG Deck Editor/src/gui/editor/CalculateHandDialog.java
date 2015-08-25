@@ -1,11 +1,15 @@
 package gui.editor;
 
+import gui.CardTable;
+import gui.CardTableModel;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -26,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -37,8 +42,6 @@ import database.Card;
 import database.Deck;
 import database.Hand;
 import database.characteristics.CardCharacteristic;
-import gui.CardTable;
-import gui.CardTableModel;
 
 /**
  * This class represents a dialog that allows a user to specify a set of cards and
@@ -100,6 +103,7 @@ public class CalculateHandDialog extends JDialog
 	 * Worker that performs the calculation.
 	 */
 	private CalculateHandWorker worker;
+	private JProgressBar progressBar;
 
 	/**
 	 * Create a new CalculateHandDialog.
@@ -242,27 +246,54 @@ public class CalculateHandDialog extends JDialog
 		controlsConstraints.fill = GridBagConstraints.BOTH;
 		bottomPanel.add(controlsPanel, controlsConstraints);
 		
+		// Button panel
+		JPanel buttonPanel = new JPanel(new GridLayout(1, 0));
+		GridBagConstraints buttonConstraints = new GridBagConstraints();
+		buttonConstraints.gridx = 0;
+		buttonConstraints.gridy = 1;
+		buttonConstraints.gridwidth = 2;
+		buttonConstraints.gridheight = 1;
+		bottomPanel.add(buttonPanel, buttonConstraints);
+		
 		// Calculate button
 		calculateButton = new JButton("Calculate");
-		GridBagConstraints calculateConstraints = new GridBagConstraints();
-		calculateConstraints.gridx = 0;
-		calculateConstraints.gridy = 1;
-		bottomPanel.add(calculateButton, calculateConstraints);
+		buttonPanel.add(calculateButton);
 		
-		// TODO: Add a close button
+		// Close button
+		JButton closeButton = new JButton("Close");
+		closeButton.addActionListener((e) -> close());
+		buttonPanel.add(closeButton);
+		
+		// When the calculate button is clicked, it should disable controls and start the calculation
+		calculateButton.addActionListener((e) -> {
+			calculateButton.setEnabled(false);
+			addButton.setEnabled(false);
+			removeButton.setEnabled(false);
+			excludeButton.setEnabled(false);
+			minSizeSpinner.setEnabled(false);
+			iterationsSpinner.setEnabled(false);
+			progressBar.setMaximum((Integer)iterationsSpinner.getValue());
+			progressBar.setValue(0);
+			progressBar.setVisible(true);
+			worker = new CalculateHandWorker();
+			worker.execute();
+		});
 		
 		// Results panel
-		JPanel resultsPanel = new JPanel(new BorderLayout());
+		JPanel resultsPanel = new JPanel();
+		resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
 		resultsPanel.setBorder(new TitledBorder("Results"));
 		resultsLabel = new JLabel("Probability in opening hand: N/A%");
-		resultsLabel.setVerticalAlignment(JLabel.TOP);
-		resultsLabel.setHorizontalAlignment(JLabel.LEFT);
+		resultsLabel.setAlignmentX(LEFT_ALIGNMENT);
 		resultsPanel.add(resultsLabel);
+		progressBar = new JProgressBar();
+		progressBar.setVisible(false);
+		progressBar.setAlignmentX(LEFT_ALIGNMENT);
+		resultsPanel.add(progressBar);
+		resultsPanel.add(Box.createVerticalGlue());
 		GridBagConstraints resultsConstraints = new GridBagConstraints();
 		resultsConstraints.gridx = 1;
 		resultsConstraints.gridy = 0;
-		resultsConstraints.gridwidth = 1;
-		resultsConstraints.gridheight = 2;
 		resultsConstraints.fill = GridBagConstraints.BOTH;
 		bottomPanel.add(resultsPanel, resultsConstraints);
 		
@@ -304,33 +335,29 @@ public class CalculateHandDialog extends JDialog
 					excludeModel.addElement(c);
 		});
 		
-		// When the calculate button is clicked, it should disable controls and start the calculation
-		calculateButton.addActionListener((e) -> {
-			calculateButton.setEnabled(false);
-			addButton.setEnabled(false);
-			removeButton.setEnabled(false);
-			excludeButton.setEnabled(false);
-			minSizeSpinner.setEnabled(false);
-			iterationsSpinner.setEnabled(false);
-			worker = new CalculateHandWorker();
-			worker.execute();
-		});
-		
 		// When the window goes to close, if a calculation is being performed, a confirmation dialog should display
 		addWindowListener(new WindowAdapter()
 		{
 			@Override
 			public void windowClosing(WindowEvent e)
 			{
-				if (worker == null || worker.isDone())
-					dispose();
-				else if (JOptionPane.showConfirmDialog(null, "A Calculation is being performed.  Are you sure you want to close?", "Stop Calculation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-				{
-					worker.cancel(true);
-					dispose();
-				}
+				close();
 			}
 		});
+	}
+	
+	/**
+	 * If there is no job running or if the user wants to cancel the job, close the window.
+	 */
+	private void close()
+	{
+		if (worker == null || worker.isDone())
+			dispose();
+		else if (JOptionPane.showConfirmDialog(null, "A Calculation is being performed.  Are you sure you want to close?", "Stop Calculation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+		{
+			worker.cancel(true);
+			dispose();
+		}
 	}
 	
 	/**
@@ -356,6 +383,7 @@ public class CalculateHandDialog extends JDialog
 		protected void process(List<Integer> chunks)
 		{
 			resultsLabel.setText("Finished iteration " + chunks.get(chunks.size() - 1) + "/" + iterationsSpinner.getValue());
+			progressBar.setValue(chunks.get(chunks.size() - 1));
 		}
 		
 		/**
@@ -417,6 +445,8 @@ public class CalculateHandDialog extends JDialog
 			excludeButton.setEnabled(true);
 			minSizeSpinner.setEnabled(true);
 			iterationsSpinner.setEnabled(true);
+			progressBar.setValue(0);
+			progressBar.setVisible(false);
 		}
 	}
 }
