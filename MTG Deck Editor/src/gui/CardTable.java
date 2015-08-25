@@ -7,9 +7,11 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.Box;
@@ -162,9 +164,9 @@ public class CardTable extends JTable
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			if (value instanceof List)
+			if (value instanceof Collection)
 			{
-				List<Deck.Category> categories = ((List<?>)value).stream().filter((o) -> o instanceof Deck.Category).map((o) -> (Deck.Category)o).collect(Collectors.toList());
+				List<Deck.Category> categories = ((Collection<?>)value).stream().filter((o) -> o instanceof Deck.Category).map((o) -> (Deck.Category)o).collect(Collectors.toList());
 				JPanel panel = new JPanel()
 				{
 					@Override
@@ -344,7 +346,7 @@ public class CardTable extends JTable
 		
 		setDefaultRenderer(ManaCost.Tuple.class, new ManaCostCellRenderer());
 		setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
-		setDefaultRenderer(List.class, new CategoriesCellRenderer());
+		setDefaultRenderer(Set.class, new CategoriesCellRenderer());
 		setDefaultRenderer(Date.class, new DateCellRenderer());
 		
 		setRowSorter(new EmptyTableRowSorter(getModel()));

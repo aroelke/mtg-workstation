@@ -206,7 +206,7 @@ public class Hand implements CardCollection
 	 * @return The Categories the given Card belongs to
 	 */
 	@Override
-	public List<Category> getCategories(Card c)
+	public Set<Category> getCategories(Card c)
 	{
 		return deck.getCategories(c);
 	}
@@ -216,7 +216,7 @@ public class Hand implements CardCollection
 	 * @return The Categories the Card at the given index belongs to
 	 */
 	@Override
-	public List<Category> getCategories(int index)
+	public Set<Category> getCategories(int index)
 	{
 		return deck.getCategories(get(index));
 	}

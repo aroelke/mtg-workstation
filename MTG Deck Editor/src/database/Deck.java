@@ -13,9 +13,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,6 +79,12 @@ public class Deck implements CardCollection
 		 * Date this Entry was created (the Card was originally added).
 		 */
 		private final Date date;
+		/**
+		 * Set of categories this Entry's Card belongs to.  Implemented using a
+		 * LinkedHashSet, so it will maintain the ordering that categories were
+		 * added.
+		 */
+		private Set<Category> categories;
 		
 		/**
 		 * Create a new Entry.
@@ -91,6 +98,7 @@ public class Deck implements CardCollection
 			card = c;
 			count = n;
 			date = d;
+			categories = new LinkedHashSet<Category>();
 		}
 		
 		/**
@@ -129,10 +137,6 @@ public class Deck implements CardCollection
 	 */
 	private Map<String, Category> categories;
 	/**
-	 * Map of Cards onto the lists of Categories they belong to.
-	 */
-	private Map<Card, List<Category>> cardCategories;
-	/**
 	 * Total number of cards in this Deck, accounting for multiples.
 	 */
 	private int total;
@@ -147,8 +151,7 @@ public class Deck implements CardCollection
 	public Deck()
 	{
 		masterList = new ArrayList<Entry>();
-		categories = new HashMap<String, Category>();
-		cardCategories = new HashMap<Card, List<Category>>();
+		categories = new LinkedHashMap<String, Category>();
 		total = 0;
 		land = 0;
 	}
@@ -199,14 +202,13 @@ public class Deck implements CardCollection
 			Entry e = getEntry(c);
 			if (e == null)
 			{
-				masterList.add(new Entry(c, n, d));
-				cardCategories.put(c, new ArrayList<Category>());
+				masterList.add(e = new Entry(c, n, d));
 				for (Category category: categories.values())
 				{
 					if (category.includes(c))
 					{
 						category.filtrate.add(c);
-						cardCategories.compute(c, (k, v) -> {v.add(category); return v;});
+						e.categories.add(category);
 					}
 				}
 			}
@@ -292,7 +294,6 @@ public class Deck implements CardCollection
 				if (e.count == 0)
 				{
 					masterList.remove(e);
-					cardCategories.remove(c);
 					for (Category category: categories.values())
 					{
 						category.filtrate.remove(c);
@@ -485,9 +486,9 @@ public class Deck implements CardCollection
 		{
 			Category c = new Category(name, color, repr, filter);
 			categories.put(name, c);
-			for (Card card: masterList.stream().map((e) -> e.card).collect(Collectors.toList()))
-				if (c.includes(card))
-					cardCategories.compute(card, (k, v) -> {v.add(c); return v;});
+			for (Entry e: masterList)
+				if (c.includes(e.card))
+					e.categories.add(c);
 			return c;
 		}
 		else
@@ -505,8 +506,8 @@ public class Deck implements CardCollection
 	{
 		if (categories.containsKey(name))
 		{
-			for (List<Category> list: cardCategories.values())
-				list.remove(categories.get(name));
+			for (Entry e: masterList)
+				e.categories.remove(categories.get(name));
 			return categories.remove(name) != null;
 		}
 		else
@@ -525,22 +526,22 @@ public class Deck implements CardCollection
 	
 	/**
 	 * @param c Card to look for
-	 * @return The list of Categories the Card belongs to.
+	 * @return The set of Categories the Card belongs to.
 	 */
 	@Override
-	public List<Category> getCategories(Card c)
+	public Set<Category> getCategories(Card c)
 	{
-		return cardCategories.get(c);
+		return getEntry(c).categories;
 	}
 	
 	/**
 	 * @param index The index of the Card to look for
-	 * @return The list of Categories the Card belongs to.
+	 * @return The set of Categories the Card belongs to.
 	 */
 	@Override
-	public List<Category> getCategories(int index)
+	public Set<Category> getCategories(int index)
 	{
-		return cardCategories.get(masterList.get(index).card);
+		return masterList.get(index).categories;
 	}
 	
 	/**
@@ -1017,14 +1018,20 @@ public class Deck implements CardCollection
 		 */
 		public boolean include(Card c)
 		{
-			boolean changed = blacklist.remove(c);
-			if (!filter.test(c))
-				changed |= whitelist.add(c);
-			if (!contains(c))
-				changed |= filtrate.add(c);
-			if (cardCategories.get(c) != null && !cardCategories.get(c).contains(this))
-				cardCategories.compute(c, (k, v) -> {v.add(this); return v;});
-			return changed;
+			Entry e = getEntry(c);
+			if (e != null)
+			{
+				boolean changed = blacklist.remove(c);
+				if (!filter.test(c))
+					changed |= whitelist.add(c);
+				if (!contains(c))
+					changed |= filtrate.add(c);
+				if (!e.categories.contains(this))
+					changed |= e.categories.add(this);
+				return changed;
+			}
+			else
+				return false;
 		}
 		
 		/**
@@ -1038,14 +1045,18 @@ public class Deck implements CardCollection
 		 */
 		public boolean exclude(Card c)
 		{
-			boolean changed = whitelist.remove(c);
-			if (filter.test(c))
-				changed |= blacklist.add(c);
-			if (contains(c))
-				changed |= filtrate.remove(c);
-			if (cardCategories.get(c) != null)
-				cardCategories.compute(c, (k, v) -> {v.remove(this); return v;});
-			return changed;
+			Entry e = getEntry(c);
+			if (e != null)
+			{
+				boolean changed = whitelist.remove(c);
+				if (filter.test(c))
+					changed |= blacklist.add(c);
+				if (contains(c))
+					changed |= filtrate.remove(c);
+				return e.categories.remove(this) || changed;
+			}
+			else
+				return false;
 		}
 		
 		/**
@@ -1195,9 +1206,13 @@ public class Deck implements CardCollection
 				repr = r;
 				filter = f;
 				filtrate = masterList.stream().map((e) -> e.card).filter(this::includes).collect(Collectors.toList());
-				for (Card card: cardCategories.keySet())
-					if (!includes(card))
-						cardCategories.get(card).remove(this);
+				for (Entry e: masterList)
+				{
+					if (!includes(e.card))
+						e.categories.add(this);
+					else if (includes(e.card) && !e.categories.contains(this))
+						e.categories.add(this);
+				}
 				return true;
 			}
 			else
@@ -1228,10 +1243,11 @@ public class Deck implements CardCollection
 		 * belongs to this Category.
 		 */
 		@Override
-		public List<Category> getCategories(Card c)
+		public Set<Category> getCategories(Card c)
 		{
-			if (includes(c))
-				return cardCategories.get(c);
+			Entry e = getEntry(c);
+			if (e != null && includes(c))
+				return e.categories;
 			else
 				return null;
 		}
@@ -1242,7 +1258,7 @@ public class Deck implements CardCollection
 		 * to.
 		 */
 		@Override
-		public List<Category> getCategories(int index)
+		public Set<Category> getCategories(int index)
 		{
 			return getCategories(filtrate.get(index));
 		}

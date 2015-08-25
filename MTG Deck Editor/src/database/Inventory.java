@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -266,13 +267,13 @@ public class Inventory implements CardCollection
 	}
 
 	@Override
-	public List<Category> getCategories(Card c)
+	public Set<Category> getCategories(Card c)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public List<Category> getCategories(int index)
+	public Set<Category> getCategories(int index)
 	{
 		throw new UnsupportedOperationException();
 	}

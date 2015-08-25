@@ -83,7 +83,6 @@ import database.characteristics.CardCharacteristic;
  * inventory from which cards can be added.
  * 
  * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
- * TODO: Use a LinkedHashSet or LinkedHashMap to maintain ordering of categories
  * 
  * @author Alec Roelke
  */

@@ -5,6 +5,7 @@ import gui.editor.SpinnerCellEditor;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 import javax.swing.table.TableCellEditor;
@@ -41,7 +42,7 @@ public enum CardCharacteristic
 	LOYALTY("Loyalty", Loyalty.Tuple.class, (l, i) -> l.get(i).loyalty()),
 	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist()),
 	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn()),
-	CATEGORIES("Categories", List.class, (l, i) -> l.getCategories(i)),
+	CATEGORIES("Categories", Set.class, (l, i) -> l.getCategories(i)),
 	DATE_ADDED("Date Added", Date.class, (l, i) -> l.dateAdded(i));
 	
 	/**

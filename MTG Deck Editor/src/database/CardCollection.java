@@ -3,7 +3,7 @@ package database;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -279,20 +279,20 @@ public interface CardCollection extends Collection<Card>
 	
 	/**
 	 * @param c Card to look for
-	 * @return A list of categories that the Card belongs to.
+	 * @return A set of categories that the Card belongs to.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 * @see Deck.Category
 	 */
-	public List<Deck.Category> getCategories(Card c);
+	public Set<Deck.Category> getCategories(Card c);
 	
 	/**
 	 * @param index Index of the Card to look for
-	 * @return A list of categories that the Card at the given index belongs to.
+	 * @return A set of categories that the Card at the given index belongs to.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 * @throws IndexOutOfBoundsException if the index is less than 0 or if it is too big
 	 * @see Deck.Category
 	 */
-	public List<Deck.Category> getCategories(int index);
+	public Set<Deck.Category> getCategories(int index);
 	
 	/**
 	 * @param c Card to look for
