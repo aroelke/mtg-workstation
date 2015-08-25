@@ -41,26 +41,75 @@ import gui.CardTable;
 import gui.CardTableModel;
 
 /**
- * TODO: Comment this
+ * This class represents a dialog that allows a user to specify a set of cards and
+ * calculate how likely all of them will appear in an opening hand, including
+ * with mulligans.
  * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class CalculateHandDialog extends JDialog
 {
+	/**
+	 * Size of the starting hand.
+	 */
 	private int handSize;
+	/**
+	 * Deck containing cards to draw from.
+	 */
 	private Deck deck;
+	/**
+	 * Model for displaying cards to draw in the opening hand.
+	 */
 	private DefaultListModel<Card> handModel;
+	/**
+	 * Model for displaying cards to never draw.
+	 */
 	private DefaultListModel<Card> excludeModel;
+	/**
+	 * Spinner specifying the number of hands that should be generated
+	 * to approximate the probability.
+	 */
 	private JSpinner iterationsSpinner;
+	/**
+	 * Spinner specifying the minimum number of cards that should be in
+	 * the opening hand (limiting mulligans).
+	 */
 	private JSpinner minSizeSpinner;
+	/**
+	 * Label displaying intermediate progress and results.
+	 */
 	private JLabel resultsLabel;
+	/**
+	 * Button for performing the calculation.
+	 */
 	private JButton calculateButton;
+	/**
+	 * Button for adding a card to the opening hand.
+	 */
 	private JButton addButton;
+	/**
+	 * Button for removing a card from the opening hand.
+	 */
 	private JButton removeButton;
+	/**
+	 * Button for excluding a card from the opening hand.
+	 */
 	private JButton excludeButton;
+	/**
+	 * Worker that performs the calculation.
+	 */
 	private CalculateHandWorker worker;
 
+	/**
+	 * Create a new CalculateHandDialog.
+	 * 
+	 * @param owner Parent frame of this dialog
+	 * @param d Deck containing cards to draw from
+	 * @param exclusion List of cards to initially exclude from drawing
+	 * @param h Starting hand size
+	 * @param col Stripe color of the deck table
+	 */
 	public CalculateHandDialog(Frame owner, Deck d, Collection<Card> exclusion, int h, Color col)
 	{
 		super(owner, "Calculate Hand Probability", Dialog.ModalityType.APPLICATION_MODAL);
@@ -77,6 +126,7 @@ public class CalculateHandDialog extends JDialog
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		setContentPane(contentPane);
 		
+		// Panel containing the deck table and hand/exclusion lists
 		GridBagLayout topLayout = new GridBagLayout();
 		topLayout.columnWidths = new int[] {0, 0, 0};
 		topLayout.columnWeights = new double[] {0.5, 0.0, 1.0};
@@ -85,6 +135,7 @@ public class CalculateHandDialog extends JDialog
 		JPanel listsPanel = new JPanel(topLayout);
 		contentPane.add(listsPanel);
 		
+		// Panel containing the hand and exclusion lists
 		JPanel handPanel = new JPanel();
 		handPanel.setLayout(new BoxLayout(handPanel, BoxLayout.Y_AXIS));
 		handPanel.setBorder(new TitledBorder("Hand"));
@@ -110,6 +161,8 @@ public class CalculateHandDialog extends JDialog
 		handConstraints.fill = GridBagConstraints.BOTH;
 		listsPanel.add(handPanel, handConstraints);
 		
+		// Panel containing buttons for adding and removing cards from the opening hand
+		// and for excluding cards
 		addButton = new JButton("<");
 		GridBagConstraints addConstraints = new GridBagConstraints();
 		addConstraints.gridx = 1;
@@ -129,6 +182,7 @@ public class CalculateHandDialog extends JDialog
 		excludeConstraints.fill = GridBagConstraints.BOTH;
 		listsPanel.add(excludeButton, excludeConstraints);
 		
+		// Panel containing the deck
 		JPanel deckPanel = new JPanel(new BorderLayout());
 		deckPanel.setBorder(new TitledBorder("Deck"));
 		CardTableModel model = new CardTableModel(d, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT));
@@ -143,6 +197,7 @@ public class CalculateHandDialog extends JDialog
 		deckConstraints.fill = GridBagConstraints.BOTH;
 		listsPanel.add(deckPanel, deckConstraints);
 		
+		// Panel containing controls and results
 		GridBagLayout bottomLayout = new GridBagLayout();
 		bottomLayout.columnWidths = new int[] {0, 0};
 		bottomLayout.columnWeights = new double[] {0.0, 1.0};
@@ -151,6 +206,7 @@ public class CalculateHandDialog extends JDialog
 		JPanel bottomPanel = new JPanel(bottomLayout);
 		contentPane.add(bottomPanel);
 		
+		// Panel containing controls
 		GridBagLayout controlsLayout = new GridBagLayout();
 		controlsLayout.columnWidths = new int[] {0, 0};
 		controlsLayout.columnWeights = new double[] {0.0, 0.0};
@@ -185,14 +241,17 @@ public class CalculateHandDialog extends JDialog
 		controlsConstraints.gridy = 0;
 		controlsConstraints.fill = GridBagConstraints.BOTH;
 		bottomPanel.add(controlsPanel, controlsConstraints);
-		// TODO: Add a close button
 		
+		// Calculate button
 		calculateButton = new JButton("Calculate");
 		GridBagConstraints calculateConstraints = new GridBagConstraints();
 		calculateConstraints.gridx = 0;
 		calculateConstraints.gridy = 1;
 		bottomPanel.add(calculateButton, calculateConstraints);
 		
+		// TODO: Add a close button
+		
+		// Results panel
 		JPanel resultsPanel = new JPanel(new BorderLayout());
 		resultsPanel.setBorder(new TitledBorder("Results"));
 		resultsLabel = new JLabel("Probability in opening hand: N/A%");
@@ -207,9 +266,11 @@ public class CalculateHandDialog extends JDialog
 		resultsConstraints.fill = GridBagConstraints.BOTH;
 		bottomPanel.add(resultsPanel, resultsConstraints);
 		
+		// Initial exclusion list
 		for (Card c: exclusion)
 			excludeModel.addElement(c);
 		
+		// When the hand or exclusion list is selected, remove the selection from the other one
 		hand.addListSelectionListener((e) -> {
 			if (hand.getSelectedIndices().length > 0)
 				exclude.clearSelection();
@@ -219,6 +280,7 @@ public class CalculateHandDialog extends JDialog
 				hand.clearSelection();
 		});
 		
+		// Actions for the add, remove, and exclude buttons
 		addButton.addActionListener((e) -> {
 			for (Card c: Arrays.stream(deckTable.getSelectedRows()).mapToObj((r) -> d.get(deckTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
 			{
@@ -242,6 +304,7 @@ public class CalculateHandDialog extends JDialog
 					excludeModel.addElement(c);
 		});
 		
+		// When the calculate button is clicked, it should disable controls and start the calculation
 		calculateButton.addActionListener((e) -> {
 			calculateButton.setEnabled(false);
 			addButton.setEnabled(false);
@@ -253,6 +316,7 @@ public class CalculateHandDialog extends JDialog
 			worker.execute();
 		});
 		
+		// When the window goes to close, if a calculation is being performed, a confirmation dialog should display
 		addWindowListener(new WindowAdapter()
 		{
 			@Override
@@ -269,16 +333,36 @@ public class CalculateHandDialog extends JDialog
 		});
 	}
 	
+	/**
+	 * This class represents a worker that approximates the probability of drawing a set of cards in an opening
+	 * hand by performing the draws and mulligans and displaying the proportion of hands that contained the
+	 * specified cards.
+	 * 
+	 * @author Alec Roelke
+	 */
 	private class CalculateHandWorker extends SwingWorker<Void, Integer>
 	{
+		/**
+		 * Number of hands that contained the specified cards.
+		 */
 		private int successes;
 		
+		/**
+		 * Update the results label with the latest progress.
+		 * 
+		 * @param chunks List of progress updates
+		 */
 		@Override
 		protected void process(List<Integer> chunks)
 		{
-			resultsLabel.setText("Finished iteration " + chunks.get(chunks.size() - 1));
+			resultsLabel.setText("Finished iteration " + chunks.get(chunks.size() - 1) + "/" + iterationsSpinner.getValue());
 		}
 		
+		/**
+		 * Perform the calculation.  This is done by drawing a new hand and mulliganing until either
+		 * all of the specified cards are in hand or until the minimum hand size is reached.  If the
+		 * cards are present, then the hand is a success.  This is repeated a number of times.
+		 */
 		@Override
 		protected Void doInBackground() throws Exception
 		{
@@ -319,6 +403,10 @@ public class CalculateHandDialog extends JDialog
 			return null;
 		}
 		
+		/**
+		 * Once the calculation is complete, reactivate the dialog's controls and update the
+		 * label with the results.
+		 */
 		@Override
 		protected void done()
 		{
