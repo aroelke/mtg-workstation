@@ -1,16 +1,14 @@
 package gui.editor;
 
-import gui.CardTable;
-import gui.CardTableModel;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,16 +24,21 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingWorker;
+import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import database.Card;
 import database.Deck;
 import database.Hand;
 import database.characteristics.CardCharacteristic;
+import gui.CardTable;
+import gui.CardTableModel;
 
 /**
  * TODO: Comment this
@@ -45,11 +48,30 @@ import database.characteristics.CardCharacteristic;
 @SuppressWarnings("serial")
 public class CalculateHandDialog extends JDialog
 {
-	public CalculateHandDialog(Frame owner, Deck d, Collection<Card> exclusion, int handSize, Color col)
+	private int handSize;
+	private Deck deck;
+	private DefaultListModel<Card> handModel;
+	private DefaultListModel<Card> excludeModel;
+	private JSpinner iterationsSpinner;
+	private JSpinner minSizeSpinner;
+	private JLabel resultsLabel;
+	private JButton calculateButton;
+	private JButton addButton;
+	private JButton removeButton;
+	private JButton excludeButton;
+	private CalculateHandWorker worker;
+
+	public CalculateHandDialog(Frame owner, Deck d, Collection<Card> exclusion, int h, Color col)
 	{
 		super(owner, "Calculate Hand Probability", Dialog.ModalityType.APPLICATION_MODAL);
 		setBounds(0, 0, 600, 400);
 		setLocationRelativeTo(owner);
+		setResizable(false);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		
+		handSize = h;
+		deck = d;
+		worker = null;
 		
 		JPanel contentPane = new JPanel();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -66,7 +88,7 @@ public class CalculateHandDialog extends JDialog
 		JPanel handPanel = new JPanel();
 		handPanel.setLayout(new BoxLayout(handPanel, BoxLayout.Y_AXIS));
 		handPanel.setBorder(new TitledBorder("Hand"));
-		DefaultListModel<Card> handModel = new DefaultListModel<Card>();
+		handModel = new DefaultListModel<Card>();
 		JList<Card> hand = new JList<Card>(handModel);
 		JScrollPane handPane = new JScrollPane(hand);
 		handPane.setAlignmentX(LEFT_ALIGNMENT);
@@ -75,7 +97,7 @@ public class CalculateHandDialog extends JDialog
 		excludeLabel.setAlignmentX(LEFT_ALIGNMENT);
 		handPanel.add(Box.createVerticalStrut(3));
 		handPanel.add(excludeLabel);
-		DefaultListModel<Card> excludeModel = new DefaultListModel<Card>();
+		excludeModel = new DefaultListModel<Card>();
 		JList<Card> exclude = new JList<Card>(excludeModel);
 		JScrollPane excludePane = new JScrollPane(exclude);
 		excludePane.setAlignmentX(LEFT_ALIGNMENT);
@@ -88,19 +110,19 @@ public class CalculateHandDialog extends JDialog
 		handConstraints.fill = GridBagConstraints.BOTH;
 		listsPanel.add(handPanel, handConstraints);
 		
-		JButton addButton = new JButton("<");
+		addButton = new JButton("<");
 		GridBagConstraints addConstraints = new GridBagConstraints();
 		addConstraints.gridx = 1;
 		addConstraints.gridy = 1;
 		addConstraints.fill = GridBagConstraints.BOTH;
 		listsPanel.add(addButton, addConstraints);
-		JButton removeButton = new JButton(">");
+		removeButton = new JButton(">");
 		GridBagConstraints removeConstraints = new GridBagConstraints();
 		removeConstraints.gridx = 1;
 		removeConstraints.gridy = 2;
 		removeConstraints.fill = GridBagConstraints.BOTH;
 		listsPanel.add(removeButton, removeConstraints);
-		JButton excludeButton = new JButton("X");
+		excludeButton = new JButton("X");
 		GridBagConstraints excludeConstraints = new GridBagConstraints();
 		excludeConstraints.gridx = 1;
 		excludeConstraints.gridy = 3;
@@ -145,7 +167,7 @@ public class CalculateHandDialog extends JDialog
 		GridBagConstraints minSpinnerConstraints = new GridBagConstraints();
 		minSpinnerConstraints.gridx = 1;
 		minSpinnerConstraints.gridy = 0;
-		JSpinner minSizeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
+		minSizeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
 		controlsPanel.add(minSizeSpinner, minSpinnerConstraints);
 		GridBagConstraints iterLabelConstraints = new GridBagConstraints();
 		iterLabelConstraints.gridx = 0;
@@ -156,15 +178,16 @@ public class CalculateHandDialog extends JDialog
 		GridBagConstraints iterSpinnerConstraints = new GridBagConstraints();
 		iterSpinnerConstraints.gridx = 1;
 		iterSpinnerConstraints.gridy = 1;
-		JSpinner iterationsSpinner = new JSpinner(new SpinnerNumberModel(100, 1, Integer.MAX_VALUE, 1));
+		iterationsSpinner = new JSpinner(new SpinnerNumberModel(100, 1, Integer.MAX_VALUE, 1));
 		controlsPanel.add(iterationsSpinner, iterSpinnerConstraints);
 		GridBagConstraints controlsConstraints = new GridBagConstraints();
 		controlsConstraints.gridx = 0;
 		controlsConstraints.gridy = 0;
 		controlsConstraints.fill = GridBagConstraints.BOTH;
 		bottomPanel.add(controlsPanel, controlsConstraints);
+		// TODO: Add a close button
 		
-		JButton calculateButton = new JButton("Calculate");
+		calculateButton = new JButton("Calculate");
 		GridBagConstraints calculateConstraints = new GridBagConstraints();
 		calculateConstraints.gridx = 0;
 		calculateConstraints.gridy = 1;
@@ -172,7 +195,7 @@ public class CalculateHandDialog extends JDialog
 		
 		JPanel resultsPanel = new JPanel(new BorderLayout());
 		resultsPanel.setBorder(new TitledBorder("Results"));
-		JLabel resultsLabel = new JLabel("Probability in opening hand: N/A%");
+		resultsLabel = new JLabel("Probability in opening hand: N/A%");
 		resultsLabel.setVerticalAlignment(JLabel.TOP);
 		resultsLabel.setHorizontalAlignment(JLabel.LEFT);
 		resultsPanel.add(resultsLabel);
@@ -219,10 +242,46 @@ public class CalculateHandDialog extends JDialog
 					excludeModel.addElement(c);
 		});
 		
-		// TODO: Outsource this to a worker
 		calculateButton.addActionListener((e) -> {
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			
+			calculateButton.setEnabled(false);
+			addButton.setEnabled(false);
+			removeButton.setEnabled(false);
+			excludeButton.setEnabled(false);
+			minSizeSpinner.setEnabled(false);
+			iterationsSpinner.setEnabled(false);
+			worker = new CalculateHandWorker();
+			worker.execute();
+		});
+		
+		addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				if (worker == null || worker.isDone())
+					dispose();
+				else if (JOptionPane.showConfirmDialog(null, "A Calculation is being performed.  Are you sure you want to close?", "Stop Calculation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+				{
+					worker.cancel(true);
+					dispose();
+				}
+			}
+		});
+	}
+	
+	private class CalculateHandWorker extends SwingWorker<Void, Integer>
+	{
+		private int successes;
+		
+		@Override
+		protected void process(List<Integer> chunks)
+		{
+			resultsLabel.setText("Finished iteration " + chunks.get(chunks.size() - 1));
+		}
+		
+		@Override
+		protected Void doInBackground() throws Exception
+		{
 			List<Card> need = new ArrayList<Card>();
 			for (int i = 0; i < handModel.size(); i++)
 				need.add(handModel.get(i));
@@ -230,8 +289,8 @@ public class CalculateHandDialog extends JDialog
 			for (int i = 0; i < excludeModel.size(); i++)
 				excluded.add(excludeModel.get(i));
 			
-			Hand cards = new Hand(d, excluded);
-			int successes = 0;
+			Hand cards = new Hand(deck, excluded);
+			successes = 0;
 			for (int i = 0; i < (Integer)iterationsSpinner.getValue(); i++)
 			{
 				cards.newHand(handSize);
@@ -255,11 +314,21 @@ public class CalculateHandDialog extends JDialog
 					else
 						cards.mulligan();
 				} while (cards.size() >= (Integer)minSizeSpinner.getValue());
-//				resultsLabel.setText("Finished iteration " + i + ".");
+				publish(i);
 			}
+			return null;
+		}
+		
+		@Override
+		protected void done()
+		{
 			resultsLabel.setText(String.format("Probability in opening hand: %.2f%%", 100.0*successes/(Integer)iterationsSpinner.getValue()));
-			
-			setCursor(Cursor.getDefaultCursor());
-		});
+			calculateButton.setEnabled(true);
+			addButton.setEnabled(true);
+			removeButton.setEnabled(true);
+			excludeButton.setEnabled(true);
+			minSizeSpinner.setEnabled(true);
+			iterationsSpinner.setEnabled(true);
+		}
 	}
 }
