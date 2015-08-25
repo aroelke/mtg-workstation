@@ -626,8 +626,7 @@ public class EditorFrame extends JInternalFrame
 			categories.clear();
 			categoriesContainer.removeAll();
 			updateCategorySwitch();
-			revalidate();
-			repaint();
+			update();
 		}
 		listTabs.setSelectedIndex(MAIN_TABLE);
 		hand.refresh();
@@ -846,8 +845,7 @@ public class EditorFrame extends JInternalFrame
 			
 			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 			updateCategorySwitch();
-			revalidate();
-			repaint();
+			update();
 			setUnsaved();
 			listTabs.setSelectedIndex(CATEGORIES);
 			return true;
@@ -876,11 +874,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				toEdit.edit(editor.name(), editor.color(), editor.repr(), editor.filter());
 				updateCategorySwitch();
-				revalidate();
-				repaint();
-				table.repaint();
-				for (CategoryPanel category: categories)
-					category.update();
+				update();
 				setUnsaved();
 				undoBuffer.push(new EditCategoryAction(this, oldRepr, oldFilter, toEdit.toString(), toEdit.filter()));
 				redoBuffer.clear();
@@ -930,8 +924,7 @@ public class EditorFrame extends JInternalFrame
 			if (removed)
 				categoriesContainer.remove(category);
 			updateCategorySwitch();
-			revalidate();
-			repaint();
+			update();
 			setUnsaved();
 			listTabs.setSelectedIndex(CATEGORIES);
 			return removed;
@@ -1099,8 +1092,6 @@ public class EditorFrame extends JInternalFrame
 						c.table.addRowSelectionInterval(row, row);
 				}
 				model.fireTableDataChanged();
-				categoriesContainer.revalidate();
-				categoriesContainer.repaint();
 				break;
 			default:
 				deck.increaseAll(toAdd, n);
@@ -1119,8 +1110,7 @@ public class EditorFrame extends JInternalFrame
 			handModel.fireTableDataChanged();
 			updateCount();
 			setUnsaved();
-			revalidate();
-			repaint();
+			update();
 			parent.revalidate();
 			parent.repaint();
 			return true;
@@ -1253,8 +1243,6 @@ public class EditorFrame extends JInternalFrame
 						}
 					}
 				}
-				categoriesContainer.revalidate();
-				categoriesContainer.repaint();
 				model.fireTableDataChanged();
 				break;
 			default:
@@ -1278,8 +1266,7 @@ public class EditorFrame extends JInternalFrame
 				updateCount();
 				setUnsaved();
 			}
-			revalidate();
-			repaint();
+			update();
 			parent.revalidate();
 			parent.repaint();
 			return removed;
@@ -1312,8 +1299,7 @@ public class EditorFrame extends JInternalFrame
 				setUnsaved();
 				if (table.isEditing())
 					table.getCellEditor().cancelCellEditing();
-				revalidate();
-				repaint();
+				update();
 				parent.revalidate();
 				parent.repaint();
 			}
@@ -1519,8 +1505,7 @@ public class EditorFrame extends JInternalFrame
 		handModel.setColumns(handColumns);
 		handTable.setStripeColor(stripe);
 		startingHandSize = Integer.valueOf(parent.getSetting(SettingsDialog.HAND_SIZE));
-		revalidate();
-		repaint();
+		update();
 	}
 	
 	/**
@@ -1543,14 +1528,12 @@ public class EditorFrame extends JInternalFrame
 	
 	/**
 	 * Update the GUI to show the latest state of the deck.
-	 * TODO: Replace all instances of repaint() in EditorFrame with update()
+	 * XXX: Graphical errors could be attributed to this function
 	 */
 	public void update()
 	{
 		revalidate();
 		repaint();
-		table.revalidate();
-		table.repaint();
 		for (CategoryPanel panel: categories)
 			panel.update();
 	}
