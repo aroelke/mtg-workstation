@@ -174,11 +174,20 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private DefaultComboBoxModel<String> switchCategoryModel;
 	/**
-	 * TODO: Comment this
+	 * Hand containing cards to show in the sample hand tab.
 	 */
 	private Hand hand;
+	/**
+	 * Model for displaying the sample hand.
+	 */
 	private CardTableModel handModel;
+	/**
+	 * Table displaying the sample hand.
+	 */
 	private CardTable handTable;
+	/**
+	 * Size of starting hands.
+	 */
 	private int startingHandSize;
 
 	/**
@@ -1533,7 +1542,7 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * Update the GUI to show the latest state of the deck.
 	 * TODO: Replace all instances of repaint() in EditorFrame with update()
 	 */
 	public void update()

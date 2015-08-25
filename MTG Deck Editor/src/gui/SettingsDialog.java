@@ -126,9 +126,12 @@ public class SettingsDialog extends JDialog
 	 */
 	public static final String EDITOR_PRESETS = "editor.presets";
 	/**
-	 * TODO: Comment these
+	 * Default initial size for a hand.
 	 */
 	public static final String HAND_SIZE = "hand.size";
+	/**
+	 * Columns to display in the sample hand tab.
+	 */
 	public static final String HAND_COLUMNS = "hand.columns";
 	
 	/**
@@ -220,9 +223,12 @@ public class SettingsDialog extends JDialog
 	 */
 	private CategoryListModel categoriesListModel;
 	/**
-	 * TODO: Comment these
+	 * Columns to display in the sample hand table.
 	 */
 	private List<JCheckBox> handColumnCheckBoxes;
+	/**
+	 * Number of cards to draw in the starting hand.
+	 */
 	private JSpinner startingSizeSpinner;
 	
 	/**

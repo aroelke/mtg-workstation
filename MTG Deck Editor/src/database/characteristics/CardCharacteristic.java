@@ -126,9 +126,11 @@ public enum CardCharacteristic
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param frame
-	 * @return
+	 * Create an instance of the editor for cells containing this CardCharacteristic.
+	 * 
+	 * @param frame Frame containing the table with the cell to edit. Reserved for future use.
+	 * @return An instance of the editor for this CardCharacteristic, or null if it can't be
+	 * edited.
 	 */
 	public TableCellEditor createCellEditor(EditorFrame frame)
 	{
