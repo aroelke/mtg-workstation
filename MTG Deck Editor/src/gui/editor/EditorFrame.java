@@ -842,15 +842,6 @@ public class EditorFrame extends JInternalFrame
 			});
 			tableMenu.add(removeFromCategoryItem);
 			
-			/*
-			 *  TODO: Create a popup menu for the category panel itself with the following items:
-			 * - cut
-			 * - copy
-			 * - paste
-			 * - edit
-			 * - delete
-			 * - add to presets
-			 */
 			// Category popup menu
 			JPopupMenu categoryMenu = new JPopupMenu();
 			newCategory.setComponentPopupMenu(categoryMenu);
