@@ -230,6 +230,10 @@ public class SettingsDialog extends JDialog
 	 * Number of cards to draw in the starting hand.
 	 */
 	private JSpinner startingSizeSpinner;
+	/**
+	 * Delimiter for preset categories in the settings file.
+	 */
+	public static final String CATEGORY_DELIMITER = "∎";
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -324,7 +328,7 @@ public class SettingsDialog extends JDialog
 		// Check for update on startup
 		JPanel updatePanel = new JPanel(new BorderLayout());
 		updateCheckBox = new JCheckBox("Check for update on program start");
-		updateCheckBox.setSelected(Boolean.valueOf(properties.getProperty(INITIALDIR)));
+		updateCheckBox.setSelected(Boolean.valueOf(properties.getProperty(INITIAL_CHECK)));
 		updatePanel.add(updateCheckBox, BorderLayout.WEST);
 		updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
 		inventoryPanel.add(updatePanel);
@@ -399,7 +403,7 @@ public class SettingsDialog extends JDialog
 		
 		categoriesListModel = new CategoryListModel();
 		if (!properties.getProperty(EDITOR_PRESETS).isEmpty())
-			for (String category: properties.getProperty(EDITOR_PRESETS).split(MainFrame.CATEGORY_DELIMITER))
+			for (String category: properties.getProperty(EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
 				categoriesListModel.addElement(category);
 		JList<String> categoriesList = new JList<String>(categoriesListModel);
 		categoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -609,7 +613,7 @@ public class SettingsDialog extends JDialog
 				join.add(box.getText());
 		properties.put(EDITOR_COLUMNS, join.toString());
 		properties.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
-		join = new StringJoiner(MainFrame.CATEGORY_DELIMITER);
+		join = new StringJoiner(SettingsDialog.CATEGORY_DELIMITER);
 		for (int i = 0; i < categoriesListModel.getSize(); i++)
 			join.add(categoriesListModel.getCategoryAt(i));
 		properties.put(EDITOR_PRESETS, join.toString());

@@ -842,6 +842,49 @@ public class EditorFrame extends JInternalFrame
 			});
 			tableMenu.add(removeFromCategoryItem);
 			
+			/*
+			 *  TODO: Create a popup menu for the category panel itself with the following items:
+			 * - cut
+			 * - copy
+			 * - paste
+			 * - edit
+			 * - delete
+			 * - add to presets
+			 */
+			// Category popup menu
+			JPopupMenu categoryMenu = new JPopupMenu();
+			newCategory.setComponentPopupMenu(categoryMenu);
+			
+			// Cut item
+			JMenuItem cutItem = new JMenuItem("Cut");
+			cutItem.setEnabled(false); // TODO: Implement this
+			categoryMenu.add(cutItem);
+			
+			// Copy item
+			JMenuItem copyItem = new JMenuItem("Copy");
+			copyItem.setEnabled(false); // TODO: Implement this
+			categoryMenu.add(copyItem);
+			
+			// Paste item
+			JMenuItem pasteItem = new JMenuItem("Paste");
+			pasteItem.setEnabled(false); // TODO: Implement this
+			categoryMenu.add(pasteItem);
+			
+			// Edit item
+			JMenuItem editItem = new JMenuItem("Edit...");
+			editItem.addActionListener((e) -> editCategory(newCategory.name()));
+			categoryMenu.add(editItem);
+			
+			// Delete item
+			JMenuItem deleteItem = new JMenuItem("Delete");
+			deleteItem.addActionListener((e) -> removeCategory(newCategory));
+			categoryMenu.add(deleteItem);
+			
+			// Add to presets item
+			JMenuItem addPresetItem = new JMenuItem("Add to presets");
+			addPresetItem.addActionListener((e) -> parent.addPreset(newCategory.toString()));
+			categoryMenu.add(addPresetItem);
+			
 			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 			updateCategorySwitch();
 			update();

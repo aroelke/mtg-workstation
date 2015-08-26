@@ -107,11 +107,6 @@ public class MainFrame extends JFrame
 	 */
 	public static final int UPDATE_CANCELLED = 2;
 	/**
-	 * Delimiter for preset categories in the settings file.
-	 */
-	public static final String CATEGORY_DELIMITER = "∎";
-	
-	/**
 	 * Inventory of all cards.
 	 */
 	private Inventory inventory;
@@ -463,7 +458,7 @@ public class MainFrame extends JFrame
 		// Preset categories menu
 		presetMenu = new JMenu("Add Preset");
 		categoryMenu.add(presetMenu);
-		for (String category: properties.getProperty(SettingsDialog.EDITOR_PRESETS).split(CATEGORY_DELIMITER))
+		for (String category: properties.getProperty(SettingsDialog.EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
 		{
 			CategoryEditorPanel editor = new CategoryEditorPanel(category);
 			JMenuItem categoryItem = new JMenuItem(editor.name());
@@ -884,7 +879,7 @@ public class MainFrame extends JFrame
 		for (EditorFrame frame: editors)
 			frame.setSettings(properties);
 		presetMenu.removeAll();
-		for (String category: properties.getProperty(SettingsDialog.EDITOR_PRESETS).split(CATEGORY_DELIMITER))
+		for (String category: properties.getProperty(SettingsDialog.EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
 		{
 			CategoryEditorPanel editor = new CategoryEditorPanel(category);
 			JMenuItem categoryItem = new JMenuItem(editor.name());
@@ -959,6 +954,23 @@ public class MainFrame extends JFrame
 			mostRecent.addActionListener((e) -> open(f));
 			recentsMenu.add(mostRecent);
 		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param category
+	 */
+	public void addPreset(String category)
+	{
+		properties.compute(SettingsDialog.EDITOR_PRESETS, (k, v) -> v += SettingsDialog.CATEGORY_DELIMITER + category);
+		
+		CategoryEditorPanel editor = new CategoryEditorPanel(category);
+		JMenuItem categoryItem = new JMenuItem(editor.name());
+		categoryItem.addActionListener((e) -> {
+			if (selectedFrame != null)
+				selectedFrame.addCategory(new CategoryPanel(editor.name(), editor.color(), editor.repr(), editor.filter(), selectedFrame));
+		});
+		presetMenu.add(categoryItem);
 	}
 	
 	/**
