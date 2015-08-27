@@ -83,6 +83,7 @@ import database.characteristics.CardCharacteristic;
  * inventory from which cards can be added.
  * 
  * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
+ * TODO: Make popup menu category exclusion work for multiple card selection
  * 
  * @author Alec Roelke
  */
