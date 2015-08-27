@@ -1209,8 +1209,8 @@ public class Deck implements CardCollection
 				for (Entry e: masterList)
 				{
 					if (!includes(e.card))
-						e.categories.add(this);
-					else if (includes(e.card) && !e.categories.contains(this))
+						e.categories.remove(this);
+					else if (!e.categories.contains(this))
 						e.categories.add(this);
 				}
 				return true;
