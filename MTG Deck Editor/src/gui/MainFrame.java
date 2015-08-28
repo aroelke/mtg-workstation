@@ -570,6 +570,7 @@ public class MainFrame extends JFrame
 		oracleLabelPanel.add(new JLabel("Oracle Text:"));
 		
 		// Pane displaying the Oracle text
+		// TODO: Add a popup menu that allows the user to add the card shown here to the deck
 		oracleTextPane = new JTextPane();
 		oracleTextPane.setEditable(false);
 		oracleTextPane.setContentType("text/html");
