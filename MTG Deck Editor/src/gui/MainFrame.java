@@ -869,7 +869,7 @@ public class MainFrame extends JFrame
 		{
 			JOptionPane.showMessageDialog(null, "Bad file URL: " + properties.getProperty(SettingsDialog.INVENTORY_SOURCE) + properties.getProperty(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
 		}
-		inventoryFile = new File(properties.getProperty(SettingsDialog.INVENTORY_LOCATION) + properties.getProperty(SettingsDialog.INVENTORY_FILE));
+		inventoryFile = new File(properties.getProperty(SettingsDialog.INVENTORY_LOCATION) + '\\' + properties.getProperty(SettingsDialog.INVENTORY_FILE));
 		recentCount = Integer.valueOf(properties.getProperty(SettingsDialog.RECENT_COUNT));
 		if (properties.getProperty(SettingsDialog.INVENTORY_COLUMNS).isEmpty())
 			properties.put(SettingsDialog.INVENTORY_COLUMNS, "Name,Expansion,Mana Cost,Type");
