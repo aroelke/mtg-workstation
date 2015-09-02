@@ -37,6 +37,8 @@ import database.characteristics.CardCharacteristic;
 /**
  * This class represents a panel that shows information about a category in a deck.
  * 
+ * TODO: Make it so that each category can have its own columns
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
