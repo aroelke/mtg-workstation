@@ -30,6 +30,10 @@ import database.Card;
  * can be changed using a combo box.  When the filter is retrieved, only the active
  * filter is used.  A FilterContainer can also be removed using its remove button.
  * 
+ * TODO: Add a "defaults" filter type to add one of the default categories' filters to the filter
+ * - this will be expanded into a filter group when committed to a category
+ * TODO: Add an "empty" filter type that matches no cards
+ * 
  * @author Alec
  */
 @SuppressWarnings("serial")
