@@ -1,5 +1,6 @@
 package gui.filter.editor.options;
 
+import gui.filter.FilterType;
 import gui.filter.editor.FilterEditorPanel;
 
 /**
@@ -11,4 +12,12 @@ import gui.filter.editor.FilterEditorPanel;
 @SuppressWarnings("serial")
 public abstract class OptionsFilterPanel extends FilterEditorPanel
 {
+	/**
+	 * TODO: Comment this
+	 * @param type
+	 */
+	public OptionsFilterPanel(FilterType type)
+	{
+		super(type);
+	}
 }

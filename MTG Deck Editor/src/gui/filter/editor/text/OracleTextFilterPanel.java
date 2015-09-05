@@ -16,6 +16,6 @@ public class OracleTextFilterPanel extends TextFilterPanel
 	 */
 	public OracleTextFilterPanel()
 	{
-		super((c) -> c.normalizedText(), FilterType.RULES_TEXT.code);
+		super(FilterType.RULES_TEXT, (c) -> c.normalizedText(), FilterType.RULES_TEXT.code);
 	}
 }

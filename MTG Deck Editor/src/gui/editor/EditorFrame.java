@@ -622,6 +622,7 @@ public class EditorFrame extends JInternalFrame
 		catch (InterruptedException | ExecutionException e)
 		{
 			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
 			deck.clear();
 			updateCount();
 			categories.clear();

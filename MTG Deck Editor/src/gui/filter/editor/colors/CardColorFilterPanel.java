@@ -15,6 +15,6 @@ public class CardColorFilterPanel extends ColorFilterPanel
 	 */
 	public CardColorFilterPanel()
 	{
-		super((c) -> c.colors(), FilterType.COLOR.code);
+		super(FilterType.COLOR, (c) -> c.colors(), FilterType.COLOR.code);
 	}
 }

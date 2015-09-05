@@ -1,5 +1,6 @@
 package gui.filter;
 
+import gui.filter.editor.EmptyFilterPanel;
 import gui.filter.editor.FilterEditorPanel;
 import gui.filter.editor.ManaCostFilterPanel;
 import gui.filter.editor.TypeLineFilterPanel;
@@ -50,7 +51,8 @@ public enum FilterType
 	LOYALTY("Loyalty", "l", LoyaltyFilterPanel.class),
 	ARTIST("Artist", "a", ArtistFilterPanel.class),
 	CARD_NUMBER("Card Number", "#", CardNumberFilterPanel.class),
-	FORMAT_LEGALITY("Format Legality", "legal", LegalFilterPanel.class);
+	FORMAT_LEGALITY("Format Legality", "legal", LegalFilterPanel.class),
+	NONE("<No Card>", "0", EmptyFilterPanel.class);
 	
 	/**
 	 * Get a FilterType from a String.
@@ -63,7 +65,7 @@ public enum FilterType
 		for (FilterType filterType: FilterType.values())
 			if (c.equalsIgnoreCase(filterType.code))
 				return filterType;
-		throw new IllegalArgumentException("Illegal filter type string");
+		throw new IllegalArgumentException("Illegal filter type string " + c);
 	}
 	
 	/**

@@ -1,5 +1,6 @@
 package gui.filter.editor.number;
 
+import gui.filter.FilterType;
 import gui.filter.editor.FilterEditorPanel;
 
 import java.awt.Dimension;
@@ -44,9 +45,9 @@ public class NumberFilterPanel extends FilterEditorPanel
 	 */
 	private String code;
 	
-	public NumberFilterPanel(Function<Card, Collection<Double>> op, String c)
+	public NumberFilterPanel(FilterType type, Function<Card, Collection<Double>> op, String c)
 	{
-		super();
+		super(type);
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		// Combo box for choosing the type of comparison to make
@@ -84,6 +85,11 @@ public class NumberFilterPanel extends FilterEditorPanel
 	public boolean isEmpty()
 	{
 		return false;
+	}
+	
+	protected String repr()
+	{
+		return comparisonBox.getSelectedItem().toString() + spinner.getValue();
 	}
 	
 	/**

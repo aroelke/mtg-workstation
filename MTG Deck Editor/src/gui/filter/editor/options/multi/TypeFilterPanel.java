@@ -16,6 +16,6 @@ public class TypeFilterPanel extends MultiOptionsFilterPanel<String>
 	 */
 	public TypeFilterPanel()
 	{
-		super(Card.typeList, (c) -> c.types(), FilterType.TYPE.code);
+		super(FilterType.TYPE, Card.typeList, (c) -> c.types(), FilterType.TYPE.code);
 	}
 }

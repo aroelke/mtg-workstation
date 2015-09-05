@@ -37,7 +37,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 	
 	public TypeLineFilterPanel()
 	{
-		super();
+		super(FilterType.TYPE_LINE);
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		// Containment type combo box
@@ -71,6 +71,11 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 	public boolean isEmpty()
 	{
 		return filter.getText().isEmpty();
+	}
+	
+	protected String repr()
+	{
+		return contain.getSelectedItem().toString() + "\"" + filter.getText() + "\"";
 	}
 	
 	/**

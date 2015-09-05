@@ -17,6 +17,6 @@ public class RarityFilterPanel extends SingletonOptionsFilterPanel<Rarity>
 	 */
 	public RarityFilterPanel()
 	{
-		super(Rarity.values(), (c) -> c.rarity(), FilterType.RARITY.code);
+		super(FilterType.RARITY, Rarity.values(), (c) -> c.rarity(), FilterType.RARITY.code);
 	}
 }

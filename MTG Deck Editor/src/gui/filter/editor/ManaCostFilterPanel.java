@@ -38,7 +38,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 	 */
 	public ManaCostFilterPanel()
 	{
-		super();
+		super(FilterType.MANA_COST);
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		// The panel only contains a combo box for defining set containment
 		// and a text box.
@@ -80,6 +80,11 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 	public boolean isEmpty()
 	{
 		return filterValue.getText().isEmpty();
+	}
+	
+	protected String repr()
+	{
+		return contain.getSelectedItem().toString() + "\"" + ManaCost.valueOf(filterValue.getText()).toString() + "\"";
 	}
 	
 	/**

@@ -20,6 +20,6 @@ public class CMCFilterPanel extends NumberFilterPanel
 	 */
 	public CMCFilterPanel()
 	{
-		super((c) -> c.mana().stream().map(ManaCost::cmc).collect(Collectors.toList()), FilterType.CMC.code);
+		super(FilterType.CMC, (c) -> c.mana().stream().map(ManaCost::cmc).collect(Collectors.toList()), FilterType.CMC.code);
 	}
 }

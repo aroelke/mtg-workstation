@@ -25,7 +25,7 @@ public class PowerFilterPanel extends NumberFilterPanel
 	 */
 	public PowerFilterPanel()
 	{
-		super((c) -> c.power().stream().map((p) -> (double)p.value).collect(Collectors.toList()), FilterType.POWER.code);
+		super(FilterType.POWER, (c) -> c.power().stream().map((p) -> (double)p.value).collect(Collectors.toList()), FilterType.POWER.code);
 		
 		// Check box for selecting variable values.  If this is selected, then
 		// a numerical comparison is not made and instead the filter will filter

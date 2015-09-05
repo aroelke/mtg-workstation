@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import javax.swing.JPanel;
 
 import database.Card;
+import gui.filter.FilterType;
 
 /**
  * This class represents a JPanel that can create a filter for a list of Cards.  It can
@@ -17,12 +18,15 @@ import database.Card;
 @SuppressWarnings("serial")
 public abstract class FilterEditorPanel extends JPanel
 {
+	private FilterType type;
+	
 	/**
 	 * Create a new FilterPanel.  The appearance of a FilterPanel is filter-specific.
 	 */
-	public FilterEditorPanel()
+	public FilterEditorPanel(FilterType t)
 	{
 		super();
+		type = t;
 	}
 	
 	/**
@@ -51,4 +55,19 @@ public abstract class FilterEditorPanel extends JPanel
 	 * no changes have been made, so they will always return <code>true</code>.
 	 */
 	public abstract boolean isEmpty();
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	protected abstract String repr();
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public String toString()
+	{
+		return type.code + ":" + repr();
+	}
 }

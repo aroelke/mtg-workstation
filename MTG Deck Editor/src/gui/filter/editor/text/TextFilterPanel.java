@@ -1,7 +1,5 @@
 package gui.filter.editor.text;
 
-import gui.filter.editor.FilterEditorPanel;
-
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -14,8 +12,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
-import util.Containment;
 import database.Card;
+import gui.filter.FilterType;
+import gui.filter.editor.FilterEditorPanel;
+import util.Containment;
 
 /**
  * This class represents a FilterPanel that can filter a Card based on a characteristic
@@ -87,9 +87,9 @@ public class TextFilterPanel extends FilterEditorPanel
 	 * @param t Function representing the characteristic to search through
 	 * @param c This filter's code.
 	 */
-	public TextFilterPanel(Function<Card, List<String>> t, String c)
+	public TextFilterPanel(FilterType type, Function<Card, List<String>> t, String c)
 	{
-		super();
+		super(type);
 		text = t;
 		code = c;
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -167,6 +167,12 @@ public class TextFilterPanel extends FilterEditorPanel
 	public boolean isEmpty()
 	{
 		return filterValue.getText().isEmpty();
+	}
+	
+	protected String repr()
+	{
+		boolean r = regex != null && regex.isSelected();
+		return contain.getSelectedItem().toString() + (r ? "/" : "\"") + filterValue.getText() + (r ? "/" : "\"");
 	}
 	
 	/**

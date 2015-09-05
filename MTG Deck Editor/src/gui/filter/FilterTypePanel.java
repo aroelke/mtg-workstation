@@ -32,9 +32,8 @@ import database.Card;
  * 
  * TODO: Add a "defaults" filter type to add one of the default categories' filters to the filter
  * - this will be expanded into a filter group when committed to a category
- * TODO: Add an "empty" filter type that matches no cards
  * 
- * @author Alec
+ * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class FilterTypePanel extends FilterPanel

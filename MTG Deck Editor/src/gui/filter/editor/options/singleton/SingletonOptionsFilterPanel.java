@@ -1,8 +1,5 @@
 package gui.filter.editor.options.singleton;
 
-import gui.filter.FilterTypePanel;
-import gui.filter.editor.options.OptionsFilterPanel;
-
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.Arrays;
@@ -13,8 +10,11 @@ import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-import util.Containment;
 import database.Card;
+import gui.filter.FilterType;
+import gui.filter.FilterTypePanel;
+import gui.filter.editor.options.OptionsFilterPanel;
+import util.Containment;
 
 /**
  * This class represents a FilterPanel that filters Cards by a characteristic that has one value
@@ -57,9 +57,9 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	 * @param f Card characteristic to filter
 	 * @param c This FilterPanel's code.
 	 */
-	public SingletonOptionsFilterPanel(T[] o, Function<Card, T> f, String c)
+	public SingletonOptionsFilterPanel(FilterType type, T[] o, Function<Card, T> f, String c)
 	{
-		super();
+		super(type);
 		
 		param = f;
 		code = c;
@@ -111,6 +111,11 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	public boolean isEmpty()
 	{
 		return optionsBox.getSelectedIndices().length == 0;
+	}
+	
+	protected String repr()
+	{
+		return contain.getSelectedItem().toString() + "{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
 	}
 	
 	/**

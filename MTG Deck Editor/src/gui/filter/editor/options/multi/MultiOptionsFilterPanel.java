@@ -1,8 +1,5 @@
 package gui.filter.editor.options.multi;
 
-import gui.filter.FilterTypePanel;
-import gui.filter.editor.options.OptionsFilterPanel;
-
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.List;
@@ -13,8 +10,11 @@ import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-import util.Containment;
 import database.Card;
+import gui.filter.FilterType;
+import gui.filter.FilterTypePanel;
+import gui.filter.editor.options.OptionsFilterPanel;
+import util.Containment;
 
 /**
  * This class represents a FilterPanel that filters Cards by a characteristic that has multiple
@@ -56,9 +56,9 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	 * @param f Card characteristic to filter
 	 * @param c This FilterPanel's code.
 	 */
-	public MultiOptionsFilterPanel(T[] o, Function<Card, List<T>> f, String c)
+	public MultiOptionsFilterPanel(FilterType type, T[] o, Function<Card, List<T>> f, String c)
 	{
-		super();
+		super(type);
 		
 		param = f;
 		code = c;
@@ -110,6 +110,11 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	public boolean isEmpty()
 	{
 		return optionsBox.getSelectedIndices().length == 0;
+	}
+	
+	protected String repr()
+	{
+		return contain.getSelectedItem().toString() + "{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
 	}
 	
 	/**

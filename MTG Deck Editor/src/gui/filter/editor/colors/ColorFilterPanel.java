@@ -1,5 +1,6 @@
 package gui.filter.editor.colors;
 
+import gui.filter.FilterType;
 import gui.filter.editor.FilterEditorPanel;
 
 import java.awt.Dimension;
@@ -101,9 +102,9 @@ public class ColorFilterPanel extends FilterEditorPanel
 	 * to filter
 	 * @param c This filter's code
 	 */
-	public ColorFilterPanel(Function<Card, MTGColor.Tuple> f, String c)
+	public ColorFilterPanel(FilterType type, Function<Card, MTGColor.Tuple> f, String c)
 	{
-		super();
+		super(type);
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		colorFunction = f;
@@ -189,6 +190,22 @@ public class ColorFilterPanel extends FilterEditorPanel
 	public boolean isEmpty()
 	{
 		return false;
+	}
+	
+	protected String repr()
+	{
+		StringJoiner joiner = new StringJoiner("", "\"", "\"");
+		if (whiteCheckBox.isSelected())
+			joiner.add(String.valueOf(WHITE.color().shorthand()));
+		if (blueCheckBox.isSelected())
+			joiner.add(String.valueOf(BLUE.color().shorthand()));
+		if (blackCheckBox.isSelected())
+			joiner.add(String.valueOf(BLACK.color().shorthand()));
+		if (redCheckBox.isSelected())
+			joiner.add(String.valueOf(RED.color().shorthand()));
+		if (greenCheckBox.isSelected())
+			joiner.add(String.valueOf(GREEN.color().shorthand()));
+		return contain.getSelectedItem().toString() + joiner.toString();
 	}
 	
 	/**
