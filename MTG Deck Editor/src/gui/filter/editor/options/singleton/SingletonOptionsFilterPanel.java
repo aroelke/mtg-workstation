@@ -117,16 +117,6 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	{
 		return contain.getSelectedItem().toString() + "{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
 	}
-	
-	/**
-	 * @return A String representation of this SingletonOptionsFilterPanel, which is its code
-	 * followed by the list of selected values separated by commas in {}.
-	 */
-	@Override
-	public String toString()
-	{
-		return code + ":" + contain.getSelectedItem().toString() + "{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
-	}
 
 	/**
 	 * Automatically selects values in the list from the given String.

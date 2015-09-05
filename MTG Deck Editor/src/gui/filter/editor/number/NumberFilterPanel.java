@@ -91,16 +91,6 @@ public class NumberFilterPanel extends FilterEditorPanel
 	{
 		return comparisonBox.getSelectedItem().toString() + spinner.getValue();
 	}
-	
-	/**
-	 * @return A String representation of this NumberFilterPanel, which is its code
-	 * followed by the comparison to make and the number to compare to.
-	 */
-	@Override
-	public String toString()
-	{
-		return code + ":" + comparisonBox.getSelectedItem().toString() + spinner.getValue();
-	}
 
 	/**
 	 * Set the value of the comparison combo box and the spinner

@@ -209,27 +209,6 @@ public class ColorFilterPanel extends FilterEditorPanel
 	}
 	
 	/**
-	 * @return A String representation of this ColorFilterPanel, which appears as its
-	 * code followed by {} containing its list of colors.
-	 */
-	@Override
-	public String toString()
-	{
-		StringJoiner joiner = new StringJoiner("", "\"", "\"");
-		if (whiteCheckBox.isSelected())
-			joiner.add(String.valueOf(WHITE.color().shorthand()));
-		if (blueCheckBox.isSelected())
-			joiner.add(String.valueOf(BLUE.color().shorthand()));
-		if (blackCheckBox.isSelected())
-			joiner.add(String.valueOf(BLACK.color().shorthand()));
-		if (redCheckBox.isSelected())
-			joiner.add(String.valueOf(RED.color().shorthand()));
-		if (greenCheckBox.isSelected())
-			joiner.add(String.valueOf(GREEN.color().shorthand()));
-		return code + ":" + contain.getSelectedItem().toString() + joiner.toString();
-	}
-	
-	/**
 	 * Automatically select check boxes based on the colors present in the given
 	 * String.
 	 * 

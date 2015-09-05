@@ -77,17 +77,6 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 	{
 		return contain.getSelectedItem().toString() + "\"" + filter.getText() + "\"";
 	}
-	
-	/**
-	 * @return A String representation of this TypeLineFilterPanel, which is its code
-	 * followed by the selected containment type and then the text box's contents inside
-	 * quotes.
-	 */
-	@Override
-	public String toString()
-	{
-		return FilterType.TYPE_LINE.code + ":" + contain.getSelectedItem().toString() + "\"" + filter.getText() + "\"";
-	}
 
 	/**
 	 * Set the set containment type combo box, and then set the text box's contents

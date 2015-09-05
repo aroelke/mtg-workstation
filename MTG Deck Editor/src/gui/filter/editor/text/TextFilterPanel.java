@@ -174,18 +174,6 @@ public class TextFilterPanel extends FilterEditorPanel
 		boolean r = regex != null && regex.isSelected();
 		return contain.getSelectedItem().toString() + (r ? "/" : "\"") + filterValue.getText() + (r ? "/" : "\"");
 	}
-	
-	/**
-	 * @return A String representation of this TextFilterPanel, which is its code followed by
-	 * the set containment type followed by the filter expression surrounded by quotes if it is
-	 * a simple filter and // if it is a regex.
-	 */
-	@Override
-	public String toString()
-	{
-		boolean r = regex != null && regex.isSelected();
-		return code + ":" + contain.getSelectedItem().toString() + (r ? "/" : "\"") + filterValue.getText() + (r ? "/" : "\"");
-	}
 
 	/**
 	 * Set the type of containment, the filter expression, and whether or not the filter is

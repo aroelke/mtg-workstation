@@ -47,10 +47,4 @@ public class EmptyFilterPanel extends FilterEditorPanel
 	{
 		return "";
 	}
-	
-	@Override
-	public String toString()
-	{
-		return FilterType.NONE.code + ":";
-	}
 }

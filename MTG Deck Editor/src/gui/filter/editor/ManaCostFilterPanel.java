@@ -86,16 +86,6 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 	{
 		return contain.getSelectedItem().toString() + "\"" + ManaCost.valueOf(filterValue.getText()).toString() + "\"";
 	}
-	
-	/**
-	 * @return A String representation of this ManaCostFilterPanel, which is its code followed by
-	 * the selected containment type and then the contents of the filter box inside quotes.
-	 */
-	@Override
-	public String toString()
-	{
-		return FilterType.MANA_COST.code + ":" + contain.getSelectedItem().toString() + "\"" + ManaCost.valueOf(filterValue.getText()).toString() + "\"";
-	}
 
 	/**
 	 * Change the value of the set containment combo box and the value of the filter text box
