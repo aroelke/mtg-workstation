@@ -33,6 +33,18 @@ public class HybridSymbol extends Symbol
 	}
 	
 	/**
+	 * Get the HybridSymbol corresponding to the given MTGColors.
+	 * 
+	 * @param colors MTGColors to look up
+	 * @return The HybridSymbol corresponding to the given MTGColors, or
+	 * null if no such symbol exists.
+	 */
+	public static HybridSymbol get(MTGColor... colors)
+	{
+		return SYMBOLS.get(new MTGColor.Tuple(colors));
+	}
+	
+	/**
 	 * This HybridSymbol's Tuple of colors.
 	 */
 	private final MTGColor.Tuple colors;

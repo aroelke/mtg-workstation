@@ -27,6 +27,18 @@ public class ColorSymbol extends Symbol
 	}
 	
 	/**
+	 * Get the symbol corresponding to a color.
+	 * 
+	 * @param col MTGColor to find the symbol for
+	 * @return The ColorSymbol corresponding to the given MTGColor, or null
+	 * if none exists. 
+	 */
+	public static ColorSymbol get(MTGColor col)
+	{
+		return SYMBOLS.get(col);
+	}
+	
+	/**
 	 * Color of this ColorSymbol.
 	 */
 	private final MTGColor color;

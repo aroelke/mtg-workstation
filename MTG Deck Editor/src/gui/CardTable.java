@@ -131,7 +131,7 @@ public class CardTable extends JTable
 				else
 					colorPanel.setBorder(new EmptyBorder(0, 1, -1, 0));
 				for (MTGColor color: colors)
-					colorPanel.add(new JLabel(ColorSymbol.SYMBOLS.get(color).getIcon(13)));
+					colorPanel.add(new JLabel(ColorSymbol.get(color).getIcon(13)));
 				colorPanel.setBackground(c.getBackground());
 				colorPanel.setForeground(c.getForeground());
 				return colorPanel;

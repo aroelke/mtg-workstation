@@ -28,6 +28,18 @@ public class PhyrexianSymbol extends Symbol
 	}
 	
 	/**
+	 * Get the PhyrexianSymbol corresponding to the given color.
+	 * 
+	 * @param col MTGColor corresponding to the symbol to get
+	 * @return The PhyrexianSymbol corresponding to the given MTGColor, or
+	 * null if no such symbol exists.
+	 */
+	public static PhyrexianSymbol get(MTGColor col)
+	{
+		return SYMBOLS.get(col);
+	}
+	
+	/**
 	 * This PhyrexianSymbol's color.
 	 */
 	public final MTGColor color;

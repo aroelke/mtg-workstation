@@ -71,7 +71,7 @@ public abstract class Symbol implements Comparable<Symbol>
 			// First try to make a colored symbol
 			try
 			{
-				return ColorSymbol.SYMBOLS.get(MTGColor.get(s));
+				return ColorSymbol.get(MTGColor.get(s));
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -109,7 +109,7 @@ public abstract class Symbol implements Comparable<Symbol>
 					case 'P':
 						return PhiSymbol.PHI;
 					case 'H':
-						return HalfColorSymbol.SYMBOLS.get(MTGColor.get(s.substring(1)));
+						return HalfColorSymbol.get(MTGColor.get(s.substring(1)));
 					case '∞':
 						return InfinityManaSymbol.INFINITY_MANA;
 					case '½':
@@ -130,13 +130,13 @@ public abstract class Symbol implements Comparable<Symbol>
 			try
 			{
 				if (cols[0].equals("2"))
-					return TwobridSymbol.SYMBOLS.get(MTGColor.get(cols[1]));
+					return TwobridSymbol.get(MTGColor.get(cols[1]));
 				else if (cols[0].equalsIgnoreCase("P"))
-					return PhyrexianSymbol.SYMBOLS.get(MTGColor.get(cols[1]));
+					return PhyrexianSymbol.get(MTGColor.get(cols[1]));
 				else if (cols[1].equalsIgnoreCase("P"))
 					return PhyrexianSymbol.SYMBOLS.get(MTGColor.get(cols[0]));
 				else
-					return HybridSymbol.SYMBOLS.get(new MTGColor.Tuple(MTGColor.get(cols[0]), MTGColor.get(cols[1])));
+					return HybridSymbol.get(MTGColor.get(cols[0]), MTGColor.get(cols[1]));
 			}
 			catch (IllegalArgumentException e)
 			{

@@ -29,6 +29,18 @@ public class TwobridSymbol extends Symbol
 	}
 	
 	/**
+	 * Get the TwobridSymbol corresponding to the given color.
+	 * 
+	 * @param col Color to look up
+	 * @return The TwobridSymbol corresponding to the given MTGColor, or
+	 * null if no such symbol exists.
+	 */
+	public static TwobridSymbol get(MTGColor col)
+	{
+		return SYMBOLS.get(col);
+	}
+	
+	/**
 	 * This TwobridSymbol's color.
 	 */
 	private final MTGColor color;

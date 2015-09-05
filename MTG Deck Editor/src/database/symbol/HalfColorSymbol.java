@@ -27,6 +27,18 @@ public class HalfColorSymbol extends Symbol
 	}
 	
 	/**
+	 * Get the HalfColorSymbol corresponding to the given MTGColor.
+	 * 
+	 * @param col MTGColor to get the symbol for
+	 * @return The HalfColorSymbol corresponding to the given MTGColor, or null
+	 * if no such symbol exists.
+	 */
+	public static HalfColorSymbol get(MTGColor col)
+	{
+		return SYMBOLS.get(col);
+	}
+	
+	/**
 	 * This HalfColorSymbol's color.
 	 */
 	private final MTGColor color;

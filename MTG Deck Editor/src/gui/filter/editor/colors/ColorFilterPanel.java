@@ -36,27 +36,6 @@ import util.Containment;
 public class ColorFilterPanel extends FilterEditorPanel
 {
 	/**
-	 * Symbol to display for filtering white.
-	 */
-	public static final ColorSymbol WHITE = ColorSymbol.SYMBOLS.get(MTGColor.WHITE);
-	/**
-	 * Symbol to display for filtering blue.
-	 */
-	public static final ColorSymbol BLUE = ColorSymbol.SYMBOLS.get(MTGColor.BLUE);
-	/**
-	 * Symbol to display for filtering black.
-	 */
-	public static final ColorSymbol BLACK = ColorSymbol.SYMBOLS.get(MTGColor.BLACK);
-	/**
-	 * Symbol to display for filtering red.
-	 */
-	public static final ColorSymbol RED = ColorSymbol.SYMBOLS.get(MTGColor.RED);
-	/**
-	 * Symbol to display for filtering green.
-	 */
-	public static final ColorSymbol GREEN = ColorSymbol.SYMBOLS.get(MTGColor.GREEN);
-	
-	/**
 	 * Combo box for choosing which kind of set containment colors should be filtered by.
 	 */
 	private JComboBox<Containment> contain;
@@ -81,7 +60,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 	 */
 	private JCheckBox greenCheckBox;
 	/**
-	 * TODO: Comment this
+	 * Check box for filtering multicolored cards.
 	 */
 	private JCheckBox multiCheckBox;
 	/**
@@ -115,31 +94,31 @@ public class ColorFilterPanel extends FilterEditorPanel
 		// White check box
 		whiteCheckBox = new JCheckBox();
 		add(whiteCheckBox);
-		JLabel whiteSymbolPanel = new JLabel(WHITE.getIcon(13));
+		JLabel whiteSymbolPanel = new JLabel(ColorSymbol.get(MTGColor.WHITE).getIcon(13));
 		add(whiteSymbolPanel);
 		
 		// Blue check box
 		blueCheckBox = new JCheckBox();
 		add(blueCheckBox);
-		JLabel blueSymbolPanel = new JLabel(BLUE.getIcon(13));
+		JLabel blueSymbolPanel = new JLabel(ColorSymbol.get(MTGColor.BLUE).getIcon(13));
 		add(blueSymbolPanel);
 		
 		// Black check box
 		blackCheckBox = new JCheckBox();
 		add(blackCheckBox);
-		JLabel blackSymbolPanel = new JLabel(BLACK.getIcon(13));
+		JLabel blackSymbolPanel = new JLabel(ColorSymbol.get(MTGColor.BLACK).getIcon(13));
 		add(blackSymbolPanel);
 		
 		// Red check box
 		redCheckBox = new JCheckBox();
 		add(redCheckBox);
-		JLabel redSymbolPanel = new JLabel(RED.getIcon(13));
+		JLabel redSymbolPanel = new JLabel(ColorSymbol.get(MTGColor.RED).getIcon(13));
 		add(redSymbolPanel);
 		
 		// Green check box
 		greenCheckBox = new JCheckBox();
 		add(greenCheckBox);
-		JLabel greenSymbolPanel = new JLabel(GREEN.getIcon(13));
+		JLabel greenSymbolPanel = new JLabel(ColorSymbol.get(MTGColor.GREEN).getIcon(13));
 		add(greenSymbolPanel);
 		
 		// Multicolored check box
@@ -159,15 +138,15 @@ public class ColorFilterPanel extends FilterEditorPanel
 	{
 		List<MTGColor> colors = new ArrayList<MTGColor>();
 		if (whiteCheckBox.isSelected())
-			colors.add(WHITE.color());
+			colors.add(MTGColor.WHITE);
 		if (blueCheckBox.isSelected())
-			colors.add(BLUE.color());
+			colors.add(MTGColor.BLUE);
 		if (blackCheckBox.isSelected())
-			colors.add(BLACK.color());
+			colors.add(MTGColor.BLACK);
 		if (redCheckBox.isSelected())
-			colors.add(RED.color());
+			colors.add(MTGColor.RED);
 		if (greenCheckBox.isSelected())
-			colors.add(GREEN.color());
+			colors.add(MTGColor.GREEN);
 		boolean multicolored = multiCheckBox.isSelected();
 		Predicate<Card> filter = (c) -> contain.getItemAt(contain.getSelectedIndex()).test(colorFunction.apply(c), colors);
 		if (multicolored)
@@ -195,15 +174,17 @@ public class ColorFilterPanel extends FilterEditorPanel
 	{
 		StringJoiner joiner = new StringJoiner("", "\"", "\"");
 		if (whiteCheckBox.isSelected())
-			joiner.add(String.valueOf(WHITE.color().shorthand()));
+			joiner.add(String.valueOf(MTGColor.WHITE.shorthand()));
 		if (blueCheckBox.isSelected())
-			joiner.add(String.valueOf(BLUE.color().shorthand()));
+			joiner.add(String.valueOf(MTGColor.BLUE.shorthand()));
 		if (blackCheckBox.isSelected())
-			joiner.add(String.valueOf(BLACK.color().shorthand()));
+			joiner.add(String.valueOf(MTGColor.BLACK.shorthand()));
 		if (redCheckBox.isSelected())
-			joiner.add(String.valueOf(RED.color().shorthand()));
+			joiner.add(String.valueOf(MTGColor.RED.shorthand()));
 		if (greenCheckBox.isSelected())
-			joiner.add(String.valueOf(GREEN.color().shorthand()));
+			joiner.add(String.valueOf(MTGColor.GREEN.shorthand()));
+		if (multiCheckBox.isSelected())
+			joiner.add("M");
 		return contain.getSelectedItem().toString() + joiner.toString();
 	}
 	
