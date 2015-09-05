@@ -13,8 +13,9 @@ import gui.filter.editor.FilterEditorPanel;
 public abstract class OptionsFilterPanel extends FilterEditorPanel
 {
 	/**
-	 * TODO: Comment this
-	 * @param type
+	 * Create a new OptionsFilterPanel.
+	 * 
+	 * @param type Type of filter the new OptionsFilterPanel edits
 	 */
 	public OptionsFilterPanel(FilterType type)
 	{

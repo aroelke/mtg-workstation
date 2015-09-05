@@ -1,7 +1,8 @@
 package gui.filter.editor.options.singleton;
 
-import gui.filter.FilterType;
+import database.Card;
 import database.characteristics.Rarity;
+import gui.filter.FilterType;
 
 /**
  * This class represents a FilterPanel that filters cards based on their rarities.
@@ -17,6 +18,6 @@ public class RarityFilterPanel extends SingletonOptionsFilterPanel<Rarity>
 	 */
 	public RarityFilterPanel()
 	{
-		super(FilterType.RARITY, Rarity.values(), (c) -> c.rarity(), FilterType.RARITY.code);
+		super(FilterType.RARITY, Rarity.values(), Card::rarity);
 	}
 }

@@ -83,11 +83,6 @@ public class ColorFilterPanel extends FilterEditorPanel
 	 */
 	private JCheckBox greenCheckBox;
 	/**
-	 * Code for determining what type of filter this is from a String.
-	 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
-	 */
-	private String code;
-	/**
 	 * Characteristic that will be filtered, represented by a Function mapping
 	 * Cards onto lists of MTGColors.
 	 */
@@ -98,17 +93,16 @@ public class ColorFilterPanel extends FilterEditorPanel
 	 * enumerating each of the set containment options followed by check boxes
 	 * for each of the colors in WUBRG order.
 	 * 
+	 * @param type FilterType this ColorFilterPanel edits
 	 * @param f <code>Predicate<Card, List<MTGColor>></code> representing the characteristic
 	 * to filter
-	 * @param c This filter's code
 	 */
-	public ColorFilterPanel(FilterType type, Function<Card, MTGColor.Tuple> f, String c)
+	public ColorFilterPanel(FilterType type, Function<Card, MTGColor.Tuple> f)
 	{
 		super(type);
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		colorFunction = f;
-		code = c;
 		
 		// Set containment combo box
 		contain = new JComboBox<Containment>();
@@ -192,6 +186,11 @@ public class ColorFilterPanel extends FilterEditorPanel
 		return false;
 	}
 	
+	/**
+	 * @return A String representation of this ColorFilerPanel's contents, which
+	 * is the colors selected (out of WUBRG).
+	 */
+	@Override
 	protected String repr()
 	{
 		StringJoiner joiner = new StringJoiner("", "\"", "\"");

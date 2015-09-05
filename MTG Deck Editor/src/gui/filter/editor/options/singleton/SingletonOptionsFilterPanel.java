@@ -41,11 +41,6 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	 */
 	private JList<T> optionsBox;
 	/**
-	 * Code for determining what type of filter this is from a String.
-	 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
-	 */
-	private String code;
-	/**
 	 * Options that can be chosen from.
 	 */
 	private T[] options;
@@ -53,16 +48,15 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	/**
 	 * Create a new SingletonOptionsFilterPanel.
 	 * 
+	 * @param type Type of filter the new SingletonOptionsFilterPanel edits
 	 * @param o List of options to be chosen from
 	 * @param f Card characteristic to filter
-	 * @param c This FilterPanel's code.
 	 */
-	public SingletonOptionsFilterPanel(FilterType type, T[] o, Function<Card, T> f, String c)
+	public SingletonOptionsFilterPanel(FilterType type, T[] o, Function<Card, T> f)
 	{
 		super(type);
 		
 		param = f;
-		code = c;
 		options = o;
 		
 		// Use a GridBagLayout to push everything up against the panel's left side
@@ -113,6 +107,11 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 		return optionsBox.getSelectedIndices().length == 0;
 	}
 	
+	/**
+	 * @return A String representation of this SingletonOptionsFilterPanel's contents, which
+	 * is its containment type followed by the list of selected options surrounded by braces.
+	 */
+	@Override
 	protected String repr()
 	{
 		return contain.getSelectedItem().toString() + "{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";

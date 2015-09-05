@@ -22,7 +22,7 @@ public class LoyaltyFilterPanel extends NumberFilterPanel
 	 */
 	public LoyaltyFilterPanel()
 	{
-		super(FilterType.LOYALTY, (c) -> c.loyalty().stream().map((l) -> (double)l.value).collect(Collectors.toList()), FilterType.LOYALTY.code);
+		super(FilterType.LOYALTY, (c) -> c.loyalty().stream().map((l) -> (double)l.value).collect(Collectors.toList()));
 	}
 	
 	/**

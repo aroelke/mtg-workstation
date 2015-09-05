@@ -49,11 +49,6 @@ public class TextFilterPanel extends FilterEditorPanel
 	 * Check box enabling regex matching.
 	 */
 	private JCheckBox regex;
-	/**
-	 * Code for determining what type of filter this is from a String.
-	 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
-	 */
-	private String code;
 	
 	/**
 	 * Create a regex pattern matcher that searches a string for a set of words and quote-enclosed phrases
@@ -84,6 +79,7 @@ public class TextFilterPanel extends FilterEditorPanel
 	/**
 	 * Create a new TextFilterPanel.
 	 * 
+	 * @param type Type of filter this TextFilterPanel edits
 	 * @param t Function representing the characteristic to search through
 	 * @param c This filter's code.
 	 */
@@ -91,7 +87,6 @@ public class TextFilterPanel extends FilterEditorPanel
 	{
 		super(type);
 		text = t;
-		code = c;
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		// Set containment combo box
@@ -169,6 +164,13 @@ public class TextFilterPanel extends FilterEditorPanel
 		return filterValue.getText().isEmpty();
 	}
 	
+	/**
+	 * @return A String representation of the contents of this TextFilterPanel, which
+	 * is either the containment type followed by the text box contents in quotes (if
+	 * the regex box is not checked) or the text box contents contained in // (if it
+	 * is).
+	 */
+	@Override
 	protected String repr()
 	{
 		boolean r = regex != null && regex.isSelected();

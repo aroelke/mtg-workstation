@@ -82,6 +82,12 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 		return filterValue.getText().isEmpty();
 	}
 	
+	/**
+	 * @return A String representation of this ManaCostFilterPanel's contents, which
+	 * is its containment type followed by the String representation of the equivalent
+	 * mana cost entered.
+	 */
+	@Override
 	protected String repr()
 	{
 		return contain.getSelectedItem().toString() + "\"" + ManaCost.valueOf(filterValue.getText()).toString() + "\"";

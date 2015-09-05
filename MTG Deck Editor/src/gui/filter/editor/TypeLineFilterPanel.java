@@ -35,6 +35,9 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 	 */
 	private JComboBox<Containment> contain;
 	
+	/**
+	 * Create a new TypeLineFilterPanel.
+	 */
 	public TypeLineFilterPanel()
 	{
 		super(FilterType.TYPE_LINE);
@@ -73,6 +76,11 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 		return filter.getText().isEmpty();
 	}
 	
+	/**
+	 * @return A String representation of this TypeLineFilterPanel's contents, which
+	 * is the containment type and the String that was entered.
+	 */
+	@Override
 	protected String repr()
 	{
 		return contain.getSelectedItem().toString() + "\"" + filter.getText() + "\"";

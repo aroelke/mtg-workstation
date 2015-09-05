@@ -28,7 +28,7 @@ public class LegalFilterPanel extends MultiOptionsFilterPanel<String>
 	 */
 	public LegalFilterPanel()
 	{
-		super(FilterType.FORMAT_LEGALITY, Card.formatList, Card::legalIn, FilterType.FORMAT_LEGALITY.code);
+		super(FilterType.FORMAT_LEGALITY, Card.formatList, Card::legalIn);
 		
 		restrictedBox = new JCheckBox("Restricted");
 		GridBagConstraints restrictedConstraints = new GridBagConstraints();

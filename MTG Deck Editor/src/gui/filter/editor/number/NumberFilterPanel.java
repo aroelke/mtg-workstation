@@ -39,13 +39,15 @@ public class NumberFilterPanel extends FilterEditorPanel
 	 * Value to compare to the operand.
 	 */
 	protected JSpinner spinner;
-	/**
-	 * Characteristic that will be filtered, represented by a Function mapping
-	 * Cards onto lists of MTGColors.
-	 */
-	private String code;
 	
-	public NumberFilterPanel(FilterType type, Function<Card, Collection<Double>> op, String c)
+	/**
+	 * Create a new NumberFilterPanel.
+	 * 
+	 * @param type FilterType the new NumberFilterPanel edits
+	 * @param op Function representing the characteristic to edit
+	 * @param c 
+	 */
+	public NumberFilterPanel(FilterType type, Function<Card, Collection<Double>> op)
 	{
 		super(type);
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -62,7 +64,6 @@ public class NumberFilterPanel extends FilterEditorPanel
 		add(spinner);
 		
 		operand = op;
-		code = c;
 	}
 	
 	/**
@@ -87,6 +88,11 @@ public class NumberFilterPanel extends FilterEditorPanel
 		return false;
 	}
 	
+	/**
+	 * @return A String representation of this NumberFilterPanel's contents, which
+	 * is its comparison type followed by its spinner's value.
+	 */
+	@Override
 	protected String repr()
 	{
 		return comparisonBox.getSelectedItem().toString() + spinner.getValue();

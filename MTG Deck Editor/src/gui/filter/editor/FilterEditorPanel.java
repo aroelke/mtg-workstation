@@ -18,10 +18,15 @@ import gui.filter.FilterType;
 @SuppressWarnings("serial")
 public abstract class FilterEditorPanel extends JPanel
 {
+	/**
+	 * The type of filter this FilterEditorPanel edits.
+	 */
 	private FilterType type;
 	
 	/**
 	 * Create a new FilterPanel.  The appearance of a FilterPanel is filter-specific.
+	 * 
+	 * @param t The type of filter the new FilterEditorPanel edits.
 	 */
 	public FilterEditorPanel(FilterType t)
 	{
@@ -57,13 +62,13 @@ public abstract class FilterEditorPanel extends JPanel
 	public abstract boolean isEmpty();
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return A String representation of the contents of this FilterEditorPanel.
 	 */
 	protected abstract String repr();
 	
 	/**
-	 * TODO: Comment this
+	 * @return A String representation of this FilterEditorPanel, which is its code
+	 * followed by a colon followed by its contents.
 	 */
 	@Override
 	public String toString()

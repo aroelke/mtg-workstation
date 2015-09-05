@@ -16,6 +16,6 @@ public class ColorIdentityFilterPanel extends ColorFilterPanel
 	 */
 	public ColorIdentityFilterPanel()
 	{
-		super(FilterType.COLOR_IDENTITY, (c) -> c.colorIdentity(), FilterType.COLOR_IDENTITY.code);
+		super(FilterType.COLOR_IDENTITY, (c) -> c.colorIdentity());
 	}
 }
