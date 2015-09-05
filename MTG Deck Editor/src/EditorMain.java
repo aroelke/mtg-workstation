@@ -1,5 +1,3 @@
-import gui.MainFrame;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +5,8 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import gui.MainFrame;
 
 /**
  * This class contains the entry point for the program. It creates the GUI using
@@ -36,19 +36,8 @@ public class EditorMain
 		}
 		
 		// TODO: Try to reduce memory footprint.
-		// TODO: Decide on nimbus or default look and feel (may require resizing some things)
 		try
 		{
-			/*
-			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels())
-			{
-				if ("Nimbus".equals(info.getName()))
-				{
-					UIManager.setLookAndFeel(info.getClassName());
-					break;
-				}
-			}
-			*/
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			SwingUtilities.invokeLater(() -> new MainFrame(files).setVisible(true));
 		}
