@@ -1,10 +1,6 @@
 package gui.filter.editor.colors;
 
-import gui.filter.FilterType;
-import gui.filter.editor.FilterEditorPanel;
-
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -20,10 +16,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
-import util.Containment;
 import database.Card;
 import database.characteristics.MTGColor;
 import database.symbol.ColorSymbol;
+import gui.filter.FilterType;
+import gui.filter.editor.FilterEditorPanel;
+import util.Containment;
 
 /**
  * This class represents a panel that can filter a color characteristic of a Card.
@@ -83,6 +81,10 @@ public class ColorFilterPanel extends FilterEditorPanel
 	 */
 	private JCheckBox greenCheckBox;
 	/**
+	 * TODO: Comment this
+	 */
+	private JCheckBox multiCheckBox;
+	/**
 	 * Characteristic that will be filtered, represented by a Function mapping
 	 * Cards onto lists of MTGColors.
 	 */
@@ -112,43 +114,37 @@ public class ColorFilterPanel extends FilterEditorPanel
 		
 		// White check box
 		whiteCheckBox = new JCheckBox();
-		GridBagConstraints wCheckConstraints = new GridBagConstraints();
-		wCheckConstraints.fill = GridBagConstraints.VERTICAL;
-		add(whiteCheckBox, wCheckConstraints);
+		add(whiteCheckBox);
 		JLabel whiteSymbolPanel = new JLabel(WHITE.getIcon(13));
 		add(whiteSymbolPanel);
 		
 		// Blue check box
 		blueCheckBox = new JCheckBox();
-		GridBagConstraints uCheckConstraints = new GridBagConstraints();
-		uCheckConstraints.fill = GridBagConstraints.VERTICAL;
-		add(blueCheckBox, uCheckConstraints);
+		add(blueCheckBox);
 		JLabel blueSymbolPanel = new JLabel(BLUE.getIcon(13));
 		add(blueSymbolPanel);
 		
 		// Black check box
 		blackCheckBox = new JCheckBox();
-		GridBagConstraints bCheckConstraints = new GridBagConstraints();
-		bCheckConstraints.fill = GridBagConstraints.VERTICAL;
-		add(blackCheckBox, bCheckConstraints);
+		add(blackCheckBox);
 		JLabel blackSymbolPanel = new JLabel(BLACK.getIcon(13));
 		add(blackSymbolPanel);
 		
 		// Red check box
 		redCheckBox = new JCheckBox();
-		GridBagConstraints rCheckConstraints = new GridBagConstraints();
-		rCheckConstraints.fill = GridBagConstraints.VERTICAL;
-		add(redCheckBox, rCheckConstraints);
+		add(redCheckBox);
 		JLabel redSymbolPanel = new JLabel(RED.getIcon(13));
 		add(redSymbolPanel);
 		
 		// Green check box
 		greenCheckBox = new JCheckBox();
-		GridBagConstraints gCheckConstraints = new GridBagConstraints();
-		gCheckConstraints.fill = GridBagConstraints.VERTICAL;
-		add(greenCheckBox, gCheckConstraints);
+		add(greenCheckBox);
 		JLabel greenSymbolPanel = new JLabel(GREEN.getIcon(13));
 		add(greenSymbolPanel);
+		
+		// Multicolored check box
+		multiCheckBox = new JCheckBox("Multicolored");
+		add(multiCheckBox);
 		
 		add(Box.createHorizontalGlue());
 	}
@@ -172,7 +168,11 @@ public class ColorFilterPanel extends FilterEditorPanel
 			colors.add(RED.color());
 		if (greenCheckBox.isSelected())
 			colors.add(GREEN.color());
-		return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(colorFunction.apply(c), colors);
+		boolean multicolored = multiCheckBox.isSelected();
+		Predicate<Card> filter = (c) -> contain.getItemAt(contain.getSelectedIndex()).test(colorFunction.apply(c), colors);
+		if (multicolored)
+			filter = filter.and((c) -> colorFunction.apply(c).size() > 1);
+		return filter;
 	}
 
 	/**
@@ -225,6 +225,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 			blackCheckBox.setSelected(false);
 			redCheckBox.setSelected(false);
 			greenCheckBox.setSelected(false);
+			multiCheckBox.setSelected(false);
 			for (char c: content.substring(m.end(), content.length() - 1).toCharArray())
 			{
 				switch (c)
@@ -243,6 +244,9 @@ public class ColorFilterPanel extends FilterEditorPanel
 					break;
 				case 'G':
 					greenCheckBox.setSelected(true);
+					break;
+				case 'M':
+					multiCheckBox.setSelected(true);
 					break;
 				default:
 					throw new IllegalArgumentException("Illegal color character: " + c + " (don't use {} for colors)");
