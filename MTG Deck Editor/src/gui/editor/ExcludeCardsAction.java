@@ -1,5 +1,7 @@
 package gui.editor;
 
+import java.util.Collection;
+
 import database.Card;
 
 /**
@@ -7,7 +9,7 @@ import database.Card;
  * 
  * @author Alec Roelke
  */
-public class ExcludeCardAction implements DeckAction
+public class ExcludeCardsAction implements DeckAction
 {
 	/**
 	 * Editor the action was performed in.
@@ -20,7 +22,7 @@ public class ExcludeCardAction implements DeckAction
 	/**
 	 * Card that was excluded from the category.
 	 */
-	private Card card;
+	private Collection<Card> cards;
 	
 	/**
 	 * Create a new ExcludeCardAction.
@@ -29,11 +31,11 @@ public class ExcludeCardAction implements DeckAction
 	 * @param p Category for the action
 	 * @param c Card for the action
 	 */
-	public ExcludeCardAction(EditorFrame e, CategoryPanel p, Card c)
+	public ExcludeCardsAction(EditorFrame e, CategoryPanel p, Collection<Card> c)
 	{
 		editor = e;
 		categoryName = p.name();
-		card = c;
+		cards = c;
 	}
 	
 	/**
@@ -43,7 +45,8 @@ public class ExcludeCardAction implements DeckAction
 	@Override
 	public void undo()
 	{
-		editor.getCategory(categoryName).include(card);
+		for (Card c: cards)
+			editor.getCategory(categoryName).include(c);
 	}
 
 	/**
@@ -52,6 +55,7 @@ public class ExcludeCardAction implements DeckAction
 	@Override
 	public void redo()
 	{
-		editor.getCategory(categoryName).exclude(card);
+		for (Card c: cards)
+			editor.getCategory(categoryName).exclude(c);
 	}
 }

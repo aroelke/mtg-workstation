@@ -83,7 +83,7 @@ import database.characteristics.CardCharacteristic;
  * inventory from which cards can be added.
  * 
  * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
- * TODO: Make popup menu category exclusion work for multiple card selection
+ * TODO: Make popup menu category setting work for multiple selection in the main table
  * TODO: When the add button is clicked and no card would be added, add copies of the card shown in the oracle text pane
  * 
  * @author Alec Roelke
@@ -342,7 +342,7 @@ public class EditorFrame extends JInternalFrame
 				List<Card> cards = getSelectedCards();
 				if (cards.size() != 1 && !categories.isEmpty())
 					setCategoriesMenu.setEnabled(false);
-				else
+				else if (!categories.isEmpty())
 				{
 					setCategoriesMenu.setEnabled(true);
 					setCategoriesMenu.removeAll();
@@ -367,7 +367,7 @@ public class EditorFrame extends JInternalFrame
 								{
 									setUnsaved();
 									update();
-									undoBuffer.push(new ExcludeCardAction(EditorFrame.this, category, cards.get(0)));
+									undoBuffer.push(new ExcludeCardsAction(EditorFrame.this, category, cards));
 									redoBuffer.clear();
 								}
 							}
@@ -817,31 +817,12 @@ public class EditorFrame extends JInternalFrame
 			JMenuItem removeFromCategoryItem = new JMenuItem("Exclude from Category");
 			removeFromCategoryItem.addActionListener((e) -> {
 				List<Card> selectedCards = newCategory.getSelectedCards();
-				if (selectedCards.size() == 1)
-				{
-					if (newCategory.exclude(selectedCards.get(0)))
-					{
-						undoBuffer.push(new ExcludeCardAction(EditorFrame.this, newCategory, selectedCards.get(0)));
-						redoBuffer.clear();
-						setUnsaved();
-					}
-				}
-			});
-			tableMenu.addPopupMenuListener(new PopupMenuListener()
-			{
-				@Override
-				public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-				{
-					removeFromCategoryItem.setEnabled(newCategory.getSelectedCards().size() == 1);
-				}
-
-				@Override
-				public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-				{}
-				
-				@Override
-				public void popupMenuCanceled(PopupMenuEvent e)
-				{}
+				for (Card c: selectedCards)
+					newCategory.exclude(c);
+				undoBuffer.push(new ExcludeCardsAction(EditorFrame.this, newCategory, selectedCards));
+				redoBuffer.clear();
+				update();
+				setUnsaved();
 			});
 			tableMenu.add(removeFromCategoryItem);
 			
