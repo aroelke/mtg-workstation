@@ -26,8 +26,6 @@ import gui.filter.editor.text.OracleTextFilterPanel;
 /**
  * This enum represents a type of filter that can be used to filter Cards.
  * 
- * TODO: Add "presets" filter type
- * 
  * @author Alec Roelke
  */
 public enum FilterType
