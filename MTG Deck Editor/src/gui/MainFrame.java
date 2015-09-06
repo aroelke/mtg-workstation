@@ -958,8 +958,9 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param category
+	 * Add a new preset category to the preset categories list.
+	 * 
+	 * @param category New preset category to add
 	 */
 	public void addPreset(String category)
 	{
