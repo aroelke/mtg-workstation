@@ -570,13 +570,67 @@ public class MainFrame extends JFrame
 		oracleLabelPanel.add(new JLabel("Oracle Text:"));
 		
 		// Pane displaying the Oracle text
-		// TODO: Add a popup menu that allows the user to add the card shown here to the deck
 		oracleTextPane = new JTextPane();
 		oracleTextPane.setEditable(false);
 		oracleTextPane.setContentType("text/html");
 		oracleTextPane.setFont(UIManager.getFont("Label.font"));
 		oracleTextPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
 		textPanel.add(new JScrollPane(oracleTextPane), BorderLayout.CENTER);
+		
+		// Oracle text pane popup menu
+		JPopupMenu oraclePopupMenu = new JPopupMenu();
+		oracleTextPane.setComponentPopupMenu(oraclePopupMenu);
+		JMenuItem oracleAddSingleItem = new JMenuItem("Add Single Copy");
+		oracleAddSingleItem.addActionListener((e) -> {
+			if (selectedFrame != null && selectedCard != null)
+				selectedFrame.addCard(selectedCard, 1);
+			});
+		oraclePopupMenu.add(oracleAddSingleItem);
+		JMenuItem oraclePlaysetItem = new JMenuItem("Fill Playset");
+		oraclePlaysetItem.addActionListener((e) -> {
+			if (selectedFrame != null && selectedCard != null)
+				selectedFrame.addCard(selectedCard, 4 - selectedFrame.count(selectedCard));
+			});
+		oraclePopupMenu.add(oraclePlaysetItem);
+		JMenuItem oracleAddNItem = new JMenuItem("Add Copies...");
+		oracleAddNItem.addActionListener((e) -> {
+			if (selectedFrame != null && selectedCard != null)
+			{
+				JPanel contentPanel = new JPanel(new BorderLayout());
+				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
+				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+				contentPanel.add(spinner, BorderLayout.SOUTH);
+				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+					selectedFrame.addCard(selectedCard, (Integer)spinner.getValue());
+			}
+		});
+		oraclePopupMenu.add(oracleAddNItem);
+		oraclePopupMenu.add(new JSeparator());
+		JMenuItem oracleRemoveSingleItem = new JMenuItem("Remove Single Copy");
+		oracleRemoveSingleItem.addActionListener((e) -> {
+			if (selectedFrame != null && selectedCard != null)
+				selectedFrame.removeCard(selectedCard, 1);
+			});
+		oraclePopupMenu.add(oracleRemoveSingleItem);
+		JMenuItem oracleRemoveAllItem = new JMenuItem("Remove All Copies");
+		oracleRemoveAllItem.addActionListener((e) -> {
+			if (selectedFrame != null && selectedCard != null)
+				selectedFrame.removeCard(selectedCard, Integer.MAX_VALUE);
+			});
+		oraclePopupMenu.add(oracleRemoveAllItem);
+		JMenuItem oracleRemoveNItem = new JMenuItem("Remove Copies...");
+		oracleRemoveNItem.addActionListener((e) -> {
+			if (selectedFrame != null && selectedCard != null)
+			{
+				JPanel contentPanel = new JPanel(new BorderLayout());
+				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
+				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+				contentPanel.add(spinner, BorderLayout.SOUTH);
+				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+					selectedFrame.removeCard(selectedCard, (Integer)spinner.getValue());
+			}
+		});
+		oraclePopupMenu.add(oracleRemoveNItem);
 		
 		// Create the inventory and put it in the table
 		inventoryTable = new CardTable();

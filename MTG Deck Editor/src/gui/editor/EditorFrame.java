@@ -1164,8 +1164,8 @@ public class EditorFrame extends JInternalFrame
 
 	/**
 	 * Remove a number of copies of the specified Cards from the deck.  The current selections
-	 * for any cards remaining in them in the category and main tables are maintained.  Then
-	 * update the undo buffer.
+	 * for any cards remaining in the category and main tables are maintained.  Then update the
+	 * undo buffer.
 	 * 
 	 * @param toRemove List of cards to remove
 	 * @param n Number of copies to remove
@@ -1185,6 +1185,21 @@ public class EditorFrame extends JInternalFrame
 			return false;
 	}
 
+	/**
+	 * Remove a number of copies of the specified Card from the deck.  The current selections
+	 * for any cards remaining in the category and main tables are maintained.  Then update the
+	 * undo buffer.
+	 * 
+	 * @param toRemove Card to remove
+	 * @param n Number of copies to remove
+	 * @return <code>true</code> if the deck was changed as a result, and <code>false</code>
+	 * otherwise.
+	 */
+	public boolean removeCard(Card toRemove, int n)
+	{
+		return removeCards(Arrays.asList(toRemove), n);
+	}
+	
 	/**
 	 * Remove a number of copies of the specified Cards from the deck.  The current selections
 	 * for any cards remaining in them in the category and main tables are maintained.  Don't
