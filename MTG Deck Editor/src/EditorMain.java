@@ -21,7 +21,6 @@ public class EditorMain
 	 * system one and create the GUI.
 	 * 
 	 * TODO: Add copy/paste mechanics
-	 * TODO: Make list-based filter panels scroll to their selection upon setting contents
 	 * 
 	 * @param args Arguments to the program
 	 */

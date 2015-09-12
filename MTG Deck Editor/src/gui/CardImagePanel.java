@@ -1,7 +1,5 @@
 package gui;
 
-import java.awt.Dimension;
-
 import javax.swing.JPanel;
 
 import database.Card;
@@ -14,7 +12,6 @@ public class CardImagePanel extends JPanel
 	public CardImagePanel(Card c)
 	{
 		setCard(c);
-		setPreferredSize(new Dimension(0, 250));
 	}
 	
 	public CardImagePanel()

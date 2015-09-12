@@ -133,5 +133,6 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 				if (o.equalsIgnoreCase(options[i].toString()))
 					optionsBox.addSelectionInterval(i, i);
 		}
+		optionsBox.ensureIndexIsVisible(optionsBox.getSelectedIndex());
 	}
 }

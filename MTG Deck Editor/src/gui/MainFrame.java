@@ -63,6 +63,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -94,6 +95,10 @@ import database.characteristics.Rarity;
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
 {
+	/**
+	 * Default height for displaying card images.
+	 */
+	public static final int DEFAULT_CARD_HEIGHT = 300;
 	/**
 	 * Update status value: update needed.
 	 */
@@ -191,6 +196,7 @@ public class MainFrame extends JFrame
 	 * Menu showing preset categories.
 	 */
 	private JMenu presetMenu;
+	private CardImagePanel imagePanel;
 	
 	/**
 	 * Create a new MainFrame.
@@ -532,41 +538,14 @@ public class MainFrame extends JFrame
 		decklistDesktop = new JDesktopPane();
 		decklistDesktop.setBackground(SystemColor.controlShadow);
 		
+		JTabbedPane cardPane = new JTabbedPane();
+		
 		// Panel showing the image of the currently-selected card
-		CardImagePanel imagePanel = new CardImagePanel();
-		
-		// Panel containing inventory and image of currently-selected card
-		JPanel inventoryPanel = new JPanel(new BorderLayout(0, 0));
-		inventoryPanel.setPreferredSize(new Dimension(getWidth()/4, getHeight()*3/4));
-		
-		// Panel containing the inventory and the quick-filter bar
-		JPanel tablePanel = new JPanel(new BorderLayout(0, 0));
-		inventoryPanel.add(tablePanel, BorderLayout.CENTER);
-		
-		// Panel containing the quick-filter bar
-		JPanel filterPanel = new JPanel();
-		filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.X_AXIS));
-		
-		// Text field for quickly filtering by name
-		JTextField nameFilterField = new JTextField();
-		filterPanel.add(nameFilterField);
-		
-		// Button for clearing the filter
-		JButton clearButton = new JButton("X");
-		filterPanel.add(clearButton);
-		
-		// Button for opening the advanced filter dialog
-		JButton advancedFilterButton = new JButton("Advanced...");
-		filterPanel.add(advancedFilterButton);
-		tablePanel.add(filterPanel, BorderLayout.NORTH);
+		cardPane.add("Image", imagePanel = new CardImagePanel());
 		
 		// Panel displaying the Oracle text of the currently-selected card
 		JPanel textPanel = new JPanel(new BorderLayout());
-		
-		// Label saying "Oracle Text:"
-		JPanel oracleLabelPanel = new JPanel(new BorderLayout(0, 0));
-		textPanel.add(oracleLabelPanel, BorderLayout.NORTH);
-		oracleLabelPanel.add(new JLabel("Oracle Text:"));
+		cardPane.addTab("Oracle Text", textPanel);
 		
 		// Pane displaying the Oracle text
 		oracleTextPane = new JTextPane();
@@ -630,6 +609,31 @@ public class MainFrame extends JFrame
 			}
 		});
 		oraclePopupMenu.add(oracleRemoveNItem);
+		
+		// Panel containing inventory and image of currently-selected card
+		JPanel inventoryPanel = new JPanel(new BorderLayout(0, 0));
+		inventoryPanel.setPreferredSize(new Dimension(getWidth()/4, getHeight()*3/4));
+		
+		// Panel containing the inventory and the quick-filter bar
+		JPanel tablePanel = new JPanel(new BorderLayout(0, 0));
+		inventoryPanel.add(tablePanel, BorderLayout.CENTER);
+		
+		// Panel containing the quick-filter bar
+		JPanel filterPanel = new JPanel();
+		filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.X_AXIS));
+		
+		// Text field for quickly filtering by name
+		JTextField nameFilterField = new JTextField();
+		filterPanel.add(nameFilterField);
+		
+		// Button for clearing the filter
+		JButton clearButton = new JButton("X");
+		filterPanel.add(clearButton);
+		
+		// Button for opening the advanced filter dialog
+		JButton advancedFilterButton = new JButton("Advanced...");
+		filterPanel.add(advancedFilterButton);
+		tablePanel.add(filterPanel, BorderLayout.NORTH);
 		
 		// Create the inventory and put it in the table
 		inventoryTable = new CardTable();
@@ -750,12 +754,10 @@ public class MainFrame extends JFrame
 		});
 		
 		// Split panes dividing the panel into three sections.  They can be resized at will.
-		JSplitPane imageSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imagePanel, inventoryPanel);
-		imageSplit.setOneTouchExpandable(true);
-		imageSplit.setContinuousLayout(true);
-		JSplitPane inventorySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imageSplit, textPanel);
+		JSplitPane inventorySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, cardPane, inventoryPanel);
 		inventorySplit.setOneTouchExpandable(true);
 		inventorySplit.setContinuousLayout(true);
+		inventorySplit.setDividerLocation(DEFAULT_CARD_HEIGHT);
 		JSplitPane editorSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, inventorySplit, decklistDesktop);
 		editorSplit.setOneTouchExpandable(true);
 		editorSplit.setContinuousLayout(true);
@@ -1235,6 +1237,7 @@ public class MainFrame extends JFrame
 			selectedCard = card;
 			oracleTextPane.setText("<html>" + card.toHTMLString() + "</html>");
 			oracleTextPane.setCaretPosition(0);
+			imagePanel.setCard(selectedCard);
 		}
 	}
 	

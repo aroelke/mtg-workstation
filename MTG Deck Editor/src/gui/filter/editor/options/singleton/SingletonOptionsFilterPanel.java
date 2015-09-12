@@ -134,5 +134,6 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 				if (o.equalsIgnoreCase(options[i].toString()))
 					optionsBox.addSelectionInterval(i, i);
 		}
+		optionsBox.ensureIndexIsVisible(optionsBox.getSelectedIndex());
 	}
 }
