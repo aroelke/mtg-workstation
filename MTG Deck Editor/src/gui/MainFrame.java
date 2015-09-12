@@ -244,7 +244,7 @@ public class MainFrame extends JFrame
 			properties.put(SettingsDialog.INVENTORY_COLUMNS, "Name,Expansion,Mana Cost,Type");
 		newestVersion = properties.getProperty(SettingsDialog.VERSION);
 		
-		// TODO: Pick a title
+		// TODO: Pick a title and icon
 		setTitle("MTG Deck Editor");
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
@@ -1237,21 +1237,18 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
-	 * @return The currently-selected Card.
-	 */
-	public Card getSelectedCard()
-	{
-		return selectedCard;
-	}
-	
-	/**
 	 * @return A List containing each currently-selected card in the inventory table.
 	 */
 	public List<Card> getSelectedCards()
 	{
-		return Arrays.stream(inventoryTable.getSelectedRows())
-					 .mapToObj((r) -> inventory.get(inventoryTable.convertRowIndexToModel(r)))
-					 .collect(Collectors.toList());
+		if (inventoryTable.getSelectedRowCount() > 0)
+			return Arrays.stream(inventoryTable.getSelectedRows())
+								 .mapToObj((r) -> inventory.get(inventoryTable.convertRowIndexToModel(r)))
+								 .collect(Collectors.toList());
+		else if (selectedCard != null)
+			return Arrays.asList(selectedCard);
+		else
+			return new ArrayList<Card>();
 	}
 	
 	/**

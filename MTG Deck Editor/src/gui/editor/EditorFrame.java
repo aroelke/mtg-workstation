@@ -84,7 +84,6 @@ import database.characteristics.CardCharacteristic;
  * 
  * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
  * TODO: Make popup menu category setting work for multiple selection in the main table
- * TODO: When the add button is clicked and no card would be added, add copies of the card shown in the oracle text pane
  * 
  * @author Alec Roelke
  */
