@@ -532,13 +532,12 @@ public class MainFrame extends JFrame
 		decklistDesktop = new JDesktopPane();
 		decklistDesktop.setBackground(SystemColor.controlShadow);
 		
+		// Panel showing the image of the currently-selected card
+		CardImagePanel imagePanel = new CardImagePanel();
+		
 		// Panel containing inventory and image of currently-selected card
 		JPanel inventoryPanel = new JPanel(new BorderLayout(0, 0));
 		inventoryPanel.setPreferredSize(new Dimension(getWidth()/4, getHeight()*3/4));
-		
-		// Panel showing the image of the currently-selected card
-		JPanel imagePanel = new JPanel();
-		inventoryPanel.add(imagePanel, BorderLayout.NORTH);
 		
 		// Panel containing the inventory and the quick-filter bar
 		JPanel tablePanel = new JPanel(new BorderLayout(0, 0));
@@ -751,7 +750,10 @@ public class MainFrame extends JFrame
 		});
 		
 		// Split panes dividing the panel into three sections.  They can be resized at will.
-		JSplitPane inventorySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, inventoryPanel, textPanel);
+		JSplitPane imageSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imagePanel, inventoryPanel);
+		imageSplit.setOneTouchExpandable(true);
+		imageSplit.setContinuousLayout(true);
+		JSplitPane inventorySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imageSplit, textPanel);
 		inventorySplit.setOneTouchExpandable(true);
 		inventorySplit.setContinuousLayout(true);
 		JSplitPane editorSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, inventorySplit, decklistDesktop);
