@@ -2,6 +2,11 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
@@ -11,25 +16,34 @@ import javax.swing.UIManager;
 
 import database.Card;
 
+/**
+ * TODO: Comment this
+ * @author Alec
+ *
+ */
 @SuppressWarnings("serial")
 public class CardImagePanel extends JPanel
 {
 	public static final double ASPECT_RATIO = 63.0/88.0;
 	
 	private Card card;
+	private List<File> imageFiles;
 	private JTextPane oracleTextPane;
 	private JScrollPane oracleTextScrollPane;
 	
 	public CardImagePanel(Card c)
 	{
 		super(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		setCard(c);
+		
 		oracleTextPane = new JTextPane();
 		oracleTextPane.setEditable(false);
 		oracleTextPane.setContentType("text/html");
 		oracleTextPane.setFont(UIManager.getFont("Label.font"));
 		oracleTextPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
 		add(oracleTextScrollPane = new JScrollPane(oracleTextPane));
+		
+		imageFiles = new ArrayList<File>();
+		setCard(c);
 	}
 	
 	public CardImagePanel()
@@ -39,21 +53,31 @@ public class CardImagePanel extends JPanel
 	
 	public void setCard(Card c)
 	{
-		card = c;
+		if ((card = c) != null)
+			imageFiles = Arrays.stream(card.imageNames())
+							   .map((name) -> new File("images/" + card.expansion().code + "/" + name + ".full.jpg"))
+							   .collect(Collectors.toList());
+		
+		oracleTextScrollPane.setVisible(card != null && !imageExists());
 		if (card != null)
 			oracleTextPane.setText("<html>" + card.toHTMLString() + "</html>");
-		repaint();
 		revalidate();
+		repaint();
 	}
 	
 	@Override
-	public void repaint()
+	public void doLayout()
 	{
-		if (oracleTextScrollPane != null)
+		if (!imageExists())
 		{
 			int height = getHeight();
 			oracleTextScrollPane.setPreferredSize(new Dimension((int)(height*ASPECT_RATIO), height));
 		}
-		super.repaint();
+		super.doLayout();
+	}
+	
+	private boolean imageExists()
+	{
+		return card != null && imageFiles.stream().allMatch(File::exists);
 	}
 }
