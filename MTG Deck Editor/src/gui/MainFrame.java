@@ -8,6 +8,7 @@ import gui.inventory.InventoryDownloadDialog;
 import gui.inventory.InventoryLoadDialog;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -542,10 +543,7 @@ public class MainFrame extends JFrame
 		
 		// Panel showing the image of the currently-selected card
 		cardPane.add("Image", imagePanel = new CardImagePanel());
-		
-		// Panel displaying the Oracle text of the currently-selected card
-		JPanel textPanel = new JPanel(new BorderLayout());
-		cardPane.addTab("Oracle Text", textPanel);
+		imagePanel.setBackground(Color.WHITE);
 		
 		// Pane displaying the Oracle text
 		oracleTextPane = new JTextPane();
@@ -553,7 +551,7 @@ public class MainFrame extends JFrame
 		oracleTextPane.setContentType("text/html");
 		oracleTextPane.setFont(UIManager.getFont("Label.font"));
 		oracleTextPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
-		textPanel.add(new JScrollPane(oracleTextPane), BorderLayout.CENTER);
+		cardPane.addTab("Oracle Text", new JScrollPane(oracleTextPane));
 		
 		// Oracle text pane popup menu
 		JPopupMenu oraclePopupMenu = new JPopupMenu();

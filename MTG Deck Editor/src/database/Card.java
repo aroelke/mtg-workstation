@@ -710,6 +710,14 @@ public final class Card
 	}
 	
 	/**
+	 * @return The number of faces this Card has.
+	 */
+	public int faces()
+	{
+		return faces.length;
+	}
+	
+	/**
 	 * @return A number that uniquely identifies this Card.
 	 */
 	@Override
