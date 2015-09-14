@@ -54,12 +54,9 @@ public class CardImagePanel extends JPanel
 	public void setCard(Card c)
 	{
 		if ((card = c) != null)
-		{
-			System.out.println("images/cards/" + card.expansion().code + "/" + card.imageNames()[0] + ".full.jpg");
 			imageFiles = Arrays.stream(card.imageNames())
 							   .map((name) -> new File("images/cards/" + card.expansion().code + "/" + name + ".full.jpg"))
 							   .collect(Collectors.toList());
-		}
 		
 		oracleTextScrollPane.setVisible(card != null && !imageExists());
 		if (card != null)

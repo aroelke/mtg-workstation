@@ -8,12 +8,12 @@ package database.characteristics;
  * 
  * @author Alec
  */
-public class Expansion
+public class Expansion implements Comparable<Expansion>
 {
 	/**
 	 * Array containing all expansion names.
 	 */
-	public static String[] expansions = {};
+	public static Expansion[] expansions = {};
 	/**
 	 * Array containing all block names.
 	 */
@@ -58,7 +58,7 @@ public class Expansion
 	@Override
 	public String toString()
 	{
-		return name + (block != "" ? ": " + block : "") + " (" + code + ": " + count + ")";
+		return name + " (" + code + ")";
 	}
 	
 	/**
@@ -86,5 +86,11 @@ public class Expansion
 	public int hashCode()
 	{
 		return name.hashCode();
+	}
+	
+	@Override
+	public int compareTo(Expansion other)
+	{
+		return name.compareTo(other.name);
 	}
 }

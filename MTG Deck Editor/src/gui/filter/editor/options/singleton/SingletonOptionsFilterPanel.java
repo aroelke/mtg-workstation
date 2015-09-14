@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.swing.JComboBox;
 import javax.swing.JList;
@@ -25,7 +26,7 @@ import util.Containment;
  * @param <T> Type of the characteristic that will be filtered
  */
 @SuppressWarnings("serial")
-public class SingletonOptionsFilterPanel<T extends CharSequence> extends OptionsFilterPanel
+public class SingletonOptionsFilterPanel<T> extends OptionsFilterPanel
 {
 	/**
 	 * Function representing the characteristic to be filtered.
@@ -114,7 +115,7 @@ public class SingletonOptionsFilterPanel<T extends CharSequence> extends Options
 	@Override
 	protected String repr()
 	{
-		return contain.getSelectedItem().toString() + "{" + String.join(",", optionsBox.getSelectedValuesList()) + "}";
+		return contain.getSelectedItem().toString() + "{" + String.join(",", optionsBox.getSelectedValuesList().stream().map(String::valueOf).collect(Collectors.toList())) + "}";
 	}
 
 	/**

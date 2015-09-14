@@ -10,13 +10,13 @@ import database.characteristics.Expansion;
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class ExpansionFilterPanel extends SingletonOptionsFilterPanel<String>
+public class ExpansionFilterPanel extends SingletonOptionsFilterPanel<Expansion>
 {
 	/**
 	 * Create a new ExpansionFilterPanel.
 	 */
 	public ExpansionFilterPanel()
 	{
-		super(FilterType.EXPANSION, Expansion.expansions, (c) -> c.expansion().name);
+		super(FilterType.EXPANSION, Expansion.expansions, (c) -> c.expansion());
 	}
 }

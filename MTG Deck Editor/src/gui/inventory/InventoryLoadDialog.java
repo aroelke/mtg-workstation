@@ -219,7 +219,7 @@ public class InventoryLoadDialog extends JDialog
 			
 			List<Card> cards = new ArrayList<Card>();
 			Map<Card, List<String>> faces = new HashMap<Card, List<String>>();
-			Set<String> expansionNames = new HashSet<String>();
+			Set<Expansion> expansions = new HashSet<Expansion>();
 			Set<String> blockNames = new HashSet<String>();
 			Set<String> supertypeSet = new HashSet<String>();
 			Set<String> typeSet = new HashSet<String>();
@@ -241,7 +241,7 @@ public class InventoryLoadDialog extends JDialog
 				{
 					if (isCancelled())
 					{
-						expansionNames.clear();
+						expansions.clear();
 						blockNames.clear();
 						supertypeSet.clear();
 						typeSet.clear();
@@ -258,7 +258,7 @@ public class InventoryLoadDialog extends JDialog
 												  setProperties.has("block") ? setProperties.get("block").getAsString() : "<No Block>", 
 												  setProperties.get("code").getAsString(), 
 												  setCards.size());
-					expansionNames.add(set.name);
+					expansions.add(set);
 					blockNames.add(set.block);
 					publish("Loading cards from " + set.name + "...");
 					
@@ -408,7 +408,7 @@ public class InventoryLoadDialog extends JDialog
 				}
 				
 				// Store the lists of expansion and block names and types and sort them alphabetically
-				Expansion.expansions = expansionNames.toArray(new String[expansionNames.size()]);
+				Expansion.expansions = expansions.toArray(new Expansion[expansions.size()]);
 				Arrays.sort(Expansion.expansions);
 				Expansion.blocks = blockNames.toArray(new String[blockNames.size()]);
 				Arrays.sort(Expansion.blocks);
