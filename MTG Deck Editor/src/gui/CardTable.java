@@ -20,7 +20,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.JToolTip;
 import javax.swing.SortOrder;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
@@ -419,17 +418,6 @@ public class CardTable extends JTable
 				if (c.getPreferredSize().width > bounds.width)
 					tooltip = "<html><base href = \".\">" + String.valueOf(getValueAt(row, col)) + "</html>";
 			}
-		}
-		return tooltip;
-	}
-	
-	@Override
-	public JToolTip createToolTip()
-	{
-		JToolTip tooltip = super.createToolTip();
-		if (tooltip != null)
-		{
-			
 		}
 		return tooltip;
 	}
