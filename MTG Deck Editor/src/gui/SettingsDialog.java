@@ -56,6 +56,8 @@ import database.characteristics.CardCharacteristic;
  * This class is a dialog that allows the user to change various properties about
  * the program.
  * 
+ * TODO: Add a node to view loaded expansions and their information
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
