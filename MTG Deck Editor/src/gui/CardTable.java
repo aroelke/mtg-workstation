@@ -416,7 +416,7 @@ public class CardTable extends JTable
 				Rectangle bounds = getCellRect(row, col, false);
 				JComponent c = (JComponent)prepareRenderer(getCellRenderer(row, col), row, col);
 				if (c.getPreferredSize().width > bounds.width)
-					tooltip = "<html><base href = \".\">" + String.valueOf(getValueAt(row, col)) + "</html>";
+					tooltip = "<html>" + String.valueOf(getValueAt(row, col)) + "</html>";
 			}
 		}
 		return tooltip;
