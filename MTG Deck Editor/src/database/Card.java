@@ -457,7 +457,7 @@ public final class Card
 	 */
 	public String[] imageNames()
 	{
-		return Arrays.stream(faces).map((f) -> f.imageName).toArray(String[]::new);
+		return Arrays.stream(faces).map((f) -> f.imageName).distinct().toArray(String[]::new);
 	}
 
 	/**
@@ -710,6 +710,15 @@ public final class Card
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public String faceHTMLString(int f)
+	{
+		return faces[f].toHTMLString();
+	}
+	
+	/**
 	 * @return The number of faces this Card has.
 	 */
 	public int faces()
@@ -916,6 +925,37 @@ public final class Card
 			}
 			html = html.replace("\n", "<br>");
 			return "<i>" + html + "</i>";
+		}
+		
+		/**
+		 * @return A String containing most of the information contained in this Face,
+		 * formatted to slightly mimic a real Magic: the Gathering card and with symbols
+		 * replaced by HTML for display in HTML-enabled panels.
+		 */
+		public String toHTMLString()
+		{
+			StringBuilder str = new StringBuilder();
+			str.append(name + (mana.isEmpty() ? "" : " " + mana.toHTMLString()));
+			if (mana.cmc() == (int)mana.cmc())
+				str.append(" (" + (int)mana.cmc() + ")<br>");
+			else
+				str.append(" (" + mana.cmc() + ")<br>");
+			str.append(typeLine + "<br>");
+			str.append(set.name + " " + rarity + "<br>");
+			
+			if (!text.isEmpty())
+				str.append(HTMLText() + "<br>");
+			if (!flavor.isEmpty())
+				str.append(HTMLFlavor() + "<br>");
+			
+			if (!Double.isNaN(power.value) && !Double.isNaN(toughness.value))
+				str.append(power + "/" + toughness + "<br>");
+			else if (loyalty.value > 0)
+				str.append(loyalty + "<br>");
+			
+			str.append(artist + " " + number + "/" + set.count);
+			
+			return str.toString();
 		}
 	}
 }

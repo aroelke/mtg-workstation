@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -9,16 +10,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
 
 import database.Card;
 
@@ -30,21 +27,14 @@ import database.Card;
 @SuppressWarnings("serial")
 public class CardImagePanel extends JPanel
 {
+	public static final double ASPECT_RATIO = 63.0/88.0;
+	
 	private Card card;
 	private BufferedImage image;
-	private JTextPane oracleTextPane;
-	private JScrollPane oracleTextScrollPane;
 	
 	public CardImagePanel(Card c)
 	{
 		super(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		
-		oracleTextPane = new JTextPane();
-		oracleTextPane.setEditable(false);
-		oracleTextPane.setContentType("text/html");
-		oracleTextPane.setFont(UIManager.getFont("Label.font"));
-		oracleTextPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
-		add(oracleTextScrollPane = new JScrollPane(oracleTextPane));
 		
 		image = null;
 		setCard(c);
@@ -62,45 +52,66 @@ public class CardImagePanel extends JPanel
 			int height = 0;
 			int width = 0;
 			List<BufferedImage> images = new ArrayList<BufferedImage>();
-			for (String name: new LinkedHashSet<String>(Arrays.asList(card.imageNames())))
+			for (String name: card.imageNames())
 			{
 				try
 				{
-					BufferedImage img = ImageIO.read(new File("images/cards/" + card.expansion().code + "/" + name + ".full.jpg"));
-					images.add(img);
-					height = Math.max(height, img.getHeight());
-					width += img.getWidth();
+					// TODO: Extract this location into settings
+					File imageFile = new File("images/cards/" + card.expansion().code + "/" + name + ".full.jpg");
+					if (imageFile.exists())
+					{
+						BufferedImage img = ImageIO.read(imageFile);
+						images.add(img);
+						height = Math.max(height, img.getHeight());
+						width += img.getWidth();
+					}
+					else
+						images.add(null);
 				}
 				catch (IOException e)
-				{}
-			}
-			if (width == 0)
-				image = null;
-			else
-			{
-				int x = 0;
-				image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-				Graphics g = image.createGraphics();
-				for (BufferedImage img: images)
 				{
-					g.drawImage(img, x, (height - img.getHeight())/2, null);
-					x += img.getWidth();
+					images.add(null);
 				}
 			}
-		}
-		
-		oracleTextScrollPane.setVisible(card != null && image == null);
-		if (card != null)
-		{
-			oracleTextPane.setText("<html>" + card.toHTMLString() + "</html>");
-			oracleTextPane.setCaretPosition(0);
+			if (height == 0)
+				height = getHeight();
+			width += (int)(height*ASPECT_RATIO*Collections.frequency(images, null));
+			int x = 0;
+			image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			Graphics g = image.createGraphics();
+			for (int i = 0; i < images.size(); i++)
+			{
+				if (images.get(i) != null)
+				{
+					g.drawImage(images.get(i), x, (height - images.get(i).getHeight())/2, null);
+					x += images.get(i).getWidth();
+				}
+				else
+				{
+					int w = (int)(height*ASPECT_RATIO);
+					JLabel missingCardLabel = new JLabel("<html><body style='width:100%'>"
+							+ "<font color='red'>Missing '" + card.imageNames()[images.size() > 1 ? i : 0] + ".full.jpg'<br></font>"
+							+ (images.size() > 1 ? card.faceHTMLString(i) : card.toHTMLString())
+							+ "</html>");
+					missingCardLabel.setVerticalAlignment(JLabel.TOP);
+					missingCardLabel.setSize(new Dimension(w - 4, height - 4));
+					
+					BufferedImage img = new BufferedImage(w, height, BufferedImage.TYPE_INT_ARGB);
+					missingCardLabel.paint(img.getGraphics());
+					g.drawImage(img, x + 2, 2, null);
+					g.setColor(Color.BLACK);
+					g.drawRect(x, 0, w - 1, height - 1);
+					
+					x += w;
+				}
+			}
 		}
 		revalidate();
 		repaint();
 	}
 	
 	@Override
-	public void paintComponent(Graphics g)
+	protected void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
 		if (card != null && image != null)
@@ -117,16 +128,5 @@ public class CardImagePanel extends JPanel
 			}
 			g2.drawImage(image, (getWidth() - width)/2, (getHeight() - height)/2, width, height, null);
 		}
-	}
-	
-	@Override
-	public void doLayout()
-	{
-		if (image == null)
-		{
-			int height = getHeight();
-			oracleTextScrollPane.setPreferredSize(new Dimension((int)(height*63.0/88.0), height));
-		}
-		super.doLayout();
 	}
 }
