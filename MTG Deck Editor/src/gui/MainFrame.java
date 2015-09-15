@@ -73,11 +73,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
 
 import database.Card;
 import database.Inventory;
 import database.characteristics.CardCharacteristic;
+import database.characteristics.Expansion;
 import database.characteristics.Loyalty;
 import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
@@ -480,8 +483,8 @@ public class MainFrame extends JFrame
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
 		// TODO: Add a help dialog
-		// TODO: Add the list of expansions here instead of in the settings dialog
 		
+		// Inventory update item
 		JMenuItem updateInventoryItem = new JMenuItem("Check for inventory update...");
 		updateInventoryItem.addActionListener((e) -> {
 			switch (checkForUpdate())
@@ -504,9 +507,70 @@ public class MainFrame extends JFrame
 		});
 		helpMenu.add(updateInventoryItem);
 		
+		// Reload inventory item
 		JMenuItem reloadInventoryItem = new JMenuItem("Reload inventory...");
 		reloadInventoryItem.addActionListener((e) -> loadInventory());
 		helpMenu.add(reloadInventoryItem);
+		
+		helpMenu.add(new JSeparator());
+		
+		// Show expansions item
+		JMenuItem showExpansionsItem = new JMenuItem("Show Expansions...");
+		showExpansionsItem.addActionListener((e) -> {
+			TableModel expansionTableModel = new AbstractTableModel()
+			{
+				@Override
+				public int getRowCount()
+				{
+					return Expansion.expansions.length;
+				}
+
+				@Override
+				public int getColumnCount()
+				{
+					return 3;
+				}
+				
+				@Override
+				public String getColumnName(int index)
+				{
+					switch (index)
+					{
+					case 0:
+						return "Expansion";
+					case 1:
+						return "Code";
+					case 2:
+						return "Block";
+					default:
+						return null;
+					}
+				}
+				
+				@Override
+				public Object getValueAt(int rowIndex, int columnIndex)
+				{
+					switch (columnIndex)
+					{
+					case 0:
+						return Expansion.expansions[rowIndex].name;
+					case 1:
+						return Expansion.expansions[rowIndex].code;
+					case 2:
+						return Expansion.expansions[rowIndex].block;
+					default:
+						return null;
+					}
+				}
+			};
+			JTable expansionTable = new JTable(expansionTableModel);
+			expansionTable.setShowGrid(false);
+			expansionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			expansionTable.setAutoCreateRowSorter(true);
+			
+			JOptionPane.showMessageDialog(null, new JScrollPane(expansionTable), "Expansions", JOptionPane.PLAIN_MESSAGE);
+		});
+		helpMenu.add(showExpansionsItem);
 		
 		/* CONTENT PANE */
 		// Panel containing all content

@@ -38,7 +38,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
@@ -46,15 +45,12 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import database.characteristics.CardCharacteristic;
-import database.characteristics.Expansion;
 
 /**
  * This class is a dialog that allows the user to change various properties about
@@ -268,8 +264,6 @@ public class SettingsDialog extends JDialog
 		DefaultMutableTreeNode handAppearanceNode = new DefaultMutableTreeNode("Sample Hand");
 		editorNode.add(handAppearanceNode);
 		root.add(editorNode);
-		DefaultMutableTreeNode expansionsNode = new DefaultMutableTreeNode("Expansion List");
-		root.add(expansionsNode);
 		
 		// Settings panels
 		JPanel settingsPanel = new JPanel();
@@ -559,63 +553,6 @@ public class SettingsDialog extends JDialog
 		sampleHandPanel.add(handColumnsPanel);
 		
 		sampleHandPanel.add(Box.createVerticalGlue());
-		
-		// Expansions panel
-		JPanel expansionsPanel = new JPanel();
-		expansionsPanel.setLayout(new BorderLayout());
-		settingsPanel.add(expansionsPanel, new TreePath(expansionsNode.getPath()).toString());
-		
-		TableModel expansionTableModel = new AbstractTableModel()
-		{
-			@Override
-			public int getRowCount()
-			{
-				return Expansion.expansions.length;
-			}
-
-			@Override
-			public int getColumnCount()
-			{
-				return 3;
-			}
-			
-			@Override
-			public String getColumnName(int index)
-			{
-				switch (index)
-				{
-				case 0:
-					return "Expansion";
-				case 1:
-					return "Code";
-				case 2:
-					return "Block";
-				default:
-					return null;
-				}
-			}
-			
-			@Override
-			public Object getValueAt(int rowIndex, int columnIndex)
-			{
-				switch (columnIndex)
-				{
-				case 0:
-					return Expansion.expansions[rowIndex].name;
-				case 1:
-					return Expansion.expansions[rowIndex].code;
-				case 2:
-					return Expansion.expansions[rowIndex].block;
-				default:
-					return null;
-				}
-			}
-		};
-		JTable expansionTable = new JTable(expansionTableModel);
-		expansionTable.setShowGrid(false);
-		expansionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		expansionTable.setAutoCreateRowSorter(true);
-		expansionsPanel.add(new JScrollPane(expansionTable), BorderLayout.CENTER);
 		
 		// Tree panel
 		JPanel treePanel = new JPanel(new BorderLayout());
