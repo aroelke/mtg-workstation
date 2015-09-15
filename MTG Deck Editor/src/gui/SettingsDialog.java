@@ -57,6 +57,7 @@ import database.characteristics.CardCharacteristic;
  * the program.
  * 
  * TODO: Add a node to view loaded expansions and their information
+ * TODO: Make the settings Properties object be global
  * 
  * @author Alec Roelke
  */
