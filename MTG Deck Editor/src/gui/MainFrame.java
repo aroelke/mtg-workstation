@@ -78,7 +78,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import database.Card;
 import database.Inventory;
 import database.characteristics.CardCharacteristic;
-import database.characteristics.Expansion;
 import database.characteristics.Loyalty;
 import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
@@ -816,9 +815,6 @@ public class MainFrame extends JFrame
 		inventoryModel = new CardTableModel(inventory, Arrays.stream(properties.getProperty(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		inventoryTable.setModel(inventoryModel);
 		filter = new FilterGroupPanel();
-		
-		for (Expansion ex: Expansion.expansions)
-			System.out.println(ex);
 		
 		setCursor(Cursor.getDefaultCursor());
 	}
