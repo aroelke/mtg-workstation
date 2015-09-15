@@ -480,6 +480,7 @@ public class MainFrame extends JFrame
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
 		// TODO: Add a help dialog
+		// TODO: Add the list of expansions here instead of in the settings dialog
 		
 		JMenuItem updateInventoryItem = new JMenuItem("Check for inventory update...");
 		updateInventoryItem.addActionListener((e) -> {
