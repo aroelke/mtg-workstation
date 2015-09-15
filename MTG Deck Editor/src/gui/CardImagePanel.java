@@ -2,12 +2,18 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -24,10 +30,8 @@ import database.Card;
 @SuppressWarnings("serial")
 public class CardImagePanel extends JPanel
 {
-	public static final double ASPECT_RATIO = 63.0/88.0;
-	
 	private Card card;
-	private List<File> imageFiles;
+	private BufferedImage image;
 	private JTextPane oracleTextPane;
 	private JScrollPane oracleTextScrollPane;
 	
@@ -42,7 +46,7 @@ public class CardImagePanel extends JPanel
 		oracleTextPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
 		add(oracleTextScrollPane = new JScrollPane(oracleTextPane));
 		
-		imageFiles = new ArrayList<File>();
+		image = null;
 		setCard(c);
 	}
 	
@@ -54,30 +58,75 @@ public class CardImagePanel extends JPanel
 	public void setCard(Card c)
 	{
 		if ((card = c) != null)
-			imageFiles = Arrays.stream(card.imageNames())
-							   .map((name) -> new File("images/cards/" + card.expansion().code + "/" + name + ".full.jpg"))
-							   .collect(Collectors.toList());
+		{
+			int height = 0;
+			int width = 0;
+			List<BufferedImage> images = new ArrayList<BufferedImage>();
+			for (String name: new LinkedHashSet<String>(Arrays.asList(card.imageNames())))
+			{
+				try
+				{
+					BufferedImage img = ImageIO.read(new File("images/cards/" + card.expansion().code + "/" + name + ".full.jpg"));
+					images.add(img);
+					height = Math.max(height, img.getHeight());
+					width += img.getWidth();
+				}
+				catch (IOException e)
+				{}
+			}
+			if (width == 0)
+				image = null;
+			else
+			{
+				int x = 0;
+				image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+				Graphics g = image.createGraphics();
+				for (BufferedImage img: images)
+				{
+					g.drawImage(img, x, (height - img.getHeight())/2, null);
+					x += img.getWidth();
+				}
+			}
+		}
 		
-		oracleTextScrollPane.setVisible(card != null && !imageExists());
+		oracleTextScrollPane.setVisible(card != null && image == null);
 		if (card != null)
+		{
 			oracleTextPane.setText("<html>" + card.toHTMLString() + "</html>");
+			oracleTextPane.setCaretPosition(0);
+		}
 		revalidate();
 		repaint();
 	}
 	
 	@Override
-	public void doLayout()
+	public void paintComponent(Graphics g)
 	{
-		if (!imageExists())
+		super.paintComponent(g);
+		if (card != null && image != null)
 		{
+			Graphics2D g2 = (Graphics2D)g;
+			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			double aspectRatio = (double)image.getWidth()/(double)image.getHeight();
+			int width = (int)(getHeight()*aspectRatio);
 			int height = getHeight();
-			oracleTextScrollPane.setPreferredSize(new Dimension((int)(height*ASPECT_RATIO), height));
+			if (width > getWidth())
+			{
+				width = getWidth();
+				height = (int)(width/aspectRatio);
+			}
+			g2.drawImage(image, (getWidth() - width)/2, (getHeight() - height)/2, width, height, null);
 		}
-		super.doLayout();
 	}
 	
-	private boolean imageExists()
+	@Override
+	public void doLayout()
 	{
-		return card != null && imageFiles.stream().allMatch(File::exists);
+		if (image == null)
+		{
+			int height = getHeight();
+			oracleTextScrollPane.setPreferredSize(new Dimension((int)(height*63.0/88.0), height));
+		}
+		super.doLayout();
 	}
 }
