@@ -83,7 +83,7 @@ public class CardImagePanel extends JPanel
 				try
 				{
 					// TODO: Extract this location into settings
-					File imageFile = new File("images/cards/" + card.expansion().code + "/" + name + ".full.jpg");
+					File imageFile = new File(SettingsDialog.CARD_SCANS + "/" + card.expansion().code + "/" + name + ".full.jpg");
 					if (imageFile.exists())
 					{
 						BufferedImage img = ImageIO.read(imageFile);

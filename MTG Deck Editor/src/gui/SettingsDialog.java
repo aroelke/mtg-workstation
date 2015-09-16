@@ -135,6 +135,10 @@ public class SettingsDialog extends JDialog
 	 * Columns to display in the sample hand tab.
 	 */
 	public static final String HAND_COLUMNS = "hand.columns";
+	/**
+	 * Location to find card scans.
+	 */
+	public static final String CARD_SCANS = "scans";
 	
 	/**
 	 * Set program settings back to their default values
@@ -142,22 +146,23 @@ public class SettingsDialog extends JDialog
 	public static void resetDefaultSettings()
 	{
 		settings.clear();
-		settings.put(SettingsDialog.VERSION_FILE, "version.json");
-		settings.put(SettingsDialog.INVENTORY_SOURCE, "http://mtgjson.com/json/");
-		settings.put(SettingsDialog.VERSION, "");
-		settings.put(SettingsDialog.INVENTORY_FILE, "AllSets-x.json");
-		settings.put(SettingsDialog.INITIAL_CHECK, "true");
-		settings.put(SettingsDialog.INVENTORY_LOCATION, "./");
-		settings.put(SettingsDialog.INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
-		settings.put(SettingsDialog.INVENTORY_STRIPE, "#FFCCCCCC");
-		settings.put(SettingsDialog.INITIALDIR, "./");
-		settings.put(SettingsDialog.RECENT_COUNT, "4");
-		settings.put(SettingsDialog.RECENT_FILES, "");
-		settings.put(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
-		settings.put(SettingsDialog.EDITOR_STRIPE, "#FFCCCCCC");
-		settings.put(SettingsDialog.EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
-		settings.put(SettingsDialog.HAND_SIZE, "7");
-		settings.put(SettingsDialog.HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
+		settings.put(VERSION_FILE, "version.json");
+		settings.put(INVENTORY_SOURCE, "http://mtgjson.com/json/");
+		settings.put(VERSION, "");
+		settings.put(INVENTORY_FILE, "AllSets-x.json");
+		settings.put(INITIAL_CHECK, "true");
+		settings.put(INVENTORY_LOCATION, "./");
+		settings.put(INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
+		settings.put(INVENTORY_STRIPE, "#FFCCCCCC");
+		settings.put(INITIALDIR, "./");
+		settings.put(RECENT_COUNT, "4");
+		settings.put(RECENT_FILES, "");
+		settings.put(EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
+		settings.put(EDITOR_STRIPE, "#FFCCCCCC");
+		settings.put(EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
+		settings.put(HAND_SIZE, "7");
+		settings.put(HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
+		settings.put(CARD_SCANS, "images/cards");
 	}
 	
 	/**
@@ -260,6 +265,7 @@ public class SettingsDialog extends JDialog
 	 * Delimiter for preset categories in the settings file.
 	 */
 	public static final String CATEGORY_DELIMITER = "∎";
+	private JTextField scansDirField;
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -344,17 +350,7 @@ public class SettingsDialog extends JDialog
 		inventoryDirButton.addActionListener((e) -> {
 			if (inventoryChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
 			{
-				File f = inventoryChooser.getSelectedFile();
-				Path p = new File(".").getAbsoluteFile().getParentFile().toPath();
-				Path fp = f.getAbsoluteFile().toPath();
-				if (fp.startsWith(p))
-				{
-					fp = p.relativize(fp);
-					if (fp.toString().isEmpty())
-						f = new File(".");
-					else
-						f = fp.toFile();
-				}
+				File f = relativize(inventoryChooser.getSelectedFile());
 				inventoryDirField.setText(f.getPath());
 				inventoryChooser.setCurrentDirectory(f);
 			}
@@ -362,6 +358,33 @@ public class SettingsDialog extends JDialog
 		inventoryDirPanel.add(inventoryDirButton);
 		inventoryDirPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryDirPanel.getPreferredSize().height));
 		inventoryPanel.add(inventoryDirPanel);
+		inventoryPanel.add(Box.createVerticalStrut(5));
+		
+		// Card scans directory
+		JPanel scansDirPanel = new JPanel();
+		scansDirPanel.setLayout(new BoxLayout(scansDirPanel, BoxLayout.X_AXIS));
+		scansDirPanel.add(new JLabel("Card Images Location:"));
+		scansDirPanel.add(Box.createHorizontalStrut(5));
+		scansDirField = new JTextField(25);
+		JFileChooser scansChooser = new JFileChooser();
+		scansChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		scansChooser.setAcceptAllFileFilterUsed(false);
+		scansDirField.setText(settings.getProperty(CARD_SCANS));
+		scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
+		scansDirPanel.add(scansDirField);
+		scansDirPanel.add(Box.createHorizontalStrut(5));
+		JButton scansDirButton = new JButton("…");
+		scansDirButton.addActionListener((e) -> {
+			if (scansChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
+			{
+				File f = relativize(scansChooser.getSelectedFile());
+				scansDirField.setText(f.getPath());
+				scansChooser.setCurrentDirectory(f);
+			}
+		});
+		scansDirPanel.add(scansDirButton);
+		scansDirPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, scansDirPanel.getPreferredSize().height));
+		inventoryPanel.add(scansDirPanel);
 		inventoryPanel.add(Box.createVerticalStrut(5));
 		
 		// Check for update on startup
@@ -661,7 +684,31 @@ public class SettingsDialog extends JDialog
 			if (box.isSelected())
 				join.add(box.getText());
 		settings.put(HAND_COLUMNS, join.toString());
+		settings.put(CARD_SCANS, scansDirField.getText());
 		parent.applySettings();
+	}
+	
+	/**
+	 * If the given file is contained the current directory, make it a relative file to
+	 * the current working directory.  If it is the current working directory, make it
+	 * "."  Otherwise, keep it what it is.
+	 * 
+	 * @param f File to relativize
+	 * @return Relativized version of the given file.
+	 */
+	private File relativize(File f)
+	{
+		Path p = new File(".").getAbsoluteFile().getParentFile().toPath();
+		Path fp = f.getAbsoluteFile().toPath();
+		if (fp.startsWith(p))
+		{
+			fp = p.relativize(fp);
+			if (fp.toString().isEmpty())
+				f = new File(".");
+			else
+				f = fp.toFile();
+		}
+		return f;
 	}
 	
 	/**
