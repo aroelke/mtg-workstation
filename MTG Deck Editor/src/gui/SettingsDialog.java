@@ -17,6 +17,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -337,14 +338,28 @@ public class SettingsDialog extends JDialog
 		JFileChooser inventoryChooser = new JFileChooser();
 		inventoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		inventoryChooser.setAcceptAllFileFilterUsed(false);
-		inventoryChooser.setSelectedFile(new File(settings.getProperty(INVENTORY_LOCATION)));
-		inventoryDirField.setText(inventoryChooser.getSelectedFile().getAbsolutePath());
+		inventoryDirField.setText(settings.getProperty(INVENTORY_LOCATION));
+		inventoryChooser.setCurrentDirectory(new File(inventoryDirField.getText()).getAbsoluteFile());
 		inventoryDirPanel.add(inventoryDirField);
 		inventoryDirPanel.add(Box.createHorizontalStrut(5));
 		JButton inventoryDirButton = new JButton("…");
 		inventoryDirButton.addActionListener((e) -> {
 			if (inventoryChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
-				inventoryDirField.setText(inventoryChooser.getSelectedFile().getPath());
+			{
+				File f = inventoryChooser.getSelectedFile();
+				Path p = new File(".").getAbsoluteFile().getParentFile().toPath();
+				Path fp = f.getAbsoluteFile().toPath();
+				if (fp.startsWith(p))
+				{
+					fp = p.relativize(fp);
+					if (fp.toString().isEmpty())
+						f = new File(".");
+					else
+						f = fp.toFile();
+				}
+				inventoryDirField.setText(f.getPath());
+				inventoryChooser.setCurrentDirectory(f);
+			}
 		});
 		inventoryDirPanel.add(inventoryDirButton);
 		inventoryDirPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryDirPanel.getPreferredSize().height));
