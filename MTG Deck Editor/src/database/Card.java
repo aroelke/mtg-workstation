@@ -710,8 +710,9 @@ public final class Card
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return A String containing most of the information contained in the Face at
+	 * the given index, formatted to slightly mimic a real Magic: the Gathering card
+	 * and with symbols replaced by HTML for display in HTML-enabled panels.
 	 */
 	public String faceHTMLString(int f)
 	{

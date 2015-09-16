@@ -20,18 +20,34 @@ import javax.swing.JPanel;
 import database.Card;
 
 /**
- * TODO: Comment this
- * @author Alec
- *
+ * This class represents a panel that shows the images associated with a card if they
+ * can be found, or a card-shaped rectangle with its oracle text and a warning if
+ * they cannot.
+ * 
+ * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class CardImagePanel extends JPanel
 {
+	/**
+	 * Aspect ratio of a Magic: The Gathering card.
+	 */
 	public static final double ASPECT_RATIO = 63.0/88.0;
 	
+	/**
+	 * Card this CardImagePanel should display.
+	 */
 	private Card card;
+	/**
+	 * Image of the card this CardImagePanel should display.
+	 */
 	private BufferedImage image;
 	
+	/**
+	 * Create a new CardImagePanel displaying the given Card.
+	 * 
+	 * @param c Card to display
+	 */
 	public CardImagePanel(Card c)
 	{
 		super(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -40,11 +56,21 @@ public class CardImagePanel extends JPanel
 		setCard(c);
 	}
 	
+	/**
+	 * Create a new CardImagePanel displaying nothing.
+	 */
 	public CardImagePanel()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Set the card to display.  If any of the images associated with the new Card are
+	 * missing, they are replaced with card-shaped rectangles containing a warning and
+	 * the oracle text of the associated face.
+	 * 
+	 * @param c Card to display
+	 */
 	public void setCard(Card c)
 	{
 		if ((card = c) != null)
@@ -110,6 +136,10 @@ public class CardImagePanel extends JPanel
 		repaint();
 	}
 	
+	/**
+	 * Draw this CardImagePanel.  It will basically just be the image generated in {@link CardImagePanel#setCard(Card)}
+	 * scaled to fit the container.
+	 */
 	@Override
 	protected void paintComponent(Graphics g)
 	{
