@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
@@ -1517,14 +1516,13 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Set the settings of this EditorFrame
 	 * 
-	 * @param properties Properties containing the settings to set
 	 * @see MainFrame#resetDefaultSettings()
 	 */
-	public void setSettings(Properties properties)
+	public void applySettings()
 	{
-		List<CardCharacteristic> columns = Arrays.stream(properties.getProperty(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
-		List<CardCharacteristic> handColumns = Arrays.stream(properties.getProperty(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
-		Color stripe = SettingsDialog.stringToColor(properties.getProperty(SettingsDialog.EDITOR_STRIPE));
+		List<CardCharacteristic> columns = Arrays.stream(SettingsDialog.settings.getProperty(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		List<CardCharacteristic> handColumns = Arrays.stream(SettingsDialog.settings.getProperty(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		Color stripe = SettingsDialog.stringToColor(SettingsDialog.settings.getProperty(SettingsDialog.EDITOR_STRIPE));
 		model.setColumns(columns);
 		table.setStripeColor(stripe);
 		for (CategoryPanel category: categories)
@@ -1536,14 +1534,6 @@ public class EditorFrame extends JInternalFrame
 		handTable.setStripeColor(stripe);
 		startingHandSize = Integer.valueOf(parent.getSetting(SettingsDialog.HAND_SIZE));
 		update();
-	}
-	
-	/**
-	 * @return The Properties containing the program's settings.
-	 */
-	public Properties getSettings()
-	{
-		return parent.getSettings();
 	}
 	
 	/**

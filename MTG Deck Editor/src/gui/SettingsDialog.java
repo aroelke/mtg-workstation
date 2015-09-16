@@ -63,6 +63,7 @@ import database.characteristics.CardCharacteristic;
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog
 {
+	public static final Properties settings = new Properties();
 	/**
 	 * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
 	 */
@@ -135,6 +136,30 @@ public class SettingsDialog extends JDialog
 	 * Columns to display in the sample hand tab.
 	 */
 	public static final String HAND_COLUMNS = "hand.columns";
+	
+	/**
+	 * Set program settings back to their default values
+	 */
+	public static void resetDefaultSettings()
+	{
+		settings.clear();
+		settings.put(SettingsDialog.VERSION_FILE, "version.json");
+		settings.put(SettingsDialog.INVENTORY_SOURCE, "http://mtgjson.com/json/");
+		settings.put(SettingsDialog.VERSION, "");
+		settings.put(SettingsDialog.INVENTORY_FILE, "AllSets-x.json");
+		settings.put(SettingsDialog.INITIAL_CHECK, "true");
+		settings.put(SettingsDialog.INVENTORY_LOCATION, "./");
+		settings.put(SettingsDialog.INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
+		settings.put(SettingsDialog.INVENTORY_STRIPE, "#FFCCCCCC");
+		settings.put(SettingsDialog.INITIALDIR, "./");
+		settings.put(SettingsDialog.RECENT_COUNT, "4");
+		settings.put(SettingsDialog.RECENT_FILES, "");
+		settings.put(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
+		settings.put(SettingsDialog.EDITOR_STRIPE, "#FFCCCCCC");
+		settings.put(SettingsDialog.EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
+		settings.put(SettingsDialog.HAND_SIZE, "7");
+		settings.put(SettingsDialog.HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
+	}
 	
 	/**
 	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
@@ -241,9 +266,8 @@ public class SettingsDialog extends JDialog
 	 * Create a new SettingsDialog.
 	 * 
 	 * @param owner Parent of the dialog
-	 * @param properties Properties of the program that will be edited
 	 */
-	public SettingsDialog(MainFrame owner, Properties properties)
+	public SettingsDialog(MainFrame owner)
 	{
 		super(owner, "Preferences", Dialog.ModalityType.APPLICATION_MODAL);
 		setResizable(false);
@@ -282,7 +306,7 @@ public class SettingsDialog extends JDialog
 		inventorySitePanel.add(new JLabel("Inventory Site:"));
 		inventorySitePanel.add(Box.createHorizontalStrut(5));
 		inventorySiteField = new JTextField(15);
-		inventorySiteField.setText(properties.getProperty(INVENTORY_SOURCE));
+		inventorySiteField.setText(settings.getProperty(INVENTORY_SOURCE));
 		inventorySitePanel.add(inventorySiteField);
 		inventorySitePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventorySitePanel.getPreferredSize().height));
 		inventoryPanel.add(inventorySitePanel);
@@ -294,10 +318,10 @@ public class SettingsDialog extends JDialog
 		inventoryFilePanel.add(new JLabel("Inventory File:"));
 		inventoryFilePanel.add(Box.createHorizontalStrut(5));
 		inventoryFileField = new JTextField(10);
-		inventoryFileField.setText(properties.getProperty(INVENTORY_FILE));
+		inventoryFileField.setText(settings.getProperty(INVENTORY_FILE));
 		inventoryFilePanel.add(inventoryFileField);
 		inventoryFilePanel.add(Box.createHorizontalStrut(5));
-		JLabel currentVersionLabel = new JLabel("(Current version: " + properties.getProperty(VERSION) + ")");
+		JLabel currentVersionLabel = new JLabel("(Current version: " + settings.getProperty(VERSION) + ")");
 		currentVersionLabel.setFont(new Font(currentVersionLabel.getFont().getFontName(), Font.ITALIC, currentVersionLabel.getFont().getSize()));
 		inventoryFilePanel.add(currentVersionLabel);
 		inventoryFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryFilePanel.getPreferredSize().height));
@@ -313,7 +337,7 @@ public class SettingsDialog extends JDialog
 		JFileChooser inventoryChooser = new JFileChooser();
 		inventoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		inventoryChooser.setAcceptAllFileFilterUsed(false);
-		inventoryChooser.setSelectedFile(new File(properties.getProperty(INVENTORY_LOCATION)));
+		inventoryChooser.setSelectedFile(new File(settings.getProperty(INVENTORY_LOCATION)));
 		inventoryDirField.setText(inventoryChooser.getSelectedFile().getAbsolutePath());
 		inventoryDirPanel.add(inventoryDirField);
 		inventoryDirPanel.add(Box.createHorizontalStrut(5));
@@ -330,7 +354,7 @@ public class SettingsDialog extends JDialog
 		// Check for update on startup
 		JPanel updatePanel = new JPanel(new BorderLayout());
 		updateCheckBox = new JCheckBox("Check for update on program start");
-		updateCheckBox.setSelected(Boolean.valueOf(properties.getProperty(INITIAL_CHECK)));
+		updateCheckBox.setSelected(Boolean.valueOf(settings.getProperty(INITIAL_CHECK)));
 		updatePanel.add(updateCheckBox, BorderLayout.WEST);
 		updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
 		inventoryPanel.add(updatePanel);
@@ -360,14 +384,14 @@ public class SettingsDialog extends JDialog
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			inventoryColumnCheckBoxes.add(checkBox);
 			inventoryColumnsPanel.add(checkBox);
-			checkBox.setSelected(properties.getProperty(INVENTORY_COLUMNS).contains(characteristic.toString()));
+			checkBox.setSelected(settings.getProperty(INVENTORY_COLUMNS).contains(characteristic.toString()));
 		}
 		inventoryAppearancePanel.add(inventoryColumnsPanel);
 		
 		// Stripe color
 		JPanel inventoryColorPanel = new JPanel(new BorderLayout());
 		inventoryColorPanel.setBorder(new TitledBorder("Stripe Color"));
-		inventoryStripeColor = new JColorChooser(stringToColor(properties.getProperty(INVENTORY_STRIPE)));
+		inventoryStripeColor = new JColorChooser(stringToColor(settings.getProperty(INVENTORY_STRIPE)));
 		inventoryColorPanel.add(inventoryStripeColor);
 		inventoryAppearancePanel.add(inventoryColorPanel);
 		
@@ -385,7 +409,7 @@ public class SettingsDialog extends JDialog
 		recentPanel.add(new JLabel("Recent file count:"));
 		recentPanel.add(Box.createHorizontalStrut(5));
 		recentSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-		recentSpinner.getModel().setValue(Integer.valueOf(properties.getProperty(RECENT_COUNT)));
+		recentSpinner.getModel().setValue(Integer.valueOf(settings.getProperty(RECENT_COUNT)));
 		recentPanel.add(recentSpinner);
 		recentPanel.add(Box.createHorizontalStrut(5));
 		JLabel recentInfoLabel = new JLabel("(Changes will not be visible until program restart)");
@@ -404,8 +428,8 @@ public class SettingsDialog extends JDialog
 		settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
 		
 		categoriesListModel = new CategoryListModel();
-		if (!properties.getProperty(EDITOR_PRESETS).isEmpty())
-			for (String category: properties.getProperty(EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
+		if (!settings.getProperty(EDITOR_PRESETS).isEmpty())
+			for (String category: settings.getProperty(EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
 				categoriesListModel.addElement(category);
 		JList<String> categoriesList = new JList<String>(categoriesListModel);
 		categoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -501,14 +525,14 @@ public class SettingsDialog extends JDialog
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			editorColumnCheckBoxes.add(checkBox);
 			editorColumnsPanel.add(checkBox);
-			checkBox.setSelected(properties.getProperty(EDITOR_COLUMNS).contains(characteristic.toString()));
+			checkBox.setSelected(settings.getProperty(EDITOR_COLUMNS).contains(characteristic.toString()));
 		}
 		editorAppearancePanel.add(editorColumnsPanel);
 		
 		// Editor table stripe color
 		JPanel editorColorPanel = new JPanel(new BorderLayout());
 		editorColorPanel.setBorder(new TitledBorder("Stripe Color"));
-		editorStripeColor = new JColorChooser(stringToColor(properties.getProperty(EDITOR_STRIPE)));
+		editorStripeColor = new JColorChooser(stringToColor(settings.getProperty(EDITOR_STRIPE)));
 		editorColorPanel.add(editorStripeColor);
 		editorAppearancePanel.add(editorColorPanel);
 		
@@ -528,7 +552,7 @@ public class SettingsDialog extends JDialog
 		startingSizePanel.add(new JLabel("Starting Size:"));
 		startingSizePanel.add(Box.createHorizontalStrut(5));
 		startingSizeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-		startingSizeSpinner.getModel().setValue(Integer.valueOf(properties.getProperty(HAND_SIZE)));
+		startingSizeSpinner.getModel().setValue(Integer.valueOf(settings.getProperty(HAND_SIZE)));
 		startingSizePanel.add(startingSizeSpinner);
 		startingSizePanel.add(Box.createHorizontalGlue());
 		startingSizePanel.setMaximumSize(startingSizePanel.getPreferredSize());
@@ -546,7 +570,7 @@ public class SettingsDialog extends JDialog
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			handColumnCheckBoxes.add(checkBox);
 			handColumnsPanel.add(checkBox);
-			checkBox.setSelected(properties.getProperty(HAND_COLUMNS).contains(characteristic.toString()));
+			checkBox.setSelected(settings.getProperty(HAND_COLUMNS).contains(characteristic.toString()));
 		}
 		handColumnsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, handColumnsPanel.getPreferredSize().height));
 		handColumnsPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -597,35 +621,34 @@ public class SettingsDialog extends JDialog
 	 */
 	public void confirmSettings()
 	{
-		Properties properties = new Properties();
-		properties.put(INVENTORY_SOURCE, inventorySiteField.getText());
-		properties.put(INVENTORY_FILE, inventoryFileField.getText());
-		properties.put(INVENTORY_LOCATION, inventoryDirField.getText());
-		properties.put(INITIAL_CHECK, Boolean.toString(updateCheckBox.isSelected()));
+		settings.put(INVENTORY_SOURCE, inventorySiteField.getText());
+		settings.put(INVENTORY_FILE, inventoryFileField.getText());
+		settings.put(INVENTORY_LOCATION, inventoryDirField.getText());
+		settings.put(INITIAL_CHECK, Boolean.toString(updateCheckBox.isSelected()));
 		StringJoiner join = new StringJoiner(",");
 		for (JCheckBox box: inventoryColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		properties.put(INVENTORY_COLUMNS, join.toString());
-		properties.put(INVENTORY_STRIPE, colorToString(inventoryStripeColor.getColor()));
-		properties.put(RECENT_COUNT, recentSpinner.getValue().toString());
+		settings.put(INVENTORY_COLUMNS, join.toString());
+		settings.put(INVENTORY_STRIPE, colorToString(inventoryStripeColor.getColor()));
+		settings.put(RECENT_COUNT, recentSpinner.getValue().toString());
 		join = new StringJoiner(",");
 		for (JCheckBox box: editorColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		properties.put(EDITOR_COLUMNS, join.toString());
-		properties.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
+		settings.put(EDITOR_COLUMNS, join.toString());
+		settings.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
 		join = new StringJoiner(SettingsDialog.CATEGORY_DELIMITER);
 		for (int i = 0; i < categoriesListModel.getSize(); i++)
 			join.add(categoriesListModel.getCategoryAt(i));
-		properties.put(EDITOR_PRESETS, join.toString());
-		properties.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
+		settings.put(EDITOR_PRESETS, join.toString());
+		settings.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
 		join = new StringJoiner(",");
 		for (JCheckBox box: handColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		properties.put(HAND_COLUMNS, join.toString());
-		parent.applySettings(properties);
+		settings.put(HAND_COLUMNS, join.toString());
+		parent.applySettings();
 	}
 	
 	/**
