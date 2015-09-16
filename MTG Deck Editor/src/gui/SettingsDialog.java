@@ -57,8 +57,6 @@ import database.characteristics.CardCharacteristic;
  * This class is a dialog that allows the user to change various properties about
  * the program.
  * 
- * TODO: Make the settings Properties object be global
- * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
