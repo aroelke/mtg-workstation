@@ -66,6 +66,13 @@ public class DefaultsFilterPanel extends FilterEditorPanel
 	{
 		return new CategoryEditorPanel(categoriesModel.getCategoryAt(categoriesList.getSelectedIndex())).repr();
 	}
+	
+	@Override
+	public String toString()
+	{
+		String filterString = new CategoryEditorPanel(categoriesModel.getCategoryAt(categoriesList.getSelectedIndex())).repr();
+		return filterString.substring(1, filterString.length() - 1);
+	}
 
 	private class CategoryListModel extends DefaultListModel<String>
 	{
