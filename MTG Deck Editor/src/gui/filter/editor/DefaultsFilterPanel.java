@@ -42,9 +42,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel
 
 	@Override
 	public void setContents(String content)
-	{
-		return;
-	}
+	{}
 
 	@Override
 	public Predicate<Card> getFilter()
