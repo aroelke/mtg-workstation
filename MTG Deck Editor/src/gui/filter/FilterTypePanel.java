@@ -1,5 +1,6 @@
 package gui.filter;
 
+import gui.filter.editor.DefaultsFilterPanel;
 import gui.filter.editor.FilterEditorPanel;
 import gui.filter.editor.options.OptionsFilterPanel;
 
@@ -30,8 +31,7 @@ import database.Card;
  * can be changed using a combo box.  When the filter is retrieved, only the active
  * filter is used.  A FilterContainer can also be removed using its remove button.
  * 
- * TODO: Add a "defaults" filter type to add one of the default categories' filters to the filter
- * - this will be expanded into a filter group when committed to a category
+ * TODO: Implement this without using a GridBagLayout
  * 
  * @author Alec Roelke
  */
@@ -245,8 +245,8 @@ public class FilterTypePanel extends FilterPanel
 			filterConstraints.fill = GridBagConstraints.BOTH;
 			filterConstraints.gridx = 1;
 			// If the current filter is an option filter, resize the panel (or resize it if it was
-			// an option filter and now isn't
-			if (currentFilter instanceof OptionsFilterPanel)
+			// an option filter and now isn't)
+			if (currentFilter instanceof OptionsFilterPanel || currentFilter instanceof DefaultsFilterPanel)
 			{
 				layout.rowHeights = new int[] {ROW_HEIGHT, ROW_HEIGHT, ROW_HEIGHT, ROW_HEIGHT, ROW_HEIGHT};
 				filterConstraints.gridy = 0;

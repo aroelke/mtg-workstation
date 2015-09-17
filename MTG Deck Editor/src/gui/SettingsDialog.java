@@ -465,7 +465,7 @@ public class SettingsDialog extends JDialog
 		
 		categoriesListModel = new CategoryListModel();
 		if (!settings.getProperty(EDITOR_PRESETS).isEmpty())
-			for (String category: settings.getProperty(EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
+			for (String category: settings.getProperty(EDITOR_PRESETS).split(CATEGORY_DELIMITER))
 				categoriesListModel.addElement(category);
 		JList<String> categoriesList = new JList<String>(categoriesListModel);
 		categoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

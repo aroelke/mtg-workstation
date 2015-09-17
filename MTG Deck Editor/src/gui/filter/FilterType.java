@@ -1,5 +1,6 @@
 package gui.filter;
 
+import gui.filter.editor.DefaultsFilterPanel;
 import gui.filter.editor.EmptyFilterPanel;
 import gui.filter.editor.FilterEditorPanel;
 import gui.filter.editor.ManaCostFilterPanel;
@@ -50,6 +51,7 @@ public enum FilterType
 	ARTIST("Artist", "a", ArtistFilterPanel.class),
 	CARD_NUMBER("Card Number", "#", CardNumberFilterPanel.class),
 	FORMAT_LEGALITY("Format Legality", "legal", LegalFilterPanel.class),
+	DEFAULTS("Defaults", "", DefaultsFilterPanel.class),
 	NONE("<No Card>", "0", EmptyFilterPanel.class);
 	
 	/**
