@@ -124,6 +124,20 @@ public class CardImagePanel extends JPanel
 		repaint();
 	}
 	
+	@Override
+	public Dimension getPreferredSize()
+	{
+		if (getParent() == null)
+			return super.getPreferredSize();
+		else if (card == null)
+			return super.getPreferredSize();
+		else
+		{
+			double aspect = (double)image.getWidth()/(double)image.getHeight();
+			return new Dimension((int)(getParent().getHeight()*aspect), getParent().getHeight());
+		}
+	}
+	
 	/**
 	 * Draw this CardImagePanel.  It will basically just be the image generated in {@link CardImagePanel#setCard(Card)}
 	 * scaled to fit the container.

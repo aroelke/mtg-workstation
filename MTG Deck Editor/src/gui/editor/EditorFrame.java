@@ -436,19 +436,26 @@ public class EditorFrame extends JInternalFrame
 		hand = new Hand(deck);
 		handModel = new CardTableModel(this, hand, Arrays.stream(parent.getSetting(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		handTable = new CardTable(handModel);
-		handTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		handTable.getSelectionModel().addListSelectionListener((e) -> {
-			ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-			if (!lsm.isSelectionEmpty())
-				parent.selectCard(parent.getCard(hand.get(handTable.convertRowIndexToModel(lsm.getMinSelectionIndex())).id()));
-		});
+		handTable.setCellSelectionEnabled(false);
 		handTable.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		handTable.setPreferredScrollableViewportSize(new Dimension(handTable.getPreferredSize().width, handTable.getRowHeight()*10));
 		
 		// Panel showing images of the sample hand
-		ScrollablePanel imagePanel = new ScrollablePanel();
-//		JScrollPane imagePane = new JScrollPane(imagePanel);
+		// TODO: Make this able to have multiple rows
+		// (either intelligently determine how many it should have, or make it customizable)
+		// TODO: Make the background color customizable
+		ScrollablePanel imagePanel = new ScrollablePanel()
+		{
+			@Override
+			public boolean getScrollableTracksViewportHeight()
+			{
+				return true;
+			}
+		};
 		imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
+		imagePanel.setBackground(Color.WHITE);
+		JScrollPane imagePane = new JScrollPane(imagePanel);
+		imagePane.setBackground(Color.WHITE);
 		
 		// Control panel for manipulating the sample hand
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -456,27 +463,50 @@ public class EditorFrame extends JInternalFrame
 		newHandButton.addActionListener((e) -> {
 			hand.newHand(startingHandSize);
 			handModel.fireTableDataChanged();
-//			imagePanel.removeAll();
-//			for (Card c: hand)
-//			{
-//				CardImagePanel panel = new CardImagePanel();
-//				panel.setSize(imagePanel.getSize());
-//				panel.setCard(c);
-//				imagePanel.add(panel);
-//			}
-//			update();
+			
+			imagePanel.removeAll();
+			for (Card c: hand)
+			{
+				CardImagePanel panel = new CardImagePanel();
+				panel.setBackground(Color.WHITE);
+				imagePanel.add(panel);
+				imagePanel.validate();
+				panel.setCard(c);
+				imagePanel.add(Box.createHorizontalStrut(10));
+			}
+			update();
 		});
 		handModPanel.add(newHandButton);
 		JButton mulliganButton = new JButton("Mulligan");
 		mulliganButton.addActionListener((e) -> {
 			hand.mulligan();
 			handModel.fireTableDataChanged();
+			
+			imagePanel.removeAll();
+			for (Card c: hand)
+			{
+				CardImagePanel panel = new CardImagePanel();
+				panel.setBackground(Color.WHITE);
+				imagePanel.add(panel);
+				imagePanel.validate();
+				panel.setCard(c);
+				imagePanel.add(Box.createHorizontalStrut(10));
+			}
+			update();
 		});
 		handModPanel.add(mulliganButton);
 		JButton drawCardButton = new JButton("Draw a Card");
 		drawCardButton.addActionListener((e) -> {
 			hand.draw();
 			handModel.fireTableDataChanged();
+			
+			CardImagePanel panel = new CardImagePanel();
+			panel.setBackground(Color.WHITE);
+			imagePanel.add(panel);
+			imagePanel.validate();
+			panel.setCard(hand.get(hand.size() - 1));
+			imagePanel.add(Box.createHorizontalStrut(10));
+			update();
 		});
 		handModPanel.add(drawCardButton);
 		JButton excludeButton = new JButton("Exclude...");
@@ -533,7 +563,7 @@ public class EditorFrame extends JInternalFrame
 				SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE))).setVisible(true));
 		handModPanel.add(probabilityButton);
 		
-		JSplitPane handSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(handTable), imagePanel);
+		JSplitPane handSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(handTable), imagePane);
 		handPanel.add(handSplit, BorderLayout.CENTER);
 		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		listTabs.addTab("Sample Hand", handPanel);
