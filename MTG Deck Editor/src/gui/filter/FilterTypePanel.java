@@ -8,8 +8,6 @@ import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -17,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
@@ -31,7 +30,7 @@ import database.Card;
  * can be changed using a combo box.  When the filter is retrieved, only the active
  * filter is used.  A FilterContainer can also be removed using its remove button.
  * 
- * TODO: Implement this without using a GridBagLayout
+ * TODO: Align the option dropdown with the filter panel better
  * 
  * @author Alec Roelke
  */
@@ -40,13 +39,13 @@ public class FilterTypePanel extends FilterPanel
 {
 	/**
 	 * Height that a FilterTypePanel should be, unless it is displaying an option filter
-	 * panel, in which case it is five times this.
+	 * panel.
 	 */
-	public static final int ROW_HEIGHT = 23;
+	public static final int ROW_HEIGHT = 27;
 	/**
 	 * Width that the FilterTypePanel should be, including all buttons and other elements.
 	 */
-	public static final int COL_WIDTH = 420;
+	public static final int COL_WIDTH = 600;
 	/**
 	 * Combo box to choose what type of filter to display.
 	 */
@@ -72,11 +71,6 @@ public class FilterTypePanel extends FilterPanel
 	 * Currently selected FilterPanel.
 	 */
 	private FilterEditorPanel currentFilter;
-	/**
-	 * When selecting an option filter panel, the size of the frame has to change to fit
-	 * it, which requires modifying the layout.
-	 */
-	private GridBagLayout layout;
 	
 	/**
 	 * Create a new FilterTypePanel.  It will default to an empty NameFilterPanel.
@@ -88,22 +82,14 @@ public class FilterTypePanel extends FilterPanel
 		super(g);
 		
 		// Create the layout, which ensures correct sizing of this FilterContainer.
-		layout = new GridBagLayout();
-		layout.rowHeights = new int[] {0, 0, ROW_HEIGHT, 0, 0};
-		layout.rowWeights = new double[] {0.0, 0.0, 1.0, 0.0, 0.0};
-		layout.columnWidths = new int[] {0, COL_WIDTH, 0, 0};
-		layout.columnWeights = new double[] {0.0, 1.0, 0.0, 0.0};
-		setLayout(layout);
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBorder(new EmptyBorder(0, 0, 5, 0));
 		
 		// Combo box for choosing the filter type
 		filterTypeBox = new JComboBox<FilterType>(FilterType.values());
 		filterTypeBox.addItemListener(new FilterTypeListener());
-		GridBagConstraints filterTypeConstraints = new GridBagConstraints();
-		filterTypeConstraints.fill = GridBagConstraints.BOTH;
-		filterTypeConstraints.gridx = 0;
-		filterTypeConstraints.gridy = 2;
-		add(filterTypeBox, filterTypeConstraints);
+		filterTypeBox.setAlignmentY(CENTER_ALIGNMENT);
+		add(filterTypeBox);
 		
 		// Panel containing the filters.  The CardLayout ensures that only one filter
 		// will be shown at once, which is chosen using the above combo box
@@ -147,11 +133,8 @@ public class FilterTypePanel extends FilterPanel
 			}
 		}
 		currentFilter = filters.get(FilterType.NAME);
-		GridBagConstraints filterConstraints = new GridBagConstraints();
-		filterConstraints.fill = GridBagConstraints.BOTH;
-		filterConstraints.gridx = 1;
-		filterConstraints.gridy = 2;
-		add(filterPanel, filterConstraints);
+		filterPanel.setAlignmentY(CENTER_ALIGNMENT);
+		add(filterPanel);
 		
 		// Remove button
 		removeButton = new JButton("−");
@@ -159,11 +142,8 @@ public class FilterTypePanel extends FilterPanel
 			getGroup().removeFilterPanel(this);
 			SwingUtilities.windowForComponent(getGroup()).pack();
 		});
-		GridBagConstraints removeConstraints = new GridBagConstraints();
-		removeConstraints.fill = GridBagConstraints.HORIZONTAL;
-		removeConstraints.gridx = 2;
-		removeConstraints.gridy = 2;
-		add(removeButton, removeConstraints);
+		removeButton.setAlignmentY(CENTER_ALIGNMENT);
+		add(removeButton);
 		
 		// Change to group button
 		groupButton = new JButton("…");
@@ -171,11 +151,12 @@ public class FilterTypePanel extends FilterPanel
 			getGroup().groupFilterPanel(this);
 			SwingUtilities.windowForComponent(this).pack();
 		});
-		GridBagConstraints groupConstraints = new GridBagConstraints();
-		groupConstraints.fill = GridBagConstraints.HORIZONTAL;
-		groupConstraints.gridx = 3;
-		groupConstraints.gridy = 2;
-		add(groupButton, groupConstraints);
+		groupButton.setAlignmentY(CENTER_ALIGNMENT);
+		add(groupButton);
+		
+		setPreferredSize(new Dimension(COL_WIDTH, ROW_HEIGHT));
+		filterTypeBox.setPreferredSize(new Dimension(filterTypeBox.getPreferredSize().width, ROW_HEIGHT));
+		filterTypeBox.setMaximumSize(new Dimension(filterTypeBox.getPreferredSize().width, ROW_HEIGHT));
 	}
 	
 	/**
@@ -241,26 +222,16 @@ public class FilterTypePanel extends FilterPanel
 			CardLayout cards = (CardLayout)filterPanel.getLayout();
 			cards.show(filterPanel, String.valueOf(e.getItem()));
 			currentFilter = filters.get(e.getItem());
-			GridBagConstraints filterConstraints = new GridBagConstraints();
-			filterConstraints.fill = GridBagConstraints.BOTH;
-			filterConstraints.gridx = 1;
-			// If the current filter is an option filter, resize the panel (or resize it if it was
-			// an option filter and now isn't)
 			if (currentFilter instanceof OptionsFilterPanel || currentFilter instanceof DefaultsFilterPanel)
 			{
-				layout.rowHeights = new int[] {ROW_HEIGHT, ROW_HEIGHT, ROW_HEIGHT, ROW_HEIGHT, ROW_HEIGHT};
-				filterConstraints.gridy = 0;
-				filterConstraints.gridheight = 5;
+				setPreferredSize(new Dimension(COL_WIDTH, 5*ROW_HEIGHT));
+				filterTypeBox.setMaximumSize(new Dimension(filterTypeBox.getPreferredSize().width, ROW_HEIGHT - 5));
 			}
 			else
 			{
-				layout.rowHeights = new int[] {0, 0, ROW_HEIGHT, 0, 0};
-				filterConstraints.gridy = 2;
-				filterConstraints.gridheight = 1;
+				setPreferredSize(new Dimension(COL_WIDTH, ROW_HEIGHT));
+				filterTypeBox.setMaximumSize(new Dimension(filterTypeBox.getPreferredSize().width, ROW_HEIGHT));
 			}
-			// Refresh the panel
-			remove(filterPanel);
-			add(filterPanel, filterConstraints);
 			if (SwingUtilities.windowForComponent(FilterTypePanel.this) != null)
 				SwingUtilities.windowForComponent(FilterTypePanel.this).pack();
 		}
