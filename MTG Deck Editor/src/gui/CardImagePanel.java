@@ -44,24 +44,13 @@ public class CardImagePanel extends JPanel
 	private BufferedImage image;
 	
 	/**
-	 * Create a new CardImagePanel displaying the given Card.
-	 * 
-	 * @param c Card to display
-	 */
-	public CardImagePanel(Card c)
-	{
-		super(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		
-		image = null;
-		setCard(c);
-	}
-	
-	/**
 	 * Create a new CardImagePanel displaying nothing.
 	 */
 	public CardImagePanel()
 	{
-		this(null);
+		super(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		card = null;
+		image = null;
 	}
 	
 	/**

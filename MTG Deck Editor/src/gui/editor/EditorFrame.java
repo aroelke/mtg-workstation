@@ -1,5 +1,6 @@
 package gui.editor;
 
+import gui.CardImagePanel;
 import gui.CardTable;
 import gui.CardTableModel;
 import gui.MainFrame;
@@ -55,6 +56,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
@@ -426,7 +428,7 @@ public class EditorFrame extends JInternalFrame
 		categoriesPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		listTabs.addTab("Categories", categoriesPanel);
 		
-		// Panel containing sample hands
+		// Sample hands
 		JPanel handPanel = new JPanel(new BorderLayout());
 		
 		// Table showing the cards in hand
@@ -441,7 +443,12 @@ public class EditorFrame extends JInternalFrame
 				parent.selectCard(parent.getCard(hand.get(handTable.convertRowIndexToModel(lsm.getMinSelectionIndex())).id()));
 		});
 		handTable.setStripeColor(SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE)));
-		handPanel.add(new JScrollPane(handTable), BorderLayout.CENTER);
+		handTable.setPreferredScrollableViewportSize(new Dimension(handTable.getPreferredSize().width, handTable.getRowHeight()*10));
+		
+		// Panel showing images of the sample hand
+		ScrollablePanel imagePanel = new ScrollablePanel();
+//		JScrollPane imagePane = new JScrollPane(imagePanel);
+		imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
 		
 		// Control panel for manipulating the sample hand
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -449,6 +456,15 @@ public class EditorFrame extends JInternalFrame
 		newHandButton.addActionListener((e) -> {
 			hand.newHand(startingHandSize);
 			handModel.fireTableDataChanged();
+//			imagePanel.removeAll();
+//			for (Card c: hand)
+//			{
+//				CardImagePanel panel = new CardImagePanel();
+//				panel.setSize(imagePanel.getSize());
+//				panel.setCard(c);
+//				imagePanel.add(panel);
+//			}
+//			update();
 		});
 		handModPanel.add(newHandButton);
 		JButton mulliganButton = new JButton("Mulligan");
@@ -516,8 +532,10 @@ public class EditorFrame extends JInternalFrame
 		probabilityButton.addActionListener((e) -> new CalculateHandDialog(parent, deck, hand.excluded(), startingHandSize,
 				SettingsDialog.stringToColor(parent.getSetting(SettingsDialog.EDITOR_STRIPE))).setVisible(true));
 		handModPanel.add(probabilityButton);
-		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		
+		JSplitPane handSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(handTable), imagePanel);
+		handPanel.add(handSplit, BorderLayout.CENTER);
+		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		listTabs.addTab("Sample Hand", handPanel);
 		
 		// TODO: Add tabs for deck analysis

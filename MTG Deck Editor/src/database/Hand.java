@@ -101,7 +101,6 @@ public class Hand implements CardCollection
 	{
 		if (inHand > 0)
 		{
-			refresh();
 			Collections.shuffle(hand);
 			inHand--;
 		}
