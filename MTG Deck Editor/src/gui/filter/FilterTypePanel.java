@@ -27,8 +27,6 @@ import database.Card;
  * can be changed using a combo box.  When the filter is retrieved, only the active
  * filter is used.  A FilterContainer can also be removed using its remove button.
  * 
- * TODO: Align the option dropdown with the filter panel better
- * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
