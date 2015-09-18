@@ -29,7 +29,6 @@ public class LegalFilterPanel extends MultiOptionsFilterPanel<String>
 	public LegalFilterPanel()
 	{
 		super(FilterType.FORMAT_LEGALITY, Card.formatList, Card::legalIn);
-		
 		restrictedBox = new JCheckBox("Restricted");
 		add(restrictedBox, BorderLayout.EAST);
 	}

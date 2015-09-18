@@ -18,7 +18,6 @@ import database.Card;
 
 /**
  * TODO: Comment this
- * TODO: Make this a descendant of OptionsFilterPanel
  * @author Alec
  *
  */
