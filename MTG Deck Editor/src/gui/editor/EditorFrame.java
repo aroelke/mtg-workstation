@@ -564,6 +564,8 @@ public class EditorFrame extends JInternalFrame
 		handModPanel.add(probabilityButton);
 		
 		JSplitPane handSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(handTable), imagePane);
+		handSplit.setOneTouchExpandable(true);
+		handSplit.setContinuousLayout(true);
 		handPanel.add(handSplit, BorderLayout.CENTER);
 		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		listTabs.addTab("Sample Hand", handPanel);
