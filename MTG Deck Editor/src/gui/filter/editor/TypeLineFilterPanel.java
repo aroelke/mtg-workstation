@@ -1,5 +1,6 @@
 package gui.filter.editor;
 
+import gui.filter.ComboBoxPanel;
 import gui.filter.FilterType;
 
 import java.util.Arrays;
@@ -10,7 +11,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
 import util.Containment;
@@ -33,7 +33,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 	/**
 	 * Combo box for changing containment type.
 	 */
-	private JComboBox<Containment> contain;
+	private ComboBoxPanel<Containment> contain;
 	
 	/**
 	 * Create a new TypeLineFilterPanel.
@@ -44,7 +44,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		// Containment type combo box
-		add(contain = new JComboBox<Containment>(Containment.values()));
+		add(contain = new ComboBoxPanel<Containment>(Containment.values()));
 		
 		// Text field for editing the filter
 		add(filter = new JTextField());
@@ -60,7 +60,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel
 		if (filter.getText().length() > 0)
 		{
 			List<String> types = Arrays.asList(filter.getText().toLowerCase().split("\\s"));
-			return (c) -> c.allTypes().stream().anyMatch((f) -> contain.getItemAt(contain.getSelectedIndex()).test(f.stream().map(String::toLowerCase).collect(Collectors.toList()), types));
+			return (c) -> c.allTypes().stream().anyMatch((f) -> contain.getSelectedItem().test(f.stream().map(String::toLowerCase).collect(Collectors.toList()), types));
 		}
 		else
 			return (c) -> true;

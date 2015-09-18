@@ -2,7 +2,7 @@ package gui.filter.editor.options.multi;
 
 import gui.filter.FilterType;
 
-import java.awt.GridBagConstraints;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Predicate;
@@ -31,11 +31,7 @@ public class LegalFilterPanel extends MultiOptionsFilterPanel<String>
 		super(FilterType.FORMAT_LEGALITY, Card.formatList, Card::legalIn);
 		
 		restrictedBox = new JCheckBox("Restricted");
-		GridBagConstraints restrictedConstraints = new GridBagConstraints();
-		restrictedConstraints.gridx = 2;
-		restrictedConstraints.gridy = 2;
-		restrictedConstraints.fill = GridBagConstraints.BOTH;
-		add(restrictedBox, restrictedConstraints);
+		add(restrictedBox, BorderLayout.EAST);
 	}
 	
 	/**

@@ -1,21 +1,21 @@
 package gui.filter.editor.options.singleton;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import gui.filter.ComboBoxPanel;
+import gui.filter.FilterType;
+import gui.filter.editor.options.OptionsFilterPanel;
+
+import java.awt.BorderLayout;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.swing.JComboBox;
+import javax.swing.BoxLayout;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-import database.Card;
-import gui.filter.FilterType;
-import gui.filter.FilterTypePanel;
-import gui.filter.editor.options.OptionsFilterPanel;
 import util.Containment;
+import database.Card;
 
 /**
  * This class represents a FilterPanel that filters Cards by a characteristic that has one value
@@ -36,7 +36,7 @@ public class SingletonOptionsFilterPanel<T> extends OptionsFilterPanel
 	 * Combo box indicating containment.  This box contains a more restricted set of
 	 * containments, including only "contains any of" and "contains none of".
 	 */
-	private JComboBox<Containment> contain;
+	private ComboBoxPanel<Containment> contain;
 	/**
 	 * Box showing the options to choose from.
 	 */
@@ -56,35 +56,18 @@ public class SingletonOptionsFilterPanel<T> extends OptionsFilterPanel
 	public SingletonOptionsFilterPanel(FilterType type, T[] o, Function<Card, T> f)
 	{
 		super(type);
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		param = f;
 		options = o;
 		
-		// Use a GridBagLayout to push everything up against the panel's left side
-		GridBagLayout layout = new GridBagLayout();
-		layout.rowHeights = new int[] {FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT};
-		layout.rowWeights = new double[] {0.0, 0.0, 1.0, 0.0, 0.0};
-		layout.columnWidths = new int[] {0, 0};
-		layout.columnWeights = new double[] {0.0, 1.0};
-		setLayout(layout);
-		
 		// Set containment combo box (only has "any of" and "none of")
-		contain = new JComboBox<Containment>(Containment.singletonValues());
-		GridBagConstraints comparisonConstraints = new GridBagConstraints();
-		comparisonConstraints.gridx = 0;
-		comparisonConstraints.gridy = 2;
-		comparisonConstraints.fill = GridBagConstraints.BOTH;
-		add(contain, comparisonConstraints);
+		add(contain = new ComboBoxPanel<Containment>(Containment.singletonValues()), BorderLayout.WEST);
 		
 		// List pane showing the available options
 		optionsBox = new JList<T>(options);
-		optionsBox.setVisibleRowCount(-1);
-		GridBagConstraints optionsConstraints = new GridBagConstraints();
-		optionsConstraints.gridx = 1;
-		optionsConstraints.gridy = 0;
-		optionsConstraints.gridheight = 5;
-		optionsConstraints.fill = GridBagConstraints.BOTH;
-		add(new JScrollPane(optionsBox), optionsConstraints);
+		optionsBox.setVisibleRowCount(Math.min(MAX_ROWS, options.length));
+		add(new JScrollPane(optionsBox), BorderLayout.CENTER);
 	}
 	
 	/**

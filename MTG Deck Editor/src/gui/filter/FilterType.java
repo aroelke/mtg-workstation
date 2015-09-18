@@ -1,6 +1,5 @@
 package gui.filter;
 
-import gui.filter.editor.DefaultsFilterPanel;
 import gui.filter.editor.EmptyFilterPanel;
 import gui.filter.editor.FilterEditorPanel;
 import gui.filter.editor.ManaCostFilterPanel;
@@ -12,6 +11,7 @@ import gui.filter.editor.number.CardNumberFilterPanel;
 import gui.filter.editor.number.LoyaltyFilterPanel;
 import gui.filter.editor.number.PowerFilterPanel;
 import gui.filter.editor.number.ToughnessFilterPanel;
+import gui.filter.editor.options.DefaultsFilterPanel;
 import gui.filter.editor.options.multi.LegalFilterPanel;
 import gui.filter.editor.options.multi.SubtypeFilterPanel;
 import gui.filter.editor.options.multi.SupertypeFilterPanel;

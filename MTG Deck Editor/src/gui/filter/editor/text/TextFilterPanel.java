@@ -1,5 +1,9 @@
 package gui.filter.editor.text;
 
+import gui.filter.ComboBoxPanel;
+import gui.filter.FilterType;
+import gui.filter.editor.FilterEditorPanel;
+
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -9,13 +13,10 @@ import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
-import database.Card;
-import gui.filter.FilterType;
-import gui.filter.editor.FilterEditorPanel;
 import util.Containment;
+import database.Card;
 
 /**
  * This class represents a FilterPanel that can filter a Card based on a characteristic
@@ -40,7 +41,7 @@ public class TextFilterPanel extends FilterEditorPanel
 	/**
 	 * Combo box showing the containment options available, if regex matching is disabled.
 	 */
-	private JComboBox<Containment> contain;
+	private ComboBoxPanel<Containment> contain;
 	/**
 	 * Text value to search for in the Card characteristic.
 	 */
@@ -90,7 +91,7 @@ public class TextFilterPanel extends FilterEditorPanel
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		// Set containment combo box
-		add(contain = new JComboBox<Containment>(Containment.values()));
+		add(contain = new ComboBoxPanel<Containment>(Containment.values()));
 		
 		// Text box for entering the filter string
 		add(filterValue = new JTextField());
@@ -119,7 +120,7 @@ public class TextFilterPanel extends FilterEditorPanel
 		{
 			// If the filter is a "simple" string, then the characteristic matches if it matches the
 			// filter text in any order with the specified set containment
-			switch (contain.getItemAt(contain.getSelectedIndex()))
+			switch (contain.getSelectedItem())
 			{
 			case CONTAINS_ALL_OF:
 				return (c) -> text.apply(c).stream().map(String::toLowerCase).anyMatch(createSimpleMatcher(filterText));
@@ -138,7 +139,7 @@ public class TextFilterPanel extends FilterEditorPanel
 					str.add(toAdd.replace("*", "\\E\\w*\\Q"));
 				}
 				Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
-				if (contain.getItemAt(contain.getSelectedIndex()).equals(Containment.CONTAINS_NONE_OF))
+				if (contain.getSelectedItem().equals(Containment.CONTAINS_NONE_OF))
 					return (c) -> text.apply(c).stream().anyMatch((s) -> !p.matcher(s.toLowerCase()).find());
 				else
 					return (c) -> text.apply(c).stream().anyMatch((s) -> p.matcher(s.toLowerCase()).find());

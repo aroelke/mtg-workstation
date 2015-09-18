@@ -1,6 +1,9 @@
 package gui.filter.editor.colors;
 
-import java.awt.Dimension;
+import gui.filter.ComboBoxPanel;
+import gui.filter.FilterType;
+import gui.filter.editor.FilterEditorPanel;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -11,17 +14,13 @@ import java.util.regex.Pattern;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
+import util.Containment;
 import database.Card;
 import database.characteristics.MTGColor;
 import database.symbol.ColorSymbol;
-import gui.filter.FilterType;
-import gui.filter.editor.FilterEditorPanel;
-import util.Containment;
 
 /**
  * This class represents a panel that can filter a color characteristic of a Card.
@@ -38,7 +37,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 	/**
 	 * Combo box for choosing which kind of set containment colors should be filtered by.
 	 */
-	private JComboBox<Containment> contain;
+	private ComboBoxPanel<Containment> contain;
 	/**
 	 * Check box for filtering white.
 	 */
@@ -86,10 +85,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 		colorFunction = f;
 		
 		// Set containment combo box
-		contain = new JComboBox<Containment>();
-		contain.setModel(new DefaultComboBoxModel<Containment>(Containment.values()));
-		contain.setMaximumSize(new Dimension(contain.getPreferredSize().width, Integer.MAX_VALUE));
-		add(contain);
+		add(contain = new ComboBoxPanel<Containment>(Containment.values()));
 		
 		// White check box
 		whiteCheckBox = new JCheckBox();
@@ -148,7 +144,7 @@ public class ColorFilterPanel extends FilterEditorPanel
 		if (greenCheckBox.isSelected())
 			colors.add(MTGColor.GREEN);
 		boolean multicolored = multiCheckBox.isSelected();
-		Predicate<Card> filter = (c) -> contain.getItemAt(contain.getSelectedIndex()).test(colorFunction.apply(c), colors);
+		Predicate<Card> filter = (c) -> contain.getSelectedItem().test(colorFunction.apply(c), colors);
 		if (multicolored)
 			filter = filter.and((c) -> colorFunction.apply(c).size() > 1);
 		return filter;

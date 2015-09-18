@@ -1,8 +1,6 @@
 package gui.filter;
 
-import gui.filter.editor.DefaultsFilterPanel;
 import gui.filter.editor.FilterEditorPanel;
-import gui.filter.editor.options.OptionsFilterPanel;
 
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -17,7 +15,6 @@ import java.util.function.Predicate;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -45,11 +42,11 @@ public class FilterTypePanel extends FilterPanel
 	/**
 	 * Width that the FilterTypePanel should be, including all buttons and other elements.
 	 */
-	public static final int COL_WIDTH = 600;
+	public static final int COL_WIDTH = 425;
 	/**
 	 * Combo box to choose what type of filter to display.
 	 */
-	private JComboBox<FilterType> filterTypeBox;
+	private ComboBoxPanel<FilterType> filterTypeBox;
 	/**
 	 * Panel containing the filters.
 	 */
@@ -81,12 +78,11 @@ public class FilterTypePanel extends FilterPanel
 	{
 		super(g);
 		
-		// Create the layout, which ensures correct sizing of this FilterContainer.
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBorder(new EmptyBorder(0, 0, 5, 0));
 		
 		// Combo box for choosing the filter type
-		filterTypeBox = new JComboBox<FilterType>(FilterType.values());
+		filterTypeBox = new ComboBoxPanel<FilterType>(FilterType.values());
 		filterTypeBox.addItemListener(new FilterTypeListener());
 		filterTypeBox.setAlignmentY(CENTER_ALIGNMENT);
 		add(filterTypeBox);
@@ -96,9 +92,11 @@ public class FilterTypePanel extends FilterPanel
 		filters = new HashMap<FilterType, FilterEditorPanel>();
 		filterPanel = new JPanel(new CardLayout()
 		{
-			/*
+			/**
 			 * The panel's size should change dynamically according to the size
 			 * of the filter panel in it.
+			 * 
+			 * @param parent Parent container of the CardLayout
 			 * @see java.awt.CardLayout#preferredLayoutSize(java.awt.Container)
 			 */
 			@Override
@@ -112,7 +110,7 @@ public class FilterTypePanel extends FilterPanel
 				{
 					Insets insets = parent.getInsets();
 					Dimension pref = current.getPreferredSize();
-					pref.width += insets.left + insets.right;
+					pref.width = COL_WIDTH + insets.left + insets.right;
 					pref.height += insets.top + insets.bottom;
 					return pref;
 				}
@@ -153,10 +151,6 @@ public class FilterTypePanel extends FilterPanel
 		});
 		groupButton.setAlignmentY(CENTER_ALIGNMENT);
 		add(groupButton);
-		
-		setPreferredSize(new Dimension(COL_WIDTH, ROW_HEIGHT));
-		filterTypeBox.setPreferredSize(new Dimension(filterTypeBox.getPreferredSize().width, ROW_HEIGHT));
-		filterTypeBox.setMaximumSize(new Dimension(filterTypeBox.getPreferredSize().width, ROW_HEIGHT));
 	}
 	
 	/**
@@ -222,16 +216,6 @@ public class FilterTypePanel extends FilterPanel
 			CardLayout cards = (CardLayout)filterPanel.getLayout();
 			cards.show(filterPanel, String.valueOf(e.getItem()));
 			currentFilter = filters.get(e.getItem());
-			if (currentFilter instanceof OptionsFilterPanel || currentFilter instanceof DefaultsFilterPanel)
-			{
-				setPreferredSize(new Dimension(COL_WIDTH, 5*ROW_HEIGHT));
-				filterTypeBox.setMaximumSize(new Dimension(filterTypeBox.getPreferredSize().width, ROW_HEIGHT - 5));
-			}
-			else
-			{
-				setPreferredSize(new Dimension(COL_WIDTH, ROW_HEIGHT));
-				filterTypeBox.setMaximumSize(new Dimension(filterTypeBox.getPreferredSize().width, ROW_HEIGHT));
-			}
 			if (SwingUtilities.windowForComponent(FilterTypePanel.this) != null)
 				SwingUtilities.windowForComponent(FilterTypePanel.this).pack();
 		}

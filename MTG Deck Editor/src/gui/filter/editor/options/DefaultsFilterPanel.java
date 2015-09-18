@@ -1,9 +1,10 @@
-package gui.filter.editor;
+package gui.filter.editor.options;
 
 import gui.SettingsDialog;
 import gui.editor.CategoryEditorPanel;
 import gui.filter.FilterGroupPanel;
 import gui.filter.FilterType;
+import gui.filter.editor.FilterEditorPanel;
 
 import java.awt.BorderLayout;
 import java.util.function.Predicate;
@@ -17,6 +18,7 @@ import database.Card;
 
 /**
  * TODO: Comment this
+ * TODO: Make this a descendant of OptionsFilterPanel
  * @author Alec
  *
  */
@@ -37,6 +39,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel
 				categoriesModel.addElement(category);
 		categoriesList = new JList<String>(categoriesModel);
 		categoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		categoriesList.setVisibleRowCount(Math.min(OptionsFilterPanel.MAX_ROWS, 7));
 		add(new JScrollPane(categoriesList), BorderLayout.CENTER);
 	}
 

@@ -15,6 +15,11 @@ import gui.filter.editor.FilterEditorPanel;
 public abstract class OptionsFilterPanel extends FilterEditorPanel
 {
 	/**
+	 * Maximum number of rows to show in the list pane.
+	 */
+	public static final int MAX_ROWS = 7;
+	
+	/**
 	 * Create a new OptionsFilterPanel.
 	 * 
 	 * @param type Type of filter the new OptionsFilterPanel edits

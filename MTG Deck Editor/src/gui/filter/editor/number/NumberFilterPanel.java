@@ -1,5 +1,6 @@
 package gui.filter.editor.number;
 
+import gui.filter.ComboBoxPanel;
 import gui.filter.FilterType;
 import gui.filter.editor.FilterEditorPanel;
 
@@ -9,7 +10,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
@@ -34,7 +34,7 @@ public class NumberFilterPanel extends FilterEditorPanel
 	/**
 	 * Numerical comparison to make with the operand.
 	 */
-	protected JComboBox<Comparison> comparisonBox;
+	protected ComboBoxPanel<Comparison> comparisonBox;
 	/**
 	 * Value to compare to the operand.
 	 */
@@ -53,9 +53,7 @@ public class NumberFilterPanel extends FilterEditorPanel
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		// Combo box for choosing the type of comparison to make
-		comparisonBox = new JComboBox<Comparison>(Comparison.values());
-		comparisonBox.setMaximumSize(new Dimension(comparisonBox.getPreferredSize().width, Integer.MAX_VALUE));
-		add(comparisonBox);
+		add(comparisonBox = new ComboBoxPanel<Comparison>(Comparison.values()));
 		
 		// Value to compare the characteristic against
 		spinner = new JSpinner();
@@ -75,7 +73,7 @@ public class NumberFilterPanel extends FilterEditorPanel
 	@Override
 	public Predicate<Card> getFilter()
 	{
-		return (c) -> operand.apply(c).stream().anyMatch((v) -> comparisonBox.getItemAt(comparisonBox.getSelectedIndex()).test(v, (double)spinner.getValue()));
+		return (c) -> operand.apply(c).stream().anyMatch((v) -> comparisonBox.getSelectedItem().test(v, (double)spinner.getValue()));
 	}
 
 	/**

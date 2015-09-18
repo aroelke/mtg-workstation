@@ -1,20 +1,19 @@
 package gui.filter.editor.options.multi;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import gui.filter.ComboBoxPanel;
+import gui.filter.FilterType;
+import gui.filter.editor.options.OptionsFilterPanel;
+
+import java.awt.BorderLayout;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-import database.Card;
-import gui.filter.FilterType;
-import gui.filter.FilterTypePanel;
-import gui.filter.editor.options.OptionsFilterPanel;
 import util.Containment;
+import database.Card;
 
 /**
  * This class represents a FilterPanel that filters Cards by a characteristic that has multiple
@@ -34,7 +33,7 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	/**
 	 * Combo box indicating containment.
 	 */
-	private JComboBox<Containment> contain;
+	private ComboBoxPanel<Containment> contain;
 	/**
 	 * Box showing the options to choose from.
 	 */
@@ -54,35 +53,18 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	public MultiOptionsFilterPanel(FilterType type, T[] o, Function<Card, List<T>> f)
 	{
 		super(type);
+		setLayout(new BorderLayout());
 		
 		param = f;
 		options = o;
 		
-		// Use a GridBagLayout to push everything up against the panel's left side
-		GridBagLayout layout = new GridBagLayout();
-		layout.rowHeights = new int[] {FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT, FilterTypePanel.ROW_HEIGHT};
-		layout.rowWeights = new double[] {0.0, 0.0, 1.0, 0.0, 0.0};
-		layout.columnWidths = new int[] {0, 0};
-		layout.columnWeights = new double[] {0.0, 1.0};
-		setLayout(layout);
-		
 		// Set containment combo box
-		contain = new JComboBox<Containment>(Containment.values());
-		GridBagConstraints comparisonConstraints = new GridBagConstraints();
-		comparisonConstraints.gridx = 0;
-		comparisonConstraints.gridy = 2;
-		comparisonConstraints.fill = GridBagConstraints.BOTH;
-		add(contain, comparisonConstraints);
+		add(contain = new ComboBoxPanel<Containment>(Containment.values()), BorderLayout.WEST);
 		
 		// List pane showing the available options
 		optionsBox = new JList<T>(options);
-		optionsBox.setVisibleRowCount(-1);
-		GridBagConstraints optionsConstraints = new GridBagConstraints();
-		optionsConstraints.gridx = 1;
-		optionsConstraints.gridy = 0;
-		optionsConstraints.gridheight = 5;
-		optionsConstraints.fill = GridBagConstraints.BOTH;
-		add(new JScrollPane(optionsBox), optionsConstraints);
+		optionsBox.setVisibleRowCount(Math.min(MAX_ROWS, options.length));
+		add(new JScrollPane(optionsBox), BorderLayout.CENTER);
 	}
 	
 	/**
@@ -93,7 +75,7 @@ public class MultiOptionsFilterPanel<T extends CharSequence> extends OptionsFilt
 	@Override
 	public Predicate<Card> getFilter()
 	{
-		return (c) -> contain.getItemAt(contain.getSelectedIndex()).test(param.apply(c), optionsBox.getSelectedValuesList());
+		return (c) -> contain.getSelectedItem().test(param.apply(c), optionsBox.getSelectedValuesList());
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package gui.filter.editor;
 
+import gui.filter.ComboBoxPanel;
 import gui.filter.FilterType;
 
 import java.util.function.Predicate;
@@ -7,7 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
 import util.Containment;
@@ -27,7 +27,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 	/**
 	 * Combo box for specifying set containment type.
 	 */
-	private JComboBox<Containment> contain;
+	private ComboBoxPanel<Containment> contain;
 	/**
 	 * Text field for specifying the mana cost to filter.
 	 */
@@ -42,7 +42,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		// The panel only contains a combo box for defining set containment
 		// and a text box.
-		add(contain = new JComboBox<Containment>(Containment.values()));
+		add(contain = new ComboBoxPanel<Containment>(Containment.values()));
 		add(filterValue = new JTextField());
 	}
 
@@ -54,7 +54,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel
 	public Predicate<Card> getFilter()
 	{
 		ManaCost cost = ManaCost.valueOf(filterValue.getText());
-		switch ((Containment)contain.getSelectedItem())
+		switch (contain.getSelectedItem())
 		{
 		case CONTAINS_ANY_OF:
 			return (c) -> c.mana().stream().anyMatch((m) -> Containment.CONTAINS_ANY_OF.test(m.symbols(), cost.symbols()));
