@@ -16,8 +16,6 @@ import util.Containment;
  * This class represents a FilterPanel that presents a set of options
  * to the user to choose from to fill out the filter.
  * 
- * TODO: Extract out common elements from each kind of options filter panel.
- * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
