@@ -42,15 +42,29 @@ public class CardImagePanel extends JPanel
 	 * Image of the card this CardImagePanel should display.
 	 */
 	private BufferedImage image;
+	/**
+	 * TODO: Comment this
+	 */
+	private List<BufferedImage> faceImages;
+	
+	/**
+	 * TODO: Comment this
+	 * @param c
+	 */
+	public CardImagePanel(Card c)
+	{
+		super(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		image = null;
+		faceImages = new ArrayList<BufferedImage>();
+		setCard(c);
+	}
 	
 	/**
 	 * Create a new CardImagePanel displaying nothing.
 	 */
 	public CardImagePanel()
 	{
-		super(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		card = null;
-		image = null;
+		this(null);
 	}
 	
 	/**
@@ -64,9 +78,7 @@ public class CardImagePanel extends JPanel
 	{
 		if ((card = c) != null)
 		{
-			int height = 0;
-			int width = 0;
-			List<BufferedImage> images = new ArrayList<BufferedImage>();
+			faceImages.clear();
 			for (String name: card.imageNames())
 			{
 				try
@@ -75,55 +87,83 @@ public class CardImagePanel extends JPanel
 					if (imageFile.exists())
 					{
 						BufferedImage img = ImageIO.read(imageFile);
-						images.add(img);
-						height = Math.max(height, img.getHeight());
-						width += img.getWidth();
+						faceImages.add(img);
 					}
 					else
-						images.add(null);
+						faceImages.add(null);
 				}
 				catch (IOException e)
 				{
-					images.add(null);
-				}
-			}
-			if (height == 0)
-				height = getHeight();
-			width += (int)(height*ASPECT_RATIO*Collections.frequency(images, null));
-			int x = 0;
-			image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			Graphics g = image.createGraphics();
-			for (int i = 0; i < images.size(); i++)
-			{
-				if (images.get(i) != null)
-				{
-					g.drawImage(images.get(i), x, (height - images.get(i).getHeight())/2, null);
-					x += images.get(i).getWidth();
-				}
-				else
-				{
-					int w = (int)(height*ASPECT_RATIO);
-					JLabel missingCardLabel = new JLabel("<html><body style='width:100%'>"
-							+ "<font color='red'>Missing '" + card.imageNames()[images.size() > 1 ? i : 0] + ".full.jpg'<br></font>"
-							+ (images.size() > 1 ? card.faceHTMLString(i) : card.toHTMLString())
-							+ "</html>");
-					missingCardLabel.setVerticalAlignment(JLabel.TOP);
-					missingCardLabel.setSize(new Dimension(w - 4, height - 4));
-					
-					BufferedImage img = new BufferedImage(w, height, BufferedImage.TYPE_INT_ARGB);
-					missingCardLabel.paint(img.getGraphics());
-					g.drawImage(img, x + 2, 2, null);
-					g.setColor(Color.BLACK);
-					g.drawRect(x, 0, w - 1, height - 1);
-					
-					x += w;
+					faceImages.add(null);
 				}
 			}
 		}
-		revalidate();
-		repaint();
+		if (getParent() != null)
+		{
+			getParent().validate();
+			repaint();
+		}
 	}
 	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public void setBounds(int x, int y, int width, int height)
+	{
+		super.setBounds(x, y, width, height);
+		if (card == null || height == 0)
+			image = null;
+		else
+		{
+			int h = 0;
+			int w = 0;
+			for (BufferedImage face: faceImages)
+			{
+				if (face != null)
+				{
+					h = Math.max(h, face.getHeight());
+					w += face.getWidth();
+				}
+			}
+			if (h == 0)
+				h = height;
+			w += (int)(h*ASPECT_RATIO*Collections.frequency(faceImages, null));
+			image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+			Graphics g = image.createGraphics();
+			int l = 0;
+			for (int i = 0; i < faceImages.size(); i++)
+			{
+				if (faceImages.get(i) != null)
+				{
+					g.drawImage(faceImages.get(i), l, (h - faceImages.get(i).getHeight())/2, null);
+					x += faceImages.get(i).getWidth();
+				}
+				else
+				{
+					int faceWidth = (int)(height*ASPECT_RATIO);
+					JLabel missingCardLabel = new JLabel("<html><body style='width:100%'>"
+							+ "<font color='red'>Missing '" + card.imageNames()[faceImages.size() > 1 ? i : 0] + ".full.jpg'<br></font>"
+							+ (faceImages.size() > 1 ? card.faceHTMLString(i) : card.toHTMLString())
+							+ "</html>");
+					missingCardLabel.setVerticalAlignment(JLabel.TOP);
+					missingCardLabel.setSize(new Dimension(faceWidth - 4, h - 4));
+					
+					BufferedImage img = new BufferedImage(faceWidth, h, BufferedImage.TYPE_INT_ARGB);
+					missingCardLabel.paint(img.getGraphics());
+					g.drawImage(img, l + 2, 2, null);
+					g.setColor(Color.BLACK);
+					g.drawRect(l, 0, faceWidth - 1, h - 1);
+					
+					l += faceWidth;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
 	@Override
 	public Dimension getPreferredSize()
 	{
@@ -146,7 +186,7 @@ public class CardImagePanel extends JPanel
 	protected void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
-		if (card != null && image != null)
+		if (image != null)
 		{
 			Graphics2D g2 = (Graphics2D)g;
 			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);

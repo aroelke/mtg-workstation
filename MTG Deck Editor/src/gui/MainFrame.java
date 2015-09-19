@@ -195,6 +195,9 @@ public class MainFrame extends JFrame
 	 * Menu showing preset categories.
 	 */
 	private JMenu presetMenu;
+	/**
+	 * TODO: Comment this
+	 */
 	private CardImagePanel imagePanel;
 	
 	/**
