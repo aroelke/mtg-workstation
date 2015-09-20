@@ -146,7 +146,7 @@ public class CategoryPanel extends JPanel
 		add(countPanel, BorderLayout.NORTH);
 		
 		// Table showing the cards in the category
-		model = new CardTableModel(editor, category, Arrays.stream(editor.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		model = new CardTableModel(editor, category, Arrays.stream(SettingsDialog.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		table = new CardTable(model)
 		{
 			@Override
@@ -158,7 +158,7 @@ public class CategoryPanel extends JPanel
 			}
 		};
 		table.setAutoCreateRowSorter(true);
-		table.setStripeColor(SettingsDialog.stringToColor(editor.getSetting(SettingsDialog.EDITOR_STRIPE)));
+		table.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
 		tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);

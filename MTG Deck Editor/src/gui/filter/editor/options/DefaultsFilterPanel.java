@@ -43,8 +43,8 @@ public class DefaultsFilterPanel extends FilterEditorPanel
 		setLayout(new BorderLayout());
 		
 		categoriesModel = new CategoryListModel();
-		if (!SettingsDialog.settings.getProperty(SettingsDialog.EDITOR_PRESETS).isEmpty())
-			for (String category: SettingsDialog.settings.getProperty(SettingsDialog.EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
+		if (!SettingsDialog.getSetting(SettingsDialog.EDITOR_PRESETS).isEmpty())
+			for (String category: SettingsDialog.getSetting(SettingsDialog.EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
 				categoriesModel.addElement(category);
 		categoriesList = new JList<String>(categoriesModel);
 		categoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

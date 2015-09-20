@@ -144,7 +144,7 @@ public class CardImagePanel extends JPanel
 				{
 					int faceWidth = (int)(height*ASPECT_RATIO);
 					JLabel missingCardLabel = new JLabel("<html><body style='width:100%'>"
-							+ "<font color='red'>Missing '" + card.imageNames()[faceImages.size() > 1 ? i : 0] + ".full.jpg'<br></font>"
+							+ "<font color='red'>Missing '" + SettingsDialog.CARD_SCANS + "/" + card.expansion().code + "/" + card.imageNames()[faceImages.size() > 1 ? i : 0] + ".full.jpg" + ".full.jpg'<br></font>"
 							+ (faceImages.size() > 1 ? card.faceHTMLString(i) : card.toHTMLString())
 							+ "</html>");
 					missingCardLabel.setVerticalAlignment(JLabel.TOP);

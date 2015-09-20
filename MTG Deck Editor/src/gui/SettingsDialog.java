@@ -62,6 +62,9 @@ import database.characteristics.CardCharacteristic;
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog
 {
+	/**
+	 * Global settings for the program.
+	 */
 	public static final Properties settings = new Properties();
 	/**
 	 * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
@@ -163,6 +166,15 @@ public class SettingsDialog extends JDialog
 		settings.put(HAND_SIZE, "7");
 		settings.put(HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
 		settings.put(CARD_SCANS, "images/cards");
+	}
+	
+	/**
+	 * @param name Name of the setting to get
+	 * @return The value of the setting with the given name.
+	 */
+	public static String getSetting(String name)
+	{
+		return settings.getProperty(name);
 	}
 	
 	/**
