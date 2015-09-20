@@ -2,7 +2,6 @@ package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -43,17 +42,18 @@ public class CardImagePanel extends JPanel
 	 */
 	private BufferedImage image;
 	/**
-	 * TODO: Comment this
+	 * List of images to draw for the card.
 	 */
 	private List<BufferedImage> faceImages;
 	
 	/**
-	 * TODO: Comment this
-	 * @param c
+	 * Create a new CardImagePanel displaying the specified Card.
+	 * 
+	 * @param c Card to display
 	 */
 	public CardImagePanel(Card c)
 	{
-		super(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		super(null);
 		image = null;
 		faceImages = new ArrayList<BufferedImage>();
 		setCard(c);
@@ -106,13 +106,14 @@ public class CardImagePanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * Set the bounding box of this CardImagePanel.  This will cause it to refresh its image
+	 * to fit inside the new bounding box.
 	 */
 	@Override
 	public void setBounds(int x, int y, int width, int height)
 	{
 		super.setBounds(x, y, width, height);
-		if (card == null || height == 0)
+		if (card == null || height == 0 || width == 0)
 			image = null;
 		else
 		{
@@ -162,7 +163,8 @@ public class CardImagePanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The preferred size of this CardImagePanel, which is the largest rectangle that fits the image
+	 * it is trying to draw that fits within the parent container.
 	 */
 	@Override
 	public Dimension getPreferredSize()

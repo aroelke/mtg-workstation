@@ -196,7 +196,7 @@ public class MainFrame extends JFrame
 	 */
 	private JMenu presetMenu;
 	/**
-	 * TODO: Comment this
+	 * Panel displaying the image for the currently selected card.
 	 */
 	private CardImagePanel imagePanel;
 	
