@@ -21,6 +21,7 @@ public class EditorMain
 	 * system one and create the GUI.
 	 * 
 	 * TODO: Add copy/paste mechanics
+	 * TODO: See if a GroupLayout might make more sense for some of the UI elements
 	 * 
 	 * @param args Arguments to the program
 	 */
