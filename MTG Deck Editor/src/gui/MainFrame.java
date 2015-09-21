@@ -984,6 +984,7 @@ public class MainFrame extends JFrame
 			});
 			presetMenu.add(categoryItem);
 		}
+		imagePanel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.IMAGE_BGCOLOR)));
 		
 		revalidate();
 		repaint();

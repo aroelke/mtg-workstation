@@ -43,6 +43,10 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	 * Whether or not to track the height of the viewport.
 	 */
 	private boolean trackHeight;
+	/**
+	 * Preferred viewport dimensions.
+	 */
+	private Dimension preferredScrollableViewportSize;
 	
 	/**
 	 * Create a new ScrollablePanel with the default layout for a JPanel that
@@ -64,6 +68,7 @@ public class ScrollablePanel extends JPanel implements Scrollable
 		super();
 		trackWidth = (tracking&TRACK_WIDTH) != 0x0;
 		trackHeight = (tracking&TRACK_HEIGHT) != 0x0;
+		preferredScrollableViewportSize = new Dimension(0, 0);
 	}
 	
 	/**
@@ -89,18 +94,30 @@ public class ScrollablePanel extends JPanel implements Scrollable
 		super(layout);
 		trackWidth = (tracking&TRACK_WIDTH) != 0x0;
 		trackHeight = (tracking&TRACK_HEIGHT) != 0x0;
+		preferredScrollableViewportSize = new Dimension(0, 0);
 	}
 	
 	/**
-	 * @return The preferred viewport size of this ScrollablePanel, which is the same
-	 * as its preferred size.
+	 * @return The preferred viewport size of this ScrollablePanel, which is 0 by default
+	 * so as to not cause the scroll pane to resize according to this ScrollablePanel's size. 
 	 */
 	@Override
 	public Dimension getPreferredScrollableViewportSize()
 	{
-		return getPreferredSize();
+		return preferredScrollableViewportSize;
 	}
 
+	/**
+	 * Set the preferred size of this ScrollablePanel's viewport.  This will not actually
+	 * resize the panel unless it is set to track the width or height of its viewport.
+	 * 
+	 * @param size New preferred size for the viewport
+	 */
+	public void setPreferredScrollableViewportSize(Dimension size)
+	{
+		preferredScrollableViewportSize = size;
+	}
+	
 	/**
 	 * @see Scrollable#getScrollableBlockIncrement(Rectangle, int, int)
 	 */

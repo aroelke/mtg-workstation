@@ -295,6 +295,7 @@ public class SettingsDialog extends JDialog
 	 * Text field containing the directory to look for card scans in.
 	 */
 	private JTextField scansDirField;
+	private JColorChooser scanBGChooser;
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -436,9 +437,11 @@ public class SettingsDialog extends JDialog
 		inventoryPanel.add(pathWarningPanel);
 		
 		// Inventory appearance
-		JPanel inventoryAppearancePanel = new JPanel();
+		ScrollablePanel inventoryAppearancePanel = new ScrollablePanel(ScrollablePanel.TRACK_WIDTH);
 		inventoryAppearancePanel.setLayout(new BoxLayout(inventoryAppearancePanel, BoxLayout.Y_AXIS));
-		settingsPanel.add(inventoryAppearancePanel, new TreePath(inventoryAppearanceNode.getPath()).toString());
+		JScrollPane inventoryAppearanceScroll = new JScrollPane(inventoryAppearancePanel);
+		inventoryAppearanceScroll.setBorder(null);
+		settingsPanel.add(inventoryAppearanceScroll, new TreePath(inventoryAppearanceNode.getPath()).toString());
 		
 		// Columns
 		JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
@@ -456,12 +459,17 @@ public class SettingsDialog extends JDialog
 		// Stripe color
 		JPanel inventoryColorPanel = new JPanel(new BorderLayout());
 		inventoryColorPanel.setBorder(new TitledBorder("Stripe Color"));
-		inventoryStripeColor = new JColorChooser(stringToColor(settings.getProperty(INVENTORY_STRIPE)));
+		inventoryStripeColor = new JColorChooser(stringToColor(getSetting(INVENTORY_STRIPE)));
 		createStripeChooserPreview(inventoryStripeColor);
 		inventoryColorPanel.add(inventoryStripeColor);
 		inventoryAppearancePanel.add(inventoryColorPanel);
 		
-		inventoryAppearancePanel.add(Box.createVerticalGlue());
+		// Card image background color
+		JPanel scanBGPanel = new JPanel(new BorderLayout());
+		scanBGPanel.setBorder(new TitledBorder("Image Background Color"));
+		scanBGChooser = new JColorChooser(stringToColor(getSetting(IMAGE_BGCOLOR)));
+		scanBGPanel.add(scanBGChooser);
+		inventoryAppearancePanel.add(scanBGPanel);
 		
 		// Editor
 		JPanel editorPanel = new JPanel();
@@ -716,6 +724,8 @@ public class SettingsDialog extends JDialog
 				join.add(box.getText());
 		settings.put(HAND_COLUMNS, join.toString());
 		settings.put(CARD_SCANS, scansDirField.getText());
+		settings.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
+		
 		parent.applySettings();
 	}
 	
