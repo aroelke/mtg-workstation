@@ -410,14 +410,7 @@ public class EditorFrame extends JInternalFrame
 
 		// Make sure all parts of the category panel fit inside the window (this is necessary because
 		// JScrollPanes do weird things with non-scroll-savvy components)
-		JPanel categoriesSuperContainer = new ScrollablePanel(new BorderLayout())
-		{
-			@Override
-			public boolean getScrollableTracksViewportWidth()
-			{
-				return true;
-			}
-		};
+		JPanel categoriesSuperContainer = new ScrollablePanel(new BorderLayout(), ScrollablePanel.TRACK_WIDTH);
 		categoriesContainer = new JPanel();
 		categoriesContainer.setLayout(new BoxLayout(categoriesContainer, BoxLayout.Y_AXIS));
 		categories = new ArrayList<CategoryPanel>();
@@ -444,18 +437,11 @@ public class EditorFrame extends JInternalFrame
 		// TODO: Make this able to have multiple rows
 		// (either intelligently determine how many it should have, or make it customizable)
 		// TODO: Make the background color customizable
-		ScrollablePanel imagePanel = new ScrollablePanel()
-		{
-			@Override
-			public boolean getScrollableTracksViewportHeight()
-			{
-				return true;
-			}
-		};
+		ScrollablePanel imagePanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
 		imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
 		imagePanel.setBackground(Color.WHITE);
 		JScrollPane imagePane = new JScrollPane(imagePanel);
-		imagePane.setBackground(Color.WHITE);
+		imagePane.getViewport().setBackground(Color.WHITE);
 		
 		// Control panel for manipulating the sample hand
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -470,10 +456,10 @@ public class EditorFrame extends JInternalFrame
 				CardImagePanel panel = new CardImagePanel();
 				panel.setBackground(Color.WHITE);
 				imagePanel.add(panel);
-				imagePanel.validate();
 				panel.setCard(c);
 				imagePanel.add(Box.createHorizontalStrut(10));
 			}
+			imagePanel.validate();
 			update();
 		});
 		handModPanel.add(newHandButton);
@@ -488,10 +474,10 @@ public class EditorFrame extends JInternalFrame
 				CardImagePanel panel = new CardImagePanel();
 				panel.setBackground(Color.WHITE);
 				imagePanel.add(panel);
-				imagePanel.validate();
 				panel.setCard(c);
 				imagePanel.add(Box.createHorizontalStrut(10));
 			}
+			imagePanel.validate();
 			update();
 		});
 		handModPanel.add(mulliganButton);
@@ -503,9 +489,9 @@ public class EditorFrame extends JInternalFrame
 			CardImagePanel panel = new CardImagePanel();
 			panel.setBackground(Color.WHITE);
 			imagePanel.add(panel);
-			imagePanel.validate();
 			panel.setCard(hand.get(hand.size() - 1));
 			imagePanel.add(Box.createHorizontalStrut(10));
+			imagePanel.validate();
 			update();
 		});
 		handModPanel.add(drawCardButton);

@@ -174,7 +174,7 @@ public class CardImagePanel extends JPanel
 	{
 		if (getParent() == null)
 			return super.getPreferredSize();
-		else if (card == null)
+		else if (image == null)
 			return super.getPreferredSize();
 		else
 		{
