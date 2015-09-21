@@ -284,6 +284,9 @@ public class SettingsDialog extends JDialog
 	 * Delimiter for preset categories in the settings file.
 	 */
 	public static final String CATEGORY_DELIMITER = "∎";
+	/**
+	 * Text field containing the directory to look for card scans in.
+	 */
 	private JTextField scansDirField;
 	
 	/**
