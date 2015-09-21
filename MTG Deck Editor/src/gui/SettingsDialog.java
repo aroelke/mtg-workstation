@@ -146,8 +146,14 @@ public class SettingsDialog extends JDialog
 	public static final String CARD_SCANS = "scans";
 	/**
 	 * Background color for card scans in the left pane.
+	 * TODO: Give this a customization option
 	 */
 	public static final String IMAGE_BGCOLOR = "inventory.scan_bgcolor";
+	/**
+	 * Background color for card scans in sample hands.
+	 * TODO: Give this a customization option
+	 */
+	public static final String HAND_BGCOLOR = "hand.bgcolor";
 	
 	/**
 	 * Set program settings back to their default values
@@ -173,6 +179,7 @@ public class SettingsDialog extends JDialog
 		settings.put(HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
 		settings.put(CARD_SCANS, "images" + File.separatorChar + "cards");
 		settings.put(IMAGE_BGCOLOR, "#FFFFFFFF");
+		settings.put(HAND_BGCOLOR, "#FFFFFFFF");
 	}
 	
 	/**

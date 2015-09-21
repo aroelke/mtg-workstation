@@ -439,9 +439,9 @@ public class EditorFrame extends JInternalFrame
 		// TODO: Make the background color customizable
 		ScrollablePanel imagePanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
 		imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
-		imagePanel.setBackground(Color.WHITE);
+		imagePanel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
 		JScrollPane imagePane = new JScrollPane(imagePanel);
-		imagePane.getViewport().setBackground(Color.WHITE);
+		imagePane.getViewport().setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
 		
 		// Control panel for manipulating the sample hand
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -456,7 +456,7 @@ public class EditorFrame extends JInternalFrame
 				CardImagePanel panel = new CardImagePanel();
 				imagePanel.add(panel);
 				panel.setCard(c);
-				panel.setBackground(Color.WHITE);
+				panel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
 				imagePanel.add(Box.createHorizontalStrut(10));
 			}
 			imagePanel.validate();
@@ -474,7 +474,7 @@ public class EditorFrame extends JInternalFrame
 				CardImagePanel panel = new CardImagePanel();
 				imagePanel.add(panel);
 				panel.setCard(c);
-				panel.setBackground(Color.WHITE);
+				panel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
 				imagePanel.add(Box.createHorizontalStrut(10));
 			}
 			imagePanel.validate();
@@ -487,7 +487,7 @@ public class EditorFrame extends JInternalFrame
 			handModel.fireTableDataChanged();
 			
 			CardImagePanel panel = new CardImagePanel();
-			panel.setBackground(Color.WHITE);
+			panel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
 			imagePanel.add(panel);
 			panel.setCard(hand.get(hand.size() - 1));
 			imagePanel.add(Box.createHorizontalStrut(10));
