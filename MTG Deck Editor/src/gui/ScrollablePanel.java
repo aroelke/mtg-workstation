@@ -36,9 +36,13 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	public static final byte TRACK_BOTH = 0x03;
 	
 	/**
-	 * Dimension of this ScrollablePanel's viewport to track.
+	 * Whether or not to track the width of the viewport.
 	 */
-	private byte tracking;
+	private boolean trackWidth;
+	/**
+	 * Whether or not to track the height of the viewport.
+	 */
+	private boolean trackHeight;
 	
 	/**
 	 * Create a new ScrollablePanel with the default layout for a JPanel that
@@ -53,12 +57,13 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	 * Create a new ScrollablePanel with the default layout for a JPanel
 	 * that tracks the specified dimension of its viewport.
 	 * 
-	 * @param t
+	 * @param tracking
 	 */
-	public ScrollablePanel(byte t)
+	public ScrollablePanel(byte tracking)
 	{
 		super();
-		tracking = t;
+		trackWidth = (tracking&TRACK_WIDTH) != 0x0;
+		trackHeight = (tracking&TRACK_HEIGHT) != 0x0;
 	}
 	
 	/**
@@ -77,12 +82,13 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	 * the specified dimension of its viewport.
 	 * 
 	 * @param layout
-	 * @param t
+	 * @param tracking
 	 */
-	public ScrollablePanel(LayoutManager layout, byte t)
+	public ScrollablePanel(LayoutManager layout, byte tracking)
 	{
 		super(layout);
-		tracking = t;
+		trackWidth = (tracking&TRACK_WIDTH) != 0x0;
+		trackHeight = (tracking&TRACK_HEIGHT) != 0x0;
 	}
 	
 	/**
@@ -111,7 +117,7 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	@Override
 	public boolean getScrollableTracksViewportHeight()
 	{
-		return (tracking&TRACK_HEIGHT) != 0x0;
+		return trackHeight;
 	}
 
 	/**
@@ -121,7 +127,7 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	@Override
 	public boolean getScrollableTracksViewportWidth()
 	{
-		return (tracking&TRACK_WIDTH) != 0x0;
+		return trackWidth;
 	}
 
 	/**
