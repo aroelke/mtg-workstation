@@ -154,10 +154,10 @@ public class SettingsDialog extends JDialog
 		settings.put(VERSION, "");
 		settings.put(INVENTORY_FILE, "AllSets-x.json");
 		settings.put(INITIAL_CHECK, "true");
-		settings.put(INVENTORY_LOCATION, "./");
+		settings.put(INVENTORY_LOCATION, ".");
 		settings.put(INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
 		settings.put(INVENTORY_STRIPE, "#FFCCCCCC");
-		settings.put(INITIALDIR, "./");
+		settings.put(INITIALDIR, ".");
 		settings.put(RECENT_COUNT, "4");
 		settings.put(RECENT_FILES, "");
 		settings.put(EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
@@ -165,7 +165,7 @@ public class SettingsDialog extends JDialog
 		settings.put(EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
 		settings.put(HAND_SIZE, "7");
 		settings.put(HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
-		settings.put(CARD_SCANS, "images/cards");
+		settings.put(CARD_SCANS, "images" + File.separatorChar + "cards");
 	}
 	
 	/**

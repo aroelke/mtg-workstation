@@ -83,7 +83,8 @@ public class CardImagePanel extends JPanel
 			{
 				try
 				{
-					File imageFile = new File(SettingsDialog.CARD_SCANS + "/" + card.expansion().code + "/" + name + ".full.jpg");
+					File imageFile = new File(SettingsDialog.getSetting(SettingsDialog.CARD_SCANS)
+							+ "/" + card.expansion().code + "/" + name + ".full.jpg");
 					if (imageFile.exists())
 					{
 						BufferedImage img = ImageIO.read(imageFile);
@@ -144,7 +145,8 @@ public class CardImagePanel extends JPanel
 				{
 					int faceWidth = (int)(height*ASPECT_RATIO);
 					JLabel missingCardLabel = new JLabel("<html><body style='width:100%'>"
-							+ "<font color='red'>Missing '" + SettingsDialog.CARD_SCANS + File.separatorChar + card.expansion().code
+							+ "<font color='red'>Missing '" + SettingsDialog.getSetting(SettingsDialog.CARD_SCANS)
+							+ File.separatorChar + card.expansion().code
 							+ File.separatorChar + card.imageNames()[faceImages.size() > 1 ? i : 0] + ".full.jpg'<br></font>"
 							+ (faceImages.size() > 1 ? card.faceHTMLString(i) : card.toHTMLString())
 							+ "</html>");
