@@ -561,6 +561,7 @@ public class EditorFrame extends JInternalFrame
 		// - mana curve
 		// - color distribution (cards/devotion[max,avg,total])
 		// - mana production distribution
+		// - notes
 
 		// Panel to show the stats of the deck
 		JPanel bottomPanel = new JPanel();
