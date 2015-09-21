@@ -18,11 +18,26 @@ import javax.swing.Scrollable;
 @SuppressWarnings("serial")
 public class ScrollablePanel extends JPanel implements Scrollable
 {
+	/**
+	 * Track neither width nor height of the viewport.
+	 */
 	public static final byte TRACK_NEITHER = 0x00;
+	/**
+	 * Track width of the viewport.
+	 */
 	public static final byte TRACK_WIDTH = 0x01;
+	/**
+	 * Track height of the viewport.
+	 */
 	public static final byte TRACK_HEIGHT = 0x02;
+	/**
+	 * Track both width and height of the viewport (equivalent to TRACK_WIDTH | TRACK_HEIGHT).
+	 */
 	public static final byte TRACK_BOTH = 0x03;
 	
+	/**
+	 * Dimension of this ScrollablePanel's viewport to track.
+	 */
 	private byte tracking;
 	
 	/**
