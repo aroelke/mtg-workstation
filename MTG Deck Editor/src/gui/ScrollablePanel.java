@@ -18,22 +18,56 @@ import javax.swing.Scrollable;
 @SuppressWarnings("serial")
 public class ScrollablePanel extends JPanel implements Scrollable
 {
+	public static final byte TRACK_NEITHER = 0x00;
+	public static final byte TRACK_WIDTH = 0x01;
+	public static final byte TRACK_HEIGHT = 0x02;
+	public static final byte TRACK_BOTH = 0x03;
+	
+	private byte tracking;
+	
 	/**
-	 * Create a new ScrollablePanel with the default layout for a JPanel.
+	 * Create a new ScrollablePanel with the default layout for a JPanel that
+	 * tracks neither the width nor height of its viewport.
 	 */
 	public ScrollablePanel()
 	{
-		super();
+		this(TRACK_NEITHER);
 	}
 	
 	/**
-	 * Create a new ScrollablePanel with the specified layout.
+	 * Create a new ScrollablePanel with the default layout for a JPanel
+	 * that tracks the specified dimension of its viewport.
+	 * 
+	 * @param t
+	 */
+	public ScrollablePanel(byte t)
+	{
+		super();
+		tracking = t;
+	}
+	
+	/**
+	 * Create a new ScrollablePanel with the specified layout that tracks
+	 * neither the width nor height of its viewport.
 	 * 
 	 * @param layout Layout of the new panel
 	 */
 	public ScrollablePanel(LayoutManager layout)
 	{
+		this(layout, TRACK_NEITHER);
+	}
+	
+	/**
+	 * Create a new ScrollablePanel with the specified layout that tracks
+	 * the specified dimension of its viewport.
+	 * 
+	 * @param layout
+	 * @param t
+	 */
+	public ScrollablePanel(LayoutManager layout, byte t)
+	{
 		super(layout);
+		tracking = t;
 	}
 	
 	/**
@@ -62,7 +96,7 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	@Override
 	public boolean getScrollableTracksViewportHeight()
 	{
-		return false;
+		return (tracking&TRACK_HEIGHT) != 0x0;
 	}
 
 	/**
@@ -72,7 +106,7 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	@Override
 	public boolean getScrollableTracksViewportWidth()
 	{
-		return false;
+		return (tracking&TRACK_WIDTH) != 0x0;
 	}
 
 	/**

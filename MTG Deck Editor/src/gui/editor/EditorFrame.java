@@ -454,9 +454,9 @@ public class EditorFrame extends JInternalFrame
 			for (Card c: hand)
 			{
 				CardImagePanel panel = new CardImagePanel();
-				panel.setBackground(Color.WHITE);
 				imagePanel.add(panel);
 				panel.setCard(c);
+				panel.setBackground(Color.WHITE);
 				imagePanel.add(Box.createHorizontalStrut(10));
 			}
 			imagePanel.validate();
@@ -472,9 +472,9 @@ public class EditorFrame extends JInternalFrame
 			for (Card c: hand)
 			{
 				CardImagePanel panel = new CardImagePanel();
-				panel.setBackground(Color.WHITE);
 				imagePanel.add(panel);
 				panel.setCard(c);
+				panel.setBackground(Color.WHITE);
 				imagePanel.add(Box.createHorizontalStrut(10));
 			}
 			imagePanel.validate();
