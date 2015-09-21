@@ -46,6 +46,8 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
@@ -252,7 +254,6 @@ public class SettingsDialog extends JDialog
 	private List<JCheckBox> inventoryColumnCheckBoxes;
 	/**
 	 * Color chooser for the color of alternate inventory table stripes.
-	 * TODO: Change the preview of this to a sample table using setPreviewPanel and the chooser's ColorSelectionModel
 	 */
 	private JColorChooser inventoryStripeColor;
 	/**
@@ -265,7 +266,6 @@ public class SettingsDialog extends JDialog
 	private List<JCheckBox> editorColumnCheckBoxes;
 	/**
 	 * Color chooser for the color of editor tables' alternate stripes.
-	 * TODO: Change the preview of this to a sample table using setPreviewPanel and the chooser's ColorSelectionModel
 	 */
 	private JColorChooser editorStripeColor;
 	/**
@@ -447,6 +447,7 @@ public class SettingsDialog extends JDialog
 		JPanel inventoryColorPanel = new JPanel(new BorderLayout());
 		inventoryColorPanel.setBorder(new TitledBorder("Stripe Color"));
 		inventoryStripeColor = new JColorChooser(stringToColor(settings.getProperty(INVENTORY_STRIPE)));
+		createStripeChooserPreview(inventoryStripeColor);
 		inventoryColorPanel.add(inventoryStripeColor);
 		inventoryAppearancePanel.add(inventoryColorPanel);
 		
@@ -588,6 +589,7 @@ public class SettingsDialog extends JDialog
 		JPanel editorColorPanel = new JPanel(new BorderLayout());
 		editorColorPanel.setBorder(new TitledBorder("Stripe Color"));
 		editorStripeColor = new JColorChooser(stringToColor(settings.getProperty(EDITOR_STRIPE)));
+		createStripeChooserPreview(editorStripeColor);
 		editorColorPanel.add(editorStripeColor);
 		editorAppearancePanel.add(editorColorPanel);
 		
@@ -728,6 +730,47 @@ public class SettingsDialog extends JDialog
 				f = fp.toFile();
 		}
 		return f;
+	}
+	
+	/**
+	 * Create the preview panel for a color chooser that customizes the stripe color
+	 * of a CardTable.
+	 * 
+	 * @param chooser JColorChooser to create the new preview panel for
+	 */
+	private void createStripeChooserPreview(JColorChooser chooser)
+	{
+		JPanel preview = new JPanel();
+		preview.setLayout(new BoxLayout(preview, BoxLayout.Y_AXIS));
+		TableModel model = new AbstractTableModel()
+		{
+			@Override
+			public int getRowCount()
+			{
+				return 4;
+			}
+
+			@Override
+			public int getColumnCount()
+			{
+				return 4;
+			}
+
+			@Override
+			public Object getValueAt(int rowIndex, int columnIndex)
+			{
+				return "Sample Text";
+			}
+		};
+		CardTable table = new CardTable(model);
+		table.setStripeColor(chooser.getColor());
+		preview.add(table);
+		
+		chooser.getSelectionModel().addChangeListener((e) -> {
+			table.setStripeColor(chooser.getColor());
+		});
+		
+		chooser.setPreviewPanel(preview);
 	}
 	
 	/**
