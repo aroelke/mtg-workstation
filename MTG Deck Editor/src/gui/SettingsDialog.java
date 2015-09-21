@@ -142,6 +142,10 @@ public class SettingsDialog extends JDialog
 	 * Location to find card scans.
 	 */
 	public static final String CARD_SCANS = "scans";
+	/**
+	 * Background color for card scans in the left pane.
+	 */
+	public static final String IMAGE_BGCOLOR = "inventory.scan_bgcolor";
 	
 	/**
 	 * Set program settings back to their default values
@@ -166,6 +170,7 @@ public class SettingsDialog extends JDialog
 		settings.put(HAND_SIZE, "7");
 		settings.put(HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
 		settings.put(CARD_SCANS, "images" + File.separatorChar + "cards");
+		settings.put(IMAGE_BGCOLOR, "#FFFFFFFF");
 	}
 	
 	/**
@@ -247,6 +252,7 @@ public class SettingsDialog extends JDialog
 	private List<JCheckBox> inventoryColumnCheckBoxes;
 	/**
 	 * Color chooser for the color of alternate inventory table stripes.
+	 * TODO: Change the preview of this to a sample table using setPreviewPanel and the chooser's ColorSelectionModel
 	 */
 	private JColorChooser inventoryStripeColor;
 	/**
@@ -259,6 +265,7 @@ public class SettingsDialog extends JDialog
 	private List<JCheckBox> editorColumnCheckBoxes;
 	/**
 	 * Color chooser for the color of editor tables' alternate stripes.
+	 * TODO: Change the preview of this to a sample table using setPreviewPanel and the chooser's ColorSelectionModel
 	 */
 	private JColorChooser editorStripeColor;
 	/**

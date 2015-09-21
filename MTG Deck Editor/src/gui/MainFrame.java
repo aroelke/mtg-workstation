@@ -8,7 +8,6 @@ import gui.inventory.InventoryDownloadDialog;
 import gui.inventory.InventoryLoadDialog;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -607,7 +606,7 @@ public class MainFrame extends JFrame
 		// Panel showing the image of the currently-selected card
 		// TODO: Make the background color customizable
 		cardPane.add("Image", imagePanel = new CardImagePanel());
-		imagePanel.setBackground(Color.WHITE);
+		imagePanel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.IMAGE_BGCOLOR)));
 		
 		// Pane displaying the Oracle text
 		oracleTextPane = new JTextPane();
