@@ -20,6 +20,6 @@ public class CardNumberFilterPanel extends NumberFilterPanel
 	 */
 	public CardNumberFilterPanel()
 	{
-		super(FilterType.CARD_NUMBER, (c) -> Arrays.stream(c.number()).map((v) -> Double.valueOf(v.replace("--", "0"))).collect(Collectors.toList()));
+		super(FilterType.CARD_NUMBER, (c) -> Arrays.stream(c.number()).map((v) -> Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""))).collect(Collectors.toList()));
 	}
 }
