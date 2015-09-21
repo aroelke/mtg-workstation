@@ -605,7 +605,6 @@ public class MainFrame extends JFrame
 		JTabbedPane cardPane = new JTabbedPane();
 		
 		// Panel showing the image of the currently-selected card
-		// TODO: Give this a popup menu like the oracle text pane
 		// TODO: Make the background color customizable
 		cardPane.add("Image", imagePanel = new CardImagePanel());
 		imagePanel.setBackground(Color.WHITE);
@@ -621,6 +620,7 @@ public class MainFrame extends JFrame
 		// Oracle text pane popup menu
 		JPopupMenu oraclePopupMenu = new JPopupMenu();
 		oracleTextPane.setComponentPopupMenu(oraclePopupMenu);
+		imagePanel.setComponentPopupMenu(oraclePopupMenu);
 		JMenuItem oracleAddSingleItem = new JMenuItem("Add Single Copy");
 		oracleAddSingleItem.addActionListener((e) -> {
 			if (selectedFrame != null && selectedCard != null)
