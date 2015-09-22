@@ -986,6 +986,7 @@ public class MainFrame extends JFrame
 			presetMenu.add(categoryItem);
 		}
 		setImageBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.IMAGE_BGCOLOR)));
+		setHandBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
 		
 		revalidate();
 		repaint();
@@ -1018,6 +1019,17 @@ public class MainFrame extends JFrame
 	public void setImageBackground(Color col)
 	{
 		imagePanel.setBackground(col);
+	}
+	
+	/**
+	 * Set the background color of the editor panels containing sample hands.
+	 * 
+	 * @param col New color for sample hand panels.
+	 */
+	public void setHandBackground(Color col)
+	{
+		for (EditorFrame frame: editors)
+			frame.setHandBackground(col);
 	}
 	
 	/**

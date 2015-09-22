@@ -10,6 +10,7 @@ import gui.TableMouseAdapter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -190,6 +191,14 @@ public class EditorFrame extends JInternalFrame
 	 * Size of starting hands.
 	 */
 	private int startingHandSize;
+	/**
+	 * Panel containing images for the sample hand.
+	 */
+	private ScrollablePanel imagePanel;
+	/**
+	 * Scroll pane containing the sample hand image panel.
+	 */
+	private JScrollPane imagePane;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -433,15 +442,10 @@ public class EditorFrame extends JInternalFrame
 		handTable.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE)));
 		handTable.setPreferredScrollableViewportSize(new Dimension(handTable.getPreferredSize().width, handTable.getRowHeight()*10));
 		
-		// Panel showing images of the sample hand
-		// TODO: Make this able to have multiple rows
-		// (either intelligently determine how many it should have, or make it customizable)
-		// TODO: Make the background color customizable
-		ScrollablePanel imagePanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
+		imagePanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
 		imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
-		imagePanel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
-		JScrollPane imagePane = new JScrollPane(imagePanel);
-		imagePane.getViewport().setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
+		imagePane = new JScrollPane(imagePanel);
+		setHandBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
 		
 		// Control panel for manipulating the sample hand
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -1571,6 +1575,19 @@ public class EditorFrame extends JInternalFrame
 		handTable.setStripeColor(stripe);
 		startingHandSize = Integer.valueOf(SettingsDialog.getSetting(SettingsDialog.HAND_SIZE));
 		update();
+	}
+	
+	/**
+	 * Set the background color for the sample hand panel.
+	 * 
+	 * @param col New background color for the sample hand panel.
+	 */
+	public void setHandBackground(Color col)
+	{
+		imagePanel.setBackground(col);
+		for (Component c: imagePanel.getComponents())
+			c.setBackground(col);
+		imagePane.getViewport().setBackground(col);
 	}
 	
 	/**

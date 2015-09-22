@@ -296,6 +296,7 @@ public class SettingsDialog extends JDialog
 	 */
 	private JTextField scansDirField;
 	private JColorChooser scanBGChooser;
+	private JColorChooser handBGColor;
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -617,9 +618,11 @@ public class SettingsDialog extends JDialog
 		editorAppearancePanel.add(Box.createVerticalGlue());
 		
 		// Sample hand
-		JPanel sampleHandPanel = new JPanel();
+		ScrollablePanel sampleHandPanel = new ScrollablePanel(ScrollablePanel.TRACK_WIDTH);
 		sampleHandPanel.setLayout(new BoxLayout(sampleHandPanel, BoxLayout.Y_AXIS));
-		settingsPanel.add(sampleHandPanel, new TreePath(handAppearanceNode.getPath()).toString());
+		JScrollPane sampleHandScroll = new JScrollPane(sampleHandPanel);
+		sampleHandScroll.setBorder(null);
+		settingsPanel.add(sampleHandScroll, new TreePath(handAppearanceNode.getPath()).toString());
 		
 		sampleHandPanel.add(Box.createVerticalStrut(5));
 		
@@ -654,7 +657,16 @@ public class SettingsDialog extends JDialog
 		handColumnsPanel.setAlignmentX(LEFT_ALIGNMENT);
 		sampleHandPanel.add(handColumnsPanel);
 		
-		sampleHandPanel.add(Box.createVerticalGlue());
+		// Sample hand background color
+		JPanel handBGColorPanel = new JPanel(new BorderLayout());
+		handBGColorPanel.setBorder(new TitledBorder("Background Color"));
+		handBGColor = new JColorChooser(stringToColor(getSetting(HAND_BGCOLOR)));
+		handBGColor.getSelectionModel().addChangeListener((e) -> {
+			parent.setHandBackground(handBGColor.getColor());
+		});
+		handBGColorPanel.add(handBGColor);
+		handBGColorPanel.setAlignmentX(LEFT_ALIGNMENT);
+		sampleHandPanel.add(handBGColorPanel);
 		
 		// Tree panel
 		JPanel treePanel = new JPanel(new BorderLayout());
@@ -699,6 +711,7 @@ public class SettingsDialog extends JDialog
 	public void rejectSettings()
 	{
 		parent.setImageBackground(stringToColor(getSetting(IMAGE_BGCOLOR)));
+		parent.setHandBackground(stringToColor(getSetting(HAND_BGCOLOR)));
 	}
 	
 	/**
@@ -736,6 +749,7 @@ public class SettingsDialog extends JDialog
 		settings.put(HAND_COLUMNS, join.toString());
 		settings.put(CARD_SCANS, scansDirField.getText());
 		settings.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
+		settings.put(HAND_BGCOLOR, colorToString(handBGColor.getColor()));
 		
 		parent.applySettings();
 	}
