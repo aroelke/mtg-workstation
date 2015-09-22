@@ -468,6 +468,9 @@ public class SettingsDialog extends JDialog
 		JPanel scanBGPanel = new JPanel(new BorderLayout());
 		scanBGPanel.setBorder(new TitledBorder("Image Background Color"));
 		scanBGChooser = new JColorChooser(stringToColor(getSetting(IMAGE_BGCOLOR)));
+		scanBGChooser.getSelectionModel().addChangeListener((e) -> {
+			parent.setImageBackground(scanBGChooser.getColor());
+		});
 		scanBGPanel.add(scanBGChooser);
 		inventoryAppearancePanel.add(scanBGPanel);
 		
@@ -678,7 +681,7 @@ public class SettingsDialog extends JDialog
 		buttonPanel.add(okButton);
 		
 		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener((e) -> dispose());
+		cancelButton.addActionListener((e) -> {rejectSettings(); dispose();});
 		buttonPanel.add(cancelButton);
 		
 		JPanel bottomPanel = new JPanel(new BorderLayout());
@@ -688,6 +691,14 @@ public class SettingsDialog extends JDialog
 		
 		pack();
 		setLocationRelativeTo(owner);
+	}
+	
+	/**
+	 * Reject any changes that were made as a result of using the settings dialog.
+	 */
+	public void rejectSettings()
+	{
+		parent.setImageBackground(stringToColor(getSetting(IMAGE_BGCOLOR)));
 	}
 	
 	/**

@@ -8,6 +8,7 @@ import gui.inventory.InventoryDownloadDialog;
 import gui.inventory.InventoryLoadDialog;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -606,7 +607,7 @@ public class MainFrame extends JFrame
 		// Panel showing the image of the currently-selected card
 		// TODO: Make the background color customizable
 		cardPane.add("Image", imagePanel = new CardImagePanel());
-		imagePanel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.IMAGE_BGCOLOR)));
+		setImageBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.IMAGE_BGCOLOR)));
 		
 		// Pane displaying the Oracle text
 		oracleTextPane = new JTextPane();
@@ -984,7 +985,7 @@ public class MainFrame extends JFrame
 			});
 			presetMenu.add(categoryItem);
 		}
-		imagePanel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.IMAGE_BGCOLOR)));
+		setImageBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.IMAGE_BGCOLOR)));
 		
 		revalidate();
 		repaint();
@@ -1007,6 +1008,16 @@ public class MainFrame extends JFrame
 		{
 			JOptionPane.showMessageDialog(null, "Error writing " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	/**
+	 * Set the background color of the panel containing the card image.
+	 * 
+	 * @param col New color for the card image panel
+	 */
+	public void setImageBackground(Color col)
+	{
+		imagePanel.setBackground(col);
 	}
 	
 	/**
