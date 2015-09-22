@@ -22,7 +22,6 @@ public class EditorMain
 	 * 
 	 * TODO: Add copy/paste mechanics
 	 * TODO: See if a GroupLayout might make more sense for some of the UI elements
-	 * TODO: Change the background of the small symbols to be transparent rather than white
 	 * 
 	 * @param args Arguments to the program
 	 */

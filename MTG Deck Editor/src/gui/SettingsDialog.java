@@ -188,7 +188,7 @@ public class SettingsDialog extends JDialog
 	 */
 	public static String getSetting(String name)
 	{
-		return getSetting(name);
+		return settings.getProperty(name);
 	}
 	
 	/**
