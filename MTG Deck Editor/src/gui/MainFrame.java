@@ -15,6 +15,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -70,6 +71,7 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
@@ -716,6 +718,27 @@ public class MainFrame extends JFrame
 					selectedFrame.addCards(getSelectedCards(), 1);
 			}
 		});
+		inventoryTable.setTransferHandler(new TransferHandler()
+		{
+			@Override
+			public boolean canImport(TransferHandler.TransferSupport support)
+			{
+				return false;
+			}
+			
+			@Override
+			public int getSourceActions(JComponent c)
+			{
+				return TransferHandler.COPY;
+			}
+			
+			@Override
+			protected Transferable createTransferable(JComponent c)
+			{
+				return super.createTransferable(clearButton);
+			}
+		});
+		inventoryTable.setDragEnabled(true);
 		tablePanel.add(new JScrollPane(inventoryTable), BorderLayout.CENTER);
 		
 		// Table popup menu

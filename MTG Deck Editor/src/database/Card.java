@@ -1,5 +1,6 @@
 package database;
 
+import java.awt.datatransfer.DataFlavor;
 import java.text.Collator;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ import database.symbol.Symbol;
  * and its image name (which is its name followed by a number if there is more than one version of the same
  * card in the same set).  All of its values are constant.
  * 
+ * TODO: Make this class serializable, or drag-and-drop and cut/copy/paste won't work
+ * 
  * @author Alec Roelke
  */
 public final class Card
@@ -55,6 +58,10 @@ public final class Card
 	 * Separator string between characteristics of a multi-face card.
 	 */
 	public static final String FACE_SEPARATOR = "//";
+	/**
+	 * DataFlavor representing cards being transferred.
+	 */
+	public static DataFlavor cardFlavor = new DataFlavor(Card.class, "Card");
 	
 	/**
 	 * Array containing the faces of this Card.
