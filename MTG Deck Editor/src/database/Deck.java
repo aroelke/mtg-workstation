@@ -77,7 +77,7 @@ public class Deck implements CardCollection
 			else if (flavor.equals(Card.cardFlavor))
 				return Arrays.stream(entries).map((e) -> e.card).toArray(Card[]::new);
 			else if (flavor.equals(DataFlavor.stringFlavor))
-				return Arrays.stream(entries).map((e) -> e.count + " " + e.card.name()).reduce("", (a, b) -> a + "\n" + b);
+				return Arrays.stream(entries).map((e) -> e.count + "x " + e.card.name()).reduce("", (a, b) -> a + "\n" + b);
 			else
 				throw new UnsupportedFlavorException(flavor);
 		}
