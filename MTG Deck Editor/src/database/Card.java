@@ -31,8 +31,6 @@ import database.symbol.Symbol;
  * and its image name (which is its name followed by a number if there is more than one version of the same
  * card in the same set).  All of its values are constant.
  * 
- * TODO: Make this class serializable, or drag-and-drop and cut/copy/paste won't work
- * 
  * @author Alec Roelke
  */
 public final class Card
@@ -61,7 +59,7 @@ public final class Card
 	/**
 	 * DataFlavor representing cards being transferred.
 	 */
-	public static DataFlavor cardFlavor = new DataFlavor(Card.class, "Card");
+	public static final DataFlavor cardFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Card[].class.getName() + "\"", "Card Array");
 	
 	/**
 	 * Array containing the faces of this Card.

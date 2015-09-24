@@ -18,6 +18,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,6 +66,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.InternalFrameAdapter;
@@ -605,6 +607,39 @@ public class EditorFrame extends JInternalFrame
 		legalityConstraints.anchor = GridBagConstraints.EAST;
 		bottomPanel.add(legalityPanel, legalityConstraints);
 
+		setTransferHandler(new TransferHandler()
+		{
+			@Override
+			public boolean canImport(TransferSupport supp)
+			{
+				return supp.isDataFlavorSupported(Card.cardFlavor);
+			}
+			
+			@Override
+			public boolean importData(TransferSupport supp)
+			{
+				if (!canImport(supp))
+					return false;
+				else
+				{
+					try
+					{
+						Card[] data = (Card[])supp.getTransferable().getTransferData(Card.cardFlavor);
+						EditorFrame.this.addCards(Arrays.asList(data), 1);
+						return true;
+					}
+					catch (UnsupportedFlavorException e)
+					{
+						return false;
+					}
+					catch (IOException e)
+					{
+						return false;
+					}
+				}
+			}
+		});
+		
 		// Handle various frame events, including selecting and closing
 		addInternalFrameListener(new InternalFrameAdapter()
 		{
