@@ -735,7 +735,7 @@ public class MainFrame extends JFrame
 			@Override
 			protected Transferable createTransferable(JComponent c)
 			{
-				return new CardTransferable(getSelectedCards().stream().toArray(Card[]::new));
+				return new Inventory.TransferData(getSelectedCards().stream().toArray(Card[]::new));
 			}
 		});
 		inventoryTable.setDragEnabled(true);

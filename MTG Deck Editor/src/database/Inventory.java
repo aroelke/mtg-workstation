@@ -1,6 +1,11 @@
 package database;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -228,6 +233,44 @@ public class Inventory implements CardCollection
 	public int total()
 	{
 		return cards.size();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @author Alec
+	 *
+	 */
+	public static class TransferData implements Transferable
+	{
+		private Card[] cards;
+		
+		public TransferData(Card[] c)
+		{
+			cards = c;
+		}
+		
+		@Override
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException
+		{
+			if (flavor.equals(Card.cardFlavor))
+				return cards;
+			else if (flavor.equals(DataFlavor.stringFlavor))
+				return Arrays.stream(cards).map(Card::name).reduce((a, b) -> a + "\n" + b).get();
+			else
+				throw new UnsupportedFlavorException(flavor);
+		}
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors()
+		{
+			return new DataFlavor[] {Card.cardFlavor, DataFlavor.stringFlavor};
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor flavor)
+		{
+			return Arrays.asList(getTransferDataFlavors()).contains(flavor);
+		}
 	}
 	
 	@Override
