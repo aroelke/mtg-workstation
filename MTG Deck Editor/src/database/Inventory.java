@@ -30,6 +30,44 @@ import database.Deck.Category;
 public class Inventory implements CardCollection
 {
 	/**
+	 * TODO: Comment this
+	 * @author Alec
+	 *
+	 */
+	public static class TransferData implements Transferable
+	{
+		private Card[] cards;
+		
+		public TransferData(Card[] c)
+		{
+			cards = c;
+		}
+		
+		@Override
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException
+		{
+			if (flavor.equals(Card.cardFlavor))
+				return cards;
+			else if (flavor.equals(DataFlavor.stringFlavor))
+				return Arrays.stream(cards).map(Card::name).reduce((a, b) -> a + "\n" + b).get();
+			else
+				throw new UnsupportedFlavorException(flavor);
+		}
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors()
+		{
+			return new DataFlavor[] {Card.cardFlavor, DataFlavor.stringFlavor};
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor flavor)
+		{
+			return Arrays.asList(getTransferDataFlavors()).contains(flavor);
+		}
+	}
+	
+	/**
 	 * Master list of cards.
 	 */
 	private final List<Card> cards;
@@ -233,44 +271,6 @@ public class Inventory implements CardCollection
 	public int total()
 	{
 		return cards.size();
-	}
-	
-	/**
-	 * TODO: Comment this
-	 * @author Alec
-	 *
-	 */
-	public static class TransferData implements Transferable
-	{
-		private Card[] cards;
-		
-		public TransferData(Card[] c)
-		{
-			cards = c;
-		}
-		
-		@Override
-		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException
-		{
-			if (flavor.equals(Card.cardFlavor))
-				return cards;
-			else if (flavor.equals(DataFlavor.stringFlavor))
-				return Arrays.stream(cards).map(Card::name).reduce((a, b) -> a + "\n" + b).get();
-			else
-				throw new UnsupportedFlavorException(flavor);
-		}
-
-		@Override
-		public DataFlavor[] getTransferDataFlavors()
-		{
-			return new DataFlavor[] {Card.cardFlavor, DataFlavor.stringFlavor};
-		}
-
-		@Override
-		public boolean isDataFlavorSupported(DataFlavor flavor)
-		{
-			return Arrays.asList(getTransferDataFlavors()).contains(flavor);
-		}
 	}
 	
 	@Override
