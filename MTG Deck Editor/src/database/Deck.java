@@ -4,6 +4,9 @@ import gui.SettingsDialog;
 import gui.filter.FilterGroupPanel;
 
 import java.awt.Color;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,6 +14,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -34,6 +38,53 @@ import java.util.stream.Stream;
  */
 public class Deck implements CardCollection
 {
+	/**
+	 * TODO: Comment this
+	 * @author Alec
+	 *
+	 */
+	public static class TransferData implements Transferable
+	{
+		private Entry[] entries;
+		
+		public TransferData(Entry... e)
+		{
+			entries = e;
+		}
+		
+		public TransferData(Collection<Entry> e)
+		{
+			this(e.stream().toArray(Entry[]::new));
+		}
+		
+		@Override
+		public DataFlavor[] getTransferDataFlavors()
+		{
+			return new DataFlavor[] {entryFlavor, Card.cardFlavor, DataFlavor.stringFlavor};
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor flavor)
+		{
+			return Arrays.asList(getTransferDataFlavors()).contains(flavor);
+		}
+
+		@Override
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException
+		{
+			if (flavor.equals(entryFlavor))
+				return entries;
+			else if (flavor.equals(Card.cardFlavor))
+				return Arrays.stream(entries).map((e) -> e.card).toArray(Card[]::new);
+			else if (flavor.equals(DataFlavor.stringFlavor))
+				return Arrays.stream(entries).map((e) -> e.count + " " + e.card.name()).reduce("", (a, b) -> a + "\n" + b);
+			else
+				throw new UnsupportedFlavorException(flavor);
+		}
+	}
+	
+	public static final DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Entry[].class.getName() + "\"", "Deck Entries");
+	
 	/**
 	 * Regex pattern for matching category strings and extracting their contents.  The first group
 	 * will be the category's name, the second group will be the UIDs of the cards in its whitelist,

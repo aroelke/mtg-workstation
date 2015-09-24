@@ -38,9 +38,14 @@ public class Inventory implements CardCollection
 	{
 		private Card[] cards;
 		
-		public TransferData(Card[] c)
+		public TransferData(Card... c)
 		{
 			cards = c;
+		}
+		
+		public TransferData(Collection<Card> c)
+		{
+			this(c.stream().toArray(Card[]::new));
 		}
 		
 		@Override
@@ -49,7 +54,7 @@ public class Inventory implements CardCollection
 			if (flavor.equals(Card.cardFlavor))
 				return cards;
 			else if (flavor.equals(DataFlavor.stringFlavor))
-				return Arrays.stream(cards).map(Card::name).reduce((a, b) -> a + "\n" + b).get();
+				return Arrays.stream(cards).map(Card::name).reduce("", (a, b) -> a + "\n" + b);
 			else
 				throw new UnsupportedFlavorException(flavor);
 		}
