@@ -18,6 +18,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
+import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,6 +46,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -277,6 +279,8 @@ public class EditorFrame extends JInternalFrame
 		for (int i = 0; i < table.getColumnCount(); i++)
 			if (model.isCellEditable(0, i))
 				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(this));
+		table.setTransferHandler(new EditorTableTransferHandler());
+		table.setDragEnabled(true);
 		listTabs.addTab("Cards", new JScrollPane(table));
 		
 		// Table popup menu
@@ -607,38 +611,7 @@ public class EditorFrame extends JInternalFrame
 		legalityConstraints.anchor = GridBagConstraints.EAST;
 		bottomPanel.add(legalityPanel, legalityConstraints);
 
-		setTransferHandler(new TransferHandler()
-		{
-			@Override
-			public boolean canImport(TransferSupport supp)
-			{
-				return supp.isDataFlavorSupported(Card.cardFlavor);
-			}
-			
-			@Override
-			public boolean importData(TransferSupport supp)
-			{
-				if (!canImport(supp))
-					return false;
-				else
-				{
-					try
-					{
-						Card[] data = (Card[])supp.getTransferable().getTransferData(Card.cardFlavor);
-						EditorFrame.this.addCards(Arrays.asList(data), 1);
-						return true;
-					}
-					catch (UnsupportedFlavorException e)
-					{
-						return false;
-					}
-					catch (IOException e)
-					{
-						return false;
-					}
-				}
-			}
-		});
+		setTransferHandler(new EditorImportHandler());
 		
 		// Handle various frame events, including selecting and closing
 		addInternalFrameListener(new InternalFrameAdapter()
@@ -829,6 +802,9 @@ public class EditorFrame extends JInternalFrame
 					newCategory.update();
 				}
 			});
+			
+			newCategory.table.setTransferHandler(new EditorTableTransferHandler());
+			newCategory.table.setDragEnabled(true);
 			
 			// Add the behavior for clicking on the category's table
 			// Table popup menu
@@ -1635,6 +1611,91 @@ public class EditorFrame extends JInternalFrame
 		repaint();
 		for (CategoryPanel panel: categories)
 			panel.update();
+	}
+	
+	private class EditorImportHandler extends TransferHandler
+	{
+		@Override
+		public boolean canImport(TransferSupport supp)
+		{
+			return supp.isDataFlavorSupported(Deck.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
+		}
+		
+		@Override
+		public boolean importData(TransferSupport supp)
+		{
+			try
+			{
+				if (!canImport(supp))
+					return false;
+				else if (supp.isDataFlavorSupported(Deck.entryFlavor))
+				{
+					Deck.Entry[] data = (Deck.Entry[])supp.getTransferable().getTransferData(Deck.entryFlavor);
+					// TODO: Change addCard and the associated action to be able to handle different counts
+					for (Deck.Entry e: data)
+						addCard(e.card(), e.count());
+					return true;
+				}
+				else if (supp.isDataFlavorSupported(Card.cardFlavor))
+				{
+					Card[] data = (Card[])supp.getTransferable().getTransferData(Card.cardFlavor);
+					addCards(Arrays.asList(data), 1);
+					return true;
+				}
+				else
+					return false;
+			}
+			catch (UnsupportedFlavorException e)
+			{
+				return false;
+			}
+			catch (IOException e)
+			{
+				return false;
+			}
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @author Alec
+	 *
+	 */
+	private class EditorTableTransferHandler extends EditorImportHandler
+	{
+		@Override
+		public int getSourceActions(JComponent c)
+		{
+			return TransferHandler.COPY_OR_MOVE;
+		}
+		
+		@Override
+		public Transferable createTransferable(JComponent c)
+		{
+			List<Card> selectedCards;
+			switch (listTabs.getSelectedIndex())
+			{
+			case MAIN_TABLE:
+				selectedCards = getSelectedCards();
+				break;
+			case CATEGORIES:
+				selectedCards = new ArrayList<Card>();
+				for (CategoryPanel category: categories)
+					selectedCards.addAll(category.getSelectedCards());
+				break;
+			default:
+				selectedCards = new ArrayList<Card>();
+				break;
+			}
+			return new Deck.TransferData(deck, selectedCards);
+		}
+		
+		@Override
+		public void exportDone(JComponent c, Transferable t, int action)
+		{
+			if (action == TransferHandler.MOVE)
+				removeSelectedCards(Integer.MAX_VALUE);
+		}
 	}
 	
 	/**

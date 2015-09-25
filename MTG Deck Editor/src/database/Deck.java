@@ -47,14 +47,14 @@ public class Deck implements CardCollection
 	{
 		private Entry[] entries;
 		
-		public TransferData(Entry... e)
+		public TransferData(Deck d, Card... cards)
 		{
-			entries = e;
+			entries = Arrays.stream(cards).map(d::getEntry).toArray(Entry[]::new);
 		}
 		
-		public TransferData(Collection<Entry> e)
+		public TransferData(Deck d, Collection<Card> cards)
 		{
-			this(e.stream().toArray(Entry[]::new));
+			this(d, cards.stream().toArray(Card[]::new));
 		}
 		
 		@Override
@@ -116,7 +116,7 @@ public class Deck implements CardCollection
 	 * 
 	 * @author Alec Roelke
 	 */
-	private static class Entry
+	public static class Entry
 	{
 		/**
 		 * Card in this Entry.  It can't be changed.
@@ -144,7 +144,7 @@ public class Deck implements CardCollection
 		 * @param n Number of initial copies in this Entry
 		 * @param d Date the Card was added
 		 */
-		public Entry(Card c, int n, Date d)
+		private Entry(Card c, int n, Date d)
 		{
 			card = c;
 			count = n;
@@ -153,12 +153,28 @@ public class Deck implements CardCollection
 		}
 		
 		/**
+		 * @return The Card contained in this Entry.
+		 */
+		public Card card()
+		{
+			return card;
+		}
+		
+		/**
+		 * @return The number of copies of the Card contained in this Entry.
+		 */
+		public int count()
+		{
+			return count;
+		}
+		
+		/**
 		 * Add copies to this Entry.
 		 * 
 		 * @param n Copies to add
 		 * @return The new number of copies in this Entry.
 		 */
-		public int increase(int n)
+		private int increase(int n)
 		{
 			return count += n;
 		}
@@ -170,7 +186,7 @@ public class Deck implements CardCollection
 		 * @param n Number of copies to remove.
 		 * @return The new number of copies in this Entry.
 		 */
-		public int decrease(int n)
+		private int decrease(int n)
 		{
 			if (n > count)
 				return count = 0;

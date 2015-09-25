@@ -15,6 +15,7 @@ import javax.swing.JTable;
  * Currently you can select single rows (or add the single row to the selection by
  * holding ctrl) with the right button, but you can't extend a selection (with shift)
  * or drag it using the right mouse button
+ * TODO: This does weird things with DnD
  * 
  * @author Alec Roelke
  */
