@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -412,18 +411,12 @@ public class InventoryLoadDialog extends JDialog
 				}
 				
 				// Store the lists of expansion and block names and types and sort them alphabetically
-				Expansion.expansions = expansions.toArray(new Expansion[expansions.size()]);
-				Arrays.sort(Expansion.expansions);
-				Expansion.blocks = blockNames.toArray(new String[blockNames.size()]);
-				Arrays.sort(Expansion.blocks);
-				Card.supertypeList = supertypeSet.toArray(new String[supertypeSet.size()]);
-				Arrays.sort(Card.supertypeList);
-				Card.typeList = typeSet.toArray(new String[typeSet.size()]);
-				Arrays.sort(Card.typeList);
-				Card.subtypeList = subtypeSet.toArray(new String[subtypeSet.size()]);
-				Arrays.sort(Card.subtypeList);
-				Card.formatList = formatSet.toArray(new String[formatSet.size()]);
-				Arrays.sort(Card.formatList);
+				Expansion.expansions = expansions.stream().sorted().toArray(Expansion[]::new);
+				Expansion.blocks = blockNames.stream().sorted().toArray(String[]::new);
+				Card.supertypeList = supertypeSet.stream().sorted().toArray(String[]::new);
+				Card.typeList = typeSet.stream().sorted().toArray(String[]::new);
+				Card.subtypeList = subtypeSet.stream().sorted().toArray(String[]::new);
+				Card.formatList = formatSet.stream().sorted().toArray(String[]::new);
 			}
 			
 			return new Inventory(cards);
