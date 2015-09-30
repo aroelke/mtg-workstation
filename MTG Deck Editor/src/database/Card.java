@@ -23,6 +23,7 @@ import database.characteristics.MTGColor;
 import database.characteristics.ManaCost;
 import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
+import database.symbol.ChaosSymbol;
 import database.symbol.Symbol;
 
 /**
@@ -912,6 +913,7 @@ public final class Card
 				catch (Exception e)
 				{}
 			}
+			html = html.replace("CHAOS", ChaosSymbol.CHAOS.getHTML());
 			html = html.replace("\n", "<br>");
 			return html;
 		}
