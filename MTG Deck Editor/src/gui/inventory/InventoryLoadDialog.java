@@ -163,6 +163,10 @@ public class InventoryLoadDialog extends JDialog
 	/**
 	 * This class represents a worker that loads cards from a JSON file in the background.
 	 * 
+	 * TODO: Use the "magicCardsInfoCode" OR "gathererCOde" key as a set's code rather than the "official" code
+	 * depending on which works better for images gathered using MTG Gatherer Extractor (probably gatherer code)
+	 * TODO: Use http://www.mtgsalvation.com/forums/magic-fundamentals/magic-software/494332-mtg-json-new-website-provides-mtg-card-data-in?page=21#c519 to generate card numbers for cards that don't have them
+	 * 
 	 * @author Alec Roelke
 	 */
 	private class InventoryLoadWorker extends SwingWorker<Inventory, String>
