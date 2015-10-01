@@ -42,6 +42,10 @@ public class Expansion implements Comparable<Expansion>
 	 */
 	public final String gathererCode;
 	/**
+	 * Alternate expansion code used by some software.
+	 */
+	public final String altCode;
+	/**
 	 * Number of cards in this Expansion.
 	 */
 	public final int count;
@@ -54,15 +58,17 @@ public class Expansion implements Comparable<Expansion>
 	 * @param code Code of the new Expansion (usually three letters)
 	 * @param mi magiccards.info code of the new Expansion
 	 * @param g Gatherer code of the new Expansion
+	 * @param alt Alternate code of the new Expansion
 	 * @param count Number of cards in the new Expansion
 	 */
-	public Expansion(String name, String block, String code, String mi, String g, int count)
+	public Expansion(String name, String block, String code, String mi, String g, String alt, int count)
 	{
 		this.name = name;
 		this.block = block;
 		this.code = code;
 		this.magicCardsInfoCode = mi;
 		this.gathererCode = g;
+		this.altCode = alt;
 		this.count = count;
 	}
 	
@@ -72,7 +78,7 @@ public class Expansion implements Comparable<Expansion>
 	@Override
 	public String toString()
 	{
-		return name + " (" + code + ")";
+		return name;
 	}
 	
 	/**

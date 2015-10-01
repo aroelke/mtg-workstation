@@ -259,7 +259,8 @@ public class InventoryLoadDialog extends JDialog
 												  setProperties.has("block") ? setProperties.get("block").getAsString() : "<No Block>", 
 												  setProperties.get("code").getAsString(),
 												  setProperties.has("magicCardsInfoCode") ? setProperties.get("magicCardsInfoCode").getAsString() : null,
-												  setProperties.has("gathererCode") ? setProperties.get("gathererCode").getAsString() : null,
+												  (setProperties.has("gathererCode") ? setProperties.get("gathererCode") : setProperties.get("code")).getAsString(),
+												  setProperties.has("oldCode") ? setProperties.get("oldCode").getAsString() : null,
 												  setCards.size());
 					expansions.add(set);
 					blockNames.add(set.block);

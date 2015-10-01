@@ -528,7 +528,7 @@ public class MainFrame extends JFrame
 				@Override
 				public int getColumnCount()
 				{
-					return 3;
+					return 6;
 				}
 				
 				@Override
@@ -539,9 +539,15 @@ public class MainFrame extends JFrame
 					case 0:
 						return "Expansion";
 					case 1:
-						return "Code";
-					case 2:
 						return "Block";
+					case 2:
+						return "Code";
+					case 3:
+						return "magiccards.info";
+					case 4:
+						return "Gatherer";
+					case 5:
+						return "Alternate";
 					default:
 						return null;
 					}
@@ -555,9 +561,15 @@ public class MainFrame extends JFrame
 					case 0:
 						return Expansion.expansions[rowIndex].name;
 					case 1:
-						return Expansion.expansions[rowIndex].code;
-					case 2:
 						return Expansion.expansions[rowIndex].block;
+					case 2:
+						return Expansion.expansions[rowIndex].code;
+					case 3:
+						return Expansion.expansions[rowIndex].magicCardsInfoCode;
+					case 4:
+						return Expansion.expansions[rowIndex].gathererCode;
+					case 5:
+						return Expansion.expansions[rowIndex].altCode;
 					default:
 						return null;
 					}
@@ -567,6 +579,7 @@ public class MainFrame extends JFrame
 			expansionTable.setShowGrid(false);
 			expansionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			expansionTable.setAutoCreateRowSorter(true);
+			expansionTable.setPreferredScrollableViewportSize(new Dimension(600, expansionTable.getPreferredScrollableViewportSize().height));
 			
 			JOptionPane.showMessageDialog(null, new JScrollPane(expansionTable), "Expansions", JOptionPane.PLAIN_MESSAGE);
 		});
