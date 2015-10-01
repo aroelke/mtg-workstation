@@ -32,6 +32,16 @@ public class Expansion implements Comparable<Expansion>
 	 */
 	public final String code;
 	/**
+	 * This Expansion's code on magiccards.info, or null if it's the same
+	 * as the set code or isn't on magiccards.info.
+	 */
+	public final String magicCardsInfoCode;
+	/**
+	 * This expansion's code on Gatherer, or null if it's the same as the
+	 * set code or isn't on Gatherer.
+	 */
+	public final String gathererCode;
+	/**
 	 * Number of cards in this Expansion.
 	 */
 	public final int count;
@@ -41,14 +51,18 @@ public class Expansion implements Comparable<Expansion>
 	 * 
 	 * @param name Name of the new expansion
 	 * @param block Name of the block the new Expansion belongs to
-	 * @param code Code of the new expansion (usually three letters)
+	 * @param code Code of the new Expansion (usually three letters)
+	 * @param mi magiccards.info code of the new Expansion
+	 * @param g Gatherer code of the new Expansion
 	 * @param count Number of cards in the new Expansion
 	 */
-	public Expansion(String name, String block, String code, int count)
+	public Expansion(String name, String block, String code, String mi, String g, int count)
 	{
 		this.name = name;
 		this.block = block;
 		this.code = code;
+		this.magicCardsInfoCode = mi;
+		this.gathererCode = g;
 		this.count = count;
 	}
 	

@@ -23,6 +23,9 @@ import database.Card;
  * can be found, or a card-shaped rectangle with its oracle text and a warning if
  * they cannot.
  * 
+ * TODO: Make it look for card images in a folder with the set's code name, magiccards.info code name,
+ * gatherer code name, and expansion name.
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")

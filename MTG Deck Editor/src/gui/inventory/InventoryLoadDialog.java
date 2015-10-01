@@ -162,8 +162,6 @@ public class InventoryLoadDialog extends JDialog
 	/**
 	 * This class represents a worker that loads cards from a JSON file in the background.
 	 * 
-	 * TODO: Use the "magicCardsInfoCode" OR "gathererCOde" key as a set's code rather than the "official" code
-	 * depending on which works better for images gathered using MTG Gatherer Extractor (probably gatherer code)
 	 * TODO: Use http://www.mtgsalvation.com/forums/magic-fundamentals/magic-software/494332-mtg-json-new-website-provides-mtg-card-data-in?page=21#c519 to generate card numbers for cards that don't have them
 	 * 
 	 * @author Alec Roelke
@@ -259,7 +257,9 @@ public class InventoryLoadDialog extends JDialog
 					JsonArray setCards = setProperties.get("cards").getAsJsonArray();
 					Expansion set = new Expansion(setProperties.get("name").getAsString(),
 												  setProperties.has("block") ? setProperties.get("block").getAsString() : "<No Block>", 
-												  setProperties.get("code").getAsString(), 
+												  setProperties.get("code").getAsString(),
+												  setProperties.has("magicCardsInfoCode") ? setProperties.get("magicCardsInfoCode").getAsString() : null,
+												  setProperties.has("gathererCode") ? setProperties.get("gathererCode").getAsString() : null,
 												  setCards.size());
 					expansions.add(set);
 					blockNames.add(set.block);
