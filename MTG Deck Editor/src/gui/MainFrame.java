@@ -528,7 +528,7 @@ public class MainFrame extends JFrame
 				@Override
 				public int getColumnCount()
 				{
-					return 4;
+					return 5;
 				}
 				
 				@Override
@@ -543,6 +543,8 @@ public class MainFrame extends JFrame
 					case 2:
 						return "Code";
 					case 3:
+						return "magiccards.info";
+					case 4:
 						return "Gatherer";
 					default:
 						return null;
@@ -561,6 +563,8 @@ public class MainFrame extends JFrame
 					case 2:
 						return Expansion.expansions[rowIndex].code;
 					case 3:
+						return Expansion.expansions[rowIndex].magicCardsInfoCode;
+					case 4:
 						return Expansion.expansions[rowIndex].gathererCode;
 					default:
 						return null;

@@ -84,21 +84,27 @@ public class CardImagePanel extends JPanel
 			faceImages.clear();
 			for (String name: card.imageNames())
 			{
+				BufferedImage img = null;
 				try
 				{
-					File imageFile = new File(SettingsDialog.getSetting(SettingsDialog.CARD_SCANS)
-							+ "/" + card.expansion().code + "/" + name + ".full.jpg");
-					if (imageFile.exists())
+					String[] codes = new String[] {card.expansion().code, card.expansion().magicCardsInfoCode, card.expansion().gathererCode};
+					File imageFile;
+					for (String code: codes)
 					{
-						BufferedImage img = ImageIO.read(imageFile);
-						faceImages.add(img);
+						imageFile = new File(SettingsDialog.getSetting(SettingsDialog.CARD_SCANS)
+									+ "/" + code + "/" + name + ".full.jpg");
+						if (imageFile.exists())
+						{
+							img = ImageIO.read(imageFile);
+							break;
+						}
 					}
-					else
-						faceImages.add(null);
 				}
 				catch (IOException e)
+				{}
+				finally
 				{
-					faceImages.add(null);
+					faceImages.add(img);
 				}
 			}
 		}
