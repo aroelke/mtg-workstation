@@ -257,10 +257,8 @@ public class InventoryLoadDialog extends JDialog
 					JsonArray setCards = setProperties.get("cards").getAsJsonArray();
 					Expansion set = new Expansion(setProperties.get("name").getAsString(),
 												  setProperties.has("block") ? setProperties.get("block").getAsString() : "<No Block>", 
-												  setProperties.get("code").getAsString(),
-												  setProperties.has("magicCardsInfoCode") ? setProperties.get("magicCardsInfoCode").getAsString() : null,
+												  (setProperties.has("magicCardsInfoCode") ? setProperties.get("magicCardsInfoCode") : setProperties.get("code")).getAsString().toUpperCase(),
 												  (setProperties.has("gathererCode") ? setProperties.get("gathererCode") : setProperties.get("code")).getAsString(),
-												  setProperties.has("oldCode") ? setProperties.get("oldCode").getAsString() : null,
 												  setCards.size());
 					expansions.add(set);
 					blockNames.add(set.block);
