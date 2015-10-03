@@ -90,6 +90,8 @@ import database.characteristics.CardCharacteristic;
  * 
  * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
  * TODO: Make popup menu category setting work for multiple selection in the main table
+ * TODO: Change the category tab's exclude popup option to set categories
+ * TODO: Make it so that category panels can be sorted
  * 
  * @author Alec Roelke
  */
