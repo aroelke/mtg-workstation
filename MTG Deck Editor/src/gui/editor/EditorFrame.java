@@ -414,11 +414,14 @@ public class EditorFrame extends JInternalFrame
 		switchCategoryBox = new JComboBox<String>(switchCategoryModel = new DefaultComboBoxModel<String>());
 		switchCategoryBox.setEnabled(false);
 		switchCategoryBox.addActionListener((e) -> {
-			CategoryPanel toView = getCategory(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex()));
-			if (toView != null)
+			if (switchCategoryBox.isPopupVisible())
 			{
-				toView.scrollRectToVisible(new Rectangle(toView.getSize()));
-				toView.flash();
+				CategoryPanel toView = getCategory(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex()));
+				if (toView != null)
+				{
+					toView.scrollRectToVisible(new Rectangle(toView.getSize()));
+					toView.flash();
+				}
 			}
 		});
 		switchCategoryPanel.add(new JLabel("Go to category:"));
