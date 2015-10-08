@@ -117,8 +117,9 @@ public class EditorFrame extends JInternalFrame
 	private MainFrame parent;
 	/**
 	 * Master decklist to which cards are added.
+	 * TODO: Make this private
 	 */
-	protected Deck deck;
+	public Deck deck;
 	/**
 	 * Main table showing the cards in the deck.
 	 */
@@ -743,7 +744,10 @@ public class EditorFrame extends JInternalFrame
 				JOptionPane.showMessageDialog(null, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
 		} while (editor != null && deck.containsCategory(editor.name()));
 		if (editor != null)
-			addCategory(new CategoryPanel(editor.name(), editor.color(), editor.repr(), editor.filter(), this));
+		{
+			deck.addCategory(editor.name(), editor.color(), editor.repr(), editor.filter());
+			addCategory(new CategoryPanel(deck.getCategory(editor.name()), this));
+		}
 	}
 
 	/**
@@ -771,8 +775,6 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (newCategory != null)
 		{
-			categories.add(newCategory);
-			categoriesContainer.add(newCategory);
 			// When a card is selected in a category, the others should deselect
 			newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
@@ -915,6 +917,9 @@ public class EditorFrame extends JInternalFrame
 			categoryMenu.add(addPresetItem);
 			
 			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
+			
+			categories.add(newCategory);
+			categoriesContainer.add(newCategory);
 			updateCategorySwitch();
 			update();
 			setUnsaved();
@@ -1780,7 +1785,14 @@ public class EditorFrame extends JInternalFrame
 					Set<Card> blacklist = editor.blacklist().stream().map(parent::getCard).collect(Collectors.toSet());
 					SwingUtilities.invokeLater(() -> {
 						if (!isCancelled())
-							addCategory(new CategoryPanel(editor.name(), editor.repr(), whitelist, blacklist, editor.color(), editor.filter(), EditorFrame.this));
+						{
+							deck.addCategory(editor.name(), editor.color(), editor.repr(), editor.filter());
+							for (Card c: whitelist)
+								deck.getCategory(editor.name()).include(c);
+							for (Card c: blacklist)
+								deck.getCategory(editor.name()).exclude(c);
+							addCategory(new CategoryPanel(deck.getCategory(editor.name()), EditorFrame.this));
+						}
 					});
 					publish(50 + 50*(i + 1)/categories);
 				}

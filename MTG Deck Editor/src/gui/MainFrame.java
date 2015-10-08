@@ -474,7 +474,10 @@ public class MainFrame extends JFrame
 			JMenuItem categoryItem = new JMenuItem(editor.name());
 			categoryItem.addActionListener((e) -> {
 				if (selectedFrame != null && !selectedFrame.containsCategory(editor.name()))
-					selectedFrame.addCategory(new CategoryPanel(editor.name(), editor.color(), editor.repr(), editor.filter(), selectedFrame));
+				{
+					selectedFrame.deck.addCategory(editor.name(), editor.color(), editor.repr(), editor.filter());
+					selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(editor.name()), selectedFrame));
+				}
 			});
 			presetMenu.add(categoryItem);
 		}
@@ -1013,7 +1016,8 @@ public class MainFrame extends JFrame
 			JMenuItem categoryItem = new JMenuItem(editor.name());
 			categoryItem.addActionListener((e) -> {
 				if (selectedFrame != null)
-					selectedFrame.addCategory(new CategoryPanel(editor.name(), editor.color(), editor.repr(), editor.filter(), selectedFrame));
+					selectedFrame.deck.addCategory(editor.name(), editor.color(), editor.repr(), editor.filter());
+					selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(editor.name()), selectedFrame));
 			});
 			presetMenu.add(categoryItem);
 		}
@@ -1102,7 +1106,10 @@ public class MainFrame extends JFrame
 		JMenuItem categoryItem = new JMenuItem(editor.name());
 		categoryItem.addActionListener((e) -> {
 			if (selectedFrame != null)
-				selectedFrame.addCategory(new CategoryPanel(editor.name(), editor.color(), editor.repr(), editor.filter(), selectedFrame));
+			{
+				selectedFrame.deck.addCategory(editor.name(), editor.color(), editor.repr(), editor.filter());
+				selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(editor.name()), selectedFrame));
+			}
 		});
 		presetMenu.add(categoryItem);
 	}

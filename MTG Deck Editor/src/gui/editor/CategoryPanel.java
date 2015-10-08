@@ -1,8 +1,8 @@
 package gui.editor;
 
 import gui.CardTable;
-import gui.ColorButton;
 import gui.CardTableModel;
+import gui.ColorButton;
 import gui.SettingsDialog;
 
 import java.awt.BorderLayout;
@@ -13,9 +13,7 @@ import java.awt.FlowLayout;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -99,24 +97,14 @@ public class CategoryPanel extends JPanel
 	 * @param blacklist Set of Cards that should never be included in the new category
 	 * @param col Color of the new category
 	 * @param p Filter for the new category
+	 * 
+	 * @param cat Category for the new panel to display
 	 * @param editor EditorFrame containing the new category
 	 */
-	public CategoryPanel(String n, String r, Set<Card> whitelist, Set<Card> blacklist, Color col, Predicate<Card> p, EditorFrame editor)
+	public CategoryPanel(Deck.Category cat, EditorFrame editor)
 	{
 		super();
-		
-		if (editor.deck.containsCategory(n))
-			throw new IllegalArgumentException("Categories must have unique names");
-		if (col == null)
-		{
-			Random rand = new Random();
-			col = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
-		}
-		category = editor.deck.addCategory(n, col, r, p);
-		for (Card c: whitelist)
-			category.include(c);
-		for (Card c: blacklist)
-			category.exclude(c);
+		category = cat;
 		background = getBackground();
 		flashTimer = new FlashTimer();
 		
@@ -163,20 +151,6 @@ public class CategoryPanel extends JPanel
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
 		tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		add(tablePane, BorderLayout.CENTER);
-	}
-	
-	/**
-	 * Create a new CategoryPanel with an empty white- and blacklist.
-	 * 
-	 * @param n Name of the new category
-	 * @param c Color of the new category
-	 * @param r String representation of the new category
-	 * @param p Filter for the new category
-	 * @param editor EditorFrame containing the new category
-	 */
-	public CategoryPanel(String n, Color c, String r, Predicate<Card> p, EditorFrame editor)
-	{
-		this(n, r, new HashSet<Card>(), new HashSet<Card>(), c, p, editor);
 	}
 	
 	/**

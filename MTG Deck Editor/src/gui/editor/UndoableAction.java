@@ -10,7 +10,7 @@ package gui.editor;
  */
 public interface UndoableAction
 {
-	public void undo();
+	public boolean undo();
 	
-	public void redo();
+	public boolean redo();
 }
