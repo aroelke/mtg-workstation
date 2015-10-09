@@ -934,6 +934,15 @@ public class Deck implements CardCollection
 		}
 		
 		/**
+		 * TODO: Comment this
+		 * @return
+		 */
+		public String repr()
+		{
+			return repr;
+		}
+		
+		/**
 		 * @return This Category's String representation.
 		 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
 		 * @see gui.editor.CategoryDialog#setContents(String)

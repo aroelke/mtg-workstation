@@ -69,6 +69,15 @@ public class CardTableModel extends AbstractTableModel
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param d
+	 */
+	public void setList(CardCollection d)
+	{
+		list = d;
+	}
+	
+	/**
 	 * Get the number of rows in the table.
 	 */
 	@Override

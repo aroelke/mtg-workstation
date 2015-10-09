@@ -297,9 +297,27 @@ public class CategoryPanel extends JPanel
 		table.setStripeColor(color);
 	}
 	
+	/**
+	 * Briefly flash to draw attention to this CategoryPanel.
+	 */
 	public void flash()
 	{
 		flashTimer.restart();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param deck
+	 */
+	public void addToDeck(Deck deck)
+	{
+		if (!deck.containsCategory(category.name()))
+		{
+			model.setList(category = deck.addCategory(category.name(), category.color(), category.repr(), category.filter()));
+			update();
+		}
+		else
+			throw new IllegalArgumentException("Deck already contains category " + category.name());
 	}
 	
 	/**
