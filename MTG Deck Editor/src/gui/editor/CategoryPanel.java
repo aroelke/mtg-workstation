@@ -306,7 +306,7 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * TODO: Comment this or remove it
 	 * @param deck
 	 */
 	public void addToDeck(Deck deck)
