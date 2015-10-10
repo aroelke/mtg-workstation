@@ -34,7 +34,7 @@ public enum CardCharacteristic
 	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l.get(i).mana()),
 	COLORS("Colors", MTGColor.Tuple.class, (l, i) -> l.get(i).colors()),
 	COLOR_IDENTITY("Color Identity", MTGColor.Tuple.class, (l, i) -> l.get(i).colorIdentity()),
-	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine()),
+	TYPE_LINE("Card Type", String.class, (l, i) -> l.get(i).typeLine()),
 	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).expansion().toString()),
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity()),
 	POWER("Power", PowerToughness.Tuple.class, (l, i) -> l.get(i).power()),
