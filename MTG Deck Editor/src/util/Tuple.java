@@ -9,8 +9,6 @@ import java.util.ListIterator;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
-import database.characteristics.MTGColor;
-
 /**
  * This class represents a tuple of similarly-typed items.  It's basically
  * a list, but it can't be changed.
