@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 /**
@@ -181,6 +182,18 @@ public class Tuple<E> implements List<E>
 	public Stream<E> stream()
 	{
 		return items.stream();
+	}
+	
+	/**
+	 * @return A String representation of this Tuple.
+	 */
+	@Override
+	public String toString()
+	{
+		StringJoiner join = new StringJoiner(",", "[", "]");
+		for (E e: this)
+			join.add(String.valueOf(e));
+		return join.toString();
 	}
 	
 	@Override
