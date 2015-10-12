@@ -619,8 +619,7 @@ public class MainFrame extends JFrame
 		JTabbedPane cardPane = new JTabbedPane();
 		
 		// Panel showing the image of the currently-selected card
-		// TODO: Make the background color customizable
-		cardPane.add("Image", imagePanel = new CardImagePanel());
+		cardPane.addTab("Image", imagePanel = new CardImagePanel());
 		setImageBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.IMAGE_BGCOLOR)));
 		
 		// Pane displaying the Oracle text
@@ -630,6 +629,9 @@ public class MainFrame extends JFrame
 		oracleTextPane.setFont(UIManager.getFont("Label.font"));
 		oracleTextPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
 		cardPane.addTab("Oracle Text", new JScrollPane(oracleTextPane));
+		
+		// TODO: Complete the rulings tab
+		cardPane.addTab("Rulings", new JPanel());
 		
 		// Oracle text pane popup menu
 		JPopupMenu oraclePopupMenu = new JPopupMenu();
