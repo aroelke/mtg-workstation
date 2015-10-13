@@ -1,8 +1,5 @@
 package database;
 
-import gui.SettingsDialog;
-import gui.filter.FilterGroupPanel;
-
 import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -24,9 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -85,26 +80,6 @@ public class Deck implements CardCollection
 	
 	public static final DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Entry[].class.getName() + "\"", "Deck Entries");
 	
-	/**
-	 * Regex pattern for matching category strings and extracting their contents.  The first group
-	 * will be the category's name, the second group will be the UIDs of the cards in its whitelist,
-	 * the third group will the UIDs of the cards in its blacklist, the fourth group will be its color,
-	 * and the fifth group will be its filter's String representation.  The first four groups will
-	 * not include the group enclosing characters, but the fifth will.  The first through third groups
-	 * will be empty strings if they are empty, but the fourth will be null.  The first and fifth groups
-	 * should never be empty.
-	 * @see gui.filter.FilterGroupPanel#setContents(String)
-	 */
-	public static final Pattern CATEGORY_PATTERN = Pattern.compile(
-			"^" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]+)" + FilterGroupPanel.END_GROUP		// Name
-			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP 	// Whitelist
-			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "([^" + FilterGroupPanel.END_GROUP + "]*)" + FilterGroupPanel.END_GROUP	// Blacklist
-			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "(#[0-9A-F-a-f]{6})?" + FilterGroupPanel.END_GROUP						// Color
-			+ "\\s*(.*)$");																										// Filter
-	/**
-	 * List separator for UIDs of cards in the String representation of a whitelist or a blacklist.
-	 */
-	public static final String EXCEPTION_SEPARATOR = ":";
 	/**
 	 * Formatter for dates, usually for formatting the add date of a card.
 	 */
@@ -950,17 +925,11 @@ public class Deck implements CardCollection
 		@Override
 		public String toString()
 		{
-			StringJoiner white = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
-			for (Card c: whitelist)
-				white.add(c.id());
-			StringJoiner black = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
-			for (Card c: blacklist)
-				black.add(c.id());
-			return FilterGroupPanel.BEGIN_GROUP + name + FilterGroupPanel.END_GROUP
-					+ " " + white.toString()
-					+ " " + black.toString()
-					+ " " + FilterGroupPanel.BEGIN_GROUP + SettingsDialog.colorToString(color, 3) + FilterGroupPanel.END_GROUP
-					+ " " + repr;
+			return new CategorySpec(name,
+									whitelist.stream().map(Card::id).collect(Collectors.toSet()),
+									blacklist.stream().map(Card::id).collect(Collectors.toSet()),
+									color,
+									repr).toString();
 		}
 		
 		/**

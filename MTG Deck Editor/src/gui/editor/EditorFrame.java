@@ -36,7 +36,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import javax.swing.Box;
@@ -78,6 +77,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import database.Card;
+import database.CategorySpec;
 import database.Deck;
 import database.Hand;
 import database.LegalityChecker;
@@ -1061,13 +1061,13 @@ public class EditorFrame extends JInternalFrame
 	{
 		undoBuffer.push(new UndoableAction()
 		{
-			private Matcher oldRepr = Deck.CATEGORY_PATTERN.matcher(toEdit.toString());
+			private CategorySpec spec = new CategorySpec(toEdit.toString());
 			private Predicate<Card> oldFilter = toEdit.filter();
 			
 			@Override
 			public boolean undo()
 			{
-				return changeCategory(toEdit, oldRepr.group(1), SettingsDialog.stringToColor(oldRepr.group(4)), oldRepr.group(5), oldFilter);
+				return changeCategory(toEdit, spec.name, spec.color, spec.filter, oldFilter);
 			}
 
 			@Override

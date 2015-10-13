@@ -1,16 +1,13 @@
 package gui.editor;
 
 import gui.ColorButton;
-import gui.SettingsDialog;
 import gui.filter.FilterGroupPanel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -22,7 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import database.Card;
-import database.Deck;
+import database.CategorySpec;
 
 /**
  * This class represents a panel that presents a name field and a filter field that
@@ -134,22 +131,12 @@ public class CategoryEditorPanel extends JPanel
 		this();
 		if (!s.isEmpty())
 		{
-			Matcher m = Deck.CATEGORY_PATTERN.matcher(s);
-			if (m.matches())
-			{
-				nameField.setText(m.group(1));
-				if (!m.group(2).isEmpty())
-					for (String c: m.group(2).split(Deck.EXCEPTION_SEPARATOR))
-						whitelist.add(c);
-				if (!m.group(3).isEmpty())
-					for (String c: m.group(3).split(Deck.EXCEPTION_SEPARATOR))
-						blacklist.add(c);
-				if (m.group(4) != null)
-					colorButton.setColor(Color.decode(m.group(4)));
-				filter.setContents(m.group(5));
-			}
-			else
-				throw new IllegalArgumentException("Illegal category string \"" + s + "\"");
+			CategorySpec spec = new CategorySpec(s);
+			nameField.setText(spec.name);
+			whitelist.addAll(spec.whitelist);
+			blacklist.addAll(spec.blacklist);
+			colorButton.setColor(spec.color);
+			filter.setContents(spec.filter);
 		}
 	}
 	
@@ -215,16 +202,6 @@ public class CategoryEditorPanel extends JPanel
 	@Override
 	public String toString()
 	{
-		StringJoiner white = new StringJoiner(Deck.EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
-		for (String c: whitelist)
-			white.add(c);
-		StringJoiner black = new StringJoiner(Deck.EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
-		for (String c: blacklist)
-			black.add(c);
-		return FilterGroupPanel.BEGIN_GROUP + nameField.getText() + FilterGroupPanel.END_GROUP
-				+ " " + white
-				+ " " + black
-				+ " " + FilterGroupPanel.BEGIN_GROUP + SettingsDialog.colorToString(colorButton.color(), 3) + FilterGroupPanel.END_GROUP
-				+ " " + filter.toString();
+		return new CategorySpec(nameField.getText(), whitelist, blacklist, colorButton.color(), filter.toString()).toString();
 	}
 }
