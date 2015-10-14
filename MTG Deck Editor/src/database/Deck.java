@@ -827,14 +827,9 @@ public class Deck implements CardCollection
 	public class Category implements CardCollection
 	{
 		/**
-		 * Name of this Category.
+		 * TODO: Comment this
 		 */
-		private String name;
-		/**
-		 * String representation of this Category.
-		 * @see gui.filter.editor.FilterEditorPanel#setContents(String)
-		 */
-		private String repr;
+		private CategorySpec spec;
 		/**
 		 * Filter of this Category.
 		 */
@@ -853,10 +848,6 @@ public class Deck implements CardCollection
 		 * pass through the filter.
 		 */
 		private Set<Card> whitelist;
-		/**
-		 * Color of this Category.
-		 */
-		private Color color;
 		
 		/**
 		 * Create a new Category.
@@ -867,9 +858,7 @@ public class Deck implements CardCollection
 		 */
 		private Category(String s, Color col, String r, Predicate<Card> f)
 		{
-			name = s;
-			color = col;
-			repr = r;
+			spec = new CategorySpec(s, col, r);
 			filter = f;
 			filtrate = masterList.stream().map((e) -> e.card).filter(filter).collect(Collectors.toList());
 			blacklist = new HashSet<Card>();
@@ -881,7 +870,7 @@ public class Deck implements CardCollection
 		 */
 		public String name()
 		{
-			return name;
+			return spec.name;
 		}
 		
 		/**
@@ -889,7 +878,7 @@ public class Deck implements CardCollection
 		 */
 		public Color color()
 		{
-			return color;
+			return spec.color;
 		}
 		
 		/**
@@ -914,7 +903,7 @@ public class Deck implements CardCollection
 		 */
 		public String repr()
 		{
-			return repr;
+			return spec.filter;
 		}
 		
 		/**
@@ -925,11 +914,11 @@ public class Deck implements CardCollection
 		@Override
 		public String toString()
 		{
-			return new CategorySpec(name,
+			return new CategorySpec(spec.name,
 									whitelist.stream().map(Card::id).collect(Collectors.toSet()),
 									blacklist.stream().map(Card::id).collect(Collectors.toSet()),
-									color,
-									repr).toString();
+									spec.color,
+									spec.filter).toString();
 		}
 		
 		/**
@@ -1066,9 +1055,9 @@ public class Deck implements CardCollection
 			Entry e = getEntry(c);
 			if (e != null)
 			{
-				boolean changed = blacklist.remove(c);
+				boolean changed = blacklist.remove(c) | spec.blacklist.remove(c.id());
 				if (!filter.test(c))
-					changed |= whitelist.add(c);
+					changed |= whitelist.add(c) | spec.whitelist.add(c.id());
 				if (!contains(c))
 					changed |= filtrate.add(c);
 				if (!e.categories.contains(this))
@@ -1093,9 +1082,9 @@ public class Deck implements CardCollection
 			Entry e = getEntry(c);
 			if (e != null)
 			{
-				boolean changed = whitelist.remove(c);
+				boolean changed = whitelist.remove(c) | spec.whitelist.remove(c.id());
 				if (filter.test(c))
-					changed |= blacklist.add(c);
+					changed |= blacklist.add(c) | spec.blacklist.add(c.id());
 				if (contains(c))
 					changed |= filtrate.remove(c);
 				return e.categories.remove(this) || changed;
@@ -1239,16 +1228,18 @@ public class Deck implements CardCollection
 		 */
 		public boolean edit(String n, Color c, String r, Predicate<Card> f)
 		{
-			if (n.equals(name) || !categories.containsKey(n))
+			if (n.equals(spec.name) || !categories.containsKey(n))
 			{
-				if (!n.equals(name))
+				if (!n.equals(spec.name))
 				{
-					categories.remove(name);
-					name = n;
-					categories.put(name, this);
+					categories.remove(spec.name);
+					categories.put(n, this);
 				}
-				color = c;
-				repr = r;
+				spec = new CategorySpec(n,
+						whitelist.stream().map(Card::id).collect(Collectors.toSet()),
+						blacklist.stream().map(Card::id).collect(Collectors.toSet()),
+						c,
+						r);
 				filter = f;
 				filtrate = masterList.stream().map((e) -> e.card).filter(this::includes).collect(Collectors.toList());
 				for (Entry e: masterList)

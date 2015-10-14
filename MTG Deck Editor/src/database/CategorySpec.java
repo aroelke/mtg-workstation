@@ -55,6 +55,11 @@ public class CategorySpec
 		this.filter = filter;
 	}
 	
+	public CategorySpec(String name, Color color, String filter)
+	{
+		this(name, new HashSet<String>(), new HashSet<String>(), color, filter);
+	}
+	
 	public CategorySpec(String pattern)
 	{
 		Matcher m = CATEGORY_PATTERN.matcher(pattern);
@@ -90,10 +95,10 @@ public class CategorySpec
 	@Override
 	public String toString()
 	{
-		StringJoiner white = new StringJoiner(CategorySpec.EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
+		StringJoiner white = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 		for (String c: whitelist)
 			white.add(c);
-		StringJoiner black = new StringJoiner(CategorySpec.EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
+		StringJoiner black = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
 		for (String c: blacklist)
 			black.add(c);
 		return FilterGroupPanel.BEGIN_GROUP + name + FilterGroupPanel.END_GROUP
