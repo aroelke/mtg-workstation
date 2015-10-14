@@ -177,7 +177,7 @@ public class CardTable extends JTable
 						{
 							int x = i*(s + 1) + 1;
 							int y = 1;
-							g.setColor(categories.get(i).color());
+							g.setColor(categories.get(i).spec().color);
 							g.fillRect(x, y, s - 3, s - 3);
 							g.setColor(Color.BLACK);
 							g.drawRect(x, y, s - 3, s - 3);
@@ -187,7 +187,7 @@ public class CardTable extends JTable
 				StringBuilder tooltip = new StringBuilder();
 				tooltip.append("<html>Categories:<br>");
 				for (Deck.Category category: categories)
-					tooltip.append("• ").append(category.name()).append("<br>");
+					tooltip.append("• ").append(category.spec().name).append("<br>");
 				tooltip.append("</html>");
 				panel.setToolTipText(tooltip.toString());
 				if (hasFocus)

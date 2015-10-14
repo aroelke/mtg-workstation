@@ -1,17 +1,19 @@
 package database;
 
-import gui.SettingsDialog;
-import gui.filter.FilterGroupPanel;
-
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import gui.SettingsDialog;
+import gui.filter.FilterGroupPanel;
 
 /**
  * TODO: Comment this class
@@ -40,24 +42,56 @@ public class CategorySpec
 			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "(#[0-9A-F-a-f]{6})?" + FilterGroupPanel.END_GROUP						// Color
 			+ "\\s*(.*)$");	
 	
-	public final String name;
-	public final Set<String> whitelist;
-	public final Set<String> blacklist;
-	public final Color color;
-	public final String filter;
+	public String name;
+	public Set<Card> whitelist;
+	public Set<Card> blacklist;
+	public Color color;
+	public Predicate<Card> filter;
+	public String filterString;
 	
-	public CategorySpec(String name, Collection<String> whitelist, Collection<String> blacklist, Color color, String filter)
+	public CategorySpec(String name, Collection<Card> whitelist, Collection<Card> blacklist, Color color, Predicate<Card> filter, String filterString)
 	{
 		this.name = name;
-		this.whitelist = whitelist.stream().collect(Collectors.toSet());
-		this.blacklist = blacklist.stream().collect(Collectors.toSet());
+		this.whitelist = new HashSet<Card>(whitelist);
+		this.blacklist = new HashSet<Card>(blacklist);
 		this.color = color;
 		this.filter = filter;
+		this.filterString = filterString;
 	}
 	
-	public CategorySpec(String name, Color color, String filter)
+	public CategorySpec(String name, Color color, Predicate<Card> filter, String filterString)
 	{
-		this(name, new HashSet<String>(), new HashSet<String>(), color, filter);
+		this(name, new HashSet<Card>(), new HashSet<Card>(), color, filter, filterString);
+	}
+	
+	public CategorySpec(String pattern, Inventory inventory)
+	{
+		Matcher m = CATEGORY_PATTERN.matcher(pattern);
+		if (m.matches())
+		{
+			name = m.group(1);
+			if (!m.group(2).isEmpty())
+				whitelist = Arrays.stream(m.group(2).split(EXCEPTION_SEPARATOR)).map(inventory::get).collect(Collectors.toSet());
+			else
+				whitelist = new HashSet<Card>();
+			if (!m.group(3).isEmpty())
+				blacklist = Arrays.stream(m.group(3).split(EXCEPTION_SEPARATOR)).map(inventory::get).collect(Collectors.toSet());
+			else
+				blacklist = new HashSet<Card>();
+			if (m.group(4) != null)
+				color = SettingsDialog.stringToColor(m.group(4));
+			else
+			{
+				Random rand = new Random();
+				color = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), (float)Math.sqrt(rand.nextFloat()));
+			}
+			filterString = m.group(5);
+			FilterGroupPanel panel = new FilterGroupPanel();
+			panel.setContents(filterString);
+			filter = panel.filter();
+		}
+		else
+			throw new IllegalArgumentException("Illegal category string " + pattern);
 	}
 	
 	public CategorySpec(String pattern)
@@ -66,14 +100,8 @@ public class CategorySpec
 		if (m.matches())
 		{
 			name = m.group(1);
-			whitelist = new HashSet<String>();
-			if (!m.group(2).isEmpty())
-				for (String id: m.group(2).split(EXCEPTION_SEPARATOR))
-					whitelist.add(id);
-			blacklist = new HashSet<String>();
-			if (!m.group(3).isEmpty())
-				for (String id: m.group(3).split(EXCEPTION_SEPARATOR))
-					blacklist.add(id);
+			whitelist = new HashSet<Card>();
+			blacklist = new HashSet<Card>();
 			if (m.group(4) != null)
 				color = SettingsDialog.stringToColor(m.group(4));
 			else
@@ -81,10 +109,22 @@ public class CategorySpec
 				Random rand = new Random();
 				color = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), (float)Math.sqrt(rand.nextFloat()));
 			}
-			filter = m.group(5);
+			filterString = m.group(5);
+			FilterGroupPanel panel = new FilterGroupPanel();
+			panel.setContents(filterString);
+			filter = panel.filter();
 		}
 		else
 			throw new IllegalArgumentException("Illegal category string " + pattern);
+	}
+	
+	public CategorySpec(CategorySpec original)
+	{
+		name = original.name;
+		whitelist = new HashSet<Card>(original.whitelist);
+		blacklist = new HashSet<Card>(original.blacklist);
+		color = original.color;
+		filterString = original.filterString;
 	}
 	
 	/**
@@ -96,15 +136,15 @@ public class CategorySpec
 	public String toString()
 	{
 		StringJoiner white = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
-		for (String c: whitelist)
-			white.add(c);
+		for (Card c: whitelist)
+			white.add(c.id());
 		StringJoiner black = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(FilterGroupPanel.BEGIN_GROUP), String.valueOf(FilterGroupPanel.END_GROUP));
-		for (String c: blacklist)
-			black.add(c);
+		for (Card c: blacklist)
+			black.add(c.id());
 		return FilterGroupPanel.BEGIN_GROUP + name + FilterGroupPanel.END_GROUP
 				+ " " + white.toString()
 				+ " " + black.toString()
 				+ " " + FilterGroupPanel.BEGIN_GROUP + SettingsDialog.colorToString(color, 3) + FilterGroupPanel.END_GROUP
-				+ " " + filter;
+				+ " " + filterString;
 	}
 }

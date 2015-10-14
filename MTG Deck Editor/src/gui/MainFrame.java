@@ -1,12 +1,5 @@
 package gui;
 
-import gui.editor.CategoryEditorPanel;
-import gui.editor.CategoryPanel;
-import gui.editor.EditorFrame;
-import gui.filter.FilterGroupPanel;
-import gui.inventory.InventoryDownloadDialog;
-import gui.inventory.InventoryLoadDialog;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -79,12 +72,18 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 
 import database.Card;
+import database.CategorySpec;
 import database.Inventory;
 import database.characteristics.CardCharacteristic;
 import database.characteristics.Expansion;
 import database.characteristics.Loyalty;
 import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
+import gui.editor.CategoryPanel;
+import gui.editor.EditorFrame;
+import gui.filter.FilterGroupPanel;
+import gui.inventory.InventoryDownloadDialog;
+import gui.inventory.InventoryLoadDialog;
 
 /**
  * This class represents the main frame of the editor.  It contains several tabs that display information
@@ -470,13 +469,13 @@ public class MainFrame extends JFrame
 		categoryMenu.add(presetMenu);
 		for (String category: SettingsDialog.getSetting(SettingsDialog.EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
 		{
-			CategoryEditorPanel editor = new CategoryEditorPanel(category);
-			JMenuItem categoryItem = new JMenuItem(editor.name());
+			CategorySpec spec = new CategorySpec(category, inventory);
+			JMenuItem categoryItem = new JMenuItem(spec.name);
 			categoryItem.addActionListener((e) -> {
-				if (selectedFrame != null && !selectedFrame.containsCategory(editor.name()))
+				if (selectedFrame != null && !selectedFrame.containsCategory(spec.name))
 				{
-					selectedFrame.deck.addCategory(editor.name(), editor.color(), editor.repr(), editor.filter());
-					selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(editor.name()), selectedFrame));
+					selectedFrame.deck.addCategory(spec.name, spec.color, spec.filterString, spec.filter);
+					selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(spec.name), selectedFrame));
 				}
 			});
 			presetMenu.add(categoryItem);
@@ -1014,12 +1013,12 @@ public class MainFrame extends JFrame
 		presetMenu.removeAll();
 		for (String category: SettingsDialog.getSetting(SettingsDialog.EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
 		{
-			CategoryEditorPanel editor = new CategoryEditorPanel(category);
-			JMenuItem categoryItem = new JMenuItem(editor.name());
+			CategorySpec spec = new CategorySpec(category, inventory);
+			JMenuItem categoryItem = new JMenuItem(spec.name);
 			categoryItem.addActionListener((e) -> {
 				if (selectedFrame != null)
-					selectedFrame.deck.addCategory(editor.name(), editor.color(), editor.repr(), editor.filter());
-					selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(editor.name()), selectedFrame));
+					selectedFrame.deck.addCategory(spec.name, spec.color, spec.filterString, spec.filter);
+					selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(spec.name), selectedFrame));
 			});
 			presetMenu.add(categoryItem);
 		}
@@ -1104,13 +1103,13 @@ public class MainFrame extends JFrame
 	{
 		SettingsDialog.settings.compute(SettingsDialog.EDITOR_PRESETS, (k, v) -> v += SettingsDialog.CATEGORY_DELIMITER + category);
 		
-		CategoryEditorPanel editor = new CategoryEditorPanel(category);
-		JMenuItem categoryItem = new JMenuItem(editor.name());
+		CategorySpec spec = new CategorySpec(category, inventory);
+		JMenuItem categoryItem = new JMenuItem(spec.name);
 		categoryItem.addActionListener((e) -> {
 			if (selectedFrame != null)
 			{
-				selectedFrame.deck.addCategory(editor.name(), editor.color(), editor.repr(), editor.filter());
-				selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(editor.name()), selectedFrame));
+				selectedFrame.deck.addCategory(spec.name, spec.color, spec.filterString, spec.filter);
+				selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(spec.name), selectedFrame));
 			}
 		});
 		presetMenu.add(categoryItem);
@@ -1337,6 +1336,15 @@ public class MainFrame extends JFrame
 			return Arrays.asList(selectedCard);
 		else
 			return new ArrayList<Card>();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Inventory inventory()
+	{
+		return inventory;
 	}
 	
 	/**

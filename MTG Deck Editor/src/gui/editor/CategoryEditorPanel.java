@@ -1,11 +1,7 @@
 package gui.editor;
 
-import gui.ColorButton;
-import gui.filter.FilterGroupPanel;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -20,6 +16,8 @@ import javax.swing.border.EmptyBorder;
 
 import database.Card;
 import database.CategorySpec;
+import gui.ColorButton;
+import gui.filter.FilterGroupPanel;
 
 /**
  * This class represents a panel that presents a name field and a filter field that
@@ -36,11 +34,11 @@ public class CategoryEditorPanel extends JPanel
 	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
 	 * edited.
 	 * 
-	 * @param s String to initialize the panel as
+	 * @param s TODO: Fill this out
 	 * @return The panel in the state it was last in while editing it, or <code>null</code> if the Cancel button
 	 * was pressed or the dialog was closed.
 	 */
-	public static CategoryEditorPanel showCategoryEditor(String s)
+	public static CategoryEditorPanel showCategoryEditor(CategorySpec s)
 	{
 		CategoryEditorPanel editor = new CategoryEditorPanel(s);
 		while (true)
@@ -68,7 +66,7 @@ public class CategoryEditorPanel extends JPanel
 	 */
 	public static CategoryEditorPanel showCategoryEditor()
 	{
-		return showCategoryEditor("");
+		return showCategoryEditor(null);
 	}
 	
 	/**
@@ -80,19 +78,13 @@ public class CategoryEditorPanel extends JPanel
 	 */
 	private FilterGroupPanel filter;
 	/**
-	 * Set of Strings containing the UIDs of the cards in the category's whitelist.  This
-	 * will not be filled unless a category string is parsed.
-	 */
-	private Set<String> whitelist;
-	/**
-	 * Set of Strings containing the UIDs of the cards in the category's blacklist.  This
-	 * will not be filled unless a category string is parsed.
-	 */
-	private Set<String> blacklist;
-	/**
 	 * Button displaying the color of the category, and allowing change of that color.
 	 */
 	private ColorButton colorButton;
+	/**
+	 * TODO: Comment this
+	 */
+	private CategorySpec spec;
 	
 	/**
 	 * Create a new CategoryEditorPanel.
@@ -115,28 +107,23 @@ public class CategoryEditorPanel extends JPanel
 		add(namePanel, BorderLayout.NORTH);
 		
 		add(filter = new FilterGroupPanel(), BorderLayout.CENTER);
-		
-		whitelist = new HashSet<String>();
-		blacklist = new HashSet<String>();
 	}
 	
 	/**
 	 * Create a new CategoryEditorPanel, and then fill its contents from the specified
 	 * category string.
 	 * 
-	 * @param s
+	 * @param s TODO: Fill this out
 	 */
-	public CategoryEditorPanel(String s)
+	public CategoryEditorPanel(CategorySpec s)
 	{
 		this();
-		if (!s.isEmpty())
+		if (s != null)
 		{
-			CategorySpec spec = new CategorySpec(s);
+			spec = s;
 			nameField.setText(spec.name);
-			whitelist.addAll(spec.whitelist);
-			blacklist.addAll(spec.blacklist);
 			colorButton.setColor(spec.color);
-			filter.setContents(spec.filter);
+			filter.setContents(spec.filterString);
 		}
 	}
 	
@@ -166,23 +153,19 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
-	 * @return The list of UIDs of the cards that should be included in the category
-	 * even if they don't pass through the filter.  This is not editable using this
-	 * panel.
+	 * @return TODO: Comment this
 	 */
-	public Set<String> whitelist()
+	public Set<Card> whitelist()
 	{
-		return whitelist;
+		return spec.whitelist;
 	}
 	
 	/**
-	 * @return The list of UIDs of the cards that should be excluded from the category
-	 * even if they do pass through the filter.  This is not editable using this
-	 * panel.
+	 * TODO: Comment this
 	 */
-	public Set<String> blacklist()
+	public Set<Card> blacklist()
 	{
-		return blacklist;
+		return spec.blacklist;
 	}
 	
 	/**
@@ -194,6 +177,15 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public CategorySpec spec()
+	{
+		return spec;
+	}
+	
+	/**
 	 * @return The String representation of the category being edited, which is its name
 	 * followed by the String representation of its filter.  Note the difference with
 	 * Deck.Category's String representation, which also includes a whitelist and blacklist
@@ -202,6 +194,9 @@ public class CategoryEditorPanel extends JPanel
 	@Override
 	public String toString()
 	{
-		return new CategorySpec(nameField.getText(), whitelist, blacklist, colorButton.color(), filter.toString()).toString();
+		spec.name = nameField.getText();
+		spec.color = colorButton.color();
+		spec.filterString = filter.toString();
+		return spec.toString();
 	}
 }

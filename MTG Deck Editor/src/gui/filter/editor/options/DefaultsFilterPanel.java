@@ -1,11 +1,5 @@
 package gui.filter.editor.options;
 
-import gui.SettingsDialog;
-import gui.editor.CategoryEditorPanel;
-import gui.filter.FilterGroupPanel;
-import gui.filter.FilterType;
-import gui.filter.editor.FilterEditorPanel;
-
 import java.awt.BorderLayout;
 import java.util.function.Predicate;
 
@@ -15,6 +9,11 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import database.Card;
+import database.CategorySpec;
+import gui.SettingsDialog;
+import gui.filter.FilterGroupPanel;
+import gui.filter.FilterType;
+import gui.filter.editor.FilterEditorPanel;
 
 /**
  * This class represents a filter panel that allows for the filtering of Cards based on
@@ -69,7 +68,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel
 		if (isEmpty())
 			return (c) -> true;
 		else
-			return new CategoryEditorPanel(categoriesModel.getCategoryAt(categoriesList.getSelectedIndex())).filter();
+			return new CategorySpec(categoriesModel.getCategoryAt(categoriesList.getSelectedIndex())).filter;
 	}
 
 	/**
@@ -88,7 +87,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel
 	@Override
 	protected String repr()
 	{
-		return new CategoryEditorPanel(categoriesModel.getCategoryAt(categoriesList.getSelectedIndex())).repr();
+		return new CategorySpec(categoriesModel.getCategoryAt(categoriesList.getSelectedIndex())).filterString;
 	}
 	
 	/**
@@ -98,7 +97,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel
 	@Override
 	public String toString()
 	{
-		String filterString = new CategoryEditorPanel(categoriesModel.getCategoryAt(categoriesList.getSelectedIndex())).repr();
+		String filterString = new CategorySpec(categoriesModel.getCategoryAt(categoriesList.getSelectedIndex())).filterString;
 		return filterString.substring(1, filterString.length() - 1);
 	}
 

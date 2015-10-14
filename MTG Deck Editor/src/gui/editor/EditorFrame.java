@@ -1,13 +1,5 @@
 package gui.editor;
 
-import gui.CardImagePanel;
-import gui.CardTable;
-import gui.CardTableModel;
-import gui.MainFrame;
-import gui.ScrollablePanel;
-import gui.SettingsDialog;
-import gui.TableMouseAdapter;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -32,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
@@ -82,6 +73,13 @@ import database.Deck;
 import database.Hand;
 import database.LegalityChecker;
 import database.characteristics.CardCharacteristic;
+import gui.CardImagePanel;
+import gui.CardTable;
+import gui.CardTableModel;
+import gui.MainFrame;
+import gui.ScrollablePanel;
+import gui.SettingsDialog;
+import gui.TableMouseAdapter;
 
 /**
  * This class represents an internal frame for editing a deck.  It contains a table that shows all cards
@@ -768,7 +766,7 @@ public class EditorFrame extends JInternalFrame
 		CategoryEditorPanel editor = null;
 		do
 		{
-			editor = CategoryEditorPanel.showCategoryEditor(editor != null ? editor.toString() : "");
+			editor = CategoryEditorPanel.showCategoryEditor(editor != null ? editor.spec() : null);
 			if (editor != null && deck.containsCategory(editor.name()))
 				JOptionPane.showMessageDialog(null, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
 		} while (editor != null && deck.containsCategory(editor.name()));
@@ -877,9 +875,8 @@ public class EditorFrame extends JInternalFrame
 				if (newColor != null && !newColor.equals(newCategory.colorButton.color()))
 				{
 					newCategory.colorButton.setColor(newColor);
-					String oldRepr = newCategory.toString();
-					CategoryEditorPanel editor = new CategoryEditorPanel(oldRepr);
-					editCategory(newCategory, editor.name(), newCategory.colorButton.color(), editor.repr(), editor.filter());
+					CategorySpec spec = newCategory.spec();
+					editCategory(newCategory, spec.name, newCategory.colorButton.color(), spec.filterString, spec.filter);
 				}
 			});
 			
@@ -1043,7 +1040,7 @@ public class EditorFrame extends JInternalFrame
 			JOptionPane.showMessageDialog(null, "Deck " + deckName() + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
 		else
 		{
-			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(toEdit.toString());
+			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(toEdit.spec());
 			if (editor != null)
 				editCategory(toEdit, editor.name(), editor.color(), editor.repr(), editor.filter());
 		}
@@ -1061,13 +1058,13 @@ public class EditorFrame extends JInternalFrame
 	{
 		undoBuffer.push(new UndoableAction()
 		{
-			private CategorySpec spec = new CategorySpec(toEdit.toString());
+			private CategorySpec spec = new CategorySpec(toEdit.toString(), parent.inventory());
 			private Predicate<Card> oldFilter = toEdit.filter();
 			
 			@Override
 			public boolean undo()
 			{
-				return changeCategory(toEdit, spec.name, spec.color, spec.filter, oldFilter);
+				return changeCategory(toEdit, spec.name, spec.color, spec.filterString, oldFilter);
 			}
 
 			@Override
@@ -1902,18 +1899,16 @@ public class EditorFrame extends JInternalFrame
 				{
 					if (isCancelled())
 						return null;
-					CategoryEditorPanel editor = new CategoryEditorPanel(rd.readLine().trim());
-					Set<Card> whitelist = editor.whitelist().stream().map(parent::getCard).collect(Collectors.toSet());
-					Set<Card> blacklist = editor.blacklist().stream().map(parent::getCard).collect(Collectors.toSet());
+					CategorySpec spec = new CategorySpec(rd.readLine().trim(), parent.inventory());
 					SwingUtilities.invokeLater(() -> {
 						if (!isCancelled())
 						{
-							deck.addCategory(editor.name(), editor.color(), editor.repr(), editor.filter());
-							for (Card c: whitelist)
-								deck.getCategory(editor.name()).include(c);
-							for (Card c: blacklist)
-								deck.getCategory(editor.name()).exclude(c);
-							addCategory(new CategoryPanel(deck.getCategory(editor.name()), EditorFrame.this));
+							deck.addCategory(spec.name, spec.color, spec.filterString, spec.filter);
+							for (Card c: spec.whitelist)
+								deck.getCategory(spec.name).include(c);
+							for (Card c: spec.blacklist)
+								deck.getCategory(spec.name).exclude(c);
+							addCategory(new CategoryPanel(deck.getCategory(spec.name), EditorFrame.this));
 						}
 					});
 					publish(50 + 50*(i + 1)/categories);

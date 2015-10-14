@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -339,8 +338,8 @@ public class Deck implements CardCollection
 					for (Category category: categories.values())
 					{
 						category.filtrate.remove(c);
-						category.whitelist.remove(c);
-						category.blacklist.remove(c);
+						category.spec.whitelist.remove(c);
+						category.spec.blacklist.remove(c);
 					}
 				}
 				total -= n;
@@ -526,7 +525,7 @@ public class Deck implements CardCollection
 	{
 		if (!categories.containsKey(name))
 		{
-			Category c = new Category(name, color, repr, filter);
+			Category c = new Category(new CategorySpec(name, color, filter, repr));
 			categories.put(name, c);
 			for (Entry e: masterList)
 				if (c.includes(e.card))
@@ -831,79 +830,28 @@ public class Deck implements CardCollection
 		 */
 		private CategorySpec spec;
 		/**
-		 * Filter of this Category.
-		 */
-		private Predicate<Card> filter;
-		/**
 		 * List representing the filtered view of the master list.
 		 */
 		private List<Card> filtrate;
-		/**
-		 * Blacklist of cards that should not be included even if they
-		 * pass through the filter.
-		 */
-		private Set<Card> blacklist;
-		/**
-		 * Whitelist of cards that should be included even if they do not
-		 * pass through the filter.
-		 */
-		private Set<Card> whitelist;
 		
 		/**
 		 * Create a new Category.
 		 * 
-		 * @param s Name of the new Category
-		 * @param col Color of the new Category
-		 * @param f Filter of the new Category
+		 * @param s TODO: Fill this out
 		 */
-		private Category(String s, Color col, String r, Predicate<Card> f)
+		private Category(CategorySpec s)
 		{
-			spec = new CategorySpec(s, col, r);
-			filter = f;
-			filtrate = masterList.stream().map((e) -> e.card).filter(filter).collect(Collectors.toList());
-			blacklist = new HashSet<Card>();
-			whitelist = new HashSet<Card>();
-		}
-		
-		/**
-		 * @return This Category's name.
-		 */
-		public String name()
-		{
-			return spec.name;
-		}
-		
-		/**
-		 * @return The color of this Category.
-		 */
-		public Color color()
-		{
-			return spec.color;
-		}
-		
-		/**
-		 * @return This Category's whitelist.
-		 */
-		public Set<Card> whitelist()
-		{
-			return whitelist;
-		}
-		
-		/**
-		 * @return This Category's blacklist
-		 */
-		public Set<Card> blacklist()
-		{
-			return blacklist;
+			spec = s;
+			filtrate = masterList.stream().map((e) -> e.card).filter(spec.filter).collect(Collectors.toList());
 		}
 		
 		/**
 		 * TODO: Comment this
 		 * @return
 		 */
-		public String repr()
+		public CategorySpec spec()
 		{
-			return spec.filter;
+			return spec;
 		}
 		
 		/**
@@ -914,19 +862,7 @@ public class Deck implements CardCollection
 		@Override
 		public String toString()
 		{
-			return new CategorySpec(spec.name,
-									whitelist.stream().map(Card::id).collect(Collectors.toSet()),
-									blacklist.stream().map(Card::id).collect(Collectors.toSet()),
-									spec.color,
-									spec.filter).toString();
-		}
-		
-		/**
-		 * @return This Category's filter.
-		 */
-		public Predicate<Card> filter()
-		{
-			return filter;
+			return spec.toString();
 		}
 		
 		/**
@@ -1055,9 +991,9 @@ public class Deck implements CardCollection
 			Entry e = getEntry(c);
 			if (e != null)
 			{
-				boolean changed = blacklist.remove(c) | spec.blacklist.remove(c.id());
-				if (!filter.test(c))
-					changed |= whitelist.add(c) | spec.whitelist.add(c.id());
+				boolean changed = spec.blacklist.remove(c);
+				if (!spec.filter.test(c))
+					changed |= spec.whitelist.add(c);
 				if (!contains(c))
 					changed |= filtrate.add(c);
 				if (!e.categories.contains(this))
@@ -1082,9 +1018,9 @@ public class Deck implements CardCollection
 			Entry e = getEntry(c);
 			if (e != null)
 			{
-				boolean changed = whitelist.remove(c) | spec.whitelist.remove(c.id());
-				if (filter.test(c))
-					changed |= blacklist.add(c) | spec.blacklist.add(c.id());
+				boolean changed = spec.whitelist.remove(c);
+				if (spec.filter.test(c))
+					changed |= spec.blacklist.add(c);
 				if (contains(c))
 					changed |= filtrate.remove(c);
 				return e.categories.remove(this) || changed;
@@ -1100,7 +1036,7 @@ public class Deck implements CardCollection
 		 */
 		public boolean includes(Card c)
 		{
-			return !blacklist.contains(c) && (filter.test(c) || whitelist.contains(c));
+			return !spec.blacklist.contains(c) && (spec.filter.test(c) || spec.whitelist.contains(c));
 		}
 		
 		/**
@@ -1233,14 +1169,12 @@ public class Deck implements CardCollection
 				if (!n.equals(spec.name))
 				{
 					categories.remove(spec.name);
-					categories.put(n, this);
+					spec.name = n;
+					categories.put(spec.name, this);
 				}
-				spec = new CategorySpec(n,
-						whitelist.stream().map(Card::id).collect(Collectors.toSet()),
-						blacklist.stream().map(Card::id).collect(Collectors.toSet()),
-						c,
-						r);
-				filter = f;
+				spec.color = c;
+				spec.filterString = r;
+				spec.filter = f;
 				filtrate = masterList.stream().map((e) -> e.card).filter(this::includes).collect(Collectors.toList());
 				for (Entry e: masterList)
 				{

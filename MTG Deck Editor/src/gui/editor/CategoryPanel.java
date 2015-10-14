@@ -1,10 +1,5 @@
 package gui.editor;
 
-import gui.CardTable;
-import gui.CardTableModel;
-import gui.ColorButton;
-import gui.SettingsDialog;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -29,8 +24,13 @@ import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 
 import database.Card;
+import database.CategorySpec;
 import database.Deck;
 import database.characteristics.CardCharacteristic;
+import gui.CardTable;
+import gui.CardTableModel;
+import gui.ColorButton;
+import gui.SettingsDialog;
 
 /**
  * This class represents a panel that shows information about a category in a deck.
@@ -109,7 +109,7 @@ public class CategoryPanel extends JPanel
 		flashTimer = new FlashTimer();
 		
 		// Each category is surrounded by a border with a title
-		border = new TitledBorder(category.name());
+		border = new TitledBorder(category.spec().name);
 		setBorder(border);
 		
 		setLayout(new BorderLayout());
@@ -123,7 +123,7 @@ public class CategoryPanel extends JPanel
 		
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		colorButton = new ColorButton(category.color());
+		colorButton = new ColorButton(category.spec().color);
 		buttonPanel.add(colorButton);
 		editButton = new JButton("…");
 		buttonPanel.add(editButton);
@@ -160,10 +160,10 @@ public class CategoryPanel extends JPanel
 	{
 		model.fireTableDataChanged();
 		countLabel.setText("Cards: " + category.total());
-		border.setTitle(category.name());
+		border.setTitle(category.spec().name);
 		table.revalidate();
 		table.repaint();
-		colorButton.setColor(category.color());
+		colorButton.setColor(category.spec().color);
 		colorButton.repaint();
 		revalidate();
 		repaint();
@@ -174,7 +174,7 @@ public class CategoryPanel extends JPanel
 	 */
 	public String name()
 	{
-		return category.name();
+		return category.spec().name;
 	}
 	
 	/**
@@ -192,7 +192,7 @@ public class CategoryPanel extends JPanel
 	 */
 	public Predicate<Card> filter()
 	{
-		return category.filter();
+		return category.spec().filter;
 	}
 	
 	/**
@@ -200,7 +200,7 @@ public class CategoryPanel extends JPanel
 	 */
 	public Set<Card> whitelist()
 	{
-		return category.whitelist();
+		return category.spec().whitelist;
 	}
 	
 	/**
@@ -208,7 +208,16 @@ public class CategoryPanel extends JPanel
 	 */
 	public Set<Card> blacklist()
 	{
-		return category.blacklist();
+		return category.spec().blacklist;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public CategorySpec spec()
+	{
+		return category.spec();
 	}
 	
 	/**
@@ -311,13 +320,13 @@ public class CategoryPanel extends JPanel
 	 */
 	public void addToDeck(Deck deck)
 	{
-		if (!deck.containsCategory(category.name()))
+		if (!deck.containsCategory(category.spec().name))
 		{
-			model.setList(category = deck.addCategory(category.name(), category.color(), category.repr(), category.filter()));
+			model.setList(category = deck.addCategory(category.spec().name, category.spec().color, category.spec().filterString, category.spec().filter));
 			update();
 		}
 		else
-			throw new IllegalArgumentException("Deck already contains category " + category.name());
+			throw new IllegalArgumentException("Deck already contains category " + category.spec().name);
 	}
 	
 	/**

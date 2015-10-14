@@ -1,8 +1,5 @@
 package gui;
 
-import gui.editor.CategoryEditorPanel;
-import gui.filter.FilterGroupPanel;
-
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -53,7 +50,10 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import database.CategorySpec;
 import database.characteristics.CardCharacteristic;
+import gui.editor.CategoryEditorPanel;
+import gui.filter.FilterGroupPanel;
 
 /**
  * This class is a dialog that allows the user to change various properties about
@@ -739,7 +739,7 @@ public class SettingsDialog extends JDialog
 		settings.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
 		join = new StringJoiner(SettingsDialog.CATEGORY_DELIMITER);
 		for (int i = 0; i < categoriesListModel.getSize(); i++)
-			join.add(categoriesListModel.getCategoryAt(i));
+			join.add(categoriesListModel.getCategoryAt(i).toString());
 		settings.put(EDITOR_PRESETS, join.toString());
 		settings.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
 		join = new StringJoiner(",");
@@ -848,9 +848,9 @@ public class SettingsDialog extends JDialog
 		 * @param index Index into the list to look at.
 		 * @return The String representation of the category at the index.
 		 */
-		public String getCategoryAt(int index)
+		public CategorySpec getCategoryAt(int index)
 		{
-			return super.getElementAt(index);
+			return new CategorySpec(super.getElementAt(index));
 		}
 	}
 }
