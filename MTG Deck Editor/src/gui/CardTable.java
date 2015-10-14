@@ -391,7 +391,7 @@ public class CardTable extends JTable
 	public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
 	{
 		Component c = super.prepareRenderer(renderer, row, column);
-		if (!isRowSelected(row))
+		if (!isRowSelected(row) || !getRowSelectionAllowed())
 			c.setBackground(row%2 == 0 ? new Color(getBackground().getRGB()) : stripeColor);
 		return c;
 	}

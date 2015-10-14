@@ -363,7 +363,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					setCategoriesMenu.setEnabled(true);
 					setCategoriesMenu.removeAll();
-					for (CategoryPanel category: categories.stream().sorted().collect(Collectors.toList()))
+					for (CategoryPanel category: categories.stream().sorted((a, b) -> a.spec().name.compareTo(b.spec().name)).collect(Collectors.toList()))
 					{
 						JCheckBoxMenuItem containsBox = new JCheckBoxMenuItem(category.spec().name);
 						containsBox.setSelected(category.contains(cards.get(0)));
@@ -1148,7 +1148,7 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			switchCategoryBox.setEnabled(true);
-			for (CategoryPanel category: categories.stream().sorted().collect(Collectors.toList()))
+			for (CategoryPanel category: categories.stream().sorted((a, b) -> a.spec().name.compareTo(b.spec().name)).collect(Collectors.toList()))
 				switchCategoryModel.addElement(category.spec().name);
 		}
 	}
