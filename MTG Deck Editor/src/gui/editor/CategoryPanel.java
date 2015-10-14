@@ -9,7 +9,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -170,14 +169,6 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * @return The name of the category.
-	 */
-	public String name()
-	{
-		return category.spec().name;
-	}
-	
-	/**
 	 * @return The String representation of the category.
 	 * @see CategoryDialog#setContents(String)
 	 */
@@ -185,30 +176,6 @@ public class CategoryPanel extends JPanel
 	public String toString()
 	{
 		return category.toString();
-	}
-	
-	/**
-	 * @return The Card filter for the category.
-	 */
-	public Predicate<Card> filter()
-	{
-		return category.spec().filter;
-	}
-	
-	/**
-	 * @return The category's whitelist.
-	 */
-	public Set<Card> whitelist()
-	{
-		return category.spec().whitelist;
-	}
-	
-	/**
-	 * @return The category's blacklist
-	 */
-	public Set<Card> blacklist()
-	{
-		return category.spec().blacklist;
 	}
 	
 	/**

@@ -363,9 +363,9 @@ public class EditorFrame extends JInternalFrame
 				{
 					setCategoriesMenu.setEnabled(true);
 					setCategoriesMenu.removeAll();
-					for (CategoryPanel category: categories.stream().sorted((a, b) -> a.name().compareTo(b.name())).collect(Collectors.toList()))
+					for (CategoryPanel category: categories.stream().sorted().collect(Collectors.toList()))
 					{
-						JCheckBoxMenuItem containsBox = new JCheckBoxMenuItem(category.name());
+						JCheckBoxMenuItem containsBox = new JCheckBoxMenuItem(category.spec().name);
 						containsBox.setSelected(category.contains(cards.get(0)));
 						containsBox.addActionListener((a) -> {
 							if (((JCheckBoxMenuItem)a.getSource()).isSelected())
@@ -739,7 +739,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public String[] categoryNames()
 	{
-		List<String> names = categories.stream().map(CategoryPanel::name).collect(Collectors.toList());
+		List<String> names = categories.stream().map((c) -> c.spec().name).collect(Collectors.toList());
 		Collections.sort(names);
 		return names.toArray(new String[names.size()]);
 	}
@@ -753,7 +753,7 @@ public class EditorFrame extends JInternalFrame
 	public CategoryPanel getCategory(String name)
 	{
 		for (CategoryPanel category: categories)
-			if (category.name().equals(name))
+			if (category.spec().name.equals(name))
 				return category;
 		return null;
 	}
@@ -784,7 +784,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private boolean insertCategory(CategoryPanel category)
 	{
-		if (!containsCategory(category.name()))
+		if (!containsCategory(category.spec().name))
 			category.addToDeck(deck);  // TODO: Make this unnecessary
 		categories.add(category);
 		categoriesContainer.add(category);
@@ -802,11 +802,11 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private boolean deleteCategory(CategoryPanel category)
 	{
-		if (!containsCategory(category.name()))
+		if (!containsCategory(category.spec().name))
 			return false;
 		else
 		{
-			boolean removed = deck.removeCategory(category.name()); // TODO: Make this unnecessary
+			boolean removed = deck.removeCategory(category.spec().name); // TODO: Make this unnecessary
 			removed &= categories.remove(category);
 			if (removed)
 				categoriesContainer.remove(category);
@@ -826,7 +826,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private boolean changeCategory(CategoryPanel category, String n, Color c, String r, Predicate<Card> f)
 	{
-		if (!containsCategory(category.name()))
+		if (!containsCategory(category.spec().name))
 			return false;
 		else
 		{
@@ -856,7 +856,7 @@ public class EditorFrame extends JInternalFrame
 				if (!lsm.isSelectionEmpty())
 				{
 					if (!e.getValueIsAdjusting())
-						parent.selectCard(deck.getCategory(newCategory.name()).get(newCategory.table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
+						parent.selectCard(deck.getCategory(newCategory.spec().name).get(newCategory.table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
 					for (CategoryPanel c: categories)
 						if (newCategory != c)
 							c.table.clearSelection();
@@ -865,7 +865,7 @@ public class EditorFrame extends JInternalFrame
 			});
 			// Add the behavior for the edit category button
 			newCategory.editButton.addActionListener((e) -> {
-				editCategory(newCategory.name());
+				editCategory(newCategory.spec().name);
 			});
 			// Add the behavior for the remove category button
 			newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory));
@@ -989,7 +989,7 @@ public class EditorFrame extends JInternalFrame
 			
 			// Edit item
 			JMenuItem editItem = new JMenuItem("Edit...");
-			editItem.addActionListener((e) -> editCategory(newCategory.name()));
+			editItem.addActionListener((e) -> editCategory(newCategory.spec().name));
 			categoryMenu.add(editItem);
 			
 			// Delete item
@@ -1059,7 +1059,7 @@ public class EditorFrame extends JInternalFrame
 		undoBuffer.push(new UndoableAction()
 		{
 			private CategorySpec spec = new CategorySpec(toEdit.toString(), parent.inventory());
-			private Predicate<Card> oldFilter = toEdit.filter();
+			private Predicate<Card> oldFilter = toEdit.spec().filter;
 			
 			@Override
 			public boolean undo()
@@ -1087,7 +1087,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean removeCategory(CategoryPanel category)
 	{
-		if (!deck.containsCategory(category.name()))
+		if (!deck.containsCategory(category.spec().name))
 			return false;
 		else
 		{
@@ -1148,8 +1148,8 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			switchCategoryBox.setEnabled(true);
-			for (CategoryPanel category: categories.stream().sorted((a, b) -> a.name().compareTo(b.name())).collect(Collectors.toList()))
-				switchCategoryModel.addElement(category.name());
+			for (CategoryPanel category: categories.stream().sorted().collect(Collectors.toList()))
+				switchCategoryModel.addElement(category.spec().name);
 		}
 	}
 	
@@ -1299,7 +1299,7 @@ public class EditorFrame extends JInternalFrame
 					List<Card> categorySelectedCards = new ArrayList<Card>();
 					if (category.table.getSelectedRows().length > 0)
 						for (int row: category.table.getSelectedRows())
-							categorySelectedCards.add(deck.getCategory(category.name()).get(category.table.convertRowIndexToModel(row)));
+							categorySelectedCards.add(deck.getCategory(category.spec().name).get(category.table.convertRowIndexToModel(row)));
 					selectedCardsMap.put(category, categorySelectedCards);
 				}
 				// Remove cards from the deck
@@ -1315,9 +1315,9 @@ public class EditorFrame extends JInternalFrame
 					category.update();
 					for (Card c: selectedCardsMap.get(category))
 					{
-						if (deck.getCategory(category.name()).contains(c))
+						if (deck.getCategory(category.spec().name).contains(c))
 						{
-							int row = category.table.convertRowIndexToView(deck.getCategory(category.name()).indexOf(c));
+							int row = category.table.convertRowIndexToView(deck.getCategory(category.spec().name).indexOf(c));
 							category.table.addRowSelectionInterval(row, row);
 						}
 					}
