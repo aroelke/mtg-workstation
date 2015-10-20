@@ -289,7 +289,7 @@ public class CategoryPanel extends JPanel
 	{
 		if (!deck.containsCategory(category.spec().name))
 		{
-			model.setList(category = deck.addCategory(category.spec().name, category.spec().color, category.spec().filterString, category.spec().filter));
+			model.setList(category = deck.addCategory(category.spec()));
 			update();
 		}
 		else

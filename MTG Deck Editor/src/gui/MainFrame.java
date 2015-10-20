@@ -1,5 +1,10 @@
 package gui;
 
+import gui.editor.EditorFrame;
+import gui.filter.FilterGroupPanel;
+import gui.inventory.InventoryDownloadDialog;
+import gui.inventory.InventoryLoadDialog;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -79,11 +84,6 @@ import database.characteristics.Expansion;
 import database.characteristics.Loyalty;
 import database.characteristics.PowerToughness;
 import database.characteristics.Rarity;
-import gui.editor.CategoryPanel;
-import gui.editor.EditorFrame;
-import gui.filter.FilterGroupPanel;
-import gui.inventory.InventoryDownloadDialog;
-import gui.inventory.InventoryLoadDialog;
 
 /**
  * This class represents the main frame of the editor.  It contains several tabs that display information
@@ -473,10 +473,7 @@ public class MainFrame extends JFrame
 			JMenuItem categoryItem = new JMenuItem(spec.name);
 			categoryItem.addActionListener((e) -> {
 				if (selectedFrame != null && !selectedFrame.containsCategory(spec.name))
-				{
-					selectedFrame.deck.addCategory(spec.name, spec.color, spec.filterString, spec.filter);
-					selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(spec.name), selectedFrame));
-				}
+					selectedFrame.addCategory(spec);
 			});
 			presetMenu.add(categoryItem);
 		}
@@ -1017,8 +1014,7 @@ public class MainFrame extends JFrame
 			JMenuItem categoryItem = new JMenuItem(spec.name);
 			categoryItem.addActionListener((e) -> {
 				if (selectedFrame != null)
-					selectedFrame.deck.addCategory(spec.name, spec.color, spec.filterString, spec.filter);
-					selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(spec.name), selectedFrame));
+					selectedFrame.addCategory(spec);
 			});
 			presetMenu.add(categoryItem);
 		}
@@ -1107,10 +1103,7 @@ public class MainFrame extends JFrame
 		JMenuItem categoryItem = new JMenuItem(spec.name);
 		categoryItem.addActionListener((e) -> {
 			if (selectedFrame != null)
-			{
-				selectedFrame.deck.addCategory(spec.name, spec.color, spec.filterString, spec.filter);
-				selectedFrame.addCategory(new CategoryPanel(selectedFrame.deck.getCategory(spec.name), selectedFrame));
-			}
+				selectedFrame.addCategory(spec);
 		});
 		presetMenu.add(categoryItem);
 	}

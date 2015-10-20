@@ -1,9 +1,9 @@
 package gui.editor;
 
+import gui.ColorButton;
+import gui.filter.FilterGroupPanel;
+
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.util.Set;
-import java.util.function.Predicate;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -14,10 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import database.Card;
 import database.CategorySpec;
-import gui.ColorButton;
-import gui.filter.FilterGroupPanel;
 
 /**
  * This class represents a panel that presents a name field and a filter field that
@@ -45,12 +42,15 @@ public class CategoryEditorPanel extends JPanel
 		{
 			if (JOptionPane.showOptionDialog(null, editor, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
-				if (editor.name().isEmpty())
+				if (editor.nameField.getText().isEmpty())
 					JOptionPane.showMessageDialog(null, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
-				else if (editor.name().contains(String.valueOf(FilterGroupPanel.BEGIN_GROUP)))
+				else if (editor.nameField.getText().contains(String.valueOf(FilterGroupPanel.BEGIN_GROUP)))
 					JOptionPane.showMessageDialog(null, "Category names cannot contain the character '" + FilterGroupPanel.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
 				else
+				{
+					editor.updateSpec();
 					return editor;
+				}
 			}
 			else
 				return null;
@@ -107,6 +107,8 @@ public class CategoryEditorPanel extends JPanel
 		add(namePanel, BorderLayout.NORTH);
 		
 		add(filter = new FilterGroupPanel(), BorderLayout.CENTER);
+		
+		spec = new CategorySpec(nameField.getText(), colorButton.color(), filter.filter(), filter.toString());
 	}
 	
 	/**
@@ -128,52 +130,14 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
-	 * @return The name of the category being edited.
-	 */
-	public String name()
-	{
-		return nameField.getText();
-	}
-	
-	/**
-	 * @return The <code>Predicate<Card></code> representing the filter of the category
-	 * being edited.
-	 */
-	public Predicate<Card> filter()
-	{
-		return filter.filter();
-	}
-	
-	/**
-	 * @return The String representation of the filter for the category being edited.
-	 */
-	public String repr()
-	{
-		return filter.toString();
-	}
-	
-	/**
-	 * @return TODO: Comment this
-	 */
-	public Set<Card> whitelist()
-	{
-		return spec.whitelist;
-	}
-	
-	/**
 	 * TODO: Comment this
 	 */
-	public Set<Card> blacklist()
+	public void updateSpec()
 	{
-		return spec.blacklist;
-	}
-	
-	/**
-	 * @return The color of the category.
-	 */
-	public Color color()
-	{
-		return colorButton.color();
+		spec.name = nameField.getText();
+		spec.color = colorButton.color();
+		spec.filter = filter.filter();
+		spec.filterString = filter.toString();
 	}
 	
 	/**
@@ -187,16 +151,11 @@ public class CategoryEditorPanel extends JPanel
 	
 	/**
 	 * @return The String representation of the category being edited, which is its name
-	 * followed by the String representation of its filter.  Note the difference with
-	 * Deck.Category's String representation, which also includes a whitelist and blacklist
-	 * while this does not (because they cannot be edited using this panel).
+	 * followed by the String representation of its filter.
 	 */
 	@Override
 	public String toString()
 	{
-		spec.name = nameField.getText();
-		spec.color = colorButton.color();
-		spec.filterString = filter.toString();
 		return spec.toString();
 	}
 }

@@ -515,25 +515,22 @@ public class Deck implements CardCollection
 	 * Add a new Category.  If there is already a Category with the same name,
 	 * instead do nothing.
 	 * 
-	 * @param name Name of the new Category
-	 * @param repr String representation of the new Category
-	 * @param filter Filter for the Category's view of the Deck list
-	 * @return The new Category that was created, or the existing Category
+	 * @param spec Specifications for the new Category
 	 * if there already was one with that name.
 	 */
-	public Category addCategory(String name, Color color, String repr, Predicate<Card> filter)
+	public Category addCategory(CategorySpec spec)
 	{
-		if (!categories.containsKey(name))
+		if (!categories.containsKey(spec.name))
 		{
-			Category c = new Category(new CategorySpec(name, color, filter, repr));
-			categories.put(name, c);
+			Category c = new Category(spec);
+			categories.put(spec.name, c);
 			for (Entry e: masterList)
 				if (c.includes(e.card))
 					e.categories.add(c);
 			return c;
 		}
 		else
-			return categories.get(name);
+			return categories.get(spec.name);
 	}
 	
 	/**

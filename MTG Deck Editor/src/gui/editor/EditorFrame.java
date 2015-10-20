@@ -116,9 +116,8 @@ public class EditorFrame extends JInternalFrame
 	private MainFrame parent;
 	/**
 	 * Master decklist to which cards are added.
-	 * TODO: Make this private
 	 */
-	public Deck deck;
+	private Deck deck;
 	/**
 	 * Main table showing the cards in the deck.
 	 */
@@ -767,13 +766,13 @@ public class EditorFrame extends JInternalFrame
 		do
 		{
 			editor = CategoryEditorPanel.showCategoryEditor(editor != null ? editor.spec() : null);
-			if (editor != null && deck.containsCategory(editor.name()))
+			if (editor != null && deck.containsCategory(editor.spec().name))
 				JOptionPane.showMessageDialog(null, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
-		} while (editor != null && deck.containsCategory(editor.name()));
+		} while (editor != null && deck.containsCategory(editor.spec().name));
 		if (editor != null)
 		{
-			deck.addCategory(editor.name(), editor.color(), editor.repr(), editor.filter());
-			addCategory(new CategoryPanel(deck.getCategory(editor.name()), this));
+			deck.addCategory(editor.spec());
+			addCategory(new CategoryPanel(deck.getCategory(editor.spec().name), this));
 		}
 	}
 	
@@ -837,6 +836,17 @@ public class EditorFrame extends JInternalFrame
 			listTabs.setSelectedIndex(CATEGORIES);
 			return true;
 		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param category
+	 * @return
+	 */
+	public boolean addCategory(CategorySpec category)
+	{
+		deck.addCategory(category);
+		return addCategory(new CategoryPanel(deck.getCategory(category.name), this));
 	}
 	
 	/**
@@ -1042,7 +1052,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(toEdit.spec());
 			if (editor != null)
-				editCategory(toEdit, editor.name(), editor.color(), editor.repr(), editor.filter());
+				editCategory(toEdit, editor.spec().name, editor.spec().color, editor.spec().filterString, editor.spec().filter);
 		}
 	}
 	
@@ -1903,7 +1913,7 @@ public class EditorFrame extends JInternalFrame
 					SwingUtilities.invokeLater(() -> {
 						if (!isCancelled())
 						{
-							deck.addCategory(spec.name, spec.color, spec.filterString, spec.filter);
+							deck.addCategory(spec);
 							for (Card c: spec.whitelist)
 								deck.getCategory(spec.name).include(c);
 							for (Card c: spec.blacklist)

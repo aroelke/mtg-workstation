@@ -110,12 +110,17 @@ public class CategorySpec
 				color = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), (float)Math.sqrt(rand.nextFloat()));
 			}
 			filterString = m.group(5);
-			FilterGroupPanel panel = new FilterGroupPanel();
+			FilterGroupPanel panel = new FilterGroupPanel(); // TODO: Separate this from the GUI
 			panel.setContents(filterString);
 			filter = panel.filter();
 		}
 		else
 			throw new IllegalArgumentException("Illegal category string " + pattern);
+	}
+	
+	public CategorySpec()
+	{
+		this("", Color.BLACK, (c) -> false, "");
 	}
 	
 	public CategorySpec(CategorySpec original)
