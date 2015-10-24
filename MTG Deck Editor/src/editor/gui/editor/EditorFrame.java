@@ -91,6 +91,7 @@ import editor.gui.TableMouseAdapter;
  * TODO: Make popup menu category setting work for multiple selection in the main table
  * TODO: Change the category tab's exclude popup option to set categories
  * TODO: Make it so that category panels can be sorted
+ * TODO: Add a changelog
  * 
  * @author Alec Roelke
  */
