@@ -6,6 +6,8 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -82,7 +84,7 @@ public final class Card
 	 * TODO: Comment this
 	 * TODO: Make this a Map<Date, String> instead
 	 */
-	private final List<String> rulings;
+	private final Map<Date, String> rulings;
 	
 	/**
 	 * Unique identifier for this Card, which is its expansion name, name, and 
@@ -134,7 +136,7 @@ public final class Card
 				String power,
 				String toughness,
 				String loyalty,
-				List<String> rulings,
+				HashMap<Date, String> rulings,
 				Map<String, Legality> legality,
 				String imageName)
 	{
@@ -216,7 +218,7 @@ public final class Card
 		// Get the values that are common to all of the faces
 		rarity = cards.get(0).rarity;
 		set = cards.get(0).set;
-		rulings = cards.stream().map(Card::rulings).reduce(new ArrayList<String>(), (a, b) -> {a.addAll(b); return a;});
+		rulings = cards.stream().map(Card::rulings).reduce(new HashMap<Date, String>(), (a, b) -> {a.putAll(b); return a;});
 		legality = cards.get(0).legality;
 		
 		// Create the UID for this Card
@@ -458,7 +460,7 @@ public final class Card
 		return new Loyalty.Tuple(Arrays.stream(faces).map((f) -> f.loyalty).toArray(Loyalty[]::new));
 	}
 
-	public List<String> rulings()
+	public Map<Date, String> rulings()
 	{
 		return rulings;
 	}

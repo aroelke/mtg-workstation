@@ -26,8 +26,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -1324,8 +1327,9 @@ public class MainFrame extends JFrame
 			else
 			{
 				StringJoiner rulings = new StringJoiner("<br>• ", "• ", "");
-				for (String ruling: selectedCard.rulings())
-					rulings.add(ruling);
+				DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+				for (Map.Entry<Date, String> ruling: selectedCard.rulings().entrySet())
+					rulings.add("<b>" + format.format(ruling.getKey()) + "</b>: " + ruling.getValue());
 				rulingsPane.setText(rulings.toString());
 			}
 			rulingsPane.setCaretPosition(0);
