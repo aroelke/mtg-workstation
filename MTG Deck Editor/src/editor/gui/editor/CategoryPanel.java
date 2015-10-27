@@ -179,8 +179,7 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The specifications of the category being displayed by this CategoryPanel.
 	 */
 	public CategorySpec spec()
 	{

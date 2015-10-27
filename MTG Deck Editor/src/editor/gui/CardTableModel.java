@@ -68,8 +68,8 @@ public class CardTableModel extends AbstractTableModel
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param d
+	 * Change the list of Cards to display in this model's table.
+	 * @param d the new list to display
 	 */
 	public void setList(CardCollection d)
 	{

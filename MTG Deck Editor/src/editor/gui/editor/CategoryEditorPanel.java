@@ -81,7 +81,7 @@ public class CategoryEditorPanel extends JPanel
 	 */
 	private ColorButton colorButton;
 	/**
-	 * TODO: Comment this
+	 * The category specification being edited by this CategoryEditorPanel.
 	 */
 	private CategorySpec spec;
 	
@@ -129,7 +129,7 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * Update this CategoryEditorPanel's specification to match its contents.
 	 */
 	public void updateSpec()
 	{
@@ -140,8 +140,9 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The category specification being edited by this CategoryEditorPanel.
+	 * Make sure to call {@link CategoryEditorPanel#updateSpec()} in order to get its
+	 * contents.
 	 */
 	public CategorySpec spec()
 	{

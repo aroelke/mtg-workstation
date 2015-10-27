@@ -33,38 +33,71 @@ import java.util.stream.Stream;
 public class Deck implements CardCollection
 {
 	/**
-	 * TODO: Comment this
-	 * @author Alec
-	 *
+	 * This class represents data being transferred via drag and drop or cut/copy/paste
+	 * between this Deck and another object.  The Deck only supports importing Card or Entry
+	 * data flavors, but can export Strings as well.
+	 * 
+	 * @author Alec Roelke
 	 */
 	public static class TransferData implements Transferable
 	{
+		/**
+		 * Entries being exported.
+		 */
 		private Entry[] entries;
 		
+		/**
+		 * Create a new TransferData containing the given Deck's entries for the given
+		 * Card.
+		 * 
+		 * @param d Deck to get entries from
+		 * @param cards Cards to find entries for
+		 */
 		public TransferData(Deck d, Card... cards)
 		{
 			entries = Arrays.stream(cards).map(d::getEntry).toArray(Entry[]::new);
 		}
 		
+		/**
+		 * Create a new TransferData containing the given Deck's entries for the given
+		 * Card.
+		 * 
+		 * @param d Deck to get entries from
+		 * @param cards Cards to find entries for
+		 */
 		public TransferData(Deck d, Collection<Card> cards)
 		{
 			this(d, cards.stream().toArray(Card[]::new));
 		}
 		
+		/**
+		 * @return An Array containing the data flavors a Deck can support.  A Deck can
+		 * only support Entry, Card, and String flavors.
+		 */
 		@Override
 		public DataFlavor[] getTransferDataFlavors()
 		{
 			return new DataFlavor[] {entryFlavor, Card.cardFlavor, DataFlavor.stringFlavor};
 		}
 
+		/**
+		 * @return <code>true</code> if a Deck can support the given data flavor, and
+		 * <code>false</code> otherwise.
+		 */
 		@Override
 		public boolean isDataFlavorSupported(DataFlavor flavor)
 		{
 			return Arrays.asList(getTransferDataFlavors()).contains(flavor);
 		}
 
+		/**
+		 * @param flavor Flavor of data to retrieve
+		 * @return Data of the given flavor corresponding to the Entries retrived by this
+		 * TransferData.
+		 * @throws UnsupportedFlavorException If the given flavor is unsupported
+		 */
 		@Override
-		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 		{
 			if (flavor.equals(entryFlavor))
 				return entries;
@@ -77,6 +110,9 @@ public class Deck implements CardCollection
 		}
 	}
 	
+	/**
+	 * Data flavor representing entries in a deck.
+	 */
 	public static final DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Entry[].class.getName() + "\"", "Deck Entries");
 	
 	/**
@@ -823,7 +859,7 @@ public class Deck implements CardCollection
 	public class Category implements CardCollection
 	{
 		/**
-		 * TODO: Comment this
+		 * Specification for the cards contained in this Category.
 		 */
 		private CategorySpec spec;
 		/**
@@ -843,8 +879,7 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @return
+		 * @return This Category's specifications.
 		 */
 		public CategorySpec spec()
 		{

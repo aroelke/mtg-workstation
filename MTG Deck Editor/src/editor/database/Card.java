@@ -81,8 +81,7 @@ public final class Card
 	 */
 	private final Map<String, Legality> legality;
 	/**
-	 * TODO: Comment this
-	 * TODO: Make this a Map<Date, String> instead
+	 * Rulings for this Card.
 	 */
 	private final Map<Date, List<String>> rulings;
 	

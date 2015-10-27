@@ -776,9 +776,10 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param spec
-	 * @return
+	 * Create a new CategoryPanel out of the given specification.
+	 * 
+	 * @param spec Specification for the category of the new CategoryPanel
+	 * @return The new CategoryPanel.
 	 */
 	private CategoryPanel createCategory(CategorySpec spec)
 	{
@@ -947,9 +948,11 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param category
-	 * @return
+	 * Add a category to the deck and create a panel for it.
+	 * 
+	 * @param category Specification for the new category
+	 * @return <code>true</code> if a category was created, and <code>false</code>
+	 * otherwise (such as if there was one with the same name already).
 	 */
 	private boolean insertCategory(CategorySpec spec)
 	{
@@ -969,9 +972,12 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param category
-	 * @return
+	 * Delete the category with the given specification from the deck
+	 * and remove its panel.
+	 * 
+	 * @param category Specification of the category to remove
+	 * @return <code>true</code> if the category was successfully removed, and
+	 * <code>false</code> otherwise (such as if there was no such category).
 	 */
 	private boolean deleteCategory(CategorySpec category)
 	{
@@ -994,9 +1000,15 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param category
-	 * @return
+	 * Change characteristics of the given CategoryPanel and its category.
+	 * 
+	 * @param category CategoryPanel to change
+	 * @param n New name of the category
+	 * @param c New color of the category
+	 * @param r String represenation of the category's new filter
+	 * @param f New filter for the category
+	 * @return <code>true</code> if the category was successfully changed, and
+	 * <code>false</code> otherwise.
 	 */
 	private boolean changeCategory(CategoryPanel category, String n, Color c, String r, Predicate<Card> f)
 	{
