@@ -473,7 +473,6 @@ public class EditorFrame extends JInternalFrame
 		JPanel handPanel = new JPanel(new BorderLayout());
 		
 		// Table showing the cards in hand
-		// TODO: when card images are implemented, make this table unselectable
 		hand = new Hand(deck);
 		handModel = new CardTableModel(this, hand, Arrays.stream(SettingsDialog.getSetting(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		handTable = new CardTable(handModel);
