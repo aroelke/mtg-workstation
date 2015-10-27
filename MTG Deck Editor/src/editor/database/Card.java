@@ -78,6 +78,11 @@ public final class Card
 	 * Formats and legality for this Card.
 	 */
 	private final Map<String, Legality> legality;
+	/**
+	 * TODO: Comment this
+	 * TODO: Make this a Map<Date, String> instead
+	 */
+	private final List<String> rulings;
 	
 	/**
 	 * Unique identifier for this Card, which is its expansion name, name, and 
@@ -129,6 +134,7 @@ public final class Card
 				String power,
 				String toughness,
 				String loyalty,
+				List<String> rulings,
 				Map<String, Legality> legality,
 				String imageName)
 	{
@@ -148,6 +154,7 @@ public final class Card
 									 imageName)};
 		this.rarity = rarity;
 		this.set = set;
+		this.rulings = rulings;
 		this.legality = Collections.unmodifiableMap(legality);
 		
 		// Create the UID for this Card
@@ -209,6 +216,7 @@ public final class Card
 		// Get the values that are common to all of the faces
 		rarity = cards.get(0).rarity;
 		set = cards.get(0).set;
+		rulings = cards.stream().map(Card::rulings).reduce(new ArrayList<String>(), (a, b) -> {a.addAll(b); return a;});
 		legality = cards.get(0).legality;
 		
 		// Create the UID for this Card
@@ -450,6 +458,11 @@ public final class Card
 		return new Loyalty.Tuple(Arrays.stream(faces).map((f) -> f.loyalty).toArray(Loyalty[]::new));
 	}
 
+	public List<String> rulings()
+	{
+		return rulings;
+	}
+	
 	/**
 	 * @return A map of formats onto this Card's Legalities in them.
 	 */

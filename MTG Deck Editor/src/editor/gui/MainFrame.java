@@ -199,6 +199,10 @@ public class MainFrame extends JFrame
 	 * Panel displaying the image for the currently selected card.
 	 */
 	private CardImagePanel imagePanel;
+	/**
+	 * Pane displaying the currently-selected card's rulings.
+	 */
+	private JTextPane rulingsPane;
 	
 	/**
 	 * Create a new MainFrame.
@@ -625,8 +629,12 @@ public class MainFrame extends JFrame
 		oracleTextPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
 		cardPane.addTab("Oracle Text", new JScrollPane(oracleTextPane));
 		
-		// TODO: Complete the rulings tab
-		cardPane.addTab("Rulings", new JPanel());
+		rulingsPane = new JTextPane();
+		rulingsPane.setEditable(false);
+		rulingsPane.setContentType("text/html");
+		rulingsPane.setFont(UIManager.getFont("Label.font"));
+		rulingsPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+		cardPane.addTab("Rulings", new JScrollPane(rulingsPane));
 		
 		// Oracle text pane popup menu
 		JPopupMenu oraclePopupMenu = new JPopupMenu();
@@ -1311,6 +1319,16 @@ public class MainFrame extends JFrame
 			selectedCard = card;
 			oracleTextPane.setText("<html>" + card.toHTMLString() + "</html>");
 			oracleTextPane.setCaretPosition(0);
+			if (selectedCard.rulings().isEmpty())
+				rulingsPane.setText("");
+			else
+			{
+				StringJoiner rulings = new StringJoiner("<br>• ", "• ", "");
+				for (String ruling: selectedCard.rulings())
+					rulings.add(ruling);
+				rulingsPane.setText(rulings.toString());
+			}
+			rulingsPane.setCaretPosition(0);
 			imagePanel.setCard(selectedCard);
 		}
 	}

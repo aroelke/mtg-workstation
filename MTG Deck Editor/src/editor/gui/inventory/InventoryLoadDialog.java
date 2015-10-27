@@ -344,6 +344,17 @@ public class InventoryLoadDialog extends JDialog
 						// Card's loyalty (empty if it isn't a planeswalker or is Garruk, the Veil-Cursed)
 						String loyalty = card.has("loyalty") ? card.get("loyalty").getAsString() : "";
 						
+						// Card's rulings
+						ArrayList<String> rulings = new ArrayList<String>();
+						if (card.has("rulings"))
+						{
+							for (JsonElement l: card.get("rulings").getAsJsonArray())
+							{
+								JsonObject o = l.getAsJsonObject();
+								rulings.add(o.get("date").getAsString() + ": " + o.get("text").getAsString());
+							}
+						}
+						
 						// Card's legality in formats
 						Map<String, Legality> legality = new HashMap<String, Legality>();
 						if (card.has("legalities"))
@@ -375,6 +386,7 @@ public class InventoryLoadDialog extends JDialog
 										  power,
 										  toughness,
 										  loyalty,
+										  rulings,
 										  legality,
 										  imageName);
 						
