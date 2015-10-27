@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -348,14 +349,18 @@ public class InventoryLoadDialog extends JDialog
 						String loyalty = card.has("loyalty") ? card.get("loyalty").getAsString() : "";
 						
 						// Card's rulings
-						HashMap<Date, String> rulings = new HashMap<Date, String>();
+						TreeMap<Date, List<String>> rulings = new TreeMap<Date, List<String>>();
 						DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 						if (card.has("rulings"))
 						{
 							for (JsonElement l: card.get("rulings").getAsJsonArray())
 							{
 								JsonObject o = l.getAsJsonObject();
-								rulings.put(format.parse(o.get("date").getAsString()), o.get("text").getAsString());
+								Date date = format.parse(o.get("date").getAsString());
+								String ruling = o.get("text").getAsString();
+								if (!rulings.containsKey(date))
+									rulings.put(date, new ArrayList<String>());
+								rulings.get(date).add(ruling);
 							}
 						}
 						

@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -82,6 +84,8 @@ import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
+import editor.database.symbol.ChaosSymbol;
+import editor.database.symbol.Symbol;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.inventory.InventoryDownloadDialog;
@@ -1328,9 +1332,23 @@ public class MainFrame extends JFrame
 			{
 				StringJoiner rulings = new StringJoiner("<br>• ", "• ", "");
 				DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-				for (Map.Entry<Date, String> ruling: selectedCard.rulings().entrySet())
-					rulings.add("<b>" + format.format(ruling.getKey()) + "</b>: " + ruling.getValue());
-				rulingsPane.setText(rulings.toString());
+				for (Date date: selectedCard.rulings().keySet())
+					for (String text: selectedCard.rulings().get(date))
+						rulings.add("<b>" + format.format(date) + "</b>: " + text);
+				String rulingsString = rulings.toString();
+				Matcher symbols = Pattern.compile("\\{([^}]+)\\}").matcher(rulingsString);
+				while (symbols.find())
+				{
+					try
+					{
+						Symbol symbol = Symbol.valueOf(symbols.group(1));
+						rulingsString = rulingsString.replace(symbols.group(), symbol.getHTML());
+					}
+					catch (Exception e)
+					{}
+				}
+				rulingsString = rulingsString.replace("CHAOS", ChaosSymbol.CHAOS.getHTML());
+				rulingsPane.setText(rulingsString);
 			}
 			rulingsPane.setCaretPosition(0);
 			imagePanel.setCard(selectedCard);
