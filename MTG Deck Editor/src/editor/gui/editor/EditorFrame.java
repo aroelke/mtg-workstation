@@ -433,7 +433,7 @@ public class EditorFrame extends JInternalFrame
 		// Button to add a new category
 		JPanel addCategoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton addCategoryButton = new JButton("Add");
-		addCategoryButton.addActionListener((e) -> createCategory());
+		addCategoryButton.addActionListener((e) -> addCategory(createCategory()));
 		addCategoryPanel.add(addCategoryButton);
 		categoryHeaderPanel.add(addCategoryPanel);
 		
@@ -749,7 +749,7 @@ public class EditorFrame extends JInternalFrame
 	 * @param name Name of the category to search for
 	 * @return The category with the specified name, or <code>null</code> if there is none.
 	 */
-	public CategoryPanel getCategory(String name)
+	private CategoryPanel getCategory(String name)
 	{
 		for (CategoryPanel category: categories)
 			if (category.spec().name.equals(name))
@@ -758,9 +758,9 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Open the dialog to create a new category for the deck and then add it.
+	 * Open the dialog to create a new specification for a deck category.
 	 */
-	public void createCategory()
+	public CategorySpec createCategory()
 	{
 		CategoryEditorPanel editor = null;
 		do
@@ -770,96 +770,22 @@ public class EditorFrame extends JInternalFrame
 				JOptionPane.showMessageDialog(null, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
 		} while (editor != null && deck.containsCategory(editor.spec().name));
 		if (editor != null)
-		{
-			deck.addCategory(editor.spec());
-			addCategory(new CategoryPanel(deck.getCategory(editor.spec().name), this));
-		}
-	}
-	
-	/**
-	 * TODO: Comment this
-	 * @param category
-	 * @return
-	 */
-	private boolean insertCategory(CategoryPanel category)
-	{
-		if (!containsCategory(category.spec().name))
-			category.addToDeck(deck);  // TODO: Make this unnecessary
-		categories.add(category);
-		categoriesContainer.add(category);
-		updateCategorySwitch();
-		update();
-		setUnsaved();
-		listTabs.setSelectedIndex(CATEGORIES);
-		return true;
-	}
-	
-	/**
-	 * TODO: Comment this
-	 * @param category
-	 * @return
-	 */
-	private boolean deleteCategory(CategoryPanel category)
-	{
-		if (!containsCategory(category.spec().name))
-			return false;
+			return editor.spec();
 		else
-		{
-			boolean removed = deck.removeCategory(category.spec().name); // TODO: Make this unnecessary
-			removed &= categories.remove(category);
-			if (removed)
-				categoriesContainer.remove(category);
-			updateCategorySwitch();
-			update();
-			setUnsaved();
-			listTabs.setSelectedIndex(CATEGORIES);
-			
-			return removed;
-		}
+			return null;
 	}
 	
 	/**
 	 * TODO: Comment this
-	 * @param category
+	 * @param spec
 	 * @return
 	 */
-	private boolean changeCategory(CategoryPanel category, String n, Color c, String r, Predicate<Card> f)
+	private CategoryPanel createCategory(CategorySpec spec)
 	{
-		if (!containsCategory(category.spec().name))
-			return false;
-		else
+		if (!deck.containsCategory(spec.name))
 		{
-			category.edit(n, c, r, f);
-			updateCategorySwitch();
-			update();
-			setUnsaved();
-			listTabs.setSelectedIndex(CATEGORIES);
-			return true;
-		}
-	}
-	
-	/**
-	 * TODO: Comment this
-	 * @param category
-	 * @return
-	 */
-	public boolean addCategory(CategorySpec category)
-	{
-		deck.addCategory(category);
-		return addCategory(new CategoryPanel(deck.getCategory(category.name), this));
-	}
-	
-	/**
-	 * Add a category to the deck.
-	 * 
-	 * @param newCategory Category to add.
-	 * @return <code>true</code> if the category was successfully added and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean addCategory(CategoryPanel newCategory)
-	{
-		if (newCategory != null)
-		{
+			deck.addCategory(spec);
+			CategoryPanel newCategory = new CategoryPanel(deck.getCategory(spec.name), this);
 			// When a card is selected in a category, the others should deselect
 			newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
@@ -878,15 +804,15 @@ public class EditorFrame extends JInternalFrame
 				editCategory(newCategory.spec().name);
 			});
 			// Add the behavior for the remove category button
-			newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory));
+			newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory.spec()));
 			// Add the behavior for the color edit button
 			newCategory.colorButton.addActionListener((e) -> {
 				Color newColor = JColorChooser.showDialog(null, "Choose a Color", newCategory.colorButton.color());
 				if (newColor != null && !newColor.equals(newCategory.colorButton.color()))
 				{
 					newCategory.colorButton.setColor(newColor);
-					CategorySpec spec = newCategory.spec();
-					editCategory(newCategory, spec.name, newCategory.colorButton.color(), spec.filterString, spec.filter);
+					CategorySpec s = newCategory.spec();
+					editCategory(newCategory, s.name, newCategory.colorButton.color(), s.filterString, s.filter);
 				}
 			});
 			
@@ -962,7 +888,7 @@ public class EditorFrame extends JInternalFrame
 							newCategory.include(c);
 						return true;
 					}
-
+	
 					@Override
 					public boolean redo()
 					{
@@ -1004,7 +930,7 @@ public class EditorFrame extends JInternalFrame
 			
 			// Delete item
 			JMenuItem deleteItem = new JMenuItem("Delete");
-			deleteItem.addActionListener((e) -> removeCategory(newCategory));
+			deleteItem.addActionListener((e) -> removeCategory(newCategory.spec()));
 			categoryMenu.add(deleteItem);
 			
 			// Add to presets item
@@ -1014,21 +940,105 @@ public class EditorFrame extends JInternalFrame
 			
 			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 			
+			return newCategory;
+		}
+		else
+			return getCategory(spec.name);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param category
+	 * @return
+	 */
+	private boolean insertCategory(CategorySpec spec)
+	{
+		CategoryPanel category = createCategory(spec);
+		categories.add(category);
+		categoriesContainer.removeAll();
+		// TODO: Allow other sorts than A-Z (like size, and allow reversal of order)
+		categories.sort((a, b) -> a.spec().name.compareTo(b.spec().name));
+		for (CategoryPanel c: categories)
+			categoriesContainer.add(c);
+		updateCategorySwitch();
+		update();
+		setUnsaved();
+		listTabs.setSelectedIndex(CATEGORIES);
+		// TODO: Scroll to the new category
+		return true;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param category
+	 * @return
+	 */
+	private boolean deleteCategory(CategorySpec category)
+	{
+		CategoryPanel panel = getCategory(category.name);
+		if (panel == null)
+			return false;
+		else
+		{
+			boolean removed = deck.removeCategory(category.name); // TODO: Make this unnecessary
+			removed &= categories.remove(panel);
+			if (removed)
+				categoriesContainer.remove(panel);
+			updateCategorySwitch();
+			update();
+			setUnsaved();
+			listTabs.setSelectedIndex(CATEGORIES);
+			
+			return removed;
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param category
+	 * @return
+	 */
+	private boolean changeCategory(CategoryPanel category, String n, Color c, String r, Predicate<Card> f)
+	{
+		if (!containsCategory(category.spec().name))
+			return false;
+		else
+		{
+			category.edit(n, c, r, f);
+			updateCategorySwitch();
+			update();
+			setUnsaved();
+			listTabs.setSelectedIndex(CATEGORIES);
+			return true;
+		}
+	}
+	
+	/**
+	 * Add a category to the deck.
+	 * 
+	 * @param newCategory Category to add.
+	 * @return <code>true</code> if the category was successfully added and
+	 * <code>false</code> otherwise.
+	 * 
+	 * TODO: Correct this comment
+	 */
+	public boolean addCategory(CategorySpec spec)
+	{
+		if (!deck.containsCategory(spec.name))
+		{
 			undoBuffer.push(new UndoableAction()
 			{
-
 				@Override
 				public boolean undo()
 				{
-					return deleteCategory(newCategory);
+					return deleteCategory(spec);
 				}
 
 				@Override
 				public boolean redo()
 				{
-					return insertCategory(newCategory);
+					return insertCategory(spec);
 				}
-				
 			});
 			redoBuffer.clear();
 			return undoBuffer.peek().redo();
@@ -1064,7 +1074,7 @@ public class EditorFrame extends JInternalFrame
 	 * @param r
 	 * @param f
 	 */
-	public void editCategory(CategoryPanel toEdit, String n, Color c, String r, Predicate<Card> f)
+	private void editCategory(CategoryPanel toEdit, String n, Color c, String r, Predicate<Card> f)
 	{
 		undoBuffer.push(new UndoableAction()
 		{
@@ -1095,9 +1105,9 @@ public class EditorFrame extends JInternalFrame
 	 * @return <code>true</code> if the category was successfully removed,
 	 * and <code>false</code> otherwise.
 	 */
-	public boolean removeCategory(CategoryPanel category)
+	public boolean removeCategory(CategorySpec category)
 	{
-		if (!deck.containsCategory(category.spec().name))
+		if (!deck.containsCategory(category.name))
 			return false;
 		else
 		{
@@ -1125,16 +1135,21 @@ public class EditorFrame extends JInternalFrame
 	 * and then update the undo and redo buffers.
 	 * 
 	 * @param name Name of the category to look for
-	 * @return The category that was removed, or <code>null</code> if
-	 * none was removed.
+	 * @return The specification of the category that was removed, or null if no
+	 * category was removed
 	 * @see EditorFrame#removeCategory(CategoryPanel)
 	 */
-	public CategoryPanel removeCategory(String name)
+	public CategorySpec removeCategory(String name)
 	{
 		CategoryPanel removed = getCategory(name);
 		if (removed != null)
-			removeCategory(removed);
-		return removed;
+		{
+			CategorySpec spec = removed.spec();
+			removeCategory(spec);
+			return spec;
+		}
+		else
+			return null;
 	}
 	
 	/**
@@ -1913,12 +1928,11 @@ public class EditorFrame extends JInternalFrame
 					SwingUtilities.invokeLater(() -> {
 						if (!isCancelled())
 						{
-							deck.addCategory(spec);
+							addCategory(spec);
 							for (Card c: spec.whitelist)
 								deck.getCategory(spec.name).include(c);
 							for (Card c: spec.blacklist)
 								deck.getCategory(spec.name).exclude(c);
-							addCategory(new CategoryPanel(deck.getCategory(spec.name), EditorFrame.this));
 						}
 					});
 					publish(50 + 50*(i + 1)/categories);

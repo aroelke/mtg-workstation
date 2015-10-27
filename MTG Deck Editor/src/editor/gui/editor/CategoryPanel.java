@@ -282,21 +282,6 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this or remove it
-	 * @param deck
-	 */
-	public void addToDeck(Deck deck)
-	{
-		if (!deck.containsCategory(category.spec().name))
-		{
-			model.setList(category = deck.addCategory(category.spec()));
-			update();
-		}
-		else
-			throw new IllegalArgumentException("Deck already contains category " + category.spec().name);
-	}
-	
-	/**
 	 * This class represents a mouse wheel listener that returns mouse wheel control to an outer scroll
 	 * pane when this one's scroll pane has reached a limit.
 	 * 
@@ -389,6 +374,7 @@ public class CategoryPanel extends JPanel
 		private final int END = 20;
 		/**
 		 * Color of the flash.
+		 * TODO: Make this color customizable (or make it not flash at all)
 		 */
 		private final Color FLASH = Color.CYAN;
 		
