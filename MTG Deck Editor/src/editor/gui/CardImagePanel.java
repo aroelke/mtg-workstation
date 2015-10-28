@@ -148,11 +148,11 @@ public class CardImagePanel extends JPanel
 				if (faceImages.get(i) != null)
 				{
 					g.drawImage(faceImages.get(i), l, (h - faceImages.get(i).getHeight())/2, null);
-					x += faceImages.get(i).getWidth();
+					l += faceImages.get(i).getWidth();
 				}
 				else
 				{
-					int faceWidth = (int)(height*ASPECT_RATIO);
+					int faceWidth = (int)(h*ASPECT_RATIO);
 					JLabel missingCardLabel = new JLabel("<html><body style='width:100%'>"
 							+ "<font color='red'>Missing '" + SettingsDialog.getSetting(SettingsDialog.CARD_SCANS)
 							+ File.separatorChar + card.expansion().code
