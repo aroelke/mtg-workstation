@@ -3,7 +3,6 @@ package editor.database;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,26 +29,45 @@ import editor.database.Deck.Category;
 public class Inventory implements CardCollection
 {
 	/**
-	 * TODO: Comment this
-	 * @author Alec
-	 *
+	 * This class represents the data that can be transferred from an inventory via
+	 * drag and drop or cut/copy/paste.  It supports card and String flavors.
+	 * 
+	 * @author Alec Roelke
 	 */
 	public static class TransferData implements Transferable
 	{
+		/**
+		 * Cards to be transferred.
+		 */
 		private Card[] cards;
 		
+		/**
+		 * Create a new TransferData from the given cards.
+		 * 
+		 * @param c Cards to transfer
+		 */
 		public TransferData(Card... c)
 		{
 			cards = c;
 		}
 		
+		/**
+		 * Create a new TransferData from the given cards.
+		 * 
+		 * @param c Cards to transfer
+		 */
 		public TransferData(Collection<Card> c)
 		{
 			this(c.stream().toArray(Card[]::new));
 		}
 		
+		/**
+		 * @param flavor Flavor of data to retrieve
+		 * @return The list of cards in the given flavor
+		 * @throws UnsupportedFlavorException If the given flavor is not supported
+		 */
 		@Override
-		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 		{
 			if (flavor.equals(Card.cardFlavor))
 				return cards;
@@ -59,12 +77,21 @@ public class Inventory implements CardCollection
 				throw new UnsupportedFlavorException(flavor);
 		}
 
+		/**
+		 * @return An Array containing the data flavors supported by the inventory, which
+		 * is only card and String flavors.
+		 */
 		@Override
 		public DataFlavor[] getTransferDataFlavors()
 		{
 			return new DataFlavor[] {Card.cardFlavor, DataFlavor.stringFlavor};
 		}
 
+		/**
+		 * @param flavor DataFlavor to check
+		 * @return <code>true</code> if the given DataFlavor is supported, and
+		 * <code>false</code> otherwise.
+		 */
 		@Override
 		public boolean isDataFlavorSupported(DataFlavor flavor)
 		{

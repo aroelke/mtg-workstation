@@ -30,7 +30,7 @@ public class CategoryEditorPanel extends JPanel
 	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
 	 * edited.
 	 * 
-	 * @param s TODO: Fill this out
+	 * @param s Specification for the initial contents of the editor
 	 * @return The panel in the state it was last in while editing it, or <code>null</code> if the Cancel button
 	 * was pressed or the dialog was closed.
 	 */
@@ -114,7 +114,7 @@ public class CategoryEditorPanel extends JPanel
 	 * Create a new CategoryEditorPanel, and then fill its contents from the specified
 	 * category string.
 	 * 
-	 * @param s TODO: Fill this out
+	 * @param s Specifications for the initial state of the editor
 	 */
 	public CategoryEditorPanel(CategorySpec s)
 	{

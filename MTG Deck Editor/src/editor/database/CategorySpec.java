@@ -16,8 +16,11 @@ import editor.gui.SettingsDialog;
 import editor.gui.filter.FilterGroupPanel;
 
 /**
- * TODO: Comment this class
- * @author Alec
+ * This class represents a set of specifications for a category.  Those specifications are its name,
+ * the lists of Cards to include or exclude regardless of filter, its color, its filter, and its String
+ * representation.
+ * 
+ * @author Alec Roelke
  */
 public class CategorySpec
 {
@@ -42,13 +45,41 @@ public class CategorySpec
 			+ "\\s*" + FilterGroupPanel.BEGIN_GROUP + "(#[0-9A-F-a-f]{6})?" + FilterGroupPanel.END_GROUP						// Color
 			+ "\\s*(.*)$");	
 	
+	/**
+	 * Name of the category.
+	 */
 	public String name;
+	/**
+	 * List of cards to include in the category regardless of filter.
+	 */
 	public Set<Card> whitelist;
+	/**
+	 * List of cards to exclude from the category regardless of filter.
+	 */
 	public Set<Card> blacklist;
+	/**
+	 * Color of the category.
+	 */
 	public Color color;
+	/**
+	 * Filter of the category.
+	 */
 	public Predicate<Card> filter;
+	/**
+	 * String representation of the Category's filter.
+	 */
 	public String filterString;
 	
+	/**
+	 * Create a new CategorySpec with the given specifications.
+	 * 
+	 * @param name Name of the new spec
+	 * @param whitelist Whitelist of the new spec
+	 * @param blacklist Blacklist of the new spec
+	 * @param color Color of the new spec
+	 * @param filter Filter of the new spec
+	 * @param filterString String representation of the filter
+	 */
 	public CategorySpec(String name, Collection<Card> whitelist, Collection<Card> blacklist, Color color, Predicate<Card> filter, String filterString)
 	{
 		this.name = name;
@@ -59,11 +90,28 @@ public class CategorySpec
 		this.filterString = filterString;
 	}
 	
+	/**
+	 * Create a new CategorySpec with the given specifications and an empty white- and
+	 * blacklist.
+	 * 
+	 * @param name Name of the new spec
+	 * @param color Color of the new spec
+	 * @param filter Filter of the new spec
+	 * @param filterString String representation of the filter
+	 */
 	public CategorySpec(String name, Color color, Predicate<Card> filter, String filterString)
 	{
 		this(name, new HashSet<Card>(), new HashSet<Card>(), color, filter, filterString);
 	}
 	
+	/**
+	 * Create a new CategorySpec from the given category String representation.
+	 * 
+	 * @param pattern String to parse
+	 * @param inventory Inventory containing cards to convert from their IDs.
+	 * 
+	 * TODO: Remove the inventory argument by making the map from ID onto Card be a global variable
+	 */
 	public CategorySpec(String pattern, Inventory inventory)
 	{
 		Matcher m = CATEGORY_PATTERN.matcher(pattern);
@@ -94,6 +142,12 @@ public class CategorySpec
 			throw new IllegalArgumentException("Illegal category string " + pattern);
 	}
 	
+	/**
+	 * Create a new CategorySpec from the given category String with
+	 * nothing in its white- or blacklist.
+	 * 
+	 * @param pattern String to parse
+	 */
 	public CategorySpec(String pattern)
 	{
 		Matcher m = CATEGORY_PATTERN.matcher(pattern);
@@ -118,22 +172,20 @@ public class CategorySpec
 			throw new IllegalArgumentException("Illegal category string " + pattern);
 	}
 	
+	/**
+	 * Create a new, empty CategorySpec.  It will be black in color with an empty name
+	 * that matches no cards.  Note that this is not a valid category, as all categories
+	 * must have names!
+	 * 
+	 * TODO: Make the String representation correct for a category that matches no cards.
+	 */
 	public CategorySpec()
 	{
 		this("", Color.BLACK, (c) -> false, "");
 	}
 	
-	public CategorySpec(CategorySpec original)
-	{
-		name = original.name;
-		whitelist = new HashSet<Card>(original.whitelist);
-		blacklist = new HashSet<Card>(original.blacklist);
-		color = original.color;
-		filterString = original.filterString;
-	}
-	
 	/**
-	 * @return This Category's String representation.
+	 * @return This CategorySpec's String representation.
 	 * @see editor.gui.filter.editor.FilterEditorPanel#setContents(String)
 	 * @see gui.editor.CategoryDialog#setContents(String)
 	 */

@@ -146,12 +146,10 @@ public class SettingsDialog extends JDialog
 	public static final String CARD_SCANS = "scans";
 	/**
 	 * Background color for card scans in the left pane.
-	 * TODO: Give this a customization option
 	 */
 	public static final String IMAGE_BGCOLOR = "inventory.scan_bgcolor";
 	/**
 	 * Background color for card scans in sample hands.
-	 * TODO: Give this a customization option
 	 */
 	public static final String HAND_BGCOLOR = "hand.bgcolor";
 	

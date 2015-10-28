@@ -1371,8 +1371,7 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The inventory.
 	 */
 	public Inventory inventory()
 	{

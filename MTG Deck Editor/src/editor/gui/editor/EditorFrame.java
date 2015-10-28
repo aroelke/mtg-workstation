@@ -87,10 +87,8 @@ import editor.gui.TableMouseAdapter;
  * to a deck and add, edit, and delete categories.  It is contained within the main frame, which has the
  * inventory from which cards can be added.
  * 
- * TODO: Try to figure out a more elegant way of handling the undo/redo buffer
  * TODO: Make popup menu category setting work for multiple selection in the main table
  * TODO: Change the category tab's exclude popup option to set categories
- * TODO: Make it so that category panels can be sorted
  * TODO: Add a changelog
  * 
  * @author Alec Roelke
@@ -986,7 +984,7 @@ public class EditorFrame extends JInternalFrame
 			return false;
 		else
 		{
-			boolean removed = deck.removeCategory(category.name); // TODO: Make this unnecessary
+			boolean removed = deck.removeCategory(category.name);
 			removed &= categories.remove(panel);
 			if (removed)
 				categoriesContainer.remove(panel);
@@ -1028,11 +1026,9 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Add a category to the deck.
 	 * 
-	 * @param newCategory Category to add.
+	 * @param spec Specification for the category to add
 	 * @return <code>true</code> if the category was successfully added and
 	 * <code>false</code> otherwise.
-	 * 
-	 * TODO: Correct this comment
 	 */
 	public boolean addCategory(CategorySpec spec)
 	{
@@ -1079,12 +1075,13 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param toEdit
-	 * @param n
-	 * @param c
-	 * @param r
-	 * @param f
+	 * Change the given category to give it the given name, color, filter, and String representation.
+	 * 
+	 * @param toEdit CategoryPanel showing the category to edit
+	 * @param n New name for the category
+	 * @param c New color for the category
+	 * @param r New String representation of the category
+	 * @param f New filter for the category
 	 */
 	private void editCategory(CategoryPanel toEdit, String n, Color c, String r, Predicate<Card> f)
 	{
@@ -1823,18 +1820,30 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @author Alec
-	 *
+	 * This class represents a transfer handler for moving data to and from
+	 * a table in the editor.  It can import or export data of the card or
+	 * entry flavors.
+	 * 
+	 * @author Alec Roelke
 	 */
 	private class EditorTableTransferHandler extends EditorImportHandler
 	{
+		/**
+		 * Tables support copying or moving cards from one place to another.
+		 */
 		@Override
 		public int getSourceActions(JComponent c)
 		{
 			return TransferHandler.COPY_OR_MOVE;
 		}
 		
+		/**
+		 * Create the transferable to handle data transfer from a table
+		 * to its destination.
+		 * 
+		 * @param c The component containing the data to be transferred
+		 * @return The transferable containing the data to transfer.
+		 */
 		@Override
 		public Transferable createTransferable(JComponent c)
 		{
@@ -1856,6 +1865,14 @@ public class EditorFrame extends JInternalFrame
 			return new Deck.TransferData(deck, selectedCards);
 		}
 		
+		/**
+		 * Perform actions that need to be completed when the export
+		 * is complete.
+		 * 
+		 * @param c Component originating data to transfer
+		 * @param t Transferable containing data transferred
+		 * @param action Action performed on the data
+		 */
 		@Override
 		public void exportDone(JComponent c, Transferable t, int action)
 		{

@@ -81,6 +81,7 @@ public class Deck implements CardCollection
 		}
 
 		/**
+		 * @param flavor DataFlavor to check
 		 * @return <code>true</code> if a Deck can support the given data flavor, and
 		 * <code>false</code> otherwise.
 		 */
@@ -92,7 +93,7 @@ public class Deck implements CardCollection
 
 		/**
 		 * @param flavor Flavor of data to retrieve
-		 * @return Data of the given flavor corresponding to the Entries retrived by this
+		 * @return Data of the given flavor corresponding to the Entries retrieved by this
 		 * TransferData.
 		 * @throws UnsupportedFlavorException If the given flavor is unsupported
 		 */
@@ -870,7 +871,7 @@ public class Deck implements CardCollection
 		/**
 		 * Create a new Category.
 		 * 
-		 * @param s TODO: Fill this out
+		 * @param s Specifications for the new Category
 		 */
 		private Category(CategorySpec s)
 		{

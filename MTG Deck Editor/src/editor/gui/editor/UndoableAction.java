@@ -1,16 +1,24 @@
 package editor.gui.editor;
 
 /**
- * TODO: Use this interface for undo/redo instead of the more clunky DeckAction
- * - Create an anonymous class with the appropriate edits to the deck implemented
- * in undo() and redo()
- * TODO: Comment this class
+ * This interface represents an action that can be undone (and subsequently redone).
+ * 
  * @author Alec
- *
  */
 public interface UndoableAction
 {
+	/**
+	 * Instructions to undo what was done.
+	 * 
+	 * @return <code>true</code> if the action was successfully undone.
+	 */
 	public boolean undo();
 	
+	/**
+	 * Instructions to redo what was undone, or to just do the action.
+	 * 
+	 * @return <code>true</code> if the action was successfully redone
+	 * or done.
+	 */
 	public boolean redo();
 }
