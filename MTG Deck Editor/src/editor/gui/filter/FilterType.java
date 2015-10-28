@@ -38,7 +38,7 @@ public enum FilterType
 	COLOR_IDENTITY("Color Identity", "ci", ColorIdentityFilterPanel.class),
 	TYPE_LINE("Type Line", "type", TypeLineFilterPanel.class),
 	SUPERTYPE("Supertype", "super", SupertypeFilterPanel.class),
-	TYPE("Type", "cardtype", TypeFilterPanel.class),
+	TYPE("Card Type", "cardtype", TypeFilterPanel.class),
 	SUBTYPE("Subtype", "sub", SubtypeFilterPanel.class),
 	EXPANSION("Expansion", "x", ExpansionFilterPanel.class),
 	BLOCK("Block", "b", BlockFilterPanel.class),
