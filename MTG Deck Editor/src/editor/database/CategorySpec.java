@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import editor.gui.SettingsDialog;
 import editor.gui.filter.FilterGroupPanel;
-import editor.gui.filter.FilterType;
 
 /**
  * This class represents a set of specifications for a category.  Those specifications are its name,
@@ -171,18 +170,6 @@ public class CategorySpec
 		}
 		else
 			throw new IllegalArgumentException("Illegal category string " + pattern);
-	}
-	
-	/**
-	 * Create a new, empty CategorySpec.  It will be black in color with an empty name
-	 * that matches no cards.  Note that this is not a valid category, as all categories
-	 * must have names!
-	 * 
-	 * TODO: Make the String representation correct for a category that matches no cards.
-	 */
-	public CategorySpec()
-	{
-		this("", Color.BLACK, (c) -> false, FilterGroupPanel.BEGIN_GROUP + "AND " + FilterGroupPanel.BEGIN_GROUP + FilterType.NONE.code + ":" + FilterGroupPanel.END_GROUP + FilterGroupPanel.END_GROUP);
 	}
 	
 	/**
