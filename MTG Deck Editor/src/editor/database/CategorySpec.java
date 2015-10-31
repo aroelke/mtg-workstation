@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import editor.gui.SettingsDialog;
 import editor.gui.filter.FilterGroupPanel;
+import editor.gui.filter.FilterType;
 
 /**
  * This class represents a set of specifications for a category.  Those specifications are its name,
@@ -181,7 +182,7 @@ public class CategorySpec
 	 */
 	public CategorySpec()
 	{
-		this("", Color.BLACK, (c) -> false, "");
+		this("", Color.BLACK, (c) -> false, FilterGroupPanel.BEGIN_GROUP + "AND " + FilterGroupPanel.BEGIN_GROUP + FilterType.NONE.code + ":" + FilterGroupPanel.END_GROUP + FilterGroupPanel.END_GROUP);
 	}
 	
 	/**

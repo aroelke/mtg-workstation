@@ -1032,7 +1032,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean addCategory(CategorySpec spec)
 	{
-		if (!deck.containsCategory(spec.name))
+		if (spec != null && !deck.containsCategory(spec.name))
 		{
 			undoBuffer.push(new UndoableAction()
 			{
