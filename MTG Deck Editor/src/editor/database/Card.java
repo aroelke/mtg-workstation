@@ -474,6 +474,7 @@ public final class Card
 	
 	/**
 	 * @return A map of formats onto this Card's Legalities in them.
+	 * TODO: Calculate this based on the new policy in mtgjson.com
 	 */
 	public Map<String, Legality> legality()
 	{
