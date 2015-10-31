@@ -55,7 +55,7 @@ public class Deck implements CardCollection
 		 */
 		public TransferData(Deck d, Card... cards)
 		{
-			entries = Arrays.stream(cards).map(d::getEntry).toArray(Entry[]::new);
+			entries = Arrays.stream(cards).map(d::getEntry).map(Entry::new).toArray(Entry[]::new);
 		}
 		
 		/**
@@ -161,6 +161,19 @@ public class Deck implements CardCollection
 			count = n;
 			date = d;
 			categories = new LinkedHashSet<Category>();
+		}
+		
+		/**
+		 * Copy constructor for Entry.
+		 * 
+		 * @param e Original Entry to copy
+		 */
+		private Entry(Entry e)
+		{
+			card = e.card;
+			count = e.count;
+			date = e.date;
+			categories = new LinkedHashSet<Category>(e.categories);
 		}
 		
 		/**

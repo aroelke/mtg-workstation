@@ -33,6 +33,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
@@ -281,6 +282,7 @@ public class EditorFrame extends JInternalFrame
 				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(this));
 		table.setTransferHandler(new EditorTableTransferHandler());
 		table.setDragEnabled(true);
+		table.setDropMode(DropMode.ON);
 		listTabs.addTab("Cards", new JScrollPane(table));
 		
 		// Table popup menu
@@ -1776,14 +1778,34 @@ public class EditorFrame extends JInternalFrame
 			panel.update();
 	}
 	
+	/**
+	 * This class represents a transfer handler for transferring cards to and from
+	 * a table in the editor frame.
+	 * 
+	 * @author Alec Roelke
+	 */
 	private class EditorImportHandler extends TransferHandler
 	{
+		/**
+		 * Data can only be imported if it is of the card or entry flavors.
+		 * 
+		 * @param supp TransferSupport providing information about what is being transferred
+		 * @return <code>true</code> if the data is of the correct flavor, and <code>false</code>
+		 * otherwise.
+		 */
 		@Override
 		public boolean canImport(TransferSupport supp)
 		{
 			return supp.isDataFlavorSupported(Deck.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
 		}
 		
+		/**
+		 * If the data can be imported, copy the cards from the source to the target deck.
+		 * 
+		 * @param supp TransferSupport providing information about what is being transferred
+		 * @return <code>true</code> if the import was successful, and <code>false</code>
+		 * otherwise.
+		 */
 		@Override
 		public boolean importData(TransferSupport supp)
 		{
@@ -1794,10 +1816,34 @@ public class EditorFrame extends JInternalFrame
 				else if (supp.isDataFlavorSupported(Deck.entryFlavor))
 				{
 					Deck.Entry[] data = (Deck.Entry[])supp.getTransferable().getTransferData(Deck.entryFlavor);
-					// TODO: Change addCard and the associated action to be able to handle different counts
-					for (Deck.Entry e: data)
-						addCard(e.card(), e.count());
-					return true;
+					UndoableAction addAction = new UndoableAction()
+					{
+						@Override
+						public boolean undo()
+						{
+							boolean undone = false;
+							for (Deck.Entry e: data)
+								undone |= !deleteCards(Arrays.asList(e.card()), e.count()).isEmpty();
+							return undone;
+						}
+
+						@Override
+						public boolean redo()
+						{
+							boolean done = false;
+							for (Deck.Entry e: data)
+								done |= insertCards(Arrays.asList(e.card()), e.count());
+							return done;
+						}
+					};
+					if (addAction.redo())
+					{
+						undoBuffer.push(addAction);
+						redoBuffer.clear();
+						return true;
+					}
+					else
+						return false;
 				}
 				else if (supp.isDataFlavorSupported(Card.cardFlavor))
 				{
@@ -1830,11 +1876,12 @@ public class EditorFrame extends JInternalFrame
 	{
 		/**
 		 * Tables support copying or moving cards from one place to another.
+		 * TODO: Make move work when the source and target decks are the same
 		 */
 		@Override
 		public int getSourceActions(JComponent c)
 		{
-			return TransferHandler.COPY_OR_MOVE;
+			return TransferHandler.COPY;
 		}
 		
 		/**
