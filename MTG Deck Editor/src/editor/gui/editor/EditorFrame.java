@@ -110,23 +110,36 @@ public class EditorFrame extends JInternalFrame
 	public static final int SAMPLE_HANDS = 2;
 	
 	/**
-	 * TODO: Comment this class
-	 * @author Alec
+	 * This enum represents an order that category panels can be sorted in.
+	 * 
+	 * @author Alec Roelke
 	 */
-	private static enum CategorySort
+	public static enum CategoryOrder
 	{
 		A_Z("A-Z"),
 		Z_A("Z-A"),
 		ASCENDING("Ascending Size"),
 		DESCENDING("Descending Size");
 		
+		/**
+		 * String to display when a String representation of this
+		 * CategoryOrder is called for.
+		 */
 		private final String name;
 		
-		private CategorySort(String n)
+		/**
+		 * Create a new CategoryOrder.
+		 * 
+		 * @param n Name of the new CategoryOrder
+		 */
+		private CategoryOrder(String n)
 		{
 			name = n;
 		}
 		
+		/**
+		 * @return The String representation of this CategoryOrder
+		 */
 		@Override
 		public String toString()
 		{
@@ -229,9 +242,9 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private JScrollPane imagePane;
 	/**
-	 * TODO: Comment this
+	 * Combo box allowing changes to be made in the order that categories are display in.
 	 */
-	private JComboBox<CategorySort> sortCategoriesBox;
+	private JComboBox<CategoryOrder> sortCategoriesBox;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -469,7 +482,7 @@ public class EditorFrame extends JInternalFrame
 		// Combo box to change category sort order
 		JPanel sortCategoriesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		sortCategoriesPanel.add(new JLabel("Display order:"));
-		sortCategoriesBox = new JComboBox<CategorySort>(CategorySort.values());
+		sortCategoriesBox = new JComboBox<CategoryOrder>(CategoryOrder.values());
 		sortCategoriesBox.addActionListener((e) -> {
 			if (sortCategoriesBox.isPopupVisible())
 			{
@@ -1210,10 +1223,11 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param order
+	 * Sort the categories in proper order.
+	 * 
+	 * @param order Order to sort the categories in.
 	 */
-	public void sortCategories(CategorySort order)
+	public void sortCategories(CategoryOrder order)
 	{
 		categoriesContainer.removeAll();
 		switch (order)

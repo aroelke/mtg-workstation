@@ -110,7 +110,7 @@ public class CategorySpec
 	 * @param pattern String to parse
 	 * @param inventory Inventory containing cards to convert from their IDs.
 	 * 
-	 * TODO: Remove the inventory argument by making the map from ID onto Card be a global variable
+	 * TODO: Remove the inventory argument by making the map from ID onto Card be a global variable (or not)
 	 */
 	public CategorySpec(String pattern, Inventory inventory)
 	{

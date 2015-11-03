@@ -23,9 +23,6 @@ import editor.database.Card;
  * can be found, or a card-shaped rectangle with its oracle text and a warning if
  * they cannot.
  * 
- * TODO: Make it look for card images in a folder with the set's code name, magiccards.info code name,
- * gatherer code name, and expansion name.
- * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -87,7 +84,7 @@ public class CardImagePanel extends JPanel
 				BufferedImage img = null;
 				try
 				{
-					String[] codes = new String[] {card.expansion().code, card.expansion().magicCardsInfoCode, card.expansion().gathererCode};
+					String[] codes = new String[] {card.expansion().code, card.expansion().magicCardsInfoCode, card.expansion().gathererCode, card.expansion().name};
 					File imageFile;
 					for (String code: codes)
 					{
