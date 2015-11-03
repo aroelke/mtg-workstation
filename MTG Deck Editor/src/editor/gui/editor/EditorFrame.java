@@ -8,7 +8,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -111,6 +110,31 @@ public class EditorFrame extends JInternalFrame
 	public static final int SAMPLE_HANDS = 2;
 	
 	/**
+	 * TODO: Comment this class
+	 * @author Alec
+	 */
+	private static enum CategorySort
+	{
+		A_Z("A-Z"),
+		Z_A("Z-A"),
+		ASCENDING("Ascending Size"),
+		DESCENDING("Descending Size");
+		
+		private final String name;
+		
+		private CategorySort(String n)
+		{
+			name = n;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+	}
+	
+	/**
 	 * Parent MainFrame.
 	 */
 	private MainFrame parent;
@@ -204,6 +228,10 @@ public class EditorFrame extends JInternalFrame
 	 * Scroll pane containing the sample hand image panel.
 	 */
 	private JScrollPane imagePane;
+	/**
+	 * TODO: Comment this
+	 */
+	private JComboBox<CategorySort> sortCategoriesBox;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -427,7 +455,8 @@ public class EditorFrame extends JInternalFrame
 		JPanel categoriesPanel = new JPanel(new BorderLayout());
 
 		// Panel containing components above the category panel
-		JPanel categoryHeaderPanel = new JPanel(new GridLayout(1, 2));
+		JPanel categoryHeaderPanel = new JPanel();
+		categoryHeaderPanel.setLayout(new BoxLayout(categoryHeaderPanel, BoxLayout.X_AXIS));
 		categoriesPanel.add(categoryHeaderPanel, BorderLayout.NORTH);
 		
 		// Button to add a new category
@@ -436,6 +465,20 @@ public class EditorFrame extends JInternalFrame
 		addCategoryButton.addActionListener((e) -> addCategory(createCategory()));
 		addCategoryPanel.add(addCategoryButton);
 		categoryHeaderPanel.add(addCategoryPanel);
+		
+		// Combo box to change category sort order
+		JPanel sortCategoriesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		sortCategoriesPanel.add(new JLabel("Display order:"));
+		sortCategoriesBox = new JComboBox<CategorySort>(CategorySort.values());
+		sortCategoriesBox.addActionListener((e) -> {
+			if (sortCategoriesBox.isPopupVisible())
+			{
+				sortCategories(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()));
+				update();
+			}
+		});
+		sortCategoriesPanel.add(sortCategoriesBox);
+		categoryHeaderPanel.add(sortCategoriesPanel);
 		
 		// Combo box to switch to a different category
 		JPanel switchCategoryPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -705,7 +748,7 @@ public class EditorFrame extends JInternalFrame
 			updateCount();
 			categories.clear();
 			categoriesContainer.removeAll();
-			updateCategorySwitch();
+			updateCategoryPanel();
 			update();
 		}
 		listTabs.setSelectedIndex(MAIN_TABLE);
@@ -958,12 +1001,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		CategoryPanel category = createCategory(spec);
 		categories.add(category);
-		categoriesContainer.removeAll();
-		// TODO: Allow other sorts than A-Z (like size, and allow reversal of order)
-		categories.sort((a, b) -> a.spec().name.compareTo(b.spec().name));
-		for (CategoryPanel c: categories)
-			categoriesContainer.add(c);
-		updateCategorySwitch();
+		updateCategoryPanel();
 		update();
 		setUnsaved();
 		listTabs.setSelectedIndex(CATEGORIES);
@@ -988,9 +1026,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			boolean removed = deck.removeCategory(category.name);
 			removed &= categories.remove(panel);
-			if (removed)
-				categoriesContainer.remove(panel);
-			updateCategorySwitch();
+			updateCategoryPanel();
 			update();
 			setUnsaved();
 			listTabs.setSelectedIndex(CATEGORIES);
@@ -1017,7 +1053,7 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			category.edit(n, c, r, f);
-			updateCategorySwitch();
+			updateCategoryPanel();
 			update();
 			setUnsaved();
 			listTabs.setSelectedIndex(CATEGORIES);
@@ -1174,10 +1210,39 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param order
+	 */
+	public void sortCategories(CategorySort order)
+	{
+		categoriesContainer.removeAll();
+		switch (order)
+		{
+		case A_Z:
+			categories.sort((a, b) -> a.spec().name.compareTo(b.spec().name));
+			break;
+		case Z_A:
+			categories.sort((a, b) -> -a.spec().name.compareTo(b.spec().name));
+			break;
+		case ASCENDING:
+			categories.sort((a, b) -> deck.getCategory(a.spec().name).size() - deck.getCategory(b.spec().name).size());
+			break;
+		case DESCENDING:
+			categories.sort((a, b) -> deck.getCategory(b.spec().name).size() - deck.getCategory(a.spec().name).size());
+			break;
+		default:
+			break;
+		}
+		for (CategoryPanel c: categories)
+			categoriesContainer.add(c);
+	}
+	
+	/**
 	 * Update the categories combo box with all of the current categories.
 	 */
-	public void updateCategorySwitch()
+	public void updateCategoryPanel()
 	{
+		sortCategories(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()));
 		switchCategoryModel.removeAllElements();
 		if (categories.isEmpty())
 			switchCategoryBox.setEnabled(false);
