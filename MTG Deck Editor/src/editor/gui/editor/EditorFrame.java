@@ -108,6 +108,10 @@ public class EditorFrame extends JInternalFrame
 	 * Tab number containing sample hands.
 	 */
 	public static final int SAMPLE_HANDS = 2;
+	/**
+	 * Tab number containing the changelog.
+	 */
+	public static final int CHANGELOG = 3;
 	
 	/**
 	 * This enum represents an order that category panels can be sorted in.
@@ -653,6 +657,10 @@ public class EditorFrame extends JInternalFrame
 		handPanel.add(handSplit, BorderLayout.CENTER);
 		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		listTabs.addTab("Sample Hand", handPanel);
+
+		// Changelog
+		JPanel changelogPanel = new JPanel();
+		listTabs.addTab("Change Log", changelogPanel);
 		
 		// TODO: Add tabs for deck analysis
 		// - category pie chart
@@ -1339,10 +1347,7 @@ public class EditorFrame extends JInternalFrame
 				model.fireTableDataChanged();
 				break;
 			default:
-				deck.increaseAll(toAdd, n);
 				model.fireTableDataChanged();
-				for (CategoryPanel c: categories)
-					c.update();
 				break;
 			}
 			parent.selectCard(toAdd.get(0));
@@ -1440,10 +1445,6 @@ public class EditorFrame extends JInternalFrame
 				model.fireTableDataChanged();
 				break;
 			default:
-				for (Card c: toRemove)
-					deck.decrease(c, n);
-				for (CategoryPanel c: categories)
-					c.update();
 				model.fireTableDataChanged();
 				break;
 			}

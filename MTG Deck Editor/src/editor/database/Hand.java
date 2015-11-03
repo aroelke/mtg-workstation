@@ -90,7 +90,7 @@ public class Hand implements CardCollection
 	{
 		refresh();
 		Collections.shuffle(hand);
-		inHand = n;
+		inHand = Math.min(n, hand.size());
 	}
 	
 	/**
