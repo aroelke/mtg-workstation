@@ -768,6 +768,21 @@ public class Deck implements CardCollection
 			changed |= add(c);
 		return changed;
 	}
+	
+	/**
+	 * Add all of the cards in the given Deck to this Deck.
+	 * 
+	 * @param d Deck to copy
+	 * @return <code>true</code> if cards were successfully added, and <code>false</code>
+	 * otherwise.
+	 */
+	public boolean addAll(Deck d)
+	{
+		boolean changed = false;
+		for (Entry e: d.masterList)
+			changed |= increase(e.card, e.count);
+		return changed;
+	}
 
 	/**
 	 * @param coll Collection of objects to look for

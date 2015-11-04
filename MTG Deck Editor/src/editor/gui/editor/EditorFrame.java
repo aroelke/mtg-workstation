@@ -14,12 +14,17 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +58,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
@@ -89,7 +95,6 @@ import editor.gui.TableMouseAdapter;
  * 
  * TODO: Make popup menu category setting work for multiple selection in the main table
  * TODO: Change the category tab's exclude popup option to set categories
- * TODO: Add a changelog
  * 
  * @author Alec Roelke
  */
@@ -159,6 +164,10 @@ public class EditorFrame extends JInternalFrame
 	 * Master decklist to which cards are added.
 	 */
 	private Deck deck;
+	/**
+	 * TODO: Comment this
+	 */
+	private Deck original;
 	/**
 	 * Main table showing the cards in the deck.
 	 */
@@ -249,6 +258,10 @@ public class EditorFrame extends JInternalFrame
 	 * Combo box allowing changes to be made in the order that categories are display in.
 	 */
 	private JComboBox<CategoryOrder> sortCategoriesBox;
+	/**
+	 * Text area to show the changelog.
+	 */
+	private JTextArea changelogArea;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -266,6 +279,7 @@ public class EditorFrame extends JInternalFrame
 
 		parent = p;
 		deck = new Deck();
+		original = new Deck();
 		file = null;
 		unsaved = false;
 		undoBuffer = new Stack<UndoableAction>();
@@ -659,7 +673,10 @@ public class EditorFrame extends JInternalFrame
 		listTabs.addTab("Sample Hand", handPanel);
 
 		// Changelog
-		JPanel changelogPanel = new JPanel();
+		JPanel changelogPanel = new JPanel(new BorderLayout());
+		changelogArea = new JTextArea();
+		changelogArea.setEditable(false);
+		changelogPanel.add(new JScrollPane(changelogArea));
 		listTabs.addTab("Change Log", changelogPanel);
 		
 		// TODO: Add tabs for deck analysis
@@ -772,6 +789,7 @@ public class EditorFrame extends JInternalFrame
 			updateCategoryPanel();
 			update();
 		}
+		original.addAll(deck);
 		listTabs.setSelectedIndex(MAIN_TABLE);
 		hand.refresh();
 	}
@@ -1704,6 +1722,25 @@ public class EditorFrame extends JInternalFrame
 		try
 		{
 			deck.save(f);
+			String changes = "";
+			for (Card c: original)
+				if (deck.count(c) < original.count(c))
+					changes += ("-" + (original.count(c) - deck.count(c)) + "x " + c.name() + " (" + c.expansion().name + ")\n");
+			for (Card c: deck)
+				if (original.count(c) < deck.count(c))
+					changes += ("+" + (deck.count(c) - original.count(c)) + "x " + c.name() + " (" + c.expansion().name + ")\n");
+			if (!changes.isEmpty())
+			{
+				SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
+				changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
+				changelogArea.append(changes);
+			}
+			PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f, true), "UTF8"));
+			wr.print(changelogArea.getText());
+			wr.close();
+			
+			original = new Deck();
+			original.addAll(deck);
 			unsaved = false;
 			setFile(f);
 			return true;
@@ -2080,7 +2117,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					if (isCancelled())
 						return null;
-					CategorySpec spec = new CategorySpec(rd.readLine().trim(), parent.inventory());
+					CategorySpec spec = new CategorySpec(rd.readLine(), parent.inventory());
 					SwingUtilities.invokeLater(() -> {
 						if (!isCancelled())
 						{
@@ -2093,6 +2130,10 @@ public class EditorFrame extends JInternalFrame
 					});
 					publish(50 + 50*(i + 1)/categories);
 				}
+				// TODO: Correct the publishing numbers somehow
+				String line;
+				while ((line = rd.readLine()) != null)
+					changelogArea.append(line + "\n");
 			}
 			return null;
 		}
