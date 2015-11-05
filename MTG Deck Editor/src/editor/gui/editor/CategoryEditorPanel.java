@@ -30,6 +30,8 @@ public class CategoryEditorPanel extends JPanel
 	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
 	 * edited.
 	 * 
+	 * TODO: Make this return a spec and not a category editor panel
+	 * 
 	 * @param s Specification for the initial contents of the editor
 	 * @return The panel in the state it was last in while editing it, or <code>null</code> if the Cancel button
 	 * was pressed or the dialog was closed.
@@ -121,7 +123,7 @@ public class CategoryEditorPanel extends JPanel
 		this();
 		if (s != null)
 		{
-			spec = s;
+			spec = new CategorySpec(s);
 			nameField.setText(spec.name);
 			colorButton.setColor(spec.color);
 			filter.setContents(spec.filterString);

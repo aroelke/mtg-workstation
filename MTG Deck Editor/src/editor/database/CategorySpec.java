@@ -173,6 +173,23 @@ public class CategorySpec
 	}
 	
 	/**
+	 * Copy constructor for CategorySpec.
+	 * 
+	 * TODO: Make this unnecessary.
+	 * 
+	 * @param original Original CategorySpec to copy
+	 */
+	public CategorySpec(CategorySpec original)
+	{
+		name = original.name;
+		whitelist = new HashSet<Card>(original.whitelist);
+		blacklist = new HashSet<Card>(original.blacklist);
+		color = original.color;
+		filterString = original.filterString;
+		filter = original.filter;
+	}
+	
+	/**
 	 * @return This CategorySpec's String representation.
 	 * @see editor.gui.filter.editor.FilterEditorPanel#setContents(String)
 	 * @see gui.editor.CategoryDialog#setContents(String)
