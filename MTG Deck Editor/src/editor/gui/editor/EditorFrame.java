@@ -1733,7 +1733,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
 				changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
-				changelogArea.append(changes);
+				changelogArea.append(changes + "\n");
 			}
 			PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f, true), "UTF8"));
 			wr.print(changelogArea.getText());
