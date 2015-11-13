@@ -10,12 +10,9 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.Box;
@@ -37,10 +34,10 @@ import javax.swing.border.TitledBorder;
 
 import editor.database.Card;
 import editor.database.Deck;
-import editor.database.Hand;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;
+import editor.gui.CategoryList;
 
 /**
  * This class represents a dialog that allows a user to specify a set of cards and
@@ -60,10 +57,6 @@ public class CalculateHandDialog extends JDialog
 	 * Deck containing cards to draw from.
 	 */
 	private Deck deck;
-	/**
-	 * Model for displaying cards to draw in the opening hand.
-	 */
-	private DefaultListModel<Card> handModel;
 	/**
 	 * Model for displaying cards to never draw.
 	 */
@@ -102,7 +95,14 @@ public class CalculateHandDialog extends JDialog
 	 * Worker that performs the calculation.
 	 */
 	private CalculateHandWorker worker;
+	/**
+	 * TODO: Comment this
+	 */
 	private JProgressBar progressBar;
+	/**
+	 * TODO: Comment this
+	 */
+	private CategoryList constraintList;
 
 	/**
 	 * Create a new CalculateHandDialog.
@@ -142,9 +142,8 @@ public class CalculateHandDialog extends JDialog
 		JPanel handPanel = new JPanel();
 		handPanel.setLayout(new BoxLayout(handPanel, BoxLayout.Y_AXIS));
 		handPanel.setBorder(new TitledBorder("Hand"));
-		handModel = new DefaultListModel<Card>();
-		JList<Card> hand = new JList<Card>(handModel);
-		JScrollPane handPane = new JScrollPane(hand);
+		constraintList = new CategoryList(true);
+		JScrollPane handPane = new JScrollPane(constraintList);
 		handPane.setAlignmentX(LEFT_ALIGNMENT);
 		handPanel.add(handPane);
 		JLabel excludeLabel = new JLabel("Exclude:");
@@ -301,13 +300,13 @@ public class CalculateHandDialog extends JDialog
 			excludeModel.addElement(c);
 		
 		// When the hand or exclusion list is selected, remove the selection from the other one
-		hand.addListSelectionListener((e) -> {
-			if (hand.getSelectedIndices().length > 0)
+		constraintList.addListSelectionListener((e) -> {
+			if (constraintList.getSelectedIndices().length > 0)
 				exclude.clearSelection();
 		});
 		exclude.addListSelectionListener((e) -> {
 			if (exclude.getSelectedIndices().length > 0)
-				hand.clearSelection();
+				constraintList.clearSelection();
 		});
 		
 		// Actions for the add, remove, and exclude buttons
@@ -322,7 +321,7 @@ public class CalculateHandDialog extends JDialog
 					handModel.addElement(c);
 			}
 		});
-		removeButton.addActionListener((e) -> {
+/*		removeButton.addActionListener((e) -> {
 			for (Card c: Arrays.stream(hand.getSelectedIndices()).mapToObj((r) -> handModel.getElementAt(r)).collect(Collectors.toList()))
 				handModel.removeElement(c);
 			for (Card c: Arrays.stream(exclude.getSelectedIndices()).mapToObj((r) -> excludeModel.getElementAt(r)).collect(Collectors.toList()))
@@ -332,7 +331,7 @@ public class CalculateHandDialog extends JDialog
 			for (Card c: Arrays.stream(deckTable.getSelectedRows()).mapToObj((r) -> d.get(deckTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
 				if (!excludeModel.contains(c))
 					excludeModel.addElement(c);
-		});
+		});*/
 		
 		// When the window goes to close, if a calculation is being performed, a confirmation dialog should display
 		addWindowListener(new WindowAdapter()
@@ -392,7 +391,7 @@ public class CalculateHandDialog extends JDialog
 		 */
 		@Override
 		protected Void doInBackground() throws Exception
-		{
+		{/*
 			List<Card> need = new ArrayList<Card>();
 			for (int i = 0; i < handModel.size(); i++)
 				need.add(handModel.get(i));
@@ -426,7 +425,7 @@ public class CalculateHandDialog extends JDialog
 						cards.mulligan();
 				} while (cards.size() >= (Integer)minSizeSpinner.getValue());
 				publish(i);
-			}
+			}*/
 			return null;
 		}
 		

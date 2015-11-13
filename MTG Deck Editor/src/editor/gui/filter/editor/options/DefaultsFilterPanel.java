@@ -105,6 +105,8 @@ public class DefaultsFilterPanel extends FilterEditorPanel
 	 * This class represents a model for displaying categories in a list by name, but allowing for
 	 * the retrieval of their information.
 	 * 
+	 * TODO: Make this unnecessary
+	 * 
 	 * @author Alec
 	 */
 	private class CategoryListModel extends DefaultListModel<String>

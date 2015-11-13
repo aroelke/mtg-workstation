@@ -24,14 +24,12 @@ import java.util.regex.Pattern;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -53,7 +51,6 @@ import javax.swing.tree.TreeSelectionModel;
 import editor.database.CategorySpec;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.editor.CategoryEditorPanel;
-import editor.gui.filter.FilterGroupPanel;
 
 /**
  * This class is a dialog that allows the user to change various properties about
@@ -274,10 +271,6 @@ public class SettingsDialog extends JDialog
 	 */
 	private JColorChooser editorStripeColor;
 	/**
-	 * List of preset categories.
-	 */
-	private CategoryListModel categoriesListModel;
-	/**
 	 * Columns to display in the sample hand table.
 	 */
 	private List<JCheckBox> handColumnCheckBoxes;
@@ -293,8 +286,18 @@ public class SettingsDialog extends JDialog
 	 * Text field containing the directory to look for card scans in.
 	 */
 	private JTextField scansDirField;
+	/**
+	 * TODO: Comment this
+	 */
 	private JColorChooser scanBGChooser;
+	/**
+	 * TODO: Comment this
+	 */
 	private JColorChooser handBGColor;
+	/**
+	 * TODO: Comment this
+	 */
+	private CategoryList categoriesList;
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -503,11 +506,10 @@ public class SettingsDialog extends JDialog
 		categoriesPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
 		
-		categoriesListModel = new CategoryListModel();
-		if (!getSetting(EDITOR_PRESETS).isEmpty())
-			for (String category: getSetting(EDITOR_PRESETS).split(CATEGORY_DELIMITER))
-				categoriesListModel.addElement(category);
-		JList<String> categoriesList = new JList<String>(categoriesListModel);
+		categoriesList = new CategoryList(true);
+		if (!getSetting(SettingsDialog.EDITOR_PRESETS).isEmpty())
+			for (String categoryString: getSetting(EDITOR_PRESETS).split(CATEGORY_DELIMITER))
+				categoriesList.addCategory(new CategorySpec(categoryString));
 		categoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		categoriesList.addMouseListener(new MouseAdapter()
 		{
@@ -523,16 +525,16 @@ public class SettingsDialog extends JDialog
 						categoriesList.clearSelection();
 						CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
 						if (editor != null)
-							categoriesListModel.addElement(editor.toString());
+							categoriesList.addCategory(editor.spec());
 					}
 				}
 				else
 				{
 					if (e.getClickCount() == 2)
 					{
-						CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(categoriesListModel.getCategoryAt(index));
+						CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(categoriesList.getCategoryAt(index));
 						if (editor != null)
-							categoriesListModel.set(index, editor.toString());
+							categoriesList.setCategoryAt(index, editor.spec());
 					}
 				}
 			}
@@ -553,7 +555,7 @@ public class SettingsDialog extends JDialog
 		addButton.addActionListener((e) -> {
 			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
 			if (editor != null)
-				categoriesListModel.addElement(editor.toString());
+				categoriesList.addCategory(editor.spec());
 		});
 		GridBagConstraints addConstraints = new GridBagConstraints();
 		addConstraints.gridx = 0;
@@ -565,9 +567,9 @@ public class SettingsDialog extends JDialog
 		editButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 			{
-				CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(categoriesListModel.getCategoryAt(categoriesList.getSelectedIndex()));
+				CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(categoriesList.getCategoryAt(categoriesList.getSelectedIndex()));
 				if (editor != null)
-					categoriesListModel.set(categoriesList.getSelectedIndex(), editor.toString());
+					categoriesList.setCategoryAt(categoriesList.getSelectedIndex(), editor.spec());
 			}
 		});
 		GridBagConstraints editConstraints = new GridBagConstraints();
@@ -579,7 +581,7 @@ public class SettingsDialog extends JDialog
 		JButton removeButton = new JButton("−");
 		removeButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
-				categoriesListModel.remove(categoriesList.getSelectedIndex());
+				categoriesList.removeCategoryAt(categoriesList.getSelectedIndex());
 		});
 		GridBagConstraints removeConstraints = new GridBagConstraints();
 		removeConstraints.gridx = 0;
@@ -736,8 +738,8 @@ public class SettingsDialog extends JDialog
 		settings.put(EDITOR_COLUMNS, join.toString());
 		settings.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
 		join = new StringJoiner(SettingsDialog.CATEGORY_DELIMITER);
-		for (int i = 0; i < categoriesListModel.getSize(); i++)
-			join.add(categoriesListModel.getCategoryAt(i).toString());
+		for (int i = 0; i < categoriesList.getCount(); i++)
+			join.add(categoriesList.getCategoryAt(i).toString());
 		settings.put(EDITOR_PRESETS, join.toString());
 		settings.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
 		join = new StringJoiner(",");
@@ -814,41 +816,5 @@ public class SettingsDialog extends JDialog
 		});
 		
 		chooser.setPreviewPanel(preview);
-	}
-	
-	/**
-	 * This class represents a list model for displaying categories.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class CategoryListModel extends DefaultListModel<String>
-	{
-		/**
-		 * Create a new CategoryListModel.
-		 */
-		public CategoryListModel()
-		{
-			super();
-		}
-		
-		/**
-		 * @param Index into the list to look at.
-		 * @return The name of the category at the index.
-		 */
-		@Override
-		public String getElementAt(int index)
-		{
-			String category = super.getElementAt(index);
-			return category.substring(category.indexOf(FilterGroupPanel.BEGIN_GROUP) + 1, category.indexOf(FilterGroupPanel.END_GROUP));
-		}
-		
-		/**
-		 * @param index Index into the list to look at.
-		 * @return The String representation of the category at the index.
-		 */
-		public CategorySpec getCategoryAt(int index)
-		{
-			return new CategorySpec(super.getElementAt(index));
-		}
 	}
 }
