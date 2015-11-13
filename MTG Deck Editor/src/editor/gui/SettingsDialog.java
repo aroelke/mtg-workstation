@@ -10,9 +10,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -36,7 +33,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
@@ -510,35 +506,6 @@ public class SettingsDialog extends JDialog
 		if (!getSetting(SettingsDialog.EDITOR_PRESETS).isEmpty())
 			for (String categoryString: getSetting(EDITOR_PRESETS).split(CATEGORY_DELIMITER))
 				categoriesList.addCategory(new CategorySpec(categoryString));
-		categoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		categoriesList.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mouseReleased(MouseEvent e)
-			{
-				int index = categoriesList.locationToIndex(e.getPoint());
-				Rectangle rec = categoriesList.getCellBounds(index, index);
-				if (rec == null || !rec.contains(e.getPoint()))
-				{
-					if (e.getClickCount() == 2)
-					{
-						categoriesList.clearSelection();
-						CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
-						if (editor != null)
-							categoriesList.addCategory(editor.spec());
-					}
-				}
-				else
-				{
-					if (e.getClickCount() == 2)
-					{
-						CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(categoriesList.getCategoryAt(index));
-						if (editor != null)
-							categoriesList.setCategoryAt(index, editor.spec());
-					}
-				}
-			}
-		});
 		categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
 		
 		// Category modification buttons

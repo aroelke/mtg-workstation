@@ -1,14 +1,19 @@
 package editor.gui;
 
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.ListSelectionModel;
 
 import editor.database.CategorySpec;
+import editor.gui.editor.CategoryEditorPanel;
 
 /**
  * TODO: Comment this class
@@ -21,6 +26,7 @@ public class CategoryList extends JList<String>
 	
 	private boolean showAdd;
 	private List<CategorySpec> categories;
+	private CategoryListModel model;
 	
 	public CategoryList(boolean showHint, List<CategorySpec> c)
 	{
@@ -36,9 +42,43 @@ public class CategoryList extends JList<String>
 	
 	public CategoryList(boolean showHint)
 	{
+		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
 		showAdd = showHint;
 		categories = new ArrayList<CategorySpec>();
-		setModel(new CategoryListModel());
+		setModel(model = new CategoryListModel());
+		
+		if (showAdd)
+		{
+			addMouseListener(new MouseAdapter()
+			{
+				@Override
+				public void mouseReleased(MouseEvent e)
+				{
+					int index = locationToIndex(e.getPoint());
+					Rectangle rec = getCellBounds(index, index);
+					if (rec == null || !rec.contains(e.getPoint()))
+					{
+						if (e.getClickCount() == 2)
+						{
+							clearSelection();
+							CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
+							if (editor != null)
+								addCategory(editor.spec());
+						}
+					}
+					else
+					{
+						if (e.getClickCount() == 2)
+						{
+							CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(getCategoryAt(index));
+							if (editor != null)
+								setCategoryAt(index, editor.spec());
+						}
+					}
+				}
+			});
+		}
 	}
 	
 	@Override
@@ -54,16 +94,19 @@ public class CategoryList extends JList<String>
 	public void addCategory(CategorySpec c)
 	{
 		categories.add(c);
+		model.addElement(c.name);
 	}
 	
 	public void setCategoryAt(int index, CategorySpec c)
 	{
 		categories.set(index, c);
+		model.setElementAt(c.name, index);
 	}
 	
 	public void removeCategoryAt(int index)
 	{
 		categories.remove(index);
+		model.remove(index);
 	}
 	
 	public int getCount()

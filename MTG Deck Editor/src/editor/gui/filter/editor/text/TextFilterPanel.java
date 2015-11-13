@@ -102,6 +102,24 @@ public class TextFilterPanel extends FilterEditorPanel
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param s
+	 */
+	public void setText(String s)
+	{
+		filterValue.setText(s);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param r
+	 */
+	public void setRegex(boolean r)
+	{
+		regex.setSelected(r);
+	}
+	
+	/**
 	 * @return A <code>Predicate<Card></code> that returns <code>true</code> if the Card's
 	 * characteristic matches the filter expression, and <code>false</code> otherwise.
 	 */

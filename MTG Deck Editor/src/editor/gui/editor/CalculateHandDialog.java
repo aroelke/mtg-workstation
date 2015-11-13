@@ -33,11 +33,14 @@ import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import editor.database.Card;
+import editor.database.CategorySpec;
 import editor.database.Deck;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;
 import editor.gui.CategoryList;
+import editor.gui.filter.FilterGroupPanel;
+import editor.gui.filter.editor.text.NameFilterPanel;
 
 /**
  * This class represents a dialog that allows a user to specify a set of cards and
@@ -313,17 +316,14 @@ public class CalculateHandDialog extends JDialog
 		addButton.addActionListener((e) -> {
 			for (Card c: Arrays.stream(deckTable.getSelectedRows()).mapToObj((r) -> d.get(deckTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
 			{
-				int n = 0;
-				for (int i = 0; i < handModel.size(); i++)
-					if (handModel.elementAt(i).equals(c))
-						n++;
-				if (n < d.count(c))
-					handModel.addElement(c);
+				NameFilterPanel panel = new NameFilterPanel();
+				panel.setText(c.name());
+				panel.setRegex(false);
+				constraintList.addCategory(new CategorySpec(c.name(), Color.BLACK, panel.getFilter(), FilterGroupPanel.BEGIN_GROUP + "AND " + FilterGroupPanel.BEGIN_GROUP + panel.toString() + FilterGroupPanel.END_GROUP + FilterGroupPanel.END_GROUP));
 			}
 		});
-/*		removeButton.addActionListener((e) -> {
-			for (Card c: Arrays.stream(hand.getSelectedIndices()).mapToObj((r) -> handModel.getElementAt(r)).collect(Collectors.toList()))
-				handModel.removeElement(c);
+		removeButton.addActionListener((e) -> {
+			constraintList.removeCategoryAt(constraintList.getSelectedIndex());
 			for (Card c: Arrays.stream(exclude.getSelectedIndices()).mapToObj((r) -> excludeModel.getElementAt(r)).collect(Collectors.toList()))
 				excludeModel.removeElement(c);
 		});
@@ -331,7 +331,7 @@ public class CalculateHandDialog extends JDialog
 			for (Card c: Arrays.stream(deckTable.getSelectedRows()).mapToObj((r) -> d.get(deckTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
 				if (!excludeModel.contains(c))
 					excludeModel.addElement(c);
-		});*/
+		});
 		
 		// When the window goes to close, if a calculation is being performed, a confirmation dialog should display
 		addWindowListener(new WindowAdapter()
