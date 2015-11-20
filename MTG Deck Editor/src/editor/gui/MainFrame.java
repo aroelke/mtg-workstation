@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
@@ -898,6 +899,10 @@ public class MainFrame extends JFrame
 				exit();
 			}
 		});
+		
+		ButtonScrollPane test = new ButtonScrollPane(new JColorChooser());
+		test.setPreferredSize(new Dimension(test.getPreferredSize().width/2, test.getPreferredSize().height));
+		JOptionPane.showMessageDialog(this, test);
 	}
 	
 	/**
