@@ -10,9 +10,11 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.Box;
@@ -64,11 +66,6 @@ public class CalculateHandDialog extends JDialog
 	 * Model for displaying cards to never draw.
 	 */
 	private DefaultListModel<Card> excludeModel;
-	/**
-	 * Spinner specifying the number of hands that should be generated
-	 * to approximate the probability.
-	 */
-	private JSpinner iterationsSpinner;
 	/**
 	 * Spinner specifying the minimum number of cards that should be in
 	 * the opening hand (limiting mulligans).
@@ -230,17 +227,6 @@ public class CalculateHandDialog extends JDialog
 		minSpinnerConstraints.gridy = 0;
 		minSizeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
 		controlsPanel.add(minSizeSpinner, minSpinnerConstraints);
-		GridBagConstraints iterLabelConstraints = new GridBagConstraints();
-		iterLabelConstraints.gridx = 0;
-		iterLabelConstraints.gridy = 1;
-		iterLabelConstraints.insets = new Insets(5, 0, 0, 0);
-		iterLabelConstraints.fill = GridBagConstraints.HORIZONTAL;
-		controlsPanel.add(new JLabel("Iterations:", JLabel.RIGHT), iterLabelConstraints);
-		GridBagConstraints iterSpinnerConstraints = new GridBagConstraints();
-		iterSpinnerConstraints.gridx = 1;
-		iterSpinnerConstraints.gridy = 1;
-		iterationsSpinner = new JSpinner(new SpinnerNumberModel(100, 1, Integer.MAX_VALUE, 1));
-		controlsPanel.add(iterationsSpinner, iterSpinnerConstraints);
 		GridBagConstraints controlsConstraints = new GridBagConstraints();
 		controlsConstraints.gridx = 0;
 		controlsConstraints.gridy = 0;
@@ -267,17 +253,7 @@ public class CalculateHandDialog extends JDialog
 		
 		// When the calculate button is clicked, it should disable controls and start the calculation
 		calculateButton.addActionListener((e) -> {
-			calculateButton.setEnabled(false);
-			addButton.setEnabled(false);
-			removeButton.setEnabled(false);
-			excludeButton.setEnabled(false);
-			minSizeSpinner.setEnabled(false);
-			iterationsSpinner.setEnabled(false);
-			progressBar.setMaximum((Integer)iterationsSpinner.getValue());
-			progressBar.setValue(0);
-			progressBar.setVisible(true);
-			worker = new CalculateHandWorker();
-			worker.execute();
+			
 		});
 		
 		// Results panel
@@ -287,10 +263,10 @@ public class CalculateHandDialog extends JDialog
 		resultsLabel = new JLabel("Probability in opening hand: N/A%");
 		resultsLabel.setAlignmentX(LEFT_ALIGNMENT);
 		resultsPanel.add(resultsLabel);
-		progressBar = new JProgressBar();
-		progressBar.setVisible(false);
-		progressBar.setAlignmentX(LEFT_ALIGNMENT);
-		resultsPanel.add(progressBar);
+//		progressBar = new JProgressBar();
+//		progressBar.setVisible(false);
+//		progressBar.setAlignmentX(LEFT_ALIGNMENT);
+//		resultsPanel.add(progressBar);
 		resultsPanel.add(Box.createVerticalGlue());
 		GridBagConstraints resultsConstraints = new GridBagConstraints();
 		resultsConstraints.gridx = 1;
@@ -342,6 +318,36 @@ public class CalculateHandDialog extends JDialog
 				close();
 			}
 		});
+	}
+	
+	/**
+	 * Comment this
+	 * @param categories
+	 * @param sorted
+	 * @return
+	 */
+	private int combinations(Map<CategorySpec, Collection<Card>> categories, List<CategorySpec> sorted)
+	{
+		if (sorted.size() == 0)
+			return 0;
+		else if (sorted.size() == 1)
+			return categories.get(sorted.get(0)).size();
+		else
+		{
+			int combinations = 0;
+			CategorySpec current = sorted.remove(0);
+			Collection<Card> cards = categories.remove(current);
+			for (Card c: new ArrayList<Card>(cards))
+			{
+				for (Collection<Card> bin: categories.values())
+					bin.remove(c);
+				combinations += combinations(categories, sorted);
+				for (Map.Entry<CategorySpec, Collection<Card>> e: categories.entrySet())
+					if (e.getKey().filter.test(c))
+						e.getValue().add(c);
+			}
+			return combinations;
+		}
 	}
 	
 	/**

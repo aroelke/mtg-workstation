@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -107,6 +108,11 @@ public class CategoryList extends JList<String>
 	{
 		categories.remove(index);
 		model.remove(index);
+	}
+	
+	public List<CategorySpec> getCategories()
+	{
+		return Collections.unmodifiableList(categories);
 	}
 	
 	public int getCount()
