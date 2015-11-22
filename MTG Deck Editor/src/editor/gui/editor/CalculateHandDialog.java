@@ -24,13 +24,11 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
@@ -92,10 +90,6 @@ public class CalculateHandDialog extends JDialog
 	 */
 	private JButton excludeButton;
 	/**
-	 * Worker that performs the calculation.
-	 */
-	private CalculateHandWorker worker;
-	/**
 	 * TODO: Comment this
 	 */
 	private JProgressBar progressBar;
@@ -123,7 +117,6 @@ public class CalculateHandDialog extends JDialog
 		
 		handSize = h;
 		deck = d;
-		worker = null;
 		
 		JPanel contentPane = new JPanel();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -355,102 +348,6 @@ public class CalculateHandDialog extends JDialog
 	 */
 	private void close()
 	{
-		if (worker == null || worker.isDone())
-			dispose();
-		else if (JOptionPane.showConfirmDialog(null, "A Calculation is being performed.  Are you sure you want to close?", "Stop Calculation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-		{
-			worker.cancel(true);
-			dispose();
-		}
-	}
-	
-	/**
-	 * This class represents a worker that approximates the probability of drawing a set of cards in an opening
-	 * hand by performing the draws and mulligans and displaying the proportion of hands that contained the
-	 * specified cards.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class CalculateHandWorker extends SwingWorker<Void, Integer>
-	{
-		/**
-		 * Number of hands that contained the specified cards.
-		 */
-		private int successes;
-		
-		/**
-		 * Update the results label with the latest progress.
-		 * 
-		 * @param chunks List of progress updates
-		 */
-		@Override
-		protected void process(List<Integer> chunks)
-		{
-			resultsLabel.setText("Finished iteration " + chunks.get(chunks.size() - 1) + "/" + iterationsSpinner.getValue());
-			progressBar.setValue(chunks.get(chunks.size() - 1));
-		}
-		
-		/**
-		 * Perform the calculation.  This is done by drawing a new hand and mulliganing until either
-		 * all of the specified cards are in hand or until the minimum hand size is reached.  If the
-		 * cards are present, then the hand is a success.  This is repeated a number of times.
-		 */
-		@Override
-		protected Void doInBackground() throws Exception
-		{/*
-			List<Card> need = new ArrayList<Card>();
-			for (int i = 0; i < handModel.size(); i++)
-				need.add(handModel.get(i));
-			Set<Card> excluded = new HashSet<Card>();
-			for (int i = 0; i < excludeModel.size(); i++)
-				excluded.add(excludeModel.get(i));
-			
-			Hand cards = new Hand(deck, excluded);
-			successes = 0;
-			for (int i = 0; i < (Integer)iterationsSpinner.getValue(); i++)
-			{
-				cards.newHand(handSize);
-				do
-				{
-					List<Card> attempt = new ArrayList<Card>(cards.getHand());
-					boolean failed = false;
-					for (Card c: need)
-					{
-						if (!attempt.remove(c))
-						{
-							failed = true;
-							break;
-						}
-					}
-					if (!failed)
-					{
-						successes++;
-						break;
-					}
-					else
-						cards.mulligan();
-				} while (cards.size() >= (Integer)minSizeSpinner.getValue());
-				publish(i);
-			}*/
-			return null;
-		}
-		
-		/**
-		 * Once the calculation is complete, reactivate the dialog's controls and update the
-		 * label with the results.
-		 */
-		@Override
-		protected void done()
-		{
-			resultsLabel.setText(String.format("Probability in opening hand: %.2f%%", 100.0*successes/(Integer)iterationsSpinner.getValue()));
-			calculateButton.setEnabled(true);
-			addButton.setEnabled(true);
-			removeButton.setEnabled(true);
-			excludeButton.setEnabled(true);
-			minSizeSpinner.setEnabled(true);
-			iterationsSpinner.setEnabled(true);
-			progressBar.setValue(0);
-			progressBar.setVisible(false);
-		}
+		dispose();
 	}
 }

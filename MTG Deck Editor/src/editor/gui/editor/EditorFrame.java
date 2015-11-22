@@ -95,6 +95,7 @@ import editor.gui.TableMouseAdapter;
  * 
  * TODO: Make popup menu category setting work for multiple selection in the main table
  * TODO: Change the category tab's exclude popup option to set categories
+ * TODO: Add a filter bar to the main tab just like the inventory has
  * 
  * @author Alec Roelke
  */
