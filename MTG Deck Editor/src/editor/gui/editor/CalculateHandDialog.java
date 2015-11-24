@@ -13,6 +13,8 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,6 +43,7 @@ import editor.gui.CardTableModel;
 import editor.gui.CategoryList;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.filter.editor.text.NameFilterPanel;
+import editor.util.Containment;
 
 /**
  * This class represents a dialog that allows a user to specify a set of cards and
@@ -246,7 +249,30 @@ public class CalculateHandDialog extends JDialog
 		
 		// When the calculate button is clicked, it should disable controls and start the calculation
 		calculateButton.addActionListener((e) -> {
-			
+			List<Category> categories = new ArrayList<Category>();
+			for (CategorySpec category: constraintList.getCategories())
+			{
+				ArrayList<Card> cards = new ArrayList<Card>();
+				for (Card c: deck)
+					if (category.filter.test(c))
+						for (int i = 0; i < deck.count(c); i++)
+							cards.add(c);
+				categories.add(new Category(category, cards));
+			}
+			double combinations;
+			if (categories.isEmpty())
+				combinations = 1.0;
+			else
+			{
+				Collections.sort(categories, (a, b) -> a.cards.size() - b.cards.size());
+				combinations = combinations(categories);
+			}
+			for (int i = categories.size(); i < handSize; i++)
+				combinations *= (deck.total() - i);
+			double hands = 1.0;
+			for (int i = 0; i < handSize; i++)
+				hands *= (deck.total() - i);
+			resultsLabel.setText(String.format("Probability in opening hand: %.2f%%", combinations/hands*100.0));
 		});
 		
 		// Results panel
@@ -286,6 +312,7 @@ public class CalculateHandDialog extends JDialog
 			for (Card c: Arrays.stream(deckTable.getSelectedRows()).mapToObj((r) -> d.get(deckTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
 			{
 				NameFilterPanel panel = new NameFilterPanel();
+				panel.setContainment(Containment.CONTAINS_EXACTLY);
 				panel.setText(c.name());
 				panel.setRegex(false);
 				constraintList.addCategory(new CategorySpec(c.name(), Color.BLACK, panel.getFilter(), FilterGroupPanel.BEGIN_GROUP + "AND " + FilterGroupPanel.BEGIN_GROUP + panel.toString() + FilterGroupPanel.END_GROUP + FilterGroupPanel.END_GROUP));
@@ -314,31 +341,30 @@ public class CalculateHandDialog extends JDialog
 	}
 	
 	/**
-	 * Comment this
+	 * TODO: Comment this
 	 * @param categories
-	 * @param sorted
 	 * @return
 	 */
-	private int combinations(Map<CategorySpec, Collection<Card>> categories, List<CategorySpec> sorted)
+	private double combinations(List<Category> categories)
 	{
-		if (sorted.size() == 0)
-			return 0;
-		else if (sorted.size() == 1)
-			return categories.get(sorted.get(0)).size();
+		if (categories.size() == 0)
+			return 0.0;
+		else if (categories.size() == 1)
+			return categories.get(0).cards.size();
 		else
 		{
-			int combinations = 0;
-			CategorySpec current = sorted.remove(0);
-			Collection<Card> cards = categories.remove(current);
-			for (Card c: new ArrayList<Card>(cards))
+			double combinations = 0.0;
+			Category current = categories.remove(0);
+			for (Card c: new ArrayList<Card>(current.cards))
 			{
-				for (Collection<Card> bin: categories.values())
-					bin.remove(c);
-				combinations += combinations(categories, sorted);
-				for (Map.Entry<CategorySpec, Collection<Card>> e: categories.entrySet())
-					if (e.getKey().filter.test(c))
-						e.getValue().add(c);
+				for (Category category: categories)
+					category.cards.remove(c);
+				combinations += combinations(categories);
+				for (Category category: categories)
+					if (category.spec.filter.test(c))
+						category.cards.add(c);
 			}
+			categories.add(0, current);
 			return combinations;
 		}
 	}
@@ -349,5 +375,21 @@ public class CalculateHandDialog extends JDialog
 	private void close()
 	{
 		dispose();
+	}
+	
+	/**
+	 * TODO: Comment this class
+	 * @author Alec Roelke
+	 */
+	private class Category
+	{
+		public final CategorySpec spec;
+		public final Collection<Card> cards;
+		
+		public Category(CategorySpec s, Collection<Card> c)
+		{
+			spec = s;
+			cards = c;
+		}
 	}
 }

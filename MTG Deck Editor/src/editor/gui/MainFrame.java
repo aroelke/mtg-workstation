@@ -900,9 +900,9 @@ public class MainFrame extends JFrame
 			}
 		});
 		
-		ButtonScrollPane test = new ButtonScrollPane(new JColorChooser());
-		test.setPreferredSize(new Dimension(test.getPreferredSize().width/2, test.getPreferredSize().height));
-		JOptionPane.showMessageDialog(this, test);
+//		ButtonScrollPane test = new ButtonScrollPane(new JColorChooser());
+//		test.setPreferredSize(new Dimension(test.getPreferredSize().width/2, test.getPreferredSize().height));
+//		JOptionPane.showMessageDialog(this, test);
 	}
 	
 	/**

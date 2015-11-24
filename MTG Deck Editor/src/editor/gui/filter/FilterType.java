@@ -1,5 +1,6 @@
 package editor.gui.filter;
 
+import editor.gui.filter.editor.AllFilterPanel;
 import editor.gui.filter.editor.EmptyFilterPanel;
 import editor.gui.filter.editor.FilterEditorPanel;
 import editor.gui.filter.editor.ManaCostFilterPanel;
@@ -52,7 +53,8 @@ public enum FilterType
 	CARD_NUMBER("Card Number", "#", CardNumberFilterPanel.class),
 	FORMAT_LEGALITY("Format Legality", "legal", LegalFilterPanel.class),
 	DEFAULTS("Defaults", "", DefaultsFilterPanel.class),
-	NONE("<No Card>", "0", EmptyFilterPanel.class);
+	NONE("<No Card>", "0", EmptyFilterPanel.class),
+	ALL("<Any Card>", "*", AllFilterPanel.class);
 	
 	/**
 	 * Get a FilterType from a String.

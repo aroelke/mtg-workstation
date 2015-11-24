@@ -103,6 +103,15 @@ public class TextFilterPanel extends FilterEditorPanel
 	
 	/**
 	 * TODO: Comment this
+	 * @param c
+	 */
+	public void setContainment(Containment c)
+	{
+		contain.setSelectedItem(c);
+	}
+	
+	/**
+	 * TODO: Comment this
 	 * @param s
 	 */
 	public void setText(String s)
