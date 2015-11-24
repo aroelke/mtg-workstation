@@ -14,9 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.Box;
@@ -49,6 +47,8 @@ import editor.util.Containment;
  * This class represents a dialog that allows a user to specify a set of cards and
  * calculate how likely all of them will appear in an opening hand, including
  * with mulligans.
+ * 
+ * TODO: Fix this
  * 
  * @author Alec Roelke
  */
