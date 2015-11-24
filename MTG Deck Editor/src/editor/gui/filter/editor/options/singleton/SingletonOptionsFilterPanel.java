@@ -46,6 +46,6 @@ public class SingletonOptionsFilterPanel<T> extends OptionsFilterPanel<T>
 	@Override
 	public Predicate<Card> getFilter()
 	{
-		return (c) -> contain.getSelectedItem().test(optionsBox.getSelectedValuesList(), Arrays.asList(param.apply(c)));
+		return (c) -> contain.getSelectedItem().test(getSelectedValues(), Arrays.asList(param.apply(c)));
 	}
 }

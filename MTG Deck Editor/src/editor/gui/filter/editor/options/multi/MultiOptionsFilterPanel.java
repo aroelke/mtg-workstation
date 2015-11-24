@@ -46,6 +46,6 @@ public class MultiOptionsFilterPanel<T> extends OptionsFilterPanel<T>
 	@Override
 	public Predicate<Card> getFilter()
 	{
-		return (c) -> contain.getSelectedItem().test(param.apply(c), optionsBox.getSelectedValuesList());
+		return (c) -> contain.getSelectedItem().test(param.apply(c), getSelectedValues());
 	}
 }

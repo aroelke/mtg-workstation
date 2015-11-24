@@ -5,10 +5,13 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.Timer;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 /**
@@ -19,6 +22,11 @@ import javax.swing.plaf.basic.BasicArrowButton;
 @SuppressWarnings("serial")
 public class ButtonScrollPane extends JPanel
 {
+	private static final int INITIAL_DELAY = 500;
+	private static final int TICK_DELAY = 50;
+	
+	private JScrollBar bar;
+	
 	public ButtonScrollPane(Component view)
 	{
 		super(new BorderLayout());
@@ -34,25 +42,71 @@ public class ButtonScrollPane extends JPanel
 		BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
 		add(right, BorderLayout.EAST);
 		
-		JScrollBar bar = pane.getHorizontalScrollBar();
-		left.addActionListener(e -> {
-			bar.getActionMap().get("negativeUnitIncrement").actionPerformed(new ActionEvent(
-			bar,
-			ActionEvent.ACTION_PERFORMED,
-			"",
-			e.getWhen(),
-			e.getModifiers()));
+		bar = pane.getHorizontalScrollBar();
+		bar.setUnitIncrement(10);
+		Timer leftTimer = new Timer(TICK_DELAY, e -> {
+			bar.getActionMap().get("negativeUnitIncrement").actionPerformed(new ActionEvent(bar,
+					ActionEvent.ACTION_PERFORMED,
+					"",
+					e.getWhen(),
+					e.getModifiers()));
 		});
-		right.addActionListener(e -> {
+		leftTimer.setInitialDelay(INITIAL_DELAY);
+		left.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+				if (left.isEnabled())
+				{
+					leftTimer.restart();
+					bar.getActionMap().get("negativeUnitIncrement").actionPerformed(new ActionEvent(bar,
+							ActionEvent.ACTION_PERFORMED,
+							"",
+							e.getWhen(),
+							e.getModifiers()));
+				}
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				leftTimer.stop();
+			}
+		});
+		Timer rightTimer = new Timer(TICK_DELAY, e -> {
 			bar.getActionMap().get("positiveUnitIncrement").actionPerformed(new ActionEvent(
-			bar,
-			ActionEvent.ACTION_PERFORMED,
-			"",
-			e.getWhen(),
-			e.getModifiers()));
+					bar,
+					ActionEvent.ACTION_PERFORMED,
+					"",
+					e.getWhen(),
+					e.getModifiers()));
+		});
+		rightTimer.setInitialDelay(INITIAL_DELAY);
+		right.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+				if (right.isEnabled())
+				{
+					rightTimer.restart();
+					bar.getActionMap().get("positiveUnitIncrement").actionPerformed(new ActionEvent(bar,
+							ActionEvent.ACTION_PERFORMED,
+							"",
+							e.getWhen(),
+							e.getModifiers()));
+				}
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				rightTimer.stop();
+			}
 		});
 		
-		pane.addComponentListener(new ComponentListener()
+		view.addComponentListener(new ComponentListener()
 		{
 			@Override
 			public void componentResized(ComponentEvent e)
@@ -74,5 +128,10 @@ public class ButtonScrollPane extends JPanel
 			public void componentShown(ComponentEvent e)
 			{}
 		});
+	}
+	
+	public void setUnitIncrement(int unitIncrement)
+	{
+		bar.setUnitIncrement(unitIncrement);
 	}
 }
