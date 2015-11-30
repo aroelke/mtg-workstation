@@ -10,8 +10,8 @@ import javax.swing.ListSelectionModel;
 
 import editor.database.Card;
 import editor.database.CategorySpec;
+import editor.filter.Filter;
 import editor.gui.SettingsDialog;
-import editor.gui.filter.FilterGroupPanel;
 import editor.gui.filter.FilterType;
 import editor.gui.filter.editor.FilterEditorPanel;
 
@@ -127,7 +127,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel
 		public String getElementAt(int index)
 		{
 			String category = super.getElementAt(index);
-			return category.substring(category.indexOf(FilterGroupPanel.BEGIN_GROUP) + 1, category.indexOf(FilterGroupPanel.END_GROUP));
+			return category.substring(category.indexOf(Filter.BEGIN_GROUP) + 1, category.indexOf(Filter.END_GROUP));
 		}
 		
 		/**

@@ -36,10 +36,10 @@ import editor.database.Card;
 import editor.database.CategorySpec;
 import editor.database.Deck;
 import editor.database.characteristics.CardCharacteristic;
+import editor.filter.Filter;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;
 import editor.gui.CategoryList;
-import editor.gui.filter.FilterGroupPanel;
 import editor.gui.filter.editor.text.NameFilterPanel;
 import editor.util.Containment;
 
@@ -315,7 +315,7 @@ public class CalculateHandDialog extends JDialog
 				panel.setContainment(Containment.CONTAINS_EXACTLY);
 				panel.setText(c.name());
 				panel.setRegex(false);
-				constraintList.addCategory(new CategorySpec(c.name(), Color.BLACK, panel.getFilter(), FilterGroupPanel.BEGIN_GROUP + "AND " + FilterGroupPanel.BEGIN_GROUP + panel.toString() + FilterGroupPanel.END_GROUP + FilterGroupPanel.END_GROUP));
+				constraintList.addCategory(new CategorySpec(c.name(), Color.BLACK, panel.getFilter(), Filter.BEGIN_GROUP + "AND " + Filter.BEGIN_GROUP + panel.toString() + Filter.END_GROUP + Filter.END_GROUP));
 			}
 		});
 		removeButton.addActionListener((e) -> {

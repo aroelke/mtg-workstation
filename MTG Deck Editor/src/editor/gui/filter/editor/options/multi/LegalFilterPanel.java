@@ -42,19 +42,14 @@ public class LegalFilterPanel extends MultiOptionsFilterPanel<String>
 	public Predicate<Card> getFilter()
 	{
 		if (restrictedBox.isSelected())
-			return super.getFilter().and(new Predicate<Card>()
-			{
-				@Override
-				public boolean test(Card c)
-				{
+			return super.getFilter().and((c) -> {
 					Collection<String> formats = new ArrayList<String>(c.legalIn());
 					formats.retainAll(getSelectedValues());
 					for (String format: formats)
 						if (c.legality().get(format) != Legality.RESTRICTED)
 							return false;
 					return true;
-				}
-			});
+				});
 		else
 			return super.getFilter();
 	}

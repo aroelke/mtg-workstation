@@ -12,6 +12,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JTextField;
 
 import editor.database.Card;
+import editor.filter.leaf.TextFilter;
 import editor.gui.filter.ComboBoxPanel;
 import editor.gui.filter.FilterType;
 import editor.gui.filter.editor.FilterEditorPanel;
@@ -29,11 +30,6 @@ import editor.util.Containment;
 public class TextFilterPanel extends FilterEditorPanel
 {
 	/**
-	 * Regex pattern for extracting words or phrases between quotes from a String.
-	 */
-	public static final Pattern WORD_PATTERN = Pattern.compile("\"([^\"]*)\"|'([^']*)'|[^\\s]+"); 
-	
-	/**
 	 * Function representing the Card characteristic to filter.
 	 */
 	private Function<Card, List<String>> text;
@@ -49,32 +45,6 @@ public class TextFilterPanel extends FilterEditorPanel
 	 * Check box enabling regex matching.
 	 */
 	private JCheckBox regex;
-	
-	/**
-	 * Create a regex pattern matcher that searches a string for a set of words and quote-enclosed phrases
-	 * separated by spaces, where * is a wild card.
-	 * 
-	 * @param pattern String pattern to create a regex matcher out of
-	 * @return A Matcher that searches a String for the words and phrases in the given String.
-	 */
-	public static Predicate<String> createSimpleMatcher(String pattern)
-	{
-		Matcher m = WORD_PATTERN.matcher(pattern);
-		StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))(?=.*(?:^|$|\\W)\\Q", "^(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W)).*$");
-		while (m.find())
-		{
-			String toAdd;
-			if (m.group(1) != null)
-				toAdd = m.group(1);
-			else if (m.group(1) != null)
-				toAdd = m.group(2);
-			else
-				toAdd = m.group();
-			str.add(toAdd.replace("*", "\\E\\w*\\Q"));
-		}
-		Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
-		return (s) -> p.matcher(s).find();
-	}
 	
 	/**
 	 * Create a new TextFilterPanel.
@@ -149,9 +119,9 @@ public class TextFilterPanel extends FilterEditorPanel
 			switch (contain.getSelectedItem())
 			{
 			case CONTAINS_ALL_OF:
-				return (c) -> text.apply(c).stream().map(String::toLowerCase).anyMatch(createSimpleMatcher(filterText));
+				return (c) -> text.apply(c).stream().map(String::toLowerCase).anyMatch(TextFilter.createSimpleMatcher(filterText));
 			case CONTAINS_ANY_OF: case CONTAINS_NONE_OF:
-				Matcher m = WORD_PATTERN.matcher(filterText);
+				Matcher m = TextFilter.WORD_PATTERN.matcher(filterText);
 				StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
 				while (m.find())
 				{
@@ -170,7 +140,7 @@ public class TextFilterPanel extends FilterEditorPanel
 				else
 					return (c) -> text.apply(c).stream().anyMatch((s) -> p.matcher(s.toLowerCase()).find());
 			case CONTAINS_NOT_ALL_OF:
-				return (c) -> text.apply(c).stream().map(String::toLowerCase).anyMatch(createSimpleMatcher(filterText).negate());
+				return (c) -> text.apply(c).stream().map(String::toLowerCase).anyMatch(TextFilter.createSimpleMatcher(filterText).negate());
 			case CONTAINS_NOT_EXACTLY:
 				return (c) -> text.apply(c).stream().anyMatch((s) -> !s.equalsIgnoreCase(filterText));
 			case CONTAINS_EXACTLY:

@@ -1303,7 +1303,7 @@ public class EditorFrame extends JInternalFrame
 		countLabel.setText("Total cards: " + deck.total());
 		landLabel.setText("Lands: " + deck.land());
 		nonlandLabel.setText("Nonlands: " + deck.nonland());
-		double avgCMC = deck.stream().filter((c) -> !c.typeContains("land")).mapToDouble(Card::cmc).average().orElse(0.0);
+		double avgCMC = deck.stream().filter((c) -> !c.typeContains("land")).mapToDouble(Card::minCmc).average().orElse(0.0);
 		if ((int)avgCMC == avgCMC)
 			avgCMCLabel.setText("Average CMC: " + (int)avgCMC);
 		else

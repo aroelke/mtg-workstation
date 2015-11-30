@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import editor.database.Card;
+import editor.filter.Filter;
 import editor.gui.filter.editor.FilterEditorPanel;
 
 /**
@@ -166,8 +167,8 @@ public class FilterTypePanel extends FilterPanel
 	 * 
 	 * @param contents String to parse for contents
 	 * @see FilterGroupPanel#setContents(String)
-	 * @see FilterGroupPanel#BEGIN_GROUP
-	 * @see FilterGroupPanel#END_GROUP
+	 * @see Filter#BEGIN_GROUP
+	 * @see Filter#END_GROUP
 	 */
 	@Override
 	public void setContents(String contents)
@@ -190,13 +191,13 @@ public class FilterTypePanel extends FilterPanel
 	/**
 	 * @return A String representation of this FilterTypePanel, which is its' current filter's
 	 * string surrounded by group enclosures.
-	 * @see FilterGroupPanel#BEGIN_GROUP
-	 * @see FilterGroupPanel#END_GROUP
+	 * @see Filter#BEGIN_GROUP
+	 * @see Filter#END_GROUP
 	 */
 	@Override
 	public String toString()
 	{
-		return FilterGroupPanel.BEGIN_GROUP + currentFilter.toString() + FilterGroupPanel.END_GROUP;
+		return Filter.BEGIN_GROUP + currentFilter.toString() + Filter.END_GROUP;
 	}
 	
 	/**

@@ -12,6 +12,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import editor.database.CategorySpec;
+import editor.filter.Filter;
 import editor.gui.ColorButton;
 import editor.gui.filter.FilterGroupPanel;
 
@@ -45,8 +46,8 @@ public class CategoryEditorPanel extends JPanel
 			{
 				if (editor.nameField.getText().isEmpty())
 					JOptionPane.showMessageDialog(null, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
-				else if (editor.nameField.getText().contains(String.valueOf(FilterGroupPanel.BEGIN_GROUP)))
-					JOptionPane.showMessageDialog(null, "Category names cannot contain the character '" + FilterGroupPanel.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
+				else if (editor.nameField.getText().contains(String.valueOf(Filter.BEGIN_GROUP)))
+					JOptionPane.showMessageDialog(null, "Category names cannot contain the character '" + Filter.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
 				else
 				{
 					editor.updateSpec();

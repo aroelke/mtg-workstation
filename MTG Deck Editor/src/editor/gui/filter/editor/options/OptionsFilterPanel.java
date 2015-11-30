@@ -47,7 +47,9 @@ public abstract class OptionsFilterPanel<T> extends FilterEditorPanel
 	 * TODO: Comment this
 	 */
 	private List<JComboBox<T>> optionsBoxes;
-
+	/**
+	 * TODO: Comment this
+	 */
 	private ScrollablePanel optionsPanel;
 	
 	/**

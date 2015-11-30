@@ -27,6 +27,7 @@ import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.ChaosSymbol;
 import editor.database.symbol.Symbol;
+import editor.util.Tuple;
 
 /**
  * This class represents a Magic: the Gathering card.  It has all of the card's characteristics and can
@@ -290,10 +291,19 @@ public final class Card
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Tuple<Double> cmc()
+	{
+		return new Tuple<Double>(mana().stream().map(ManaCost::cmc).collect(Collectors.toList()));
+	}
+	
+	/**
 	 * @return This Card's converted mana cost, which is the smallest converted mana cost
 	 * among its faces.
 	 */
-	public double cmc()
+	public double minCmc()
 	{
 		return mana().stream().mapToDouble(ManaCost::cmc).min().orElse(0.0);
 	}
