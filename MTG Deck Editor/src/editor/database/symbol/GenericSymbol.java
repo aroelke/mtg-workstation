@@ -13,7 +13,7 @@ public class GenericSymbol extends Symbol
 	 * Highest consecutive value that a colorless symbol might attain.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static int HIGHEST = 20;
+	public static final int HIGHEST = 20;
 	/**
 	 * Array of consecutive ColorlessSymbols.
 	 */
