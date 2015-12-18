@@ -946,7 +946,7 @@ public final class Card
 				catch (Exception e)
 				{}
 			}
-			html = html.replace("CHAOS", ChaosSymbol.CHAOS.getHTML());
+			html = html.replace(ChaosSymbol.CHAOS.toString(), ChaosSymbol.CHAOS.getHTML());
 			html = html.replace("\n", "<br>");
 			return html;
 		}

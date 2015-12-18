@@ -20,6 +20,9 @@ import editor.database.characteristics.MTGColor;
  * class.
  * 
  * @author Alec Roelke
+ * 
+ * TODO: Create a list that defines the master ordering of symbols
+ * (symbols not in this list do not have a defined ordering)
  */
 public abstract class Symbol implements Comparable<Symbol>
 {
@@ -63,8 +66,9 @@ public abstract class Symbol implements Comparable<Symbol>
 	 */
 	public static Symbol valueOf(String s)
 	{
-		// The symbol is not hybrid if it doesn't have a /
-		if (!s.contains("/"))
+		if (s.equalsIgnoreCase(ChaosSymbol.CHAOS.toString()))
+			return ChaosSymbol.CHAOS;
+		else if (!s.contains("/")) // The symbol is not hybrid if it doesn't have a /
 		{
 			// First try to make a colored symbol
 			try
@@ -73,16 +77,16 @@ public abstract class Symbol implements Comparable<Symbol>
 			}
 			catch (IllegalArgumentException e)
 			{
-				// If that failed, try to make a colorless symbol
+				// If that failed, try to make a generic symbol
 				try
 				{
 					int n = Integer.valueOf(s);
 					if (n == 1000000)
-						return ColorlessSymbol.MILLION;
+						return GenericSymbol.MILLION;
 					else if (n == 100)
-						return ColorlessSymbol.HUNDRED;
+						return GenericSymbol.HUNDRED;
 					else
-						return ColorlessSymbol.N[n];
+						return GenericSymbol.N[n];
 				}
 				catch (NumberFormatException n)
 				{
@@ -103,7 +107,7 @@ public abstract class Symbol implements Comparable<Symbol>
 					case 'Q':
 						return UntapSymbol.UNTAP;
 					case 'C':
-						return ChaosSymbol.CHAOS;
+						return ColorlessSymbol.COLORLESS;
 					case 'P':
 						return PhiSymbol.PHI;
 					case 'H':
@@ -120,11 +124,13 @@ public abstract class Symbol implements Comparable<Symbol>
 		}
 		else
 		{
-			// If the String has a / in it, then ether it is a type of hybrid symbol or it is a colorless 1/2 mana
+			// If the String has a / in it, then either it is a type of hybrid symbol or it is a colorless 1/2 mana
 			// symbol
 			String[] cols = s.split("/");
 			if (cols[0].equals("1") && cols[1].equals("2"))
-				return HalfManaSymbol.HALF_MANA;  
+				return HalfManaSymbol.HALF_MANA;
+			else if (cols[0].equalsIgnoreCase("C") && cols[1].equals("2"))
+				return HalfColorlessSymbol.HALF_COLORLESS;
 			try
 			{
 				if (cols[0].equals("2"))
@@ -202,7 +208,7 @@ public abstract class Symbol implements Comparable<Symbol>
 	}
 	
 	/**
-	 * @return A String representation of this Symbol: its test surrounded by {}.
+	 * @return A String representation of this Symbol: its text surrounded by {}.
 	 */
 	@Override
 	public String toString()

@@ -111,11 +111,12 @@ public class TwobridSymbol extends Symbol
 		if (o instanceof TwobridSymbol)
 			return color.colorOrder(((TwobridSymbol)o).color);
 		else if (o instanceof ColorSymbol || o instanceof HybridSymbol
-				 || o instanceof PhyrexianSymbol)
+				 || o instanceof PhyrexianSymbol || o instanceof ColorlessSymbol)
 			return -1;
-		else if (o instanceof ColorlessSymbol || o instanceof HalfColorSymbol
+		else if (o instanceof GenericSymbol || o instanceof HalfColorSymbol
 				 || o instanceof HalfManaSymbol || o instanceof SnowSymbol
-				 || o instanceof XSymbol || o instanceof YSymbol || o instanceof ZSymbol)
+				 || o instanceof XSymbol || o instanceof YSymbol || o instanceof ZSymbol
+				 || o instanceof HalfColorlessSymbol)
 			return 1;
 		else
 			return 0;

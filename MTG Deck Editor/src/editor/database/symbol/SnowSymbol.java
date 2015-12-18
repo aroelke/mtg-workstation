@@ -55,11 +55,13 @@ public class SnowSymbol extends Symbol
 		if (o instanceof SnowSymbol)
 			return 0;
 		else if (o instanceof ColorSymbol || o instanceof HybridSymbol
-				 || o instanceof PhyrexianSymbol || o instanceof TwobridSymbol)
+				 || o instanceof PhyrexianSymbol || o instanceof TwobridSymbol
+				 || o instanceof ColorlessSymbol)
 			return -1;
-		else if (o instanceof ColorlessSymbol || o instanceof HalfColorSymbol
+		else if (o instanceof GenericSymbol || o instanceof HalfColorSymbol
 				 || o instanceof HalfManaSymbol || o instanceof XSymbol
-				 || o instanceof YSymbol || o instanceof ZSymbol)
+				 || o instanceof YSymbol || o instanceof ZSymbol
+				 || o instanceof HalfColorlessSymbol)
 			return 1;
 		else
 			return 0;

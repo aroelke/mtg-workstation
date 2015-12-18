@@ -2,7 +2,7 @@ package editor.database.symbol;
 
 
 /**
- * This class represents a symbol for half of a colorless mana.
+ * This class represents a symbol for half of a generic mana.
  * 
  * @author Alec Roelke
  */
@@ -12,7 +12,7 @@ public class HalfManaSymbol extends Symbol
 	 * Instance of a HalfManaSymbol.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static HalfManaSymbol HALF_MANA = new HalfManaSymbol();
+	public static final HalfManaSymbol HALF_MANA = new HalfManaSymbol();
 	
 	/**
 	 * Create a new HalfManaSymbol.
@@ -54,12 +54,13 @@ public class HalfManaSymbol extends Symbol
 	{
 		if (o instanceof HalfManaSymbol)
 			return 0;
-		else if (o instanceof ColorlessSymbol || o instanceof ColorSymbol
+		else if (o instanceof GenericSymbol || o instanceof ColorSymbol
 				 || o instanceof HalfColorSymbol || o instanceof HybridSymbol
 				 || o instanceof PhyrexianSymbol || o instanceof SnowSymbol
-				 || o instanceof TwobridSymbol)
+				 || o instanceof TwobridSymbol || o instanceof ColorlessSymbol)
 			return -1;
-		else if (o instanceof XSymbol || o instanceof YSymbol || o instanceof ZSymbol)
+		else if (o instanceof HalfColorlessSymbol
+				 || o instanceof XSymbol || o instanceof YSymbol || o instanceof ZSymbol)
 			return 1;
 		else
 			return 0;

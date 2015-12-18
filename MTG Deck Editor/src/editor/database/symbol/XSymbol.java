@@ -4,6 +4,8 @@ package editor.database.symbol;
  * This class represents a mana symbol that can be paid for with any amount
  * of mana and replaces any X's that appear in a card's text with that amount.
  * 
+ * TODO: Bring all variable symbols into one class
+ * 
  * @author Alec Roelke
  */
 public class XSymbol extends Symbol

@@ -101,12 +101,13 @@ public class HybridSymbol extends Symbol
 	{
 		if (o instanceof HybridSymbol)
 			return colors.compareTo(((HybridSymbol)o).colors);
-		else if (o instanceof ColorSymbol || o instanceof PhyrexianSymbol)
+		else if (o instanceof ColorSymbol || o instanceof PhyrexianSymbol || o instanceof ColorlessSymbol)
 			return -1;
-		else if (o instanceof ColorlessSymbol || o instanceof HalfManaSymbol
+		else if (o instanceof GenericSymbol || o instanceof HalfManaSymbol
 				 || o instanceof HalfColorSymbol || o instanceof SnowSymbol
 				 || o instanceof TwobridSymbol || o instanceof XSymbol
-				 || o instanceof YSymbol || o instanceof ZSymbol)
+				 || o instanceof YSymbol || o instanceof ZSymbol
+				 || o instanceof HalfColorlessSymbol)
 			return 1;
 		else
 			return 0;

@@ -101,9 +101,10 @@ public class HalfColorSymbol extends Symbol
 			return color.colorOrder(((HalfColorSymbol)o).color);
 		else if (o instanceof ColorSymbol || o instanceof HybridSymbol
 				 || o instanceof PhyrexianSymbol || o instanceof SnowSymbol
-				 || o instanceof TwobridSymbol)
+				 || o instanceof TwobridSymbol || o instanceof ColorlessSymbol)
 			return -1;
-		else if (o instanceof HalfManaSymbol || o instanceof ColorlessSymbol
+		else if (o instanceof HalfManaSymbol || o instanceof HalfColorlessSymbol
+				 || o instanceof GenericSymbol
 				 || o instanceof XSymbol || o instanceof YSymbol || o instanceof ZSymbol)
 			return 1;
 		else

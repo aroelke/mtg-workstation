@@ -29,7 +29,16 @@ public class ChaosSymbol extends Symbol
 	@Override
 	public String getText()
 	{
-		return "C";
+		return "CHAOS";
+	}
+	
+	/**
+	 * @return A String representation of this ChaosSymbol: The string "CHAOS".
+	 */
+	@Override
+	public String toString()
+	{
+		return "CHAOS";
 	}
 
 	/**
