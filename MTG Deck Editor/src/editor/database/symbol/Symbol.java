@@ -12,7 +12,7 @@ import editor.database.characteristics.MTGColor;
 /**
  * This class represents a symbol that might appear on a card in Magic: The Gathering.  It has a weight for each
  * color, which is equal to 1 divided by the number of colors the symbol has, or zero if it does not have that
- * color.  Instances of Symbol cannot be instantiated; rather, they are accessed using static variables that contain
+ * color.  Symbol cannot be instantiated; rather, instances of it are accessed using static variables that contain
  * all possible values those symbols can attain.  For colored symbols, those variables will be Maps mapping colors
  * onto the correct symbols.  For constant colorless symbols, they will be an array containing the colorless symbol
  * corresponding to the index into the array and others for special symbols (100 and 1,000,000).  Nonmana symbols,
