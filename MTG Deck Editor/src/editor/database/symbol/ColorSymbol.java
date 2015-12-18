@@ -111,7 +111,7 @@ public class ColorSymbol extends Symbol
 				 || o instanceof HalfColorSymbol || o instanceof HalfManaSymbol
 				 || o instanceof HybridSymbol || o instanceof PhyrexianSymbol
 				 || o instanceof SnowSymbol || o instanceof TwobridSymbol
-				 || o instanceof XSymbol || o instanceof YSymbol || o instanceof ZSymbol)
+				 || o instanceof VariableSymbol)
 			return 1;
 		else
 			return 0;

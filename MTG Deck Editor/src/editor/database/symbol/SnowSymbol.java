@@ -59,8 +59,7 @@ public class SnowSymbol extends Symbol
 				 || o instanceof ColorlessSymbol)
 			return -1;
 		else if (o instanceof GenericSymbol || o instanceof HalfColorSymbol
-				 || o instanceof HalfManaSymbol || o instanceof XSymbol
-				 || o instanceof YSymbol || o instanceof ZSymbol
+				 || o instanceof HalfManaSymbol || o instanceof VariableSymbol
 				 || o instanceof HalfColorlessSymbol)
 			return 1;
 		else

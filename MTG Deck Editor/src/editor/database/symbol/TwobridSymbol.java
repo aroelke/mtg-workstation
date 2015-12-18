@@ -115,8 +115,7 @@ public class TwobridSymbol extends Symbol
 			return -1;
 		else if (o instanceof GenericSymbol || o instanceof HalfColorSymbol
 				 || o instanceof HalfManaSymbol || o instanceof SnowSymbol
-				 || o instanceof XSymbol || o instanceof YSymbol || o instanceof ZSymbol
-				 || o instanceof HalfColorlessSymbol)
+				 || o instanceof VariableSymbol || o instanceof HalfColorlessSymbol)
 			return 1;
 		else
 			return 0;

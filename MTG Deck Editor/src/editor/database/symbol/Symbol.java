@@ -94,12 +94,8 @@ public abstract class Symbol implements Comparable<Symbol>
 					char sym = s.toUpperCase().charAt(0);
 					switch (sym)
 					{
-					case 'X':
-						return XSymbol.X;
-					case 'Y':
-						return YSymbol.Y;
-					case 'Z':
-						return ZSymbol.Z;
+					case 'X': case 'Y': case 'Z':
+						return VariableSymbol.SYMBOLS.get(sym);
 					case 'S':
 						return SnowSymbol.SNOW;
 					case 'T':

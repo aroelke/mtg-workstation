@@ -105,8 +105,7 @@ public class HybridSymbol extends Symbol
 			return -1;
 		else if (o instanceof GenericSymbol || o instanceof HalfManaSymbol
 				 || o instanceof HalfColorSymbol || o instanceof SnowSymbol
-				 || o instanceof TwobridSymbol || o instanceof XSymbol
-				 || o instanceof YSymbol || o instanceof ZSymbol
+				 || o instanceof TwobridSymbol || o instanceof VariableSymbol
 				 || o instanceof HalfColorlessSymbol)
 			return 1;
 		else

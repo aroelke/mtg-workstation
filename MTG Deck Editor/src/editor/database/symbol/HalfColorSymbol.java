@@ -104,8 +104,7 @@ public class HalfColorSymbol extends Symbol
 				 || o instanceof TwobridSymbol || o instanceof ColorlessSymbol)
 			return -1;
 		else if (o instanceof HalfManaSymbol || o instanceof HalfColorlessSymbol
-				 || o instanceof GenericSymbol
-				 || o instanceof XSymbol || o instanceof YSymbol || o instanceof ZSymbol)
+				 || o instanceof GenericSymbol || o instanceof VariableSymbol)
 			return 1;
 		else
 			return 0;

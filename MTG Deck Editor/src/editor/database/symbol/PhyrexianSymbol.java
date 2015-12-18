@@ -105,8 +105,7 @@ public class PhyrexianSymbol extends Symbol
 		else if (o instanceof GenericSymbol || o instanceof HalfManaSymbol
 				 || o instanceof HalfColorSymbol || o instanceof SnowSymbol
 				 || o instanceof TwobridSymbol || o instanceof HybridSymbol
-				 || o instanceof XSymbol || o instanceof YSymbol || o instanceof ZSymbol
-				 || o instanceof HalfColorlessSymbol)
+				 || o instanceof VariableSymbol || o instanceof HalfColorlessSymbol)
 			return 1;
 		else
 			return 0;
