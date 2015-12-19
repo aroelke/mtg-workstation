@@ -10,12 +10,12 @@ package editor.database.symbol;
 public class GenericSymbol extends Symbol
 {
 	/**
-	 * Highest consecutive value that a colorless symbol might attain.
+	 * Highest consecutive value that a generic symbol might attain.
 	 * @see editor.database.symbol.Symbol
 	 */
 	public static final int HIGHEST = 20;
 	/**
-	 * Array of consecutive ColorlessSymbols.
+	 * Array of consecutive GenericSymbols.
 	 */
 	public static final GenericSymbol[] N = new GenericSymbol[HIGHEST + 1];
 	static
@@ -24,21 +24,21 @@ public class GenericSymbol extends Symbol
 			N[i] = new GenericSymbol(i);
 	}
 	/**
-	 * ColorlessSymbol representing 100 mana.
+	 * GenericSymbol representing 100 mana.
 	 */
 	public static final GenericSymbol HUNDRED = new GenericSymbol(100);
 	/**
-	 * ColorlessSymbol representing 1,000,000 mana.
+	 * GenericSymbol representing 1,000,000 mana.
 	 */
 	public static final GenericSymbol MILLION = new GenericSymbol(1000000);
 	
 	/**
-	 * Amount of mana this ColorlessSymbol represents.
+	 * Amount of mana this GenericSymbol represents.
 	 */
 	private final int amount;
 	
 	/**
-	 * Create a new ColorlessSymbol.
+	 * Create a new GenericSymbol.
 	 * 
 	 * @param amount Amount of mana the new ColorlessSymbol represents.
 	 */
@@ -49,7 +49,7 @@ public class GenericSymbol extends Symbol
 	}
 	
 	/**
-	 * @return The number corresponding to the amount of mana this ColorlessSymbol represents.
+	 * @return The number corresponding to the amount of mana this GenericSymbol represents.
 	 * @see editor.database.symbol.Symbol#getText()
 	 */
 	@Override
@@ -92,7 +92,7 @@ public class GenericSymbol extends Symbol
 	}
 
 	/**
-	 * @return <code>true</code> if the other Symbol is a ColorlessSymbol with the same amount and
+	 * @return <code>true</code> if the other Symbol is a GenericSymbol with the same amount and
 	 * <code>false</code> otherwise.
 	 * @see editor.database.symbol.Symbol#sameSymbol(Symbol)
 	 */
