@@ -23,7 +23,7 @@ public class AllFilterPanel extends FilterEditorPanel
 	 */
 	public AllFilterPanel()
 	{
-		super(FilterType.NONE);
+		super(FilterType.ALL);
 		setLayout(new GridLayout(1, 1));
 		setBorder(new EmptyBorder(0, 5, 0, 0));
 		JLabel label = new JLabel("This clause will match every card.");
