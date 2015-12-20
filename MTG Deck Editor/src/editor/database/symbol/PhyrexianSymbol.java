@@ -100,15 +100,8 @@ public class PhyrexianSymbol extends Symbol
 	{
 		if (o instanceof PhyrexianSymbol)
 			return color.colorOrder(((PhyrexianSymbol)o).color);
-		else if (o instanceof ColorSymbol || o instanceof ColorlessSymbol)
-			return -1;
-		else if (o instanceof GenericSymbol || o instanceof HalfManaSymbol
-				 || o instanceof HalfColorSymbol || o instanceof SnowSymbol
-				 || o instanceof TwobridSymbol || o instanceof HybridSymbol
-				 || o instanceof VariableSymbol || o instanceof HalfColorlessSymbol)
-			return 1;
 		else
-			return 0;
+			return super.compareTo(o);
 	}
 
 	/**

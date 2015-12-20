@@ -1,7 +1,9 @@
 package editor.database.symbol;
 
 import java.awt.Image;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.Icon;
@@ -26,6 +28,22 @@ import editor.database.characteristics.MTGColor;
  */
 public abstract class Symbol implements Comparable<Symbol>
 {
+	public static final List<Class<? extends Symbol>> ORDER = new ArrayList<Class<? extends Symbol>>();
+	static
+	{
+		ORDER.add(VariableSymbol.class);
+		ORDER.add(HalfManaSymbol.class);
+		ORDER.add(GenericSymbol.class);
+		ORDER.add(HalfColorlessSymbol.class);
+		ORDER.add(HalfColorSymbol.class);
+		ORDER.add(ColorlessSymbol.class);
+		ORDER.add(SnowSymbol.class);
+		ORDER.add(TwobridSymbol.class);
+		ORDER.add(HybridSymbol.class);
+		ORDER.add(PhyrexianSymbol.class);
+		ORDER.add(ColorSymbol.class);
+	}
+	
 	/**
 	 * Icon to show when displaying this Symbol.
 	 */
@@ -219,7 +237,17 @@ public abstract class Symbol implements Comparable<Symbol>
 	 * and a positive number if this Symbol should appear after it.
 	 */
 	@Override
-	public abstract int compareTo(Symbol other);
+	public int compareTo(Symbol other)
+	{
+		if (ORDER.contains(getClass()) && ORDER.contains(other.getClass()))
+			return ORDER.indexOf(getClass()) - ORDER.indexOf(other.getClass());
+		else if (!ORDER.contains(getClass()))
+			return 1;
+		else if (!ORDER.contains(other.getClass()))
+			return -1;
+		else
+			return 0;
+	}
 	
 	/**
 	 * @param other Symbol to compare with

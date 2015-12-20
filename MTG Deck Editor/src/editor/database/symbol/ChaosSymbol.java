@@ -42,17 +42,6 @@ public class ChaosSymbol extends Symbol
 	}
 
 	/**
-	 * @param o Symbol to compare with
-	 * @return 0, since ordering with other symbols is not defined for chaos symbol.
-	 * @see editor.database.symbol.Symbol#compareTo(editor.database.symbol.Symbol)
-	 */
-	@Override
-	public int compareTo(Symbol o)
-	{
-		return 0;
-	}
-
-	/**
 	 * @param other Symbol to compare to
 	 * @return 0, since this symbol's ordering relative to other ones is
 	 * not defined.

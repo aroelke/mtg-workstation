@@ -32,17 +32,6 @@ public class TapSymbol extends Symbol
 	}
 
 	/**
-	 * @return 0, since the order of where a tap symbol should go in costs is not defined
-	 * (it is always separated from a mana cost by a comma).
-	 * @see editor.database.symbol.Symbol#compareTo(editor.database.symbol.Symbol)
-	 */
-	@Override
-	public int compareTo(Symbol o)
-	{
-		return 0;
-	}
-
-	/**
 	 * @return <code>true</code> if the other Symbol is a TapSymbol, and <code>false</code>
 	 * otherwise.
 	 * @see editor.database.symbol.Symbol#sameSymbol(editor.database.symbol.Symbol)

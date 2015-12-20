@@ -28,17 +28,6 @@ public class ColorlessSymbol extends Symbol
 	{
 		return 1;
 	}
-	
-	@Override
-	public int compareTo(Symbol other)
-	{
-		if (other instanceof ColorSymbol)
-			return -1;
-		else if (other instanceof ColorlessSymbol)
-			return 0;
-		else
-			return 1;
-	}
 
 	@Override
 	public boolean sameSymbol(Symbol other)

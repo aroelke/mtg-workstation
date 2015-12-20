@@ -43,30 +43,6 @@ public class SnowSymbol extends Symbol
 	}
 
 	/**
-	 * @param o Symbol to compare with
-	 * @return A negative number if this SnowSymbol should come before the other in costs,
-	 * 0 if the other is also a SnowSymbol or ordering is not defined, and a positive number if
-	 * it should come after. 
-	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
-	 */
-	@Override
-	public int compareTo(Symbol o)
-	{
-		if (o instanceof SnowSymbol)
-			return 0;
-		else if (o instanceof ColorSymbol || o instanceof HybridSymbol
-				 || o instanceof PhyrexianSymbol || o instanceof TwobridSymbol
-				 || o instanceof ColorlessSymbol)
-			return -1;
-		else if (o instanceof GenericSymbol || o instanceof HalfColorSymbol
-				 || o instanceof HalfManaSymbol || o instanceof VariableSymbol
-				 || o instanceof HalfColorlessSymbol)
-			return 1;
-		else
-			return 0;
-	}
-
-	/**
 	 * @return <code>true</code> if the other Symbol is a SnowSymbol, and <code>false</code>
 	 * otherwise.
 	 * @see editor.database.symbol.Symbol#sameSymbol(Symbol)

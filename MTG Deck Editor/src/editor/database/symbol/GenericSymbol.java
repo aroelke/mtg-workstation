@@ -80,15 +80,8 @@ public class GenericSymbol extends Symbol
 	{
 		if (o instanceof GenericSymbol)
 			return amount - ((GenericSymbol)o).amount;
-		else if (o instanceof ColorSymbol || o instanceof HalfColorSymbol
-				 || o instanceof HybridSymbol || o instanceof PhyrexianSymbol
-				 || o instanceof SnowSymbol || o instanceof TwobridSymbol
-				 || o instanceof ColorlessSymbol || o instanceof HalfColorlessSymbol)
-			return -1;
-		else if (o instanceof HalfManaSymbol || o instanceof VariableSymbol)
-			return 1;
 		else
-			return 0;
+			return super.compareTo(o);
 	}
 
 	/**

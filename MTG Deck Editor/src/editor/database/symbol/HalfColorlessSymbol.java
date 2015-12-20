@@ -28,21 +28,6 @@ public class HalfColorlessSymbol extends Symbol
 	{
 		return 0.5;
 	}
-	
-	@Override
-	public int compareTo(Symbol o)
-	{
-		if (o instanceof HalfColorlessSymbol)
-			return 0;
-		else if (o instanceof GenericSymbol || o instanceof ColorSymbol
-				 || o instanceof HalfColorSymbol || o instanceof HybridSymbol
-				 || o instanceof PhyrexianSymbol || o instanceof SnowSymbol
-				 || o instanceof TwobridSymbol || o instanceof HalfManaSymbol
-				 || o instanceof ColorlessSymbol)
-			return -1;
-		else
-			return 1;
-	}
 
 	@Override
 	public boolean sameSymbol(Symbol other)

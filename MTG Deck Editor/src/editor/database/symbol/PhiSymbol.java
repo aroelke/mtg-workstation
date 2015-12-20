@@ -34,17 +34,6 @@ public class PhiSymbol extends Symbol
 	}
 
 	/**
-	 * @param o Symbol to compare with
-	 * @return 0, since ordering with other Symbols is not defined for a PhiSymbol.
-	 * @see editor.database.symbol.Symbol#compareTo(editor.database.symbol.Symbol)
-	 */
-	@Override
-	public int compareTo(Symbol o)
-	{
-		return 0;
-	}
-
-	/**
 	 * @return <code>true</code> if the other Symbol is a PhiSymbol, and <code>false</code>
 	 * otherwise.
 	 * @see editor.database.symbol.Symbol#sameSymbol(editor.database.symbol.Symbol)

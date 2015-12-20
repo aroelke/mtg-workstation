@@ -32,16 +32,6 @@ public class InfinityManaSymbol extends Symbol
 	}
 
 	/**
-	 * @return 0, since no ordering has been defined for infinity mana (it could
-	 * probably go with other colorless mana, but it can't appear in costs anyway).
-	 */
-	@Override
-	public int compareTo(Symbol other)
-	{
-		return 0;
-	}
-
-	/**
 	 * @param other Symbol to compare with
 	 * @return <code>true</code> if the other symbol is an InfinityManaSymbol
 	 * and <code>false</code> otherwise.

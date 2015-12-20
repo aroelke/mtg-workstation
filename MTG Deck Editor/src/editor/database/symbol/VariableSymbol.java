@@ -40,7 +40,7 @@ public class VariableSymbol extends Symbol
 		if (other instanceof VariableSymbol)
 			return var - ((VariableSymbol)other).var;
 		else
-			return -1;
+			return super.compareTo(other);
 	}
 
 	@Override
