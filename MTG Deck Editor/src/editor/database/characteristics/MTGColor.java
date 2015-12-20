@@ -57,7 +57,7 @@ public enum MTGColor
 		case 'g':
 			return GREEN;
 		default:
-			throw new IllegalArgumentException("Illegal color shorthand");
+			throw new IllegalArgumentException("Illegal color shorthand '" + color + "'");
 		}
 	}
 	

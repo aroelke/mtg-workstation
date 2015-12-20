@@ -59,13 +59,14 @@ public class FilterGroup extends Filter
 		StringJoiner join = new StringJoiner(" ");
 		join.add(mode == Mode.AND ? "AND" : "OR");
 		for (Filter filter: children)
-			join.add(filter.representation());
+			join.add(filter.toString());
 		return join.toString();
 	}
 
 	@Override
 	public void parse(String s)
 	{
+		children.clear();
 		String[] contents = s.substring(1, s.length() - 1).split("\\s+", 2);
 		mode = Mode.valueOf(contents[0]);
 		List<String> filterStrings = new ArrayList<String>();

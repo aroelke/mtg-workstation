@@ -17,7 +17,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 	public void parse(String s)
 	{
 		String content = checkContents(s, FilterType.EXPANSION);
-		int delim = s.indexOf('{');
+		int delim = content.indexOf('{');
 		contain = Containment.get(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			for (String o: content.substring(delim + 1, content.length() - 1).split(","))

@@ -36,15 +36,15 @@ public class TypeLineFilter extends FilterLeaf<List<List<String>>>
 	@Override
 	public String content()
 	{
-		return null;
+		return contain.toString() + "\"" + line + "\"";
 	}
 	
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.ARTIST, FilterType.FLAVOR_TEXT, FilterType.NAME, FilterType.RULES_TEXT);
+		String content = checkContents(s, FilterType.TYPE_LINE);
 		int delim = content.indexOf('"');
 		contain = Containment.get(content.substring(0, delim));
-		line = content.substring(delim + 1);
+		line = content.substring(delim + 1, content.lastIndexOf('"'));
 	}
 }

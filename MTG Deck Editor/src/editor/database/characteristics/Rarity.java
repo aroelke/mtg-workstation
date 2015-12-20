@@ -31,7 +31,7 @@ public enum Rarity implements CharSequence
 		else if (rarity.contains("basic"))
 			return BASIC_LAND;
 		else
-			throw new IllegalArgumentException("Illegal rarity string");
+			throw new IllegalArgumentException("Illegal rarity string \"" + rarity + "\"");
 	}
 	
 	/**

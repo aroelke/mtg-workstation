@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import editor.database.Card;
 import editor.filter.FilterType;
+import editor.util.Comparison;
 
 /**
  * TODO: Comment this class
@@ -49,4 +50,17 @@ public class VariableNumberFilter extends NumberFilter
 		return varies ? "*" : super.content();
 	}
 
+	@Override
+	public void parse(String s)
+	{
+		String content = checkContents(s, FilterType.POWER, FilterType.TOUGHNESS);
+		if (content.equals("*"))
+			varies = true;
+		else
+		{
+			varies = false;
+			compare = Comparison.get(content.charAt(0));
+			operand = Double.valueOf(content.substring(1));
+		}
+	}
 }

@@ -102,8 +102,9 @@ public abstract class FilterLeaf<T> extends Filter
 	public String checkContents(String s, FilterType... correct)
 	{
 		int delim = s.indexOf(':');
-		if (!Arrays.asList(correct).contains(FilterType.fromCode(s.substring(1, delim))))
-			throw new IllegalArgumentException("Illegal filter type found in string \"" + s + "\"");
+		String code = s.substring(1, delim);
+		if (!Arrays.asList(correct).contains(FilterType.fromCode(code)))
+			throw new IllegalArgumentException("Illegal filter type '" + code + "' found in string \"" + s + "\"");
 		return s.substring(delim + 1, s.length() - 1);
 	}
 	

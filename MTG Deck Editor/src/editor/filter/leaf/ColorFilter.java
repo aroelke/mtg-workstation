@@ -56,7 +56,7 @@ public class ColorFilter extends FilterLeaf<MTGColor.Tuple>
 			join.add(String.valueOf(color.shorthand()));
 		if (multicolored)
 			join.add("M");
-		return join.toString();
+		return contain.toString() + join.toString();
 	}
 	
 	@Override
@@ -65,7 +65,7 @@ public class ColorFilter extends FilterLeaf<MTGColor.Tuple>
 		String content = checkContents(s, FilterType.COLOR, FilterType.COLOR_IDENTITY);
 		int delim = content.indexOf('"');
 		contain = Containment.get(content.substring(0, delim));
-		for (char c: content.substring(delim + 1).toCharArray())
+		for (char c: content.substring(delim + 1, content.lastIndexOf('"')).toCharArray())
 		{
 			if (Character.toUpperCase(c) == 'M')
 				multicolored = true;

@@ -50,8 +50,8 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.SUBTYPE);
-		int delim = s.indexOf('{');
+		String content = checkContents(s, FilterType.FORMAT_LEGALITY);
+		int delim = content.indexOf('{');
 		contain = Containment.get(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			selected.addAll(Arrays.asList(content.substring(delim + 1, content.length() - 2).split(",")));

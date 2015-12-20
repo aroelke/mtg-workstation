@@ -136,7 +136,18 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	{
 		String content = checkContents(s, FilterType.ARTIST, FilterType.FLAVOR_TEXT, FilterType.NAME, FilterType.RULES_TEXT);
 		int delim = content.indexOf('"');
-		contain = Containment.get(content.substring(0, delim));
-		text = content.substring(delim + 1);
+		if (delim > -1)
+		{
+			contain = Containment.get(content.substring(0, delim));
+			text = content.substring(delim + 1, content.lastIndexOf('"'));
+			regex = false;
+		}
+		else
+		{
+			delim = content.indexOf('/');
+			contain = Containment.get(content.substring(0, delim));
+			text = content.substring(delim + 1, content.lastIndexOf('/'));
+			regex = true;
+		}
 	}
 }

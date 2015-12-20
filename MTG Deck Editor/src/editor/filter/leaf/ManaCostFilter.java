@@ -49,6 +49,6 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 		String content = checkContents(s, FilterType.MANA_COST);
 		int delim = content.indexOf('"');
 		contain = Containment.get(content.substring(0, delim));
-		cost = ManaCost.valueOf(content.substring(delim + 1));
+		cost = ManaCost.valueOf(content.substring(delim + 1, content.lastIndexOf('"')));
 	}
 }
