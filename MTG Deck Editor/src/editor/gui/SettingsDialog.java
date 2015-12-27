@@ -183,6 +183,15 @@ public class SettingsDialog extends JDialog
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public static String[] getPresetCategories()
+	{
+		return getSetting(EDITOR_PRESETS).split(CATEGORY_DELIMITER);
+	}
+	
+	/**
 	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
 	 * 
 	 * @param col Color to convert

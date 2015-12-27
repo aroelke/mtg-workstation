@@ -14,37 +14,61 @@ import javax.swing.JPanel;
  * 
  * @author Alec Roelke
  *
- * @param <T> Type of data the combo box holds
+ * @param <E> Type of data the combo box holds
  */
 @SuppressWarnings("serial")
-public class ComboBoxPanel<T> extends JPanel
+public class ComboBoxPanel<E> extends JPanel
 {
 	/**
 	 * Combo box displayed by the panel.
 	 */
-	private JComboBox<T> options;
+	private JComboBox<E> options;
 	
 	/**
 	 * Create a new ComboBoxPanel containing a combo box with the given options.
 	 * 
-	 * @param t Options the combo box should display
+	 * @param items Options the combo box should display
 	 */
-	public ComboBoxPanel(T[] t)
+	public ComboBoxPanel(E[] items)
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		add(Box.createVerticalGlue());
-		options = new JComboBox<T>(t);
+		options = new JComboBox<E>(items);
 		options.setMaximumSize(options.getPreferredSize());
 		add(options);
 		add(Box.createVerticalGlue());
 	}
 	
 	/**
+	 * Create a new ComboBoxPanel containing an empty combo box.
+	 */
+	public ComboBoxPanel()
+	{
+		super();
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		add(Box.createVerticalGlue());
+		options = new JComboBox<E>();
+		options.setMaximumSize(options.getPreferredSize());
+		add(options);
+		add(Box.createVerticalGlue());
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param item
+	 */
+	public void addItem(E item)
+	{
+		options.addItem(item);
+	}
+	
+	/**
 	 * @return The item currently displayed by the combo box.
 	 */
-	public T getSelectedItem()
+	public E getSelectedItem()
 	{
 		return options.getItemAt(options.getSelectedIndex());
 	}

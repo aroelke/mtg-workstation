@@ -36,11 +36,12 @@ import editor.database.Card;
 import editor.database.CategorySpec;
 import editor.database.Deck;
 import editor.database.characteristics.CardCharacteristic;
-import editor.filter.Filter;
+import editor.filter.FilterGroup;
+import editor.filter.FilterType;
+import editor.filter.leaf.TextFilter;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;
 import editor.gui.CategoryList;
-import editor.gui.filter.editor.text.NameFilterPanel;
 import editor.util.Containment;
 
 /**
@@ -311,11 +312,22 @@ public class CalculateHandDialog extends JDialog
 		addButton.addActionListener((e) -> {
 			for (Card c: Arrays.stream(deckTable.getSelectedRows()).mapToObj((r) -> d.get(deckTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
 			{
-				NameFilterPanel panel = new NameFilterPanel();
-				panel.setContainment(Containment.CONTAINS_EXACTLY);
-				panel.setText(c.name());
-				panel.setRegex(false);
-				constraintList.addCategory(new CategorySpec(c.name(), Color.BLACK, panel.getFilter(), Filter.BEGIN_GROUP + "AND " + Filter.BEGIN_GROUP + panel.toString() + Filter.END_GROUP + Filter.END_GROUP));
+				TextFilter panel;
+				try
+				{
+					panel = (TextFilter)FilterType.NAME.createFilter();
+					panel.contain = Containment.CONTAINS_EXACTLY;
+					panel.text = c.name();
+					panel.regex = false;
+					FilterGroup group = new FilterGroup();
+					group.addChild(panel);
+					constraintList.addCategory(new CategorySpec(c.name(), Color.BLACK, group));
+				}
+				catch (Exception e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		removeButton.addActionListener((e) -> {

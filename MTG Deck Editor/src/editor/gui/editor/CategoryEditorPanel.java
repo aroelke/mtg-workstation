@@ -110,7 +110,7 @@ public class CategoryEditorPanel extends JPanel
 		
 		add(filter = new FilterGroupPanel(), BorderLayout.CENTER);
 		
-		spec = new CategorySpec(nameField.getText(), colorButton.color(), filter.filter(), filter.toString());
+		spec = new CategorySpec(nameField.getText(), colorButton.color(), filter.filter());
 	}
 	
 	/**
@@ -127,7 +127,7 @@ public class CategoryEditorPanel extends JPanel
 			spec = new CategorySpec(s);
 			nameField.setText(spec.name);
 			colorButton.setColor(spec.color);
-			filter.setContents(spec.filterString);
+			filter.setContents(spec.filter);
 		}
 	}
 	
@@ -139,7 +139,6 @@ public class CategoryEditorPanel extends JPanel
 		spec.name = nameField.getText();
 		spec.color = colorButton.color();
 		spec.filter = filter.filter();
-		spec.filterString = filter.toString();
 	}
 	
 	/**

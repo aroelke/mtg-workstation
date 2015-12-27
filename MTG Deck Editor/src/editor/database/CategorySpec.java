@@ -7,14 +7,13 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import editor.filter.Filter;
+import editor.filter.FilterGroup;
 import editor.gui.SettingsDialog;
-import editor.gui.filter.FilterGroupPanel;
 
 /**
  * This class represents a set of specifications for a category.  Those specifications are its name,
@@ -37,7 +36,7 @@ public class CategorySpec
 	 * not include the group enclosing characters, but the fifth will.  The first through third groups
 	 * will be empty strings if they are empty, but the fourth will be null.  The first and fifth groups
 	 * should never be empty.
-	 * @see editor.gui.filter.FilterGroupPanel#setContents(String)
+	 * @see editor.gui.filter.original.FilterGroupPanel#setContents(String)
 	 */
 	private static final Pattern CATEGORY_PATTERN = Pattern.compile(
 			"^" + Filter.BEGIN_GROUP + "([^" + Filter.END_GROUP + "]+)" + Filter.END_GROUP		// Name
@@ -65,11 +64,7 @@ public class CategorySpec
 	/**
 	 * Filter of the category.
 	 */
-	public Predicate<Card> filter;
-	/**
-	 * String representation of the Category's filter.
-	 */
-	public String filterString;
+	public Filter filter;
 	
 	/**
 	 * Create a new CategorySpec with the given specifications.
@@ -79,16 +74,14 @@ public class CategorySpec
 	 * @param blacklist Blacklist of the new spec
 	 * @param color Color of the new spec
 	 * @param filter Filter of the new spec
-	 * @param filterString String representation of the filter
 	 */
-	public CategorySpec(String name, Collection<Card> whitelist, Collection<Card> blacklist, Color color, Predicate<Card> filter, String filterString)
+	public CategorySpec(String name, Collection<Card> whitelist, Collection<Card> blacklist, Color color, Filter filter)
 	{
 		this.name = name;
 		this.whitelist = new HashSet<Card>(whitelist);
 		this.blacklist = new HashSet<Card>(blacklist);
 		this.color = color;
 		this.filter = filter;
-		this.filterString = filterString;
 	}
 	
 	/**
@@ -98,11 +91,10 @@ public class CategorySpec
 	 * @param name Name of the new spec
 	 * @param color Color of the new spec
 	 * @param filter Filter of the new spec
-	 * @param filterString String representation of the filter
 	 */
-	public CategorySpec(String name, Color color, Predicate<Card> filter, String filterString)
+	public CategorySpec(String name, Color color, Filter filter)
 	{
-		this(name, new HashSet<Card>(), new HashSet<Card>(), color, filter, filterString);
+		this(name, new HashSet<Card>(), new HashSet<Card>(), color, filter);
 	}
 	
 	/**
@@ -134,10 +126,7 @@ public class CategorySpec
 				Random rand = new Random();
 				color = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), (float)Math.sqrt(rand.nextFloat()));
 			}
-			filterString = m.group(5);
-			FilterGroupPanel panel = new FilterGroupPanel();
-			panel.setContents(filterString);
-			filter = panel.filter();
+			filter = new FilterGroup(m.group(5));
 		}
 		else
 			throw new IllegalArgumentException("Illegal category string " + pattern);
@@ -164,10 +153,7 @@ public class CategorySpec
 				Random rand = new Random();
 				color = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), (float)Math.sqrt(rand.nextFloat()));
 			}
-			filterString = m.group(5);
-			FilterGroupPanel panel = new FilterGroupPanel(); // TODO: Separate this from the GUI
-			panel.setContents(filterString);
-			filter = panel.filter();
+			filter = new FilterGroup(m.group(5));
 		}
 		else
 			throw new IllegalArgumentException("Illegal category string " + pattern);
@@ -186,13 +172,12 @@ public class CategorySpec
 		whitelist = new HashSet<Card>(original.whitelist);
 		blacklist = new HashSet<Card>(original.blacklist);
 		color = original.color;
-		filterString = original.filterString;
-		filter = original.filter;
+		filter = original.filter; // TODO: Make this copy
 	}
 	
 	/**
 	 * @return This CategorySpec's String representation.
-	 * @see editor.gui.filter.editor.FilterEditorPanel#setContents(String)
+	 * @see editor.gui.filter.original.editor.FilterEditorPanel#setContents(String)
 	 * @see gui.editor.CategoryDialog#setContents(String)
 	 */
 	@Override
@@ -208,6 +193,6 @@ public class CategorySpec
 				+ " " + white.toString()
 				+ " " + black.toString()
 				+ " " + Filter.BEGIN_GROUP + SettingsDialog.colorToString(color, 3) + Filter.END_GROUP
-				+ " " + filterString;
+				+ " " + filter.toString();
 	}
 }

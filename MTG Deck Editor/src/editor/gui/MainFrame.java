@@ -86,6 +86,7 @@ import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.ChaosSymbol;
 import editor.database.symbol.Symbol;
+import editor.filter.leaf.FilterLeaf;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.inventory.InventoryDownloadDialog;
@@ -133,10 +134,6 @@ public class MainFrame extends JFrame
 	 * Model for the table displaying the inventory of all cards.
 	 */
 	private CardTableModel inventoryModel;
-	/**
-	 * Panel for editing the inventory filter.
-	 */
-	private FilterGroupPanel filter;
 	/**
 	 * Currently-selected card which will be added to decks.
 	 */
@@ -222,7 +219,6 @@ public class MainFrame extends JFrame
 		untitled = 0;
 		selectedFrame = null;
 		editors = new ArrayList<EditorFrame>();
-		filter = null;
 		recentItems = new LinkedList<JMenuItem>();
 		recents = new HashMap<JMenuItem, File>();
 		
@@ -477,7 +473,7 @@ public class MainFrame extends JFrame
 		// Preset categories menu
 		presetMenu = new JMenu("Add Preset");
 		categoryMenu.add(presetMenu);
-		for (String category: SettingsDialog.getSetting(SettingsDialog.EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
+		for (String category: SettingsDialog.getPresetCategories())
 		{
 			CategorySpec spec = new CategorySpec(category, inventory);
 			JMenuItem categoryItem = new JMenuItem(spec.name);
@@ -828,7 +824,6 @@ public class MainFrame extends JFrame
 		// Action to be taken when the user presses the Enter key after entering text into the quick-filter
 		// bar
 		nameFilterField.addActionListener((e) -> {
-			filter = new FilterGroupPanel();
 			inventory.updateFilter((c) -> String.join(" " + Card.FACE_SEPARATOR + " ", c.normalizedName()).contains(nameFilterField.getText().toLowerCase()));
 			inventoryModel.fireTableDataChanged();
 		});
@@ -836,18 +831,18 @@ public class MainFrame extends JFrame
 		// Action to be taken when the clear button is pressed (reset the filter)
 		clearButton.addActionListener((e) -> {
 			nameFilterField.setText("");
-			filter = new FilterGroupPanel();
-			inventory.updateFilter((c) -> true);
+			inventory.updateFilter(FilterLeaf.ALL_CARDS);
 			inventoryModel.fireTableDataChanged();
 		});
 		
 		// Action to be taken when the advanced filter button is pressed (show the advanced filter
 		// dialog)
 		advancedFilterButton.addActionListener((e) -> {
-			if (JOptionPane.showOptionDialog(null, filter, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			FilterGroupPanel panel = new FilterGroupPanel();
+			if (JOptionPane.showOptionDialog(null, panel, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
 				nameFilterField.setText("");
-				inventory.updateFilter(filter.filter());
+				inventory.updateFilter(panel.filter());
 				inventoryModel.fireTableDataChanged();
 			}
 		});
@@ -926,8 +921,6 @@ public class MainFrame extends JFrame
 		inventory.sort((a, b) -> a.compareName(b));
 		inventoryModel = new CardTableModel(inventory, Arrays.stream(SettingsDialog.getSetting(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		inventoryTable.setModel(inventoryModel);
-		filter = new FilterGroupPanel();
-		
 		setCursor(Cursor.getDefaultCursor());
 	}
 	
@@ -1022,7 +1015,7 @@ public class MainFrame extends JFrame
 		for (EditorFrame frame: editors)
 			frame.applySettings();
 		presetMenu.removeAll();
-		for (String category: SettingsDialog.getSetting(SettingsDialog.EDITOR_PRESETS).split(SettingsDialog.CATEGORY_DELIMITER))
+		for (String category: SettingsDialog.getPresetCategories())
 		{
 			CategorySpec spec = new CategorySpec(category, inventory);
 			JMenuItem categoryItem = new JMenuItem(spec.name);

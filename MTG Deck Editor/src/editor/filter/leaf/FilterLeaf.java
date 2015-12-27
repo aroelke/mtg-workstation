@@ -6,9 +6,6 @@ import java.util.function.Function;
 import editor.database.Card;
 import editor.filter.Filter;
 import editor.filter.FilterType;
-import editor.filter.leaf.options.multi.LegalityFilter;
-import editor.filter.leaf.options.multi.MultiOptionsFilter;
-import editor.filter.leaf.options.single.SingletonOptionsFilter;
 
 /**
  * TODO: Comment this class
@@ -35,6 +32,12 @@ public abstract class FilterLeaf<T> extends Filter
 		@Override
 		public void parse(String s)
 		{}
+		
+		@Override
+		public String representation()
+		{
+			return FilterType.ALL.code + ":";
+		}
 	};
 	
 	public static final FilterLeaf<Void> NO_CARDS = new FilterLeaf<Void>(FilterType.NONE, null)
@@ -54,41 +57,16 @@ public abstract class FilterLeaf<T> extends Filter
 		@Override
 		public void parse(String s)
 		{}
+		
+		@Override
+		public String representation()
+		{
+			return FilterType.NONE.code + ":";
+		}
 	};
 	
-	public static FilterLeaf<?> createFilter(FilterType type)
-	{
-		switch (type)
-		{
-		case COLOR: case COLOR_IDENTITY:
-			return ColorFilter.createFilter(type);
-		case CARD_NUMBER: case CMC: case LOYALTY:
-			return NumberFilter.createFilter(type);
-		case ARTIST: case FLAVOR_TEXT: case NAME: case RULES_TEXT:
-			return TextFilter.createFilter(type);
-		case POWER: case TOUGHNESS:
-			return VariableNumberFilter.createFilter(type);
-		case BLOCK: case EXPANSION: case RARITY:
-			return SingletonOptionsFilter.createFilter(type);
-		case SUPERTYPE: case TYPE: case SUBTYPE:
-			return MultiOptionsFilter.createFilter(type);
-		case MANA_COST:
-			return new ManaCostFilter();
-		case FORMAT_LEGALITY:
-			return new LegalityFilter();
-		case TYPE_LINE:
-			return new TypeLineFilter();
-		case ALL:
-			return FilterLeaf.ALL_CARDS;
-		case NONE:
-			return FilterLeaf.NO_CARDS;
-		default:
-			throw new IllegalArgumentException("Illegal filter type " + type.name());
-		}
-	}
-	
-	protected Function<Card, T> function;
-	private FilterType type;
+	protected final Function<Card, T> function;
+	public final FilterType type;
 	
 	public FilterLeaf(FilterType t, Function<Card, T> f)
 	{

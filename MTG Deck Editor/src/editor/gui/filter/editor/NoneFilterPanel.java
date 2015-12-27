@@ -9,26 +9,26 @@ import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 
 @SuppressWarnings("serial")
-public class AllFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
+public class NoneFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 {
-	public static AllFilterPanel create()
+	public static NoneFilterPanel create()
 	{
-		return new AllFilterPanel();
+		return new NoneFilterPanel();
 	}
 	
-	private AllFilterPanel()
+	private NoneFilterPanel()
 	{
 		super();
 		setLayout(new GridLayout(1, 1));
 		setBorder(new EmptyBorder(0, 5, 0, 0));
-		JLabel label = new JLabel("This clause will match every card.");
+		JLabel label = new JLabel("This clause will not match any cards.");
 		add(label);
 	}
 	
 	@Override
 	public Filter filter()
 	{
-		return FilterLeaf.ALL_CARDS;
+		return FilterLeaf.NO_CARDS;
 	}
 
 	@Override

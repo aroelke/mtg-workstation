@@ -13,6 +13,8 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	public ManaCostFilter()
 	{
 		super(FilterType.MANA_COST, null);
+		contain = Containment.CONTAINS_ANY_OF;
+		cost = new ManaCost("");
 	}
 	
 	@Override

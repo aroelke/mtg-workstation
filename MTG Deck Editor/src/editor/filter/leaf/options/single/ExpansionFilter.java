@@ -7,7 +7,6 @@ import editor.util.Containment;
 
 public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 {
-
 	public ExpansionFilter()
 	{
 		super(FilterType.EXPANSION, Card::expansion);

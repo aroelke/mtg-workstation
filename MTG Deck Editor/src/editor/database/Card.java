@@ -272,6 +272,14 @@ public final class Card
 	}
 	
 	/**
+	 * @return The list of names of the faces of this Card.
+	 */
+	public List<String> names()
+	{
+		return Arrays.stream(faces).map((f) -> f.name).collect(Collectors.toList());
+	}
+	
+	/**
 	 * @return A String representation of this Card, which is its name.  To get a unique identifier
 	 * for the Card, use {@link Card#id()}.
 	 */

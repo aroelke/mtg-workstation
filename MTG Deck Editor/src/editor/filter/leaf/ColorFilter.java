@@ -16,19 +16,6 @@ import editor.util.Containment;
  */
 public class ColorFilter extends FilterLeaf<MTGColor.Tuple>
 {
-	public static ColorFilter createFilter(FilterType type)
-	{
-		switch (type)
-		{
-		case COLOR:
-			return new ColorFilter(type, Card::colors);
-		case COLOR_IDENTITY:
-			return new ColorFilter(type, Card::colorIdentity);
-		default:
-			throw new IllegalArgumentException("Illegal color filter type " + type.name());
-		}
-	}
-	
 	public Containment contain;
 	public Set<MTGColor> colors;
 	public boolean multicolored;

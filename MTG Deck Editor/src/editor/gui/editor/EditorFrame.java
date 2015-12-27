@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.Box;
@@ -79,6 +78,7 @@ import editor.database.Deck;
 import editor.database.Hand;
 import editor.database.LegalityChecker;
 import editor.database.characteristics.CardCharacteristic;
+import editor.filter.Filter;
 import editor.gui.CardImagePanel;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;
@@ -896,7 +896,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					newCategory.colorButton.setColor(newColor);
 					CategorySpec s = newCategory.spec();
-					editCategory(newCategory, s.name, newCategory.colorButton.color(), s.filterString, s.filter);
+					editCategory(newCategory, s.name, newCategory.colorButton.color(), s.filter);
 				}
 			});
 			
@@ -1081,18 +1081,17 @@ public class EditorFrame extends JInternalFrame
 	 * @param category CategoryPanel to change
 	 * @param n New name of the category
 	 * @param c New color of the category
-	 * @param r String represenation of the category's new filter
 	 * @param f New filter for the category
 	 * @return <code>true</code> if the category was successfully changed, and
 	 * <code>false</code> otherwise.
 	 */
-	private boolean changeCategory(CategoryPanel category, String n, Color c, String r, Predicate<Card> f)
+	private boolean changeCategory(CategoryPanel category, String n, Color c, Filter f)
 	{
 		if (!containsCategory(category.spec().name))
 			return false;
 		else
 		{
-			category.edit(n, c, r, f);
+			category.edit(n, c, f);
 			updateCategoryPanel();
 			update();
 			setUnsaved();
@@ -1148,7 +1147,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(toEdit.spec());
 			if (editor != null)
-				editCategory(toEdit, editor.spec().name, editor.spec().color, editor.spec().filterString, editor.spec().filter);
+				editCategory(toEdit, editor.spec().name, editor.spec().color, editor.spec().filter);
 		}
 	}
 	
@@ -1158,26 +1157,25 @@ public class EditorFrame extends JInternalFrame
 	 * @param toEdit CategoryPanel showing the category to edit
 	 * @param n New name for the category
 	 * @param c New color for the category
-	 * @param r New String representation of the category
 	 * @param f New filter for the category
 	 */
-	private void editCategory(CategoryPanel toEdit, String n, Color c, String r, Predicate<Card> f)
+	private void editCategory(CategoryPanel toEdit, String n, Color c, Filter f)
 	{
 		undoBuffer.push(new UndoableAction()
 		{
 			private CategorySpec spec = new CategorySpec(toEdit.toString(), parent.inventory());
-			private Predicate<Card> oldFilter = toEdit.spec().filter;
+			private Filter oldFilter = toEdit.spec().filter;
 			
 			@Override
 			public boolean undo()
 			{
-				return changeCategory(toEdit, spec.name, spec.color, spec.filterString, oldFilter);
+				return changeCategory(toEdit, spec.name, spec.color, oldFilter);
 			}
 
 			@Override
 			public boolean redo()
 			{
-				return changeCategory(toEdit, n, c, r, f);
+				return changeCategory(toEdit, n, c, f);
 			}
 		});
 		undoBuffer.peek().redo();

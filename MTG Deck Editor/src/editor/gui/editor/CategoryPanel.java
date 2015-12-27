@@ -9,7 +9,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.JButton;
@@ -26,6 +25,7 @@ import editor.database.Card;
 import editor.database.CategorySpec;
 import editor.database.Deck;
 import editor.database.characteristics.CardCharacteristic;
+import editor.filter.Filter;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;
 import editor.gui.ColorButton;
@@ -193,9 +193,9 @@ public class CategoryPanel extends JPanel
 	 * @param newRepr New String representation of the category's filter
 	 * @param newFilter New filter for the category
 	 */
-	public void edit(String newName, Color newColor, String newRepr, Predicate<Card> newFilter)
+	public void edit(String newName, Color newColor, Filter newFilter)
 	{
-		if (!category.edit(newName, newColor, newRepr, newFilter))
+		if (!category.edit(newName, newColor, newFilter))
 			throw new IllegalArgumentException("Category \"" + newName + "\" already exists");
 		update();
 	}

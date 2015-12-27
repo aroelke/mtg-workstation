@@ -15,22 +15,7 @@ import editor.filter.leaf.options.OptionsFilter;
  */
 public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
 {
-	public static MultiOptionsFilter<?> createFilter(FilterType type)
-	{
-		switch (type)
-		{
-		case SUBTYPE:
-			return new SubtypeFilter();
-		case TYPE:
-			return new CardTypeFilter();
-		case SUPERTYPE:
-			return new SupertypeFilter();
-		default:
-			throw new IllegalArgumentException("Illegal options filter type " + type.name());
-		}
-	}
-
-	protected Function<Card, Collection<T>> function;
+	protected final Function<Card, Collection<T>> function;
 	
 	public MultiOptionsFilter(FilterType t, Function<Card, Collection<T>> f)
 	{

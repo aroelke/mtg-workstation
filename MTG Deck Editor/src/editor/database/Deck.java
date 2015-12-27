@@ -20,9 +20,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import editor.filter.Filter;
 
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and
@@ -917,7 +918,7 @@ public class Deck implements CardCollection
 		
 		/**
 		 * @return This Category's String representation.
-		 * @see editor.gui.filter.editor.FilterEditorPanel#setContents(String)
+		 * @see editor.gui.filter.original.editor.FilterEditorPanel#setContents(String)
 		 * @see gui.editor.CategoryDialog#setContents(String)
 		 */
 		@Override
@@ -1217,13 +1218,12 @@ public class Deck implements CardCollection
 		 * 
 		 * @param n New name for this Category (names of categories should be unique!)
 		 * @param c New color for this category
-		 * @param r New String representation of this Category
 		 * @param f New filter for this Category
 		 * @return <code>true</code> if the category was successfully changed, which
 		 * happens if its new name isn't the name of another category or if the name
 		 * isn't changed, and <code>false</code> otherwise.
 		 */
-		public boolean edit(String n, Color c, String r, Predicate<Card> f)
+		public boolean edit(String n, Color c, Filter f)
 		{
 			if (n.equals(spec.name) || !categories.containsKey(n))
 			{
@@ -1234,7 +1234,6 @@ public class Deck implements CardCollection
 					categories.put(spec.name, this);
 				}
 				spec.color = c;
-				spec.filterString = r;
 				spec.filter = f;
 				filtrate = masterList.stream().map((e) -> e.card).filter(this::includes).collect(Collectors.toList());
 				for (Entry e: masterList)

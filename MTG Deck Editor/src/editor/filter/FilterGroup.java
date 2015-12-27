@@ -1,18 +1,18 @@
 package editor.filter;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
 import editor.database.Card;
-import editor.filter.leaf.FilterLeaf;
 
 /**
  * TODO: Comment this class
  * @author Alec Roelke
  */
-public class FilterGroup extends Filter
+public class FilterGroup extends Filter implements Iterable<Filter>
 {
 	private static final Pattern GROUP_PATTERN = Pattern.compile("^\\s*" + Filter.BEGIN_GROUP + "\\s*(?:AND|OR)", Pattern.CASE_INSENSITIVE);
 	
@@ -24,6 +24,12 @@ public class FilterGroup extends Filter
 		super();
 		children = new ArrayList<Filter>();
 		mode = Mode.AND;
+	}
+	
+	public FilterGroup(String s)
+	{
+		this();
+		parse(s);
 	}
 	
 	public void addChild(Filter filter)
@@ -101,10 +107,20 @@ public class FilterGroup extends Filter
 		{
 			Filter filter;
 			if (GROUP_PATTERN.matcher(filterString).find())
-				filter = new FilterGroup();
+				filter = new FilterGroup(filterString);
 			else
-				filter = FilterLeaf.createFilter(FilterType.fromCode(filterString.substring(1, filterString.indexOf(':'))));
-			filter.parse(filterString);
+			{
+				try
+				{
+					filter = FilterType.fromCode(filterString.substring(1, filterString.indexOf(':'))).createFilter(filterString);
+				}
+				catch (InstantiationException e)
+				{
+					// TODO Auto-generated catch block
+					filter = null;
+					e.printStackTrace();
+				}
+			}
 			addChild(filter);
 		}
 	}
@@ -143,5 +159,11 @@ public class FilterGroup extends Filter
 		{
 			return mode;
 		}
+	}
+
+	@Override
+	public Iterator<Filter> iterator()
+	{
+		return children.iterator();
 	}
 }

@@ -15,21 +15,6 @@ import editor.filter.leaf.options.OptionsFilter;
  */
 public abstract class SingletonOptionsFilter<T> extends OptionsFilter<T>
 {
-	public static SingletonOptionsFilter<?> createFilter(FilterType type)
-	{
-		switch (type)
-		{
-		case BLOCK:
-			return new BlockFilter();
-		case EXPANSION:
-			return new ExpansionFilter();
-		case RARITY:
-			return new RarityFilter();
-		default:
-			throw new IllegalArgumentException("Illegal options filter type " + type.name());
-		}
-	}
-	
 	public SingletonOptionsFilter(FilterType t, Function<Card, T> f)
 	{
 		super(t, f);

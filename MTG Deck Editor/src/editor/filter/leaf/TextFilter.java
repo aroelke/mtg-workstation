@@ -48,23 +48,6 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		return (s) -> p.matcher(s).find();
 	}
 	
-	public static TextFilter createFilter(FilterType type)
-	{
-		switch (type)
-		{
-		case ARTIST:
-			return new TextFilter(type, Card::artists);
-		case FLAVOR_TEXT:
-			return new TextFilter(type, Card::normalizedFlavor);
-		case NAME:
-			return new TextFilter(type, Card::normalizedName);
-		case RULES_TEXT:
-			return new TextFilter(type, Card::normalizedText);
-		default:
-			throw new IllegalArgumentException("Illegal text filter type " + type.name());
-		}
-	}
-	
 	public Containment contain;
 	public String text;
 	public boolean regex;

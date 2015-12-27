@@ -1,9 +1,7 @@
 package editor.filter.leaf;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import editor.database.Card;
 import editor.filter.FilterType;
@@ -15,21 +13,6 @@ import editor.util.Comparison;
  */
 public class NumberFilter extends FilterLeaf<Collection<Double>>
 {
-	public static NumberFilter createFilter(FilterType type)
-	{
-		switch (type)
-		{
-		case CARD_NUMBER:
-			return new NumberFilter(type, (c) -> Arrays.stream(c.number()).map((v) -> Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""))).collect(Collectors.toList()));
-		case CMC:
-			return new NumberFilter(type, Card::cmc);
-		case LOYALTY:
-			return new NumberFilter(type, (c) -> c.loyalty().stream().map((l) -> (double)l.value).collect(Collectors.toList()));
-		default:
-			throw new IllegalArgumentException("Illegal number filter type " + type.name());
-		}
-	}
-	
 	public Comparison compare;
 	public double operand;
 	
