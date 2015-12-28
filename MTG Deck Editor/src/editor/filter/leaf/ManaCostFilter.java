@@ -5,11 +5,25 @@ import editor.database.characteristics.ManaCost;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
+/**
+ * This class represents a filter to group Cards by mana costs.
+ * 
+ * @author Alec Roelke
+ */
 public class ManaCostFilter extends FilterLeaf<ManaCost>
 {
+	/**
+	 * Containment for this ManaCostFilter.
+	 */
 	public Containment contain;
+	/**
+	 * Mana cost to filter by.
+	 */
 	public ManaCost cost;
 	
+	/**
+	 * Create a new ManaCostFilter.
+	 */
 	public ManaCostFilter()
 	{
 		super(FilterType.MANA_COST, null);
@@ -17,6 +31,12 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 		cost = new ManaCost("");
 	}
 	
+	/**
+	 * @param c Card to test
+	 * @return <code>true</code> if the given Card's mana cost matches this
+	 * ManaCostFilter's cost with the correct containment type, and
+	 * <code>false</code> otherwise.
+	 */
 	@Override
 	public boolean test(Card c)
 	{
@@ -39,12 +59,25 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 		}
 	}
 
+	/**
+	 * @return The String representation of this ManaCostFilter's content,
+	 * which is its containment's String representation followed by its
+	 * cost's String representation in quotes.
+	 * @see FilterLeaf#content()
+	 */
 	@Override
 	public String content()
 	{
 		return contain.toString() + "\"" + cost.toString() + "\"";
 	}
 
+	/**
+	 * Parse a String to determine this ManaCostFilter's containment
+	 * and mana cost.
+	 * 
+	 * @param s String to parse
+	 * @see editor.filter.Filter#parse(String)
+	 */
 	@Override
 	public void parse(String s)
 	{

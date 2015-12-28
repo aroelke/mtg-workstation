@@ -7,16 +7,28 @@ import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
- * TODO: Comment this class
+ * This class represents a filter that groups cards by card type.
+ *
  * @author Alec Roelke
  */
 public class CardTypeFilter extends MultiOptionsFilter<String>
 {
+	
+	/**
+	 * Create a new CardTypeFilter.
+	 */
 	public CardTypeFilter()
 	{
 		super(FilterType.TYPE, Card::types);
 	}
 	
+	/**
+	 * Parse a String to determine this CardTypeFilter's containment
+	 * and selected card types.
+	 * 
+	 * @param s String to parse
+	 * @see editor.filter.Filter#parse(String)
+	 */
 	@Override
 	public void parse(String s)
 	{

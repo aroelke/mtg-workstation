@@ -101,7 +101,7 @@ public enum FilterType
 	 */
 	public final String code;
 	/**
-	 * TODO: Comment this
+	 * Function for generating filters of this FilterType.
 	 */
 	private Supplier<FilterLeaf<?>> supplier;
 	
@@ -127,19 +127,6 @@ public enum FilterType
 		if (this == DEFAULTS)
 			return null;
 		return supplier.get();
-	}
-	
-	/**
-	 * TODO: Comment this
-	 * @param content
-	 * @return
-	 * @throws InstantiationException
-	 */
-	public FilterLeaf<?> createFilter(String content) throws InstantiationException
-	{
-		FilterLeaf<?> filter = createFilter();
-		filter.parse(content);
-		return filter;
 	}
 	
 	/**

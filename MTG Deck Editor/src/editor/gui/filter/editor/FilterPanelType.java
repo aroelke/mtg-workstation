@@ -21,6 +21,12 @@ import editor.filter.leaf.options.single.BlockFilter;
 import editor.filter.leaf.options.single.ExpansionFilter;
 import editor.filter.leaf.options.single.RarityFilter;
 
+/**
+ * This enum enumerates the types of filter editor panels and
+ * can instantiate them.
+ * 
+ * @author Alec Roelke
+ */
 public enum FilterPanelType
 {
 	NAME(FilterType.NAME, (f) -> {
@@ -162,33 +168,53 @@ public enum FilterPanelType
 			throw new IllegalArgumentException("Illegal all filter type " + f.type.name());
 	});
 	
-	public static FilterPanelType fromCode(String c)
-	{
-		for (FilterPanelType type: FilterPanelType.values())
-			if (type.type.code.equalsIgnoreCase(c))
-				return type;
-		return null;
-	}
-	
+	/**
+	 * Type of filter this FilterPanelType corresponds to.
+	 */
 	public final FilterType type;
+	/**
+	 * Function for generating a filter editor panel.
+	 */
 	private Function<FilterLeaf<?>, FilterEditorPanel<?>> editor;
 	
+	/**
+	 * Create a new FilterPanelType.
+	 * 
+	 * @param t FilterType corresponding to the new FilterPanelType
+	 * @param e Function for creating a new filter editor panel out of the given
+	 * FilterLeaf.
+	 */
 	private FilterPanelType(FilterType t, Function<FilterLeaf<?>, FilterEditorPanel<?>> e)
 	{
 		type = t;
 		editor = e;
 	}
 	
+	/**
+	 * Create a new FilterEditorPanel out of the given filter.
+	 * 
+	 * @param filter Filter to use for initial contents
+	 * @return The FilterEditorPanel that was created.
+	 */
 	public FilterEditorPanel<?> createPanel(FilterLeaf<?> filter)
 	{
 		return editor.apply(filter);
 	}
 	
+	/**
+	 * Create a new FilterEditorPanel with the default contents.
+	 * 
+	 * @return The FilterEditorPanel that was created.
+	 */
 	public FilterEditorPanel<?> createPanel()
 	{
 		return editor.apply(type.createFilter());
 	}
 	
+	/**
+	 * @return A String representation of this FilterPanelType,
+	 * which is the name of its corresponding FilterType.
+	 */
 	@Override
 	public String toString()
 	{

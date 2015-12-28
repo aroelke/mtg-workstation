@@ -11,6 +11,9 @@ import editor.gui.filter.ComboBoxPanel;
 import editor.util.Containment;
 
 /**
+ * This class represents a panel corresponding to a filter that groups
+ * cards by mana cost.
+ * 
  * TODO: Figure out error-checking for this
  * 
  * @author Alec Roelke
@@ -18,6 +21,13 @@ import editor.util.Containment;
 @SuppressWarnings("serial")
 public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 {
+	/**
+	 * Create a new ManaCostFilterPanel using the given ManaCostFilter
+	 * to set the contents of its fields.
+	 * 
+	 * @param f Filter to use for initialization
+	 * @return The created ManaCostFilterPanel
+	 */
 	public static ManaCostFilterPanel create(ManaCostFilter f)
 	{
 		ManaCostFilterPanel panel = new ManaCostFilterPanel();
@@ -25,9 +35,18 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 		return panel;
 	}
 	
+	/**
+	 * Combo box indicating containment.
+	 */
 	private ComboBoxPanel<Containment> contain;
+	/**
+	 * Text field for entering the text version of the mana cost.
+	 */
 	private JTextField cost;
 	
+	/**
+	 * Create a new ManaCostFilterPanel.
+	 */
 	private ManaCostFilterPanel()
 	{
 		super();
@@ -40,6 +59,10 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 		add(cost);
 	}
 	
+	/**
+	 * @return The ManaCostFilter that corresponds to the entries in
+	 * this ManaCostFilterPanel's fields.
+	 */
 	@Override
 	public Filter filter()
 	{
@@ -49,6 +72,12 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 		return filter;
 	}
 
+	/**
+	 * Set the contents of this ManaCostFilter's fields according
+	 * to the contents of the given ManaCostFilter.
+	 * 
+	 * @param filter Filter to use for setting fields
+	 */
 	@Override
 	public void setContents(ManaCostFilter filter)
 	{
@@ -56,6 +85,14 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 		cost.setText(filter.cost.toString());
 	}
 
+	/**
+	 * Set the contents of this ManaCostFilter's fields according
+	 * to the contents of the given FilterLeaf.
+	 * 
+	 * @param filter Filter to use for setting fields
+	 * @throws IllegalArgumentException if the given filter is not
+	 * a ManaCostFilter.
+	 */
 	@Override
 	public void setContents(FilterLeaf<?> filter)
 	{

@@ -9,16 +9,31 @@ import java.util.regex.Pattern;
 import editor.database.Card;
 
 /**
- * TODO: Comment this class
+ * This class represents a group of Filters that are ANDed or ORed
+ * together.
+ * 
  * @author Alec Roelke
  */
 public class FilterGroup extends Filter implements Iterable<Filter>
 {
+	/**
+	 * Pattern to match for parsing a String to determine a FilterGroup's
+	 * properties.
+	 */
 	private static final Pattern GROUP_PATTERN = Pattern.compile("^\\s*" + Filter.BEGIN_GROUP + "\\s*(?:AND|OR)", Pattern.CASE_INSENSITIVE);
 	
+	/**
+	 * Children of this FilterGroup.
+	 */
 	private List<Filter> children;
+	/**
+	 * Combination mode of this FilterGroup.
+	 */
 	public Mode mode;
 	
+	/**
+	 * Create a new FilterGroup with no children and in AND mode.
+	 */
 	public FilterGroup()
 	{
 		super();
@@ -26,12 +41,11 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		mode = Mode.AND;
 	}
 	
-	public FilterGroup(String s)
-	{
-		this();
-		parse(s);
-	}
-	
+	/**
+	 * Add a new child to this FilterGroup.
+	 * 
+	 * @param filter Filter to add
+	 */
 	public void addChild(Filter filter)
 	{
 		children.add(filter);
@@ -40,6 +54,12 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		filter.parent = this;
 	}
 	
+	/**
+	 * @param c Card to test
+	 * @return <code>true</code> if this FilterGroup's children match
+	 * the given Card with the correct mode, and <code>false</code>
+	 * otherwise.
+	 */
 	@Override
 	public boolean test(Card c)
 	{
@@ -59,6 +79,13 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		}
 	}
 	
+	/**
+	 * @return The String representation of this FilterGroup, which is
+	 * the mode's representation followed by each child's entire
+	 * representation including beginning and ending markers.  The
+	 * outermost markers are omitted.
+	 * @see Filter#representation()
+	 */
 	@Override
 	public String representation()
 	{
@@ -69,6 +96,12 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		return join.toString();
 	}
 
+	/**
+	 * Parse a String for a FilterGroup.  The String should consist of 
+	 * beginning and ending markers followed by the mode of the group,
+	 * followed by any number of Filters (that can also be groups) that
+	 * are each surrounded by beginning and ending markers.
+	 */
 	@Override
 	public void parse(String s)
 	{
@@ -107,22 +140,21 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		{
 			Filter filter;
 			if (GROUP_PATTERN.matcher(filterString).find())
-				filter = new FilterGroup(filterString);
+				filter = new FilterGroup();
 			else
-			{
-				try
-				{
-					filter = FilterType.fromCode(filterString.substring(1, filterString.indexOf(':'))).createFilter(filterString);
-				}
-				catch (InstantiationException e)
-				{
-					// TODO Auto-generated catch block
-					filter = null;
-					e.printStackTrace();
-				}
-			}
+				filter = FilterType.fromCode(filterString.substring(1, filterString.indexOf(':'))).createFilter();
+			filter.parse(filterString);
 			addChild(filter);
 		}
+	}
+	
+	/**
+	 * @return An Iterator over this FilterGroup's children.
+	 */
+	@Override
+	public Iterator<Filter> iterator()
+	{
+		return children.iterator();
 	}
 	
 	/**
@@ -159,11 +191,5 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		{
 			return mode;
 		}
-	}
-
-	@Override
-	public Iterator<Filter> iterator()
-	{
-		return children.iterator();
 	}
 }

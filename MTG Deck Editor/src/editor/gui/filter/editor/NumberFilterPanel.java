@@ -13,9 +13,22 @@ import editor.filter.leaf.NumberFilter;
 import editor.gui.filter.ComboBoxPanel;
 import editor.util.Comparison;
 
+/**
+ * This class represents a panel that corresponds to a filter that groups
+ * cards by a numeric characteristic.
+ * 
+ * @author Alec Roelke
+ */
 @SuppressWarnings("serial")
 public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 {
+	/**
+	 * Create a new NumberFilterPanel and initialize its fields according
+	 * to the contents of the given NumberFilter.
+	 * 
+	 * @param f Filter to use for initialization
+	 * @return The new NumberFilterPanel.
+	 */
 	public static NumberFilterPanel create(NumberFilter f)
 	{
 		NumberFilterPanel panel = new NumberFilterPanel();
@@ -23,10 +36,22 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 		return panel;
 	}
 	
+	/**
+	 * Type of the filter this panel edits.
+	 */
 	private FilterType type;
+	/**
+	 * Comparison for the operand of the filter.
+	 */
 	private ComboBoxPanel<Comparison> comparison;
+	/**
+	 * Spinner for the operand of the filter.
+	 */
 	private JSpinner spinner;
 	
+	/**
+	 * Create a new NumberFilterPanel.
+	 */
 	public NumberFilterPanel()
 	{
 		super();
@@ -43,6 +68,10 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 		add(spinner);
 	}
 	
+	/**
+	 * @return The NumberFilter corresponding to the values of this
+	 * NumberFilterPanel's fields.
+	 */
 	@Override
 	public Filter filter()
 	{
@@ -52,6 +81,12 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 		return filter;
 	}
 
+	/**
+	 * Set the contents of this NumberFilterPanel's fields according to
+	 * the contents of the given NumberFilter.
+	 * 
+	 * @param filter Filter to use for setting fields
+	 */
 	@Override
 	public void setContents(NumberFilter filter)
 	{
@@ -60,6 +95,14 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 		spinner.setValue(filter.operand);
 	}
 
+	/**
+	 * Set the contents of this NumberFilterPanel's fields according to
+	 * the contents of the given FilterLeaf.
+	 * 
+	 * @param filter Filter to use for setting fields
+	 * @throws IllegalArgumentException if the given filter is not a
+	 * NumberFilter.
+	 */
 	@Override
 	public void setContents(FilterLeaf<?> filter)
 	{

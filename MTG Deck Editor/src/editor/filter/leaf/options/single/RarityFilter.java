@@ -9,16 +9,28 @@ import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
- * TODO: Comment this class
+ * This class represents a filter that groups cards by rarity.
+ * 
  * @author Alec Roelke
  */
 public class RarityFilter extends SingletonOptionsFilter<Rarity>
 {
+	/**
+	 * Create a new RarityFilter.
+	 */
 	public RarityFilter()
 	{
 		super(FilterType.RARITY, Card::rarity);
 	}
 	
+	
+	/**
+	 * Parse a String to determine the containment and rarities of this
+	 * RarityFilter.
+	 * 
+	 * @param s String to parse
+	 * @see editor.filter.Filter#parse(String)
+	 */
 	@Override
 	public void parse(String s)
 	{

@@ -7,16 +7,27 @@ import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
- * TODO: Comment this class
+ * This class represents a filter that groups cards by supertype.
+ * 
  * @author Alec Roelke
  */
 public class SupertypeFilter extends MultiOptionsFilter<String>
 {
+	/**
+	 * Create a new SupertypeFilter.
+	 */
 	public SupertypeFilter()
 	{
 		super(FilterType.SUPERTYPE, Card::supertypes);
 	}
 	
+	/**
+	 * Parse a String to determine this SupertypeFilter's containment
+	 * and selected supertypes.
+	 * 
+	 * @param s String to parse
+	 * @see editor.filter.Filter#parse(String)
+	 */
 	@Override
 	public void parse(String s)
 	{

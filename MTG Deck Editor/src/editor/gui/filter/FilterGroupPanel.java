@@ -20,13 +20,31 @@ import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.filter.leaf.FilterLeaf;
 
+/**
+ * This class represents a group of filter panels that corresponds to a
+ * group of filters.
+ * 
+ * @author Alec Roelke
+ */
 @SuppressWarnings("serial")
 public class FilterGroupPanel extends FilterPanel<Filter>
 {
+	/**
+	 * FilterPanels contained by this FilterGroupPanel.
+	 */
 	private List<FilterPanel<?>> children;
+	/**
+	 * Box showing the combination mode of the filter group.
+	 */
 	private JComboBox<FilterGroup.Mode> modeBox;
+	/**
+	 * Panel containing the children.
+	 */
 	private JPanel filtersPanel;
 	
+	/**
+	 * Create a new FilterGroupPanel with one child.
+	 */
 	public FilterGroupPanel()
 	{
 		super();
@@ -35,15 +53,18 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		
 		children = new ArrayList<FilterPanel<?>>();
 		
+		// Panel containing the mode selector and edit buttons
 		JPanel topPanel = new JPanel(new GridLayout(1, 2));
 		add(topPanel, BorderLayout.NORTH);
 		
+		// Mode selection combo box
 		JPanel modePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		modeBox = new JComboBox<FilterGroup.Mode>();
 		modeBox.setModel(new DefaultComboBoxModel<FilterGroup.Mode>(FilterGroup.Mode.values()));
 		modePanel.add(modeBox);
 		topPanel.add(modePanel);
 		
+		// Add, remove, and group buttons
 		JPanel editPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		JButton addButton = new JButton("+");
 		addButton.addActionListener((e) -> {
@@ -84,6 +105,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		editPanel.add(groupButton);
 		topPanel.add(editPanel);
 		
+		// Panel containing child filters
 		filtersPanel = new JPanel();
 		filtersPanel.setLayout(new BoxLayout(filtersPanel, BoxLayout.Y_AXIS));
 		add(filtersPanel, BorderLayout.CENTER);
@@ -91,6 +113,13 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		add(new FilterSelectorPanel());
 	}
 	
+	/**
+	 * Add a new child filter.  This will extend the size of this
+	 * FilterGroupPanel, but will not redo layout of the containing
+	 * frame.
+	 * 
+	 * @param panel FilterPanel to add
+	 */
 	public void add(FilterPanel<?> panel)
 	{
 		children.add(panel);
@@ -98,6 +127,13 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		panel.group = this;
 	}
 	
+	/**
+	 * Removes the given child filter if it is in this FilterGroupPanel.
+	 * This will shrink the size of this FilterGroupPanel, but will not
+	 * redo layout of the containing frame.
+	 * 
+	 * @param panel FilterPanel to remove
+	 */
 	public void remove(FilterPanel<?> panel)
 	{
 		if (children.contains(panel))
@@ -117,6 +153,10 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		}
 	}
 	
+	/**
+	 * Clear all contents of this FilterGroupPanel.  A new filter is not
+	 * replaced, and the layout of the container is not redone.
+	 */
 	public void clear()
 	{
 		children.clear();
@@ -124,6 +164,14 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		modeBox.setSelectedIndex(0);
 	}
 	
+	/**
+	 * If the given FilterPanel is a child of this FilterGroupPanel,
+	 * create a new group for it and assign that group in its place.
+	 * Otherwise, make it a child of this FilterGroupPanel first and
+	 * do it anyway.  This does not redo layout of the container.
+	 * 
+	 * @param panel Panel to group.
+	 */
 	public void group(FilterPanel<?> panel)
 	{
 		if (panel.group != this)
@@ -142,6 +190,10 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		}
 	}
 	
+	/**
+	 * @return The filter represented by this FilterGroupPanel
+	 * and its children.
+	 */
 	@Override
 	public Filter filter()
 	{
@@ -152,6 +204,11 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		return group;
 	}
 
+	/**
+	 * Clear this FilterGroupPanel, then if the given Filter is
+	 * a FilterGroup, fill it with its children.  Otherwise, create
+	 * a FilterGroup for the given filter and then do it with that.
+	 */
 	@Override
 	public void setContents(Filter filter)
 	{

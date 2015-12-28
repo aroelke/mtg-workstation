@@ -10,19 +10,33 @@ import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
- * TODO: Comment this class
+ * This class represents a filter that groups cards by format legality.
+ * 
  * @author Alec Roelke
  */
 public class LegalityFilter extends MultiOptionsFilter<String>
 {
+	/**
+	 * Whether or not the card should be restricted in the formats
+	 * selected.
+	 */
 	public boolean restricted;
 	
+	/**
+	 * Create a new LegalityFilter.
+	 */
 	public LegalityFilter()
 	{
 		super(FilterType.FORMAT_LEGALITY, Card::legalIn);
 		restricted = false;
 	}
 	
+	/**
+	 * @param c Card to test
+	 * @return <code>true</code> if the given Card is legal in the selected
+	 * formats with this LegalityFilter's containments, or is restricted in
+	 * them if desired, and <code>false</code> otherwise.
+	 */
 	@Override
 	public boolean test(Card c)
 	{
@@ -41,12 +55,26 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 			return true;
 	}
 	
+	/**
+	 * @return The String representation of this LegalityFilter's content,
+	 * which is the same as that of OptionsFilter, but with an r afterward
+	 * if the card is restricted and a u otherwise.
+	 * @see editor.filter.leaf.options.OptionsFilter#content()
+	 * @see editor.filter.leaf.FilterLeaf#content()
+	 */
 	@Override
 	public String content()
 	{
 		return super.content() + (restricted ? 'r' : 'u');
 	}
 	
+	/**
+	 * Parse a String to determine this LegalityFilter's containment, 
+	 * formats, and restricted flag.
+	 * 
+	 * @param s String to parse
+	 * @see editor.filter.Filter#parse(String)
+	 */
 	@Override
 	public void parse(String s)
 	{

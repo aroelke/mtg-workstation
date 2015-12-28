@@ -15,33 +15,52 @@ import javax.swing.Timer;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 /**
- * TODO: Comment this
+ * This class represents a scroll pane that is horizontally scrollable using
+ * arrow buttons on the left and right.
+ * 
  * TODO: Eventually allow this to have vertical versions as well
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class ButtonScrollPane extends JPanel
 {
+	/**
+	 * Initial delay in milliseconds before the panel continues scrolling
+	 * after holding down a button.
+	 */
 	private static final int INITIAL_DELAY = 500;
+	/**
+	 * Delay between scrolls while holding down the button.
+	 */
 	private static final int TICK_DELAY = 50;
 	
 	private JScrollBar bar;
 	
+	/**
+	 * Create a new ButtonScrollPane with the given component in its
+	 * view.
+	 * 
+	 * @param view Component inside the scroll pane
+	 */
 	public ButtonScrollPane(Component view)
 	{
 		super(new BorderLayout());
 		
+		// Left arrow button
 		BasicArrowButton left = new BasicArrowButton(BasicArrowButton.WEST);
 		add(left, BorderLayout.WEST);
 		
+		// Scroll pane holding the view
 		JScrollPane pane = new JScrollPane(view);
 		pane.setBorder(null);
 		pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		add(pane, BorderLayout.CENTER);
 		
+		// Right arrow button
 		BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
 		add(right, BorderLayout.EAST);
 		
+		// Actions to take when holding down the arrow buttons
 		bar = pane.getHorizontalScrollBar();
 		bar.setUnitIncrement(10);
 		Timer leftTimer = new Timer(TICK_DELAY, e -> {
@@ -106,6 +125,8 @@ public class ButtonScrollPane extends JPanel
 			}
 		});
 		
+		// Enable or disable the scroll buttons depending on if the view needs to be
+		// scrolled
 		view.addComponentListener(new ComponentListener()
 		{
 			@Override
@@ -130,6 +151,11 @@ public class ButtonScrollPane extends JPanel
 		});
 	}
 	
+	/**
+	 * Set the increment of scrolling.
+	 * 
+	 * @param unitIncrement New scrolling increment
+	 */
 	public void setUnitIncrement(int unitIncrement)
 	{
 		bar.setUnitIncrement(unitIncrement);

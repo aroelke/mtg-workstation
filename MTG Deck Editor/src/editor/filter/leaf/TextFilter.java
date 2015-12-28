@@ -48,10 +48,25 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		return (s) -> p.matcher(s).find();
 	}
 	
+	/**
+	 * Containment type for this TextFilter.
+	 */
 	public Containment contain;
+	/**
+	 * Text to filter.
+	 */
 	public String text;
+	/**
+	 * Whether or not the text is a regular expression.
+	 */
 	public boolean regex;
 	
+	/**
+	 * Create a new TextFilter.
+	 * 
+	 * @param t Type of the new TextFilter
+	 * @param f Function for the new TextFilter
+	 */
 	public TextFilter(FilterType t, Function<Card, Collection<String>> f)
 	{
 		super(t, f);
@@ -60,6 +75,11 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		regex = false;
 	}
 
+	/**
+	 * @param c Card to test
+	 * @return <code>true</code> if the Card's text characteristic matches this
+	 * TextFilter's containment and text, and <code>false</code> otherwise.
+	 */
 	@Override
 	public boolean test(Card c)
 	{
@@ -108,16 +128,30 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		}
 	}
 
+	/**
+	 * @return The String representation of this TextFilterPanel's content, which is
+	 * the String representation of its containment followed by its text in either
+	 * quotes if it's not a regex or forward slashes if it is.
+	 * 
+	 * @see FilterLeaf#content()
+	 */
 	@Override
 	public String content()
 	{
 		return contain.toString() + (regex ? "/" : "\"") + text + (regex ? "/" : "\"");
 	}
 	
+	/**
+	 * Parse a String to determine the containment, text, and regex status of
+	 * this TextFilter.
+	 * 
+	 * @param s String to parse
+	 * @see editor.filter.Filter#parse(String)
+	 */
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.ARTIST, FilterType.FLAVOR_TEXT, FilterType.NAME, FilterType.RULES_TEXT);
+		String content = checkContents(s, type);
 		int delim = content.indexOf('"');
 		if (delim > -1)
 		{

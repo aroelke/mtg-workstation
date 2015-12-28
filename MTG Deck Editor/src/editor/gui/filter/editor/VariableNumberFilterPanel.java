@@ -14,9 +14,22 @@ import editor.filter.leaf.VariableNumberFilter;
 import editor.gui.filter.ComboBoxPanel;
 import editor.util.Comparison;
 
+/**
+ * This class represents a panel that corresponds to a filter that groups cards
+ * by a numeric characteristic that can also be variable.
+ * 
+ * @author Alec Roelke
+ */
 @SuppressWarnings("serial")
 public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberFilter>
 {
+	/**
+	 * Create a new VariableNumberFilterPanel, using the given 
+	 * VariableNumberFilter to initialize its fields.
+	 * 
+	 * @param f Filter to use for initialization
+	 * @return The new VariableNumberFilterPanel.
+	 */
 	public static VariableNumberFilterPanel create(VariableNumberFilter f)
 	{
 		VariableNumberFilterPanel panel = new VariableNumberFilterPanel();
@@ -24,11 +37,27 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		return panel;
 	}
 	
+	/**
+	 * Type of filter this VariableNumberFilterPanel edits.
+	 */
 	private FilterType type;
+	/**
+	 * Combo box presenting comparison options.
+	 */
 	private ComboBoxPanel<Comparison> comparison;
+	/**
+	 * Spinner allowing the user to choose a value to compare with.
+	 */
 	private JSpinner spinner;
+	/**
+	 * Check box specifying whether the characteristic should be variable
+	 * or not.
+	 */
 	private JCheckBox variable;
 	
+	/**
+	 * Create a new VariableNumberFilterPanel.
+	 */
 	public VariableNumberFilterPanel()
 	{
 		super();
@@ -46,6 +75,10 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		add(variable);
 	}
 
+	/**
+	 * @return The VariableNumberFilter corresponding to the values of
+	 * this VariableNumberFilterPanel's fields.
+	 */
 	@Override
 	public Filter filter()
 	{
@@ -56,6 +89,12 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		return filter;
 	}
 
+	/**
+	 * Set the values of this VariableNumberFilter's fields according to the
+	 * conents of the given VariableNumberFilter.
+	 * 
+	 * @param filter Filter to use for filling in fields
+	 */
 	@Override
 	public void setContents(VariableNumberFilter filter)
 	{
@@ -67,6 +106,14 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		comparison.setEnabled(!filter.varies);
 	}
 
+	/**
+	 * Set the values of this VariableNumberFilter's fields according to the
+	 * conents of the given FilterLeaf.
+	 * 
+	 * @param filter Filter to use for filling in fields
+	 * @throws IllegalArgumentException if the given filter isn't a
+	 * VariableNumberFilter.
+	 */
 	@Override
 	public void setContents(FilterLeaf<?> filter)
 	{

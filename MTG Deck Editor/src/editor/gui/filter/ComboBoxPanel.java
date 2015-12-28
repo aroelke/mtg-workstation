@@ -57,15 +57,6 @@ public class ComboBoxPanel<E> extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param item
-	 */
-	public void addItem(E item)
-	{
-		options.addItem(item);
-	}
-	
-	/**
 	 * @return The item currently displayed by the combo box.
 	 */
 	public E getSelectedItem()

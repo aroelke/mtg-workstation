@@ -11,9 +11,22 @@ import editor.filter.leaf.TextFilter;
 import editor.gui.filter.ComboBoxPanel;
 import editor.util.Containment;
 
+/**
+ * This class represents a panel that corresponds to a filter that
+ * groups cards according to a text characteristic.
+ * 
+ * @author Alec Roelke
+ */
 @SuppressWarnings("serial")
 public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 {
+	/**
+	 * Create a new TextFilterPanel and initialize its fields according
+	 * to the contents of the given TextFilter.
+	 * 
+	 * @param f Filter to use for initialization
+	 * @return The new TextFilterPanel.
+	 */
 	public static TextFilterPanel create(TextFilter f)
 	{
 		TextFilterPanel panel = new TextFilterPanel();
@@ -21,11 +34,27 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		return panel;
 	}
 	
+	/**
+	 * Type of filter that this TextFilterPanel edits.
+	 */
 	private FilterType type;
+	/**
+	 * Combo box for choosing set containment.
+	 */
 	private ComboBoxPanel<Containment> contain;
+	/**
+	 * Field for editing the text of the filter.
+	 */
 	private JTextField text;
+	/**
+	 * Check box specifying whether the text is a regular expression
+	 * or not.
+	 */
 	private JCheckBox regex;
 	
+	/**
+	 * Create a new TextFilterPanel.
+	 */
 	private TextFilterPanel()
 	{
 		super();
@@ -41,6 +70,10 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		add(regex);
 	}
 	
+	/**
+	 * @return The TextFilter corresponding to the values of this
+	 * TextFilterPanel's fields.
+	 */
 	@Override
 	public Filter filter()
 	{
@@ -51,6 +84,12 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		return filter;
 	}
 
+	/**
+	 * Set the values of this TextFilterPanel's fields based on
+	 * the contents of the given TextFilter.
+	 * 
+	 * @param filter Filter to use for field values
+	 */
 	@Override
 	public void setContents(TextFilter filter)
 	{
@@ -60,6 +99,14 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		regex.setSelected(filter.regex);
 	}
 
+	/**
+	 * Set the values of this TextFilterPanel's fields based on
+	 * the contents of the given FilterLeaf.
+	 * 
+	 * @param filter Filter to use for field values
+	 * @throws IllegalArgumentException if the given filter is not a
+	 * TextFilter.
+	 */
 	@Override
 	public void setContents(FilterLeaf<?> filter)
 	{

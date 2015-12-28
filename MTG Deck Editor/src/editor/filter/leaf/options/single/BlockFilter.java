@@ -6,16 +6,27 @@ import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
- * TODO: Comment this class
+ * This class represents a filter that groups cards by block.
+ * 
  * @author Alec Roelke
  */
 public class BlockFilter extends SingletonOptionsFilter<String>
 {
+	/**
+	 * Create a new BlockFilter.
+	 */
 	public BlockFilter()
 	{
 		super(FilterType.BLOCK, (c) -> c.expansion().block);
 	}
 	
+	/**
+	 * Parse a String to determine this BlockFilter's containment and 
+	 * blocks.
+	 * 
+	 * @param s String to parse
+	 * @see editor.filter.Filter#parse(String)
+	 */
 	@Override
 	public void parse(String s)
 	{

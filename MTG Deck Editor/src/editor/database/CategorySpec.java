@@ -126,7 +126,8 @@ public class CategorySpec
 				Random rand = new Random();
 				color = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), (float)Math.sqrt(rand.nextFloat()));
 			}
-			filter = new FilterGroup(m.group(5));
+			filter = new FilterGroup();
+			filter.parse(m.group(5));
 		}
 		else
 			throw new IllegalArgumentException("Illegal category string " + pattern);
@@ -153,7 +154,8 @@ public class CategorySpec
 				Random rand = new Random();
 				color = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), (float)Math.sqrt(rand.nextFloat()));
 			}
-			filter = new FilterGroup(m.group(5));
+			filter = new FilterGroup();
+			filter.parse(m.group(5));
 		}
 		else
 			throw new IllegalArgumentException("Illegal category string " + pattern);

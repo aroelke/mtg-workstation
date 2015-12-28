@@ -8,14 +8,29 @@ import javax.swing.border.EmptyBorder;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 
+/**
+ * This class represents a panel that corresponds to a filter that
+ * returns <code>true</code> for all cards.  There are no fields
+ * to edit.
+ * 
+ * @author Alec Roelke
+ */
 @SuppressWarnings("serial")
 public class AllFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 {
+	/**
+	 * Create a new AllFilterPanel.
+	 * 
+	 * @return The AllFilterPanel that was created.
+	 */
 	public static AllFilterPanel create()
 	{
 		return new AllFilterPanel();
 	}
 	
+	/**
+	 * Create a new AllFilterPanel.
+	 */
 	private AllFilterPanel()
 	{
 		super();
@@ -25,12 +40,20 @@ public class AllFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 		add(label);
 	}
 	
+	/**
+	 * @return {@link editor.filter.leaf.FilterLeaf#ALL_CARDS}
+	 */
 	@Override
 	public Filter filter()
 	{
 		return FilterLeaf.ALL_CARDS;
 	}
 
+	/**
+	 * There are no contents to set, so do nothing.
+	 * 
+	 * @param filter Filter to use
+	 */
 	@Override
 	public void setContents(FilterLeaf<?> filter)
 	{}

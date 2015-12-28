@@ -5,13 +5,28 @@ import editor.database.characteristics.Expansion;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
+/**
+ * This class represents a filter that groups cards by expansion.
+ * 
+ * @author Alec Roelke
+ */
 public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 {
+	/**
+	 * Create a new ExpansionFilter.
+	 */
 	public ExpansionFilter()
 	{
 		super(FilterType.EXPANSION, Card::expansion);
 	}
 
+	/**
+	 * Parse a String to determine this ExpansionFilter's containment
+	 * and expansions.
+	 * 
+	 * @param s String to parse
+	 * @see editor.filter.Filter#parse(String)
+	 */
 	@Override
 	public void parse(String s)
 	{

@@ -8,13 +8,18 @@ import editor.filter.Filter;
 import editor.filter.FilterType;
 
 /**
- * TODO: Comment this class
+ * This class represents a leaf in the filter tree, which filters a
+ * single characteristic of a Card.
+ * 
  * @author Alec Roelke
  *
- * @param <T>
+ * @param <T> Type of characteristic being filtered
  */
 public abstract class FilterLeaf<T> extends Filter
 {
+	/**
+	 * Filter that returns <code>true</code> for all cards.
+	 */
 	public static final FilterLeaf<Void> ALL_CARDS = new FilterLeaf<Void>(FilterType.ALL, null)
 	{
 		@Override
@@ -40,6 +45,9 @@ public abstract class FilterLeaf<T> extends Filter
 		}
 	};
 	
+	/**
+	 * Filter that returns <code>false</code> for all cards.
+	 */
 	public static final FilterLeaf<Void> NO_CARDS = new FilterLeaf<Void>(FilterType.NONE, null)
 	{
 		@Override
@@ -65,9 +73,21 @@ public abstract class FilterLeaf<T> extends Filter
 		}
 	};
 	
+	/**
+	 * Function representing the characteristic of the cards to be filtered.
+	 */
 	protected final Function<Card, T> function;
+	/**
+	 * FilterType showing the characteristic of the cards to be filtered.
+	 */
 	public final FilterType type;
 	
+	/**
+	 * Create a new FilterLeaf.
+	 * 
+	 * @param t FilterType of the new FilterLeaf
+	 * @param f Function of the new FilterLeaf
+	 */
 	public FilterLeaf(FilterType t, Function<Card, T> f)
 	{
 		super();
@@ -75,8 +95,21 @@ public abstract class FilterLeaf<T> extends Filter
 		function = f;
 	}
 
+	/**
+	 * @return The String representation of the contents of this FilterLeaf,
+	 * without its code.
+	 */
 	public abstract String content();
 	
+	/**
+	 * Check to ensure the contents of the given String match this FilterLeaf,
+	 * and return a String containing the contents of the filter.
+	 * 
+	 * @param s String to check
+	 * @param correct List of FilterTypes indicating correct ones for this FilterLeaf
+	 * @return A String representing the contents of this FilterLeaf for further
+	 * parsing.
+	 */
 	public String checkContents(String s, FilterType... correct)
 	{
 		int delim = s.indexOf(':');
@@ -86,6 +119,13 @@ public abstract class FilterLeaf<T> extends Filter
 		return s.substring(delim + 1, s.length() - 1);
 	}
 	
+	/**
+	 * @return The String representation of this FilterLeaf, which is its code followed
+	 * by a colon (:) followed by that of its contents, without beginning or ending
+	 * markers.
+	 * @see FilterLeaf#content()
+	 * @see Filter#representation()
+	 */
 	@Override
 	public String representation()
 	{
