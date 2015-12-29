@@ -312,22 +312,13 @@ public class CalculateHandDialog extends JDialog
 		addButton.addActionListener((e) -> {
 			for (Card c: Arrays.stream(deckTable.getSelectedRows()).mapToObj((r) -> d.get(deckTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
 			{
-				TextFilter panel;
-				try
-				{
-					panel = (TextFilter)FilterType.NAME.createFilter();
-					panel.contain = Containment.CONTAINS_EXACTLY;
-					panel.text = c.name();
-					panel.regex = false;
-					FilterGroup group = new FilterGroup();
-					group.addChild(panel);
-					constraintList.addCategory(new CategorySpec(c.name(), Color.BLACK, group));
-				}
-				catch (Exception e1)
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				TextFilter panel = (TextFilter)FilterType.NAME.createFilter();
+				panel.contain = Containment.CONTAINS_EXACTLY;
+				panel.text = c.name();
+				panel.regex = false;
+				FilterGroup group = new FilterGroup();
+				group.addChild(panel);
+				constraintList.addCategory(new CategorySpec(c.name(), Color.BLACK, group));
 			}
 		});
 		removeButton.addActionListener((e) -> {

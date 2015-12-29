@@ -62,7 +62,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
@@ -166,7 +165,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private Deck deck;
 	/**
-	 * TODO: Comment this
+	 * Last-saved version of the deck, used for the changelog.
 	 */
 	private Deck original;
 	/**
@@ -884,9 +883,7 @@ public class EditorFrame extends JInternalFrame
 				}
 			});
 			// Add the behavior for the edit category button
-			newCategory.editButton.addActionListener((e) -> {
-				editCategory(newCategory.spec().name);
-			});
+			newCategory.editButton.addActionListener((e) -> editCategory(newCategory.spec().name));
 			// Add the behavior for the remove category button
 			newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory.spec()));
 			// Add the behavior for the color edit button
@@ -910,7 +907,7 @@ public class EditorFrame extends JInternalFrame
 			
 			// Add single copy item
 			JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
-			addSinglePopupItem.addActionListener((e) -> {addCards(newCategory.getSelectedCards(), 1);});
+			addSinglePopupItem.addActionListener((e) -> addCards(newCategory.getSelectedCards(), 1));
 			tableMenu.add(addSinglePopupItem);
 			
 			// Fill playset item
@@ -1045,7 +1042,9 @@ public class EditorFrame extends JInternalFrame
 		update();
 		setUnsaved();
 		listTabs.setSelectedIndex(CATEGORIES);
-		// TODO: Scroll to the new category
+		//TODO: Make this work
+		category.scrollRectToVisible(new Rectangle(category.getSize()));
+		category.flash();
 		return true;
 	}
 	
@@ -2117,19 +2116,13 @@ public class EditorFrame extends JInternalFrame
 					if (isCancelled())
 						return null;
 					CategorySpec spec = new CategorySpec(rd.readLine(), parent.inventory());
-					SwingUtilities.invokeLater(() -> {
-						if (!isCancelled())
-						{
-							addCategory(spec);
-							for (Card c: spec.whitelist)
-								deck.getCategory(spec.name).include(c);
-							for (Card c: spec.blacklist)
-								deck.getCategory(spec.name).exclude(c);
-						}
-					});
+					addCategory(spec);
+					for (Card c: spec.whitelist)
+						deck.getCategory(spec.name).include(c);
+					for (Card c: spec.blacklist)
+						deck.getCategory(spec.name).exclude(c);
 					publish(50 + 50*(i + 1)/categories);
 				}
-				// TODO: Correct the publishing numbers somehow
 				String line;
 				while ((line = rd.readLine()) != null)
 					changelogArea.append(line + "\n");
@@ -2143,12 +2136,12 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		protected void done()
 		{
+			dialog.dispose();
 			updateCount();
 			unsaved = false;
 			setFile(file);
 			undoBuffer.clear();
 			redoBuffer.clear();
-			dialog.dispose();
 		}
 	}
 }
