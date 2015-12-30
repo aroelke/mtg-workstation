@@ -671,13 +671,6 @@ public class EditorFrame extends JInternalFrame
 		handPanel.add(handSplit, BorderLayout.CENTER);
 		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		listTabs.addTab("Sample Hand", handPanel);
-
-		// Changelog
-		JPanel changelogPanel = new JPanel(new BorderLayout());
-		changelogArea = new JTextArea();
-		changelogArea.setEditable(false);
-		changelogPanel.add(new JScrollPane(changelogArea));
-		listTabs.addTab("Change Log", changelogPanel);
 		
 		// TODO: Add tabs for deck analysis
 		// - category pie chart
@@ -724,6 +717,43 @@ public class EditorFrame extends JInternalFrame
 		legalityConstraints.anchor = GridBagConstraints.EAST;
 		bottomPanel.add(legalityPanel, legalityConstraints);
 
+		// Changelog
+		JPanel changelogPanel = new JPanel(new BorderLayout());
+		changelogArea = new JTextArea();
+		changelogArea.setEditable(false);
+		changelogPanel.add(new JScrollPane(changelogArea), BorderLayout.CENTER);
+		JPanel clearLogPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		JButton clearLogButton = new JButton("Clear Change Log");
+		clearLogButton.addActionListener((e) -> {
+			if (!changelogArea.getText().isEmpty()
+					&& JOptionPane.showInternalConfirmDialog(EditorFrame.this, "Change log cannot be restored once saved.  Clear change log?", "Clear Change Log?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+			{
+				undoBuffer.push(new UndoableAction()
+				{
+					String text = changelogArea.getText();
+					
+					@Override
+					public boolean undo()
+					{
+						changelogArea.setText(text);
+						return true;
+					}
+	
+					@Override
+					public boolean redo()
+					{
+						changelogArea.setText("");
+						return true;
+					}
+				});
+				undoBuffer.peek().redo();
+				redoBuffer.clear();
+			}
+		});
+		clearLogPanel.add(clearLogButton);
+		changelogPanel.add(clearLogPanel, BorderLayout.SOUTH);
+		listTabs.addTab("Change Log", changelogPanel);
+		
 		setTransferHandler(new EditorImportHandler());
 		
 		// Handle various frame events, including selecting and closing
@@ -1461,6 +1491,13 @@ public class EditorFrame extends JInternalFrame
 				model.fireTableDataChanged();
 				break;
 			default:
+				// Remove cards from the deck
+				for (Card c: toRemove)
+				{
+					int r = deck.decrease(c, n);
+					if (r > 0)
+						removed.put(c, r);
+				}
 				model.fireTableDataChanged();
 				break;
 			}
