@@ -878,11 +878,22 @@ public class Deck implements CardCollection
 	}
 	
 	/**
+	 * @return A Collection containing all of the specifications of the categories
+	 * in this Deck, in no particular order.
+	 */
+	public Collection<CategorySpec> categories()
+	{
+		return categories.values().stream().map(Category::spec).collect(Collectors.toList());
+	}
+	
+	/**
 	 * This class represents a category of a deck.  It looks like a deck since it
 	 * contains a list of cards and can report how many copies of them there are, 
 	 * so it extends Deck.  If a card is added or removed using the add and remove
 	 * methods, the master list will be updated to reflect this only if the card
 	 * passes through the Category's filter.
+	 * 
+	 * TODO: Make this class private
 	 * 
 	 * @author Alec Roelke
 	 */
@@ -1098,7 +1109,7 @@ public class Deck implements CardCollection
 		 */
 		public boolean includes(Card c)
 		{
-			return !spec.blacklist.contains(c) && (spec.filter.test(c) || spec.whitelist.contains(c));
+			return spec.includes(c);
 		}
 		
 		/**

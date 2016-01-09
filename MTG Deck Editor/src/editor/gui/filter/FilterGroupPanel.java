@@ -92,6 +92,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			if (group == null)
 			{
 				FilterGroupPanel newGroup = new FilterGroupPanel();
+				newGroup.clear();
 				newGroup.modeBox.setSelectedIndex(modeBox.getSelectedIndex());
 				for (FilterPanel<?> child: children)
 					newGroup.add(child);
@@ -138,17 +139,18 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 	{
 		if (children.contains(panel))
 		{
-			if (children.size() > 1)
+			if (panel instanceof FilterGroupPanel)
 			{
-				filtersPanel.remove(panel);
-				children.remove(panel);
-			}
-			else if (panel instanceof FilterGroupPanel)
-			{
+				// Make this insert in place of the old group
 				filtersPanel.remove(panel);
 				children.remove(panel);
 				for (FilterPanel<?> child: ((FilterGroupPanel)panel).children)
 					add(child);
+			}
+			else if (children.size() > 1)
+			{
+				filtersPanel.remove(panel);
+				children.remove(panel);
 			}
 		}
 	}
@@ -185,6 +187,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			newGroup.clear();
 			newGroup.add(panel);
 			children.set(index, newGroup);
+			newGroup.group = this;
 			for (FilterPanel<?> child: children)
 				filtersPanel.add(child);
 		}

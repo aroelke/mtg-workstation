@@ -67,6 +67,7 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		add(text);
 		
 		regex = new JCheckBox("regex");
+		regex.addActionListener((e) -> contain.setVisible(!regex.isSelected()));
 		add(regex);
 	}
 	
@@ -97,6 +98,7 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		contain.setSelectedItem(filter.contain);
 		text.setText(filter.text);
 		regex.setSelected(filter.regex);
+		contain.setVisible(!filter.regex);
 	}
 
 	/**

@@ -178,6 +178,16 @@ public class CategorySpec
 	}
 	
 	/**
+	 * @param c Card to test for inclusion
+	 * @return <code>true</code> if this CategorySpec includes the given Card, and
+	 * <code>false</code> otherwise.
+	 */
+	public boolean includes(Card c)
+	{
+		return (filter.test(c) || whitelist.contains(c)) && !blacklist.contains(c);
+	}
+	
+	/**
 	 * @return This CategorySpec's String representation.
 	 * @see editor.gui.filter.original.editor.FilterEditorPanel#setContents(String)
 	 * @see gui.editor.CategoryDialog#setContents(String)

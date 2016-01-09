@@ -95,6 +95,8 @@ import editor.gui.TableMouseAdapter;
  * TODO: Make popup menu category setting work for multiple selection in the main table
  * TODO: Change the category tab's exclude popup option to set categories
  * TODO: Add a filter bar to the main tab just like the inventory has
+ * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
+ * TODO: Overhaul the category system so that changes are made directly to the deck, and then the category panel is refreshed (or the whole tab if necessary)
  * 
  * @author Alec Roelke
  */
@@ -661,8 +663,12 @@ public class EditorFrame extends JInternalFrame
 		});
 		handModPanel.add(excludeButton);
 		JButton probabilityButton = new JButton("Calculate...");
-		probabilityButton.addActionListener((e) -> new CalculateHandDialog(parent, deck, hand.excluded(), startingHandSize,
-				SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE))).setVisible(true));
+		probabilityButton.addActionListener((e) -> {
+			JOptionPane pane = new JOptionPane(new CalculateHandPanel(deck, SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE))));
+			Dialog dialog = pane.createDialog(this, "Card Draw Probability");
+			dialog.setResizable(true);
+			dialog.setVisible(true);
+		});
 		handModPanel.add(probabilityButton);
 		
 		JSplitPane handSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(handTable), imagePane);
