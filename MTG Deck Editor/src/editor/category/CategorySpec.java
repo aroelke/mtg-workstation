@@ -1,4 +1,4 @@
-package editor.database;
+package editor.category;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -11,6 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import editor.database.Card;
+import editor.database.Inventory;
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.gui.SettingsDialog;
@@ -65,6 +67,10 @@ public class CategorySpec
 	 * Filter of the category.
 	 */
 	public Filter filter;
+	/**
+	 * TODO: Comment this
+	 */
+	private Collection<CategoryListener> listeners;
 	
 	/**
 	 * Create a new CategorySpec with the given specifications.
@@ -82,6 +88,7 @@ public class CategorySpec
 		this.blacklist = new HashSet<Card>(blacklist);
 		this.color = color;
 		this.filter = filter;
+		listeners = new HashSet<CategoryListener>();
 	}
 	
 	/**
@@ -128,6 +135,7 @@ public class CategorySpec
 			}
 			filter = new FilterGroup();
 			filter.parse(m.group(5));
+			listeners = new HashSet<CategoryListener>();
 		}
 		else
 			throw new IllegalArgumentException("Illegal category string " + pattern);
@@ -156,13 +164,14 @@ public class CategorySpec
 			}
 			filter = new FilterGroup();
 			filter.parse(m.group(5));
+			listeners = new HashSet<CategoryListener>();
 		}
 		else
 			throw new IllegalArgumentException("Illegal category string " + pattern);
 	}
 	
 	/**
-	 * Copy constructor for CategorySpec.
+	 * Copy constructor for CategorySpec, except the copy has no listeners.
 	 * 
 	 * TODO: Make this unnecessary.
 	 * 
@@ -175,6 +184,7 @@ public class CategorySpec
 		blacklist = new HashSet<Card>(original.blacklist);
 		color = original.color;
 		filter = original.filter; // TODO: Make this copy
+		listeners = new HashSet<CategoryListener>();
 	}
 	
 	/**
@@ -185,6 +195,157 @@ public class CategorySpec
 	public boolean includes(Card c)
 	{
 		return (filter.test(c) || whitelist.contains(c)) && !blacklist.contains(c);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public String getName()
+	{
+		return name;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param n
+	 */
+	public void setName(String n)
+	{
+		if (!name.equals(n))
+		{
+			name = n;
+			
+			CategoryEvent e = new CategoryEvent(this, true, false, false, false, false);
+			for (CategoryListener listener: listeners)
+				listener.categoryChanged(e);
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Set<Card> getWhitelist()
+	{
+		return new HashSet<Card>(whitelist);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param c
+	 */
+	public void include(Card c)
+	{
+		boolean changed = false;
+		
+		if (!filter.test(c))
+			changed = whitelist.add(c);
+		changed |= blacklist.remove(c);
+		
+		if (changed)
+		{
+			CategoryEvent e = new CategoryEvent(this, false, true, false, false, false);
+			for (CategoryListener listener: listeners)
+				listener.categoryChanged(e);
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Set<Card> getBlacklist()
+	{
+		return new HashSet<Card>(blacklist);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param c
+	 */
+	public void exclude(Card c)
+	{
+		boolean changed = false;
+		
+		if (filter.test(c))
+			changed = blacklist.add(c);
+		changed |= whitelist.remove(c);
+		
+		if (changed)
+		{
+			CategoryEvent e = new CategoryEvent(this, false, false, true, false, false);
+			for (CategoryListener listener: listeners)
+				listener.categoryChanged(e);
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Color getColor()
+	{
+		return color;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param c
+	 */
+	public void setColor(Color c)
+	{
+		if (!color.equals(c))
+		{
+			color = c;
+			
+			CategoryEvent e = new CategoryEvent(this, false, false, false, true, false);
+			for (CategoryListener listener: listeners)
+				listener.categoryChanged(e);
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Filter getFilter()
+	{
+		return filter;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param f
+	 */
+	public void setFilter(Filter f)
+	{
+		if (!filter.equals(f))
+		{
+			filter = f;
+			
+			CategoryEvent e = new CategoryEvent(this, false, false, false, false, true);
+			for (CategoryListener listener: listeners)
+				listener.categoryChanged(e);
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param listener
+	 */
+	public void addCategoryListener(CategoryListener listener)
+	{
+		listeners.add(listener);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param listener
+	 */
+	public void removeCategoryListener(CategoryListener listener)
+	{
+		listeners.remove(listener);
 	}
 	
 	/**

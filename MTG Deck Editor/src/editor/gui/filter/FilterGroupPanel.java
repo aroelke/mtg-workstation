@@ -220,10 +220,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		if (filter instanceof FilterGroup)
 			group = (FilterGroup)filter;
 		else
-		{
-			group = new FilterGroup();
-			group.addChild(filter);
-		}
+			group = new FilterGroup(filter);
 		modeBox.setSelectedItem(group.mode);
 		for (Filter child: group)
 		{

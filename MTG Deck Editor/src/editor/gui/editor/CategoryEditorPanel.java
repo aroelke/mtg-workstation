@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import editor.database.CategorySpec;
+import editor.category.CategorySpec;
 import editor.filter.Filter;
 import editor.gui.ColorButton;
 import editor.gui.filter.FilterGroupPanel;

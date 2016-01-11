@@ -1,5 +1,6 @@
 package editor.database;
 
+import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -13,11 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import editor.category.CategorySpec;
 import editor.database.Deck.Category;
+import editor.filter.Filter;
+import editor.filter.leaf.FilterLeaf;
 
 /**
  * This class represents an inventory of cards that can be added to decks.
@@ -108,6 +111,10 @@ public class Inventory implements CardCollection
 	 */
 	private final Map<String, Card> IDs;
 	/**
+	 * TODO: Comment this;
+	 */
+	private CategorySpec filter;
+	/**
 	 * Filtered view of the master list.
 	 */
 	private List<Card> filtrate;
@@ -121,7 +128,13 @@ public class Inventory implements CardCollection
 	{
 		cards = new ArrayList<Card>(list);
 		IDs = cards.stream().collect(Collectors.toMap((c) -> c.id(), Function.identity()));
+		filter = new CategorySpec("Displayed Inventory", Color.BLACK, FilterLeaf.ALL_CARDS);
 		filtrate = cards;
+		
+		filter.addCategoryListener((e) -> {
+			if (e.filterChanged())
+				filtrate = cards.stream().filter(filter::includes).collect(Collectors.toList());
+		});
 	}
 	
 	/**
@@ -155,11 +168,20 @@ public class Inventory implements CardCollection
 	/**
 	 * Update the filtered view of this Inventory.
 	 * 
-	 * @param p New filter
+	 * @param f New filter
 	 */
-	public void updateFilter(Predicate<Card> p)
+	public void updateFilter(Filter f)
 	{
-		filtrate = cards.stream().filter(p).collect(Collectors.toList());
+		filter.setFilter(f);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Filter getFilter()
+	{
+		return filter.getFilter();
 	}
 	
 	/**

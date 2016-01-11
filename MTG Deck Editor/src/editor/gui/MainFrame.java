@@ -76,8 +76,8 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 
+import editor.category.CategorySpec;
 import editor.database.Card;
-import editor.database.CategorySpec;
 import editor.database.Inventory;
 import editor.database.characteristics.CardCharacteristic;
 import editor.database.characteristics.Expansion;
@@ -86,7 +86,9 @@ import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.ChaosSymbol;
 import editor.database.symbol.Symbol;
+import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
+import editor.filter.leaf.TextFilter;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.inventory.InventoryDownloadDialog;
@@ -824,7 +826,7 @@ public class MainFrame extends JFrame
 		// Action to be taken when the user presses the Enter key after entering text into the quick-filter
 		// bar
 		nameFilterField.addActionListener((e) -> {
-			inventory.updateFilter((c) -> String.join(" " + Card.FACE_SEPARATOR + " ", c.normalizedName()).contains(nameFilterField.getText().toLowerCase()));
+			inventory.updateFilter(TextFilter.createQuickFilter(FilterType.NAME, nameFilterField.getText().toLowerCase()));
 			inventoryModel.fireTableDataChanged();
 		});
 		
@@ -839,6 +841,7 @@ public class MainFrame extends JFrame
 		// dialog)
 		advancedFilterButton.addActionListener((e) -> {
 			FilterGroupPanel panel = new FilterGroupPanel();
+			panel.setContents(inventory.getFilter());
 			if (JOptionPane.showOptionDialog(null, panel, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
 				nameFilterField.setText("");

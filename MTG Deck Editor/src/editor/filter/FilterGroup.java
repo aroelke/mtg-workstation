@@ -42,6 +42,17 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param c
+	 */
+	public FilterGroup(Filter... c)
+	{
+		this();
+		for (Filter f: c)
+			addChild(f);
+	}
+	
+	/**
 	 * Add a new child to this FilterGroup.
 	 * 
 	 * @param filter Filter to add

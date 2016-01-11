@@ -23,6 +23,26 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	public static final Pattern WORD_PATTERN = Pattern.compile("\"([^\"]*)\"|'([^']*)'|[^\\s]+");
 	
 	/**
+	 * TODO: Comment this
+	 * @param s
+	 * @return
+	 */
+	public static TextFilter createQuickFilter(FilterType t, String s)
+	{
+		try
+		{
+			TextFilter filter = (TextFilter)t.createFilter();
+			filter.text = s;
+			filter.regex = true;
+			return filter;
+		}
+		catch (ClassCastException e)
+		{
+			throw new IllegalArgumentException("Illegal text filter type " + t.toString());
+		}
+	}
+	
+	/**
 	 * Create a regex pattern matcher that searches a string for a set of words and quote-enclosed phrases
 	 * separated by spaces, where * is a wild card.
 	 * 

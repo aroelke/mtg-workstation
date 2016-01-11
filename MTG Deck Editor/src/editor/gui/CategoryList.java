@@ -13,7 +13,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 
-import editor.database.CategorySpec;
+import editor.category.CategorySpec;
 import editor.gui.editor.CategoryEditorPanel;
 
 /**

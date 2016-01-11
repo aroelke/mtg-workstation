@@ -26,7 +26,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import editor.database.CategorySpec;
+import editor.category.CategorySpec;
 import editor.database.Deck;
 
 /**

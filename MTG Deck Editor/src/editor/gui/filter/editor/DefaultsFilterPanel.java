@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import editor.database.CategorySpec;
+import editor.category.CategorySpec;
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.filter.leaf.FilterLeaf;

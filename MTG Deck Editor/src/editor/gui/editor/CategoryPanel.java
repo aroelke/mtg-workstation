@@ -21,8 +21,8 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 
+import editor.category.CategorySpec;
 import editor.database.Card;
-import editor.database.CategorySpec;
 import editor.database.Deck;
 import editor.database.characteristics.CardCharacteristic;
 import editor.filter.Filter;

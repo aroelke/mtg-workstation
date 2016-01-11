@@ -13,6 +13,8 @@ import editor.database.Card;
  * nodes filter out characteristics.  A filter can test if a Card matches
  * its characteristics.
  * 
+ * TODO: Implement equals() and hashCode()
+ * 
  * @author Alec Roelke
  */
 public abstract class Filter implements Predicate<Card>
