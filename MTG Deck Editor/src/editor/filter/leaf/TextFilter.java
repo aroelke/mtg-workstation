@@ -47,7 +47,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	 * separated by spaces, where * is a wild card.
 	 * 
 	 * @param pattern String pattern to create a regex matcher out of
-	 * @return A Matcher that searches a String for the words and phrases in the given String.
+	 * @return A Predicate that searches a String for the words and phrases in the given String.
 	 */
 	public static Predicate<String> createSimpleMatcher(String pattern)
 	{
@@ -113,10 +113,12 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		{
 			// If the filter is a "simple" string, then the characteristic matches if it matches the
 			// filter text in any order with the specified set containment
+			Predicate<String> matcher;
 			switch (contain)
 			{
 			case CONTAINS_ALL_OF:
-				return function.apply(c).stream().map(String::toLowerCase).anyMatch(TextFilter.createSimpleMatcher(text));
+				matcher = createSimpleMatcher(text);
+				break;
 			case CONTAINS_ANY_OF: case CONTAINS_NONE_OF:
 				Matcher m = TextFilter.WORD_PATTERN.matcher(text);
 				StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
@@ -133,18 +135,24 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 				}
 				Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
 				if (contain.equals(Containment.CONTAINS_NONE_OF))
-					return function.apply(c).stream().anyMatch((s) -> !p.matcher(s.toLowerCase()).find());
+					matcher = (s) -> !p.matcher(s.toLowerCase()).find();
 				else
-					return function.apply(c).stream().anyMatch((s) -> p.matcher(s.toLowerCase()).find());
+					matcher = (s) -> p.matcher(s.toLowerCase()).find();
+				break;
 			case CONTAINS_NOT_ALL_OF:
-				return function.apply(c).stream().map(String::toLowerCase).anyMatch(TextFilter.createSimpleMatcher(text).negate());
+				matcher = createSimpleMatcher(text).negate();
+				break;
 			case CONTAINS_NOT_EXACTLY:
-				return function.apply(c).stream().anyMatch((s) -> !s.equalsIgnoreCase(text));
+				matcher = (s) -> !s.equalsIgnoreCase(text);
+				break;
 			case CONTAINS_EXACTLY:
-				return function.apply(c).stream().anyMatch((s) -> s.equalsIgnoreCase(text));
+				matcher = (s) -> s.equalsIgnoreCase(text);
+				break;
 			default:
-				return false;
+				matcher = (s) -> false;
+				break;
 			}
+			return function.apply(c).stream().map(String::toLowerCase).anyMatch(matcher);
 		}
 	}
 
