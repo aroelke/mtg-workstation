@@ -71,7 +71,7 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import editor.category.CategorySpec;
+import editor.collection.CategorySpec;
 import editor.database.Card;
 import editor.database.Deck;
 import editor.database.Hand;

@@ -1,4 +1,4 @@
-package editor.category;
+package editor.collection;
 
 import java.util.EventListener;
 

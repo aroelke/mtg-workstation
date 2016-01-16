@@ -1,4 +1,4 @@
-package editor.category;
+package editor.collection;
 
 import java.awt.Color;
 import java.util.Arrays;

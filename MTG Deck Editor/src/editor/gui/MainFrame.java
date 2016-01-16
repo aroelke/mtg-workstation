@@ -76,7 +76,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 
-import editor.category.CategorySpec;
+import editor.collection.CategorySpec;
 import editor.database.Card;
 import editor.database.Inventory;
 import editor.database.characteristics.CardCharacteristic;
