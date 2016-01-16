@@ -102,6 +102,8 @@ public class InventoryDownloadDialog extends JDialog
 	 */
 	public boolean downloadInventory(URL site, File file)
 	{
+		System.out.println(site.toString());
+		
 		File tmp = new File(file.getPath() + ".tmp");
 		worker = new InventoryDownloadWorker(site, tmp);
 		worker.execute();
