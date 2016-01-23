@@ -1,4 +1,4 @@
-package editor.database;
+package editor.collection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import editor.collection.deck.Deck;
+import editor.database.Card;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.MTGColor;
 import editor.util.Containment;

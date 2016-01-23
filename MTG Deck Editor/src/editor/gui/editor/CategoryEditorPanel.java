@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import editor.collection.CategorySpec;
+import editor.collection.category.CategorySpec;
 import editor.filter.Filter;
 import editor.gui.ColorButton;
 import editor.gui.filter.FilterGroupPanel;
@@ -125,9 +125,9 @@ public class CategoryEditorPanel extends JPanel
 		if (s != null)
 		{
 			spec = new CategorySpec(s);
-			nameField.setText(spec.name);
-			colorButton.setColor(spec.color);
-			filter.setContents(spec.filter);
+			nameField.setText(spec.getName());
+			colorButton.setColor(spec.getColor());
+			filter.setContents(spec.getFilter());
 		}
 	}
 	
@@ -136,9 +136,9 @@ public class CategoryEditorPanel extends JPanel
 	 */
 	public void updateSpec()
 	{
-		spec.name = nameField.getText();
-		spec.color = colorButton.color();
-		spec.filter = filter.filter();
+		spec.setName(nameField.getText());
+		spec.setColor(colorButton.color());
+		spec.setFilter(filter.filter());
 	}
 	
 	/**

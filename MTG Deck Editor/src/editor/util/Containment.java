@@ -1,7 +1,6 @@
 package editor.util;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.function.BiPredicate;
 
 /**
@@ -28,7 +27,15 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 	CONTAINS_ALL_OF(Collection::containsAll),
 	CONTAINS_NOT_ALL_OF((a, b) -> CONTAINS_ANY_OF.test(a,  b) && !a.containsAll(b)),
 	CONTAINS_EXACTLY((a, b) -> a.containsAll(b) && b.containsAll(a)),
-	CONTAINS_NOT_EXACTLY((a, b) -> Collections.disjoint(a, b) && (a.isEmpty() != b.isEmpty()));
+	CONTAINS_NOT_EXACTLY((a, b) -> {
+		for (Object o: a)
+			if (!b.contains(o))
+				return true;
+		for (Object o: b)
+			if (!a.contains(o))
+				return true;
+		return false;
+	});
 	
 	/**
 	 * @return Array containing Containments that have meaning when the list has only one

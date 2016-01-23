@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import editor.database.Card;
+import editor.filter.leaf.BinaryFilter;
 import editor.filter.leaf.ColorFilter;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.ManaCostFilter;
@@ -53,7 +54,7 @@ public enum FilterType
 	
 	static
 	{
-		NAME.supplier = () -> new TextFilter(NAME, Card::names);
+		NAME.supplier = () -> new TextFilter(NAME, Card::normalizedName);
 		MANA_COST.supplier = () -> new ManaCostFilter();
 		CMC.supplier = () -> new NumberFilter(CMC, Card::cmc);
 		COLOR.supplier = () -> new ColorFilter(COLOR, Card::colors);
@@ -74,8 +75,8 @@ public enum FilterType
 		CARD_NUMBER.supplier = () -> new NumberFilter(CARD_NUMBER, (c) -> Arrays.stream(c.number()).map((v) -> Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""))).collect(Collectors.toList()));
 		FORMAT_LEGALITY.supplier = () -> new LegalityFilter();
 		DEFAULTS.supplier = () -> null;
-		NONE.supplier = () -> FilterLeaf.NO_CARDS;
-		ALL.supplier = () -> FilterLeaf.ALL_CARDS;
+		NONE.supplier = () -> new BinaryFilter(false);
+		ALL.supplier = () -> new BinaryFilter(true);
 	}
 	
 	/**

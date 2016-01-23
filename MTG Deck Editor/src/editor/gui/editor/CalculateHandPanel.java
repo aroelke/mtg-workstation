@@ -26,8 +26,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import editor.collection.CategorySpec;
-import editor.database.Deck;
+import editor.collection.category.CategorySpec;
+import editor.collection.deck.Deck;
 
 /**
  * This class represents a panel that shows the probability of getting a certain
@@ -501,7 +501,7 @@ public class CalculateHandPanel extends JPanel
 			switch (columnIndex)
 			{
 			case CATEGORY:
-				return categories.get(rowIndex).name;
+				return categories.get(rowIndex).getName();
 			case COUNT:
 				return categorySizes.get(rowIndex);
 			case DESIRED:

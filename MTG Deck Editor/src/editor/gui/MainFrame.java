@@ -76,9 +76,9 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 
-import editor.collection.CategorySpec;
+import editor.collection.Inventory;
+import editor.collection.category.CategorySpec;
 import editor.database.Card;
-import editor.database.Inventory;
 import editor.database.characteristics.CardCharacteristic;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Loyalty;
@@ -87,7 +87,7 @@ import editor.database.characteristics.Rarity;
 import editor.database.symbol.ChaosSymbol;
 import editor.database.symbol.Symbol;
 import editor.filter.FilterType;
-import editor.filter.leaf.FilterLeaf;
+import editor.filter.leaf.BinaryFilter;
 import editor.filter.leaf.TextFilter;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
@@ -478,9 +478,9 @@ public class MainFrame extends JFrame
 		for (String category: SettingsDialog.getPresetCategories())
 		{
 			CategorySpec spec = new CategorySpec(category, inventory);
-			JMenuItem categoryItem = new JMenuItem(spec.name);
+			JMenuItem categoryItem = new JMenuItem(spec.getName());
 			categoryItem.addActionListener((e) -> {
-				if (selectedFrame != null && !selectedFrame.containsCategory(spec.name))
+				if (selectedFrame != null && !selectedFrame.containsCategory(spec.getName()))
 					selectedFrame.addCategory(spec);
 			});
 			presetMenu.add(categoryItem);
@@ -833,7 +833,7 @@ public class MainFrame extends JFrame
 		// Action to be taken when the clear button is pressed (reset the filter)
 		clearButton.addActionListener((e) -> {
 			nameFilterField.setText("");
-			inventory.updateFilter(FilterLeaf.ALL_CARDS);
+			inventory.updateFilter(new BinaryFilter(true));
 			inventoryModel.fireTableDataChanged();
 		});
 		
@@ -1021,7 +1021,7 @@ public class MainFrame extends JFrame
 		for (String category: SettingsDialog.getPresetCategories())
 		{
 			CategorySpec spec = new CategorySpec(category, inventory);
-			JMenuItem categoryItem = new JMenuItem(spec.name);
+			JMenuItem categoryItem = new JMenuItem(spec.getName());
 			categoryItem.addActionListener((e) -> {
 				if (selectedFrame != null)
 					selectedFrame.addCategory(spec);
@@ -1110,7 +1110,7 @@ public class MainFrame extends JFrame
 		SettingsDialog.settings.compute(SettingsDialog.EDITOR_PRESETS, (k, v) -> v += SettingsDialog.CATEGORY_DELIMITER + category);
 		
 		CategorySpec spec = new CategorySpec(category, inventory);
-		JMenuItem categoryItem = new JMenuItem(spec.name);
+		JMenuItem categoryItem = new JMenuItem(spec.getName());
 		categoryItem.addActionListener((e) -> {
 			if (selectedFrame != null)
 				selectedFrame.addCategory(spec);

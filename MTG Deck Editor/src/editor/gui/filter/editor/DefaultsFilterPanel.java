@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import editor.collection.CategorySpec;
+import editor.collection.category.CategorySpec;
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.filter.leaf.FilterLeaf;
@@ -70,7 +70,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	@Override
 	public Filter filter()
 	{
-		return new CategorySpec(categories.get(defaults.getSelectedItem())).filter;
+		return new CategorySpec(categories.get(defaults.getSelectedItem())).getFilter();
 	}
 
 	/**

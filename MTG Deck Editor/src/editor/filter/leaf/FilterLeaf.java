@@ -18,62 +18,6 @@ import editor.filter.FilterType;
 public abstract class FilterLeaf<T> extends Filter
 {
 	/**
-	 * Filter that returns <code>true</code> for all cards.
-	 */
-	public static final FilterLeaf<Void> ALL_CARDS = new FilterLeaf<Void>(FilterType.ALL, null)
-	{
-		@Override
-		public boolean test(Card c)
-		{
-			return true;
-		}
-
-		@Override
-		public String content()
-		{
-			return "";
-		}
-		
-		@Override
-		public void parse(String s)
-		{}
-		
-		@Override
-		public String representation()
-		{
-			return FilterType.ALL.code + ":";
-		}
-	};
-	
-	/**
-	 * Filter that returns <code>false</code> for all cards.
-	 */
-	public static final FilterLeaf<Void> NO_CARDS = new FilterLeaf<Void>(FilterType.NONE, null)
-	{
-		@Override
-		public boolean test(Card t)
-		{
-			return false;
-		}
-
-		@Override
-		public String content()
-		{
-			return "";
-		}
-		
-		@Override
-		public void parse(String s)
-		{}
-		
-		@Override
-		public String representation()
-		{
-			return FilterType.NONE.code + ":";
-		}
-	};
-	
-	/**
 	 * Function representing the characteristic of the cards to be filtered.
 	 */
 	protected final Function<Card, T> function;

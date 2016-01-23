@@ -1,4 +1,4 @@
-package editor.collection;
+package editor.collection.category;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -11,8 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import editor.collection.Inventory;
 import editor.database.Card;
-import editor.database.Inventory;
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.gui.SettingsDialog;
@@ -50,23 +50,23 @@ public class CategorySpec
 	/**
 	 * Name of the category.
 	 */
-	public String name;
+	private String name;
 	/**
 	 * List of cards to include in the category regardless of filter.
 	 */
-	public Set<Card> whitelist;
+	private Set<Card> whitelist;
 	/**
 	 * List of cards to exclude from the category regardless of filter.
 	 */
-	public Set<Card> blacklist;
+	private Set<Card> blacklist;
 	/**
 	 * Color of the category.
 	 */
-	public Color color;
+	private Color color;
 	/**
 	 * Filter of the category.
 	 */
-	public Filter filter;
+	private Filter filter;
 	/**
 	 * TODO: Comment this
 	 */
@@ -235,7 +235,7 @@ public class CategorySpec
 	 * TODO: Comment this
 	 * @param c
 	 */
-	public void include(Card c)
+	public boolean include(Card c)
 	{
 		boolean changed = false;
 		
@@ -249,6 +249,8 @@ public class CategorySpec
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
+		
+		return changed;
 	}
 	
 	/**
@@ -264,7 +266,7 @@ public class CategorySpec
 	 * TODO: Comment this
 	 * @param c
 	 */
-	public void exclude(Card c)
+	public boolean exclude(Card c)
 	{
 		boolean changed = false;
 		
@@ -278,6 +280,8 @@ public class CategorySpec
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
+		
+		return changed;
 	}
 	
 	/**
@@ -365,6 +369,19 @@ public class CategorySpec
 		return Filter.BEGIN_GROUP + name + Filter.END_GROUP
 				+ " " + white.toString()
 				+ " " + black.toString()
+				+ " " + Filter.BEGIN_GROUP + SettingsDialog.colorToString(color, 3) + Filter.END_GROUP
+				+ " " + filter.toString();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public String toListlessString()
+	{
+		return Filter.BEGIN_GROUP + name + Filter.END_GROUP
+				+ " " + Filter.BEGIN_GROUP + Filter.END_GROUP
+				+ " " + Filter.BEGIN_GROUP + Filter.END_GROUP
 				+ " " + Filter.BEGIN_GROUP + SettingsDialog.colorToString(color, 3) + Filter.END_GROUP
 				+ " " + filter.toString();
 	}

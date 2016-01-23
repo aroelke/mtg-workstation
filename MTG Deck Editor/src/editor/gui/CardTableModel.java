@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import editor.database.CardCollection;
+import editor.collection.CardCollection;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.editor.EditorFrame;
 

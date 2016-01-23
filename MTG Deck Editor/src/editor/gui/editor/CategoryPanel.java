@@ -21,9 +21,9 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 
-import editor.collection.CategorySpec;
+import editor.collection.category.CategorySpec;
+import editor.collection.deck.Deck;
 import editor.database.Card;
-import editor.database.Deck;
 import editor.database.characteristics.CardCharacteristic;
 import editor.filter.Filter;
 import editor.gui.CardTable;
@@ -35,6 +35,7 @@ import editor.gui.SettingsDialog;
  * This class represents a panel that shows information about a category in a deck.
  * 
  * TODO: Make it so that each category can have its own columns
+ * TODO: Make a way to view whitelist and blacklist
  * 
  * @author Alec Roelke
  */
@@ -108,7 +109,7 @@ public class CategoryPanel extends JPanel
 		flashTimer = new FlashTimer();
 		
 		// Each category is surrounded by a border with a title
-		border = new TitledBorder(category.spec().name);
+		border = new TitledBorder(category.spec().getName());
 		setBorder(border);
 		
 		setLayout(new BorderLayout());
@@ -122,7 +123,7 @@ public class CategoryPanel extends JPanel
 		
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		colorButton = new ColorButton(category.spec().color);
+		colorButton = new ColorButton(category.spec().getColor());
 		buttonPanel.add(colorButton);
 		editButton = new JButton("…");
 		buttonPanel.add(editButton);
@@ -159,10 +160,10 @@ public class CategoryPanel extends JPanel
 	{
 		model.fireTableDataChanged();
 		countLabel.setText("Cards: " + category.total());
-		border.setTitle(category.spec().name);
+		border.setTitle(category.spec().getName());
 		table.revalidate();
 		table.repaint();
-		colorButton.setColor(category.spec().color);
+		colorButton.setColor(category.spec().getColor());
 		colorButton.repaint();
 		revalidate();
 		repaint();

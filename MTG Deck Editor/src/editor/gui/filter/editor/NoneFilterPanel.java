@@ -6,6 +6,7 @@ import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
 import editor.filter.Filter;
+import editor.filter.leaf.BinaryFilter;
 import editor.filter.leaf.FilterLeaf;
 
 /**
@@ -45,7 +46,7 @@ public class NoneFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	@Override
 	public Filter filter()
 	{
-		return FilterLeaf.NO_CARDS;
+		return new BinaryFilter(false);
 	}
 
 	/**

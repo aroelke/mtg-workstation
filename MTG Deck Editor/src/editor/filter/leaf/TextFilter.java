@@ -64,7 +64,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 				toAdd = m.group();
 			str.add(toAdd.replace("*", "\\E\\w*\\Q"));
 		}
-		Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
+		Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 		return (s) -> p.matcher(s).find();
 	}
 	
@@ -106,8 +106,8 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		// If the filter is a regex, then just match it
 		if (regex)
 		{
-			Pattern p = Pattern.compile(text, Pattern.DOTALL);
-			return function.apply(c).stream().anyMatch((s) -> p.matcher(s.toLowerCase()).find());
+			Pattern p = Pattern.compile(text, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+			return function.apply(c).stream().anyMatch((s) -> p.matcher(s).find());
 		}
 		else
 		{
@@ -133,11 +133,11 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 						toAdd = m.group();
 					str.add(toAdd.replace("*", "\\E\\w*\\Q"));
 				}
-				Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE);
+				Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 				if (contain.equals(Containment.CONTAINS_NONE_OF))
-					matcher = (s) -> !p.matcher(s.toLowerCase()).find();
+					matcher = (s) -> !p.matcher(s).find();
 				else
-					matcher = (s) -> p.matcher(s.toLowerCase()).find();
+					matcher = (s) -> p.matcher(s).find();
 				break;
 			case CONTAINS_NOT_ALL_OF:
 				matcher = createSimpleMatcher(text).negate();
@@ -152,7 +152,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 				matcher = (s) -> false;
 				break;
 			}
-			return function.apply(c).stream().map(String::toLowerCase).anyMatch(matcher);
+			return function.apply(c).stream().anyMatch(matcher);
 		}
 	}
 

@@ -40,8 +40,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import editor.collection.Inventory;
 import editor.database.Card;
-import editor.database.Inventory;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.MTGColor;

@@ -14,6 +14,7 @@ import editor.database.Card;
  * its characteristics.
  * 
  * TODO: Implement equals() and hashCode()
+ * TODO: Sometimes a no-card filter gets removed randomly
  * 
  * @author Alec Roelke
  */

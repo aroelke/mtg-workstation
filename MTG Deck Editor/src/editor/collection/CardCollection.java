@@ -1,10 +1,13 @@
-package editor.database;
+package editor.collection;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import editor.collection.deck.Deck;
+import editor.database.Card;
 
 /**
  * This class represents a collection of Cards.  The collection can choose whether or

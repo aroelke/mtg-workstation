@@ -17,7 +17,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
-import editor.database.LegalityChecker;
+import editor.collection.LegalityChecker;
 
 /**
  * This class represents a panel that shows the formats a deck is legal and illegal in.

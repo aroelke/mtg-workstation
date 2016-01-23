@@ -13,7 +13,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 
-import editor.collection.CategorySpec;
+import editor.collection.category.CategorySpec;
 import editor.gui.editor.CategoryEditorPanel;
 
 /**
@@ -95,13 +95,13 @@ public class CategoryList extends JList<String>
 	public void addCategory(CategorySpec c)
 	{
 		categories.add(c);
-		model.addElement(c.name);
+		model.addElement(c.getName());
 	}
 	
 	public void setCategoryAt(int index, CategorySpec c)
 	{
 		categories.set(index, c);
-		model.setElementAt(c.name, index);
+		model.setElementAt(c.getName(), index);
 	}
 	
 	public void removeCategoryAt(int index)
@@ -143,7 +143,7 @@ public class CategoryList extends JList<String>
 		public String getElementAt(int index)
 		{
 			if (index < categories.size())
-				return categories.get(index).name;
+				return categories.get(index).getName();
 			else if (showAdd && index == categories.size())
 				return ADD_HINT;
 			else

@@ -1,4 +1,4 @@
-package editor.database;
+package editor.collection.deck;
 
 import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -23,7 +24,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import editor.collection.CategorySpec;
+import editor.collection.CardCollection;
+import editor.collection.category.CategorySpec;
+import editor.database.Card;
 import editor.filter.Filter;
 
 /**
@@ -126,6 +129,8 @@ public class Deck implements CardCollection
 	/**
 	 * This class represents an entry into a deck.  It has a card and a
 	 * number of copies.
+	 * 
+	 * TODO: Make this private
 	 * 
 	 * @author Alec Roelke
 	 */
@@ -237,6 +242,10 @@ public class Deck implements CardCollection
 	 * Number of land cards in this Deck, accounting for multiples.
 	 */
 	private int land;
+	/**
+	 * TODO: Comment this
+	 */
+	private Collection<DeckListener> listeners;
 	
 	/**
 	 * Create a new, empty Deck with no categories.
@@ -247,6 +256,7 @@ public class Deck implements CardCollection
 		categories = new LinkedHashMap<String, Category>();
 		total = 0;
 		land = 0;
+		listeners = new HashSet<DeckListener>();
 	}
 	
 	/**
@@ -310,6 +320,11 @@ public class Deck implements CardCollection
 			total += n;
 			if (c.typeContains("land"))
 				land += n;
+			
+			DeckEvent event = new DeckEvent(this, true, false, false, false);
+			for (DeckListener listener: listeners)
+				listener.DeckChanged(event);
+			
 			return true;
 		}
 	}
@@ -390,13 +405,18 @@ public class Deck implements CardCollection
 					for (Category category: categories.values())
 					{
 						category.filtrate.remove(c);
-						category.spec.whitelist.remove(c);
-						category.spec.blacklist.remove(c);
+						category.spec.getWhitelist().remove(c);
+						category.spec.getBlacklist().remove(c);
 					}
 				}
 				total -= n;
 				if (c.typeContains("land"))
 					land -= n;
+				
+				DeckEvent event = new DeckEvent(this, false, true, false, false);
+				for (DeckListener listener: listeners)
+					listener.DeckChanged(event);
+				
 				return n;
 			}
 		}
@@ -435,19 +455,7 @@ public class Deck implements CardCollection
 	@Override
 	public boolean setCount(int index, int n)
 	{
-		Entry e = masterList.get(index);
-		if (e.count == n)
-			return false;
-		else
-		{
-			total += n - e.count;
-			if (e.card.typeContains("land"))
-				land += n - e.count;
-			e.count = n;
-			if (e.count == 0)
-				decrease(e.card, Integer.MAX_VALUE);
-			return true;
-		}
+		return setCount(masterList.get(index).card, n);
 	}
 	
 	/**
@@ -474,9 +482,24 @@ public class Deck implements CardCollection
 			total += n - e.count;
 			if (e.card.typeContains("land"))
 				land += n - e.count;
+			
+			DeckEvent event = new DeckEvent(this, n > e.count, n < e.count, false, false);
+			
 			e.count = n;
 			if (e.count == 0)
-				decrease(c, Integer.MAX_VALUE);
+			{
+				masterList.remove(e);
+				for (Category category: categories.values())
+				{
+					category.filtrate.remove(e.card);
+					category.spec.getWhitelist().remove(e.card);
+					category.spec.getBlacklist().remove(e.card);
+				}
+			}
+			
+			for (DeckListener listener: listeners)
+				listener.DeckChanged(event);
+			
 			return true;
 		}
 	}
@@ -572,17 +595,22 @@ public class Deck implements CardCollection
 	 */
 	public Category addCategory(CategorySpec spec)
 	{
-		if (!categories.containsKey(spec.name))
+		if (!categories.containsKey(spec.getName()))
 		{
 			Category c = new Category(spec);
-			categories.put(spec.name, c);
+			categories.put(spec.getName(), c);
 			for (Entry e: masterList)
 				if (c.includes(e.card))
 					e.categories.add(c);
+			
+			DeckEvent event = new DeckEvent(this, false, false, true, false);
+			for (DeckListener listener: listeners)
+				listener.DeckChanged(event);
+			
 			return c;
 		}
 		else
-			return categories.get(spec.name);
+			return categories.get(spec.getName());
 	}
 	
 	/**
@@ -598,7 +626,15 @@ public class Deck implements CardCollection
 		{
 			for (Entry e: masterList)
 				e.categories.remove(categories.get(name));
-			return categories.remove(name) != null;
+			if (categories.remove(name) != null)
+			{
+				DeckEvent event = new DeckEvent(this, false, false, false, true);
+				for (DeckListener listener: listeners)
+					listener.DeckChanged(event);
+				return true;
+			}
+			else
+				return false;
 		}
 		else
 			return false;
@@ -888,6 +924,15 @@ public class Deck implements CardCollection
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param listener
+	 */
+	public void addDeckListener(DeckListener listener)
+	{
+		listeners.add(listener);
+	}
+	
+	/**
 	 * This class represents a category of a deck.  It looks like a deck since it
 	 * contains a list of cards and can report how many copies of them there are, 
 	 * so it extends Deck.  If a card is added or removed using the add and remove
@@ -917,7 +962,7 @@ public class Deck implements CardCollection
 		private Category(CategorySpec s)
 		{
 			spec = s;
-			filtrate = masterList.stream().map((e) -> e.card).filter(spec.filter).collect(Collectors.toList());
+			filtrate = masterList.stream().map((e) -> e.card).filter(spec.getFilter()).collect(Collectors.toList());
 		}
 		
 		/**
@@ -937,6 +982,15 @@ public class Deck implements CardCollection
 		public String toString()
 		{
 			return spec.toString();
+		}
+		
+		/**
+		 * TODO: Comment this or make it superfluous
+		 * @return
+		 */
+		public String toListlessString()
+		{
+			return spec.toListlessString();
 		}
 		
 		/**
@@ -1065,9 +1119,7 @@ public class Deck implements CardCollection
 			Entry e = getEntry(c);
 			if (e != null)
 			{
-				boolean changed = spec.blacklist.remove(c);
-				if (!spec.filter.test(c))
-					changed |= spec.whitelist.add(c);
+				boolean changed = spec.include(c);
 				if (!contains(c))
 					changed |= filtrate.add(c);
 				if (!e.categories.contains(this))
@@ -1092,9 +1144,7 @@ public class Deck implements CardCollection
 			Entry e = getEntry(c);
 			if (e != null)
 			{
-				boolean changed = spec.whitelist.remove(c);
-				if (spec.filter.test(c))
-					changed |= spec.blacklist.add(c);
+				boolean changed = spec.exclude(c);
 				if (contains(c))
 					changed |= filtrate.remove(c);
 				return e.categories.remove(this) || changed;
@@ -1237,16 +1287,16 @@ public class Deck implements CardCollection
 		 */
 		public boolean edit(String n, Color c, Filter f)
 		{
-			if (n.equals(spec.name) || !categories.containsKey(n))
+			if (n.equals(spec.getName()) || !categories.containsKey(n))
 			{
-				if (!n.equals(spec.name))
+				if (!n.equals(spec.getName()))
 				{
-					categories.remove(spec.name);
-					spec.name = n;
-					categories.put(spec.name, this);
+					categories.remove(spec.getName());
+					spec.setName(n);
+					categories.put(spec.getName(), this);
 				}
-				spec.color = c;
-				spec.filter = f;
+				spec.setColor(c);
+				spec.setFilter(f);
 				filtrate = masterList.stream().map((e) -> e.card).filter(this::includes).collect(Collectors.toList());
 				for (Entry e: masterList)
 				{
@@ -1255,6 +1305,11 @@ public class Deck implements CardCollection
 					else if (!e.categories.contains(this))
 						e.categories.add(this);
 				}
+				
+				DeckEvent event = new DeckEvent(Deck.this, false, false, true, true);
+				for (DeckListener listener: listeners)
+					listener.DeckChanged(event);
+				
 				return true;
 			}
 			else

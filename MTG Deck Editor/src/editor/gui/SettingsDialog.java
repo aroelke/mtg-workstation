@@ -44,7 +44,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import editor.collection.CategorySpec;
+import editor.collection.category.CategorySpec;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.editor.CategoryEditorPanel;
 

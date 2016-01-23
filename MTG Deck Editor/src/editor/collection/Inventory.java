@@ -1,4 +1,4 @@
-package editor.database;
+package editor.collection;
 
 import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
@@ -17,10 +17,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import editor.collection.CategorySpec;
-import editor.database.Deck.Category;
+import editor.collection.category.CategorySpec;
+import editor.collection.deck.Deck;
+import editor.database.Card;
 import editor.filter.Filter;
-import editor.filter.leaf.FilterLeaf;
+import editor.filter.leaf.BinaryFilter;
 
 /**
  * This class represents an inventory of cards that can be added to decks.
@@ -128,7 +129,7 @@ public class Inventory implements CardCollection
 	{
 		cards = new ArrayList<Card>(list);
 		IDs = cards.stream().collect(Collectors.toMap((c) -> c.id(), Function.identity()));
-		filter = new CategorySpec("Displayed Inventory", Color.BLACK, FilterLeaf.ALL_CARDS);
+		filter = new CategorySpec("Displayed Inventory", Color.BLACK, new BinaryFilter(true));
 		filtrate = cards;
 		
 		filter.addCategoryListener((e) -> {
@@ -364,13 +365,13 @@ public class Inventory implements CardCollection
 	}
 
 	@Override
-	public Set<Category> getCategories(Card c)
+	public Set<Deck.Category> getCategories(Card c)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Set<Category> getCategories(int index)
+	public Set<Deck.Category> getCategories(int index)
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -1,4 +1,4 @@
-package editor.database;
+package editor.collection.deck;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import editor.database.Deck.Category;
+import editor.collection.CardCollection;
+import editor.database.Card;
 
 /**
  * This class represents a hand of Cards.  It is a subset of a Deck
@@ -205,7 +206,7 @@ public class Hand implements CardCollection
 	 * @return The Categories the given Card belongs to
 	 */
 	@Override
-	public Set<Category> getCategories(Card c)
+	public Set<Deck.Category> getCategories(Card c)
 	{
 		return deck.getCategories(c);
 	}
@@ -215,7 +216,7 @@ public class Hand implements CardCollection
 	 * @return The Categories the Card at the given index belongs to
 	 */
 	@Override
-	public Set<Category> getCategories(int index)
+	public Set<Deck.Category> getCategories(int index)
 	{
 		return deck.getCategories(get(index));
 	}

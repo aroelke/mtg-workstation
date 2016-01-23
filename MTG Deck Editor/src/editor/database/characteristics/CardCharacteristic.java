@@ -7,8 +7,8 @@ import java.util.function.BiFunction;
 
 import javax.swing.table.TableCellEditor;
 
+import editor.collection.CardCollection;
 import editor.database.Card;
-import editor.database.CardCollection;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.SpinnerCellEditor;
 import editor.util.TriConsumer;
