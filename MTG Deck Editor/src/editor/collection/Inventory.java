@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import editor.collection.category.CategorySpec;
-import editor.collection.deck.Deck;
 import editor.database.Card;
 import editor.filter.Filter;
 import editor.filter.leaf.BinaryFilter;
@@ -365,13 +364,13 @@ public class Inventory implements CardCollection
 	}
 
 	@Override
-	public Set<Deck.Category> getCategories(Card c)
+	public Set<CategorySpec> getCategories(Card c)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Set<Deck.Category> getCategories(int index)
+	public Set<CategorySpec> getCategories(int index)
 	{
 		throw new UnsupportedOperationException();
 	}

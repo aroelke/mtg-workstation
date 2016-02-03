@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.database.Card;
 
@@ -286,7 +287,7 @@ public interface CardCollection extends Collection<Card>
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 * @see Deck.Category
 	 */
-	public Set<Deck.Category> getCategories(Card c);
+	public Set<CategorySpec> getCategories(Card c);
 	
 	/**
 	 * @param index Index of the Card to look for
@@ -295,7 +296,7 @@ public interface CardCollection extends Collection<Card>
 	 * @throws IndexOutOfBoundsException if the index is less than 0 or if it is too big
 	 * @see Deck.Category
 	 */
-	public Set<Deck.Category> getCategories(int index);
+	public Set<CategorySpec> getCategories(int index);
 	
 	/**
 	 * @param c Card to look for

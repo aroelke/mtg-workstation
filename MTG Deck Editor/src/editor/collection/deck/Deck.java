@@ -1,6 +1,5 @@
 package editor.collection.deck;
 
-import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -25,9 +24,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import editor.collection.CardCollection;
+import editor.collection.category.CategoryListener;
 import editor.collection.category.CategorySpec;
 import editor.database.Card;
-import editor.filter.Filter;
 
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and
@@ -130,11 +129,9 @@ public class Deck implements CardCollection
 	 * This class represents an entry into a deck.  It has a card and a
 	 * number of copies.
 	 * 
-	 * TODO: Make this private
-	 * 
 	 * @author Alec Roelke
 	 */
-	public static class Entry
+	private static class Entry
 	{
 		/**
 		 * Card in this Entry.  It can't be changed.
@@ -181,22 +178,6 @@ public class Deck implements CardCollection
 			count = e.count;
 			date = e.date;
 			categories = new LinkedHashSet<Category>(e.categories);
-		}
-		
-		/**
-		 * @return The Card contained in this Entry.
-		 */
-		public Card card()
-		{
-			return card;
-		}
-		
-		/**
-		 * @return The number of copies of the Card contained in this Entry.
-		 */
-		public int count()
-		{
-			return count;
 		}
 		
 		/**
@@ -321,7 +302,7 @@ public class Deck implements CardCollection
 			if (c.typeContains("land"))
 				land += n;
 			
-			DeckEvent event = new DeckEvent(this, true, false, false, false);
+			DeckEvent event = new DeckEvent(this, true, false, null, null);
 			for (DeckListener listener: listeners)
 				listener.DeckChanged(event);
 			
@@ -413,7 +394,7 @@ public class Deck implements CardCollection
 				if (c.typeContains("land"))
 					land -= n;
 				
-				DeckEvent event = new DeckEvent(this, false, true, false, false);
+				DeckEvent event = new DeckEvent(this, false, true, null, null);
 				for (DeckListener listener: listeners)
 					listener.DeckChanged(event);
 				
@@ -435,6 +416,34 @@ public class Deck implements CardCollection
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @param c
+	 * @return
+	 */
+	public boolean include(String name, Card c)
+	{
+		if (!contains(c))
+			return false;
+		else
+			return categories.get(name).spec.include(c);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @param c
+	 * @return
+	 */
+	public boolean exclude(String name, Card c)
+	{
+		if (!contains(c))
+			return false;
+		else
+			return categories.get(name).spec.exclude(c);
+	}
+	
+	/**
 	 * @param index Index to look at in the list
 	 * @return The Card at the given index.
 	 */
@@ -442,6 +451,17 @@ public class Deck implements CardCollection
 	public Card get(int index)
 	{
 		return masterList.get(index).card;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @param index
+	 * @return
+	 */
+	public Card get(String name, int index)
+	{
+		return categories.get(name).get(index);
 	}
 	
 	/**
@@ -483,7 +503,7 @@ public class Deck implements CardCollection
 			if (e.card.typeContains("land"))
 				land += n - e.count;
 			
-			DeckEvent event = new DeckEvent(this, n > e.count, n < e.count, false, false);
+			DeckEvent event = new DeckEvent(this, n > e.count, n < e.count, null, null);
 			
 			e.count = n;
 			if (e.count == 0)
@@ -577,13 +597,14 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * @param name Name of the Category to look for
-	 * @return The Category with the given name, or <code>null</code> if no
-	 * such category exists.
+	 * TODO: Comment this
+	 * @param name
+	 * @param o
+	 * @return
 	 */
-	public Category getCategory(String name)
+	public boolean contains(String name, Object o)
 	{
-		return categories.get(name);
+		return o instanceof Card && categories.get(name).contains(o);
 	}
 	
 	/**
@@ -593,17 +614,20 @@ public class Deck implements CardCollection
 	 * @param spec Specifications for the new Category
 	 * if there already was one with that name.
 	 */
-	public Category addCategory(CategorySpec spec)
+	public CardCollection addCategory(CategorySpec spec)
 	{
 		if (!categories.containsKey(spec.getName()))
 		{
 			Category c = new Category(spec);
 			categories.put(spec.getName(), c);
-			for (Entry e: masterList)
-				if (c.includes(e.card))
-					e.categories.add(c);
+			c.update();
 			
-			DeckEvent event = new DeckEvent(this, false, false, true, false);
+			spec.addCategoryListener(c.listener = (e) -> {
+				if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
+					c.update();
+			});
+			
+			DeckEvent event = new DeckEvent(this, false, false, spec.getName(), null);
 			for (DeckListener listener: listeners)
 				listener.DeckChanged(event);
 			
@@ -622,22 +646,67 @@ public class Deck implements CardCollection
 	 */
 	public boolean removeCategory(String name)
 	{
-		if (categories.containsKey(name))
+		Category c = categories.get(name);
+		if (c != null)
 		{
 			for (Entry e: masterList)
-				e.categories.remove(categories.get(name));
-			if (categories.remove(name) != null)
-			{
-				DeckEvent event = new DeckEvent(this, false, false, false, true);
-				for (DeckListener listener: listeners)
-					listener.DeckChanged(event);
-				return true;
-			}
-			else
-				return false;
+				e.categories.remove(c);
+			categories.remove(name);
+			c.spec.removeCategoryListener(c.listener);
+			
+			DeckEvent event = new DeckEvent(this, false, false, null, c.spec.getName());
+			for (DeckListener listener: listeners)
+				listener.DeckChanged(event);
+			
+			return true;
 		}
 		else
 			return false;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @param newSpec
+	 * @return
+	 */
+	public boolean editCategory(String name, CategorySpec newSpec)
+	{
+		if (categories.containsKey(name))
+		{
+			Category c = categories.get(name);
+			categories.remove(name);
+			categories.put(newSpec.getName(), c);
+			c.spec.copy(newSpec);
+			
+			DeckEvent event = new DeckEvent(this, false, false, name, c.spec.getName());
+			for (DeckListener listener: listeners)
+				listener.DeckChanged(event);
+			
+			return true;
+		}
+		else
+			return false;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @return
+	 */
+	public CategorySpec getCategorySpec(String name)
+	{
+		return categories.get(name).spec;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @return
+	 */
+	public CardCollection getCategoryCards(String name)
+	{
+		return categories.get(name);
 	}
 	
 	/**
@@ -655,9 +724,9 @@ public class Deck implements CardCollection
 	 * @return The set of Categories the Card belongs to.
 	 */
 	@Override
-	public Set<Category> getCategories(Card c)
+	public Set<CategorySpec> getCategories(Card c)
 	{
-		return getEntry(c).categories;
+		return getEntry(c).categories.stream().map(Category::spec).collect(Collectors.toSet());
 	}
 	
 	/**
@@ -665,9 +734,9 @@ public class Deck implements CardCollection
 	 * @return The set of Categories the Card belongs to.
 	 */
 	@Override
-	public Set<Category> getCategories(int index)
+	public Set<CategorySpec> getCategories(int index)
 	{
-		return masterList.get(index).categories;
+		return masterList.get(index).categories.stream().map(Category::spec).collect(Collectors.toSet());
 	}
 	
 	/**
@@ -680,6 +749,10 @@ public class Deck implements CardCollection
 		categories.clear();
 		total = 0;
 		land = 0;
+		
+		DeckEvent e = new DeckEvent(this, false, true, null, "");
+		for (DeckListener listener: listeners)
+			listener.DeckChanged(e);
 	}
 	
 	/**
@@ -692,12 +765,35 @@ public class Deck implements CardCollection
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @return
+	 */
+	public int size(String name)
+	{
+		return categories.get(name).size();
+	}
+	
+	/**
 	 * @return The number of Cards in this Deck.
 	 */
 	@Override
 	public int total()
 	{
 		return total;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @return
+	 */
+	public int total(String name)
+	{
+		if (containsCategory(name))
+			return categories.get(name).total();
+		else
+			return 0;
 	}
 	
 	/**
@@ -933,17 +1029,24 @@ public class Deck implements CardCollection
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param listener
+	 */
+	public void removeDeckListener(DeckListener listener)
+	{
+		listeners.remove(listener);
+	}
+	
+	/**
 	 * This class represents a category of a deck.  It looks like a deck since it
 	 * contains a list of cards and can report how many copies of them there are, 
 	 * so it extends Deck.  If a card is added or removed using the add and remove
 	 * methods, the master list will be updated to reflect this only if the card
 	 * passes through the Category's filter.
 	 * 
-	 * TODO: Make this class private
-	 * 
 	 * @author Alec Roelke
 	 */
-	public class Category implements CardCollection
+	private class Category implements CardCollection
 	{
 		/**
 		 * Specification for the cards contained in this Category.
@@ -953,6 +1056,10 @@ public class Deck implements CardCollection
 		 * List representing the filtered view of the master list.
 		 */
 		private List<Card> filtrate;
+		/**
+		 * TODO: Comment this
+		 */
+		public CategoryListener listener;
 		
 		/**
 		 * Create a new Category.
@@ -962,7 +1069,20 @@ public class Deck implements CardCollection
 		private Category(CategorySpec s)
 		{
 			spec = s;
-			filtrate = masterList.stream().map((e) -> e.card).filter(spec.getFilter()).collect(Collectors.toList());
+			update();
+		}
+		
+		/**
+		 * TODO: Comment this
+		 */
+		public void update()
+		{
+			filtrate = masterList.stream().map((e) -> e.card).filter(spec::includes).collect(Collectors.toList());
+			for (Entry e: masterList)
+				if (spec.includes(e.card))
+					e.categories.add(this);
+				else
+					e.categories.remove(this);
 		}
 		
 		/**
@@ -982,15 +1102,6 @@ public class Deck implements CardCollection
 		public String toString()
 		{
 			return spec.toString();
-		}
-		
-		/**
-		 * TODO: Comment this or make it superfluous
-		 * @return
-		 */
-		public String toListlessString()
-		{
-			return spec.toListlessString();
 		}
 		
 		/**
@@ -1103,54 +1214,6 @@ public class Deck implements CardCollection
 		public boolean setCount(Card c, int n)
 		{
 			return includes(c) & Deck.this.setCount(c, n);
-		}
-		
-		/**
-		 * Include the given Card in this Category.  This will remove it from
-		 * the blacklist if it is in the blacklist.  No copies of the Card will
-		 * be added to the deck.
-		 * 
-		 * @param c Card to include in this Category
-		 * @return <code>true</code> if this Category changed as a result of the
-		 * inclusion, and <code>false</code> otherwise.
-		 */
-		public boolean include(Card c)
-		{
-			Entry e = getEntry(c);
-			if (e != null)
-			{
-				boolean changed = spec.include(c);
-				if (!contains(c))
-					changed |= filtrate.add(c);
-				if (!e.categories.contains(this))
-					changed |= e.categories.add(this);
-				return changed;
-			}
-			else
-				return false;
-		}
-		
-		/**
-		 * Exclude the given Card from this Category.  This will remove it from
-		 * the whitelist if it is in the whitelist.  No copies of the Card will be
-		 * removed from the deck.
-		 * 
-		 * @param c Card to exclude from this Category
-		 * @return <code>true</code> if this Category was changed as a result of the
-		 * exclusion, and <code>false</code> otherwise.
-		 */
-		public boolean exclude(Card c)
-		{
-			Entry e = getEntry(c);
-			if (e != null)
-			{
-				boolean changed = spec.exclude(c);
-				if (contains(c))
-					changed |= filtrate.remove(c);
-				return e.categories.remove(this) || changed;
-			}
-			else
-				return false;
 		}
 		
 		/**
@@ -1276,47 +1339,6 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * Change the properties of this Category.
-		 * 
-		 * @param n New name for this Category (names of categories should be unique!)
-		 * @param c New color for this category
-		 * @param f New filter for this Category
-		 * @return <code>true</code> if the category was successfully changed, which
-		 * happens if its new name isn't the name of another category or if the name
-		 * isn't changed, and <code>false</code> otherwise.
-		 */
-		public boolean edit(String n, Color c, Filter f)
-		{
-			if (n.equals(spec.getName()) || !categories.containsKey(n))
-			{
-				if (!n.equals(spec.getName()))
-				{
-					categories.remove(spec.getName());
-					spec.setName(n);
-					categories.put(spec.getName(), this);
-				}
-				spec.setColor(c);
-				spec.setFilter(f);
-				filtrate = masterList.stream().map((e) -> e.card).filter(this::includes).collect(Collectors.toList());
-				for (Entry e: masterList)
-				{
-					if (!includes(e.card))
-						e.categories.remove(this);
-					else if (!e.categories.contains(this))
-						e.categories.add(this);
-				}
-				
-				DeckEvent event = new DeckEvent(Deck.this, false, false, true, true);
-				for (DeckListener listener: listeners)
-					listener.DeckChanged(event);
-				
-				return true;
-			}
-			else
-				return false;
-		}
-		
-		/**
 		 * @return An iterator over this Category's Cards.
 		 */
 		@Override
@@ -1340,11 +1362,11 @@ public class Deck implements CardCollection
 		 * belongs to this Category.
 		 */
 		@Override
-		public Set<Category> getCategories(Card c)
+		public Set<CategorySpec> getCategories(Card c)
 		{
 			Entry e = getEntry(c);
 			if (e != null && includes(c))
-				return e.categories;
+				return Deck.this.getCategories(c);
 			else
 				return null;
 		}
@@ -1355,7 +1377,7 @@ public class Deck implements CardCollection
 		 * to.
 		 */
 		@Override
-		public Set<Category> getCategories(int index)
+		public Set<CategorySpec> getCategories(int index)
 		{
 			return getCategories(filtrate.get(index));
 		}

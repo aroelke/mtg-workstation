@@ -21,11 +21,9 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 
-import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.database.Card;
 import editor.database.characteristics.CardCharacteristic;
-import editor.filter.Filter;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;
 import editor.gui.ColorButton;
@@ -44,13 +42,18 @@ public class CategoryPanel extends JPanel
 {
 	/**
 	 * Number of rows in the card table to display.
+	 * TODO: Make this a setting
 	 */
 	public static final int MAX_ROWS_TO_DISPLAY = 6;
 	
 	/**
 	 * Category in the Deck data structure.
 	 */
-	private Deck.Category category;
+	private Deck deck;
+	/**
+	 * TODO: Comment this
+	 */
+	private String name;
 	/**
 	 * Table to display the contents of the category.
 	 */
@@ -91,39 +94,31 @@ public class CategoryPanel extends JPanel
 	/**
 	 * Create a new CategoryPanel.
 	 * 
-	 * @param n Name of the new category
-	 * @param r String representation of the new category
-	 * @param whitelist Set of Cards that should always be included in the new category
-	 * @param blacklist Set of Cards that should never be included in the new category
-	 * @param col Color of the new category
-	 * @param p Filter for the new category
-	 * 
-	 * @param cat Category for the new panel to display
-	 * @param editor EditorFrame containing the new category
+	 * TODO: Fix this comment
 	 */
-	public CategoryPanel(Deck.Category cat, EditorFrame editor)
+	public CategoryPanel(Deck d, String n, EditorFrame editor)
 	{
 		super();
-		category = cat;
+		deck = d;
+		name = n;
 		background = getBackground();
 		flashTimer = new FlashTimer();
 		
 		// Each category is surrounded by a border with a title
-		border = new TitledBorder(category.spec().getName());
-		setBorder(border);
+		setBorder(border = new TitledBorder(name));
 		
 		setLayout(new BorderLayout());
 		
 		// Label showing the number of cards in the category
 		JPanel countPanel = new JPanel();
 		countPanel.setLayout(new BorderLayout(0, 0));
-		countLabel = new JLabel("Cards: " + category.size());
+		countLabel = new JLabel("Cards: " + deck.total(name));
 		countLabel.setVerticalAlignment(SwingConstants.TOP);
 		countPanel.add(countLabel, BorderLayout.WEST);
 		
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		colorButton = new ColorButton(category.spec().getColor());
+		colorButton = new ColorButton(deck.getCategorySpec(name).getColor());
 		buttonPanel.add(colorButton);
 		editButton = new JButton("…");
 		buttonPanel.add(editButton);
@@ -134,14 +129,14 @@ public class CategoryPanel extends JPanel
 		add(countPanel, BorderLayout.NORTH);
 		
 		// Table showing the cards in the category
-		model = new CardTableModel(editor, category, Arrays.stream(SettingsDialog.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		model = new CardTableModel(editor, deck.getCategoryCards(name), Arrays.stream(SettingsDialog.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		table = new CardTable(model)
 		{
 			@Override
 			public Dimension getPreferredScrollableViewportSize()
 			{
 				Dimension d = getPreferredSize();
-				d.height = getRowHeight()*Math.min(MAX_ROWS_TO_DISPLAY, category.size());
+				d.height = getRowHeight()*Math.min(MAX_ROWS_TO_DISPLAY, deck.size(name));
 				return d;
 			}
 		};
@@ -151,6 +146,20 @@ public class CategoryPanel extends JPanel
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
 		tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		add(tablePane, BorderLayout.CENTER);
+		
+		deck.getCategorySpec(name).addCategoryListener((e) -> {
+			if (e.nameChanged())
+				name = e.newName();
+			update();
+		});
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	public String getCategoryName()
+	{
+		return name;
 	}
 	
 	/**
@@ -159,46 +168,14 @@ public class CategoryPanel extends JPanel
 	public void update()
 	{
 		model.fireTableDataChanged();
-		countLabel.setText("Cards: " + category.total());
-		border.setTitle(category.spec().getName());
+		countLabel.setText("Cards: " + deck.total(name));
+		border.setTitle(name);
 		table.revalidate();
 		table.repaint();
-		colorButton.setColor(category.spec().getColor());
+		colorButton.setColor(deck.getCategorySpec(name).getColor());
 		colorButton.repaint();
 		revalidate();
 		repaint();
-	}
-	
-	/**
-	 * @return The String representation of the category.
-	 * @see CategoryDialog#setContents(String)
-	 */
-	@Override
-	public String toString()
-	{
-		return category.toString();
-	}
-	
-	/**
-	 * @return The specifications of the category being displayed by this CategoryPanel.
-	 */
-	public CategorySpec spec()
-	{
-		return category.spec();
-	}
-	
-	/**
-	 * Change the parameters of the category.
-	 * 
-	 * @param newName New name for the category
-	 * @param newRepr New String representation of the category's filter
-	 * @param newFilter New filter for the category
-	 */
-	public void edit(String newName, Color newColor, Filter newFilter)
-	{
-		if (!category.edit(newName, newColor, newFilter))
-			throw new IllegalArgumentException("Category \"" + newName + "\" already exists");
-		update();
 	}
 	
 	/**
@@ -207,50 +184,8 @@ public class CategoryPanel extends JPanel
 	public List<Card> getSelectedCards()
 	{
 		return Arrays.stream(table.getSelectedRows())
-					 .mapToObj((r) -> category.get(table.convertRowIndexToModel(r)))
+					 .mapToObj((r) -> deck.getCategoryCards(name).get(table.convertRowIndexToModel(r)))
 					 .collect(Collectors.toList());
-	}
-	
-	/**
-	 * @param c Card to check for
-	 * @return <code>true</code> if the category contains the given Card, and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean contains(Card c)
-	{
-		return category.contains(c);
-	}
-	
-	/**
-	 * Include the given Card in the category.  This will remove it from
-	 * the blacklist if it is in the blacklist.  No copies of the Card will
-	 * be added to the deck.
-	 * 
-	 * @param c Card to include in the category
-	 * @return <code>true</code> if the category was changed as a result of
-	 * the inclusion and <code>false</code> otherwise.
-	 */
-	public boolean include(Card c)
-	{
-		boolean changed = category.include(c);
-		update();
-		return changed;
-	}
-	
-	/**
-	 * Exclude the given Card from the category.  This will remove it from
-	 * the whitelist if it is in the whitelist.  No copies of the Card will be
-	 * removed from the deck.
-	 * 
-	 * @param c Card to exclude from the category
-	 * @return <code>true</code> if the category was changed as a result of the
-	 * exclusion and <code>false</code> otherwise.
-	 */
-	public boolean exclude(Card c)
-	{
-		boolean changed = category.exclude(c);
-		update();
-		return changed;
 	}
 	
 	/**

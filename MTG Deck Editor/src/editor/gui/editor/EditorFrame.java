@@ -185,9 +185,10 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private JPanel categoriesContainer;
 	/**
-	 * List of categories in this deck.
+	 * Panels showing categories in this deck (individual panels should not be operated
+	 * on except for GUI-related functions).
 	 */
-	private List<CategoryPanel> categories;
+	private Collection<CategoryPanel> categoryPanels;
 	/**
 	 * Label showing the total number of cards in the deck.
 	 */
@@ -335,7 +336,7 @@ public class EditorFrame extends JInternalFrame
 				if (!lsm.isSelectionEmpty())
 				{
 					parent.selectCard(deck.get(table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
-					for (CategoryPanel c: categories)
+					for (CategoryPanel c: categoryPanels)
 						c.table.clearSelection();
 				}
 			}
@@ -420,16 +421,16 @@ public class EditorFrame extends JInternalFrame
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
 				List<Card> cards = getSelectedCards();
-				if (cards.size() != 1 && !categories.isEmpty())
+				if (cards.size() != 1 && !deck.categories().isEmpty())
 					setCategoriesMenu.setEnabled(false);
-				else if (!categories.isEmpty())
+				else if (!deck.categories().isEmpty())
 				{
 					setCategoriesMenu.setEnabled(true);
 					setCategoriesMenu.removeAll();
-					for (CategoryPanel category: categories.stream().sorted((a, b) -> a.spec().getName().compareTo(b.spec().getName())).collect(Collectors.toList()))
+					for (CategorySpec category: deck.categories().stream().sorted((a, b) -> a.getName().compareTo(b.getName())).collect(Collectors.toList()))
 					{
-						JCheckBoxMenuItem containsBox = new JCheckBoxMenuItem(category.spec().getName());
-						containsBox.setSelected(category.contains(cards.get(0)));
+						JCheckBoxMenuItem containsBox = new JCheckBoxMenuItem(category.getName());
+						containsBox.setSelected(deck.contains(category.getName(), cards.get(0)));
 						containsBox.addActionListener((a) -> {
 							if (((JCheckBoxMenuItem)a.getSource()).isSelected())
 							{
@@ -508,7 +509,7 @@ public class EditorFrame extends JInternalFrame
 		sortCategoriesBox.addActionListener((e) -> {
 			if (sortCategoriesBox.isPopupVisible())
 			{
-				sortCategories(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()));
+				updateCategoryPanel();
 				update();
 			}
 		});
@@ -539,7 +540,7 @@ public class EditorFrame extends JInternalFrame
 		JPanel categoriesSuperContainer = new ScrollablePanel(new BorderLayout(), ScrollablePanel.TRACK_WIDTH);
 		categoriesContainer = new JPanel();
 		categoriesContainer.setLayout(new BoxLayout(categoriesContainer, BoxLayout.Y_AXIS));
-		categories = new ArrayList<CategoryPanel>();
+		categoryPanels = new ArrayList<CategoryPanel>();
 		
 		// The category panel is a vertically-scrollable panel that contains all categories stacked vertically
 		// The categories should have a constant height, but fit the container horizontally
@@ -764,6 +765,14 @@ public class EditorFrame extends JInternalFrame
 		
 		setTransferHandler(new EditorImportHandler());
 		
+		deck.addDeckListener((e) -> {
+			if (e.cardsAdded() || e.cardsRemoved())
+				updateCount();
+			if (e.categoryRemoved())
+				updateCategoryPanel();
+			setUnsaved();
+			update();
+		});
 		
 		// Handle various frame events, including selecting and closing
 		addInternalFrameListener(new InternalFrameAdapter()
@@ -822,11 +831,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.clear();
-			updateCount();
-			categories.clear();
 			categoriesContainer.removeAll();
-			updateCategoryPanel();
-			update();
 		}
 		original.addAll(deck);
 		listTabs.setSelectedIndex(MAIN_TABLE);
@@ -859,7 +864,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public String[] categoryNames()
 	{
-		List<String> names = categories.stream().map((c) -> c.spec().getName()).collect(Collectors.toList());
+		List<String> names = deck.categories().stream().map(CategorySpec::getName).collect(Collectors.toList());
 		Collections.sort(names);
 		return names.toArray(new String[names.size()]);
 	}
@@ -872,8 +877,8 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private CategoryPanel getCategory(String name)
 	{
-		for (CategoryPanel category: categories)
-			if (category.spec().getName().equals(name))
+		for (CategoryPanel category: categoryPanels)
+			if (category.getCategoryName().equals(name))
 				return category;
 		return null;
 	}
@@ -904,182 +909,170 @@ public class EditorFrame extends JInternalFrame
 	 * @param spec Specification for the category of the new CategoryPanel
 	 * @return The new CategoryPanel.
 	 */
-	private CategoryPanel createCategory(CategorySpec spec)
+	private CategoryPanel createCategoryPanel(CategorySpec spec)
 	{
-		if (!deck.containsCategory(spec.getName()))
-		{
-			deck.addCategory(spec);
-			CategoryPanel newCategory = new CategoryPanel(deck.getCategory(spec.getName()), this);
-			// When a card is selected in a category, the others should deselect
-			newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
-				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-				if (!lsm.isSelectionEmpty())
+		CategoryPanel newCategory = new CategoryPanel(deck, spec.getName(), this);
+		// When a card is selected in a category, the others should deselect
+		newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
+			ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+			if (!lsm.isSelectionEmpty())
+			{
+				if (!e.getValueIsAdjusting())
+					parent.selectCard(deck.getCategoryCards(spec.getName()).get(newCategory.table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
+				for (CategoryPanel c: categoryPanels)
+					if (newCategory != c)
+						c.table.clearSelection();
+				table.clearSelection();
+			}
+		});
+		// Add the behavior for the edit category button
+		newCategory.editButton.addActionListener((e) -> editCategory(spec.getName()));
+		// Add the behavior for the remove category button
+		newCategory.removeButton.addActionListener((e) -> removeCategory(spec));
+		// Add the behavior for the color edit button
+		newCategory.colorButton.addActionListener((e) -> {
+			Color newColor = JColorChooser.showDialog(null, "Choose a Color", newCategory.colorButton.color());
+			if (newColor != null)
+				spec.setColor(newColor);
+		});
+		
+		newCategory.table.setTransferHandler(new EditorTableTransferHandler());
+		newCategory.table.setDragEnabled(true);
+		
+		// Add the behavior for clicking on the category's table
+		// Table popup menu
+		JPopupMenu tableMenu = new JPopupMenu();
+		newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
+		
+		// Add single copy item
+		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
+		addSinglePopupItem.addActionListener((e) -> addCards(newCategory.getSelectedCards(), 1));
+		tableMenu.add(addSinglePopupItem);
+		
+		// Fill playset item
+		JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
+		playsetPopupItem.addActionListener((e) -> {
+			for (Card c: newCategory.getSelectedCards())
+				addCard(c, 4 - deck.count(c));
+		});
+		tableMenu.add(playsetPopupItem);
+		
+		// Add variable item
+		JMenuItem addNPopupItem = new JMenuItem("Add Copies...");
+		addNPopupItem.addActionListener((e) -> {
+			JPanel contentPanel = new JPanel(new BorderLayout());
+			contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
+			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+			contentPanel.add(spinner, BorderLayout.SOUTH);
+			if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				addCards(newCategory.getSelectedCards(), (Integer)spinner.getValue());
+		});
+		tableMenu.add(addNPopupItem);
+		
+		tableMenu.add(new JSeparator());
+		
+		// Remove single copy item
+		JMenuItem removeSinglePopupItem = new JMenuItem("Remove Single Copy");
+		removeSinglePopupItem.addActionListener((e) -> removeSelectedCards(1));
+		tableMenu.add(removeSinglePopupItem);
+		
+		// Remove all item
+		JMenuItem removeAllPopupItem = new JMenuItem("Remove All Copies");
+		removeAllPopupItem.addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE));
+		tableMenu.add(removeAllPopupItem);
+		
+		// Remove variable item
+		JMenuItem removeNPopupItem = new JMenuItem("Remove Copies...");
+		removeNPopupItem.addActionListener((e) -> {
+			JPanel contentPanel = new JPanel(new BorderLayout());
+			contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
+			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+			contentPanel.add(spinner, BorderLayout.SOUTH);
+			if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				removeSelectedCards((Integer)spinner.getValue());
+		});
+		tableMenu.add(removeNPopupItem);
+		
+		tableMenu.add(new JSeparator());
+		
+		// Remove from category item
+		JMenuItem removeFromCategoryItem = new JMenuItem("Exclude from Category");
+		removeFromCategoryItem.addActionListener((e) -> {
+			List<Card> selectedCards = newCategory.getSelectedCards();
+			undoBuffer.push(new UndoableAction()
+			{
+				@Override
+				public boolean undo()
 				{
-					if (!e.getValueIsAdjusting())
-						parent.selectCard(deck.getCategory(newCategory.spec().getName()).get(newCategory.table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
-					for (CategoryPanel c: categories)
-						if (newCategory != c)
-							c.table.clearSelection();
-					table.clearSelection();
+					for (Card c: selectedCards)
+						spec.include(c);
+					return true;
+				}
+
+				@Override
+				public boolean redo()
+				{
+					for (Card c: selectedCards)
+						spec.exclude(c);
+					return true;
 				}
 			});
-			// Add the behavior for the edit category button
-			newCategory.editButton.addActionListener((e) -> editCategory(newCategory.spec().getName()));
-			// Add the behavior for the remove category button
-			newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory.spec()));
-			// Add the behavior for the color edit button
-			newCategory.colorButton.addActionListener((e) -> {
-				Color newColor = JColorChooser.showDialog(null, "Choose a Color", newCategory.colorButton.color());
-				if (newColor != null && !newColor.equals(newCategory.colorButton.color()))
-				{
-					newCategory.colorButton.setColor(newColor);
-					CategorySpec s = newCategory.spec();
-					editCategory(newCategory, s.getName(), newCategory.colorButton.color(), s.getFilter());
-				}
-			});
-			
-			newCategory.table.setTransferHandler(new EditorTableTransferHandler());
-			newCategory.table.setDragEnabled(true);
-			
-			// Add the behavior for clicking on the category's table
-			// Table popup menu
-			JPopupMenu tableMenu = new JPopupMenu();
-			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
-			
-			// Add single copy item
-			JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
-			addSinglePopupItem.addActionListener((e) -> addCards(newCategory.getSelectedCards(), 1));
-			tableMenu.add(addSinglePopupItem);
-			
-			// Fill playset item
-			JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
-			playsetPopupItem.addActionListener((e) -> {
-				for (Card c: newCategory.getSelectedCards())
-					addCard(c, 4 - deck.count(c));
-			});
-			tableMenu.add(playsetPopupItem);
-			
-			// Add variable item
-			JMenuItem addNPopupItem = new JMenuItem("Add Copies...");
-			addNPopupItem.addActionListener((e) -> {
-				JPanel contentPanel = new JPanel(new BorderLayout());
-				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
-				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-					addCards(newCategory.getSelectedCards(), (Integer)spinner.getValue());
-			});
-			tableMenu.add(addNPopupItem);
-			
-			tableMenu.add(new JSeparator());
-			
-			// Remove single copy item
-			JMenuItem removeSinglePopupItem = new JMenuItem("Remove Single Copy");
-			removeSinglePopupItem.addActionListener((e) -> removeSelectedCards(1));
-			tableMenu.add(removeSinglePopupItem);
-			
-			// Remove all item
-			JMenuItem removeAllPopupItem = new JMenuItem("Remove All Copies");
-			removeAllPopupItem.addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE));
-			tableMenu.add(removeAllPopupItem);
-			
-			// Remove variable item
-			JMenuItem removeNPopupItem = new JMenuItem("Remove Copies...");
-			removeNPopupItem.addActionListener((e) -> {
-				JPanel contentPanel = new JPanel(new BorderLayout());
-				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
-				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-					removeSelectedCards((Integer)spinner.getValue());
-			});
-			tableMenu.add(removeNPopupItem);
-			
-			tableMenu.add(new JSeparator());
-			
-			// Remove from category item
-			JMenuItem removeFromCategoryItem = new JMenuItem("Exclude from Category");
-			removeFromCategoryItem.addActionListener((e) -> {
-				List<Card> selectedCards = newCategory.getSelectedCards();
-				undoBuffer.push(new UndoableAction()
-				{
-					@Override
-					public boolean undo()
-					{
-						for (Card c: selectedCards)
-							newCategory.include(c);
-						return true;
-					}
-	
-					@Override
-					public boolean redo()
-					{
-						for (Card c: selectedCards)
-							newCategory.exclude(c);
-						return true;
-					}
-				});
-				undoBuffer.peek().redo();
-				redoBuffer.clear();
-				update();
-				setUnsaved();
-			});
-			tableMenu.add(removeFromCategoryItem);
-			
-			// Category popup menu
-			JPopupMenu categoryMenu = new JPopupMenu();
-			newCategory.setComponentPopupMenu(categoryMenu);
-			
-			// Cut item
-			JMenuItem cutItem = new JMenuItem("Cut");
-			cutItem.setEnabled(false); // TODO: Implement this
-			categoryMenu.add(cutItem);
-			
-			// Copy item
-			JMenuItem copyItem = new JMenuItem("Copy");
-			copyItem.setEnabled(false); // TODO: Implement this
-			categoryMenu.add(copyItem);
-			
-			// Paste item
-			JMenuItem pasteItem = new JMenuItem("Paste");
-			pasteItem.setEnabled(false); // TODO: Implement this
-			categoryMenu.add(pasteItem);
-			
-			// Edit item
-			JMenuItem editItem = new JMenuItem("Edit...");
-			editItem.addActionListener((e) -> editCategory(newCategory.spec().getName()));
-			categoryMenu.add(editItem);
-			
-			// Delete item
-			JMenuItem deleteItem = new JMenuItem("Delete");
-			deleteItem.addActionListener((e) -> removeCategory(newCategory.spec()));
-			categoryMenu.add(deleteItem);
-			
-			// Add to presets item
-			JMenuItem addPresetItem = new JMenuItem("Add to presets");
-			addPresetItem.addActionListener((e) -> {
-				if (!newCategory.spec().getWhitelist().isEmpty() || !newCategory.spec().getBlacklist().isEmpty())
-				{
-					if (JOptionPane.showConfirmDialog(null,
-							"Category "
-							+ newCategory.spec().getName()
-							+ " contains cards in its whitelist or blacklist which will not be included in the preset category."
-							+ "  Make this category a preset category?",
-							"Add to Presets",
-							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-						parent.addPreset(newCategory.spec().toListlessString());
-				}
-				else
-					parent.addPreset(newCategory.spec().toListlessString());
-			});
-			categoryMenu.add(addPresetItem);
-			
-			newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
-			
-			return newCategory;
-		}
-		else
-			return getCategory(spec.getName());
+			undoBuffer.peek().redo();
+			redoBuffer.clear();
+		});
+		tableMenu.add(removeFromCategoryItem);
+		
+		// Category popup menu
+		JPopupMenu categoryMenu = new JPopupMenu();
+		newCategory.setComponentPopupMenu(categoryMenu);
+		
+		// Cut item
+		JMenuItem cutItem = new JMenuItem("Cut");
+		cutItem.setEnabled(false); // TODO: Implement this
+		categoryMenu.add(cutItem);
+		
+		// Copy item
+		JMenuItem copyItem = new JMenuItem("Copy");
+		copyItem.setEnabled(false); // TODO: Implement this
+		categoryMenu.add(copyItem);
+		
+		// Paste item
+		JMenuItem pasteItem = new JMenuItem("Paste");
+		pasteItem.setEnabled(false); // TODO: Implement this
+		categoryMenu.add(pasteItem);
+		
+		// Edit item
+		JMenuItem editItem = new JMenuItem("Edit...");
+		editItem.addActionListener((e) -> editCategory(spec.getName()));
+		categoryMenu.add(editItem);
+		
+		// Delete item
+		JMenuItem deleteItem = new JMenuItem("Delete");
+		deleteItem.addActionListener((e) -> removeCategory(spec));
+		categoryMenu.add(deleteItem);
+		
+		// Add to presets item
+		JMenuItem addPresetItem = new JMenuItem("Add to presets");
+		addPresetItem.addActionListener((e) -> {
+			if (!spec.getWhitelist().isEmpty() || !spec.getBlacklist().isEmpty())
+			{
+				if (JOptionPane.showConfirmDialog(null,
+						"Category "
+						+ spec.getName()
+						+ " contains cards in its whitelist or blacklist which will not be included in the preset category."
+						+ "  Make this category a preset category?",
+						"Add to Presets",
+						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+					parent.addPreset(spec.toListlessString());
+			}
+			else
+				parent.addPreset(spec.toListlessString());
+		});
+		categoryMenu.add(addPresetItem);
+		
+		newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
+		
+		return newCategory;
 	}
 	
 	/**
@@ -1091,16 +1084,26 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private boolean insertCategory(CategorySpec spec)
 	{
-		CategoryPanel category = createCategory(spec);
-		categories.add(category);
-		updateCategoryPanel();
-		update();
-		setUnsaved();
-		listTabs.setSelectedIndex(CATEGORIES);
-		//TODO: Make this work
-		category.scrollRectToVisible(new Rectangle(category.getSize()));
-		category.flash();
-		return true;
+		if (!deck.containsCategory(spec.getName()))
+		{
+			deck.addCategory(spec);
+			CategoryPanel category = createCategoryPanel(spec);
+			categoryPanels.add(category);
+			updateCategoryPanel();
+			listTabs.setSelectedIndex(CATEGORIES);
+			//TODO: Make this work
+			category.scrollRectToVisible(new Rectangle(category.getSize()));
+			category.flash();
+			return true;
+		}
+		else
+		{
+			listTabs.setSelectedIndex(CATEGORIES);
+			CategoryPanel panel = getCategory(spec.getName());
+			panel.scrollRectToVisible(new Rectangle(panel.getSize()));
+			panel.flash();
+			return false;
+		}
 	}
 	
 	/**
@@ -1118,39 +1121,11 @@ public class EditorFrame extends JInternalFrame
 			return false;
 		else
 		{
-			boolean removed = deck.removeCategory(category.getName());
-			removed &= categories.remove(panel);
-			updateCategoryPanel();
-			update();
-			setUnsaved();
+			boolean removed = categoryPanels.remove(panel);
+			removed |= deck.removeCategory(category.getName());
 			listTabs.setSelectedIndex(CATEGORIES);
 			
 			return removed;
-		}
-	}
-	
-	/**
-	 * Change characteristics of the given CategoryPanel and its category.
-	 * 
-	 * @param category CategoryPanel to change
-	 * @param n New name of the category
-	 * @param c New color of the category
-	 * @param f New filter for the category
-	 * @return <code>true</code> if the category was successfully changed, and
-	 * <code>false</code> otherwise.
-	 */
-	private boolean changeCategory(CategoryPanel category, String n, Color c, Filter f)
-	{
-		if (!containsCategory(category.spec().getName()))
-			return false;
-		else
-		{
-			category.edit(n, c, f);
-			updateCategoryPanel();
-			update();
-			setUnsaved();
-			listTabs.setSelectedIndex(CATEGORIES);
-			return true;
 		}
 	}
 	
@@ -1194,42 +1169,38 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void editCategory(String name)
 	{
-		CategoryPanel toEdit = getCategory(name);
+		CategorySpec toEdit = deck.getCategorySpec(name);
 		if (toEdit == null)
 			JOptionPane.showMessageDialog(null, "Deck " + deckName() + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
 		else
 		{
-			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(toEdit.spec());
+			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(toEdit);
 			if (editor != null)
-				editCategory(toEdit, editor.spec().getName(), editor.spec().getColor(), editor.spec().getFilter());
+				editCategory(toEdit, editor.spec());
 		}
 	}
 	
 	/**
 	 * Change the given category to give it the given name, color, filter, and String representation.
 	 * 
-	 * @param toEdit CategoryPanel showing the category to edit
-	 * @param n New name for the category
-	 * @param c New color for the category
-	 * @param f New filter for the category
+	 * TODO: Correct this comment
 	 */
-	private void editCategory(CategoryPanel toEdit, String n, Color c, Filter f)
+	private void editCategory(CategorySpec toEdit, CategorySpec newValues)
 	{
 		undoBuffer.push(new UndoableAction()
 		{
-			private CategorySpec spec = new CategorySpec(toEdit.toString(), parent.inventory());
-			private Filter oldFilter = toEdit.spec().getFilter();
+			CategorySpec oldSpec = new CategorySpec(toEdit);
 			
 			@Override
 			public boolean undo()
 			{
-				return changeCategory(toEdit, spec.getName(), spec.getColor(), oldFilter);
+				return toEdit.copy(oldSpec);
 			}
 
 			@Override
 			public boolean redo()
 			{
-				return changeCategory(toEdit, n, c, f);
+				return toEdit.copy(newValues);
 			}
 		});
 		undoBuffer.peek().redo();
@@ -1283,7 +1254,7 @@ public class EditorFrame extends JInternalFrame
 		CategoryPanel removed = getCategory(name);
 		if (removed != null)
 		{
-			CategorySpec spec = removed.spec();
+			CategorySpec spec = deck.getCategorySpec(name);
 			removeCategory(spec);
 			return spec;
 		}
@@ -1302,48 +1273,42 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Sort the categories in proper order.
-	 * 
-	 * @param order Order to sort the categories in.
-	 */
-	public void sortCategories(CategoryOrder order)
-	{
-		categoriesContainer.removeAll();
-		switch (order)
-		{
-		case A_Z:
-			categories.sort((a, b) -> a.spec().getName().compareTo(b.spec().getName()));
-			break;
-		case Z_A:
-			categories.sort((a, b) -> -a.spec().getName().compareTo(b.spec().getName()));
-			break;
-		case ASCENDING:
-			categories.sort((a, b) -> deck.getCategory(a.spec().getName()).size() - deck.getCategory(b.spec().getName()).size());
-			break;
-		case DESCENDING:
-			categories.sort((a, b) -> deck.getCategory(b.spec().getName()).size() - deck.getCategory(a.spec().getName()).size());
-			break;
-		default:
-			break;
-		}
-		for (CategoryPanel c: categories)
-			categoriesContainer.add(c);
-	}
-	
-	/**
 	 * Update the categories combo box with all of the current categories.
 	 */
 	public void updateCategoryPanel()
 	{
-		sortCategories(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()));
-		switchCategoryModel.removeAllElements();
+		List<CategorySpec> categories = new ArrayList<CategorySpec>(deck.categories());
 		if (categories.isEmpty())
 			switchCategoryBox.setEnabled(false);
 		else
 		{
 			switchCategoryBox.setEnabled(true);
-			for (CategoryPanel category: categories.stream().sorted((a, b) -> a.spec().getName().compareTo(b.spec().getName())).collect(Collectors.toList()))
-				switchCategoryModel.addElement(category.spec().getName());
+			
+			categoriesContainer.removeAll();
+			switchCategoryModel.removeAllElements();
+			
+			switch (sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()))
+			{
+			case A_Z:
+				categories.sort((a, b) -> a.getName().compareTo(b.getName()));
+				break;
+			case Z_A:
+				categories.sort((a, b) -> -a.getName().compareTo(b.getName()));
+				break;
+			case ASCENDING:
+				categories.sort((a, b) -> deck.total(a.getName()) - deck.total(b.getName()));
+				break;
+			case DESCENDING:
+				categories.sort((a, b) -> deck.total(b.getName()) - deck.total(a.getName()));
+				break;
+			default:
+				break;
+			}
+			
+			for (CategorySpec c: categories)
+				categoriesContainer.add(getCategory(c.getName()));
+			for (CategorySpec category: categories)
+				switchCategoryModel.addElement(category.getName());
 		}
 	}
 	
@@ -1403,12 +1368,12 @@ public class EditorFrame extends JInternalFrame
 				model.fireTableDataChanged();
 				for (int row: selectedRows)
 					table.addRowSelectionInterval(row, row);
-				for (CategoryPanel c: categories)
+				for (CategoryPanel c: categoryPanels)
 					c.update();
 				break;
 			case CATEGORIES:
 				// Maintain the selection in each category
-				for (CategoryPanel c: categories)
+				for (CategoryPanel c: categoryPanels)
 				{
 					selectedRows = c.table.getSelectedRows();
 					c.update();
@@ -1424,14 +1389,11 @@ public class EditorFrame extends JInternalFrame
 			parent.selectCard(toAdd.get(0));
 			if (table.isEditing())
 				table.getCellEditor().cancelCellEditing();
-			for (CategoryPanel c: categories)
+			for (CategoryPanel c: categoryPanels)
 				if (c.table.isEditing())
 					c.table.getCellEditor().cancelCellEditing();
 			hand.refresh();
 			handModel.fireTableDataChanged();
-			updateCount();
-			setUnsaved();
-			update();
 			parent.revalidate();
 			parent.repaint();
 			return true;
@@ -1478,19 +1440,19 @@ public class EditorFrame extends JInternalFrame
 						table.addRowSelectionInterval(row, row);
 					}
 				}
-				for (CategoryPanel c: categories)
+				for (CategoryPanel c: categoryPanels)
 					c.update();
 				break;
 			case CATEGORIES:
 				// Get all of the selected cards from each category (only one category should
 				// have selected cards, but just in case)
 				Map<CategoryPanel, List<Card>> selectedCardsMap = new HashMap<CategoryPanel, List<Card>>();
-				for (CategoryPanel category: categories)
+				for (CategoryPanel category: categoryPanels)
 				{
 					List<Card> categorySelectedCards = new ArrayList<Card>();
 					if (category.table.getSelectedRows().length > 0)
 						for (int row: category.table.getSelectedRows())
-							categorySelectedCards.add(deck.getCategory(category.spec().getName()).get(category.table.convertRowIndexToModel(row)));
+							categorySelectedCards.add(deck.get(category.getCategoryName(), category.table.convertRowIndexToModel(row)));
 					selectedCardsMap.put(category, categorySelectedCards);
 				}
 				// Remove cards from the deck
@@ -1501,14 +1463,14 @@ public class EditorFrame extends JInternalFrame
 						removed.put(c, r);
 				}
 				// Update each category panel and then restore the selection as much as possible
-				for (CategoryPanel category: categories)
+				for (CategoryPanel category: categoryPanels)
 				{
 					category.update();
 					for (Card c: selectedCardsMap.get(category))
 					{
-						if (deck.getCategory(category.spec().getName()).contains(c))
+						if (deck.contains(category.getCategoryName(), c))
 						{
-							int row = category.table.convertRowIndexToView(deck.getCategory(category.spec().getName()).indexOf(c));
+							int row = category.table.convertRowIndexToView(deck.getCategoryCards(category.getCategoryName()).indexOf(c));
 							category.table.addRowSelectionInterval(row, row);
 						}
 					}
@@ -1529,17 +1491,11 @@ public class EditorFrame extends JInternalFrame
 			
 			if (table.isEditing())
 				table.getCellEditor().cancelCellEditing();
-			for (CategoryPanel c: categories)
+			for (CategoryPanel c: categoryPanels)
 				if (c.table.isEditing())
 					c.table.getCellEditor().cancelCellEditing();
 			hand.refresh();
 			handModel.fireTableDataChanged();
-			if (!removed.isEmpty())
-			{
-				updateCount();
-				setUnsaved();
-			}
-			update();
 			parent.revalidate();
 			parent.repaint();
 			return removed;
@@ -1678,29 +1634,23 @@ public class EditorFrame extends JInternalFrame
 					@Override
 					public boolean undo()
 					{
-						boolean set = deck.setCount(c, old);
-						update();
-						return set;
+						return deck.setCount(c, old);
 					}
 
 					@Override
 					public boolean redo()
 					{
-						boolean set = deck.setCount(c, n);
-						update();
-						return set;
+						return deck.setCount(c, n);
 					}
 				});
 				undoBuffer.peek().redo();
 				model.fireTableDataChanged();
-				for (CategoryPanel category: categories)
+				for (CategoryPanel category: categoryPanels)
 					category.update();
 				hand.refresh();
 				handModel.fireTableDataChanged();
 				
 				redoBuffer.clear();
-				updateCount();
-				setUnsaved();
 				if (table.isEditing())
 					table.getCellEditor().cancelCellEditing();
 				update();
@@ -1751,7 +1701,7 @@ public class EditorFrame extends JInternalFrame
 			break;
 		case CATEGORIES:
 			selectedCards = new ArrayList<Card>();
-			for (CategoryPanel category: categories)
+			for (CategoryPanel category: categoryPanels)
 				selectedCards.addAll(category.getSelectedCards());
 			break;
 		default:
@@ -1919,7 +1869,7 @@ public class EditorFrame extends JInternalFrame
 		Color stripe = SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE));
 		model.setColumns(columns);
 		table.setStripeColor(stripe);
-		for (CategoryPanel category: categories)
+		for (CategoryPanel category: categoryPanels)
 		{
 			category.setColumns(columns);
 			category.setStripeColor(stripe);
@@ -1951,7 +1901,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		revalidate();
 		repaint();
-		for (CategoryPanel panel: categories)
+		for (CategoryPanel panel: categoryPanels)
 			panel.update();
 	}
 	
@@ -1977,7 +1927,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		
 		/**
-		 * If the data can be imported, copy the cards from the source to the target deck.
+		 * If the data c)an be imported, copy the cards from the source to the target deck.
 		 * 
 		 * @param supp TransferSupport providing information about what is being transferred
 		 * @return <code>true</code> if the import was successful, and <code>false</code>
@@ -2079,7 +2029,7 @@ public class EditorFrame extends JInternalFrame
 				break;
 			case CATEGORIES:
 				selectedCards = new ArrayList<Card>();
-				for (CategoryPanel category: categories)
+				for (CategoryPanel category: categoryPanels)
 					selectedCards.addAll(category.getSelectedCards());
 				break;
 			default:
@@ -2179,10 +2129,10 @@ public class EditorFrame extends JInternalFrame
 						return null;
 					CategorySpec spec = new CategorySpec(rd.readLine(), parent.inventory());
 					addCategory(spec);
-					for (Card c: spec.getWhitelist())
-						deck.getCategory(spec.getName()).include(c);
-					for (Card c: spec.getBlacklist())
-						deck.getCategory(spec.getName()).exclude(c);
+//					for (Card c: spec.getWhitelist())
+//						deck.getCategory(spec.getName()).include(c);
+//					for (Card c: spec.getBlacklist())
+//						deck.getCategory(spec.getName()).exclude(c);
 					publish(50 + 50*(i + 1)/categories);
 				}
 				String line;
@@ -2199,7 +2149,7 @@ public class EditorFrame extends JInternalFrame
 		protected void done()
 		{
 			dialog.dispose();
-			updateCount();
+//			updateCount();
 			unsaved = false;
 			setFile(file);
 			undoBuffer.clear();

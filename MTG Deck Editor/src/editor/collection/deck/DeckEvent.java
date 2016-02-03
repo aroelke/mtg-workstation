@@ -10,12 +10,12 @@ public class DeckEvent
 	private Deck source;
 	private boolean cardsAdded;
 	private boolean cardsRemoved;
-	private boolean categoryAdded;
-	private boolean categoryRemoved;
+	private String categoryAdded;
+	private String categoryRemoved;
 	
 	public DeckEvent(Deck s,
 			boolean cardAdd, boolean cardRem,
-			boolean catAdd, boolean catRem)
+			String catAdd, String catRem)
 	{
 		source = s;
 		
@@ -42,11 +42,27 @@ public class DeckEvent
 	
 	public boolean categoryAdded()
 	{
-		return categoryAdded;
+		return categoryAdded != null;
+	}
+	
+	public String addedName()
+	{
+		if (categoryAdded())
+			return categoryAdded;
+		else
+			throw new IllegalStateException("No card has been added to the deck.");
 	}
 	
 	public boolean categoryRemoved()
 	{
-		return categoryRemoved;
+		return categoryRemoved != null;
+	}
+	
+	public String removedName()
+	{
+		if (categoryRemoved())
+			return categoryRemoved;
+		else
+			throw new IllegalStateException("No card has been removed from the deck.");
 	}
 }

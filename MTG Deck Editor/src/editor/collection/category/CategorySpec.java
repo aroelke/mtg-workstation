@@ -216,7 +216,7 @@ public class CategorySpec
 		{
 			name = n;
 			
-			CategoryEvent e = new CategoryEvent(this, true, false, false, false, false);
+			CategoryEvent e = new CategoryEvent(this, name, false, false, false, false);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -245,7 +245,7 @@ public class CategorySpec
 		
 		if (changed)
 		{
-			CategoryEvent e = new CategoryEvent(this, false, true, false, false, false);
+			CategoryEvent e = new CategoryEvent(this, null, true, false, false, false);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -276,7 +276,7 @@ public class CategorySpec
 		
 		if (changed)
 		{
-			CategoryEvent e = new CategoryEvent(this, false, false, true, false, false);
+			CategoryEvent e = new CategoryEvent(this, null, false, true, false, false);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -303,7 +303,7 @@ public class CategorySpec
 		{
 			color = c;
 			
-			CategoryEvent e = new CategoryEvent(this, false, false, false, true, false);
+			CategoryEvent e = new CategoryEvent(this, null, false, false, true, false);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -328,10 +328,38 @@ public class CategorySpec
 		{
 			filter = f;
 			
-			CategoryEvent e = new CategoryEvent(this, false, false, false, false, true);
+			CategoryEvent e = new CategoryEvent(this, null, false, false, false, true);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param other
+	 */
+	public boolean copy(CategorySpec other)
+	{
+		CategoryEvent e = new CategoryEvent(this,
+				name.equals(other.name) ? null : other.name,
+				!whitelist.equals(other.whitelist),
+				!blacklist.equals(other.blacklist),
+				!color.equals(other.color),
+				!filter.equals(other.filter));
+		
+		name = other.name;
+		whitelist.clear();
+		whitelist.addAll(other.whitelist);
+		blacklist.clear();
+		blacklist.addAll(other.blacklist);
+		color = other.color;
+		filter = new FilterGroup();
+		filter.parse(other.filter.toString());
+		
+		for (CategoryListener listener: listeners)
+			listener.categoryChanged(e);
+		
+		return e.nameChanged() || e.whitelistChanged() || e.blacklistChanged() || e.colorChanged() || e.filterChanged();
 	}
 	
 	/**

@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import editor.collection.CardCollection;
+import editor.collection.category.CategorySpec;
 import editor.database.Card;
 
 /**
@@ -206,7 +207,7 @@ public class Hand implements CardCollection
 	 * @return The Categories the given Card belongs to
 	 */
 	@Override
-	public Set<Deck.Category> getCategories(Card c)
+	public Set<CategorySpec> getCategories(Card c)
 	{
 		return deck.getCategories(c);
 	}
@@ -216,7 +217,7 @@ public class Hand implements CardCollection
 	 * @return The Categories the Card at the given index belongs to
 	 */
 	@Override
-	public Set<Deck.Category> getCategories(int index)
+	public Set<CategorySpec> getCategories(int index)
 	{
 		return deck.getCategories(get(index));
 	}

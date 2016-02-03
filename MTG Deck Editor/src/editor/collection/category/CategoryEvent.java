@@ -7,14 +7,14 @@ package editor.collection.category;
 public class CategoryEvent
 {
 	private CategorySpec source;
-	private boolean name;
+	private String name;
 	private boolean whitelist;
 	private boolean blacklist;
 	private boolean color;
 	private boolean filter;
 	
 	public CategoryEvent(CategorySpec s,
-			boolean n, boolean w, boolean b, boolean c, boolean f)
+			String n, boolean w, boolean b, boolean c, boolean f)
 	{
 		source = s;
 		
@@ -32,7 +32,15 @@ public class CategoryEvent
 	
 	public boolean nameChanged()
 	{
-		return name;
+		return name != null;
+	}
+	
+	public String newName()
+	{
+		if (nameChanged())
+			return name;
+		else
+			throw new IllegalStateException("Name of the category has not changed.");
 	}
 	
 	public boolean whitelistChanged()

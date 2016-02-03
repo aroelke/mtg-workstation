@@ -28,6 +28,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.database.Card;
 import editor.database.characteristics.Loyalty;
@@ -165,7 +166,7 @@ public class CardTable extends JTable
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			if (value instanceof Collection)
 			{
-				List<Deck.Category> categories = ((Collection<?>)value).stream().filter((o) -> o instanceof Deck.Category).map((o) -> (Deck.Category)o).collect(Collectors.toList());
+				List<CategorySpec> categories = ((Collection<?>)value).stream().filter((o) -> o instanceof CategorySpec).map((o) -> (CategorySpec)o).collect(Collectors.toList());
 				JPanel panel = new JPanel()
 				{
 					@Override
@@ -177,7 +178,7 @@ public class CardTable extends JTable
 						{
 							int x = i*(s + 1) + 1;
 							int y = 1;
-							g.setColor(categories.get(i).spec().getColor());
+							g.setColor(categories.get(i).getColor());
 							g.fillRect(x, y, s - 3, s - 3);
 							g.setColor(Color.BLACK);
 							g.drawRect(x, y, s - 3, s - 3);
@@ -186,8 +187,8 @@ public class CardTable extends JTable
 				};
 				StringBuilder tooltip = new StringBuilder();
 				tooltip.append("<html>Categories:<br>");
-				for (Deck.Category category: categories)
-					tooltip.append("• ").append(category.spec().getName()).append("<br>");
+				for (CategorySpec category: categories)
+					tooltip.append("• ").append(category.getName()).append("<br>");
 				tooltip.append("</html>");
 				panel.setToolTipText(tooltip.toString());
 				if (hasFocus)
