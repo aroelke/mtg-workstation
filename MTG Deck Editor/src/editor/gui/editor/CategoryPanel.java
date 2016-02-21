@@ -147,6 +147,7 @@ public class CategoryPanel extends JPanel
 		tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		add(tablePane, BorderLayout.CENTER);
 		
+		// TODO: Change this to listening for the deck to change and not the CategorySpec
 		deck.getCategorySpec(name).addCategoryListener((e) -> {
 			if (e.nameChanged())
 				name = e.newName();
