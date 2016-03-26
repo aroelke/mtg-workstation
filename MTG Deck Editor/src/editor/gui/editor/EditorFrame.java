@@ -767,7 +767,7 @@ public class EditorFrame extends JInternalFrame
 		setTransferHandler(new EditorImportHandler());
 		
 		deck.addDeckListener((e) -> {
-			if (e.cardsAdded() || e.cardsRemoved())
+			if (e.cardsChanged())
 				updateCount();
 			if (e.categoryRemoved())
 				updateCategoryPanel();
@@ -2130,10 +2130,6 @@ public class EditorFrame extends JInternalFrame
 						return null;
 					CategorySpec spec = new CategorySpec(rd.readLine(), parent.inventory());
 					addCategory(spec);
-//					for (Card c: spec.getWhitelist())
-//						deck.getCategory(spec.getName()).include(c);
-//					for (Card c: spec.getBlacklist())
-//						deck.getCategory(spec.getName()).exclude(c);
 					publish(50 + 50*(i + 1)/categories);
 				}
 				String line;
@@ -2150,7 +2146,6 @@ public class EditorFrame extends JInternalFrame
 		protected void done()
 		{
 			dialog.dispose();
-//			updateCount();
 			unsaved = false;
 			setFile(file);
 			undoBuffer.clear();

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -302,7 +303,9 @@ public class Deck implements CardCollection
 			if (c.typeContains("land"))
 				land += n;
 			
-			DeckEvent event = new DeckEvent(this, true, false, null, null);
+			Map<Card, Integer> added = new HashMap<Card, Integer>();
+			added.put(c, n);
+			DeckEvent event = new DeckEvent(this, added, null, null, null);
 			for (DeckListener listener: listeners)
 				listener.DeckChanged(event);
 			
@@ -394,7 +397,9 @@ public class Deck implements CardCollection
 				if (c.typeContains("land"))
 					land -= n;
 				
-				DeckEvent event = new DeckEvent(this, false, true, null, null);
+				Map<Card, Integer> removed = new HashMap<Card, Integer>();
+				removed.put(c, -n);
+				DeckEvent event = new DeckEvent(this, removed, null, null, null);
 				for (DeckListener listener: listeners)
 					listener.DeckChanged(event);
 				
@@ -503,7 +508,9 @@ public class Deck implements CardCollection
 			if (e.card.typeContains("land"))
 				land += n - e.count;
 			
-			DeckEvent event = new DeckEvent(this, n > e.count, n < e.count, null, null);
+			Map<Card, Integer> change = new HashMap<Card, Integer>();
+			change.put(c, n - e.count);
+			DeckEvent event = new DeckEvent(this, change, null, null, null);
 			
 			e.count = n;
 			if (e.count == 0)
@@ -623,13 +630,18 @@ public class Deck implements CardCollection
 			c.update();
 			
 			spec.addCategoryListener(c.listener = (e) -> {
+				if (e.nameChanged())
+				{
+					categories.remove(e.oldName());
+					categories.put(e.newName(), c);
+				}
 				if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
 					c.update();
+				
+				DeckEvent event = new DeckEvent(this, null, e.nameChanged() ? e.oldName() : e.getSource().getName(), e, null);
+				for (DeckListener listener: listeners)
+					listener.DeckChanged(event);
 			});
-			
-			DeckEvent event = new DeckEvent(this, false, false, spec.getName(), null);
-			for (DeckListener listener: listeners)
-				listener.DeckChanged(event);
 			
 			return c;
 		}
@@ -654,32 +666,8 @@ public class Deck implements CardCollection
 			categories.remove(name);
 			c.spec.removeCategoryListener(c.listener);
 			
-			DeckEvent event = new DeckEvent(this, false, false, null, c.spec.getName());
-			for (DeckListener listener: listeners)
-				listener.DeckChanged(event);
-			
-			return true;
-		}
-		else
-			return false;
-	}
-	
-	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @param newSpec
-	 * @return
-	 */
-	public boolean editCategory(String name, CategorySpec newSpec)
-	{
-		if (categories.containsKey(name))
-		{
-			Category c = categories.get(name);
-			categories.remove(name);
-			categories.put(newSpec.getName(), c);
-			c.spec.copy(newSpec);
-			
-			DeckEvent event = new DeckEvent(this, false, false, name, c.spec.getName());
+			DeckEvent event = new DeckEvent(this, null, null, null,
+					new HashSet<String>(Arrays.asList(c.spec.getName())));
 			for (DeckListener listener: listeners)
 				listener.DeckChanged(event);
 			
@@ -696,7 +684,10 @@ public class Deck implements CardCollection
 	 */
 	public CategorySpec getCategorySpec(String name)
 	{
-		return categories.get(name).spec;
+		if (categories.get(name) != null)
+			return categories.get(name).spec;
+		else
+			throw new IllegalArgumentException("No category named " + name + " found");
 	}
 	
 	/**
@@ -745,12 +736,15 @@ public class Deck implements CardCollection
 	@Override
 	public void clear()
 	{
+		Map<Card, Integer> removed = masterList.stream().collect(Collectors.toMap((c) -> c.card, (c) -> -c.count));
+		Set<String> categoriesRemoved = categories.keySet();
+		
 		masterList.clear();
 		categories.clear();
 		total = 0;
 		land = 0;
 		
-		DeckEvent e = new DeckEvent(this, false, true, null, "");
+		DeckEvent e = new DeckEvent(this, removed, null, null, categoriesRemoved);
 		for (DeckListener listener: listeners)
 			listener.DeckChanged(e);
 	}

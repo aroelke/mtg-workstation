@@ -214,9 +214,10 @@ public class CategorySpec
 	{
 		if (!name.equals(n))
 		{
+			CategoryEvent e = new CategoryEvent(this, name, null, null, null, null);
+			
 			name = n;
 			
-			CategoryEvent e = new CategoryEvent(this, name, false, false, false, false);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -237,20 +238,22 @@ public class CategorySpec
 	 */
 	public boolean include(Card c)
 	{
-		boolean changed = false;
+		Set<Card> oldWhitelist = new HashSet<Card>(whitelist);
+		Set<Card> oldBlacklist = new HashSet<Card>(blacklist);
 		
-		if (!filter.test(c))
-			changed = whitelist.add(c);
-		changed |= blacklist.remove(c);
+		if (!filter.test(c) && !whitelist.add(c))
+				oldWhitelist = null;
+		if (!blacklist.remove(c))
+			oldBlacklist = null;
 		
-		if (changed)
+		if (oldWhitelist != null || oldBlacklist != null)
 		{
-			CategoryEvent e = new CategoryEvent(this, null, true, false, false, false);
+			CategoryEvent e = new CategoryEvent(this, null, oldWhitelist, oldBlacklist, null, null);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
 		
-		return changed;
+		return oldWhitelist != null || oldBlacklist != null;
 	}
 	
 	/**
@@ -268,20 +271,22 @@ public class CategorySpec
 	 */
 	public boolean exclude(Card c)
 	{
-		boolean changed = false;
+		Set<Card> oldWhitelist = new HashSet<Card>(whitelist);
+		Set<Card> oldBlacklist = new HashSet<Card>(blacklist);
 		
-		if (filter.test(c))
-			changed = blacklist.add(c);
-		changed |= whitelist.remove(c);
+		if (!(filter.test(c) && blacklist.add(c)))
+			oldBlacklist = null;
+		if (!whitelist.remove(c))
+			oldWhitelist = null;
 		
-		if (changed)
+		if (oldWhitelist != null || oldBlacklist != null)
 		{
-			CategoryEvent e = new CategoryEvent(this, null, false, true, false, false);
+			CategoryEvent e = new CategoryEvent(this, null, oldWhitelist, oldBlacklist, null, null);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
 		
-		return changed;
+		return oldWhitelist != null || oldBlacklist != null;
 	}
 	
 	/**
@@ -301,9 +306,10 @@ public class CategorySpec
 	{
 		if (!color.equals(c))
 		{
+			CategoryEvent e = new CategoryEvent(this, null, null, null, color, null);
+			
 			color = c;
 			
-			CategoryEvent e = new CategoryEvent(this, null, false, false, true, false);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -326,9 +332,10 @@ public class CategorySpec
 	{
 		if (!filter.equals(f))
 		{
+			CategoryEvent e = new CategoryEvent(this, null, null, null, null, filter);
+			
 			filter = f;
 			
-			CategoryEvent e = new CategoryEvent(this, null, false, false, false, true);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -341,11 +348,11 @@ public class CategorySpec
 	public boolean copy(CategorySpec other)
 	{
 		CategoryEvent e = new CategoryEvent(this,
-				name.equals(other.name) ? null : other.name,
-				!whitelist.equals(other.whitelist),
-				!blacklist.equals(other.blacklist),
-				!color.equals(other.color),
-				!filter.equals(other.filter));
+				name.equals(other.name) ? null : name,
+				whitelist.equals(other.whitelist) ? null : new HashSet<Card>(whitelist),
+				blacklist.equals(other.blacklist) ? null : new HashSet<Card>(blacklist),
+				color.equals(other.color) ? null : color,
+				filter.equals(other.filter) ? null : filter);
 		
 		name = other.name;
 		whitelist.clear();
@@ -356,6 +363,7 @@ public class CategorySpec
 		filter = new FilterGroup();
 		filter.parse(other.filter.toString());
 		
+		if (e.nameChanged() || e.whitelistChanged() || e.blacklistChanged() || e.colorChanged() || e.filterChanged())
 		for (CategoryListener listener: listeners)
 			listener.categoryChanged(e);
 		

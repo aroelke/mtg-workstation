@@ -1,5 +1,12 @@
 package editor.collection.deck;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import editor.collection.category.CategoryEvent;
+import editor.database.Card;
+
 /**
  * TODO: Comment this class
  * 
@@ -8,21 +15,24 @@ package editor.collection.deck;
 public class DeckEvent
 {
 	private Deck source;
-	private boolean cardsAdded;
-	private boolean cardsRemoved;
-	private String categoryAdded;
-	private String categoryRemoved;
+	private Map<Card, Integer> cardsChanged;
+	private String changedName;
+	private CategoryEvent categoryChanges;
+	private Set<String> removedCategories;
 	
 	public DeckEvent(Deck s,
-			boolean cardAdd, boolean cardRem,
-			String catAdd, String catRem)
+			Map<Card, Integer> cards,
+			String changeName, CategoryEvent catChange, Set<String> catRem)
 	{
 		source = s;
 		
-		cardsAdded = cardAdd;
-		cardsRemoved = cardRem;
-		categoryAdded = catAdd;
-		categoryRemoved = catRem;
+		cardsChanged = cards;
+		changedName = changeName;
+		categoryChanges = catChange;
+		removedCategories = catRem;
+		
+		if ((changedName == null) != (categoryChanges == null))
+			throw new IllegalStateException("Reporting changes to category without name");
 	}
 	
 	public Deck getSource()
@@ -30,39 +40,72 @@ public class DeckEvent
 		return source;
 	}
 	
-	public boolean cardsAdded()
+	public boolean cardsChanged()
 	{
-		return cardsAdded;
+		return cardsChanged != null;
 	}
 	
-	public boolean cardsRemoved()
+	public Map<Card, Integer> cardsAdded()
 	{
-		return cardsRemoved;
-	}
-	
-	public boolean categoryAdded()
-	{
-		return categoryAdded != null;
-	}
-	
-	public String addedName()
-	{
-		if (categoryAdded())
-			return categoryAdded;
+		if (cardsChanged())
+		{
+			Map<Card, Integer> cards = new HashMap<Card, Integer>(cardsChanged);
+			for (Card c: cardsChanged.keySet())
+				if (cardsChanged.get(c) < 1)
+					cards.remove(c);
+			return cards;
+		}
 		else
-			throw new IllegalStateException("No card has been added to the deck.");
+			throw new IllegalStateException("Deck cards were not changed");
+	}
+	
+	public Map<Card, Integer> cardsRemoved()
+	{
+		if (cardsChanged())
+		{
+			Map<Card, Integer> cards = new HashMap<Card, Integer>(cardsChanged);
+			for (Card c: cardsChanged.keySet())
+				if (cardsChanged.get(c) > -1)
+					cards.remove(c);
+				else
+					cardsChanged.compute(c, (k, v) -> -v);
+			return cards;
+		}
+		else
+			throw new IllegalStateException("Deck cards were not changed");
+	}
+	
+	public boolean categoryChanged()
+	{
+		return categoryChanges != null;
+	}
+	
+	public String categoryName()
+	{
+		if (categoryChanged())
+			return changedName;
+		else
+			throw new IllegalStateException("Category was not changed");
+	}
+	
+	public CategoryEvent categoryChanges()
+	{
+		if (categoryChanged())
+			return categoryChanges;
+		else
+			throw new IllegalStateException("Category was not changed");
 	}
 	
 	public boolean categoryRemoved()
 	{
-		return categoryRemoved != null;
+		return removedCategories != null;
 	}
 	
-	public String removedName()
+	public Set<String> removedName()
 	{
 		if (categoryRemoved())
-			return categoryRemoved;
+			return removedCategories;
 		else
-			throw new IllegalStateException("No card has been removed from the deck.");
+			throw new IllegalStateException("No category has been removed from the deck");
 	}
 }
