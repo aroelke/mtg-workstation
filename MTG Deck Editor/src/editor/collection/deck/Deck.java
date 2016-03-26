@@ -117,7 +117,8 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * Data flavor representing entries in a deck.
+	 * Data flavor representing entries in a deck.  Transfer data will appear as a
+	 * map of cards onto an integer representing the number of copies to transfer.
 	 */
 	public static final DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Entry[].class.getName() + "\"", "Deck Entries");
 	
