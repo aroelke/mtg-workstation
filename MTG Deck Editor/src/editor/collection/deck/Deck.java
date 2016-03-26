@@ -49,7 +49,7 @@ public class Deck implements CardCollection
 		/**
 		 * Entries being exported.
 		 */
-		private Entry[] entries;
+		private Map<Card, Integer> transferData;
 		
 		/**
 		 * Create a new TransferData containing the given Deck's entries for the given
@@ -60,7 +60,7 @@ public class Deck implements CardCollection
 		 */
 		public TransferData(Deck d, Card... cards)
 		{
-			entries = Arrays.stream(cards).map(d::getEntry).map(Entry::new).toArray(Entry[]::new);
+			transferData = Arrays.stream(cards).collect(Collectors.toMap((c) -> c, (c) -> d.count(c)));
 		}
 		
 		/**
@@ -106,11 +106,11 @@ public class Deck implements CardCollection
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 		{
 			if (flavor.equals(entryFlavor))
-				return entries;
+				return transferData;
 			else if (flavor.equals(Card.cardFlavor))
-				return Arrays.stream(entries).map((e) -> e.card).toArray(Card[]::new);
+				return transferData.keySet().stream().sorted(Card::compareName).toArray(Card[]::new);
 			else if (flavor.equals(DataFlavor.stringFlavor))
-				return Arrays.stream(entries).map((e) -> e.count + "x " + e.card.name()).reduce("", (a, b) -> a + "\n" + b);
+				return transferData.entrySet().stream().map((e) -> e.getValue() + "x " + e.getKey().name()).reduce("", (a, b) -> a + "\n" + b);
 			else
 				throw new UnsupportedFlavorException(flavor);
 		}

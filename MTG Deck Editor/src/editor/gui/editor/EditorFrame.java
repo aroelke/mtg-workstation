@@ -77,7 +77,6 @@ import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
 import editor.database.Card;
 import editor.database.characteristics.CardCharacteristic;
-import editor.filter.Filter;
 import editor.gui.CardImagePanel;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;
@@ -1943,15 +1942,16 @@ public class EditorFrame extends JInternalFrame
 					return false;
 				else if (supp.isDataFlavorSupported(Deck.entryFlavor))
 				{
-					Deck.Entry[] data = (Deck.Entry[])supp.getTransferable().getTransferData(Deck.entryFlavor);
+					@SuppressWarnings("unchecked")
+					Map<Card, Integer> data = (Map<Card, Integer>)supp.getTransferable().getTransferData(Deck.entryFlavor);
 					UndoableAction addAction = new UndoableAction()
 					{
 						@Override
 						public boolean undo()
 						{
 							boolean undone = false;
-							for (Deck.Entry e: data)
-								undone |= !deleteCards(Arrays.asList(e.card()), e.count()).isEmpty();
+							for (Map.Entry<Card, Integer> entry: data.entrySet())
+								undone |= !deleteCards(Arrays.asList(entry.getKey()), entry.getValue()).isEmpty();
 							return undone;
 						}
 
@@ -1959,8 +1959,8 @@ public class EditorFrame extends JInternalFrame
 						public boolean redo()
 						{
 							boolean done = false;
-							for (Deck.Entry e: data)
-								done |= insertCards(Arrays.asList(e.card()), e.count());
+							for (Map.Entry<Card, Integer> entry: data.entrySet())
+								done |= insertCards(Arrays.asList(entry.getKey()), entry.getValue());
 							return done;
 						}
 					};
