@@ -22,6 +22,7 @@ import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 
 import editor.collection.deck.Deck;
+import editor.collection.deck.DeckListener;
 import editor.database.Card;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.CardTable;
@@ -51,7 +52,7 @@ public class CategoryPanel extends JPanel
 	 */
 	private Deck deck;
 	/**
-	 * TODO: Comment this
+	 * Name of this category for display purposes.
 	 */
 	private String name;
 	/**
@@ -90,6 +91,10 @@ public class CategoryPanel extends JPanel
 	 * Timer timing flashing of the border of this panel when it is skipped to.
 	 */
 	private Timer flashTimer;
+	/**
+	 * TODO: Comment this
+	 */
+	private DeckListener listener;
 	
 	/**
 	 * Create a new CategoryPanel.
@@ -147,7 +152,9 @@ public class CategoryPanel extends JPanel
 		tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		add(tablePane, BorderLayout.CENTER);
 		
-		deck.addDeckListener((e) -> {
+		deck.addDeckListener(listener = (e) -> {
+			if (e.removedName().contains(name))
+				deck.removeDeckListener(listener);
 			if (e.categoryChanged() && e.categoryName().equals(name))
 			{
 				if (e.categoryChanges().nameChanged())
@@ -158,7 +165,7 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The name of the category this CategoryPanel is displaying.
 	 */
 	public String getCategoryName()
 	{

@@ -68,7 +68,8 @@ public class CategorySpec
 	 */
 	private Filter filter;
 	/**
-	 * TODO: Comment this
+	 * Collection of listeners listening for changes in this
+	 * CategorySpec.
 	 */
 	private Collection<CategoryListener> listeners;
 	

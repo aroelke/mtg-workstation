@@ -886,7 +886,8 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Open the dialog to create a new specification for a deck category.
 	 * 
-	 * @return TODO: comment this
+	 * @return The CategorySpec created by the dialog, or null if it was
+	 * canceled.
 	 */
 	public CategorySpec createCategory()
 	{

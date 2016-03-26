@@ -299,8 +299,8 @@ public final class Card
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return A Tuple<Double> containing all of the converted mana costs of the faces
+	 * of this Card.
 	 */
 	public Tuple<Double> cmc()
 	{
