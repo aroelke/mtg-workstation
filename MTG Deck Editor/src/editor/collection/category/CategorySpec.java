@@ -199,8 +199,7 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The name of the category this CategorySpec represents.
 	 */
 	public String getName()
 	{
@@ -208,8 +207,9 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param n
+	 * Change the name of the category and update any listeners of this event.
+	 * 
+	 * @param n New name for the category
 	 */
 	public void setName(String n)
 	{
@@ -225,8 +225,8 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The set of Cards that should be included in the category
+	 * even if they don't pass through the filter.
 	 */
 	public Set<Card> getWhitelist()
 	{
@@ -234,8 +234,13 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param c
+	 * Include a Card in the category, even if it doesn't pass through
+	 * the filter.
+	 * 
+	 * @param c Card to include
+	 * @return <code>true</code> if the Card was successfully included (either it
+	 * was added to the whitelist or removed from the blacklist), and
+	 * <code>false</code> otherwise. 
 	 */
 	public boolean include(Card c)
 	{
@@ -258,8 +263,8 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The set of Cards that should not be included in the category,
+	 * even if they pass through the filter.
 	 */
 	public Set<Card> getBlacklist()
 	{
@@ -267,8 +272,13 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param c
+	 * Exclude a Card from the category, even if it passes through
+	 * the filter.
+	 * 
+	 * @param c Card to exclude
+	 * @return <code>true</code> if the card was successfully excluded (it
+	 * was added to the blacklist or removed from the whitelist), and
+	 * <code>false</code> otherwise.
 	 */
 	public boolean exclude(Card c)
 	{
@@ -291,8 +301,7 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The Color of the category.
 	 */
 	public Color getColor()
 	{
@@ -300,8 +309,9 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param c
+	 * Set the Color of the category, and alert any listeners of this event.
+	 * 
+	 * @param c New Color for the category
 	 */
 	public void setColor(Color c)
 	{
@@ -317,8 +327,7 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The Filter of the category for automatically including Cards.
 	 */
 	public Filter getFilter()
 	{
@@ -326,8 +335,10 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param f
+	 * Change the Filter of the category so a new set of Cards is
+	 * automatically included, and alert any listeners of this event.
+	 * 
+	 * @param f New Filter for the category
 	 */
 	public void setFilter(Filter f)
 	{
@@ -343,8 +354,13 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param other
+	 * Copy the name, whitelist, blacklist, Color, and Filter from the given
+	 * CategorySpec, discarding those values from this one, alerting any
+	 * listeners of this event.
+	 * 
+	 * @param other CategorySpec to copy
+	 * @return <code>true</code> if any changes were made to this CategorySpec,
+	 * and <code>false</code> otherwise.
 	 */
 	public boolean copy(CategorySpec other)
 	{
@@ -372,8 +388,9 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param listener
+	 * Add a new listener for changes in this CategorySpec.
+	 * 
+	 * @param listener New listener to add
 	 */
 	public void addCategoryListener(CategoryListener listener)
 	{
@@ -381,12 +398,16 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param listener
+	 * Remove a CategoryListener from this CategorySpec's list of
+	 * listeners.
+	 * 
+	 * @param listener Listener to remove
+	 * @return <code>true</code> if the listener was successfully
+	 * removed from the list, and <code>false</code> otherwise.
 	 */
-	public void removeCategoryListener(CategoryListener listener)
+	public boolean removeCategoryListener(CategoryListener listener)
 	{
-		listeners.remove(listener);
+		return listeners.remove(listener);
 	}
 	
 	/**
@@ -411,8 +432,9 @@ public class CategorySpec
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return A String representation of this CategorySpec, with the whitelist
+	 * and blacklist empty.  Used for creating preset categories, as they should
+	 * not have exclusions or inclusions.
 	 */
 	public String toListlessString()
 	{

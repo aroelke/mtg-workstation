@@ -23,9 +23,11 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	public static final Pattern WORD_PATTERN = Pattern.compile("\"([^\"]*)\"|'([^']*)'|[^\\s]+");
 	
 	/**
-	 * TODO: Comment this
-	 * @param s
-	 * @return
+	 * Create a new TextFilter that filters out Cards whose characteristic
+	 * matches the given String.
+	 * 
+	 * @param s String to match
+	 * @return The new TextFilter.
 	 */
 	public static TextFilter createQuickFilter(FilterType t, String s)
 	{

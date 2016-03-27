@@ -1,7 +1,7 @@
 package editor.database.symbol;
 
 /**
- * TODO: Comment this
+ * TODO: Wrap this into the ColorSymbol class.
  * TODO: This needs to treat colorless as a sixth color for color weighting purposes
  * @author Alec Roelke
  */

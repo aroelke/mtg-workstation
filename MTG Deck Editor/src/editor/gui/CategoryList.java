@@ -17,18 +17,43 @@ import editor.collection.category.CategorySpec;
 import editor.gui.editor.CategoryEditorPanel;
 
 /**
- * TODO: Comment this class
+ * This class represents an element that can display a list of CategorySpecs.
+ * Optionally, it can show a hint for how to add new CategorySpecs to the list.
+ * 
+ * TODO: Make the hint be a parameter to the class and not static.
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class CategoryList extends JList<String>
 {
+	/**
+	 * String showing a hint for how to add a new category to the list.
+	 */
 	private static final String ADD_HINT = "<html><i>&lt;Double-click to add&gt;</i></html>";
 	
+	/**
+	 * Whether or not to show the hint for adding categories (and enable adding
+	 * them at the same time).
+	 */
 	private boolean showAdd;
+	/**
+	 * Categories to show.
+	 */
 	private List<CategorySpec> categories;
+	/**
+	 * Model for how to display categories.
+	 */
 	private CategoryListModel model;
 	
+	/**
+	 * Create a new CategoryList with the specified List
+	 * of CategorySpec.
+	 * 
+	 * @param showHint Whether or not to enable adding of categories
+	 * and show a hint for how to do it
+	 * @param c List of CategorySpecs to show
+	 */
 	public CategoryList(boolean showHint, List<CategorySpec> c)
 	{
 		this(showHint);
@@ -36,11 +61,24 @@ public class CategoryList extends JList<String>
 		categories.addAll(c);
 	}
 	
+	/**
+	 * Create a new CategoryList with the specified CategorySpecs.
+	 * 
+	 * @param showHint Whether or not to enable adding of categories
+	 * and show a hint for how to do it
+	 * @param c CategorySpecs to show
+	 */
 	public CategoryList(boolean showHint, CategorySpec... c)
 	{
 		this(showHint, Arrays.asList(c));
 	}
 	
+	/**
+	 * Create a new empty CategoryList.
+	 * 
+	 * @param showHint Whether or not to enable adding of categories
+	 * and show a hint for how to do it
+	 */
 	public CategoryList(boolean showHint)
 	{
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -82,6 +120,13 @@ public class CategoryList extends JList<String>
 		}
 	}
 	
+	/**
+	 * Convert a point to an index into the displayed list.
+	 * 
+	 * @param p Point to convert
+	 * @return The index of the specified Point, or -1 if
+	 * there isn't one.
+	 */
 	@Override
 	public int locationToIndex(Point p)
 	{
@@ -92,39 +137,70 @@ public class CategoryList extends JList<String>
 			return -1;
 	}
 	
+	/**
+	 * Add a new CategorySpec to the list.
+	 * 
+	 * @param c CategorySpec to display
+	 */
 	public void addCategory(CategorySpec c)
 	{
 		categories.add(c);
 		model.addElement(c.getName());
 	}
 	
+	/**
+	 * Set the CategorySpec at a particular position in the list.
+	 * 
+	 * @param index Index to set
+	 * @param c CategorySpec to display
+	 */
 	public void setCategoryAt(int index, CategorySpec c)
 	{
 		categories.set(index, c);
 		model.setElementAt(c.getName(), index);
 	}
 	
+	/**
+	 * Remove the CategorySpec at a particular index.
+	 * 
+	 * @param index Index to remove the CategorySpec at
+	 */
 	public void removeCategoryAt(int index)
 	{
 		categories.remove(index);
 		model.remove(index);
 	}
 	
+	/**
+	 * @return The CategorySpec list this CategoryList displays.
+	 */
 	public List<CategorySpec> getCategories()
 	{
 		return Collections.unmodifiableList(categories);
 	}
 	
+	/**
+	 * @return The number of CategorySpecs in this CategoryList.
+	 */
 	public int getCount()
 	{
 		return categories.size();
 	}
 	
+	/**
+	 * @param index Index into the list to search
+	 * @return the CategorySpec at the given index.
+	 */
 	public CategorySpec getCategoryAt(int index)
 	{
 		return categories.get(index);
 	}
 	
+	/**
+	 * This class represnts a model for displaying a list of CategorySpecs.
+	 * 
+	 * @author Alec Roelke
+	 */
 	private class CategoryListModel extends DefaultListModel<String>
 	{
 		/**
@@ -150,6 +226,11 @@ public class CategoryList extends JList<String>
 				throw new IndexOutOfBoundsException("Illegal list index " + index);
 		}
 		
+		/**
+		 * @return The number of elements to show.  If the add categories
+		 * hint is to be shown, this is the number of elements in the list
+		 * plus one.
+		 */
 		@Override
 		public int getSize()
 		{

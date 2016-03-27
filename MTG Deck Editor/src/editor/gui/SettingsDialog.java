@@ -183,8 +183,7 @@ public class SettingsDialog extends JDialog
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The list of String representations of the preset categories.
 	 */
 	public static String[] getPresetCategories()
 	{
@@ -292,15 +291,15 @@ public class SettingsDialog extends JDialog
 	 */
 	private JTextField scansDirField;
 	/**
-	 * TODO: Comment this
+	 * Color chooser for the background of the card scan tab.
 	 */
 	private JColorChooser scanBGChooser;
 	/**
-	 * TODO: Comment this
+	 * Color chooser for the background of card images in the hand tab.
 	 */
 	private JColorChooser handBGColor;
 	/**
-	 * TODO: Comment this
+	 * List of preset categories.
 	 */
 	private CategoryList categoriesList;
 	

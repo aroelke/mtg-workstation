@@ -92,14 +92,16 @@ public class CategoryPanel extends JPanel
 	 */
 	private Timer flashTimer;
 	/**
-	 * TODO: Comment this
+	 * Listener for changes to this CategoryPanel's Deck.
 	 */
 	private DeckListener listener;
 	
 	/**
 	 * Create a new CategoryPanel.
 	 * 
-	 * TODO: Fix this comment
+	 * @param d Deck containing the category to display
+	 * @param n Name of the category to display
+	 * @param editor EditorFrame containing the new CategoryPanel
 	 */
 	public CategoryPanel(Deck d, String n, EditorFrame editor)
 	{
@@ -153,7 +155,7 @@ public class CategoryPanel extends JPanel
 		add(tablePane, BorderLayout.CENTER);
 		
 		deck.addDeckListener(listener = (e) -> {
-			if (e.removedName().contains(name))
+			if (e.removedNames().contains(name))
 				deck.removeDeckListener(listener);
 			if (e.categoryChanged() && e.categoryName().equals(name))
 			{

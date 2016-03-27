@@ -768,7 +768,7 @@ public class EditorFrame extends JInternalFrame
 		deck.addDeckListener((e) -> {
 			if (e.cardsChanged())
 				updateCount();
-			if (e.categoryRemoved())
+			if (e.categoriesRemoved())
 				updateCategoryPanel();
 			setUnsaved();
 			update();
@@ -1182,9 +1182,12 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Change the given category to give it the given name, color, filter, and String representation.
+	 * Change the given category so it has the parameters of the other given category.
+	 * The category to edit is edited in place, while the one representing new values
+	 * is unchanged.
 	 * 
-	 * TODO: Correct this comment
+	 * @param toEdit Category to edit
+	 * @param newValues New values for the category
 	 */
 	private void editCategory(CategorySpec toEdit, CategorySpec newValues)
 	{

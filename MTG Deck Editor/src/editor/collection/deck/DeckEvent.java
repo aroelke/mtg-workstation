@@ -8,18 +8,52 @@ import editor.collection.category.CategoryEvent;
 import editor.database.Card;
 
 /**
- * TODO: Comment this class
+ * This class represents an event during which a Deck may have changed.
+ * It can indicate how many copies of Cards may have been added to or
+ * removed from the Deck, how a category may have changed, or if any
+ * categories were removed.  If a parameter did not change and the contents
+ * of that parameter's change are requested, throw an IllegalStateException.
  * 
  * @author Alec Roelke
  */
 public class DeckEvent
 {
+	/**
+	 * Deck that experienced the change that generated this DeckEvent.
+	 */
 	private Deck source;
+	/**
+	 * If Cards were added to or removed from the Deck, this map
+	 * contains which ones and how many copies.
+	 */
 	private Map<Card, Integer> cardsChanged;
+	/**
+	 * If a category's name was changed, its old name.
+	 */
 	private String changedName;
+	/**
+	 * CategoryEvent representing the changes to the CategorySpec corresponding
+	 * to the category that was changed, if any was changed.
+	 */
 	private CategoryEvent categoryChanges;
+	/**
+	 * Set of names of categories that have been removed, if any.
+	 */
 	private Set<String> removedCategories;
 	
+	/**
+	 * Create a new DeckEvent.  Use <code>null</code> for any parameter that did
+	 * not change as a result of the event.
+	 * 
+	 * @param s Deck that changed to generate the new DeckEvent
+	 * @param cards Cards that may have been added or removed.  Removed cards
+	 * are indicated using negative numbers
+	 * @param changeName Name of the category that may have changed
+	 * @param catChange CategoryEvent specifying changes to the category if any
+	 * were made
+	 * @param catRem Set of category names that were removed from the Deck, if
+	 * any were
+	 */
 	public DeckEvent(Deck s,
 			Map<Card, Integer> cards,
 			String changeName, CategoryEvent catChange, Set<String> catRem)
@@ -35,16 +69,29 @@ public class DeckEvent
 			throw new IllegalStateException("Reporting changes to category without name");
 	}
 	
+	/**
+	 * @return The Deck that changed to create this DeckEvent.
+	 */
 	public Deck getSource()
 	{
 		return source;
 	}
 	
+	/**
+	 * @return <code>true</code> if Cards were added to or removed from the Deck
+	 * during the event.
+	 */
 	public boolean cardsChanged()
 	{
 		return cardsChanged != null;
 	}
 	
+	/**
+	 * @return A map containing the Cards that were added and the number of copies
+	 * that were added.
+	 * @throws IllegalStateException If no cards were added or removed during the
+	 * event.
+	 */
 	public Map<Card, Integer> cardsAdded()
 	{
 		if (cardsChanged())
@@ -59,6 +106,12 @@ public class DeckEvent
 			throw new IllegalStateException("Deck cards were not changed");
 	}
 	
+	/**
+	 * @return A map of cards that were removed and the number of copies that
+	 * were removed.  Positive numbers are used to indicate removed cards.
+	 * @throws IllegalStateException If no cards were added or removed during
+	 * the event.
+	 */
 	public Map<Card, Integer> cardsRemoved()
 	{
 		if (cardsChanged())
@@ -75,11 +128,22 @@ public class DeckEvent
 			throw new IllegalStateException("Deck cards were not changed");
 	}
 	
+	/**
+	 * @return <code>true</code> if a category in the Deck was changed, and
+	 * <code>false</code> otherwise.
+	 */
 	public boolean categoryChanged()
 	{
 		return categoryChanges != null;
 	}
 	
+	/**
+	 * @return The name of the category that was changed before the event.
+	 * Use this rather than the CategoryEvent returned by {@link categoryChanges()}
+	 * to identify which category was changed if its name was not changed.
+	 * @throws IllegalStateException If no category was changed during the
+	 * event.
+	 */
 	public String categoryName()
 	{
 		if (categoryChanged())
@@ -88,6 +152,11 @@ public class DeckEvent
 			throw new IllegalStateException("Category was not changed");
 	}
 	
+	/**
+	 * @return A CategoryEvent detailing the changes to the category.
+	 * @throws IllegalStateException if no category was changed during
+	 * the event.
+	 */
 	public CategoryEvent categoryChanges()
 	{
 		if (categoryChanged())
@@ -96,14 +165,24 @@ public class DeckEvent
 			throw new IllegalStateException("Category was not changed");
 	}
 	
-	public boolean categoryRemoved()
+	/**
+	 * @return <code>true</code> if any categories were removed during the
+	 * event, and <code>false</code> otherwise.
+	 */
+	public boolean categoriesRemoved()
 	{
 		return removedCategories != null;
 	}
 	
-	public Set<String> removedName()
+	/**
+	 * @return The set of names of the categories that were removed during the
+	 * event.
+	 * @throws IllegalStateException If no categories were removed during the
+	 * event.
+	 */
+	public Set<String> removedNames()
 	{
-		if (categoryRemoved())
+		if (categoriesRemoved())
 			return removedCategories;
 		else
 			throw new IllegalStateException("No category has been removed from the deck");

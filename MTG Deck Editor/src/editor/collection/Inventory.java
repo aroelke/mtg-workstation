@@ -111,7 +111,7 @@ public class Inventory implements CardCollection
 	 */
 	private final Map<String, Card> IDs;
 	/**
-	 * TODO: Comment this;
+	 * Filter for Cards in the Inventory pane.
 	 */
 	private CategorySpec filter;
 	/**
@@ -176,8 +176,7 @@ public class Inventory implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The current Filter for Cards in the inventory pane.
 	 */
 	public Filter getFilter()
 	{

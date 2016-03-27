@@ -226,7 +226,7 @@ public class Deck implements CardCollection
 	 */
 	private int land;
 	/**
-	 * TODO: Comment this
+	 * List of listeners for changes in this Deck.
 	 */
 	private Collection<DeckListener> listeners;
 	
@@ -422,10 +422,13 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @param c
-	 * @return
+	 * Include a Card in a category, even if it doesn't pass through
+	 * the category's filter.
+	 * 
+	 * @param name Name of the category to include a Card in
+	 * @param c Card to include in the category
+	 * @return <code>true</code> if the Card was successfully included,
+	 * and <code>false</code> otherwise.
 	 */
 	public boolean include(String name, Card c)
 	{
@@ -436,10 +439,13 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @param c
-	 * @return
+	 * Exclude a Card from a category, even if it passes through its
+	 * filter.
+	 * 
+	 * @param name Name of the category to exclude from
+	 * @param c Card to exclude
+	 * @return <code>true</code> if the Card was successfully excluded
+	 * from the category, and <code>false</code> otherwise.
 	 */
 	public boolean exclude(String name, Card c)
 	{
@@ -460,10 +466,11 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @param index
-	 * @return
+	 * Get the Card at the given index in the category.
+	 * 
+	 * @param name Category to look for a card in
+	 * @param index Index to find the Card at
+	 * @return The Card at the given index.
 	 */
 	public Card get(String name, int index)
 	{
@@ -605,10 +612,10 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @param o
-	 * @return
+	 * @param name Name of the category to look in
+	 * @param o Card to look for in the category
+	 * @return <code>true</code> if the given Card is in the category,
+	 * and <code>false</code> otherwise.
 	 */
 	public boolean contains(String name, Object o)
 	{
@@ -679,9 +686,8 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @return
+	 * @param name Name of the category whose CategorySpec is desired
+	 * @return The CategorySpec of the category with the given name.
 	 */
 	public CategorySpec getCategorySpec(String name)
 	{
@@ -692,9 +698,9 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @return
+	 * @param name Name of the category to get Cards from
+	 * @return The CardCollection containing Cards in the category with the
+	 * given name.
 	 */
 	public CardCollection getCategoryCards(String name)
 	{
@@ -760,9 +766,8 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @return
+	 * @param name Name of the desired category.
+	 * @return The number of unique Cards in the desired category.
 	 */
 	public int size(String name)
 	{
@@ -779,9 +784,9 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @return
+	 * @param name Name of the desired category.
+	 * @return The total number of cards, including copies, in the
+	 * category.
 	 */
 	public int total(String name)
 	{
@@ -1015,8 +1020,9 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param listener
+	 * Add a new listener for listening to changes in this Deck.
+	 * 
+	 * @param listener Listener to add.
 	 */
 	public void addDeckListener(DeckListener listener)
 	{
@@ -1024,12 +1030,16 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param listener
+	 * Remove a listener so it no longer receives alerts to changes in this
+	 * Deck.
+	 * 
+	 * @param listener Listener to remove
+	 * @return <code>true</code> if the given listener was successfully
+	 * removed, and <code>false</code> otherwise.
 	 */
-	public void removeDeckListener(DeckListener listener)
+	public boolean removeDeckListener(DeckListener listener)
 	{
-		listeners.remove(listener);
+		return listeners.remove(listener);
 	}
 	
 	/**
@@ -1052,7 +1062,7 @@ public class Deck implements CardCollection
 		 */
 		private List<Card> filtrate;
 		/**
-		 * TODO: Comment this
+		 * Listener for changes in this category's CategorySpec.
 		 */
 		public CategoryListener listener;
 		
@@ -1068,7 +1078,8 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * TODO: Comment this
+		 * Update this category so its filtrate reflects the new filter,
+		 * whitelist, and blacklist.
 		 */
 		public void update()
 		{

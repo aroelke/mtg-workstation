@@ -22,9 +22,6 @@ import editor.database.characteristics.MTGColor;
  * class.
  * 
  * @author Alec Roelke
- * 
- * TODO: Create a list that defines the master ordering of symbols
- * (symbols not in this list do not have a defined ordering)
  */
 public abstract class Symbol implements Comparable<Symbol>
 {
