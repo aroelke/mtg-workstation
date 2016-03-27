@@ -12,7 +12,8 @@ import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
- * TODO: Comment this class
+ * This class represents a filter for a text characteristic of a Card.
+ * 
  * @author Alec Roelke
  */
 public class TextFilter extends FilterLeaf<Collection<String>>

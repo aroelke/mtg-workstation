@@ -1,7 +1,7 @@
 package editor.database.symbol;
 
 /**
- * TODO: Comment this class
+ * TODO: Roll this into the HalfColorSymbol class
  * @author Alec Roelke
  */
 public class HalfColorlessSymbol extends Symbol

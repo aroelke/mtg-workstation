@@ -308,7 +308,7 @@ public class Deck implements CardCollection
 			added.put(c, n);
 			DeckEvent event = new DeckEvent(this, added, null, null, null);
 			for (DeckListener listener: listeners)
-				listener.DeckChanged(event);
+				listener.deckChanged(event);
 			
 			return true;
 		}
@@ -402,7 +402,7 @@ public class Deck implements CardCollection
 				removed.put(c, -n);
 				DeckEvent event = new DeckEvent(this, removed, null, null, null);
 				for (DeckListener listener: listeners)
-					listener.DeckChanged(event);
+					listener.deckChanged(event);
 				
 				return n;
 			}
@@ -533,7 +533,7 @@ public class Deck implements CardCollection
 			}
 			
 			for (DeckListener listener: listeners)
-				listener.DeckChanged(event);
+				listener.deckChanged(event);
 			
 			return true;
 		}
@@ -648,7 +648,7 @@ public class Deck implements CardCollection
 				
 				DeckEvent event = new DeckEvent(this, null, e.nameChanged() ? e.oldName() : e.getSource().getName(), e, null);
 				for (DeckListener listener: new HashSet<DeckListener>(listeners))
-					listener.DeckChanged(event);
+					listener.deckChanged(event);
 			});
 			
 			return c;
@@ -677,7 +677,7 @@ public class Deck implements CardCollection
 			DeckEvent event = new DeckEvent(this, null, null, null,
 					new HashSet<String>(Arrays.asList(c.spec.getName())));
 			for (DeckListener listener: new HashSet<DeckListener>(listeners))
-				listener.DeckChanged(event);
+				listener.deckChanged(event);
 			
 			return true;
 		}
@@ -753,7 +753,7 @@ public class Deck implements CardCollection
 		
 		DeckEvent e = new DeckEvent(this, removed, null, null, categoriesRemoved);
 		for (DeckListener listener: new HashSet<DeckListener>(listeners))
-			listener.DeckChanged(e);
+			listener.deckChanged(e);
 	}
 	
 	/**
