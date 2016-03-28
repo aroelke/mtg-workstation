@@ -16,9 +16,21 @@ import editor.database.characteristics.ManaType;
  */
 public class ColorWeight
 {
+	/**
+	 * Color for the weight.
+	 */
 	public final ManaType color;
+	/**
+	 * The weight of the color.
+	 */
 	public final double weight;
 	
+	/**
+	 * Create a new ColorWeight.
+	 * 
+	 * @param c Color of the new ColorWeight
+	 * @param w Weight of the new ColorWeight
+	 */
 	public ColorWeight(ManaType c, double w)
 	{
 		color = c;
