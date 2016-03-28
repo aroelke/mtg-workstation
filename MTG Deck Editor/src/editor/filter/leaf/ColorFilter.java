@@ -6,7 +6,7 @@ import java.util.StringJoiner;
 import java.util.function.Function;
 
 import editor.database.Card;
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -15,7 +15,7 @@ import editor.util.Containment;
  * 
  * @author Alec Roelke
  */
-public class ColorFilter extends FilterLeaf<MTGColor.Tuple>
+public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 {
 	/**
 	 * Containment of this ColorFilter.
@@ -24,7 +24,7 @@ public class ColorFilter extends FilterLeaf<MTGColor.Tuple>
 	/**
 	 * Set of colors that should match cards.
 	 */
-	public Set<MTGColor> colors;
+	public Set<ManaType> colors;
 	/**
 	 * Whether or not cards should have multiple colors.
 	 */
@@ -36,11 +36,11 @@ public class ColorFilter extends FilterLeaf<MTGColor.Tuple>
 	 * @param t Type of the new ColorFilter
 	 * @param f Function for the new ColorFilter
 	 */
-	public ColorFilter(FilterType t, Function<Card, MTGColor.Tuple> f)
+	public ColorFilter(FilterType t, Function<Card, ManaType.Tuple> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
-		colors = new HashSet<MTGColor>();
+		colors = new HashSet<ManaType>();
 		multicolored = false;
 	}
 	
@@ -68,7 +68,7 @@ public class ColorFilter extends FilterLeaf<MTGColor.Tuple>
 	public String content()
 	{
 		StringJoiner join = new StringJoiner("", "\"", "\"");
-		for (MTGColor color: new MTGColor.Tuple(colors))
+		for (ManaType color: new ManaType.Tuple(colors))
 			join.add(String.valueOf(color.shorthand()));
 		if (multicolored)
 			join.add("M");
@@ -93,7 +93,7 @@ public class ColorFilter extends FilterLeaf<MTGColor.Tuple>
 			if (Character.toUpperCase(c) == 'M')
 				multicolored = true;
 			else
-				colors.add(MTGColor.get(c));
+				colors.add(ManaType.get(c));
 		}
 	}
 }

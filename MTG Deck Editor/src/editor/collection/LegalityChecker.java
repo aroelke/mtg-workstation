@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import editor.collection.deck.Deck;
 import editor.database.Card;
 import editor.database.characteristics.Legality;
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 import editor.util.Containment;
 
 
@@ -141,10 +141,10 @@ public class LegalityChecker
 			warnings.get("Commander").add("Deck does not contain a legendary creature");
 		else
 		{
-			List<MTGColor> deckColorIdentityList = new ArrayList<MTGColor>();
+			List<ManaType> deckColorIdentityList = new ArrayList<ManaType>();
 			for (Card c: deck)
 				deckColorIdentityList.addAll(c.colors());
-			MTGColor.Tuple deckColorIdentity = new MTGColor.Tuple(deckColorIdentityList);
+			ManaType.Tuple deckColorIdentity = new ManaType.Tuple(deckColorIdentityList);
 			for (Card c: new ArrayList<Card>(possibleCommanders))
 				if (!c.colors().containsAll(deckColorIdentity))
 					possibleCommanders.remove(c);
@@ -153,19 +153,19 @@ public class LegalityChecker
 		}
 		
 		// Prismatic only: there are at least 20 cards of each color, and multicolored cards only count once
-		HashMap<MTGColor, List<Card>> colorBins = new HashMap<MTGColor, List<Card>>();
-		for (MTGColor color: MTGColor.values())
+		HashMap<ManaType, List<Card>> colorBins = new HashMap<ManaType, List<Card>>();
+		for (ManaType color: ManaType.values())
 			colorBins.put(color, new ArrayList<Card>());
 		for (Card c: deck.stream().sorted((a, b) -> a.colors().size() - b.colors().size()).collect(Collectors.toList()))
 			for (int i = 0; i < deck.count(c); i++)
-				binCard(c, colorBins, new ArrayList<MTGColor>());
-		for (MTGColor bin: colorBins.keySet())
+				binCard(c, colorBins, new ArrayList<ManaType>());
+		for (ManaType bin: colorBins.keySet())
 		{
 			System.out.println(bin + ": " + colorBins.get(bin).size());
 			for (Card c: colorBins.get(bin))
 				System.out.println("\t" + c.name());
 		}
-		for (MTGColor color: MTGColor.values())
+		for (ManaType color: ManaType.values())
 			if (colorBins.get(color).size() < 20)
 				warnings.get("Prismatic").add("Deck contains fewer than 20 " + color.toString().toLowerCase() + " cards");
 		
@@ -188,7 +188,7 @@ public class LegalityChecker
 	 * @param bins List of colors the Card can be classified as
 	 * @param exclusion List of colors the Card should not be classified as
 	 */
-	private void binCard(Card c, HashMap<MTGColor, List<Card>> bins, List<MTGColor> exclusion)
+	private void binCard(Card c, HashMap<ManaType, List<Card>> bins, List<ManaType> exclusion)
 	{
 		if (c.colors().isEmpty())
 			return;
@@ -196,8 +196,8 @@ public class LegalityChecker
 			bins.get(c.colors().get(0)).add(c);
 		else
 		{
-			MTGColor bin = null;
-			for (MTGColor color: c.colors())
+			ManaType bin = null;
+			for (ManaType color: c.colors())
 				if (bin == null || bins.get(color).size() < bins.get(bin).size())
 					bin = color;
 			if (bins.get(bin).size() < 20)

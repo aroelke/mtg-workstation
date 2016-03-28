@@ -3,7 +3,7 @@ package editor.database.symbol;
 import java.util.HashMap;
 import java.util.Map;
 
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 
 /**
  * This class represents a two-color hybrid symbol.  It will sort its colors so that they appear in the correct order.
@@ -17,39 +17,39 @@ public class HybridSymbol extends Symbol
 	 * Map mapping each Tuple of colors to their corresponding hybrid symbols.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final Map<MTGColor.Tuple, HybridSymbol> SYMBOLS = new HashMap<MTGColor.Tuple, HybridSymbol>();
+	public static final Map<ManaType.Tuple, HybridSymbol> SYMBOLS = new HashMap<ManaType.Tuple, HybridSymbol>();
 	static
 	{
-		SYMBOLS.put(new MTGColor.Tuple(MTGColor.WHITE, MTGColor.BLUE), new HybridSymbol(new MTGColor.Tuple(MTGColor.WHITE, MTGColor.BLUE)));
-		SYMBOLS.put(new MTGColor.Tuple(MTGColor.WHITE, MTGColor.BLACK), new HybridSymbol(new MTGColor.Tuple(MTGColor.WHITE, MTGColor.BLACK)));
-		SYMBOLS.put(new MTGColor.Tuple(MTGColor.BLUE, MTGColor.BLACK), new HybridSymbol(new MTGColor.Tuple(MTGColor.BLUE, MTGColor.BLACK)));
-		SYMBOLS.put(new MTGColor.Tuple(MTGColor.BLUE, MTGColor.RED), new HybridSymbol(new MTGColor.Tuple(MTGColor.BLUE, MTGColor.RED)));
-		SYMBOLS.put(new MTGColor.Tuple(MTGColor.BLACK, MTGColor.RED), new HybridSymbol(new MTGColor.Tuple(MTGColor.BLACK, MTGColor.RED)));
-		SYMBOLS.put(new MTGColor.Tuple(MTGColor.BLACK, MTGColor.GREEN), new HybridSymbol(new MTGColor.Tuple(MTGColor.BLACK, MTGColor.GREEN)));
-		SYMBOLS.put(new MTGColor.Tuple(MTGColor.RED, MTGColor.GREEN), new HybridSymbol(new MTGColor.Tuple(MTGColor.RED, MTGColor.GREEN)));
-		SYMBOLS.put(new MTGColor.Tuple(MTGColor.RED, MTGColor.WHITE), new HybridSymbol(new MTGColor.Tuple(MTGColor.RED, MTGColor.WHITE)));
-		SYMBOLS.put(new MTGColor.Tuple(MTGColor.GREEN, MTGColor.WHITE), new HybridSymbol(new MTGColor.Tuple(MTGColor.GREEN, MTGColor.WHITE)));
-		SYMBOLS.put(new MTGColor.Tuple(MTGColor.GREEN, MTGColor.BLUE), new HybridSymbol(new MTGColor.Tuple(MTGColor.GREEN, MTGColor.BLUE)));
+		SYMBOLS.put(new ManaType.Tuple(ManaType.WHITE, ManaType.BLUE), new HybridSymbol(new ManaType.Tuple(ManaType.WHITE, ManaType.BLUE)));
+		SYMBOLS.put(new ManaType.Tuple(ManaType.WHITE, ManaType.BLACK), new HybridSymbol(new ManaType.Tuple(ManaType.WHITE, ManaType.BLACK)));
+		SYMBOLS.put(new ManaType.Tuple(ManaType.BLUE, ManaType.BLACK), new HybridSymbol(new ManaType.Tuple(ManaType.BLUE, ManaType.BLACK)));
+		SYMBOLS.put(new ManaType.Tuple(ManaType.BLUE, ManaType.RED), new HybridSymbol(new ManaType.Tuple(ManaType.BLUE, ManaType.RED)));
+		SYMBOLS.put(new ManaType.Tuple(ManaType.BLACK, ManaType.RED), new HybridSymbol(new ManaType.Tuple(ManaType.BLACK, ManaType.RED)));
+		SYMBOLS.put(new ManaType.Tuple(ManaType.BLACK, ManaType.GREEN), new HybridSymbol(new ManaType.Tuple(ManaType.BLACK, ManaType.GREEN)));
+		SYMBOLS.put(new ManaType.Tuple(ManaType.RED, ManaType.GREEN), new HybridSymbol(new ManaType.Tuple(ManaType.RED, ManaType.GREEN)));
+		SYMBOLS.put(new ManaType.Tuple(ManaType.RED, ManaType.WHITE), new HybridSymbol(new ManaType.Tuple(ManaType.RED, ManaType.WHITE)));
+		SYMBOLS.put(new ManaType.Tuple(ManaType.GREEN, ManaType.WHITE), new HybridSymbol(new ManaType.Tuple(ManaType.GREEN, ManaType.WHITE)));
+		SYMBOLS.put(new ManaType.Tuple(ManaType.GREEN, ManaType.BLUE), new HybridSymbol(new ManaType.Tuple(ManaType.GREEN, ManaType.BLUE)));
 	}
 	
 	/**
-	 * Get the HybridSymbol corresponding to the given MTGColors.
+	 * Get the HybridSymbol corresponding to the given ManaTypes.
 	 * 
-	 * @param colors MTGColors to look up
-	 * @return The HybridSymbol corresponding to the given MTGColors, or
+	 * @param colors ManaTypes to look up
+	 * @return The HybridSymbol corresponding to the given ManaTypes, or
 	 * null if no such symbol exists.
 	 */
-	public static HybridSymbol get(MTGColor... colors)
+	public static HybridSymbol get(ManaType... colors)
 	{
-		return SYMBOLS.get(new MTGColor.Tuple(colors));
+		return SYMBOLS.get(new ManaType.Tuple(colors));
 	}
 	
 	/**
 	 * This HybridSymbol's Tuple of colors.
 	 */
-	private final MTGColor.Tuple colors;
+	private final ManaType.Tuple colors;
 	
-	private HybridSymbol(MTGColor.Tuple colors)
+	private HybridSymbol(ManaType.Tuple colors)
 	{
 		super(colors.get(0).toString().toLowerCase() + "_" + colors.get(1).toString().toLowerCase() + "_mana.png");
 		this.colors = colors;
@@ -81,12 +81,10 @@ public class HybridSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#colorWeights()
 	 */
 	@Override
-	public Map<MTGColor, Double> colorWeights()
+	public Map<ManaType, Double> colorWeights()
 	{
-		Map<MTGColor, Double> weights = createWeights(0, 0, 0, 0, 0);
-		weights.put(colors.get(0), 0.5);
-		weights.put(colors.get(1), 0.5);
-		return weights;
+		return createWeights(new ColorWeight(colors.get(0), 0.5),
+							 new ColorWeight(colors.get(1), 0.5));
 	}
 
 	/**
@@ -106,7 +104,7 @@ public class HybridSymbol extends Symbol
 	}
 
 	/**
-	 * @return <code>true</code> if the other Symbol is a HybridSymbol with the same Tuple of MTGColors,
+	 * @return <code>true</code> if the other Symbol is a HybridSymbol with the same Tuple of ManaTypes,
 	 * and <code>false</code>otherwise.
 	 * @see editor.database.symbol.Symbol#sameSymbol(Symbol)
 	 */

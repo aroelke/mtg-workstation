@@ -3,7 +3,7 @@ package editor.database.symbol;
 import java.util.HashMap;
 import java.util.Map;
 
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 
 /**
  * This class represents a Phyrexian mana symbol, which can be paid for either with mana of the
@@ -14,27 +14,27 @@ import editor.database.characteristics.MTGColor;
 public class PhyrexianSymbol extends Symbol
 {
 	/**
-	 * Map of MTGColors onto their corresponding Phyrexian symbols.
+	 * Map of ManaTypes onto their corresponding Phyrexian symbols.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final Map<MTGColor, PhyrexianSymbol> SYMBOLS = new HashMap<MTGColor, PhyrexianSymbol>();
+	public static final Map<ManaType, PhyrexianSymbol> SYMBOLS = new HashMap<ManaType, PhyrexianSymbol>();
 	static
 	{
-		SYMBOLS.put(MTGColor.WHITE, new PhyrexianSymbol(MTGColor.WHITE));
-		SYMBOLS.put(MTGColor.BLUE, new PhyrexianSymbol(MTGColor.BLUE));
-		SYMBOLS.put(MTGColor.BLACK, new PhyrexianSymbol(MTGColor.BLACK));
-		SYMBOLS.put(MTGColor.RED, new PhyrexianSymbol(MTGColor.RED));
-		SYMBOLS.put(MTGColor.GREEN, new PhyrexianSymbol(MTGColor.GREEN));
+		SYMBOLS.put(ManaType.WHITE, new PhyrexianSymbol(ManaType.WHITE));
+		SYMBOLS.put(ManaType.BLUE, new PhyrexianSymbol(ManaType.BLUE));
+		SYMBOLS.put(ManaType.BLACK, new PhyrexianSymbol(ManaType.BLACK));
+		SYMBOLS.put(ManaType.RED, new PhyrexianSymbol(ManaType.RED));
+		SYMBOLS.put(ManaType.GREEN, new PhyrexianSymbol(ManaType.GREEN));
 	}
 	
 	/**
 	 * Get the PhyrexianSymbol corresponding to the given color.
 	 * 
-	 * @param col MTGColor corresponding to the symbol to get
-	 * @return The PhyrexianSymbol corresponding to the given MTGColor, or
+	 * @param col ManaType corresponding to the symbol to get
+	 * @return The PhyrexianSymbol corresponding to the given ManaType, or
 	 * null if no such symbol exists.
 	 */
-	public static PhyrexianSymbol get(MTGColor col)
+	public static PhyrexianSymbol get(ManaType col)
 	{
 		return SYMBOLS.get(col);
 	}
@@ -42,14 +42,14 @@ public class PhyrexianSymbol extends Symbol
 	/**
 	 * This PhyrexianSymbol's color.
 	 */
-	public final MTGColor color;
+	public final ManaType color;
 	
 	/**
 	 * Create a new PhyrexianSymbol.
 	 * 
 	 * @param color The new PhyrexianSymbol's color.
 	 */
-	private PhyrexianSymbol(MTGColor color)
+	private PhyrexianSymbol(ManaType color)
 	{
 		super("phyrexian_" + color.toString().toLowerCase() + "_mana.png");
 		this.color = color;
@@ -81,11 +81,9 @@ public class PhyrexianSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#colorWeights()
 	 */
 	@Override
-	public Map<MTGColor, Double> colorWeights()
+	public Map<ManaType, Double> colorWeights()
 	{
-		Map<MTGColor, Double> weights = createWeights(0, 0, 0, 0, 0);
-		weights.put(color, 0.5);
-		return weights;
+		return createWeights(new ColorWeight(color, 0.5));
 	}
 
 	/**

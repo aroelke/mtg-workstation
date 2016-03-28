@@ -8,7 +8,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 import editor.database.symbol.ColorSymbol;
 import editor.filter.Filter;
 import editor.filter.FilterType;
@@ -51,7 +51,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 	/**
 	 * Map of colors onto their corresponding check boxes.
 	 */
-	private Map<MTGColor, JCheckBox> colors;
+	private Map<ManaType, JCheckBox> colors;
 	/**
 	 * Check box indicating that only multicolored cards should be matched.
 	 */
@@ -70,8 +70,8 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 		add(contain);
 		
 		// Check boxes for selecting colors
-		colors = new HashMap<MTGColor, JCheckBox>();
-		for (MTGColor color: MTGColor.values())
+		colors = new HashMap<ManaType, JCheckBox>();
+		for (ManaType color: ManaType.values())
 		{
 			JCheckBox box = new JCheckBox();
 			colors.put(color, box);
@@ -110,7 +110,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 	{
 		type = filter.type;
 		contain.setSelectedItem(filter.contain);
-		for (MTGColor color: MTGColor.values())
+		for (ManaType color: ManaType.values())
 			colors.get(color).setSelected(filter.colors.contains(color));
 		multiCheckBox.setSelected(filter.multicolored);
 	}

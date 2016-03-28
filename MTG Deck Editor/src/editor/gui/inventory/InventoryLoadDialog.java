@@ -44,7 +44,7 @@ import editor.collection.Inventory;
 import editor.database.Card;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 import editor.database.characteristics.Rarity;
 
 /**
@@ -286,12 +286,12 @@ public class InventoryLoadDialog extends JDialog
 						String mana = card.has("manaCost") ? card.get("manaCost").getAsString() : "";
 						
 						// Card's set of colors (which is stored as a list, since order matters)
-						List<MTGColor> colors = new ArrayList<MTGColor>();
+						List<ManaType> colors = new ArrayList<ManaType>();
 						if (card.has("colors"))
 						{
 							JsonArray colorsArray = card.get("colors").getAsJsonArray();
 							for (JsonElement colorElement: colorsArray)
-								colors.add(MTGColor.get(colorElement.getAsString()));
+								colors.add(ManaType.get(colorElement.getAsString()));
 						}
 						colors.sort((a, b) -> a.colorOrder(b));
 						

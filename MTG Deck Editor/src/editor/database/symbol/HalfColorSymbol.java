@@ -1,9 +1,11 @@
 package editor.database.symbol;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 
 /**
  * This class represents half of a colored mana symbol.
@@ -13,27 +15,20 @@ import editor.database.characteristics.MTGColor;
 public class HalfColorSymbol extends Symbol
 {
 	/**
-	 * Map of MTGColor onto its corresponding half-symbol.  To get a colored half-symbol, use this Map.
+	 * Map of ManaType onto its corresponding half-symbol.  To get a colored half-symbol, use this Map.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final Map<MTGColor, HalfColorSymbol> SYMBOLS = new HashMap<MTGColor, HalfColorSymbol>();
-	static
-	{
-		SYMBOLS.put(MTGColor.WHITE, new HalfColorSymbol(MTGColor.WHITE));
-		SYMBOLS.put(MTGColor.BLUE, new HalfColorSymbol(MTGColor.BLUE));
-		SYMBOLS.put(MTGColor.BLACK, new HalfColorSymbol(MTGColor.BLACK));
-		SYMBOLS.put(MTGColor.RED, new HalfColorSymbol(MTGColor.RED));
-		SYMBOLS.put(MTGColor.GREEN, new HalfColorSymbol(MTGColor.GREEN));
-	}
+	public static final Map<ManaType, HalfColorSymbol> SYMBOLS = Collections.unmodifiableMap(
+			Arrays.stream(ManaType.values()).collect(Collectors.toMap((t) -> t, HalfColorSymbol::new)));
 	
 	/**
-	 * Get the HalfColorSymbol corresponding to the given MTGColor.
+	 * Get the HalfColorSymbol corresponding to the given ManaType.
 	 * 
-	 * @param col MTGColor to get the symbol for
-	 * @return The HalfColorSymbol corresponding to the given MTGColor, or null
+	 * @param col ManaType to get the symbol for
+	 * @return The HalfColorSymbol corresponding to the given ManaType, or null
 	 * if no such symbol exists.
 	 */
-	public static HalfColorSymbol get(MTGColor col)
+	public static HalfColorSymbol get(ManaType col)
 	{
 		return SYMBOLS.get(col);
 	}
@@ -41,14 +36,14 @@ public class HalfColorSymbol extends Symbol
 	/**
 	 * This HalfColorSymbol's color.
 	 */
-	private final MTGColor color;
+	private final ManaType color;
 	
 	/**
 	 * Create a new HalfColorSymbol.
 	 * 
 	 * @param color Color of the new HalfColorSymbol
 	 */
-	private HalfColorSymbol(MTGColor color)
+	private HalfColorSymbol(ManaType color)
 	{
 		super("half_" + color.toString().toLowerCase() + "_mana.png");
 		this.color = color;
@@ -80,11 +75,9 @@ public class HalfColorSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#colorWeights()
 	 */
 	@Override
-	public Map<MTGColor, Double> colorWeights()
+	public Map<ManaType, Double> colorWeights()
 	{
-		Map<MTGColor, Double> weights = createWeights(0, 0, 0, 0, 0);
-		weights.put(color, 0.5);
-		return weights;
+		return createWeights(new ColorWeight(color, 0.5));
 	}
 
 	/**

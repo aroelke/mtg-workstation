@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.Loyalty;
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
@@ -97,7 +97,7 @@ public final class Card
 	 * colors of any mana symbols that appear in its rules text that is not
 	 * reminder text, and in abilities that are given it by basic land types.
 	 */
-	private final MTGColor.Tuple colorIdentity;
+	private final ManaType.Tuple colorIdentity;
 	
 	/**
 	 * Create a new Card with a single face.
@@ -123,7 +123,7 @@ public final class Card
 	 */
 	public Card(String name,
 				String mana,
-				List<MTGColor> colors,
+				List<ManaType> colors,
 				List<String> supertype,
 				List<String> type,
 				List<String> subtype,
@@ -142,7 +142,7 @@ public final class Card
 	{
 		faces = new Face[] {new Face(name,
 									 new ManaCost(mana),
-									 new MTGColor.Tuple(colors),
+									 new ManaType.Tuple(colors),
 									 supertype,
 									 type,
 									 subtype,
@@ -163,27 +163,28 @@ public final class Card
 		ID = this.set.code + name() + faces[0].imageName;
 		
 		// Create this Card's color identity
-		List<MTGColor> identity = new ArrayList<MTGColor>(colors);
+		List<ManaType> identity = new ArrayList<ManaType>(colors);
 		identity.addAll(faces[0].mana.colors());
 		Matcher m = ManaCost.MANA_COST_PATTERN.matcher(text);
 		while (m.find())
-			for (MTGColor col: ManaCost.valueOf(m.group()).colors())
-				identity.add(col);
+			for (ManaType col: ManaCost.valueOf(m.group()).colors())
+				if (col != ManaType.COLORLESS)
+					identity.add(col);
 		for (String sub: subtype)
 		{
 			if (sub.equalsIgnoreCase("plains"))
-				identity.add(MTGColor.WHITE);
+				identity.add(ManaType.WHITE);
 			else if (sub.equalsIgnoreCase("island"))
-				identity.add(MTGColor.BLUE);
+				identity.add(ManaType.BLUE);
 			else if (sub.equalsIgnoreCase("swamp"))
-				identity.add(MTGColor.BLACK);
+				identity.add(ManaType.BLACK);
 			else if (sub.equalsIgnoreCase("mountain"))
-				identity.add(MTGColor.RED);
+				identity.add(ManaType.RED);
 			else if (sub.equalsIgnoreCase("forest"))
-				identity.add(MTGColor.GREEN);
+				identity.add(ManaType.GREEN);
 		}
-		MTGColor.sort(identity);
-		colorIdentity = new MTGColor.Tuple(identity);
+		ManaType.sort(identity);
+		colorIdentity = new ManaType.Tuple(identity);
 /*
 		Matcher m = ManaCost.manaCostPattern.matcher(text);
 		while (m.find())
@@ -233,30 +234,30 @@ public final class Card
 		ID = set.code + name() + faces[0].imageName;
 		
 		// Create this Card's color identity
-		List<MTGColor> identity = new ArrayList<MTGColor>();
+		List<ManaType> identity = new ArrayList<ManaType>();
 		for (Face f: faces)
 		{
 			identity.addAll(f.colors);
 			Matcher m = ManaCost.MANA_COST_PATTERN.matcher(f.text);
 			while (m.find())
-				for (MTGColor col: ManaCost.valueOf(m.group()).colors())
+				for (ManaType col: ManaCost.valueOf(m.group()).colors())
 					identity.add(col);
 			for (String sub: f.subtypes)
 			{
 				if (sub.equalsIgnoreCase("plains"))
-					identity.add(MTGColor.WHITE);
+					identity.add(ManaType.WHITE);
 				else if (sub.equalsIgnoreCase("island"))
-					identity.add(MTGColor.BLUE);
+					identity.add(ManaType.BLUE);
 				else if (sub.equalsIgnoreCase("swamp"))
-					identity.add(MTGColor.BLACK);
+					identity.add(ManaType.BLACK);
 				else if (sub.equalsIgnoreCase("mountain"))
-					identity.add(MTGColor.RED);
+					identity.add(ManaType.RED);
 				else if (sub.equalsIgnoreCase("forest"))
-					identity.add(MTGColor.GREEN);
+					identity.add(ManaType.GREEN);
 			}
 		}
-		MTGColor.sort(identity);
-		colorIdentity = new MTGColor.Tuple(identity);
+		ManaType.sort(identity);
+		colorIdentity = new ManaType.Tuple(identity);
 	}
 	
 	/**
@@ -319,12 +320,12 @@ public final class Card
 	/**
 	 * @return The colors of this Card, which is the union of the colors of its faces.
 	 */
-	public MTGColor.Tuple colors()
+	public ManaType.Tuple colors()
 	{
-		ArrayList<MTGColor> colors = new ArrayList<MTGColor>();
+		ArrayList<ManaType> colors = new ArrayList<ManaType>();
 		for (Face face: faces)
 			colors.addAll(face.colors);
-		return new MTGColor.Tuple(colors);
+		return new ManaType.Tuple(colors);
 	}
 
 	/**
@@ -537,7 +538,7 @@ public final class Card
 	/**
 	 * @return This Card's color identity.
 	 */
-	public MTGColor.Tuple colorIdentity()
+	public ManaType.Tuple colorIdentity()
 	{
 		return colorIdentity;
 	}
@@ -823,7 +824,7 @@ public final class Card
 		/**
 		 * This Face's colors.
 		 */
-		public final MTGColor.Tuple colors;
+		public final ManaType.Tuple colors;
 		/**
 		 * This Face's supertypes.
 		 */
@@ -895,7 +896,7 @@ public final class Card
 		 */
 		public Face(String name,
 					ManaCost mana,
-					MTGColor.Tuple colors,
+					ManaType.Tuple colors,
 					List<String> supertypes,
 					List<String> types,
 					List<String> subtypes,

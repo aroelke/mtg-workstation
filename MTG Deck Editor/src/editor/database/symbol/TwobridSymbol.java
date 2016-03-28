@@ -3,7 +3,7 @@ package editor.database.symbol;
 import java.util.HashMap;
 import java.util.Map;
 
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 
 /**
  * This class represents a colorless-colored hybrid mana symbol, which can be paid for either by one
@@ -18,24 +18,24 @@ public class TwobridSymbol extends Symbol
 	 * Map of colors onto their corresponding twobrid symbols.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final Map<MTGColor, TwobridSymbol> SYMBOLS = new HashMap<MTGColor, TwobridSymbol>();
+	public static final Map<ManaType, TwobridSymbol> SYMBOLS = new HashMap<ManaType, TwobridSymbol>();
 	static
 	{
-		SYMBOLS.put(MTGColor.WHITE, new TwobridSymbol(MTGColor.WHITE));
-		SYMBOLS.put(MTGColor.BLUE, new TwobridSymbol(MTGColor.BLUE));
-		SYMBOLS.put(MTGColor.BLACK, new TwobridSymbol(MTGColor.BLACK));
-		SYMBOLS.put(MTGColor.RED, new TwobridSymbol(MTGColor.RED));
-		SYMBOLS.put(MTGColor.GREEN, new TwobridSymbol(MTGColor.GREEN));
+		SYMBOLS.put(ManaType.WHITE, new TwobridSymbol(ManaType.WHITE));
+		SYMBOLS.put(ManaType.BLUE, new TwobridSymbol(ManaType.BLUE));
+		SYMBOLS.put(ManaType.BLACK, new TwobridSymbol(ManaType.BLACK));
+		SYMBOLS.put(ManaType.RED, new TwobridSymbol(ManaType.RED));
+		SYMBOLS.put(ManaType.GREEN, new TwobridSymbol(ManaType.GREEN));
 	}
 	
 	/**
 	 * Get the TwobridSymbol corresponding to the given color.
 	 * 
 	 * @param col Color to look up
-	 * @return The TwobridSymbol corresponding to the given MTGColor, or
+	 * @return The TwobridSymbol corresponding to the given ManaType, or
 	 * null if no such symbol exists.
 	 */
-	public static TwobridSymbol get(MTGColor col)
+	public static TwobridSymbol get(ManaType col)
 	{
 		return SYMBOLS.get(col);
 	}
@@ -43,23 +43,23 @@ public class TwobridSymbol extends Symbol
 	/**
 	 * This TwobridSymbol's color.
 	 */
-	private final MTGColor color;
+	private final ManaType color;
 	
 	/**
 	 * Create a TwobridSymbol
 	 * 
 	 * @param color The new TwobridSymbol's color.
 	 */
-	private TwobridSymbol(MTGColor color)
+	private TwobridSymbol(ManaType color)
 	{
 		super("2_" + color.toString().toLowerCase() + "_mana.png");
 		this.color = color;
 	}
 	
 	/**
-	 * @return The MTGColor of this TwobridSymbol.
+	 * @return The ManaType of this TwobridSymbol.
 	 */
-	public MTGColor color()
+	public ManaType color()
 	{
 		return color;
 	}
@@ -90,11 +90,9 @@ public class TwobridSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#colorWeights()
 	 */
 	@Override
-	public Map<MTGColor, Double> colorWeights()
+	public Map<ManaType, Double> colorWeights()
 	{
-		Map<MTGColor, Double> weights = createWeights(0, 0, 0, 0, 0);
-		weights.put(color, 0.5);
-		return weights;
+		return createWeights(new ColorWeight(color, 0.5));
 	}
 
 	/**

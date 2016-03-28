@@ -109,7 +109,7 @@ public class ManaCost implements Comparable<ManaCost>
 	/**
 	 * Total color weight of the Symbols in this ManaCost.
 	 */
-	private Map<MTGColor, Double> weights;
+	private Map<ManaType, Double> weights;
 	
 	/**
 	 * Create a new ManaCost.  The symbols will be sorted according to their natural ordering,
@@ -129,9 +129,9 @@ public class ManaCost implements Comparable<ManaCost>
 		this.cost = Collections.unmodifiableList(this.cost);
 		
 		// Calculate this ManaCost's total color weights.
-		weights = Symbol.createWeights(0, 0, 0, 0, 0);
+		weights = Symbol.createWeights();
 		for (Symbol sym: this.cost)
-			for (MTGColor col: weights.keySet())
+			for (ManaType col: weights.keySet())
 				weights.compute(col, (k, v) -> sym.colorWeights().get(k) + v);
 	}
 	
@@ -139,16 +139,16 @@ public class ManaCost implements Comparable<ManaCost>
 	 * Set of colors represented by the Symbols in this ManaCost.  It is a list, because order
 	 * matters.
 	 * 
-	 * @return List of MTGColors representing all the colors in this ManaCost.
+	 * @return List of ManaTypes representing all the colors in this ManaCost.
 	 */
-	public MTGColor.Tuple colors()
+	public ManaType.Tuple colors()
 	{
-		List<MTGColor> colors = new ArrayList<MTGColor>();
+		List<ManaType> colors = new ArrayList<ManaType>();
 		for (Symbol sym: cost)
-			for (Map.Entry<MTGColor, Double> weight: sym.colorWeights().entrySet())
+			for (Map.Entry<ManaType, Double> weight: sym.colorWeights().entrySet())
 				if (weight.getValue() > 0)
 					colors.add(weight.getKey());
-		return new MTGColor.Tuple(colors);
+		return new ManaType.Tuple(colors);
 	}
 	
 	/**
@@ -182,7 +182,7 @@ public class ManaCost implements Comparable<ManaCost>
 	/**
 	 * @return This ManaCost's color weight Map.
 	 */
-	public Map<MTGColor, Double> colorWeight()
+	public Map<ManaType, Double> colorWeight()
 	{
 		return weights;
 	}
@@ -228,15 +228,16 @@ public class ManaCost implements Comparable<ManaCost>
 			return 1;
 		else
 		{
-			List<Double> weightList = new ArrayList<Double>(weights.values());
-			Collections.sort(weightList, (a, b) -> a.compareTo(b));
-			List<Double> oWeightList = new ArrayList<Double>(o.weights.values());
-			Collections.sort(oWeightList, (a, b) -> a.compareTo(b));
-			
-			int diff = (int)((cmc() - o.cmc())*1000000);
-			for (int i = 0; i < 5; i++)
-				diff += (weightList.get(i) - oWeightList.get(i))*Math.pow(10, i);
-			
+			int diff = (int)(2*(cmc() - o.cmc()));
+			if (diff == 0)
+			{
+				List<Double> weightList = new ArrayList<Double>(weights.values());
+				Collections.sort(weightList, (a, b) -> a.compareTo(b));
+				List<Double> oWeightList = new ArrayList<Double>(o.weights.values());
+				Collections.sort(oWeightList, (a, b) -> a.compareTo(b));
+				for (int i = 0; i < ManaType.values().length; i++)
+					diff += (weightList.get(i) - oWeightList.get(i))*Math.pow(10, i);	
+			}
 			return diff;
 		}
 	}

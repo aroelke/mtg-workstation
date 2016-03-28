@@ -12,64 +12,64 @@ import java.util.List;
  * 
  * @author Alec Roelke
  */
-public enum MTGColor
+public enum ManaType
 {
-	WHITE("White"),
-	BLUE("Blue"),
-	BLACK("Black"),
-	RED("Red"),
-	GREEN("Green");
+	WHITE("White", 'W'),
+	BLUE("Blue", 'U'),
+	BLACK("Black", 'B'),
+	RED("Red", 'R'),
+	GREEN("Green", 'G'),
+	
+	COLORLESS("Colorless", 'C');
 	
 	/**
-	 * Get an MTGColor from a String.  Acceptable values are "white," "w," "blue,"
+	 * @return The number of colors of Magic, which is the number of ManaTypes
+	 * minus the number of ManaTypes that do not represent colors.
+	 */
+	public static int colors()
+	{
+		return values().length - 1;
+	}
+	
+	/**
+	 * Get a ManaType from a String.  Acceptable values are "white," "w," "blue,"
 	 * "u," "black," "b," "red," "r," "green," or "g," case insensitive.
 	 * 
-	 * @param color String to create an MTGColor from.
-	 * @return MTGColor that corresponds to the String.
+	 * @param color String to create an ManaType from.
+	 * @return ManaType that corresponds to the String.
 	 */
-	public static MTGColor get(String color)
+	public static ManaType get(String color)
 	{
-		for (MTGColor c: MTGColor.values())
-			if (c.color.equalsIgnoreCase(color) || color.equalsIgnoreCase(String.valueOf(c.shorthand())))
+		for (ManaType c: ManaType.values())
+			if (c.color.equalsIgnoreCase(color) || color.equalsIgnoreCase(String.valueOf(c.shorthand)))
 				return c;
 		throw new IllegalArgumentException("Illegal color string \"" + color + "\"");
 	}
 	
 	/**
-	 * Get an MTGColor from a character.  Acceptable characters are 'w,' 'u,' 'b,'
+	 * Get a ManaType from a character.  Acceptable characters are 'w,' 'u,' 'b,'
 	 * 'r,' or 'g,' case insensitive.
 	 * 
 	 * @param color Character to get a color from.
-	 * @return MTGColor that corresponds to the character.
+	 * @return ManaType that corresponds to the character.
 	 */
-	public static MTGColor get(char color)
+	public static ManaType get(char color)
 	{
-		switch (Character.toLowerCase(color))
-		{
-		case 'w':
-			return WHITE;
-		case 'u':
-			return BLUE;
-		case 'b':
-			return BLACK;
-		case 'r':
-			return RED;
-		case 'g':
-			return GREEN;
-		default:
-			throw new IllegalArgumentException("Illegal color shorthand '" + color + "'");
-		}
+		for (ManaType c: ManaType.values())
+			if (Character.toLowerCase(c.shorthand) == Character.toLowerCase(color))
+				return c;
+		throw new IllegalArgumentException("Illegal color shorthand '" + color + "'");
 	}
 	
 	/**
-	 * Sort a list of MTGColors in color order.  If the list contains two colors, it will be
+	 * Sort a list of ManaTypes in color order.  If the list contains two colors, it will be
 	 * sorted according to how they appear on a card.  Otherwise, it will be sorted according
-	 * to WUBRG order.  It is recommended to use this rather than using Java's built-in sorting
+	 * to CWUBRG order.  It is recommended to use this rather than using Java's built-in sorting
 	 * functions.  If the list contains any duplicate colors, they will be removed.
 	 * 
-	 * @param colors List of MTGColors to sort.
+	 * @param colors List of ManaTypes to sort.
 	 */
-	public static void sort(List<MTGColor> colors)
+	public static void sort(List<ManaType> colors)
 	{
 		if (!colors.isEmpty())
 		{
@@ -85,7 +85,7 @@ public enum MTGColor
 	 * 
 	 * @author Alec Roelke
 	 */
-	public static class Tuple extends editor.util.Tuple<MTGColor> implements Comparable<Tuple>
+	public static class Tuple extends editor.util.Tuple<ManaType> implements Comparable<Tuple>
 	{
 		/**
 		 * Helper method for cleaning and sorting a collection of colors before calling the
@@ -95,9 +95,10 @@ public enum MTGColor
 		 * @return A cleaned and sorted copy of the given collection of colors.  Each color
 		 * will only appear once.
 		 */
-		private static List<MTGColor> sorted(Collection<MTGColor> cols)
+		private static List<ManaType> sorted(Collection<ManaType> cols)
 		{
-			List<MTGColor> colors = new ArrayList<MTGColor>(new HashSet<MTGColor>(cols));
+			List<ManaType> colors = new ArrayList<ManaType>(new HashSet<ManaType>(cols));
+			boolean colorless = colors.remove(COLORLESS);
 			Collections.sort(colors);
 			switch (colors.size())
 			{
@@ -130,6 +131,8 @@ public enum MTGColor
 			default:
 				break;
 			}
+			if (colorless)
+				colors.add(0, COLORLESS);
 			return colors;
 		}
 		
@@ -139,7 +142,7 @@ public enum MTGColor
 		 * 
 		 * @param cols Colors to make the tuple out of
 		 */
-		public Tuple(Collection<MTGColor> cols)
+		public Tuple(Collection<ManaType> cols)
 		{
 			super(sorted(cols));
 		}
@@ -149,7 +152,7 @@ public enum MTGColor
 		 * 
 		 * @param cols Colors to make the tuple out of
 		 */
-		public Tuple(MTGColor... cols)
+		public Tuple(ManaType... cols)
 		{
 			this(Arrays.asList(cols));
 		}
@@ -195,51 +198,43 @@ public enum MTGColor
 		public int hashCode()
 		{
 			int h = Integer.MAX_VALUE;
-			for (MTGColor col: this)
+			for (ManaType col: this)
 				h ^= col.hashCode();
 			return h;
 		}
 	}
 	
 	/**
-	 * String representation of this MTGColor.
+	 * String representation of this ManaType.
 	 */
 	private final String color;
+	/**
+	 * Single-character shorthand for this ManaType.
+	 */
+	private final char shorthand;
 	
 	/**
-	 * Create a new MTGColor.
+	 * Create a new ManaType.
 	 * 
-	 * @param color String representation of the new MTGColor
+	 * @param c String representation of the new ManaType
+	 * @param s Single-character shorthand representation of the new ManaType
 	 */
-	private MTGColor(final String color)
+	private ManaType(final String c, final char s)
 	{
-		this.color = color;
+		color = c;
+		shorthand = s;
 	}
 	
 	/**
-	 * @return A one-character shorthand for the name of this MTGColor.
+	 * @return A one-character shorthand for the name of this ManaType.
 	 */
 	public char shorthand()
 	{
-		switch (this)
-		{
-		case WHITE:
-			return 'W';
-		case BLUE:
-			return 'U';
-		case BLACK:
-			return 'B';
-		case RED:
-			return 'R';
-		case GREEN:
-			return 'G';
-		default:
-			return 'C';
-		}
+		return shorthand;
 	}
 	
 	/**
-	 * @return A String representation of this MTGColor (its name).
+	 * @return A String representation of this ManaType (its name).
 	 */
 	@Override
 	public String toString()
@@ -248,23 +243,34 @@ public enum MTGColor
 	}
 	
 	/**
-	 * @param other MTGColor to compare to
-	 * @return A negative number if this MTGColor should come before the other, 0 if they are the same,
+	 * @param other ManaType to compare to
+	 * @return A negative number if this ManaType should come before the other, 0 if they are the same,
 	 * or a postive number if it should come after.  Typically this follows WUBRG order, but if the
 	 * distance is too great (like white and green), then the order is reversed.
 	 */
-	public int colorOrder(MTGColor other)
+	public int colorOrder(ManaType other)
 	{
-		int diff = compareTo(other);
-		return Math.abs(diff) <= 2 ? diff : -diff;
+		if (this == COLORLESS && other == COLORLESS)
+			return 0;
+		else if (this == COLORLESS)
+			return -1;
+		else if (other == COLORLESS)
+			return 1;
+		else
+		{
+			int diff = compareTo(other);
+			return Math.abs(diff) <= 2 ? diff : -diff;
+		}
 	}
 	
 	/**
-	 * @param other MTGColor to compare to
+	 * @param other ManaType to compare to
 	 * @return The distance around the color pie from this color to the other color.
 	 */
-	public int distance(MTGColor other)
+	public int distance(ManaType other)
 	{
-		return (other.ordinal() - ordinal() + values().length)%values().length;
+		if (this == COLORLESS || other == COLORLESS)
+			throw new IllegalArgumentException("Colorless is not a color");
+		return (other.ordinal() - ordinal() + colors())%colors();
 	}
 }

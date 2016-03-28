@@ -1,9 +1,11 @@
 package editor.database.symbol;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 
 /**
  * This class represents a symbol for a single colored mana.
@@ -13,27 +15,20 @@ import editor.database.characteristics.MTGColor;
 public class ColorSymbol extends Symbol
 {
 	/**
-	 * Map of MTGColor onto its corresponding symbol.  To get a colored symbol, use this Map.
+	 * Map of ManaType onto its corresponding symbol.  To get a colored symbol, use this Map.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final Map<MTGColor, ColorSymbol> SYMBOLS = new HashMap<MTGColor, ColorSymbol>();
-	static
-	{
-		SYMBOLS.put(MTGColor.WHITE, new ColorSymbol(MTGColor.WHITE));
-		SYMBOLS.put(MTGColor.BLUE, new ColorSymbol(MTGColor.BLUE));
-		SYMBOLS.put(MTGColor.BLACK, new ColorSymbol(MTGColor.BLACK));
-		SYMBOLS.put(MTGColor.RED, new ColorSymbol(MTGColor.RED));
-		SYMBOLS.put(MTGColor.GREEN, new ColorSymbol(MTGColor.GREEN));
-	}
+	public static final Map<ManaType, ColorSymbol> SYMBOLS = Collections.unmodifiableMap(
+			Arrays.stream(ManaType.values()).collect(Collectors.toMap((t) -> t, ColorSymbol::new)));
 	
 	/**
 	 * Get the symbol corresponding to a color.
 	 * 
-	 * @param col MTGColor to find the symbol for
-	 * @return The ColorSymbol corresponding to the given MTGColor, or null
+	 * @param col ManaType to find the symbol for
+	 * @return The ColorSymbol corresponding to the given ManaType, or null
 	 * if none exists. 
 	 */
-	public static ColorSymbol get(MTGColor col)
+	public static ColorSymbol get(ManaType col)
 	{
 		return SYMBOLS.get(col);
 	}
@@ -41,23 +36,23 @@ public class ColorSymbol extends Symbol
 	/**
 	 * Color of this ColorSymbol.
 	 */
-	private final MTGColor color;
+	private final ManaType color;
 	
 	/**
 	 * Create a new ColorSymbol.
 	 * 
 	 * @param color Color of the new ColorSymbol.
 	 */
-	private ColorSymbol(MTGColor color)
+	private ColorSymbol(ManaType color)
 	{
 		super(color.toString().toLowerCase() + "_mana.png");
 		this.color = color;
 	}
 	
 	/**
-	 * @return The MTGColor representing the color of this ColorSymbol.
+	 * @return The ManaType representing the color of this ColorSymbol.
 	 */
-	public MTGColor color()
+	public ManaType color()
 	{
 		return color;
 	}
@@ -88,11 +83,9 @@ public class ColorSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#colorWeights()
 	 */
 	@Override
-	public Map<MTGColor, Double> colorWeights()
+	public Map<ManaType, Double> colorWeights()
 	{
-		Map<MTGColor, Double> weights = createWeights(0, 0, 0, 0, 0);
-		weights.put(color, 1.0);
-		return weights;
+		return createWeights(new ColorWeight(color, 1.0));
 	}
 
 	/**

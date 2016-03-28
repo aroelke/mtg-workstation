@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import editor.database.characteristics.MTGColor;
+import editor.database.characteristics.ManaType;
 
 /**
  * This class represents a symbol that might appear on a card in Magic: The Gathering.  It has a weight for each
@@ -31,9 +31,7 @@ public abstract class Symbol implements Comparable<Symbol>
 		ORDER.add(VariableSymbol.class);
 		ORDER.add(HalfManaSymbol.class);
 		ORDER.add(GenericSymbol.class);
-		ORDER.add(HalfColorlessSymbol.class);
 		ORDER.add(HalfColorSymbol.class);
-		ORDER.add(ColorlessSymbol.class);
 		ORDER.add(SnowSymbol.class);
 		ORDER.add(TwobridSymbol.class);
 		ORDER.add(HybridSymbol.class);
@@ -51,25 +49,25 @@ public abstract class Symbol implements Comparable<Symbol>
 	private String name;
 	
 	/**
-	 * Create a map of color weights for a Symbol, where the keys are MTGColors and the values
-	 * are their weights (Doubles).
+	 * Create a map of color weights for a Symbol, where the keys are ManaTypes and the values
+	 * are their weights (Doubles).  There is also an entry with a <code>null</code> key for
+	 * colorless (which is not a color, so it doesn't have a ManaType).
 	 * 
-	 * @param w Weight for white
-	 * @param u Weight for blue
-	 * @param b Weight for black
-	 * @param r Weight for red
-	 * @param g Weight for green
-	 * @return The Map of MTGColors onto weights.
+	 * @param weights Initial weights to use.
+	 * @return The Map of ManaTypes onto weights.
 	 */
-	public static Map<MTGColor, Double> createWeights(double w, double u, double b, double r, double g)
+	public static Map<ManaType, Double> createWeights(ColorWeight... weights)
 	{
-		Map<MTGColor, Double> weights = new HashMap<MTGColor, Double>();
-		weights.put(MTGColor.WHITE, w);
-		weights.put(MTGColor.BLUE, u);
-		weights.put(MTGColor.BLACK, b);
-		weights.put(MTGColor.RED, r);
-		weights.put(MTGColor.GREEN, g);
-		return weights;
+		Map<ManaType, Double> weightsMap = new HashMap<ManaType, Double>();
+		weightsMap.put(ManaType.COLORLESS, 0.0);
+		weightsMap.put(ManaType.WHITE, 0.0);
+		weightsMap.put(ManaType.BLUE, 0.0);
+		weightsMap.put(ManaType.BLACK, 0.0);
+		weightsMap.put(ManaType.RED, 0.0);
+		weightsMap.put(ManaType.GREEN, 0.0);
+		for (ColorWeight w: weights)
+			weightsMap.put(w.color, w.weight);
+		return weightsMap;
 	}
 	
 	/**
@@ -88,7 +86,7 @@ public abstract class Symbol implements Comparable<Symbol>
 			// First try to make a colored symbol
 			try
 			{
-				return ColorSymbol.get(MTGColor.get(s));
+				return ColorSymbol.get(ManaType.get(s));
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -117,12 +115,10 @@ public abstract class Symbol implements Comparable<Symbol>
 						return TapSymbol.TAP;
 					case 'Q':
 						return UntapSymbol.UNTAP;
-					case 'C':
-						return ColorlessSymbol.COLORLESS;
 					case 'P':
 						return PhiSymbol.PHI;
 					case 'H':
-						return HalfColorSymbol.get(MTGColor.get(s.substring(1)));
+						return HalfColorSymbol.get(ManaType.get(s.substring(1)));
 					case '∞':
 						return InfinityManaSymbol.INFINITY_MANA;
 					case '½':
@@ -140,18 +136,16 @@ public abstract class Symbol implements Comparable<Symbol>
 			String[] cols = s.split("/");
 			if (cols[0].equals("1") && cols[1].equals("2"))
 				return HalfManaSymbol.HALF_MANA;
-			else if (cols[0].equalsIgnoreCase("C") && cols[1].equals("2"))
-				return HalfColorlessSymbol.HALF_COLORLESS;
 			try
 			{
 				if (cols[0].equals("2"))
-					return TwobridSymbol.get(MTGColor.get(cols[1]));
+					return TwobridSymbol.get(ManaType.get(cols[1]));
 				else if (cols[0].equalsIgnoreCase("P"))
-					return PhyrexianSymbol.get(MTGColor.get(cols[1]));
+					return PhyrexianSymbol.get(ManaType.get(cols[1]));
 				else if (cols[1].equalsIgnoreCase("P"))
-					return PhyrexianSymbol.SYMBOLS.get(MTGColor.get(cols[0]));
+					return PhyrexianSymbol.SYMBOLS.get(ManaType.get(cols[0]));
 				else
-					return HybridSymbol.get(MTGColor.get(cols[0]), MTGColor.get(cols[1]));
+					return HybridSymbol.get(ManaType.get(cols[0]), ManaType.get(cols[1]));
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -189,9 +183,9 @@ public abstract class Symbol implements Comparable<Symbol>
 	/**
 	 * @return This Symbol's color weight map.
 	 */
-	public Map<MTGColor, Double> colorWeights()
+	public Map<ManaType, Double> colorWeights()
 	{
-		return createWeights(0, 0, 0, 0, 0);
+		return createWeights();
 	}
 	
 	public Icon getIcon()

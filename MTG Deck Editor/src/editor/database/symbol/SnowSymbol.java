@@ -1,5 +1,8 @@
 package editor.database.symbol;
 
+import java.util.Map;
+
+import editor.database.characteristics.ManaType;
 
 /**
  * This class represents a snow mana symbol.
@@ -42,6 +45,17 @@ public class SnowSymbol extends Symbol
 		return 1;
 	}
 
+	/**
+	 * @return A Map containing this ColorSymbol's color weight.  All values will be 0 except for
+	 * colorless, which will be 1.
+	 * @see editor.database.symbol.Symbol#colorWeights()
+	 */
+	@Override
+	public Map<ManaType, Double> colorWeights()
+	{
+		return createWeights(new ColorWeight(ManaType.COLORLESS, 1.0));
+	}
+	
 	/**
 	 * @return <code>true</code> if the other Symbol is a SnowSymbol, and <code>false</code>
 	 * otherwise.

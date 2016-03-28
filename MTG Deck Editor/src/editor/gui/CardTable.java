@@ -32,8 +32,8 @@ import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.database.Card;
 import editor.database.characteristics.Loyalty;
-import editor.database.characteristics.MTGColor;
 import editor.database.characteristics.ManaCost;
+import editor.database.characteristics.ManaType;
 import editor.database.characteristics.PowerToughness;
 import editor.database.symbol.ColorSymbol;
 import editor.database.symbol.Symbol;
@@ -121,16 +121,16 @@ public class CardTable extends JTable
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			if (value instanceof MTGColor.Tuple)
+			if (value instanceof ManaType.Tuple)
 			{
-				MTGColor.Tuple colors = (MTGColor.Tuple)value;
+				ManaType.Tuple colors = (ManaType.Tuple)value;
 				JPanel colorPanel = new JPanel();
 				colorPanel.setLayout(new BoxLayout(colorPanel, BoxLayout.X_AXIS));
 				if (hasFocus)
 					colorPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
 				else
 					colorPanel.setBorder(new EmptyBorder(0, 1, -1, 0));
-				for (MTGColor color: colors)
+				for (ManaType color: colors)
 					colorPanel.add(new JLabel(ColorSymbol.get(color).getIcon(13)));
 				colorPanel.setBackground(c.getBackground());
 				colorPanel.setForeground(c.getForeground());
@@ -345,7 +345,7 @@ public class CardTable extends JTable
 		setShowGrid(false);
 		
 		setDefaultRenderer(ManaCost.Tuple.class, new ManaCostCellRenderer());
-		setDefaultRenderer(MTGColor.Tuple.class, new ColorRenderer());
+		setDefaultRenderer(ManaType.Tuple.class, new ColorRenderer());
 		setDefaultRenderer(Set.class, new CategoriesCellRenderer());
 		setDefaultRenderer(Date.class, new DateCellRenderer());
 		
