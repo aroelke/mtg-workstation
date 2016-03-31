@@ -155,7 +155,7 @@ public class CategoryPanel extends JPanel
 		add(tablePane, BorderLayout.CENTER);
 		
 		deck.addDeckListener(listener = (e) -> {
-			if (e.removedNames().contains(name))
+			if (e.categoriesRemoved() && e.removedNames().contains(name))
 				deck.removeDeckListener(listener);
 			if (e.categoryChanged() && e.categoryName().equals(name))
 			{
