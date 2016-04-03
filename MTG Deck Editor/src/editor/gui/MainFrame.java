@@ -833,7 +833,7 @@ public class MainFrame extends JFrame
 		// Action to be taken when the clear button is pressed (reset the filter)
 		clearButton.addActionListener((e) -> {
 			nameFilterField.setText("");
-			inventory.updateFilter(new BinaryFilter(true));
+			inventory.updateFilter(FilterType.ALL.createFilter());
 			inventoryModel.fireTableDataChanged();
 		});
 		
