@@ -23,12 +23,12 @@ public enum ManaType
 	COLORLESS("Colorless", 'C');
 	
 	/**
-	 * @return The number of colors of Magic, which is the number of ManaTypes
-	 * minus the number of ManaTypes that do not represent colors.
+	 * @return The colors of Magic, which is the list of ManaTypes
+	 * minus the ManaTypes that do not represent colors.
 	 */
-	public static int colors()
+	public static ManaType[] colors()
 	{
-		return values().length - 1;
+		return new ManaType[] {WHITE, BLUE, BLACK, RED, GREEN};
 	}
 	
 	/**
@@ -271,6 +271,6 @@ public enum ManaType
 	{
 		if (this == COLORLESS || other == COLORLESS)
 			throw new IllegalArgumentException("Colorless is not a color");
-		return (other.ordinal() - ordinal() + colors())%colors();
+		return (other.ordinal() - ordinal() + colors().length)%colors().length;
 	}
 }

@@ -71,7 +71,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 		
 		// Check boxes for selecting colors
 		colors = new HashMap<ManaType, JCheckBox>();
-		for (ManaType color: ManaType.values())
+		for (ManaType color: ManaType.colors())
 		{
 			JCheckBox box = new JCheckBox();
 			colors.put(color, box);
@@ -110,7 +110,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 	{
 		type = filter.type;
 		contain.setSelectedItem(filter.contain);
-		for (ManaType color: ManaType.values())
+		for (ManaType color: ManaType.colors())
 			colors.get(color).setSelected(filter.colors.contains(color));
 		multiCheckBox.setSelected(filter.multicolored);
 	}
