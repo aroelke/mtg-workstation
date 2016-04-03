@@ -200,11 +200,16 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 	@Override
 	public Filter filter()
 	{
-		FilterGroup group = new FilterGroup();
-		group.mode = modeBox.getItemAt(modeBox.getSelectedIndex());
-		for (FilterPanel<?> child: children)
-			group.addChild(child.filter());
-		return group;
+		if (children.size() == 1)
+			return children.get(0).filter();
+		else
+		{
+			FilterGroup group = new FilterGroup();
+			group.mode = modeBox.getItemAt(modeBox.getSelectedIndex());
+			for (FilterPanel<?> child: children)
+				group.addChild(child.filter());
+			return group;
+		}
 	}
 
 	/**

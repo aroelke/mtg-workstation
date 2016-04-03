@@ -841,7 +841,10 @@ public class MainFrame extends JFrame
 		// dialog)
 		advancedFilterButton.addActionListener((e) -> {
 			FilterGroupPanel panel = new FilterGroupPanel();
-			panel.setContents(inventory.getFilter());
+			if (inventory.getFilter() instanceof BinaryFilter)
+				panel.setContents(FilterType.NAME.createFilter());
+			else
+				panel.setContents(inventory.getFilter());
 			if (JOptionPane.showOptionDialog(null, panel, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
 				nameFilterField.setText("");
