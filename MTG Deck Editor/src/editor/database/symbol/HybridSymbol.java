@@ -102,17 +102,4 @@ public class HybridSymbol extends Symbol
 		else
 			return super.compareTo(o);
 	}
-
-	/**
-	 * @return <code>true</code> if the other Symbol is a HybridSymbol with the same Tuple of ManaTypes,
-	 * and <code>false</code>otherwise.
-	 * @see editor.database.symbol.Symbol#sameSymbol(Symbol)
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		return other instanceof HybridSymbol
-			   && colors.get(0).equals(((HybridSymbol)other).colors.get(0))
-			   && colors.get(1).equals(((HybridSymbol)other).colors.get(1));
-	}
 }

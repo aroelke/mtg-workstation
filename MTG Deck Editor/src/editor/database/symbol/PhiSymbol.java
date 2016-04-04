@@ -32,15 +32,4 @@ public class PhiSymbol extends Symbol
 	{
 		return "P";
 	}
-
-	/**
-	 * @return <code>true</code> if the other Symbol is a PhiSymbol, and <code>false</code>
-	 * otherwise.
-	 * @see editor.database.symbol.Symbol#sameSymbol(editor.database.symbol.Symbol)
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		return other instanceof PhiSymbol;
-	}
 }

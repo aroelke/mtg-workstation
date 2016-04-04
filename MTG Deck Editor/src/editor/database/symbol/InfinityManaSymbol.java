@@ -30,15 +30,4 @@ public class InfinityManaSymbol extends Symbol
 	{
 		return "∞";
 	}
-
-	/**
-	 * @param other Symbol to compare with
-	 * @return <code>true</code> if the other symbol is an InfinityManaSymbol
-	 * and <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		return other instanceof InfinityManaSymbol;
-	}
 }

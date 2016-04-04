@@ -83,15 +83,4 @@ public class GenericSymbol extends Symbol
 		else
 			return super.compareTo(o);
 	}
-
-	/**
-	 * @return <code>true</code> if the other Symbol is a GenericSymbol with the same amount and
-	 * <code>false</code> otherwise.
-	 * @see editor.database.symbol.Symbol#sameSymbol(Symbol)
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		return other instanceof GenericSymbol && amount == ((GenericSymbol)other).amount;
-	}
 }

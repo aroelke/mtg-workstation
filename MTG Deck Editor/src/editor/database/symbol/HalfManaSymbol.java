@@ -41,14 +41,4 @@ public class HalfManaSymbol extends Symbol
 	{
 		return 0.5;
 	}
-
-	/**
-	 * @return <code>true</code> if the other Symbol is a HalfManaSymbol or <code>false</code> otherwise.
-	 * @see editor.database.symbol.Symbol#sameSymbol(Symbol)
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		return other instanceof HalfColorSymbol;
-	}
 }

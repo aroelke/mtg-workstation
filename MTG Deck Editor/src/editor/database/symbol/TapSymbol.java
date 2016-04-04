@@ -30,15 +30,4 @@ public class TapSymbol extends Symbol
 	{
 		return "T";
 	}
-
-	/**
-	 * @return <code>true</code> if the other Symbol is a TapSymbol, and <code>false</code>
-	 * otherwise.
-	 * @see editor.database.symbol.Symbol#sameSymbol(editor.database.symbol.Symbol)
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		return other instanceof TapSymbol;
-	}
 }

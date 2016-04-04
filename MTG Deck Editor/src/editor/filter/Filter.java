@@ -13,7 +13,7 @@ import editor.database.Card;
  * nodes filter out characteristics.  A filter can test if a Card matches
  * its characteristics.
  * 
- * TODO: Implement equals() and hashCode()
+ * TODO: Implement equals() and hashCode() (use random prime number as seed and 31 as coefficient)
  * 
  * @author Alec Roelke
  */

@@ -95,15 +95,4 @@ public class HalfColorSymbol extends Symbol
 		else
 			return super.compareTo(o);
 	}
-
-	/**
-	 * @return <code>true</code> if the other Symbol is a HalfColorSymbol and the colors are the same
-	 * or <code>false</code> otherwise.
-	 * @see editor.database.symbol.Symbol#sameSymbol(Symbol)
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		return other instanceof HalfColorSymbol && color.equals(((HalfColorSymbol)other).color);
-	}
 }

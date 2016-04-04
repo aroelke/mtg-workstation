@@ -30,15 +30,4 @@ public class UntapSymbol extends Symbol
 	{
 		return "Q";
 	}
-
-	/**
-	 * @return <code>true</code> if the other Symbol is an UntapSymbol and <code>false</code>
-	 * otherwise.
-	 * @see editor.database.symbol.Symbol#sameSymbol(editor.database.symbol.Symbol)
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		return other instanceof UntapSymbol;
-	}
 }

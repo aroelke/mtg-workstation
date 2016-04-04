@@ -241,13 +241,6 @@ public abstract class Symbol implements Comparable<Symbol>
 	}
 	
 	/**
-	 * @param other Symbol to compare with
-	 * @return <code>true</code> if this Symbol is the same Symbol as the other, and <code>false</code>
-	 * otherwise.
-	 */
-	public abstract boolean sameSymbol(Symbol other);
-	
-	/**
 	 * @param other Object to compare to
 	 * @return <code>true</code> if this Symbol is the same as the other Object, and <code>false</code> otherwise.
 	 */
@@ -260,7 +253,7 @@ public abstract class Symbol implements Comparable<Symbol>
 			return true;
 		if (!(other instanceof Symbol))
 			return false;
-		return sameSymbol((Symbol)other);
+		return toString().equals(other.toString());
 	}
 	
 	/**
@@ -270,6 +263,6 @@ public abstract class Symbol implements Comparable<Symbol>
 	@Override
 	public int hashCode()
 	{
-		return toString().hashCode()^icon.hashCode()^colorWeights().hashCode()^new Double(value()).hashCode();
+		return toString().hashCode();
 	}
 }

@@ -66,19 +66,4 @@ public class VariableSymbol extends Symbol
 		else
 			return super.compareTo(other);
 	}
-
-	/**
-	 * @param other Symbol to compare with
-	 * @return <code>true</code> if this VariableSymbol and the other Symbol
-	 * are the same, and <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		if (other instanceof VariableSymbol)
-			return var == ((VariableSymbol)other).var;
-		else
-			return false;
-	}
-
 }

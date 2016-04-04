@@ -40,15 +40,4 @@ public class ChaosSymbol extends Symbol
 	{
 		return "CHAOS";
 	}
-
-	/**
-	 * @param other Symbol to compare to
-	 * @return 0, since this symbol's ordering relative to other ones is
-	 * not defined.
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		return other instanceof ChaosSymbol;
-	}
 }

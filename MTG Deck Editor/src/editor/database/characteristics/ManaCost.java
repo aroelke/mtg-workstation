@@ -282,16 +282,12 @@ public class ManaCost implements Comparable<ManaCost>
 			return false;
 		return cost.equals(((ManaCost)other).cost);
 	}
-	
 	/**
 	 * @return A unique integer for this ManaCost.
 	 */
 	@Override
 	public int hashCode()
 	{
-		int hash = weights.hashCode();
-		for (Symbol sym: cost)
-			hash ^= sym.hashCode();
-		return hash;
+		return cost.hashCode();
 	}
 }

@@ -36,4 +36,32 @@ public class ColorWeight
 		color = c;
 		weight = w;
 	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return false;
+		if (!(other instanceof ColorWeight))
+			return false;
+		ColorWeight o = (ColorWeight)other;
+		return o.color.equals(color) && o.weight == weight;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public int hashCode()
+	{
+		int hash = 83;
+		hash = hash*31 + (color == null ? 0 : color.hashCode());
+		hash = hash*31 + Double.hashCode(weight);
+		return hash;
+	}
 }

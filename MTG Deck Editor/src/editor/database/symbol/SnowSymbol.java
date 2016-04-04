@@ -55,15 +55,4 @@ public class SnowSymbol extends Symbol
 	{
 		return createWeights(new ColorWeight(ManaType.COLORLESS, 1.0));
 	}
-	
-	/**
-	 * @return <code>true</code> if the other Symbol is a SnowSymbol, and <code>false</code>
-	 * otherwise.
-	 * @see editor.database.symbol.Symbol#sameSymbol(Symbol)
-	 */
-	@Override
-	public boolean sameSymbol(Symbol other)
-	{
-		return other instanceof SnowSymbol;
-	}
 }
