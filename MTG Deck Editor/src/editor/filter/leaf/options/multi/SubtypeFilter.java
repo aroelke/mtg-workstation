@@ -1,8 +1,10 @@
 package editor.filter.leaf.options.multi;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 import editor.database.Card;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -36,5 +38,17 @@ public class SubtypeFilter extends MultiOptionsFilter<String>
 		contain = Containment.get(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			selected.addAll(Arrays.asList(content.substring(delim + 1, content.length() - 1).split(",")));
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public Filter copy()
+	{
+		SubtypeFilter filter = (SubtypeFilter)FilterType.SUBTYPE.createFilter();
+		filter.contain = contain;
+		filter.selected = new HashSet<String>(selected);
+		return filter;
 	}
 }

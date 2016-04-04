@@ -3,6 +3,7 @@ package editor.filter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
@@ -172,6 +173,43 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		for (Filter child: children)
 			filter.addChild(child.copy());
 		return filter;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param other
+	 * @return
+	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof FilterGroup))
+			return false;
+		FilterGroup o = (FilterGroup)other;
+		if (o.mode != mode)
+			return false;
+		if (children.size() != o.children.size())
+			return false;
+		List<Filter> otherChildren = new ArrayList<Filter>(o.children);
+		for (Filter child: children)
+			otherChildren.remove(child);
+		if (!otherChildren.isEmpty())
+			return false;
+		return true;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(children, mode);
 	}
 	
 	/**

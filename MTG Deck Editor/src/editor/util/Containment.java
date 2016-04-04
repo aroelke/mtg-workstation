@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.function.BiPredicate;
 
 /**
- * This class represents a way that elements from one set can be contained in another.
+ * This enumeration represents a way that elements from one set can be contained in another.
  * 
  * @author Alec Roelke
  */

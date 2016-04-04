@@ -1,6 +1,7 @@
 package editor.filter.leaf;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -109,5 +110,30 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 		filter.contain = contain;
 		filter.multicolored = multicolored;
 		return filter;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof ColorFilter))
+			return false;
+		ColorFilter o = (ColorFilter)other;
+		return o.type == type && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(type, colors, contain, multicolored);
 	}
 }

@@ -2,6 +2,7 @@ package editor.filter.leaf;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import editor.database.Card;
@@ -89,5 +90,30 @@ public class TypeLineFilter extends FilterLeaf<List<List<String>>>
 		filter.contain = contain;
 		filter.line = line;
 		return filter;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof TypeLineFilter))
+			return false;
+		TypeLineFilter o = (TypeLineFilter)other;
+		return contain == o.contain && line.equals(o.line);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(contain, line);
 	}
 }

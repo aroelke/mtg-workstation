@@ -1,6 +1,7 @@
 package editor.filter.leaf;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -212,5 +213,33 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		filter.regex = regex;
 		filter.text = text;
 		return filter;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param other
+	 * @return
+	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof TextFilter))
+			return false;
+		TextFilter o = (TextFilter)other;
+		return o.type == type && o.contain == contain && o.regex == regex && o.text.equals(text);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(type, contain, regex, text);
 	}
 }

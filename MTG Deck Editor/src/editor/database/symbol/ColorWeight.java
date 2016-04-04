@@ -1,5 +1,7 @@
 package editor.database.symbol;
 
+import java.util.Objects;
+
 import editor.database.characteristics.ManaType;
 
 /**
@@ -59,9 +61,6 @@ public class ColorWeight
 	@Override
 	public int hashCode()
 	{
-		int hash = 83;
-		hash = hash*31 + (color == null ? 0 : color.hashCode());
-		hash = hash*31 + Double.hashCode(weight);
-		return hash;
+		return Objects.hash(color, weight);
 	}
 }

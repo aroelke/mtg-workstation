@@ -64,4 +64,28 @@ public class BinaryFilter extends FilterLeaf<Void>
 	{
 		return type.createFilter();
 	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof BinaryFilter))
+			return false;
+		return ((BinaryFilter)other).all == all;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public int hashCode()
+	{
+		return Boolean.hashCode(all);
+	}
 }

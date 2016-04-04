@@ -1,6 +1,7 @@
 package editor.filter.leaf;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Function;
 
 import editor.database.Card;
@@ -86,5 +87,24 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 		filter.compare = compare;
 		filter.operand = operand;
 		return filter;
+	}
+	
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof NumberFilter))
+			return false;
+		NumberFilter o = (NumberFilter)other;
+		return o.type == type && o.compare == compare && o.operand == operand;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(type, compare, operand);
 	}
 }

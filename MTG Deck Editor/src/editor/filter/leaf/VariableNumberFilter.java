@@ -1,10 +1,12 @@
 package editor.filter.leaf;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import editor.database.Card;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Comparison;
 
@@ -83,5 +85,44 @@ public class VariableNumberFilter extends NumberFilter
 			compare = Comparison.get(content.charAt(0));
 			operand = Double.valueOf(content.substring(1));
 		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public Filter copy()
+	{
+		VariableNumberFilter filter = (VariableNumberFilter)type.createFilter();
+		filter.varies = varies;
+		filter.variable = variable;
+		filter.compare = compare;
+		filter.operand = operand;
+		return filter;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof VariableNumberFilter))
+			return false;
+		VariableNumberFilter o = (VariableNumberFilter)other;
+		return o.type == type && o.varies == varies && o.variable.equals(variable) && o.compare == compare & o.operand == operand;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(type, varies, variable, compare, operand);
 	}
 }

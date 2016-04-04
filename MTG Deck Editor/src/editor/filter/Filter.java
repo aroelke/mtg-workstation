@@ -16,8 +16,6 @@ import editor.database.Card;
  * Note that because filters are mutable, they do not make good keys or Set
  * members.
  * 
- * TODO: Implement equals() and hashCode() (use random prime number as seed and 31 as coefficient)
- * 
  * @author Alec Roelke
  */
 public abstract class Filter implements Predicate<Card>
@@ -74,4 +72,16 @@ public abstract class Filter implements Predicate<Card>
 	{
 		return BEGIN_GROUP + representation() + END_GROUP;
 	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public abstract boolean equals(Object other);
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public abstract int hashCode();
 }

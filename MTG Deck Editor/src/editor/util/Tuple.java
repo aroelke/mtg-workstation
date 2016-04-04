@@ -196,6 +196,28 @@ public class Tuple<E> implements List<E>
 		return join.toString();
 	}
 	
+	/**
+	 * TODO: Comment this
+	 */
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof Tuple))
+			return false;
+		return items.equals(other);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	public int hashCode()
+	{
+		return items.hashCode();
+	}
+	
 	@Override
 	public boolean add(E e)
 	{

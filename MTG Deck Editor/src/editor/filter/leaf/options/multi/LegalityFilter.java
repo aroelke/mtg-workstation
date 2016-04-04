@@ -3,9 +3,12 @@ package editor.filter.leaf.options.multi;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 
 import editor.database.Card;
 import editor.database.characteristics.Legality;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -84,5 +87,46 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 		if (content.charAt(delim + 1) != '}')
 			selected.addAll(Arrays.asList(content.substring(delim + 1, content.length() - 2).split(",")));
 		restricted = content.charAt(content.length() - 1) == 'r';
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public Filter copy()
+	{
+		LegalityFilter filter = (LegalityFilter)FilterType.FORMAT_LEGALITY.createFilter();
+		filter.contain = contain;
+		filter.selected = new HashSet<String>(selected);
+		filter.restricted = restricted;
+		return filter;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param other
+	 * @return
+	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof LegalityFilter))
+			return false;
+		LegalityFilter o = (LegalityFilter)other;
+		return o.contain == contain && o.selected.equals(selected) && o.restricted == restricted;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(contain, selected, restricted);
 	}
 }

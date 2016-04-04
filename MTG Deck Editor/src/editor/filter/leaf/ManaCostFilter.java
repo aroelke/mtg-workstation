@@ -1,5 +1,7 @@
 package editor.filter.leaf;
 
+import java.util.Objects;
+
 import editor.database.Card;
 import editor.database.characteristics.ManaCost;
 import editor.filter.Filter;
@@ -98,5 +100,33 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 		filter.contain = contain;
 		filter.cost = cost;
 		return filter;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param other
+	 * @return
+	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof ManaCostFilter))
+			return false;
+		ManaCostFilter o = (ManaCostFilter)other;
+		return o.contain == contain && o.cost.equals(cost);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(contain, cost);
 	}
 }

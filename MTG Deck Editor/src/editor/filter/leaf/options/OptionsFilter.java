@@ -1,14 +1,15 @@
 package editor.filter.leaf.options;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
 import editor.database.Card;
-import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
+import editor.filter.leaf.options.single.RarityFilter;
 import editor.util.Containment;
 
 /**
@@ -61,15 +62,26 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	
 	/**
 	 * TODO: Comment this
-	 * TODO: Make sure this works
 	 */
 	@Override
-	public Filter copy()
+	public boolean equals(Object other)
 	{
-		@SuppressWarnings("unchecked")
-		OptionsFilter<T> filter = (OptionsFilter<T>)type.createFilter();
-		filter.contain = contain;
-		filter.selected = new HashSet<T>(selected);
-		return filter;
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof RarityFilter))
+			return false;
+		OptionsFilter<?> o = (OptionsFilter<?>)other;
+		return o.type == type && o.contain == contain && o.selected.equals(selected);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(type, contain, selected);
 	}
 }

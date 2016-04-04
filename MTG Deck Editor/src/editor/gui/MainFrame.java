@@ -87,7 +87,6 @@ import editor.database.characteristics.Rarity;
 import editor.database.symbol.ChaosSymbol;
 import editor.database.symbol.Symbol;
 import editor.filter.FilterType;
-import editor.filter.leaf.BinaryFilter;
 import editor.filter.leaf.TextFilter;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
@@ -841,7 +840,7 @@ public class MainFrame extends JFrame
 		// dialog)
 		advancedFilterButton.addActionListener((e) -> {
 			FilterGroupPanel panel = new FilterGroupPanel();
-			if (inventory.getFilter() instanceof BinaryFilter)
+			if (inventory.getFilter().equals(FilterType.ALL.createFilter()))
 				panel.setContents(FilterType.NAME.createFilter());
 			else
 				panel.setContents(inventory.getFilter());

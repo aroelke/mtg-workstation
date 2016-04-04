@@ -1,7 +1,10 @@
 package editor.filter.leaf.options.single;
 
+import java.util.HashSet;
+
 import editor.database.Card;
 import editor.database.characteristics.Expansion;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -38,5 +41,17 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 				for (Expansion expansion: Expansion.expansions)
 					if (o.equals(expansion.name))
 						selected.add(expansion);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public Filter copy()
+	{
+		ExpansionFilter filter = (ExpansionFilter)FilterType.EXPANSION.createFilter();
+		filter.contain = contain;
+		filter.selected = new HashSet<Expansion>(selected);
+		return filter;
 	}
 }

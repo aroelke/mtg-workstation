@@ -190,18 +190,6 @@ public enum ManaType
 			Tuple t = (Tuple)other;
 			return containsAll(t) && t.containsAll(this);
 		}
-		
-		/**
-		 * @return An int representation of this Tuple.
-		 */
-		@Override
-		public int hashCode()
-		{
-			int h = Integer.MAX_VALUE;
-			for (ManaType col: this)
-				h ^= col.hashCode();
-			return h;
-		}
 	}
 	
 	/**
