@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import editor.database.Card;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Comparison;
 
@@ -73,5 +74,17 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 		String content = checkContents(s, type);
 		compare = Comparison.get(content.charAt(0));
 		operand = Double.valueOf(content.substring(1));
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public Filter copy()
+	{
+		NumberFilter filter = (NumberFilter)type.createFilter();
+		filter.compare = compare;
+		filter.operand = operand;
+		return filter;
 	}
 }

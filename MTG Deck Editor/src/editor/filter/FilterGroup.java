@@ -162,6 +162,19 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	@Override
+	public Filter copy()
+	{
+		FilterGroup filter = new FilterGroup();
+		for (Filter child: children)
+			filter.addChild(child.copy());
+		return filter;
+	}
+	
+	/**
 	 * @return An Iterator over this FilterGroup's children.
 	 */
 	@Override

@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import editor.database.Card;
 import editor.database.characteristics.ManaType;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -95,5 +96,18 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 			else
 				colors.add(ManaType.get(c));
 		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public Filter copy()
+	{
+		ColorFilter filter = (ColorFilter)type.createFilter();
+		filter.colors = new HashSet<ManaType>(colors);
+		filter.contain = contain;
+		filter.multicolored = multicolored;
+		return filter;
 	}
 }

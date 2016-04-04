@@ -174,8 +174,6 @@ public class CategorySpec
 	/**
 	 * Copy constructor for CategorySpec, except the copy has no listeners.
 	 * 
-	 * TODO: Make this unnecessary.
-	 * 
 	 * @param original Original CategorySpec to copy
 	 */
 	public CategorySpec(CategorySpec original)
@@ -184,7 +182,7 @@ public class CategorySpec
 		whitelist = new HashSet<Card>(original.whitelist);
 		blacklist = new HashSet<Card>(original.blacklist);
 		color = original.color;
-		filter = original.filter; // TODO: Make this copy
+		filter = original.filter.copy();
 		listeners = new HashSet<CategoryListener>();
 	}
 	

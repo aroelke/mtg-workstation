@@ -95,10 +95,7 @@ import editor.gui.TableMouseAdapter;
  * TODO: Change the category tab's exclude popup option to set categories
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
- * TODO: Overhaul the category system so that changes are made directly to the deck, and then the category panel is refreshed (or the whole tab if necessary)
- * TODO: Make the cell editor for category panels' Count columns be a spinner
  * TODO: When a category is added to presets, remove its exclusions and inclusions (but warn of this first)
- * TODO: Category exclusion has errors
  * 
  * @author Alec Roelke
  */

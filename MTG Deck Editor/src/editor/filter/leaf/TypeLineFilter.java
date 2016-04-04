@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import editor.database.Card;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -76,5 +77,17 @@ public class TypeLineFilter extends FilterLeaf<List<List<String>>>
 		int delim = content.indexOf('"');
 		contain = Containment.get(content.substring(0, delim));
 		line = content.substring(delim + 1, content.lastIndexOf('"'));
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public Filter copy()
+	{
+		TypeLineFilter filter = (TypeLineFilter)FilterType.TYPE_LINE.createFilter();
+		filter.contain = contain;
+		filter.line = line;
+		return filter;
 	}
 }

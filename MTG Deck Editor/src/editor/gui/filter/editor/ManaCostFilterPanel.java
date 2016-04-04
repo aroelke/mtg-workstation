@@ -15,6 +15,7 @@ import editor.util.Containment;
  * cards by mana cost.
  * 
  * TODO: Figure out error-checking for this
+ * TODO: Make this display the mana symbols filtered for instead of just their text
  * 
  * @author Alec Roelke
  */

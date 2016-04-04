@@ -14,7 +14,6 @@ import editor.database.Card;
  * its characteristics.
  * 
  * TODO: Implement equals() and hashCode()
- * TODO: Sometimes a no-card filter gets removed randomly
  * 
  * @author Alec Roelke
  */
@@ -56,6 +55,12 @@ public abstract class Filter implements Predicate<Card>
 	 * @param s String to parse
 	 */
 	public abstract void parse(String s);
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public abstract Filter copy();
 	
 	/**
 	 * @return A String representation of this Filter.

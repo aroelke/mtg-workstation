@@ -115,7 +115,7 @@ public class CategoryEditorPanel extends JPanel
 	
 	/**
 	 * Create a new CategoryEditorPanel, and then fill its contents from the specified
-	 * category string.
+	 * category specification.
 	 * 
 	 * @param s Specifications for the initial state of the editor
 	 */

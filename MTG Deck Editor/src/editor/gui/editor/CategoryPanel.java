@@ -149,6 +149,9 @@ public class CategoryPanel extends JPanel
 		};
 		table.setAutoCreateRowSorter(true);
 		table.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE)));
+		for (int i = 0; i < table.getColumnCount(); i++)
+			if (model.isCellEditable(0, i))
+				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(editor));
 		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
 		tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);

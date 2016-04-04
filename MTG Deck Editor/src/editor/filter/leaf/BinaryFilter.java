@@ -1,6 +1,7 @@
 package editor.filter.leaf;
 
 import editor.database.Card;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 
 /**
@@ -54,4 +55,13 @@ public class BinaryFilter extends FilterLeaf<Void>
 	@Override
 	public void parse(String s)
 	{}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public Filter copy()
+	{
+		return type.createFilter();
+	}
 }

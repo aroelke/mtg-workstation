@@ -2,6 +2,7 @@ package editor.filter.leaf;
 
 import editor.database.Card;
 import editor.database.characteristics.ManaCost;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -85,5 +86,17 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 		int delim = content.indexOf('"');
 		contain = Containment.get(content.substring(0, delim));
 		cost = ManaCost.valueOf(content.substring(delim + 1, content.lastIndexOf('"')));
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	@Override
+	public Filter copy()
+	{
+		ManaCostFilter filter = (ManaCostFilter)FilterType.MANA_COST.createFilter();
+		filter.contain = contain;
+		filter.cost = cost;
+		return filter;
 	}
 }

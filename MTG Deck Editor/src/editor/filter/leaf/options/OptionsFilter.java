@@ -6,6 +6,7 @@ import java.util.StringJoiner;
 import java.util.function.Function;
 
 import editor.database.Card;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.util.Containment;
@@ -56,5 +57,19 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 		for (T option: selected)
 			join.add(option.toString());
 		return contain.toString() + join.toString();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * TODO: Make sure this works
+	 */
+	@Override
+	public Filter copy()
+	{
+		@SuppressWarnings("unchecked")
+		OptionsFilter<T> filter = (OptionsFilter<T>)type.createFilter();
+		filter.contain = contain;
+		filter.selected = new HashSet<T>(selected);
+		return filter;
 	}
 }

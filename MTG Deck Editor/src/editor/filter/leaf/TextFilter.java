@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import editor.database.Card;
+import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -197,5 +198,19 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 			text = content.substring(delim + 1, content.lastIndexOf('/'));
 			regex = true;
 		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	@Override
+	public Filter copy()
+	{
+		TextFilter filter = (TextFilter)type.createFilter();
+		filter.contain = contain;
+		filter.regex = regex;
+		filter.text = text;
+		return filter;
 	}
 }
