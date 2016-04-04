@@ -13,6 +13,9 @@ import editor.database.Card;
  * nodes filter out characteristics.  A filter can test if a Card matches
  * its characteristics.
  * 
+ * Note that because filters are mutable, they do not make good keys or Set
+ * members.
+ * 
  * TODO: Implement equals() and hashCode() (use random prime number as seed and 31 as coefficient)
  * 
  * @author Alec Roelke
