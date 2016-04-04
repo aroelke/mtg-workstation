@@ -23,6 +23,7 @@ public class EditorMain
 	 * 
 	 * TODO: Add copy/paste mechanics
 	 * TODO: See if a GroupLayout might make more sense for some of the UI elements
+	 * TODO: Assign an initial seed to all implementations of hashCode() according to this: http://stackoverflow.com/questions/113511/best-implementation-for-hashcode-method
 	 * 
 	 * @param args Arguments to the program
 	 */
