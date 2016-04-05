@@ -91,7 +91,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new ManaCostFilter that is a copy of this one.
 	 */
 	@Override
 	public Filter copy()
@@ -103,9 +103,9 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param other
-	 * @return
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a ManaCostFilter with
+	 * the same containment and symbol list.
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -114,19 +114,19 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof ManaCostFilter))
+		if (other.getClass() != ManaCostFilter.class)
 			return false;
 		ManaCostFilter o = (ManaCostFilter)other;
 		return o.contain == contain && o.cost.equals(cost);
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The hash code of this ManaCostFilter, which is composed of the hash
+	 * codes of its containment and its symbol list.
 	 */
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(contain, cost);
+		return Objects.hash(type, function, contain, cost);
 	}
 }

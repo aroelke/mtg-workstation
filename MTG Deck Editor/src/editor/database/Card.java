@@ -796,7 +796,7 @@ public final class Card
 			return true;
 		if (other == null)
 			return true;
-		if (!(other instanceof Card))
+		if (other.getClass() != Card.class)
 			return false;
 		Card o = (Card)other;
 		return ID.equals(o.ID);

@@ -1,5 +1,7 @@
 package editor.filter.leaf;
 
+import java.util.Objects;
+
 import editor.database.Card;
 import editor.filter.Filter;
 import editor.filter.FilterType;
@@ -57,7 +59,7 @@ public class BinaryFilter extends FilterLeaf<Void>
 	{}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new Filter that is a copy of this BinaryFilter.
 	 */
 	@Override
 	public Filter copy()
@@ -66,7 +68,9 @@ public class BinaryFilter extends FilterLeaf<Void>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a BinaryFilter and
+	 * it filters the same Cards as this one.
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -75,17 +79,18 @@ public class BinaryFilter extends FilterLeaf<Void>
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof BinaryFilter))
+		if (other.getClass() != BinaryFilter.class)
 			return false;
 		return ((BinaryFilter)other).all == all;
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The hashCode of this BinaryFilter, which is composed from
+	 * its filter direction.
 	 */
 	@Override
 	public int hashCode()
 	{
-		return Boolean.hashCode(all);
+		return Objects.hash(type, function, all);
 	}
 }

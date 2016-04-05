@@ -40,7 +40,9 @@ public class ColorWeight
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a ColorWeight, its
+	 * ManaType is the same, and its weight is the same.
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -49,14 +51,15 @@ public class ColorWeight
 			return false;
 		if (other == this)
 			return false;
-		if (!(other instanceof ColorWeight))
+		if (other.getClass() != ColorWeight.class)
 			return false;
 		ColorWeight o = (ColorWeight)other;
 		return o.color.equals(color) && o.weight == weight;
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The hash code of this ColorWeight, which is composed of the hash codes
+	 * of its ManaType and weight.
 	 */
 	@Override
 	public int hashCode()

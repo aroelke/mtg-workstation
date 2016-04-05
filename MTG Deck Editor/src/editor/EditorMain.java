@@ -23,6 +23,7 @@ public class EditorMain
 	 * 
 	 * TODO: Add copy/paste mechanics
 	 * TODO: See if a GroupLayout might make more sense for some of the UI elements
+	 * TODO: Fix all the equals() implementations so that they use getClass() rather than instanceof
 	 * 
 	 * @param args Arguments to the program
 	 */

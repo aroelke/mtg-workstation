@@ -251,7 +251,7 @@ public abstract class Symbol implements Comparable<Symbol>
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof Symbol))
+		if (other.getClass() != getClass())
 			return false;
 		return toString().equals(other.toString());
 	}

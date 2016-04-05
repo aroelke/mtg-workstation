@@ -42,7 +42,7 @@ public class CardTypeFilter extends MultiOptionsFilter<String>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new CardTypeFilter that is a copy of this CardTypeFilter.
 	 */
 	@Override
 	public Filter copy()

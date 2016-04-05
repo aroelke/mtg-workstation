@@ -44,7 +44,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new ExpansionFilter that is a copy of this ExpansionFilter.
 	 */
 	@Override
 	public Filter copy()

@@ -90,7 +90,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new LegalityFilter that is a copy of this one.
 	 */
 	@Override
 	public Filter copy()
@@ -103,9 +103,9 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param other
-	 * @return
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a LegalityFilter and its
+	 * containment, selected legalities, and restricted flag are all the same.
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -114,19 +114,19 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof LegalityFilter))
+		if (other.getClass() != LegalityFilter.class)
 			return false;
 		LegalityFilter o = (LegalityFilter)other;
 		return o.contain == contain && o.selected.equals(selected) && o.restricted == restricted;
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The hash code of this LegalityFilter, which is composed from its
+	 * selected list and restricted flag.
 	 */
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(contain, selected, restricted);
+		return Objects.hash(contain, function, selected, restricted);
 	}
 }

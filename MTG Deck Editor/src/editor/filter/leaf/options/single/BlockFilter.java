@@ -40,7 +40,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new BlockFilter that is a copy of this BlockFilter.
 	 */
 	@Override
 	public Filter copy()

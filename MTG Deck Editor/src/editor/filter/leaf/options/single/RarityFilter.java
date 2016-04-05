@@ -44,7 +44,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new RarityFilter that is a copy of this one.
 	 */
 	@Override
 	public Filter copy()

@@ -9,7 +9,6 @@ import java.util.function.Function;
 import editor.database.Card;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
-import editor.filter.leaf.options.single.RarityFilter;
 import editor.util.Containment;
 
 /**
@@ -61,7 +60,9 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is the same kind of OptionsFilter
+	 * as this one and its selection and containment are the same.
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -70,18 +71,19 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof RarityFilter))
+		if (other.getClass() != getClass())
 			return false;
 		OptionsFilter<?> o = (OptionsFilter<?>)other;
 		return o.type == type && o.contain == contain && o.selected.equals(selected);
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The hash code of this OptionsFilter, which is composed from the hash
+	 * codes of its containment type and selected items set.
 	 */
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, contain, selected);
+		return Objects.hash(type, function, contain, selected);
 	}
 }

@@ -41,7 +41,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new SupertypeFilter that is a copy of this one.
 	 */
 	@Override
 	public Filter copy()

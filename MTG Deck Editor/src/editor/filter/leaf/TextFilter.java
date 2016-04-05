@@ -202,8 +202,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return A new TextFilter that is a copy of this one.
 	 */
 	@Override
 	public Filter copy()
@@ -216,9 +215,9 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param other
-	 * @return
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a TextFilter and its
+	 * type, containment, regex flag, and text are all the same.
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -227,19 +226,19 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof TextFilter))
+		if (other.getClass() != TextFilter.class)
 			return false;
 		TextFilter o = (TextFilter)other;
 		return o.type == type && o.contain == contain && o.regex == regex && o.text.equals(text);
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The hash code of this TextFilter, which is composed of its containment,
+	 * regex flag, and text.
 	 */
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, contain, regex, text);
+		return Objects.hash(type, function, contain, regex, text);
 	}
 }

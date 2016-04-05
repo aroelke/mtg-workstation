@@ -58,8 +58,7 @@ public abstract class Filter implements Predicate<Card>
 	public abstract void parse(String s);
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return A new Filter that is a copy of this Filter.
 	 */
 	public abstract Filter copy();
 	
@@ -74,13 +73,16 @@ public abstract class Filter implements Predicate<Card>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is the same kind of
+	 * Filter as this one and all of its fields are the same.
 	 */
 	@Override
 	public abstract boolean equals(Object other);
 	
 	/**
-	 * TODO: Comment this
+	 * @return The hash code of this Filter, which is composed of the hash codes
+	 * of all of its fields.
 	 */
 	@Override
 	public abstract int hashCode();

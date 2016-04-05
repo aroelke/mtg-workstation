@@ -78,7 +78,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new NumberFilter that is a copy of this one.
 	 */
 	@Override
 	public Filter copy()
@@ -89,6 +89,11 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 		return filter;
 	}
 	
+	/**
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a NumberFilter and its type,
+	 * comparison, and operand is the same.
+	 */
 	@Override
 	public boolean equals(Object other)
 	{
@@ -96,15 +101,19 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof NumberFilter))
+		if (other.getClass() != NumberFilter.class)
 			return false;
 		NumberFilter o = (NumberFilter)other;
 		return o.type == type && o.compare == compare && o.operand == operand;
 	}
 	
+	/**
+	 * @return The hash code of this NumberFilter, which is composed of its comparison and
+	 * operand.
+	 */
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, compare, operand);
+		return Objects.hash(type, function, compare, operand);
 	}
 }

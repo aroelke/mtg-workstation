@@ -88,7 +88,7 @@ public class VariableNumberFilter extends NumberFilter
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new VariableNumberFilter that is a copy of this one.
 	 */
 	@Override
 	public Filter copy()
@@ -102,7 +102,11 @@ public class VariableNumberFilter extends NumberFilter
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a VariableNumberFilter,
+	 * its type is the same as this one's type, its "varies" flag is the same as this
+	 * one's, its variable function is the same as this one's, its comparison is the
+	 * same, and its operand is the same.
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -111,18 +115,21 @@ public class VariableNumberFilter extends NumberFilter
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof VariableNumberFilter))
+		if (other.getClass() != VariableNumberFilter.class)
 			return false;
 		VariableNumberFilter o = (VariableNumberFilter)other;
-		return o.type == type && o.varies == varies && o.variable.equals(variable) && o.compare == compare & o.operand == operand;
+		return o.type == type && o.varies == varies && o.variable.equals(variable)
+				&& o.compare == compare & o.operand == operand;
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The hash code of this VariableNumberFilter, which is composed of
+	 * the hash codes of its "varies" flag, variable function, comparison, and
+	 * operand.
 	 */
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, varies, variable, compare, operand);
+		return Objects.hash(type, function, varies, variable, compare, operand);
 	}
 }

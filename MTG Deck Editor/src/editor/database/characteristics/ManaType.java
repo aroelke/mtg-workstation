@@ -172,24 +172,6 @@ public enum ManaType
 					diff += get(i).compareTo(other.get(i))*Math.pow(10, size() - i);
 			return diff;
 		}
-		
-		/**
-		 * @param other Object to compare with
-		 * @return <code>true</code> if the other object is a Tuple with the same colors
-		 * as this one, and <code>false</code> otherwise.
-		 */
-		@Override
-		public boolean equals(Object other)
-		{
-			if (other == null)
-				return false;
-			if (other == this)
-				return true;
-			if (!(other instanceof Tuple))
-				return false;
-			Tuple t = (Tuple)other;
-			return containsAll(t) && t.containsAll(this);
-		}
 	}
 	
 	/**

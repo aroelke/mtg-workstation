@@ -100,7 +100,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A new ColorFilter that is a copy of this ColorFilter.
 	 */
 	@Override
 	public Filter copy()
@@ -113,7 +113,11 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a ColorFilter, its
+	 * set of ManaTypes is the same as this one's, the characteristic it filters
+	 * is the same, its containment is the same, and whether or not Cards should
+	 * be multicolored is the same.
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -122,18 +126,19 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof ColorFilter))
+		if (other.getClass() != ColorFilter.class)
 			return false;
 		ColorFilter o = (ColorFilter)other;
 		return o.type == type && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The hash code of this ColorFilter, which is composed of the hash
+	 * codes of its type, color set, containment, and multicolored flag.
 	 */
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, colors, contain, multicolored);
+		return Objects.hash(type, function, colors, contain, multicolored);
 	}
 }

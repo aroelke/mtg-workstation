@@ -81,7 +81,7 @@ public class TypeLineFilter extends FilterLeaf<List<List<String>>>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return A TypeLineFilter that is a copy of this one.
 	 */
 	@Override
 	public Filter copy()
@@ -93,7 +93,10 @@ public class TypeLineFilter extends FilterLeaf<List<List<String>>>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a TypeLineFilter,
+	 * its containment is the same as this one's, and its line is the same
+	 * as this one's. 
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -102,18 +105,19 @@ public class TypeLineFilter extends FilterLeaf<List<List<String>>>
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof TypeLineFilter))
+		if (other.getClass() != TypeLineFilter.class)
 			return false;
 		TypeLineFilter o = (TypeLineFilter)other;
 		return contain == o.contain && line.equals(o.line);
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The hash code of this TypeLineFilter, which composed of the
+	 * hash codes of its containment and line.
 	 */
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(contain, line);
+		return Objects.hash(type, function, contain, line);
 	}
 }
