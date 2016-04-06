@@ -250,6 +250,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		 * @return <code>true</code> if the card passes through the collection of Filters
 		 * with the correct mode, and <code>false</code> otherwise.
 		 */
+		@Override
 		public boolean test(Collection<Filter> filters, Card c)
 		{
 			return function.test(filters.stream(), (f) -> f.test(c));
