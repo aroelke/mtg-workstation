@@ -1,11 +1,15 @@
 package editor.filter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import editor.database.Card;
 
@@ -77,20 +81,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	@Override
 	public boolean test(Card c)
 	{
-		if (children.isEmpty())
-			return false;
-		else
-		{
-			switch (mode)
-			{
-			case AND:
-				return children.stream().allMatch((f) -> f.test(c));
-			case OR:
-				return children.stream().anyMatch((f) -> f.test(c));
-			default:
-				return false;
-			}
-		}
+		return mode.test(children, c);
 	}
 	
 	/**
@@ -104,7 +95,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	public String representation()
 	{
 		StringJoiner join = new StringJoiner(" ");
-		join.add(mode == Mode.AND ? "AND" : "OR");
+		join.add(mode.name());
 		for (Filter filter: children)
 			join.add(filter.toString());
 		return join.toString();
@@ -163,8 +154,8 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return A new FilterGroup that is a copy of this one, with copies of all of
+	 * its children.
 	 */
 	@Override
 	public Filter copy()
@@ -176,9 +167,9 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param other
-	 * @return
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a FilterGroup with exactly the
+	 * same children, who are also all equal.
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -203,8 +194,8 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The hash code of this FilterGroup, which is composed of the hash codes
+	 * of its children and mode.
 	 */
 	@Override
 	public int hashCode()
@@ -222,29 +213,46 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	}
 	
 	/**
-	 * This class represents a method of combining Filters:  Either ANDing them
-	 * together or ORing them.
+	 * This class represents a method of combining Filters to test a Card
+	 * with all of them collectively.
 	 * 
 	 * @author Alec Roelke
 	 */
-	public enum Mode
+	public enum Mode implements BiPredicate<Collection<Filter>, Card>
 	{
-		AND("all of"),
-		OR("any of");
+		AND("all of", Stream<Filter>::allMatch),
+		OR("any of", Stream<Filter>::anyMatch),
+		NOR("none of", Stream<Filter>::noneMatch);
 		
 		/**
 		 * String representation of this Mode.
 		 */
 		private final String mode;
+		/**
+		 * Function representing the mode to test a Card with a Collection of Filters.
+		 */
+		private final BiPredicate<Stream<Filter>, Predicate<? super Filter>> function;
 		
 		/**
 		 * Create a new Mode.
 		 * 
 		 * @param m String representation of the new Mode.
 		 */
-		private Mode(String m)
+		private Mode(String m, BiPredicate<Stream<Filter>, Predicate<? super Filter>> f)
 		{
 			mode = m;
+			function = f;
+		}
+		
+		/**
+		 * @param filters Collection of filters to test
+		 * @param c Card to test the filters on
+		 * @return <code>true</code> if the card passes through the collection of Filters
+		 * with the correct mode, and <code>false</code> otherwise.
+		 */
+		public boolean test(Collection<Filter> filters, Card c)
+		{
+			return function.test(filters.stream(), (f) -> f.test(c));
 		}
 		
 		/**

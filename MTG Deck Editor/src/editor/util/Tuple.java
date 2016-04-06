@@ -197,7 +197,9 @@ public class Tuple<E> implements List<E>
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param other Object to compare with
+	 * @return <code>true</code> if the other Object is a Tuple with the same
+	 * elements as this one.
 	 */
 	public boolean equals(Object other)
 	{
@@ -205,13 +207,14 @@ public class Tuple<E> implements List<E>
 			return false;
 		if (other == this)
 			return true;
-		if (!(other instanceof Tuple))
+		if (other.getClass() != Tuple.class)
 			return false;
 		return items.equals(other);
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The hash code of this Tuple, which is composed of the hash codes
+	 * of its elements.
 	 */
 	public int hashCode()
 	{

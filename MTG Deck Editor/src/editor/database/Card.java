@@ -798,8 +798,7 @@ public final class Card
 			return true;
 		if (other.getClass() != Card.class)
 			return false;
-		Card o = (Card)other;
-		return ID.equals(o.ID);
+		return ID.equals(((Card)other).ID);
 	}
 	
 	/**
