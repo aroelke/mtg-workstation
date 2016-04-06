@@ -101,7 +101,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 			return false;
 		if (other == this)
 			return true;
-		if (other.getClass() != NumberFilter.class)
+		if (other.getClass() != getClass())
 			return false;
 		NumberFilter o = (NumberFilter)other;
 		return o.type == type && o.compare == compare && o.operand == operand;

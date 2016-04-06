@@ -105,7 +105,7 @@ public class TypeLineFilter extends FilterLeaf<List<List<String>>>
 			return false;
 		if (other == this)
 			return true;
-		if (other.getClass() != TypeLineFilter.class)
+		if (other.getClass() != getClass())
 			return false;
 		TypeLineFilter o = (TypeLineFilter)other;
 		return contain == o.contain && line.equals(o.line);

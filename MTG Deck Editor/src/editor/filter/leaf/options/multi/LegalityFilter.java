@@ -114,7 +114,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 			return false;
 		if (other == this)
 			return true;
-		if (other.getClass() != LegalityFilter.class)
+		if (other.getClass() != getClass())
 			return false;
 		LegalityFilter o = (LegalityFilter)other;
 		return o.contain == contain && o.selected.equals(selected) && o.restricted == restricted;

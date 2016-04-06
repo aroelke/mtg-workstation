@@ -114,7 +114,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 			return false;
 		if (other == this)
 			return true;
-		if (other.getClass() != ManaCostFilter.class)
+		if (other.getClass() != getClass())
 			return false;
 		ManaCostFilter o = (ManaCostFilter)other;
 		return o.contain == contain && o.cost.equals(cost);

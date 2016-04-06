@@ -126,7 +126,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 			return false;
 		if (other == this)
 			return true;
-		if (other.getClass() != ColorFilter.class)
+		if (other.getClass() != getClass())
 			return false;
 		ColorFilter o = (ColorFilter)other;
 		return o.type == type && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;

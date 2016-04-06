@@ -178,7 +178,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 			return false;
 		if (other == this)
 			return true;
-		if (other.getClass() != FilterGroup.class)
+		if (other.getClass() != getClass())
 			return false;
 		FilterGroup o = (FilterGroup)other;
 		if (o.mode != mode)

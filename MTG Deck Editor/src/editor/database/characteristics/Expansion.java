@@ -83,7 +83,7 @@ public class Expansion implements Comparable<Expansion>
 	{
 		if (other == null)
 			return false;
-		if (other.getClass() != Expansion.class)
+		if (other.getClass() != getClass())
 			return false;
 		if (other == this)
 			return true;

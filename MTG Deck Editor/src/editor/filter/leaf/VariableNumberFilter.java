@@ -115,7 +115,7 @@ public class VariableNumberFilter extends NumberFilter
 			return false;
 		if (other == this)
 			return true;
-		if (other.getClass() != VariableNumberFilter.class)
+		if (other.getClass() != getClass())
 			return false;
 		VariableNumberFilter o = (VariableNumberFilter)other;
 		return o.type == type && o.varies == varies && o.variable.equals(variable)

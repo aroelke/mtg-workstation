@@ -207,7 +207,7 @@ public class Tuple<E> implements List<E>
 			return false;
 		if (other == this)
 			return true;
-		if (other.getClass() != Tuple.class)
+		if (other.getClass() != getClass())
 			return false;
 		return items.equals(other);
 	}

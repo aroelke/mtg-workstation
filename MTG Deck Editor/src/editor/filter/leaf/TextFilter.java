@@ -226,7 +226,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 			return false;
 		if (other == this)
 			return true;
-		if (other.getClass() != TextFilter.class)
+		if (other.getClass() != getClass())
 			return false;
 		TextFilter o = (TextFilter)other;
 		return o.type == type && o.contain == contain && o.regex == regex && o.text.equals(text);

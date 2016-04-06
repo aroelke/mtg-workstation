@@ -79,7 +79,7 @@ public class BinaryFilter extends FilterLeaf<Void>
 			return false;
 		if (other == this)
 			return true;
-		if (other.getClass() != BinaryFilter.class)
+		if (other.getClass() != getClass())
 			return false;
 		return ((BinaryFilter)other).all == all;
 	}

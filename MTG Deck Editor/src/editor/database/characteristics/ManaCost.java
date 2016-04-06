@@ -276,7 +276,7 @@ public class ManaCost implements Comparable<ManaCost>
 	{
 		if (other == null)
 			return false;
-		if (other.getClass() != ManaCost.class)
+		if (other.getClass() != getClass())
 			return false;
 		if (other == this)
 			return false;

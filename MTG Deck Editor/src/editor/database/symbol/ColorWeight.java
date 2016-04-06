@@ -51,7 +51,7 @@ public class ColorWeight
 			return false;
 		if (other == this)
 			return false;
-		if (other.getClass() != ColorWeight.class)
+		if (other.getClass() != getClass())
 			return false;
 		ColorWeight o = (ColorWeight)other;
 		return o.color.equals(color) && o.weight == weight;
