@@ -344,7 +344,6 @@ public class EditorFrame extends JInternalFrame
 					parent.selectCard(deck.get(table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
 					clearTableSelections(table);
 					parent.clearSelectedCards();
-					
 					setSelectedSource(table, deck);
 				}
 			}
@@ -927,11 +926,12 @@ public class EditorFrame extends JInternalFrame
 			if (!lsm.isSelectionEmpty())
 			{
 				if (!e.getValueIsAdjusting())
+				{
 					parent.selectCard(deck.getCategoryCards(spec.getName()).get(newCategory.table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
-				clearTableSelections(newCategory.table);
-				parent.clearSelectedCards();
-				
-				setSelectedSource(newCategory.table, deck.getCategoryCards(spec.getName()));
+					clearTableSelections(newCategory.table);
+					parent.clearSelectedCards();
+					setSelectedSource(newCategory.table, deck.getCategoryCards(spec.getName()));
+				}
 			}
 		});
 		// Add the behavior for the edit category button
@@ -1355,22 +1355,20 @@ public class EditorFrame extends JInternalFrame
 	}
 
 	/**
-	 * Add the given number of copies of the given Cards to the deck.  The current
-	 * selections in the category and main tables are maintained.  Don't update the
-	 * undo and redo buffers.
+	 * TODO: Comment this
 	 * 
-	 * @param toAdd Cards to add
-	 * @param n Number of copies to add
 	 * @return <code>true</code> if the deck changed as a result, and
 	 * <code>false</code> otherwise, which is only true if the list is empty.
 	 */
-	private boolean insertCards(List<Card> toAdd, int n)
+	private boolean insertCards(Map<Card, Integer> cards)
 	{
-		if (toAdd.isEmpty())
+		cards.values().removeAll(Arrays.asList(0));
+		if (cards.isEmpty())
 			return false;
 		else
 		{
-			deck.increaseAll(toAdd, n);
+			for (Map.Entry<Card, Integer> entry: cards.entrySet())
+				deck.increase(entry.getKey(), entry.getValue());
 
 			switch (listTabs.getSelectedIndex())
 			{
@@ -1398,7 +1396,6 @@ public class EditorFrame extends JInternalFrame
 				model.fireTableDataChanged();
 				break;
 			}
-			parent.selectCard(toAdd.get(0));
 			if (table.isEditing())
 				table.getCellEditor().cancelCellEditing();
 			for (CategoryPanel c: categoryPanels)
@@ -1540,6 +1537,8 @@ public class EditorFrame extends JInternalFrame
 	{
 		UndoableAction addAction = new UndoableAction()
 		{
+			private Map<Card, Integer> cards = toAdd.stream().collect(Collectors.toMap((c) -> c, (c) -> n));
+			
 			@Override
 			public boolean undo()
 			{
@@ -1549,7 +1548,7 @@ public class EditorFrame extends JInternalFrame
 			@Override
 			public boolean redo()
 			{
-				return insertCards(toAdd, n);
+				return insertCards(cards);
 			}
 		};
 		if (addAction.redo())
@@ -1609,14 +1608,7 @@ public class EditorFrame extends JInternalFrame
 			@Override
 			public boolean undo()
 			{
-				if (removed.isEmpty())
-					return false;
-				else
-				{
-					for (Card c: removed.keySet())
-						insertCards(Arrays.asList(c), removed.get(c));
-					return true;
-				}
+				return insertCards(removed);
 			}
 
 			@Override
@@ -1726,6 +1718,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void clearTableSelections(CardTable except)
 	{
+		System.out.println(except);
 		if (table != except)
 			table.clearSelection();
 		for (CategoryPanel c: categoryPanels)
@@ -1991,10 +1984,7 @@ public class EditorFrame extends JInternalFrame
 						@Override
 						public boolean redo()
 						{
-							boolean done = false;
-							for (Map.Entry<Card, Integer> entry: data.entrySet())
-								done |= insertCards(Arrays.asList(entry.getKey()), entry.getValue());
-							return done;
+							return insertCards(data);
 						}
 					};
 					if (addAction.redo())

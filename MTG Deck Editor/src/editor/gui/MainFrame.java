@@ -866,12 +866,14 @@ public class MainFrame extends JFrame
 			{
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
 				if (!lsm.isSelectionEmpty())
+				{
 					selectCard(inventory.get(inventoryTable.convertRowIndexToModel(lsm.getMinSelectionIndex())));
-			}
-			if (selectedFrame != null)
-			{
-				selectedFrame.clearTableSelections(null);
-				selectedFrame.setSelectedSource(inventoryTable, inventory);
+					if (selectedFrame != null)
+					{
+						selectedFrame.clearTableSelections(null);
+						selectedFrame.setSelectedSource(inventoryTable, inventory);
+					}
+				}
 			}
 		});
 		
