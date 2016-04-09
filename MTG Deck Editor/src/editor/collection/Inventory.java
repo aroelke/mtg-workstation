@@ -393,25 +393,7 @@ public class Inventory implements CardCollection
 	}
 
 	@Override
-	public boolean increase(Card c)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean increaseAll(Collection<? extends Card> coll, int n)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public int decrease(Card c, int n)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int decrease(Card c)
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -184,30 +184,6 @@ public interface CardCollection extends Collection<Card>
 	public boolean increase(Card c, int n);
 	
 	/**
-	 * Increase the number of copies of the given Card by one (optional operation).
-	 * 
-	 * @param c Card to add
-	 * @return <code>true</code> if the Card was successfully added, and
-	 * <code>false</code> otherwise.
-	 * @throws UnsupportedOperationException if this operation is not supported
-	 * @see CardCollection#increase(Card, int)
-	 */
-	public boolean increase(Card c);
-	
-	/**
-	 * Increase the number of copies of each of the given Cards by the given amount
-	 * (optional operation).
-	 * 
-	 * @param coll Collection of Cards to increase
-	 * @param n Number of copies of each card to add
-	 * @return <code>true</code> if any of the given Cards were successfully added,
-	 * and <code>false</code> otherwise.
-	 * @throws UnsupportedOperationException if this operation is not supported
-	 * @see CardCollection#increase(Card, int)
-	 */
-	public boolean increaseAll(Collection<? extends Card> coll, int n);
-	
-	/**
 	 * Decrease the number of copies of the given Card by the given amount
 	 * (optional operation).  If the number of copies of the Card is reduced
 	 * to 0 this way, there should be no entries left of it.
@@ -218,17 +194,6 @@ public interface CardCollection extends Collection<Card>
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
 	public int decrease(Card c, int n);
-	
-	/**
-	 * Decrease the number of copies of the given Card by one (optional
-	 * operation).
-	 * 
-	 * @param c Card to remove
-	 * @return 1 if a copy of the Card was removed, and 0 otherwise.
-	 * @see CardCollection#decrease(Card, int)
-	 * @throws UnsupportedOperationException if this operation is not supported
-	 */
-	public int decrease(Card c);
 	
 	/**
 	 * Set the number of copies of a Card to the specified number (optional

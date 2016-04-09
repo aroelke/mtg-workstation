@@ -339,7 +339,6 @@ public class Deck implements CardCollection
 	 * @return <code>true</code> if the Deck was changed as a result, and
 	 * <code>false</code> otherwise.
 	 */
-	@Override
 	public boolean increaseAll(Collection<? extends Card> coll, int n)
 	{
 		boolean changed = false;
@@ -355,7 +354,6 @@ public class Deck implements CardCollection
 	 * @return <code>true</code>, since the Deck will always change as
 	 * a result.
 	 */
-	@Override
 	public boolean increase(Card c)
 	{
 		return increase(c, 1);
@@ -415,7 +413,6 @@ public class Deck implements CardCollection
 	 * @param c Card to remove
 	 * @return 0 if no copies were removed, and 1 if a copy was removed.
 	 */
-	@Override
 	public int decrease(Card c)
 	{
 		return decrease(c, 1);
@@ -1129,39 +1126,6 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * Add one copy of a Card to this Category if it passes through this
-		 * Category's filter.
-		 * 
-		 * @param c Card to add
-		 * @return <code>true</code> if the Deck was changed as a result, and
-		 * <code>false</code> otherwise.
-		 */
-		@Override
-		public boolean increase(Card c)
-		{
-			return increase(c, 1);
-		}
-		
-		/**
-		 * Add some number of copies of a collection of Cards to this Deck.  If
-		 * the number is not positive, then no changes are made.  Only Cards that
-		 * pass through the filter will be added
-		 * 
-		 * @param coll Collection of Cards to add
-		 * @param n Number of copies of each card to add
-		 * @return <code>true</code> if the Deck was changed as a result, and
-		 * <code>false</code> otherwise.
-		 */
-		@Override
-		public boolean increaseAll(Collection<? extends Card> coll, int n)
-		{
-			boolean changed = false;
-			for (Card c: coll)
-				changed |= increase(c, n);
-			return changed;
-		}
-		
-		/**
 		 * Remove some number of copies of a Card from this Category if it passes
 		 * through this Category's filter.
 		 * 
@@ -1176,19 +1140,6 @@ public class Deck implements CardCollection
 				return Deck.this.decrease(c, n);
 			else
 				return 0;
-		}
-		
-		/**
-		 * Remove one copy of a Card from this Category if it passes through
-		 * this Category's filter.
-		 * 
-		 * @param c Card to add
-		 * @return 0 if the Card was removed, and 1 otherwise.
-		 */
-		@Override
-		public int decrease(Card c)
-		{
-			return decrease(c, 1);
 		}
 		
 		/**
