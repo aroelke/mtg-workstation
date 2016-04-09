@@ -266,11 +266,11 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private JTextArea changelogArea;
 	/**
-	 * TODO: Comment this
+	 * Table containing currently-selected cards.
 	 */
 	private CardTable selectedTable;
 	/**
-	 * TODO: Comment this
+	 * CardCollection containing currently-selected cards.
 	 */
 	private CardCollection selectedSource;
 
@@ -1355,8 +1355,10 @@ public class EditorFrame extends JInternalFrame
 	}
 
 	/**
-	 * TODO: Comment this
-	 * 
+	 * Add cards to the deck, maintaining the selection in the currently-selected
+	 * table.
+	 * TODO: Remove the switch statement
+	 * @param cards Map containing cards and amounts to add
 	 * @return <code>true</code> if the deck changed as a result, and
 	 * <code>false</code> otherwise, which is only true if the list is empty.
 	 */
@@ -1416,7 +1418,7 @@ public class EditorFrame extends JInternalFrame
 	 * 
 	 * @param toRemove List of cards to remove
 	 * @param n Number of copies to remove
-	 * @return TODO: Comment this
+	 * @return A Map containing the Cards removed and the number of each that was removed.
 	 */
 	private Map<Card, Integer> deleteCards(Collection<Card> toRemove, int n)
 	{
@@ -1512,15 +1514,23 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param n
-	 * @return
+	 * Add the currently-selected cards from the currently-selected table to the
+	 * Deck.
+	 * 
+	 * @param n Number of each card to add
+	 * @return <code>true</code> if the Deck was changed as a result, and
+	 * <code>false</code> otherwise.
 	 */
 	public boolean addSelectedCards(int n)
 	{
-		return addCards(Arrays.stream(selectedTable.getSelectedRows())
-				.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
-				.collect(Collectors.toList()), n);
+		if (selectedTable.getSelectedRowCount() > 0)
+			return addCards(Arrays.stream(selectedTable.getSelectedRows())
+					.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
+					.collect(Collectors.toList()), n);
+		else if (parent.getSelectedCard() != null)
+			return addCard(parent.getSelectedCard(), n);
+		else
+			return false;
 	}
 	
 	/**
@@ -1576,7 +1586,8 @@ public class EditorFrame extends JInternalFrame
 	}
 
 	/**
-	 * TODO: Comment this
+	 * Remove the currently-selected cards in the currently-selected table from
+	 * the Deck.
 	 * 
 	 * @param n Number of copies of the cards to remove
 	 * @return <code>true</code> if the deck changed as a result, and
@@ -1584,9 +1595,14 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean removeSelectedCards(int n)
 	{
-		return removeCards(Arrays.stream(selectedTable.getSelectedRows())
-				.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
-				.collect(Collectors.toList()), n);
+		if (selectedTable.getSelectedRowCount() > 0)
+			return removeCards(Arrays.stream(selectedTable.getSelectedRows())
+					.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
+					.collect(Collectors.toList()), n);
+		else if (parent.getSelectedCard() != null)
+			return removeCard(parent.getSelectedCard(), n);
+		else
+			return false;
 	}
 	
 	/**
@@ -1714,7 +1730,10 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * Clear the selection in all of the tables in this EditorFrame except
+	 * for the given one.
+	 * 
+	 * @param except CardTable to not clear
 	 */
 	public void clearTableSelections(CardTable except)
 	{
@@ -1726,14 +1745,24 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param table
-	 * @param source
+	 * Set the table and CardCollection that contains the current selection.
+	 * 
+	 * @param table Table to select
+	 * @param source CardCollection to select
 	 */
 	public void setSelectedSource(CardTable table, CardCollection source)
 	{
 		selectedTable = table;
 		selectedSource = source;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public CardCollection getSelectedSource()
+	{
+		return selectedSource;
 	}
 
 	/**

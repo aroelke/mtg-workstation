@@ -1368,6 +1368,15 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Card getSelectedCard()
+	{
+		return selectedCard;
+	}
+	
+	/**
 	 * @return A List containing each currently-selected card in the inventory table.
 	 */
 	public List<Card> getSelectedCards()
@@ -1383,7 +1392,7 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * Clear the selection in the inventory table.
 	 */
 	public void clearSelectedCards()
 	{
@@ -1411,6 +1420,8 @@ public class MainFrame extends JFrame
 		{
 			frame.setSelected(true);
 			selectedFrame = frame;
+			if (selectedFrame.getSelectedSource() == null || selectedFrame.getSelectedCards().isEmpty())
+				selectedFrame.setSelectedSource(inventoryTable, inventory);
 			revalidate();
 			repaint();
 		}
