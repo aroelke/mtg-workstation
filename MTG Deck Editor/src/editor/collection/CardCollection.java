@@ -110,7 +110,7 @@ public interface CardCollection extends Collection<Card>
 	public boolean removeAll(Collection<?> coll);
 
 	/**
-	 * Retain only the objects in the specified collection (optaional operation).
+	 * Retain only the objects in the specified collection (optional operation).
 	 * 
 	 * @param coll Collection of objects to retain
 	 * @return <code>true</code> if this CardCollection changed as a result, and
@@ -165,7 +165,7 @@ public interface CardCollection extends Collection<Card>
 	
 	/**
 	 * @param o Object to look for
-	 * @return The index of the first ocurrence of the given object in this
+	 * @return The index of the first occurrence of the given object in this
 	 * CardCollection, or -1 if there is none of them.
 	 */
 	public int indexOf(Object o);
@@ -187,7 +187,7 @@ public interface CardCollection extends Collection<Card>
 	 * Increase the number of copies of the given Card by one (optional operation).
 	 * 
 	 * @param c Card to add
-	 * @return <code>true</code> if the Card was sucessfully added, and
+	 * @return <code>true</code> if the Card was successfully added, and
 	 * <code>false</code> otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 * @see CardCollection#increase(Card, int)
