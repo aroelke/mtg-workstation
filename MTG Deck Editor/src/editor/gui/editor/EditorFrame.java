@@ -71,6 +71,7 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import editor.collection.CardCollection;
 import editor.collection.LegalityChecker;
 import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
@@ -264,6 +265,14 @@ public class EditorFrame extends JInternalFrame
 	 * Text area to show the changelog.
 	 */
 	private JTextArea changelogArea;
+	/**
+	 * TODO: Comment this
+	 */
+	private CardTable selectedTable;
+	/**
+	 * TODO: Comment this
+	 */
+	private CardCollection selectedSource;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -298,7 +307,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Add button to add one copy of the currently-selected card to the deck
 		JButton addButton = new JButton("+");
-		addButton.addActionListener((e) -> addCards(parent.getSelectedCards(), 1));
+		addButton.addActionListener((e) -> addSelectedCards(1));
 		addButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, addButton.getMaximumSize().height));
 		buttonPanel.add(addButton);
 
@@ -333,8 +342,10 @@ public class EditorFrame extends JInternalFrame
 				if (!lsm.isSelectionEmpty())
 				{
 					parent.selectCard(deck.get(table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
-					for (CategoryPanel c: categoryPanels)
-						c.table.clearSelection();
+					clearTableSelections(table);
+					parent.clearSelectedCards();
+					
+					setSelectedSource(table, deck);
 				}
 			}
 		});
@@ -352,7 +363,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Add single copy item
 		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
-		addSinglePopupItem.addActionListener((e) -> {addCards(getSelectedCards(), 1);});
+		addSinglePopupItem.addActionListener((e) -> addSelectedCards(1));
 		tableMenu.add(addSinglePopupItem);
 		
 		// Fill playset item
@@ -371,7 +382,7 @@ public class EditorFrame extends JInternalFrame
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 			contentPanel.add(spinner, BorderLayout.SOUTH);
 			if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-				addCards(getSelectedCards(), (Integer)spinner.getValue());
+				addSelectedCards((Integer)spinner.getValue());
 		});
 		tableMenu.add(addNPopupItem);
 		
@@ -917,10 +928,10 @@ public class EditorFrame extends JInternalFrame
 			{
 				if (!e.getValueIsAdjusting())
 					parent.selectCard(deck.getCategoryCards(spec.getName()).get(newCategory.table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
-				for (CategoryPanel c: categoryPanels)
-					if (newCategory != c)
-						c.table.clearSelection();
-				table.clearSelection();
+				clearTableSelections(newCategory.table);
+				parent.clearSelectedCards();
+				
+				setSelectedSource(newCategory.table, deck.getCategoryCards(spec.getName()));
 			}
 		});
 		// Add the behavior for the edit category button
@@ -944,7 +955,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Add single copy item
 		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
-		addSinglePopupItem.addActionListener((e) -> addCards(newCategory.getSelectedCards(), 1));
+		addSinglePopupItem.addActionListener((e) -> addSelectedCards(1));
 		tableMenu.add(addSinglePopupItem);
 		
 		// Fill playset item
@@ -963,7 +974,7 @@ public class EditorFrame extends JInternalFrame
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 			contentPanel.add(spinner, BorderLayout.SOUTH);
 			if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
-				addCards(newCategory.getSelectedCards(), (Integer)spinner.getValue());
+				addSelectedCards((Integer)spinner.getValue());
 		});
 		tableMenu.add(addNPopupItem);
 		
@@ -1408,7 +1419,7 @@ public class EditorFrame extends JInternalFrame
 	 * 
 	 * @param toRemove List of cards to remove
 	 * @param n Number of copies to remove
-	 * @return 
+	 * @return TODO: Comment this
 	 */
 	private Map<Card, Integer> deleteCards(Collection<Card> toRemove, int n)
 	{
@@ -1504,6 +1515,18 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param n
+	 * @return
+	 */
+	public boolean addSelectedCards(int n)
+	{
+		return addCards(Arrays.stream(selectedTable.getSelectedRows())
+				.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
+				.collect(Collectors.toList()), n);
+	}
+	
+	/**
 	 * Add the given number of copies of the given Cards to the deck.  The current
 	 * selections in the category and main tables are maintained.  Then update the
 	 * undo and redo buffers.
@@ -1553,6 +1576,20 @@ public class EditorFrame extends JInternalFrame
 		return addCards(Arrays.asList(toAdd), n);
 	}
 
+	/**
+	 * TODO: Comment this
+	 * 
+	 * @param n Number of copies of the cards to remove
+	 * @return <code>true</code> if the deck changed as a result, and
+	 * <code>false</code> otherwise.
+	 */
+	public boolean removeSelectedCards(int n)
+	{
+		return removeCards(Arrays.stream(selectedTable.getSelectedRows())
+				.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
+				.collect(Collectors.toList()), n);
+	}
+	
 	/**
 	 * Remove a number of copies of the specified Cards from the deck.  The current selections
 	 * for any cards remaining in the category and main tables are maintained.  Then update the
@@ -1685,31 +1722,26 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Helper function which removes a given number of copies of all cards
-	 * selected in the various tables of this EditorFrame.
-	 * 
-	 * @param n Number of copies of the cards to remove
-	 * @return <code>true</code> if the deck changed as a result, and
-	 * <code>false</code> otherwise.
+	 * TODO: Comment this
 	 */
-	public boolean removeSelectedCards(int n)
+	public void clearTableSelections(CardTable except)
 	{
-		List<Card> selectedCards;
-		switch (listTabs.getSelectedIndex())
-		{
-		case MAIN_TABLE:
-			selectedCards = getSelectedCards();
-			break;
-		case CATEGORIES:
-			selectedCards = new ArrayList<Card>();
-			for (CategoryPanel category: categoryPanels)
-				selectedCards.addAll(category.getSelectedCards());
-			break;
-		default:
-			selectedCards = new ArrayList<Card>();
-			break;
-		}
-		return removeCards(selectedCards, n);
+		if (table != except)
+			table.clearSelection();
+		for (CategoryPanel c: categoryPanels)
+			if (c.table != except)
+				c.table.clearSelection();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param table
+	 * @param source
+	 */
+	public void setSelectedSource(CardTable table, CardCollection source)
+	{
+		selectedTable = table;
+		selectedSource = source;
 	}
 
 	/**
