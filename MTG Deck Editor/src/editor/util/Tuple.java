@@ -201,6 +201,7 @@ public class Tuple<E> implements List<E>
 	 * @return <code>true</code> if the other Object is a Tuple with the same
 	 * elements as this one.
 	 */
+	@Override
 	public boolean equals(Object other)
 	{
 		if (other == null)
@@ -216,6 +217,7 @@ public class Tuple<E> implements List<E>
 	 * @return The hash code of this Tuple, which is composed of the hash codes
 	 * of its elements.
 	 */
+	@Override
 	public int hashCode()
 	{
 		return items.hashCode();
