@@ -1718,7 +1718,6 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void clearTableSelections(CardTable except)
 	{
-		System.out.println(except);
 		if (table != except)
 			table.clearSelection();
 		for (CategoryPanel c: categoryPanels)
