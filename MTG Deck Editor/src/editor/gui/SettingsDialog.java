@@ -528,9 +528,9 @@ public class SettingsDialog extends JDialog
 		
 		JButton addButton = new JButton("+");
 		addButton.addActionListener((e) -> {
-			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
-			if (editor != null)
-				categoriesList.addCategory(editor.spec());
+			CategorySpec spec = CategoryEditorPanel.showCategoryEditor();
+			if (spec != null)
+				categoriesList.addCategory(spec);
 		});
 		GridBagConstraints addConstraints = new GridBagConstraints();
 		addConstraints.gridx = 0;
@@ -542,9 +542,9 @@ public class SettingsDialog extends JDialog
 		editButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 			{
-				CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(categoriesList.getCategoryAt(categoriesList.getSelectedIndex()));
-				if (editor != null)
-					categoriesList.setCategoryAt(categoriesList.getSelectedIndex(), editor.spec());
+				CategorySpec spec = CategoryEditorPanel.showCategoryEditor(categoriesList.getCategoryAt(categoriesList.getSelectedIndex()));
+				if (spec != null)
+					categoriesList.setCategoryAt(categoriesList.getSelectedIndex(), spec);
 			}
 		});
 		GridBagConstraints editConstraints = new GridBagConstraints();

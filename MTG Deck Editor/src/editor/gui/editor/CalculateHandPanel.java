@@ -334,9 +334,9 @@ public class CalculateHandPanel extends JPanel
 	 */
 	public void addCategory()
 	{
-		CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
-		if (editor != null)
-			addCategory(editor.spec());
+		CategorySpec spec = CategoryEditorPanel.showCategoryEditor();
+		if (spec != null)
+			addCategory(spec);
 	}
 	
 	/**

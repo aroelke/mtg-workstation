@@ -31,13 +31,11 @@ public class CategoryEditorPanel extends JPanel
 	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
 	 * edited.
 	 * 
-	 * TODO: Make this return a spec and not a category editor panel
-	 * 
 	 * @param s Specification for the initial contents of the editor
-	 * @return The panel in the state it was last in while editing it, or <code>null</code> if the Cancel button
-	 * was pressed or the dialog was closed.
+	 * @return The CategorySpec of the panel in the state it was last in while editing it, or <code>null</code> if
+	 * the Cancel button was pressed or the dialog was closed.
 	 */
-	public static CategoryEditorPanel showCategoryEditor(CategorySpec s)
+	public static CategorySpec showCategoryEditor(CategorySpec s)
 	{
 		CategoryEditorPanel editor = new CategoryEditorPanel(s);
 		while (true)
@@ -51,7 +49,7 @@ public class CategoryEditorPanel extends JPanel
 				else
 				{
 					editor.updateSpec();
-					return editor;
+					return editor.spec;
 				}
 			}
 			else
@@ -63,10 +61,10 @@ public class CategoryEditorPanel extends JPanel
 	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
 	 * edited.  The panel will start off blank.
 	 * 
-	 * @return The panel in the state it was last in while editing it, or <code>null</code> if the Cancel button
-	 * was pressed or the dialog was closed.
+	 * @return The CategorySpec of the panel in the state it was last in while editing it, or <code>null</code> if
+	 * the Cancel button was pressed or the dialog was closed.
 	 */
-	public static CategoryEditorPanel showCategoryEditor()
+	public static CategorySpec showCategoryEditor()
 	{
 		return showCategoryEditor(null);
 	}

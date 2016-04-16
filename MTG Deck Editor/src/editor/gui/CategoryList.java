@@ -101,18 +101,18 @@ public class CategoryList extends JList<String>
 						if (e.getClickCount() == 2)
 						{
 							clearSelection();
-							CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor();
-							if (editor != null)
-								addCategory(editor.spec());
+							CategorySpec spec = CategoryEditorPanel.showCategoryEditor();
+							if (spec != null)
+								addCategory(spec);
 						}
 					}
 					else
 					{
 						if (e.getClickCount() == 2)
 						{
-							CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(getCategoryAt(index));
-							if (editor != null)
-								setCategoryAt(index, editor.spec());
+							CategorySpec spec = CategoryEditorPanel.showCategoryEditor(getCategoryAt(index));
+							if (spec != null)
+								setCategoryAt(index, spec);
 						}
 					}
 				}

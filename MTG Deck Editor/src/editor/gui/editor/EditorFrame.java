@@ -898,15 +898,15 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public CategorySpec createCategory()
 	{
-		CategoryEditorPanel editor = null;
+		CategorySpec spec = null;
 		do
 		{
-			editor = CategoryEditorPanel.showCategoryEditor(editor != null ? editor.spec() : null);
-			if (editor != null && deck.containsCategory(editor.spec().getName()))
+			spec = CategoryEditorPanel.showCategoryEditor(spec != null ? spec : null);
+			if (spec != null && deck.containsCategory(spec.getName()))
 				JOptionPane.showMessageDialog(null, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
-		} while (editor != null && deck.containsCategory(editor.spec().getName()));
-		if (editor != null)
-			return editor.spec();
+		} while (spec != null && deck.containsCategory(spec.getName()));
+		if (spec != null)
+			return spec;
 		else
 			return null;
 	}
@@ -1183,9 +1183,9 @@ public class EditorFrame extends JInternalFrame
 			JOptionPane.showMessageDialog(null, "Deck " + deckName() + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
 		else
 		{
-			CategoryEditorPanel editor = CategoryEditorPanel.showCategoryEditor(toEdit);
-			if (editor != null)
-				editCategory(toEdit, editor.spec());
+			CategorySpec spec = CategoryEditorPanel.showCategoryEditor(toEdit);
+			if (spec != null)
+				editCategory(toEdit, spec);
 		}
 	}
 	
@@ -1757,8 +1757,7 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The CardCollection containing the selected Cards.
 	 */
 	public CardCollection getSelectedSource()
 	{

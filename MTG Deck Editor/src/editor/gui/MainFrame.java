@@ -1368,8 +1368,7 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The Card currently being shown in the card image window.
 	 */
 	public Card getSelectedCard()
 	{
