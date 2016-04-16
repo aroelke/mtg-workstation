@@ -1375,7 +1375,6 @@ public class EditorFrame extends JInternalFrame
 			for (Map.Entry<Card, Integer> entry: cards.entrySet())
 				deck.increase(entry.getKey(), entry.getValue());
 
-			System.out.println(Arrays.toString(selectedRows));
 			((AbstractTableModel)selectedTable.getModel()).fireTableDataChanged();
 			for (int row: selectedRows)
 				selectedTable.addRowSelectionInterval(row, row);
@@ -1398,7 +1397,7 @@ public class EditorFrame extends JInternalFrame
 	 * Remove a number of copies of the specified Cards from the deck.  The current selections
 	 * for any cards remaining in them in the category and main tables are maintained.  Don't
 	 * update the undo buffer.
-	 * TODO: Remove the switch statement
+	 * 
 	 * @param toRemove List of cards to remove
 	 * @param n Number of copies to remove
 	 * @return A Map containing the Cards removed and the number of each that was removed.
@@ -1410,78 +1409,21 @@ public class EditorFrame extends JInternalFrame
 			return removed;
 		else
 		{
-			switch (listTabs.getSelectedIndex())
+			List<Card> selectedCards = Arrays.stream(selectedTable.getSelectedRows())
+					.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
+					.collect(Collectors.toList());
+			for (Card c: toRemove)
+				deck.decrease(c, n);
+			((AbstractTableModel)selectedTable.getModel()).fireTableDataChanged();
+			for (Card c: selectedCards)
 			{
-			case MAIN_TABLE:
-				// Get the selected cards first
-				List<Card> selectedCards = new ArrayList<Card>();
-				for (int row: table.getSelectedRows())
-					selectedCards.add(deck.get(table.convertRowIndexToModel(row)));
-				// Remove cards from the deck
-				for (Card c: toRemove)
+				if (getSelectedSource().contains(c))
 				{
-					int r = deck.decrease(c, n);
-					if (r > 0)
-						removed.put(c, r);
+					int row = selectedTable.convertRowIndexToModel(getSelectedSource().indexOf(c));
+					selectedTable.addRowSelectionInterval(row, row);
 				}
-				// Update the table and then restore as much of the selection as possible
-				model.fireTableDataChanged();
-				for (Card c: selectedCards)
-				{
-					if (deck.contains(c))
-					{
-						int row = table.convertRowIndexToView(deck.indexOf(c));
-						table.addRowSelectionInterval(row, row);
-					}
-				}
-				for (CategoryPanel c: categoryPanels)
-					c.update();
-				break;
-			case CATEGORIES:
-				// Get all of the selected cards from each category (only one category should
-				// have selected cards, but just in case)
-				Map<CategoryPanel, List<Card>> selectedCardsMap = new HashMap<CategoryPanel, List<Card>>();
-				for (CategoryPanel category: categoryPanels)
-				{
-					List<Card> categorySelectedCards = new ArrayList<Card>();
-					if (category.table.getSelectedRows().length > 0)
-						for (int row: category.table.getSelectedRows())
-							categorySelectedCards.add(deck.get(category.getCategoryName(), category.table.convertRowIndexToModel(row)));
-					selectedCardsMap.put(category, categorySelectedCards);
-				}
-				// Remove cards from the deck
-				for (Card c: toRemove)
-				{
-					int r = deck.decrease(c, n);
-					if (r > 0)
-						removed.put(c, r);
-				}
-				// Update each category panel and then restore the selection as much as possible
-				for (CategoryPanel category: categoryPanels)
-				{
-					category.update();
-					for (Card c: selectedCardsMap.get(category))
-					{
-						if (deck.contains(category.getCategoryName(), c))
-						{
-							int row = category.table.convertRowIndexToView(deck.getCategoryCards(category.getCategoryName()).indexOf(c));
-							category.table.addRowSelectionInterval(row, row);
-						}
-					}
-				}
-				model.fireTableDataChanged();
-				break;
-			default:
-				// Remove cards from the deck
-				for (Card c: toRemove)
-				{
-					int r = deck.decrease(c, n);
-					if (r > 0)
-						removed.put(c, r);
-				}
-				model.fireTableDataChanged();
-				break;
 			}
+			update();
 			
 			if (table.isEditing())
 				table.getCellEditor().cancelCellEditing();
