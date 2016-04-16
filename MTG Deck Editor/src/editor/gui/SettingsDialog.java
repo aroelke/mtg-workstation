@@ -13,6 +13,7 @@ import java.awt.GridLayout;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringJoiner;
@@ -60,7 +61,7 @@ public class SettingsDialog extends JDialog
 	/**
 	 * Global settings for the program.
 	 */
-	public static final Properties settings = new Properties();
+	public static final Properties SETTINGS = new Properties();
 	/**
 	 * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
 	 */
@@ -151,43 +152,72 @@ public class SettingsDialog extends JDialog
 	 */
 	public static void resetDefaultSettings()
 	{
-		settings.clear();
-		settings.put(VERSION_FILE, "version.json");
-		settings.put(INVENTORY_SOURCE, "http://mtgjson.com/json/");
-		settings.put(VERSION, "");
-		settings.put(INVENTORY_FILE, "AllSets-x.json");
-		settings.put(INITIAL_CHECK, "true");
-		settings.put(INVENTORY_LOCATION, ".");
-		settings.put(INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
-		settings.put(INVENTORY_STRIPE, "#FFCCCCCC");
-		settings.put(INITIALDIR, ".");
-		settings.put(RECENT_COUNT, "4");
-		settings.put(RECENT_FILES, "");
-		settings.put(EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
-		settings.put(EDITOR_STRIPE, "#FFCCCCCC");
-		settings.put(EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
-		settings.put(HAND_SIZE, "7");
-		settings.put(HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
-		settings.put(CARD_SCANS, "images" + File.separatorChar + "cards");
-		settings.put(IMAGE_BGCOLOR, "#FFFFFFFF");
-		settings.put(HAND_BGCOLOR, "#FFFFFFFF");
+		SETTINGS.clear();
+		SETTINGS.put(VERSION_FILE, "version.json");
+		SETTINGS.put(INVENTORY_SOURCE, "http://mtgjson.com/json/");
+		SETTINGS.put(VERSION, "");
+		SETTINGS.put(INVENTORY_FILE, "AllSets-x.json");
+		SETTINGS.put(INITIAL_CHECK, "true");
+		SETTINGS.put(INVENTORY_LOCATION, ".");
+		SETTINGS.put(INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
+		SETTINGS.put(INVENTORY_STRIPE, "#FFCCCCCC");
+		SETTINGS.put(INITIALDIR, ".");
+		SETTINGS.put(RECENT_COUNT, "4");
+		SETTINGS.put(RECENT_FILES, "");
+		SETTINGS.put(EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
+		SETTINGS.put(EDITOR_STRIPE, "#FFCCCCCC");
+		SETTINGS.put(EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
+		SETTINGS.put(HAND_SIZE, "7");
+		SETTINGS.put(HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
+		SETTINGS.put(CARD_SCANS, "images" + File.separatorChar + "cards");
+		SETTINGS.put(IMAGE_BGCOLOR, "#FFFFFFFF");
+		SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
 	}
 	
 	/**
 	 * @param name Name of the setting to get
 	 * @return The value of the setting with the given name.
 	 */
-	public static String getSetting(String name)
+	public static String getAsString(String name)
 	{
-		return settings.getProperty(name);
+		return SETTINGS.getProperty(name);
 	}
 	
 	/**
-	 * @return The list of String representations of the preset categories.
+	 * TODO: Comment this
+	 * @param name
+	 * @return
 	 */
-	public static String[] getPresetCategories()
+	public static int getAsInt(String name)
 	{
-		return getSetting(EDITOR_PRESETS).split(CATEGORY_DELIMITER);
+		return Integer.valueOf(SETTINGS.getProperty(name));
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @return
+	 */
+	public static Color getAsColor(String name)
+	{
+		Matcher m = COLOR_PATTERN.matcher(SETTINGS.getProperty(name));
+		if (m.matches())
+		{
+			Color col = Color.decode("#" + m.group(2));
+			if (m.group(1) != null)
+				col = new Color(col.getRed(), col.getGreen(), col.getBlue(), Integer.parseInt(m.group(1), 16));
+			return col;
+		}
+		else
+			throw new IllegalArgumentException("Property " + name + " is not a color property.");
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	public static CategorySpec[] getPresetCategories()
+	{
+		return Arrays.stream(getAsString(EDITOR_PRESETS).split(CATEGORY_DELIMITER)).map(CategorySpec::new).toArray(CategorySpec[]::new);
 	}
 	
 	/**
@@ -347,7 +377,7 @@ public class SettingsDialog extends JDialog
 		inventorySitePanel.add(new JLabel("Inventory Site:"));
 		inventorySitePanel.add(Box.createHorizontalStrut(5));
 		inventorySiteField = new JTextField(15);
-		inventorySiteField.setText(getSetting(INVENTORY_SOURCE));
+		inventorySiteField.setText(getAsString(INVENTORY_SOURCE));
 		inventorySitePanel.add(inventorySiteField);
 		inventorySitePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventorySitePanel.getPreferredSize().height));
 		inventoryPanel.add(inventorySitePanel);
@@ -359,10 +389,10 @@ public class SettingsDialog extends JDialog
 		inventoryFilePanel.add(new JLabel("Inventory File:"));
 		inventoryFilePanel.add(Box.createHorizontalStrut(5));
 		inventoryFileField = new JTextField(10);
-		inventoryFileField.setText(getSetting(INVENTORY_FILE));
+		inventoryFileField.setText(getAsString(INVENTORY_FILE));
 		inventoryFilePanel.add(inventoryFileField);
 		inventoryFilePanel.add(Box.createHorizontalStrut(5));
-		JLabel currentVersionLabel = new JLabel("(Current version: " + getSetting(VERSION) + ")");
+		JLabel currentVersionLabel = new JLabel("(Current version: " + getAsString(VERSION) + ")");
 		currentVersionLabel.setFont(new Font(currentVersionLabel.getFont().getFontName(), Font.ITALIC, currentVersionLabel.getFont().getSize()));
 		inventoryFilePanel.add(currentVersionLabel);
 		inventoryFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryFilePanel.getPreferredSize().height));
@@ -378,7 +408,7 @@ public class SettingsDialog extends JDialog
 		JFileChooser inventoryChooser = new JFileChooser();
 		inventoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		inventoryChooser.setAcceptAllFileFilterUsed(false);
-		inventoryDirField.setText(getSetting(INVENTORY_LOCATION));
+		inventoryDirField.setText(getAsString(INVENTORY_LOCATION));
 		inventoryChooser.setCurrentDirectory(new File(inventoryDirField.getText()).getAbsoluteFile());
 		inventoryDirPanel.add(inventoryDirField);
 		inventoryDirPanel.add(Box.createHorizontalStrut(5));
@@ -405,7 +435,7 @@ public class SettingsDialog extends JDialog
 		JFileChooser scansChooser = new JFileChooser();
 		scansChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		scansChooser.setAcceptAllFileFilterUsed(false);
-		scansDirField.setText(getSetting(CARD_SCANS));
+		scansDirField.setText(getAsString(CARD_SCANS));
 		scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
 		scansDirPanel.add(scansDirField);
 		scansDirPanel.add(Box.createHorizontalStrut(5));
@@ -426,7 +456,7 @@ public class SettingsDialog extends JDialog
 		// Check for update on startup
 		JPanel updatePanel = new JPanel(new BorderLayout());
 		updateCheckBox = new JCheckBox("Check for update on program start");
-		updateCheckBox.setSelected(Boolean.valueOf(getSetting(INITIAL_CHECK)));
+		updateCheckBox.setSelected(Boolean.valueOf(getAsString(INITIAL_CHECK)));
 		updatePanel.add(updateCheckBox, BorderLayout.WEST);
 		updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
 		inventoryPanel.add(updatePanel);
@@ -458,14 +488,14 @@ public class SettingsDialog extends JDialog
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			inventoryColumnCheckBoxes.add(checkBox);
 			inventoryColumnsPanel.add(checkBox);
-			checkBox.setSelected(getSetting(INVENTORY_COLUMNS).contains(characteristic.toString()));
+			checkBox.setSelected(getAsString(INVENTORY_COLUMNS).contains(characteristic.toString()));
 		}
 		inventoryAppearancePanel.add(inventoryColumnsPanel);
 		
 		// Stripe color
 		JPanel inventoryColorPanel = new JPanel(new BorderLayout());
 		inventoryColorPanel.setBorder(new TitledBorder("Stripe Color"));
-		inventoryStripeColor = new JColorChooser(stringToColor(getSetting(INVENTORY_STRIPE)));
+		inventoryStripeColor = new JColorChooser(stringToColor(getAsString(INVENTORY_STRIPE)));
 		createStripeChooserPreview(inventoryStripeColor);
 		inventoryColorPanel.add(inventoryStripeColor);
 		inventoryAppearancePanel.add(inventoryColorPanel);
@@ -473,7 +503,7 @@ public class SettingsDialog extends JDialog
 		// Card image background color
 		JPanel scanBGPanel = new JPanel(new BorderLayout());
 		scanBGPanel.setBorder(new TitledBorder("Image Background Color"));
-		scanBGChooser = new JColorChooser(stringToColor(getSetting(IMAGE_BGCOLOR)));
+		scanBGChooser = new JColorChooser(stringToColor(getAsString(IMAGE_BGCOLOR)));
 		scanBGChooser.getSelectionModel().addChangeListener((e) -> {
 			parent.setImageBackground(scanBGChooser.getColor());
 		});
@@ -492,7 +522,7 @@ public class SettingsDialog extends JDialog
 		recentPanel.add(new JLabel("Recent file count:"));
 		recentPanel.add(Box.createHorizontalStrut(5));
 		recentSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-		recentSpinner.getModel().setValue(Integer.valueOf(getSetting(RECENT_COUNT)));
+		recentSpinner.getModel().setValue(Integer.valueOf(getAsString(RECENT_COUNT)));
 		recentPanel.add(recentSpinner);
 		recentPanel.add(Box.createHorizontalStrut(5));
 		JLabel recentInfoLabel = new JLabel("(Changes will not be visible until program restart)");
@@ -511,8 +541,8 @@ public class SettingsDialog extends JDialog
 		settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
 		
 		categoriesList = new CategoryList(true);
-		if (!getSetting(SettingsDialog.EDITOR_PRESETS).isEmpty())
-			for (String categoryString: getSetting(EDITOR_PRESETS).split(CATEGORY_DELIMITER))
+		if (!getAsString(SettingsDialog.EDITOR_PRESETS).isEmpty())
+			for (String categoryString: getAsString(EDITOR_PRESETS).split(CATEGORY_DELIMITER))
 				categoriesList.addCategory(new CategorySpec(categoryString));
 		categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
 		
@@ -578,14 +608,14 @@ public class SettingsDialog extends JDialog
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			editorColumnCheckBoxes.add(checkBox);
 			editorColumnsPanel.add(checkBox);
-			checkBox.setSelected(getSetting(EDITOR_COLUMNS).contains(characteristic.toString()));
+			checkBox.setSelected(getAsString(EDITOR_COLUMNS).contains(characteristic.toString()));
 		}
 		editorAppearancePanel.add(editorColumnsPanel);
 		
 		// Editor table stripe color
 		JPanel editorColorPanel = new JPanel(new BorderLayout());
 		editorColorPanel.setBorder(new TitledBorder("Stripe Color"));
-		editorStripeColor = new JColorChooser(stringToColor(getSetting(EDITOR_STRIPE)));
+		editorStripeColor = new JColorChooser(stringToColor(getAsString(EDITOR_STRIPE)));
 		createStripeChooserPreview(editorStripeColor);
 		editorColorPanel.add(editorStripeColor);
 		editorAppearancePanel.add(editorColorPanel);
@@ -608,7 +638,7 @@ public class SettingsDialog extends JDialog
 		startingSizePanel.add(new JLabel("Starting Size:"));
 		startingSizePanel.add(Box.createHorizontalStrut(5));
 		startingSizeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-		startingSizeSpinner.getModel().setValue(Integer.valueOf(getSetting(HAND_SIZE)));
+		startingSizeSpinner.getModel().setValue(Integer.valueOf(getAsString(HAND_SIZE)));
 		startingSizePanel.add(startingSizeSpinner);
 		startingSizePanel.add(Box.createHorizontalGlue());
 		startingSizePanel.setMaximumSize(startingSizePanel.getPreferredSize());
@@ -626,7 +656,7 @@ public class SettingsDialog extends JDialog
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			handColumnCheckBoxes.add(checkBox);
 			handColumnsPanel.add(checkBox);
-			checkBox.setSelected(getSetting(HAND_COLUMNS).contains(characteristic.toString()));
+			checkBox.setSelected(getAsString(HAND_COLUMNS).contains(characteristic.toString()));
 		}
 		handColumnsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, handColumnsPanel.getPreferredSize().height));
 		handColumnsPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -635,7 +665,7 @@ public class SettingsDialog extends JDialog
 		// Sample hand background color
 		JPanel handBGColorPanel = new JPanel(new BorderLayout());
 		handBGColorPanel.setBorder(new TitledBorder("Background Color"));
-		handBGColor = new JColorChooser(stringToColor(getSetting(HAND_BGCOLOR)));
+		handBGColor = new JColorChooser(stringToColor(getAsString(HAND_BGCOLOR)));
 		handBGColor.getSelectionModel().addChangeListener((e) -> {
 			parent.setHandBackground(handBGColor.getColor());
 		});
@@ -685,8 +715,8 @@ public class SettingsDialog extends JDialog
 	 */
 	public void rejectSettings()
 	{
-		parent.setImageBackground(stringToColor(getSetting(IMAGE_BGCOLOR)));
-		parent.setHandBackground(stringToColor(getSetting(HAND_BGCOLOR)));
+		parent.setImageBackground(getAsColor(IMAGE_BGCOLOR));
+		parent.setHandBackground(getAsColor(HAND_BGCOLOR));
 	}
 	
 	/**
@@ -695,36 +725,36 @@ public class SettingsDialog extends JDialog
 	 */
 	public void confirmSettings()
 	{
-		settings.put(INVENTORY_SOURCE, inventorySiteField.getText());
-		settings.put(INVENTORY_FILE, inventoryFileField.getText());
-		settings.put(INVENTORY_LOCATION, inventoryDirField.getText());
-		settings.put(INITIAL_CHECK, Boolean.toString(updateCheckBox.isSelected()));
+		SETTINGS.put(INVENTORY_SOURCE, inventorySiteField.getText());
+		SETTINGS.put(INVENTORY_FILE, inventoryFileField.getText());
+		SETTINGS.put(INVENTORY_LOCATION, inventoryDirField.getText());
+		SETTINGS.put(INITIAL_CHECK, Boolean.toString(updateCheckBox.isSelected()));
 		StringJoiner join = new StringJoiner(",");
 		for (JCheckBox box: inventoryColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		settings.put(INVENTORY_COLUMNS, join.toString());
-		settings.put(INVENTORY_STRIPE, colorToString(inventoryStripeColor.getColor()));
-		settings.put(RECENT_COUNT, recentSpinner.getValue().toString());
+		SETTINGS.put(INVENTORY_COLUMNS, join.toString());
+		SETTINGS.put(INVENTORY_STRIPE, colorToString(inventoryStripeColor.getColor()));
+		SETTINGS.put(RECENT_COUNT, recentSpinner.getValue().toString());
 		join = new StringJoiner(",");
 		for (JCheckBox box: editorColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		settings.put(EDITOR_COLUMNS, join.toString());
-		settings.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
+		SETTINGS.put(EDITOR_COLUMNS, join.toString());
+		SETTINGS.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
 		join = new StringJoiner(SettingsDialog.CATEGORY_DELIMITER);
 		for (int i = 0; i < categoriesList.getCount(); i++)
 			join.add(categoriesList.getCategoryAt(i).toString());
-		settings.put(EDITOR_PRESETS, join.toString());
-		settings.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
+		SETTINGS.put(EDITOR_PRESETS, join.toString());
+		SETTINGS.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
 		join = new StringJoiner(",");
 		for (JCheckBox box: handColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		settings.put(HAND_COLUMNS, join.toString());
-		settings.put(CARD_SCANS, scansDirField.getText());
-		settings.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
-		settings.put(HAND_BGCOLOR, colorToString(handBGColor.getColor()));
+		SETTINGS.put(HAND_COLUMNS, join.toString());
+		SETTINGS.put(CARD_SCANS, scansDirField.getText());
+		SETTINGS.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
+		SETTINGS.put(HAND_BGCOLOR, colorToString(handBGColor.getColor()));
 		
 		parent.applySettings();
 	}

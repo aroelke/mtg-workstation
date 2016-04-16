@@ -295,7 +295,7 @@ public class EditorFrame extends JInternalFrame
 		unsaved = false;
 		undoBuffer = new Stack<UndoableAction>();
 		redoBuffer = new Stack<UndoableAction>();
-		startingHandSize = Integer.valueOf(SettingsDialog.getSetting(SettingsDialog.HAND_SIZE));
+		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
 
 		// Panel for showing buttons to add and remove cards
 		// The buttons are concentrated in the middle of the panel
@@ -329,11 +329,11 @@ public class EditorFrame extends JInternalFrame
 		listTabs = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
 
-		model = new CardTableModel(this, deck, Arrays.stream(SettingsDialog.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		model = new CardTableModel(this, deck, Arrays.stream(SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
 		table = new CardTable(model);
-		table.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE)));
+		table.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.EDITOR_STRIPE)));
 		// When a card is selected in the master list table, select it for adding
 		table.getSelectionModel().addListSelectionListener((e) -> { 
 			if (!e.getValueIsAdjusting())
@@ -561,16 +561,16 @@ public class EditorFrame extends JInternalFrame
 		
 		// Table showing the cards in hand
 		hand = new Hand(deck);
-		handModel = new CardTableModel(this, hand, Arrays.stream(SettingsDialog.getSetting(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		handModel = new CardTableModel(this, hand, Arrays.stream(SettingsDialog.getAsString(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		handTable = new CardTable(handModel);
 		handTable.setCellSelectionEnabled(false);
-		handTable.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE)));
+		handTable.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.EDITOR_STRIPE)));
 		handTable.setPreferredScrollableViewportSize(new Dimension(handTable.getPreferredSize().width, handTable.getRowHeight()*10));
 		
 		imagePanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
 		imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
 		imagePane = new JScrollPane(imagePanel);
-		setHandBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
+		setHandBackground(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.HAND_BGCOLOR)));
 		
 		// Control panel for manipulating the sample hand
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -585,7 +585,7 @@ public class EditorFrame extends JInternalFrame
 				CardImagePanel panel = new CardImagePanel();
 				imagePanel.add(panel);
 				panel.setCard(c);
-				panel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
+				panel.setBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
 				imagePanel.add(Box.createHorizontalStrut(10));
 			}
 			imagePanel.validate();
@@ -603,7 +603,7 @@ public class EditorFrame extends JInternalFrame
 				CardImagePanel panel = new CardImagePanel();
 				imagePanel.add(panel);
 				panel.setCard(c);
-				panel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
+				panel.setBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
 				imagePanel.add(Box.createHorizontalStrut(10));
 			}
 			imagePanel.validate();
@@ -616,7 +616,7 @@ public class EditorFrame extends JInternalFrame
 			handModel.fireTableDataChanged();
 			
 			CardImagePanel panel = new CardImagePanel();
-			panel.setBackground(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.HAND_BGCOLOR)));
+			panel.setBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
 			imagePanel.add(panel);
 			panel.setCard(hand.get(hand.size() - 1));
 			imagePanel.add(Box.createHorizontalStrut(10));
@@ -645,7 +645,7 @@ public class EditorFrame extends JInternalFrame
 			
 			CardTableModel excludeTableModel = new CardTableModel(deck, Arrays.asList(CardCharacteristic.NAME, CardCharacteristic.COUNT));
 			CardTable excludeTable = new CardTable(excludeTableModel);
-			excludeTable.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE)));
+			excludeTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
 			excludePanel.add(new JScrollPane(excludeTable));
 			
 			addExclusionButton.addActionListener((a) -> {
@@ -675,7 +675,7 @@ public class EditorFrame extends JInternalFrame
 		handModPanel.add(excludeButton);
 		JButton probabilityButton = new JButton("Calculate...");
 		probabilityButton.addActionListener((e) -> {
-			JOptionPane pane = new JOptionPane(new CalculateHandPanel(deck, SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE))));
+			JOptionPane pane = new JOptionPane(new CalculateHandPanel(deck, SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE)));
 			Dialog dialog = pane.createDialog(this, "Card Draw Probability");
 			dialog.setResizable(true);
 			dialog.setVisible(true);
@@ -1845,9 +1845,9 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void applySettings()
 	{
-		List<CardCharacteristic> columns = Arrays.stream(SettingsDialog.getSetting(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
-		List<CardCharacteristic> handColumns = Arrays.stream(SettingsDialog.getSetting(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
-		Color stripe = SettingsDialog.stringToColor(SettingsDialog.getSetting(SettingsDialog.EDITOR_STRIPE));
+		List<CardCharacteristic> columns = Arrays.stream(SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		List<CardCharacteristic> handColumns = Arrays.stream(SettingsDialog.getAsString(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		Color stripe = SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.EDITOR_STRIPE));
 		model.setColumns(columns);
 		table.setStripeColor(stripe);
 		for (CategoryPanel category: categoryPanels)
@@ -1857,7 +1857,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		handModel.setColumns(handColumns);
 		handTable.setStripeColor(stripe);
-		startingHandSize = Integer.valueOf(SettingsDialog.getSetting(SettingsDialog.HAND_SIZE));
+		startingHandSize = Integer.valueOf(SettingsDialog.getAsString(SettingsDialog.HAND_SIZE));
 		update();
 	}
 	

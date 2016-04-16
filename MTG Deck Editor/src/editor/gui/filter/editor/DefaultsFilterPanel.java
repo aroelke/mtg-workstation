@@ -7,7 +7,6 @@ import java.util.Map;
 
 import editor.collection.category.CategorySpec;
 import editor.filter.Filter;
-import editor.filter.FilterGroup;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.SettingsDialog;
 import editor.gui.filter.ComboBoxPanel;
@@ -54,10 +53,10 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 		
 		categories = new HashMap<String, String>();
 		
-		String[] presets = SettingsDialog.getPresetCategories();
-		String[] names = Arrays.stream(presets).map((s) -> s.substring(1, s.indexOf(FilterGroup.END_GROUP)).trim()).toArray(String[]::new);
+		CategorySpec[] presets = SettingsDialog.getPresetCategories();
+		String[] names = Arrays.stream(presets).map(CategorySpec::getName).toArray(String[]::new);
 		for (int i = 0; i < presets.length; i++)
-			categories.put(names[i], presets[i]);
+			categories.put(names[i], presets[i].toListlessString());
 		
 		defaults = new ComboBoxPanel<String>(names);
 		add(defaults);
