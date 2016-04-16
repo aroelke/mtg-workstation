@@ -200,16 +200,7 @@ public class SettingsDialog extends JDialog
 	 */
 	public static Color getAsColor(String name)
 	{
-		Matcher m = COLOR_PATTERN.matcher(SETTINGS.getProperty(name));
-		if (m.matches())
-		{
-			Color col = Color.decode("#" + m.group(2));
-			if (m.group(1) != null)
-				col = new Color(col.getRed(), col.getGreen(), col.getBlue(), Integer.parseInt(m.group(1), 16));
-			return col;
-		}
-		else
-			throw new IllegalArgumentException("Property " + name + " is not a color property.");
+		return stringToColor(SETTINGS.getProperty(name));
 	}
 	
 	/**
@@ -495,7 +486,7 @@ public class SettingsDialog extends JDialog
 		// Stripe color
 		JPanel inventoryColorPanel = new JPanel(new BorderLayout());
 		inventoryColorPanel.setBorder(new TitledBorder("Stripe Color"));
-		inventoryStripeColor = new JColorChooser(stringToColor(getAsString(INVENTORY_STRIPE)));
+		inventoryStripeColor = new JColorChooser(getAsColor(INVENTORY_STRIPE));
 		createStripeChooserPreview(inventoryStripeColor);
 		inventoryColorPanel.add(inventoryStripeColor);
 		inventoryAppearancePanel.add(inventoryColorPanel);
@@ -503,7 +494,7 @@ public class SettingsDialog extends JDialog
 		// Card image background color
 		JPanel scanBGPanel = new JPanel(new BorderLayout());
 		scanBGPanel.setBorder(new TitledBorder("Image Background Color"));
-		scanBGChooser = new JColorChooser(stringToColor(getAsString(IMAGE_BGCOLOR)));
+		scanBGChooser = new JColorChooser(getAsColor(IMAGE_BGCOLOR));
 		scanBGChooser.getSelectionModel().addChangeListener((e) -> {
 			parent.setImageBackground(scanBGChooser.getColor());
 		});
@@ -615,7 +606,7 @@ public class SettingsDialog extends JDialog
 		// Editor table stripe color
 		JPanel editorColorPanel = new JPanel(new BorderLayout());
 		editorColorPanel.setBorder(new TitledBorder("Stripe Color"));
-		editorStripeColor = new JColorChooser(stringToColor(getAsString(EDITOR_STRIPE)));
+		editorStripeColor = new JColorChooser(getAsColor(EDITOR_STRIPE));
 		createStripeChooserPreview(editorStripeColor);
 		editorColorPanel.add(editorStripeColor);
 		editorAppearancePanel.add(editorColorPanel);
@@ -665,7 +656,7 @@ public class SettingsDialog extends JDialog
 		// Sample hand background color
 		JPanel handBGColorPanel = new JPanel(new BorderLayout());
 		handBGColorPanel.setBorder(new TitledBorder("Background Color"));
-		handBGColor = new JColorChooser(stringToColor(getAsString(HAND_BGCOLOR)));
+		handBGColor = new JColorChooser(getAsColor(HAND_BGCOLOR));
 		handBGColor.getSelectionModel().addChangeListener((e) -> {
 			parent.setHandBackground(handBGColor.getColor());
 		});

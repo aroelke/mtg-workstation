@@ -1,6 +1,7 @@
 package editor.gui.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -101,8 +102,12 @@ public class CategoryEditorPanel extends JPanel
 		namePanel.add(Box.createHorizontalStrut(5));
 		namePanel.add(colorButton = new ColorButton());
 		colorButton.addActionListener((e) -> {
-			colorButton.setColor(JColorChooser.showDialog(null, "Choose a Color", colorButton.color()));
-			colorButton.repaint();
+			Color newColor = JColorChooser.showDialog(null, "Choose a Color", colorButton.color());
+			if (newColor != null)
+			{
+				colorButton.setColor(newColor);
+				colorButton.repaint();
+			}
 		});
 		add(namePanel, BorderLayout.NORTH);
 		

@@ -625,7 +625,7 @@ public class MainFrame extends JFrame
 		
 		// Panel showing the image of the currently-selected card
 		cardPane.addTab("Image", imagePanel = new CardImagePanel());
-		setImageBackground(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.IMAGE_BGCOLOR)));
+		setImageBackground(SettingsDialog.getAsColor(SettingsDialog.IMAGE_BGCOLOR));
 		
 		// Pane displaying the Oracle text
 		oracleTextPane = new JTextPane();
@@ -731,7 +731,7 @@ public class MainFrame extends JFrame
 		inventoryTable.setDefaultRenderer(List.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(PowerToughness.Tuple.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Loyalty.Tuple.class, new CardTableCellRenderer());
-		inventoryTable.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.INVENTORY_STRIPE)));
+		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
 		inventoryTable.addMouseListener(new MouseAdapter()
 		{
 			@Override
@@ -1027,7 +1027,7 @@ public class MainFrame extends JFrame
 		if (SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).isEmpty())
 			SettingsDialog.SETTINGS.put(SettingsDialog.INVENTORY_COLUMNS, "Name,Expansion,Mana Cost,Type");
 		inventoryModel.setColumns(Arrays.stream(SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
-		inventoryTable.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.INVENTORY_STRIPE)));
+		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
 		if (SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).isEmpty())
 			SettingsDialog.SETTINGS.put(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity");
 		for (EditorFrame frame: editors)
@@ -1042,8 +1042,8 @@ public class MainFrame extends JFrame
 			});
 			presetMenu.add(categoryItem);
 		}
-		setImageBackground(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.IMAGE_BGCOLOR)));
-		setHandBackground(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.HAND_BGCOLOR)));
+		setImageBackground(SettingsDialog.getAsColor(SettingsDialog.IMAGE_BGCOLOR));
+		setHandBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
 		
 		revalidate();
 		repaint();

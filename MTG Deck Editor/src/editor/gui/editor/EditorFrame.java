@@ -333,7 +333,7 @@ public class EditorFrame extends JInternalFrame
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
 		table = new CardTable(model);
-		table.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.EDITOR_STRIPE)));
+		table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
 		// When a card is selected in the master list table, select it for adding
 		table.getSelectionModel().addListSelectionListener((e) -> { 
 			if (!e.getValueIsAdjusting())
@@ -564,13 +564,13 @@ public class EditorFrame extends JInternalFrame
 		handModel = new CardTableModel(this, hand, Arrays.stream(SettingsDialog.getAsString(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
 		handTable = new CardTable(handModel);
 		handTable.setCellSelectionEnabled(false);
-		handTable.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.EDITOR_STRIPE)));
+		handTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
 		handTable.setPreferredScrollableViewportSize(new Dimension(handTable.getPreferredSize().width, handTable.getRowHeight()*10));
 		
 		imagePanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
 		imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
 		imagePane = new JScrollPane(imagePanel);
-		setHandBackground(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.HAND_BGCOLOR)));
+		setHandBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
 		
 		// Control panel for manipulating the sample hand
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -941,7 +941,11 @@ public class EditorFrame extends JInternalFrame
 		newCategory.colorButton.addActionListener((e) -> {
 			Color newColor = JColorChooser.showDialog(null, "Choose a Color", newCategory.colorButton.color());
 			if (newColor != null)
+			{
 				spec.setColor(newColor);
+				newCategory.colorButton.setColor(newColor);
+				newCategory.colorButton.repaint();
+			}
 		});
 		
 		newCategory.table.setTransferHandler(new EditorTableTransferHandler());
@@ -1847,7 +1851,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		List<CardCharacteristic> columns = Arrays.stream(SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
 		List<CardCharacteristic> handColumns = Arrays.stream(SettingsDialog.getAsString(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
-		Color stripe = SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.EDITOR_STRIPE));
+		Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
 		model.setColumns(columns);
 		table.setStripeColor(stripe);
 		for (CategoryPanel category: categoryPanels)

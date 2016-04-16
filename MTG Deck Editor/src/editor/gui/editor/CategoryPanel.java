@@ -148,7 +148,7 @@ public class CategoryPanel extends JPanel
 			}
 		};
 		table.setAutoCreateRowSorter(true);
-		table.setStripeColor(SettingsDialog.stringToColor(SettingsDialog.getAsString(SettingsDialog.EDITOR_STRIPE)));
+		table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
 		for (int i = 0; i < table.getColumnCount(); i++)
 			if (model.isCellEditable(0, i))
 				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(editor));
