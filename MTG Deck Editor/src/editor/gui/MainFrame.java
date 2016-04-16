@@ -1419,7 +1419,7 @@ public class MainFrame extends JFrame
 		{
 			frame.setSelected(true);
 			selectedFrame = frame;
-			if (selectedFrame.getSelectedSource() == null || selectedFrame.getSelectedCards().isEmpty())
+			if (!selectedFrame.hasSelectedCards())
 				selectedFrame.setSelectedSource(inventoryTable, inventory);
 			revalidate();
 			repaint();

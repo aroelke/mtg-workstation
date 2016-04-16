@@ -97,7 +97,6 @@ import editor.gui.TableMouseAdapter;
  * TODO: Change the category tab's exclude popup option to set categories
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
- * TODO: When a category is added to presets, remove its exclusions and inclusions (but warn of this first)
  * 
  * @author Alec Roelke
  */
@@ -342,10 +341,11 @@ public class EditorFrame extends JInternalFrame
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
 				if (!lsm.isSelectionEmpty())
 				{
-					parent.selectCard(deck.get(table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
 					clearTableSelections(table);
 					parent.clearSelectedCards();
 					setSelectedSource(table, deck);
+					if (hasSelectedCards())
+						parent.selectCard(getSelectedCards().get(0));
 				}
 			}
 		});
@@ -906,10 +906,7 @@ public class EditorFrame extends JInternalFrame
 			if (spec != null && deck.containsCategory(spec.getName()))
 				JOptionPane.showMessageDialog(null, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
 		} while (spec != null && deck.containsCategory(spec.getName()));
-		if (spec != null)
-			return spec;
-		else
-			return null;
+		return spec;
 	}
 	
 	/**
@@ -928,10 +925,11 @@ public class EditorFrame extends JInternalFrame
 			{
 				if (!e.getValueIsAdjusting())
 				{
-					parent.selectCard(deck.getCategoryCards(spec.getName()).get(newCategory.table.convertRowIndexToModel(lsm.getMinSelectionIndex())));
 					clearTableSelections(newCategory.table);
 					parent.clearSelectedCards();
 					setSelectedSource(newCategory.table, deck.getCategoryCards(spec.getName()));
+					if (hasSelectedCards())
+						parent.selectCard(getSelectedCards().get(0));
 				}
 			}
 		});
@@ -1448,10 +1446,8 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean addSelectedCards(int n)
 	{
-		if (selectedTable.getSelectedRowCount() > 0)
-			return addCards(Arrays.stream(selectedTable.getSelectedRows())
-					.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
-					.collect(Collectors.toList()), n);
+		if (hasSelectedCards())
+			return addCards(getSelectedCards(), n);
 		else if (parent.getSelectedCard() != null)
 			return addCard(parent.getSelectedCard(), n);
 		else
@@ -1520,10 +1516,8 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean removeSelectedCards(int n)
 	{
-		if (selectedTable.getSelectedRowCount() > 0)
-			return removeCards(Arrays.stream(selectedTable.getSelectedRows())
-					.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
-					.collect(Collectors.toList()), n);
+		if (hasSelectedCards())
+			return removeCards(getSelectedCards(), n);
 		else if (parent.getSelectedCard() != null)
 			return removeCard(parent.getSelectedCard(), n);
 		else
@@ -1649,9 +1643,18 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public List<Card> getSelectedCards()
 	{
-		return Arrays.stream(table.getSelectedRows())
-				  .mapToObj((r) -> deck.get(table.convertRowIndexToModel(r)))
+		return Arrays.stream(selectedTable.getSelectedRows())
+				  .mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
 				  .collect(Collectors.toList());
+	}
+	
+	/**
+	 * @return <code>true</code> if there is a selected table and it has a selection,
+	 * and <code>false</code> otherwise.
+	 */
+	public boolean hasSelectedCards()
+	{
+		return selectedTable != null && selectedTable.getSelectedRowCount() > 0;
 	}
 	
 	/**
@@ -1997,22 +2000,7 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		public Transferable createTransferable(JComponent c)
 		{
-			List<Card> selectedCards;
-			switch (listTabs.getSelectedIndex())
-			{
-			case MAIN_TABLE:
-				selectedCards = getSelectedCards();
-				break;
-			case CATEGORIES:
-				selectedCards = new ArrayList<Card>();
-				for (CategoryPanel category: categoryPanels)
-					selectedCards.addAll(category.getSelectedCards());
-				break;
-			default:
-				selectedCards = new ArrayList<Card>();
-				break;
-			}
-			return new Deck.TransferData(deck, selectedCards);
+			return new Deck.TransferData(deck, getSelectedCards());
 		}
 		
 		/**
