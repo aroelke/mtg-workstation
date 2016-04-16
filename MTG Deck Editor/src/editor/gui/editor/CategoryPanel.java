@@ -182,7 +182,7 @@ public class CategoryPanel extends JPanel
 	 */
 	public void update()
 	{
-		model.fireTableDataChanged();
+//		model.fireTableDataChanged();
 		countLabel.setText("Cards: " + deck.total(name));
 		border.setTitle(name);
 		table.revalidate();

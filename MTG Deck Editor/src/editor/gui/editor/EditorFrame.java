@@ -70,6 +70,7 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.table.AbstractTableModel;
 
 import editor.collection.CardCollection;
 import editor.collection.LegalityChecker;
@@ -1357,7 +1358,7 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Add cards to the deck, maintaining the selection in the currently-selected
 	 * table.
-	 * TODO: Remove the switch statement
+	 * 
 	 * @param cards Map containing cards and amounts to add
 	 * @return <code>true</code> if the deck changed as a result, and
 	 * <code>false</code> otherwise, which is only true if the list is empty.
@@ -1369,35 +1370,17 @@ public class EditorFrame extends JInternalFrame
 			return false;
 		else
 		{
+			int[] selectedRows = selectedTable.getSelectedRows();
+			
 			for (Map.Entry<Card, Integer> entry: cards.entrySet())
 				deck.increase(entry.getKey(), entry.getValue());
 
-			switch (listTabs.getSelectedIndex())
-			{
-			case MAIN_TABLE:
-				// Maintain the selection in the master list
-				int[] selectedRows = table.getSelectedRows();
-				model.fireTableDataChanged();
-				for (int row: selectedRows)
-					table.addRowSelectionInterval(row, row);
-				for (CategoryPanel c: categoryPanels)
-					c.update();
-				break;
-			case CATEGORIES:
-				// Maintain the selection in each category
-				for (CategoryPanel c: categoryPanels)
-				{
-					selectedRows = c.table.getSelectedRows();
-					c.update();
-					for (int row: selectedRows)
-						c.table.addRowSelectionInterval(row, row);
-				}
-				model.fireTableDataChanged();
-				break;
-			default:
-				model.fireTableDataChanged();
-				break;
-			}
+			System.out.println(Arrays.toString(selectedRows));
+			((AbstractTableModel)selectedTable.getModel()).fireTableDataChanged();
+			for (int row: selectedRows)
+				selectedTable.addRowSelectionInterval(row, row);
+			update();
+			
 			if (table.isEditing())
 				table.getCellEditor().cancelCellEditing();
 			for (CategoryPanel c: categoryPanels)
@@ -1415,7 +1398,7 @@ public class EditorFrame extends JInternalFrame
 	 * Remove a number of copies of the specified Cards from the deck.  The current selections
 	 * for any cards remaining in them in the category and main tables are maintained.  Don't
 	 * update the undo buffer.
-	 * 
+	 * TODO: Remove the switch statement
 	 * @param toRemove List of cards to remove
 	 * @param n Number of copies to remove
 	 * @return A Map containing the Cards removed and the number of each that was removed.
