@@ -1,8 +1,8 @@
 package editor.gui.filter.editor;
 
 import java.awt.FlowLayout;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import editor.collection.category.CategorySpec;
@@ -53,10 +53,10 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 		
 		categories = new HashMap<String, String>();
 		
-		CategorySpec[] presets = SettingsDialog.getPresetCategories();
-		String[] names = Arrays.stream(presets).map(CategorySpec::getName).toArray(String[]::new);
-		for (int i = 0; i < presets.length; i++)
-			categories.put(names[i], presets[i].toListlessString());
+		List<CategorySpec> presets = SettingsDialog.getPresetCategories();
+		String[] names = presets.stream().map(CategorySpec::getName).toArray(String[]::new);
+		for (int i = 0; i < presets.size(); i++)
+			categories.put(names[i], presets.get(i).toListlessString());
 		
 		defaults = new ComboBoxPanel<String>(names);
 		add(defaults);

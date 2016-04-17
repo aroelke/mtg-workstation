@@ -136,7 +136,7 @@ public class CategoryPanel extends JPanel
 		add(countPanel, BorderLayout.NORTH);
 		
 		// Table showing the cards in the category
-		model = new CardTableModel(editor, deck.getCategoryCards(name), Arrays.stream(SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		model = new CardTableModel(editor, deck.getCategoryCards(name), SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
 		table = new CardTable(model)
 		{
 			@Override

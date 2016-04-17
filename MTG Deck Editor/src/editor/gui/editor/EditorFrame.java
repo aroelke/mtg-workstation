@@ -329,7 +329,7 @@ public class EditorFrame extends JInternalFrame
 		listTabs = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
 
-		model = new CardTableModel(this, deck, Arrays.stream(SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		model = new CardTableModel(this, deck, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
 
 		// Create the table so that it resizes if the window is too big but not if it's too small
 		table = new CardTable(model);
@@ -561,7 +561,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Table showing the cards in hand
 		hand = new Hand(deck);
-		handModel = new CardTableModel(this, hand, Arrays.stream(SettingsDialog.getAsString(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		handModel = new CardTableModel(this, hand, SettingsDialog.getAsCharacteristics(SettingsDialog.HAND_COLUMNS));
 		handTable = new CardTable(handModel);
 		handTable.setCellSelectionEnabled(false);
 		handTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
@@ -1849,8 +1849,8 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void applySettings()
 	{
-		List<CardCharacteristic> columns = Arrays.stream(SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
-		List<CardCharacteristic> handColumns = Arrays.stream(SettingsDialog.getAsString(SettingsDialog.HAND_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		List<CardCharacteristic> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
+		List<CardCharacteristic> handColumns = SettingsDialog.getAsCharacteristics(SettingsDialog.HAND_COLUMNS);
 		Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
 		model.setColumns(columns);
 		table.setStripeColor(stripe);
@@ -1861,7 +1861,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		handModel.setColumns(handColumns);
 		handTable.setStripeColor(stripe);
-		startingHandSize = Integer.valueOf(SettingsDialog.getAsString(SettingsDialog.HAND_SIZE));
+		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
 		update();
 	}
 	

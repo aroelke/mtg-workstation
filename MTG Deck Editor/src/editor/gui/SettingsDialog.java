@@ -19,6 +19,7 @@ import java.util.Properties;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -205,10 +206,20 @@ public class SettingsDialog extends JDialog
 	
 	/**
 	 * TODO: Comment this
+	 * @param name
+	 * @return
 	 */
-	public static CategorySpec[] getPresetCategories()
+	public static List<CardCharacteristic> getAsCharacteristics(String name)
 	{
-		return Arrays.stream(getAsString(EDITOR_PRESETS).split(CATEGORY_DELIMITER)).map(CategorySpec::new).toArray(CategorySpec[]::new);
+		return Arrays.stream(SETTINGS.getProperty(EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	public static List<CategorySpec> getPresetCategories()
+	{
+		return Arrays.stream(SETTINGS.getProperty(EDITOR_PRESETS).split(CATEGORY_DELIMITER)).map(CategorySpec::new).collect(Collectors.toList());
 	}
 	
 	/**

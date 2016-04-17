@@ -937,7 +937,7 @@ public class MainFrame extends JFrame
 		loadDialog.setLocationRelativeTo(this);
 		inventory = loadDialog.createInventory(inventoryFile);
 		inventory.sort((a, b) -> a.compareName(b));
-		inventoryModel = new CardTableModel(inventory, Arrays.stream(SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList()));
+		inventoryModel = new CardTableModel(inventory, SettingsDialog.getAsCharacteristics(SettingsDialog.INVENTORY_COLUMNS));
 		inventoryTable.setModel(inventoryModel);
 		setCursor(Cursor.getDefaultCursor());
 	}
@@ -1012,8 +1012,6 @@ public class MainFrame extends JFrame
 	 */
 	public void applySettings()
 	{
-		for (String key: SettingsDialog.SETTINGS.stringPropertyNames())
-			SettingsDialog.SETTINGS.put(key, SettingsDialog.getAsString(key));
 		try
 		{
 			inventorySite = new URL(SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
