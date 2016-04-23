@@ -211,7 +211,7 @@ public class SettingsDialog extends JDialog
 	 */
 	public static List<CardCharacteristic> getAsCharacteristics(String name)
 	{
-		return Arrays.stream(SETTINGS.getProperty(EDITOR_COLUMNS).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
 	}
 	
 	/**
