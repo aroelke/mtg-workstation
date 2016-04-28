@@ -120,7 +120,7 @@ public class Deck implements CardCollection
 	 * Data flavor representing entries in a deck.  Transfer data will appear as a
 	 * map of cards onto an integer representing the number of copies to transfer.
 	 */
-	public static final DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Entry[].class.getName() + "\"", "Deck Entries");
+	public static final DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Map.class.getName() + "\"", "Deck Entries");
 	
 	/**
 	 * Formatter for dates, usually for formatting the add date of a card.
