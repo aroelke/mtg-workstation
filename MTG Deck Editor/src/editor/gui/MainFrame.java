@@ -855,7 +855,6 @@ public class MainFrame extends JFrame
 				inventory.updateFilter(panel.filter());
 				inventoryModel.fireTableDataChanged();
 			}
-			System.out.println(panel.filter());
 		});
 		
 		// Action to be taken when a selection is made in the inventory table (update the relevant

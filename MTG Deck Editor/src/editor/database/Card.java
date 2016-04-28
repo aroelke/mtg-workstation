@@ -61,6 +61,10 @@ public final class Card
 	 */
 	public static final String FACE_SEPARATOR = "//";
 	/**
+	 * TODO: Comment this
+	 */
+	public static final String THIS = "~";
+	/**
 	 * DataFlavor representing cards being transferred.
 	 */
 	public static final DataFlavor cardFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Card[].class.getName() + "\"", "Card Array");
@@ -564,15 +568,16 @@ public final class Card
 	 */
 	public List<String> normalizedName()
 	{
-		List<String> names = new ArrayList<String>();
-		for (Face f: faces)
-		{
-			String normal = new String(f.name.toLowerCase());
-			normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
-			normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
-			names.add(normal);
-		}
-		return names;
+		return Arrays.stream(faces).map(Face::normalizedName).collect(Collectors.toList());
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public List<String> legendName()
+	{
+		return Arrays.stream(faces).map(Face::legendName).collect(Collectors.toList());
 	}
 	
 	/**
@@ -619,6 +624,7 @@ public final class Card
 			String normal = new String(f.text.toLowerCase());
 			normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
 			normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
+			normal = normal.replace(f.legendName(), THIS).replace(f.normalizedName(), THIS);
 			texts.add(normal);
 		}
 		return texts;
@@ -931,6 +937,51 @@ public final class Card
 			if (subtypes.size() > 0)
 				str.append(" — ").append(String.join(" ", subtypes));
 			typeLine = str.toString();
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @return
+		 */
+		public String normalizedName()
+		{
+			String normal = new String(name.toLowerCase());
+			normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
+			normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
+			return normal;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @return
+		 */
+		public String legendName()
+		{
+			String fullName = normalizedName();
+			if (!supertypes.contains("Legendary"))
+				return fullName;
+			else
+			{
+				int comma = fullName.indexOf(',');
+				if (comma > 0)
+					return fullName.substring(0, comma).trim();
+				else
+				{
+					int the = fullName.indexOf("the ");
+					if (the == 0)
+						return fullName;
+					else if (the > 0)
+						return fullName.substring(0, the).trim();
+					else
+					{
+						int of = fullName.indexOf("of ");
+						if (of > 0)
+							return fullName.substring(0, of).trim();
+						else
+							return fullName;
+					}
+				}
+			}
 		}
 		
 		/**
