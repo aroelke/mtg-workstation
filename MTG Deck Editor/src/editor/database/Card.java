@@ -35,6 +35,8 @@ import editor.util.Tuple;
  * and its image name (which is its name followed by a number if there is more than one version of the same
  * card in the same set).  All of its values are constant.
  * 
+ * TODO: Add a user-controlled tag to cards.
+ * 
  * @author Alec Roelke
  */
 public final class Card

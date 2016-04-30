@@ -97,6 +97,9 @@ import editor.gui.TableMouseAdapter;
  * TODO: Change the category tab's exclude popup option to set categories
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
+ * TODO: Add a "priority" for each category (that is editable and persistent) that can be used to sort categories
+ * TODO: Indicate average CMC of each category
+ * TODO: Add something for calculating probability for multiple categories at once
  * 
  * @author Alec Roelke
  */

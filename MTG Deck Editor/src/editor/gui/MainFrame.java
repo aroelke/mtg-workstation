@@ -102,6 +102,8 @@ import editor.gui.inventory.InventoryLoadDialog;
  * the right side is a pane which contains internal frames that allow the user to open, close, and edit
  * multiple decks at once.  See @link{gui.editor.EditorFrame} for details on the editor frames.
  * 
+ * TODO: Create a diff frame that shows differences between two (or more, potentially) decks
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
