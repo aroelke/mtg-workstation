@@ -1380,6 +1380,7 @@ public class EditorFrame extends JInternalFrame
 			((AbstractTableModel)selectedTable.getModel()).fireTableDataChanged();
 			for (int row: selectedRows)
 				selectedTable.addRowSelectionInterval(row, row);
+			updateTablesExcept(selectedTable);
 			update();
 			
 			if (table.isEditing())
@@ -1425,6 +1426,7 @@ public class EditorFrame extends JInternalFrame
 					selectedTable.addRowSelectionInterval(row, row);
 				}
 			}
+			updateTablesExcept(table);
 			update();
 			
 			if (table.isEditing())
@@ -1674,6 +1676,19 @@ public class EditorFrame extends JInternalFrame
 		for (CategoryPanel c: categoryPanels)
 			if (c.table != except)
 				c.table.clearSelection();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param except
+	 */
+	public void updateTablesExcept(CardTable except)
+	{
+		if (table != except)
+			((AbstractTableModel)table.getModel()).fireTableDataChanged();
+		for (CategoryPanel c: categoryPanels)
+			if (c.table != except)
+				((AbstractTableModel)table.getModel()).fireTableDataChanged();
 	}
 	
 	/**
