@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
@@ -17,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 
@@ -68,6 +68,10 @@ public class CategoryPanel extends JPanel
 	 */
 	private JLabel countLabel;
 	/**
+	 * TODO: Comment this
+	 */
+	private JLabel avgCMCLabel;
+	/**
 	 * Button for editing the category.
 	 */
 	protected JButton editButton;
@@ -116,12 +120,16 @@ public class CategoryPanel extends JPanel
 		
 		setLayout(new BorderLayout());
 		
-		// Label showing the number of cards in the category
-		JPanel countPanel = new JPanel();
-		countPanel.setLayout(new BorderLayout(0, 0));
+		JPanel topPanel = new JPanel();
+		topPanel.setLayout(new BorderLayout(0, 0));
+		
+		// Labels showing category stats
+		JPanel statsPanel = new JPanel(new GridLayout(0, 1));
 		countLabel = new JLabel("Cards: " + deck.total(name));
-		countLabel.setVerticalAlignment(SwingConstants.TOP);
-		countPanel.add(countLabel, BorderLayout.WEST);
+		statsPanel.add(countLabel);
+		avgCMCLabel = new JLabel("Average CMC: 0");
+		statsPanel.add(avgCMCLabel);
+		topPanel.add(statsPanel, BorderLayout.WEST);
 		
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -131,9 +139,9 @@ public class CategoryPanel extends JPanel
 		buttonPanel.add(editButton);
 		removeButton = new JButton("−");
 		buttonPanel.add(removeButton);
-		countPanel.add(buttonPanel, BorderLayout.EAST);
+		topPanel.add(buttonPanel, BorderLayout.EAST);
 		
-		add(countPanel, BorderLayout.NORTH);
+		add(topPanel, BorderLayout.NORTH);
 		
 		// Table showing the cards in the category
 		model = new CardTableModel(editor, deck.getCategoryCards(name), SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
@@ -167,6 +175,8 @@ public class CategoryPanel extends JPanel
 				update();
 			}
 		});
+	
+		update();
 	}
 	
 	/**
@@ -184,6 +194,11 @@ public class CategoryPanel extends JPanel
 	{
 //		model.fireTableDataChanged();
 		countLabel.setText("Cards: " + deck.total(name));
+		double avgCMC = deck.stream().filter(deck.getCategorySpec(name)::includes).mapToDouble(Card::minCmc).average().orElse(0.0);
+		if (avgCMC == (int)avgCMC)
+			avgCMCLabel.setText("Average CMC: " + (int)avgCMC);
+		else
+			avgCMCLabel.setText("Average CMC: " + String.format("%.2f", avgCMC));
 		border.setTitle(name);
 		table.revalidate();
 		table.repaint();
