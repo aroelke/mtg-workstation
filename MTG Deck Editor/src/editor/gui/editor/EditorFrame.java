@@ -1682,10 +1682,11 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param except
+	 * Call fireTableDataChanged on all tables except the given one.
+	 * 
+	 * @param except CardTable to not update.
 	 */
-	public void updateTablesExcept(CardTable except)
+	private void updateTablesExcept(CardTable except)
 	{
 		if (table != except)
 			((AbstractTableModel)table.getModel()).fireTableDataChanged();

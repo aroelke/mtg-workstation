@@ -63,7 +63,7 @@ public final class Card
 	 */
 	public static final String FACE_SEPARATOR = "//";
 	/**
-	 * TODO: Comment this
+	 * String representing this Card's name in its text box.
 	 */
 	public static final String THIS = "~";
 	/**
@@ -574,8 +574,10 @@ public final class Card
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return This Card's legend name, which is only defined for Cards with the
+	 * Legendary supertype.  For those, it is the name of the character or item
+	 * depicted (before the word "the," "of," or a comma).  For nonlegendary
+	 * Cards, it is just the Card's name.
 	 */
 	public List<String> legendName()
 	{
@@ -942,8 +944,11 @@ public final class Card
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @return
+		 * Normalize this Face's name so it can be searched using the keyboard ignoring
+		 * case.  For example, the ligature "æ" will be replaced with "ae" regardless of
+		 * case.
+		 * 
+		 * @return This Face's normalized name.
 		 */
 		public String normalizedName()
 		{
@@ -954,8 +959,10 @@ public final class Card
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @return
+		 * @return This Face's legend name, which is only defined for Faces with the
+		 * Legendary supertype.  For those, it is the name of the character or item
+		 * depicted (before the word "the," "of," or a comma).  For nonlegendary
+		 * Faces, it is just the Face's name.
 		 */
 		public String legendName()
 		{

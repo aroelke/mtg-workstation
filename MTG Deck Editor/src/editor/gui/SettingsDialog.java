@@ -177,7 +177,7 @@ public class SettingsDialog extends JDialog
 	
 	/**
 	 * @param name Name of the setting to get
-	 * @return The value of the setting with the given name.
+	 * @return The String value of the setting with the given name.
 	 */
 	public static String getAsString(String name)
 	{
@@ -185,37 +185,43 @@ public class SettingsDialog extends JDialog
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @return
+	 * Get the integer value of the given global setting.
+	 * 
+	 * @param name Name of the setting to get
+	 * @return The integer value of the given setting.
+	 * @throws NumberFormatException If the given setting is not a numerical setting.
 	 */
-	public static int getAsInt(String name)
+	public static int getAsInt(String name) throws NumberFormatException
 	{
 		return Integer.valueOf(SETTINGS.getProperty(name));
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @return
+	 * Get the Color value of the given global setting.
+	 * 
+	 * @param name Name of the setting to get
+	 * @return The Color value of the given setting.
+	 * @throws IllegalArgumentException If the given setting does not represent a Color.
 	 */
-	public static Color getAsColor(String name)
+	public static Color getAsColor(String name) throws IllegalArgumentException
 	{
 		return stringToColor(SETTINGS.getProperty(name));
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @return
+	 * Get the list of CardCharacteristics represented by the given global setting.
+	 * 
+	 * @param name Name of the setting to get
+	 * @return List of CardCharacteristic that is represented by the setting
+	 * @throws IllegalArgumentException If the given setting is not a list of CardCharacteristics
 	 */
-	public static List<CardCharacteristic> getAsCharacteristics(String name)
+	public static List<CardCharacteristic> getAsCharacteristics(String name) throws IllegalArgumentException
 	{
 		return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @return The list of preset CategorySpecs.
 	 */
 	public static List<CategorySpec> getPresetCategories()
 	{
@@ -251,8 +257,9 @@ public class SettingsDialog extends JDialog
 	 * 
 	 * @param s String to parse
 	 * @return The Color corresponding to the String.
+	 * @throw IllegalArgumentException if the given String does not represent a Color.
 	 */
-	public static Color stringToColor(String s)
+	public static Color stringToColor(String s) throws IllegalArgumentException
 	{
 		Matcher m = COLOR_PATTERN.matcher(s);
 		if (m.matches())
