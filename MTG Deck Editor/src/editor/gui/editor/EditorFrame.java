@@ -100,6 +100,7 @@ import editor.gui.TableMouseAdapter;
  * TODO: Add a "priority" for each category (that is editable and persistent) that can be used to sort categories
  * TODO: Add something for calculating probability for multiple categories at once
  * TODO: Put setUnsaved in places missing it
+ * TODO: Maintain selection when including/excluding from categories
  * 
  * @author Alec Roelke
  */
