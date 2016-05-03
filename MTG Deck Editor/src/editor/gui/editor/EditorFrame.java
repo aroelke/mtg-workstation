@@ -1428,7 +1428,7 @@ public class EditorFrame extends JInternalFrame
 					.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
 					.collect(Collectors.toList());
 			for (Card c: toRemove)
-				deck.decrease(c, n);
+				removed.put(c, deck.decrease(c, n));
 			((AbstractTableModel)selectedTable.getModel()).fireTableDataChanged();
 			for (Card c: selectedCards)
 			{
