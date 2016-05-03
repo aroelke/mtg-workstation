@@ -449,13 +449,17 @@ public class EditorFrame extends JInternalFrame
 									@Override
 									public boolean undo()
 									{
-										return category.exclude(cards.get(0));
+										boolean changed = category.exclude(cards.get(0));
+										updateTables();
+										return changed;
 									}
 									
 									@Override
 									public boolean redo()
 									{
-										return category.include(cards.get(0));
+										boolean changed = category.include(cards.get(0));
+										updateTables();
+										return changed;
 									}
 								};
 								if (include.redo())
@@ -473,13 +477,17 @@ public class EditorFrame extends JInternalFrame
 									@Override
 									public boolean undo()
 									{
-										return category.include(cards.get(0));
+										boolean changed = category.include(cards.get(0));
+										updateTables();
+										return changed;
 									}
 									
 									@Override
 									public boolean redo()
 									{
-										return category.exclude(cards.get(0));
+										boolean changed = category.exclude(cards.get(0));
+										updateTables();
+										return changed;
 									}
 								};
 								if (exclude.redo())
@@ -1020,6 +1028,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					for (Card c: selectedCards)
 						spec.include(c);
+					updateTables();
 					return true;
 				}
 
@@ -1028,6 +1037,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					for (Card c: selectedCards)
 						spec.exclude(c);
+					updateTables();
 					return true;
 				}
 			});
@@ -1692,6 +1702,14 @@ public class EditorFrame extends JInternalFrame
 		for (CategoryPanel c: categoryPanels)
 			if (c.table != except)
 				((AbstractTableModel)table.getModel()).fireTableDataChanged();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	private void updateTables()
+	{
+		updateTablesExcept(null);
 	}
 	
 	/**
