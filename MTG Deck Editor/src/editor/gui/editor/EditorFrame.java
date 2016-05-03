@@ -99,6 +99,7 @@ import editor.gui.TableMouseAdapter;
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
  * TODO: Add a "priority" for each category (that is editable and persistent) that can be used to sort categories
  * TODO: Add something for calculating probability for multiple categories at once
+ * TODO: Put setUnsaved in places missing it
  * 
  * @author Alec Roelke
  */
