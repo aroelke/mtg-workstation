@@ -101,6 +101,7 @@ import editor.gui.TableMouseAdapter;
  * TODO: Add something for calculating probability for multiple categories at once
  * TODO: Put setUnsaved in places missing it
  * TODO: Maintain selection when including/excluding from categories
+ * TODO: Fix UndoableActions such that they properly update the frame 
  * 
  * @author Alec Roelke
  */
@@ -1030,7 +1031,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					for (Card c: selectedCards)
 						spec.include(c);
-					updateTables();
+					((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
 					return true;
 				}
 
@@ -1039,11 +1040,12 @@ public class EditorFrame extends JInternalFrame
 				{
 					for (Card c: selectedCards)
 						spec.exclude(c);
-					updateTables();
+					((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
 					return true;
 				}
 			});
 			undoBuffer.peek().redo();
+			update();
 			redoBuffer.clear();
 		});
 		tableMenu.add(removeFromCategoryItem);
