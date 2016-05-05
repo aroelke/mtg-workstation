@@ -101,7 +101,8 @@ import editor.gui.TableMouseAdapter;
  * TODO: Add something for calculating probability for multiple categories at once
  * TODO: Put setUnsaved in places missing it
  * TODO: Maintain selection when including/excluding from categories
- * TODO: Fix UndoableActions such that they properly update the frame 
+ * TODO: Fix UndoableActions such that they properly update the frame
+ * TODO: Fix incorrect FilterGroup mode loading for editor button
  * 
  * @author Alec Roelke
  */
