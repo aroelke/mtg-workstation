@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
+import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.swing.Box;
@@ -99,9 +101,6 @@ import editor.gui.TableMouseAdapter;
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
  * TODO: Add a "priority" for each category (that is editable and persistent) that can be used to sort categories
  * TODO: Add something for calculating probability for multiple categories at once
- * TODO: Put setUnsaved in places missing it
- * TODO: Maintain selection when including/excluding from categories
- * TODO: Fix UndoableActions such that they properly update the frame
  * TODO: Fix incorrect FilterGroup mode loading for editor button
  * 
  * @author Alec Roelke
@@ -279,6 +278,10 @@ public class EditorFrame extends JInternalFrame
 	 * CardCollection containing currently-selected cards.
 	 */
 	private CardCollection selectedSource;
+	/**
+	 * TODO: Comment this
+	 */
+	List<Card> selectedCards;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -302,6 +305,7 @@ public class EditorFrame extends JInternalFrame
 		undoBuffer = new Stack<UndoableAction>();
 		redoBuffer = new Stack<UndoableAction>();
 		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
+		selectedCards = new ArrayList<Card>();
 
 		// Panel for showing buttons to add and remove cards
 		// The buttons are concentrated in the middle of the panel
@@ -448,58 +452,28 @@ public class EditorFrame extends JInternalFrame
 						containsBox.addActionListener((a) -> {
 							if (((JCheckBoxMenuItem)a.getSource()).isSelected())
 							{
-								UndoableAction include = new UndoableAction()
-								{
-									@Override
-									public boolean undo()
-									{
-										boolean changed = category.exclude(cards.get(0));
-										updateTables();
-										return changed;
-									}
-									
-									@Override
-									public boolean redo()
-									{
-										boolean changed = category.include(cards.get(0));
-										updateTables();
-										return changed;
-									}
-								};
+								UndoableAction include = new Action(() -> {
+									return category.exclude(cards.get(0));
+								}, () -> {
+									return category.include(cards.get(0));
+								});
 								if (include.redo())
 								{
 									undoBuffer.push(include);
 									redoBuffer.clear();
-									setUnsaved();
-									update();
 								}
 							}
 							else
 							{
-								UndoableAction exclude = new UndoableAction()
-								{
-									@Override
-									public boolean undo()
-									{
-										boolean changed = category.include(cards.get(0));
-										updateTables();
-										return changed;
-									}
-									
-									@Override
-									public boolean redo()
-									{
-										boolean changed = category.exclude(cards.get(0));
-										updateTables();
-										return changed;
-									}
-								};
+								UndoableAction exclude = new Action(() -> {
+									return category.include(cards.get(0));
+								}, () -> {
+									return category.exclude(cards.get(0));
+								});
 								if (exclude.redo())
 								{
 									undoBuffer.push(exclude);
 									redoBuffer.clear();
-									setUnsaved();
-									update();
 								}
 							}
 						});
@@ -730,7 +704,7 @@ public class EditorFrame extends JInternalFrame
 		statsPanel.add(nonlandLabel);
 		avgCMCLabel = new JLabel();
 		statsPanel.add(avgCMCLabel);
-		updateCount();
+		updateStats();
 		GridBagConstraints statsConstraints = new GridBagConstraints();
 		statsConstraints.anchor = GridBagConstraints.WEST;
 		bottomPanel.add(statsPanel, statsConstraints);
@@ -759,24 +733,14 @@ public class EditorFrame extends JInternalFrame
 			if (!changelogArea.getText().isEmpty()
 					&& JOptionPane.showInternalConfirmDialog(EditorFrame.this, "Change log cannot be restored once saved.  Clear change log?", "Clear Change Log?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
 			{
-				undoBuffer.push(new UndoableAction()
-				{
-					String text = changelogArea.getText();
-					
-					@Override
-					public boolean undo()
-					{
-						changelogArea.setText(text);
-						return true;
-					}
-	
-					@Override
-					public boolean redo()
-					{
-						changelogArea.setText("");
-						return true;
-					}
-				});
+				String text = changelogArea.getText();
+				undoBuffer.push(new Action(() -> {
+					changelogArea.setText(text);
+					return true;
+				}, () -> {
+					changelogArea.setText("");
+					return true;
+				}));
 				undoBuffer.peek().redo();
 				redoBuffer.clear();
 			}
@@ -789,10 +753,39 @@ public class EditorFrame extends JInternalFrame
 		
 		deck.addDeckListener((e) -> {
 			if (e.cardsChanged())
-				updateCount();
-			if (e.categoriesRemoved())
+			{
+				updateStats();
+				
+				((AbstractTableModel)table.getModel()).fireTableDataChanged();
+				for (CategoryPanel c: categoryPanels)
+					((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
+				for (Card c: selectedCards)
+				{
+					if (getSelectedSource().contains(c))
+					{
+						int row = selectedTable.convertRowIndexToModel(getSelectedSource().indexOf(c));
+						selectedTable.addRowSelectionInterval(row, row);
+					}
+				}
+				if (table.isEditing())
+					table.getCellEditor().cancelCellEditing();
+				for (CategoryPanel c: categoryPanels)
+					if (c.table.isEditing())
+						c.table.getCellEditor().cancelCellEditing();
+				
+				hand.refresh();
+				handModel.fireTableDataChanged();
+			}
+			if (e.categoriesRemoved() || e.categoryChanged())
+			{
 				updateCategoryPanel();
-			setUnsaved();
+			}
+			
+			if (!unsaved)
+			{
+				setTitle(getTitle() + " *");
+				unsaved = true;
+			}
 			update();
 		});
 		
@@ -1025,28 +1018,18 @@ public class EditorFrame extends JInternalFrame
 		JMenuItem removeFromCategoryItem = new JMenuItem("Exclude from Category");
 		removeFromCategoryItem.addActionListener((e) -> {
 			List<Card> selectedCards = newCategory.getSelectedCards();
-			undoBuffer.push(new UndoableAction()
-			{
-				@Override
-				public boolean undo()
-				{
-					for (Card c: selectedCards)
-						spec.include(c);
-					((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
-					return true;
-				}
-
-				@Override
-				public boolean redo()
-				{
-					for (Card c: selectedCards)
-						spec.exclude(c);
-					((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
-					return true;
-				}
-			});
+			undoBuffer.push(new Action(() -> {
+				for (Card c: selectedCards)
+					spec.include(c);
+				((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
+				return true;
+			}, () -> {
+				for (Card c: selectedCards)
+					spec.exclude(c);
+				((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
+				return true;
+			}));
 			undoBuffer.peek().redo();
-			update();
 			redoBuffer.clear();
 		});
 		tableMenu.add(removeFromCategoryItem);
@@ -1169,20 +1152,11 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (spec != null && !deck.containsCategory(spec.getName()))
 		{
-			undoBuffer.push(new UndoableAction()
-			{
-				@Override
-				public boolean undo()
-				{
-					return deleteCategory(spec);
-				}
-
-				@Override
-				public boolean redo()
-				{
-					return insertCategory(spec);
-				}
-			});
+			undoBuffer.push(new Action(() -> {
+				return deleteCategory(spec);
+			}, () -> {
+				return insertCategory(spec);
+			}));
 			redoBuffer.clear();
 			return undoBuffer.peek().redo();
 		}
@@ -1219,22 +1193,12 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private void editCategory(CategorySpec toEdit, CategorySpec newValues)
 	{
-		undoBuffer.push(new UndoableAction()
-		{
-			CategorySpec oldSpec = new CategorySpec(toEdit);
-			
-			@Override
-			public boolean undo()
-			{
-				return toEdit.copy(oldSpec);
-			}
-
-			@Override
-			public boolean redo()
-			{
-				return toEdit.copy(newValues);
-			}
-		});
+		CategorySpec oldSpec = new CategorySpec(toEdit);
+		undoBuffer.push(new Action(() -> {
+			return toEdit.copy(oldSpec);
+		}, () -> {
+			return toEdit.copy(newValues);
+		}));
 		undoBuffer.peek().redo();
 		redoBuffer.clear();
 	}
@@ -1253,20 +1217,11 @@ public class EditorFrame extends JInternalFrame
 			return false;
 		else
 		{
-			undoBuffer.push(new UndoableAction()
-			{
-				@Override
-				public boolean undo()
-				{
-					return insertCategory(category);
-				}
-
-				@Override
-				public boolean redo()
-				{
-					return deleteCategory(category);
-				}
-			});
+			undoBuffer.push(new Action(() -> {
+				return insertCategory(category);
+			}, () -> {
+				return deleteCategory(category);
+			}));
 			redoBuffer.clear();
 			return undoBuffer.peek().redo();
 		}
@@ -1309,15 +1264,15 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void updateCategoryPanel()
 	{
-		List<CategorySpec> categories = new ArrayList<CategorySpec>(deck.categories());
-		if (categories.isEmpty())
+		categoriesContainer.removeAll();
+		switchCategoryModel.removeAllElements();
+		
+		if (deck.categories().isEmpty())
 			switchCategoryBox.setEnabled(false);
 		else
 		{
 			switchCategoryBox.setEnabled(true);
-			
-			categoriesContainer.removeAll();
-			switchCategoryModel.removeAllElements();
+			List<CategorySpec> categories = new ArrayList<CategorySpec>(deck.categories());
 			
 			switch (sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()))
 			{
@@ -1347,7 +1302,7 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Update the card counter to reflect the total number of cards in the deck.
 	 */
-	public void updateCount()
+	public void updateStats()
 	{
 		countLabel.setText("Total cards: " + deck.total());
 		landLabel.setText("Lands: " + deck.land());
@@ -1384,31 +1339,14 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private boolean insertCards(Map<Card, Integer> cards)
 	{
+		saveSelectedCards();
 		cards.values().removeAll(Arrays.asList(0));
 		if (cards.isEmpty())
 			return false;
 		else
 		{
-			int[] selectedRows = selectedTable.getSelectedRows();
-			
 			for (Map.Entry<Card, Integer> entry: cards.entrySet())
 				deck.increase(entry.getKey(), entry.getValue());
-
-			((AbstractTableModel)selectedTable.getModel()).fireTableDataChanged();
-			for (int row: selectedRows)
-				selectedTable.addRowSelectionInterval(row, row);
-			updateTablesExcept(selectedTable);
-			update();
-			
-			if (table.isEditing())
-				table.getCellEditor().cancelCellEditing();
-			for (CategoryPanel c: categoryPanels)
-				if (c.table.isEditing())
-					c.table.getCellEditor().cancelCellEditing();
-			hand.refresh();
-			handModel.fireTableDataChanged();
-			parent.revalidate();
-			parent.repaint();
 			return true;
 		}
 	}
@@ -1424,39 +1362,29 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private Map<Card, Integer> deleteCards(Collection<Card> toRemove, int n)
 	{
+		saveSelectedCards();
 		Map<Card, Integer> removed = new HashMap<Card, Integer>();
 		if (toRemove.isEmpty())
 			return removed;
 		else
 		{
-			List<Card> selectedCards = Arrays.stream(selectedTable.getSelectedRows())
-					.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
-					.collect(Collectors.toList());
 			for (Card c: toRemove)
 				removed.put(c, deck.decrease(c, n));
-			((AbstractTableModel)selectedTable.getModel()).fireTableDataChanged();
-			for (Card c: selectedCards)
-			{
-				if (getSelectedSource().contains(c))
-				{
-					int row = selectedTable.convertRowIndexToModel(getSelectedSource().indexOf(c));
-					selectedTable.addRowSelectionInterval(row, row);
-				}
-			}
-			updateTablesExcept(table);
-			update();
-			
-			if (table.isEditing())
-				table.getCellEditor().cancelCellEditing();
-			for (CategoryPanel c: categoryPanels)
-				if (c.table.isEditing())
-					c.table.getCellEditor().cancelCellEditing();
-			hand.refresh();
-			handModel.fireTableDataChanged();
-			parent.revalidate();
-			parent.repaint();
 			return removed;
 		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 */
+	private void saveSelectedCards()
+	{
+		if (selectedTable != null)
+			selectedCards = Arrays.stream(selectedTable.getSelectedRows())
+					.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
+					.collect(Collectors.toList());
+		else
+			selectedCards = new ArrayList<Card>();
 	}
 	
 	/**
@@ -1489,22 +1417,12 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean addCards(List<Card> toAdd, int n)
 	{
-		UndoableAction addAction = new UndoableAction()
-		{
-			private Map<Card, Integer> cards = toAdd.stream().collect(Collectors.toMap((c) -> c, (c) -> n));
-			
-			@Override
-			public boolean undo()
-			{
-				return !deleteCards(toAdd, n).isEmpty();
-			}
-
-			@Override
-			public boolean redo()
-			{
-				return insertCards(cards);
-			}
-		};
+		Map<Card, Integer> cards = toAdd.stream().collect(Collectors.toMap((c) -> c, (c) -> n));
+		Action addAction = new Action(() -> {
+			return !deleteCards(toAdd, n).isEmpty();
+		}, () -> {
+			return insertCards(cards);
+		});
 		if (addAction.redo())
 		{
 			undoBuffer.push(addAction);
@@ -1559,22 +1477,12 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean removeCards(Collection<Card> toRemove, int n)
 	{
-		UndoableAction remove = new UndoableAction()
-		{
-			private Map<Card, Integer> removed = new HashMap<Card, Integer>();
-			
-			@Override
-			public boolean undo()
-			{
-				return insertCards(removed);
-			}
-
-			@Override
-			public boolean redo()
-			{
-				return !(removed = deleteCards(toRemove, n)).isEmpty();
-			}
-		};
+		Map<Card, Integer> removed = toRemove.stream().collect(Collectors.toMap(Function.identity(), (c) -> Math.min(n, deck.count(c))));
+		UndoableAction remove = new Action(() -> {
+			return insertCards(removed);
+		}, () -> {
+			return !deleteCards(toRemove, n).isEmpty();
+		});
 		if (remove.redo())
 		{
 			undoBuffer.add(remove);
@@ -1615,35 +1523,15 @@ public class EditorFrame extends JInternalFrame
 		{
 			if (n != deck.count(c))
 			{
-				undoBuffer.push(new UndoableAction()
-				{
-					private int old = deck.count(c);
-					
-					@Override
-					public boolean undo()
-					{
-						return deck.setCount(c, old);
-					}
-
-					@Override
-					public boolean redo()
-					{
-						return deck.setCount(c, n);
-					}
-				});
+				int old = deck.count(c);
+				undoBuffer.push(new Action(() -> {
+					return deck.setCount(c, old);
+				}, () -> {
+					return deck.setCount(c, n);
+				}));
 				undoBuffer.peek().redo();
-				model.fireTableDataChanged();
-				for (CategoryPanel category: categoryPanels)
-					category.update();
-				hand.refresh();
-				handModel.fireTableDataChanged();
 				
 				redoBuffer.clear();
-				if (table.isEditing())
-					table.getCellEditor().cancelCellEditing();
-				update();
-				parent.revalidate();
-				parent.repaint();
 			}
 		}
 		else
@@ -1693,28 +1581,6 @@ public class EditorFrame extends JInternalFrame
 		for (CategoryPanel c: categoryPanels)
 			if (c.table != except)
 				c.table.clearSelection();
-	}
-	
-	/**
-	 * Call fireTableDataChanged on all tables except the given one.
-	 * 
-	 * @param except CardTable to not update.
-	 */
-	private void updateTablesExcept(CardTable except)
-	{
-		if (table != except)
-			((AbstractTableModel)table.getModel()).fireTableDataChanged();
-		for (CategoryPanel c: categoryPanels)
-			if (c.table != except)
-				((AbstractTableModel)table.getModel()).fireTableDataChanged();
-	}
-	
-	/**
-	 * TODO: Comment this
-	 */
-	private void updateTables()
-	{
-		updateTablesExcept(null);
 	}
 	
 	/**
@@ -1828,18 +1694,6 @@ public class EditorFrame extends JInternalFrame
 			undoBuffer.push(action);
 		}
 	}
-	
-	/**
-	 * Mark the deck as having been changed since it has last been saved.
-	 */
-	public void setUnsaved()
-	{
-		if (!unsaved)
-		{
-			setTitle(getTitle() + " *");
-			unsaved = true;
-		}
-	}
 
 	/**
 	 * @return <code>true</code> if there are unsaved changes in the deck, and <code>false</code>
@@ -1869,8 +1723,7 @@ public class EditorFrame extends JInternalFrame
 			case JOptionPane.NO_OPTION:
 				dispose();
 				return true;
-			case JOptionPane.CANCEL_OPTION:
-			case JOptionPane.CLOSED_OPTION:
+			case JOptionPane.CANCEL_OPTION: case JOptionPane.CLOSED_OPTION:
 				return false;
 			default:
 				return false;
@@ -1932,6 +1785,35 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
+	 * TODO: Comment this class
+	 * @author Alec
+	 *
+	 */
+	private class Action implements UndoableAction
+	{
+		private BooleanSupplier undo;
+		private BooleanSupplier redo;
+		
+		public Action(BooleanSupplier u, BooleanSupplier r)
+		{
+			undo = u;
+			redo = r;
+		}
+		
+		@Override
+		public boolean undo()
+		{
+			return undo.getAsBoolean();
+		}
+
+		@Override
+		public boolean redo()
+		{
+			return redo.getAsBoolean();
+		}
+	}
+	
+	/**
 	 * This class represents a transfer handler for transferring cards to and from
 	 * a table in the editor frame.
 	 * 
@@ -1970,23 +1852,14 @@ public class EditorFrame extends JInternalFrame
 				{
 					@SuppressWarnings("unchecked")
 					Map<Card, Integer> data = (Map<Card, Integer>)supp.getTransferable().getTransferData(Deck.entryFlavor);
-					UndoableAction addAction = new UndoableAction()
-					{
-						@Override
-						public boolean undo()
-						{
+					UndoableAction addAction = new Action(() -> {
 							boolean undone = false;
 							for (Map.Entry<Card, Integer> entry: data.entrySet())
 								undone |= !deleteCards(Arrays.asList(entry.getKey()), entry.getValue()).isEmpty();
 							return undone;
-						}
-
-						@Override
-						public boolean redo()
-						{
+						}, () -> {
 							return insertCards(data);
-						}
-					};
+						});
 					if (addAction.redo())
 					{
 						undoBuffer.push(addAction);
