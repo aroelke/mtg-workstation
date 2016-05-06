@@ -132,12 +132,12 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private static enum CategoryOrder
 	{
-		A_Z("A-Z", (e) -> (a, b) -> a.getName().compareTo(b.getName())),
-		Z_A("Z-A", (e) -> (a, b) -> -a.getName().compareTo(b.getName())),
-		ASCENDING("Ascending Size", (e) -> (a, b) -> e.deck.total(a.getName()) - e.deck.total(b.getName())),
-		DESCENDING("Descending Size", (e) -> (a, b) -> e.deck.total(b.getName()) - e.deck.total(a.getName())),
-		PRIORITY("Ascending Priority", (e) -> (a, b) -> 0), // TODO: Implement priority
-		REVERSE("Descending Priority", (e) -> (a, b) -> 0);
+		A_Z("A-Z", (d) -> (a, b) -> a.getName().compareTo(b.getName())),
+		Z_A("Z-A", (d) -> (a, b) -> -a.getName().compareTo(b.getName())),
+		ASCENDING("Ascending Size", (d) -> (a, b) -> d.total(a.getName()) - d.total(b.getName())),
+		DESCENDING("Descending Size", (d) -> (a, b) -> d.total(b.getName()) - d.total(a.getName())),
+		PRIORITY("Ascending Priority", (d) -> (a, b) -> 0), // TODO: Implement priority
+		REVERSE("Descending Priority", (d) -> (a, b) -> 0);
 		
 		/**
 		 * String to display when a String representation of this
@@ -145,28 +145,34 @@ public class EditorFrame extends JInternalFrame
 		 */
 		private final String name;
 		/**
-		 * TODO: Comment this
+		 * Function comparing two CategorySpecs from a deck
 		 */
-		private final Function<EditorFrame, Comparator<CategorySpec>> order;
+		private final Function<Deck, Comparator<CategorySpec>> order;
 		
 		/**
 		 * Create a new CategoryOrder.
 		 * 
 		 * @param n Name of the new CategoryOrder
-		 * @param o TODO: Comment this
+		 * @param o Function comparing two CategorySpecs from a Deck
 		 */
-		private CategoryOrder(String n, Function<EditorFrame, Comparator<CategorySpec>> o)
+		private CategoryOrder(String n, Function<Deck, Comparator<CategorySpec>> o)
 		{
 			name = n;
 			order = o;
 		}
 		
 		/**
-		 * TODO: Comment this
+		 * Compare the two given CategorySpecs from the given Deck.
+		 * 
+		 * @param d Deck containing the categories
+		 * @param a First category
+		 * @param b Second category
+		 * @return A negative number if the first category comes before the second in the given Deck,
+		 * a positive number if it comes after, and 0 if there is no relative order.
 		 */
-		public int compare(EditorFrame e, CategorySpec a, CategorySpec b)
+		public int compare(Deck d, CategorySpec a, CategorySpec b)
 		{
-			return order.apply(e).compare(a, b);
+			return order.apply(d).compare(a, b);
 		}
 		
 		/**
@@ -295,7 +301,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private CardCollection selectedSource;
 	/**
-	 * TODO: Comment this
+	 * Saved list of selected cards from the active table.
 	 */
 	private List<Card> selectedCards;
 
@@ -1289,7 +1295,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			switchCategoryBox.setEnabled(true);
 			List<CategorySpec> categories = new ArrayList<CategorySpec>(deck.categories());
-			categories.sort((a, b) -> sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()).compare(this, a, b));
+			categories.sort((a, b) -> sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()).compare(deck, a, b));
 			
 			for (CategorySpec c: categories)
 				categoriesContainer.add(getCategory(c.getName()));
@@ -1374,7 +1380,8 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * Save the list of selected cards from the active table for later selection
+	 * restoration.
 	 */
 	private void saveSelectedCards()
 	{
@@ -1784,27 +1791,52 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this class
+	 * This class represents an action that can be undone, like its interface.
+	 * It provides a wrapper for reducing code size.
+	 * 
 	 * @author Alec
-	 *
 	 */
 	private class Action implements UndoableAction
 	{
+		/**
+		 * Action to perform when undoing.
+		 */
 		private BooleanSupplier undo;
+		/**
+		 * Action to perform when redoing (or doing for the first time).
+		 */
 		private BooleanSupplier redo;
 		
+		/**
+		 * Create a new Action.
+		 * 
+		 * @param u Undo action
+		 * @param r Redo action
+		 */
 		public Action(BooleanSupplier u, BooleanSupplier r)
 		{
 			undo = u;
 			redo = r;
 		}
 		
+		/**
+		 * Undo the action.
+		 * 
+		 * @return <code>true</code> if the undoing was a success, and <code>false</code>
+		 * otherwise.
+		 */
 		@Override
 		public boolean undo()
 		{
 			return undo.getAsBoolean();
 		}
 
+		/**
+		 * Redo the action (or do it for the first time).
+		 * 
+		 * @return <code>true</code> if completing the action was a success, and
+		 * <code>false</code> otherwise.
+		 */
 		@Override
 		public boolean redo()
 		{

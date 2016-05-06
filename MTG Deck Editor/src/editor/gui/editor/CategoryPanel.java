@@ -68,7 +68,7 @@ public class CategoryPanel extends JPanel
 	 */
 	private JLabel countLabel;
 	/**
-	 * TODO: Comment this
+	 * Label showing the average CMC of cards in the category.
 	 */
 	private JLabel avgCMCLabel;
 	/**
