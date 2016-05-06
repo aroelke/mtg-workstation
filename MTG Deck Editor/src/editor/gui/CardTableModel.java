@@ -158,7 +158,7 @@ public class CardTableModel extends AbstractTableModel
 	{
 		if (isCellEditable(row, column))
 		{
-			characteristics.get(column).editFunc.accept(editor, list.get(row), value);
+			characteristics.get(column).editFunc.apply(editor).accept(list.get(row), value);
 			fireTableDataChanged();
 		}
 	}

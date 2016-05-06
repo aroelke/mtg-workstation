@@ -3,7 +3,9 @@ package editor.database.characteristics;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.swing.table.TableCellEditor;
 
@@ -11,7 +13,6 @@ import editor.collection.CardCollection;
 import editor.database.Card;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.SpinnerCellEditor;
-import editor.util.TriConsumer;
 
 /**
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
@@ -24,7 +25,7 @@ import editor.util.TriConsumer;
 public enum CardCharacteristic
 {
 	NAME("Name", String.class, (l, i) -> l.get(i).name()),
-	COUNT("Count", Integer.class, (l, i) -> l.count(i), (e, c, n) -> {
+	COUNT("Count", Integer.class, (l, i) -> l.count(i), (e) -> (c, n) -> {
 		if (n instanceof Integer)
 			e.setCardCount(c, ((Integer)n).intValue());
 		else
@@ -93,7 +94,7 @@ public enum CardCharacteristic
 	 * Function for editing the value corresponding to the characteristic.  It should be null for constant
 	 * characteristics.
 	 */
-	public final TriConsumer<EditorFrame, Card, Object> editFunc;
+	public final Function<EditorFrame, BiConsumer<Card, Object>> editFunc;
 	
 	/**
 	 * Create a CardCharacteristic with the specified name, column class, value function, and category function.
@@ -105,7 +106,7 @@ public enum CardCharacteristic
 	 * @param ef Function to edit deck values from the cell
 	 * @param e Editor that should be used to perform the editing
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f, TriConsumer<EditorFrame, Card, Object> ef)
+	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f, Function<EditorFrame, BiConsumer<Card, Object>> ef)
 	{
 		name = n;
 		columnClass = c;
@@ -122,7 +123,7 @@ public enum CardCharacteristic
 	 */
 	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f)
 	{
-		this(n, c, f, null);
+		this(n, c, f, (e) -> (a, b) -> {});
 	}
 	
 	/**
