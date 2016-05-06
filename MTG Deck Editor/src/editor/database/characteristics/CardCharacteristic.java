@@ -89,12 +89,12 @@ public enum CardCharacteristic
 	/**
 	 * Function taking a list of cards and returning a characteristic of a card from a category of that list.
 	 */
-	public final BiFunction<CardCollection, Integer, ?> func;
+	private final BiFunction<CardCollection, Integer, ?> func;
 	/**
 	 * Function for editing the value corresponding to the characteristic.  It should be null for constant
 	 * characteristics.
 	 */
-	public final Function<EditorFrame, BiConsumer<Card, Object>> editFunc;
+	private final Function<EditorFrame, BiConsumer<Card, Object>> editFunc;
 	
 	/**
 	 * Create a CardCharacteristic with the specified name, column class, value function, and category function.
@@ -123,7 +123,20 @@ public enum CardCharacteristic
 	 */
 	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f)
 	{
-		this(n, c, f, (e) -> (a, b) -> {});
+		this(n, c, f, null);
+	}
+	
+	/**
+	 * Get the value of the CardCharacteristic of the card at the given index into the
+	 * collection
+	 * 
+	 * @param c CardCollection to search
+	 * @param i Index into the collection
+	 * @return The value of the CardCharacteristic.
+	 */
+	public Object get(CardCollection c, int i)
+	{
+		return func.apply(c, i);
 	}
 	
 	/**
@@ -142,6 +155,27 @@ public enum CardCharacteristic
 		default:
 			return null;
 		}
+	}
+	
+	/**
+	 * @return <code>true</code> if this CardCharacteristic can be edited, and <code>false</code>
+	 * otherwise.
+	 */
+	public boolean isEditable()
+	{
+		return editFunc != null;
+	}
+	
+	/**
+	 * Edit the value of a CardCharacteristic in a table of the given EditorFrame.
+	 * 
+	 * @param frame EditorFrame containing the table cell to edit
+	 * @param c Card to edit the value of
+	 * @param value New value for the CardCharacteristic
+	 */
+	public void edit(EditorFrame frame, Card c, Object value)
+	{
+		editFunc.apply(frame).accept(c, value);
 	}
 	
 	/**
