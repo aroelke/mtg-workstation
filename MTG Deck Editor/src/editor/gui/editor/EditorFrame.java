@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -99,7 +100,6 @@ import editor.gui.TableMouseAdapter;
  * TODO: Change the category tab's exclude popup option to set categories
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
- * TODO: Add a "priority" for each category (that is editable and persistent) that can be used to sort categories
  * TODO: Add something for calculating probability for multiple categories at once
  * TODO: Fix incorrect FilterGroup mode loading for editor button
  * 
@@ -130,27 +130,43 @@ public class EditorFrame extends JInternalFrame
 	 * 
 	 * @author Alec Roelke
 	 */
-	public static enum CategoryOrder
+	private static enum CategoryOrder
 	{
-		A_Z("A-Z"),
-		Z_A("Z-A"),
-		ASCENDING("Ascending Size"),
-		DESCENDING("Descending Size");
+		A_Z("A-Z", (e) -> (a, b) -> a.getName().compareTo(b.getName())),
+		Z_A("Z-A", (e) -> (a, b) -> -a.getName().compareTo(b.getName())),
+		ASCENDING("Ascending Size", (e) -> (a, b) -> e.deck.total(a.getName()) - e.deck.total(b.getName())),
+		DESCENDING("Descending Size", (e) -> (a, b) -> e.deck.total(b.getName()) - e.deck.total(a.getName())),
+		PRIORITY("Ascending Priority", (e) -> (a, b) -> 0), // TODO: Implement priority
+		REVERSE("Descending Priority", (e) -> (a, b) -> 0);
 		
 		/**
 		 * String to display when a String representation of this
 		 * CategoryOrder is called for.
 		 */
 		private final String name;
+		/**
+		 * TODO: Comment this
+		 */
+		private final Function<EditorFrame, Comparator<CategorySpec>> order;
 		
 		/**
 		 * Create a new CategoryOrder.
 		 * 
 		 * @param n Name of the new CategoryOrder
+		 * @param o TODO: Comment this
 		 */
-		private CategoryOrder(String n)
+		private CategoryOrder(String n, Function<EditorFrame, Comparator<CategorySpec>> o)
 		{
 			name = n;
+			order = o;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 */
+		public int compare(EditorFrame e, CategorySpec a, CategorySpec b)
+		{
+			return order.apply(e).compare(a, b);
 		}
 		
 		/**
@@ -281,7 +297,7 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * TODO: Comment this
 	 */
-	List<Card> selectedCards;
+	private List<Card> selectedCards;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -1273,24 +1289,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			switchCategoryBox.setEnabled(true);
 			List<CategorySpec> categories = new ArrayList<CategorySpec>(deck.categories());
-			
-			switch (sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()))
-			{
-			case A_Z:
-				categories.sort((a, b) -> a.getName().compareTo(b.getName()));
-				break;
-			case Z_A:
-				categories.sort((a, b) -> -a.getName().compareTo(b.getName()));
-				break;
-			case ASCENDING:
-				categories.sort((a, b) -> deck.total(a.getName()) - deck.total(b.getName()));
-				break;
-			case DESCENDING:
-				categories.sort((a, b) -> deck.total(b.getName()) - deck.total(a.getName()));
-				break;
-			default:
-				break;
-			}
+			categories.sort((a, b) -> sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()).compare(this, a, b));
 			
 			for (CategorySpec c: categories)
 				categoriesContainer.add(getCategory(c.getName()));
