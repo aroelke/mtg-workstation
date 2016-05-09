@@ -163,6 +163,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		FilterGroup filter = new FilterGroup();
 		for (Filter child: children)
 			filter.addChild(child.copy());
+		filter.mode = mode;
 		return filter;
 	}
 	
