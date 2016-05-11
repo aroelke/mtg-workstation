@@ -102,6 +102,8 @@ import editor.gui.TableMouseAdapter;
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
  * TODO: Add something for calculating probability for multiple categories at once
  * TODO: Fix incorrect FilterGroup mode loading for editor button
+ * TODO: Properly update categories when cards are included/excluded from the main table
+ * TODO: Properly update the inventory table when cards are added/removed
  * 
  * @author Alec Roelke
  */
