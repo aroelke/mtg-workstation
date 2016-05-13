@@ -1426,6 +1426,14 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
+	 * TODO: Comment this
+	 */
+	public void updateCardsInDeck()
+	{
+		inventoryModel.fireTableDataChanged();
+	}
+	
+	/**
 	 * This class represents a renderer for rendering table cells that display text.  If
 	 * the cell contains text and the card at the row is in the currently-active deck,
 	 * the cell is rendered bold.

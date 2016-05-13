@@ -306,7 +306,7 @@ public class Deck implements CardCollection
 			
 			Map<Card, Integer> added = new HashMap<Card, Integer>();
 			added.put(c, n);
-			DeckEvent event = new DeckEvent(this, added, null, null, null);
+			DeckEvent event = new DeckEvent(this, added);
 			for (DeckListener listener: listeners)
 				listener.deckChanged(event);
 			
@@ -398,7 +398,7 @@ public class Deck implements CardCollection
 				
 				Map<Card, Integer> removed = new HashMap<Card, Integer>();
 				removed.put(c, -n);
-				DeckEvent event = new DeckEvent(this, removed, null, null, null);
+				DeckEvent event = new DeckEvent(this, removed);
 				for (DeckListener listener: listeners)
 					listener.deckChanged(event);
 				
@@ -515,7 +515,7 @@ public class Deck implements CardCollection
 			
 			Map<Card, Integer> change = new HashMap<Card, Integer>();
 			change.put(c, n - e.count);
-			DeckEvent event = new DeckEvent(this, change, null, null, null);
+			DeckEvent event = new DeckEvent(this, change);
 			
 			e.count = n;
 			if (e.count == 0)
@@ -643,10 +643,13 @@ public class Deck implements CardCollection
 				if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
 					c.update();
 				
-				DeckEvent event = new DeckEvent(this, null, e.nameChanged() ? e.oldName() : e.getSource().getName(), e, null);
+				DeckEvent event = new DeckEvent(this, null, e.nameChanged() ? e.oldName() : e.getSource().getName(), e, null, null);
 				for (DeckListener listener: new HashSet<DeckListener>(listeners))
 					listener.deckChanged(event);
 			});
+			
+			for (DeckListener listener: new HashSet<DeckListener>(listeners))
+				listener.deckChanged(new DeckEvent(this, null, null, null, c.spec.getName(), null));
 			
 			return c;
 		}
@@ -671,7 +674,7 @@ public class Deck implements CardCollection
 			categories.remove(name);
 			c.spec.removeCategoryListener(c.listener);
 			
-			DeckEvent event = new DeckEvent(this, null, null, null,
+			DeckEvent event = new DeckEvent(this, null, null, null, null,
 					new HashSet<String>(Arrays.asList(c.spec.getName())));
 			for (DeckListener listener: new HashSet<DeckListener>(listeners))
 				listener.deckChanged(event);
@@ -748,7 +751,7 @@ public class Deck implements CardCollection
 		total = 0;
 		land = 0;
 		
-		DeckEvent e = new DeckEvent(this, removed, null, null, categoriesRemoved);
+		DeckEvent e = new DeckEvent(this, removed, null, null, null, categoriesRemoved);
 		for (DeckListener listener: new HashSet<DeckListener>(listeners))
 			listener.deckChanged(e);
 	}

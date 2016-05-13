@@ -102,8 +102,6 @@ import editor.gui.TableMouseAdapter;
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
  * TODO: Add something for calculating probability for multiple categories at once
  * TODO: Fix incorrect FilterGroup mode loading for editor button
- * TODO: Properly update categories when cards are included/excluded from the main table
- * TODO: Properly update the inventory table when cards are added/removed
  * 
  * @author Alec Roelke
  */
@@ -780,6 +778,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				updateStats();
 				
+				parent.updateCardsInDeck();
 				((AbstractTableModel)table.getModel()).fireTableDataChanged();
 				for (CategoryPanel c: categoryPanels)
 					((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
@@ -1125,6 +1124,7 @@ public class EditorFrame extends JInternalFrame
 			deck.addCategory(spec);
 			CategoryPanel category = createCategoryPanel(spec);
 			categoryPanels.add(category);
+			// TODO: Find a way to put all of the below lines into the deck listener
 			updateCategoryPanel();
 			listTabs.setSelectedIndex(CATEGORIES);
 			//TODO: Make this work

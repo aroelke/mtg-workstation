@@ -37,6 +37,10 @@ public class DeckEvent
 	 */
 	private CategoryEvent categoryChanges;
 	/**
+	 * TODO: Comment this
+	 */
+	private String addedCategory;
+	/**
 	 * Set of names of categories that have been removed, if any.
 	 */
 	private Set<String> removedCategories;
@@ -51,22 +55,35 @@ public class DeckEvent
 	 * @param changeName Name of the category that may have changed
 	 * @param catChange CategoryEvent specifying changes to the category if any
 	 * were made
+	 * @param catAdd set of category names that were added to the Deck, if any were
 	 * @param catRem Set of category names that were removed from the Deck, if
 	 * any were
 	 */
 	public DeckEvent(Deck s,
 			Map<Card, Integer> cards,
-			String changeName, CategoryEvent catChange, Set<String> catRem)
+			String changeName, CategoryEvent catChange,
+			String catAdd, Set<String> catRem)
 	{
 		source = s;
 		
 		cardsChanged = cards;
 		changedName = changeName;
 		categoryChanges = catChange;
+		addedCategory = catAdd;
 		removedCategories = catRem;
 		
 		if ((changedName == null) != (categoryChanges == null))
 			throw new IllegalStateException("Reporting changes to category without name");
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param s
+	 * @param cards
+	 */
+	public DeckEvent(Deck s, Map<Card, Integer> cards)
+	{
+		this(s, cards, null, null, null, null);
 	}
 	
 	/**
@@ -163,6 +180,27 @@ public class DeckEvent
 			return categoryChanges;
 		else
 			throw new IllegalStateException("Category was not changed");
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public boolean categoryAdded()
+	{
+		return addedCategory != null;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public String addedName()
+	{
+		if (categoryAdded())
+			return addedCategory;
+		else
+			throw new IllegalStateException("No category has been added to the deck");
 	}
 	
 	/**
