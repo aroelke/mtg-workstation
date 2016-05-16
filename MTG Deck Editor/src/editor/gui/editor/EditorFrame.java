@@ -474,11 +474,8 @@ public class EditorFrame extends JInternalFrame
 						containsBox.addActionListener((a) -> {
 							if (((JCheckBoxMenuItem)a.getSource()).isSelected())
 							{
-								UndoableAction include = new Action(() -> {
-									return category.exclude(cards.get(0));
-								}, () -> {
-									return category.include(cards.get(0));
-								});
+								UndoableAction include = new Action(() -> category.exclude(cards.get(0)),
+										() -> category.include(cards.get(0)));
 								if (include.redo())
 								{
 									undoBuffer.push(include);
@@ -1176,11 +1173,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (spec != null && !deck.containsCategory(spec.getName()))
 		{
-			undoBuffer.push(new Action(() -> {
-				return deleteCategory(spec);
-			}, () -> {
-				return insertCategory(spec);
-			}));
+			undoBuffer.push(new Action(() -> deleteCategory(spec), () -> insertCategory(spec)));
 			redoBuffer.clear();
 			return undoBuffer.peek().redo();
 		}
@@ -1218,11 +1211,7 @@ public class EditorFrame extends JInternalFrame
 	private void editCategory(CategorySpec toEdit, CategorySpec newValues)
 	{
 		CategorySpec oldSpec = new CategorySpec(toEdit);
-		undoBuffer.push(new Action(() -> {
-			return toEdit.copy(oldSpec);
-		}, () -> {
-			return toEdit.copy(newValues);
-		}));
+		undoBuffer.push(new Action(() -> toEdit.copy(oldSpec), () -> toEdit.copy(newValues)));
 		undoBuffer.peek().redo();
 		redoBuffer.clear();
 	}
@@ -1241,11 +1230,7 @@ public class EditorFrame extends JInternalFrame
 			return false;
 		else
 		{
-			undoBuffer.push(new Action(() -> {
-				return insertCategory(category);
-			}, () -> {
-				return deleteCategory(category);
-			}));
+			undoBuffer.push(new Action(() -> insertCategory(category), () -> deleteCategory(category)));
 			redoBuffer.clear();
 			return undoBuffer.peek().redo();
 		}
@@ -1426,11 +1411,7 @@ public class EditorFrame extends JInternalFrame
 	public boolean addCards(List<Card> toAdd, int n)
 	{
 		Map<Card, Integer> cards = toAdd.stream().collect(Collectors.toMap((c) -> c, (c) -> n));
-		Action addAction = new Action(() -> {
-			return !deleteCards(toAdd, n).isEmpty();
-		}, () -> {
-			return insertCards(cards);
-		});
+		Action addAction = new Action(() -> !deleteCards(toAdd, n).isEmpty(), () -> insertCards(cards));
 		if (addAction.redo())
 		{
 			undoBuffer.push(addAction);
@@ -1486,11 +1467,7 @@ public class EditorFrame extends JInternalFrame
 	public boolean removeCards(Collection<Card> toRemove, int n)
 	{
 		Map<Card, Integer> removed = toRemove.stream().collect(Collectors.toMap(Function.identity(), (c) -> Math.min(n, deck.count(c))));
-		UndoableAction remove = new Action(() -> {
-			return insertCards(removed);
-		}, () -> {
-			return !deleteCards(toRemove, n).isEmpty();
-		});
+		UndoableAction remove = new Action(() -> insertCards(removed), () -> !deleteCards(toRemove, n).isEmpty());
 		if (remove.redo())
 		{
 			undoBuffer.add(remove);
@@ -1532,11 +1509,7 @@ public class EditorFrame extends JInternalFrame
 			if (n != deck.count(c))
 			{
 				int old = deck.count(c);
-				undoBuffer.push(new Action(() -> {
-					return deck.setCount(c, old);
-				}, () -> {
-					return deck.setCount(c, n);
-				}));
+				undoBuffer.push(new Action(() -> deck.setCount(c, old), () -> deck.setCount(c, n)));
 				undoBuffer.peek().redo();
 				
 				redoBuffer.clear();
@@ -1890,9 +1863,7 @@ public class EditorFrame extends JInternalFrame
 							for (Map.Entry<Card, Integer> entry: data.entrySet())
 								undone |= !deleteCards(Arrays.asList(entry.getKey()), entry.getValue()).isEmpty();
 							return undone;
-						}, () -> {
-							return insertCards(data);
-						});
+						}, () -> insertCards(data));
 					if (addAction.redo())
 					{
 						undoBuffer.push(addAction);
