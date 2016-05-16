@@ -929,7 +929,7 @@ public class EditorFrame extends JInternalFrame
 		CategorySpec spec = null;
 		do
 		{
-			spec = CategoryEditorPanel.showCategoryEditor(spec != null ? spec : null);
+			spec = CategoryEditorPanel.showCategoryEditor(this, spec != null ? spec : null);
 			if (spec != null && deck.containsCategory(spec.getName()))
 				JOptionPane.showMessageDialog(null, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
 		} while (spec != null && deck.containsCategory(spec.getName()));
@@ -1191,10 +1191,11 @@ public class EditorFrame extends JInternalFrame
 	{
 		CategorySpec toEdit = deck.getCategorySpec(name);
 		if (toEdit == null)
-			JOptionPane.showMessageDialog(null, "Deck " + deckName() + " has no category named " + name + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showInternalMessageDialog(this, "Deck " + deckName() + " has no category named " + name + ".",
+					"Error", JOptionPane.ERROR_MESSAGE);
 		else
 		{
-			CategorySpec spec = CategoryEditorPanel.showCategoryEditor(toEdit);
+			CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, toEdit);
 			if (spec != null)
 				editCategory(toEdit, spec);
 		}

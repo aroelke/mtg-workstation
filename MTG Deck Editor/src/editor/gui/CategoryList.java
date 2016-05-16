@@ -101,7 +101,7 @@ public class CategoryList extends JList<String>
 						if (e.getClickCount() == 2)
 						{
 							clearSelection();
-							CategorySpec spec = CategoryEditorPanel.showCategoryEditor();
+							CategorySpec spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this);
 							if (spec != null)
 								addCategory(spec);
 						}
@@ -110,7 +110,7 @@ public class CategoryList extends JList<String>
 					{
 						if (e.getClickCount() == 2)
 						{
-							CategorySpec spec = CategoryEditorPanel.showCategoryEditor(getCategoryAt(index));
+							CategorySpec spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this, getCategoryAt(index));
 							if (spec != null)
 								setCategoryAt(index, spec);
 						}

@@ -234,11 +234,11 @@ public class MainFrame extends JFrame
 		}
 		catch (FileNotFoundException e)
 		{
-//			JOptionPane.showMessageDialog(null, "File " + PROPERTIES_FILE + " not found.  Using default settings.", "Warning", JOptionPane.WARNING_MESSAGE);
+//			JOptionPane.showMessageDialog(this, "File " + PROPERTIES_FILE + " not found.  Using default settings.", "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(null, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		try
 		{
@@ -246,7 +246,7 @@ public class MainFrame extends JFrame
 		}
 		catch (MalformedURLException e)
 		{
-			JOptionPane.showMessageDialog(null, "Bad version URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.VERSION_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Bad version URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.VERSION_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		try
 		{
@@ -254,7 +254,7 @@ public class MainFrame extends JFrame
 		}
 		catch (MalformedURLException e)
 		{
-			JOptionPane.showMessageDialog(null, "Bad file URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		inventoryFile = new File(SettingsDialog.getAsString(SettingsDialog.INVENTORY_LOCATION) + File.separator + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
 		recentCount = Integer.valueOf(SettingsDialog.getAsString(SettingsDialog.RECENT_COUNT));
@@ -399,7 +399,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 					selectedFrame.addSelectedCards((Integer)spinner.getValue());
 			}
 		});
@@ -429,7 +429,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 					selectedFrame.removeSelectedCards((Integer)spinner.getValue());
 			}
 		});
@@ -454,7 +454,7 @@ public class MainFrame extends JFrame
 				JList<String> categories = new JList<String>(selectedFrame.categoryNames());
 				categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
-				if (JOptionPane.showOptionDialog(null, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showOptionDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 					selectedFrame.editCategory(categories.getSelectedValue());
 			}
 		});
@@ -470,7 +470,7 @@ public class MainFrame extends JFrame
 				JList<String> categories = new JList<String>(selectedFrame.categoryNames());
 				categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
-				if (JOptionPane.showOptionDialog(null, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showOptionDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 					selectedFrame.removeCategory(categories.getSelectedValue());
 			}
 		});
@@ -507,7 +507,7 @@ public class MainFrame extends JFrame
 				}
 				break;
 			case NO_UPDATE:
-				JOptionPane.showMessageDialog(null, "Inventory is up to date.");
+				JOptionPane.showMessageDialog(this, "Inventory is up to date.");
 				break;
 			case UPDATE_CANCELLED:
 				break;
@@ -587,7 +587,7 @@ public class MainFrame extends JFrame
 			expansionTable.setAutoCreateRowSorter(true);
 			expansionTable.setPreferredScrollableViewportSize(new Dimension(600, expansionTable.getPreferredScrollableViewportSize().height));
 			
-			JOptionPane.showMessageDialog(null, new JScrollPane(expansionTable), "Expansions", JOptionPane.PLAIN_MESSAGE);
+			JOptionPane.showMessageDialog(this, new JScrollPane(expansionTable), "Expansions", JOptionPane.PLAIN_MESSAGE);
 		});
 		helpMenu.add(showExpansionsItem);
 		
@@ -668,7 +668,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 					selectedFrame.addCard(selectedCard, (Integer)spinner.getValue());
 			}
 		});
@@ -694,7 +694,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 					selectedFrame.removeCard(selectedCard, (Integer)spinner.getValue());
 			}
 		});
@@ -796,7 +796,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 					selectedFrame.addSelectedCards((Integer)spinner.getValue());
 			}
 		});
@@ -823,7 +823,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 					selectedFrame.removeCards(getSelectedCards(), (Integer)spinner.getValue());
 			}
 		});
@@ -851,7 +851,7 @@ public class MainFrame extends JFrame
 				panel.setContents(FilterType.NAME.createFilter());
 			else
 				panel.setContents(inventory.getFilter());
-			if (JOptionPane.showOptionDialog(null, panel, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showOptionDialog(this, panel, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
 				nameFilterField.setText("");
 				inventory.updateFilter(panel.filter());
@@ -957,7 +957,7 @@ public class MainFrame extends JFrame
 	{
 		if (!inventoryFile.exists())
 		{
-			JOptionPane.showMessageDialog(null, inventoryFile.getName() + " not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, inventoryFile.getName() + " not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE);
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
 			{
 				newestVersion = in.readLine();
@@ -965,7 +965,7 @@ public class MainFrame extends JFrame
 			}
 			catch (IOException e)
 			{
-				JOptionPane.showMessageDialog(null, "Error connecting to server: " + e.getMessage() + ".", "Connection Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Error connecting to server: " + e.getMessage() + ".", "Connection Error", JOptionPane.ERROR_MESSAGE);
 				return NO_UPDATE;
 			}
 			return UPDATE_NEEDED;
@@ -978,7 +978,7 @@ public class MainFrame extends JFrame
 				newestVersion = newestVersion.substring(1, newestVersion.length() - 1);
 				if (!newestVersion.equals(SettingsDialog.SETTINGS.get(SettingsDialog.VERSION)))
 				{
-					if (JOptionPane.showConfirmDialog(null, "Inventory is out of date.  Download update?", "Update", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+					if (JOptionPane.showConfirmDialog(this, "Inventory is out of date.  Download update?", "Update", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
 						return UPDATE_NEEDED;
 					else
 						return UPDATE_CANCELLED;
@@ -988,7 +988,7 @@ public class MainFrame extends JFrame
 			}
 			catch (IOException e)
 			{
-				JOptionPane.showMessageDialog(null, "Error connecting to server: " + e.getMessage() + ".", "Connection Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Error connecting to server: " + e.getMessage() + ".", "Connection Error", JOptionPane.ERROR_MESSAGE);
 				return NO_UPDATE;
 			}
 		}
@@ -1019,7 +1019,7 @@ public class MainFrame extends JFrame
 		}
 		catch (MalformedURLException e)
 		{
-			JOptionPane.showMessageDialog(null, "Bad file URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		inventoryFile = new File(SettingsDialog.getAsString(SettingsDialog.INVENTORY_LOCATION) + '\\' + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
 		recentCount = SettingsDialog.getAsInt(SettingsDialog.RECENT_COUNT);
@@ -1063,7 +1063,7 @@ public class MainFrame extends JFrame
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(null, "Error writing " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error writing " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -1198,7 +1198,7 @@ public class MainFrame extends JFrame
 			}
 			catch (PropertyVetoException e)
 			{
-				JOptionPane.showMessageDialog(null, "Error creating new editor: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Error creating new editor: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 		catch (CancellationException e)
@@ -1278,7 +1278,7 @@ public class MainFrame extends JFrame
 				boolean write;
 				if (f.exists())
 				{
-					int option = JOptionPane.showConfirmDialog(null, "File " + f.getName() + " already exists.  Overwrite?", "Warning", JOptionPane.YES_NO_CANCEL_OPTION);
+					int option = JOptionPane.showConfirmDialog(this, "File " + f.getName() + " already exists.  Overwrite?", "Warning", JOptionPane.YES_NO_CANCEL_OPTION);
 					write = (option == JOptionPane.YES_OPTION);
 					done = (option != JOptionPane.NO_OPTION);
 				}

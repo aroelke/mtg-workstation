@@ -567,7 +567,7 @@ public class SettingsDialog extends JDialog
 		
 		JButton addButton = new JButton("+");
 		addButton.addActionListener((e) -> {
-			CategorySpec spec = CategoryEditorPanel.showCategoryEditor();
+			CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this);
 			if (spec != null)
 				categoriesList.addCategory(spec);
 		});
@@ -581,7 +581,7 @@ public class SettingsDialog extends JDialog
 		editButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 			{
-				CategorySpec spec = CategoryEditorPanel.showCategoryEditor(categoriesList.getCategoryAt(categoriesList.getSelectedIndex()));
+				CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, categoriesList.getCategoryAt(categoriesList.getSelectedIndex()));
 				if (spec != null)
 					categoriesList.setCategoryAt(categoriesList.getSelectedIndex(), spec);
 			}

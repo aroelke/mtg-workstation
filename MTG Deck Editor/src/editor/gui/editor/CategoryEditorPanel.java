@@ -2,6 +2,7 @@ package editor.gui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -32,16 +33,17 @@ public class CategoryEditorPanel extends JPanel
 	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
 	 * edited.
 	 * 
+	 * @param parent Component to be used to determine the Frame of the dialog
 	 * @param s Specification for the initial contents of the editor
 	 * @return The CategorySpec of the panel in the state it was last in while editing it, or <code>null</code> if
 	 * the Cancel button was pressed or the dialog was closed.
 	 */
-	public static CategorySpec showCategoryEditor(CategorySpec s)
+	public static CategorySpec showCategoryEditor(Container parent, CategorySpec s)
 	{
 		CategoryEditorPanel editor = new CategoryEditorPanel(s);
 		while (true)
 		{
-			if (JOptionPane.showOptionDialog(null, editor, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showOptionDialog(parent, editor, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
 				if (editor.nameField.getText().isEmpty())
 					JOptionPane.showMessageDialog(null, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -62,12 +64,13 @@ public class CategoryEditorPanel extends JPanel
 	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
 	 * edited.  The panel will start off blank.
 	 * 
+	 * @param parent Component to be used to determine the Frame of the dialog
 	 * @return The CategorySpec of the panel in the state it was last in while editing it, or <code>null</code> if
 	 * the Cancel button was pressed or the dialog was closed.
 	 */
-	public static CategorySpec showCategoryEditor()
+	public static CategorySpec showCategoryEditor(Container parent)
 	{
-		return showCategoryEditor(null);
+		return showCategoryEditor(parent, null);
 	}
 	
 	/**
