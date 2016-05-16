@@ -1426,7 +1426,7 @@ public class MainFrame extends JFrame
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * Update the inventory table to bold the cards that are in the currently-selected editor.
 	 */
 	public void updateCardsInDeck()
 	{

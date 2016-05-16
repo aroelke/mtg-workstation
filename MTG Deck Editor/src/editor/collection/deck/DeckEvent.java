@@ -37,7 +37,7 @@ public class DeckEvent
 	 */
 	private CategoryEvent categoryChanges;
 	/**
-	 * TODO: Comment this
+	 * If a category was added to the deck, its name.
 	 */
 	private String addedCategory;
 	/**
@@ -77,9 +77,10 @@ public class DeckEvent
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param s
-	 * @param cards
+	 * Create a new DeckEvent that shows no changes to categories.
+	 * 
+	 * @param s Deck that was changed
+	 * @param cards Map of cards onto counts that were changed
 	 */
 	public DeckEvent(Deck s, Map<Card, Integer> cards)
 	{
@@ -183,8 +184,8 @@ public class DeckEvent
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return <code>true</code> if a category was added to the deck, and
+	 * <code>false</code>.
 	 */
 	public boolean categoryAdded()
 	{
@@ -192,8 +193,8 @@ public class DeckEvent
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The name of the category that was added.
+	 * @throws IllegalStateException If no category was added.
 	 */
 	public String addedName()
 	{
