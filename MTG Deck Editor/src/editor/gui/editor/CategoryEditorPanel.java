@@ -3,6 +3,8 @@ package editor.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.GridLayout;
+import java.util.stream.Collectors;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -10,11 +12,15 @@ import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 
 import editor.collection.category.CategorySpec;
+import editor.database.Card;
 import editor.filter.Filter;
+import editor.gui.CardList;
 import editor.gui.ColorButton;
 import editor.gui.filter.FilterGroupPanel;
 
@@ -89,6 +95,8 @@ public class CategoryEditorPanel extends JPanel
 	 * The category specification being edited by this CategoryEditorPanel.
 	 */
 	private CategorySpec spec;
+	private CardList whitelist;
+	private CardList blacklist;
 	
 	/**
 	 * Create a new CategoryEditorPanel.
@@ -116,6 +124,17 @@ public class CategoryEditorPanel extends JPanel
 		
 		add(filter = new FilterGroupPanel(), BorderLayout.CENTER);
 		
+		JPanel listPanel = new JPanel(new GridLayout(0, 2));
+		JPanel whitelistPanel = new JPanel(new BorderLayout());
+		whitelistPanel.setBorder(new TitledBorder("Whitelist"));
+		whitelistPanel.add(new JScrollPane(whitelist = new CardList()), BorderLayout.CENTER);
+		listPanel.add(whitelistPanel);
+		JPanel blacklistPanel = new JPanel(new BorderLayout());
+		blacklistPanel.setBorder(new TitledBorder("Blacklist"));
+		blacklistPanel.add(new JScrollPane(blacklist = new CardList()), BorderLayout.CENTER);
+		listPanel.add(blacklistPanel);
+		add(listPanel, BorderLayout.SOUTH);
+		
 		spec = new CategorySpec(nameField.getText(), colorButton.color(), filter.filter());
 	}
 	
@@ -134,6 +153,8 @@ public class CategoryEditorPanel extends JPanel
 			nameField.setText(spec.getName());
 			colorButton.setColor(spec.getColor());
 			filter.setContents(spec.getFilter());
+			whitelist.setCards(spec.getWhitelist().stream().sorted(Card::compareName).collect(Collectors.toList()));
+			blacklist.setCards(spec.getBlacklist().stream().sorted(Card::compareName).collect(Collectors.toList()));
 		}
 	}
 	

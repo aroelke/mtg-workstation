@@ -204,14 +204,6 @@ public class CategoryList extends JList<String>
 	private class CategoryListModel extends DefaultListModel<String>
 	{
 		/**
-		 * Create a new CategoryListModel.
-		 */
-		public CategoryListModel()
-		{
-			super();
-		}
-		
-		/**
 		 * @param Index into the list to look at.
 		 * @return The name of the category at the index.
 		 */
