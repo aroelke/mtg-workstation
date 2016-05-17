@@ -10,8 +10,12 @@ import javax.swing.JList;
 import editor.database.Card;
 
 /**
- * TODO: Comment this class
- * @author Alec
+ * This class represents an element that can display a list of Cards by name.
+ * It cannot be edited and does not support selection.
+ * 
+ * TODO: Implement editing
+ * 
+ * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class CardList extends JList<String>
@@ -21,8 +25,16 @@ public class CardList extends JList<String>
 	 */
 	private static final int CARDS_TO_DISPLAY = 3;
 	
+	/**
+	 * List of cards to display.
+	 */
 	private List<Card> cards;
 	
+	/**
+	 * Create a new CardList displaying the given list of Cards.
+	 * 
+	 * @param c Card list to display
+	 */
 	public CardList(List<Card> c)
 	{
 		super();
@@ -42,18 +54,35 @@ public class CardList extends JList<String>
 		setVisibleRowCount(CARDS_TO_DISPLAY);
 	}
 	
+	/**
+	 * Create an empty CardList.
+	 */
 	public CardList()
 	{
 		this(new ArrayList<Card>());
 	}
 	
+	/**
+	 * Set the list of Cards to display.
+	 * 
+	 * @param c New list to display
+	 */
 	public void setCards(List<Card> c)
 	{
 		cards = c;
 	}
 	
+	/**
+	 * This class represents a model for displaying a list of Cards by name.
+	 * 
+	 * @author Alec Roelke
+	 */
 	private class CardListModel extends DefaultListModel<String>
 	{
+		/**
+		 * @param index Index into the list to get
+		 * @return The name of the Card at the given index.
+		 */
 		@Override
 		public String getElementAt(int index)
 		{
@@ -63,6 +92,9 @@ public class CardList extends JList<String>
 				return cards.get(index).name();
 		}
 		
+		/**
+		 * @return The number of elements in the list.
+		 */
 		@Override
 		public int getSize()
 		{

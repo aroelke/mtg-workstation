@@ -95,7 +95,13 @@ public class CategoryEditorPanel extends JPanel
 	 * The category specification being edited by this CategoryEditorPanel.
 	 */
 	private CategorySpec spec;
+	/**
+	 * List displaying the category's whitelist.
+	 */
 	private CardList whitelist;
+	/**
+	 * List displaying the category's blacklist.
+	 */
 	private CardList blacklist;
 	
 	/**
