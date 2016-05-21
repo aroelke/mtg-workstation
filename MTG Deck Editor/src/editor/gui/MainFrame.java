@@ -126,6 +126,12 @@ public class MainFrame extends JFrame
 	 */
 	public static final int UPDATE_CANCELLED = 2;
 	/**
+	 * TODO: Make this a setting
+	 * Maximum height that the advanced filter editor panel can attain before scrolling.
+	 */
+	public static final int MAX_FILTER_HEIGHT = 300;
+	
+	/**
 	 * Inventory of all cards.
 	 */
 	private Inventory inventory;
@@ -851,7 +857,18 @@ public class MainFrame extends JFrame
 				panel.setContents(FilterType.NAME.createFilter());
 			else
 				panel.setContents(inventory.getFilter());
-			if (JOptionPane.showOptionDialog(this, panel, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			ScrollablePanel panelPanel = new ScrollablePanel(new BorderLayout(), ScrollablePanel.TRACK_WIDTH)
+			{
+				@Override
+				public Dimension getPreferredScrollableViewportSize()
+				{
+					Dimension size = panel.getPreferredSize();
+					size.height = Math.min(MAX_FILTER_HEIGHT, size.height);
+					return size;
+				}
+			};
+			panelPanel.add(panel, BorderLayout.CENTER);
+			if (JOptionPane.showOptionDialog(this, new JScrollPane(panelPanel), "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
 				nameFilterField.setText("");
 				inventory.updateFilter(panel.filter());

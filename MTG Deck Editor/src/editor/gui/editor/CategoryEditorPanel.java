@@ -3,6 +3,7 @@ package editor.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,7 @@ import editor.database.Card;
 import editor.filter.Filter;
 import editor.gui.CardList;
 import editor.gui.ColorButton;
+import editor.gui.ScrollablePanel;
 import editor.gui.filter.FilterGroupPanel;
 
 /**
@@ -36,6 +38,12 @@ import editor.gui.filter.FilterGroupPanel;
 public class CategoryEditorPanel extends JPanel
 {
 	/**
+	 * TODO: Make this a setting
+	 * Maximum height that the category panel should attain before scrolling.
+	 */
+	public static final int MAX_HEIGHT = 500;
+	
+	/**
 	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
 	 * edited.
 	 * 
@@ -47,9 +55,20 @@ public class CategoryEditorPanel extends JPanel
 	public static CategorySpec showCategoryEditor(Container parent, CategorySpec s)
 	{
 		CategoryEditorPanel editor = new CategoryEditorPanel(s);
+		ScrollablePanel editorPanel = new ScrollablePanel(new BorderLayout(), ScrollablePanel.TRACK_WIDTH)
+		{
+			@Override
+			public Dimension getPreferredScrollableViewportSize()
+			{
+				Dimension size = editor.getPreferredSize();
+				size.height = Math.min(MAX_HEIGHT, size.height);
+				return size;
+			}
+		};
+		editorPanel.add(editor, BorderLayout.CENTER);
 		while (true)
 		{
-			if (JOptionPane.showOptionDialog(parent, editor, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showOptionDialog(parent, new JScrollPane(editorPanel), "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
 				if (editor.nameField.getText().isEmpty())
 					JOptionPane.showMessageDialog(null, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);

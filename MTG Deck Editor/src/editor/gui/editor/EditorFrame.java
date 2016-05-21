@@ -101,7 +101,6 @@ import editor.gui.TableMouseAdapter;
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
  * TODO: Add something for calculating probability for multiple categories at once
- * TODO: Fix incorrect FilterGroup mode loading for editor button
  * 
  * @author Alec Roelke
  */
