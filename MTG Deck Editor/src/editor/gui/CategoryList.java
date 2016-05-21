@@ -197,7 +197,7 @@ public class CategoryList extends JList<String>
 	}
 	
 	/**
-	 * This class represnts a model for displaying a list of CategorySpecs.
+	 * This class represents a model for displaying a list of CategorySpecs.
 	 * 
 	 * @author Alec Roelke
 	 */
