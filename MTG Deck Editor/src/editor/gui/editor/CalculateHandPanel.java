@@ -147,8 +147,6 @@ public class CalculateHandPanel extends JPanel
 	private CalculationTableModel model;
 	/**
 	 * Spinner controlling the number of cards in the initial hand.
-	 * TODO: Make this value not hard-coded
-	 * (it may already have an entry in the settings dialog)
 	 */
 	private JSpinner handSpinner;
 	
