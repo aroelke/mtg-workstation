@@ -41,12 +41,6 @@ import editor.gui.SettingsDialog;
 public class CategoryPanel extends JPanel
 {
 	/**
-	 * Number of rows in the card table to display.
-	 * TODO: Make this a setting
-	 */
-	public static final int MAX_ROWS_TO_DISPLAY = 6;
-	
-	/**
 	 * Category in the Deck data structure.
 	 */
 	private Deck deck;
@@ -150,7 +144,7 @@ public class CategoryPanel extends JPanel
 			public Dimension getPreferredScrollableViewportSize()
 			{
 				Dimension d = getPreferredSize();
-				d.height = getRowHeight()*Math.min(MAX_ROWS_TO_DISPLAY, deck.size(name));
+				d.height = getRowHeight()*Math.min(SettingsDialog.getAsInt(SettingsDialog.CATEGORY_ROWS), deck.size(name));
 				return d;
 			}
 		};

@@ -126,7 +126,6 @@ public class MainFrame extends JFrame
 	 */
 	public static final int UPDATE_CANCELLED = 2;
 	/**
-	 * TODO: Make this a setting
 	 * Maximum height that the advanced filter editor panel can attain before scrolling.
 	 */
 	public static final int MAX_FILTER_HEIGHT = 300;

@@ -38,7 +38,6 @@ import editor.gui.filter.FilterGroupPanel;
 public class CategoryEditorPanel extends JPanel
 {
 	/**
-	 * TODO: Make this a setting
 	 * Maximum height that the category panel should attain before scrolling.
 	 */
 	public static final int MAX_HEIGHT = 500;

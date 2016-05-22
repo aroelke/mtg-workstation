@@ -144,6 +144,10 @@ public class SettingsDialog extends JDialog
 	
 	////////////////// EDITOR APPEARANCE ////////////////
 	/**
+	 * TODO: Comment this
+	 */
+	public static final String CATEGORY_ROWS = "editor.rows";
+	/**
 	 * Columns to display in editor tables.
 	 */
 	public static final String EDITOR_COLUMNS = "editor.columns";
@@ -211,6 +215,7 @@ public class SettingsDialog extends JDialog
 		SETTINGS.put(INITIALDIR, ".");
 		SETTINGS.put(RECENT_COUNT, "4");
 		SETTINGS.put(RECENT_FILES, "");
+		SETTINGS.put(CATEGORY_ROWS, "6");
 		SETTINGS.put(EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
 		SETTINGS.put(EDITOR_STRIPE, "#FFCCCCCC");
 		SETTINGS.put(EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
@@ -401,6 +406,10 @@ public class SettingsDialog extends JDialog
 	 * List of preset categories.
 	 */
 	private CategoryList categoriesList;
+	/**
+	 * TODO: Comment this
+	 */
+	private JSpinner rowsSpinner;
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -608,7 +617,6 @@ public class SettingsDialog extends JDialog
 		categoriesPanel.setLayout(new BorderLayout(5, 0));
 		categoriesPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
-		
 		categoriesList = new CategoryList(true);
 		if (!getAsString(SettingsDialog.EDITOR_PRESETS).isEmpty())
 			for (String categoryString: getAsString(EDITOR_PRESETS).split(CATEGORY_DELIMITER))
@@ -668,6 +676,19 @@ public class SettingsDialog extends JDialog
 		editorAppearancePanel.setLayout(new BoxLayout(editorAppearancePanel, BoxLayout.Y_AXIS));
 		settingsPanel.add(editorAppearancePanel, new TreePath(editorAppearanceNode.getPath()).toString());
 		
+		// Editor category rows
+		JPanel rowsPanel = new JPanel();
+		rowsPanel.setLayout(new BoxLayout(rowsPanel, BoxLayout.X_AXIS));
+		rowsPanel.setBorder(new EmptyBorder(5, 5, 5, 0));
+		rowsPanel.add(new JLabel("Maximum displayed rows in categories:"));
+		rowsPanel.add(Box.createHorizontalStrut(5));
+		rowsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
+		rowsSpinner.getModel().setValue(Integer.valueOf(getAsString(CATEGORY_ROWS)));
+		rowsPanel.add(rowsSpinner);
+		rowsPanel.setMaximumSize(rowsPanel.getPreferredSize());
+		rowsPanel.setAlignmentX(LEFT_ALIGNMENT);
+		editorAppearancePanel.add(rowsPanel);
+		
 		// Editor table columns
 		JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
 		editorColumnsPanel.setBorder(new TitledBorder("Columns"));
@@ -679,6 +700,7 @@ public class SettingsDialog extends JDialog
 			editorColumnsPanel.add(checkBox);
 			checkBox.setSelected(getAsString(EDITOR_COLUMNS).contains(characteristic.toString()));
 		}
+		editorColumnsPanel.setAlignmentX(LEFT_ALIGNMENT);
 		editorAppearancePanel.add(editorColumnsPanel);
 		
 		// Editor table stripe color
@@ -687,6 +709,7 @@ public class SettingsDialog extends JDialog
 		editorStripeColor = new JColorChooser(getAsColor(EDITOR_STRIPE));
 		createStripeChooserPreview(editorStripeColor);
 		editorColorPanel.add(editorStripeColor);
+		editorColorPanel.setAlignmentX(LEFT_ALIGNMENT);
 		editorAppearancePanel.add(editorColorPanel);
 		
 		editorAppearancePanel.add(Box.createVerticalGlue());
@@ -805,6 +828,7 @@ public class SettingsDialog extends JDialog
 		SETTINGS.put(INVENTORY_COLUMNS, join.toString());
 		SETTINGS.put(INVENTORY_STRIPE, colorToString(inventoryStripeColor.getColor()));
 		SETTINGS.put(RECENT_COUNT, recentSpinner.getValue().toString());
+		SETTINGS.put(CATEGORY_ROWS, rowsSpinner.getValue().toString());
 		join = new StringJoiner(",");
 		for (JCheckBox box: editorColumnCheckBoxes)
 			if (box.isSelected())
