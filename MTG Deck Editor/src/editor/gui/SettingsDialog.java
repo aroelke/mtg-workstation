@@ -11,6 +11,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +67,8 @@ public class SettingsDialog extends JDialog
 	/**
 	 * Global settings for the program.
 	 */
-	public static final Properties SETTINGS = new Properties();
+	private static final Properties SETTINGS = new Properties();
+	 
 	/**
 	 * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
 	 */
@@ -71,6 +77,12 @@ public class SettingsDialog extends JDialog
 	 * Name of the file to get settings from.
 	 */
 	public static final String PROPERTIES_FILE = "settings.txt";
+	/**
+	 * Directory to start the file chooser in.
+	 */
+	public static final String INITIALDIR = "initialdir";
+	
+	////////////////// INVENTORY SETTINGS ////////////////
 	/**
 	 * File to download to check the latest version of the inventory.
 	 */
@@ -96,6 +108,12 @@ public class SettingsDialog extends JDialog
 	 */
 	public static final String INVENTORY_LOCATION = "inventory.location";
 	/**
+	 * Location to find card scans.
+	 */
+	public static final String CARD_SCANS = "scans";
+	
+	////////////////// INVENTORY APPEARANCE SETTINGS ////////////////
+	/**
 	 * Columns to display in the inventory table.
 	 */
 	public static final String INVENTORY_COLUMNS = "inventory.columns";
@@ -104,9 +122,11 @@ public class SettingsDialog extends JDialog
 	 */
 	public static final String INVENTORY_STRIPE = "inventory.stripe";
 	/**
-	 * Directory to start the file chooser in.
+	 * Background color for card scans in the left pane.
 	 */
-	public static final String INITIALDIR = "initialdir";
+	public static final String IMAGE_BGCOLOR = "inventory.scan_bgcolor";
+	
+	////////////////// EDITOR SETTINGS ////////////////
 	/**
 	 * Number of recently-opened files to save.
 	 */
@@ -115,6 +135,14 @@ public class SettingsDialog extends JDialog
 	 * Recently-opened files paths.
 	 */
 	public static final String RECENT_FILES = "recents.files";
+	
+	////////////////// PRESET CATEGORIES ////////////////
+	/**
+	 * Preset categories that can be added to editors.
+	 */
+	public static final String EDITOR_PRESETS = "editor.presets";
+	
+	////////////////// EDITOR APPEARANCE ////////////////
 	/**
 	 * Columns to display in editor tables.
 	 */
@@ -123,10 +151,8 @@ public class SettingsDialog extends JDialog
 	 * Stripe color for editor tables.
 	 */
 	public static final String EDITOR_STRIPE = "editor.stripe";
-	/**
-	 * Preset categories that can be added to editors.
-	 */
-	public static final String EDITOR_PRESETS = "editor.presets";
+	
+	////////////////// SAMPLE HAND SETTINGS ////////////////
 	/**
 	 * Default initial size for a hand.
 	 */
@@ -136,17 +162,37 @@ public class SettingsDialog extends JDialog
 	 */
 	public static final String HAND_COLUMNS = "hand.columns";
 	/**
-	 * Location to find card scans.
-	 */
-	public static final String CARD_SCANS = "scans";
-	/**
-	 * Background color for card scans in the left pane.
-	 */
-	public static final String IMAGE_BGCOLOR = "inventory.scan_bgcolor";
-	/**
 	 * Background color for card scans in sample hands.
 	 */
 	public static final String HAND_BGCOLOR = "hand.bgcolor";
+	
+	/**
+	 * TODO: Comment this
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static void save() throws FileNotFoundException, IOException
+	{
+		try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE))
+		{
+			SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param file
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static void load() throws FileNotFoundException, IOException
+	{
+		resetDefaultSettings();
+		try (InputStreamReader in = new InputStreamReader(new FileInputStream(SettingsDialog.PROPERTIES_FILE)))
+		{
+			SettingsDialog.SETTINGS.load(in);
+		}
+	}
 	
 	/**
 	 * Set program settings back to their default values
@@ -175,6 +221,11 @@ public class SettingsDialog extends JDialog
 		SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
 	}
 	
+	public static <T> void set(String name, T value)
+	{
+		SETTINGS.put(name, String.valueOf(value));
+	}
+	
 	/**
 	 * @param name Name of the setting to get
 	 * @return The String value of the setting with the given name.
@@ -182,7 +233,7 @@ public class SettingsDialog extends JDialog
 	public static String getAsString(String name)
 	{
 		return SETTINGS.getProperty(name);
-	}
+	} 
 	
 	/**
 	 * Get the integer value of the given global setting.
@@ -226,6 +277,15 @@ public class SettingsDialog extends JDialog
 	public static List<CategorySpec> getPresetCategories()
 	{
 		return Arrays.stream(SETTINGS.getProperty(EDITOR_PRESETS).split(CATEGORY_DELIMITER)).map(CategorySpec::new).collect(Collectors.toList());
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param category
+	 */
+	public static void addPresetCategory(String category)
+	{
+		SETTINGS.compute(SettingsDialog.EDITOR_PRESETS, (k, v) -> v += SettingsDialog.CATEGORY_DELIMITER + category);
 	}
 	
 	/**
