@@ -1718,10 +1718,13 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param undo
-	 * @param redo
-	 * @return
+	 * Perform an action.  Then, if it succeeds, push it onto the undo buffer
+	 * and clear the redo buffer.
+	 * 
+	 * @param undo What to do to undo the action
+	 * @param redo The action to perform
+	 * @return <code>true</code> if the action succeeded, and <code>false</code>
+	 * otherwise.
 	 */
 	private boolean performAction(BooleanSupplier undo, BooleanSupplier redo)
 	{

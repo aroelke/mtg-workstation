@@ -144,7 +144,7 @@ public class SettingsDialog extends JDialog
 	
 	////////////////// EDITOR APPEARANCE ////////////////
 	/**
-	 * TODO: Comment this
+	 * Maximum number of rows to show in category panels.
 	 */
 	public static final String CATEGORY_ROWS = "editor.rows";
 	/**
@@ -171,11 +171,11 @@ public class SettingsDialog extends JDialog
 	public static final String HAND_BGCOLOR = "hand.bgcolor";
 	
 	/**
-	 * TODO: Comment this
-	 * @throws FileNotFoundException
-	 * @throws IOException
+	 * Save preferences.
+	 * 
+	 * @throws IOException If an exception occurred during saving.
 	 */
-	public static void save() throws FileNotFoundException, IOException
+	public static void save() throws IOException
 	{
 		try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE))
 		{
@@ -184,10 +184,10 @@ public class SettingsDialog extends JDialog
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param file
-	 * @throws FileNotFoundException
-	 * @throws IOException
+	 * Load global settings from the settings file.
+	 * 
+	 * @throws FileNotFoundException If the settings file can't be found.
+	 * @throws IOException If an error occurred during loading.
 	 */
 	public static void load() throws FileNotFoundException, IOException
 	{
@@ -285,8 +285,9 @@ public class SettingsDialog extends JDialog
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param category
+	 * Add a preset category to the global settings.
+	 * 
+	 * @param category String version of the category to add.
 	 */
 	public static void addPresetCategory(String category)
 	{
@@ -407,7 +408,7 @@ public class SettingsDialog extends JDialog
 	 */
 	private CategoryList categoriesList;
 	/**
-	 * TODO: Comment this
+	 * Spinner allowing setting the maximum number of rows for category panels.
 	 */
 	private JSpinner rowsSpinner;
 	
