@@ -770,6 +770,7 @@ public class EditorFrame extends JInternalFrame
 		setTransferHandler(new EditorImportHandler());
 		
 		deck.addDeckListener((e) -> {
+			// Cards
 			if (e.cardsChanged())
 			{
 				updateStats();
@@ -795,11 +796,31 @@ public class EditorFrame extends JInternalFrame
 				hand.refresh();
 				handModel.fireTableDataChanged();
 			}
+			
+			// Categories
+			if (e.categoryAdded())
+			{
+				CategoryPanel category = createCategoryPanel(deck.getCategorySpec(e.addedName()));
+				categoryPanels.add(category);
+				listTabs.setSelectedIndex(CATEGORIES);
+				updateCategoryPanel();
+				//TODO: Make this work
+				category.scrollRectToVisible(new Rectangle(category.getSize()));
+				category.flash();
+			}
+			if (e.categoriesRemoved())
+			{
+				categoryPanels = categoryPanels.stream()
+						.filter((panel) -> !e.removedNames().contains(panel.getCategoryName()))
+						.collect(Collectors.toList());
+				listTabs.setSelectedIndex(CATEGORIES);
+			}
 			if (e.categoriesRemoved() || e.categoryChanged())
 			{
 				updateCategoryPanel();
 			}
 			
+			// Clean up
 			if (!unsaved)
 			{
 				setTitle(getTitle() + " *");
@@ -1107,7 +1128,7 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Add a category to the deck and create a panel for it.
+	 * Add a category to the deck.
 	 * 
 	 * @param category Specification for the new category
 	 * @return <code>true</code> if a category was created, and <code>false</code>
@@ -1118,14 +1139,6 @@ public class EditorFrame extends JInternalFrame
 		if (!deck.containsCategory(spec.getName()))
 		{
 			deck.addCategory(spec);
-			CategoryPanel category = createCategoryPanel(spec);
-			categoryPanels.add(category);
-			// TODO: Find a way to put all of the below lines into the deck listener
-			updateCategoryPanel();
-			listTabs.setSelectedIndex(CATEGORIES);
-			//TODO: Make this work
-			category.scrollRectToVisible(new Rectangle(category.getSize()));
-			category.flash();
 			return true;
 		}
 		else
@@ -1149,16 +1162,7 @@ public class EditorFrame extends JInternalFrame
 	private boolean deleteCategory(CategorySpec category)
 	{
 		CategoryPanel panel = getCategory(category.getName());
-		if (panel == null)
-			return false;
-		else
-		{
-			boolean removed = categoryPanels.remove(panel);
-			removed |= deck.removeCategory(category.getName());
-			listTabs.setSelectedIndex(CATEGORIES);
-			
-			return removed;
-		}
+		return panel != null && deck.removeCategory(category.getName());
 	}
 	
 	/**
