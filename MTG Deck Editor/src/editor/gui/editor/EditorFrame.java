@@ -135,8 +135,8 @@ public class EditorFrame extends JInternalFrame
 		Z_A("Z-A", (d) -> (a, b) -> -a.getName().compareTo(b.getName())),
 		ASCENDING("Ascending Size", (d) -> (a, b) -> d.total(a.getName()) - d.total(b.getName())),
 		DESCENDING("Descending Size", (d) -> (a, b) -> d.total(b.getName()) - d.total(a.getName())),
-		PRIORITY("Ascending Priority", (d) -> (a, b) -> 0), // TODO: Implement priority
-		REVERSE("Descending Priority", (d) -> (a, b) -> 0);
+		PRIORITY("Ascending Rank", (d) -> (a, b) -> d.getCategoryRank(a.getName()) - d.getCategoryRank(b.getName())),
+		REVERSE("Descending Rank", (d) -> (a, b) -> d.getCategoryRank(b.getName()) - d.getCategoryRank(a.getName()));
 		
 		/**
 		 * String to display when a String representation of this
@@ -783,6 +783,11 @@ public class EditorFrame extends JInternalFrame
 			{
 				CategoryPanel category = createCategoryPanel(deck.getCategorySpec(e.addedName()));
 				categoryPanels.add(category);
+				
+				for (CategoryPanel c: categoryPanels)
+					if (c != category)
+						c.rankBox.addItem(deck.getCategoryCount() - 1);
+				
 				listTabs.setSelectedIndex(CATEGORIES);
 				updateCategoryPanel();
 				//TODO: Make this work
@@ -794,6 +799,13 @@ public class EditorFrame extends JInternalFrame
 				categoryPanels = categoryPanels.stream()
 						.filter((panel) -> !e.removedNames().contains(panel.getCategoryName()))
 						.collect(Collectors.toList());
+				for (CategoryPanel panel: categoryPanels)
+				{
+					for (int i = 0; i < e.removedNames().size(); i++)
+						panel.rankBox.removeItemAt(categoryPanels.size());
+					panel.rankBox.setSelectedIndex(deck.getCategoryRank(panel.getCategoryName()));
+				}
+				
 				listTabs.setSelectedIndex(CATEGORIES);
 			}
 			if (e.categoriesRemoved() || e.categoryChanged())

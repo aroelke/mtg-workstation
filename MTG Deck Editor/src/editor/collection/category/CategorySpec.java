@@ -213,7 +213,7 @@ public class CategorySpec
 	{
 		if (!name.equals(n))
 		{
-			CategoryEvent e = new CategoryEvent(this, name, null, null, null, null);
+			Event e = new Event().changeName(name);
 			
 			name = n;
 			
@@ -252,7 +252,7 @@ public class CategorySpec
 		
 		if (oldWhitelist != null || oldBlacklist != null)
 		{
-			CategoryEvent e = new CategoryEvent(this, null, oldWhitelist, oldBlacklist, null, null);
+			Event e = new Event().changeWhitelist(oldWhitelist).changeBlacklist(oldBlacklist);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -290,7 +290,7 @@ public class CategorySpec
 		
 		if (oldWhitelist != null || oldBlacklist != null)
 		{
-			CategoryEvent e = new CategoryEvent(this, null, oldWhitelist, oldBlacklist, null, null);
+			Event e = new Event().changeWhitelist(oldWhitelist).changeBlacklist(oldBlacklist);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -315,7 +315,7 @@ public class CategorySpec
 	{
 		if (!color.equals(c))
 		{
-			CategoryEvent e = new CategoryEvent(this, null, null, null, color, null);
+			Event e = new Event().changeColor(color);
 			
 			color = c;
 			
@@ -342,7 +342,7 @@ public class CategorySpec
 	{
 		if (!filter.equals(f))
 		{
-			CategoryEvent e = new CategoryEvent(this, null, null, null, null, filter);
+			Event e = new Event().changeFilter(filter);
 			
 			filter = f;
 			
@@ -362,12 +362,12 @@ public class CategorySpec
 	 */
 	public boolean copy(CategorySpec other)
 	{
-		CategoryEvent e = new CategoryEvent(this,
-				name.equals(other.name) ? null : name,
-				whitelist.equals(other.whitelist) ? null : new HashSet<Card>(whitelist),
-				blacklist.equals(other.blacklist) ? null : new HashSet<Card>(blacklist),
-				color.equals(other.color) ? null : color,
-				filter.equals(other.filter) ? null : filter);
+		Event e = new Event()
+				.changeName(name.equals(other.name) ? null : name)
+				.changeWhitelist(whitelist.equals(other.whitelist) ? null : new HashSet<Card>(whitelist))
+				.changeBlacklist(blacklist.equals(other.blacklist) ? null : new HashSet<Card>(blacklist))
+				.changeColor(color.equals(other.color) ? null : color)
+				.changeFilter(filter.equals(other.filter) ? null : filter);
 		
 		name = other.name;
 		whitelist.clear();
@@ -441,5 +441,236 @@ public class CategorySpec
 				+ " " + Filter.BEGIN_GROUP + Filter.END_GROUP
 				+ " " + Filter.BEGIN_GROUP + SettingsDialog.colorToString(color, 3) + Filter.END_GROUP
 				+ " " + filter.toString();
+	}
+	
+	/**
+	 * This class represents an event that changes a CategorySpec.  It can
+	 * tell which CategorySpec changed, and which of its parameters changed
+	 * as a result of the event.  Use the *changed methods to tell if a
+	 * parameter changed.  If a parameter did not change and its old or
+	 * new value is requested from this CategoryEvent, an IllegalStateException
+	 * will be thrown.
+	 * 
+	 * @author Alec Roelke
+	 */
+	public class Event
+	{
+		/**
+		 * The name of the CategorySpec before it was changed.
+		 */
+		private String oldName;
+		/**
+		 * The whitelist of the CategorySpec before it was changed.
+		 */
+		private Set<Card> oldWhitelist;
+		/**
+		 * The blacklist of the CategorySpec before it was changed.
+		 */
+		private Set<Card> oldBlacklist;
+		/**
+		 * The Color of the CategorySpec before it was changed.
+		 */
+		private Color oldColor;
+		/**
+		 * The Filter of the CategorySpec before it was changed.
+		 */
+		private Filter oldFilter;
+		
+		/**
+		 * TODO: Comment this
+		 */
+		public Event()
+		{
+			oldName = null;
+			oldWhitelist = null;
+			oldBlacklist = null;
+			oldColor = null;
+			oldFilter = null;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param old
+		 * @return
+		 */
+		private Event changeName(String old)
+		{
+			oldName = old;
+			return this;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param old
+		 * @return
+		 */
+		private Event changeWhitelist(Set<Card> old)
+		{
+			oldWhitelist = old;
+			return this;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param old
+		 * @return
+		 */
+		private Event changeBlacklist(Set<Card> old)
+		{
+			oldBlacklist = old;
+			return this;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param old
+		 * @return
+		 */
+		private Event changeColor(Color old)
+		{
+			oldColor = old;
+			return this;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param old
+		 * @return
+		 */
+		private Event changeFilter(Filter old)
+		{
+			oldFilter = old;
+			return this;
+		}
+		
+		/**
+		 * @return The CategorySpec that generated this CategoryEvent.
+		 */
+		public CategorySpec getSource()
+		{
+			return CategorySpec.this;
+		}
+		
+		/**
+		 * @return <code>true</code> if the CategorySpec's name changed,
+		 * and <code>false</code> otherwise.
+		 */
+		public boolean nameChanged()
+		{
+			return oldName != null;
+		}
+		
+		/**
+		 * @return The old name of the CategorySpec before this CategoryEvent
+		 * was generated.
+		 * @throws IllegalStateException If the CategorySpec's name has not changed.
+		 */
+		public String oldName()
+		{
+			if (nameChanged())
+				return oldName;
+			else
+				throw new IllegalStateException("Name of the category has not changed.");
+		}
+		
+		/**
+		 * @return The new name of the CategorySpec as a result of the event.
+		 * @throws IllegalStateException If the CategorySpec's name has not changed.
+		 */
+		public String newName()
+		{
+			if (nameChanged())
+				return getSource().getName();
+			else
+				throw new IllegalStateException("Name of the category has not changed.");
+		}
+		
+		/**
+		 * @return <code>true</code> if the CategorySpec's whitelist changed as a
+		 * result of the event that generated this CategoryEvent.
+		 */
+		public boolean whitelistChanged()
+		{
+			return oldWhitelist != null;
+		}
+		
+		/**
+		 * @return The CategorySpec's whitelist before the event.
+		 * @throws IllegalStateException if the CategorySpec's whitelist did not
+		 * change.
+		 */
+		public Set<Card> oldWhitelist()
+		{
+			if (whitelistChanged())
+				return oldWhitelist;
+			else
+				throw new IllegalStateException("Whitelist of the category has not changed.");
+		}
+		
+		/**
+		 * @return <code>true</code> if the event that generated this CategoryEvent
+		 * changed the CategorySpec's blacklist.
+		 */
+		public boolean blacklistChanged()
+		{
+			return oldBlacklist != null;
+		}
+		
+		/**
+		 * @return The CategorySpec's blacklist as it was before the event.
+		 * @throws IllegalStateException If the CategorySpec's blacklist did not
+		 * change.
+		 */
+		public Set<Card> oldBlacklist()
+		{
+			if (blacklistChanged())
+				return oldBlacklist;
+			else
+				throw new IllegalStateException("Blacklist of the category has not changed.");
+		}
+		
+		/**
+		 * @return <code>true</code> if the event that generated this CategoryEvent
+		 * changed the CategorySpec's Color, and <code>false</code> otherwise.
+		 */
+		public boolean colorChanged()
+		{
+			return oldColor != null;
+		}
+		
+		/**
+		 * @return The CategorySpec's Color as it was before the event.
+		 * @throws IllegalStateException if the CategorySpec's color did not
+		 * change.
+		 */
+		public Color oldColor()
+		{
+			if (colorChanged())
+				return oldColor;
+			else
+				throw new IllegalStateException("Color of the category has not changed.");
+		}
+		
+		/**
+		 * @return <code>true</code> if the CategorySpec's Filter changed as a result
+		 * of the event that generated this CategoryEvent.
+		 */
+		public boolean filterChanged()
+		{
+			return oldFilter != null;
+		}
+		
+		/**
+		 * @return The CategorySpec's Filter as it was before the event.
+		 * @throws IllegalStateException If the CategorySpec's Filter did not
+		 * change.
+		 */
+		public Filter oldFilter()
+		{
+			if (filterChanged())
+				return oldFilter;
+			else
+				throw new IllegalStateException("Filter of the category has not changed.");
+		}
 	}
 }

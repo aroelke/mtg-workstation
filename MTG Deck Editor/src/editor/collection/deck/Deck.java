@@ -121,7 +121,6 @@ public class Deck implements CardCollection
 	 * map of cards onto an integer representing the number of copies to transfer.
 	 */
 	public static final DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Map.class.getName() + "\"", "Deck Entries");
-	
 	/**
 	 * Formatter for dates, usually for formatting the add date of a card.
 	 */
@@ -306,7 +305,7 @@ public class Deck implements CardCollection
 			
 			Map<Card, Integer> added = new HashMap<Card, Integer>();
 			added.put(c, n);
-			DeckEvent event = new DeckEvent(this, added);
+			Event event = new Event().cardsChanged(added);
 			for (DeckListener listener: listeners)
 				listener.deckChanged(event);
 			
@@ -398,7 +397,7 @@ public class Deck implements CardCollection
 				
 				Map<Card, Integer> removed = new HashMap<Card, Integer>();
 				removed.put(c, -n);
-				DeckEvent event = new DeckEvent(this, removed);
+				Event event = new Event().cardsChanged(removed);
 				for (DeckListener listener: listeners)
 					listener.deckChanged(event);
 				
@@ -515,7 +514,7 @@ public class Deck implements CardCollection
 			
 			Map<Card, Integer> change = new HashMap<Card, Integer>();
 			change.put(c, n - e.count);
-			DeckEvent event = new DeckEvent(this, change);
+			Event event = new Event().cardsChanged(change);
 			
 			e.count = n;
 			if (e.count == 0)
@@ -643,13 +642,14 @@ public class Deck implements CardCollection
 				if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
 					c.update();
 				
-				DeckEvent event = new DeckEvent(this, e.nameChanged() ? e.oldName() : e.getSource().getName(), e);
+				Event event = new Event().categoryChanged(e.nameChanged() ? e.oldName() : e.getSource().getName(), e);
 				for (DeckListener listener: new HashSet<DeckListener>(listeners))
 					listener.deckChanged(event);
 			});
-			
+
+			Event event = new Event().categoryAdded(c);
 			for (DeckListener listener: new HashSet<DeckListener>(listeners))
-				listener.deckChanged(new DeckEvent(this, c.spec.getName()));
+				listener.deckChanged(event);
 			
 			return c;
 		}
@@ -671,10 +671,13 @@ public class Deck implements CardCollection
 		{
 			for (Entry e: masterList)
 				e.categories.remove(c);
+			for (Category category: categories.values())
+				if (category.rank > c.rank)
+					category.rank--;
 			categories.remove(name);
 			c.spec.removeCategoryListener(c.listener);
 			
-			DeckEvent event = new DeckEvent(this, new HashSet<String>(Arrays.asList(c.spec.getName())));
+			Event event = new Event().categoryRemoved(c);
 			for (DeckListener listener: new HashSet<DeckListener>(listeners))
 				listener.deckChanged(event);
 			
@@ -682,6 +685,45 @@ public class Deck implements CardCollection
 		}
 		else
 			return false;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public int getCategoryCount()
+	{
+		return categories.size();
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param name
+	 * @return
+	 */
+	public int getCategoryRank(String name)
+	{
+		if (containsCategory(name))
+			return categories.get(name).rank;
+		else
+			return -1;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param first
+	 * @param second
+	 * @return
+	 */
+	public boolean swapCategoryRanks(String first, String second)
+	{
+		if (first.equals(second) || ! containsCategory(first) || !containsCategory(second))
+			return false;
+		
+		int temp = categories.get(first).rank;
+		categories.get(first).rank = categories.get(second).rank;
+		categories.get(second).rank = temp;
+		return true;
 	}
 	
 	/**
@@ -743,16 +785,16 @@ public class Deck implements CardCollection
 	public void clear()
 	{
 		Map<Card, Integer> removed = masterList.stream().collect(Collectors.toMap((c) -> c.card, (c) -> -c.count));
-		Set<String> categoriesRemoved = categories.keySet();
+		Collection<Category> categoriesRemoved = categories.values();
 		
 		masterList.clear();
 		categories.clear();
 		total = 0;
 		land = 0;
 		
-		DeckEvent e = new DeckEvent(this, removed, null, null, null, categoriesRemoved);
+		Event event = new Event().cardsChanged(removed).categoriesRemoved(categoriesRemoved);
 		for (DeckListener listener: new HashSet<DeckListener>(listeners))
-			listener.deckChanged(e);
+			listener.deckChanged(event);
 	}
 	
 	/**
@@ -1064,6 +1106,10 @@ public class Deck implements CardCollection
 		 * Listener for changes in this category's CategorySpec.
 		 */
 		public CategoryListener listener;
+		/**
+		 * TODO: Comment this
+		 */
+		public int rank;
 		
 		/**
 		 * Create a new Category.
@@ -1073,6 +1119,7 @@ public class Deck implements CardCollection
 		private Category(CategorySpec s)
 		{
 			spec = s;
+			rank = categories.size();
 			update();
 		}
 		
@@ -1460,6 +1507,257 @@ public class Deck implements CardCollection
 		public void clear()
 		{
 			throw new UnsupportedOperationException();
+		}
+	}
+	
+	/**
+	 * This class represents an event during which a Deck may have changed.
+	 * It can indicate how many copies of Cards may have been added to or
+	 * removed from the Deck, how a category may have changed, or if any
+	 * categories were removed.  If a parameter did not change and the contents
+	 * of that parameter's change are requested, throw an IllegalStateException.
+	 * 
+	 * @author Alec Roelke
+	 */
+	public class Event
+	{
+		/**
+		 * If Cards were added to or removed from the Deck, this map
+		 * contains which ones and how many copies.
+		 */
+		private Map<Card, Integer> cardsChanged;
+		/**
+		 * If a category's name was changed, its old name.
+		 */
+		private String changedName;
+		/**
+		 * CategoryEvent representing the changes to the CategorySpec corresponding
+		 * to the category that was changed, if any was changed.
+		 */
+		private CategorySpec.Event categoryChanges;
+		/**
+		 * If a category was added to the deck, its name.
+		 */
+		private String addedCategory;
+		/**
+		 * Set of names of categories that have been removed, if any.
+		 */
+		private Set<String> removedCategories;
+		/**
+		 * TODO: Comment this
+		 */
+		private Map<String, Integer> rankChanges;
+		
+		public Event()
+		{
+			cardsChanged = null;
+			changedName = null;
+			categoryChanges = null;
+			addedCategory = null;
+			removedCategories = null;
+			rankChanges = null;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param e
+		 * @param change
+		 * @return
+		 */
+		private Event cardsChanged(Map<Card, Integer> change)
+		{
+			cardsChanged = change;
+			return this;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param e
+		 * @param changeName
+		 * @param changes
+		 * @return
+		 */
+		private Event categoryChanged(String changeName, CategorySpec.Event changes)
+		{
+			changedName = changeName;
+			categoryChanges = changes;
+			return this;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param e
+		 * @param added
+		 * @return
+		 */
+		private Event categoryAdded(Category added)
+		{
+			addedCategory = added.spec.getName();
+			return this;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param e
+		 * @param removed
+		 * @return
+		 */
+		private Event categoryRemoved(Category removed)
+		{
+			removedCategories = new HashSet<String>(Arrays.asList(removed.spec.getName()));
+			return this;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @param e
+		 * @param removed
+		 * @return
+		 */
+		private Event categoriesRemoved(Collection<Category> removed)
+		{
+			removedCategories = new HashSet<String>(removed.stream().map((c) -> c.spec.getName()).collect(Collectors.toSet()));
+			return this;
+		}
+		
+		/**
+		 * @return The Deck that changed to create this DeckEvent.
+		 */
+		public Deck getSource()
+		{
+			return Deck.this;
+		}
+		
+		/**
+		 * @return <code>true</code> if Cards were added to or removed from the Deck
+		 * during the event.
+		 */
+		public boolean cardsChanged()
+		{
+			return cardsChanged != null;
+		}
+		
+		/**
+		 * @return A map containing the Cards that were added and the number of copies
+		 * that were added.
+		 * @throws IllegalStateException If no cards were added or removed during the
+		 * event.
+		 */
+		public Map<Card, Integer> cardsAdded()
+		{
+			if (cardsChanged())
+			{
+				Map<Card, Integer> cards = new HashMap<Card, Integer>(cardsChanged);
+				for (Card c: cardsChanged.keySet())
+					if (cardsChanged.get(c) < 1)
+						cards.remove(c);
+				return cards;
+			}
+			else
+				throw new IllegalStateException("Deck cards were not changed");
+		}
+		
+		/**
+		 * @return A map of cards that were removed and the number of copies that
+		 * were removed.  Positive numbers are used to indicate removed cards.
+		 * @throws IllegalStateException If no cards were added or removed during
+		 * the event.
+		 */
+		public Map<Card, Integer> cardsRemoved()
+		{
+			if (cardsChanged())
+			{
+				Map<Card, Integer> cards = new HashMap<Card, Integer>(cardsChanged);
+				for (Card c: cardsChanged.keySet())
+					if (cardsChanged.get(c) > -1)
+						cards.remove(c);
+					else
+						cardsChanged.compute(c, (k, v) -> -v);
+				return cards;
+			}
+			else
+				throw new IllegalStateException("Deck cards were not changed");
+		}
+		
+		/**
+		 * @return <code>true</code> if a category in the Deck was changed, and
+		 * <code>false</code> otherwise.
+		 */
+		public boolean categoryChanged()
+		{
+			return categoryChanges != null;
+		}
+		
+		/**
+		 * @return The name of the category that was changed before the event.
+		 * Use this rather than the CategoryEvent returned by {@link categoryChanges()}
+		 * to identify which category was changed if its name was not changed.
+		 * @throws IllegalStateException If no category was changed during the
+		 * event.
+		 */
+		public String categoryName()
+		{
+			if (categoryChanged())
+				return changedName;
+			else
+				throw new IllegalStateException("Category was not changed");
+		}
+		
+		/**
+		 * @return A CategoryEvent detailing the changes to the category.
+		 * @throws IllegalStateException if no category was changed during
+		 * the event.
+		 */
+		public CategorySpec.Event categoryChanges()
+		{
+			if (categoryChanged())
+				return categoryChanges;
+			else
+				throw new IllegalStateException("Category was not changed");
+		}
+		
+		/**
+		 * @return <code>true</code> if a category was added to the deck, and
+		 * <code>false</code>.
+		 */
+		public boolean categoryAdded()
+		{
+			return addedCategory != null;
+		}
+		
+		/**
+		 * @return The name of the category that was added.
+		 * @throws IllegalStateException If no category was added.
+		 */
+		public String addedName()
+		{
+			if (categoryAdded())
+				return addedCategory;
+			else
+				throw new IllegalStateException("No category has been added to the deck");
+		}
+		
+		/**
+		 * @return <code>true</code> if any categories were removed during the
+		 * event, and <code>false</code> otherwise.
+		 */
+		public boolean categoriesRemoved()
+		{
+			return removedCategories != null;
+		}
+		
+		/**
+		 * @return The set of names of the categories that were removed during the
+		 * event.
+		 * @throws IllegalStateException If no categories were removed during the
+		 * event.
+		 */
+		public Set<String> removedNames()
+		{
+			if (categoriesRemoved())
+				return removedCategories;
+			else
+				throw new IllegalStateException("No category has been removed from the deck");
 		}
 	}
 }

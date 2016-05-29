@@ -11,8 +11,10 @@ import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -92,6 +94,10 @@ public class CategoryPanel extends JPanel
 	 * Listener for changes to this CategoryPanel's Deck.
 	 */
 	private DeckListener listener;
+	/**
+	 * TODO: Comment this
+	 */
+	protected JComboBox<Integer> rankBox;
 	
 	/**
 	 * Create a new CategoryPanel.
@@ -126,6 +132,9 @@ public class CategoryPanel extends JPanel
 		
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		rankBox = new JComboBox<Integer>(IntStream.range(0, deck.getCategoryCount()).boxed().toArray(Integer[]::new));
+		rankBox.setSelectedIndex(deck.getCategoryRank(name));
+		buttonPanel.add(rankBox);
 		colorButton = new ColorButton(deck.getCategorySpec(name).getColor());
 		buttonPanel.add(colorButton);
 		editButton = new JButton("…");

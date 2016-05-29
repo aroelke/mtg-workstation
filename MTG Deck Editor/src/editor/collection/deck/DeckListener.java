@@ -17,5 +17,5 @@ public interface DeckListener extends EventListener
 	 * 
 	 * @param e DeckEvent specifying the change in the Deck
 	 */
-	public void deckChanged(DeckEvent e);
+	public void deckChanged(Deck.Event e);
 }
