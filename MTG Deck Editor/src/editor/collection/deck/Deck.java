@@ -643,13 +643,13 @@ public class Deck implements CardCollection
 				if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
 					c.update();
 				
-				DeckEvent event = new DeckEvent(this, null, e.nameChanged() ? e.oldName() : e.getSource().getName(), e, null, null);
+				DeckEvent event = new DeckEvent(this, e.nameChanged() ? e.oldName() : e.getSource().getName(), e);
 				for (DeckListener listener: new HashSet<DeckListener>(listeners))
 					listener.deckChanged(event);
 			});
 			
 			for (DeckListener listener: new HashSet<DeckListener>(listeners))
-				listener.deckChanged(new DeckEvent(this, null, null, null, c.spec.getName(), null));
+				listener.deckChanged(new DeckEvent(this, c.spec.getName()));
 			
 			return c;
 		}
@@ -674,8 +674,7 @@ public class Deck implements CardCollection
 			categories.remove(name);
 			c.spec.removeCategoryListener(c.listener);
 			
-			DeckEvent event = new DeckEvent(this, null, null, null, null,
-					new HashSet<String>(Arrays.asList(c.spec.getName())));
+			DeckEvent event = new DeckEvent(this, new HashSet<String>(Arrays.asList(c.spec.getName())));
 			for (DeckListener listener: new HashSet<DeckListener>(listeners))
 				listener.deckChanged(event);
 			

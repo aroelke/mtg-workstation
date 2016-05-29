@@ -88,6 +88,37 @@ public class DeckEvent
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param s
+	 * @param changeName
+	 * @param catChange
+	 */
+	public DeckEvent(Deck s, String changeName, CategoryEvent catChange)
+	{
+		this(s, null, changeName, catChange, null, null);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param s
+	 * @param catAdd
+	 */
+	public DeckEvent(Deck s, String catAdd)
+	{
+		this(s, null, null, null, catAdd, null);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param s
+	 * @param catRem
+	 */
+	public DeckEvent(Deck s, Set<String> catRem)
+	{
+		this(s, null, null, null, null, catRem);
+	}
+	
+	/**
 	 * @return The Deck that changed to create this DeckEvent.
 	 */
 	public Deck getSource()
