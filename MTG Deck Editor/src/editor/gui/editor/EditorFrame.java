@@ -800,17 +800,17 @@ public class EditorFrame extends JInternalFrame
 						.filter((panel) -> !e.removedNames().contains(panel.getCategoryName()))
 						.collect(Collectors.toList());
 				for (CategoryPanel panel: categoryPanels)
-				{
 					for (int i = 0; i < e.removedNames().size(); i++)
 						panel.rankBox.removeItemAt(categoryPanels.size());
-					panel.rankBox.setSelectedIndex(deck.getCategoryRank(panel.getCategoryName()));
-				}
 				
 				listTabs.setSelectedIndex(CATEGORIES);
 			}
 			if (e.ranksChanged())
+			{
 				for (CategoryPanel panel: categoryPanels)
 					panel.rankBox.setSelectedIndex(deck.getCategoryRank(panel.getCategoryName()));
+				listTabs.setSelectedIndex(CATEGORIES);
+			}
 			if (e.categoriesRemoved() || e.categoryChanged() || e.ranksChanged())
 				updateCategoryPanel();
 			

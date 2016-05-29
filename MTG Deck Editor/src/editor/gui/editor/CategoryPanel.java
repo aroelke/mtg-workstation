@@ -95,7 +95,7 @@ public class CategoryPanel extends JPanel
 	 */
 	private DeckListener listener;
 	/**
-	 * TODO: Comment this
+	 * Combo box showing the user-defined rank of the category.
 	 */
 	protected JComboBox<Integer> rankBox;
 	

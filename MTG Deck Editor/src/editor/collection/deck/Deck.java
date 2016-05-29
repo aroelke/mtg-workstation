@@ -671,13 +671,19 @@ public class Deck implements CardCollection
 		{
 			for (Entry e: masterList)
 				e.categories.remove(c);
+			Map<String, Integer> oldRanks = new HashMap<String, Integer>();
 			for (Category category: categories.values())
+			{
 				if (category.rank > c.rank)
+				{
+					oldRanks.put(category.spec.getName(), category.rank);
 					category.rank--;
+				}
+			}
 			categories.remove(name);
 			c.spec.removeCategoryListener(c.listener);
 			
-			Event event = new Event().categoryRemoved(c);
+			Event event = new Event().categoryRemoved(c).ranksChanged(oldRanks);
 			for (DeckListener listener: new HashSet<DeckListener>(listeners))
 				listener.deckChanged(event);
 			
@@ -688,8 +694,7 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The number of categories in this Deck.
 	 */
 	public int getCategoryCount()
 	{
@@ -697,9 +702,9 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @return
+	 * @param name Name of the category to search for
+	 * @return The user-defined rank of the given category, or -1 if no
+	 * category with the given name exists.
 	 */
 	public int getCategoryRank(String name)
 	{
@@ -710,14 +715,20 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param name
-	 * @param target
-	 * @return
+	 * Change the rank of the category with the given name to the target value.  The
+	 * category that has that value will have its rank changed to that of the one with
+	 * the given name.
+	 * 
+	 * @param name Name of the category whose rank should be changed
+	 * @param target New rank for the category
+	 * @return <code>true</code> if ranks were successfully changed, and <code>false</code>
+	 * otherwise (such as if the named category doesn't exist, the target rank is too
+	 * high, the target rank is negative, or the target rank is the named category's rank).
 	 */
 	public boolean swapCategoryRanks(String name, int target)
 	{
-		if (!categories.containsKey(name) || target >= categories.size() || categories.get(name).rank == target)
+		if (!categories.containsKey(name) || categories.get(name).rank == target
+				|| target >= categories.size() || target < 0)
 			return false;
 		else
 		{
@@ -732,7 +743,7 @@ public class Deck implements CardCollection
 					second.rank = categories.get(name).rank;
 					categories.get(name).rank = target;
 					
-					Event event = new Event().rankChanges(oldRanks);
+					Event event = new Event().ranksChanged(oldRanks);
 					for (DeckListener listener: listeners)
 						listener.deckChanged(event);
 					return true;
@@ -1123,7 +1134,7 @@ public class Deck implements CardCollection
 		 */
 		public CategoryListener listener;
 		/**
-		 * TODO: Comment this
+		 * Rank of this Category.
 		 */
 		public int rank;
 		
@@ -1560,7 +1571,7 @@ public class Deck implements CardCollection
 		 */
 		private Set<String> removedCategories;
 		/**
-		 * TODO: Comment this
+		 * Map of categories onto their old ranks, if they were changed.
 		 */
 		private Map<String, Integer> rankChanges;
 		
@@ -1575,10 +1586,10 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param e
-		 * @param change
-		 * @return
+		 * Indicate that cards and/or counts of cards in the deck changed.
+		 * 
+		 * @param change Map of Cards onto their count changes
+		 * @return The Event representing the change.
 		 */
 		private Event cardsChanged(Map<Card, Integer> change)
 		{
@@ -1587,11 +1598,11 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param e
-		 * @param changeName
-		 * @param changes
-		 * @return
+		 * Indicate that a category was changed.
+		 * 
+		 * @param changeName Name of the category that was changed
+		 * @param changes CategorySpec.Event indicating changes to the category
+		 * @return The Event representing the change.
 		 */
 		private Event categoryChanged(String changeName, CategorySpec.Event changes)
 		{
@@ -1601,10 +1612,10 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param e
-		 * @param added
-		 * @return
+		 * Indicate that a category was added to the deck.
+		 * 
+		 * @param added Category that was added
+		 * @return The Event representing the change.
 		 */
 		private Event categoryAdded(Category added)
 		{
@@ -1613,10 +1624,10 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param e
-		 * @param removed
-		 * @return
+		 * Indicate that a category was removed from the deck.
+		 * 
+		 * @param removed Category that was removed
+		 * @return The Event representing the change.
 		 */
 		private Event categoryRemoved(Category removed)
 		{
@@ -1625,10 +1636,10 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param e
-		 * @param removed
-		 * @return
+		 * Indicate that categories were removed from the deck.
+		 * 
+		 * @param removed Collection of categories that were removed
+		 * @return The Event representing the change.
 		 */
 		private Event categoriesRemoved(Collection<Category> removed)
 		{
@@ -1637,11 +1648,12 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param changed
-		 * @return
+		 * Indicate that the ranks of categories were changed.
+		 * 
+		 * @param changed Map of category names onto their old ranks
+		 * @return The Event representing the change.
 		 */
-		private Event rankChanges(Map<String, Integer> changed)
+		private Event ranksChanged(Map<String, Integer> changed)
 		{
 			rankChanges = changed;
 			return this;
@@ -1788,8 +1800,8 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @return
+		 * @return <code>true</code> if the ranks of any categories were changed, and
+		 * <code>false</code> otherwise.
 		 */
 		public boolean ranksChanged()
 		{
@@ -1797,8 +1809,9 @@ public class Deck implements CardCollection
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @return
+		 * @return A map of category names onto their old ranks before they were
+		 * changed.
+		 * @throws IllegalStateException If no category ranks were changed.
 		 */
 		public Map<String, Integer> oldRanks()
 		{

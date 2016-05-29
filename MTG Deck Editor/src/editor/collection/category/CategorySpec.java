@@ -477,7 +477,7 @@ public class CategorySpec
 		private Filter oldFilter;
 		
 		/**
-		 * TODO: Comment this
+		 * Create a new Event showing no changes.
 		 */
 		public Event()
 		{
@@ -489,9 +489,10 @@ public class CategorySpec
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param old
-		 * @return
+		 * Indicate that the name of the category changed.
+		 * 
+		 * @param old Old name of the category
+		 * @return Event representing the change.
 		 */
 		private Event changeName(String old)
 		{
@@ -500,9 +501,10 @@ public class CategorySpec
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param old
-		 * @return
+		 * Indicate that the whitelist of the category changed.
+		 * 
+		 * @param old Old whitelist of the category
+		 * @return Event representing the change.
 		 */
 		private Event changeWhitelist(Set<Card> old)
 		{
@@ -511,9 +513,10 @@ public class CategorySpec
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param old
-		 * @return
+		 * Indicate that the blacklist of the category changed.
+		 * 
+		 * @param old Old blacklist of the category
+		 * @return Event representing the change.
 		 */
 		private Event changeBlacklist(Set<Card> old)
 		{
@@ -522,9 +525,10 @@ public class CategorySpec
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param old
-		 * @return
+		 * Indicate that the color of the category changed.
+		 * 
+		 * @param old Old color of the category
+		 * @return Event representing the change.
 		 */
 		private Event changeColor(Color old)
 		{
@@ -533,9 +537,10 @@ public class CategorySpec
 		}
 		
 		/**
-		 * TODO: Comment this
-		 * @param old
-		 * @return
+		 * Indicate that the filter of the category changed.
+		 * 
+		 * @param old Old filter of the category
+		 * @return Event representing the change.
 		 */
 		private Event changeFilter(Filter old)
 		{
