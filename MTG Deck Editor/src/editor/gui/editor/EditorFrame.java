@@ -412,7 +412,7 @@ public class EditorFrame extends JInternalFrame
 			contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 				addSelectedCards((Integer)spinner.getValue());
 		});
 		tableMenu.add(addNPopupItem);
@@ -436,7 +436,7 @@ public class EditorFrame extends JInternalFrame
 			contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 				removeSelectedCards((Integer)spinner.getValue());
 		});
 		tableMenu.add(removeNPopupItem);
@@ -655,7 +655,7 @@ public class EditorFrame extends JInternalFrame
 			
 			for (Card c: hand.excluded())
 				excludeModel.addElement(c);
-			JOptionPane.showMessageDialog(null, excludePanel, "Exclude Cards", JOptionPane.PLAIN_MESSAGE);
+			JOptionPane.showMessageDialog(this, excludePanel, "Exclude Cards", JOptionPane.PLAIN_MESSAGE);
 			
 			hand.clearExclusion();
 			for (int i = 0; i < excludeModel.size(); i++)
@@ -716,7 +716,7 @@ public class EditorFrame extends JInternalFrame
 		legalityButton.addActionListener((e) -> {
 			LegalityChecker checker = new LegalityChecker();
 			checker.checkLegality(deck);
-			JOptionPane.showMessageDialog(null, new LegalityPanel(checker), "Legality of " + deckName(), JOptionPane.PLAIN_MESSAGE);
+			JOptionPane.showMessageDialog(this, new LegalityPanel(checker), "Legality of " + deckName(), JOptionPane.PLAIN_MESSAGE);
 		});
 		legalityPanel.add(legalityButton);
 		GridBagConstraints legalityConstraints = new GridBagConstraints();
@@ -732,7 +732,7 @@ public class EditorFrame extends JInternalFrame
 		JButton clearLogButton = new JButton("Clear Change Log");
 		clearLogButton.addActionListener((e) -> {
 			if (!changelogArea.getText().isEmpty()
-					&& JOptionPane.showInternalConfirmDialog(EditorFrame.this, "Change log cannot be restored once saved.  Clear change log?", "Clear Change Log?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+					&& JOptionPane.showConfirmDialog(EditorFrame.this, "Change log cannot be restored once saved.  Clear change log?", "Clear Change Log?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
 			{
 				String text = changelogArea.getText();
 				performAction(() -> {
@@ -865,7 +865,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		catch (InterruptedException | ExecutionException e)
 		{
-			JOptionPane.showMessageDialog(null, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.clear();
 			categoriesContainer.removeAll();
 		}
@@ -932,7 +932,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			spec = CategoryEditorPanel.showCategoryEditor(this, spec != null ? spec : null);
 			if (spec != null && deck.containsCategory(spec.getName()))
-				JOptionPane.showMessageDialog(null, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
 		} while (spec != null && deck.containsCategory(spec.getName()));
 		return spec;
 	}
@@ -967,7 +967,7 @@ public class EditorFrame extends JInternalFrame
 		newCategory.removeButton.addActionListener((e) -> removeCategory(spec));
 		// Add the behavior for the color edit button
 		newCategory.colorButton.addActionListener((e) -> {
-			Color newColor = JColorChooser.showDialog(null, "Choose a Color", newCategory.colorButton.color());
+			Color newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color());
 			if (newColor != null)
 			{
 				spec.setColor(newColor);
@@ -1004,7 +1004,7 @@ public class EditorFrame extends JInternalFrame
 			contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 				addSelectedCards((Integer)spinner.getValue());
 		});
 		tableMenu.add(addNPopupItem);
@@ -1028,7 +1028,7 @@ public class EditorFrame extends JInternalFrame
 			contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showOptionDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 				removeSelectedCards((Integer)spinner.getValue());
 		});
 		tableMenu.add(removeNPopupItem);
@@ -1087,7 +1087,7 @@ public class EditorFrame extends JInternalFrame
 		addPresetItem.addActionListener((e) -> {
 			if (!spec.getWhitelist().isEmpty() || !spec.getBlacklist().isEmpty())
 			{
-				if (JOptionPane.showConfirmDialog(null,
+				if (JOptionPane.showConfirmDialog(this,
 						"Category "
 						+ spec.getName()
 						+ " contains cards in its whitelist or blacklist which will not be included in the preset category."
@@ -1169,7 +1169,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		CategorySpec toEdit = deck.getCategorySpec(name);
 		if (toEdit == null)
-			JOptionPane.showInternalMessageDialog(this, "Deck " + deckName() + " has no category named " + name + ".",
+			JOptionPane.showMessageDialog(this, "Deck " + deckName() + " has no category named " + name + ".",
 					"Error", JOptionPane.ERROR_MESSAGE);
 		else
 		{
@@ -1582,7 +1582,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(null, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 	}
@@ -1649,7 +1649,7 @@ public class EditorFrame extends JInternalFrame
 		if (unsaved)
 		{
 			String msg = "Deck \"" + getTitle().substring(0, getTitle().length() - 2) + "\" has unsaved changes.  Save?";
-			switch(JOptionPane.showConfirmDialog(null, msg, "Unsaved Changes", JOptionPane.YES_NO_CANCEL_OPTION))
+			switch(JOptionPane.showConfirmDialog(this, msg, "Unsaved Changes", JOptionPane.YES_NO_CANCEL_OPTION))
 			{
 			case JOptionPane.YES_OPTION:
 				parent.save(EditorFrame.this);
