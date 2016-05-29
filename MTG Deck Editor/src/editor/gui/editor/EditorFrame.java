@@ -797,9 +797,7 @@ public class EditorFrame extends JInternalFrame
 				listTabs.setSelectedIndex(CATEGORIES);
 			}
 			if (e.categoriesRemoved() || e.categoryChanged())
-			{
 				updateCategoryPanel();
-			}
 			
 			// Clean up
 			if (!unsaved)
@@ -930,7 +928,7 @@ public class EditorFrame extends JInternalFrame
 		CategorySpec spec = null;
 		do
 		{
-			spec = CategoryEditorPanel.showCategoryEditor(this, spec != null ? spec : null);
+			spec = CategoryEditorPanel.showCategoryEditor(this, spec);
 			if (spec != null && deck.containsCategory(spec.getName()))
 				JOptionPane.showMessageDialog(this, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
 		} while (spec != null && deck.containsCategory(spec.getName()));
