@@ -808,7 +808,10 @@ public class EditorFrame extends JInternalFrame
 				
 				listTabs.setSelectedIndex(CATEGORIES);
 			}
-			if (e.categoriesRemoved() || e.categoryChanged())
+			if (e.ranksChanged())
+				for (CategoryPanel panel: categoryPanels)
+					panel.rankBox.setSelectedIndex(deck.getCategoryRank(panel.getCategoryName()));
+			if (e.categoriesRemoved() || e.categoryChanged() || e.ranksChanged())
 				updateCategoryPanel();
 			
 			// Clean up
@@ -972,6 +975,15 @@ public class EditorFrame extends JInternalFrame
 			}
 		});
 		// Add the behavior for the edit category button
+		newCategory.rankBox.addActionListener((e) -> {
+			if (newCategory.rankBox.isPopupVisible())
+			{
+				int oldRank = deck.getCategoryRank(newCategory.getCategoryName());
+				int newRank = newCategory.rankBox.getSelectedIndex();
+				performAction(() -> deck.swapCategoryRanks(newCategory.getCategoryName(), oldRank),
+						() -> deck.swapCategoryRanks(newCategory.getCategoryName(), newRank));
+			}
+		});
 		newCategory.editButton.addActionListener((e) -> editCategory(spec.getName()));
 		// Add the behavior for the remove category button
 		newCategory.removeButton.addActionListener((e) -> removeCategory(spec));

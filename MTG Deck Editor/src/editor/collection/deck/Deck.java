@@ -711,19 +711,35 @@ public class Deck implements CardCollection
 	
 	/**
 	 * TODO: Comment this
-	 * @param first
-	 * @param second
+	 * @param name
+	 * @param target
 	 * @return
 	 */
-	public boolean swapCategoryRanks(String first, String second)
+	public boolean swapCategoryRanks(String name, int target)
 	{
-		if (first.equals(second) || ! containsCategory(first) || !containsCategory(second))
+		if (!categories.containsKey(name) || target >= categories.size() || categories.get(name).rank == target)
 			return false;
-		
-		int temp = categories.get(first).rank;
-		categories.get(first).rank = categories.get(second).rank;
-		categories.get(second).rank = temp;
-		return true;
+		else
+		{
+			for (Category second: categories.values())
+			{
+				if (second.rank == target)
+				{
+					Map<String, Integer> oldRanks = new HashMap<String, Integer>();
+					oldRanks.put(name, categories.get(name).rank);
+					oldRanks.put(second.spec.getName(), second.rank);
+					
+					second.rank = categories.get(name).rank;
+					categories.get(name).rank = target;
+					
+					Event event = new Event().rankChanges(oldRanks);
+					for (DeckListener listener: listeners)
+						listener.deckChanged(event);
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 	
 	/**
@@ -1621,6 +1637,17 @@ public class Deck implements CardCollection
 		}
 		
 		/**
+		 * TODO: Comment this
+		 * @param changed
+		 * @return
+		 */
+		private Event rankChanges(Map<String, Integer> changed)
+		{
+			rankChanges = changed;
+			return this;
+		}
+		
+		/**
 		 * @return The Deck that changed to create this DeckEvent.
 		 */
 		public Deck getSource()
@@ -1758,6 +1785,27 @@ public class Deck implements CardCollection
 				return removedCategories;
 			else
 				throw new IllegalStateException("No category has been removed from the deck");
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @return
+		 */
+		public boolean ranksChanged()
+		{
+			return rankChanges != null;
+		}
+		
+		/**
+		 * TODO: Comment this
+		 * @return
+		 */
+		public Map<String, Integer> oldRanks()
+		{
+			if (ranksChanged())
+				return rankChanges;
+			else
+				throw new IllegalStateException("No category's rank changed");
 		}
 	}
 }
