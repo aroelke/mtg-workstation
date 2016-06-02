@@ -460,9 +460,9 @@ public class EditorFrame extends JInternalFrame
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
 				List<Card> cards = getSelectedCards();
-				if (cards.size() != 1 && !deck.categories().isEmpty())
+				if (cards.size() != 1 || deck.categories().isEmpty())
 					setCategoriesMenu.setEnabled(false);
-				else if (!deck.categories().isEmpty())
+				else
 				{
 					setCategoriesMenu.setEnabled(true);
 					setCategoriesMenu.removeAll();
