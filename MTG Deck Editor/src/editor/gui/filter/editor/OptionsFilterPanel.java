@@ -1,8 +1,10 @@
 package editor.gui.filter.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -13,12 +15,19 @@ import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.plaf.basic.BasicComboPopup;
+
+import com.jidesoft.swing.SimpleScrollPane;
 
 import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
-import editor.gui.ButtonScrollPane;
 import editor.gui.ScrollablePanel;
 import editor.gui.filter.ComboBoxPanel;
 import editor.util.Containment;
@@ -93,7 +102,10 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 		
 		optionsPanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
-		add(new ButtonScrollPane(optionsPanel));
+		JScrollPane optionsPane = new SimpleScrollPane(optionsPanel,
+				JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		optionsPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		add(optionsPane, BorderLayout.CENTER);
 	}
 	
 	/**
@@ -105,6 +117,42 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	{
 		JPanel boxPanel = new JPanel(new BorderLayout());
 		JComboBox<T> box = new JComboBox<T>(options);
+		box.addPopupMenuListener(new PopupMenuListener()
+		{
+			// Adapted from https://tips4java.wordpress.com/2010/11/28/combo-box-popup/
+			
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+			{
+				if (options.length > 0)
+				{
+					Object child = box.getAccessibleContext().getAccessibleChild(0);
+					if (child instanceof BasicComboPopup)
+						SwingUtilities.invokeLater(() -> {
+							BasicComboPopup popup = (BasicComboPopup)child;
+							JScrollPane scrollPane = (JScrollPane)SwingUtilities.getAncestorOfClass(JScrollPane.class, popup.getList());
+							
+							int popupWidth = popup.getList().getPreferredSize().width +
+									(options.length > box.getMaximumRowCount() ? scrollPane.getVerticalScrollBar().getPreferredSize().width : 0);
+							scrollPane.setPreferredSize(new Dimension(Math.max(popupWidth, scrollPane.getPreferredSize().width), scrollPane.getPreferredSize().height));
+							scrollPane.setMaximumSize(scrollPane.getPreferredSize());
+							Point location = box.getLocationOnScreen();
+							popup.setLocation(location.x, location.y + box.getHeight() - 1);
+							popup.setLocation(location.x, location.y + box.getHeight());
+						});
+				}
+			}
+
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e)
+			{}
+
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+			{}
+		});
+		box.setPreferredSize(new Dimension(100, box.getPreferredSize().height));
+		
 		boxPanel.add(box, BorderLayout.CENTER);
 		optionsBoxes.add(box);
 		box.setSelectedItem(value);
