@@ -21,20 +21,6 @@ import editor.filter.leaf.options.multi.LegalityFilter;
 public class LegalityFilterPanel extends OptionsFilterPanel<String>
 {
 	/**
-	 * Create a new LegalityFilterPanel using the given LegalityFilter
-	 * to initialize its fields.
-	 * 
-	 * @param f Filter to use for initialization
-	 * @return The created LegalityFilterPanel
-	 */
-	public static LegalityFilterPanel create(LegalityFilter f)
-	{
-		LegalityFilterPanel panel = new LegalityFilterPanel();
-		panel.setContents(f);
-		return panel;
-	}
-	
-	/**
 	 * Check box indicating whether or not restricted cards should
 	 * be filtered.
 	 */
@@ -43,10 +29,22 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
 	/**
 	 * Create a new LegalityFilterPanel.
 	 */
-	private LegalityFilterPanel()
+	public LegalityFilterPanel()
 	{
 		super(FilterType.FORMAT_LEGALITY, Card.formatList);
 		add(restrictedBox = new JCheckBox("Restricted"), BorderLayout.EAST);
+	}
+	
+	/**
+	 * Create a new LegalityFilterPanel using the given LegalityFilter
+	 * to initialize its fields.
+	 * 
+	 * @param f Filter to use for initialization
+	 */
+	public LegalityFilterPanel (LegalityFilter f)
+	{
+		this();
+		setContents(f);
 	}
 	
 	/**

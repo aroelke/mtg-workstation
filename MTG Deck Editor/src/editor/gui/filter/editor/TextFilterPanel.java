@@ -21,20 +21,6 @@ import editor.util.Containment;
 public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 {
 	/**
-	 * Create a new TextFilterPanel and initialize its fields according
-	 * to the contents of the given TextFilter.
-	 * 
-	 * @param f Filter to use for initialization
-	 * @return The new TextFilterPanel.
-	 */
-	public static TextFilterPanel create(TextFilter f)
-	{
-		TextFilterPanel panel = new TextFilterPanel();
-		panel.setContents(f);
-		return panel;
-	}
-	
-	/**
 	 * Type of filter that this TextFilterPanel edits.
 	 */
 	private FilterType type;
@@ -69,6 +55,18 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		regex = new JCheckBox("regex");
 		regex.addActionListener((e) -> contain.setVisible(!regex.isSelected()));
 		add(regex);
+	}
+	
+	/**
+	 * Create a new TextFilterPanel and initialize its fields according
+	 * to the contents of the given TextFilter.
+	 * 
+	 * @param f Filter to use for initialization
+	 */
+	public TextFilterPanel(TextFilter f)
+	{
+		this();
+		setContents(f);
 	}
 	
 	/**

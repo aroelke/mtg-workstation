@@ -24,20 +24,6 @@ import editor.util.Comparison;
 public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberFilter>
 {
 	/**
-	 * Create a new VariableNumberFilterPanel, using the given 
-	 * VariableNumberFilter to initialize its fields.
-	 * 
-	 * @param f Filter to use for initialization
-	 * @return The new VariableNumberFilterPanel.
-	 */
-	public static VariableNumberFilterPanel create(VariableNumberFilter f)
-	{
-		VariableNumberFilterPanel panel = new VariableNumberFilterPanel();
-		panel.setContents(f);
-		return panel;
-	}
-	
-	/**
 	 * Type of filter this VariableNumberFilterPanel edits.
 	 */
 	private FilterType type;
@@ -73,6 +59,18 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		
 		variable = new JCheckBox("Contains *");
 		add(variable);
+	}
+	
+	/**
+	 * Create a new VariableNumberFilterPanel, using the given 
+	 * VariableNumberFilter to initialize its fields.
+	 * 
+	 * @param f Filter to use for initialization
+	 */
+	public VariableNumberFilterPanel(VariableNumberFilter f)
+	{
+		this();
+		setContents(f);
 	}
 
 	/**

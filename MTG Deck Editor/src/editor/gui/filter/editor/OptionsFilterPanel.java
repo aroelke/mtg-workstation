@@ -46,21 +46,6 @@ import editor.util.Containment;
 public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 {
 	/**
-	 * Create a new OptionsFilterPanel using the given filter to initialize its
-	 * fields and the given array to specify the set of options to choose from.
-	 * 
-	 * @param f Filter to use for initialization
-	 * @param o List of options to choose from
-	 * @return The created OptionsFilterPanel.
-	 */
-	public static <O> OptionsFilterPanel<O> create(OptionsFilter<O> f, O[] o)
-	{
-		OptionsFilterPanel<O> panel = new OptionsFilterPanel<O>(f.type, o);
-		panel.setContents(f);
-		return panel;
-	}
-	
-	/**
 	 * Type of filter this OptionsFilterPanel edits.
 	 */
 	private FilterType type;
@@ -88,7 +73,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	 * @param t Type of the new OptionsFilterPanel
 	 * @param o List of options to choose from
 	 */
-	protected OptionsFilterPanel(FilterType t, T[] o)
+	public OptionsFilterPanel(FilterType t, T[] o)
 	{
 		super();
 		setLayout(new BorderLayout());
@@ -106,6 +91,19 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 				JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		optionsPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		add(optionsPane, BorderLayout.CENTER);
+	}
+	
+	/**
+	 * Create a new OptionsFilterPanel using the given filter to initialize its
+	 * fields and the given array to specify the set of options to choose from.
+	 * 
+	 * @param f Filter to use for initialization
+	 * @param o List of options to choose from
+	 */
+	public OptionsFilterPanel(OptionsFilter<T> f, T[] t)
+	{
+		this(f.type, t);
+		setContents(f);
 	}
 	
 	/**

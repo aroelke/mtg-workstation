@@ -23,20 +23,6 @@ import editor.util.Comparison;
 public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 {
 	/**
-	 * Create a new NumberFilterPanel and initialize its fields according
-	 * to the contents of the given NumberFilter.
-	 * 
-	 * @param f Filter to use for initialization
-	 * @return The new NumberFilterPanel.
-	 */
-	public static NumberFilterPanel create(NumberFilter f)
-	{
-		NumberFilterPanel panel = new NumberFilterPanel();
-		panel.setContents(f);
-		return panel;
-	}
-	
-	/**
 	 * Type of the filter this panel edits.
 	 */
 	private FilterType type;
@@ -66,6 +52,18 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 		spinner.setModel(new SpinnerNumberModel(0.0, 0.0, null, 1.0));
 		spinner.setMaximumSize(new Dimension(100, Integer.MAX_VALUE));
 		add(spinner);
+	}
+	
+	/**
+	 * Create a new NumberFilterPanel and initialize its fields according
+	 * to the contents of the given NumberFilter.
+	 * 
+	 * @param f Filter to use for initialization
+	 */
+	public NumberFilterPanel(NumberFilter f)
+	{
+		this();
+		setContents(f);
 	}
 	
 	/**

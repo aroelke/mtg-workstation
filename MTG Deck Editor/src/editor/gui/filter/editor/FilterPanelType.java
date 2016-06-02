@@ -31,139 +31,139 @@ public enum FilterPanelType
 {
 	NAME(FilterType.NAME, (f) -> {
 		if (f.type == FilterType.NAME)
-			return TextFilterPanel.create((TextFilter)f);
+			return new TextFilterPanel((TextFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal name filter type " + f.type.name());
 	}),
 	MANA_COST(FilterType.MANA_COST, (f) -> {
 		if (f.type == FilterType.MANA_COST)
-			return ManaCostFilterPanel.create((ManaCostFilter)f);
+			return new ManaCostFilterPanel((ManaCostFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal mana cost filter type " + f.type.name());
 	}),
 	CMC(FilterType.CMC, (f) -> {
 		if (f.type == FilterType.CMC)
-			return NumberFilterPanel.create((NumberFilter)f);
+			return new NumberFilterPanel((NumberFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal cmc filter type " + f.type.name());
 	}),
 	COLOR(FilterType.COLOR, (f) -> {
 		if (f.type == FilterType.COLOR)
-			return ColorFilterPanel.create((ColorFilter)f);
+			return new ColorFilterPanel((ColorFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal color filter type " + f.type.name());
 	}),
 	COLOR_IDENTITY(FilterType.COLOR_IDENTITY, (f) -> {
 		if (f.type == FilterType.COLOR_IDENTITY)
-			return ColorFilterPanel.create((ColorFilter)f);
+			return new ColorFilterPanel((ColorFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal color identity filter type " + f.type.name());
 	}),
 	TYPE_LINE(FilterType.TYPE_LINE, (f) -> {
 		if (f.type == FilterType.TYPE_LINE)
-			return TypeLineFilterPanel.create((TypeLineFilter)f);
+			return new TypeLineFilterPanel((TypeLineFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal type line filter type " + f.type.name());
 	}),
 	SUPERTYPE(FilterType.SUPERTYPE, (f) -> {
 		if (f.type == FilterType.SUPERTYPE)
-			return OptionsFilterPanel.create((SupertypeFilter)f, Card.supertypeList);
+			return new OptionsFilterPanel<String>((SupertypeFilter)f, Card.supertypeList);
 		else
 			throw new IllegalArgumentException("Illegal supertype filter type " + f.type.name());
 	}),
 	TYPE(FilterType.TYPE, (f) -> {
 		if (f.type == FilterType.TYPE)
-			return OptionsFilterPanel.create((CardTypeFilter)f, Card.typeList);
+			return new OptionsFilterPanel<String>((CardTypeFilter)f, Card.typeList);
 		else
 			throw new IllegalArgumentException("Illegal card type filter type " + f.type.name());
 	}),
 	SUBTYPE(FilterType.SUBTYPE, (f) -> {
 		if (f.type == FilterType.SUBTYPE)
-			return OptionsFilterPanel.create((SubtypeFilter)f, Card.subtypeList);
+			return new OptionsFilterPanel<String>((SubtypeFilter)f, Card.subtypeList);
 		else
 			throw new IllegalArgumentException("Illegal subtype filter type " + f.type.name());
 	}),
 	EXPANSION(FilterType.EXPANSION, (f) -> {
 		if (f.type == FilterType.EXPANSION)
-			return OptionsFilterPanel.create((ExpansionFilter)f, Expansion.expansions);
+			return new OptionsFilterPanel<Expansion>((ExpansionFilter)f, Expansion.expansions);
 		else
 			throw new IllegalArgumentException("Illegal expansion filter type " + f.type.name());
 	}),
 	BLOCK(FilterType.BLOCK, (f) -> {
 		if (f.type == FilterType.BLOCK)
-			return OptionsFilterPanel.create((BlockFilter)f, Expansion.blocks);
+			return new OptionsFilterPanel<String>((BlockFilter)f, Expansion.blocks);
 		else
 			throw new IllegalArgumentException("Illegal block filter type " + f.type.name());
 	}),
 	RARITY(FilterType.RARITY, (f) -> {
 		if (f.type == FilterType.RARITY)
-			return OptionsFilterPanel.create((RarityFilter)f, Rarity.values());
+			return new OptionsFilterPanel<Rarity>((RarityFilter)f, Rarity.values());
 		else
 			throw new IllegalArgumentException("Illegal rarity filter type " + f.type.name());
 	}),
 	RULES_TEXT(FilterType.RULES_TEXT, (f) -> {
 		if (f.type == FilterType.RULES_TEXT)
-			return TextFilterPanel.create((TextFilter)f);
+			return new TextFilterPanel((TextFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal rules text filter type " + f.type.name());
 	}),
 	FLAVOR_TEXT(FilterType.FLAVOR_TEXT, (f) -> {
 		if (f.type == FilterType.FLAVOR_TEXT)
-			return TextFilterPanel.create((TextFilter)f);
+			return new TextFilterPanel((TextFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal flavor text filter type " + f.type.name());
 	}),
 	POWER(FilterType.POWER, (f) -> {
 		if (f.type == FilterType.POWER)
-			return VariableNumberFilterPanel.create((VariableNumberFilter)f);
+			return new VariableNumberFilterPanel((VariableNumberFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal power filter type " + f.type.name());
 	}),
 	TOUGHNESS(FilterType.TOUGHNESS, (f) -> {
 		if (f.type == FilterType.TOUGHNESS)
-			return VariableNumberFilterPanel.create((VariableNumberFilter)f);
+			return new VariableNumberFilterPanel((VariableNumberFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal toughness filter type " + f.type.name());
 	}),
 	LOYALTY(FilterType.LOYALTY, (f) -> {
 		if (f.type == FilterType.LOYALTY)
-			return NumberFilterPanel.create((NumberFilter)f);
+			return new NumberFilterPanel((NumberFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal loyalty filter type " + f.type.name());
 	}),
 	ARTIST(FilterType.ARTIST, (f) -> {
 		if (f.type == FilterType.ARTIST)
-			return TextFilterPanel.create((TextFilter)f);
+			return new TextFilterPanel((TextFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal artist filter type " + f.type.name());
 	}),
 	CARD_NUMBER(FilterType.CARD_NUMBER, (f) -> {
 		if (f.type == FilterType.CARD_NUMBER)
-			return NumberFilterPanel.create((NumberFilter)f);
+			return new NumberFilterPanel((NumberFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal card number filter type " + f.type.name());
 	}),
 	FORMAT_LEGALITY(FilterType.FORMAT_LEGALITY, (f) -> {
 		if (f.type == FilterType.FORMAT_LEGALITY)
-			return LegalityFilterPanel.create((LegalityFilter)f);
+			return new LegalityFilterPanel((LegalityFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal legality filter type " + f.type.name());
 	}),
 	DEFAULTS(FilterType.DEFAULTS, (f) -> {
 		if (f == null)
-			return DefaultsFilterPanel.create();
+			return new DefaultsFilterPanel();
 		else
 			throw new IllegalArgumentException("Illegal defaults filter type " + f.type.name());
 	}),
 	NONE(FilterType.NONE, (f) -> {
 		if (f.type == FilterType.NONE)
-			return NoneFilterPanel.create();
+			return new NoneFilterPanel();
 		else
 			throw new IllegalArgumentException("Illegal none filter type " + f.type.name());
 	}),
 	ALL(FilterType.ALL, (f) -> {
 		if (f.type == FilterType.ALL)
-			return AllFilterPanel.create();
+			return new AllFilterPanel();
 		else
 			throw new IllegalArgumentException("Illegal all filter type " + f.type.name());
 	});

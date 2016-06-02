@@ -20,18 +20,8 @@ public class NoneFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 {
 	/**
 	 * Create a new NoneFilterPanel.
-	 * 
-	 * @return The new NoneFilterPanel.
 	 */
-	public static NoneFilterPanel create()
-	{
-		return new NoneFilterPanel();
-	}
-	
-	/**
-	 * Create a new NoneFilterPanel.
-	 */
-	private NoneFilterPanel()
+	public NoneFilterPanel()
 	{
 		super();
 		setLayout(new GridLayout(1, 1));

@@ -21,18 +21,8 @@ public class AllFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 {
 	/**
 	 * Create a new AllFilterPanel.
-	 * 
-	 * @return The AllFilterPanel that was created.
 	 */
-	public static AllFilterPanel create()
-	{
-		return new AllFilterPanel();
-	}
-	
-	/**
-	 * Create a new AllFilterPanel.
-	 */
-	private AllFilterPanel()
+	public AllFilterPanel()
 	{
 		super();
 		setLayout(new GridLayout(1, 1));

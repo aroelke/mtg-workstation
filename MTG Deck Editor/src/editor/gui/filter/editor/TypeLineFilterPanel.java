@@ -20,20 +20,6 @@ import editor.util.Containment;
 public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
 {
 	/**
-	 * Create a new TypeLineFilterPanel, using the given TypeLineFilter
-	 * to initialize its fields.
-	 * 
-	 * @param f Filter to use for initialization
-	 * @return The new TypeLineFilterPanel.
-	 */
-	public static TypeLineFilterPanel create(TypeLineFilter f)
-	{
-		TypeLineFilterPanel panel = new TypeLineFilterPanel();
-		panel.setContents(f);
-		return panel;
-	}
-	
-	/**
 	 * Combo box for editing set containment.
 	 */
 	private ComboBoxPanel<Containment> contain;
@@ -45,7 +31,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
 	/**
 	 * Create a new TypeLineFilterPanel.
 	 */
-	private TypeLineFilterPanel()
+	public TypeLineFilterPanel()
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -55,6 +41,18 @@ public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
 		
 		line = new JTextField();
 		add(line);
+	}
+	
+	/**
+	 * Create a new TypeLineFilterPanel, using the given TypeLineFilter
+	 * to initialize its fields.
+	 * 
+	 * @param f Filter to use for initialization
+	 */
+	public TypeLineFilterPanel(TypeLineFilter f)
+	{
+		this();
+		setContents(f);
 	}
 	
 	/**

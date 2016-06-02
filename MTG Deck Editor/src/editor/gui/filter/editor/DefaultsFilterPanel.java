@@ -23,17 +23,6 @@ import editor.gui.filter.ComboBoxPanel;
 @SuppressWarnings("serial")
 public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 {
-	
-	/**
-	 * Create a new DefaultsFilterPanel.
-	 * 
-	 * @return The created DefaultsFilterPanel.
-	 */
-	public static DefaultsFilterPanel create()
-	{
-		return new DefaultsFilterPanel();
-	}
-	
 	/**
 	 * Combo box showing the default categories.
 	 */
@@ -46,7 +35,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	/**
 	 * Create a new DefaultsFilterPanel.
 	 */
-	private DefaultsFilterPanel()
+	public DefaultsFilterPanel()
 	{
 		super();
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));

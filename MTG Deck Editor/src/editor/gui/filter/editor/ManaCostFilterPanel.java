@@ -23,20 +23,6 @@ import editor.util.Containment;
 public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 {
 	/**
-	 * Create a new ManaCostFilterPanel using the given ManaCostFilter
-	 * to set the contents of its fields.
-	 * 
-	 * @param f Filter to use for initialization
-	 * @return The created ManaCostFilterPanel
-	 */
-	public static ManaCostFilterPanel create(ManaCostFilter f)
-	{
-		ManaCostFilterPanel panel = new ManaCostFilterPanel();
-		panel.setContents(f);
-		return panel;
-	}
-	
-	/**
 	 * Combo box indicating containment.
 	 */
 	private ComboBoxPanel<Containment> contain;
@@ -48,7 +34,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 	/**
 	 * Create a new ManaCostFilterPanel.
 	 */
-	private ManaCostFilterPanel()
+	public ManaCostFilterPanel()
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -58,6 +44,18 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 		
 		cost = new JTextField();
 		add(cost);
+	}
+	
+	/**
+	 * Create a new ManaCostFilterPanel using the given ManaCostFilter
+	 * to set the contents of its fields.
+	 * 
+	 * @param f Filter to use for initialization
+	 */
+	public ManaCostFilterPanel(ManaCostFilter f)
+	{
+		this();
+		setContents(f);
 	}
 	
 	/**

@@ -27,20 +27,6 @@ import editor.util.Containment;
 public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 {
 	/**
-	 * Create a new ColorFilterPanel with initial contents obtained
-	 * from the given ColorFilter.
-	 * 
-	 * @param f ColorFilter to use for initialization
-	 * @return The created ColorFilter.
-	 */
-	public static ColorFilterPanel create(ColorFilter f)
-	{
-		ColorFilterPanel panel = new ColorFilterPanel();
-		panel.setContents(f);
-		return panel;
-	}
-	
-	/**
 	 * Type of the filter being edited.
 	 */
 	private FilterType type;
@@ -60,7 +46,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 	/**
 	 * Create a new ColorFilterPanel.
 	 */
-	private ColorFilterPanel()
+	public ColorFilterPanel()
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -83,6 +69,18 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 		// Check box for multicolored cards
 		multiCheckBox = new JCheckBox("Multicolored");
 		add(multiCheckBox);
+	}
+	
+	/**
+	 * Create a new ColorFilterPanel with initial contents obtained
+	 * from the given ColorFilter.
+	 * 
+	 * @param f ColorFilter to get the contents from
+	 */
+	public ColorFilterPanel(ColorFilter f)
+	{
+		this();
+		setContents(f);
 	}
 	
 	/**
