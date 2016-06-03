@@ -46,6 +46,12 @@ import editor.util.Containment;
 public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 {
 	/**
+	 * Maximum width for combo boxes.  Sizes of the drop-down menus remain
+	 * unaffected.
+	 */
+	private static final int MAX_COMBO_WIDTH = 100;
+	
+	/**
 	 * Type of filter this OptionsFilterPanel edits.
 	 */
 	private FilterType type;
@@ -149,7 +155,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
 			{}
 		});
-		box.setPreferredSize(new Dimension(100, box.getPreferredSize().height));
+		box.setPreferredSize(new Dimension(MAX_COMBO_WIDTH, box.getPreferredSize().height));
 		
 		boxPanel.add(box, BorderLayout.CENTER);
 		optionsBoxes.add(box);

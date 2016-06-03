@@ -157,13 +157,13 @@ public enum FilterPanelType
 	}),
 	NONE(FilterType.NONE, (f) -> {
 		if (f.type == FilterType.NONE)
-			return new NoneFilterPanel();
+			return new BinaryFilterPanel(false);
 		else
 			throw new IllegalArgumentException("Illegal none filter type " + f.type.name());
 	}),
 	ALL(FilterType.ALL, (f) -> {
 		if (f.type == FilterType.ALL)
-			return new AllFilterPanel();
+			return new BinaryFilterPanel(true);
 		else
 			throw new IllegalArgumentException("Illegal all filter type " + f.type.name());
 	});
