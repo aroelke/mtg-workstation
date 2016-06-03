@@ -48,7 +48,8 @@ public class BinaryFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	}
 	
 	/**
-	 * @return {@link editor.filter.leaf.FilterLeaf#ALL_CARDS}
+	 * @return A Filter that either filters all cards, or no cards, depending
+	 * on how this BinaryFilterPanel was created.
 	 */
 	@Override
 	public Filter filter()
