@@ -69,9 +69,11 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
@@ -853,6 +855,8 @@ public class MainFrame extends JFrame
 				panel.setContents(FilterType.NAME.createFilter());
 			else
 				panel.setContents(inventory.getFilter());
+			panel.addChangeListener((c) -> SwingUtilities.getWindowAncestor((Component)c.getSource()).pack());
+			
 			ScrollablePanel panelPanel = new ScrollablePanel(new BorderLayout(), ScrollablePanel.TRACK_WIDTH)
 			{
 				@Override
@@ -864,7 +868,10 @@ public class MainFrame extends JFrame
 				}
 			};
 			panelPanel.add(panel, BorderLayout.CENTER);
-			if (JOptionPane.showOptionDialog(this, new JScrollPane(panelPanel), "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			
+			JScrollPane panelPane = new JScrollPane(panelPanel);
+			panelPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+			if (JOptionPane.showOptionDialog(this, panelPane, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
 				nameFilterField.setText("");
 				inventory.updateFilter(panel.filter());

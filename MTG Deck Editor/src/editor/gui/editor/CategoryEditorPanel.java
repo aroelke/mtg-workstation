@@ -2,6 +2,7 @@ package editor.gui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -15,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
@@ -54,6 +56,7 @@ public class CategoryEditorPanel extends JPanel
 	public static CategorySpec showCategoryEditor(Container parent, CategorySpec s)
 	{
 		CategoryEditorPanel editor = new CategoryEditorPanel(s);
+		editor.filter.addChangeListener((e) -> SwingUtilities.getWindowAncestor((Component)e.getSource()).pack());
 		ScrollablePanel editorPanel = new ScrollablePanel(new BorderLayout(), ScrollablePanel.TRACK_WIDTH)
 		{
 			@Override
@@ -67,7 +70,9 @@ public class CategoryEditorPanel extends JPanel
 		editorPanel.add(editor, BorderLayout.CENTER);
 		while (true)
 		{
-			if (JOptionPane.showOptionDialog(parent, new JScrollPane(editorPanel), "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			JScrollPane editorPane = new JScrollPane(editorPanel);
+			editorPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+			if (JOptionPane.showOptionDialog(parent, editorPane, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
 			{
 				if (editor.nameField.getText().isEmpty())
 					JOptionPane.showMessageDialog(null, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);

@@ -11,7 +11,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
@@ -69,7 +68,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		JButton addButton = new JButton("+");
 		addButton.addActionListener((e) -> {
 			add(new FilterSelectorPanel());
-			SwingUtilities.getWindowAncestor(this).pack();
+			firePanelsChanged();
 		});
 		editPanel.add(addButton);
 		JButton removeButton = new JButton("−");
@@ -78,12 +77,12 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			{
 				clear();
 				add(new FilterSelectorPanel());
-				SwingUtilities.getWindowAncestor(this).pack();
+				firePanelsChanged();
 			}
 			else
 			{
 				group.remove(this);
-				SwingUtilities.getWindowAncestor(group).pack();
+				group.firePanelsChanged();
 			}
 		});
 		editPanel.add(removeButton);
@@ -101,7 +100,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			}
 			else
 				group.group(this);
-			SwingUtilities.getWindowAncestor(this).pack();
+			firePanelsChanged();
 		});
 		editPanel.add(groupButton);
 		topPanel.add(editPanel);

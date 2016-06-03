@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import editor.filter.Filter;
 import editor.filter.FilterType;
@@ -70,7 +69,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 		JButton removeButton = new JButton("−");
 		removeButton.addActionListener((e) -> {
 			group.remove(this);
-			SwingUtilities.getWindowAncestor(group).pack();
+			firePanelsChanged();
 		});
 		add(removeButton);
 		
@@ -78,7 +77,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 		JButton groupButton = new JButton("…");
 		groupButton.addActionListener((e) -> {
 			group.group(this);
-			SwingUtilities.getWindowAncestor(group).pack();
+			firePanelsChanged();
 		});
 		add(groupButton);
 	}
