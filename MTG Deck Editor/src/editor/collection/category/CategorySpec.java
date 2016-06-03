@@ -3,6 +3,7 @@ package editor.collection.category;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EventObject;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -453,7 +454,8 @@ public class CategorySpec
 	 * 
 	 * @author Alec Roelke
 	 */
-	public class Event
+	@SuppressWarnings("serial")
+	public class Event extends EventObject
 	{
 		/**
 		 * The name of the CategorySpec before it was changed.
@@ -481,6 +483,7 @@ public class CategorySpec
 		 */
 		public Event()
 		{
+			super(CategorySpec.this);
 			oldName = null;
 			oldWhitelist = null;
 			oldBlacklist = null;
@@ -551,6 +554,7 @@ public class CategorySpec
 		/**
 		 * @return The CategorySpec that generated this CategoryEvent.
 		 */
+		@Override
 		public CategorySpec getSource()
 		{
 			return CategorySpec.this;

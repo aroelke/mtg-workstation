@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1546,7 +1547,8 @@ public class Deck implements CardCollection
 	 * 
 	 * @author Alec Roelke
 	 */
-	public class Event
+	@SuppressWarnings("serial")
+	public class Event extends EventObject
 	{
 		/**
 		 * If Cards were added to or removed from the Deck, this map
@@ -1577,6 +1579,7 @@ public class Deck implements CardCollection
 		
 		public Event()
 		{
+			super(Deck.this);
 			cardsChanged = null;
 			changedName = null;
 			categoryChanges = null;
@@ -1662,6 +1665,7 @@ public class Deck implements CardCollection
 		/**
 		 * @return The Deck that changed to create this DeckEvent.
 		 */
+		@Override
 		public Deck getSource()
 		{
 			return Deck.this;
