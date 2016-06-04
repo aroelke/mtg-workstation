@@ -1,5 +1,6 @@
 package editor.gui.editor;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,10 +20,12 @@ public class IncludeExcludePanel extends JPanel
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setBackground(Color.WHITE);
 		categoryBoxes = new ArrayList<JCheckBox>();
 		for (String name: categoryNames)
 		{
 			JCheckBox categoryBox = new JCheckBox(name);
+			categoryBox.setBackground(Color.WHITE);
 			add(categoryBox);
 			categoryBoxes.add(categoryBox);
 		}
