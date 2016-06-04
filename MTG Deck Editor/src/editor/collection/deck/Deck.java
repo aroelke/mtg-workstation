@@ -695,14 +695,6 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * @return The number of categories in this Deck.
-	 */
-	public int getCategoryCount()
-	{
-		return categories.size();
-	}
-	
-	/**
 	 * @param name Name of the category to search for
 	 * @return The user-defined rank of the given category, or -1 if no
 	 * category with the given name exists.

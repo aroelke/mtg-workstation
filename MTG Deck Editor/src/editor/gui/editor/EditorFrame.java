@@ -446,6 +446,15 @@ public class EditorFrame extends JInternalFrame
 		// Set categories submenu
 		JMenu setCategoriesMenu = new JMenu("Set Categories");
 		tableMenu.add(setCategoriesMenu);
+		
+		// Edit categories item
+		JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
+		editCategoriesItem.addActionListener((e) -> {
+			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.categories().stream().map(CategorySpec::getName).collect(Collectors.toList()), getSelectedCards());
+			JOptionPane.showMessageDialog(this, iePanel, "Set Categories", JOptionPane.PLAIN_MESSAGE);
+		});
+		tableMenu.add(editCategoriesItem);
+		
 		tableMenu.addPopupMenuListener(new PopupMenuListener()
 		{
 			@Override
@@ -460,6 +469,7 @@ public class EditorFrame extends JInternalFrame
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
 				List<Card> cards = getSelectedCards();
+				editCategoriesItem.setEnabled(!cards.isEmpty() && !deck.categories().isEmpty());
 				if (cards.size() != 1 || deck.categories().isEmpty())
 					setCategoriesMenu.setEnabled(false);
 				else
@@ -786,7 +796,7 @@ public class EditorFrame extends JInternalFrame
 				
 				for (CategoryPanel c: categoryPanels)
 					if (c != category)
-						c.rankBox.addItem(deck.getCategoryCount() - 1);
+						c.rankBox.addItem(deck.categories().size() - 1);
 				
 				listTabs.setSelectedIndex(CATEGORIES);
 				updateCategoryPanel();

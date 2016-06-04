@@ -132,7 +132,7 @@ public class CategoryPanel extends JPanel
 		
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		rankBox = new JComboBox<Integer>(IntStream.range(0, deck.getCategoryCount()).boxed().toArray(Integer[]::new));
+		rankBox = new JComboBox<Integer>(IntStream.range(0, deck.categories().size()).boxed().toArray(Integer[]::new));
 		rankBox.setSelectedIndex(deck.getCategoryRank(name));
 		buttonPanel.add(rankBox);
 		colorButton = new ColorButton(deck.getCategorySpec(name).getColor());
