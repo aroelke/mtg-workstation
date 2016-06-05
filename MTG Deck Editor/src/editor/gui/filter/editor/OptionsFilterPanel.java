@@ -26,9 +26,9 @@ import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
-import editor.gui.ButtonScrollPane;
-import editor.gui.ScrollablePanel;
 import editor.gui.filter.ComboBoxPanel;
+import editor.gui.generic.ButtonScrollPane;
+import editor.gui.generic.ScrollablePanel;
 import editor.util.Containment;
 
 /**

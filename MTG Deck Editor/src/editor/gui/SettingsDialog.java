@@ -54,6 +54,7 @@ import javax.swing.tree.TreeSelectionModel;
 import editor.collection.category.CategorySpec;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.editor.CategoryEditorPanel;
+import editor.gui.generic.ScrollablePanel;
 
 /**
  * This class is a dialog that allows the user to change various properties about

@@ -1,4 +1,4 @@
-package editor.gui;
+package editor.gui.generic;
 
 import java.awt.Color;
 import java.awt.Graphics;

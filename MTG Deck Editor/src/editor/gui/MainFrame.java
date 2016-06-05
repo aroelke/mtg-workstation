@@ -92,6 +92,8 @@ import editor.filter.FilterType;
 import editor.filter.leaf.TextFilter;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
+import editor.gui.generic.ScrollablePanel;
+import editor.gui.generic.TableMouseAdapter;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
 

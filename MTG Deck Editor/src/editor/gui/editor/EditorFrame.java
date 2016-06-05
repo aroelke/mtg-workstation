@@ -86,9 +86,9 @@ import editor.gui.CardImagePanel;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;
 import editor.gui.MainFrame;
-import editor.gui.ScrollablePanel;
 import editor.gui.SettingsDialog;
-import editor.gui.TableMouseAdapter;
+import editor.gui.generic.ScrollablePanel;
+import editor.gui.generic.TableMouseAdapter;
 
 /**
  * This class represents an internal frame for editing a deck.  It contains a table that shows all cards

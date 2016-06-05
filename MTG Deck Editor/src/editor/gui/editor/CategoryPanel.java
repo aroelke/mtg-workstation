@@ -29,8 +29,8 @@ import editor.database.Card;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;
-import editor.gui.ColorButton;
 import editor.gui.SettingsDialog;
+import editor.gui.generic.ColorButton;
 
 /**
  * This class represents a panel that shows information about a category in a deck.

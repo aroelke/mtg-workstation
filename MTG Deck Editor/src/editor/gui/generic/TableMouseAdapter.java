@@ -1,4 +1,4 @@
-package editor.gui;
+package editor.gui.generic;
 
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;

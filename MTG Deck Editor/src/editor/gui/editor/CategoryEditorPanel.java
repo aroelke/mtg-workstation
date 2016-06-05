@@ -24,9 +24,9 @@ import editor.collection.category.CategorySpec;
 import editor.database.Card;
 import editor.filter.Filter;
 import editor.gui.CardList;
-import editor.gui.ColorButton;
-import editor.gui.ScrollablePanel;
 import editor.gui.filter.FilterGroupPanel;
+import editor.gui.generic.ColorButton;
+import editor.gui.generic.ScrollablePanel;
 
 /**
  * This class represents a panel that presents a name field and a filter field that

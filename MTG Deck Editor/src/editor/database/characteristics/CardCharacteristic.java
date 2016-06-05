@@ -12,7 +12,7 @@ import javax.swing.table.TableCellEditor;
 import editor.collection.CardCollection;
 import editor.database.Card;
 import editor.gui.editor.EditorFrame;
-import editor.gui.editor.SpinnerCellEditor;
+import editor.gui.generic.SpinnerCellEditor;
 
 /**
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
