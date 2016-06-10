@@ -7,6 +7,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import com.jidesoft.plaf.metal.MetalIconFactory;
+import com.jidesoft.plaf.windows.WindowsIconFactory;
+
 import editor.gui.MainFrame;
 
 /**
@@ -40,6 +43,11 @@ public class EditorMain
 		try
 		{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			if (UIManager.getSystemLookAndFeelClassName().contains("windows"))
+				UIManager.put("TristateCheckBox.icon", WindowsIconFactory.getCheckBoxIcon());
+			else
+				UIManager.put("TristateCheckBox.icon", MetalIconFactory.getCheckBoxIcon());
+			
 			SwingUtilities.invokeLater(() -> new MainFrame(files).setVisible(true));
 		}
 		catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)

@@ -22,12 +22,13 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.basic.BasicComboPopup;
 
+import com.jidesoft.swing.SimpleScrollPane;
+
 import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
 import editor.gui.filter.ComboBoxPanel;
-import editor.gui.generic.ButtonScrollPane;
 import editor.gui.generic.ScrollablePanel;
 import editor.util.Containment;
 
@@ -92,7 +93,8 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 		
 		optionsPanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
-		ButtonScrollPane optionsPane = new ButtonScrollPane(optionsPanel);
+		SimpleScrollPane optionsPane = new SimpleScrollPane(optionsPanel,
+				JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		optionsPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		add(optionsPane, BorderLayout.CENTER);
 	}

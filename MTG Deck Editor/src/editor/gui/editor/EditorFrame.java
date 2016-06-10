@@ -450,7 +450,7 @@ public class EditorFrame extends JInternalFrame
 		// Edit categories item
 		JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
 		editCategoriesItem.addActionListener((e) -> {
-			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.categories().stream().map(CategorySpec::getName).collect(Collectors.toList()), getSelectedCards());
+			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), getSelectedCards());
 			JOptionPane.showMessageDialog(this, iePanel, "Set Categories", JOptionPane.PLAIN_MESSAGE);
 		});
 		tableMenu.add(editCategoriesItem);
