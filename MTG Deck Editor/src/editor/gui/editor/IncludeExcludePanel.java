@@ -1,33 +1,36 @@
 package editor.gui.editor;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import javax.swing.BoxLayout;
-import javax.swing.JPanel;
 
 import com.jidesoft.swing.TristateCheckBox;
 
 import editor.collection.category.CategorySpec;
 import editor.database.Card;
+import editor.gui.generic.ScrollablePanel;
 
 /**
  * TODO: Comment this
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class IncludeExcludePanel extends JPanel
+public class IncludeExcludePanel extends ScrollablePanel
 {
+	private static final int MAX_PREFERRED_ROWS = 10;
+	
 	private List<TristateCheckBox> categoryBoxes;
 	private Collection<CategorySpec> checked;
 	private Collection<CategorySpec> unchecked;
 	
 	public IncludeExcludePanel(List<CategorySpec> categories, List<Card> cards)
 	{
-		super();
+		super(TRACK_WIDTH);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBackground(Color.WHITE);
 		categoryBoxes = new ArrayList<TristateCheckBox>();
@@ -83,5 +86,18 @@ public class IncludeExcludePanel extends JPanel
 	public IncludeExcludePanel(List<CategorySpec> categories, Card card)
 	{
 		this(categories, Arrays.asList(card));
+	}
+
+	@Override
+	public Dimension getPreferredScrollableViewportSize()
+	{
+		if (categoryBoxes.isEmpty())
+			return getPreferredSize();
+		else
+		{
+			Dimension size = getPreferredSize();
+			size.height = categoryBoxes.subList(0, Math.min(categoryBoxes.size(), MAX_PREFERRED_ROWS)).stream().mapToInt((c) -> c.getPreferredSize().height).sum();
+			return size;
+		}
 	}
 }
