@@ -639,6 +639,7 @@ public class MainFrame extends JFrame
 		// TODO: Use JTextPane#insertIcon(Icon) to get symbol icons rather than HTML formatting
 		// This will also remove the need for setContentType and putClientProperty
 		// Do this for the image panel as well
+		// Also make use of Styles
 		oracleTextPane = new JTextPane();
 		oracleTextPane.setEditable(false);
 		oracleTextPane.setContentType("text/html");
