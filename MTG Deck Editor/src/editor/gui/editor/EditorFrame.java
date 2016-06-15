@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BooleanSupplier;
@@ -41,7 +42,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -49,7 +49,6 @@ import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -96,7 +95,6 @@ import editor.gui.generic.TableMouseAdapter;
  * to a deck and add, edit, and delete categories.  It is contained within the main frame, which has the
  * inventory from which cards can be added.
  * 
- * TODO: Make popup menu category setting work for multiple selection in the main table
  * TODO: Change the category tab's exclude popup option to set categories
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
@@ -443,15 +441,35 @@ public class EditorFrame extends JInternalFrame
 		
 		tableMenu.add(new JSeparator());
 		
-		// Set categories submenu
-		JMenu setCategoriesMenu = new JMenu("Set Categories");
-		tableMenu.add(setCategoriesMenu);
-		
 		// Edit categories item
 		JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
 		editCategoriesItem.addActionListener((e) -> {
 			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), getSelectedCards());
-			JOptionPane.showConfirmDialog(this, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			if (JOptionPane.showConfirmDialog(this, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+			{
+				Map<Card, Set<CategorySpec>> included = iePanel.getIncluded();
+				Map<Card, Set<CategorySpec>> excluded = iePanel.getExcluded();
+				
+				performAction(() -> {
+					boolean changed = false;
+					for (Card card: included.keySet())
+						for (CategorySpec category: included.get(card))
+							changed |= category.exclude(card);
+					for (Card card: excluded.keySet())
+						for (CategorySpec category: excluded.get(card))
+							changed |= category.include(card);
+					return changed;
+				}, () -> {
+					boolean changed = false;
+					for (Card card: included.keySet())
+						for (CategorySpec category: included.get(card))
+							changed |= category.include(card);
+					for (Card card: excluded.keySet())
+						for (CategorySpec category: excluded.get(card))
+							changed |= category.exclude(card);
+					return changed;
+				});
+			}
 		});
 		tableMenu.add(editCategoriesItem);
 		
@@ -468,29 +486,7 @@ public class EditorFrame extends JInternalFrame
 			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
-				List<Card> cards = getSelectedCards();
-				editCategoriesItem.setEnabled(!cards.isEmpty() && !deck.categories().isEmpty());
-				if (cards.size() != 1 || deck.categories().isEmpty())
-					setCategoriesMenu.setEnabled(false);
-				else
-				{
-					setCategoriesMenu.setEnabled(true);
-					setCategoriesMenu.removeAll();
-					for (CategorySpec category: deck.categories().stream().sorted((a, b) -> a.getName().compareTo(b.getName())).collect(Collectors.toList()))
-					{
-						JCheckBoxMenuItem containsBox = new JCheckBoxMenuItem(category.getName());
-						containsBox.setSelected(deck.contains(category.getName(), cards.get(0)));
-						containsBox.addActionListener((a) -> {
-							if (((JCheckBoxMenuItem)a.getSource()).isSelected())
-								performAction(() -> category.exclude(cards.get(0)),
-										() -> category.include(cards.get(0)));
-							else
-								performAction(() -> category.include(cards.get(0)),
-										() -> category.exclude(cards.get(0)));
-						});
-						setCategoriesMenu.add(containsBox);
-					}
-				}
+				editCategoriesItem.setEnabled(!getSelectedCards().isEmpty() && !deck.categories().isEmpty() && selectedTable == table);
 			}
 		});
 		
@@ -821,6 +817,9 @@ public class EditorFrame extends JInternalFrame
 					panel.rankBox.setSelectedIndex(deck.getCategoryRank(panel.getCategoryName()));
 				listTabs.setSelectedIndex(CATEGORIES);
 			}
+			if (e.categoryChanged())
+				for (CategoryPanel c: categoryPanels)
+					((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
 			if (e.categoriesRemoved() || e.categoryChanged() || e.ranksChanged())
 				updateCategoryPanel();
 			
@@ -1084,6 +1083,55 @@ public class EditorFrame extends JInternalFrame
 			});
 		});
 		tableMenu.add(removeFromCategoryItem);
+		
+		// Edit categories item
+		JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
+		editCategoriesItem.addActionListener((e) -> {
+			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), getSelectedCards());
+			if (JOptionPane.showConfirmDialog(this, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+			{
+				Map<Card, Set<CategorySpec>> included = iePanel.getIncluded();
+				Map<Card, Set<CategorySpec>> excluded = iePanel.getExcluded();
+				
+				performAction(() -> {
+					boolean changed = false;
+					for (Card card: included.keySet())
+						for (CategorySpec category: included.get(card))
+							changed |= category.exclude(card);
+					for (Card card: excluded.keySet())
+						for (CategorySpec category: excluded.get(card))
+							changed |= category.include(card);
+					return changed;
+				}, () -> {
+					boolean changed = false;
+					for (Card card: included.keySet())
+						for (CategorySpec category: included.get(card))
+							changed |= category.include(card);
+					for (Card card: excluded.keySet())
+						for (CategorySpec category: excluded.get(card))
+							changed |= category.exclude(card);
+					return changed;
+				});
+			}
+		});
+		tableMenu.add(editCategoriesItem);
+		
+		tableMenu.addPopupMenuListener(new PopupMenuListener()
+		{
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e)
+			{}
+
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+			{}
+
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+			{
+				editCategoriesItem.setEnabled(!getSelectedCards().isEmpty() && selectedTable == newCategory.table);
+			}
+		});
 		
 		// Category popup menu
 		JPopupMenu categoryMenu = new JPopupMenu();
