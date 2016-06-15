@@ -19,18 +19,42 @@ import editor.database.Card;
 import editor.gui.generic.ScrollablePanel;
 
 /**
- * TODO: Comment this
+ * This class represents a panel that displays a list of categories with boxes next to them indicating
+ * card inclusion in each of them.  A check mark means all cards it was given are included, a "mixed" icon
+ * indicates some of the cards are included, and an empty box indicates none are included.  Boxes can be
+ * selected to toggle inclusion/exclusion of cards (mixed cannot be selected manually).  Card inclusion is
+ * not changed by the panel, but it provides information that allows it to be externally.
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class IncludeExcludePanel extends ScrollablePanel
 {
+	/**
+	 * Maximum amount of rows to display in a scroll pane.
+	 */
 	private static final int MAX_PREFERRED_ROWS = 10;
 	
+	/**
+	 * Categories and their corresponding check boxes.
+	 */
 	private Map<CategorySpec, TristateCheckBox> categoryBoxes;
+	/**
+	 * List of Cards to display inclusion for.
+	 */
 	private Collection<Card> cards;
+	/**
+	 * Preferred viewport height of this panel.
+	 */
 	private int preferredViewportHeight;
 	
+	/**
+	 * Create a new IncludeExcludePanel showing inclusion of the given cards in the given
+	 * categories.
+	 * 
+	 * @param categories Categories to display
+	 * @param c Cards to show inclusion for
+	 */
 	public IncludeExcludePanel(List<CategorySpec> categories, Collection<Card> c)
 	{
 		super(TRACK_WIDTH);
@@ -61,6 +85,21 @@ public class IncludeExcludePanel extends ScrollablePanel
 		}
 	}
 	
+	/**
+	 * Create a new IncludeExcludePanel for a single Card.
+	 * 
+	 * @param categories Categories to show inclusion for
+	 * @param card Card to show inclusion for
+	 */
+	public IncludeExcludePanel(List<CategorySpec> categories, Card card)
+	{
+		this(categories, Arrays.asList(card));
+	}
+	
+	/**
+	 * @return A Map containing the cards that were selected for inclusion and the new categories
+	 * they were included in.
+	 */
 	public Map<Card, Set<CategorySpec>> getIncluded()
 	{
 		Map<Card, Set<CategorySpec>> included = new HashMap<Card, Set<CategorySpec>>();
@@ -76,6 +115,10 @@ public class IncludeExcludePanel extends ScrollablePanel
 		return included;
 	}
 	
+	/**
+	 * @return A Map containing the cards that were deselected for exclusion and the categories
+	 * they should be excluded from.
+	 */
 	public Map<Card, Set<CategorySpec>> getExcluded()
 	{
 		Map<Card, Set<CategorySpec>> excluded = new HashMap<Card, Set<CategorySpec>>();
@@ -90,12 +133,11 @@ public class IncludeExcludePanel extends ScrollablePanel
 					});
 		return excluded;
 	}
-	
-	public IncludeExcludePanel(List<CategorySpec> categories, Card card)
-	{
-		this(categories, Arrays.asList(card));
-	}
 
+	/**
+	 * @return The preferred viewport size of this IncludeExcludePanel, which is the size of
+	 * its contents up to MAX_PREFERRED_ROWS rows.
+	 */
 	@Override
 	public Dimension getPreferredScrollableViewportSize()
 	{
