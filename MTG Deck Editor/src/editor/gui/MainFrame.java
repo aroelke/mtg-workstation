@@ -636,6 +636,9 @@ public class MainFrame extends JFrame
 		setImageBackground(SettingsDialog.getAsColor(SettingsDialog.IMAGE_BGCOLOR));
 		
 		// Pane displaying the Oracle text
+		// TODO: Use JTextPane#insertIcon(Icon) to get symbol icons rather than HTML formatting
+		// This will also remove the need for setContentType and putClientProperty
+		// Do this for the image panel as well
 		oracleTextPane = new JTextPane();
 		oracleTextPane.setEditable(false);
 		oracleTextPane.setContentType("text/html");
