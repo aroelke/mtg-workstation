@@ -94,12 +94,19 @@ public class ManaCost implements Comparable<ManaCost>
 	 * and each one should be the symbol's text surrounded by {}.
 	 * 
 	 * @param s String to parse.
-	 * @return ManaCost represented by the String.
+	 * @return ManaCost represented by the String, or null if there are invalid characters.
 	 * @see editor.database.symbol.Symbol
 	 */
 	public static ManaCost valueOf(String s)
 	{
-		return new ManaCost(s);
+		try
+		{
+			return new ManaCost(s);
+		}
+		catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e)
+		{
+			return null;
+		}
 	}
 	
 	/**
@@ -123,8 +130,14 @@ public class ManaCost implements Comparable<ManaCost>
 		this.cost = new ArrayList<Symbol>();
 		Pattern p = Pattern.compile("\\{([^}]+)\\}");
 		Matcher m = p.matcher(cost);
+		String copy = new String(cost);
 		while (m.find())
+		{
 			this.cost.add(Symbol.valueOf(m.group(1)));
+			copy = copy.replaceFirst(Pattern.quote(m.group()), "");
+		}
+		if (!copy.isEmpty())
+			throw new IllegalArgumentException("Illegal cost string \"" + cost + "\"");
 		Collections.sort(this.cost);
 		this.cost = Collections.unmodifiableList(this.cost);
 		
@@ -133,6 +146,14 @@ public class ManaCost implements Comparable<ManaCost>
 		for (Symbol sym: this.cost)
 			for (ManaType col: weights.keySet())
 				weights.compute(col, (k, v) -> sym.colorWeights().get(k) + v);
+	}
+	
+	/**
+	 * Create an empty ManaCost containing no Symbols.
+	 */
+	public ManaCost()
+	{
+		this("");
 	}
 	
 	/**
