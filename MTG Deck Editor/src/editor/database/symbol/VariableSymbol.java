@@ -3,6 +3,8 @@ package editor.database.symbol;
 import java.util.HashMap;
 import java.util.Map;
 
+import editor.database.characteristics.ManaType;
+
 /**
  * This class represents a symbol representing a variable amount
  * of generic mana using the variables X, Y or Z.
@@ -52,6 +54,17 @@ public class VariableSymbol extends Symbol
 		return String.valueOf(var);
 	}
 
+	/**
+	 * @return A Map containing this ColorSymbol's color weight.  All values will be 0 except for
+	 * colorless, which will be 0.5.
+	 * @see editor.database.symbol.Symbol#colorWeights()
+	 */
+	@Override
+	public Map<ManaType, Double> colorWeights()
+	{
+		return createWeights(new ColorWeight(ManaType.COLORLESS, 0.5));
+	}
+	
 	/**
 	 * @param other Symbol to compare with
 	 * @return A positive number if this VariableSymbol should come after

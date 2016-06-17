@@ -241,11 +241,9 @@ public class ManaCost implements Comparable<ManaCost>
 	@Override
 	public int compareTo(ManaCost o)
 	{
-		if (cost.size() == 0 && o.cost.size() == 0)
-			return 0;
-		else if (cost.size() == 0)
+		if (cost.size() == 0 && o.cost.size() > 0)
 			return -1;
-		else if (o.cost.size() == 0)
+		else if (cost.size() > 0 && o.cost.size() == 0)
 			return 1;
 		else
 		{
