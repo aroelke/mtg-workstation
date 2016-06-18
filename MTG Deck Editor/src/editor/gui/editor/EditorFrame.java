@@ -301,6 +301,10 @@ public class EditorFrame extends JInternalFrame
 	 * Saved list of selected cards from the active table.
 	 */
 	private List<Card> selectedCards;
+	/**
+	 * Whether or not a file is being opened (used to prevent some actions when changing the deck).
+	 */
+	private boolean opening;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -325,6 +329,9 @@ public class EditorFrame extends JInternalFrame
 		redoBuffer = new Stack<UndoableAction>();
 		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
 		selectedCards = new ArrayList<Card>();
+		selectedSource = null;
+		selectedTable = null;
+		opening = false;
 
 		// Panel for showing buttons to add and remove cards
 		// The buttons are concentrated in the middle of the panel
@@ -762,7 +769,8 @@ public class EditorFrame extends JInternalFrame
 			{
 				updateStats();
 				
-				parent.updateCardsInDeck();
+				if (!opening)
+					parent.updateCardsInDeck();
 				((AbstractTableModel)table.getModel()).fireTableDataChanged();
 				for (CategoryPanel c: categoryPanels)
 					((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
@@ -2002,6 +2010,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
 			{
+				opening = true;
 				int cards = Integer.valueOf(rd.readLine().trim());
 				for (int i = 0; i < cards; i++)
 				{
@@ -2037,6 +2046,7 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		protected void done()
 		{
+			opening = false;
 			dialog.dispose();
 			unsaved = false;
 			setFile(file);
