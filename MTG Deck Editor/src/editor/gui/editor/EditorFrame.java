@@ -49,6 +49,7 @@ import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -448,6 +449,11 @@ public class EditorFrame extends JInternalFrame
 		
 		tableMenu.add(new JSeparator());
 		
+		JMenu addToCategoryMenu = new JMenu("Include in");
+		tableMenu.add(addToCategoryMenu);
+		JMenu removeFromCategoryMenu = new JMenu("Exclude from");
+		tableMenu.add(removeFromCategoryMenu);
+		
 		// Edit categories item
 		JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
 		editCategoriesItem.addActionListener((e) -> {
@@ -488,12 +494,50 @@ public class EditorFrame extends JInternalFrame
 
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-			{}
+			{
+				addToCategoryMenu.removeAll();
+				removeFromCategoryMenu.removeAll();
+			}
 
 			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
-				editCategoriesItem.setEnabled(!getSelectedCards().isEmpty() && !deck.categories().isEmpty() && selectedTable == table);
+				if (selectedTable == table && !deck.categories().isEmpty())
+				{
+					if (getSelectedCards().size() == 1)
+					{
+						Card card = getSelectedCards().get(0);
+						
+						addToCategoryMenu.setVisible(true);
+						for (CategorySpec category: deck.categories())
+						{
+							if (!category.includes(card))
+							{
+								JMenuItem categoryItem = new JMenuItem(category.getName());
+								categoryItem.addActionListener((e2) -> performAction(() -> category.exclude(card), () -> category.include(card)));
+								addToCategoryMenu.add(categoryItem);
+							}
+						}
+						
+						removeFromCategoryMenu.setVisible(true);
+						for (CategorySpec category: deck.categories())
+						{
+							if (category.includes(card))
+							{
+								JMenuItem categoryItem = new JMenuItem(category.getName());
+								categoryItem.addActionListener((e2) -> performAction(() -> category.include(card), () -> category.exclude(card)));
+								removeFromCategoryMenu.add(categoryItem);
+							}
+						}
+					}
+					else
+					{
+						addToCategoryMenu.setVisible(false);
+						removeFromCategoryMenu.setVisible(false);
+					}
+					
+					editCategoriesItem.setVisible(!getSelectedCards().isEmpty());
+				}
 			}
 		});
 		
@@ -778,7 +822,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					if (getSelectedSource().contains(c))
 					{
-						int row = selectedTable.convertRowIndexToModel(getSelectedSource().indexOf(c));
+						int row = selectedTable.convertRowIndexToView(getSelectedSource().indexOf(c));
 						selectedTable.addRowSelectionInterval(row, row);
 					}
 				}
