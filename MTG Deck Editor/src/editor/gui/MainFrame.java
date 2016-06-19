@@ -39,7 +39,6 @@ import java.util.Queue;
 import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -1370,7 +1369,7 @@ public class MainFrame extends JFrame
 					for (String text: selectedCard.rulings().get(date))
 						rulings.add("<b>" + format.format(date) + "</b>: " + text);
 				String rulingsString = rulings.toString();
-				Matcher symbols = Pattern.compile("\\{([^}]+)\\}").matcher(rulingsString);
+				Matcher symbols = Symbol.SYMBOL_PATTERN.matcher(rulingsString);
 				while (symbols.find())
 				{
 					try

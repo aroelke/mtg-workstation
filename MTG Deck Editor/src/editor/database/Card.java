@@ -1000,10 +1000,10 @@ public final class Card
 		public String HTMLText()
 		{
 			String html = new String(text);
-			Matcher reminder = Pattern.compile("(\\([^)]+\\))").matcher(html);
+			Matcher reminder = Symbol.SYMBOL_PATTERN.matcher(html);
 			while (reminder.find())
 				html = html.replace(reminder.group(), "<i>" + reminder.group() + "</i>");
-			Matcher symbols = Pattern.compile("\\{([^}]+)\\}").matcher(html);
+			Matcher symbols = Symbol.SYMBOL_PATTERN.matcher(html);
 			while (symbols.find())
 			{
 				try

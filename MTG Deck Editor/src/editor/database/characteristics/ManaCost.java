@@ -128,8 +128,7 @@ public class ManaCost implements Comparable<ManaCost>
 	{
 		// Populate this ManaCost's list of Symbols
 		this.cost = new ArrayList<Symbol>();
-		Pattern p = Pattern.compile("\\{([^}]+)\\}");
-		Matcher m = p.matcher(cost);
+		Matcher m = Symbol.SYMBOL_PATTERN.matcher(cost);
 		String copy = new String(cost);
 		while (m.find())
 		{

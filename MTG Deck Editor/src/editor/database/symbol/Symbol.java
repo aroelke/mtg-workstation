@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -25,6 +26,14 @@ import editor.database.characteristics.ManaType;
  */
 public abstract class Symbol implements Comparable<Symbol>
 {
+	/**
+	 * Pattern for finding an individual symbol in a string.
+	 */
+	public static final Pattern SYMBOL_PATTERN = Pattern.compile("\\{([^}]+)\\}");
+	
+	/**
+	 * List of symbol types in the order they should appear in.
+	 */
 	public static final List<Class<? extends Symbol>> ORDER = new ArrayList<Class<? extends Symbol>>();
 	static
 	{
