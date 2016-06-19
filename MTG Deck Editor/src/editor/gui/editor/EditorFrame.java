@@ -96,7 +96,6 @@ import editor.gui.generic.TableMouseAdapter;
  * to a deck and add, edit, and delete categories.  It is contained within the main frame, which has the
  * inventory from which cards can be added.
  * 
- * TODO: Change the category tab's exclude popup option to set categories
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
  * TODO: Add something for calculating probability for multiple categories at once
