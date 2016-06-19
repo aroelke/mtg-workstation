@@ -36,6 +36,9 @@ import editor.util.Tuple;
  * card in the same set).  All of its values are constant.
  * 
  * TODO: Add a user-controlled tag to cards.
+ * TODO: Fix CMC function for double-faced cards
+ * (currently the back face has 0 CMC when it should be the same as the front)
+ * TODO: Make this have subclasses for each type of card (flip, double-sided, split)
  * 
  * @author Alec Roelke
  */
