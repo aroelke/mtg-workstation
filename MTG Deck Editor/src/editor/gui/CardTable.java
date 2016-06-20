@@ -376,6 +376,16 @@ public class CardTable extends JTable
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param row
+	 * @return
+	 */
+	public Color getRowColor(int row)
+	{
+		return row%2 == 0 ? new Color(getBackground().getRGB()) : stripeColor;
+	}
+	
+	/**
 	 * The table will track the viewport width if the viewport is larger than its preferred size.
 	 */
 	@Override
@@ -393,7 +403,7 @@ public class CardTable extends JTable
 	{
 		Component c = super.prepareRenderer(renderer, row, column);
 		if (!isRowSelected(row) || !getRowSelectionAllowed())
-			c.setBackground(row%2 == 0 ? new Color(getBackground().getRGB()) : stripeColor);
+			c.setBackground(getRowColor(row));
 		return c;
 	}
 	

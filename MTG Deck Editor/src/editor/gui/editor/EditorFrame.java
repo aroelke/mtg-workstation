@@ -947,6 +947,16 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Collection<CategorySpec> categories()
+	{
+		return deck.categories();
+	}
+	
+	/**
+	 * TODO: Use categories() instead of this
 	 * @return The names of all the categories in the deck, sorted alphabetically.
 	 */
 	public String[] categoryNames()
@@ -1420,6 +1430,24 @@ public class EditorFrame extends JInternalFrame
 		unsaved = false;
 	}
 
+	/**
+	 * TODO: Comment this
+	 * @param index
+	 * @return
+	 */
+	public Card getCardAt(CardTable t, int tableIndex)
+	{
+		if (t == table)
+			return deck.get(table.convertRowIndexToModel(tableIndex));
+		else
+		{
+			for (CategoryPanel panel: categoryPanels)
+				if (t == panel.table)
+					return deck.getCategoryCards(panel.getCategoryName()).get(table.convertRowIndexToModel(tableIndex));
+			throw new IllegalArgumentException("Table not in deck " + deckName());
+		}
+	}
+	
 	/**
 	 * Add cards to the deck, maintaining the selection in the currently-selected
 	 * table.

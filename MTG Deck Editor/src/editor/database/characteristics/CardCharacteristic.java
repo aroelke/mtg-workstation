@@ -12,13 +12,13 @@ import javax.swing.table.TableCellEditor;
 import editor.collection.CardCollection;
 import editor.database.Card;
 import editor.gui.editor.EditorFrame;
+import editor.gui.editor.IncludeExcludePanel;
+import editor.gui.editor.InclusionCellEditor;
 import editor.gui.generic.SpinnerCellEditor;
 
 /**
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
  * etc.
- * 
- * TODO: Come up with an editor for the categories column
  * 
  * @author Alec Roelke
  */
@@ -42,7 +42,15 @@ public enum CardCharacteristic
 	LOYALTY("Loyalty", Loyalty.Tuple.class, (l, i) -> l.get(i).loyalty()),
 	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist()),
 	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn()),
-	CATEGORIES("Categories", Set.class, (l, i) -> l.getCategories(i)),
+	CATEGORIES("Categories", Set.class, (l, i) -> l.getCategories(i), (e) -> (c, p) -> {
+		if (p instanceof IncludeExcludePanel)
+		{
+			IncludeExcludePanel iePanel = (IncludeExcludePanel)p;
+			e.editInclusion(iePanel.getIncluded(), iePanel.getExcluded());
+		}
+		else
+			throw new IllegalArgumentException("Illegal inclusion value " + p);
+	}),
 	DATE_ADDED("Date Added", Date.class, (l, i) -> l.dateAdded(i));
 	
 	/**
@@ -142,7 +150,7 @@ public enum CardCharacteristic
 	/**
 	 * Create an instance of the editor for cells containing this CardCharacteristic.
 	 * 
-	 * @param frame Frame containing the table with the cell to edit. Reserved for future use.
+	 * @param frame Frame containing the table with the cell to edit
 	 * @return An instance of the editor for this CardCharacteristic, or null if it can't be
 	 * edited.
 	 */
@@ -152,6 +160,8 @@ public enum CardCharacteristic
 		{
 		case COUNT:
 			return new SpinnerCellEditor();
+		case CATEGORIES:
+			return new InclusionCellEditor(frame);
 		default:
 			return null;
 		}
