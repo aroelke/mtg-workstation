@@ -456,34 +456,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Edit categories item
 		JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
-		editCategoriesItem.addActionListener((e) -> {
-			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), getSelectedCards());
-			if (JOptionPane.showConfirmDialog(this, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-			{
-				Map<Card, Set<CategorySpec>> included = iePanel.getIncluded();
-				Map<Card, Set<CategorySpec>> excluded = iePanel.getExcluded();
-				
-				performAction(() -> {
-					boolean changed = false;
-					for (Card card: included.keySet())
-						for (CategorySpec category: included.get(card))
-							changed |= category.exclude(card);
-					for (Card card: excluded.keySet())
-						for (CategorySpec category: excluded.get(card))
-							changed |= category.include(card);
-					return changed;
-				}, () -> {
-					boolean changed = false;
-					for (Card card: included.keySet())
-						for (CategorySpec category: included.get(card))
-							changed |= category.include(card);
-					for (Card card: excluded.keySet())
-						for (CategorySpec category: excluded.get(card))
-							changed |= category.exclude(card);
-					return changed;
-				});
-			}
-		});
+		editCategoriesItem.addActionListener((e) -> editInclusion(getSelectedCards()));
 		tableMenu.add(editCategoriesItem);
 		
 		tableMenu.addPopupMenuListener(new PopupMenuListener()
@@ -1142,34 +1115,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Edit categories item
 		JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
-		editCategoriesItem.addActionListener((e) -> {
-			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), getSelectedCards());
-			if (JOptionPane.showConfirmDialog(this, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-			{
-				Map<Card, Set<CategorySpec>> included = iePanel.getIncluded();
-				Map<Card, Set<CategorySpec>> excluded = iePanel.getExcluded();
-				
-				performAction(() -> {
-					boolean changed = false;
-					for (Card card: included.keySet())
-						for (CategorySpec category: included.get(card))
-							changed |= category.exclude(card);
-					for (Card card: excluded.keySet())
-						for (CategorySpec category: excluded.get(card))
-							changed |= category.include(card);
-					return changed;
-				}, () -> {
-					boolean changed = false;
-					for (Card card: included.keySet())
-						for (CategorySpec category: included.get(card))
-							changed |= category.include(card);
-					for (Card card: excluded.keySet())
-						for (CategorySpec category: excluded.get(card))
-							changed |= category.exclude(card);
-					return changed;
-				});
-			}
-		});
+		editCategoriesItem.addActionListener((e) -> editInclusion(getSelectedCards()));
 		tableMenu.add(editCategoriesItem);
 		
 		tableMenu.addPopupMenuListener(new PopupMenuListener()
@@ -1643,6 +1589,43 @@ public class EditorFrame extends JInternalFrame
 		}
 		else
 			addCard(c, n);
+	}
+	
+	/**
+	 * Bring up a dialog showing the inclusion status of the given cards in the categories
+	 * in the deck which allows changing of that inclusion with check boxes.  Then make
+	 * the changes, if any were made.
+	 * 
+	 * @param cards Cards to edit inclusion for
+	 */
+	public void editInclusion(Collection<Card> cards)
+	{
+		IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), cards);
+		if (JOptionPane.showConfirmDialog(this, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+		{
+			Map<Card, Set<CategorySpec>> included = iePanel.getIncluded();
+			Map<Card, Set<CategorySpec>> excluded = iePanel.getExcluded();
+			
+			performAction(() -> {
+				boolean changed = false;
+				for (Card card: included.keySet())
+					for (CategorySpec category: included.get(card))
+						changed |= category.exclude(card);
+				for (Card card: excluded.keySet())
+					for (CategorySpec category: excluded.get(card))
+						changed |= category.include(card);
+				return changed;
+			}, () -> {
+				boolean changed = false;
+				for (Card card: included.keySet())
+					for (CategorySpec category: included.get(card))
+						changed |= category.include(card);
+				for (Card card: excluded.keySet())
+					for (CategorySpec category: excluded.get(card))
+						changed |= category.exclude(card);
+				return changed;
+			});
+		}
 	}
 	
 	/**
