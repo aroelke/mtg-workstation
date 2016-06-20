@@ -106,6 +106,7 @@ import editor.gui.inventory.InventoryLoadDialog;
  * multiple decks at once.  See @link{gui.editor.EditorFrame} for details on the editor frames.
  * 
  * TODO: Create a diff frame that shows differences between two (or more, potentially) decks
+ * TODO: Add a File->Print... dialog (for the editor frame)
  * 
  * @author Alec Roelke
  */
