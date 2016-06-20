@@ -23,7 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -947,23 +946,11 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The specifications for the categories in the deck.
 	 */
 	public Collection<CategorySpec> categories()
 	{
 		return deck.categories();
-	}
-	
-	/**
-	 * TODO: Use categories() instead of this
-	 * @return The names of all the categories in the deck, sorted alphabetically.
-	 */
-	public String[] categoryNames()
-	{
-		List<String> names = deck.categories().stream().map(CategorySpec::getName).collect(Collectors.toList());
-		Collections.sort(names);
-		return names.toArray(new String[names.size()]);
 	}
 
 	/**
@@ -1431,9 +1418,8 @@ public class EditorFrame extends JInternalFrame
 	}
 
 	/**
-	 * TODO: Comment this
-	 * @param index
-	 * @return
+	 * @param index Index into the given table to get a Card from
+	 * @return The Card in the deck at the given index in the given table, if the table is in this EditorFrame.
 	 */
 	public Card getCardAt(CardTable t, int tableIndex)
 	{

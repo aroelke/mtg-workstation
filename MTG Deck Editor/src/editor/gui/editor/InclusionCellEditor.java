@@ -21,17 +21,37 @@ import editor.collection.category.CategorySpec;
 import editor.gui.CardTable;
 
 /**
- * TODO: Comment this
- * @author Alec
+ * This class represents an editor for a table cell containing a set of CategorySpecs for a
+ * Card. It can be edited by double-clicking on it, which brings up a dialog showing the
+ * available categories.
+ * 
+ * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class InclusionCellEditor extends AbstractCellEditor implements TableCellEditor
 {
-	EditorFrame frame;
-	List<CategorySpec> included;
-	JPanel editor;
-	IncludeExcludePanel iePanel;
+	/**
+	 * EditorFrame containing the deck whose card's categories are being edited.
+	 */
+	private EditorFrame frame;
+	/**
+	 * List of categories the card belongs to.
+	 */
+	private List<CategorySpec> included;
+	/**
+	 * JPanel to show while editing is occurring.
+	 */
+	private JPanel editor;
+	/**
+	 * Panel showing the list of categories to allow editing.
+	 */
+	private IncludeExcludePanel iePanel;
 	
+	/**
+	 * Create a new InclusionCellEditor from the given EditorFrame.
+	 * 
+	 * @param f EditorFrame containing the table the new InclusionCellEditor goes in
+	 */
 	public InclusionCellEditor(EditorFrame f)
 	{
 		frame = f;
@@ -62,6 +82,7 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
 					fireEditingStopped();
 				else
 					fireEditingCanceled();
+				iePanel = null;
 			}
 		});
 	}
@@ -79,12 +100,26 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
 			return false;
 	}
 	
+	/**
+	 * @return The IncludeExcludePanel containing category edit information.
+	 */
 	@Override
 	public Object getCellEditorValue()
 	{
 		return iePanel;
 	}
 
+	/**
+	 * Construct the IncludeExcludePanel and the appearance of the renderer panel, and then return
+	 * the renderer panel.  The IncludeExcludePanel will be used when the renderer panel is clicked.
+	 * 
+	 * @param table Table containing the cell to edit
+	 * @param value Value to set the editor component to
+	 * @param isSelected Whether or not the cell is selected
+	 * @param row Row of the cell being edited
+	 * @param column Column of the cell being edited
+	 * @return The renderer panel.
+	 */
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
 	{

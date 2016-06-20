@@ -457,7 +457,7 @@ public class MainFrame extends JFrame
 			{
 				JPanel contentPanel = new JPanel(new BorderLayout());
 				contentPanel.add(new JLabel("Choose a category to edit:"), BorderLayout.NORTH);
-				JList<String> categories = new JList<String>(selectedFrame.categoryNames());
+				JList<String> categories = new JList<String>(selectedFrame.categories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
 				categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
 				if (JOptionPane.showOptionDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
@@ -473,7 +473,7 @@ public class MainFrame extends JFrame
 			{
 				JPanel contentPanel = new JPanel(new BorderLayout());
 				contentPanel.add(new JLabel("Choose a category to remove:"), BorderLayout.NORTH);
-				JList<String> categories = new JList<String>(selectedFrame.categoryNames());
+				JList<String> categories = new JList<String>(selectedFrame.categories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
 				categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
 				if (JOptionPane.showOptionDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)

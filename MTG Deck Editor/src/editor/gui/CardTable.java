@@ -376,9 +376,8 @@ public class CardTable extends JTable
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param row
-	 * @return
+	 * @param row Row to get the color of
+	 * @return The background color of the row at the given index of this CardTable.
 	 */
 	public Color getRowColor(int row)
 	{
