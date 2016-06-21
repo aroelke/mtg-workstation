@@ -1003,7 +1003,7 @@ public final class Card
 		public String HTMLText()
 		{
 			String html = new String(text);
-			Matcher reminder = Symbol.SYMBOL_PATTERN.matcher(html);
+			Matcher reminder = Pattern.compile("(\\([^)]+\\))").matcher(html);
 			while (reminder.find())
 				html = html.replace(reminder.group(), "<i>" + reminder.group() + "</i>");
 			Matcher symbols = Symbol.SYMBOL_PATTERN.matcher(html);
