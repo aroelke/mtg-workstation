@@ -1011,8 +1011,7 @@ public final class Card
 			{
 				try
 				{
-					Symbol symbol = Symbol.valueOf(symbols.group(1));
-					html = html.replace(symbols.group(), symbol.getHTML());
+					html = html.replace(symbols.group(), Symbol.valueOf(symbols.group(1)).getHTML());
 				}
 				catch (Exception e)
 				{}
