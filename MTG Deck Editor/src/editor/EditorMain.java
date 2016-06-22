@@ -41,6 +41,7 @@ public class EditorMain
 		// TODO: Try to reduce memory footprint.
 		try
 		{
+			LookAndFeelFactory.setDefaultStyle(LookAndFeelFactory.VSNET_STYLE_WITHOUT_MENU);
 			LookAndFeelFactory.installDefaultLookAndFeel();
 			LookAndFeelFactory.installJideExtension();
 			Object tristateIcon = UIManager.get("TristateCheckBox.icon");
