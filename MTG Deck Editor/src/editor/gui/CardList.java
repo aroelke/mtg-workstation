@@ -59,9 +59,6 @@ public class CardList extends JList<String>
 				return cards.get(index).name();
 			}
 			
-			/**
-			 * @return The number of elements in the list.
-			 */
 			@Override
 			public int getSize()
 			{
