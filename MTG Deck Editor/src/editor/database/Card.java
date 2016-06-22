@@ -105,6 +105,7 @@ public final class Card
 	 * This Card's color identity, which is a list containing its colors and
 	 * colors of any mana symbols that appear in its rules text that is not
 	 * reminder text, and in abilities that are given it by basic land types.
+	 * TODO: This doesn't work properly with reminder text (like extort).
 	 */
 	private final ManaType.Tuple colorIdentity;
 	
