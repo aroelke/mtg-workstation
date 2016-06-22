@@ -7,8 +7,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.jidesoft.plaf.metal.MetalIconFactory;
-import com.jidesoft.plaf.windows.WindowsIconFactory;
+import com.jidesoft.plaf.LookAndFeelFactory;
 
 import editor.gui.MainFrame;
 
@@ -42,11 +41,11 @@ public class EditorMain
 		// TODO: Try to reduce memory footprint.
 		try
 		{
+			LookAndFeelFactory.installDefaultLookAndFeel();
+			LookAndFeelFactory.installJideExtension();
+			Object tristateIcon = UIManager.get("TristateCheckBox.icon");
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			if (UIManager.getSystemLookAndFeelClassName().contains("windows"))
-				UIManager.put("TristateCheckBox.icon", WindowsIconFactory.getCheckBoxIcon());
-			else
-				UIManager.put("TristateCheckBox.icon", MetalIconFactory.getCheckBoxIcon());
+			UIManager.put("TristateCheckBox.icon", tristateIcon);
 			
 			SwingUtilities.invokeLater(() -> new MainFrame(files).setVisible(true));
 		}
