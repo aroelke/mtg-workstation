@@ -71,11 +71,14 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
+
+import com.jidesoft.plaf.LookAndFeelFactory;
 
 import editor.collection.Inventory;
 import editor.collection.category.CategorySpec;
@@ -133,6 +136,40 @@ public class MainFrame extends JFrame
 	 * Maximum height that the advanced filter editor panel can attain before scrolling.
 	 */
 	public static final int MAX_FILTER_HEIGHT = 300;
+	
+	/**
+	 * Entry point for the program. All it does is set the look and feel to the
+	 * system one and create the GUI.
+	 * 
+	 * TODO: Add copy/paste mechanics
+	 * TODO: See if a GroupLayout might make more sense for some of the UI elements
+	 * TODO: Try to reduce memory footprint.
+	 * 
+	 * @param args Arguments to the program
+	 */
+	public static void main(String[] args)
+	{
+		LookAndFeelFactory.setDefaultStyle(LookAndFeelFactory.VSNET_STYLE_WITHOUT_MENU);
+		LookAndFeelFactory.installDefaultLookAndFeel();
+		LookAndFeelFactory.installJideExtension();
+		
+		try
+		{
+			Object tristateIcon = UIManager.get("TristateCheckBox.icon");
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.put("TristateCheckBox.icon", tristateIcon);
+		}
+		catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
+		{
+			e.printStackTrace();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		SwingUtilities.invokeLater(() -> new MainFrame(Arrays.stream(args).map(File::new).filter(File::exists).collect(Collectors.toList())).setVisible(true));
+	}
 	
 	/**
 	 * Inventory of all cards.
