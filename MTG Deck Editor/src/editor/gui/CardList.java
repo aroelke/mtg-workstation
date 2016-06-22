@@ -51,7 +51,23 @@ public class CardList extends JList<String>
 				super.setSelectionInterval(-1, -1);
 			}
 		});
-		setModel(new CardListModel());
+		setModel(new DefaultListModel<String>()
+		{
+			@Override
+			public String getElementAt(int index)
+			{
+				return cards.get(index).name();
+			}
+			
+			/**
+			 * @return The number of elements in the list.
+			 */
+			@Override
+			public int getSize()
+			{
+				return cards.size();
+			}
+		});
 		setVisibleRowCount(CARDS_TO_DISPLAY);
 	}
 	
@@ -71,35 +87,5 @@ public class CardList extends JList<String>
 	public void setCards(List<Card> c)
 	{
 		cards = c;
-	}
-	
-	/**
-	 * This class represents a model for displaying a list of Cards by name.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class CardListModel extends DefaultListModel<String>
-	{
-		/**
-		 * @param index Index into the list to get
-		 * @return The name of the Card at the given index.
-		 */
-		@Override
-		public String getElementAt(int index)
-		{
-			if (index > cards.size())
-				throw new ArrayIndexOutOfBoundsException("Illegal list index " + index);
-			else
-				return cards.get(index).name();
-		}
-		
-		/**
-		 * @return The number of elements in the list.
-		 */
-		@Override
-		public int getSize()
-		{
-			return cards.size();
-		}
 	}
 }
