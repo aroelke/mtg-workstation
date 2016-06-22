@@ -39,7 +39,8 @@ public class CardList extends JList<String>
 	{
 		super();
 		cards = c;
-		setSelectionModel(new DefaultListSelectionModel() {
+		setSelectionModel(new DefaultListSelectionModel()
+		{
 			{
 				setSelectionMode(SINGLE_SELECTION);
 			}
