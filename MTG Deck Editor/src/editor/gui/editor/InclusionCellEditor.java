@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.table.TableCellEditor;
 
 import editor.collection.category.CategorySpec;
@@ -128,7 +129,14 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
 			CardTable cTable = (CardTable)table;
 			iePanel = new IncludeExcludePanel(frame.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getCardAt(cTable, row));
 			included = ((Collection<?>)value).stream().filter((o) -> o instanceof CategorySpec).map((o) -> (CategorySpec)o).collect(Collectors.toList());
-			editor.setBackground(cTable.getRowColor(row));
+			if (!table.isRowSelected(row))
+				editor.setBackground(cTable.getRowColor(row));
+			else
+			{
+				editor.setBackground(table.getSelectionBackground());
+				if (table.hasFocus())
+					editor.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+			}
 		}
 		else
 			iePanel = new IncludeExcludePanel(frame.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getSelectedCards());

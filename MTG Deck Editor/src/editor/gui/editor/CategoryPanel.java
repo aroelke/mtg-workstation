@@ -222,31 +222,27 @@ public class CategoryPanel extends JPanel
 	}
 	
 	/**
-	 * Change the columns to display in this category's table.
-	 * 
-	 * @param columns CardCharacteristics to display.
-	 */
-	public void setColumns(List<CardCharacteristic> columns)
-	{
-		model.setColumns(columns);
-	}
-	
-	/**
-	 * Change the color of alternate stripes in this category's table.
-	 * 
-	 * @param color Color to change stripes to.
-	 */
-	public void setStripeColor(Color color)
-	{
-		table.setStripeColor(color);
-	}
-	
-	/**
 	 * Briefly flash to draw attention to this CategoryPanel.
 	 */
 	public void flash()
 	{
 		flashTimer.restart();
+	}
+	
+	/**
+	 * Apply settings to this CategoryPanel.
+	 * 
+	 * @param editor EditorFrame containing this CategoryPanel
+	 */
+	public void applySettings(EditorFrame editor)
+	{
+		List<CardCharacteristic> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
+		Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
+		model.setColumns(columns);
+		table.setStripeColor(stripe);
+		for (int i = 0; i < table.getColumnCount(); i++)
+			if (model.isCellEditable(0, i))
+				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(editor));
 	}
 	
 	/**

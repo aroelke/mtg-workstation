@@ -1852,11 +1852,11 @@ public class EditorFrame extends JInternalFrame
 		Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
 		model.setColumns(columns);
 		table.setStripeColor(stripe);
+		for (int i = 0; i < table.getColumnCount(); i++)
+			if (model.isCellEditable(0, i))
+				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(this));
 		for (CategoryPanel category: categoryPanels)
-		{
-			category.setColumns(columns);
-			category.setStripeColor(stripe);
-		}
+			category.applySettings(this);
 		handModel.setColumns(handColumns);
 		handTable.setStripeColor(stripe);
 		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
