@@ -185,12 +185,15 @@ public class CardTable extends JTable
 						}
 					}
 				};
-				StringBuilder tooltip = new StringBuilder();
-				tooltip.append("<html>Categories:<br>");
-				for (CategorySpec category: categories)
-					tooltip.append("• ").append(category.getName()).append("<br>");
-				tooltip.append("</html>");
-				panel.setToolTipText(tooltip.toString());
+				if (!categories.isEmpty())
+				{
+					StringBuilder tooltip = new StringBuilder();
+					tooltip.append("<html>Categories:<br>");
+					for (CategorySpec category: categories)
+						tooltip.append("• ").append(category.getName()).append("<br>");
+					tooltip.append("</html>");
+					panel.setToolTipText(tooltip.toString());
+				}
 				if (hasFocus)
 					panel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
 				panel.setForeground(c.getForeground());
