@@ -1429,7 +1429,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			for (CategoryPanel panel: categoryPanels)
 				if (t == panel.table)
-					return deck.getCategoryCards(panel.getCategoryName()).get(table.convertRowIndexToModel(tableIndex));
+					return deck.getCategoryCards(panel.getCategoryName()).get(panel.table.convertRowIndexToModel(tableIndex));
 			throw new IllegalArgumentException("Table not in deck " + deckName());
 		}
 	}
