@@ -2,7 +2,7 @@ package editor.filter.leaf.options.single;
 
 import java.util.HashSet;
 
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.characteristics.Expansion;
 import editor.filter.Filter;
 import editor.filter.FilterType;

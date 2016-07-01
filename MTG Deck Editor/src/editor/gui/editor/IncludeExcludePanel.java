@@ -15,7 +15,7 @@ import javax.swing.BoxLayout;
 import com.jidesoft.swing.TristateCheckBox;
 
 import editor.collection.category.CategorySpec;
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.gui.generic.ScrollablePanel;
 
 /**

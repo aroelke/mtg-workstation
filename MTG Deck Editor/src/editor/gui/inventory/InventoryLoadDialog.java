@@ -41,7 +41,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import editor.collection.Inventory;
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.ManaType;

@@ -79,7 +79,7 @@ import editor.collection.LegalityChecker;
 import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.CardImagePanel;
 import editor.gui.CardTable;

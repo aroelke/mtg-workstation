@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Containment;

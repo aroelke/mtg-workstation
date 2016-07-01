@@ -2,7 +2,7 @@ package editor.gui.filter.editor;
 
 import java.util.function.Function;
 
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
 import editor.filter.FilterType;

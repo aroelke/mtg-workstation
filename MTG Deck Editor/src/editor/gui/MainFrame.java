@@ -82,7 +82,7 @@ import com.jidesoft.plaf.LookAndFeelFactory;
 
 import editor.collection.Inventory;
 import editor.collection.category.CategorySpec;
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.characteristics.CardCharacteristic;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Loyalty;

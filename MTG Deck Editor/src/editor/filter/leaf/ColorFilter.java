@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.characteristics.ManaType;
 import editor.filter.Filter;
 import editor.filter.FilterType;

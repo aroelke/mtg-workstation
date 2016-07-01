@@ -3,7 +3,7 @@ package editor.database.characteristics;
 import java.util.List;
 import java.util.StringJoiner;
 
-import editor.database.Card;
+import editor.database.card.Card;
 
 /**
  * This class represents a power value or a toughness value.  If the card is missing

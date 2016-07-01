@@ -21,7 +21,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import editor.collection.category.CategorySpec;
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.gui.CardList;
 import editor.gui.filter.FilterGroupPanel;

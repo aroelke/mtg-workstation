@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.characteristics.Rarity;
 import editor.filter.Filter;
 import editor.filter.FilterType;

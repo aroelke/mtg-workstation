@@ -11,7 +11,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import editor.database.Card;
+import editor.database.card.Card;
 
 /**
  * This class represents a group of Filters that are ANDed or ORed

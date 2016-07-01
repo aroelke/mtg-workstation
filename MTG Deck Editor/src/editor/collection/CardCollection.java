@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
-import editor.database.Card;
+import editor.database.card.Card;
 
 /**
  * This class represents a collection of Cards.  The collection can choose whether or

@@ -8,7 +8,7 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.symbol.Symbol;
 
 /**

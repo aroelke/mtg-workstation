@@ -3,7 +3,7 @@ package editor.filter.leaf.options.multi;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.util.Containment;

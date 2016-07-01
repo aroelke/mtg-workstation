@@ -16,7 +16,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import editor.database.Card;
+import editor.database.card.Card;
 
 /**
  * This class represents a panel that shows the images associated with a card if they

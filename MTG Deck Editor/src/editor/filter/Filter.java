@@ -2,7 +2,7 @@ package editor.filter;
 
 import java.util.function.Predicate;
 
-import editor.database.Card;
+import editor.database.card.Card;
 
 
 /**

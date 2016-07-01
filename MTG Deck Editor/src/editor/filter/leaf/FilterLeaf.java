@@ -3,7 +3,7 @@ package editor.filter.leaf;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterType;
 

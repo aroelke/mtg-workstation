@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import editor.collection.CardCollection;
 import editor.collection.category.CategorySpec;
-import editor.database.Card;
+import editor.database.card.Card;
 
 /**
  * This class represents a hand of Cards.  It is a subset of a Deck

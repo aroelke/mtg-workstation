@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 import editor.collection.CardCollection;
 import editor.collection.category.CategoryListener;
 import editor.collection.category.CategorySpec;
-import editor.database.Card;
+import editor.database.card.Card;
 
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and

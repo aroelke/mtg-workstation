@@ -10,7 +10,7 @@ import java.util.function.Function;
 import javax.swing.table.TableCellEditor;
 
 import editor.collection.CardCollection;
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.IncludeExcludePanel;
 import editor.gui.editor.InclusionCellEditor;

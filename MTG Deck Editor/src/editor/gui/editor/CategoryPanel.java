@@ -25,7 +25,7 @@ import javax.swing.border.TitledBorder;
 
 import editor.collection.deck.Deck;
 import editor.collection.deck.DeckListener;
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.CardTable;
 import editor.gui.CardTableModel;

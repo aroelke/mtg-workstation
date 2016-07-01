@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import editor.collection.Inventory;
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.gui.SettingsDialog;

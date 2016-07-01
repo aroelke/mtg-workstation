@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.characteristics.Legality;
 import editor.filter.Filter;
 import editor.filter.FilterType;

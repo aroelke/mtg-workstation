@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.Deck;
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.ManaType;
 import editor.util.Containment;

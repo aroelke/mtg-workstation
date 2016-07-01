@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.filter.leaf.BinaryFilter;
 import editor.filter.leaf.ColorFilter;
 import editor.filter.leaf.FilterLeaf;

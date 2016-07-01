@@ -1,4 +1,4 @@
-package editor.database;
+package editor.database.card;
 
 import java.awt.datatransfer.DataFlavor;
 import java.text.Collator;
@@ -42,7 +42,7 @@ import editor.util.Tuple;
  * 
  * @author Alec Roelke
  */
-public final class Card
+public class Card
 {
 	/**
 	 * List of all supertypes that appear on cards.
@@ -622,7 +622,7 @@ public final class Card
 	 * @return The normalized, lower case version of this Card's rules text.  For example,
 	 * "æ" will be replaced with "ae."  This will be a list containing the rules text of
 	 * each face.
-	 * @see editor.database.Card#normalizedName()
+	 * @see editor.database.card.Card#normalizedName()
 	 */
 	public List<String> normalizedText()
 	{
@@ -642,7 +642,7 @@ public final class Card
 	 * @return The normalized, lower case version of this Card's flavor text.  For example,
 	 * "æ" will be replaced with "ae."  This will be a list containing the flavor text of each
 	 * face.
-	 * @see editor.database.Card#normalizedName()
+	 * @see editor.database.card.Card#normalizedName()
 	 */
 	public List<String> normalizedFlavor()
 	{

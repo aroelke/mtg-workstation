@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import editor.collection.category.CategorySpec;
-import editor.database.Card;
+import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.leaf.BinaryFilter;
 
@@ -158,7 +158,7 @@ public class Inventory implements CardCollection
 	/**
 	 * @param UID Unique identifier of the Card to look for.
 	 * @return The Card with the given UID.
-	 * @see editor.database.Card#ID
+	 * @see editor.database.card.Card#ID
 	 */
 	public Card get(String UID)
 	{
