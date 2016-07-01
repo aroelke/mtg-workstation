@@ -88,7 +88,7 @@ import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
-import editor.database.symbol.ChaosSymbol;
+import editor.database.symbol.StaticSymbol;
 import editor.database.symbol.Symbol;
 import editor.filter.FilterType;
 import editor.filter.leaf.TextFilter;
@@ -1418,7 +1418,7 @@ public class MainFrame extends JFrame
 					catch (Exception e)
 					{}
 				}
-				rulingsString = rulingsString.replace("CHAOS", ChaosSymbol.CHAOS.getHTML());
+				rulingsString = rulingsString.replace(StaticSymbol.get("CHAOS").toString(), StaticSymbol.get("CHAOS").getHTML());
 				rulingsPane.setText(rulingsString);
 			}
 			rulingsPane.setCaretPosition(0);

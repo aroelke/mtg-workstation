@@ -1,7 +1,7 @@
 package editor.database.symbol;
 
 import java.awt.Image;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,19 +34,14 @@ public abstract class Symbol implements Comparable<Symbol>
 	/**
 	 * List of symbol types in the order they should appear in.
 	 */
-	public static final List<Class<? extends Symbol>> ORDER = new ArrayList<Class<? extends Symbol>>();
-	static
-	{
-		ORDER.add(VariableSymbol.class);
-		ORDER.add(HalfManaSymbol.class);
-		ORDER.add(GenericSymbol.class);
-		ORDER.add(HalfColorSymbol.class);
-		ORDER.add(SnowSymbol.class);
-		ORDER.add(TwobridSymbol.class);
-		ORDER.add(HybridSymbol.class);
-		ORDER.add(PhyrexianSymbol.class);
-		ORDER.add(ColorSymbol.class);
-	}
+	public static final List<Class<?>> ORDER = Arrays.asList(
+			VariableSymbol.class,
+			GenericSymbol.class,
+			HalfColorSymbol.class,
+			TwobridSymbol.class,
+			HybridSymbol.class,
+			PhyrexianSymbol.class,
+			ColorSymbol.class);
 	
 	/**
 	 * Icon to show when displaying this Symbol.
@@ -81,7 +76,6 @@ public abstract class Symbol implements Comparable<Symbol>
 	
 	/**
 	 * Create a Symbol from a String.
-	 * TODO: Roll the 'static' symbols up into one class and then give it a get(String) static method
 	 * 
 	 * @param s String representation of the new Symbol, surrounded by {}
 	 * @return A new Symbol that the specified String represents.
@@ -89,43 +83,25 @@ public abstract class Symbol implements Comparable<Symbol>
 	 */
 	public static Symbol valueOf(String s)
 	{
-		switch (s)
-		{
-		case "CHAOS":
-			return ChaosSymbol.CHAOS;
-		case "S":
-			return SnowSymbol.SNOW;
-		case "T":
-			return TapSymbol.TAP;
-		case "Q":
-			return UntapSymbol.UNTAP;
-		case "P":
-			return PhiSymbol.PHI;
-		case "∞":
-			return InfinityManaSymbol.INFINITY_MANA;
-		case "½":
-			return HalfManaSymbol.HALF_MANA;
-		default:
-			Symbol value;
-			if ((value = ColorSymbol.get(s)) != null)
-				return value;
-			else if ((value = GenericSymbol.get(s)) != null)
-				return value;
-			else if ((value = HalfColorSymbol.get(s)) != null)
-				return value;
-			else if ((value = HybridSymbol.get(s)) != null)
-				return value;
-			else if ((value = PhyrexianSymbol.get(s)) != null)
-				return value;
-			else if ((value = TwobridSymbol.get(s)) != null)
-				return value;
-			else if ((value = VariableSymbol.get(s)) != null)
-				return value;
-			else
-			{
-				throw new IllegalArgumentException("Illegal symbol string: " + s);
-			}
-		}
+		Symbol value;
+		if ((value = ColorSymbol.get(s)) != null)
+			return value;
+		else if ((value = GenericSymbol.get(s)) != null)
+			return value;
+		else if ((value = HalfColorSymbol.get(s)) != null)
+			return value;
+		else if ((value = HybridSymbol.get(s)) != null)
+			return value;
+		else if ((value = PhyrexianSymbol.get(s)) != null)
+			return value;
+		else if ((value = TwobridSymbol.get(s)) != null)
+			return value;
+		else if ((value = VariableSymbol.get(s)) != null)
+			return value;
+		else if ((value = StaticSymbol.get(s)) != null)
+			return value;
+		else
+			return null;
 	}
 	
 	/**

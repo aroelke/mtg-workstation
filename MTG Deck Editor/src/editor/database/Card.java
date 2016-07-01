@@ -21,11 +21,11 @@ import java.util.stream.Collectors;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.Loyalty;
-import editor.database.characteristics.ManaType;
 import editor.database.characteristics.ManaCost;
+import editor.database.characteristics.ManaType;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
-import editor.database.symbol.ChaosSymbol;
+import editor.database.symbol.StaticSymbol;
 import editor.database.symbol.Symbol;
 import editor.util.Tuple;
 
@@ -1017,7 +1017,7 @@ public final class Card
 				catch (Exception e)
 				{}
 			}
-			html = html.replace(ChaosSymbol.CHAOS.toString(), ChaosSymbol.CHAOS.getHTML());
+			html = html.replace(StaticSymbol.get("CHAOS").toString(), StaticSymbol.get("CHAOS").getHTML());
 			html = html.replace("\n", "<br>");
 			return html;
 		}
