@@ -82,7 +82,6 @@ public abstract class Symbol implements Comparable<Symbol>
 	/**
 	 * Create a Symbol from a String.
 	 * TODO: Roll the 'static' symbols up into one class and then give it a get(String) static method
-	 * TODO: Make Symbol into an interface and then make its subtypes be Enums
 	 * 
 	 * @param s String representation of the new Symbol, surrounded by {}
 	 * @return A new Symbol that the specified String represents.
