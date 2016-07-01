@@ -109,7 +109,7 @@ public abstract class Symbol implements Comparable<Symbol>
 	 * 
 	 * @param iconName Name of the icon file for the new Symbol.
 	 */
-	protected Symbol(String iconName)
+	public Symbol(String iconName)
 	{
 		icon = new ImageIcon("images/icons-large/" + iconName);
 		name = iconName;
