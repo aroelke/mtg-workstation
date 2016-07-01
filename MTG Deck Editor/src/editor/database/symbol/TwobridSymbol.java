@@ -18,7 +18,7 @@ public class TwobridSymbol extends Symbol
 	 * Map of colors onto their corresponding twobrid symbols.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final Map<ManaType, TwobridSymbol> SYMBOLS = new HashMap<ManaType, TwobridSymbol>();
+	private static final Map<ManaType, TwobridSymbol> SYMBOLS = new HashMap<ManaType, TwobridSymbol>();
 	static
 	{
 		SYMBOLS.put(ManaType.WHITE, new TwobridSymbol(ManaType.WHITE));
@@ -38,6 +38,25 @@ public class TwobridSymbol extends Symbol
 	public static TwobridSymbol get(ManaType col)
 	{
 		return SYMBOLS.get(col);
+	}
+	
+	/**
+	 * Get the TwobridSymbol corresponding to the given String.
+	 * 
+	 * @param col Color to look up
+	 * @return The TwobridSymbol corresponding to the given String, or
+	 * null if no such symbol exists.
+	 */
+	public static TwobridSymbol get(String col)
+	{
+		try
+		{
+			return get(ManaType.get(col.substring(col.lastIndexOf("/") + 1)));
+		}
+		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
+		{
+			return null;
+		}
 	}
 	
 	/**

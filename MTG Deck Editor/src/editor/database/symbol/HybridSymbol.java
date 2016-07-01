@@ -1,7 +1,10 @@
 package editor.database.symbol;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import editor.database.characteristics.ManaType;
 
@@ -17,7 +20,7 @@ public class HybridSymbol extends Symbol
 	 * Map mapping each Tuple of colors to their corresponding hybrid symbols.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final Map<ManaType.Tuple, HybridSymbol> SYMBOLS = new HashMap<ManaType.Tuple, HybridSymbol>();
+	private static final Map<ManaType.Tuple, HybridSymbol> SYMBOLS = new HashMap<ManaType.Tuple, HybridSymbol>();
 	static
 	{
 		SYMBOLS.put(new ManaType.Tuple(ManaType.WHITE, ManaType.BLUE), new HybridSymbol(new ManaType.Tuple(ManaType.WHITE, ManaType.BLUE)));
@@ -39,9 +42,33 @@ public class HybridSymbol extends Symbol
 	 * @return The HybridSymbol corresponding to the given ManaTypes, or
 	 * null if no such symbol exists.
 	 */
-	public static HybridSymbol get(ManaType... colors)
+	public static HybridSymbol get(ManaType color1, ManaType color2)
 	{
-		return SYMBOLS.get(new ManaType.Tuple(colors));
+		return SYMBOLS.get(new ManaType.Tuple(color1, color2));
+	}
+	
+	/**
+	 * Get the HybridSymbol corresponding to the String, which is two color characters
+	 * separated by a "/".
+	 * 
+	 * @param pair The String to look up
+	 * @return The HybridSymbol corresponding to the given String, or null if no
+	 * such symbol exists.
+	 */
+	public static HybridSymbol get(String pair)
+	{
+		try
+		{
+			List<ManaType> colors = Arrays.stream(pair.split("/")).map(ManaType::get).collect(Collectors.toList());
+			if (colors.size() != 2)
+				return null;
+			else
+				return SYMBOLS.get(new ManaType.Tuple(colors));
+		}
+		catch (IllegalArgumentException e)
+		{
+			return null;
+		}
 	}
 	
 	/**

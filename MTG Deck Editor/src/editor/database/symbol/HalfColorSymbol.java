@@ -3,6 +3,7 @@ package editor.database.symbol;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import editor.database.characteristics.ManaType;
@@ -18,8 +19,8 @@ public class HalfColorSymbol extends Symbol
 	 * Map of ManaType onto its corresponding half-symbol.  To get a colored half-symbol, use this Map.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final Map<ManaType, HalfColorSymbol> SYMBOLS = Collections.unmodifiableMap(
-			Arrays.stream(ManaType.values()).collect(Collectors.toMap((t) -> t, HalfColorSymbol::new)));
+	private static final Map<ManaType, HalfColorSymbol> SYMBOLS = Collections.unmodifiableMap(
+			Arrays.stream(ManaType.values()).collect(Collectors.toMap(Function.identity(), HalfColorSymbol::new)));
 	
 	/**
 	 * Get the HalfColorSymbol corresponding to the given ManaType.
@@ -31,6 +32,25 @@ public class HalfColorSymbol extends Symbol
 	public static HalfColorSymbol get(ManaType col)
 	{
 		return SYMBOLS.get(col);
+	}
+	
+	/**
+	 * Get the HalfColorSymbol corresponding to the given String.
+	 * 
+	 * @param col String to get the symbol for
+	 * @return The HalfColorSymbol corresponding to the given ManaType, or
+	 * null otherwise.
+	 */
+	public static HalfColorSymbol get(String col)
+	{
+		try
+		{
+			return get(ManaType.get(col.substring(col.toUpperCase().lastIndexOf("H") + 1)));
+		}
+		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
+		{
+			return null;
+		}
 	}
 	
 	/**

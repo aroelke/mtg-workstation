@@ -17,7 +17,7 @@ public class PhyrexianSymbol extends Symbol
 	 * Map of ManaTypes onto their corresponding Phyrexian symbols.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final Map<ManaType, PhyrexianSymbol> SYMBOLS = new HashMap<ManaType, PhyrexianSymbol>();
+	private static final Map<ManaType, PhyrexianSymbol> SYMBOLS = new HashMap<ManaType, PhyrexianSymbol>();
 	static
 	{
 		SYMBOLS.put(ManaType.WHITE, new PhyrexianSymbol(ManaType.WHITE));
@@ -37,6 +37,18 @@ public class PhyrexianSymbol extends Symbol
 	public static PhyrexianSymbol get(ManaType col)
 	{
 		return SYMBOLS.get(col);
+	}
+	
+	public static PhyrexianSymbol get(String col)
+	{
+		try
+		{
+			return get(ManaType.get(col.substring(0, col.indexOf("/"))));
+		}
+		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
+		{
+			return null;
+		}
 	}
 	
 	/**

@@ -17,15 +17,24 @@ public class VariableSymbol extends Symbol
 	 * Map of variable names onto their corresponding symbols.  This map
 	 * is not case-sensitive.
 	 */
-	public static final Map<Character, VariableSymbol> SYMBOLS = new HashMap<Character, VariableSymbol>();
+	private static final Map<String, VariableSymbol> SYMBOLS = new HashMap<String, VariableSymbol>();
 	static
 	{
-		SYMBOLS.put('X', new VariableSymbol('X'));
-		SYMBOLS.put('x', SYMBOLS.get('X'));
-		SYMBOLS.put('Y', new VariableSymbol('Y'));
-		SYMBOLS.put('y', SYMBOLS.get('Y'));
-		SYMBOLS.put('Z', new VariableSymbol('Z'));
-		SYMBOLS.put('z', SYMBOLS.get('Z'));
+		SYMBOLS.put("X", new VariableSymbol('X'));
+		SYMBOLS.put("Y", new VariableSymbol('Y'));
+		SYMBOLS.put("Z", new VariableSymbol('Z'));
+	}
+	
+	/**
+	 * Get the VariableSymbol corresponding to the given String.
+	 * 
+	 * @param x The String to look up
+	 * @return The VariableSymbol corresponding to the String, or
+	 * null if there is no such symbol.
+	 */
+	public static VariableSymbol get(String x)
+	{
+		return SYMBOLS.get(x.toUpperCase());
 	}
 	
 	/**

@@ -81,6 +81,8 @@ public abstract class Symbol implements Comparable<Symbol>
 	
 	/**
 	 * Create a Symbol from a String.
+	 * TODO: Roll the 'static' symbols up into one class and then give it a get(String) static method
+	 * TODO: Make Symbol into an interface and then make its subtypes be Enums
 	 * 
 	 * @param s String representation of the new Symbol, surrounded by {}
 	 * @return A new Symbol that the specified String represents.
@@ -88,77 +90,41 @@ public abstract class Symbol implements Comparable<Symbol>
 	 */
 	public static Symbol valueOf(String s)
 	{
-		if (s.equalsIgnoreCase(ChaosSymbol.CHAOS.toString()))
+		switch (s)
+		{
+		case "CHAOS":
 			return ChaosSymbol.CHAOS;
-		else if (!s.contains("/")) // The symbol is not hybrid if it doesn't have a /
-		{
-			// First try to make a colored symbol
-			try
+		case "S":
+			return SnowSymbol.SNOW;
+		case "T":
+			return TapSymbol.TAP;
+		case "Q":
+			return UntapSymbol.UNTAP;
+		case "P":
+			return PhiSymbol.PHI;
+		case "∞":
+			return InfinityManaSymbol.INFINITY_MANA;
+		case "½":
+			return HalfManaSymbol.HALF_MANA;
+		default:
+			Symbol value;
+			if ((value = ColorSymbol.get(s)) != null)
+				return value;
+			else if ((value = GenericSymbol.get(s)) != null)
+				return value;
+			else if ((value = HalfColorSymbol.get(s)) != null)
+				return value;
+			else if ((value = HybridSymbol.get(s)) != null)
+				return value;
+			else if ((value = PhyrexianSymbol.get(s)) != null)
+				return value;
+			else if ((value = TwobridSymbol.get(s)) != null)
+				return value;
+			else if ((value = VariableSymbol.get(s)) != null)
+				return value;
+			else
 			{
-				return ColorSymbol.get(ManaType.get(s));
-			}
-			catch (IllegalArgumentException e)
-			{
-				// If that failed, try to make a generic symbol
-				try
-				{
-					int n = Integer.valueOf(s);
-					if (n == 1000000)
-						return GenericSymbol.MILLION;
-					else if (n == 100)
-						return GenericSymbol.HUNDRED;
-					else
-						return GenericSymbol.N[n];
-				}
-				catch (NumberFormatException n)
-				{
-					// If that failed, then the symbol must be X, Y, Z, a nonmana symbol, or a half-mana symbol
-					char sym = s.toUpperCase().charAt(0);
-					switch (sym)
-					{
-					case 'X': case 'Y': case 'Z':
-						return VariableSymbol.SYMBOLS.get(sym);
-					case 'S':
-						return SnowSymbol.SNOW;
-					case 'T':
-						return TapSymbol.TAP;
-					case 'Q':
-						return UntapSymbol.UNTAP;
-					case 'P':
-						return PhiSymbol.PHI;
-					case 'H':
-						return HalfColorSymbol.get(ManaType.get(s.substring(1)));
-					case '∞':
-						return InfinityManaSymbol.INFINITY_MANA;
-					case '½':
-						return HalfManaSymbol.HALF_MANA;
-					default:
-						throw new IllegalArgumentException("Illegal symbol string \"" + s + "\"");
-					}
-				}
-			}
-		}
-		else
-		{
-			// If the String has a / in it, then either it is a type of hybrid symbol or it is a colorless 1/2 mana
-			// symbol
-			String[] cols = s.split("/");
-			if (cols[0].equals("1") && cols[1].equals("2"))
-				return HalfManaSymbol.HALF_MANA;
-			try
-			{
-				if (cols[0].equals("2"))
-					return TwobridSymbol.get(ManaType.get(cols[1]));
-				else if (cols[0].equalsIgnoreCase("P"))
-					return PhyrexianSymbol.get(ManaType.get(cols[1]));
-				else if (cols[1].equalsIgnoreCase("P"))
-					return PhyrexianSymbol.SYMBOLS.get(ManaType.get(cols[0]));
-				else
-					return HybridSymbol.get(ManaType.get(cols[0]), ManaType.get(cols[1]));
-			}
-			catch (IllegalArgumentException e)
-			{
-				throw new IllegalArgumentException("Illegal symbol string \"" + s + "\"");
+				throw new IllegalArgumentException("Illegal symbol string: " + s);
 			}
 		}
 	}

@@ -3,6 +3,7 @@ package editor.database.symbol;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import editor.database.characteristics.ManaType;
@@ -18,8 +19,8 @@ public class ColorSymbol extends Symbol
 	 * Map of ManaType onto its corresponding symbol.  To get a colored symbol, use this Map.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final Map<ManaType, ColorSymbol> SYMBOLS = Collections.unmodifiableMap(
-			Arrays.stream(ManaType.values()).collect(Collectors.toMap((t) -> t, ColorSymbol::new)));
+	private static final Map<ManaType, ColorSymbol> SYMBOLS = Collections.unmodifiableMap(
+			Arrays.stream(ManaType.values()).collect(Collectors.toMap(Function.identity(), ColorSymbol::new)));
 	
 	/**
 	 * Get the symbol corresponding to a color.
@@ -31,6 +32,25 @@ public class ColorSymbol extends Symbol
 	public static ColorSymbol get(ManaType col)
 	{
 		return SYMBOLS.get(col);
+	}
+	
+	/**
+	 * Get the symbol corresponding to a color string.
+	 * 
+	 * @param col String to find the symbol for
+	 * @return The ColorSymbol corresponding to the given String, or null
+	 * if none exists.
+	 */
+	public static ColorSymbol get(String col)
+	{
+		try
+		{
+			return get(ManaType.get(col));
+		}
+		catch (IllegalArgumentException e)
+		{
+			return null;
+		}
 	}
 	
 	/**

@@ -13,24 +13,62 @@ public class GenericSymbol extends Symbol
 	 * Highest consecutive value that a generic symbol might attain.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static final int HIGHEST = 20;
+	public static final int HIGHEST_CONSECUTIVE = 20;
 	/**
 	 * Array of consecutive GenericSymbols.
 	 */
-	public static final GenericSymbol[] N = new GenericSymbol[HIGHEST + 1];
+	private static final GenericSymbol[] N = new GenericSymbol[HIGHEST_CONSECUTIVE + 1];
 	static
 	{
-		for (int i = 0; i <= HIGHEST; i++)
+		for (int i = 0; i <= HIGHEST_CONSECUTIVE; i++)
 			N[i] = new GenericSymbol(i);
 	}
 	/**
 	 * GenericSymbol representing 100 mana.
 	 */
-	public static final GenericSymbol HUNDRED = new GenericSymbol(100);
+	private static final GenericSymbol HUNDRED = new GenericSymbol(100);
 	/**
 	 * GenericSymbol representing 1,000,000 mana.
 	 */
-	public static final GenericSymbol MILLION = new GenericSymbol(1000000);
+	private static final GenericSymbol MILLION = new GenericSymbol(1000000);
+	
+	/**
+	 * Get the symbol corresponding to a number.
+	 * 
+	 * @param n Number to get the symbol of
+	 * @return The GenericSymbol corresponding to the given number, or
+	 * null if none exists.
+	 */
+	public static GenericSymbol get(int n)
+	{
+		if (n <= HIGHEST_CONSECUTIVE)
+			return N[n];
+		else if (n == 100)
+			return HUNDRED;
+		else if (n == 1000000)
+			return MILLION;
+		else
+			return null;
+	}
+	
+	/**
+	 * Get the symbol corresponding to a String.
+	 * 
+	 * @param n String to get the symbol of
+	 * @return The GenericSymbol corresponding to the given String,
+	 * or null if none exists.
+	 */
+	public static GenericSymbol get(String n)
+	{
+		try
+		{
+			return get(Integer.parseInt(n));
+		}
+		catch (NumberFormatException e)
+		{
+			return null;
+		}
+	}
 	
 	/**
 	 * Amount of mana this GenericSymbol represents.
