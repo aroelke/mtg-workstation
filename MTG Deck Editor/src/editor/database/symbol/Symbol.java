@@ -54,8 +54,7 @@ public abstract class Symbol implements Comparable<Symbol>
 	
 	/**
 	 * Create a map of color weights for a Symbol, where the keys are ManaTypes and the values
-	 * are their weights (Doubles).  There is also an entry with a <code>null</code> key for
-	 * colorless (which is not a color, so it doesn't have a ManaType).
+	 * are their weights (Doubles).
 	 * 
 	 * @param weights Initial weights to use.
 	 * @return The Map of ManaTypes onto weights.
