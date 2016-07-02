@@ -1012,12 +1012,12 @@ public class Card
 			{
 				try
 				{
-					html = html.replace(symbols.group(), Symbol.valueOf(symbols.group(1)).getHTML());
+					html = Symbol.valueOf(symbols.group(1)).substitute(html);
 				}
 				catch (Exception e)
 				{}
 			}
-			html = html.replace(StaticSymbol.get("CHAOS").toString(), StaticSymbol.get("CHAOS").getHTML());
+			html = StaticSymbol.CHAOS.substitute(html);
 			html = html.replace("\n", "<br>");
 			return html;
 		}

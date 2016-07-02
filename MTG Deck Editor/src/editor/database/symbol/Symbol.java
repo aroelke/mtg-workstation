@@ -171,6 +171,19 @@ public abstract class Symbol implements Comparable<Symbol>
 	}
 	
 	/**
+	 * Substitute all instances of this Symbol's String representation in the given
+	 * String (case sensitive) with the HTML code for its icon.
+	 * 
+	 * @param s String to substitute
+	 * @return A new String with this Symbol's String representation replaced by
+	 * HTML.
+	 */
+	public String substitute(String s)
+	{
+		return s.replace(toString(), getHTML());
+	}
+	
+	/**
 	 * @param other Symbol to compare with
 	 * @return A negative number if this Symbol should appear before the other in a list,
 	 * 0 if the two symbols are the same or if their order doesn't matter,

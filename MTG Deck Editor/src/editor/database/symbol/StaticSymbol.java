@@ -15,7 +15,7 @@ public class StaticSymbol extends Symbol
 	 * The Chaos symbol that appears on Plane cards.  Because it has a special
 	 * text representation that doens't use {}, it is exposed as a separate constant.
 	 */
-	public static StaticSymbol CHAOS = new StaticSymbol("chaos.png", "CHAOS")
+	public static final StaticSymbol CHAOS = new StaticSymbol("chaos.png", "CHAOS")
 	{
 		@Override
 		public String toString()

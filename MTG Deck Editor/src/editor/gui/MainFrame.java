@@ -1412,13 +1412,12 @@ public class MainFrame extends JFrame
 				{
 					try
 					{
-						Symbol symbol = Symbol.valueOf(symbols.group(1));
-						rulingsString = rulingsString.replace(symbols.group(), symbol.getHTML());
+						rulingsString = Symbol.valueOf(symbols.group(1)).substitute(rulingsString);
 					}
 					catch (Exception e)
 					{}
 				}
-				rulingsString = rulingsString.replace(StaticSymbol.get("CHAOS").toString(), StaticSymbol.get("CHAOS").getHTML());
+				rulingsString = StaticSymbol.CHAOS.substitute(rulingsString);
 				rulingsPane.setText(rulingsString);
 			}
 			rulingsPane.setCaretPosition(0);
