@@ -13,6 +13,7 @@ import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.filter.editor.FilterEditorPanel;
 import editor.gui.filter.editor.FilterPanelType;
+import editor.gui.generic.ComboBoxPanel;
 
 /**
  * This class represents a panel that presents a drop-down menu that allows the user

@@ -682,6 +682,7 @@ public class MainFrame extends JFrame
 		oracleTextPane.setContentType("text/html");
 		oracleTextPane.setFont(UIManager.getFont("Label.font"));
 		oracleTextPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+		oracleTextPane.setCursor(new Cursor(Cursor.TEXT_CURSOR));
 		cardPane.addTab("Oracle Text", new JScrollPane(oracleTextPane));
 		
 		rulingsPane = new JTextPane();
@@ -689,6 +690,7 @@ public class MainFrame extends JFrame
 		rulingsPane.setContentType("text/html");
 		rulingsPane.setFont(UIManager.getFont("Label.font"));
 		rulingsPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+		rulingsPane.setCursor(new Cursor(Cursor.TEXT_CURSOR));
 		cardPane.addTab("Rulings", new JScrollPane(rulingsPane));
 		
 		// Oracle text pane popup menu

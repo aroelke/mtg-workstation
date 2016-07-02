@@ -1,4 +1,4 @@
-package editor.gui.filter;
+package editor.gui.generic;
 
 import java.awt.event.ItemListener;
 

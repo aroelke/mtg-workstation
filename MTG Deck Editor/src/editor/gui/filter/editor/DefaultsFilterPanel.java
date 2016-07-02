@@ -9,7 +9,7 @@ import editor.collection.category.CategorySpec;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.SettingsDialog;
-import editor.gui.filter.ComboBoxPanel;
+import editor.gui.generic.ComboBoxPanel;
 
 /**
  * This class represents a panel that presents the user with a

@@ -11,7 +11,7 @@ import editor.database.characteristics.ManaCost;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.ManaCostFilter;
-import editor.gui.filter.ComboBoxPanel;
+import editor.gui.generic.ComboBoxPanel;
 import editor.util.Containment;
 
 /**

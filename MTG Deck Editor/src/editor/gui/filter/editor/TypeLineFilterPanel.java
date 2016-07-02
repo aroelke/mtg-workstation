@@ -7,7 +7,7 @@ import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.TypeLineFilter;
-import editor.gui.filter.ComboBoxPanel;
+import editor.gui.generic.ComboBoxPanel;
 import editor.util.Containment;
 
 /**
