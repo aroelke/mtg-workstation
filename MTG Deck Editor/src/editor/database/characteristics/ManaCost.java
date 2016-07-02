@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import editor.database.card.Card;
 import editor.database.symbol.Symbol;
+import editor.gui.MainFrame;
 
 /**
  * This class represents a mana cost.  It contains a list of Symbols, which may contain duplicate elements.
@@ -269,7 +270,7 @@ public class ManaCost implements Comparable<ManaCost>
 	{
 		StringBuilder str = new StringBuilder();
 		for (Symbol sym: cost)
-			str.append(sym.getHTML());
+			str.append("<img src=\"file:images/icons/" + sym.getName() + "\" width=\"" + MainFrame.TEXT_SIZE + "\" height=\"" + MainFrame.TEXT_SIZE + "\" />");
 		return str.toString();
 	}
 	

@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -29,6 +30,7 @@ import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
+import editor.database.symbol.StaticSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
 import editor.util.Tuple;
@@ -745,6 +747,8 @@ public class Card
 	{
 		Style textStyle = document.getStyle("text");
 		Style reminderStyle = document.getStyle("reminder");
+		Style chaosStyle = document.addStyle("CHAOS", null);
+		StyleConstants.setIcon(chaosStyle, StaticSymbol.CHAOS.getIcon(MainFrame.TEXT_SIZE));
 		try
 		{
 			document.insertString(document.getLength(), faces[f].name + " ", textStyle);
@@ -755,7 +759,7 @@ public class Card
 				{
 					Style style = document.addStyle(symbol.toString(), null);
 					StyleConstants.setIcon(style, symbol.getIcon(MainFrame.TEXT_SIZE));
-					document.insertString(document.getLength(), " ", style);
+					document.insertString(document.getLength(), symbol.toString(), style);
 				}
 				document.insertString(document.getLength(), " ", textStyle);
 			}
@@ -782,7 +786,7 @@ public class Card
 						Symbol symbol = Symbol.valueOf(faces[f].text.substring(start, i));
 						Style symbolStyle = document.addStyle(symbol.toString(), null);
 						StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
-						document.insertString(document.getLength(), " ", symbolStyle);
+						document.insertString(document.getLength(), symbol.toString(), symbolStyle);
 						start = i + 1;
 						break;
 					case '(':
@@ -794,6 +798,14 @@ public class Card
 						document.insertString(document.getLength(), faces[f].text.substring(start, i + 1), style);
 						style = textStyle;
 						start = i + 1;
+						break;
+					case 'C':
+						if (faces[f].text.substring(i, i + 5).equals("CHAOS"))
+						{
+							document.insertString(document.getLength(), faces[f].text.substring(start, i), style);
+							document.insertString(document.getLength(), "CHAOS", chaosStyle);
+							start = i += 5;
+						}
 						break;
 					default:
 						break;
@@ -837,7 +849,7 @@ public class Card
 			
 			document.insertString(document.getLength(), faces[f].artist + " " + faces[f].number + "/" + set.count, textStyle);
 		}
-		catch (Exception e)
+		catch (BadLocationException e)
 		{
 			e.printStackTrace();
 		}

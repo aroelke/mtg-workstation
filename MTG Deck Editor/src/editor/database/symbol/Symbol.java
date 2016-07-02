@@ -110,7 +110,7 @@ public abstract class Symbol implements Comparable<Symbol>
 	 */
 	public Symbol(String iconName)
 	{
-		icon = new ImageIcon("images/icons-large/" + iconName);
+		icon = new ImageIcon("images/icons/" + iconName);
 		name = iconName;
 	}
 	
@@ -154,11 +154,12 @@ public abstract class Symbol implements Comparable<Symbol>
 	}
 	
 	/**
-	 * @return An HTML image tag that will display this Symbol's icon.
+	 * TODO: Comment this
+	 * @return
 	 */
-	public String getHTML()
+	public String getName()
 	{
-		return "<img src=\"file:images/icons-small/" + name + "\" />";
+		return name;
 	}
 	
 	/**
@@ -168,19 +169,6 @@ public abstract class Symbol implements Comparable<Symbol>
 	public String toString()
 	{
 		return "{" + getText() + "}";
-	}
-	
-	/**
-	 * Substitute all instances of this Symbol's String representation in the given
-	 * String (case sensitive) with the HTML code for its icon.
-	 * 
-	 * @param s String to substitute
-	 * @return A new String with this Symbol's String representation replaced by
-	 * HTML.
-	 */
-	public String substitute(String s)
-	{
-		return s.replace(toString(), getHTML());
 	}
 	
 	/**

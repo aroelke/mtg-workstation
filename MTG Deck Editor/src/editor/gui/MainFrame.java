@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -46,7 +45,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -77,6 +75,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -91,7 +90,6 @@ import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
-import editor.database.symbol.StaticSymbol;
 import editor.database.symbol.Symbol;
 import editor.filter.FilterType;
 import editor.filter.leaf.TextFilter;
@@ -691,9 +689,6 @@ public class MainFrame extends JFrame
 		
 		rulingsPane = new JTextPane();
 		rulingsPane.setEditable(false);
-		rulingsPane.setContentType("text/html");
-		rulingsPane.setFont(UIManager.getFont("Label.font"));
-		rulingsPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
 		rulingsPane.setCursor(new Cursor(Cursor.TEXT_CURSOR));
 		cardPane.addTab("Rulings", new JScrollPane(rulingsPane));
 		
@@ -1403,21 +1398,70 @@ public class MainFrame extends JFrame
 			selectedCard = card;
 
 			oracleTextPane.setText("");
-			StyledDocument document = (StyledDocument)oracleTextPane.getDocument();
-			Style textStyle = document.addStyle("text", null);
-			StyleConstants.setFontFamily(textStyle, UIManager.getFont("Label.font").getFamily());
-			StyleConstants.setFontSize(textStyle, TEXT_SIZE);
-			Style reminderStyle = document.addStyle("reminder", textStyle);
+			StyledDocument oracleDocument = (StyledDocument)oracleTextPane.getDocument();
+			Style oracleTextStyle = oracleDocument.addStyle("text", null);
+			StyleConstants.setFontFamily(oracleTextStyle, UIManager.getFont("Label.font").getFamily());
+			StyleConstants.setFontSize(oracleTextStyle, TEXT_SIZE);
+			Style reminderStyle = oracleDocument.addStyle("reminder", oracleTextStyle);
 			StyleConstants.setItalic(reminderStyle, true);
-			selectedCard.formatDocument(document);
-			
+			selectedCard.formatDocument(oracleDocument);
 			oracleTextPane.setCaretPosition(0);
+			
+			rulingsPane.setText("");
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			StyledDocument rulingsDocument = (StyledDocument)rulingsPane.getDocument();
+			Style rulingStyle = oracleDocument.addStyle("ruling", null);
+			StyleConstants.setFontFamily(rulingStyle, UIManager.getFont("Label.font").getFamily());
+			StyleConstants.setFontSize(rulingStyle, TEXT_SIZE);
+			Style dateStyle = rulingsDocument.addStyle("date", rulingStyle);
+			StyleConstants.setBold(dateStyle, true);
+			if (!selectedCard.rulings().isEmpty())
+			{
+				try
+				{
+					for (Date date: selectedCard.rulings().keySet())
+					{
+						for (String ruling: selectedCard.rulings().get(date))
+						{
+							rulingsDocument.insertString(rulingsDocument.getLength(), "• ", rulingStyle);
+							rulingsDocument.insertString(rulingsDocument.getLength(), format.format(date), dateStyle);
+							rulingsDocument.insertString(rulingsDocument.getLength(), ": ", rulingStyle);
+							int start = 0;
+							for (int i = 0; i < ruling.length(); i++)
+							{
+								switch (ruling.charAt(i))
+								{
+								case '{':
+									rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i), rulingStyle);
+									start = i + 1;
+									break;
+								case '}':
+									Symbol symbol = Symbol.valueOf(ruling.substring(start, i));
+									Style symbolStyle = rulingsDocument.addStyle(symbol.toString(), null);
+									StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
+									rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle);
+									start = i + 1;
+									break;
+								default:
+									break;
+								}
+								if (i == ruling.length() - 1 && ruling.charAt(i) != '}')
+									rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i + 1) + '\n', rulingStyle);
+							}
+						}
+					}
+				}
+				catch (BadLocationException e)
+				{
+					e.printStackTrace();
+				}
+			}
+/*
 			if (selectedCard.rulings().isEmpty())
 				rulingsPane.setText("");
 			else
 			{
 				StringJoiner rulings = new StringJoiner("<br>• ", "• ", "");
-				DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 				for (Date date: selectedCard.rulings().keySet())
 					for (String text: selectedCard.rulings().get(date))
 						rulings.add("<b>" + format.format(date) + "</b>: " + text);
@@ -1435,6 +1479,7 @@ public class MainFrame extends JFrame
 				rulingsString = StaticSymbol.CHAOS.substitute(rulingsString);
 				rulingsPane.setText(rulingsString);
 			}
+*/
 			rulingsPane.setCaretPosition(0);
 			imagePanel.setCard(selectedCard);
 		}
