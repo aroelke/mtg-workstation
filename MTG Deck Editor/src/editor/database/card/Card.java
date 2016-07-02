@@ -836,7 +836,7 @@ public class Card
 					default:
 						break;
 					}
-					if (i == faces[0].flavor.length() - 1 && faces[f].flavor.charAt(i) != '}')
+					if (i == faces[f].flavor.length() - 1 && faces[f].flavor.charAt(i) != '}')
 						document.insertString(document.getLength(), faces[f].flavor.substring(start, i + 1), reminderStyle);
 				}
 				document.insertString(document.getLength(), "\n", reminderStyle);
