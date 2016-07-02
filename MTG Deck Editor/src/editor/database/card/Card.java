@@ -739,9 +739,11 @@ public class Card
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param document
-	 * @param f
+	 * Add text to the given StyledDocument such that it contains the formatted text
+	 * of the given face on this Card.
+	 * 
+	 * @param document Document to format
+	 * @param f Face to use
 	 */
 	public void formatDocument(StyledDocument document, int f)
 	{
@@ -856,8 +858,10 @@ public class Card
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param document
+	 * Add text to the given document such that it contains the formatted text of all
+	 * the faces of this Card, separated by hyphens.
+	 * 
+	 * @param document Document to format
 	 */
 	public void formatDocument(StyledDocument document)
 	{

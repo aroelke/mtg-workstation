@@ -154,8 +154,7 @@ public abstract class Symbol implements Comparable<Symbol>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The name of this Symbol.
 	 */
 	public String getName()
 	{

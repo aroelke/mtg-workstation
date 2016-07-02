@@ -118,7 +118,7 @@ import editor.gui.inventory.InventoryLoadDialog;
 public class MainFrame extends JFrame
 {
 	/**
-	 * TODO: Comment this
+	 * Size of the text in oracle text and rulings tabs.
 	 */
 	public static final int TEXT_SIZE = new JLabel().getFont().getSize();
 	/**
@@ -678,10 +678,6 @@ public class MainFrame extends JFrame
 		setImageBackground(SettingsDialog.getAsColor(SettingsDialog.IMAGE_BGCOLOR));
 		
 		// Pane displaying the Oracle text
-		// TODO: Use JTextPane#insertIcon(Icon) to get symbol icons rather than HTML formatting
-		// This will also remove the need for setContentType and putClientProperty
-		// Do this for the image panel as well
-		// Also make use of Styles (for example: http://stackoverflow.com/questions/6068398/how-to-add-text-different-color-on-jtextpane)
 		oracleTextPane = new JTextPane();
 		oracleTextPane.setEditable(false);
 		oracleTextPane.setCursor(new Cursor(Cursor.TEXT_CURSOR));
