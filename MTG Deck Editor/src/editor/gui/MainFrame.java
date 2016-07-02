@@ -77,6 +77,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import com.jidesoft.plaf.LookAndFeelFactory;
 
@@ -116,6 +119,10 @@ import editor.gui.inventory.InventoryLoadDialog;
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
 {
+	/**
+	 * TODO: Comment this
+	 */
+	public static final int TEXT_SIZE = new JLabel().getFont().getSize();
 	/**
 	 * Default height for displaying card images.
 	 */
@@ -679,9 +686,6 @@ public class MainFrame extends JFrame
 		// Also make use of Styles (for example: http://stackoverflow.com/questions/6068398/how-to-add-text-different-color-on-jtextpane)
 		oracleTextPane = new JTextPane();
 		oracleTextPane.setEditable(false);
-		oracleTextPane.setContentType("text/html");
-		oracleTextPane.setFont(UIManager.getFont("Label.font"));
-		oracleTextPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
 		oracleTextPane.setCursor(new Cursor(Cursor.TEXT_CURSOR));
 		cardPane.addTab("Oracle Text", new JScrollPane(oracleTextPane));
 		
@@ -701,13 +705,13 @@ public class MainFrame extends JFrame
 		oracleAddSingleItem.addActionListener((e) -> {
 			if (selectedFrame != null && selectedCard != null)
 				selectedFrame.addCard(selectedCard, 1);
-			});
+		});
 		oraclePopupMenu.add(oracleAddSingleItem);
 		JMenuItem oraclePlaysetItem = new JMenuItem("Fill Playset");
 		oraclePlaysetItem.addActionListener((e) -> {
 			if (selectedFrame != null && selectedCard != null)
 				selectedFrame.addCard(selectedCard, 4 - selectedFrame.count(selectedCard));
-			});
+		});
 		oraclePopupMenu.add(oraclePlaysetItem);
 		JMenuItem oracleAddNItem = new JMenuItem("Add Copies...");
 		oracleAddNItem.addActionListener((e) -> {
@@ -727,13 +731,13 @@ public class MainFrame extends JFrame
 		oracleRemoveSingleItem.addActionListener((e) -> {
 			if (selectedFrame != null && selectedCard != null)
 				selectedFrame.removeCard(selectedCard, 1);
-			});
+		});
 		oraclePopupMenu.add(oracleRemoveSingleItem);
 		JMenuItem oracleRemoveAllItem = new JMenuItem("Remove All Copies");
 		oracleRemoveAllItem.addActionListener((e) -> {
 			if (selectedFrame != null && selectedCard != null)
 				selectedFrame.removeCard(selectedCard, Integer.MAX_VALUE);
-			});
+		});
 		oraclePopupMenu.add(oracleRemoveAllItem);
 		JMenuItem oracleRemoveNItem = new JMenuItem("Remove Copies...");
 		oracleRemoveNItem.addActionListener((e) -> {
@@ -1397,7 +1401,16 @@ public class MainFrame extends JFrame
 		if (selectedCard == null || !selectedCard.equals(card))
 		{
 			selectedCard = card;
-			oracleTextPane.setText("<html>" + card.toHTMLString() + "</html>");
+
+			oracleTextPane.setText("");
+			StyledDocument document = (StyledDocument)oracleTextPane.getDocument();
+			Style textStyle = document.addStyle("text", null);
+			StyleConstants.setFontFamily(textStyle, UIManager.getFont("Label.font").getFamily());
+			StyleConstants.setFontSize(textStyle, TEXT_SIZE);
+			Style reminderStyle = document.addStyle("reminder", textStyle);
+			StyleConstants.setItalic(reminderStyle, true);
+			selectedCard.formatDocument(document);
+			
 			oracleTextPane.setCaretPosition(0);
 			if (selectedCard.rulings().isEmpty())
 				rulingsPane.setText("");

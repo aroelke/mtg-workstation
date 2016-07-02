@@ -18,6 +18,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.Loyalty;
@@ -25,8 +29,8 @@ import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
-import editor.database.symbol.StaticSymbol;
 import editor.database.symbol.Symbol;
+import editor.gui.MainFrame;
 import editor.util.Tuple;
 
 /**
@@ -407,12 +411,9 @@ public class Card
 	 * This should mostly be used for searching, since using it for display could
 	 * cause confusion.
 	 */
-	public String text()
+	public String[] text()
 	{
-		StringJoiner str = new StringJoiner("\n");
-		for (Face face: faces)
-			str.add(face.text);
-		return str.toString();
+		return Arrays.stream(faces).map((f) -> f.text).toArray(String[]::new);
 	}
 
 	/**
@@ -663,7 +664,7 @@ public class Card
 	 */
 	public boolean canBeCommander()
 	{
-		return supertypeContains("legendary") || text().toLowerCase().contains("can be your commander");
+		return supertypeContains("legendary") || Arrays.stream(text()).map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander"));
 	}
 	
 	/**
@@ -672,7 +673,7 @@ public class Card
 	 */
 	public boolean ignoreCountRestriction()
 	{
-		return supertypeContains("basic") || text().toLowerCase().contains("a deck can have any number");
+		return supertypeContains("basic") || Arrays.stream(text()).map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number"));
 	}
 	
 	/**
@@ -736,49 +737,132 @@ public class Card
 	}
 	
 	/**
-	 * @return A String containing most of the information contained in this Card,
-	 * formatted to slightly mimic a real Magic: the Gathering card and with symbols
-	 * replaced by HTML for display in HTML-enabled panels.
+	 * TODO: Comment this
+	 * @param document
+	 * @param f
 	 */
-	public String toHTMLString()
+	public void formatDocument(StyledDocument document, int f)
 	{
-		StringJoiner join = new StringJoiner("<br>-----<br>");
-		for (Face f: faces)
+		Style textStyle = document.getStyle("text");
+		Style reminderStyle = document.getStyle("reminder");
+		try
 		{
-			StringBuilder str = new StringBuilder();
-			str.append(f.name + (f.mana.isEmpty() ? "" : " " + f.mana.toHTMLString()));
-			if (f.mana.cmc() == (int)f.mana.cmc())
-				str.append(" (" + (int)f.mana.cmc() + ")<br>");
+			document.insertString(document.getLength(), faces[f].name + " ", textStyle);
+			if (!faces[f].mana.isEmpty())
+			{
+				ManaCost cost = faces[f].mana;
+				for (Symbol symbol: cost.symbols())
+				{
+					Style style = document.addStyle(symbol.toString(), null);
+					StyleConstants.setIcon(style, symbol.getIcon(MainFrame.TEXT_SIZE));
+					document.insertString(document.getLength(), " ", style);
+				}
+				document.insertString(document.getLength(), " ", textStyle);
+			}
+			if (cmc().get(f) == cmc().get(f).doubleValue())
+				document.insertString(document.getLength(), "(" + (int)cmc().get(f).doubleValue() + ")\n", textStyle);
 			else
-				str.append(" (" + f.mana.cmc() + ")<br>");
-			str.append(f.typeLine + "<br>");
-			str.append(set.name + " " + rarity + "<br>");
+				document.insertString(document.getLength(), "(" + cmc().get(f) + ")\n", textStyle);
+			document.insertString(document.getLength(), faces[f].typeLine + '\n', textStyle);
+			document.insertString(document.getLength(), set.name + ' ' + rarity + '\n', textStyle);
 			
-			if (!f.text.isEmpty())
-				str.append(f.HTMLText() + "<br>");
-			if (!f.flavor.isEmpty())
-				str.append(f.HTMLFlavor() + "<br>");
+			if (!faces[f].text.isEmpty())
+			{
+				int start = 0;
+				Style style = textStyle;
+				for (int i = 0; i < faces[f].text.length(); i++)
+				{
+					switch (faces[f].text.charAt(i))
+					{
+					case '{':
+						document.insertString(document.getLength(), faces[f].text.substring(start, i), style);
+						start = i + 1;
+						break;
+					case '}':
+						Symbol symbol = Symbol.valueOf(faces[f].text.substring(start, i));
+						Style symbolStyle = document.addStyle(symbol.toString(), null);
+						StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
+						document.insertString(document.getLength(), " ", symbolStyle);
+						start = i + 1;
+						break;
+					case '(':
+						document.insertString(document.getLength(), faces[f].text.substring(start, i), style);
+						style = reminderStyle;
+						start = i;
+						break;
+					case ')':
+						document.insertString(document.getLength(), faces[f].text.substring(start, i + 1), style);
+						style = textStyle;
+						start = i + 1;
+						break;
+					default:
+						break;
+					}
+					if (i == faces[0].text.length() - 1 && faces[f].text.charAt(i) != '}' && faces[f].text.charAt(i) != ')')
+						document.insertString(document.getLength(), faces[f].text.substring(start, i + 1), style);
+				}
+				document.insertString(document.getLength(), "\n", textStyle);
+			}
+			if (!faces[f].flavor.isEmpty())
+			{
+				int start = 0;
+				for (int i = 0; i < faces[f].flavor.length(); i++)
+				{
+					switch (faces[f].flavor.charAt(i))
+					{
+					case '{':
+						document.insertString(document.getLength(), faces[f].flavor.substring(start, i), reminderStyle);
+						start = i + 1;
+						break;
+					case '}':
+						Symbol symbol = Symbol.valueOf(faces[f].flavor.substring(start, i));
+						Style symbolStyle = document.addStyle(symbol.toString(), null);
+						StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
+						document.insertString(document.getLength(), " ", symbolStyle);
+						start = i + 1;
+						break;
+					default:
+						break;
+					}
+					if (i == faces[0].flavor.length() - 1 && faces[f].flavor.charAt(i) != '}')
+						document.insertString(document.getLength(), faces[f].flavor.substring(start, i + 1), reminderStyle);
+				}
+				document.insertString(document.getLength(), "\n", reminderStyle);
+			}
 			
-			if (!Double.isNaN(f.power.value) && !Double.isNaN(f.toughness.value))
-				str.append(f.power + "/" + f.toughness + "<br>");
-			else if (f.loyalty.value > 0)
-				str.append(f.loyalty + "<br>");
+			if (!Double.isNaN(faces[f].power.value) && !Double.isNaN(faces[f].toughness.value))
+				document.insertString(document.getLength(), faces[f].power + "/" + faces[f].toughness + "\n", textStyle);
+			else if (faces[f].loyalty.value > 0)
+				document.insertString(document.getLength(), faces[f].loyalty + "\n", textStyle);
 			
-			str.append(f.artist + " " + f.number + "/" + set.count);
-			
-			join.add(str.toString());
+			document.insertString(document.getLength(), faces[f].artist + " " + faces[f].number + "/" + set.count, textStyle);
 		}
-		return join.toString();
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	/**
-	 * @return A String containing most of the information contained in the Face at
-	 * the given index, formatted to slightly mimic a real Magic: the Gathering card
-	 * and with symbols replaced by HTML for display in HTML-enabled panels.
+	 * TODO: Comment this
+	 * @param document
 	 */
-	public String faceHTMLString(int f)
+	public void formatDocument(StyledDocument document)
 	{
-		return faces[f].toHTMLString();
+		Style textStyle = document.getStyle("text");
+		try
+		{
+			for (int f = 0; f < faces.length; f++)
+			{
+				formatDocument(document, f);
+				if (f < faces.length - 1)
+					document.insertString(document.getLength(), "\n-----\n", textStyle);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -995,79 +1079,6 @@ public class Card
 					}
 				}
 			}
-		}
-		
-		/**
-		 * @return This Face's rules text, with the symbols replaced with HTML image tags for
-		 * display in HTML-enabled panels.
-		 */
-		public String HTMLText()
-		{
-			String html = new String(text);
-			Matcher reminder = Pattern.compile("(\\([^)]+\\))").matcher(html);
-			while (reminder.find())
-				html = html.replace(reminder.group(), "<i>" + reminder.group() + "</i>");
-			Matcher symbols = Symbol.SYMBOL_PATTERN.matcher(html);
-			while (symbols.find())
-			{
-				try
-				{
-					html = Symbol.valueOf(symbols.group(1)).substitute(html);
-				}
-				catch (Exception e)
-				{}
-			}
-			html = StaticSymbol.CHAOS.substitute(html);
-			html = html.replace("\n", "<br>");
-			return html;
-		}
-		
-		/**
-		 * @return This Face's flavor text, with the symbols replaced with HTML image tags for
-		 * display in HTML-enabled panels.
-		 */
-		public String HTMLFlavor()
-		{
-			String html = new String(flavor());
-			Matcher symbols = Pattern.compile("\\{([^}]+)\\}").matcher(html);
-			while (symbols.find())
-			{
-				Symbol symbol = Symbol.valueOf(symbols.group(1));
-				html = html.replace(symbols.group(), symbol.getHTML());
-			}
-			html = html.replace("\n", "<br>");
-			return "<i>" + html + "</i>";
-		}
-		
-		/**
-		 * @return A String containing most of the information contained in this Face,
-		 * formatted to slightly mimic a real Magic: the Gathering card and with symbols
-		 * replaced by HTML for display in HTML-enabled panels.
-		 */
-		public String toHTMLString()
-		{
-			StringBuilder str = new StringBuilder();
-			str.append(name + (mana.isEmpty() ? "" : " " + mana.toHTMLString()));
-			if (mana.cmc() == (int)mana.cmc())
-				str.append(" (" + (int)mana.cmc() + ")<br>");
-			else
-				str.append(" (" + mana.cmc() + ")<br>");
-			str.append(typeLine + "<br>");
-			str.append(set.name + " " + rarity + "<br>");
-			
-			if (!text.isEmpty())
-				str.append(HTMLText() + "<br>");
-			if (!flavor.isEmpty())
-				str.append(HTMLFlavor() + "<br>");
-			
-			if (!Double.isNaN(power.value) && !Double.isNaN(toughness.value))
-				str.append(power + "/" + toughness + "<br>");
-			else if (loyalty.value > 0)
-				str.append(loyalty + "<br>");
-			
-			str.append(artist + " " + number + "/" + set.count);
-			
-			return str.toString();
 		}
 	}
 }

@@ -13,8 +13,12 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import editor.database.card.Card;
 
@@ -150,17 +154,19 @@ public class CardImagePanel extends JPanel
 				else
 				{
 					int faceWidth = (int)(h*ASPECT_RATIO);
-					JLabel missingCardLabel = new JLabel("<html><body style='width:100%'>"
-							+ "<font color='red'>Missing '" + SettingsDialog.getAsString(SettingsDialog.CARD_SCANS)
-							+ File.separatorChar + card.expansion().code
-							+ File.separatorChar + card.imageNames()[faceImages.size() > 1 ? i : 0] + ".full.jpg'<br></font>"
-							+ (faceImages.size() > 1 ? card.faceHTMLString(i) : card.toHTMLString())
-							+ "</html>");
-					missingCardLabel.setVerticalAlignment(JLabel.TOP);
-					missingCardLabel.setSize(new Dimension(faceWidth - 4, h - 4));
+					
+					JTextPane missingCardPane = new JTextPane();
+					StyledDocument document = (StyledDocument)missingCardPane.getDocument();
+					Style textStyle = document.addStyle("text", null);
+					StyleConstants.setFontFamily(textStyle, UIManager.getFont("Label.font").getFamily());
+					StyleConstants.setFontSize(textStyle, MainFrame.TEXT_SIZE);
+					Style reminderStyle = document.addStyle("reminder", textStyle);
+					StyleConstants.setItalic(reminderStyle, true);
+					card.formatDocument(document, i);
+					missingCardPane.setSize(new Dimension(faceWidth - 4, h - 4));
 					
 					BufferedImage img = new BufferedImage(faceWidth, h, BufferedImage.TYPE_INT_ARGB);
-					missingCardLabel.paint(img.getGraphics());
+					missingCardPane.paint(img.getGraphics());
 					g.drawImage(img, l + 2, 2, null);
 					g.setColor(Color.BLACK);
 					g.drawRect(l, 0, faceWidth - 1, h - 1);
