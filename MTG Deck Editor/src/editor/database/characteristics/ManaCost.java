@@ -20,7 +20,7 @@ import editor.gui.MainFrame;
 
 /**
  * This class represents a mana cost.  It contains a list of Symbols, which may contain duplicate elements.
- * It also calculates its convereted mana cost based on the number and types of Symbols it contains, and
+ * It also calculates its converted mana cost based on the number and types of Symbols it contains, and
  * can determine if it is a super- or subset of another mana cost.
  * 
  * @author Alec Roelke
