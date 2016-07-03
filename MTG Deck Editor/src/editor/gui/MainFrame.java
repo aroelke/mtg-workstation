@@ -261,6 +261,10 @@ public class MainFrame extends JFrame
 	 * Pane displaying the currently-selected card's rulings.
 	 */
 	private JTextPane rulingsPane;
+	/**
+	 * Top menu allowing editing of cards and categories in the selected deck.
+	 */
+	private JMenu deckMenu;
 	
 	/**
 	 * Create a new MainFrame.
@@ -412,8 +416,8 @@ public class MainFrame extends JFrame
 		});
 		editMenu.add(preferencesItem);
 		
-		// Deck menu
-		JMenu deckMenu = new JMenu("Deck");
+		deckMenu = new JMenu("Deck");
+		deckMenu.setEnabled(false);
 		menuBar.add(deckMenu);
 		
 		// Add card menu
@@ -1252,14 +1256,7 @@ public class MainFrame extends JFrame
 				decklistDesktop.add(frame);
 			}
 			SettingsDialog.set(SettingsDialog.INITIALDIR, fileChooser.getCurrentDirectory().getPath());
-			try
-			{
-				frame.setSelected(true);
-			}
-			catch (PropertyVetoException e)
-			{
-				JOptionPane.showMessageDialog(this, "Error creating new editor: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			selectFrame(frame);
 		}
 		catch (CancellationException e)
 		{}
@@ -1282,7 +1279,10 @@ public class MainFrame extends JFrame
 			if (editors.size() > 0)
 				selectFrame(editors.get(0));
 			else
+			{
 				selectedFrame = null;
+				deckMenu.setEnabled(false);
+			}
 			revalidate();
 			repaint();
 			return true;
@@ -1532,8 +1532,9 @@ public class MainFrame extends JFrame
 		try
 		{
 			frame.setSelected(true);
+			deckMenu.setEnabled(true);
 			selectedFrame = frame;
-			if (!selectedFrame.hasSelectedCards())
+			if (!selectedFrame.hasSelectedCards() && inventoryTable.getSelectedRowCount() > 0)
 				selectedFrame.setSelectedSource(inventoryTable, inventory);
 			revalidate();
 			repaint();
