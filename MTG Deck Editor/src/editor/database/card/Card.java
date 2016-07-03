@@ -757,7 +757,7 @@ public class Card
 			if (!faces[f].mana.isEmpty())
 			{
 				ManaCost cost = faces[f].mana;
-				for (Symbol symbol: cost.symbols())
+				for (Symbol symbol: cost)
 				{
 					Style style = document.addStyle(symbol.toString(), null);
 					StyleConstants.setIcon(style, symbol.getIcon(MainFrame.TEXT_SIZE));

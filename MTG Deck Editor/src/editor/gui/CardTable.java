@@ -86,7 +86,7 @@ public class CardTable extends JTable
 							costPanel.add(new JLabel(Card.FACE_SEPARATOR));
 							costPanel.add(Box.createHorizontalStrut(3));
 						}
-						for (Symbol sym: cost.get(i).symbols())
+						for (Symbol sym: cost.get(i))
 							costPanel.add(new JLabel(sym.getIcon(13)));
 					}
 				}
