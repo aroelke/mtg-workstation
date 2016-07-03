@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1059,16 +1060,14 @@ public class Deck implements CardCollection
 	@Override
 	public <T> T[] toArray(T[] a)
 	{
-		if (a.length >= size())
-		{
-			for (int i = 0; i < size(); i++)
-				a[i] = (T)get(i);
-			return a;
-		}
+		T[] array;
+		if (a.length < size())
+			array = (T[])Array.newInstance(a.getClass().getComponentType(), size());
 		else
-		{
-			return (T[])toArray();
-		}
+			array = a;
+		for (int i = 0; i < a.length; i++)
+			array[i] = i < size() ? (T)get(i) : null;
+		return a;
 	}
 	
 	/**
