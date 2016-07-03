@@ -23,7 +23,6 @@ import editor.gui.MainFrame;
  * It also calculates its convereted mana cost based on the number and types of Symbols it contains, and
  * can determine if it is a super- or subset of another mana cost.
  * 
- * TODO: Make this implement List<Symbol>
  * @author Alec Roelke
  * @see editor.database.symbol.Symbol
  */
