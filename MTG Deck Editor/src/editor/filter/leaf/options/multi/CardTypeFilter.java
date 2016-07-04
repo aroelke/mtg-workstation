@@ -17,6 +17,12 @@ public class CardTypeFilter extends MultiOptionsFilter<String>
 {
 	
 	/**
+	 * List of all types that appear on cards (including ones that appear on Unglued and Unhinged cards, whose
+	 * type lines were not updated for the most modern templating).
+	 */
+	public static String[] typeList = {};
+
+	/**
 	 * Create a new CardTypeFilter.
 	 */
 	public CardTypeFilter()

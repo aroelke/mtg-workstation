@@ -12,6 +12,7 @@ import editor.collection.deck.Deck;
 import editor.database.card.Card;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.ManaType;
+import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.util.Containment;
 
 
@@ -47,7 +48,7 @@ public class LegalityChecker
 		legal = new String[] {};
 		illegal = new String[] {};
 		warnings = new HashMap<String, List<String>>();
-		for (String format: Card.formatList)
+		for (String format: LegalityFilter.formatList)
 			warnings.put(format, new ArrayList<String>());
 	}
 	
@@ -63,7 +64,7 @@ public class LegalityChecker
 	public void checkLegality(Deck deck)
 	{
 		// Deck size
-		for (String format: Card.formatList)
+		for (String format: LegalityFilter.formatList)
 		{
 			if (format.equalsIgnoreCase("prismatic"))
 			{
@@ -113,7 +114,7 @@ public class LegalityChecker
 		}
 		for (Card c: deck)
 		{
-			for (String format: Card.formatList)
+			for (String format: LegalityFilter.formatList)
 			{
 				if (!c.legalIn(format))
 					warnings.get(format).add(c.name() + " is illegal in " + format);
@@ -172,7 +173,7 @@ public class LegalityChecker
 		// Collate the legality lists
 		List<String> illegalList = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
 		Collections.sort(illegalList);
-		List<String> legalList = new ArrayList<String>(Arrays.asList(Card.formatList));
+		List<String> legalList = new ArrayList<String>(Arrays.asList(LegalityFilter.formatList));
 		legalList.removeAll(illegalList);
 		legal = legalList.toArray(legal);
 		illegal = illegalList.toArray(illegal);

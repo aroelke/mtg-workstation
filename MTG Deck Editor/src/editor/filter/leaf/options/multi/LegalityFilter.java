@@ -24,6 +24,10 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	 * selected.
 	 */
 	public boolean restricted;
+	/**
+	 * List of all formats cards can be played in.
+	 */
+	public static String[] formatList = {};
 	
 	/**
 	 * Create a new LegalityFilter.

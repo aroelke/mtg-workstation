@@ -80,6 +80,7 @@ import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
 import editor.database.card.Card;
+import editor.database.card.CardInterface;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.CardImagePanel;
 import editor.gui.CardTable;
@@ -1943,7 +1944,7 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		public boolean canImport(TransferSupport supp)
 		{
-			return supp.isDataFlavorSupported(Deck.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
+			return supp.isDataFlavorSupported(Deck.entryFlavor) || supp.isDataFlavorSupported(CardInterface.cardFlavor);
 		}
 		
 		/**
@@ -1971,9 +1972,9 @@ public class EditorFrame extends JInternalFrame
 							return undone;
 						}, () -> insertCards(data));
 				}
-				else if (supp.isDataFlavorSupported(Card.cardFlavor))
+				else if (supp.isDataFlavorSupported(CardInterface.cardFlavor))
 				{
-					Card[] data = (Card[])supp.getTransferable().getTransferData(Card.cardFlavor);
+					Card[] data = (Card[])supp.getTransferable().getTransferData(CardInterface.cardFlavor);
 					addCards(Arrays.asList(data), 1);
 					return true;
 				}

@@ -16,6 +16,11 @@ import editor.util.Containment;
 public class SupertypeFilter extends MultiOptionsFilter<String>
 {
 	/**
+	 * List of all supertypes that appear on cards.
+	 */
+	public static String[] supertypeList = {};
+
+	/**
 	 * Create a new SupertypeFilter.
 	 */
 	public SupertypeFilter()

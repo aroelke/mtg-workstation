@@ -2,7 +2,6 @@ package editor.gui.filter.editor;
 
 import java.util.function.Function;
 
-import editor.database.card.Card;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
 import editor.filter.FilterType;
@@ -67,19 +66,19 @@ public enum FilterPanelType
 	}),
 	SUPERTYPE(FilterType.SUPERTYPE, (f) -> {
 		if (f.type == FilterType.SUPERTYPE)
-			return new OptionsFilterPanel<String>((SupertypeFilter)f, Card.supertypeList);
+			return new OptionsFilterPanel<String>((SupertypeFilter)f, SupertypeFilter.supertypeList);
 		else
 			throw new IllegalArgumentException("Illegal supertype filter type " + f.type.name());
 	}),
 	TYPE(FilterType.TYPE, (f) -> {
 		if (f.type == FilterType.TYPE)
-			return new OptionsFilterPanel<String>((CardTypeFilter)f, Card.typeList);
+			return new OptionsFilterPanel<String>((CardTypeFilter)f, CardTypeFilter.typeList);
 		else
 			throw new IllegalArgumentException("Illegal card type filter type " + f.type.name());
 	}),
 	SUBTYPE(FilterType.SUBTYPE, (f) -> {
 		if (f.type == FilterType.SUBTYPE)
-			return new OptionsFilterPanel<String>((SubtypeFilter)f, Card.subtypeList);
+			return new OptionsFilterPanel<String>((SubtypeFilter)f, SubtypeFilter.subtypeList);
 		else
 			throw new IllegalArgumentException("Illegal subtype filter type " + f.type.name());
 	}),

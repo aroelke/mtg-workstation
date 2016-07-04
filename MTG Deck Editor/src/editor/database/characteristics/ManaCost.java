@@ -14,7 +14,7 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import editor.database.card.Card;
+import editor.database.card.CardInterface;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
 
@@ -88,7 +88,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 		@Override
 		public String toString()
 		{
-			StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
+			StringJoiner join = new StringJoiner(" " + CardInterface.FACE_SEPARATOR + " ");
 			for (ManaCost cost: this)
 				if (!cost.isEmpty())
 					join.add(cost.toHTMLString());

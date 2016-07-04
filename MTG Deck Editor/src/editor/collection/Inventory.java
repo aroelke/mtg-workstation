@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
+import editor.database.card.CardInterface;
 import editor.filter.Filter;
 import editor.filter.leaf.BinaryFilter;
 
@@ -72,7 +73,7 @@ public class Inventory implements CardCollection
 		@Override
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 		{
-			if (flavor.equals(Card.cardFlavor))
+			if (flavor.equals(CardInterface.cardFlavor))
 				return cards;
 			else if (flavor.equals(DataFlavor.stringFlavor))
 				return Arrays.stream(cards).map(Card::name).reduce("", (a, b) -> a + "\n" + b);
@@ -87,7 +88,7 @@ public class Inventory implements CardCollection
 		@Override
 		public DataFlavor[] getTransferDataFlavors()
 		{
-			return new DataFlavor[] {Card.cardFlavor, DataFlavor.stringFlavor};
+			return new DataFlavor[] {CardInterface.cardFlavor, DataFlavor.stringFlavor};
 		}
 
 		/**

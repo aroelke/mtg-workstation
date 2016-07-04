@@ -16,6 +16,11 @@ import editor.util.Containment;
 public class SubtypeFilter extends MultiOptionsFilter<String>
 {
 	/**
+	 * List of all subtypes that appear on cards.
+	 */
+	public static String[] subtypeList = {};
+
+	/**
 	 * Create a new SubtypeFilter.
 	 */
 	public SubtypeFilter()

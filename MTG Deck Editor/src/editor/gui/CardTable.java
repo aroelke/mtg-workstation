@@ -30,7 +30,7 @@ import javax.swing.table.TableRowSorter;
 
 import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
-import editor.database.card.Card;
+import editor.database.card.CardInterface;
 import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
@@ -83,7 +83,7 @@ public class CardTable extends JTable
 						if (i > 0)
 						{
 							costPanel.add(Box.createHorizontalStrut(3));
-							costPanel.add(new JLabel(Card.FACE_SEPARATOR));
+							costPanel.add(new JLabel(CardInterface.FACE_SEPARATOR));
 							costPanel.add(Box.createHorizontalStrut(3));
 						}
 						for (Symbol sym: cost.get(i))

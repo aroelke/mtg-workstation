@@ -1,6 +1,5 @@
 package editor.database.card;
 
-import java.awt.datatransfer.DataFlavor;
 import java.text.Collator;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -50,36 +49,6 @@ import editor.util.Tuple;
  */
 public class Card
 {
-	/**
-	 * List of all supertypes that appear on cards.
-	 */
-	public static String[] supertypeList = {};
-	/**
-	 * List of all types that appear on cards (including ones that appear on Unglued and Unhinged cards, whose
-	 * type lines were not updated for the most modern templating).
-	 */
-	public static String[] typeList = {};
-	/**
-	 * List of all subtypes that appear on cards.
-	 */
-	public static String[] subtypeList = {};
-	/**
-	 * List of all formats cards can be played in.
-	 */
-	public static String[] formatList = {};
-	/**
-	 * Separator string between characteristics of a multi-face card.
-	 */
-	public static final String FACE_SEPARATOR = "//";
-	/**
-	 * String representing this Card's name in its text box.
-	 */
-	public static final String THIS = "~";
-	/**
-	 * DataFlavor representing cards being transferred.
-	 */
-	public static final DataFlavor cardFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Card[].class.getName() + "\"", "Card Array");
-	
 	/**
 	 * Array containing the faces of this Card.
 	 */
@@ -282,7 +251,7 @@ public class Card
 	 */
 	public String name()
 	{
-		StringJoiner str = new StringJoiner(" " + FACE_SEPARATOR + " ");
+		StringJoiner str = new StringJoiner(" " + CardInterface.FACE_SEPARATOR + " ");
 		for (Face face: faces)
 			str.add(face.name);
 		return str.toString();
@@ -386,7 +355,7 @@ public class Card
 	 */
 	public String typeLine()
 	{
-		StringJoiner str = new StringJoiner(" " + FACE_SEPARATOR + " ");
+		StringJoiner str = new StringJoiner(" " + CardInterface.FACE_SEPARATOR + " ");
 		for (Face face: faces)
 			str.add(face.typeLine);
 		return str.toString();
@@ -635,7 +604,7 @@ public class Card
 			String normal = new String(f.text.toLowerCase());
 			normal = Normalizer.normalize(normal, Normalizer.Form.NFD);
 			normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
-			normal = normal.replace(f.legendName(), THIS).replace(f.normalizedName(), THIS);
+			normal = normal.replace(f.legendName(), CardInterface.THIS).replace(f.normalizedName(), CardInterface.THIS);
 			texts.add(normal);
 		}
 		return texts;

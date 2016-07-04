@@ -46,6 +46,10 @@ import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.Rarity;
+import editor.filter.leaf.options.multi.CardTypeFilter;
+import editor.filter.leaf.options.multi.LegalityFilter;
+import editor.filter.leaf.options.multi.SubtypeFilter;
+import editor.filter.leaf.options.multi.SupertypeFilter;
 
 /**
  * This class represents a dialog that shows the progress for loading the
@@ -434,10 +438,10 @@ public class InventoryLoadDialog extends JDialog
 				// Store the lists of expansion and block names and types and sort them alphabetically
 				Expansion.expansions = expansions.stream().sorted().toArray(Expansion[]::new);
 				Expansion.blocks = blockNames.stream().sorted().toArray(String[]::new);
-				Card.supertypeList = supertypeSet.stream().sorted().toArray(String[]::new);
-				Card.typeList = typeSet.stream().sorted().toArray(String[]::new);
-				Card.subtypeList = subtypeSet.stream().sorted().toArray(String[]::new);
-				Card.formatList = formatSet.stream().sorted().toArray(String[]::new);
+				SupertypeFilter.supertypeList = supertypeSet.stream().sorted().toArray(String[]::new);
+				CardTypeFilter.typeList = typeSet.stream().sorted().toArray(String[]::new);
+				SubtypeFilter.subtypeList = subtypeSet.stream().sorted().toArray(String[]::new);
+				LegalityFilter.formatList = formatSet.stream().sorted().toArray(String[]::new);
 			}
 			
 			return new Inventory(cards);
