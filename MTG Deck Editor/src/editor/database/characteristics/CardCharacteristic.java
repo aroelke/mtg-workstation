@@ -20,27 +20,29 @@ import editor.gui.generic.SpinnerCellEditor;
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
  * etc.
  * 
+ * TODO: add CMC
+ * 
  * @author Alec Roelke
  */
 public enum CardCharacteristic
 {
-	NAME("Name", String.class, (l, i) -> l.get(i).name()),
+	NAME("Name", String.class, (l, i) -> l.get(i).unifiedName()),
 	COUNT("Count", Integer.class, (l, i) -> l.count(i), (e) -> (c, n) -> {
 		if (n instanceof Integer)
 			e.setCardCount(c, ((Integer)n).intValue());
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}),
-	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l.get(i).mana()),
+	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l.get(i).manaCost()),
 	COLORS("Colors", ManaType.Tuple.class, (l, i) -> l.get(i).colors()),
 	COLOR_IDENTITY("Color Identity", ManaType.Tuple.class, (l, i) -> l.get(i).colorIdentity()),
-	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).typeLine()),
+	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).unifiedTypeLine()),
 	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).expansion().toString()),
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity()),
 	POWER("Power", PowerToughness.Tuple.class, (l, i) -> l.get(i).power()),
 	TOUGHNESS("Toughness", PowerToughness.Tuple.class, (l, i) -> l.get(i).toughness()),
 	LOYALTY("Loyalty", Loyalty.Tuple.class, (l, i) -> l.get(i).loyalty()),
-	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist()),
+	ARTIST("Artist", String.class, (l, i) -> l.get(i).artist().get(0)),
 	LEGAL_IN("Legal In", List.class, (l, i) -> l.get(i).legalIn()),
 	CATEGORIES("Categories", Set.class, (l, i) -> l.getCategories(i), (e) -> (c, p) -> {
 		if (p instanceof IncludeExcludePanel)

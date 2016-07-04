@@ -117,20 +117,20 @@ public class LegalityChecker
 			for (String format: LegalityFilter.formatList)
 			{
 				if (!c.legalIn(format))
-					warnings.get(format).add(c.name() + " is illegal in " + format);
+					warnings.get(format).add(c.unifiedName() + " is illegal in " + format);
 				else if (isoNameCounts.containsKey(c) && !c.ignoreCountRestriction())
 				{
 					if (format.equalsIgnoreCase("commander") || format.equalsIgnoreCase("singleton 100"))
 					{
 						if (isoNameCounts.get(c) > 1)
-							warnings.get(format).add("Deck contains more than 1 copy of " + c.name());
+							warnings.get(format).add("Deck contains more than 1 copy of " + c.unifiedName());
 					}
 					else
 					{
 						if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts.get(c) > 1)
-							warnings.get(format).add(c.name() + " is restricted in " + format);
+							warnings.get(format).add(c.unifiedName() + " is restricted in " + format);
 						else if (isoNameCounts.get(c) > 4)
-							warnings.get(format).add("Deck contains more than 4 copies of " + c.name());
+							warnings.get(format).add("Deck contains more than 4 copies of " + c.unifiedName());
 					}
 				}
 			}
@@ -164,7 +164,7 @@ public class LegalityChecker
 		{
 			System.out.println(bin + ": " + colorBins.get(bin).size());
 			for (Card c: colorBins.get(bin))
-				System.out.println("\t" + c.name());
+				System.out.println("\t" + c.unifiedName());
 		}
 		for (ManaType color: ManaType.values())
 			if (colorBins.get(color).size() < 20)

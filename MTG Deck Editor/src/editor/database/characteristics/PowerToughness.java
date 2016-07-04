@@ -3,7 +3,7 @@ package editor.database.characteristics;
 import java.util.List;
 import java.util.StringJoiner;
 
-import editor.database.card.CardInterface;
+import editor.database.card.Card;
 
 /**
  * This class represents a power value or a toughness value.  If the card is missing
@@ -73,7 +73,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 		@Override
 		public String toString()
 		{
-			StringJoiner str = new StringJoiner(" " + CardInterface.FACE_SEPARATOR + " ");
+			StringJoiner str = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
 			for (PowerToughness pt: this)
 				if (!Double.isNaN(pt.value))
 					str.add(pt.toString());

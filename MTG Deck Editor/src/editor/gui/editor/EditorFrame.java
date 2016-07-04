@@ -80,7 +80,6 @@ import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
 import editor.database.card.Card;
-import editor.database.card.CardInterface;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.CardImagePanel;
 import editor.gui.CardTable;
@@ -1732,10 +1731,10 @@ public class EditorFrame extends JInternalFrame
 			String changes = "";
 			for (Card c: original)
 				if (deck.count(c) < original.count(c))
-					changes += ("-" + (original.count(c) - deck.count(c)) + "x " + c.name() + " (" + c.expansion().name + ")\n");
+					changes += ("-" + (original.count(c) - deck.count(c)) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
 			for (Card c: deck)
 				if (original.count(c) < deck.count(c))
-					changes += ("+" + (deck.count(c) - original.count(c)) + "x " + c.name() + " (" + c.expansion().name + ")\n");
+					changes += ("+" + (deck.count(c) - original.count(c)) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
 			if (!changes.isEmpty())
 			{
 				SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
@@ -1944,7 +1943,7 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		public boolean canImport(TransferSupport supp)
 		{
-			return supp.isDataFlavorSupported(Deck.entryFlavor) || supp.isDataFlavorSupported(CardInterface.cardFlavor);
+			return supp.isDataFlavorSupported(Deck.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
 		}
 		
 		/**
@@ -1972,9 +1971,9 @@ public class EditorFrame extends JInternalFrame
 							return undone;
 						}, () -> insertCards(data));
 				}
-				else if (supp.isDataFlavorSupported(CardInterface.cardFlavor))
+				else if (supp.isDataFlavorSupported(Card.cardFlavor))
 				{
-					Card[] data = (Card[])supp.getTransferable().getTransferData(CardInterface.cardFlavor);
+					Card[] data = (Card[])supp.getTransferable().getTransferData(Card.cardFlavor);
 					addCards(Arrays.asList(data), 1);
 					return true;
 				}

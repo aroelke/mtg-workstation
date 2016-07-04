@@ -3,7 +3,7 @@ package editor.database.characteristics;
 import java.util.List;
 import java.util.StringJoiner;
 
-import editor.database.card.CardInterface;
+import editor.database.card.Card;
 
 /**
  * This class represents a loyalty value for a card.  If the card has no loyalty,
@@ -73,7 +73,7 @@ public class Loyalty implements Comparable<Loyalty>
 		@Override
 		public String toString()
 		{
-			StringJoiner str = new StringJoiner(" " + CardInterface.FACE_SEPARATOR + " ");
+			StringJoiner str = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
 			for (Loyalty l: this)
 				if (l.value > 0)
 					str.add(l.toString());

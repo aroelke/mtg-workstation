@@ -42,6 +42,7 @@ import com.google.gson.JsonParser;
 
 import editor.collection.Inventory;
 import editor.database.card.Card;
+import editor.database.card.NormalCard;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.ManaType;
@@ -384,24 +385,24 @@ public class InventoryLoadDialog extends JDialog
 						String imageName = card.get("imageName").getAsString();
 						
 						// Create the new card with all the values acquired above
-						Card c = new Card(name,
-										  mana,
-										  colors,
-										  supertypes,
-										  types,
-										  subtypes,
-										  rarity,
-										  set,
-										  text,
-										  flavor,
-										  artist,
-										  number,
-										  power,
-										  toughness,
-										  loyalty,
-										  rulings,
-										  legality,
-										  imageName);
+						Card c = new NormalCard(name,
+								mana,
+								colors,
+								supertypes,
+								types,
+								subtypes,
+								rarity,
+								set,
+								text,
+								flavor,
+								artist,
+								number,
+								power,
+								toughness,
+								loyalty,
+								rulings,
+								legality,
+								imageName);
 						
 						// Add to map of faces if the card has multiple faces
 						if (layout.equals("split") || layout.equals("flip") || layout.equals("double-faced"))
@@ -425,14 +426,14 @@ public class InventoryLoadDialog extends JDialog
 					List<Card> otherFaces = new ArrayList<Card>();
 					for (Card c: facesList)
 					{
-						if (faceNames.contains(c.name()) && c.expansion().equals(face.expansion()))
+						if (faceNames.contains(c.unifiedName()) && c.expansion().equals(face.expansion()))
 							otherFaces.add(c);
 					}
 					facesList.removeAll(otherFaces);
 					otherFaces.add(face);
 					cards.removeAll(otherFaces);
-					otherFaces.sort((a, b) -> faceNames.indexOf(a.name()) - faceNames.indexOf(b.name()));
-					cards.add(new Card(otherFaces));
+					otherFaces.sort((a, b) -> faceNames.indexOf(a.unifiedName()) - faceNames.indexOf(b.unifiedName()));
+					cards.add(new NormalCard(otherFaces));
 				}
 				
 				// Store the lists of expansion and block names and types and sort them alphabetically

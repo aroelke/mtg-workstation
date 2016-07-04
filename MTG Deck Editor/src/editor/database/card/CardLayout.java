@@ -1,5 +1,9 @@
 package editor.database.card;
 
+/**
+ * TODO: Comment this
+ * @author Alec Roelke
+ */
 public enum CardLayout
 {
 	NORMAL,

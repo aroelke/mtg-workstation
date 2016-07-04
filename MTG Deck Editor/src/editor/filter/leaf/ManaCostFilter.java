@@ -46,17 +46,17 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 		switch (contain)
 		{
 		case CONTAINS_ANY_OF:
-			return c.mana().stream().anyMatch((m) -> Containment.CONTAINS_ANY_OF.test(m, cost));
+			return c.manaCost().stream().anyMatch((m) -> Containment.CONTAINS_ANY_OF.test(m, cost));
 		case CONTAINS_NONE_OF:
-			return c.mana().stream().anyMatch((m) -> Containment.CONTAINS_NONE_OF.test(m, cost));
+			return c.manaCost().stream().anyMatch((m) -> Containment.CONTAINS_NONE_OF.test(m, cost));
 		case CONTAINS_ALL_OF:
-			return c.mana().stream().anyMatch((m) -> m.isSuperset(cost));
+			return c.manaCost().stream().anyMatch((m) -> m.isSuperset(cost));
 		case CONTAINS_NOT_ALL_OF:
-			return c.mana().stream().anyMatch((m) -> !m.isSuperset(cost));
+			return c.manaCost().stream().anyMatch((m) -> !m.isSuperset(cost));
 		case CONTAINS_EXACTLY:
-			return c.mana().stream().anyMatch((m) -> m.equals(cost));
+			return c.manaCost().stream().anyMatch((m) -> m.equals(cost));
 		case CONTAINS_NOT_EXACTLY:
-			return c.mana().stream().anyMatch((m) -> !m.equals(cost));
+			return c.manaCost().stream().anyMatch((m) -> !m.equals(cost));
 		default:
 			return false;
 		}

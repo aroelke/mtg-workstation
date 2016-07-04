@@ -1,6 +1,5 @@
 package editor.filter;
 
-import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -66,13 +65,13 @@ public enum FilterType
 		EXPANSION.supplier = () -> new ExpansionFilter();
 		BLOCK.supplier = () -> new BlockFilter();
 		RARITY.supplier = () -> new RarityFilter();
-		RULES_TEXT.supplier = () -> new TextFilter(RULES_TEXT, Card::normalizedText);
+		RULES_TEXT.supplier = () -> new TextFilter(RULES_TEXT, Card::normalizedOracle);
 		FLAVOR_TEXT.supplier = () -> new TextFilter(FLAVOR_TEXT, Card::normalizedFlavor);
 		POWER.supplier = () -> new VariableNumberFilter(POWER, (c) -> c.power().stream().map((p) -> (double)p.value).collect(Collectors.toList()), Card::powerVariable);
 		TOUGHNESS.supplier = () -> new VariableNumberFilter(TOUGHNESS, (c) -> c.toughness().stream().map((p) -> (double)p.value).collect(Collectors.toList()), Card::toughnessVariable);
 		LOYALTY.supplier = () -> new NumberFilter(LOYALTY, (c) -> c.loyalty().stream().map((l) -> (double)l.value).collect(Collectors.toList()));
-		ARTIST.supplier = () -> new TextFilter(ARTIST, Card::artists);
-		CARD_NUMBER.supplier = () -> new NumberFilter(CARD_NUMBER, (c) -> Arrays.stream(c.number()).map((v) -> Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""))).collect(Collectors.toList()));
+		ARTIST.supplier = () -> new TextFilter(ARTIST, Card::artist);
+		CARD_NUMBER.supplier = () -> new NumberFilter(CARD_NUMBER, (c) -> c.number().stream().map((v) -> Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""))).collect(Collectors.toList()));
 		FORMAT_LEGALITY.supplier = () -> new LegalityFilter();
 		DEFAULTS.supplier = () -> null;
 		NONE.supplier = () -> new BinaryFilter(false);

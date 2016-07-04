@@ -30,7 +30,6 @@ import editor.collection.CardCollection;
 import editor.collection.category.CategoryListener;
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
-import editor.database.card.CardInterface;
 
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and
@@ -85,7 +84,7 @@ public class Deck implements CardCollection
 		@Override
 		public DataFlavor[] getTransferDataFlavors()
 		{
-			return new DataFlavor[] {entryFlavor, CardInterface.cardFlavor, DataFlavor.stringFlavor};
+			return new DataFlavor[] {entryFlavor, Card.cardFlavor, DataFlavor.stringFlavor};
 		}
 
 		/**
@@ -110,10 +109,10 @@ public class Deck implements CardCollection
 		{
 			if (flavor.equals(entryFlavor))
 				return transferData;
-			else if (flavor.equals(CardInterface.cardFlavor))
+			else if (flavor.equals(Card.cardFlavor))
 				return transferData.keySet().stream().sorted(Card::compareName).toArray(Card[]::new);
 			else if (flavor.equals(DataFlavor.stringFlavor))
-				return transferData.entrySet().stream().map((e) -> e.getValue() + "x " + e.getKey().name()).reduce("", (a, b) -> a + "\n" + b);
+				return transferData.entrySet().stream().map((e) -> e.getValue() + "x " + e.getKey().unifiedName()).reduce("", (a, b) -> a + "\n" + b);
 			else
 				throw new UnsupportedFlavorException(flavor);
 		}
