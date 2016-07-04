@@ -111,7 +111,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		// If the filter is a regex, then just match it
 		if (regex)
 		{
-			Pattern p = Pattern.compile(text, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+			Pattern p = Pattern.compile(Pattern.quote(text), Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 			return function.apply(c).stream().anyMatch((s) -> p.matcher(s).find());
 		}
 		else
