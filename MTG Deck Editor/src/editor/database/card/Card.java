@@ -30,6 +30,7 @@ import editor.gui.MainFrame;
 
 /**
  * TODO: Comment this class
+ * TODO: Add support for meld cards when EMN comes out
  * @author Alec Roelke
  */
 public interface Card
@@ -405,4 +406,10 @@ public interface Card
 	
 	@Override
 	public String toString();
+	
+	@Override
+	public int hashCode();
+	
+	@Override
+	public boolean equals(Object other);
 }
