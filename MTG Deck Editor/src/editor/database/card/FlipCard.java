@@ -3,6 +3,7 @@ package editor.database.card;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
@@ -77,28 +78,28 @@ public class FlipCard implements Card
 	}
 
 	@Override
-	public List<String> supertypes()
+	public Set<String> supertypes()
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<String> types()
+	public Set<String> types()
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<String> subtypes()
+	public Set<String> subtypes()
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<List<String>> allTypes()
+	public List<Set<String>> allTypes()
 	{
 		// TODO Auto-generated method stub
 		return null;

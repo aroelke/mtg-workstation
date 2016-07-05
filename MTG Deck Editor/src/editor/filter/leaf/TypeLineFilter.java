@@ -3,6 +3,7 @@ package editor.filter.leaf;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import editor.database.card.Card;
@@ -16,7 +17,7 @@ import editor.util.Containment;
  * 
  * @author Alec Roelke
  */
-public class TypeLineFilter extends FilterLeaf<List<List<String>>>
+public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
 {
 	/**
 	 * Containment specification for the terms in the filter's
