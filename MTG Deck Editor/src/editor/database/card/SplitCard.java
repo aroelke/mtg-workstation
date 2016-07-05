@@ -1,24 +1,35 @@
 package editor.database.card;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
-import editor.database.characteristics.ManaCost.Tuple;
+import editor.database.characteristics.Loyalty;
+import editor.database.characteristics.ManaCost;
+import editor.database.characteristics.ManaType;
+import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
 
 /**
  * TODO: Comment this
+ * TODO: If there are any performance issues, try pre-collecting values
  * @author Alec Roelke
  */
 public class SplitCard implements Card
 {
+	private List<NormalCard> faces;
+	
 	public SplitCard(List<NormalCard> f)
 	{
-		
+		faces = f;
 	}
 	
 	public SplitCard(NormalCard... f)
@@ -26,158 +37,165 @@ public class SplitCard implements Card
 		this(Arrays.asList(f));
 	}
 	
+	private <T> List<T> collect(Function<Card, List<T>> characteristic)
+	{
+		return faces.stream().map((f) -> characteristic.apply(f).get(0)).collect(Collectors.toList());
+	}
+	
 	@Override
 	public String id()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return expansion().name + unifiedName() + imageNames().get(0);
 	}
 
 	@Override
 	public CardLayout layout()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return CardLayout.DOUBLE_FACED;
 	}
 
 	@Override
 	public int faces()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return faces.size();
 	}
 
 	@Override
 	public List<String> name()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return collect(Card::name);
 	}
 
 	@Override
-	public Tuple manaCost()
+	public ManaCost.Tuple manaCost()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new ManaCost.Tuple(collect(Card::manaCost));
 	}
 
 	@Override
 	public List<Double> cmc()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return collect(Card::cmc);
 	}
 
 	@Override
-	public editor.database.characteristics.ManaType.Tuple colors()
+	public ManaType.Tuple colors()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Set<ManaType> colors = new HashSet<ManaType>();
+		for (Card face: faces)
+			colors.addAll(face.colors());
+		return new ManaType.Tuple(colors);
 	}
 
 	@Override
-	public editor.database.characteristics.ManaType.Tuple colorIdentity()
+	public ManaType.Tuple colorIdentity()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Set<ManaType> colors = new HashSet<ManaType>();
+		for (Card face: faces)
+			colors.addAll(face.colorIdentity());
+		return new ManaType.Tuple(colors);
 	}
 
 	@Override
-	public List<String> supertypes()
+	public Set<String> supertypes()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Set<String> supertypes = new HashSet<String>();
+		for (Card face: faces)
+			supertypes.addAll(face.supertypes());
+		return supertypes;
 	}
 
 	@Override
-	public List<String> types()
+	public Set<String> types()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Set<String> types = new HashSet<String>();
+		for (Card face: faces)
+			types.addAll(face.types());
+		return types;
 	}
 
 	@Override
-	public List<String> subtypes()
+	public Set<String> subtypes()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Set<String> subtypes = new HashSet<String>();
+		for (Card face: faces)
+			subtypes.addAll(face.subtypes());
+		return subtypes;
 	}
 
 	@Override
-	public List<List<String>> allTypes()
+	public List<Set<String>> allTypes()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		List<Set<String>> allTypes = new ArrayList<Set<String>>();
+		for (Card face: faces)
+		{
+			HashSet<String> faceTypes = new HashSet<String>();
+			faceTypes.addAll(face.supertypes());
+			faceTypes.addAll(face.types());
+			faceTypes.addAll(face.subtypes());
+			allTypes.add(faceTypes);
+		}
+		return allTypes;
 	}
 
 	@Override
 	public List<String> typeLine()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return collect(Card::typeLine);
 	}
 
 	@Override
 	public Expansion expansion()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return faces.get(0).expansion();
 	}
 
 	@Override
 	public Rarity rarity()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return faces.get(0).rarity();
 	}
 
 	@Override
 	public List<String> oracleText()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return collect(Card::oracleText);
 	}
 
 	@Override
 	public List<String> flavorText()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return collect(Card::flavorText);
 	}
 
 	@Override
 	public List<String> artist()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return collect(Card::artist);
 	}
 
 	@Override
 	public List<String> number()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return collect(Card::number);
 	}
 
 	@Override
-	public editor.database.characteristics.PowerToughness.Tuple power()
+	public PowerToughness.Tuple power()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new PowerToughness.Tuple(collect(Card::power));
 	}
 
 	@Override
-	public editor.database.characteristics.PowerToughness.Tuple toughness()
+	public PowerToughness.Tuple toughness()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new PowerToughness.Tuple(collect(Card::toughness));
 	}
 
 	@Override
-	public editor.database.characteristics.Loyalty.Tuple loyalty()
+	public Loyalty.Tuple loyalty()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new Loyalty.Tuple(collect(Card::loyalty));
 	}
 
 	@Override
@@ -197,8 +215,6 @@ public class SplitCard implements Card
 	@Override
 	public List<String> imageNames()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return collect(Card::imageNames);
 	}
-
 }

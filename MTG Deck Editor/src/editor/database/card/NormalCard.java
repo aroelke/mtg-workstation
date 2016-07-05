@@ -301,12 +301,12 @@ public class NormalCard implements Card
 	 * this Card.
 	 */
 	@Override
-	public List<String> supertypes()
+	public Set<String> supertypes()
 	{
 		Set<String> supertypes = new HashSet<String>();
 		for (Face face: faces)
 			supertypes.addAll(face.supertypes);
-		return new ArrayList<String>(supertypes);
+		return supertypes;
 	}
 
 	/**
@@ -314,12 +314,12 @@ public class NormalCard implements Card
 	 * this Card.
 	 */
 	@Override
-	public List<String> types()
+	public Set<String> types()
 	{
 		Set<String> types = new HashSet<String>();
 		for (Face face: faces)
 			types.addAll(face.types);
-		return new ArrayList<String>(types);
+		return types;
 	}
 
 	/**
@@ -327,12 +327,12 @@ public class NormalCard implements Card
 	 * this Card.
 	 */
 	@Override
-	public List<String> subtypes()
+	public Set<String> subtypes()
 	{
 		Set<String> subtypes = new HashSet<String>();
 		for (Face face: faces)
 			subtypes.addAll(face.subtypes);
-		return new ArrayList<String>(subtypes);
+		return subtypes;
 	}
 	
 	/**
@@ -451,12 +451,12 @@ public class NormalCard implements Card
 	 * Faces of this Card.
 	 */
 	@Override
-	public List<List<String>> allTypes()
+	public List<Set<String>> allTypes()
 	{
-		List<List<String>> allTypes = new ArrayList<List<String>>();
+		List<Set<String>> allTypes = new ArrayList<Set<String>>();
 		for (Face f: faces)
 		{
-			List<String> faceTypes = new ArrayList<String>();
+			Set<String> faceTypes = new HashSet<String>();
 			faceTypes.addAll(f.supertypes);
 			faceTypes.addAll(f.types);
 			faceTypes.addAll(f.subtypes);

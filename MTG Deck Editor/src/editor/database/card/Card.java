@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -126,7 +127,7 @@ public interface Card
 	
 	public ManaType.Tuple colorIdentity();
 	
-	public List<String> supertypes();
+	public Set<String> supertypes();
 	
 	public default boolean supertypeContains(String s)
 	{
@@ -138,7 +139,7 @@ public interface Card
 		return false;
 	}
 	
-	public List<String> types();
+	public Set<String> types();
 	
 	public default boolean typeContains(String s)
 	{
@@ -150,9 +151,9 @@ public interface Card
 		return false;
 	}
 	
-	public List<String> subtypes();
+	public Set<String> subtypes();
 	
-	public List<List<String>> allTypes();
+	public List<Set<String>> allTypes();
 	
 	public List<String> typeLine();
 	
