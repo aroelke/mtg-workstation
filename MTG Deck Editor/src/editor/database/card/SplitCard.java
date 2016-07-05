@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -20,19 +21,21 @@ import editor.database.characteristics.Rarity;
 
 /**
  * TODO: Comment this
- * TODO: If there are any performance issues, try pre-collecting values
  * @author Alec Roelke
  */
 public class SplitCard implements Card
 {
-	private List<NormalCard> faces;
+	private List<Card> faces;
 	
-	public SplitCard(List<NormalCard> f)
+	public SplitCard(List<Card> f)
 	{
 		faces = f;
+		for (Card face: faces)
+			if (face.faces() > 1)
+				throw new IllegalArgumentException("Only normal, single-faced cards can be joined into a multi-faced card");
 	}
 	
-	public SplitCard(NormalCard... f)
+	public SplitCard(Card... f)
 	{
 		this(Arrays.asList(f));
 	}
@@ -51,7 +54,7 @@ public class SplitCard implements Card
 	@Override
 	public CardLayout layout()
 	{
-		return CardLayout.DOUBLE_FACED;
+		return CardLayout.SPLIT;
 	}
 
 	@Override
@@ -201,20 +204,51 @@ public class SplitCard implements Card
 	@Override
 	public Map<Date, List<String>> rulings()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Map<Date, List<String>> rulings = faces.stream().map(Card::rulings).reduce(new TreeMap<Date, List<String>>(), (a, b) -> {
+			for (Date k: b.keySet())
+			{
+				if (!a.containsKey(k))
+					a.put(k, new ArrayList<String>());
+				a.get(k).addAll(b.get(k));
+			}
+			return a;
+		});
+		return rulings;
 	}
 
 	@Override
 	public Map<String, Legality> legality()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return faces.get(0).legality();
 	}
 
 	@Override
 	public List<String> imageNames()
 	{
 		return collect(Card::imageNames);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return unifiedName();
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return id().hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == this)
+			return true;
+		if (other == null)
+			return true;
+		if (other.getClass() != getClass())
+			return false;
+		return id().equals(((SplitCard)other).id());
 	}
 }

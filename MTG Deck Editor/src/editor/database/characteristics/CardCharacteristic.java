@@ -21,6 +21,7 @@ import editor.gui.generic.SpinnerCellEditor;
  * etc.
  * 
  * TODO: add CMC
+ * TODO: Add layout
  * 
  * @author Alec Roelke
  */

@@ -32,6 +32,7 @@ import editor.gui.MainFrame;
 /**
  * TODO: Comment this class
  * TODO: Add support for meld cards when EMN comes out
+ * TODO: If there are any performance issues, try pre-collecting values
  * @author Alec Roelke
  */
 public interface Card

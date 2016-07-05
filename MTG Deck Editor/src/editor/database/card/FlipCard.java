@@ -1,199 +1,50 @@
 package editor.database.card;
 
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.function.Function;
 
-import editor.database.characteristics.Expansion;
-import editor.database.characteristics.Legality;
-import editor.database.characteristics.ManaCost.Tuple;
-import editor.database.characteristics.Rarity;
+import editor.database.characteristics.ManaCost;
 
 /**
  * TODO: Comment this
  * @author Alec Roelke
  */
-public class FlipCard implements Card
+public class FlipCard extends SplitCard implements Card
 {
-	public FlipCard(NormalCard t, NormalCard b)
+	private final Card top;
+	
+	public FlipCard(Card t, Card b)
 	{
-		
+		super(t, b);
+		top = t;
+		if (top.layout() != CardLayout.FLIP || b.layout() != CardLayout.FLIP)
+			throw new IllegalArgumentException("can't join non-flip cards into flip cards");
+	}
+	
+	private <T> List<T> collect(Function<Card, List<T>> characteristic)
+	{
+		return Arrays.asList(characteristic.apply(top).get(0), characteristic.apply(top).get(0));
 	}
 	
 	@Override
-	public String id()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public CardLayout layout()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return CardLayout.FLIP;
 	}
-
-	@Override
-	public int faces()
+	
+	public ManaCost.Tuple manaCost()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return new ManaCost.Tuple(collect(Card::manaCost));
 	}
-
-	@Override
-	public List<String> name()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Tuple manaCost()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
+	
 	public List<Double> cmc()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return collect(Card::cmc);
 	}
-
-	@Override
-	public editor.database.characteristics.ManaType.Tuple colors()
+	
+	public double minCmc()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return top.minCmc();
 	}
-
-	@Override
-	public editor.database.characteristics.ManaType.Tuple colorIdentity()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<String> supertypes()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<String> types()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<String> subtypes()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Set<String>> allTypes()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> typeLine()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expansion expansion()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Rarity rarity()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> oracleText()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> flavorText()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> artist()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> number()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public editor.database.characteristics.PowerToughness.Tuple power()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public editor.database.characteristics.PowerToughness.Tuple toughness()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public editor.database.characteristics.Loyalty.Tuple loyalty()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Map<Date, List<String>> rulings()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Map<String, Legality> legality()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> imageNames()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

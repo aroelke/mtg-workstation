@@ -24,6 +24,8 @@ import editor.filter.leaf.options.single.RarityFilter;
  * This enum enumerates the types of filter editor panels and
  * can instantiate them.
  * 
+ * TODO: Add layout
+ * 
  * @author Alec Roelke
  */
 public enum FilterPanelType

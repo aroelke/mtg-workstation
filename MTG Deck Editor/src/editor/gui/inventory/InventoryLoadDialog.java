@@ -42,7 +42,11 @@ import com.google.gson.JsonParser;
 
 import editor.collection.Inventory;
 import editor.database.card.Card;
+import editor.database.card.CardLayout;
+import editor.database.card.DoubleFacedCard;
+import editor.database.card.FlipCard;
 import editor.database.card.NormalCard;
+import editor.database.card.SplitCard;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.ManaType;
@@ -280,8 +284,8 @@ public class InventoryLoadDialog extends JDialog
 						JsonObject card = cardElement.getAsJsonObject();
 						
 						// If the card is a token, skip it
-						String layout = card.get("layout").getAsString();
-						if (layout.equals("token"))
+						CardLayout layout = CardLayout.valueOf(card.get("layout").getAsString().toUpperCase().replaceAll("[^A-Z]", "_"));
+						if (layout == CardLayout.TOKEN)
 							continue;
 						
 						// Card's name
@@ -385,7 +389,8 @@ public class InventoryLoadDialog extends JDialog
 						String imageName = card.get("imageName").getAsString();
 						
 						// Create the new card with all the values acquired above
-						Card c = new NormalCard(name,
+						Card c = new NormalCard(layout,
+								name,
 								mana,
 								colors,
 								supertypes,
@@ -405,7 +410,7 @@ public class InventoryLoadDialog extends JDialog
 								imageName);
 						
 						// Add to map of faces if the card has multiple faces
-						if (layout.equals("split") || layout.equals("flip") || layout.equals("double-faced"))
+						if (layout == CardLayout.SPLIT || layout == CardLayout.FLIP || layout == CardLayout.DOUBLE_FACED)
 						{
 							List<String> names = new ArrayList<String>();
 							for (JsonElement e: card.get("names").getAsJsonArray())
@@ -425,15 +430,40 @@ public class InventoryLoadDialog extends JDialog
 					List<String> faceNames = faces.get(face);
 					List<Card> otherFaces = new ArrayList<Card>();
 					for (Card c: facesList)
-					{
 						if (faceNames.contains(c.unifiedName()) && c.expansion().equals(face.expansion()))
 							otherFaces.add(c);
-					}
 					facesList.removeAll(otherFaces);
 					otherFaces.add(face);
 					cards.removeAll(otherFaces);
 					otherFaces.sort((a, b) -> faceNames.indexOf(a.unifiedName()) - faceNames.indexOf(b.unifiedName()));
-					cards.add(new NormalCard(otherFaces));
+//					cards.add(new NormalCard(otherFaces));
+					switch (face.layout())
+					{
+					case SPLIT:
+						if (otherFaces.size() < 2)
+							throw new RuntimeException("split card with fewer than two faces");
+						for (Card f: otherFaces)
+							if (f.layout() != CardLayout.SPLIT)
+								throw new RuntimeException("can't join a non-split face into a split card");
+						cards.add(new SplitCard(otherFaces));
+						break;
+					case FLIP:
+						if (otherFaces.size() != 2)
+							throw new RuntimeException("flip card with different than two sides");
+						if (otherFaces.get(0).layout() != CardLayout.FLIP || otherFaces.get(1).layout() != CardLayout.FLIP)
+							throw new RuntimeException("can't join non-flip cards into flip cards");
+						cards.add(new FlipCard(otherFaces.get(0), otherFaces.get(1)));
+						break;
+					case DOUBLE_FACED:
+						if (otherFaces.size() != 2)
+							throw new RuntimeException("double-faced card with differentt han two faces");
+						if (otherFaces.get(0).layout() != CardLayout.DOUBLE_FACED || otherFaces.get(1).layout() != CardLayout.DOUBLE_FACED)
+							throw new RuntimeException("can't join single-faced cards into double-faced cards");
+						cards.add(new DoubleFacedCard(otherFaces.get(0), otherFaces.get(1)));
+						break;
+					default:
+						break;
+					}
 				}
 				
 				// Store the lists of expansion and block names and types and sort them alphabetically

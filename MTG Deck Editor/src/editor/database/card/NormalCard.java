@@ -27,14 +27,16 @@ import editor.database.characteristics.Rarity;
  * card in the same set).  All of its values are constant.
  * 
  * TODO: Add a user-controlled tag to cards.
- * TODO: Fix CMC function for double-faced cards
- * (currently the back face has 0 CMC when it should be the same as the front)
- * TODO: Make this have subclasses for each type of card (flip, double-sided, split)
+ * TODO: Remove multiple faces from this
  * 
  * @author Alec Roelke
  */
 public class NormalCard implements Card
 {
+	/**
+	 * TODO: Comment this
+	 */
+	private final CardLayout layout;
 	/**
 	 * Array containing the faces of this Card.
 	 */
@@ -73,6 +75,7 @@ public class NormalCard implements Card
 	/**
 	 * Create a new Card with a single face.
 	 * 
+	 * @param layout The new Card's layout
 	 * @param name The new Card's name
 	 * @param mana The new Card's mana cost
 	 * @param colors The new Card's colors
@@ -92,24 +95,25 @@ public class NormalCard implements Card
 	 * @param legality The new Card's legality
 	 * @param imageName The new Card's image name
 	 */
-	public NormalCard(String name,
-				String mana,
-				List<ManaType> colors,
-				List<String> supertype,
-				List<String> type,
-				List<String> subtype,
-				Rarity rarity,
-				Expansion set,
-				String text,
-				String flavor,
-				String artist,
-				String number,
-				String power,
-				String toughness,
-				String loyalty,
-				TreeMap<Date, List<String>> rulings,
-				Map<String, Legality> legality,
-				String imageName)
+	public NormalCard(CardLayout layout,
+			String name,
+			String mana,
+			List<ManaType> colors,
+			List<String> supertype,
+			List<String> type,
+			List<String> subtype,
+			Rarity rarity,
+			Expansion set,
+			String text,
+			String flavor,
+			String artist,
+			String number,
+			String power,
+			String toughness,
+			String loyalty,
+			TreeMap<Date, List<String>> rulings,
+			Map<String, Legality> legality,
+			String imageName)
 	{
 		faces = new Face[] {new Face(name,
 									 new ManaCost(mana),
@@ -125,6 +129,7 @@ public class NormalCard implements Card
 									 new PowerToughness(toughness),
 									 new Loyalty(loyalty),
 									 imageName)};
+		this.layout = layout;
 		this.rarity = rarity;
 		this.set = set;
 		this.rulings = rulings;
@@ -175,6 +180,8 @@ public class NormalCard implements Card
 	 */
 	public NormalCard(List<Card> abstractCards)
 	{
+		layout = CardLayout.NORMAL;
+		
 		List<NormalCard> cards = abstractCards.stream().map((c) -> (NormalCard)c).collect(Collectors.toList());
 		
 		if (cards.stream().map((c) -> c.rarity).distinct().count() > 1)
@@ -236,7 +243,7 @@ public class NormalCard implements Card
 	@Override
 	public CardLayout layout()
 	{
-		return CardLayout.NORMAL;
+		return layout;
 	}
 	
 	/**

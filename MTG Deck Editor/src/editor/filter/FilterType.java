@@ -23,6 +23,8 @@ import editor.filter.leaf.options.single.RarityFilter;
 /**
  * This enum represents a type of filter that can be used to filter Cards.
  * 
+ * TODO: Add layout
+ * 
  * @author Alec Roelke
  */
 public enum FilterType
