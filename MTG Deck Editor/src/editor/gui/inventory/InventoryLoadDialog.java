@@ -455,7 +455,7 @@ public class InventoryLoadDialog extends JDialog
 						break;
 					case DOUBLE_FACED:
 						if (otherFaces.size() != 2)
-							throw new RuntimeException("double-faced card with differentt han two faces");
+							throw new RuntimeException("double-faced card with different than two faces");
 						if (otherFaces.get(0).layout() != CardLayout.DOUBLE_FACED || otherFaces.get(1).layout() != CardLayout.DOUBLE_FACED)
 							throw new RuntimeException("can't join single-faced cards into double-faced cards");
 						cards.add(new DoubleFacedCard(otherFaces.get(0), otherFaces.get(1)));
