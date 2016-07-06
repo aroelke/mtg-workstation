@@ -60,6 +60,9 @@ import editor.filter.leaf.options.multi.SupertypeFilter;
  * This class represents a dialog that shows the progress for loading the
  * inventory and blocking the main frame until it is finished.
  * 
+ * TODO: If there's an error loading a card, continue loading cards anyway and then
+ * display a warning at the end instead of an error.
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -305,7 +308,7 @@ public class InventoryLoadDialog extends JDialog
 						colors.sort((a, b) -> a.colorOrder(b));
 						
 						// Card's set of supertypes
-						List<String> supertypes = new ArrayList<String>();
+						Set<String> supertypes = new HashSet<String>();
 						if (card.has("supertypes"))
 						{
 							JsonArray superArray = card.get("supertypes").getAsJsonArray();
@@ -317,7 +320,7 @@ public class InventoryLoadDialog extends JDialog
 						}
 						
 						// Card's set of types
-						List<String> types = new ArrayList<String>();
+						Set<String> types = new HashSet<String>();
 						for (JsonElement typeElement: card.get("types").getAsJsonArray())
 						{
 							types.add(typeElement.getAsString());
@@ -325,7 +328,7 @@ public class InventoryLoadDialog extends JDialog
 						}
 						
 						// Card's set of subtypes
-						List<String> subtypes = new ArrayList<String>();
+						Set<String> subtypes = new HashSet<String>();
 						if (card.has("subtypes"))
 						{
 							for (JsonElement subElement: card.get("subtypes").getAsJsonArray())

@@ -26,7 +26,7 @@ import editor.database.characteristics.Rarity;
  * and its image name (which is its name followed by a number if there is more than one version of the same
  * card in the same set).  All of its values are constant.
  * 
- * TODO: Remove multiple faces from this
+ * TODO: Make sure comments are correct and field/method order makes sense.
  * 
  * @author Alec Roelke
  */
@@ -37,9 +37,59 @@ public class SingleCard implements Card
 	 */
 	private final CardLayout layout;
 	/**
-	 * Array containing the faces of this Card.
+	 * Name of this Face.
 	 */
-	private final Face[] faces;
+	public final String name;
+	/**
+	 * Mana cost of this Face.  Split cards will have independent mana costs for each
+	 * face, double-faced cards typically will have no mana cost for the back face, and
+	 * flip cards have the same mana cost for both faces.
+	 */
+	public final ManaCost mana;
+	/**
+	 * This Face's colors.
+	 */
+	public final ManaType.Tuple colors;
+	/**
+	 * This Face's supertypes.
+	 */
+	public final Set<String> supertypes;
+	/**
+	 * This Face's types.
+	 */
+	public final Set<String> types;
+	/**
+	 * This Face's subtypes.
+	 */
+	public final Set<String> subtypes;
+	/**
+	 * This Face's rules text.
+	 */
+	public final String text;
+	/**
+	 * This Face's flavor text.
+	 */
+	public final String flavor;
+	/**
+	 * This Face's artist.
+	 */
+	public final String artist;
+	/**
+	 * This Face's collector's number.
+	 */
+	public final String number;
+	/**
+	 * This Face's power, if it is a creature (it's empty otherwise).
+	 */
+	public final PowerToughness power;
+	/**
+	 * This Face's toughness, if it is a creature (it's empty otherwise).
+	 */
+	public final PowerToughness toughness;
+	/**
+	 * This Face's loyalty, if it is a planeswalker (it's 0 otherwise).
+	 */
+	public final Loyalty loyalty;
 	/**
 	 * The Expansion this Card belongs to.
 	 */
@@ -63,6 +113,15 @@ public class SingleCard implements Card
 	 * TODO: This doesn't work properly with reminder text (like extort).
 	 */
 	private final ManaType.Tuple colorIdentity;
+	/**
+	 * This Face's image name.  If the card is a flip or split card, all Faces
+	 * of that card will have the same image name.
+	 */
+	public final String imageName;
+	/**
+	 * This Face's type line, which is "[Supertype(s) Type(s) - Subtype(s)]
+	 */
+	public final String typeLine;
 	
 	/**
 	 * Create a new Card with a single face.
@@ -91,9 +150,9 @@ public class SingleCard implements Card
 			String name,
 			String mana,
 			List<ManaType> colors,
-			List<String> supertype,
-			List<String> type,
-			List<String> subtype,
+			Set<String> supertype,
+			Set<String> type,
+			Set<String> subtype,
 			Rarity rarity,
 			Expansion set,
 			String text,
@@ -107,29 +166,38 @@ public class SingleCard implements Card
 			Map<String, Legality> legality,
 			String imageName)
 	{
-		faces = new Face[] {new Face(name,
-									 new ManaCost(mana),
-									 new ManaType.Tuple(colors),
-									 supertype,
-									 type,
-									 subtype,
-									 text,
-									 flavor,
-									 artist,
-									 number,
-									 new PowerToughness(power),
-									 new PowerToughness(toughness),
-									 new Loyalty(loyalty),
-									 imageName)};
 		this.layout = layout;
+		this.name = name;
+		this.mana = ManaCost.valueOf(mana);
+		this.colors = new ManaType.Tuple(colors);
+		this.supertypes = supertype;
+		this.types = type;
+		this.subtypes = subtype;
+		this.text = text;
+		this.flavor = flavor;
+		this.artist = artist;
+		this.number = number;
+		this.power = new PowerToughness(power);
+		this.toughness = new PowerToughness(toughness);
+		this.loyalty = new Loyalty(loyalty);
+		this.imageName = imageName;
 		this.rarity = rarity;
 		this.set = set;
 		this.rulings = rulings;
 		this.legality = Collections.unmodifiableMap(legality);
 		
+		// Create the type line for this Card
+		StringBuilder str = new StringBuilder();
+		if (supertypes.size() > 0)
+			str.append(String.join(" ", supertypes)).append(" ");
+		str.append(String.join(" ", types));
+		if (subtypes.size() > 0)
+			str.append(" — ").append(String.join(" ", subtypes));
+		typeLine = str.toString();
+		
 		// Create this Card's color identity
 		List<ManaType> identity = new ArrayList<ManaType>(colors);
-		identity.addAll(faces[0].mana.colors());
+		identity.addAll(this.mana.colors());
 		Matcher m = ManaCost.MANA_COST_PATTERN.matcher(text);
 		while (m.find())
 			for (ManaType col: ManaCost.valueOf(m.group()).colors())
@@ -172,7 +240,7 @@ public class SingleCard implements Card
 	@Override
 	public List<String> name()
 	{
-		return Arrays.stream(faces).map((f) -> f.name).collect(Collectors.toList());
+		return Arrays.asList(name);
 	}
 	
 	/**
@@ -192,7 +260,7 @@ public class SingleCard implements Card
 	@Override
 	public ManaCost.Tuple manaCost()
 	{
-		return new ManaCost.Tuple(Arrays.stream(faces).map((f) -> f.mana).toArray(ManaCost[]::new));
+		return new ManaCost.Tuple(mana);
 	}
 	
 	/**
@@ -211,16 +279,13 @@ public class SingleCard implements Card
 	@Override
 	public ManaType.Tuple colors()
 	{
-		ArrayList<ManaType> colors = new ArrayList<ManaType>();
-		for (Face face: faces)
-			colors.addAll(face.colors);
-		return new ManaType.Tuple(colors);
+		return colors;
 	}
 	
 	@Override
 	public List<String> typeLine()
 	{
-		return Arrays.stream(faces).map((f) -> f.typeLine).collect(Collectors.toList());
+		return Arrays.asList(typeLine);
 	}
 
 	/**
@@ -230,9 +295,6 @@ public class SingleCard implements Card
 	@Override
 	public Set<String> supertypes()
 	{
-		Set<String> supertypes = new HashSet<String>();
-		for (Face face: faces)
-			supertypes.addAll(face.supertypes);
 		return supertypes;
 	}
 
@@ -243,9 +305,6 @@ public class SingleCard implements Card
 	@Override
 	public Set<String> types()
 	{
-		Set<String> types = new HashSet<String>();
-		for (Face face: faces)
-			types.addAll(face.types);
 		return types;
 	}
 
@@ -256,9 +315,6 @@ public class SingleCard implements Card
 	@Override
 	public Set<String> subtypes()
 	{
-		Set<String> subtypes = new HashSet<String>();
-		for (Face face: faces)
-			subtypes.addAll(face.subtypes);
 		return subtypes;
 	}
 	
@@ -288,7 +344,7 @@ public class SingleCard implements Card
 	@Override
 	public List<String> oracleText()
 	{
-		return Arrays.stream(faces).map((f) -> f.text).collect(Collectors.toList());
+		return Arrays.asList(text);
 	}
 
 	/**
@@ -299,7 +355,7 @@ public class SingleCard implements Card
 	@Override
 	public List<String> flavorText()
 	{
-		return Arrays.stream(faces).map((f) -> f.flavor).collect(Collectors.toList());
+		return Arrays.asList(flavor);
 	}
 	
 	/**
@@ -309,7 +365,7 @@ public class SingleCard implements Card
 	@Override
 	public List<String> artist()
 	{
-		return Arrays.stream(faces).map((f) -> f.artist).collect(Collectors.toList());
+		return Arrays.asList(artist);
 	}
 	
 	/**
@@ -318,7 +374,7 @@ public class SingleCard implements Card
 	@Override
 	public List<String> number()
 	{
-		return Arrays.stream(faces).map((f) -> f.number).collect(Collectors.toList());
+		return Arrays.asList(number);
 	}
 	
 	/**
@@ -327,7 +383,7 @@ public class SingleCard implements Card
 	@Override
 	public PowerToughness.Tuple power()
 	{
-		return new PowerToughness.Tuple(Arrays.stream(faces).map((f) -> f.power).toArray(PowerToughness[]::new));
+		return new PowerToughness.Tuple(power);
 	}
 
 	/**
@@ -336,7 +392,7 @@ public class SingleCard implements Card
 	@Override
 	public PowerToughness.Tuple toughness()
 	{
-		return new PowerToughness.Tuple(Arrays.stream(faces).map((f) -> f.toughness).toArray(PowerToughness[]::new));
+		return new PowerToughness.Tuple(toughness);
 	}
 	
 	/**
@@ -345,7 +401,7 @@ public class SingleCard implements Card
 	@Override
 	public Loyalty.Tuple loyalty()
 	{
-		return new Loyalty.Tuple(Arrays.stream(faces).map((f) -> f.loyalty).toArray(Loyalty[]::new));
+		return new Loyalty.Tuple(loyalty);
 	}
 
 	@Override
@@ -370,7 +426,7 @@ public class SingleCard implements Card
 	@Override
 	public List<String> imageNames()
 	{
-		return Arrays.stream(faces).map((f) -> f.imageName).distinct().collect(Collectors.toList());
+		return Arrays.asList(imageName);
 	}
 
 	/**
@@ -381,14 +437,11 @@ public class SingleCard implements Card
 	public List<Set<String>> allTypes()
 	{
 		List<Set<String>> allTypes = new ArrayList<Set<String>>();
-		for (Face f: faces)
-		{
-			Set<String> faceTypes = new HashSet<String>();
-			faceTypes.addAll(f.supertypes);
-			faceTypes.addAll(f.types);
-			faceTypes.addAll(f.subtypes);
-			allTypes.add(faceTypes);
-		}
+		Set<String> faceTypes = new HashSet<String>();
+		faceTypes.addAll(supertypes);
+		faceTypes.addAll(types);
+		faceTypes.addAll(subtypes);
+		allTypes.add(faceTypes);
 		return allTypes;
 	}
 
@@ -407,7 +460,7 @@ public class SingleCard implements Card
 	@Override
 	public int faces()
 	{
-		return faces.length;
+		return 1;
 	}
 	
 	/**
@@ -434,138 +487,5 @@ public class SingleCard implements Card
 		if (other.getClass() != getClass())
 			return false;
 		return id().equals(((Card)other).id());
-	}
-	
-	/**
-	 * This class represents a face of a multi-faced card.  A "face" is one of the sides
-	 * of the card if it is double-faced, one of the halves if it is split, and the contents
-	 * of one of the sides if it is a flip card, or the only face if it isn't any of those.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class Face
-	{
-		/**
-		 * Name of this Face.
-		 */
-		public final String name;
-		/**
-		 * Mana cost of this Face.  Split cards will have independent mana costs for each
-		 * face, double-faced cards typically will have no mana cost for the back face, and
-		 * flip cards have the same mana cost for both faces.
-		 */
-		public final ManaCost mana;
-		/**
-		 * This Face's colors.
-		 */
-		public final ManaType.Tuple colors;
-		/**
-		 * This Face's supertypes.
-		 */
-		public final List<String> supertypes;
-		/**
-		 * This Face's types.
-		 */
-		public final List<String> types;
-		/**
-		 * This Face's subtypes.
-		 */
-		public final List<String> subtypes;
-		/**
-		 * This Face's rules text.
-		 */
-		public final String text;
-		/**
-		 * This Face's flavor text.
-		 */
-		public final String flavor;
-		/**
-		 * This Face's artist.
-		 */
-		public final String artist;
-		/**
-		 * This Face's collector's number.
-		 */
-		public final String number;
-		/**
-		 * This Face's power, if it is a creature (it's empty otherwise).
-		 */
-		public final PowerToughness power;
-		/**
-		 * This Face's toughness, if it is a creature (it's empty otherwise).
-		 */
-		public final PowerToughness toughness;
-		/**
-		 * This Face's loyalty, if it is a planeswalker (it's 0 otherwise).
-		 */
-		public final Loyalty loyalty;
-		
-		/**
-		 * This Face's image name.  If the card is a flip or split card, all Faces
-		 * of that card will have the same image name.
-		 */
-		public final String imageName;
-		/**
-		 * This Face's type line, which is "[Supertype(s) Type(s) - Subtype(s)]
-		 */
-		public final String typeLine;
-		
-		/**
-		 * Create a new Face.
-		 * 
-		 * @param name Name of the new Face
-		 * @param mana Mana cost of the new Face
-		 * @param colors Colors of the new Face
-		 * @param supertypes Supertypes of the new Face (can be empty)
-		 * @param types Card types of the new Face (should not be empty)
-		 * @param subtypes Subtypes of the new Face (can be empty)
-		 * @param text Rules text of the new Face
-		 * @param flavor Flavor text of the new Face
-		 * @param artist Artist of the new Face
-		 * @param number Collector number of the new Face
-		 * @param power Power of the new Face
-		 * @param toughness Toughness of the new Face
-		 * @param loyalty Loyalty of the new Face
-		 * @param imageName Image name of the new Face
-		 */
-		public Face(String name,
-					ManaCost mana,
-					ManaType.Tuple colors,
-					List<String> supertypes,
-					List<String> types,
-					List<String> subtypes,
-					String text,
-					String flavor,
-					String artist,
-					String number,
-					PowerToughness power,
-					PowerToughness toughness,
-					Loyalty loyalty,
-					String imageName)
-		{
-			this.name = name;
-			this.mana = mana;
-			this.colors = colors;
-			this.supertypes = supertypes;
-			this.types = types;
-			this.subtypes = subtypes;
-			this.text = text;
-			this.flavor = flavor;
-			this.artist = artist;
-			this.number = number;
-			this.power = power;
-			this.toughness = toughness;
-			this.loyalty = loyalty;
-			this.imageName = imageName;
-			
-			// Create the type line for this Card
-			StringBuilder str = new StringBuilder();
-			if (supertypes.size() > 0)
-				str.append(String.join(" ", supertypes)).append(" ");
-			str.append(String.join(" ", types));
-			if (subtypes.size() > 0)
-				str.append(" — ").append(String.join(" ", subtypes));
-			typeLine = str.toString();
-		}
 	}
 }
