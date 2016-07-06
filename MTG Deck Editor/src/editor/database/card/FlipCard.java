@@ -33,16 +33,19 @@ public class FlipCard extends MultiCard implements Card
 		return CardLayout.FLIP;
 	}
 	
+	@Override
 	public ManaCost.Tuple manaCost()
 	{
 		return new ManaCost.Tuple(collect(Card::manaCost));
 	}
 	
+	@Override
 	public List<Double> cmc()
 	{
 		return collect(Card::cmc);
 	}
 	
+	@Override
 	public double minCmc()
 	{
 		return top.minCmc();
