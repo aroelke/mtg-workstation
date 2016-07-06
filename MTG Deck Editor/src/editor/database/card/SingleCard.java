@@ -26,12 +26,11 @@ import editor.database.characteristics.Rarity;
  * and its image name (which is its name followed by a number if there is more than one version of the same
  * card in the same set).  All of its values are constant.
  * 
- * TODO: Add a user-controlled tag to cards.
  * TODO: Remove multiple faces from this
  * 
  * @author Alec Roelke
  */
-public class NormalCard implements Card
+public class SingleCard implements Card
 {
 	/**
 	 * TODO: Comment this
@@ -57,13 +56,6 @@ public class NormalCard implements Card
 	 * Rulings for this Card.
 	 */
 	private final Map<Date, List<String>> rulings;
-	
-	/**
-	 * Unique identifier for this Card, which is its expansion name, name, and 
-	 * image name concatenated together.
-	 * TODO: Make use of the mtgjson.com id field
-	 */
-	private final String ID;
 	/**
 	 * This Card's color identity, which is a list containing its colors and
 	 * colors of any mana symbols that appear in its rules text that is not
@@ -95,7 +87,7 @@ public class NormalCard implements Card
 	 * @param legality The new Card's legality
 	 * @param imageName The new Card's image name
 	 */
-	public NormalCard(CardLayout layout,
+	public SingleCard(CardLayout layout,
 			String name,
 			String mana,
 			List<ManaType> colors,
@@ -135,9 +127,6 @@ public class NormalCard implements Card
 		this.rulings = rulings;
 		this.legality = Collections.unmodifiableMap(legality);
 		
-		// Create the UID for this Card
-		ID = this.set.code + unifiedName() + faces[0].imageName;
-		
 		// Create this Card's color identity
 		List<ManaType> identity = new ArrayList<ManaType>(colors);
 		identity.addAll(faces[0].mana.colors());
@@ -169,75 +158,6 @@ public class NormalCard implements Card
 			text = text.replace(m.group(), cost.toString());
 		}
 */
-	}
-	
-	/**
-	 * Create a new Card from the list of single-faced Cards.  Each Card in the list
-	 * represents a face of the new Card, and should be in order that the faces appear
-	 * on the actual card (i.e. front/left/unflipped first).
-	 * 
-	 * @param abstractCards List of faces to create the new card from
-	 */
-	public NormalCard(List<Card> abstractCards)
-	{
-		layout = CardLayout.NORMAL;
-		
-		List<NormalCard> cards = abstractCards.stream().map((c) -> (NormalCard)c).collect(Collectors.toList());
-		
-		if (cards.stream().map((c) -> c.rarity).distinct().count() > 1)
-			throw new IllegalArgumentException("All faces must have the same rarity");
-		if (cards.stream().map((c) -> c.set).distinct().count() > 1)
-			throw new IllegalArgumentException("All faces must belong to the same expansion");
-		if (cards.stream().map((c) -> c.legality).distinct().count() > 1)
-			throw new IllegalArgumentException("All faces must have the same format legalities");
-		if (cards.stream().map((c) -> c.faces.length).anyMatch((n) -> n != 1))
-			throw new IllegalArgumentException("Only individual card faces can be joined");
-		
-		// Get the card's faces
-		faces = cards.stream().map((c) -> c.faces[0]).toArray(Face[]::new);
-		
-		// Get the values that are common to all of the faces
-		rarity = cards.get(0).rarity;
-		set = cards.get(0).set;
-		rulings = cards.stream().map(Card::rulings).reduce(new TreeMap<Date, List<String>>(), (a, b) -> {
-			for (Date k: b.keySet())
-			{
-				if (!a.containsKey(k))
-					a.put(k, new ArrayList<String>());
-				a.get(k).addAll(b.get(k));
-			}
-			return a;
-		});
-		legality = cards.get(0).legality;
-		
-		// Create the UID for this Card
-		ID = set.code + unifiedName() + faces[0].imageName;
-		
-		// Create this Card's color identity
-		List<ManaType> identity = new ArrayList<ManaType>();
-		for (Face f: faces)
-		{
-			identity.addAll(f.colors);
-			Matcher m = ManaCost.MANA_COST_PATTERN.matcher(f.text);
-			while (m.find())
-				for (ManaType col: ManaCost.valueOf(m.group()).colors())
-					identity.add(col);
-			for (String sub: f.subtypes)
-			{
-				if (sub.equalsIgnoreCase("plains"))
-					identity.add(ManaType.WHITE);
-				else if (sub.equalsIgnoreCase("island"))
-					identity.add(ManaType.BLUE);
-				else if (sub.equalsIgnoreCase("swamp"))
-					identity.add(ManaType.BLACK);
-				else if (sub.equalsIgnoreCase("mountain"))
-					identity.add(ManaType.RED);
-				else if (sub.equalsIgnoreCase("forest"))
-					identity.add(ManaType.GREEN);
-			}
-		}
-		ManaType.sort(identity);
-		colorIdentity = new ManaType.Tuple(identity);
 	}
 	
 	@Override
@@ -473,16 +393,6 @@ public class NormalCard implements Card
 	}
 
 	/**
-	 * @return This Card's unique identifier, which is its name, expansion name,
-	 * and front face's image name concatenated together.
-	 */
-	@Override
-	public String id()
-	{
-		return ID;
-	}
-
-	/**
 	 * @return This Card's color identity.
 	 */
 	@Override
@@ -506,7 +416,7 @@ public class NormalCard implements Card
 	@Override
 	public int hashCode()
 	{
-		return ID.hashCode();
+		return id().hashCode();
 	}
 	
 	/**
@@ -523,7 +433,7 @@ public class NormalCard implements Card
 			return true;
 		if (other.getClass() != getClass())
 			return false;
-		return ID.equals(((Card)other).id());
+		return id().equals(((Card)other).id());
 	}
 	
 	/**

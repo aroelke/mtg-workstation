@@ -10,7 +10,7 @@ import editor.database.characteristics.ManaCost;
  * TODO: Comment this
  * @author Alec Roelke
  */
-public class FlipCard extends SplitCard implements Card
+public class FlipCard extends MultiCard implements Card
 {
 	private final Card top;
 	

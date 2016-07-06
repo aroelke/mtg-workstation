@@ -33,6 +33,7 @@ import editor.gui.MainFrame;
  * TODO: Comment this class
  * TODO: Add support for meld cards when EMN comes out
  * TODO: If there are any performance issues, try pre-collecting values
+ * TODO: Add a user-controlled tag to cards.
  * @author Alec Roelke
  */
 public interface Card
@@ -54,7 +55,10 @@ public interface Card
 	 */
 	public DataFlavor cardFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Card[].class.getName() + "\"", "Card Array");
 
-	public String id();
+	public default String id()
+	{
+		return expansion().code + unifiedName() + imageNames().get(0);
+	}
 	
 	public CardLayout layout();
 	

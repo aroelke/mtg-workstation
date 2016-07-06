@@ -9,7 +9,7 @@ import editor.database.characteristics.ManaCost;
  * TODO: Comment this
  * @author Alec Roelke
  */
-public class DoubleFacedCard extends SplitCard implements Card
+public class DoubleFacedCard extends MultiCard implements Card
 {
 	private final Card front;
 	

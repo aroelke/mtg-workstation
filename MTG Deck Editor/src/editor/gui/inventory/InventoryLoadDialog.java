@@ -45,7 +45,7 @@ import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.card.DoubleFacedCard;
 import editor.database.card.FlipCard;
-import editor.database.card.NormalCard;
+import editor.database.card.SingleCard;
 import editor.database.card.SplitCard;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
@@ -389,7 +389,7 @@ public class InventoryLoadDialog extends JDialog
 						String imageName = card.get("imageName").getAsString();
 						
 						// Create the new card with all the values acquired above
-						Card c = new NormalCard(layout,
+						Card c = new SingleCard(layout,
 								name,
 								mana,
 								colors,
@@ -436,7 +436,6 @@ public class InventoryLoadDialog extends JDialog
 					otherFaces.add(face);
 					cards.removeAll(otherFaces);
 					otherFaces.sort((a, b) -> faceNames.indexOf(a.unifiedName()) - faceNames.indexOf(b.unifiedName()));
-//					cards.add(new NormalCard(otherFaces));
 					switch (face.layout())
 					{
 					case SPLIT:
