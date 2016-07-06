@@ -7,9 +7,9 @@ package editor.database.card;
 public enum CardLayout
 {
 	NORMAL("Normal"),
-	SPLIT("Split"),
-	FLIP("Flip"),
-	DOUBLE_FACED("Double-faced"),
+	SPLIT("Split", true),
+	FLIP("Flip", true),
+	DOUBLE_FACED("Double-faced", true),
 	TOKEN("Token"),
 	PLANE("Plane"),
 	SCHEME("Scheme"),
@@ -18,10 +18,17 @@ public enum CardLayout
 	VANGUARD("Vanguard");
 	
 	private final String layout;
+	public final boolean isMultiFaced;
+	
+	private CardLayout(String l, boolean m)
+	{
+		layout = l;
+		isMultiFaced = m;
+	}
 	
 	private CardLayout(String l)
 	{
-		layout = l;
+		this(l, false);
 	}
 	
 	@Override

@@ -413,7 +413,7 @@ public class InventoryLoadDialog extends JDialog
 								imageName);
 						
 						// Add to map of faces if the card has multiple faces
-						if (layout == CardLayout.SPLIT || layout == CardLayout.FLIP || layout == CardLayout.DOUBLE_FACED)
+						if (layout.isMultiFaced)
 						{
 							List<String> names = new ArrayList<String>();
 							for (JsonElement e: card.get("names").getAsJsonArray())
