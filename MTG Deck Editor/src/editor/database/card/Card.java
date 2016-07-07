@@ -30,10 +30,12 @@ import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
 
 /**
- * TODO: Comment this class
+ * This interface represents an abstract Card with various characteristics.
+ * 
  * TODO: Add support for meld cards when EMN comes out
  * TODO: If there are any performance issues, try pre-collecting values
  * TODO: Add a user-controlled tag to cards.
+ * TODO: Add printed text in addition to Oracle text.
  * @author Alec Roelke
  */
 public interface Card
@@ -47,7 +49,7 @@ public interface Card
 	 */
 	public String FACE_SEPARATOR = "//";
 	/**
-	 * TODO: Comment this
+	 * Separator for card text when displaying multiple cards in a single text box.
 	 */
 	public String TEXT_SEPARATOR = "-----";
 	/**
@@ -55,17 +57,35 @@ public interface Card
 	 */
 	public DataFlavor cardFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Card[].class.getName() + "\"", "Card Array");
 
+	/**
+	 * TODO: Use the ID field from mtgjson rather than calculating it like this
+	 * @return This Card's id, which is its expansion code, unified name, and
+	 * first image name concatenated together.
+	 */
 	public default String id()
 	{
 		return expansion().code + unifiedName() + imageNames().get(0);
 	}
 	
+	/**
+	 * @return The CardLayout of this Card.
+	 */
 	public CardLayout layout();
 	
+	/**
+	 * @return The number of faces this Card has.
+	 */
 	public int faces();
 	
+	/**
+	 * @return A List containing the name of each face of this Card.
+	 */
 	public List<String> name();
 	
+	/**
+	 * @return A String consisting of the names of each of the faces of this Card
+	 * concatenated together with a separator.
+	 */
 	public default String unifiedName()
 	{
 		StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
@@ -74,6 +94,10 @@ public interface Card
 		return join.toString();
 	}
 	
+	/**
+	 * @return A version of this Card's name with special characters converted
+	 * to versions that would appear on a standard QWERTY keyboard.
+	 */
 	public default List<String> normalizedName()
 	{
 		return name().stream()
@@ -81,6 +105,10 @@ public interface Card
 				.collect(Collectors.toList());
 	}
 	
+	/**
+	 * @return A version of this Card's name with Legendary characteristics removed (such as
+	 * titles following "the," "of," or a comma). 
+	 */
 	public default List<String> legendName()
 	{
 		List<String> legendNames = new ArrayList<String>();
@@ -114,26 +142,56 @@ public interface Card
 		return legendNames;
 	}
 	
+	/**
+	 * Compare this Card's unified name lexicographically with another's.
+	 * 
+	 * @param other Card to compare names with
+	 * @return A positive number if this Card's name comes after the other's, 0 if
+	 * they are the same, or a negative number if it comes before.
+	 */
 	public default int compareName(Card other)
 	{
 		return Collator.getInstance(Locale.US).compare(unifiedName(), other.unifiedName());
 	}
 	
+	/**
+	 * @return A list containing the mana costs of the faces of this Card.
+	 */
 	public ManaCost.Tuple manaCost();
 	
+	/**
+	 * @return A list containing the converted mana costs of the faces of this Card.
+	 */
 	public List<Double> cmc();
 	
+	/**
+	 * @return The smallest converted mana cost among faces of this card.
+	 */
 	public default double minCmc()
 	{
 		return cmc().stream().reduce(0.0, Double::min);
 	}
 	
+	/**
+	 * @return A list containing the colors of this Card.
+	 */
 	public ManaType.Tuple colors();
 	
+	/**
+	 * @return A list containing the colors in this Card's color identity.
+	 */
 	public ManaType.Tuple colorIdentity();
 	
+	/**
+	 * @return A set containing the supertypes among all the faces of this Card.
+	 */
 	public Set<String> supertypes();
 	
+	/**
+	 * @param s Supertype to search for
+	 * @return <code>true</code> if the given String is among this Card's
+	 * supertypes, case insensitive, and <code>false</code> otherwise.
+	 */
 	public default boolean supertypeContains(String s)
 	{
 		if (Pattern.compile("\\s").matcher(s).find())
@@ -144,8 +202,16 @@ public interface Card
 		return false;
 	}
 	
+	/**
+	 * @return A set containing the subtypes among all the faces of this Card.
+	 */
 	public Set<String> types();
 	
+	/**
+	 * @param s Type to search for
+	 * @return <code>true</code> if the given String is among this Card's types,
+	 * case insensitive, and <code>false</code> otherwise.
+	 */
 	public default boolean typeContains(String s)
 	{
 		if (Pattern.compile("\\s").matcher(s).find())
@@ -156,12 +222,27 @@ public interface Card
 		return false;
 	}
 	
+	/**
+	 * @return A set containing the subtypes among all faces of this Card.
+	 */
 	public Set<String> subtypes();
 	
+	/**
+	 * @return A list of sets of Strings which each contain all the supertypes,
+	 * types, and subtypes of the corresponding face.
+	 */
 	public List<Set<String>> allTypes();
 	
+	/**
+	 * @return A list of Strings containing the full, formatted type line of each
+	 * face.
+	 */
 	public List<String> typeLine();
 	
+	/**
+	 * @return A String consisting of the type lines of each face of this Card
+	 * joined with a separator.
+	 */
 	public default String unifiedTypeLine()
 	{
 		StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
@@ -170,12 +251,25 @@ public interface Card
 		return join.toString();
 	}
 	
+	/**
+	 * @return This Card's Expansion.
+	 */
 	public Expansion expansion();
 	
+	/**
+	 * @return This Card's Rarity.
+	 */
 	public Rarity rarity();
 	
+	/**
+	 * @return The Oracle text of each of this Card's faces in a list.
+	 */
 	public List<String> oracleText();
 	
+	/**
+	 * @return A list containing the Oracle text of each of this Card's faces with special characters
+	 * replaced by versions that appear on a standard QWERTY keyboard.
+	 */
 	public default List<String> normalizedOracle()
 	{
 		List<String> texts = new ArrayList<String>();
@@ -189,8 +283,15 @@ public interface Card
 		return texts;
 	}
 	
+	/**
+	 * @return A list containing the flavor text of each face of this Card.
+	 */
 	public List<String> flavorText();
 	
+	/**
+	 * @return A list containing the flavor text of each of this Card's faces with special characters
+	 * replaced by versions that appear on a standard QWERTY keyboard.
+	 */
 	public default List<String> normalizedFlavor()
 	{
 		return flavorText().stream()
@@ -198,30 +299,67 @@ public interface Card
 				.collect(Collectors.toList());
 	}
 	
+	/**
+	 * @return A list containing the artist of each face of this Card.
+	 */
 	public List<String> artist();
 	
+	/**
+	 * @return A list containing the collector's number of each face of this Card.
+	 */
 	public List<String> number();
 	
+	/**
+	 * @return A list containing the power of each face of this Card (that's a creature).
+	 */
 	public PowerToughness.Tuple power();
 	
+	/**
+	 * @return <code>true</code> if this Card has a face that is a creature with variable
+	 * power (a * value), and <code>false</code> otherwise.
+	 */
 	public default boolean powerVariable()
 	{
 		return power().stream().anyMatch(PowerToughness::variable);
 	}
 	
+	/**
+	 * @return A list containing the toughness of each face of this Card (that's a creature).
+	 */
 	public PowerToughness.Tuple toughness();
 	
+	/**
+	 * @return <code>true</code> if this Card has a face that is a creature with variable
+	 * toughness (a * value), and <code>false</code> otherwise.
+	 */
 	public default boolean toughnessVariable()
 	{
 		return toughness().stream().anyMatch(PowerToughness::variable);
 	}
 	
+	/**
+	 * @return A list containing the loyalty of each face of this Card (that's a
+	 * planeswalker).
+	 */
 	public Loyalty.Tuple loyalty();
 	
+	/**
+	 * @return A map whose keys are dates and whose values are the rulings of this
+	 * Card on those dates.
+	 */
 	public Map<Date, List<String>> rulings();
 	
+	/**
+	 * @return A map whose keys are format names and whose values are the Legalities
+	 * of this Card in those formats.
+	 */
 	public Map<String, Legality> legality();
 	
+	/**
+	 * @param format Format to look up
+	 * @return <code>true</code> if the given format exists and this Card is legal in it, and
+	 * <code>false</code> otherwise.
+	 */
 	public default boolean legalIn(String format)
 	{
 		if (format.equalsIgnoreCase("prismatic") && legalIn("classic") && legality().get(format) != Legality.BANNED)
@@ -250,11 +388,18 @@ public interface Card
 			return legality().get(format) != Legality.BANNED;
 	}
 	
+	/**
+	 * @return A list of formats that this Card is legal in.
+	 */
 	public default List<String> legalIn()
 	{
 		return legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList());
 	}
 	
+	/**
+	 * @param format Format to look up
+	 * @return The legality (legal, restricted, banned) of this Card in the given format.
+	 */
 	public default Legality legalityIn(String format)
 	{
 		if (legalIn(format))
@@ -267,18 +412,36 @@ public interface Card
 			return Legality.BANNED;
 	}
 	
+	/**
+	 * @return A list containing the name of each image corresponding to a face of this Card.
+	 */
 	public List<String> imageNames();
 	
+	/**
+	 * @return <code>true</code> if this Card can be a commander in the Commander format, and
+	 * <code>false</code> otherwise.
+	 */
 	public default boolean canBeCommander()
 	{
 		return supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander"));
 	}
 	
+	/**
+	 * @return <code>true</code> if there can be any number of copies of this Card in a deck,
+	 * and <code>false</code> otherwise.
+	 */
 	public default boolean ignoreCountRestriction()
 	{
 		return supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number"));
 	}
 	
+	/**
+	 * Add text and icons to the given document so it contains a nice-looking version of this
+	 * Card's Oracle text.  The document is expected to have styles "text" and "reminder."
+	 * 
+	 * @param document Document to format
+	 * @param f Face to add to the document
+	 */
 	public default void formatDocument(StyledDocument document, int f)
 	{
 		Style textStyle = document.getStyle("text");
@@ -392,6 +555,12 @@ public interface Card
 		}
 	}
 	
+	/**
+	 * Add the Oracle text of all of this Card's faces to the given document, separated
+	 * by a separator on its own line.
+	 * 
+	 * @param document Document to add text to
+	 */
 	public default void formatDocument(StyledDocument document)
 	{
 		Style textStyle = document.getStyle("text");
@@ -410,12 +579,23 @@ public interface Card
 		}
 	}
 	
+	/**
+	 * @return A String representation of this Card to be used in tables.
+	 */
 	@Override
 	public String toString();
 	
+	/**
+	 * @return This Card's hash code.
+	 */
 	@Override
 	public int hashCode();
 	
+	/**
+	 * @param other Object to compare with
+	 * @return <code>true</code> if this Card and the other Object both represent the exact same
+	 * card, and <code>false</code> otherwise.
+	 */
 	@Override
 	public boolean equals(Object other);
 }

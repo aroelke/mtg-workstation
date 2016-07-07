@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
@@ -33,61 +32,61 @@ import editor.database.characteristics.Rarity;
 public class SingleCard implements Card
 {
 	/**
-	 * TODO: Comment this
+	 * This SingleCard's layout.
 	 */
 	private final CardLayout layout;
 	/**
-	 * Name of this Face.
+	 * Name of this SingleCard.
 	 */
 	public final String name;
 	/**
-	 * Mana cost of this Face.  Split cards will have independent mana costs for each
+	 * Mana cost of this SingleCard.  Split cards will have independent mana costs for each
 	 * face, double-faced cards typically will have no mana cost for the back face, and
 	 * flip cards have the same mana cost for both faces.
 	 */
 	public final ManaCost mana;
 	/**
-	 * This Face's colors.
+	 * This SingleCard's colors.
 	 */
 	public final ManaType.Tuple colors;
 	/**
-	 * This Face's supertypes.
+	 * This SingleCard's supertypes.
 	 */
 	public final Set<String> supertypes;
 	/**
-	 * This Face's types.
+	 * This SingleCard's types.
 	 */
 	public final Set<String> types;
 	/**
-	 * This Face's subtypes.
+	 * This SingleCard's subtypes.
 	 */
 	public final Set<String> subtypes;
 	/**
-	 * This Face's rules text.
+	 * This SingleCard's rules text.
 	 */
 	public final String text;
 	/**
-	 * This Face's flavor text.
+	 * This SingleCard's flavor text.
 	 */
 	public final String flavor;
 	/**
-	 * This Face's artist.
+	 * This SingleCard's artist.
 	 */
 	public final String artist;
 	/**
-	 * This Face's collector's number.
+	 * This SingleCard's collector's number.
 	 */
 	public final String number;
 	/**
-	 * This Face's power, if it is a creature (it's empty otherwise).
+	 * This SingleCard's power, if it is a creature (it's empty otherwise).
 	 */
 	public final PowerToughness power;
 	/**
-	 * This Face's toughness, if it is a creature (it's empty otherwise).
+	 * This SingleCard's toughness, if it is a creature (it's empty otherwise).
 	 */
 	public final PowerToughness toughness;
 	/**
-	 * This Face's loyalty, if it is a planeswalker (it's 0 otherwise).
+	 * This SingleCard's loyalty, if it is a planeswalker (it's 0 otherwise).
 	 */
 	public final Loyalty loyalty;
 	/**
@@ -114,12 +113,12 @@ public class SingleCard implements Card
 	 */
 	private final ManaType.Tuple colorIdentity;
 	/**
-	 * This Face's image name.  If the card is a flip or split card, all Faces
+	 * This SingleCard's image name.  If the card is a flip or split card, all SingleCards
 	 * of that card will have the same image name.
 	 */
 	public final String imageName;
 	/**
-	 * This Face's type line, which is "[Supertype(s) Type(s) - Subtype(s)]
+	 * This SingleCard's type line, which is "[Supertype(s) Type(s) - Subtype(s)]
 	 */
 	public final String typeLine;
 	
@@ -235,7 +234,7 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return The list of names of the faces of this Card.
+	 * @return The list of names of the faces of this SingleCard.
 	 */
 	@Override
 	public List<String> name()
@@ -244,8 +243,8 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return A String representation of this Card, which is its name.  To get a unique identifier
-	 * for the Card, use {@link Card#id()}.
+	 * @return A String representation of this SingleCard, which is its name.  To get a unique identifier
+	 * for the SingleCard, use {@link Card#id()}.
 	 */
 	@Override
 	public String toString()
@@ -254,7 +253,7 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return The mana cost of this Card.  This is represented as a tuple, since multi-faced
+	 * @return The mana cost of this SingleCard.  This is represented as a tuple, since multi-faced
 	 * cards have multiple costs that need to be treated separately.
 	 */
 	@Override
@@ -264,17 +263,16 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return A Tuple<Double> containing all of the converted mana costs of the faces
-	 * of this Card.
+	 * @return A Tuple<Double> containing the converted mana cost of this SingleCard.
 	 */
 	@Override
 	public List<Double> cmc()
 	{
-		return manaCost().stream().map(ManaCost::cmc).collect(Collectors.toList());
+		return Arrays.asList(mana.cmc());
 	}
 
 	/**
-	 * @return The colors of this Card, which is the union of the colors of its faces.
+	 * @return The colors of this SingleCard.
 	 */
 	@Override
 	public ManaType.Tuple colors()
@@ -282,6 +280,9 @@ public class SingleCard implements Card
 		return colors;
 	}
 	
+	/**
+	 * @return A String containing all the types of this SingleCard as they would appear on it.
+	 */
 	@Override
 	public List<String> typeLine()
 	{
@@ -289,8 +290,7 @@ public class SingleCard implements Card
 	}
 
 	/**
-	 * @return A list containing all of the supertypes that appear on all of the faces of
-	 * this Card.
+	 * @return A list containing all of the supertypes of this SingleCard.
 	 */
 	@Override
 	public Set<String> supertypes()
@@ -299,8 +299,7 @@ public class SingleCard implements Card
 	}
 
 	/**
-	 * @return A list containing all of the card types that appear on all of the faces of
-	 * this Card.
+	 * @return A list containing all of the card types on this SingleCard.
 	 */
 	@Override
 	public Set<String> types()
@@ -309,8 +308,7 @@ public class SingleCard implements Card
 	}
 
 	/**
-	 * @return a list containing all of the subtypes that appear on all of the faces of
-	 * this Card.
+	 * @return a list containing all of the subtypes on this SingleCard.
 	 */
 	@Override
 	public Set<String> subtypes()
@@ -319,7 +317,7 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return The Expansion this Card belongs to.
+	 * @return The Expansion this SingleCard belongs to.
 	 */
 	@Override
 	public Expansion expansion()
@@ -328,7 +326,7 @@ public class SingleCard implements Card
 	}
 
 	/**
-	 * @return This Card's Rarity.
+	 * @return This SingleCard's Rarity.
 	 */
 	@Override
 	public Rarity rarity()
@@ -337,9 +335,7 @@ public class SingleCard implements Card
 	}
 
 	/**
-	 * @return The texts of all of the faces of this Card concatenated together.
-	 * This should mostly be used for searching, since using it for display could
-	 * cause confusion.
+	 * @return This SingleCard's Oracle text.
 	 */
 	@Override
 	public List<String> oracleText()
@@ -348,9 +344,7 @@ public class SingleCard implements Card
 	}
 
 	/**
-	 * @return The flavor texts of all of the faces of this Card concatenated together.
-	 * This should mostly be used for searching, since using it for display could cause
-	 * confusion.
+	 * @return This SingleCard's flavor text.
 	 */
 	@Override
 	public List<String> flavorText()
@@ -359,8 +353,7 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return The list of artists for the faces of this Card (probably they are all
-	 * the same).
+	 * @return This SingleCard's artist.
 	 */
 	@Override
 	public List<String> artist()
@@ -369,7 +362,7 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return The collector numbers of all faces of this Card.
+	 * @return The collector number of this Card.
 	 */
 	@Override
 	public List<String> number()
@@ -378,7 +371,7 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return A tuple containing the power values of each face of this Card.
+	 * @return A tuple containing the power value of this Card.
 	 */
 	@Override
 	public PowerToughness.Tuple power()
@@ -387,7 +380,7 @@ public class SingleCard implements Card
 	}
 
 	/**
-	 * @return A tuple containing the toughness values of each face of this Card.
+	 * @return A tuple containing the toughness value of this Card.
 	 */
 	@Override
 	public PowerToughness.Tuple toughness()
@@ -396,7 +389,7 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return A tuple containing the loyalty values of each face of this Card.
+	 * @return A tuple containing the loyalty value of this Card.
 	 */
 	@Override
 	public Loyalty.Tuple loyalty()
@@ -404,6 +397,10 @@ public class SingleCard implements Card
 		return new Loyalty.Tuple(loyalty);
 	}
 
+	/**
+	 * @return A map containing dates and rulings that occurred on those dates
+	 * for this Card.
+	 */
 	@Override
 	public Map<Date, List<String>> rulings()
 	{
@@ -421,7 +418,7 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return The image name of each face of this Card.
+	 * @return The image name of this Card.
 	 */
 	@Override
 	public List<String> imageNames()
@@ -430,8 +427,7 @@ public class SingleCard implements Card
 	}
 
 	/**
-	 * @return A list containing all supertypes, card types, and subtypes of all of the
-	 * Faces of this Card.
+	 * @return A list containing all supertypes, card types, and subtypes of this Card.
 	 */
 	@Override
 	public List<Set<String>> allTypes()
@@ -455,7 +451,7 @@ public class SingleCard implements Card
 	}
 	
 	/**
-	 * @return The number of faces this Card has.
+	 * @return The number of faces this Card has (1).
 	 */
 	@Override
 	public int faces()

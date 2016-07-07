@@ -20,13 +20,22 @@ import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
 
 /**
- * TODO: Comment this
+ * This class represents an abstract card with multiple faces.
+ * TODO: Finish commenting this class
  * @author Alec Roelke
  */
 public abstract class MultiCard implements Card
 {
+	/**
+	 * List of Cards that represent faces.  They should all have exactly one face.
+	 */
 	private List<Card> faces;
 	
+	/**
+	 * Create a new MultiCard out of the given list of Cards. Each one should only have one face.
+	 * 
+	 * @param f Cards to use as faces
+	 */
 	public MultiCard(List<Card> f)
 	{
 		faces = f;
@@ -35,11 +44,20 @@ public abstract class MultiCard implements Card
 				throw new IllegalArgumentException("Only normal, single-faced cards can be joined into a multi-faced card");
 	}
 	
+	/**
+	 * Create a new MultiCard out of the given Cards.
+	 * 
+	 * @param f Cards to use as faces
+	 */
 	public MultiCard(Card... f)
 	{
 		this(Arrays.asList(f));
 	}
 	
+	/**
+	 * @param characteristic Characteristic to collect
+	 * @return The value of the characteristic for each face of this MultiCard collected into a list.
+	 */
 	private <T> List<T> collect(Function<Card, List<T>> characteristic)
 	{
 		return faces.stream().map((f) -> characteristic.apply(f).get(0)).collect(Collectors.toList());
