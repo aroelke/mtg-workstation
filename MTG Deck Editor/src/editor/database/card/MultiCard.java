@@ -21,7 +21,7 @@ import editor.database.characteristics.Rarity;
 
 /**
  * This class represents an abstract card with multiple faces.
- * TODO: Finish commenting this class
+ * 
  * @author Alec Roelke
  */
 public abstract class MultiCard implements Card
@@ -63,36 +63,45 @@ public abstract class MultiCard implements Card
 		return faces.stream().map((f) -> characteristic.apply(f).get(0)).collect(Collectors.toList());
 	}
 
-	@Override
-	public CardLayout layout()
-	{
-		return CardLayout.SPLIT;
-	}
-
+	/**
+	 * @return The number of faces of this MultiCard.
+	 */
 	@Override
 	public int faces()
 	{
 		return faces.size();
 	}
 
+	/**
+	 * @return A list containing the names of all of this MultiCard's faces.
+	 */
 	@Override
 	public List<String> name()
 	{
 		return collect(Card::name);
 	}
 
+	/**
+	 * @return A list containing the mana costs of all of this MultiCard's faces.
+	 */
 	@Override
 	public ManaCost.Tuple manaCost()
 	{
 		return new ManaCost.Tuple(collect(Card::manaCost));
 	}
 
+	/**
+	 * @return A list containing the converted mana costs of all of this MultiCard's faces.
+	 */
 	@Override
 	public List<Double> cmc()
 	{
 		return collect(Card::cmc);
 	}
 
+	/**
+	 * @return A list containing all of this MultiCard's colors.
+	 */
 	@Override
 	public ManaType.Tuple colors()
 	{
@@ -102,6 +111,9 @@ public abstract class MultiCard implements Card
 		return new ManaType.Tuple(colors);
 	}
 
+	/**
+	 * @return A list containing the colors in this MultiCard's color identity.
+	 */
 	@Override
 	public ManaType.Tuple colorIdentity()
 	{
@@ -111,6 +123,9 @@ public abstract class MultiCard implements Card
 		return new ManaType.Tuple(colors);
 	}
 
+	/**
+	 * @return A set containing all of the supertypes among this MultiCard's faces.
+	 */
 	@Override
 	public Set<String> supertypes()
 	{
@@ -120,6 +135,9 @@ public abstract class MultiCard implements Card
 		return supertypes;
 	}
 
+	/**
+	 * @return A set containing all of the types among this MultiCard's faces.
+	 */
 	@Override
 	public Set<String> types()
 	{
@@ -129,6 +147,9 @@ public abstract class MultiCard implements Card
 		return types;
 	}
 
+	/**
+	 * @return A set containing all of the subtypes among this MultiCard's faces.
+	 */
 	@Override
 	public Set<String> subtypes()
 	{
@@ -138,6 +159,10 @@ public abstract class MultiCard implements Card
 		return subtypes;
 	}
 
+	/**
+	 * @return A list of sets which each contains the supertypes, types, and subtypes
+	 * of each of this MultiCard's faces.
+	 */
 	@Override
 	public List<Set<String>> allTypes()
 	{
@@ -153,66 +178,103 @@ public abstract class MultiCard implements Card
 		return allTypes;
 	}
 
+	/**
+	 * @return A list of Strings containing the formatted type line of each face of
+	 * this MultiCard.
+	 */
 	@Override
 	public List<String> typeLine()
 	{
 		return collect(Card::typeLine);
 	}
 
+	/**
+	 * @return This MultiCard's Expansion.
+	 */
 	@Override
 	public Expansion expansion()
 	{
 		return faces.get(0).expansion();
 	}
 
+	/**
+	 * @return This MultiCard's Rarity.
+	 */
 	@Override
 	public Rarity rarity()
 	{
 		return faces.get(0).rarity();
 	}
 
+	/**
+	 * @return A list containing the oracle text of each of this MultiCard's faces.
+	 */
 	@Override
 	public List<String> oracleText()
 	{
 		return collect(Card::oracleText);
 	}
 
+	/**
+	 * @return A list containing the flavor text of each of this MultiCard's faces.
+	 */
 	@Override
 	public List<String> flavorText()
 	{
 		return collect(Card::flavorText);
 	}
 
+	/**
+	 * @return A list containing each of this MultiCard's artists.
+	 */
 	@Override
 	public List<String> artist()
 	{
 		return collect(Card::artist);
 	}
 
+	/**
+	 * @return A list containing the collector's number of each of this MultiCard's faces.
+	 */
 	@Override
 	public List<String> number()
 	{
 		return collect(Card::number);
 	}
 
+	/**
+	 * @return A list containing the power of each of this MultiCard's faces (that's a creature).
+	 */
 	@Override
 	public PowerToughness.Tuple power()
 	{
 		return new PowerToughness.Tuple(collect(Card::power));
 	}
 
+	/**
+	 * @return A list containing the toughness of each of this MultiCard's faces (that's a
+	 * creature).
+	 */
 	@Override
 	public PowerToughness.Tuple toughness()
 	{
 		return new PowerToughness.Tuple(collect(Card::toughness));
 	}
 
+	/**
+	 * @return A list containing the loyalty of each of this MultiCard's faces (that's a
+	 * planeswalker).
+	 */
 	@Override
 	public Loyalty.Tuple loyalty()
 	{
 		return new Loyalty.Tuple(collect(Card::loyalty));
 	}
 
+	/**
+	 * @return A map containing dates and rulings for all of this MultiCard's faces
+	 * corresponding to those dates.
+	 */
 	@Override
 	public Map<Date, List<String>> rulings()
 	{
@@ -228,30 +290,48 @@ public abstract class MultiCard implements Card
 		return rulings;
 	}
 
+	/**
+	 * @return A map containing formats and this MultiCard's legality in them.
+	 */
 	@Override
 	public Map<String, Legality> legality()
 	{
 		return faces.get(0).legality();
 	}
 
+	/**
+	 * @return A list containing the image names of each of this MultiCard's faces.
+	 */
 	@Override
 	public List<String> imageNames()
 	{
 		return collect(Card::imageNames);
 	}
 	
+	/**
+	 * @return A String representation of this MultiCard, which is its unified name,
+	 * for use in tables.
+	 */
 	@Override
 	public String toString()
 	{
 		return unifiedName();
 	}
 	
+	/**
+	 * @return This MultiCard's hash code.
+	 */
 	@Override
 	public int hashCode()
 	{
 		return id().hashCode();
 	}
 	
+	/**
+	 * @param other Object to compare with
+	 * @return <code>true</code> if this MultiCard and the other Object both represent the same
+	 * card.
+	 */
 	@Override
 	public boolean equals(Object other)
 	{

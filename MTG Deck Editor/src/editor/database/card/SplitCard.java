@@ -35,6 +35,15 @@ public class SplitCard extends MultiCard implements Card
 	}
 	
 	/**
+	 * @return The layout of this SplitCard, which should be for a split card.
+	 */
+	@Override
+	public CardLayout layout()
+	{
+		return CardLayout.SPLIT;
+	}
+	
+	/**
 	 * All of the faces of a SplitCard are on the front, so there is only one image for it.
 	 * 
 	 * @return The name of this SplitCard's image.
