@@ -24,7 +24,6 @@ import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 
 import editor.collection.deck.Deck;
-import editor.collection.deck.DeckListener;
 import editor.database.card.Card;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.CardTable;
@@ -91,10 +90,6 @@ public class CategoryPanel extends JPanel
 	 * Timer timing flashing of the border of this panel when it is skipped to.
 	 */
 	private Timer flashTimer;
-	/**
-	 * Listener for changes to this CategoryPanel's Deck.
-	 */
-	private DeckListener listener;
 	/**
 	 * Combo box showing the user-defined rank of the category.
 	 */
@@ -167,18 +162,7 @@ public class CategoryPanel extends JPanel
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
 		tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		add(tablePane, BorderLayout.CENTER);
-		
-		deck.addDeckListener(listener = (e) -> {
-			if (e.categoriesRemoved() && e.removedNames().contains(name))
-				deck.removeDeckListener(listener);
-			if (e.categoryChanged() && e.categoryName().equals(name))
-			{
-				if (e.categoryChanges().nameChanged())
-					name = e.categoryChanges().newName();
-				update();
-			}
-		});
-	
+
 		update();
 	}
 	
@@ -188,6 +172,18 @@ public class CategoryPanel extends JPanel
 	public String getCategoryName()
 	{
 		return name;
+	}
+	
+	/**
+	 * Change the category this panel should display to a new one.
+	 * @param n Name of the new category to display
+	 * @throws IllegalArgumentException If the deck does not have a category with that name.
+	 */
+	public void setCategoryName(String n)
+	{
+		if (!deck.containsCategory(n))
+			throw new IllegalArgumentException("deck does not have a category named " + n);
+		name = n;
 	}
 	
 	/**

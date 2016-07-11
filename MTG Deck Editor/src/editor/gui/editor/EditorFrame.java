@@ -846,8 +846,13 @@ public class EditorFrame extends JInternalFrame
 				listTabs.setSelectedIndex(CATEGORIES);
 			}
 			if (e.categoryChanged())
+			{
+				CategorySpec.Event event = e.categoryChanges();
+				if (event.nameChanged())
+					getCategory(event.oldName()).setCategoryName(event.newName());
 				for (CategoryPanel c: categoryPanels)
 					((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
+			}
 			if (e.categoriesRemoved() || e.categoryChanged() || e.ranksChanged())
 				updateCategoryPanel();
 			
