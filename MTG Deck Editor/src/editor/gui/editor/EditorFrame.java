@@ -851,7 +851,10 @@ public class EditorFrame extends JInternalFrame
 				if (event.nameChanged())
 					getCategory(event.oldName()).setCategoryName(event.newName());
 				for (CategoryPanel c: categoryPanels)
+				{
 					((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
+					c.update();
+				}
 			}
 			if (e.categoriesRemoved() || e.categoryChanged() || e.ranksChanged())
 				updateCategoryPanel();
@@ -1387,8 +1390,8 @@ public class EditorFrame extends JInternalFrame
 			
 			for (CategorySpec c: categories)
 				categoriesContainer.add(getCategory(c.getName()));
-			for (CategorySpec category: categories)
-				switchCategoryModel.addElement(category.getName());
+			for (CategorySpec c: categories)
+				switchCategoryModel.addElement(c.getName());
 		}
 	}
 	
