@@ -169,7 +169,7 @@ public interface Card
 	 */
 	public default double minCmc()
 	{
-		return cmc().stream().reduce(0.0, Double::min);
+		return cmc().stream().reduce(Double.MAX_VALUE,Double::min);
 	}
 	
 	/**
