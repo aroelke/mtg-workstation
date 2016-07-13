@@ -313,7 +313,7 @@ public class InventoryLoadDialog extends JDialog
 							for (JsonElement colorElement: colorsArray)
 								colors.add(ManaType.get(colorElement.getAsString()));
 						}
-						colors.sort((a, b) -> a.colorOrder(b));
+						colors.sort(ManaType::colorOrder);
 						
 						// Card's set of supertypes
 						Set<String> supertypes = new HashSet<String>();
