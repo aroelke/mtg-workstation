@@ -18,9 +18,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -31,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
@@ -84,6 +87,10 @@ public class InventoryLoadDialog extends JDialog
 	 * Worker that loads the inventory.
 	 */
 	private InventoryLoadWorker worker;
+	/**
+	 * TODO: Comment this
+	 */
+	private Map<Card, String> errors;
 	
 	public InventoryLoadDialog(JFrame owner)
 	{
@@ -93,6 +100,7 @@ public class InventoryLoadDialog extends JDialog
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
 		worker = null;
+		errors = new HashMap<Card, String>();
 		
 		// Content panel
 		GridBagLayout layout = new GridBagLayout();
@@ -265,7 +273,7 @@ public class InventoryLoadDialog extends JDialog
 						subtypeSet.clear();
 						formatSet.clear();
 						cards.clear();
-						break;
+						return new Inventory();
 					}
 					
 					// Create the new Expansion
@@ -426,6 +434,7 @@ public class InventoryLoadDialog extends JDialog
 					}
 				}
 				
+				publish("Processing multi-faced cards...");
 				List<Card> facesList = new ArrayList<Card>(faces.keySet());
 				while (!facesList.isEmpty())
 				{
@@ -443,25 +452,33 @@ public class InventoryLoadDialog extends JDialog
 					{
 					case SPLIT:
 						if (otherFaces.size() < 2)
-							throw new RuntimeException("split card with fewer than two faces");
-						for (Card f: otherFaces)
-							if (f.layout() != CardLayout.SPLIT)
-								throw new RuntimeException("can't join a non-split face into a split card");
-						cards.add(new SplitCard(otherFaces));
+							errors.putIfAbsent(face, "Can't find other face(s) for split card.");
+						else
+							for (Card f: otherFaces)
+								if (f.layout() != CardLayout.SPLIT)
+									errors.putIfAbsent(face, "Can't join non-split faces into a split card.");
+						if (!errors.containsKey(face))
+							cards.add(new SplitCard(otherFaces));
 						break;
 					case FLIP:
-						if (otherFaces.size() != 2)
-							throw new RuntimeException("flip card with different than two sides");
-						if (otherFaces.get(0).layout() != CardLayout.FLIP || otherFaces.get(1).layout() != CardLayout.FLIP)
-							throw new RuntimeException("can't join non-flip cards into flip cards");
-						cards.add(new FlipCard(otherFaces.get(0), otherFaces.get(1)));
+						if (otherFaces.size() < 2)
+							errors.putIfAbsent(face, "Can't find other side of flip card.");
+						else if (otherFaces.size() > 2)
+							errors.putIfAbsent(face, "Too many sides for flip card.");
+						else if (otherFaces.get(0).layout() != CardLayout.FLIP || otherFaces.get(1).layout() != CardLayout.FLIP)
+							errors.putIfAbsent(face, "Can't join non-flip faces into a flip card");
+						if (!errors.containsKey(face))
+							cards.add(new FlipCard(otherFaces.get(0), otherFaces.get(1)));
 						break;
 					case DOUBLE_FACED:
-						if (otherFaces.size() != 2)
-							throw new RuntimeException("double-faced card with different than two faces");
-						if (otherFaces.get(0).layout() != CardLayout.DOUBLE_FACED || otherFaces.get(1).layout() != CardLayout.DOUBLE_FACED)
-							throw new RuntimeException("can't join single-faced cards into double-faced cards");
-						cards.add(new DoubleFacedCard(otherFaces.get(0), otherFaces.get(1)));
+						if (otherFaces.size() < 2)
+							errors.putIfAbsent(face, "Can't find other face of double-faced card.");
+						else if (otherFaces.size() > 2)
+							errors.putIfAbsent(face, "Too many faces for double-faced card.");
+						else if (otherFaces.get(0).layout() != CardLayout.DOUBLE_FACED || otherFaces.get(1).layout() != CardLayout.DOUBLE_FACED)
+							errors.putIfAbsent(face, "Can't join single-faced cards into double-faced cards");
+						if (!errors.containsKey(face))
+							cards.add(new DoubleFacedCard(otherFaces.get(0), otherFaces.get(1)));
 						break;
 					default:
 						break;
@@ -489,6 +506,14 @@ public class InventoryLoadDialog extends JDialog
 		{
 			setVisible(false);
 			dispose();
+			if (!errors.isEmpty())
+				SwingUtilities.invokeLater(() -> {
+					StringJoiner join = new StringJoiner("\n• ");
+					join.add("Errors ocurred while loading the following card(s):");
+					for (Card failure: errors.keySet().stream().sorted(Card::compareName).collect(Collectors.toList()))
+						join.add(failure.toString() + " (" + failure.expansion() + "): " + errors.get(failure));
+					JOptionPane.showMessageDialog(null, join.toString(), "Warning", JOptionPane.WARNING_MESSAGE);
+				});
 		}
 	}
 }
