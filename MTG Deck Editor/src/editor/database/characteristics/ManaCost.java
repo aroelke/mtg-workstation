@@ -1,15 +1,12 @@
 package editor.database.characteristics;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -119,7 +116,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	/**
 	 * List of Symbols in this ManaCost.
 	 */
-	private final Symbol[] cost;
+	private final List<Symbol> cost;
 	/**
 	 * Total color weight of the Symbols in this ManaCost.
 	 */
@@ -145,7 +142,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 		if (!copy.isEmpty())
 			throw new IllegalArgumentException("Illegal cost string \"" + s + "\"");
 		Collections.sort(symbols);
-		cost = symbols.toArray(new Symbol[symbols.size()]);
+		cost = Collections.unmodifiableList(symbols);
 		
 		// Calculate this ManaCost's total color weights.
 		weights = Symbol.createWeights();
@@ -192,7 +189,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public int size()
 	{
-		return cost.length;
+		return cost.size();
 	}
 	
 	/**
@@ -204,7 +201,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public Symbol get(int index)
 	{
-		return cost[index];
+		return cost.get(index);
 	}
 	
 	/**
@@ -218,10 +215,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public int indexOf(Object o)
 	{
-		for (int i = 0; i < cost.length; i++)
-			if (cost[i].equals(o))
-				return i;
-		return -1;
+		return cost.indexOf(o);
 	}
 	
 	/**
@@ -235,10 +229,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public int lastIndexOf(Object o)
 	{
-		for (int i = cost.length - 1; i >= 0; i--)
-			if (cost[i].equals(o))
-				return i;
-		return -1;
+		return cost.lastIndexOf(o);
 	}
 	
 	/**
@@ -248,7 +239,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public boolean isEmpty()
 	{
-		return cost.length == 0;
+		return cost.isEmpty();
 	}
 	
 	/**
@@ -269,10 +260,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public boolean contains(Object o)
 	{
-		for (Symbol symbol: cost)
-			if (symbol.equals(o))
-				return true;
-		return false;
+		return cost.contains(o);
 	}
 	
 	/**
@@ -285,10 +273,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public boolean containsAll(Collection<?> c)
 	{
-		for (Object o: c)
-			if (!contains(o))
-				return false;
-		return true;
+		return cost.containsAll(c);
 	}
 	
 	/**
@@ -298,7 +283,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 */
 	public boolean isSubset(ManaCost o)
 	{
-		List<Symbol> copy = Arrays.asList(o.cost);
+		List<Symbol> copy = new ArrayList<Symbol>(cost);
 		for (Symbol sym: cost)
 			if (!copy.remove(sym))
 				return false;
@@ -382,7 +367,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 			return false;
 		if (other == this)
 			return false;
-		return Arrays.equals(cost, ((ManaCost)other).cost);
+		return cost.equals(((ManaCost)other).cost);
 	}
 	/**
 	 * @return A unique integer for this ManaCost.
@@ -390,7 +375,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public int hashCode()
 	{
-		return Arrays.hashCode(cost);
+		return cost.hashCode();
 	}
 	
 	/**
@@ -399,7 +384,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public Iterator<Symbol> iterator()
 	{
-		return new CostIterator();
+		return cost.iterator();
 	}
 	
 	/**
@@ -409,7 +394,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public ListIterator<Symbol> listIterator()
 	{
-		return new CostIterator();
+		return cost.listIterator();
 	}
 	
 	/**
@@ -421,7 +406,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public ListIterator<Symbol> listIterator(int index)
 	{
-		return new CostIterator(index);
+		return cost.listIterator(index);
 	}
 	
 	/**
@@ -433,7 +418,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public List<Symbol> subList(int fromIndex, int toIndex)
 	{
-		return new SubCost(fromIndex, toIndex);
+		return cost.subList(fromIndex, toIndex);
 	}
 	
 	/**
@@ -442,7 +427,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	@Override
 	public Object[] toArray()
 	{
-		return Arrays.copyOf(cost, cost.length);
+		return cost.toArray();
 	}
 	
 	/**
@@ -454,19 +439,11 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * @param a Array determining runtime type of the return value
 	 * @return An array containing all of the Symbols in this ManaCost, which is
 	 * null-terminated if there is extra room.
-	 */
-	@SuppressWarnings("unchecked")
+	 */	
 	@Override
 	public <T> T[] toArray(T[] a)
 	{
-		T[] array;
-		if (a.length < size())
-			array = (T[])Array.newInstance(a.getClass().getComponentType(), size());
-		else
-			array = a;
-		for (int i = 0; i < array.length; i++)
-			array[i] = i < size() ? (T)cost[i] : null;
-		return array;
+		return cost.toArray(a);
 	}
 
 	/**
@@ -557,291 +534,5 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	public Symbol set(int index, Symbol element)
 	{
 		throw new UnsupportedOperationException("set");
-	}
-	
-	/**
-	 * This class represents an iterator over a list of Symbols that can go both
-	 * forward and backward.  By default, it will iterate over the parent ManaCost,
-	 * but it can also iterate over sublists of it.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class CostIterator implements ListIterator<Symbol>
-	{
-		private List<Symbol> parent;
-		private int index;
-		
-		public CostIterator(List<Symbol> p, int i)
-		{
-			parent = p;
-			if (i < 0 || i >= cost.length)
-				throw new IndexOutOfBoundsException("index " + i + ", size " + cost.length);
-			index = i;
-		}
-		
-		public CostIterator(int i)
-		{
-			this(ManaCost.this, i);
-		}
-		
-		public CostIterator(List<Symbol> p)
-		{
-			this(p, 0);
-		}
-		
-		public CostIterator()
-		{
-			this(0);
-		}
-		
-		@Override
-		public boolean hasNext()
-		{
-			return index < parent.size();
-		}
-
-		@Override
-		public int nextIndex()
-		{
-			return Math.min(index, parent.size());
-		}
-		
-		@Override
-		public Symbol next()
-		{
-			if (!hasNext())
-				throw new NoSuchElementException("index " + index + ", size " + parent.size());
-			return cost[index++];
-		}
-
-		@Override
-		public boolean hasPrevious()
-		{
-			return index > 0;
-		}
-		
-		@Override
-		public int previousIndex()
-		{
-			return Math.max(index - 1, -1);
-		}
-		
-		@Override
-		public Symbol previous()
-		{
-			if (!hasPrevious())
-				throw new NoSuchElementException("index 0");
-			return cost[--index];
-		}
-		
-		@Override
-		public void add(Symbol e)
-		{
-			throw new UnsupportedOperationException("add");
-		}
-
-		@Override
-		public void remove()
-		{
-			throw new UnsupportedOperationException("remove");
-		}
-
-		@Override
-		public void set(Symbol e)
-		{
-			throw new UnsupportedOperationException("set");
-		}
-	}
-	
-	/**
-	 * This class represents a smaller view of a ManaCost.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class SubCost implements List<Symbol>
-	{
-		private List<Symbol> parent;
-		private int start;
-		private int end;
-		
-		public SubCost(List<Symbol> p, int s, int e)
-		{
-			if (s < 0 || s >= p.size())
-				throw new IndexOutOfBoundsException("index " + s + ", size " + p.size());
-			if (e < 0 || e >= p.size())
-				throw new IndexOutOfBoundsException("index " + e + ", size " + p.size());
-			
-			parent = p;
-			start = s;
-			end = e;
-		}
-		
-		public SubCost(int s, int e)
-		{
-			this(ManaCost.this, s, e);
-		}
-
-		@Override
-		public boolean contains(Object o)
-		{
-			for (int i = start; i < end; i++)
-				if (parent.get(i).equals(o))
-					return true;
-			return false;
-		}
-
-		@Override
-		public boolean containsAll(Collection<?> c)
-		{
-			for (Object o: c)
-				if (!contains(o))
-					return false;
-			return true;
-		}
-
-		@Override
-		public Symbol get(int index)
-		{
-			if (start + index >= end)
-				throw new IndexOutOfBoundsException("index " + index + ", size " + size());
-			return parent.get(start + index);
-		}
-
-		@Override
-		public int indexOf(Object o)
-		{
-			for (int i = 0; i < size(); i++)
-				if (get(i).equals(o))
-					return i;
-			return -1;
-		}
-
-		@Override
-		public boolean isEmpty()
-		{
-			return size() == 0;
-		}
-
-		@Override
-		public Iterator<Symbol> iterator()
-		{
-			return new CostIterator(this);
-		}
-
-		@Override
-		public int lastIndexOf(Object o)
-		{
-			for (int i = size() - 1; i >= 0; i--)
-				if (get(i).equals(o))
-					return i;
-			return -1;
-		}
-
-		@Override
-		public ListIterator<Symbol> listIterator()
-		{
-			return new CostIterator(this);
-		}
-
-		@Override
-		public ListIterator<Symbol> listIterator(int index)
-		{
-			return new CostIterator(this, index);
-		}
-
-		@Override
-		public int size()
-		{
-			return end - start;
-		}
-
-		@Override
-		public List<Symbol> subList(int fromIndex, int toIndex)
-		{
-			return new SubCost(this, fromIndex, toIndex);
-		}
-
-		@Override
-		public Object[] toArray()
-		{
-			Object[] array = new Object[size()];
-			for (int i = 0; i < size(); i++)
-				array[i] = get(i);
-			return array;
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public <T> T[] toArray(T[] a)
-		{
-			T[] array;
-			if (a.length < size())
-				array = (T[])Array.newInstance(a.getClass().getComponentType(), size());
-			else
-				array = a;
-			for (int i = 0; i < array.length; i++)
-				array[i] = i < size() ? (T)get(i) : null;
-			return array;
-		}
-		
-		@Override
-		public boolean add(Symbol e)
-		{
-			throw new UnsupportedOperationException("add");
-		}
-
-		@Override
-		public void add(int index, Symbol element)
-		{
-			throw new UnsupportedOperationException("add");
-		}
-
-		@Override
-		public boolean addAll(Collection<? extends Symbol> c)
-		{
-			throw new UnsupportedOperationException("addAll");
-		}
-
-		@Override
-		public boolean addAll(int index, Collection<? extends Symbol> c)
-		{
-			throw new UnsupportedOperationException("addAll");
-		}
-
-		@Override
-		public void clear()
-		{
-			throw new UnsupportedOperationException("clear");
-		}
-
-		@Override
-		public boolean remove(Object o)
-		{
-			throw new UnsupportedOperationException("remove");
-		}
-
-		@Override
-		public Symbol remove(int index)
-		{
-			throw new UnsupportedOperationException("remove");
-		}
-
-		@Override
-		public boolean removeAll(Collection<?> c)
-		{
-			throw new UnsupportedOperationException("removeAll");
-		}
-
-		@Override
-		public boolean retainAll(Collection<?> c)
-		{
-			throw new UnsupportedOperationException("retainAll");
-		}
-
-		@Override
-		public Symbol set(int index, Symbol element)
-		{
-			throw new UnsupportedOperationException("set");
-		}
 	}
 }
