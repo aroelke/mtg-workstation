@@ -22,7 +22,6 @@ import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -63,8 +62,7 @@ import editor.filter.leaf.options.multi.SupertypeFilter;
  * This class represents a dialog that shows the progress for loading the
  * inventory and blocking the main frame until it is finished.
  * 
- * TODO: If there's an error loading a card, continue loading cards anyway and then
- * display a warning at the end instead of an error.
+ * TODO: Wait for final EMN info for meld cards.
  * 
  * @author Alec Roelke
  */
@@ -90,7 +88,7 @@ public class InventoryLoadDialog extends JDialog
 	/**
 	 * TODO: Comment this
 	 */
-	private Map<Card, String> errors;
+	private List<String> errors;
 	
 	public InventoryLoadDialog(JFrame owner)
 	{
@@ -100,7 +98,7 @@ public class InventoryLoadDialog extends JDialog
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
 		worker = null;
-		errors = new HashMap<Card, String>();
+		errors = new ArrayList<String>();
 		
 		// Content panel
 		GridBagLayout layout = new GridBagLayout();
@@ -295,9 +293,18 @@ public class InventoryLoadDialog extends JDialog
 						JsonObject card = cardElement.getAsJsonObject();
 						
 						// If the card is a token, skip it
-						CardLayout layout = CardLayout.valueOf(card.get("layout").getAsString().toUpperCase().replaceAll("[^A-Z]", "_"));
-						if (layout == CardLayout.TOKEN)
+						CardLayout layout = null;
+						try
+						{
+							layout = CardLayout.valueOf(card.get("layout").getAsString().toUpperCase().replaceAll("[^A-Z]", "_"));
+							if (layout == CardLayout.TOKEN)
+								continue;
+						}
+						catch (IllegalArgumentException e)
+						{
+							errors.add(e.getMessage());
 							continue;
+						}
 						
 						// Card's name
 						String name = card.get("name").getAsString();
@@ -438,6 +445,8 @@ public class InventoryLoadDialog extends JDialog
 				List<Card> facesList = new ArrayList<Card>(faces.keySet());
 				while (!facesList.isEmpty())
 				{
+					boolean error = false;
+					
 					Card face = facesList.remove(0);
 					List<String> faceNames = faces.get(face);
 					List<Card> otherFaces = new ArrayList<Card>();
@@ -452,32 +461,60 @@ public class InventoryLoadDialog extends JDialog
 					{
 					case SPLIT:
 						if (otherFaces.size() < 2)
-							errors.putIfAbsent(face, "Can't find other face(s) for split card.");
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face(s) for split card.");
+							error = true;
+						}
 						else
+						{
 							for (Card f: otherFaces)
+							{
 								if (f.layout() != CardLayout.SPLIT)
-									errors.putIfAbsent(face, "Can't join non-split faces into a split card.");
-						if (!errors.containsKey(face))
+								{
+									errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-split faces into a split card.");
+									error = true;
+								}
+							}
+						}
+						if (!error)
 							cards.add(new SplitCard(otherFaces));
 						break;
 					case FLIP:
 						if (otherFaces.size() < 2)
-							errors.putIfAbsent(face, "Can't find other side of flip card.");
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't find other side of flip card.");
+							error = true;
+						}
 						else if (otherFaces.size() > 2)
-							errors.putIfAbsent(face, "Too many sides for flip card.");
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Too many sides for flip card.");
+							error = true;
+						}
 						else if (otherFaces.get(0).layout() != CardLayout.FLIP || otherFaces.get(1).layout() != CardLayout.FLIP)
-							errors.putIfAbsent(face, "Can't join non-flip faces into a flip card");
-						if (!errors.containsKey(face))
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-flip faces into a flip card.");
+							error = true;
+						}
+						if (!error)
 							cards.add(new FlipCard(otherFaces.get(0), otherFaces.get(1)));
 						break;
 					case DOUBLE_FACED:
 						if (otherFaces.size() < 2)
-							errors.putIfAbsent(face, "Can't find other face of double-faced card.");
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face of double-faced card.");
+							error = true;
+						}
 						else if (otherFaces.size() > 2)
-							errors.putIfAbsent(face, "Too many faces for double-faced card.");
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for double-faced card.");
+							error = true;
+						}
 						else if (otherFaces.get(0).layout() != CardLayout.DOUBLE_FACED || otherFaces.get(1).layout() != CardLayout.DOUBLE_FACED)
-							errors.putIfAbsent(face, "Can't join single-faced cards into double-faced cards");
-						if (!errors.containsKey(face))
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into double-faced cards.");
+							error = true;
+						}
+						if (!error)
 							cards.add(new DoubleFacedCard(otherFaces.get(0), otherFaces.get(1)));
 						break;
 					default:
@@ -510,8 +547,8 @@ public class InventoryLoadDialog extends JDialog
 				SwingUtilities.invokeLater(() -> {
 					StringJoiner join = new StringJoiner("\n• ");
 					join.add("Errors ocurred while loading the following card(s):");
-					for (Card failure: errors.keySet().stream().sorted(Card::compareName).collect(Collectors.toList()))
-						join.add(failure.toString() + " (" + failure.expansion() + "): " + errors.get(failure));
+					for (String failure: errors)
+						join.add(failure);
 					JOptionPane.showMessageDialog(null, join.toString(), "Warning", JOptionPane.WARNING_MESSAGE);
 				});
 		}
