@@ -37,7 +37,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		try
 		{
 			TextFilter filter = (TextFilter)t.createFilter();
-			filter.text = s;
+			filter.text = Pattern.quote(s);
 			filter.regex = true;
 			return filter;
 		}
