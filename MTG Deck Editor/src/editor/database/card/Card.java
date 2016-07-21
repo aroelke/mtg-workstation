@@ -483,9 +483,17 @@ public interface Card
 						break;
 					case '}':
 						Symbol symbol = Symbol.valueOf(oracle.substring(start, i));
-						Style symbolStyle = document.addStyle(symbol.toString(), null);
-						StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
-						document.insertString(document.getLength(), symbol.toString(), symbolStyle);
+						if (symbol == null)
+						{
+							System.err.println("Unexpected symbol {" + oracle.substring(start, i) + "} in ruling for " + unifiedName() + ".");
+							document.insertString(document.getLength(), oracle.substring(start, i), textStyle);
+						}
+						else
+						{
+							Style symbolStyle = document.addStyle(symbol.toString(), null);
+							StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
+							document.insertString(document.getLength(), symbol.toString(), symbolStyle);
+						}
 						start = i + 1;
 						break;
 					case '(':
@@ -528,9 +536,17 @@ public interface Card
 						break;
 					case '}':
 						Symbol symbol = Symbol.valueOf(flavor.substring(start, i));
-						Style symbolStyle = document.addStyle(symbol.toString(), null);
-						StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
-						document.insertString(document.getLength(), " ", symbolStyle);
+						if (symbol == null)
+						{
+							System.err.println("Unexpected symbol {" + flavor.substring(start, i) + "} in ruling for " + unifiedName() + ".");
+							document.insertString(document.getLength(), flavor.substring(start, i), reminderStyle);
+						}
+						else
+						{
+							Style symbolStyle = document.addStyle(symbol.toString(), null);
+							StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
+							document.insertString(document.getLength(), " ", symbolStyle);
+						}
 						start = i + 1;
 						break;
 					default:

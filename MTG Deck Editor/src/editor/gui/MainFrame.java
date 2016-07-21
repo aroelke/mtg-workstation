@@ -1433,9 +1433,17 @@ public class MainFrame extends JFrame
 									break;
 								case '}':
 									Symbol symbol = Symbol.valueOf(ruling.substring(start, i));
-									Style symbolStyle = rulingsDocument.addStyle(symbol.toString(), null);
-									StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
-									rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle);
+									if (symbol == null)
+									{
+										System.err.println("Unexpected symbol {" + ruling.substring(start, i) + "} in ruling for " + selectedCard.unifiedName() + ".");
+										rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i), rulingStyle);
+									}
+									else
+									{
+										Style symbolStyle = rulingsDocument.addStyle(symbol.toString(), null);
+										StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
+										rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle);
+									}
 									start = i + 1;
 									break;
 								default:

@@ -26,7 +26,7 @@ public class StaticSymbol extends Symbol
 	/**
 	 * Map of symbol texts onto their respective symbols.
 	 */
-	private static final Map<String, StaticSymbol> SYMBOLS = new HashMap<String, StaticSymbol>();
+	public static final Map<String, StaticSymbol> SYMBOLS = new HashMap<String, StaticSymbol>();
 	static
 	{
 		// Chaos symbol.
@@ -42,6 +42,7 @@ public class StaticSymbol extends Symbol
 		SYMBOLS.put("S", new StaticSymbol("snow_mana.png", "S"));
 		// Tap symbol.  Used in costs in card text.
 		SYMBOLS.put("T", new StaticSymbol("tap.png", "T"));
+		SYMBOLS.put("TAP", SYMBOLS.get("T"));
 		// Untap symbol.  Used in costs in card text.
 		SYMBOLS.put("Q", new StaticSymbol("untap.png", "Q"));
 	}
