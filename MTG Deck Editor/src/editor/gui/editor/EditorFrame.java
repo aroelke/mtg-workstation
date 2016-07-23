@@ -445,7 +445,8 @@ public class EditorFrame extends JInternalFrame
 		});
 		tableMenu.add(removeNPopupItem);
 		
-		tableMenu.add(new JSeparator());
+		JSeparator categoriesSeparator = new JSeparator();
+		tableMenu.add(categoriesSeparator);
 		
 		// Quick edit categories
 		JMenu addToCategoryMenu = new JMenu("Include in");
@@ -462,60 +463,8 @@ public class EditorFrame extends JInternalFrame
 		});
 		tableMenu.add(editCategoriesItem);
 		
-		tableMenu.addPopupMenuListener(new PopupMenuListener()
-		{
-			@Override
-			public void popupMenuCanceled(PopupMenuEvent e)
-			{}
-
-			@Override
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-			{
-				addToCategoryMenu.removeAll();
-				removeFromCategoryMenu.removeAll();
-			}
-
-			@Override
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-			{
-				if (selectedTable == table && !deck.categories().isEmpty())
-				{
-					if (getSelectedCards().size() == 1)
-					{
-						Card card = getSelectedCards().get(0);
-						
-						for (CategorySpec category: deck.categories())
-						{
-							if (!category.includes(card))
-							{
-								JMenuItem categoryItem = new JMenuItem(category.getName());
-								categoryItem.addActionListener((e2) -> performAction(() -> category.exclude(card), () -> category.include(card)));
-								addToCategoryMenu.add(categoryItem);
-							}
-						}
-						addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount() > 0);
-						
-						for (CategorySpec category: deck.categories())
-						{
-							if (category.includes(card))
-							{
-								JMenuItem categoryItem = new JMenuItem(category.getName());
-								categoryItem.addActionListener((e2) -> performAction(() -> category.include(card), () -> category.exclude(card)));
-								removeFromCategoryMenu.add(categoryItem);
-							}
-						}
-						removeFromCategoryMenu.setVisible(removeFromCategoryMenu.getItemCount() > 0);
-					}
-					else
-					{
-						addToCategoryMenu.setVisible(false);
-						removeFromCategoryMenu.setVisible(false);
-					}
-					
-					editCategoriesItem.setVisible(!getSelectedCards().isEmpty());
-				}
-			}
-		});
+		tableMenu.addPopupMenuListener(new TablePopupListener(addToCategoryMenu, removeFromCategoryMenu,
+				editCategoriesItem, categoriesSeparator, table));
 		
 		// Panel containing categories
 		JPanel categoriesPanel = new JPanel(new BorderLayout());
@@ -1098,7 +1047,8 @@ public class EditorFrame extends JInternalFrame
 		});
 		tableMenu.add(removeNPopupItem);
 		
-		tableMenu.add(new JSeparator());
+		JSeparator categoriesSeparator = new JSeparator();
+		tableMenu.add(categoriesSeparator);
 		
 		// Quick edit categories
 		JMenu addToCategoryMenu = new JMenu("Include in");
@@ -1131,60 +1081,8 @@ public class EditorFrame extends JInternalFrame
 		});
 		tableMenu.add(editCategoriesItem);
 		
-		tableMenu.addPopupMenuListener(new PopupMenuListener()
-		{
-			@Override
-			public void popupMenuCanceled(PopupMenuEvent e)
-			{}
-
-			@Override
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-			{
-				addToCategoryMenu.removeAll();
-				removeFromCategoryMenu.removeAll();
-			}
-
-			@Override
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-			{
-				if (selectedTable == newCategory.table)
-				{
-					if (getSelectedCards().size() == 1)
-					{
-						Card card = getSelectedCards().get(0);
-						
-						for (CategorySpec category: deck.categories())
-						{
-							if (!category.includes(card))
-							{
-								JMenuItem categoryItem = new JMenuItem(category.getName());
-								categoryItem.addActionListener((e2) -> performAction(() -> category.exclude(card), () -> category.include(card)));
-								addToCategoryMenu.add(categoryItem);
-							}
-						}
-						addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount() > 0);
-						
-						for (CategorySpec category: deck.categories())
-						{
-							if (category.includes(card))
-							{
-								JMenuItem categoryItem = new JMenuItem(category.getName());
-								categoryItem.addActionListener((e2) -> performAction(() -> category.include(card), () -> category.exclude(card)));
-								removeFromCategoryMenu.add(categoryItem);
-							}
-						}
-						removeFromCategoryMenu.setVisible(removeFromCategoryMenu.getItemCount() > 0);
-					}
-					else
-					{
-						addToCategoryMenu.setVisible(false);
-						removeFromCategoryMenu.setVisible(false);
-					}
-					
-					editCategoriesItem.setVisible(!getSelectedCards().isEmpty());
-				}
-			}
-		});
+		tableMenu.addPopupMenuListener(new TablePopupListener(addToCategoryMenu, removeFromCategoryMenu,
+				editCategoriesItem, categoriesSeparator, newCategory.table));
 		
 		// Category popup menu
 		JPopupMenu categoryMenu = new JPopupMenu();
@@ -1930,6 +1828,125 @@ public class EditorFrame extends JInternalFrame
 		{
 			undoBuffer.pop();
 			return false;
+		}
+	}
+	
+	/**
+	 * Popup menu listener for a CardTable of this EditorFrame.  It controls the visibility
+	 * and contents of the include and exclude options.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private class TablePopupListener implements PopupMenuListener
+	{
+		/**
+		 * Submenu for quickly adding cards to categories.
+		 */
+		private JMenu addToCategoryMenu;
+		/**
+		 * Submenu for quickly removing cards from categories.
+		 */
+		private JMenu removeFromCategoryMenu;
+		/**
+		 * Item for editing the categories of cards.
+		 */
+		private JMenuItem editCategoriesItem;
+		private JSeparator menuSeparator;
+		/**
+		 * Table in which the menu appears.
+		 */
+		private CardTable table;
+		
+		/**
+		 * Create a new TablePopupListener.
+		 * 
+		 * @param add Submenu for adding cards
+		 * @param remove Submenu for removing cards
+		 * @param edit Item for editing card categories
+		 * @param t Table which will contain the popup
+		 */
+		public TablePopupListener(JMenu add, JMenu remove, JMenuItem edit, JSeparator sep, CardTable t)
+		{
+			addToCategoryMenu = add;
+			removeFromCategoryMenu = remove;
+			editCategoriesItem = edit;
+			menuSeparator = sep;
+			table = t;
+		}
+		
+		/**
+		 * Nothing happens if the popup menu is canceled.
+		 * 
+		 * @param e Event containing information about the cancellation
+		 */
+		@Override
+		public void popupMenuCanceled(PopupMenuEvent e)
+		{}
+
+		/**
+		 * When the popup menu becomes invisible (something is selected or it
+		 * is canceled), the submenus should be cleared so they don't get
+		 * duplicate items.
+		 * 
+		 * @param e Event containing information about the closing
+		 */
+		@Override
+		public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+		{
+			addToCategoryMenu.removeAll();
+			removeFromCategoryMenu.removeAll();
+		}
+
+		/**
+		 * Just before the popup menu becomes visible, its submenus for adding
+		 * the selected cards to categories and removing them from categories
+		 * should be populated.  If any of them are empty, they become invisible.
+		 * If there are no selected cards or there are no categories, the edit
+		 * categories item also becomes invisible.
+		 * 
+		 * @param e
+		 */
+		@Override
+		public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+		{
+			if (selectedTable == table)
+			{
+				if (getSelectedCards().size() == 1)
+				{
+					Card card = getSelectedCards().get(0);
+					
+					for (CategorySpec category: deck.categories())
+					{
+						if (!category.includes(card))
+						{
+							JMenuItem categoryItem = new JMenuItem(category.getName());
+							categoryItem.addActionListener((e2) -> performAction(() -> category.exclude(card), () -> category.include(card)));
+							addToCategoryMenu.add(categoryItem);
+						}
+					}
+					addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount() > 0);
+					
+					for (CategorySpec category: deck.categories())
+					{
+						if (category.includes(card))
+						{
+							JMenuItem categoryItem = new JMenuItem(category.getName());
+							categoryItem.addActionListener((e2) -> performAction(() -> category.include(card), () -> category.exclude(card)));
+							removeFromCategoryMenu.add(categoryItem);
+						}
+					}
+					removeFromCategoryMenu.setVisible(removeFromCategoryMenu.getItemCount() > 0);
+				}
+				else
+				{
+					addToCategoryMenu.setVisible(false);
+					removeFromCategoryMenu.setVisible(false);
+				}
+				
+				editCategoriesItem.setVisible(!getSelectedCards().isEmpty() && !deck.categories().isEmpty());
+				
+				menuSeparator.setVisible(addToCategoryMenu.isVisible() || removeFromCategoryMenu.isVisible() || editCategoriesItem.isVisible());
+			}
 		}
 	}
 	
