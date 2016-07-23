@@ -32,7 +32,6 @@ import editor.gui.MainFrame;
 /**
  * This interface represents an abstract Card with various characteristics.
  * 
- * TODO: Add support for meld cards when EMN comes out
  * TODO: If there are any performance issues, try pre-collecting values
  * TODO: Add a user-controlled tag to cards.
  * TODO: Add printed text in addition to Oracle text.

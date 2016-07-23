@@ -12,6 +12,7 @@ public enum CardLayout
 	SPLIT("Split", true),
 	FLIP("Flip", true),
 	DOUBLE_FACED("Double-faced", true),
+	MELD("Meld", true),
 	TOKEN("Token"),
 	PLANE("Plane"),
 	SCHEME("Scheme"),

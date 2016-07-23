@@ -47,6 +47,7 @@ import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.card.DoubleFacedCard;
 import editor.database.card.FlipCard;
+import editor.database.card.MeldCard;
 import editor.database.card.SingleCard;
 import editor.database.card.SplitCard;
 import editor.database.characteristics.Expansion;
@@ -517,6 +518,27 @@ public class InventoryLoadDialog extends JDialog
 						if (!error)
 							cards.add(new DoubleFacedCard(otherFaces.get(0), otherFaces.get(1)));
 						break;
+					case MELD:
+						if (otherFaces.size() < 3)
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't find some faces of meld card.");
+							error = true;
+						}
+						else if (otherFaces.size() > 3)
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for meld card.");
+							error = true;
+						}
+						else if (otherFaces.get(0).layout() != CardLayout.MELD || otherFaces.get(1).layout() != CardLayout.MELD || otherFaces.get(2).layout() != CardLayout.MELD)
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into meld cards.");
+							error = true;
+						}
+						if (!error)
+						{
+							cards.add(new MeldCard(otherFaces.get(0), otherFaces.get(1), otherFaces.get(2)));
+							cards.add(new MeldCard(otherFaces.get(1), otherFaces.get(0), otherFaces.get(2)));
+						}
 					default:
 						break;
 					}
