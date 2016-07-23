@@ -484,7 +484,6 @@ public class EditorFrame extends JInternalFrame
 					{
 						Card card = getSelectedCards().get(0);
 						
-						addToCategoryMenu.setVisible(true);
 						for (CategorySpec category: deck.categories())
 						{
 							if (!category.includes(card))
@@ -494,8 +493,8 @@ public class EditorFrame extends JInternalFrame
 								addToCategoryMenu.add(categoryItem);
 							}
 						}
+						addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount() > 0);
 						
-						removeFromCategoryMenu.setVisible(true);
 						for (CategorySpec category: deck.categories())
 						{
 							if (category.includes(card))
@@ -505,6 +504,7 @@ public class EditorFrame extends JInternalFrame
 								removeFromCategoryMenu.add(categoryItem);
 							}
 						}
+						removeFromCategoryMenu.setVisible(removeFromCategoryMenu.getItemCount() > 0);
 					}
 					else
 					{
@@ -1153,7 +1153,6 @@ public class EditorFrame extends JInternalFrame
 					{
 						Card card = getSelectedCards().get(0);
 						
-						addToCategoryMenu.setVisible(true);
 						for (CategorySpec category: deck.categories())
 						{
 							if (!category.includes(card))
@@ -1163,8 +1162,8 @@ public class EditorFrame extends JInternalFrame
 								addToCategoryMenu.add(categoryItem);
 							}
 						}
+						addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount() > 0);
 						
-						removeFromCategoryMenu.setVisible(true);
 						for (CategorySpec category: deck.categories())
 						{
 							if (category.includes(card))
@@ -1174,6 +1173,7 @@ public class EditorFrame extends JInternalFrame
 								removeFromCategoryMenu.add(categoryItem);
 							}
 						}
+						removeFromCategoryMenu.setVisible(removeFromCategoryMenu.getItemCount() > 0);
 					}
 					else
 					{
