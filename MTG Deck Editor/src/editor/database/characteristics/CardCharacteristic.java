@@ -11,6 +11,7 @@ import javax.swing.table.TableCellEditor;
 
 import editor.collection.CardCollection;
 import editor.database.card.Card;
+import editor.database.card.CardLayout;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.IncludeExcludePanel;
 import editor.gui.editor.InclusionCellEditor;
@@ -21,7 +22,6 @@ import editor.gui.generic.SpinnerCellEditor;
  * etc.
  * 
  * TODO: add CMC
- * TODO: Add layout
  * 
  * @author Alec Roelke
  */
@@ -34,6 +34,7 @@ public enum CardCharacteristic
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}),
+	LAYOUT("Layout", CardLayout.class, (l, i) -> l.get(i).layout()),
 	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l.get(i).manaCost()),
 	COLORS("Colors", ManaType.Tuple.class, (l, i) -> l.get(i).colors()),
 	COLOR_IDENTITY("Color Identity", ManaType.Tuple.class, (l, i) -> l.get(i).colorIdentity()),
@@ -76,6 +77,7 @@ public enum CardCharacteristic
 	public static CardCharacteristic[] inventoryValues()
 	{
 		return new CardCharacteristic[] {NAME,
+										 LAYOUT,
 										 MANA_COST,
 										 COLORS,
 										 COLOR_IDENTITY,

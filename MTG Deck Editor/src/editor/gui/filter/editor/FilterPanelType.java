@@ -2,6 +2,7 @@ package editor.gui.filter.editor;
 
 import java.util.function.Function;
 
+import editor.database.card.CardLayout;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
 import editor.filter.FilterType;
@@ -18,13 +19,12 @@ import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
 import editor.filter.leaf.options.single.BlockFilter;
 import editor.filter.leaf.options.single.ExpansionFilter;
+import editor.filter.leaf.options.single.LayoutFilter;
 import editor.filter.leaf.options.single.RarityFilter;
 
 /**
  * This enum enumerates the types of filter editor panels and
  * can instantiate them.
- * 
- * TODO: Add layout
  * 
  * @author Alec Roelke
  */
@@ -35,6 +35,12 @@ public enum FilterPanelType
 			return new TextFilterPanel((TextFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal name filter type " + f.type.name());
+	}),
+	LAYOUT(FilterType.LAYOUT, (f) -> {
+		if (f.type == FilterType.LAYOUT)
+			return new OptionsFilterPanel<CardLayout>((LayoutFilter)f, CardLayout.values());
+		else
+			throw new IllegalArgumentException("Illegal layout filter type " + f.type.name());
 	}),
 	MANA_COST(FilterType.MANA_COST, (f) -> {
 		if (f.type == FilterType.MANA_COST)

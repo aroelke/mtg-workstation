@@ -18,18 +18,18 @@ import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
 import editor.filter.leaf.options.single.BlockFilter;
 import editor.filter.leaf.options.single.ExpansionFilter;
+import editor.filter.leaf.options.single.LayoutFilter;
 import editor.filter.leaf.options.single.RarityFilter;
 
 /**
  * This enum represents a type of filter that can be used to filter Cards.
- * 
- * TODO: Add layout
  * 
  * @author Alec Roelke
  */
 public enum FilterType
 {
 	NAME("Name", "n"),
+	LAYOUT("Layout", "L"),
 	MANA_COST("Mana Cost", "m"),
 	CMC("CMC", "cmc"),
 	COLOR("Color", "c"),
@@ -56,6 +56,7 @@ public enum FilterType
 	static
 	{
 		NAME.supplier = () -> new TextFilter(NAME, Card::normalizedName);
+		LAYOUT.supplier = () -> new LayoutFilter();
 		MANA_COST.supplier = () -> new ManaCostFilter();
 		CMC.supplier = () -> new NumberFilter(CMC, Card::cmc);
 		COLOR.supplier = () -> new ColorFilter(COLOR, Card::colors);
