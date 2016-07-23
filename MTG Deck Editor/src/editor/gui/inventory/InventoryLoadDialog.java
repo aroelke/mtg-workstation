@@ -285,12 +285,15 @@ public class InventoryLoadDialog extends JDialog
 												  setCards.size());
 					expansions.add(set);
 					blockNames.add(set.block);
-					publish("Loading cards from " + set.name + "...");
+					publish("Loading cards from " + set + "...");
 					
 					for (JsonElement cardElement: setCards)
 					{
 						// Create the new card for the expansion
 						JsonObject card = cardElement.getAsJsonObject();
+						
+						// Card's name
+						String name = card.get("name").getAsString();
 						
 						// If the card is a token, skip it
 						CardLayout layout = null;
@@ -302,12 +305,9 @@ public class InventoryLoadDialog extends JDialog
 						}
 						catch (IllegalArgumentException e)
 						{
-							errors.add(e.getMessage());
+							errors.add(name + " (" + set + "): " + e.getMessage());
 							continue;
 						}
-						
-						// Card's name
-						String name = card.get("name").getAsString();
 						
 						// Card's mana cost
 						String mana = card.has("manaCost") ? card.get("manaCost").getAsString() : "";
