@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -324,7 +325,7 @@ public class InventoryLoadDialog extends JDialog
 						colors.sort(ManaType::colorOrder);
 						
 						// Card's set of supertypes
-						Set<String> supertypes = new HashSet<String>();
+						Set<String> supertypes = new LinkedHashSet<String>();
 						if (card.has("supertypes"))
 						{
 							JsonArray superArray = card.get("supertypes").getAsJsonArray();
@@ -336,7 +337,7 @@ public class InventoryLoadDialog extends JDialog
 						}
 						
 						// Card's set of types
-						Set<String> types = new HashSet<String>();
+						Set<String> types = new LinkedHashSet<String>();
 						for (JsonElement typeElement: card.get("types").getAsJsonArray())
 						{
 							types.add(typeElement.getAsString());
@@ -344,7 +345,7 @@ public class InventoryLoadDialog extends JDialog
 						}
 						
 						// Card's set of subtypes
-						Set<String> subtypes = new HashSet<String>();
+						Set<String> subtypes = new LinkedHashSet<String>();
 						if (card.has("subtypes"))
 						{
 							for (JsonElement subElement: card.get("subtypes").getAsJsonArray())
