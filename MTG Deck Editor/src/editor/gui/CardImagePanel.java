@@ -108,12 +108,7 @@ public class CardImagePanel extends JPanel
 				finally
 				{
 					if (img == null && card.layout() == CardLayout.SPLIT)
-					{
-						Collection<BufferedImage> imgs = new ArrayList<BufferedImage>();
-						for (int i = 0; i < card.faces(); i++)
-							imgs.add(null);
-						faceImages.addAll(imgs);
-					}
+						faceImages.addAll(Collections.nCopies(card.faces(), null));
 					else
 						faceImages.add(img);
 				}
