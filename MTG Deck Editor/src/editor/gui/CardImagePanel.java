@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import editor.database.card.Card;
+import editor.database.card.CardLayout;
 
 /**
  * This class represents a panel that shows the images associated with a card if they
@@ -105,7 +107,15 @@ public class CardImagePanel extends JPanel
 				{}
 				finally
 				{
-					faceImages.add(img);
+					if (img == null && card.layout() == CardLayout.SPLIT)
+					{
+						Collection<BufferedImage> imgs = new ArrayList<BufferedImage>();
+						for (int i = 0; i < card.faces(); i++)
+							imgs.add(null);
+						faceImages.addAll(imgs);
+					}
+					else
+						faceImages.add(img);
 				}
 			}
 		}
