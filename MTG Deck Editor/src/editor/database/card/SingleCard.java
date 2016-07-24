@@ -216,7 +216,6 @@ public class SingleCard implements Card
 				else if (sub.equalsIgnoreCase("forest"))
 					colorIdentity.add(ManaType.GREEN);
 			}
-			ManaType.sort(colorIdentity);
 		}
 		this.colorIdentity = new ManaType.Tuple(colorIdentity);
 /*
