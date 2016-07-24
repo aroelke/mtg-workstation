@@ -109,7 +109,6 @@ public class SingleCard implements Card
 	 * This Card's color identity, which is a list containing its colors and
 	 * colors of any mana symbols that appear in its rules text that is not
 	 * reminder text, and in abilities that are given it by basic land types.
-	 * TODO: This doesn't work properly with reminder text (like extort).
 	 */
 	private final ManaType.Tuple colorIdentity;
 	/**
@@ -149,6 +148,7 @@ public class SingleCard implements Card
 			String name,
 			String mana,
 			List<ManaType> colors,
+			List<ManaType> colorIdentity,
 			Set<String> supertype,
 			Set<String> type,
 			Set<String> subtype,
@@ -194,29 +194,35 @@ public class SingleCard implements Card
 			str.append(" — ").append(String.join(" ", subtypes));
 		typeLine = str.toString();
 		
-		// Create this Card's color identity
-		List<ManaType> identity = new ArrayList<ManaType>(colors);
-		identity.addAll(this.mana.colors());
-		Matcher m = ManaCost.MANA_COST_PATTERN.matcher(text);
-		while (m.find())
-			for (ManaType col: ManaCost.valueOf(m.group()).colors())
-				if (col != ManaType.COLORLESS)
-					identity.add(col);
-		for (String sub: subtype)
+		if (colorIdentity.isEmpty())
 		{
-			if (sub.equalsIgnoreCase("plains"))
-				identity.add(ManaType.WHITE);
-			else if (sub.equalsIgnoreCase("island"))
-				identity.add(ManaType.BLUE);
-			else if (sub.equalsIgnoreCase("swamp"))
-				identity.add(ManaType.BLACK);
-			else if (sub.equalsIgnoreCase("mountain"))
-				identity.add(ManaType.RED);
-			else if (sub.equalsIgnoreCase("forest"))
-				identity.add(ManaType.GREEN);
+			// Try to infer the color identity if it's missing
+			// TODO: This doesn't work properly with reminder text (like extort).
+			List<ManaType> identity = new ArrayList<ManaType>(colors);
+			identity.addAll(this.mana.colors());
+			Matcher m = ManaCost.MANA_COST_PATTERN.matcher(text.replaceAll("\\(.*\\)", ""));
+			while (m.find())
+				for (ManaType col: ManaCost.valueOf(m.group()).colors())
+					if (col != ManaType.COLORLESS)
+						identity.add(col);
+			for (String sub: subtype)
+			{
+				if (sub.equalsIgnoreCase("plains"))
+					identity.add(ManaType.WHITE);
+				else if (sub.equalsIgnoreCase("island"))
+					identity.add(ManaType.BLUE);
+				else if (sub.equalsIgnoreCase("swamp"))
+					identity.add(ManaType.BLACK);
+				else if (sub.equalsIgnoreCase("mountain"))
+					identity.add(ManaType.RED);
+				else if (sub.equalsIgnoreCase("forest"))
+					identity.add(ManaType.GREEN);
+			}
+			ManaType.sort(identity);
+			this.colorIdentity = new ManaType.Tuple(identity);
 		}
-		ManaType.sort(identity);
-		colorIdentity = new ManaType.Tuple(identity);
+		else
+			this.colorIdentity = new ManaType.Tuple(colorIdentity);
 /*
 		Matcher m = ManaCost.manaCostPattern.matcher(text);
 		while (m.find())

@@ -65,8 +65,6 @@ import editor.gui.SettingsDialog;
  * This class represents a dialog that shows the progress for loading the
  * inventory and blocking the main frame until it is finished.
  * 
- * TODO: Wait for final EMN info for meld cards.
- * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -323,7 +321,17 @@ public class InventoryLoadDialog extends JDialog
 							for (JsonElement colorElement: colorsArray)
 								colors.add(ManaType.get(colorElement.getAsString()));
 						}
-						colors.sort(ManaType::colorOrder);
+						
+						// Card's color identity
+						List<ManaType> colorIdentity = new ArrayList<ManaType>();
+						{
+							if (card.has("colorIdentity"))
+							{
+								JsonArray identityArray = card.get("colorIdentity").getAsJsonArray();
+								for (JsonElement identityElement: identityArray)
+									colorIdentity.add(ManaType.get(identityElement.getAsString()));
+							}
+						}
 						
 						// Card's set of supertypes
 						Set<String> supertypes = new LinkedHashSet<String>();
@@ -414,6 +422,7 @@ public class InventoryLoadDialog extends JDialog
 								name,
 								mana,
 								colors,
+								colorIdentity,
 								supertypes,
 								types,
 								subtypes,
