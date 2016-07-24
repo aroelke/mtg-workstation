@@ -197,7 +197,6 @@ public class SingleCard implements Card
 		if (colorIdentity.isEmpty())
 		{
 			// Try to infer the color identity if it's missing
-			// TODO: This doesn't work properly with reminder text (like extort).
 			List<ManaType> identity = new ArrayList<ManaType>(colors);
 			identity.addAll(this.mana.colors());
 			Matcher m = ManaCost.MANA_COST_PATTERN.matcher(text.replaceAll("\\(.*\\)", ""));
