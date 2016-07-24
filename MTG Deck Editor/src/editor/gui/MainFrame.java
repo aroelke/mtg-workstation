@@ -962,7 +962,7 @@ public class MainFrame extends JFrame
 			@Override
 			public void windowOpened(WindowEvent e)
 			{
-				if ((Boolean.valueOf(SettingsDialog.getAsString(SettingsDialog.INITIAL_CHECK)) || !inventoryFile.exists())
+				if ((SettingsDialog.getAsBoolean(SettingsDialog.INITIAL_CHECK) || !inventoryFile.exists())
 						&& (checkForUpdate() == UPDATE_NEEDED && updateInventory()))
 					SettingsDialog.set(SettingsDialog.VERSION, newestVersion);
 				loadInventory();

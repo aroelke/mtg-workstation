@@ -105,6 +105,10 @@ public class SettingsDialog extends JDialog
 	 */
 	public static final String INITIAL_CHECK = "inventory.initialcheck";
 	/**
+	 * Whether or not to suppress warnings on load.
+	 */
+	public static final String SUPPRESS_LOAD_WARNINGS = "inventory.suppressload";
+	/**
 	 * Directory to store the inventory file in.
 	 */
 	public static final String INVENTORY_LOCATION = "inventory.location";
@@ -210,6 +214,7 @@ public class SettingsDialog extends JDialog
 		SETTINGS.put(VERSION, "");
 		SETTINGS.put(INVENTORY_FILE, "AllSets-x.json");
 		SETTINGS.put(INITIAL_CHECK, "true");
+		SETTINGS.put(SUPPRESS_LOAD_WARNINGS, "false");
 		SETTINGS.put(INVENTORY_LOCATION, ".");
 		SETTINGS.put(INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
 		SETTINGS.put(INVENTORY_STRIPE, "#FFCCCCCC");
@@ -240,6 +245,18 @@ public class SettingsDialog extends JDialog
 	{
 		return SETTINGS.getProperty(name);
 	} 
+	
+	/**
+	 * Get the boolean value of the given global setting.
+	 * 
+	 * @param name Name of the setting to get
+	 * @return <code>true</code> if the String value of the given setting is "true" and
+	 * <code>false</code> otherwise.
+	 */
+	public static boolean getAsBoolean(String name)
+	{
+		return Boolean.valueOf(SETTINGS.getProperty(name));
+	}
 	
 	/**
 	 * Get the integer value of the given global setting.
@@ -412,6 +429,10 @@ public class SettingsDialog extends JDialog
 	 * Spinner allowing setting the maximum number of rows for category panels.
 	 */
 	private JSpinner rowsSpinner;
+	/**
+	 * Check box indicating whether or not warnings after loading cards should be suppressed.
+	 */
+	private JCheckBox suppressCheckBox;
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -534,12 +555,18 @@ public class SettingsDialog extends JDialog
 		inventoryPanel.add(Box.createVerticalStrut(5));
 		
 		// Check for update on startup
-		JPanel updatePanel = new JPanel(new BorderLayout());
-		updateCheckBox = new JCheckBox("Check for update on program start");
-		updateCheckBox.setSelected(Boolean.valueOf(getAsString(INITIAL_CHECK)));
-		updatePanel.add(updateCheckBox, BorderLayout.WEST);
+		JPanel updatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		updateCheckBox = new JCheckBox("Check for update on program start", getAsBoolean(INITIAL_CHECK));
+		updatePanel.add(updateCheckBox);
 		updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
 		inventoryPanel.add(updatePanel);
+		
+		// Suppress warnings after loading cards
+		JPanel suppressPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		suppressCheckBox = new JCheckBox("Suppress warnings while loading cards", getAsBoolean(SUPPRESS_LOAD_WARNINGS));
+		suppressPanel.add(suppressCheckBox);
+		suppressPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, suppressPanel.getPreferredSize().height));
+		inventoryPanel.add(suppressPanel);
 		
 		inventoryPanel.add(Box.createVerticalGlue());
 		
@@ -823,6 +850,7 @@ public class SettingsDialog extends JDialog
 		SETTINGS.put(INVENTORY_FILE, inventoryFileField.getText());
 		SETTINGS.put(INVENTORY_LOCATION, inventoryDirField.getText());
 		SETTINGS.put(INITIAL_CHECK, Boolean.toString(updateCheckBox.isSelected()));
+		SETTINGS.put(SUPPRESS_LOAD_WARNINGS, Boolean.toString(suppressCheckBox.isSelected()));
 		StringJoiner join = new StringJoiner(",");
 		for (JCheckBox box: inventoryColumnCheckBoxes)
 			if (box.isSelected())

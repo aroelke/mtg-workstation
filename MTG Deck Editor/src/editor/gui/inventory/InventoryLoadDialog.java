@@ -59,6 +59,7 @@ import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
+import editor.gui.SettingsDialog;
 
 /**
  * This class represents a dialog that shows the progress for loading the
@@ -88,7 +89,7 @@ public class InventoryLoadDialog extends JDialog
 	 */
 	private InventoryLoadWorker worker;
 	/**
-	 * TODO: Comment this
+	 * List of errors that occurred while loading cards.
 	 */
 	private List<String> errors;
 	
@@ -566,7 +567,7 @@ public class InventoryLoadDialog extends JDialog
 		{
 			setVisible(false);
 			dispose();
-			if (!errors.isEmpty())
+			if (!SettingsDialog.getAsBoolean(SettingsDialog.SUPPRESS_LOAD_WARNINGS) && !errors.isEmpty())
 				SwingUtilities.invokeLater(() -> {
 					StringJoiner join = new StringJoiner("\n• ");
 					join.add("Errors ocurred while loading the following card(s):");
