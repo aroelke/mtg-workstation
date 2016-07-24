@@ -197,31 +197,28 @@ public class SingleCard implements Card
 		if (colorIdentity.isEmpty())
 		{
 			// Try to infer the color identity if it's missing
-			List<ManaType> identity = new ArrayList<ManaType>(colors);
-			identity.addAll(this.mana.colors());
+			colorIdentity.addAll(this.mana.colors());
 			Matcher m = ManaCost.MANA_COST_PATTERN.matcher(text.replaceAll("\\(.*\\)", ""));
 			while (m.find())
 				for (ManaType col: ManaCost.valueOf(m.group()).colors())
 					if (col != ManaType.COLORLESS)
-						identity.add(col);
+						colorIdentity.add(col);
 			for (String sub: subtype)
 			{
 				if (sub.equalsIgnoreCase("plains"))
-					identity.add(ManaType.WHITE);
+					colorIdentity.add(ManaType.WHITE);
 				else if (sub.equalsIgnoreCase("island"))
-					identity.add(ManaType.BLUE);
+					colorIdentity.add(ManaType.BLUE);
 				else if (sub.equalsIgnoreCase("swamp"))
-					identity.add(ManaType.BLACK);
+					colorIdentity.add(ManaType.BLACK);
 				else if (sub.equalsIgnoreCase("mountain"))
-					identity.add(ManaType.RED);
+					colorIdentity.add(ManaType.RED);
 				else if (sub.equalsIgnoreCase("forest"))
-					identity.add(ManaType.GREEN);
+					colorIdentity.add(ManaType.GREEN);
 			}
-			ManaType.sort(identity);
-			this.colorIdentity = new ManaType.Tuple(identity);
+			ManaType.sort(colorIdentity);
 		}
-		else
-			this.colorIdentity = new ManaType.Tuple(colorIdentity);
+		this.colorIdentity = new ManaType.Tuple(colorIdentity);
 /*
 		Matcher m = ManaCost.manaCostPattern.matcher(text);
 		while (m.find())
