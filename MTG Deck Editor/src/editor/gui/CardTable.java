@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import javax.swing.Box;
@@ -90,10 +91,55 @@ public class CardTable extends JTable
 							costPanel.add(new JLabel(sym.getIcon(13)));
 					}
 				}
-				return costPanel;
+				c = costPanel;
 			}
-			else
-				return c;
+			return c;
+		}
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @author Alec Roelke
+	 */
+	private static class ListRenderer extends DefaultTableCellRenderer
+	{
+		/**
+		 * Get the component that is used to render the list elements.  It consists of a panel
+		 * containing some labels whose icons are each mana symbols laid out in a row.
+		 * 
+		 * @param table Table containing the value to render
+		 * @param value Value to render
+		 * @param isSelected Whether or not the cell is selected
+		 * @param hasFocus Whether or not the cell has focus
+		 * @param row Row of the cell being rendered
+		 * @param column Column of the cell being rendered
+		 * @return A JPanel containing JLabels showing the mana symbols of the colors to display.
+		 */
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		{
+			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			if (value instanceof List)
+			{
+				List<?> values = (List<?>)value;
+				if (!values.isEmpty() && values.get(0) instanceof Double)
+				{
+					List<Double> cmc = values.stream().map((o) -> (Double)o).collect(Collectors.toList());
+					StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
+					for (Double cost: cmc)
+						join.add(cost.toString());
+					JPanel cmcPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+					if (hasFocus)
+						cmcPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+					else
+						cmcPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
+					cmcPanel.setForeground(c.getForeground());
+					cmcPanel.setBackground(c.getBackground());
+					cmcPanel.add(new JLabel(join.toString()));
+					c = cmcPanel;
+				}
+			}
+			return c;
 		}
 	}
 	
@@ -134,10 +180,9 @@ public class CardTable extends JTable
 					colorPanel.add(new JLabel(ColorSymbol.get(color).getIcon(13)));
 				colorPanel.setBackground(c.getBackground());
 				colorPanel.setForeground(c.getForeground());
-				return colorPanel;
+				c = colorPanel;
 			}
-			else
-				return c;
+			return c;
 		}
 	}
 	
@@ -198,7 +243,7 @@ public class CardTable extends JTable
 					panel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
 				panel.setForeground(c.getForeground());
 				panel.setBackground(c.getBackground());
-				return panel;
+				c = panel;
 			}
 			return c;
 		}
@@ -239,10 +284,9 @@ public class CardTable extends JTable
 				datePanel.setForeground(c.getForeground());
 				datePanel.setBackground(c.getBackground());
 				datePanel.add(new JLabel(Deck.DATE_FORMAT.format((Date)value)));
-				return datePanel;
+				c = datePanel;
 			}
-			else
-				return c;
+			return c;
 		}
 	}
 	
@@ -351,6 +395,7 @@ public class CardTable extends JTable
 		setDefaultRenderer(ManaType.Tuple.class, new ColorRenderer());
 		setDefaultRenderer(Set.class, new CategoriesCellRenderer());
 		setDefaultRenderer(Date.class, new DateCellRenderer());
+		setDefaultRenderer(List.class, new ListRenderer());
 		
 		setRowSorter(new EmptyTableRowSorter(getModel()));
 	}

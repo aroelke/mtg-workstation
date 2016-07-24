@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
@@ -1593,6 +1594,30 @@ public class MainFrame extends JFrame
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			if (value instanceof List)
+			{
+				List<?> values = (List<?>)value;
+				if (!values.isEmpty() && values.get(0) instanceof Double)
+				{
+					List<Double> cmc = values.stream().map((o) -> (Double)o).collect(Collectors.toList());
+					StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
+					for (Double cost: cmc)
+						join.add(cost.toString());
+					JPanel cmcPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+					if (hasFocus)
+						cmcPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+					else
+						cmcPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
+					cmcPanel.setForeground(c.getForeground());
+					cmcPanel.setBackground(c.getBackground());
+					JLabel cmcLabel = new JLabel(join.toString());
+					if (selectedFrame != null && c instanceof JLabel && selectedFrame.containsCard(inventory.get(table.convertRowIndexToModel(row))))
+						cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.BOLD, cmcLabel.getFont().getSize()));
+					cmcPanel.add(cmcLabel);
+					return cmcPanel;
+				}
+			}
+			
 			if (selectedFrame != null && c instanceof JLabel && selectedFrame.containsCard(inventory.get(table.convertRowIndexToModel(row))))
 				c.setFont(new Font(c.getFont().getFontName(), Font.BOLD, c.getFont().getSize()));
 			return c;

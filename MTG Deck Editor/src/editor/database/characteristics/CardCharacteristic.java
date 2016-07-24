@@ -21,8 +21,6 @@ import editor.gui.generic.SpinnerCellEditor;
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
  * etc.
  * 
- * TODO: add CMC
- * 
  * @author Alec Roelke
  */
 public enum CardCharacteristic
@@ -36,6 +34,7 @@ public enum CardCharacteristic
 	}),
 	LAYOUT("Layout", CardLayout.class, (l, i) -> l.get(i).layout()),
 	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l.get(i).manaCost()),
+	CMC("CMC", List.class, (l, i) -> l.get(i).cmc()),
 	COLORS("Colors", ManaType.Tuple.class, (l, i) -> l.get(i).colors()),
 	COLOR_IDENTITY("Color Identity", ManaType.Tuple.class, (l, i) -> l.get(i).colorIdentity()),
 	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).unifiedTypeLine()),
@@ -79,6 +78,7 @@ public enum CardCharacteristic
 		return new CardCharacteristic[] {NAME,
 										 LAYOUT,
 										 MANA_COST,
+										 CMC,
 										 COLORS,
 										 COLOR_IDENTITY,
 										 TYPE_LINE,
