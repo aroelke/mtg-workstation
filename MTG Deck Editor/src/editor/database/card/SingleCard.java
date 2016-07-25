@@ -128,6 +128,7 @@ public class SingleCard implements Card
 	 * @param name The new Card's name
 	 * @param mana The new Card's mana cost
 	 * @param colors The new Card's colors
+	 * @param colorIdentity the new Card's color identity
 	 * @param supertype The new Card's supertypes
 	 * @param type The new Card's types
 	 * @param subtype The new Card's subtypes
