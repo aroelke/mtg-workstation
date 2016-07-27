@@ -98,7 +98,9 @@ public class CardTable extends JTable
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * This class represents a renderer for lists in a table.  It only does anything
+	 * special for lists of doubles, which uses different separators than the default.
+	 * 
 	 * @author Alec Roelke
 	 */
 	private static class ListRenderer extends DefaultTableCellRenderer

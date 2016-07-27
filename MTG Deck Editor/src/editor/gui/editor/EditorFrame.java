@@ -1500,8 +1500,6 @@ public class EditorFrame extends JInternalFrame
 	 * Set the number of copies of the given card if the deck contains it.  Otherwise
 	 * add the card to the deck.
 	 * 
-	 * TODO: Add and remove may be able to be implemented in terms of this
-	 * 
 	 * @param c Card to set (or add if it isn't present)
 	 * @param n Number of copies to set to (or add if the card isn't present)
 	 */
