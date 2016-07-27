@@ -103,8 +103,6 @@ public enum ManaType
 			Collections.sort(colors);
 			switch (colors.size())
 			{
-			case 0:
-				break;
 			case 2:
 				if (colors.get(0).colorOrder(colors.get(1)) > 0)
 					Collections.reverse(colors);
