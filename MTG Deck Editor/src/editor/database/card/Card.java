@@ -177,6 +177,14 @@ public interface Card
 	public ManaType.Tuple colors();
 	
 	/**
+	 * Get the colors of one of the faces of this Card.
+	 * 
+	 * @param face Index of the face to get the colors of  
+	 * @return A list containing the colors of the given face.
+	 */
+	public ManaType.Tuple colors(int face);
+	
+	/**
 	 * @return A list containing the colors in this Card's color identity.
 	 */
 	public ManaType.Tuple colorIdentity();
@@ -464,6 +472,17 @@ public interface Card
 				document.insertString(document.getLength(), "(" + (int)cmc().get(f).doubleValue() + ")\n", textStyle);
 			else
 				document.insertString(document.getLength(), "(" + cmc().get(f) + ")\n", textStyle);
+			if (!manaCost().get(f).colors().equals(colors(f)))
+			{
+				for (ManaType color: colors(f))
+				{
+					Style indicatorStyle = document.addStyle("indicator", document.getStyle("text"));
+					StyleConstants.setForeground(indicatorStyle, color.color);
+					document.insertString(document.getLength(), "•", indicatorStyle);
+				}
+				if (!colors().isEmpty())
+					document.insertString(document.getLength(), " ", textStyle);
+			}
 			document.insertString(document.getLength(), typeLine().get(f) + '\n', textStyle);
 			document.insertString(document.getLength(), expansion().name + ' ' + rarity() + '\n', textStyle);
 			

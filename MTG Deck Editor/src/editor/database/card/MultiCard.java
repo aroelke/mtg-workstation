@@ -110,6 +110,18 @@ public abstract class MultiCard implements Card
 			colors.addAll(face.colors());
 		return new ManaType.Tuple(colors);
 	}
+	
+	/**
+	 * Get the colors of one of the faces of this MultiCard.
+	 * 
+	 * @param face Index of the face to get the colors of  
+	 * @return A list containing the colors of the given face.
+	 */
+	@Override
+	public ManaType.Tuple colors(int face)
+	{
+		return faces.get(face).colors();
+	}
 
 	/**
 	 * @return A list containing the colors in this MultiCard's color identity.

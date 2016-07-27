@@ -170,7 +170,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 		List<ManaType> colors = new ArrayList<ManaType>();
 		for (Symbol sym: cost)
 			for (Map.Entry<ManaType, Double> weight: sym.colorWeights().entrySet())
-				if (weight.getValue() > 0)
+				if (weight.getKey() != ManaType.COLORLESS && weight.getValue() > 0)
 					colors.add(weight.getKey());
 		return new ManaType.Tuple(colors);
 	}

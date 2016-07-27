@@ -219,14 +219,6 @@ public class SingleCard implements Card
 			}
 		}
 		this.colorIdentity = new ManaType.Tuple(colorIdentity);
-/*
-		Matcher m = ManaCost.manaCostPattern.matcher(text);
-		while (m.find())
-		{
-			ManaCost cost = ManaCost.valueOf(m.group());
-			text = text.replace(m.group(), cost.toString());
-		}
-*/
 	}
 	
 	@Override
@@ -278,6 +270,16 @@ public class SingleCard implements Card
 	 */
 	@Override
 	public ManaType.Tuple colors()
+	{
+		return colors;
+	}
+	
+	/**
+	 * @param face Unused
+	 * @return The colors of this SingleCard.
+	 */
+	@Override
+	public ManaType.Tuple colors(int face)
 	{
 		return colors;
 	}

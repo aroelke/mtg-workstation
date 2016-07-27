@@ -1,5 +1,6 @@
 package editor.database.characteristics;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,13 +15,13 @@ import java.util.List;
  */
 public enum ManaType
 {
-	WHITE("White", 'W'),
-	BLUE("Blue", 'U'),
-	BLACK("Black", 'B'),
-	RED("Red", 'R'),
-	GREEN("Green", 'G'),
+	WHITE("White", 'W', Color.YELLOW.darker()),
+	BLUE("Blue", 'U', Color.BLUE),
+	BLACK("Black", 'B', Color.BLACK),
+	RED("Red", 'R', Color.RED),
+	GREEN("Green", 'G', Color.GREEN.darker()),
 	
-	COLORLESS("Colorless", 'C');
+	COLORLESS("Colorless", 'C', null);
 	
 	/**
 	 * @return The colors of Magic, which is the list of ManaTypes
@@ -41,7 +42,7 @@ public enum ManaType
 	public static ManaType get(String color)
 	{
 		for (ManaType c: ManaType.values())
-			if (c.color.equalsIgnoreCase(color) || color.equalsIgnoreCase(String.valueOf(c.shorthand)))
+			if (c.name.equalsIgnoreCase(color) || color.equalsIgnoreCase(String.valueOf(c.shorthand)))
 				return c;
 		throw new IllegalArgumentException("Illegal color string \"" + color + "\"");
 	}
@@ -177,22 +178,29 @@ public enum ManaType
 	/**
 	 * String representation of this ManaType.
 	 */
-	private final String color;
+	private final String name;
 	/**
 	 * Single-character shorthand for this ManaType.
 	 */
 	private final char shorthand;
+	/**
+	 * Color corresponding to this ManaType (should be null for colorless).
+	 */
+	public final Color color;
+	
 	
 	/**
 	 * Create a new ManaType.
 	 * 
-	 * @param c String representation of the new ManaType
+	 * @param n String representation of the new ManaType
 	 * @param s Single-character shorthand representation of the new ManaType
+	 * @param c Color corresponding to this ManaType
 	 */
-	private ManaType(final String c, final char s)
+	private ManaType(final String n, final char s, final Color c)
 	{
-		color = c;
+		name = n;
 		shorthand = s;
+		color = c;
 	}
 	
 	/**
@@ -209,7 +217,7 @@ public enum ManaType
 	@Override
 	public String toString()
 	{
-		return color;
+		return name;
 	}
 	
 	/**
