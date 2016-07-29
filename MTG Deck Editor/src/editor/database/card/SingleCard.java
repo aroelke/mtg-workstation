@@ -25,8 +25,6 @@ import editor.database.characteristics.Rarity;
  * and its image name (which is its name followed by a number if there is more than one version of the same
  * card in the same set).  All of its values are constant.
  * 
- * TODO: Make sure comments are correct and field/method order makes sense.
- * 
  * @author Alec Roelke
  */
 public class SingleCard implements Card
