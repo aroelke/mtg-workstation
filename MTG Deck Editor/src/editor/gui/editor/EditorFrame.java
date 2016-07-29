@@ -126,7 +126,7 @@ public class EditorFrame extends JInternalFrame
 	 * 
 	 * @author Alec Roelke
 	 */
-	private static enum CategoryOrder
+	private enum CategoryOrder
 	{
 		A_Z("A-Z", (d) -> (a, b) -> a.getName().compareToIgnoreCase(b.getName())),
 		Z_A("Z-A", (d) -> (a, b) -> -a.getName().compareToIgnoreCase(b.getName())),
