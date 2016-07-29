@@ -132,8 +132,8 @@ public class EditorFrame extends JInternalFrame
 		Z_A("Z-A", (d) -> (a, b) -> -a.getName().compareToIgnoreCase(b.getName())),
 		ASCENDING("Ascending Size", (d) -> (a, b) -> d.total(a.getName()) - d.total(b.getName())),
 		DESCENDING("Descending Size", (d) -> (a, b) -> d.total(b.getName()) - d.total(a.getName())),
-		PRIORITY("Ascending Rank", (d) -> (a, b) -> d.getCategoryRank(a.getName()) - d.getCategoryRank(b.getName())),
-		REVERSE("Descending Rank", (d) -> (a, b) -> d.getCategoryRank(b.getName()) - d.getCategoryRank(a.getName()));
+		PRIORITY("Increasing Rank", (d) -> (a, b) -> d.getCategoryRank(a.getName()) - d.getCategoryRank(b.getName())),
+		REVERSE("Decreasing Rank", (d) -> (a, b) -> d.getCategoryRank(b.getName()) - d.getCategoryRank(a.getName()));
 		
 		/**
 		 * String to display when a String representation of this
