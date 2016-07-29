@@ -1,4 +1,4 @@
-package editor.gui;
+package editor.gui.display;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -22,6 +22,8 @@ import javax.swing.text.StyledDocument;
 
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
+import editor.gui.MainFrame;
+import editor.gui.SettingsDialog;
 
 /**
  * This class represents a panel that shows the images associated with a card if they

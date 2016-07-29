@@ -81,11 +81,11 @@ import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
 import editor.database.card.Card;
 import editor.database.characteristics.CardCharacteristic;
-import editor.gui.CardImagePanel;
-import editor.gui.CardTable;
-import editor.gui.CardTableModel;
 import editor.gui.MainFrame;
 import editor.gui.SettingsDialog;
+import editor.gui.display.CardImagePanel;
+import editor.gui.display.CardTable;
+import editor.gui.display.CardTableModel;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 

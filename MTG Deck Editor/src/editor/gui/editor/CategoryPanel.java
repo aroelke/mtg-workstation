@@ -26,9 +26,9 @@ import javax.swing.border.TitledBorder;
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
 import editor.database.characteristics.CardCharacteristic;
-import editor.gui.CardTable;
-import editor.gui.CardTableModel;
 import editor.gui.SettingsDialog;
+import editor.gui.display.CardTable;
+import editor.gui.display.CardTableModel;
 import editor.gui.generic.ColorButton;
 
 /**

@@ -1,4 +1,4 @@
-package editor.gui;
+package editor.gui.display;
 
 import java.util.List;
 

@@ -19,7 +19,7 @@ import javax.swing.UIManager;
 import javax.swing.table.TableCellEditor;
 
 import editor.collection.category.CategorySpec;
-import editor.gui.CardTable;
+import editor.gui.display.CardTable;
 
 /**
  * This class represents an editor for a table cell containing a set of CategorySpecs for a

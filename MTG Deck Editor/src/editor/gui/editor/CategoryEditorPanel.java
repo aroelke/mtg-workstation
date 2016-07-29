@@ -23,7 +23,7 @@ import javax.swing.border.TitledBorder;
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.gui.CardList;
+import editor.gui.display.CardList;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.generic.ColorButton;
 import editor.gui.generic.ScrollablePanel;

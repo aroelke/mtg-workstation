@@ -53,6 +53,8 @@ import javax.swing.tree.TreeSelectionModel;
 
 import editor.collection.category.CategorySpec;
 import editor.database.characteristics.CardCharacteristic;
+import editor.gui.display.CardTable;
+import editor.gui.display.CategoryList;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.gui.generic.ScrollablePanel;
 
