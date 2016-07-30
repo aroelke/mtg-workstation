@@ -100,7 +100,7 @@ public abstract class Symbol implements Comparable<Symbol>
 		else if ((value = StaticSymbol.get(s)) != null)
 			return value;
 		else
-			return null;
+			throw new IllegalArgumentException("Illegal symbol string \"" + s + "\"");
 	}
 	
 	/**

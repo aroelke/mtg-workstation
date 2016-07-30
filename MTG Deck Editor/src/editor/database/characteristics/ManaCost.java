@@ -107,7 +107,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 		{
 			return new ManaCost(s);
 		}
-		catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e)
+		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
 		{
 			return null;
 		}
@@ -133,14 +133,34 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 		// Populate this ManaCost's list of Symbols
 		List<Symbol> symbols = new ArrayList<Symbol>();
 		Matcher m = Symbol.SYMBOL_PATTERN.matcher(s);
-		String copy = new String(s);
 		while (m.find())
 		{
 			symbols.add(Symbol.valueOf(m.group(1)));
-			copy = copy.replaceFirst(Pattern.quote(m.group()), "");
+			s = s.replaceFirst(Pattern.quote(m.group()), "");
 		}
-		if (!copy.isEmpty())
-			throw new IllegalArgumentException("Illegal cost string \"" + s + "\"");
+		
+		int index = -1;
+		do
+		{
+			if ((index = s.indexOf('/')) > -1)
+			{
+				String sym = s.substring(index - 1, index + 2);
+				s = s.replaceFirst(Pattern.quote(sym), "");
+				symbols.add(Symbol.valueOf(sym));
+			}
+		} while (index > -1);
+		do
+		{
+			if ((index = s.indexOf('H')) > -1 || (index = s.indexOf('h')) > -1)
+			{
+				String sym = s.substring(index, index + 2);
+				s = s.replaceFirst(Pattern.quote(sym), "");
+				symbols.add(Symbol.valueOf(sym));
+			}
+		} while (index > -1);
+		for (char sym: s.toCharArray())
+			symbols.add(Symbol.valueOf(String.valueOf(sym)));
+		
 		Collections.sort(symbols);
 		cost = Collections.unmodifiableList(symbols);
 		
