@@ -43,7 +43,11 @@ public class PhyrexianSymbol extends Symbol
 	{
 		try
 		{
-			return get(ManaType.get(col.substring(0, col.indexOf("/"))));
+			int index = col.indexOf('/');
+			if (index > 0 && Character.toUpperCase(col.charAt(index + 1)) == 'P')
+				return get(ManaType.get(col.charAt(index - 1)));
+			else
+				return null;
 		}
 		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
 		{
