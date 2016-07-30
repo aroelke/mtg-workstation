@@ -71,7 +71,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import javax.swing.table.AbstractTableModel;
 
 import editor.collection.CardCollection;
@@ -88,6 +87,7 @@ import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
+import editor.util.PopupMenuAdapter;
 
 /**
  * This class represents an internal frame for editing a deck.  It contains a table that shows all cards
@@ -1083,6 +1083,14 @@ public class EditorFrame extends JInternalFrame
 		
 		tableMenu.addPopupMenuListener(new TablePopupListener(addToCategoryMenu, removeFromCategoryMenu,
 				editCategoriesItem, categoriesSeparator, newCategory.table));
+		tableMenu.addPopupMenuListener(new PopupMenuAdapter()
+		{
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+			{
+				removeFromCategoryItem.setText("Exclude from " + spec.getName());
+			}
+		});
 		
 		// Category popup menu
 		JPopupMenu categoryMenu = new JPopupMenu();
@@ -1835,7 +1843,7 @@ public class EditorFrame extends JInternalFrame
 	 * 
 	 * @author Alec Roelke
 	 */
-	private class TablePopupListener implements PopupMenuListener
+	private class TablePopupListener extends PopupMenuAdapter
 	{
 		/**
 		 * Submenu for quickly adding cards to categories.
@@ -1849,6 +1857,10 @@ public class EditorFrame extends JInternalFrame
 		 * Item for editing the categories of cards.
 		 */
 		private JMenuItem editCategoriesItem;
+		/**
+		 * Separator between category edit and card edit sections of the table
+		 * popup menu.
+		 */
 		private JSeparator menuSeparator;
 		/**
 		 * Table in which the menu appears.
@@ -1871,15 +1883,6 @@ public class EditorFrame extends JInternalFrame
 			menuSeparator = sep;
 			table = t;
 		}
-		
-		/**
-		 * Nothing happens if the popup menu is canceled.
-		 * 
-		 * @param e Event containing information about the cancellation
-		 */
-		@Override
-		public void popupMenuCanceled(PopupMenuEvent e)
-		{}
 
 		/**
 		 * When the popup menu becomes invisible (something is selected or it
