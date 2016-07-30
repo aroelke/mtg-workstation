@@ -125,7 +125,7 @@ public class MainFrame extends JFrame
 	/**
 	 * Size of the text in oracle text and rulings tabs.
 	 */
-	public static final int TEXT_SIZE = new JLabel().getFont().getSize();
+	public static final int TEXT_SIZE = UIManager.getFont("Label.font").getSize();
 	/**
 	 * Default height for displaying card images.
 	 */
