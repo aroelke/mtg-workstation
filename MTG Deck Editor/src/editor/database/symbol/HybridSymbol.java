@@ -23,16 +23,17 @@ public class HybridSymbol extends Symbol
 	private static final Map<ManaType.Tuple, HybridSymbol> SYMBOLS = new HashMap<ManaType.Tuple, HybridSymbol>();
 	static
 	{
-		SYMBOLS.put(new ManaType.Tuple(ManaType.WHITE, ManaType.BLUE), new HybridSymbol(new ManaType.Tuple(ManaType.WHITE, ManaType.BLUE)));
-		SYMBOLS.put(new ManaType.Tuple(ManaType.WHITE, ManaType.BLACK), new HybridSymbol(new ManaType.Tuple(ManaType.WHITE, ManaType.BLACK)));
-		SYMBOLS.put(new ManaType.Tuple(ManaType.BLUE, ManaType.BLACK), new HybridSymbol(new ManaType.Tuple(ManaType.BLUE, ManaType.BLACK)));
-		SYMBOLS.put(new ManaType.Tuple(ManaType.BLUE, ManaType.RED), new HybridSymbol(new ManaType.Tuple(ManaType.BLUE, ManaType.RED)));
-		SYMBOLS.put(new ManaType.Tuple(ManaType.BLACK, ManaType.RED), new HybridSymbol(new ManaType.Tuple(ManaType.BLACK, ManaType.RED)));
-		SYMBOLS.put(new ManaType.Tuple(ManaType.BLACK, ManaType.GREEN), new HybridSymbol(new ManaType.Tuple(ManaType.BLACK, ManaType.GREEN)));
-		SYMBOLS.put(new ManaType.Tuple(ManaType.RED, ManaType.GREEN), new HybridSymbol(new ManaType.Tuple(ManaType.RED, ManaType.GREEN)));
-		SYMBOLS.put(new ManaType.Tuple(ManaType.RED, ManaType.WHITE), new HybridSymbol(new ManaType.Tuple(ManaType.RED, ManaType.WHITE)));
-		SYMBOLS.put(new ManaType.Tuple(ManaType.GREEN, ManaType.WHITE), new HybridSymbol(new ManaType.Tuple(ManaType.GREEN, ManaType.WHITE)));
-		SYMBOLS.put(new ManaType.Tuple(ManaType.GREEN, ManaType.BLUE), new HybridSymbol(new ManaType.Tuple(ManaType.GREEN, ManaType.BLUE)));
+		for (int i = 0; i < ManaType.colors().length; i++)
+		{
+			for (int j = i; j < ManaType.colors().length; j++)
+			{
+				if (i != j)
+				{
+					ManaType.Tuple tuple = new ManaType.Tuple(ManaType.colors()[i], ManaType.colors()[j]);
+					SYMBOLS.put(tuple, new HybridSymbol(tuple));
+				}
+			}
+		}
 	}
 	
 	/**
