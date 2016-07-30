@@ -1,7 +1,10 @@
 package editor.database.symbol;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import editor.database.characteristics.ManaType;
 
@@ -18,15 +21,7 @@ public class TwobridSymbol extends Symbol
 	 * Map of colors onto their corresponding twobrid symbols.
 	 * @see editor.database.symbol.Symbol
 	 */
-	private static final Map<ManaType, TwobridSymbol> SYMBOLS = new HashMap<ManaType, TwobridSymbol>();
-	static
-	{
-		SYMBOLS.put(ManaType.WHITE, new TwobridSymbol(ManaType.WHITE));
-		SYMBOLS.put(ManaType.BLUE, new TwobridSymbol(ManaType.BLUE));
-		SYMBOLS.put(ManaType.BLACK, new TwobridSymbol(ManaType.BLACK));
-		SYMBOLS.put(ManaType.RED, new TwobridSymbol(ManaType.RED));
-		SYMBOLS.put(ManaType.GREEN, new TwobridSymbol(ManaType.GREEN));
-	}
+	private static final Map<ManaType, TwobridSymbol> SYMBOLS = Collections.unmodifiableMap(Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), TwobridSymbol::new)));
 	
 	/**
 	 * Get the TwobridSymbol corresponding to the given color.
