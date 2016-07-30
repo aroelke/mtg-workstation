@@ -12,7 +12,7 @@ import editor.database.characteristics.ManaType;
  * This class represents a two-color hybrid symbol.  It will sort its colors so that they appear in the correct order.
  * 
  * @author Alec Roelke
- * @see database.characteristics.Color.Tuple
+ * @see database.characteristics.Color.UnmodifiableList
  */
 public class HybridSymbol extends Symbol
 {

@@ -1,9 +1,11 @@
 package editor.database.characteristics;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 
 import editor.database.card.Card;
+import editor.util.UnmodifiableList;
 
 /**
  * This class represents a loyalty value for a card.  If the card has no loyalty,
@@ -20,7 +22,8 @@ public class Loyalty implements Comparable<Loyalty>
 	 * 
 	 * @author Alec Roelke
 	 */
-	public static class Tuple extends editor.util.Tuple<Loyalty> implements Comparable<Tuple>
+	@SuppressWarnings("serial")
+	public static class Tuple extends UnmodifiableList<Loyalty> implements Comparable<Tuple>
 	{
 		/**
 		 * Create a new tuple out of the given collection of loyalties.
@@ -39,7 +42,7 @@ public class Loyalty implements Comparable<Loyalty>
 		 */
 		public Tuple(Loyalty... c)
 		{
-			super(c);
+			super(Arrays.asList(c));
 		}
 		
 		/**

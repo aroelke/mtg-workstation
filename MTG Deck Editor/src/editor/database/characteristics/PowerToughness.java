@@ -1,9 +1,11 @@
 package editor.database.characteristics;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 
 import editor.database.card.Card;
+import editor.util.UnmodifiableList;
 
 /**
  * This class represents a power value or a toughness value.  If the card is missing
@@ -20,7 +22,8 @@ public class PowerToughness implements Comparable<PowerToughness>
 	 * 
 	 * @author Alec Roelke
 	 */
-	public static class Tuple extends editor.util.Tuple<PowerToughness> implements Comparable<Tuple>
+	@SuppressWarnings("serial")
+	public static class Tuple extends UnmodifiableList<PowerToughness> implements Comparable<Tuple>
 	{
 		/**
 		 * Create a new tuple out of the given collection of PowerToughnesses.
@@ -39,7 +42,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 		 */
 		public Tuple(PowerToughness... c)
 		{
-			super(c);
+			super(Arrays.asList(c));
 		}
 		
 		/**

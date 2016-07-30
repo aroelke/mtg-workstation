@@ -1,6 +1,7 @@
 package editor.database.characteristics;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
 import editor.database.card.Card;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
+import editor.util.UnmodifiableList;
 
 /**
  * This class represents a mana cost.  It contains a list of Symbols, which may contain duplicate elements.
@@ -36,7 +38,8 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * 
 	 * @author Alec Roelke
 	 */
-	public static class Tuple extends editor.util.Tuple<ManaCost> implements Comparable<Tuple>
+	@SuppressWarnings("serial")
+	public static class Tuple extends UnmodifiableList<ManaCost> implements Comparable<Tuple>
 	{
 		/**
 		 * Create a new tuple out of the given collection of ManaCosts.
@@ -55,7 +58,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 		 */
 		public Tuple(ManaCost... c)
 		{
-			super(c);
+			super(Arrays.asList(c));
 		}
 		
 		/**

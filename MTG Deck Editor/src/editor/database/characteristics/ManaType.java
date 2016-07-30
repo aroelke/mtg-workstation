@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import editor.util.UnmodifiableList;
+
 /**
  * This enum represents one of the five colors of Magic: The Gathering.
  * 
@@ -86,7 +88,8 @@ public enum ManaType
 	 * 
 	 * @author Alec Roelke
 	 */
-	public static class Tuple extends editor.util.Tuple<ManaType> implements Comparable<Tuple>
+	@SuppressWarnings("serial")
+	public static class Tuple extends UnmodifiableList<ManaType> implements Comparable<Tuple>
 	{
 		/**
 		 * Helper method for cleaning and sorting a collection of colors before calling the
