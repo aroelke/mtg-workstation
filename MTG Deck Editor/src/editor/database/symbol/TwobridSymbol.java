@@ -46,10 +46,11 @@ public class TwobridSymbol extends Symbol
 	{
 		try
 		{
-			if (col.charAt(0) != '2')
-				return null;
+			int index = col.indexOf('/');
+			if (index > 0 && col.charAt(index - 1) == '2')
+				return get(ManaType.get(col.charAt(index + 1)));
 			else
-				return get(ManaType.get(col.substring(col.lastIndexOf("/") + 1)));
+				return null;
 		}
 		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
 		{
