@@ -1,7 +1,10 @@
 package editor.database.symbol;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import editor.database.characteristics.ManaType;
 
@@ -17,15 +20,8 @@ public class PhyrexianSymbol extends Symbol
 	 * Map of ManaTypes onto their corresponding Phyrexian symbols.
 	 * @see editor.database.symbol.Symbol
 	 */
-	private static final Map<ManaType, PhyrexianSymbol> SYMBOLS = new HashMap<ManaType, PhyrexianSymbol>();
-	static
-	{
-		SYMBOLS.put(ManaType.WHITE, new PhyrexianSymbol(ManaType.WHITE));
-		SYMBOLS.put(ManaType.BLUE, new PhyrexianSymbol(ManaType.BLUE));
-		SYMBOLS.put(ManaType.BLACK, new PhyrexianSymbol(ManaType.BLACK));
-		SYMBOLS.put(ManaType.RED, new PhyrexianSymbol(ManaType.RED));
-		SYMBOLS.put(ManaType.GREEN, new PhyrexianSymbol(ManaType.GREEN));
-	}
+	private static final Map<ManaType, PhyrexianSymbol> SYMBOLS = Collections.unmodifiableMap(
+			Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), PhyrexianSymbol::new)));
 	
 	/**
 	 * Get the PhyrexianSymbol corresponding to the given color.
