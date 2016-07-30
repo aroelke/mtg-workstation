@@ -1,7 +1,9 @@
 package editor.database.symbol;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import editor.database.characteristics.ManaType;
 
@@ -17,13 +19,8 @@ public class VariableSymbol extends Symbol
 	 * Map of variable names onto their corresponding symbols.  This map
 	 * is not case-sensitive.
 	 */
-	private static final Map<String, VariableSymbol> SYMBOLS = new HashMap<String, VariableSymbol>();
-	static
-	{
-		SYMBOLS.put("X", new VariableSymbol('X'));
-		SYMBOLS.put("Y", new VariableSymbol('Y'));
-		SYMBOLS.put("Z", new VariableSymbol('Z'));
-	}
+	private static final Map<String, VariableSymbol> SYMBOLS = Collections.unmodifiableMap(
+			Arrays.asList('X', 'Y', 'Z').stream().collect(Collectors.toMap(String::valueOf, VariableSymbol::new)));
 	
 	/**
 	 * Get the VariableSymbol corresponding to the given String.
