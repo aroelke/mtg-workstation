@@ -1,5 +1,6 @@
 package editor.database.symbol;
 
+import java.util.stream.IntStream;
 
 /**
  * This class represents an amount of generic mana that might appear in a mana cost
@@ -17,12 +18,7 @@ public class GenericSymbol extends Symbol
 	/**
 	 * Array of consecutive GenericSymbols.
 	 */
-	private static final GenericSymbol[] N = new GenericSymbol[HIGHEST_CONSECUTIVE + 1];
-	static
-	{
-		for (int i = 0; i <= HIGHEST_CONSECUTIVE; i++)
-			N[i] = new GenericSymbol(i);
-	}
+	private static final GenericSymbol[] N = IntStream.range(0, HIGHEST_CONSECUTIVE + 1).mapToObj(GenericSymbol::new).toArray(GenericSymbol[]::new);
 	/**
 	 * GenericSymbol representing 100 mana.
 	 */
