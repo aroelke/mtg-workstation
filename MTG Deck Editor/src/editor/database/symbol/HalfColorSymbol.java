@@ -45,7 +45,11 @@ public class HalfColorSymbol extends Symbol
 	{
 		try
 		{
-			return get(ManaType.get(col.substring(col.toUpperCase().lastIndexOf("H") + 1)));
+			int index = col.toUpperCase().indexOf('H');
+			if (index > -1)
+				return get(ManaType.get(col.charAt(index + 1)));
+			else
+				return null;
 		}
 		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
 		{
