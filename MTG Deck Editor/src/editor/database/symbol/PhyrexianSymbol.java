@@ -39,13 +39,19 @@ public class PhyrexianSymbol extends Symbol
 		return SYMBOLS.get(col);
 	}
 	
+	/**
+	 * Get the Phyrexian symbol corresponding to the given String, which should be
+	 * a color character followed by either /p or /P.
+	 * 
+	 * @param col String to parse
+	 * @return The corresponding Phyrexian sybol.
+	 */
 	public static PhyrexianSymbol get(String col)
 	{
 		try
 		{
-			int index = col.indexOf('/');
-			if (index > 0 && Character.toUpperCase(col.charAt(index + 1)) == 'P')
-				return get(ManaType.get(col.charAt(index - 1)));
+			if (col.length() == 3 && col.charAt(1) == '/' && Character.toUpperCase(col.charAt(2)) == 'P')
+				return get(ManaType.get(col.charAt(0)));
 			else
 				return null;
 		}

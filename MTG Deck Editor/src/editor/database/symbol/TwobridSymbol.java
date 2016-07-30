@@ -21,7 +21,8 @@ public class TwobridSymbol extends Symbol
 	 * Map of colors onto their corresponding twobrid symbols.
 	 * @see editor.database.symbol.Symbol
 	 */
-	private static final Map<ManaType, TwobridSymbol> SYMBOLS = Collections.unmodifiableMap(Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), TwobridSymbol::new)));
+	private static final Map<ManaType, TwobridSymbol> SYMBOLS = Collections.unmodifiableMap(
+			Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), TwobridSymbol::new)));
 	
 	/**
 	 * Get the TwobridSymbol corresponding to the given color.

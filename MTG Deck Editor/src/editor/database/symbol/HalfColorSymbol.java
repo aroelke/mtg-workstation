@@ -45,9 +45,8 @@ public class HalfColorSymbol extends Symbol
 	{
 		try
 		{
-			int index = col.toUpperCase().indexOf('H');
-			if (index > -1)
-				return get(ManaType.get(col.charAt(index + 1)));
+			if (col.length() == 2 && Character.toUpperCase(col.charAt(0)) == 'H')
+				return get(ManaType.get(col.charAt(1)));
 			else
 				return null;
 		}
