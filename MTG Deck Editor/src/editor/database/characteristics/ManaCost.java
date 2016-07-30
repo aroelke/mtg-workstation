@@ -164,6 +164,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 		for (char sym: s.toCharArray())
 			symbols.add(Symbol.valueOf(String.valueOf(sym)));
 		
+		// TODO: Fix sorting
 		Collections.sort(symbols);
 		cost = Collections.unmodifiableList(symbols);
 		
