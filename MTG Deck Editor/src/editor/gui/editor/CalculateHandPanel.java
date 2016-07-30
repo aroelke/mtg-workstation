@@ -34,7 +34,6 @@ import editor.collection.deck.Deck;
  * amount of cards that match a category in an initial hand and after a given
  * number of draws.
  * 
- * TODO: Decide if category changes here should reflect in the categories tab
  * TODO: Make double-clicking a category edit it and double-clicking empty space add a new one
  * 
  * @author Alec Roelke

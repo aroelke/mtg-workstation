@@ -4,8 +4,6 @@ package editor.database.characteristics;
  * This class represents an expansion set of Magic: The Gathering cards.  It has a name, a block, a code,
  * and a number of cards.
  * 
- * TODO: Add the symbol for each expansion, as well as a renderer for tables
- * 
  * @author Alec
  */
 public class Expansion implements Comparable<Expansion>
