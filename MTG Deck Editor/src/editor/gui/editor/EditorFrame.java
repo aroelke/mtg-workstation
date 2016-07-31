@@ -64,6 +64,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
@@ -760,7 +761,6 @@ public class EditorFrame extends JInternalFrame
 				hand.refresh();
 				handModel.fireTableDataChanged();
 			}
-			
 			// Categories
 			if (e.categoryAdded())
 			{
@@ -773,9 +773,11 @@ public class EditorFrame extends JInternalFrame
 				
 				listTabs.setSelectedIndex(CATEGORIES);
 				updateCategoryPanel();
-				//TODO: Make this work
-				category.scrollRectToVisible(new Rectangle(category.getSize()));
-				category.flash();
+				SwingUtilities.invokeLater(() -> {
+					switchCategoryBox.setSelectedItem(category.getCategoryName());
+					category.scrollRectToVisible(new Rectangle(category.getSize()));
+					category.flash();
+				});
 			}
 			if (e.categoriesRemoved())
 			{
@@ -787,12 +789,14 @@ public class EditorFrame extends JInternalFrame
 						panel.rankBox.removeItemAt(categoryPanels.size());
 				
 				listTabs.setSelectedIndex(CATEGORIES);
+				updateCategoryPanel();
 			}
 			if (e.ranksChanged())
 			{
 				for (CategoryPanel panel: categoryPanels)
 					panel.rankBox.setSelectedIndex(deck.getCategoryRank(panel.getCategoryName()));
 				listTabs.setSelectedIndex(CATEGORIES);
+				updateCategoryPanel();
 			}
 			if (e.categoryChanged())
 			{
@@ -804,9 +808,18 @@ public class EditorFrame extends JInternalFrame
 					((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
 					c.update();
 				}
-			}
-			if (e.categoriesRemoved() || e.categoryChanged() || e.ranksChanged())
+				
 				updateCategoryPanel();
+				SwingUtilities.invokeLater(() -> {
+					CategoryPanel category = event.nameChanged() ? getCategory(event.newName()) : getCategory(e.categoryName());
+					switchCategoryBox.setSelectedItem(category.getCategoryName());
+					if (!category.getBounds().intersects(categoriesContainer.getVisibleRect()))
+					{
+						category.scrollRectToVisible(new Rectangle(category.getSize()));
+						category.flash();
+					}
+				});
+			}
 			
 			// Clean up
 			if (!unsaved)
@@ -1299,6 +1312,9 @@ public class EditorFrame extends JInternalFrame
 			for (CategorySpec c: categories)
 				switchCategoryModel.addElement(c.getName());
 		}
+		
+		categoriesContainer.revalidate();
+		categoriesContainer.repaint();
 	}
 	
 	/**
