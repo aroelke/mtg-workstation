@@ -35,7 +35,6 @@ import editor.gui.generic.ColorButton;
  * This class represents a panel that shows information about a category in a deck.
  * 
  * TODO: Make it so that each category can have its own columns
- * TODO: Put the spinner editor into the Count column
  * 
  * @author Alec Roelke
  */
