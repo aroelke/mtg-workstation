@@ -648,7 +648,7 @@ public class SettingsDialog extends JDialog
 		categoriesPanel.setLayout(new BorderLayout(5, 0));
 		categoriesPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
-		categoriesList = new CategoryList(true);
+		categoriesList = new CategoryList("<html><i>&lt;Double-click to add or edit&gt;</i></html>");
 		if (!getAsString(SettingsDialog.EDITOR_PRESETS).isEmpty())
 			for (String categoryString: getAsString(EDITOR_PRESETS).split(CATEGORY_DELIMITER))
 				categoriesList.addCategory(new CategorySpec(categoryString));

@@ -18,25 +18,14 @@ import editor.gui.editor.CategoryEditorPanel;
 
 /**
  * This class represents an element that can display a list of CategorySpecs.
- * Optionally, it can show a hint for how to add new CategorySpecs to the list.
- * 
- * TODO: Make the hint be a parameter to the class and not static.
+ * Optionally, it can show an extra line that is not an element, which is useful
+ * for a hint of how to perform an action on the list.
  * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class CategoryList extends JList<String>
 {
-	/**
-	 * String showing a hint for how to add a new category to the list.
-	 */
-	private static final String ADD_HINT = "<html><i>&lt;Double-click to add&gt;</i></html>";
-	
-	/**
-	 * Whether or not to show the hint for adding categories (and enable adding
-	 * them at the same time).
-	 */
-	private boolean showAdd;
 	/**
 	 * Categories to show.
 	 */
@@ -45,6 +34,11 @@ public class CategoryList extends JList<String>
 	 * Model for how to display categories.
 	 */
 	private CategoryListModel model;
+	/**
+	 * Hint to show for activating the CategoryList (for example, to edit
+	 * or add categories).  If it's the empty string, don't show it.
+	 */
+	private String hint;
 	
 	/**
 	 * Create a new CategoryList with the specified List
@@ -54,9 +48,9 @@ public class CategoryList extends JList<String>
 	 * and show a hint for how to do it
 	 * @param c List of CategorySpecs to show
 	 */
-	public CategoryList(boolean showHint, List<CategorySpec> c)
+	public CategoryList(String h, List<CategorySpec> c)
 	{
-		this(showHint);
+		this(h);
 		
 		categories.addAll(c);
 	}
@@ -68,9 +62,9 @@ public class CategoryList extends JList<String>
 	 * and show a hint for how to do it
 	 * @param c CategorySpecs to show
 	 */
-	public CategoryList(boolean showHint, CategorySpec... c)
+	public CategoryList(String h, CategorySpec... c)
 	{
-		this(showHint, Arrays.asList(c));
+		this(h, Arrays.asList(c));
 	}
 	
 	/**
@@ -79,41 +73,35 @@ public class CategoryList extends JList<String>
 	 * @param showHint Whether or not to enable adding of categories
 	 * and show a hint for how to do it
 	 */
-	public CategoryList(boolean showHint)
+	public CategoryList(String h)
 	{
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		showAdd = showHint;
+		hint = h;
 		categories = new ArrayList<CategorySpec>();
 		setModel(model = new CategoryListModel());
 		
-		if (showAdd)
+		if (!hint.isEmpty())
 		{
 			addMouseListener(new MouseAdapter()
 			{
 				@Override
 				public void mouseReleased(MouseEvent e)
 				{
-					int index = locationToIndex(e.getPoint());
-					Rectangle rec = getCellBounds(index, index);
-					if (rec == null || !rec.contains(e.getPoint()))
+					if (e.getClickCount() == 2)
 					{
-						if (e.getClickCount() == 2)
+						int index = locationToIndex(e.getPoint());
+						Rectangle rec = getCellBounds(index, index);
+						CategorySpec spec = null;
+						if (rec == null || !rec.contains(e.getPoint()))
 						{
 							clearSelection();
-							CategorySpec spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this);
-							if (spec != null)
-								addCategory(spec);
+							spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this);
 						}
-					}
-					else
-					{
-						if (e.getClickCount() == 2)
-						{
-							CategorySpec spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this, getCategoryAt(index));
-							if (spec != null)
-								setCategoryAt(index, spec);
-						}
+						else
+							spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this, getCategoryAt(index));
+						if (spec != null)
+							setCategoryAt(index, spec);
 					}
 				}
 			});
@@ -131,10 +119,7 @@ public class CategoryList extends JList<String>
 	public int locationToIndex(Point p)
 	{
 		int index = super.locationToIndex(p);
-		if (index < categories.size())
-			return index;
-		else
-			return -1;
+		return index < categories.size() ? index : -1;
 	}
 	
 	/**
@@ -212,8 +197,8 @@ public class CategoryList extends JList<String>
 		{
 			if (index < categories.size())
 				return categories.get(index).getName();
-			else if (showAdd && index == categories.size())
-				return ADD_HINT;
+			else if (!hint.isEmpty() && index == categories.size())
+				return hint;
 			else
 				throw new IndexOutOfBoundsException("Illegal list index " + index);
 		}
@@ -226,7 +211,7 @@ public class CategoryList extends JList<String>
 		@Override
 		public int getSize()
 		{
-			return categories.size() + (showAdd ? 1 : 0);
+			return categories.size() + (!hint.isEmpty() ? 1 : 0);
 		}
 	}
 }
