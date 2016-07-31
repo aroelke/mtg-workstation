@@ -152,7 +152,6 @@ public class MainFrame extends JFrame
 	 * system one and create the GUI.
 	 * 
 	 * TODO: Add copy/paste mechanics
-	 * TODO: See if a GroupLayout might make more sense for some of the UI elements
 	 * TODO: Try to reduce memory footprint.
 	 * 
 	 * @param args Arguments to the program
