@@ -142,6 +142,11 @@ public class SettingsDialog extends JDialog
 	 * Recently-opened files paths.
 	 */
 	public static final String RECENT_FILES = "recents.files";
+	/**
+	 * Number of rows to show in the blacklist and whitelist displays in the
+	 * category editor.
+	 */
+	public static final String EXPLICITS_ROWS = "category.explicits_rows";
 	
 	////////////////// PRESET CATEGORIES ////////////////
 	/**
@@ -223,6 +228,7 @@ public class SettingsDialog extends JDialog
 		SETTINGS.put(INITIALDIR, ".");
 		SETTINGS.put(RECENT_COUNT, "4");
 		SETTINGS.put(RECENT_FILES, "");
+		SETTINGS.put(EXPLICITS_ROWS, "3");
 		SETTINGS.put(CATEGORY_ROWS, "6");
 		SETTINGS.put(EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
 		SETTINGS.put(EDITOR_STRIPE, "#FFCCCCCC");
@@ -435,6 +441,11 @@ public class SettingsDialog extends JDialog
 	 * Check box indicating whether or not warnings after loading cards should be suppressed.
 	 */
 	private JCheckBox suppressCheckBox;
+	/**
+	 * Spinner allowing setting the number of rows to display in whitelists/blacklists
+	 * in the category editor.
+	 */
+	private JSpinner explicitsSpinner;
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -640,6 +651,19 @@ public class SettingsDialog extends JDialog
 		recentPanel.setMaximumSize(recentPanel.getPreferredSize());
 		recentPanel.setAlignmentX(LEFT_ALIGNMENT);
 		editorPanel.add(recentPanel);
+		editorPanel.add(Box.createVerticalStrut(5));
+		
+		// Whitelist and blacklist rows to show
+		JPanel explicitsPanel = new JPanel();
+		explicitsPanel.setLayout(new BoxLayout(explicitsPanel, BoxLayout.X_AXIS));
+		explicitsPanel.add(new JLabel("Blacklist/Whitelist rows to display:"));
+		explicitsPanel.add(Box.createHorizontalStrut(5));
+		explicitsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
+		explicitsSpinner.getModel().setValue(Integer.valueOf(getAsString(EXPLICITS_ROWS)));
+		explicitsPanel.add(explicitsSpinner);
+		explicitsPanel.setMaximumSize(explicitsPanel.getPreferredSize());
+		explicitsPanel.setAlignmentX(LEFT_ALIGNMENT);
+		editorPanel.add(explicitsPanel);
 		
 		editorPanel.add(Box.createVerticalGlue());
 		
@@ -860,6 +884,7 @@ public class SettingsDialog extends JDialog
 		SETTINGS.put(INVENTORY_COLUMNS, join.toString());
 		SETTINGS.put(INVENTORY_STRIPE, colorToString(inventoryStripeColor.getColor()));
 		SETTINGS.put(RECENT_COUNT, recentSpinner.getValue().toString());
+		SETTINGS.put(EXPLICITS_ROWS, explicitsSpinner.getValue().toString());
 		SETTINGS.put(CATEGORY_ROWS, rowsSpinner.getValue().toString());
 		join = new StringJoiner(",");
 		for (JCheckBox box: editorColumnCheckBoxes)

@@ -8,23 +8,17 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.JList;
 
 import editor.database.card.Card;
+import editor.gui.SettingsDialog;
 
 /**
  * This class represents an element that can display a list of Cards by name.
  * It cannot be edited and does not support selection.
- * 
- * TODO: Implement editing
  * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class CardList extends JList<String>
 {
-	/**
-	 * TODO: Make this a setting
-	 */
-	private static final int CARDS_TO_DISPLAY = 3;
-	
 	/**
 	 * List of cards to display.
 	 */
@@ -65,7 +59,7 @@ public class CardList extends JList<String>
 				return cards.size();
 			}
 		});
-		setVisibleRowCount(CARDS_TO_DISPLAY);
+		setVisibleRowCount(SettingsDialog.getAsInt(SettingsDialog.EXPLICITS_ROWS));
 	}
 	
 	/**
