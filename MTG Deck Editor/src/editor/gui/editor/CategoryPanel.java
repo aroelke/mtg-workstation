@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.SystemColor;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
@@ -331,9 +332,8 @@ public class CategoryPanel extends JPanel
 		private final int END = 20;
 		/**
 		 * Color of the flash.
-		 * TODO: Make this color customizable (or make it not flash at all)
 		 */
-		private final Color FLASH = Color.CYAN;
+		private final Color FLASH = SystemColor.textHighlight;
 		
 		/**
 		 * Progress of the flash.
