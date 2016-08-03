@@ -417,7 +417,7 @@ public class EditorFrame extends JInternalFrame
 			contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 				addSelectedCards((Integer)spinner.getValue());
 		});
 		tableMenu.add(addNPopupItem);
@@ -441,7 +441,7 @@ public class EditorFrame extends JInternalFrame
 			contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 				removeSelectedCards((Integer)spinner.getValue());
 		});
 		tableMenu.add(removeNPopupItem);
@@ -1031,7 +1031,7 @@ public class EditorFrame extends JInternalFrame
 			contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 				addSelectedCards((Integer)spinner.getValue());
 		});
 		tableMenu.add(addNPopupItem);
@@ -1055,7 +1055,7 @@ public class EditorFrame extends JInternalFrame
 			contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 				removeSelectedCards((Integer)spinner.getValue());
 		});
 		tableMenu.add(removeNPopupItem);

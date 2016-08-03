@@ -72,7 +72,7 @@ public class CategoryEditorPanel extends JPanel
 		{
 			JScrollPane editorPane = new JScrollPane(editorPanel);
 			editorPane.setBorder(new EmptyBorder(0, 0, 0, 0));
-			if (JOptionPane.showOptionDialog(parent, editorPane, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showConfirmDialog(parent, editorPane, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 			{
 				if (editor.nameField.getText().isEmpty())
 					JOptionPane.showMessageDialog(null, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);

@@ -455,7 +455,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 					selectedFrame.addSelectedCards((Integer)spinner.getValue());
 			}
 		});
@@ -485,7 +485,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 					selectedFrame.removeSelectedCards((Integer)spinner.getValue());
 			}
 		});
@@ -510,7 +510,7 @@ public class MainFrame extends JFrame
 				JList<String> categories = new JList<String>(selectedFrame.categories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
 				categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
-				if (JOptionPane.showOptionDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 					selectedFrame.editCategory(categories.getSelectedValue());
 			}
 		});
@@ -526,7 +526,7 @@ public class MainFrame extends JFrame
 				JList<String> categories = new JList<String>(selectedFrame.categories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
 				categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
-				if (JOptionPane.showOptionDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 					selectedFrame.removeCategory(categories.getSelectedValue());
 			}
 		});
@@ -720,7 +720,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 					selectedFrame.addCard(selectedCard, (Integer)spinner.getValue());
 			}
 		});
@@ -746,7 +746,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 					selectedFrame.removeCard(selectedCard, (Integer)spinner.getValue());
 			}
 		});
@@ -848,7 +848,7 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 					selectedFrame.addSelectedCards((Integer)spinner.getValue());
 			}
 		});
@@ -875,11 +875,21 @@ public class MainFrame extends JFrame
 				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showOptionDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 					selectedFrame.removeCards(getSelectedCards(), (Integer)spinner.getValue());
 			}
 		});
 		inventoryMenu.add(removeNPopupItem);
+		
+		inventoryMenu.add(new JSeparator());
+		
+		JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
+		editTagsItem.addActionListener((e) -> {
+			CardTagPanel panel = new CardTagPanel(getSelectedCards());
+			if (JOptionPane.showConfirmDialog(this, panel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+			{}
+		});
+		inventoryMenu.add(editTagsItem);
 		
 		// Action to be taken when the user presses the Enter key after entering text into the quick-filter
 		// bar
@@ -919,7 +929,7 @@ public class MainFrame extends JFrame
 			
 			JScrollPane panelPane = new JScrollPane(panelPanel);
 			panelPane.setBorder(new EmptyBorder(0, 0, 0, 0));
-			if (JOptionPane.showOptionDialog(this, panelPane, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION)
+			if (JOptionPane.showConfirmDialog(this, panelPane, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 			{
 				nameFilterField.setText("");
 				inventory.updateFilter(panel.filter());
