@@ -2,8 +2,6 @@ package editor.gui.display;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,6 +13,7 @@ import javax.swing.ListSelectionModel;
 
 import editor.collection.category.CategorySpec;
 import editor.gui.editor.CategoryEditorPanel;
+import editor.gui.generic.MouseListenerFactory;
 
 /**
  * This class represents an element that can display a list of CategorySpecs.
@@ -83,28 +82,23 @@ public class CategoryList extends JList<String>
 		
 		if (!hint.isEmpty())
 		{
-			addMouseListener(new MouseAdapter()
-			{
-				@Override
-				public void mouseReleased(MouseEvent e)
+			addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
+				if (e.getClickCount() == 2)
 				{
-					if (e.getClickCount() == 2)
+					int index = locationToIndex(e.getPoint());
+					Rectangle rec = getCellBounds(index, index);
+					CategorySpec spec = null;
+					if (rec == null || !rec.contains(e.getPoint()))
 					{
-						int index = locationToIndex(e.getPoint());
-						Rectangle rec = getCellBounds(index, index);
-						CategorySpec spec = null;
-						if (rec == null || !rec.contains(e.getPoint()))
-						{
-							clearSelection();
-							spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this);
-						}
-						else
-							spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this, getCategoryAt(index));
-						if (spec != null)
-							setCategoryAt(index, spec);
+						clearSelection();
+						spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this);
 					}
+					else
+						spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this, getCategoryAt(index));
+					if (spec != null)
+						setCategoryAt(index, spec);
 				}
-			});
+			}));
 		}
 	}
 	

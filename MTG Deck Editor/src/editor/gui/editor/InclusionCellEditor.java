@@ -3,7 +3,6 @@ package editor.gui.editor;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.EventObject;
@@ -20,6 +19,7 @@ import javax.swing.table.TableCellEditor;
 
 import editor.collection.category.CategorySpec;
 import editor.gui.display.CardTable;
+import editor.gui.generic.MouseListenerFactory;
 
 /**
  * This class represents an editor for a table cell containing a set of CategorySpecs for a
@@ -74,18 +74,13 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
 				}
 			}
 		};
-		editor.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mousePressed(MouseEvent e)
-			{
-				if (JOptionPane.showConfirmDialog(frame, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					fireEditingStopped();
-				else
-					fireEditingCanceled();
-				iePanel = null;
-			}
-		});
+		editor.addMouseListener(MouseListenerFactory.createPressListener((e) -> {
+			if (JOptionPane.showConfirmDialog(frame, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+				fireEditingStopped();
+			else
+				fireEditingCanceled();
+			iePanel = null;
+		}));
 	}
 	
 	/**

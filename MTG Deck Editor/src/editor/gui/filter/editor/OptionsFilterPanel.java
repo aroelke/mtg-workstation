@@ -5,8 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +26,7 @@ import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
 import editor.gui.generic.ComboBoxPanel;
+import editor.gui.generic.MouseListenerFactory;
 import editor.gui.generic.ScrollablePanel;
 import editor.util.Containment;
 import editor.util.PopupMenuAdapter;
@@ -124,7 +123,6 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 		box.addPopupMenuListener(new PopupMenuAdapter()
 		{
 			// Adapted from https://tips4java.wordpress.com/2010/11/28/combo-box-popup/
-			
 			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 			{
@@ -158,29 +156,21 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 		Font buttonFont = new Font(addButton.getFont().getFontName(), Font.PLAIN, addButton.getFont().getSize() - 2);
 		addButton.setAlignmentX(CENTER_ALIGNMENT);
 		addButton.setFont(buttonFont);
-		addButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e)
-			{
-				addItem(options[0]);
-				optionsPanel.revalidate();
-			}
-		});
+		addButton.addMouseListener(MouseListenerFactory.createPressListener((e) -> {
+			addItem(options[0]);
+			optionsPanel.revalidate();
+		}));
 		JLabel removeButton = new JLabel("x", JLabel.CENTER);
 		removeButton.setAlignmentX(CENTER_ALIGNMENT);
 		removeButton.setFont(buttonFont);
-		removeButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e)
+		removeButton.addMouseListener(MouseListenerFactory.createPressListener((e) -> {
+			if (optionsBoxes.size() > 1)
 			{
-				if (optionsBoxes.size() > 1)
-				{
-					optionsPanel.remove(boxPanel);
-					optionsBoxes.remove(box);
-					optionsPanel.revalidate();
-				}
+				optionsPanel.remove(boxPanel);
+				optionsBoxes.remove(box);
+				optionsPanel.revalidate();
 			}
-		});
+		}));
 		buttonPanel.add(removeButton);
 		buttonPanel.add(addButton);
 		boxPanel.add(buttonPanel, BorderLayout.EAST);
