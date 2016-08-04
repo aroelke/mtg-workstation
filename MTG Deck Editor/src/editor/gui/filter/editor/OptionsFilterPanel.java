@@ -19,7 +19,6 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.basic.BasicComboPopup;
 
 import com.jidesoft.swing.SimpleScrollPane;
@@ -31,6 +30,7 @@ import editor.filter.leaf.options.OptionsFilter;
 import editor.gui.generic.ComboBoxPanel;
 import editor.gui.generic.ScrollablePanel;
 import editor.util.Containment;
+import editor.util.PopupMenuAdapter;
 
 /**
  * This class represents a panel that corresponds to a filter that groups
@@ -121,7 +121,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	{
 		JPanel boxPanel = new JPanel(new BorderLayout());
 		JComboBox<T> box = new JComboBox<T>(options);
-		box.addPopupMenuListener(new PopupMenuListener()
+		box.addPopupMenuListener(new PopupMenuAdapter()
 		{
 			// Adapted from https://tips4java.wordpress.com/2010/11/28/combo-box-popup/
 			
@@ -146,14 +146,6 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 						});
 				}
 			}
-
-			@Override
-			public void popupMenuCanceled(PopupMenuEvent e)
-			{}
-
-			@Override
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-			{}
 		});
 		box.setPreferredSize(new Dimension(MAX_COMBO_WIDTH, box.getPreferredSize().height));
 		
