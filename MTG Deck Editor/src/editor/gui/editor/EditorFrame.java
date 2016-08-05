@@ -72,6 +72,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.AbstractTableModel;
 
 import editor.collection.CardCollection;
@@ -88,7 +89,7 @@ import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
-import editor.util.PopupMenuAdapter;
+import editor.util.PopupMenuListenerFactory;
 
 /**
  * This class represents an internal frame for editing a deck.  It contains a table that shows all cards
@@ -1096,14 +1097,7 @@ public class EditorFrame extends JInternalFrame
 		
 		tableMenu.addPopupMenuListener(new TablePopupListener(addToCategoryMenu, removeFromCategoryMenu,
 				editCategoriesItem, categoriesSeparator, newCategory.table));
-		tableMenu.addPopupMenuListener(new PopupMenuAdapter()
-		{
-			@Override
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-			{
-				removeFromCategoryItem.setText("Exclude from " + spec.getName());
-			}
-		});
+		tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> removeFromCategoryItem.setText("Exclude from " + spec.getName())));
 		
 		// Category popup menu
 		JPopupMenu categoryMenu = new JPopupMenu();
@@ -1859,7 +1853,7 @@ public class EditorFrame extends JInternalFrame
 	 * 
 	 * @author Alec Roelke
 	 */
-	private class TablePopupListener extends PopupMenuAdapter
+	private class TablePopupListener implements PopupMenuListener
 	{
 		/**
 		 * Submenu for quickly adding cards to categories.
@@ -1965,6 +1959,10 @@ public class EditorFrame extends JInternalFrame
 				menuSeparator.setVisible(addToCategoryMenu.isVisible() || removeFromCategoryMenu.isVisible() || editCategoriesItem.isVisible());
 			}
 		}
+
+		@Override
+		public void popupMenuCanceled(PopupMenuEvent e)
+		{}
 	}
 	
 	/**

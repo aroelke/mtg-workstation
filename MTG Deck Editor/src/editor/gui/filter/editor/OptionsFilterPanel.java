@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.PopupMenuEvent;
 import javax.swing.plaf.basic.BasicComboPopup;
 
 import com.jidesoft.swing.SimpleScrollPane;
@@ -29,7 +28,7 @@ import editor.gui.generic.ComboBoxPanel;
 import editor.gui.generic.ScrollablePanel;
 import editor.util.Containment;
 import editor.util.MouseListenerFactory;
-import editor.util.PopupMenuAdapter;
+import editor.util.PopupMenuListenerFactory;
 
 /**
  * This class represents a panel that corresponds to a filter that groups
@@ -120,31 +119,25 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	{
 		JPanel boxPanel = new JPanel(new BorderLayout());
 		JComboBox<T> box = new JComboBox<T>(options);
-		box.addPopupMenuListener(new PopupMenuAdapter()
-		{
-			// Adapted from https://tips4java.wordpress.com/2010/11/28/combo-box-popup/
-			@Override
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+		box.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+			if (options.length > 0)
 			{
-				if (options.length > 0)
-				{
-					Object child = box.getAccessibleContext().getAccessibleChild(0);
-					if (child instanceof BasicComboPopup)
-						SwingUtilities.invokeLater(() -> {
-							BasicComboPopup popup = (BasicComboPopup)child;
-							JScrollPane scrollPane = (JScrollPane)SwingUtilities.getAncestorOfClass(JScrollPane.class, popup.getList());
-							
-							int popupWidth = popup.getList().getPreferredSize().width +
-									(options.length > box.getMaximumRowCount() ? scrollPane.getVerticalScrollBar().getPreferredSize().width : 0);
-							scrollPane.setPreferredSize(new Dimension(Math.max(popupWidth, scrollPane.getPreferredSize().width), scrollPane.getPreferredSize().height));
-							scrollPane.setMaximumSize(scrollPane.getPreferredSize());
-							Point location = box.getLocationOnScreen();
-							popup.setLocation(location.x, location.y + box.getHeight() - 1);
-							popup.setLocation(location.x, location.y + box.getHeight());
-						});
-				}
+				Object child = box.getAccessibleContext().getAccessibleChild(0);
+				if (child instanceof BasicComboPopup)
+					SwingUtilities.invokeLater(() -> {
+						BasicComboPopup popup = (BasicComboPopup)child;
+						JScrollPane scrollPane = (JScrollPane)SwingUtilities.getAncestorOfClass(JScrollPane.class, popup.getList());
+						
+						int popupWidth = popup.getList().getPreferredSize().width +
+								(options.length > box.getMaximumRowCount() ? scrollPane.getVerticalScrollBar().getPreferredSize().width : 0);
+						scrollPane.setPreferredSize(new Dimension(Math.max(popupWidth, scrollPane.getPreferredSize().width), scrollPane.getPreferredSize().height));
+						scrollPane.setMaximumSize(scrollPane.getPreferredSize());
+						Point location = box.getLocationOnScreen();
+						popup.setLocation(location.x, location.y + box.getHeight() - 1);
+						popup.setLocation(location.x, location.y + box.getHeight());
+					});
 			}
-		});
+		}));
 		box.setPreferredSize(new Dimension(MAX_COMBO_WIDTH, box.getPreferredSize().height));
 		
 		boxPanel.add(box, BorderLayout.CENTER);
