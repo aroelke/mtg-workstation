@@ -1,6 +1,7 @@
 package editor.gui.filter.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -153,7 +154,8 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 			addItem(options[0]);
 			optionsPanel.revalidate();
 		}));
-		JLabel removeButton = new JLabel("x", JLabel.CENTER);
+		JLabel removeButton = new JLabel("×", JLabel.CENTER);
+		removeButton.setForeground(Color.RED);
 		removeButton.setAlignmentX(CENTER_ALIGNMENT);
 		removeButton.setFont(buttonFont);
 		removeButton.addMouseListener(MouseListenerFactory.createPressListener((e) -> {
