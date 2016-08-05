@@ -13,7 +13,7 @@ import javax.swing.ListSelectionModel;
 
 import editor.collection.category.CategorySpec;
 import editor.gui.editor.CategoryEditorPanel;
-import editor.gui.generic.MouseListenerFactory;
+import editor.util.MouseListenerFactory;
 
 /**
  * This class represents an element that can display a list of CategorySpecs.

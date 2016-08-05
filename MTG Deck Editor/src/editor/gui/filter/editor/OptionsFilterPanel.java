@@ -26,9 +26,9 @@ import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
 import editor.gui.generic.ComboBoxPanel;
-import editor.gui.generic.MouseListenerFactory;
 import editor.gui.generic.ScrollablePanel;
 import editor.util.Containment;
+import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuAdapter;
 
 /**
