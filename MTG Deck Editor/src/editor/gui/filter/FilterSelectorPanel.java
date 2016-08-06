@@ -12,7 +12,6 @@ import editor.filter.Filter;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.filter.editor.FilterEditorPanel;
-import editor.gui.filter.editor.FilterPanelType;
 import editor.gui.generic.ComboBoxPanel;
 
 /**
@@ -55,10 +54,10 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 		filterPanels = new HashMap<FilterType, FilterEditorPanel<?>>();
 		filtersPanel = new JPanel(new CardLayout());
 		add(filtersPanel);
-		for (FilterPanelType type: FilterPanelType.values())
+		for (FilterType type: FilterType.values())
 		{
-			FilterEditorPanel<?> panel = type.createPanel();
-			filterPanels.put(type.type, panel);
+			FilterEditorPanel<?> panel = FilterPanelFactory.createFilterPanel(type);
+			filterPanels.put(type, panel);
 			filtersPanel.add(panel, type.toString());
 		}
 		filterTypes.addItemListener((e) -> {
