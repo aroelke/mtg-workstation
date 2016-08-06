@@ -2,6 +2,7 @@ package editor.gui.filter.editor;
 
 import java.util.function.Function;
 
+import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
@@ -17,6 +18,7 @@ import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
+import editor.filter.leaf.options.multi.TagsFilter;
 import editor.filter.leaf.options.single.BlockFilter;
 import editor.filter.leaf.options.single.ExpansionFilter;
 import editor.filter.leaf.options.single.LayoutFilter;
@@ -155,6 +157,12 @@ public enum FilterPanelType
 			return new LegalityFilterPanel((LegalityFilter)f);
 		else
 			throw new IllegalArgumentException("Illegal legality filter type " + f.type.name());
+	}),
+	TAGS(FilterType.TAGS, (f) -> {
+		if (f.type == FilterType.TAGS)
+			return new OptionsFilterPanel<String>((TagsFilter)f, Card.tags().stream().sorted().toArray(String[]::new));
+		else
+			throw new IllegalArgumentException("Illegal tags filter type " + f.type.name());
 	}),
 	DEFAULTS(FilterType.DEFAULTS, (f) -> {
 		if (f == null)

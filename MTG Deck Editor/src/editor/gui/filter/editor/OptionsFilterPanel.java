@@ -201,9 +201,11 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 		if (filter.type == type)
 		{
 			contain.setSelectedItem(filter.contain);
+			if (options.length == 0)
+				contain.setVisible(false);
 			optionsBoxes.clear();
 			optionsPanel.removeAll();
-			if (filter.selected.isEmpty())
+			if (filter.selected.isEmpty() && options.length > 0)
 				addItem(options[0]);
 			else
 				for (T selected: filter.selected)

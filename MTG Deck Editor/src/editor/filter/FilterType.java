@@ -1,5 +1,6 @@
 package editor.filter;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
+import editor.filter.leaf.options.multi.TagsFilter;
 import editor.filter.leaf.options.single.BlockFilter;
 import editor.filter.leaf.options.single.ExpansionFilter;
 import editor.filter.leaf.options.single.LayoutFilter;
@@ -49,12 +51,15 @@ public enum FilterType
 	ARTIST("Artist", "a"),
 	CARD_NUMBER("Card Number", "#"),
 	FORMAT_LEGALITY("Format Legality", "legal"),
+	TAGS("Tags", "tag"),
 	DEFAULTS("Defaults", ""),
 	NONE("<No Card>", "0"),
 	ALL("<Any Card>", "*");
 	
 	static
 	{
+		assert(Arrays.stream(values()).map((t) -> t.code).distinct().count() == (long)values().length);
+		
 		NAME.supplier = () -> new TextFilter(NAME, Card::normalizedName);
 		LAYOUT.supplier = () -> new LayoutFilter();
 		MANA_COST.supplier = () -> new ManaCostFilter();
@@ -76,6 +81,7 @@ public enum FilterType
 		ARTIST.supplier = () -> new TextFilter(ARTIST, Card::artist);
 		CARD_NUMBER.supplier = () -> new NumberFilter(CARD_NUMBER, (c) -> c.number().stream().map((v) -> Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""))).collect(Collectors.toList()));
 		FORMAT_LEGALITY.supplier = () -> new LegalityFilter();
+		TAGS.supplier = () -> new TagsFilter();
 		DEFAULTS.supplier = () -> null;
 		NONE.supplier = () -> new BinaryFilter(false);
 		ALL.supplier = () -> new BinaryFilter(true);
