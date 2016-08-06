@@ -5,6 +5,7 @@ import java.text.Collator;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,7 +34,6 @@ import editor.gui.MainFrame;
  * This interface represents an abstract Card with various characteristics.
  * 
  * TODO: If there are any performance issues, try pre-collecting values
- * TODO: Add a user-controlled tag to cards.
  * TODO: Add printed text in addition to Oracle text.
  * @author Alec Roelke
  */
@@ -55,7 +55,20 @@ public interface Card
 	 * DataFlavor representing cards being transferred.
 	 */
 	public DataFlavor cardFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Card[].class.getName() + "\"", "Card Array");
+	/**
+	 * Map of cards onto tags that have been applied to them.
+	 */
+	public Map<Card, Set<String>> tags = new HashMap<Card, Set<String>>();
 
+	
+	/**
+	 * @return A Set containing all tags among all cards.
+	 */
+	public static Set<String> tags()
+	{
+		return tags.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+	}
+	
 	/**
 	 * TODO: Use the ID field from mtgjson rather than calculating it like this
 	 * @return This Card's id, which is its expansion code, unified name, and

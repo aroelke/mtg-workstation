@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +24,9 @@ import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -564,7 +568,14 @@ public class InventoryLoadDialog extends JDialog
 				LegalityFilter.formatList = formatSet.stream().sorted().toArray(String[]::new);
 			}
 			
-			return new Inventory(cards);
+			Inventory inventory = new Inventory(cards);
+			if (SettingsDialog.getAsString(SettingsDialog.CARD_TAGS) != null)
+			{
+				Matcher m = Pattern.compile("\\((.*?)::\\[(.*?)\\]\\)").matcher(SettingsDialog.getAsString(SettingsDialog.CARD_TAGS));
+				while (m.find())
+					Card.tags.put(inventory.get(m.group(1)), Arrays.stream(m.group(2).split(",")).collect(Collectors.toSet()));
+			}
+			return inventory;
 		}
 		
 		/**

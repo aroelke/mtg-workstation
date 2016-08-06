@@ -465,6 +465,13 @@ public class EditorFrame extends JInternalFrame
 		});
 		tableMenu.add(editCategoriesItem);
 		
+		tableMenu.add(new JSeparator());
+		
+		// Edit card tags item
+		JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
+		editTagsItem.addActionListener((e) -> parent.editTags(getSelectedCards()));
+		tableMenu.add(editTagsItem);
+		
 		tableMenu.addPopupMenuListener(new TablePopupListener(addToCategoryMenu, removeFromCategoryMenu,
 				editCategoriesItem, categoriesSeparator, table));
 		
@@ -1094,6 +1101,13 @@ public class EditorFrame extends JInternalFrame
 				editInclusion(iePanel.getIncluded(), iePanel.getExcluded());
 		});
 		tableMenu.add(editCategoriesItem);
+		
+		tableMenu.add(new JSeparator());
+		
+		// Edit tags item
+		JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
+		editTagsItem.addActionListener((e) -> parent.editTags(getSelectedCards()));
+		tableMenu.add(editTagsItem);
 		
 		tableMenu.addPopupMenuListener(new TablePopupListener(addToCategoryMenu, removeFromCategoryMenu,
 				editCategoriesItem, categoriesSeparator, newCategory.table));

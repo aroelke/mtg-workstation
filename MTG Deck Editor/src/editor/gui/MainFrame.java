@@ -11,10 +11,9 @@ import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
@@ -33,10 +32,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
@@ -103,6 +104,7 @@ import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
+import editor.util.MouseListenerFactory;
 
 /**
  * This class represents the main frame of the editor.  It contains several tabs that display information
@@ -752,6 +754,12 @@ public class MainFrame extends JFrame
 		});
 		oraclePopupMenu.add(oracleRemoveNItem);
 		
+		oraclePopupMenu.add(new JSeparator());
+		
+		JMenuItem oracleEditTagsItem = new JMenuItem("Edit Tags...");
+		oracleEditTagsItem.addActionListener((e) -> editTags(getSelectedCards()));
+		oraclePopupMenu.add(oracleEditTagsItem);
+		
 		// Panel containing inventory and image of currently-selected card
 		JPanel inventoryPanel = new JPanel(new BorderLayout(0, 0));
 		inventoryPanel.setPreferredSize(new Dimension(getWidth()/4, getHeight()*3/4));
@@ -786,15 +794,10 @@ public class MainFrame extends JFrame
 		inventoryTable.setDefaultRenderer(PowerToughness.Tuple.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Loyalty.Tuple.class, new CardTableCellRenderer());
 		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
-		inventoryTable.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mouseClicked(MouseEvent e)
-			{
-				if (e.getClickCount()%2 == 0 && selectedFrame != null)
-					selectedFrame.addSelectedCards(1);
-			}
-		});
+		inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) -> {
+			if (e.getClickCount()%2 == 0 && selectedFrame != null)
+				selectedFrame.addSelectedCards(1);
+		}));
 		inventoryTable.setTransferHandler(new TransferHandler()
 		{
 			@Override
@@ -883,12 +886,9 @@ public class MainFrame extends JFrame
 		
 		inventoryMenu.add(new JSeparator());
 		
+		// Edit tags item
 		JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
-		editTagsItem.addActionListener((e) -> {
-			CardTagPanel panel = new CardTagPanel(getSelectedCards());
-			if (JOptionPane.showConfirmDialog(this, panel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-			{}
-		});
+		editTagsItem.addActionListener((e) -> editTags(getSelectedCards()));
 		inventoryMenu.add(editTagsItem);
 		
 		// Action to be taken when the user presses the Enter key after entering text into the quick-filter
@@ -1571,6 +1571,61 @@ public class MainFrame extends JFrame
 	public void updateCardsInDeck()
 	{
 		inventoryModel.fireTableDataChanged();
+	}
+	
+	/**
+	 * Show a dialog allowing editing of the tags of the given cards and adding
+	 * new tags.
+	 * 
+	 * @param cards Cards whose tags should be edited
+	 */
+	public void editTags(List<Card> cards)
+	{
+		JPanel contentPanel = new JPanel(new BorderLayout());
+		CardTagPanel cardTagPanel = new CardTagPanel(cards);
+		contentPanel.add(new JScrollPane(cardTagPanel), BorderLayout.CENTER);
+		JPanel lowerPanel = new JPanel();
+		lowerPanel.setLayout(new BoxLayout(lowerPanel, BoxLayout.X_AXIS));
+		JTextField newTagField = new JTextField();
+		lowerPanel.add(newTagField);
+		JButton newTagButton = new JButton("Add");
+		
+		ActionListener addListener = (e) -> {
+			if (!newTagField.getText().isEmpty())
+			{
+				if (cardTagPanel.addTag(newTagField.getText()))
+				{
+					newTagField.setText("");
+					cardTagPanel.revalidate();
+					cardTagPanel.repaint();
+					SwingUtilities.getWindowAncestor(cardTagPanel).pack();
+				}
+			}
+		};
+		newTagButton.addActionListener(addListener);
+		newTagField.addActionListener(addListener);
+		lowerPanel.add(newTagButton);
+		contentPanel.add(lowerPanel, BorderLayout.SOUTH);
+		if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+		{
+			for (Map.Entry<Card, Set<String>> entry: cardTagPanel.getTagged().entrySet())
+				Card.tags.compute(entry.getKey(), (k, v) -> {
+					if (v == null)
+						v = new HashSet<String>();
+					v.addAll(entry.getValue());
+					return v;
+				});
+			for (Map.Entry<Card, Set<String>> entry: cardTagPanel.getUntagged().entrySet())
+				Card.tags.compute(entry.getKey(), (k, v) -> {
+					if (v != null)
+					{
+						v.removeAll(entry.getValue());
+						if (v.isEmpty())
+							v = null;
+					}
+					return v;
+				});
+		}
 	}
 	
 	/**

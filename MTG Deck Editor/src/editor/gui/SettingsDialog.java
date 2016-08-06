@@ -52,6 +52,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import editor.collection.category.CategorySpec;
+import editor.database.card.Card;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
@@ -84,6 +85,10 @@ public class SettingsDialog extends JDialog
 	 * Directory to start the file chooser in.
 	 */
 	public static final String INITIALDIR = "initialdir";
+	/**
+	 * Tags that have been applied to cards.
+	 */
+	public static final String CARD_TAGS = "card_tags";
 	
 	////////////////// INVENTORY SETTINGS ////////////////
 	/**
@@ -191,6 +196,16 @@ public class SettingsDialog extends JDialog
 	{
 		try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE))
 		{
+			StringBuilder str = new StringBuilder();
+			for (Card c: Card.tags.keySet())
+			{
+				str.append("(");
+				str.append(c.id());
+				str.append("::");
+				str.append(Card.tags.get(c).toString());
+				str.append(")");
+			}
+			SETTINGS.put(CARD_TAGS, str.toString());
 			SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
 		}
 	}
@@ -211,7 +226,7 @@ public class SettingsDialog extends JDialog
 	}
 	
 	/**
-	 * Set program settings back to their default values
+	 * Set program settings back to their default values.  This does not change card tags.
 	 */
 	public static void resetDefaultSettings()
 	{
