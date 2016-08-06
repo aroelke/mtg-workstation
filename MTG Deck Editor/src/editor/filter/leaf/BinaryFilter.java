@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 
 /**
@@ -64,7 +65,7 @@ public class BinaryFilter extends FilterLeaf<Void>
 	@Override
 	public Filter copy()
 	{
-		return type.createFilter();
+		return FilterFactory.createFilter(type);
 	}
 	
 	/**

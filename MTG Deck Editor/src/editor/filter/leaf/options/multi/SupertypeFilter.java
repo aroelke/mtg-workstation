@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -51,7 +52,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
 	@Override
 	public Filter copy()
 	{
-		SupertypeFilter filter = (SupertypeFilter)FilterType.SUPERTYPE.createFilter();
+		SupertypeFilter filter = (SupertypeFilter)FilterFactory.createFilter(FilterType.SUPERTYPE);
 		filter.contain = contain;
 		filter.selected = new HashSet<String>(selected);
 		return filter;

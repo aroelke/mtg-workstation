@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -87,7 +88,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
 	@Override
 	public Filter copy()
 	{
-		TypeLineFilter filter = (TypeLineFilter)FilterType.TYPE_LINE.createFilter();
+		TypeLineFilter filter = (TypeLineFilter)FilterFactory.createFilter(FilterType.TYPE_LINE);
 		filter.contain = contain;
 		filter.line = line;
 		return filter;

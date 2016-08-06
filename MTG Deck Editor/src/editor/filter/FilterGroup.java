@@ -147,7 +147,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 			if (GROUP_PATTERN.matcher(filterString).find())
 				filter = new FilterGroup();
 			else
-				filter = FilterType.fromCode(filterString.substring(1, filterString.indexOf(':'))).createFilter();
+				filter = FilterFactory.createFilter(FilterType.fromCode(filterString.substring(1, filterString.indexOf(':'))));
 			filter.parse(filterString);
 			addChild(filter);
 		}

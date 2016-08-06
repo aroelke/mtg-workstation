@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import editor.database.card.Card;
 import editor.database.characteristics.Rarity;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -49,7 +50,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 	@Override
 	public Filter copy()
 	{
-		RarityFilter filter = (RarityFilter)FilterType.RARITY.createFilter();
+		RarityFilter filter = (RarityFilter)FilterFactory.createFilter(FilterType.RARITY);
 		filter.contain = contain;
 		filter.selected = new HashSet<Rarity>(selected);
 		return filter;

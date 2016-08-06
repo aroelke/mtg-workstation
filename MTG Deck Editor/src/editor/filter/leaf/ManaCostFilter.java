@@ -5,6 +5,7 @@ import java.util.Objects;
 import editor.database.card.Card;
 import editor.database.characteristics.ManaCost;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -96,7 +97,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	@Override
 	public Filter copy()
 	{
-		ManaCostFilter filter = (ManaCostFilter)FilterType.MANA_COST.createFilter();
+		ManaCostFilter filter = (ManaCostFilter)FilterFactory.createFilter(FilterType.MANA_COST);
 		filter.contain = contain;
 		filter.cost = cost;
 		return filter;

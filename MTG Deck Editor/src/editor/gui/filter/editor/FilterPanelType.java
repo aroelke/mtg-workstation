@@ -6,6 +6,7 @@ import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.filter.leaf.ColorFilter;
 import editor.filter.leaf.FilterLeaf;
@@ -223,7 +224,7 @@ public enum FilterPanelType
 	 */
 	public FilterEditorPanel<?> createPanel()
 	{
-		return editor.apply(type.createFilter());
+		return editor.apply(FilterFactory.createFilter(type));
 	}
 	
 	/**

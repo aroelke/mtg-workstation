@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import editor.database.characteristics.ManaType;
 import editor.database.symbol.ColorSymbol;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.filter.leaf.ColorFilter;
 import editor.filter.leaf.FilterLeaf;
@@ -90,7 +91,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 	@Override
 	public Filter filter()
 	{
-		ColorFilter filter = (ColorFilter)type.createFilter();
+		ColorFilter filter = (ColorFilter)FilterFactory.createFilter(type);
 		filter.contain = contain.getSelectedItem();
 		filter.colors.addAll(colors.keySet().stream().filter((c) -> colors.get(c).isSelected()).collect(Collectors.toSet()));
 		filter.multicolored = multiCheckBox.isSelected();

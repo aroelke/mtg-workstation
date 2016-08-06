@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -49,7 +50,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 	@Override
 	public Filter copy()
 	{
-		LayoutFilter filter = (LayoutFilter)FilterType.LAYOUT.createFilter();
+		LayoutFilter filter = (LayoutFilter)FilterFactory.createFilter(FilterType.LAYOUT);
 		filter.contain = contain;
 		filter.selected = new HashSet<CardLayout>(selected);
 		return filter;

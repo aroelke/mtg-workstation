@@ -6,6 +6,7 @@ import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 
@@ -54,7 +55,7 @@ public class BinaryFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	@Override
 	public Filter filter()
 	{
-		return (through ? FilterType.ALL : FilterType.NONE).createFilter();
+		return FilterFactory.createFilter(through ? FilterType.ALL : FilterType.NONE);
 	}
 
 	/**

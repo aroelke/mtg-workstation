@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Comparison;
 
@@ -93,7 +94,7 @@ public class VariableNumberFilter extends NumberFilter
 	@Override
 	public Filter copy()
 	{
-		VariableNumberFilter filter = (VariableNumberFilter)type.createFilter();
+		VariableNumberFilter filter = (VariableNumberFilter)FilterFactory.createFilter(type);
 		filter.varies = varies;
 		filter.variable = variable;
 		filter.compare = compare;

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -45,7 +46,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 	@Override
 	public Filter copy()
 	{
-		BlockFilter filter = (BlockFilter)FilterType.BLOCK.createFilter();
+		BlockFilter filter = (BlockFilter)FilterFactory.createFilter(FilterType.BLOCK);
 		filter.contain = contain;
 		filter.selected = new HashSet<String>(selected);
 		return filter;

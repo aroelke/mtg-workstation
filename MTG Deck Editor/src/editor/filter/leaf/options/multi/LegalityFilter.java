@@ -9,6 +9,7 @@ import java.util.Objects;
 import editor.database.card.Card;
 import editor.database.characteristics.Legality;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -99,7 +100,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	@Override
 	public Filter copy()
 	{
-		LegalityFilter filter = (LegalityFilter)FilterType.FORMAT_LEGALITY.createFilter();
+		LegalityFilter filter = (LegalityFilter)FilterFactory.createFilter(FilterType.FORMAT_LEGALITY);
 		filter.contain = contain;
 		filter.selected = new HashSet<String>(selected);
 		filter.restricted = restricted;

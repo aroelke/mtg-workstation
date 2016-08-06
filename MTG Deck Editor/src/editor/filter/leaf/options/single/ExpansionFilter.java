@@ -5,6 +5,7 @@ import java.util.HashSet;
 import editor.database.card.Card;
 import editor.database.characteristics.Expansion;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -49,7 +50,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 	@Override
 	public Filter copy()
 	{
-		ExpansionFilter filter = (ExpansionFilter)FilterType.EXPANSION.createFilter();
+		ExpansionFilter filter = (ExpansionFilter)FilterFactory.createFilter(FilterType.EXPANSION);
 		filter.contain = contain;
 		filter.selected = new HashSet<Expansion>(selected);
 		return filter;

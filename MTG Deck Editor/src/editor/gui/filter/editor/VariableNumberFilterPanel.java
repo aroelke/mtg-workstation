@@ -8,6 +8,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.VariableNumberFilter;
@@ -80,7 +81,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 	@Override
 	public Filter filter()
 	{
-		VariableNumberFilter filter = (VariableNumberFilter)type.createFilter();
+		VariableNumberFilter filter = (VariableNumberFilter)FilterFactory.createFilter(type);
 		filter.compare = comparison.getSelectedItem();
 		filter.operand = (double)spinner.getValue();
 		filter.varies = variable.isSelected();

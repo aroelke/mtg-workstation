@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -46,7 +47,7 @@ public class TagsFilter extends MultiOptionsFilter<String>
 	@Override
 	public Filter copy()
 	{
-		TagsFilter filter = (TagsFilter)FilterType.TYPE.createFilter();
+		TagsFilter filter = (TagsFilter)FilterFactory.createFilter(FilterType.TYPE);
 		filter.contain = contain;
 		filter.selected = new HashSet<String>(selected);
 		return filter;

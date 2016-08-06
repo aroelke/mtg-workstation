@@ -22,6 +22,7 @@ import javax.swing.plaf.basic.BasicComboPopup;
 import com.jidesoft.swing.SimpleScrollPane;
 
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
@@ -181,7 +182,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	public Filter filter()
 	{
 		@SuppressWarnings("unchecked")
-		OptionsFilter<T> filter = (OptionsFilter<T>)type.createFilter();
+		OptionsFilter<T> filter = (OptionsFilter<T>)FilterFactory.createFilter(type);
 		filter.contain = contain.getSelectedItem();
 		filter.selected = optionsBoxes.stream().map((b) -> b.getItemAt(b.getSelectedIndex())).collect(Collectors.toSet());
 		return filter;

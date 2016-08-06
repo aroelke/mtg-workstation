@@ -5,6 +5,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JTextField;
 
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.TextFilter;
@@ -76,7 +77,7 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 	@Override
 	public Filter filter()
 	{
-		TextFilter filter = (TextFilter)type.createFilter();
+		TextFilter filter = (TextFilter)FilterFactory.createFilter(type);
 		filter.contain = contain.getSelectedItem();
 		filter.text = text.getText();
 		filter.regex = regex.isSelected();

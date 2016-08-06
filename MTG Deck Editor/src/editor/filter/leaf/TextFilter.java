@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.util.Containment;
 
@@ -36,7 +37,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	{
 		try
 		{
-			TextFilter filter = (TextFilter)t.createFilter();
+			TextFilter filter = (TextFilter)FilterFactory.createFilter(t);
 			filter.text = Pattern.quote(s);
 			filter.regex = true;
 			return filter;
@@ -207,7 +208,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	@Override
 	public Filter copy()
 	{
-		TextFilter filter = (TextFilter)type.createFilter();
+		TextFilter filter = (TextFilter)FilterFactory.createFilter(type);
 		filter.contain = contain;
 		filter.regex = regex;
 		filter.text = text;

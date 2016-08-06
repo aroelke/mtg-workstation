@@ -1,28 +1,5 @@
 package editor.filter;
 
-import java.util.Arrays;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import editor.database.card.Card;
-import editor.filter.leaf.BinaryFilter;
-import editor.filter.leaf.ColorFilter;
-import editor.filter.leaf.FilterLeaf;
-import editor.filter.leaf.ManaCostFilter;
-import editor.filter.leaf.NumberFilter;
-import editor.filter.leaf.TextFilter;
-import editor.filter.leaf.TypeLineFilter;
-import editor.filter.leaf.VariableNumberFilter;
-import editor.filter.leaf.options.multi.CardTypeFilter;
-import editor.filter.leaf.options.multi.LegalityFilter;
-import editor.filter.leaf.options.multi.SubtypeFilter;
-import editor.filter.leaf.options.multi.SupertypeFilter;
-import editor.filter.leaf.options.multi.TagsFilter;
-import editor.filter.leaf.options.single.BlockFilter;
-import editor.filter.leaf.options.single.ExpansionFilter;
-import editor.filter.leaf.options.single.LayoutFilter;
-import editor.filter.leaf.options.single.RarityFilter;
-
 /**
  * This enum represents a type of filter that can be used to filter Cards.
  * 
@@ -56,37 +33,6 @@ public enum FilterType
 	NONE("<No Card>", "0"),
 	ALL("<Any Card>", "*");
 	
-	static
-	{
-		assert(Arrays.stream(values()).map((t) -> t.code).distinct().count() == (long)values().length);
-		
-		NAME.supplier = () -> new TextFilter(NAME, Card::normalizedName);
-		LAYOUT.supplier = () -> new LayoutFilter();
-		MANA_COST.supplier = () -> new ManaCostFilter();
-		CMC.supplier = () -> new NumberFilter(CMC, Card::cmc);
-		COLOR.supplier = () -> new ColorFilter(COLOR, Card::colors);
-		COLOR_IDENTITY.supplier = () -> new ColorFilter(COLOR_IDENTITY, Card::colorIdentity);
-		TYPE_LINE.supplier = () -> new TypeLineFilter();
-		SUPERTYPE.supplier = () -> new SupertypeFilter();
-		TYPE.supplier = () -> new CardTypeFilter();
-		SUBTYPE.supplier = () -> new SubtypeFilter();
-		EXPANSION.supplier = () -> new ExpansionFilter();
-		BLOCK.supplier = () -> new BlockFilter();
-		RARITY.supplier = () -> new RarityFilter();
-		RULES_TEXT.supplier = () -> new TextFilter(RULES_TEXT, Card::normalizedOracle);
-		FLAVOR_TEXT.supplier = () -> new TextFilter(FLAVOR_TEXT, Card::normalizedFlavor);
-		POWER.supplier = () -> new VariableNumberFilter(POWER, (c) -> c.power().stream().map((p) -> (double)p.value).collect(Collectors.toList()), Card::powerVariable);
-		TOUGHNESS.supplier = () -> new VariableNumberFilter(TOUGHNESS, (c) -> c.toughness().stream().map((p) -> (double)p.value).collect(Collectors.toList()), Card::toughnessVariable);
-		LOYALTY.supplier = () -> new NumberFilter(LOYALTY, (c) -> c.loyalty().stream().map((l) -> (double)l.value).collect(Collectors.toList()));
-		ARTIST.supplier = () -> new TextFilter(ARTIST, Card::artist);
-		CARD_NUMBER.supplier = () -> new NumberFilter(CARD_NUMBER, (c) -> c.number().stream().map((v) -> Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""))).collect(Collectors.toList()));
-		FORMAT_LEGALITY.supplier = () -> new LegalityFilter();
-		TAGS.supplier = () -> new TagsFilter();
-		DEFAULTS.supplier = () -> null;
-		NONE.supplier = () -> new BinaryFilter(false);
-		ALL.supplier = () -> new BinaryFilter(true);
-	}
-	
 	/**
 	 * Get a FilterType from a String.
 	 * 
@@ -109,10 +55,6 @@ public enum FilterType
 	 * Code for this FilterType to figure out which panel to set content for.
 	 */
 	public final String code;
-	/**
-	 * Function for generating filters of this FilterType.
-	 */
-	private Supplier<FilterLeaf<?>> supplier;
 	
 	/**
 	 * Create a new FilterType.
@@ -124,18 +66,6 @@ public enum FilterType
 	{
 		name = n;
 		code = c;
-	}
-	
-	/**
-	 * Create a new Filter with the default values.
-	 * 
-	 * @return The new Filter.
-	 */
-	public FilterLeaf<?> createFilter()
-	{
-		if (this == DEFAULTS)
-			return null;
-		return supplier.get();
 	}
 	
 	/**

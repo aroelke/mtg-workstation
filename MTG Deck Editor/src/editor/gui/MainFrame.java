@@ -93,6 +93,7 @@ import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.Symbol;
+import editor.filter.FilterFactory;
 import editor.filter.FilterType;
 import editor.filter.leaf.TextFilter;
 import editor.gui.display.CardImagePanel;
@@ -901,7 +902,7 @@ public class MainFrame extends JFrame
 		// Action to be taken when the clear button is pressed (reset the filter)
 		clearButton.addActionListener((e) -> {
 			nameFilterField.setText("");
-			inventory.updateFilter(FilterType.ALL.createFilter());
+			inventory.updateFilter(FilterFactory.createFilter(FilterType.ALL));
 			inventoryModel.fireTableDataChanged();
 		});
 		
@@ -909,8 +910,8 @@ public class MainFrame extends JFrame
 		// dialog)
 		advancedFilterButton.addActionListener((e) -> {
 			FilterGroupPanel panel = new FilterGroupPanel();
-			if (inventory.getFilter().equals(FilterType.ALL.createFilter()))
-				panel.setContents(FilterType.NAME.createFilter());
+			if (inventory.getFilter().equals(FilterFactory.createFilter(FilterType.ALL)))
+				panel.setContents(FilterFactory.createFilter(FilterType.NAME));
 			else
 				panel.setContents(inventory.getFilter());
 			panel.addChangeListener((c) -> SwingUtilities.getWindowAncestor((Component)c.getSource()).pack());
