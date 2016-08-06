@@ -34,8 +34,21 @@ import editor.gui.filter.editor.TextFilterPanel;
 import editor.gui.filter.editor.TypeLineFilterPanel;
 import editor.gui.filter.editor.VariableNumberFilterPanel;
 
+/**
+ * This class is a factory for creating new FitlerEditorPanels.
+ * 
+ * @author Alec Roelke
+ */
 public interface FilterPanelFactory
 {
+	/**
+	 * Create a new FilterEditorPanel and fill it out with values from the given
+	 * Filter.
+	 * 
+	 * @param filter Filter to create a new panel from
+	 * @return A FilterEditorPanel whose type is determined by the given filter and
+	 * fill out its field using the values of the given filter.
+	 */
 	public static FilterEditorPanel<?> createFilterPanel(FilterLeaf<?> filter)
 	{
 		switch (filter.type)
@@ -81,6 +94,13 @@ public interface FilterPanelFactory
 		}
 	}
 	
+	/**
+	 * Create a new FilterEditorPanel with default values.
+	 * 
+	 * @param type Type of filter to create a panel for
+	 * @return A new FilterEditorPanel corresponding to the given type with
+	 * its fields filled out with default values.
+	 */
 	public static FilterEditorPanel<?> createFilterPanel(FilterType type)
 	{
 		if (type == FilterType.DEFAULTS)

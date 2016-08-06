@@ -23,11 +23,19 @@ import editor.filter.leaf.options.single.RarityFilter;
 
 
 /**
- * TODO: Comment this
+ * This class is a factory for creating new filters.
+ * 
  * @author Alec Roelke
  */
 public interface FilterFactory
 {
+	/**
+	 * Create a new filter.
+	 * 
+	 * @param type Type of filter to create
+	 * @return A new filter of the given type with default values.  To edit those values,
+	 * access them directly.
+	 */
 	public static FilterLeaf<?> createFilter(FilterType type)
 	{
 		switch (type)
