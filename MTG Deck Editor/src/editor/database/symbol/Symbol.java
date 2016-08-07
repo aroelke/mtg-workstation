@@ -28,7 +28,7 @@ public abstract class Symbol
 	/**
 	 * Create a Symbol from a String.
 	 * 
-	 * @param s String representation of the new Symbol, surrounded by {}
+	 * @param s String representation of the new Symbol, not surrounded by {}
 	 * @return A new Symbol that the specified String represents, or null if there is
 	 * no such Symbol.
 	 */
