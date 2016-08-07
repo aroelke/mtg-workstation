@@ -15,7 +15,7 @@ import editor.database.characteristics.ManaType;
  * 
  * @author Alec Roelke
  */
-public class TwobridSymbol extends Symbol
+public class TwobridSymbol extends ManaSymbol
 {
 	/**
 	 * Map of colors onto their corresponding twobrid symbols.
@@ -71,7 +71,7 @@ public class TwobridSymbol extends Symbol
 	 */
 	private TwobridSymbol(ManaType color)
 	{
-		super("2_" + color.toString().toLowerCase() + "_mana.png");
+		super("2_" + color.toString().toLowerCase() + "_mana.png", 2);
 		this.color = color;
 	}
 	
@@ -94,16 +94,6 @@ public class TwobridSymbol extends Symbol
 	}
 
 	/**
-	 * @return This TwobridSymbol's value in converted mana costs, which is 2.
-	 * @see editor.database.symbol.Symbol#value()
-	 */
-	@Override
-	public double value()
-	{
-		return 2;
-	}
-
-	/**
 	 * @return This TwobridSymbol's color weight, which is 0.5 for its color and 0
 	 * for the others.
 	 * @see editor.database.symbol.Symbol#colorWeights()
@@ -123,7 +113,7 @@ public class TwobridSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
 	 */
 	@Override
-	public int compareTo(Symbol o)
+	public int compareTo(ManaSymbol o)
 	{
 		if (o instanceof TwobridSymbol)
 			return color.colorOrder(((TwobridSymbol)o).color);

@@ -47,7 +47,14 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 		{
 			private void update(DocumentEvent e)
 			{
-				cost.setBackground(ManaCost.valueOf(cost.getText()) != null ? Color.WHITE : Color.PINK);
+				try
+				{
+					cost.setBackground(ManaCost.valueOf(cost.getText()).isEmpty() ? Color.PINK : Color.WHITE);
+				}
+				catch (IllegalArgumentException x)
+				{
+					cost.setBackground(Color.PINK);
+				}
 			}
 			
 			@Override

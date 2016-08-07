@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import editor.database.card.Card;
+import editor.database.symbol.ManaSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
 import editor.util.UnmodifiableList;
@@ -25,12 +26,12 @@ import editor.util.UnmodifiableList;
  * @author Alec Roelke
  * @see editor.database.symbol.Symbol
  */
-public class ManaCost implements Comparable<ManaCost>, List<Symbol>
+public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
 {
 	/**
 	 * Pattern for finding mana costs in Strings.
 	 */
-	public static final Pattern MANA_COST_PATTERN = Pattern.compile("(\\{[wubrgWUBRG\\/phPH\\dqQtTcCsSxXyYzZ]+\\})+");
+	public static final Pattern MANA_COST_PATTERN = Pattern.compile("(\\{[cwubrgCWUBRG\\/phPH\\dsSxXyYzZ]+\\})+");
 	
 	/**
 	 * This class represents a tuple of ManaCosts.  It is useful for displaying and sorting
@@ -101,7 +102,8 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * and each one should be the symbol's text surrounded by {}.
 	 * 
 	 * @param s String to parse.
-	 * @return ManaCost represented by the String, or null if there are invalid characters.
+	 * @return ManaCost represented by the String.
+	 * @throws IllegalArgumentException If there are invalid characters.
 	 * @see editor.database.symbol.Symbol
 	 */
 	public static ManaCost valueOf(String s)
@@ -112,14 +114,14 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 		}
 		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
 		{
-			return null;
+			throw new IllegalArgumentException("Illegal mana cost string \"" + s + "\"");
 		}
 	}
 	
 	/**
 	 * List of Symbols in this ManaCost.
 	 */
-	private final List<Symbol> cost;
+	private final List<ManaSymbol> cost;
 	/**
 	 * Total color weight of the Symbols in this ManaCost.
 	 */
@@ -134,11 +136,11 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	public ManaCost(String s)
 	{
 		// Populate this ManaCost's list of Symbols
-		List<Symbol> symbols = new ArrayList<Symbol>();
+		List<ManaSymbol> symbols = new ArrayList<ManaSymbol>();
 		Matcher m = Symbol.SYMBOL_PATTERN.matcher(s);
 		while (m.find())
 		{
-			symbols.add(Symbol.valueOf(m.group(1)));
+			symbols.add(ManaSymbol.valueOf(m.group(1)));
 			s = s.replaceFirst(Pattern.quote(m.group()), "");
 		}
 		
@@ -149,7 +151,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 			{
 				String sym = s.substring(index - 1, index + 2);
 				s = s.replaceFirst(Pattern.quote(sym), "");
-				symbols.add(Symbol.valueOf(sym));
+				symbols.add(ManaSymbol.valueOf(sym));
 			}
 		} while (index > -1);
 		do
@@ -158,19 +160,18 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 			{
 				String sym = s.substring(index, index + 2);
 				s = s.replaceFirst(Pattern.quote(sym), "");
-				symbols.add(Symbol.valueOf(sym));
+				symbols.add(ManaSymbol.valueOf(sym));
 			}
 		} while (index > -1);
 		for (char sym: s.toCharArray())
-			symbols.add(Symbol.valueOf(String.valueOf(sym)));
+			symbols.add(ManaSymbol.valueOf(String.valueOf(sym)));
 		
-		// TODO: Fix sorting
-		Collections.sort(symbols);
+		ManaSymbol.sort(symbols);
 		cost = Collections.unmodifiableList(symbols);
 		
 		// Calculate this ManaCost's total color weights.
-		weights = Symbol.createWeights();
-		for (Symbol sym: cost)
+		weights = ManaSymbol.createWeights();
+		for (ManaSymbol sym: cost)
 			for (ManaType col: weights.keySet())
 				weights.compute(col, (k, v) -> sym.colorWeights().get(k) + v);
 	}
@@ -192,7 +193,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	public ManaType.Tuple colors()
 	{
 		List<ManaType> colors = new ArrayList<ManaType>();
-		for (Symbol sym: cost)
+		for (ManaSymbol sym: cost)
 			for (Map.Entry<ManaType, Double> weight: sym.colorWeights().entrySet())
 				if (weight.getKey() != ManaType.COLORLESS && weight.getValue() > 0)
 					colors.add(weight.getKey());
@@ -205,7 +206,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	public double cmc()
 	{
 		double cmc = 0.0;
-		for (Symbol sym: cost)
+		for (ManaSymbol sym: cost)
 			cmc += sym.value();
 		return cmc;
 	}
@@ -223,7 +224,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * @return The Symbol at the specified index.
 	 */
 	@Override
-	public Symbol get(int index)
+	public ManaSymbol get(int index)
 	{
 		return cost.get(index);
 	}
@@ -406,7 +407,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * @return An iterator over the Symbols in this ManaCost.
 	 */
 	@Override
-	public Iterator<Symbol> iterator()
+	public Iterator<ManaSymbol> iterator()
 	{
 		return cost.iterator();
 	}
@@ -416,7 +417,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * allows traversal in either direction.
 	 */
 	@Override
-	public ListIterator<Symbol> listIterator()
+	public ListIterator<ManaSymbol> listIterator()
 	{
 		return cost.listIterator();
 	}
@@ -428,7 +429,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * the given index.
 	 */
 	@Override
-	public ListIterator<Symbol> listIterator(int index)
+	public ListIterator<ManaSymbol> listIterator(int index)
 	{
 		return cost.listIterator(index);
 	}
@@ -440,7 +441,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * indices (inclusive at the beginning and exclusive at the end).
 	 */
 	@Override
-	public List<Symbol> subList(int fromIndex, int toIndex)
+	public List<ManaSymbol> subList(int fromIndex, int toIndex)
 	{
 		return cost.subList(fromIndex, toIndex);
 	}
@@ -474,7 +475,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * @throws UnsupportedOperationException
 	 */
 	@Override
-	public boolean add(Symbol e)
+	public boolean add(ManaSymbol e)
 	{
 		throw new UnsupportedOperationException("add");
 	}
@@ -483,7 +484,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * @throws UnsupportedOperationException
 	 */
 	@Override
-	public void add(int index, Symbol element)
+	public void add(int index, ManaSymbol element)
 	{
 		throw new UnsupportedOperationException("add");
 	}
@@ -492,7 +493,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * @throws UnsupportedOperationException
 	 */
 	@Override
-	public boolean addAll(Collection<? extends Symbol> c)
+	public boolean addAll(Collection<? extends ManaSymbol> c)
 	{
 		throw new UnsupportedOperationException("addAll");
 	}
@@ -501,7 +502,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * @throws UnsupportedOperationException
 	 */
 	@Override
-	public boolean addAll(int index, Collection<? extends Symbol> c)
+	public boolean addAll(int index, Collection<? extends ManaSymbol> c)
 	{
 		throw new UnsupportedOperationException("addAll");
 	}
@@ -528,7 +529,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * @throws UnsupportedOperationException
 	 */
 	@Override
-	public Symbol remove(int index)
+	public ManaSymbol remove(int index)
 	{
 		throw new UnsupportedOperationException("remove");
 	}
@@ -555,7 +556,7 @@ public class ManaCost implements Comparable<ManaCost>, List<Symbol>
 	 * @throws UnsupportedOperationException
 	 */
 	@Override
-	public Symbol set(int index, Symbol element)
+	public ManaSymbol set(int index, ManaSymbol element)
 	{
 		throw new UnsupportedOperationException("set");
 	}

@@ -1,16 +1,10 @@
 package editor.database.symbol;
 
 import java.awt.Image;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-
-import editor.database.characteristics.ManaType;
 
 /**
  * This class represents a symbol that might appear on a card in Magic: The Gathering.  It has a weight for each
@@ -24,7 +18,7 @@ import editor.database.characteristics.ManaType;
  * 
  * @author Alec Roelke
  */
-public abstract class Symbol implements Comparable<Symbol>
+public abstract class Symbol
 {
 	/**
 	 * Pattern for finding an individual symbol in a string.
@@ -32,86 +26,47 @@ public abstract class Symbol implements Comparable<Symbol>
 	public static final Pattern SYMBOL_PATTERN = Pattern.compile("\\{([^}]+)\\}");
 	
 	/**
-	 * List of symbol types in the order they should appear in.
-	 */
-	public static final List<Class<?>> ORDER = Arrays.asList(
-			VariableSymbol.class,
-			GenericSymbol.class,
-			HalfColorSymbol.class,
-			TwobridSymbol.class,
-			HybridSymbol.class,
-			PhyrexianSymbol.class,
-			ColorSymbol.class);
-	
-	/**
-	 * Icon to show when displaying this Symbol.
-	 */
-	private ImageIcon icon;
-	/**
-	 * Name of the file containing the icon (not including parent directory).
-	 */
-	private String name;
-	
-	/**
-	 * Create a map of color weights for a Symbol, where the keys are ManaTypes and the values
-	 * are their weights (Doubles).
-	 * 
-	 * @param weights Initial weights to use.
-	 * @return The Map of ManaTypes onto weights.
-	 */
-	public static Map<ManaType, Double> createWeights(ColorWeight... weights)
-	{
-		Map<ManaType, Double> weightsMap = new HashMap<ManaType, Double>();
-		weightsMap.put(ManaType.COLORLESS, 0.0);
-		weightsMap.put(ManaType.WHITE, 0.0);
-		weightsMap.put(ManaType.BLUE, 0.0);
-		weightsMap.put(ManaType.BLACK, 0.0);
-		weightsMap.put(ManaType.RED, 0.0);
-		weightsMap.put(ManaType.GREEN, 0.0);
-		for (ColorWeight w: weights)
-			weightsMap.put(w.color, w.weight);
-		return weightsMap;
-	}
-	
-	/**
 	 * Create a Symbol from a String.
 	 * 
 	 * @param s String representation of the new Symbol, surrounded by {}
-	 * @return A new Symbol that the specified String represents.
-	 * @throw IllegalArgumentException If the specified String does not represent a Symbol.
+	 * @return A new Symbol that the specified String represents, or null if there is
+	 * no such Symbol.
 	 */
-	public static Symbol valueOf(String s)
+	public static Symbol get(String s)
 	{
 		Symbol value;
-		if ((value = ColorSymbol.get(s)) != null)
-			return value;
-		else if ((value = GenericSymbol.get(s)) != null)
-			return value;
-		else if ((value = HalfColorSymbol.get(s)) != null)
-			return value;
-		else if ((value = HybridSymbol.get(s)) != null)
-			return value;
-		else if ((value = PhyrexianSymbol.get(s)) != null)
-			return value;
-		else if ((value = TwobridSymbol.get(s)) != null)
-			return value;
-		else if ((value = VariableSymbol.get(s)) != null)
+		if ((value = ManaSymbol.get(s)) != null)
 			return value;
 		else if ((value = StaticSymbol.get(s)) != null)
 			return value;
 		else
-			throw new IllegalArgumentException("Illegal symbol string \"" + s + "\"");
+			return null;
 	}
+	
+	/**
+	 * Icon to show when displaying this Symbol.
+	 */
+	private final ImageIcon icon;
+	/**
+	 * Name of the file containing the icon (not including parent directory).
+	 */
+	private final String name;
+	/**
+	 * TODO: Comment this;
+	 */
+	private final boolean mana;
 	
 	/**
 	 * Create a new Symbol.
 	 * 
-	 * @param iconName Name of the icon file for the new Symbol.
+	 * @param iconName Name of the icon file for the new Symbol
+	 * @param m Whether or not this Symbol can appear in a mana cost
 	 */
-	public Symbol(String iconName)
+	protected Symbol(String iconName, boolean m)
 	{
 		icon = new ImageIcon("images/icons/" + iconName);
 		name = iconName;
+		mana = m;
 	}
 	
 	/**
@@ -120,23 +75,18 @@ public abstract class Symbol implements Comparable<Symbol>
 	public abstract String getText();
 	
 	/**
-	 * @return How much mana this Symbol is worth for calculating converted mana costs.  This
-	 * is only defined for symbols that can appear in mana costs; otherwise, it will return
-	 * 0.
+	 * TODO: comment this
+	 * @return
 	 */
-	public double value()
+	public boolean isMana()
 	{
-		return 0;
+		return mana;
 	}
 	
 	/**
-	 * @return This Symbol's color weight map.
+	 * TODO: Comment this
+	 * @return
 	 */
-	public Map<ManaType, Double> colorWeights()
-	{
-		return createWeights();
-	}
-	
 	public Icon getIcon()
 	{
 		return icon;
@@ -168,25 +118,6 @@ public abstract class Symbol implements Comparable<Symbol>
 	public String toString()
 	{
 		return "{" + getText() + "}";
-	}
-	
-	/**
-	 * @param other Symbol to compare with
-	 * @return A negative number if this Symbol should appear before the other in a list,
-	 * 0 if the two symbols are the same or if their order doesn't matter,
-	 * and a positive number if this Symbol should appear after it.
-	 */
-	@Override
-	public int compareTo(Symbol other)
-	{
-		if (ORDER.contains(getClass()) && ORDER.contains(other.getClass()))
-			return ORDER.indexOf(getClass()) - ORDER.indexOf(other.getClass());
-		else if (!ORDER.contains(getClass()))
-			return 1;
-		else if (!ORDER.contains(other.getClass()))
-			return -1;
-		else
-			return 0;
 	}
 	
 	/**

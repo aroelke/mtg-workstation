@@ -13,7 +13,7 @@ import editor.database.characteristics.ManaType;
  * 
  * @author Alec Roelke
  */
-public class HalfColorSymbol extends Symbol
+public class HalfColorSymbol extends ManaSymbol
 {
 	/**
 	 * Map of ManaType onto its corresponding half-symbol.  To get a colored half-symbol, use this Map.
@@ -68,7 +68,7 @@ public class HalfColorSymbol extends Symbol
 	 */
 	private HalfColorSymbol(ManaType color)
 	{
-		super("half_" + color.toString().toLowerCase() + "_mana.png");
+		super("half_" + color.toString().toLowerCase() + "_mana.png", 0.5);
 		this.color = color;
 	}
 	
@@ -80,16 +80,6 @@ public class HalfColorSymbol extends Symbol
 	public String getText()
 	{
 		return "H" + String.valueOf(color.shorthand());
-	}
-
-	/**
-	 * @return The value of this symbol for converted mana costs: 0.5.
-	 * @see editor.database.symbol.Symbol#value()
-	 */
-	@Override
-	public double value()
-	{
-		return 0.5;
 	}
 
 	/**
@@ -111,7 +101,7 @@ public class HalfColorSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
 	 */
 	@Override
-	public int compareTo(Symbol o)
+	public int compareTo(ManaSymbol o)
 	{
 		if (o instanceof HalfColorSymbol)
 			return color.colorOrder(((HalfColorSymbol)o).color);

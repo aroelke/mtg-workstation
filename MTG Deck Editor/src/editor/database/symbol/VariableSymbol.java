@@ -13,7 +13,7 @@ import editor.database.characteristics.ManaType;
  * 
  * @author Alec Roelke
  */
-public class VariableSymbol extends Symbol
+public class VariableSymbol extends ManaSymbol
 {
 	/**
 	 * Map of variable names onto their corresponding symbols.  This map
@@ -37,7 +37,7 @@ public class VariableSymbol extends Symbol
 	/**
 	 * Variable name for this VariableSymbol.
 	 */
-	private char var;
+	private final char var;
 	
 	/**
 	 * Create a new VariableSymbol with the corresponding variable.
@@ -46,7 +46,7 @@ public class VariableSymbol extends Symbol
 	 */
 	private VariableSymbol(char v)
 	{
-		super(Character.toLowerCase(v) + "_mana.png");
+		super(Character.toLowerCase(v) + "_mana.png", 0.25);
 		var = Character.toUpperCase(v);
 	}
 	
@@ -78,7 +78,7 @@ public class VariableSymbol extends Symbol
 	 * (or 0 if they're the same symbol).
 	 */
 	@Override
-	public int compareTo(Symbol other)
+	public int compareTo(ManaSymbol other)
 	{
 		if (other instanceof VariableSymbol)
 			return var - ((VariableSymbol)other).var;

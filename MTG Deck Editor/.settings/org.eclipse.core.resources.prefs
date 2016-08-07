@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//src/editor/database/symbol/FunctionalSymbol.java=UTF-8
 encoding//src/editor/database/symbol/StaticSymbol.java=UTF-8
 encoding//src/editor/database/symbol/Symbol.java=UTF-8
 encoding//src/editor/gui/MainFrame.java=UTF-8

@@ -1,6 +1,9 @@
 package editor.database.symbol;
 
+import java.util.Map;
 import java.util.stream.IntStream;
+
+import editor.database.characteristics.ManaType;
 
 /**
  * This class represents an amount of generic mana that might appear in a mana cost
@@ -8,7 +11,7 @@ import java.util.stream.IntStream;
  * 
  * @author Alec Roelke
  */
-public class GenericSymbol extends Symbol
+public class GenericSymbol extends ManaSymbol
 {
 	/**
 	 * Highest consecutive value that a generic symbol might attain.
@@ -78,7 +81,7 @@ public class GenericSymbol extends Symbol
 	 */
 	private GenericSymbol(int amount)
 	{
-		super(amount + "_mana.png");
+		super(amount + "_mana.png", amount);
 		this.amount = amount;
 	}
 	
@@ -93,15 +96,14 @@ public class GenericSymbol extends Symbol
 	}
 
 	/**
-	 * @return The amount of mana this symbol represents.
-	 * @see editor.database.symbol.Symbol#value()
+	 * TODO: Comment this
 	 */
 	@Override
-	public double value()
+	public Map<ManaType, Double> colorWeights()
 	{
-		return amount;
+		return createWeights();
 	}
-
+	
 	/**
 	 * @param o Symbol to compare to
 	 * @return A negative number if the other symbol is a color symbol, half symbol, hybrid symbol,
@@ -110,7 +112,7 @@ public class GenericSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
 	 */
 	@Override
-	public int compareTo(Symbol o)
+	public int compareTo(ManaSymbol o)
 	{
 		if (o instanceof GenericSymbol)
 			return amount - ((GenericSymbol)o).amount;

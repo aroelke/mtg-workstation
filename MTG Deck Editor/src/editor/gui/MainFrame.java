@@ -1447,7 +1447,7 @@ public class MainFrame extends JFrame
 									start = i + 1;
 									break;
 								case '}':
-									Symbol symbol = Symbol.valueOf(ruling.substring(start, i));
+									Symbol symbol = Symbol.get(ruling.substring(start, i));
 									if (symbol == null)
 									{
 										System.err.println("Unexpected symbol {" + ruling.substring(start, i) + "} in ruling for " + selectedCard.unifiedName() + ".");

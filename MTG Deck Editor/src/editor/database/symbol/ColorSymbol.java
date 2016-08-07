@@ -13,7 +13,7 @@ import editor.database.characteristics.ManaType;
  * 
  * @author Alec Roelke
  */
-public class ColorSymbol extends Symbol
+public class ColorSymbol extends ManaSymbol
 {
 	/**
 	 * Map of ManaType onto its corresponding symbol.  To get a colored symbol, use this Map.
@@ -65,7 +65,7 @@ public class ColorSymbol extends Symbol
 	 */
 	private ColorSymbol(ManaType color)
 	{
-		super(color.toString().toLowerCase() + "_mana.png");
+		super(color.toString().toLowerCase() + "_mana.png", 1);
 		this.color = color;
 	}
 	
@@ -88,16 +88,6 @@ public class ColorSymbol extends Symbol
 	}
 
 	/**
-	 * @return The value of this symbol for converted mana costs: 1.
-	 * @see editor.database.symbol.Symbol#value()
-	 */
-	@Override
-	public double value()
-	{
-		return 1;
-	}
-
-	/**
 	 * @return A Map containing this ColorSymbol's color weight.  All values will be 0 except for
 	 * this ColorSymbol's color, which will be 1.
 	 * @see editor.database.symbol.Symbol#colorWeights()
@@ -116,7 +106,7 @@ public class ColorSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
 	 */
 	@Override
-	public int compareTo(Symbol o)
+	public int compareTo(ManaSymbol o)
 	{
 		if (o instanceof ColorSymbol)
 			return color.colorOrder(((ColorSymbol)o).color);

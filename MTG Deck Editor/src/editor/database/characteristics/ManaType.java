@@ -74,6 +74,7 @@ public enum ManaType
 	 */
 	public static void sort(List<ManaType> colors)
 	{
+		// TODO: Make this not remove duplicate colors
 		if (!colors.isEmpty())
 		{
 			Tuple t = new Tuple(colors);

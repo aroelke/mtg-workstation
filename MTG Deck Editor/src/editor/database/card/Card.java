@@ -26,7 +26,7 @@ import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
-import editor.database.symbol.StaticSymbol;
+import editor.database.symbol.FunctionalSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
 
@@ -467,7 +467,7 @@ public interface Card
 		Style textStyle = document.getStyle("text");
 		Style reminderStyle = document.getStyle("reminder");
 		Style chaosStyle = document.addStyle("CHAOS", null);
-		StyleConstants.setIcon(chaosStyle, StaticSymbol.CHAOS.getIcon(MainFrame.TEXT_SIZE));
+		StyleConstants.setIcon(chaosStyle, FunctionalSymbol.CHAOS.getIcon(MainFrame.TEXT_SIZE));
 		try
 		{
 			document.insertString(document.getLength(), name().get(f) + " ", textStyle);
@@ -513,7 +513,7 @@ public interface Card
 						start = i + 1;
 						break;
 					case '}':
-						Symbol symbol = Symbol.valueOf(oracle.substring(start, i));
+						Symbol symbol = Symbol.get(oracle.substring(start, i));
 						if (symbol == null)
 						{
 							System.err.println("Unexpected symbol {" + oracle.substring(start, i) + "} in ruling for " + unifiedName() + ".");
@@ -566,7 +566,7 @@ public interface Card
 						start = i + 1;
 						break;
 					case '}':
-						Symbol symbol = Symbol.valueOf(flavor.substring(start, i));
+						Symbol symbol = Symbol.get(flavor.substring(start, i));
 						if (symbol == null)
 						{
 							System.err.println("Unexpected symbol {" + flavor.substring(start, i) + "} in ruling for " + unifiedName() + ".");

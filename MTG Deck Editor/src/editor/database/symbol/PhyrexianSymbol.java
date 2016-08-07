@@ -14,7 +14,7 @@ import editor.database.characteristics.ManaType;
  * 
  * @author Alec Roelke
  */
-public class PhyrexianSymbol extends Symbol
+public class PhyrexianSymbol extends ManaSymbol
 {
 	/**
 	 * Map of ManaTypes onto their corresponding Phyrexian symbols.
@@ -69,7 +69,7 @@ public class PhyrexianSymbol extends Symbol
 	 */
 	private PhyrexianSymbol(ManaType color)
 	{
-		super("phyrexian_" + color.toString().toLowerCase() + "_mana.png");
+		super("phyrexian_" + color.toString().toLowerCase() + "_mana.png", 1);
 		this.color = color;
 	}
 	
@@ -81,16 +81,6 @@ public class PhyrexianSymbol extends Symbol
 	public String getText()
 	{
 		return String.valueOf(color.shorthand()) + "/P";
-	}
-
-	/**
-	 * @return This PhyrexianSymbol's value in mana costs, which is 1.
-	 * @see editor.database.symbol.Symbol#value()
-	 */
-	@Override
-	public double value()
-	{
-		return 1;
 	}
 
 	/**
@@ -112,7 +102,7 @@ public class PhyrexianSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#compareTo(editor.database.symbol.Symbol)
 	 */
 	@Override
-	public int compareTo(Symbol o)
+	public int compareTo(ManaSymbol o)
 	{
 		if (o instanceof PhyrexianSymbol)
 			return color.colorOrder(((PhyrexianSymbol)o).color);

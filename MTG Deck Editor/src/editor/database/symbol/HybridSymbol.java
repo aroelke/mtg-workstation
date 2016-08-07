@@ -9,12 +9,12 @@ import java.util.stream.Collectors;
 import editor.database.characteristics.ManaType;
 
 /**
- * This class represents a two-color hybrid symbol.  It will sort its colors so that they appear in the correct order.
+ * This class represents a two-color hybrid symbol.  It will sort its colors
+ * so that they appear in the correct order.
  * 
  * @author Alec Roelke
- * @see database.characteristics.Color.UnmodifiableList
  */
-public class HybridSymbol extends Symbol
+public class HybridSymbol extends ManaSymbol
 {
 	/**
 	 * Map mapping each Tuple of colors to their corresponding hybrid symbols.
@@ -79,7 +79,7 @@ public class HybridSymbol extends Symbol
 	
 	private HybridSymbol(ManaType.Tuple colors)
 	{
-		super(colors.get(0).toString().toLowerCase() + "_" + colors.get(1).toString().toLowerCase() + "_mana.png");
+		super(colors.get(0).toString().toLowerCase() + "_" + colors.get(1).toString().toLowerCase() + "_mana.png", 1);
 		this.colors = colors;
 	}
 	
@@ -91,16 +91,6 @@ public class HybridSymbol extends Symbol
 	public String getText()
 	{
 		return colors.get(0).shorthand() + "/" + colors.get(1).shorthand();
-	}
-
-	/**
-	 * @return This HybridSymbol's value for converted cost, which is 1.
-	 * @see editor.database.symbol.Symbol#value()
-	 */
-	@Override
-	public double value()
-	{
-		return 1;
 	}
 
 	/**
@@ -123,7 +113,7 @@ public class HybridSymbol extends Symbol
 	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
 	 */
 	@Override
-	public int compareTo(Symbol o)
+	public int compareTo(ManaSymbol o)
 	{
 		if (o instanceof HybridSymbol)
 			return colors.compareTo(((HybridSymbol)o).colors);
