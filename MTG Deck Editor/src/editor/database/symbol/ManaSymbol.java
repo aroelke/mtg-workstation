@@ -95,7 +95,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 	
 	protected ManaSymbol(String iconName, double v)
 	{
-		super(iconName, true);
+		super(iconName);
 		value = v;
 	}
 	

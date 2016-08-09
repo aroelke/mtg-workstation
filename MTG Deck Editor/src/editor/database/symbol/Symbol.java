@@ -51,37 +51,22 @@ public abstract class Symbol
 	 * Name of the file containing the icon (not including parent directory).
 	 */
 	private final String name;
-	/**
-	 * TODO: Comment this;
-	 */
-	private final boolean mana;
 	
 	/**
 	 * Create a new Symbol.
 	 * 
 	 * @param iconName Name of the icon file for the new Symbol
-	 * @param m Whether or not this Symbol can appear in a mana cost
 	 */
-	protected Symbol(String iconName, boolean m)
+	protected Symbol(String iconName)
 	{
 		icon = new ImageIcon("images/icons/" + iconName);
 		name = iconName;
-		mana = m;
 	}
 	
 	/**
 	 * @return A String representation of this Symbol, without {}.
 	 */
 	public abstract String getText();
-	
-	/**
-	 * TODO: comment this
-	 * @return
-	 */
-	public boolean isMana()
-	{
-		return mana;
-	}
 	
 	/**
 	 * TODO: Comment this

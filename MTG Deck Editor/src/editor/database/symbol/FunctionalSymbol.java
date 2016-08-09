@@ -72,7 +72,7 @@ public class FunctionalSymbol extends Symbol
 	 */
 	private FunctionalSymbol(String iconName, String t)
 	{
-		super(iconName, false);
+		super(iconName);
 		text = t;
 	}
 
