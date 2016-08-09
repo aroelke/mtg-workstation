@@ -41,30 +41,15 @@ public class StaticSymbol extends ManaSymbol
 	}
 	
 	/**
-	 * Text representation of this StaticSymbol.
-	 */
-	private String text;
-	
-	/**
 	 * Create a new StaticSymbol.
 	 * 
 	 * @param iconName Icon name of the new symbol
-	 * @param t Text representation of the new symbol
+	 * @param text Text representation of the new symbol
 	 * @param v TODO: Comment this
 	 */
-	private StaticSymbol(String iconName, String t, double value)
+	private StaticSymbol(String iconName, String text, double value)
 	{
-		super(iconName, value);
-		text = t;
-	}
-
-	/**
-	 * @return The text representation of this StaticSymbol.
-	 */
-	@Override
-	public String getText()
-	{
-		return text;
+		super(iconName, text, value);
 	}
 
 	/**

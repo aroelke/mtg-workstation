@@ -30,7 +30,7 @@ public class FunctionalSymbol extends Symbol
 	static
 	{
 		// Chaos symbol.
-		SYMBOLS.put(CHAOS.text, CHAOS);
+		SYMBOLS.put(CHAOS.toString(), CHAOS);
 		// Half-mana symbol.  Represents one half of a generic mana.
 		SYMBOLS.put("1/2", new FunctionalSymbol("half_mana.png", "1/2"));
 		SYMBOLS.put("½", SYMBOLS.get("1/2"));
@@ -60,28 +60,13 @@ public class FunctionalSymbol extends Symbol
 	}
 	
 	/**
-	 * Text representation of this StaticSymbol.
-	 */
-	private String text;
-	
-	/**
 	 * Create a new StaticSymbol.
 	 * 
 	 * @param iconName Icon name of the new symbol
-	 * @param t Text representation of the new symbol
+	 * @param text Text representation of the new symbol
 	 */
-	private FunctionalSymbol(String iconName, String t)
+	private FunctionalSymbol(String iconName, String text)
 	{
-		super(iconName);
-		text = t;
-	}
-
-	/**
-	 * @return The text representation of this StaticSymbol.
-	 */
-	@Override
-	public String getText()
-	{
-		return text;
+		super(iconName, text);
 	}
 }

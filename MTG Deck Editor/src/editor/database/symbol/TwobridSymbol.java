@@ -71,26 +71,8 @@ public class TwobridSymbol extends ManaSymbol
 	 */
 	private TwobridSymbol(ManaType color)
 	{
-		super("2_" + color.toString().toLowerCase() + "_mana.png", 2);
+		super("2_" + color.toString().toLowerCase() + "_mana.png", "2/" + String.valueOf(color.shorthand()), 2);
 		this.color = color;
-	}
-	
-	/**
-	 * @return The ManaType of this TwobridSymbol.
-	 */
-	public ManaType color()
-	{
-		return color;
-	}
-	
-	/**
-	 * @return This TwobridSymbol's text, which is a "2/" followed by its color shorthand.
-	 * @see editor.database.symbol.Symbol#getText()
-	 */
-	@Override
-	public String getText()
-	{
-		return "2/" + String.valueOf(color.shorthand());
 	}
 
 	/**

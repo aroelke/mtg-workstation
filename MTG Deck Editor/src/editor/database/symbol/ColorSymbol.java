@@ -65,26 +65,8 @@ public class ColorSymbol extends ManaSymbol
 	 */
 	private ColorSymbol(ManaType color)
 	{
-		super(color.toString().toLowerCase() + "_mana.png", 1);
+		super(color.toString().toLowerCase() + "_mana.png", String.valueOf(color.shorthand()), 1);
 		this.color = color;
-	}
-	
-	/**
-	 * @return The ManaType representing the color of this ColorSymbol.
-	 */
-	public ManaType color()
-	{
-		return color;
-	}
-	
-	/**
-	 * @return The shorthand character representing the color of this ColorSymbol.
-	 * @see editor.database.symbol.Symbol#getText()
-	 */
-	@Override
-	public String getText()
-	{
-		return String.valueOf(color.shorthand());
 	}
 
 	/**

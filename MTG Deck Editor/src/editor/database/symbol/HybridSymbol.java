@@ -77,20 +77,15 @@ public class HybridSymbol extends ManaSymbol
 	 */
 	private final ManaType.Tuple colors;
 	
+	/**
+	 * TODO: Comment this
+	 * @param colors
+	 */
 	private HybridSymbol(ManaType.Tuple colors)
 	{
-		super(colors.get(0).toString().toLowerCase() + "_" + colors.get(1).toString().toLowerCase() + "_mana.png", 1);
+		super(colors.get(0).toString().toLowerCase() + "_" + colors.get(1).toString().toLowerCase() + "_mana.png",
+				colors.get(0).shorthand() + "/" + colors.get(1).shorthand(), 1);
 		this.colors = colors;
-	}
-	
-	/**
-	 * @return This HybridSymbol's text, which is the shorthand for its two colors separated by a /.
-	 * @see editor.database.symbol.Symbol#getText()
-	 */
-	@Override
-	public String getText()
-	{
-		return colors.get(0).shorthand() + "/" + colors.get(1).shorthand();
 	}
 
 	/**

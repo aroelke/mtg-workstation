@@ -81,18 +81,8 @@ public class GenericSymbol extends ManaSymbol
 	 */
 	private GenericSymbol(int amount)
 	{
-		super(amount + "_mana.png", amount);
+		super(amount + "_mana.png", String.valueOf(amount), amount);
 		this.amount = amount;
-	}
-	
-	/**
-	 * @return The number corresponding to the amount of mana this GenericSymbol represents.
-	 * @see editor.database.symbol.Symbol#getText()
-	 */
-	@Override
-	public String getText()
-	{
-		return String.valueOf(amount);
 	}
 
 	/**

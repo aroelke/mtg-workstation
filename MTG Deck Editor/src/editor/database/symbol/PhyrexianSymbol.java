@@ -69,18 +69,8 @@ public class PhyrexianSymbol extends ManaSymbol
 	 */
 	private PhyrexianSymbol(ManaType color)
 	{
-		super("phyrexian_" + color.toString().toLowerCase() + "_mana.png", 1);
+		super("phyrexian_" + color.toString().toLowerCase() + "_mana.png", String.valueOf(color.shorthand()) + "/P", 1);
 		this.color = color;
-	}
-	
-	/**
-	 * @return This PhyrexianSymbol's text, which is its color's shorhand followed by "/P".
-	 * @see editor.database.symbol.Symbol#getText()
-	 */
-	@Override
-	public String getText()
-	{
-		return String.valueOf(color.shorthand()) + "/P";
 	}
 
 	/**

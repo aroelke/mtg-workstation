@@ -68,18 +68,8 @@ public class HalfColorSymbol extends ManaSymbol
 	 */
 	private HalfColorSymbol(ManaType color)
 	{
-		super("half_" + color.toString().toLowerCase() + "_mana.png", 0.5);
+		super("half_" + color.toString().toLowerCase() + "_mana.png", "H" + String.valueOf(color.shorthand()), 0.5);
 		this.color = color;
-	}
-	
-	/**
-	 * @return An 'H' followed by the shorthand representation of this HalfColorSymbol's color.
-	 * @see editor.database.symbol.Symbol#getText()
-	 */
-	@Override
-	public String getText()
-	{
-		return "H" + String.valueOf(color.shorthand());
 	}
 
 	/**

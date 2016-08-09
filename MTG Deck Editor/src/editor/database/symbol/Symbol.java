@@ -51,22 +51,21 @@ public abstract class Symbol
 	 * Name of the file containing the icon (not including parent directory).
 	 */
 	private final String name;
+	/**
+	 * TODO: Comment this
+	 */
+	private final String text;
 	
 	/**
 	 * Create a new Symbol.
 	 * 
 	 * @param iconName Name of the icon file for the new Symbol
 	 */
-	protected Symbol(String iconName)
+	protected Symbol(String iconName, String t)
 	{
-		icon = new ImageIcon("images/icons/" + iconName);
-		name = iconName;
+		icon = new ImageIcon("images/icons/" + (name = iconName));
+		text = t;
 	}
-	
-	/**
-	 * @return A String representation of this Symbol, without {}.
-	 */
-	public abstract String getText();
 	
 	/**
 	 * TODO: Comment this
@@ -102,7 +101,7 @@ public abstract class Symbol
 	@Override
 	public String toString()
 	{
-		return "{" + getText() + "}";
+		return "{" + text + "}";
 	}
 	
 	/**
