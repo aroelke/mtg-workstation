@@ -37,7 +37,7 @@ public abstract class Symbol
 		Symbol value;
 		if ((value = ManaSymbol.get(s)) != null)
 			return value;
-		else if ((value = StaticSymbol.get(s)) != null)
+		else if ((value = FunctionalSymbol.get(s)) != null)
 			return value;
 		else
 			return null;

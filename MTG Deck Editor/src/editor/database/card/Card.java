@@ -516,7 +516,7 @@ public interface Card
 						Symbol symbol = Symbol.get(oracle.substring(start, i));
 						if (symbol == null)
 						{
-							System.err.println("Unexpected symbol {" + oracle.substring(start, i) + "} in ruling for " + unifiedName() + ".");
+							System.err.println("Unexpected symbol {" + oracle.substring(start, i) + "} in oracle text for " + unifiedName() + ".");
 							document.insertString(document.getLength(), oracle.substring(start, i), textStyle);
 						}
 						else
@@ -569,7 +569,7 @@ public interface Card
 						Symbol symbol = Symbol.get(flavor.substring(start, i));
 						if (symbol == null)
 						{
-							System.err.println("Unexpected symbol {" + flavor.substring(start, i) + "} in ruling for " + unifiedName() + ".");
+							System.err.println("Unexpected symbol {" + flavor.substring(start, i) + "} in flavor text for " + unifiedName() + ".");
 							document.insertString(document.getLength(), flavor.substring(start, i), reminderStyle);
 						}
 						else
