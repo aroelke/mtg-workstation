@@ -26,7 +26,7 @@ public class FunctionalSymbol extends Symbol
 	/**
 	 * Map of symbol texts onto their respective symbols.
 	 */
-	public static final Map<String, FunctionalSymbol> SYMBOLS = new HashMap<String, FunctionalSymbol>();
+	private static final Map<String, FunctionalSymbol> SYMBOLS = new HashMap<String, FunctionalSymbol>();
 	static
 	{
 		// Chaos symbol.
