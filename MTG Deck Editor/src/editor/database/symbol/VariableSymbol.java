@@ -46,7 +46,7 @@ public class VariableSymbol extends ManaSymbol
 	 */
 	private VariableSymbol(char v)
 	{
-		super(Character.toLowerCase(v) + "_mana.png", String.valueOf(Character.toUpperCase(v)), 1);
+		super(Character.toLowerCase(v) + "_mana.png", String.valueOf(Character.toUpperCase(v)), 0);
 		var = Character.toUpperCase(v);
 	}
 
