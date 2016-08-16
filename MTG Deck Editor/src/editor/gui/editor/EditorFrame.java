@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -306,6 +307,10 @@ public class EditorFrame extends JInternalFrame
 	 * Whether or not a file is being opened (used to prevent some actions when changing the deck).
 	 */
 	private boolean opening;
+	/**
+	 * TODO: COmment this
+	 */
+	private JLabel medCMCLabel;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -696,6 +701,8 @@ public class EditorFrame extends JInternalFrame
 		statsPanel.add(nonlandLabel);
 		avgCMCLabel = new JLabel();
 		statsPanel.add(avgCMCLabel);
+		medCMCLabel = new JLabel();
+		statsPanel.add(medCMCLabel);
 		updateStats();
 		GridBagConstraints statsConstraints = new GridBagConstraints();
 		statsConstraints.anchor = GridBagConstraints.WEST;
@@ -1333,11 +1340,36 @@ public class EditorFrame extends JInternalFrame
 		countLabel.setText("Total cards: " + deck.total());
 		landLabel.setText("Lands: " + deck.land());
 		nonlandLabel.setText("Nonlands: " + deck.nonland());
-		double avgCMC = deck.stream().filter((c) -> !c.typeContains("land")).mapToDouble(Card::minCmc).sum()/deck.nonland();
+
+		double avgCMC = 0.0;
+		for (Card card: deck)
+			if (!card.typeContains("land"))
+				avgCMC += card.minCmc()*deck.count(card);
+		if (deck.nonland() > 0)
+			avgCMC /= deck.nonland();
 		if ((int)avgCMC == avgCMC)
 			avgCMCLabel.setText("Average CMC: " + (int)avgCMC);
 		else
 			avgCMCLabel.setText(String.format("Average CMC: %.2f", avgCMC));
+		
+		double medCMC = 0.0;
+		List<Double> cmc = new ArrayList<Double>();
+		for (Card card: deck)
+			if (!card.typeContains("land"))
+				for (int i = 0; i < deck.count(card); i++)
+					cmc.add(card.minCmc());
+		Collections.sort(cmc);
+		if (!cmc.isEmpty())
+		{
+			if (cmc.size()%2 == 0)
+				medCMC = (cmc.get(cmc.size()/2 - 1) + cmc.get(cmc.size()/2))/2;
+			else
+				medCMC = cmc.get(cmc.size()/2);
+		}
+		if ((int)medCMC == medCMC)
+			medCMCLabel.setText("Median CMC: " + (int)medCMC);
+		else
+			medCMCLabel.setText(String.format("Median CMC: %.2f", medCMC));
 	}
 
 	/**

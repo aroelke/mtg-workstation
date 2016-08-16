@@ -191,11 +191,24 @@ public class CategoryPanel extends JPanel
 	{
 //		model.fireTableDataChanged();
 		countLabel.setText("Cards: " + deck.total(name));
-		double avgCMC = deck.stream().filter(deck.getCategorySpec(name)::includes).mapToDouble(Card::minCmc).average().orElse(0.0);
+		
+		double avgCMC = 0.0;
+		int count = 0;
+		for (Card card: deck)
+		{
+			if (deck.getCategorySpec(name).includes(card))
+			{
+				avgCMC += card.minCmc()*deck.count(card);
+				count += deck.count(card);
+			}
+		}
+		if (count > 0)
+			avgCMC /= count;
 		if (avgCMC == (int)avgCMC)
 			avgCMCLabel.setText("Average CMC: " + (int)avgCMC);
 		else
 			avgCMCLabel.setText("Average CMC: " + String.format("%.2f", avgCMC));
+		
 		border.setTitle(name);
 		table.revalidate();
 		table.repaint();
