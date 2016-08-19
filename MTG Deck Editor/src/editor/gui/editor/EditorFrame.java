@@ -310,7 +310,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private boolean opening;
 	/**
-	 * TODO: COmment this
+	 * Label showing the median CMC of nonland cards in the deck.
 	 */
 	private JLabel medCMCLabel;
 

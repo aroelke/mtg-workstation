@@ -86,7 +86,7 @@ public class GenericSymbol extends ManaSymbol
 	}
 
 	/**
-	 * TODO: Comment this
+	 * @return This GenericSymbol's color weights, which are none.
 	 */
 	@Override
 	public Map<ManaType, Double> colorWeights()

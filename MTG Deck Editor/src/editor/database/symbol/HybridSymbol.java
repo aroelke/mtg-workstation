@@ -78,8 +78,9 @@ public class HybridSymbol extends ManaSymbol
 	private final ManaType.Tuple colors;
 	
 	/**
-	 * TODO: Comment this
-	 * @param colors
+	 * Create a new HybridSymbol
+	 * 
+	 * @param colors Tuple containing the colors of the new HybridSymbol
 	 */
 	private HybridSymbol(ManaType.Tuple colors)
 	{

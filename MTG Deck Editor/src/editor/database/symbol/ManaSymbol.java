@@ -8,7 +8,8 @@ import java.util.Map;
 import editor.database.characteristics.ManaType;
 
 /**
- * TODO: Comment this class
+ * This class represents a symbol that represents one or more mana.
+ * 
  * @author Alec Roelke
  */
 public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol>
@@ -77,6 +78,13 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 			return null;
 	}
 	
+	/**
+	 * Get the ManaSymbol value of the given String.
+	 * 
+	 * @param s String to parse
+	 * @return The ManaSymbol that corresponds to the given String.
+	 * @throws IllegalArgumentException If the String doesn't represent a Symbol.
+	 */
 	public static ManaSymbol valueOf(String s)
 	{
 		ManaSymbol symbol = get(s);

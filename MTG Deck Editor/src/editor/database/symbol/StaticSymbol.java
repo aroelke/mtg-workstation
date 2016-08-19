@@ -45,7 +45,7 @@ public class StaticSymbol extends ManaSymbol
 	 * 
 	 * @param iconName Icon name of the new symbol
 	 * @param text Text representation of the new symbol
-	 * @param v TODO: Comment this
+	 * @param v sorting value of the new StaticSymbol
 	 */
 	private StaticSymbol(String iconName, String text, double value)
 	{
@@ -53,7 +53,7 @@ public class StaticSymbol extends ManaSymbol
 	}
 
 	/**
-	 * TODO: Comment this
+	 * @return The color weights of this StaticSymbol, which are none.
 	 */
 	@Override
 	public Map<ManaType, Double> colorWeights()

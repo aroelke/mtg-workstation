@@ -52,7 +52,7 @@ public abstract class Symbol
 	 */
 	private final String name;
 	/**
-	 * TODO: Comment this
+	 * The textual representation of this Symbol.
 	 */
 	private final String text;
 	
@@ -68,8 +68,7 @@ public abstract class Symbol
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return This Symbol's icon with its default with.
 	 */
 	public Icon getIcon()
 	{
