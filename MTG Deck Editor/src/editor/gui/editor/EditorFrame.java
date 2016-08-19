@@ -101,6 +101,8 @@ import editor.util.PopupMenuListenerFactory;
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
  * TODO: Add something for calculating probability for multiple categories at once
+ * TODO: Move hand images panel to the top of the tab
+ * TODO: Put hand calculations panel at the bottom of the tab rather than as a dialog 
  * 
  * @author Alec Roelke
  */
