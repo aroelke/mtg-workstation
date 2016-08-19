@@ -132,7 +132,7 @@ public class MainFrame extends JFrame
 	/**
 	 * Default height for displaying card images.
 	 */
-	public static final int DEFAULT_CARD_HEIGHT = 300;
+	public static final double DEFAULT_CARD_HEIGHT = 1.0/3.0;
 	/**
 	 * Update status value: update needed.
 	 */
@@ -960,7 +960,7 @@ public class MainFrame extends JFrame
 		JSplitPane inventorySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, cardPane, inventoryPanel);
 		inventorySplit.setOneTouchExpandable(true);
 		inventorySplit.setContinuousLayout(true);
-		inventorySplit.setDividerLocation(DEFAULT_CARD_HEIGHT);
+		SwingUtilities.invokeLater(() -> inventorySplit.setDividerLocation(DEFAULT_CARD_HEIGHT));
 		JSplitPane editorSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, inventorySplit, decklistDesktop);
 		editorSplit.setOneTouchExpandable(true);
 		editorSplit.setContinuousLayout(true);
