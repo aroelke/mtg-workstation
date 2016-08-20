@@ -179,10 +179,6 @@ public class SettingsDialog extends JDialog
 	 */
 	public static final String HAND_SIZE = "hand.size";
 	/**
-	 * Columns to display in the sample hand tab.
-	 */
-	public static final String HAND_COLUMNS = "hand.columns";
-	/**
 	 * Background color for card scans in sample hands.
 	 */
 	public static final String HAND_BGCOLOR = "hand.bgcolor";
@@ -249,7 +245,6 @@ public class SettingsDialog extends JDialog
 		SETTINGS.put(EDITOR_STRIPE, "#FFCCCCCC");
 		SETTINGS.put(EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
 		SETTINGS.put(HAND_SIZE, "7");
-		SETTINGS.put(HAND_COLUMNS, "Name,Mana Cost,Type,Expansion,Rarity,Power,Toughness,Loyalty");
 		SETTINGS.put(CARD_SCANS, "images" + File.separatorChar + "cards");
 		SETTINGS.put(IMAGE_BGCOLOR, "#FFFFFFFF");
 		SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
@@ -809,21 +804,6 @@ public class SettingsDialog extends JDialog
 		
 		sampleHandPanel.add(Box.createVerticalStrut(5));
 		
-		// Columns
-		JPanel handColumnsPanel = new JPanel(new GridLayout(0, 5));
-		handColumnsPanel.setBorder(new TitledBorder("Columns"));
-		handColumnCheckBoxes = new ArrayList<JCheckBox>();
-		for (CardCharacteristic characteristic: CardCharacteristic.values())
-		{
-			JCheckBox checkBox = new JCheckBox(characteristic.toString());
-			handColumnCheckBoxes.add(checkBox);
-			handColumnsPanel.add(checkBox);
-			checkBox.setSelected(getAsString(HAND_COLUMNS).contains(characteristic.toString()));
-		}
-		handColumnsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, handColumnsPanel.getPreferredSize().height));
-		handColumnsPanel.setAlignmentX(LEFT_ALIGNMENT);
-		sampleHandPanel.add(handColumnsPanel);
-		
 		// Sample hand background color
 		JPanel handBGColorPanel = new JPanel(new BorderLayout());
 		handBGColorPanel.setBorder(new TitledBorder("Background Color"));
@@ -916,7 +896,6 @@ public class SettingsDialog extends JDialog
 		for (JCheckBox box: handColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		SETTINGS.put(HAND_COLUMNS, join.toString());
 		SETTINGS.put(CARD_SCANS, scansDirField.getText());
 		SETTINGS.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
 		SETTINGS.put(HAND_BGCOLOR, colorToString(handBGColor.getColor()));

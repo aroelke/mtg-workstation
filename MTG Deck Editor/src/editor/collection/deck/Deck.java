@@ -1080,6 +1080,24 @@ public class Deck implements CardCollection
 	}
 	
 	/**
+	 * TODO: Comment this and find where checks for having categories are made
+	 * @return
+	 */
+	public boolean hasCategories()
+	{
+		return !categories.isEmpty();
+	}
+	
+	/**
+	 * TODO: Comment this and find where checks for categories counts are made
+	 * @return
+	 */
+	public int numCategories()
+	{
+		return categories.size();
+	}
+	
+	/**
 	 * Add a new listener for listening to changes in this Deck.
 	 * 
 	 * @param listener Listener to add.

@@ -101,8 +101,6 @@ import editor.util.PopupMenuListenerFactory;
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
  * TODO: Add something for calculating probability for multiple categories at once
- * TODO: Move hand images panel to the top of the tab
- * TODO: Put hand calculations panel at the bottom of the tab rather than as a dialog 
  * 
  * @author Alec Roelke
  */
@@ -266,14 +264,6 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private Hand hand;
 	/**
-	 * Model for displaying the sample hand.
-	 */
-	private CardTableModel handModel;
-	/**
-	 * Table displaying the sample hand.
-	 */
-	private CardTable handTable;
-	/**
 	 * Size of starting hands.
 	 */
 	private int startingHandSize;
@@ -313,6 +303,10 @@ public class EditorFrame extends JInternalFrame
 	 * Label showing the median CMC of nonland cards in the deck.
 	 */
 	private JLabel medCMCLabel;
+	/**
+	 * TODO: Comment this
+	 */
+	private CalculateHandPanel handCalculations;
 
 	/**
 	 * Create a new EditorFrame inside the specified MainFrame and with the name
@@ -548,15 +542,11 @@ public class EditorFrame extends JInternalFrame
 		
 		// Table showing the cards in hand
 		hand = new Hand(deck);
-		handModel = new CardTableModel(this, hand, SettingsDialog.getAsCharacteristics(SettingsDialog.HAND_COLUMNS));
-		handTable = new CardTable(handModel);
-		handTable.setCellSelectionEnabled(false);
-		handTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
-		handTable.setPreferredScrollableViewportSize(new Dimension(handTable.getPreferredSize().width, handTable.getRowHeight()*10));
 		
 		imagePanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
 		imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
 		imagePane = new JScrollPane(imagePanel);
+		imagePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		setHandBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
 		
 		// Control panel for manipulating the sample hand
@@ -564,7 +554,6 @@ public class EditorFrame extends JInternalFrame
 		JButton newHandButton = new JButton("New Hand");
 		newHandButton.addActionListener((e) -> {
 			hand.newHand(startingHandSize);
-			handModel.fireTableDataChanged();
 			
 			imagePanel.removeAll();
 			for (Card c: hand)
@@ -582,7 +571,6 @@ public class EditorFrame extends JInternalFrame
 		JButton mulliganButton = new JButton("Mulligan");
 		mulliganButton.addActionListener((e) -> {
 			hand.mulligan();
-			handModel.fireTableDataChanged();
 			
 			imagePanel.removeAll();
 			for (Card c: hand)
@@ -599,16 +587,17 @@ public class EditorFrame extends JInternalFrame
 		handModPanel.add(mulliganButton);
 		JButton drawCardButton = new JButton("Draw a Card");
 		drawCardButton.addActionListener((e) -> {
-			hand.draw();
-			handModel.fireTableDataChanged();
-			
-			CardImagePanel panel = new CardImagePanel();
-			panel.setBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
-			imagePanel.add(panel);
-			panel.setCard(hand.get(hand.size() - 1));
-			imagePanel.add(Box.createHorizontalStrut(10));
-			imagePanel.validate();
-			update();
+			if (hand.size() < deck.total())
+			{
+				hand.draw();	
+				CardImagePanel panel = new CardImagePanel();
+				panel.setBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
+				imagePanel.add(panel);
+				panel.setCard(hand.get(hand.size() - 1));
+				imagePanel.add(Box.createHorizontalStrut(10));
+				imagePanel.validate();
+				update();
+			}
 		});
 		handModPanel.add(drawCardButton);
 		JButton excludeButton = new JButton("Exclude...");
@@ -660,20 +649,16 @@ public class EditorFrame extends JInternalFrame
 				hand.exclude(excludeModel.get(i));
 		});
 		handModPanel.add(excludeButton);
-		JButton probabilityButton = new JButton("Calculate...");
-		probabilityButton.addActionListener((e) -> {
-			JOptionPane pane = new JOptionPane(new CalculateHandPanel(deck, SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE)));
-			Dialog dialog = pane.createDialog(this, "Card Draw Probability");
-			dialog.setResizable(true);
-			dialog.setVisible(true);
-		});
-		handModPanel.add(probabilityButton);
 		
-		JSplitPane handSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(handTable), imagePane);
+		handCalculations = new CalculateHandPanel(deck);
+		
+		JSplitPane handSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imagePane, handCalculations);
 		handSplit.setOneTouchExpandable(true);
 		handSplit.setContinuousLayout(true);
+		SwingUtilities.invokeLater(() -> handSplit.setDividerLocation(0.5));
+		handSplit.setResizeWeight(0.5);
+		handPanel.add(handModPanel, BorderLayout.NORTH);
 		handPanel.add(handSplit, BorderLayout.CENTER);
-		handPanel.add(handModPanel, BorderLayout.SOUTH);
 		listTabs.addTab("Sample Hand", handPanel);
 		
 		// TODO: Add tabs for deck analysis
@@ -776,7 +761,7 @@ public class EditorFrame extends JInternalFrame
 						c.table.getCellEditor().cancelCellEditing();
 				
 				hand.refresh();
-				handModel.fireTableDataChanged();
+				handCalculations.update();
 			}
 			// Categories
 			if (e.categoryAdded())
@@ -795,6 +780,7 @@ public class EditorFrame extends JInternalFrame
 					category.scrollRectToVisible(new Rectangle(category.getSize()));
 					category.flash();
 				});
+				handCalculations.update();
 			}
 			if (e.categoriesRemoved())
 			{
@@ -807,6 +793,7 @@ public class EditorFrame extends JInternalFrame
 				
 				listTabs.setSelectedIndex(CATEGORIES);
 				updateCategoryPanel();
+				handCalculations.update();
 			}
 			if (e.ranksChanged())
 			{
@@ -827,6 +814,7 @@ public class EditorFrame extends JInternalFrame
 				}
 				
 				updateCategoryPanel();
+				handCalculations.update();
 				SwingUtilities.invokeLater(() -> {
 					CategoryPanel category = event.nameChanged() ? getCategory(event.newName()) : getCategory(e.categoryName());
 					switchCategoryBox.setSelectedItem(category.getCategoryName());
@@ -1818,7 +1806,6 @@ public class EditorFrame extends JInternalFrame
 	public void applySettings()
 	{
 		List<CardCharacteristic> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
-		List<CardCharacteristic> handColumns = SettingsDialog.getAsCharacteristics(SettingsDialog.HAND_COLUMNS);
 		Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
 		model.setColumns(columns);
 		table.setStripeColor(stripe);
@@ -1827,8 +1814,6 @@ public class EditorFrame extends JInternalFrame
 				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(this));
 		for (CategoryPanel category: categoryPanels)
 			category.applySettings(this);
-		handModel.setColumns(handColumns);
-		handTable.setStripeColor(stripe);
 		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
 		update();
 	}

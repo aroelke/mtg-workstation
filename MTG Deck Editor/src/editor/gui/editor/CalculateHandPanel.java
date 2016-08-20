@@ -3,16 +3,17 @@ package editor.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,6 +22,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
@@ -28,13 +30,14 @@ import javax.swing.table.TableCellRenderer;
 
 import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
+import editor.gui.SettingsDialog;
 
 /**
  * This class represents a panel that shows the probability of getting a certain
  * amount of cards that match a category in an initial hand and after a given
  * number of draws.
  * 
- * TODO: Make double-clicking a category edit it and double-clicking empty space add a new one
+ * TODO: Make this work with exclusion
  * 
  * @author Alec Roelke
  */
@@ -107,8 +110,7 @@ public class CalculateHandPanel extends JPanel
 	 */
 	public static double hypergeom(int n, int hand, int count, int total)
 	{
-		double p = nchoosek(count, n)*nchoosek(total - count, hand - n)/nchoosek(total, hand);
-		return p;
+		return nchoosek(count, n)*nchoosek(total - count, hand - n)/nchoosek(total, hand);
 	}
 	
 	/**
@@ -116,26 +118,18 @@ public class CalculateHandPanel extends JPanel
 	 */
 	private Deck deck;
 	/**
-	 * List of categories to display.
-	 */
-	private List<CategorySpec> categories;
-	/**
-	 * Number of cards in each category to display.
-	 */
-	private List<Integer> categorySizes;
-	/**
 	 * List of boxes displaying the desired number of cards in hand.
 	 */
-	private List<JComboBox<Integer>> desiredBoxes;
+	private Map<String, JComboBox<Integer>> desiredBoxes;
 	/**
 	 * List of combo boxes displaying relations to the desired numbers.
 	 */
-	private List<JComboBox<Relation>> relationBoxes;
+	private Map<String, JComboBox<Relation>> relationBoxes;
 	/**
 	 * List of lists of probabilities for opening and hand each draw afterward
 	 * for each category.
 	 */
-	private List<List<Double>> probabilities;
+	private Map<String, List<Double>> probabilities;
 	/**
 	 * Spinner controlling the number of drawn cards to show.
 	 */
@@ -148,6 +142,10 @@ public class CalculateHandPanel extends JPanel
 	 * Spinner controlling the number of cards in the initial hand.
 	 */
 	private JSpinner handSpinner;
+	/**
+	 * TODO: Comment this
+	 */
+	private JTable table;
 	
 	/**
 	 * Create a new CalculateHandPanel and populate it with its initial
@@ -156,60 +154,40 @@ public class CalculateHandPanel extends JPanel
 	 * @param d Deck containing cards to draw
 	 * @param stripeColor Color of alternating stripes in the table
 	 */
-	public CalculateHandPanel(Deck d, Color stripeColor)
+	public CalculateHandPanel(Deck d)
 	{
 		super(new BorderLayout());
 		
 		// Parameter initialization
 		deck = d;
-		categories = new ArrayList<CategorySpec>();
-		categorySizes = new ArrayList<Integer>();
-		desiredBoxes = new ArrayList<JComboBox<Integer>>();
-		relationBoxes = new ArrayList<JComboBox<Relation>>();
-		probabilities = new ArrayList<List<Double>>();
-		
-		// Add/remove button panel
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-		buttonPanel.add(Box.createVerticalGlue());
-		JButton addButton = new JButton("+");
-		buttonPanel.add(addButton);
-		JButton removeButton = new JButton("−");
-		buttonPanel.add(removeButton);
-		buttonPanel.add(Box.createVerticalGlue());
-		add(buttonPanel, BorderLayout.WEST);
+		desiredBoxes = new HashMap<String, JComboBox<Integer>>();
+		relationBoxes = new HashMap<String, JComboBox<Relation>>();
+		probabilities = new HashMap<String, List<Double>>();
 		
 		// Right panel containing table and settings
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		add(tablePanel, BorderLayout.CENTER);
 		
-		// Panel containing settings
-		JPanel northPanel = new JPanel();
-		northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.X_AXIS));
-		tablePanel.add(northPanel, BorderLayout.NORTH);
-		
 		// Spinners controlling draws to show and initial hand size
-		JPanel labelPanel = new JPanel(new GridLayout(0, 1));
-		labelPanel.add(new JLabel("Show Draws: "));
-		labelPanel.add(new JLabel("Hand Size: "));
-		labelPanel.setMaximumSize(new Dimension(labelPanel.getPreferredSize().width, Integer.MAX_VALUE));
-		northPanel.add(labelPanel);
-		JPanel spinnerPanel = new JPanel(new GridLayout(0, 1));
-		spinnerPanel.add(drawsSpinner = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1)));
-		spinnerPanel.add(handSpinner = new JSpinner(new SpinnerNumberModel(7, 0, Integer.MAX_VALUE, 1)));
-		spinnerPanel.setMaximumSize(new Dimension(spinnerPanel.getPreferredSize().width, Integer.MAX_VALUE));
-		northPanel.add(spinnerPanel);
+		JPanel northPanel = new JPanel();
+		northPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		northPanel.setBorder(new EmptyBorder(2, 5, 2, 5));
+		tablePanel.add(northPanel, BorderLayout.NORTH);
+		northPanel.add(new JLabel("Hand Size: "));
+		northPanel.add(handSpinner = new JSpinner(new SpinnerNumberModel(7, 0, Integer.MAX_VALUE, 1)));
+		northPanel.add(Box.createHorizontalStrut(15));
+		northPanel.add(new JLabel("Show Draws: "));
+		northPanel.add(drawsSpinner = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1)));
 		
-		// Central table showing probabilities
-		JTable table = new JTable(model = new CalculationTableModel())
+		table = new JTable(model = new CalculationTableModel())
 		{
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
 			{
 				Component c = super.prepareRenderer(renderer, row, column);
 				if (!isRowSelected(row) || !getRowSelectionAllowed())
-					c.setBackground(row%2 == 0 ? new Color(getBackground().getRGB()) : stripeColor);
-				if (relationBoxes.get(row).getSelectedItem().equals(Relation.AT_LEAST) && desiredBoxes.get(row).getSelectedItem().equals(0))
+					c.setBackground(row%2 == 0 ? new Color(getBackground().getRGB()) : SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
+				if (model.getValueAt(row, RELATION).equals(Relation.AT_LEAST) && model.getValueAt(row, DESIRED).equals(0))
 				{
 					c.setForeground(c.getBackground().darker());
 					c.setFont(new Font(c.getFont().getFontName(), Font.ITALIC, c.getFont().getSize()));
@@ -230,12 +208,14 @@ public class CalculateHandPanel extends JPanel
 			@Override
 			public TableCellEditor getCellEditor(int row, int column)
 			{
+				String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(row);
+				
 				switch (column)
 				{
 				case DESIRED:
-					return new DefaultCellEditor(desiredBoxes.get(row));
+					return new DefaultCellEditor(desiredBoxes.get(category));
 				case RELATION:
-					return new DefaultCellEditor(relationBoxes.get(row));
+					return new DefaultCellEditor(relationBoxes.get(category));
 				default:
 					return super.getCellEditor(row, column);
 				}
@@ -255,85 +235,44 @@ public class CalculateHandPanel extends JPanel
 		table.setDefaultRenderer(Integer.class, intRenderer);
 		tablePanel.add(new JScrollPane(table), BorderLayout.CENTER);
 		
-		// Actions for buttons and spinners
-		addButton.addActionListener((e) -> addCategory());
-		removeButton.addActionListener((e) -> {
-			int index = table.getSelectedRow();
-			if (index > -1)
-			{
-				categories.remove(index);
-				categorySizes.remove(index);
-				desiredBoxes.remove(index);
-				relationBoxes.remove(index);
-				probabilities.remove(index);
-				if (table.getCellEditor() != null)
-					table.getCellEditor().cancelCellEditing();
-				recalculate();
-				table.repaint();
-			}
-		});
+		// Actions
 		drawsSpinner.addChangeListener((e) -> {
-			model.fireTableDataChanged();
+			recalculate();
 			model.fireTableStructureChanged();
-			
-			if (!categories.isEmpty())
-			{
-				int draws = (int)drawsSpinner.getValue();
-				if (draws < probabilities.get(0).size() - 1)
-				{
-					for (List<Double> p: probabilities)
-						while (p.size() - 1 > draws)
-							p.remove(draws + 1);
-				}
-				else
-				{
-					for (List<Double> p: probabilities)
-						for (int i = p.size() - 1; i < draws; i++)
-							p.add(0.0);
-				}
-				recalculate();
-			}
 		});
 		handSpinner.addChangeListener((e) -> recalculate());
+	}
+	
+	public void update()
+	{
+		List<String> categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
 		
-		// Initial categories to show
-		for (CategorySpec category: deck.categories())
-			addCategory(category);
-	}
-	
-	/**
-	 * Add a new category to the table.
-	 * 
-	 * @param spec Specification of the category
-	 */
-	public void addCategory(CategorySpec spec)
-	{
-		categories.add(spec);
-		int size = (int)deck.stream().filter(spec::includes).mapToInt(deck::count).reduce(0, Integer::sum);
-		categorySizes.add(size);
-		JComboBox<Integer> desiredBox = new JComboBox<Integer>();
-		for (int i = 0; i <= size; i++)
-			desiredBox.addItem(i);
-		desiredBox.addActionListener((e) -> recalculate());
-		desiredBoxes.add(desiredBox);
-		JComboBox<Relation> relationBox = new JComboBox<Relation>(Relation.values());
-		relationBox.addActionListener((e) -> recalculate());
-		relationBoxes.add(relationBox);
-		ArrayList<Double> p = new ArrayList<Double>();
-		for (int i = 0; i < 1 + (int)drawsSpinner.getValue(); i++)
-			p.add(0.0);
-		probabilities.add(p);
+		Map<String, Integer> oldDesired = desiredBoxes.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().getSelectedIndex()));
+		Map<String, Relation> oldRelations = relationBoxes.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().getItemAt(e.getValue().getSelectedIndex())));
+		
+		desiredBoxes.clear();
+		relationBoxes.clear();
+		probabilities.clear();
+		
+		for (String category: categories)
+		{
+			JComboBox<Integer> desiredBox = new JComboBox<Integer>();
+			for (int i = 0; i <= deck.total(category); i++)
+				desiredBox.addItem(i);
+			if (oldDesired.containsKey(category) && oldDesired.get(category) < deck.total(category))
+				desiredBox.setSelectedIndex(oldDesired.get(category));
+			desiredBox.addActionListener((e) -> recalculate());
+			desiredBoxes.put(category, desiredBox);
+			
+			JComboBox<Relation> relationBox = new JComboBox<Relation>(Relation.values());
+			if (oldRelations.containsKey(category))
+				relationBox.setSelectedItem(oldRelations.get(category));
+			relationBox.addActionListener((e) -> recalculate());
+			relationBoxes.put(category, relationBox);
+		}
+		
 		recalculate();
-	}
-	
-	/**
-	 * Add a new category to the table specified by the editor form.
-	 */
-	public void addCategory()
-	{
-		CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this);
-		if (spec != null)
-			addCategory(spec);
+		model.fireTableStructureChanged();
 	}
 	
 	/**
@@ -342,37 +281,35 @@ public class CalculateHandPanel extends JPanel
 	 */
 	public void recalculate()
 	{
-		for (int i = 0; i < categories.size(); i++)
+		List<String> categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
+		
+		probabilities.clear();
+		int hand = (int)handSpinner.getValue();
+		int draws = (int)drawsSpinner.getValue();
+		
+		for (String category: categories)
 		{
-			Relation r = (Relation)relationBoxes.get(i).getSelectedItem();
-			for (int j = 0; j < 1 + (int)drawsSpinner.getValue(); j++)
+			probabilities.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
+			Relation r = (Relation)relationBoxes.get(category).getSelectedItem();
+			for (int j = 0; j < probabilities.get(category).size(); j++)
 			{
 				double p = 0.0;
 				switch (r)
 				{
 				case AT_LEAST:
-					for (int k = 0; k < (int)desiredBoxes.get(i).getSelectedItem(); k++)
-						p += hypergeom(k,
-								j + (int)handSpinner.getValue(),
-								categorySizes.get(i),
-								deck.total());
+					for (int k = 0; k < desiredBoxes.get(category).getSelectedIndex(); k++)
+						p += hypergeom(k, hand + j, deck.total(category), deck.total());
 					p = 1.0 - p;
 					break;
 				case EXACTLY:
-					p = hypergeom((int)desiredBoxes.get(i).getSelectedItem(),
-							j + (int)handSpinner.getValue(),
-							categorySizes.get(i),
-							deck.total());
+					p = hypergeom(desiredBoxes.get(category).getSelectedIndex(), hand + j, deck.total(category), deck.total());
 					break;
 				case AT_MOST:
-					for (int k = 0; k <= (int)desiredBoxes.get(i).getSelectedItem(); k++)
-						p += hypergeom(k,
-								j + (int)handSpinner.getValue(),
-								categorySizes.get(i),
-								deck.total());
+					for (int k = 0; k <= desiredBoxes.get(category).getSelectedIndex(); k++)
+						p += hypergeom(k, hand + j, deck.total(category), deck.total());
 					break;
 				}
-				probabilities.get(i).set(j, p);
+				probabilities.get(category).set(j, p);
 			}
 		}
 		model.fireTableDataChanged();
@@ -430,7 +367,7 @@ public class CalculateHandPanel extends JPanel
 		@Override
 		public int getRowCount()
 		{
-			return categories.size();
+			return deck.numCategories();
 		}
 
 		/**
@@ -495,18 +432,20 @@ public class CalculateHandPanel extends JPanel
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex)
 		{
+			String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(rowIndex);
+			
 			switch (columnIndex)
 			{
 			case CATEGORY:
-				return categories.get(rowIndex).getName();
+				return category;
 			case COUNT:
-				return categorySizes.get(rowIndex);
+				return deck.total(category);
 			case DESIRED:
-				return desiredBoxes.get(rowIndex).getSelectedItem();
+				return desiredBoxes.get(category).getSelectedItem();
 			case RELATION:
-				return relationBoxes.get(rowIndex).getSelectedItem();
+				return relationBoxes.get(category).getSelectedItem();
 			default:
-				return String.format("%.2f%%", probabilities.get(rowIndex).get(columnIndex - (INFO_COLS - 1))*100.0);
+				return String.format("%.2f%%", probabilities.get(category).get(columnIndex - (INFO_COLS - 1))*100.0);
 			}
 		}
 	}
