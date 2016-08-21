@@ -416,10 +416,6 @@ public class SettingsDialog extends JDialog
 	 */
 	private JColorChooser editorStripeColor;
 	/**
-	 * Columns to display in the sample hand table.
-	 */
-	private List<JCheckBox> handColumnCheckBoxes;
-	/**
 	 * Number of cards to draw in the starting hand.
 	 */
 	private JSpinner startingSizeSpinner;
@@ -892,10 +888,6 @@ public class SettingsDialog extends JDialog
 			join.add(categoriesList.getCategoryAt(i).toString());
 		SETTINGS.put(EDITOR_PRESETS, join.toString());
 		SETTINGS.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
-		join = new StringJoiner(",");
-		for (JCheckBox box: handColumnCheckBoxes)
-			if (box.isSelected())
-				join.add(box.getText());
 		SETTINGS.put(CARD_SCANS, scansDirField.getText());
 		SETTINGS.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
 		SETTINGS.put(HAND_BGCOLOR, colorToString(handBGColor.getColor()));
