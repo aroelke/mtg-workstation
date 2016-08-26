@@ -143,7 +143,7 @@ public class CalculateHandPanel extends JPanel
 	 */
 	private JSpinner handSpinner;
 	/**
-	 * TODO: Comment this
+	 * Table showing probabilities of fulfilling category requirements.
 	 */
 	private JTable table;
 	

@@ -1080,17 +1080,7 @@ public class Deck implements CardCollection
 	}
 	
 	/**
-	 * TODO: Comment this and find where checks for having categories are made
-	 * @return
-	 */
-	public boolean hasCategories()
-	{
-		return !categories.isEmpty();
-	}
-	
-	/**
-	 * TODO: Comment this and find where checks for categories counts are made
-	 * @return
+	 * @return The number of categories in this Deck
 	 */
 	public int numCategories()
 	{

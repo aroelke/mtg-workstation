@@ -304,7 +304,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private JLabel medCMCLabel;
 	/**
-	 * TODO: Comment this
+	 * Panel showing a sample hand and a table showing probabilities of category requirements.
 	 */
 	private CalculateHandPanel handCalculations;
 
