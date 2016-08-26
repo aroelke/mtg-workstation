@@ -1,8 +1,14 @@
 package editor.gui.filter.editor;
 
+import java.awt.Color;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
@@ -51,6 +57,42 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		add(contain);
 		
 		text = new JTextField();
+		text.getDocument().addDocumentListener(new DocumentListener()
+		{
+			private void update(DocumentEvent e)
+			{
+				text.setBackground(Color.WHITE);
+				if (regex.isSelected())
+				{
+					try
+					{
+						Pattern.compile(text.getText(), Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+					}
+					catch (PatternSyntaxException x)
+					{
+						text.setBackground(Color.PINK);
+					}
+				}
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent e)
+			{
+				update(e);
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e)
+			{
+				update(e);
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e)
+			{
+				update(e);
+			}
+		});
 		add(text);
 		
 		regex = new JCheckBox("regex");
