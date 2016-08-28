@@ -319,40 +319,4 @@ public abstract class MultiCard extends Card
 	{
 		return collect(Card::imageNames);
 	}
-	
-	/**
-	 * @return A String representation of this MultiCard, which is its unified name,
-	 * for use in tables.
-	 */
-	@Override
-	public String toString()
-	{
-		return unifiedName();
-	}
-	
-	/**
-	 * @return This MultiCard's hash code.
-	 */
-	@Override
-	public int hashCode()
-	{
-		return id().hashCode();
-	}
-	
-	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if this MultiCard and the other Object both represent the same
-	 * card.
-	 */
-	@Override
-	public boolean equals(Object other)
-	{
-		if (other == this)
-			return true;
-		if (other == null)
-			return true;
-		if (other.getClass() != getClass())
-			return false;
-		return id().equals(((MultiCard)other).id());
-	}
 }

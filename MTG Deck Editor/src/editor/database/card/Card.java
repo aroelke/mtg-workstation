@@ -630,13 +630,19 @@ public abstract class Card
 	 * @return A String representation of this Card to be used in tables.
 	 */
 	@Override
-	public abstract String toString();
+	public String toString()
+	{
+		return unifiedName();
+	}
 	
 	/**
 	 * @return This Card's hash code.
 	 */
 	@Override
-	public abstract int hashCode();
+	public int hashCode()
+	{
+		return id().hashCode();
+	}
 	
 	/**
 	 * @param other Object to compare with
@@ -644,5 +650,14 @@ public abstract class Card
 	 * card, and <code>false</code> otherwise.
 	 */
 	@Override
-	public abstract boolean equals(Object other);
+	public boolean equals(Object other)
+	{
+		if (other == this)
+			return true;
+		if (other == null)
+			return true;
+		if (!(other instanceof Card))
+			return false;
+		return id().equals(((Card)other).id());
+	}
 }

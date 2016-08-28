@@ -235,16 +235,6 @@ public class SingleCard extends Card
 	}
 	
 	/**
-	 * @return A String representation of this SingleCard, which is its name.  To get a unique identifier
-	 * for the SingleCard, use {@link Card#id()}.
-	 */
-	@Override
-	public String toString()
-	{
-		return unifiedName();
-	}
-	
-	/**
 	 * @return The mana cost of this SingleCard.  This is represented as a tuple, since multi-faced
 	 * cards have multiple costs that need to be treated separately.
 	 */
@@ -459,31 +449,5 @@ public class SingleCard extends Card
 	public int faces()
 	{
 		return 1;
-	}
-	
-	/**
-	 * @return A number that uniquely identifies this Card.
-	 */
-	@Override
-	public int hashCode()
-	{
-		return id().hashCode();
-	}
-	
-	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if this Card's UID is the same as the other one's, and
-	 * <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean equals(Object other)
-	{
-		if (other == this)
-			return true;
-		if (other == null)
-			return true;
-		if (!(other instanceof Card))
-			return false;
-		return id().equals(((Card)other).id());
 	}
 }
