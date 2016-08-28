@@ -24,7 +24,7 @@ import editor.database.characteristics.Rarity;
  * 
  * @author Alec Roelke
  */
-public abstract class MultiCard implements Card
+public abstract class MultiCard extends Card
 {
 	/**
 	 * List of Cards that represent faces.  They should all have exactly one face.

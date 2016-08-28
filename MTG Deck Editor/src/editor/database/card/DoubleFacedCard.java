@@ -11,7 +11,7 @@ import editor.database.characteristics.ManaCost;
  * 
  * @author Alec Roelke
  */
-public class DoubleFacedCard extends MultiCard implements Card
+public class DoubleFacedCard extends MultiCard
 {
 	/**
 	 * Card representing the front face.

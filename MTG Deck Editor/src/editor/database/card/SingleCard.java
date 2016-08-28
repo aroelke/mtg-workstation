@@ -27,7 +27,7 @@ import editor.database.characteristics.Rarity;
  * 
  * @author Alec Roelke
  */
-public class SingleCard implements Card
+public class SingleCard extends Card
 {
 	/**
 	 * This SingleCard's layout.
@@ -482,7 +482,7 @@ public class SingleCard implements Card
 			return true;
 		if (other == null)
 			return true;
-		if (other.getClass() != getClass())
+		if (!(other instanceof Card))
 			return false;
 		return id().equals(((Card)other).id());
 	}

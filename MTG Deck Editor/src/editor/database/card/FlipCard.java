@@ -11,7 +11,7 @@ import editor.database.characteristics.ManaCost;
  * 
  * @author Alec Roelke
  */
-public class FlipCard extends MultiCard implements Card
+public class FlipCard extends MultiCard
 {
 	/**
 	 * Card representing the top face of this FlipCard.

@@ -8,7 +8,7 @@ import java.util.List;
  * 
  * @author Alec Roelke
  */
-public class SplitCard extends MultiCard implements Card
+public class SplitCard extends MultiCard
 {
 	/**
 	 * Create a new SplitCard with the given Cards as faces.  They should all indicate
