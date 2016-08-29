@@ -385,7 +385,6 @@ public class Deck implements CardCollection
 				e.decrease(n);
 				if (e.count == 0)
 				{
-//					masterList.remove(e);
 					for (Category category: categories.values())
 					{
 						category.filtrate.remove(c);
