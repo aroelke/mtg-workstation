@@ -388,9 +388,7 @@ public class Deck implements CardCollection
 //					masterList.remove(e);
 					for (Category category: categories.values())
 					{
-//						category.filtrate.remove(c);
-//						category.spec.getWhitelist().remove(c);
-//						category.spec.getBlacklist().remove(c);
+						category.filtrate.remove(c);
 						if (category.spec.getWhitelist().contains(c))
 							category.spec.exclude(c);
 						if (category.spec.getBlacklist().contains(c))
