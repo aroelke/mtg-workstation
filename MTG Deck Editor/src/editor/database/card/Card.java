@@ -70,24 +70,33 @@ public abstract class Card
 	}
 	
 	/**
-	 * TODO: Use the ID field from mtgjson rather than calculating it like this
-	 * @return This Card's id, which is its expansion code, unified name, and
-	 * first image name concatenated together.
+	 * TODO: Comment these
 	 */
-	public String id()
+	public final Expansion expansion;
+	public final CardLayout layout;
+	public final int faces;
+	
+	/**
+	 * TODO: Comment this
+	 * @param expansion
+	 */
+	public Card(Expansion expansion,
+				CardLayout layout,
+				int faces)
 	{
-		return expansion().code + unifiedName() + imageNames().get(0);
+		this.expansion = expansion;
+		this.layout = layout;
+		this.faces = faces;
 	}
 	
 	/**
-	 * @return The CardLayout of this Card.
+	 * TODO: Use the ID field from mtgjson rather than calculating it like this
+	 * @return
 	 */
-	public abstract CardLayout layout();
-	
-	/**
-	 * @return The number of faces this Card has.
-	 */
-	public abstract int faces();
+	public String id()
+	{
+		return expansion.code + unifiedName() + imageNames().get(0);
+	}
 	
 	/**
 	 * @return A List containing the name of each face of this Card.
@@ -272,11 +281,6 @@ public abstract class Card
 	}
 	
 	/**
-	 * @return This Card's Expansion.
-	 */
-	public abstract Expansion expansion();
-	
-	/**
 	 * @return This Card's Rarity.
 	 */
 	public abstract Rarity rarity();
@@ -293,7 +297,7 @@ public abstract class Card
 	public List<String> normalizedOracle()
 	{
 		List<String> texts = new ArrayList<String>();
-		for (int i = 0; i < faces(); i++)
+		for (int i = 0; i < faces; i++)
 		{
 			String normal = Normalizer.normalize(oracleText().get(i).toLowerCase(), Normalizer.Form.NFD);
 			normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
@@ -389,15 +393,15 @@ public abstract class Card
 		else if (format.contains("Block"))
 		{
 			format = format.substring(0, format.indexOf("Block")).trim();
-			if (expansion().block.equalsIgnoreCase(format))
+			if (expansion.block.equalsIgnoreCase(format))
 				return true;
-			else if (format.equalsIgnoreCase("urza") && expansion().block.equalsIgnoreCase("urza's"))
+			else if (format.equalsIgnoreCase("urza") && expansion.block.equalsIgnoreCase("urza's"))
 				return true;
-			else if (format.equalsIgnoreCase("lorwyn-shadowmoor") && (expansion().block.equalsIgnoreCase("lorwyn") || expansion().block.equalsIgnoreCase("shadowmoor")))
+			else if (format.equalsIgnoreCase("lorwyn-shadowmoor") && (expansion.block.equalsIgnoreCase("lorwyn") || expansion.block.equalsIgnoreCase("shadowmoor")))
 				return true;
-			else if (format.equalsIgnoreCase("shards of alara") && expansion().block.equalsIgnoreCase("alara"))
+			else if (format.equalsIgnoreCase("shards of alara") && expansion.block.equalsIgnoreCase("alara"))
 				return true;
-			else if (format.equalsIgnoreCase("tarkir") && expansion().block.equalsIgnoreCase("khans of tarkir"))
+			else if (format.equalsIgnoreCase("tarkir") && expansion.block.equalsIgnoreCase("khans of tarkir"))
 				return true;
 			else
 				return false;
@@ -497,7 +501,7 @@ public abstract class Card
 					document.insertString(document.getLength(), " ", textStyle);
 			}
 			document.insertString(document.getLength(), typeLine().get(f) + '\n', textStyle);
-			document.insertString(document.getLength(), expansion().name + ' ' + rarity() + '\n', textStyle);
+			document.insertString(document.getLength(), expansion.name + ' ' + rarity() + '\n', textStyle);
 			
 			String oracle = oracleText().get(f);
 			if (!oracle.isEmpty())
@@ -594,7 +598,7 @@ public abstract class Card
 			else if (loyalty().get(f).value > 0)
 				document.insertString(document.getLength(), loyalty().get(f) + "\n", textStyle);
 			
-			document.insertString(document.getLength(), artist().get(f) + " " + number().get(f) + "/" + expansion().count, textStyle);
+			document.insertString(document.getLength(), artist().get(f) + " " + number().get(f) + "/" + expansion.count, textStyle);
 		}
 		catch (BadLocationException e)
 		{
@@ -613,10 +617,10 @@ public abstract class Card
 		Style textStyle = document.getStyle("text");
 		try
 		{
-			for (int f = 0; f < faces(); f++)
+			for (int f = 0; f < faces; f++)
 			{
 				formatDocument(document, f);
-				if (f < faces() - 1)
+				if (f < faces - 1)
 					document.insertString(document.getLength(), "\n" + TEXT_SEPARATOR + "\n", textStyle);
 			}
 		}
@@ -655,7 +659,7 @@ public abstract class Card
 		if (other == this)
 			return true;
 		if (other == null)
-			return true;
+			return false;
 		if (!(other instanceof Card))
 			return false;
 		return id().equals(((Card)other).id());

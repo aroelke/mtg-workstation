@@ -11,7 +11,6 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
@@ -34,24 +33,28 @@ public abstract class MultiCard extends Card
 	/**
 	 * Create a new MultiCard out of the given list of Cards. Each one should only have one face.
 	 * 
+	 * @param layout TODO: Comment this
 	 * @param f Cards to use as faces
 	 */
-	public MultiCard(List<Card> f)
+	public MultiCard(CardLayout layout, List<Card> f)
 	{
+		super(f.get(0).expansion, layout, f.size());
+		
 		faces = f;
 		for (Card face: faces)
-			if (face.faces() > 1)
+			if (face.faces > 1)
 				throw new IllegalArgumentException("Only normal, single-faced cards can be joined into a multi-faced card");
 	}
 	
 	/**
 	 * Create a new MultiCard out of the given Cards.
 	 * 
+	 * @param layout TODO: Comment this
 	 * @param f Cards to use as faces
 	 */
-	public MultiCard(Card... f)
+	public MultiCard(CardLayout layout, Card... f)
 	{
-		this(Arrays.asList(f));
+		this(layout, Arrays.asList(f));
 	}
 	
 	/**
@@ -61,15 +64,6 @@ public abstract class MultiCard extends Card
 	private <T> List<T> collect(Function<Card, List<T>> characteristic)
 	{
 		return faces.stream().map((f) -> characteristic.apply(f).get(0)).collect(Collectors.toList());
-	}
-
-	/**
-	 * @return The number of faces of this MultiCard.
-	 */
-	@Override
-	public int faces()
-	{
-		return faces.size();
 	}
 
 	/**
@@ -198,15 +192,6 @@ public abstract class MultiCard extends Card
 	public List<String> typeLine()
 	{
 		return collect(Card::typeLine);
-	}
-
-	/**
-	 * @return This MultiCard's Expansion.
-	 */
-	@Override
-	public Expansion expansion()
-	{
-		return faces.get(0).expansion();
 	}
 
 	/**

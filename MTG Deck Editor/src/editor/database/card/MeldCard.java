@@ -38,21 +38,12 @@ public class MeldCard extends MultiCard
 	 */
 	public MeldCard(Card f, Card o, Card b)
 	{
-		super(f, b);
+		super(CardLayout.MELD, f, b);
 		front = f;
 		other = o;
 		
-		if (front.layout() != CardLayout.MELD || other.layout() != CardLayout.MELD || b.layout() != CardLayout.MELD)
+		if (front.layout != CardLayout.MELD || other.layout != CardLayout.MELD || b.layout != CardLayout.MELD)
 			throw new IllegalArgumentException("can't join non-meld cards into meld cards");
-	}
-	
-	/**
-	 * @return The layout of this MeldCard, which is meld.
-	 */
-	@Override
-	public CardLayout layout()
-	{
-		return CardLayout.MELD;
 	}
 	
 	/**

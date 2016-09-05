@@ -91,7 +91,7 @@ public class CardImagePanel extends JPanel
 				BufferedImage img = null;
 				try
 				{
-					String[] codes = new String[] {card.expansion().code, card.expansion().magicCardsInfoCode, card.expansion().gathererCode, card.expansion().name};
+					String[] codes = new String[] {card.expansion.code, card.expansion.magicCardsInfoCode, card.expansion.gathererCode, card.expansion.name};
 					File imageFile;
 					for (String code: codes)
 					{
@@ -108,8 +108,8 @@ public class CardImagePanel extends JPanel
 				{}
 				finally
 				{
-					if (img == null && card.layout() == CardLayout.SPLIT)
-						faceImages.addAll(Collections.nCopies(card.faces(), null));
+					if (img == null && card.layout == CardLayout.SPLIT)
+						faceImages.addAll(Collections.nCopies(card.faces, null));
 					else
 						faceImages.add(img);
 				}

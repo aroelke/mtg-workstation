@@ -127,7 +127,7 @@ public class Inventory implements CardCollection
 	public Inventory(Collection<Card> list)
 	{
 		cards = new ArrayList<Card>(list);
-		IDs = cards.stream().collect(Collectors.toMap((c) -> c.id(), Function.identity()));
+		IDs = cards.stream().collect(Collectors.toMap(Card::id, Function.identity()));
 		filter = new CategorySpec("Displayed Inventory", Color.BLACK, new BinaryFilter(true));
 		filtrate = cards;
 		

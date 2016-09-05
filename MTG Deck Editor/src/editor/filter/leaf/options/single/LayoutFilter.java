@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
@@ -23,7 +22,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 	 */
 	public LayoutFilter()
 	{
-		super(FilterType.LAYOUT, Card::layout);
+		super(FilterType.LAYOUT, (c) -> c.layout);
 	}
 	
 	

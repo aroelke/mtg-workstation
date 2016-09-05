@@ -2,7 +2,6 @@ package editor.filter.leaf.options.single;
 
 import java.util.HashSet;
 
-import editor.database.card.Card;
 import editor.database.characteristics.Expansion;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
@@ -21,7 +20,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 	 */
 	public ExpansionFilter()
 	{
-		super(FilterType.EXPANSION, Card::expansion);
+		super(FilterType.EXPANSION, (c) -> c.expansion);
 	}
 
 	/**

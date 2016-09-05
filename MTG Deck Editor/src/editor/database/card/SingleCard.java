@@ -30,10 +30,6 @@ import editor.database.characteristics.Rarity;
 public class SingleCard extends Card
 {
 	/**
-	 * This SingleCard's layout.
-	 */
-	private final CardLayout layout;
-	/**
 	 * Name of this SingleCard.
 	 */
 	public final String name;
@@ -87,10 +83,6 @@ public class SingleCard extends Card
 	 * This SingleCard's loyalty, if it is a planeswalker (it's 0 otherwise).
 	 */
 	public final Loyalty loyalty;
-	/**
-	 * The Expansion this Card belongs to.
-	 */
-	private final Expansion set;
 	/**
 	 * This Card's rarity.
 	 */
@@ -164,7 +156,8 @@ public class SingleCard extends Card
 			Map<String, Legality> legality,
 			String imageName)
 	{
-		this.layout = layout;
+		super(set, layout, 1);
+		
 		this.name = name;
 		this.mana = ManaCost.valueOf(mana);
 		this.colors = new ManaType.Tuple(colors);
@@ -180,7 +173,6 @@ public class SingleCard extends Card
 		this.loyalty = new Loyalty(loyalty);
 		this.imageName = imageName;
 		this.rarity = rarity;
-		this.set = set;
 		this.rulings = rulings;
 		this.legality = Collections.unmodifiableMap(legality);
 		
@@ -217,12 +209,6 @@ public class SingleCard extends Card
 			}
 		}
 		this.colorIdentity = new ManaType.Tuple(colorIdentity);
-	}
-	
-	@Override
-	public CardLayout layout()
-	{
-		return layout;
 	}
 	
 	/**
@@ -306,15 +292,6 @@ public class SingleCard extends Card
 	public Set<String> subtypes()
 	{
 		return subtypes;
-	}
-	
-	/**
-	 * @return The Expansion this SingleCard belongs to.
-	 */
-	@Override
-	public Expansion expansion()
-	{
-		return set;
 	}
 
 	/**
@@ -440,14 +417,5 @@ public class SingleCard extends Card
 	public ManaType.Tuple colorIdentity()
 	{
 		return colorIdentity;
-	}
-	
-	/**
-	 * @return The number of faces this Card has (1).
-	 */
-	@Override
-	public int faces()
-	{
-		return 1;
 	}
 }

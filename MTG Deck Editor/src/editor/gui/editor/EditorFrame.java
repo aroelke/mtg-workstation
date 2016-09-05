@@ -1689,10 +1689,10 @@ public class EditorFrame extends JInternalFrame
 			String changes = "";
 			for (Card c: original)
 				if (deck.count(c) < original.count(c))
-					changes += ("-" + (original.count(c) - deck.count(c)) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+					changes += ("-" + (original.count(c) - deck.count(c)) + "x " + c.unifiedName() + " (" + c.expansion.name + ")\n");
 			for (Card c: deck)
 				if (original.count(c) < deck.count(c))
-					changes += ("+" + (deck.count(c) - original.count(c)) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+					changes += ("+" + (deck.count(c) - original.count(c)) + "x " + c.unifiedName() + " (" + c.expansion.name + ")\n");
 			if (!changes.isEmpty())
 			{
 				SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");

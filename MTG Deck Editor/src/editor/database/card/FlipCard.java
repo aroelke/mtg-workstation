@@ -27,9 +27,9 @@ public class FlipCard extends MultiCard
 	 */
 	public FlipCard(Card t, Card b)
 	{
-		super(t, b);
+		super(CardLayout.FLIP, t, b);
 		top = t;
-		if (top.layout() != CardLayout.FLIP || b.layout() != CardLayout.FLIP)
+		if (top.layout != CardLayout.FLIP || b.layout != CardLayout.FLIP)
 			throw new IllegalArgumentException("can't join non-flip cards into flip cards");
 	}
 	
@@ -41,15 +41,6 @@ public class FlipCard extends MultiCard
 	private <T> List<T> collect(Function<Card, List<T>> characteristic)
 	{
 		return Arrays.asList(characteristic.apply(top).get(0), characteristic.apply(top).get(0));
-	}
-	
-	/**
-	 * @return This FlipCard's layout, which is that of a flip card.
-	 */
-	@Override
-	public CardLayout layout()
-	{
-		return CardLayout.FLIP;
 	}
 	
 	/**

@@ -18,9 +18,9 @@ public class SplitCard extends MultiCard
 	 */
 	public SplitCard(List<Card> f)
 	{
-		super(f);
+		super(CardLayout.SPLIT, f);
 		for (Card face: f)
-			if (face.layout() != CardLayout.SPLIT)
+			if (face.layout != CardLayout.SPLIT)
 				throw new IllegalArgumentException("can't create split cards out of non-split cards");
 	}
 	
@@ -32,15 +32,6 @@ public class SplitCard extends MultiCard
 	public SplitCard(Card... f)
 	{
 		this(Arrays.asList(f));
-	}
-	
-	/**
-	 * @return The layout of this SplitCard, which should be for a split card.
-	 */
-	@Override
-	public CardLayout layout()
-	{
-		return CardLayout.SPLIT;
 	}
 	
 	/**
