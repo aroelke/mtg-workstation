@@ -43,6 +43,7 @@ import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -929,7 +930,7 @@ public class MainFrame extends JFrame
 			panelPanel.add(panel, BorderLayout.CENTER);
 			
 			JScrollPane panelPane = new JScrollPane(panelPanel);
-			panelPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+			panelPane.setBorder(BorderFactory.createEmptyBorder());
 			if (JOptionPane.showConfirmDialog(this, panelPane, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 			{
 				nameFilterField.setText("");
@@ -1675,7 +1676,7 @@ public class MainFrame extends JFrame
 					if (hasFocus)
 						cmcPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
 					else
-						cmcPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
+						cmcPanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 					cmcPanel.setForeground(c.getForeground());
 					cmcPanel.setBackground(c.getBackground());
 					JLabel cmcLabel = new JLabel(join.toString());

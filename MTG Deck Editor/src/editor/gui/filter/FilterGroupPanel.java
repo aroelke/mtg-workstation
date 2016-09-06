@@ -6,14 +6,12 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
@@ -47,7 +45,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 	public FilterGroupPanel()
 	{
 		super();
-		setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+		setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), BorderFactory.createEtchedBorder()));
 		setLayout(new BorderLayout());
 		
 		children = new ArrayList<FilterPanel<?>>();

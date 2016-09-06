@@ -2,8 +2,8 @@ package editor.gui.filter.editor;
 
 import java.awt.GridLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.border.EmptyBorder;
 
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
@@ -43,7 +43,7 @@ public class BinaryFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	{
 		super();
 		setLayout(new GridLayout(1, 1));
-		setBorder(new EmptyBorder(0, 5, 0, 0));
+		setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
 		JLabel label = new JLabel((through = let) ? ALL : NONE);
 		add(label);
 	}

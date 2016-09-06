@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -109,7 +110,7 @@ public class CategoryPanel extends JPanel
 		flashTimer = new FlashTimer();
 		
 		// Each category is surrounded by a border with a title
-		setBorder(border = new TitledBorder(name));
+		setBorder(border = BorderFactory.createTitledBorder(name));
 		
 		setLayout(new BorderLayout());
 		

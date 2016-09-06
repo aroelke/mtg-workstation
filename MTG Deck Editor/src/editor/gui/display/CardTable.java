@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -23,7 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.SortOrder;
 import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
@@ -74,7 +74,7 @@ public class CardTable extends JTable
 				if (hasFocus)
 					costPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
 				else
-					costPanel.setBorder(new EmptyBorder(0, 1, cost.size() == 1 ? -1 : 0, 0));
+					costPanel.setBorder(BorderFactory.createEmptyBorder(0, 1, cost.size() == 1 ? -1 : 0, 0));
 				costPanel.setForeground(c.getForeground());
 				costPanel.setBackground(c.getBackground());
 				for (int i = 0; i < cost.size(); i++)
@@ -134,7 +134,7 @@ public class CardTable extends JTable
 					if (hasFocus)
 						cmcPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
 					else
-						cmcPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
+						cmcPanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 					cmcPanel.setForeground(c.getForeground());
 					cmcPanel.setBackground(c.getBackground());
 					cmcPanel.add(new JLabel(join.toString()));
@@ -177,7 +177,7 @@ public class CardTable extends JTable
 				if (hasFocus)
 					colorPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
 				else
-					colorPanel.setBorder(new EmptyBorder(0, 1, -1, 0));
+					colorPanel.setBorder(BorderFactory.createEmptyBorder(0, 1, -1, 0));
 				for (ManaType color: colors)
 					colorPanel.add(new JLabel(ColorSymbol.get(color).getIcon(13)));
 				colorPanel.setBackground(c.getBackground());
@@ -282,7 +282,7 @@ public class CardTable extends JTable
 				if (hasFocus)
 					datePanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
 				else
-					datePanel.setBorder(new EmptyBorder(1, 1, 1, 1));
+					datePanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 				datePanel.setForeground(c.getForeground());
 				datePanel.setBackground(c.getBackground());
 				datePanel.add(new JLabel(Deck.DATE_FORMAT.format((Date)value)));

@@ -36,6 +36,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -68,12 +69,14 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.table.AbstractTableModel;
 
 import editor.collection.CardCollection;
@@ -367,9 +370,17 @@ public class EditorFrame extends JInternalFrame
 		listTabs = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
 
+		JPanel mainPanel = new JPanel();
+		GridBagLayout deckLayout = new GridBagLayout();
+		deckLayout.columnWidths = new int[] {0};
+		deckLayout.columnWeights = new double[] {1.0};
+		deckLayout.rowHeights = new int[] {0, 0, 0};
+		deckLayout.rowWeights = new double[] {1.0, 0.0, 0.0};
+		mainPanel.setLayout(deckLayout);
+		mainPanel.setBackground(UIManager.getColor("window"));
+		
 		model = new CardTableModel(this, deck, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
 
-		// Create the table so that it resizes if the window is too big but not if it's too small
 		table = new CardTable(model);
 		table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
 		// When a card is selected in the master list table, select it for adding
@@ -393,7 +404,39 @@ public class EditorFrame extends JInternalFrame
 		table.setTransferHandler(new EditorTableTransferHandler());
 		table.setDragEnabled(true);
 		table.setDropMode(DropMode.ON);
-		listTabs.addTab("Cards", new JScrollPane(table));
+		
+		JScrollPane mainDeckPane = new JScrollPane(table);
+		mainDeckPane.setBorder(BorderFactory.createLoweredBevelBorder());
+		GridBagConstraints mainConstraints = new GridBagConstraints();
+		mainConstraints.gridx = 0;
+		mainConstraints.gridy = 0;
+		mainConstraints.fill = GridBagConstraints.BOTH;
+		mainPanel.add(mainDeckPane, mainConstraints);
+		
+		JPanel showHidePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		showHidePanel.setBackground(UIManager.getColor("window"));
+		JButton showButton = new BasicArrowButton(BasicArrowButton.NORTH);
+		showHidePanel.add(showButton);
+		JButton hideButton = new BasicArrowButton(BasicArrowButton.SOUTH);
+		showHidePanel.add(hideButton);
+		GridBagConstraints showHideConstraints = new GridBagConstraints();
+		showHideConstraints.gridx = 0;
+		showHideConstraints.gridy = 1;
+		showHideConstraints.fill = GridBagConstraints.BOTH;
+		mainPanel.add(showHidePanel, showHideConstraints);
+		
+		JPanel sideboardPanel = new JPanel(new BorderLayout());
+		sideboardPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		GridBagConstraints sideboardConstraints = new GridBagConstraints();
+		sideboardConstraints.gridx = 0;
+		sideboardConstraints.gridy = 2;
+		sideboardConstraints.fill = GridBagConstraints.BOTH;
+		mainPanel.add(sideboardPanel, sideboardConstraints);
+		
+		showButton.addActionListener((e) -> sideboardPanel.setVisible(true));
+		hideButton.addActionListener((e) -> sideboardPanel.setVisible(false));
+		
+		listTabs.addTab("Cards", mainPanel);
 		
 		// Table popup menu
 		JPopupMenu tableMenu = new JPopupMenu();
@@ -871,7 +914,7 @@ public class EditorFrame extends JInternalFrame
 		JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
 		progressDialog.setContentPane(progressPanel);
 		progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
-		progressPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		progressBar.setIndeterminate(false);
 		progressPanel.add(progressBar, BorderLayout.CENTER);
 		JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));

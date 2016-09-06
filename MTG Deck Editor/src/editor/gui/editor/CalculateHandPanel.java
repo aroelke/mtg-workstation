@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
@@ -22,7 +23,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
@@ -171,7 +171,7 @@ public class CalculateHandPanel extends JPanel
 		// Spinners controlling draws to show and initial hand size
 		JPanel northPanel = new JPanel();
 		northPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		northPanel.setBorder(new EmptyBorder(2, 5, 2, 5));
+		northPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 		tablePanel.add(northPanel, BorderLayout.NORTH);
 		northPanel.add(new JLabel("Hand Size: "));
 		northPanel.add(handSpinner = new JSpinner(new SpinnerNumberModel(7, 0, Integer.MAX_VALUE, 1)));

@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.StringJoiner;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JList;
@@ -13,9 +14,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.TitledBorder;
 
 import editor.collection.LegalityChecker;
 
@@ -45,7 +43,7 @@ public class LegalityPanel extends JPanel
 		
 		// Panel containing legal formats list
 		JPanel legalPanel = new JPanel(new BorderLayout());
-		legalPanel.setBorder(new TitledBorder("Legal in:"));
+		legalPanel.setBorder(BorderFactory.createTitledBorder("Legal in:"));
 		listsPanel.add(legalPanel);
 		
 		// Legal formats list.  Selection is disabled in this list
@@ -67,7 +65,7 @@ public class LegalityPanel extends JPanel
 		
 		// Panel containing illegal formats list
 		JPanel illegalPanel = new JPanel(new BorderLayout());
-		illegalPanel.setBorder(new TitledBorder("Illegal in:"));
+		illegalPanel.setBorder(BorderFactory.createTitledBorder("Illegal in:"));
 		listsPanel.add(illegalPanel);
 		
 		// Illegal formats list.  Only one element can be selected at a time.
@@ -77,7 +75,7 @@ public class LegalityPanel extends JPanel
 		
 		// Panel containing text box that shows why a deck is illegal in a format
 		JPanel warningsPanel = new JPanel(new BorderLayout());
-		warningsPanel.setBorder(new CompoundBorder(new TitledBorder("Warnings"), new BevelBorder(BevelBorder.LOWERED)));
+		warningsPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Warnings"), BorderFactory.createLoweredBevelBorder()));
 		add(warningsPanel);
 		
 		// Text box that shows reasons for illegality

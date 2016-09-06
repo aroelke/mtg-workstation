@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -42,8 +43,6 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -488,7 +487,7 @@ public class SettingsDialog extends JDialog
 		// Inventory paths
 		JPanel inventoryPanel = new JPanel();
 		inventoryPanel.setLayout(new BoxLayout(inventoryPanel, BoxLayout.Y_AXIS));
-		inventoryPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		inventoryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(inventoryPanel, new TreePath(inventoryNode.getPath()).toString());
 		
 		// Inventory site
@@ -602,12 +601,12 @@ public class SettingsDialog extends JDialog
 		ScrollablePanel inventoryAppearancePanel = new ScrollablePanel(ScrollablePanel.TRACK_WIDTH);
 		inventoryAppearancePanel.setLayout(new BoxLayout(inventoryAppearancePanel, BoxLayout.Y_AXIS));
 		JScrollPane inventoryAppearanceScroll = new JScrollPane(inventoryAppearancePanel);
-		inventoryAppearanceScroll.setBorder(null);
+		inventoryAppearanceScroll.setBorder(BorderFactory.createEmptyBorder());
 		settingsPanel.add(inventoryAppearanceScroll, new TreePath(inventoryAppearanceNode.getPath()).toString());
 		
 		// Columns
 		JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
-		inventoryColumnsPanel.setBorder(new TitledBorder("Columns"));
+		inventoryColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
 		inventoryColumnCheckBoxes = new ArrayList<JCheckBox>();
 		for (CardCharacteristic characteristic: CardCharacteristic.inventoryValues())
 		{
@@ -620,7 +619,7 @@ public class SettingsDialog extends JDialog
 		
 		// Stripe color
 		JPanel inventoryColorPanel = new JPanel(new BorderLayout());
-		inventoryColorPanel.setBorder(new TitledBorder("Stripe Color"));
+		inventoryColorPanel.setBorder(BorderFactory.createTitledBorder("Stripe Color"));
 		inventoryStripeColor = new JColorChooser(getAsColor(INVENTORY_STRIPE));
 		createStripeChooserPreview(inventoryStripeColor);
 		inventoryColorPanel.add(inventoryStripeColor);
@@ -628,7 +627,7 @@ public class SettingsDialog extends JDialog
 		
 		// Card image background color
 		JPanel scanBGPanel = new JPanel(new BorderLayout());
-		scanBGPanel.setBorder(new TitledBorder("Image Background Color"));
+		scanBGPanel.setBorder(BorderFactory.createTitledBorder("Image Background Color"));
 		scanBGChooser = new JColorChooser(getAsColor(IMAGE_BGCOLOR));
 		scanBGChooser.getSelectionModel().addChangeListener((e) -> {
 			parent.setImageBackground(scanBGChooser.getColor());
@@ -639,7 +638,7 @@ public class SettingsDialog extends JDialog
 		// Editor
 		JPanel editorPanel = new JPanel();
 		editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.Y_AXIS));
-		editorPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		editorPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(editorPanel, new TreePath(editorNode.getPath()).toString());
 		
 		// Recent count
@@ -676,7 +675,7 @@ public class SettingsDialog extends JDialog
 		// Editor categories
 		JPanel categoriesPanel = new JPanel();
 		categoriesPanel.setLayout(new BorderLayout(5, 0));
-		categoriesPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		categoriesPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
 		categoriesList = new CategoryList("<html><i>&lt;Double-click to add or edit&gt;</i></html>");
 		if (!getAsString(SettingsDialog.EDITOR_PRESETS).isEmpty())
@@ -740,7 +739,7 @@ public class SettingsDialog extends JDialog
 		// Editor category rows
 		JPanel rowsPanel = new JPanel();
 		rowsPanel.setLayout(new BoxLayout(rowsPanel, BoxLayout.X_AXIS));
-		rowsPanel.setBorder(new EmptyBorder(5, 5, 5, 0));
+		rowsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 0));
 		rowsPanel.add(new JLabel("Maximum displayed rows in categories:"));
 		rowsPanel.add(Box.createHorizontalStrut(5));
 		rowsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
@@ -752,7 +751,7 @@ public class SettingsDialog extends JDialog
 		
 		// Editor table columns
 		JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
-		editorColumnsPanel.setBorder(new TitledBorder("Columns"));
+		editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
 		editorColumnCheckBoxes = new ArrayList<JCheckBox>();
 		for (CardCharacteristic characteristic: CardCharacteristic.values())
 		{
@@ -766,7 +765,7 @@ public class SettingsDialog extends JDialog
 		
 		// Editor table stripe color
 		JPanel editorColorPanel = new JPanel(new BorderLayout());
-		editorColorPanel.setBorder(new TitledBorder("Stripe Color"));
+		editorColorPanel.setBorder(BorderFactory.createTitledBorder("Stripe Color"));
 		editorStripeColor = new JColorChooser(getAsColor(EDITOR_STRIPE));
 		createStripeChooserPreview(editorStripeColor);
 		editorColorPanel.add(editorStripeColor);
@@ -779,7 +778,7 @@ public class SettingsDialog extends JDialog
 		ScrollablePanel sampleHandPanel = new ScrollablePanel(ScrollablePanel.TRACK_WIDTH);
 		sampleHandPanel.setLayout(new BoxLayout(sampleHandPanel, BoxLayout.Y_AXIS));
 		JScrollPane sampleHandScroll = new JScrollPane(sampleHandPanel);
-		sampleHandScroll.setBorder(null);
+		sampleHandScroll.setBorder(BorderFactory.createEmptyBorder());
 		settingsPanel.add(sampleHandScroll, new TreePath(handAppearanceNode.getPath()).toString());
 		
 		sampleHandPanel.add(Box.createVerticalStrut(5));
@@ -802,7 +801,7 @@ public class SettingsDialog extends JDialog
 		
 		// Sample hand background color
 		JPanel handBGColorPanel = new JPanel(new BorderLayout());
-		handBGColorPanel.setBorder(new TitledBorder("Background Color"));
+		handBGColorPanel.setBorder(BorderFactory.createTitledBorder("Background Color"));
 		handBGColor = new JColorChooser(getAsColor(HAND_BGCOLOR));
 		handBGColor.getSelectionModel().addChangeListener((e) -> {
 			parent.setHandBackground(handBGColor.getColor());

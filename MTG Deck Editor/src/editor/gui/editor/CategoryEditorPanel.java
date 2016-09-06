@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.stream.Collectors;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JColorChooser;
@@ -17,8 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
@@ -71,7 +70,7 @@ public class CategoryEditorPanel extends JPanel
 		while (true)
 		{
 			JScrollPane editorPane = new JScrollPane(editorPanel);
-			editorPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+			editorPane.setBorder(BorderFactory.createEmptyBorder());
 			if (JOptionPane.showConfirmDialog(parent, editorPane, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 			{
 				if (editor.nameField.getText().isEmpty())
@@ -135,7 +134,7 @@ public class CategoryEditorPanel extends JPanel
 		super(new BorderLayout());
 		
 		JPanel namePanel = new JPanel();
-		namePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		namePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
 		namePanel.add(new JLabel("Category Name: "));
 		namePanel.add(nameField = new JTextField());
@@ -155,11 +154,11 @@ public class CategoryEditorPanel extends JPanel
 		
 		JPanel listPanel = new JPanel(new GridLayout(0, 2));
 		JPanel whitelistPanel = new JPanel(new BorderLayout());
-		whitelistPanel.setBorder(new TitledBorder("Whitelist"));
+		whitelistPanel.setBorder(BorderFactory.createTitledBorder("Whitelist"));
 		whitelistPanel.add(new JScrollPane(whitelist = new CardList()), BorderLayout.CENTER);
 		listPanel.add(whitelistPanel);
 		JPanel blacklistPanel = new JPanel(new BorderLayout());
-		blacklistPanel.setBorder(new TitledBorder("Blacklist"));
+		blacklistPanel.setBorder(BorderFactory.createTitledBorder("Blacklist"));
 		blacklistPanel.add(new JScrollPane(blacklist = new CardList()), BorderLayout.CENTER);
 		listPanel.add(blacklistPanel);
 		add(listPanel, BorderLayout.SOUTH);

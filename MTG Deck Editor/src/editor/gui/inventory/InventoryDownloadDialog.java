@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -26,7 +27,6 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
-import javax.swing.border.EmptyBorder;
 
 /**
  * This class represents a dialog that shows progress for downloading the
@@ -67,7 +67,7 @@ public class InventoryDownloadDialog extends JDialog
 		
 		// Content panel
 		JPanel contentPanel = new JPanel(new BorderLayout(0, 2));
-		contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		setContentPane(contentPanel);
 		
 		// Stage progress label

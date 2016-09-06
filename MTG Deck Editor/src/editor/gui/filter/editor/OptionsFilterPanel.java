@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -95,7 +96,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
 		SimpleScrollPane optionsPane = new SimpleScrollPane(optionsPanel,
 				JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		optionsPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		optionsPane.setBorder(BorderFactory.createEmptyBorder());
 		add(optionsPane, BorderLayout.CENTER);
 	}
 	

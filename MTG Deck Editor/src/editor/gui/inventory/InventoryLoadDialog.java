@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -40,7 +41,6 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
-import javax.swing.border.EmptyBorder;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -112,7 +112,7 @@ public class InventoryLoadDialog extends JDialog
 		layout.rowHeights = new int[] {0, 0, 0, 0};
 		layout.rowWeights = new double[] {0.0, 0.0, 1.0, 0.0};
 		JPanel contentPanel = new JPanel(layout);
-		contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		setContentPane(contentPanel);
 		
 		// Stage progress label
