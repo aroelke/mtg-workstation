@@ -467,27 +467,27 @@ public class InventoryLoadDialog extends JDialog
 					List<String> faceNames = faces.get(face);
 					List<Card> otherFaces = new ArrayList<Card>();
 					for (Card c: facesList)
-						if (faceNames.contains(c.unifiedName()) && c.expansion.equals(face.expansion))
+						if (faceNames.contains(c.unifiedName()) && c.expansion().equals(face.expansion()))
 							otherFaces.add(c);
 					facesList.removeAll(otherFaces);
 					otherFaces.add(face);
 					cards.removeAll(otherFaces);
 					otherFaces.sort((a, b) -> faceNames.indexOf(a.unifiedName()) - faceNames.indexOf(b.unifiedName()));
-					switch (face.layout)
+					switch (face.layout())
 					{
 					case SPLIT:
 						if (otherFaces.size() < 2)
 						{
-							errors.add(face.toString() + " (" + face.expansion + "): Can't find other face(s) for split card.");
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face(s) for split card.");
 							error = true;
 						}
 						else
 						{
 							for (Card f: otherFaces)
 							{
-								if (f.layout != CardLayout.SPLIT)
+								if (f.layout() != CardLayout.SPLIT)
 								{
-									errors.add(face.toString() + " (" + face.expansion + "): Can't join non-split faces into a split card.");
+									errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-split faces into a split card.");
 									error = true;
 								}
 							}
@@ -498,17 +498,17 @@ public class InventoryLoadDialog extends JDialog
 					case FLIP:
 						if (otherFaces.size() < 2)
 						{
-							errors.add(face.toString() + " (" + face.expansion + "): Can't find other side of flip card.");
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't find other side of flip card.");
 							error = true;
 						}
 						else if (otherFaces.size() > 2)
 						{
-							errors.add(face.toString() + " (" + face.expansion + "): Too many sides for flip card.");
+							errors.add(face.toString() + " (" + face.expansion() + "): Too many sides for flip card.");
 							error = true;
 						}
-						else if (otherFaces.get(0).layout != CardLayout.FLIP || otherFaces.get(1).layout != CardLayout.FLIP)
+						else if (otherFaces.get(0).layout() != CardLayout.FLIP || otherFaces.get(1).layout() != CardLayout.FLIP)
 						{
-							errors.add(face.toString() + " (" + face.expansion + "): Can't join non-flip faces into a flip card.");
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-flip faces into a flip card.");
 							error = true;
 						}
 						if (!error)
@@ -517,17 +517,17 @@ public class InventoryLoadDialog extends JDialog
 					case DOUBLE_FACED:
 						if (otherFaces.size() < 2)
 						{
-							errors.add(face.toString() + " (" + face.expansion + "): Can't find other face of double-faced card.");
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face of double-faced card.");
 							error = true;
 						}
 						else if (otherFaces.size() > 2)
 						{
-							errors.add(face.toString() + " (" + face.expansion + "): Too many faces for double-faced card.");
+							errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for double-faced card.");
 							error = true;
 						}
-						else if (otherFaces.get(0).layout != CardLayout.DOUBLE_FACED || otherFaces.get(1).layout != CardLayout.DOUBLE_FACED)
+						else if (otherFaces.get(0).layout() != CardLayout.DOUBLE_FACED || otherFaces.get(1).layout() != CardLayout.DOUBLE_FACED)
 						{
-							errors.add(face.toString() + " (" + face.expansion + "): Can't join single-faced cards into double-faced cards.");
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into double-faced cards.");
 							error = true;
 						}
 						if (!error)
@@ -536,17 +536,17 @@ public class InventoryLoadDialog extends JDialog
 					case MELD:
 						if (otherFaces.size() < 3)
 						{
-							errors.add(face.toString() + " (" + face.expansion + "): Can't find some faces of meld card.");
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't find some faces of meld card.");
 							error = true;
 						}
 						else if (otherFaces.size() > 3)
 						{
-							errors.add(face.toString() + " (" + face.expansion + "): Too many faces for meld card.");
+							errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for meld card.");
 							error = true;
 						}
-						else if (otherFaces.get(0).layout != CardLayout.MELD || otherFaces.get(1).layout != CardLayout.MELD || otherFaces.get(2).layout != CardLayout.MELD)
+						else if (otherFaces.get(0).layout() != CardLayout.MELD || otherFaces.get(1).layout() != CardLayout.MELD || otherFaces.get(2).layout() != CardLayout.MELD)
 						{
-							errors.add(face.toString() + " (" + face.expansion + "): Can't join single-faced cards into meld cards.");
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into meld cards.");
 							error = true;
 						}
 						if (!error)

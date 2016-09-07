@@ -29,7 +29,7 @@ public class DoubleFacedCard extends MultiCard
 	{
 		super(CardLayout.DOUBLE_FACED, f, b);
 		front = f;
-		if (front.layout != CardLayout.DOUBLE_FACED|| b.layout != CardLayout.DOUBLE_FACED)
+		if (front.layout() != CardLayout.DOUBLE_FACED|| b.layout() != CardLayout.DOUBLE_FACED)
 			throw new IllegalArgumentException("can't join non-double-faced cards into double-faced cards");
 	}
 	

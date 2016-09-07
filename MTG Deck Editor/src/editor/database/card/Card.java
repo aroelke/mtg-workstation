@@ -4,6 +4,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.text.Collator;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -72,9 +73,23 @@ public abstract class Card
 	/**
 	 * TODO: Comment these
 	 */
-	public final Expansion expansion;
-	public final CardLayout layout;
-	public final int faces;
+	private final Expansion expansion;
+	private final CardLayout layout;
+	private final int faces;
+	
+	private String id;
+	private String unifiedName;
+	private List<String> normalizedName;
+	private List<String> legendName;
+	private double minCmc;
+	private String unifiedTypeLine;
+	private List<String> normalizedOracle;
+	private List<String> normalizedFlavor;
+	private Boolean powerVariable;
+	private Boolean toughnessVariable;
+	private List<String> legalIn;
+	private Boolean canBeCommander;
+	private Boolean ignoreCountRestriction;
 	
 	/**
 	 * TODO: Comment this
@@ -87,6 +102,20 @@ public abstract class Card
 		this.expansion = expansion;
 		this.layout = layout;
 		this.faces = faces;
+		
+		id = null;
+		unifiedName = null;
+		normalizedName = null;
+		legendName = null;
+		minCmc = -1.0;
+		unifiedTypeLine = null;
+		normalizedOracle = null;
+		normalizedFlavor = null;
+		powerVariable = null;
+		toughnessVariable = null;
+		legalIn = null;
+		canBeCommander = null;
+		ignoreCountRestriction = null;
 	}
 	
 	/**
@@ -95,7 +124,27 @@ public abstract class Card
 	 */
 	public String id()
 	{
-		return expansion.code + unifiedName() + imageNames().get(0);
+		if (id == null)
+			id = expansion.code + unifiedName() + imageNames().get(0);
+		return id;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public CardLayout layout()
+	{
+		return layout;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public int faces()
+	{
+		return faces;
 	}
 	
 	/**
@@ -109,10 +158,14 @@ public abstract class Card
 	 */
 	public String unifiedName()
 	{
-		StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
-		for (String name: name())
-			join.add(name);
-		return join.toString();
+		if (unifiedName == null)
+		{
+			StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
+			for (String name: name())
+				join.add(name);
+			unifiedName = join.toString();
+		}
+		return unifiedName;
 	}
 	
 	/**
@@ -121,9 +174,11 @@ public abstract class Card
 	 */
 	public List<String> normalizedName()
 	{
-		return name().stream()
-				.map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("æ", "ae"))
-				.collect(Collectors.toList());
+		if (normalizedName == null)
+			normalizedName = Collections.unmodifiableList(name().stream()
+					.map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("æ", "ae"))
+					.collect(Collectors.toList()));
+		return normalizedName;
 	}
 	
 	/**
@@ -132,35 +187,39 @@ public abstract class Card
 	 */
 	public List<String> legendName()
 	{
-		List<String> legendNames = new ArrayList<String>();
-		for (String fullName: normalizedName())
+		if (legendName == null)
 		{
-			if (!supertypes().contains("Legendary"))
-				legendNames.add(fullName);
-			else
+			List<String> legendNames = new ArrayList<String>();
+			for (String fullName: normalizedName())
 			{
-				int comma = fullName.indexOf(',');
-				if (comma > 0)
-					legendNames.add(fullName.substring(0, comma).trim());
+				if (!supertypes().contains("Legendary"))
+					legendNames.add(fullName);
 				else
 				{
-					int the = fullName.indexOf("the ");
-					if (the == 0)
-						legendNames.add(fullName);
-					else if (the > 0)
-						legendNames.add(fullName.substring(0, the).trim());
+					int comma = fullName.indexOf(',');
+					if (comma > 0)
+						legendNames.add(fullName.substring(0, comma).trim());
 					else
 					{
-						int of = fullName.indexOf("of ");
-						if (of > 0)
-							legendNames.add(fullName.substring(0, of).trim());
-						else
+						int the = fullName.indexOf("the ");
+						if (the == 0)
 							legendNames.add(fullName);
+						else if (the > 0)
+							legendNames.add(fullName.substring(0, the).trim());
+						else
+						{
+							int of = fullName.indexOf("of ");
+							if (of > 0)
+								legendNames.add(fullName.substring(0, of).trim());
+							else
+								legendNames.add(fullName);
+						}
 					}
 				}
 			}
+			legendName = Collections.unmodifiableList(legendNames);
 		}
-		return legendNames;
+		return legendName;
 	}
 	
 	/**
@@ -190,7 +249,9 @@ public abstract class Card
 	 */
 	public double minCmc()
 	{
-		return cmc().stream().reduce(Double.MAX_VALUE,Double::min);
+		if (minCmc < 0.0)
+			minCmc = cmc().stream().reduce(Double.MAX_VALUE,Double::min);
+		return minCmc;
 	}
 	
 	/**
@@ -210,6 +271,15 @@ public abstract class Card
 	 * @return A list containing the colors in this Card's color identity.
 	 */
 	public abstract ManaType.Tuple colorIdentity();
+	
+	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public Expansion expansion()
+	{
+		return expansion;
+	}
 	
 	/**
 	 * @return A set containing the supertypes among all the faces of this Card.
@@ -274,10 +344,14 @@ public abstract class Card
 	 */
 	public String unifiedTypeLine()
 	{
-		StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
-		for (String line: typeLine())
-			join.add(line);
-		return join.toString();
+		if (unifiedTypeLine == null)
+		{
+			StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
+			for (String line: typeLine())
+				join.add(line);
+			unifiedTypeLine = join.toString();
+		}
+		return unifiedTypeLine;
 	}
 	
 	/**
@@ -296,15 +370,19 @@ public abstract class Card
 	 */
 	public List<String> normalizedOracle()
 	{
-		List<String> texts = new ArrayList<String>();
-		for (int i = 0; i < faces; i++)
+		if (normalizedOracle == null)
 		{
-			String normal = Normalizer.normalize(oracleText().get(i).toLowerCase(), Normalizer.Form.NFD);
-			normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
-			normal = normal.replace(legendName().get(i), Card.THIS).replace(normalizedName().get(i), Card.THIS);
-			texts.add(normal);
+			List<String> texts = new ArrayList<String>();
+			for (int i = 0; i < faces; i++)
+			{
+				String normal = Normalizer.normalize(oracleText().get(i).toLowerCase(), Normalizer.Form.NFD);
+				normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
+				normal = normal.replace(legendName().get(i), Card.THIS).replace(normalizedName().get(i), Card.THIS);
+				texts.add(normal);
+			}
+			normalizedOracle = Collections.unmodifiableList(texts);
 		}
-		return texts;
+		return normalizedOracle;
 	}
 	
 	/**
@@ -318,9 +396,11 @@ public abstract class Card
 	 */
 	public List<String> normalizedFlavor()
 	{
-		return flavorText().stream()
-				.map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("æ", "ae"))
-				.collect(Collectors.toList());
+		if (normalizedFlavor == null)
+			normalizedFlavor = Collections.unmodifiableList(flavorText().stream()
+					.map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("æ", "ae"))
+					.collect(Collectors.toList()));
+		return normalizedFlavor;
 	}
 	
 	/**
@@ -344,7 +424,9 @@ public abstract class Card
 	 */
 	public boolean powerVariable()
 	{
-		return power().stream().anyMatch(PowerToughness::variable);
+		if (powerVariable == null)
+			powerVariable = power().stream().anyMatch(PowerToughness::variable);
+		return powerVariable;
 	}
 	
 	/**
@@ -358,7 +440,9 @@ public abstract class Card
 	 */
 	public boolean toughnessVariable()
 	{
-		return toughness().stream().anyMatch(PowerToughness::variable);
+		if (toughnessVariable == null)
+			toughnessVariable = toughness().stream().anyMatch(PowerToughness::variable);
+		return toughnessVariable;
 	}
 	
 	/**
@@ -417,7 +501,9 @@ public abstract class Card
 	 */
 	public List<String> legalIn()
 	{
-		return legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList());
+		if (legalIn == null)
+			legalIn = Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList()));
+		return legalIn;
 	}
 	
 	/**
@@ -447,7 +533,9 @@ public abstract class Card
 	 */
 	public boolean canBeCommander()
 	{
-		return supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander"));
+		if (canBeCommander == null)
+			canBeCommander = supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander"));
+		return canBeCommander;
 	}
 	
 	/**
@@ -456,7 +544,9 @@ public abstract class Card
 	 */
 	public boolean ignoreCountRestriction()
 	{
-		return supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number"));
+		if (ignoreCountRestriction == null)
+			ignoreCountRestriction = supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number"));
+		return ignoreCountRestriction;
 	}
 	
 	/**

@@ -29,7 +29,7 @@ public class FlipCard extends MultiCard
 	{
 		super(CardLayout.FLIP, t, b);
 		top = t;
-		if (top.layout != CardLayout.FLIP || b.layout != CardLayout.FLIP)
+		if (top.layout() != CardLayout.FLIP || b.layout() != CardLayout.FLIP)
 			throw new IllegalArgumentException("can't join non-flip cards into flip cards");
 	}
 	

@@ -38,11 +38,11 @@ public abstract class MultiCard extends Card
 	 */
 	public MultiCard(CardLayout layout, List<Card> f)
 	{
-		super(f.get(0).expansion, layout, f.size());
+		super(f.get(0).expansion(), layout, f.size());
 		
 		faces = f;
 		for (Card face: faces)
-			if (face.faces > 1)
+			if (face.faces() > 1)
 				throw new IllegalArgumentException("Only normal, single-faced cards can be joined into a multi-faced card");
 	}
 	

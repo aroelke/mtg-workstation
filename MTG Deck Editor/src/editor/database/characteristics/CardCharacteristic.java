@@ -32,13 +32,13 @@ public enum CardCharacteristic
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}),
-	LAYOUT("Layout", CardLayout.class, (l, i) -> l.get(i).layout),
+	LAYOUT("Layout", CardLayout.class, (l, i) -> l.get(i).layout()),
 	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l.get(i).manaCost()),
 	CMC("CMC", List.class, (l, i) -> l.get(i).cmc()),
 	COLORS("Colors", ManaType.Tuple.class, (l, i) -> l.get(i).colors()),
 	COLOR_IDENTITY("Color Identity", ManaType.Tuple.class, (l, i) -> l.get(i).colorIdentity()),
 	TYPE_LINE("Type", String.class, (l, i) -> l.get(i).unifiedTypeLine()),
-	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).expansion.toString()),
+	EXPANSION_NAME("Expansion", String.class, (l, i) -> l.get(i).expansion().toString()),
 	RARITY("Rarity", Rarity.class, (l, i) -> l.get(i).rarity()),
 	POWER("Power", PowerToughness.Tuple.class, (l, i) -> l.get(i).power()),
 	TOUGHNESS("Toughness", PowerToughness.Tuple.class, (l, i) -> l.get(i).toughness()),

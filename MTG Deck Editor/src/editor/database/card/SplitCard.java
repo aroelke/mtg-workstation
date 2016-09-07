@@ -20,7 +20,7 @@ public class SplitCard extends MultiCard
 	{
 		super(CardLayout.SPLIT, f);
 		for (Card face: f)
-			if (face.layout != CardLayout.SPLIT)
+			if (face.layout() != CardLayout.SPLIT)
 				throw new IllegalArgumentException("can't create split cards out of non-split cards");
 	}
 	

@@ -20,7 +20,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 	 */
 	public BlockFilter()
 	{
-		super(FilterType.BLOCK, (c) -> c.expansion.block);
+		super(FilterType.BLOCK, (c) -> c.expansion().block);
 	}
 	
 	/**
