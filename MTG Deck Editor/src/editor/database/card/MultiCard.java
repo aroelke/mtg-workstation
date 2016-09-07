@@ -2,6 +2,7 @@ package editor.database.card;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,29 @@ public abstract class MultiCard extends Card
 	private List<Card> faces;
 	
 	/**
+	 * TODO: Comment these
+	 */
+	private List<String> name;
+	private ManaCost.Tuple manaCost;
+	private List<Double> cmc;
+	private ManaType.Tuple colors;
+	private ManaType.Tuple colorIdentity;
+	private Set<String> supertypes;
+	private Set<String> types;
+	private Set<String> subtypes;
+	private List<Set<String>> allTypes;
+	private List<String> typeLine;
+	private List<String> oracleText;
+	private List<String> flavorText;
+	private List<String> artist;
+	private List<String> number;
+	private PowerToughness.Tuple power;
+	private PowerToughness.Tuple toughness;
+	private Loyalty.Tuple loyalty;
+	private Map<Date, List<String>> rulings;
+	private List<String> imageNames;
+	
+	/**
 	 * Create a new MultiCard out of the given list of Cards. Each one should only have one face.
 	 * 
 	 * @param layout TODO: Comment this
@@ -44,6 +68,26 @@ public abstract class MultiCard extends Card
 		for (Card face: faces)
 			if (face.faces() > 1)
 				throw new IllegalArgumentException("Only normal, single-faced cards can be joined into a multi-faced card");
+		
+		name = null;
+		manaCost = null;
+		cmc = null;
+		colors = null;
+		colorIdentity = null;
+		supertypes = null;
+		types = null;
+		subtypes = null;
+		allTypes = null;
+		typeLine = null;
+		oracleText = null;
+		flavorText = null;
+		artist = null;
+		number = null;
+		power = null;
+		toughness = null;
+		loyalty = null;
+		rulings = null;
+		imageNames = null;
 	}
 	
 	/**
@@ -72,7 +116,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public List<String> name()
 	{
-		return collect(Card::name);
+		if (name == null)
+			name = Collections.unmodifiableList(collect(Card::name));
+		return name;
 	}
 
 	/**
@@ -81,7 +127,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public ManaCost.Tuple manaCost()
 	{
-		return new ManaCost.Tuple(collect(Card::manaCost));
+		if (manaCost == null)
+			manaCost = new ManaCost.Tuple(collect(Card::manaCost));
+		return manaCost;
 	}
 
 	/**
@@ -90,7 +138,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public List<Double> cmc()
 	{
-		return collect(Card::cmc);
+		if (cmc == null)
+			cmc = Collections.unmodifiableList(collect(Card::cmc));
+		return cmc;
 	}
 
 	/**
@@ -99,10 +149,14 @@ public abstract class MultiCard extends Card
 	@Override
 	public ManaType.Tuple colors()
 	{
-		Set<ManaType> colors = new HashSet<ManaType>();
-		for (Card face: faces)
-			colors.addAll(face.colors());
-		return new ManaType.Tuple(colors);
+		if (colors == null)
+		{
+			Set<ManaType> cols = new HashSet<ManaType>();
+			for (Card face: faces)
+				cols.addAll(face.colors());
+			colors = new ManaType.Tuple(cols);
+		}
+		return colors;
 	}
 	
 	/**
@@ -123,10 +177,14 @@ public abstract class MultiCard extends Card
 	@Override
 	public ManaType.Tuple colorIdentity()
 	{
-		Set<ManaType> colors = new HashSet<ManaType>();
-		for (Card face: faces)
-			colors.addAll(face.colorIdentity());
-		return new ManaType.Tuple(colors);
+		if (colorIdentity == null)
+		{
+			Set<ManaType> colors = new HashSet<ManaType>();
+			for (Card face: faces)
+				colors.addAll(face.colorIdentity());
+			colorIdentity = new ManaType.Tuple(colors);
+		}
+		return colorIdentity;
 	}
 
 	/**
@@ -135,9 +193,13 @@ public abstract class MultiCard extends Card
 	@Override
 	public Set<String> supertypes()
 	{
-		Set<String> supertypes = new HashSet<String>();
-		for (Card face: faces)
-			supertypes.addAll(face.supertypes());
+		if (supertypes == null)
+		{
+			Set<String> s = new HashSet<String>();
+			for (Card face: faces)
+				s.addAll(face.supertypes());
+			supertypes = Collections.unmodifiableSet(s);
+		}
 		return supertypes;
 	}
 
@@ -147,9 +209,13 @@ public abstract class MultiCard extends Card
 	@Override
 	public Set<String> types()
 	{
-		Set<String> types = new HashSet<String>();
-		for (Card face: faces)
-			types.addAll(face.types());
+		if (types == null)
+		{
+			Set<String> t = new HashSet<String>();
+			for (Card face: faces)
+				t.addAll(face.types());
+			types = Collections.unmodifiableSet(t);
+		}
 		return types;
 	}
 
@@ -159,9 +225,13 @@ public abstract class MultiCard extends Card
 	@Override
 	public Set<String> subtypes()
 	{
-		Set<String> subtypes = new HashSet<String>();
-		for (Card face: faces)
-			subtypes.addAll(face.subtypes());
+		if (subtypes == null)
+		{
+			Set<String> s = new HashSet<String>();
+			for (Card face: faces)
+				s.addAll(face.subtypes());
+			subtypes = Collections.unmodifiableSet(s);
+		}
 		return subtypes;
 	}
 
@@ -172,14 +242,18 @@ public abstract class MultiCard extends Card
 	@Override
 	public List<Set<String>> allTypes()
 	{
-		List<Set<String>> allTypes = new ArrayList<Set<String>>();
-		for (Card face: faces)
+		if (allTypes == null)
 		{
-			HashSet<String> faceTypes = new HashSet<String>();
-			faceTypes.addAll(face.supertypes());
-			faceTypes.addAll(face.types());
-			faceTypes.addAll(face.subtypes());
-			allTypes.add(faceTypes);
+			List<Set<String>> a = new ArrayList<Set<String>>();
+			for (Card face: faces)
+			{
+				Set<String> faceTypes = new HashSet<String>();
+				faceTypes.addAll(face.supertypes());
+				faceTypes.addAll(face.types());
+				faceTypes.addAll(face.subtypes());
+				a.add(Collections.unmodifiableSet(faceTypes));
+			}
+			allTypes = Collections.unmodifiableList(a);
 		}
 		return allTypes;
 	}
@@ -191,7 +265,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public List<String> typeLine()
 	{
-		return collect(Card::typeLine);
+		if (typeLine == null)
+			typeLine = Collections.unmodifiableList(collect(Card::typeLine));
+		return typeLine;
 	}
 
 	/**
@@ -209,7 +285,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public List<String> oracleText()
 	{
-		return collect(Card::oracleText);
+		if (oracleText == null)
+			oracleText = Collections.unmodifiableList(collect(Card::oracleText));
+		return oracleText;
 	}
 
 	/**
@@ -218,7 +296,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public List<String> flavorText()
 	{
-		return collect(Card::flavorText);
+		if (flavorText == null)
+			flavorText = Collections.unmodifiableList(collect(Card::flavorText));
+		return flavorText;
 	}
 
 	/**
@@ -227,7 +307,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public List<String> artist()
 	{
-		return collect(Card::artist);
+		if (artist == null)
+			artist = Collections.unmodifiableList(collect(Card::artist));
+		return artist;
 	}
 
 	/**
@@ -236,7 +318,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public List<String> number()
 	{
-		return collect(Card::number);
+		if (number == null)
+			number = Collections.unmodifiableList(collect(Card::number));
+		return number;
 	}
 
 	/**
@@ -245,7 +329,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public PowerToughness.Tuple power()
 	{
-		return new PowerToughness.Tuple(collect(Card::power));
+		if (power == null)
+			power = new PowerToughness.Tuple(collect(Card::power));
+		return power;
 	}
 
 	/**
@@ -255,7 +341,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public PowerToughness.Tuple toughness()
 	{
-		return new PowerToughness.Tuple(collect(Card::toughness));
+		if (toughness == null)
+			toughness = new PowerToughness.Tuple(collect(Card::toughness));
+		return toughness;
 	}
 
 	/**
@@ -265,7 +353,9 @@ public abstract class MultiCard extends Card
 	@Override
 	public Loyalty.Tuple loyalty()
 	{
-		return new Loyalty.Tuple(collect(Card::loyalty));
+		if (loyalty == null)
+			loyalty = new Loyalty.Tuple(collect(Card::loyalty));
+		return loyalty;
 	}
 
 	/**
@@ -275,15 +365,16 @@ public abstract class MultiCard extends Card
 	@Override
 	public Map<Date, List<String>> rulings()
 	{
-		Map<Date, List<String>> rulings = faces.stream().map(Card::rulings).reduce(new TreeMap<Date, List<String>>(), (a, b) -> {
-			for (Date k: b.keySet())
-			{
-				if (!a.containsKey(k))
-					a.put(k, new ArrayList<String>());
-				a.get(k).addAll(b.get(k));
-			}
-			return a;
-		});
+		if (rulings == null)
+			rulings = Collections.unmodifiableMap(faces.stream().map(Card::rulings).reduce(new TreeMap<Date, List<String>>(), (a, b) -> {
+				for (Date k: b.keySet())
+				{
+					if (!a.containsKey(k))
+						a.put(k, new ArrayList<String>());
+					a.get(k).addAll(b.get(k));
+				}
+				return a;
+			}));
 		return rulings;
 	}
 
@@ -302,6 +393,8 @@ public abstract class MultiCard extends Card
 	@Override
 	public List<String> imageNames()
 	{
-		return collect(Card::imageNames);
+		if (imageNames == null)
+			imageNames = Collections.unmodifiableList(collect(Card::imageNames));
+		return imageNames;
 	}
 }
