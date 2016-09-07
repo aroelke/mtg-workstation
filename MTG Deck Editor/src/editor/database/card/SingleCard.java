@@ -1,6 +1,5 @@
 package editor.database.card;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -55,6 +54,10 @@ public class SingleCard extends Card
 	 * This SingleCard's subtypes.
 	 */
 	public final Set<String> subtypes;
+	/**
+	 * TODO: Comment this
+	 */
+	public final Set<String> allTypes;
 	/**
 	 * This SingleCard's rules text.
 	 */
@@ -161,9 +164,9 @@ public class SingleCard extends Card
 		this.name = name;
 		this.mana = ManaCost.valueOf(mana);
 		this.colors = new ManaType.Tuple(colors);
-		this.supertypes = supertype;
-		this.types = type;
-		this.subtypes = subtype;
+		this.supertypes = Collections.unmodifiableSet(supertype);
+		this.types = Collections.unmodifiableSet(type);
+		this.subtypes = Collections.unmodifiableSet(subtype);
 		this.text = text;
 		this.flavor = flavor;
 		this.artist = artist;
@@ -209,6 +212,12 @@ public class SingleCard extends Card
 			}
 		}
 		this.colorIdentity = new ManaType.Tuple(colorIdentity);
+		
+		Set<String> faceTypes = new HashSet<String>();
+		faceTypes.addAll(supertypes);
+		faceTypes.addAll(types);
+		faceTypes.addAll(subtypes);
+		allTypes = Collections.unmodifiableSet(faceTypes);
 	}
 	
 	/**
@@ -401,13 +410,7 @@ public class SingleCard extends Card
 	@Override
 	public List<Set<String>> allTypes()
 	{
-		List<Set<String>> allTypes = new ArrayList<Set<String>>();
-		Set<String> faceTypes = new HashSet<String>();
-		faceTypes.addAll(supertypes);
-		faceTypes.addAll(types);
-		faceTypes.addAll(subtypes);
-		allTypes.add(faceTypes);
-		return allTypes;
+		return Arrays.asList(allTypes);
 	}
 
 	/**

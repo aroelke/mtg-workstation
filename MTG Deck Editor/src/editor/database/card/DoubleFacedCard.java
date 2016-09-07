@@ -17,6 +17,11 @@ public class DoubleFacedCard extends MultiCard
 	 * Card representing the front face.
 	 */
 	private final Card front;
+	/**
+	 * TODO: Comment these
+	 */
+	private ManaCost.Tuple manaCost;
+	private List<Double> cmc;
 	
 	/**
 	 * Create a new DoubleFacedCard with the given Cards as faces.  Their layouts should
@@ -31,6 +36,9 @@ public class DoubleFacedCard extends MultiCard
 		front = f;
 		if (front.layout() != CardLayout.DOUBLE_FACED|| b.layout() != CardLayout.DOUBLE_FACED)
 			throw new IllegalArgumentException("can't join non-double-faced cards into double-faced cards");
+		
+		manaCost = null;
+		cmc = null;
 	}
 	
 	/**
@@ -40,7 +48,9 @@ public class DoubleFacedCard extends MultiCard
 	@Override
 	public ManaCost.Tuple manaCost()
 	{
-		return new ManaCost.Tuple(front.manaCost().get(0), new ManaCost());
+		if (manaCost == null)
+			manaCost = new ManaCost.Tuple(front.manaCost().get(0), new ManaCost());
+		return manaCost;
 	}
 	
 	/**
@@ -51,7 +61,9 @@ public class DoubleFacedCard extends MultiCard
 	@Override
 	public List<Double> cmc()
 	{
-		return Arrays.asList(front.cmc().get(0), front.cmc().get(0));
+		if (cmc == null)
+			cmc = Arrays.asList(front.cmc().get(0), front.cmc().get(0));
+		return cmc;
 	}
 	
 	/**

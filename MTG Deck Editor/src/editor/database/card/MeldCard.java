@@ -27,6 +27,11 @@ public class MeldCard extends MultiCard
 	 * This MeldCard's "sibling," with which it melds to form the back face.
 	 */
 	private final Card other;
+	/**
+	 * TODO: Comment these
+	 */
+	private ManaCost.Tuple manaCost;
+	private List<Double> cmc;
 	
 	/**
 	 * Create a new MeldCard, with the given Cards as front, other front, and
@@ -44,6 +49,9 @@ public class MeldCard extends MultiCard
 		
 		if (front.layout() != CardLayout.MELD || other.layout() != CardLayout.MELD || b.layout() != CardLayout.MELD)
 			throw new IllegalArgumentException("can't join non-meld cards into meld cards");
+		
+		manaCost = null;
+		cmc = null;
 	}
 	
 	/**
@@ -61,7 +69,9 @@ public class MeldCard extends MultiCard
 	@Override
 	public ManaCost.Tuple manaCost()
 	{
-		return new ManaCost.Tuple(front.manaCost().get(0), new ManaCost());
+		if (manaCost == null)
+			manaCost = new ManaCost.Tuple(front.manaCost().get(0), new ManaCost());
+		return manaCost;
 	}
 	
 	/**
@@ -72,7 +82,9 @@ public class MeldCard extends MultiCard
 	@Override
 	public List<Double> cmc()
 	{
-		return Arrays.asList(front.cmc().get(0), front.cmc().get(0) + other.cmc().get(0));
+		if (cmc == null)
+			cmc = Arrays.asList(front.cmc().get(0), front.cmc().get(0) + other.cmc().get(0));
+		return cmc;
 	}
 	
 	/**

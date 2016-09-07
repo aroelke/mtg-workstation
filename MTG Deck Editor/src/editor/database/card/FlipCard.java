@@ -17,6 +17,11 @@ public class FlipCard extends MultiCard
 	 * Card representing the top face of this FlipCard.
 	 */
 	private final Card top;
+	/**
+	 * TODO: Comment this
+	 */
+	private ManaCost.Tuple manaCost;
+	private List<Double> cmc;
 	
 	/**
 	 * Create a new FlipCard with the given Cards as its faces.  They should indicate that
@@ -31,6 +36,9 @@ public class FlipCard extends MultiCard
 		top = t;
 		if (top.layout() != CardLayout.FLIP || b.layout() != CardLayout.FLIP)
 			throw new IllegalArgumentException("can't join non-flip cards into flip cards");
+		
+		manaCost = null;
+		cmc = null;
 	}
 	
 	/**
@@ -50,7 +58,9 @@ public class FlipCard extends MultiCard
 	@Override
 	public ManaCost.Tuple manaCost()
 	{
-		return new ManaCost.Tuple(collect(Card::manaCost));
+		if (manaCost == null)
+			manaCost = new ManaCost.Tuple(collect(Card::manaCost));
+		return manaCost;
 	}
 	
 	/**
@@ -60,7 +70,9 @@ public class FlipCard extends MultiCard
 	@Override
 	public List<Double> cmc()
 	{
-		return collect(Card::cmc);
+		if (cmc == null)
+			cmc = collect(Card::cmc);
+		return cmc;
 	}
 	
 	/**
