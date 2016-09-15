@@ -366,7 +366,6 @@ public class EditorFrame extends JInternalFrame
 
 		buttonPanel.add(Box.createVerticalGlue());
 		
-		// The first tab is the master list tab, and the second tab is the categories tab
 		listTabs = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(listTabs, BorderLayout.CENTER);
 
@@ -593,6 +592,7 @@ public class EditorFrame extends JInternalFrame
 		setHandBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
 		
 		// Control panel for manipulating the sample hand
+		// TODO: Make it have a mode for showing the expected number of cards from each category after x draws
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		JButton newHandButton = new JButton("New Hand");
 		newHandButton.addActionListener((e) -> {
