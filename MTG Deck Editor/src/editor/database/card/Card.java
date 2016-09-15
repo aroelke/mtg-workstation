@@ -34,7 +34,6 @@ import editor.gui.MainFrame;
 /**
  * This interface represents an abstract Card with various characteristics.
  * 
- * TODO: If there are any performance issues, try pre-collecting values
  * TODO: Add printed text in addition to Oracle text.
  * @author Alec Roelke
  */
