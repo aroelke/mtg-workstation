@@ -50,7 +50,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	public boolean test(Card c)
 	{
 		Collection<Double> values = function.apply(c);
-		return !values.stream().allMatch((v) -> v.isNaN()) && values.stream().anyMatch((v) -> compare.test(v, operand));
+		return values.stream().anyMatch((v) -> !v.isNaN() && compare.test(v, operand));
 	}
 
 	/**
