@@ -42,7 +42,7 @@ public class VariableSymbol extends ManaSymbol
 	/**
 	 * Create a new VariableSymbol with the corresponding variable.
 	 * 
-	 * @param v Variable name for the new VariableSymobl
+	 * @param v Variable name for the new VariableSymbol
 	 */
 	private VariableSymbol(char v)
 	{
