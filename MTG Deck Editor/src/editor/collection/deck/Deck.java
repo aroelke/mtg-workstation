@@ -432,10 +432,7 @@ public class Deck implements CardCollection
 	 */
 	public boolean include(String name, Card c)
 	{
-		if (!contains(c))
-			return false;
-		else
-			return categories.get(name).spec.include(c);
+		return contains(c) && categories.get(name).spec.include(c);
 	}
 	
 	/**
@@ -449,10 +446,7 @@ public class Deck implements CardCollection
 	 */
 	public boolean exclude(String name, Card c)
 	{
-		if (!contains(c))
-			return false;
-		else
-			return categories.get(name).spec.exclude(c);
+		return contains(c) && categories.get(name).spec.exclude(c);
 	}
 	
 	/**
@@ -546,10 +540,7 @@ public class Deck implements CardCollection
 	@Override
 	public int indexOf(Object o)
 	{
-		if (!(o instanceof Card))
-			return -1;
-		else
-			return masterList.indexOf(getEntry((Card)o));
+		return o instanceof Card ? masterList.indexOf(getEntry((Card)o)) : -1;
 	}
 	
 	/**
@@ -560,10 +551,7 @@ public class Deck implements CardCollection
 	public int count(Card c)
 	{
 		Entry e = getEntry(c);
-		if (e == null)
-			return 0;
-		else
-			return e.count;
+		return e == null ? 0 : e.count;
 	}
 	
 	/**
@@ -584,10 +572,7 @@ public class Deck implements CardCollection
 	public Date dateAdded(Card c)
 	{
 		Entry e = getEntry(c);
-		if (e == null)
-			return null;
-		else
-			return e.date;
+		return e == null ? null : e.date;
 	}
 	
 	/**
@@ -704,10 +689,7 @@ public class Deck implements CardCollection
 	 */
 	public int getCategoryRank(String name)
 	{
-		if (containsCategory(name))
-			return categories.get(name).rank;
-		else
-			return -1;
+		return containsCategory(name) ? categories.get(name).rank : -1;
 	}
 	
 	/**
@@ -854,10 +836,7 @@ public class Deck implements CardCollection
 	 */
 	public int total(String name)
 	{
-		if (containsCategory(name))
-			return categories.get(name).total();
-		else
-			return 0;
+		return containsCategory(name) ? categories.get(name).total() : 0;
 	}
 	
 	/**
@@ -945,10 +924,7 @@ public class Deck implements CardCollection
 	@Override
 	public boolean add(Card c)
 	{
-		if (contains(c))
-			return false;
-		else
-			return increase(c);
+		return !contains(c) && increase(c);
 	}
 
 	/**
@@ -1004,10 +980,7 @@ public class Deck implements CardCollection
 	@Override
 	public boolean remove(Object o)
 	{
-		if (!(o instanceof Card))
-			return false;
-		else
-			return decrease((Card)o, Integer.MAX_VALUE) > 0;
+		return o instanceof Card && decrease((Card)o, Integer.MAX_VALUE) > 0;
 	}
 
 	/**
@@ -1197,10 +1170,7 @@ public class Deck implements CardCollection
 		@Override
 		public boolean increase(Card c, int n)
 		{
-			if (includes(c))
-				return Deck.this.increase(c, n);
-			else
-				return false;
+			return includes(c) && Deck.this.increase(c, n);
 		}
 		
 		/**
@@ -1214,10 +1184,7 @@ public class Deck implements CardCollection
 		@Override
 		public int decrease(Card c, int n)
 		{
-			if (includes(c))
-				return Deck.this.decrease(c, n);
-			else
-				return 0;
+			return includes(c) ? Deck.this.decrease(c, n) : 0;
 		}
 		
 		/**
@@ -1292,10 +1259,7 @@ public class Deck implements CardCollection
 		@Override
 		public int count(Card c)
 		{
-			if (includes(c))
-				return Deck.this.count(c);
-			else
-				return 0;
+			return includes(c) ? Deck.this.count(c) : 0;
 		}
 		
 		/**
@@ -1318,10 +1282,7 @@ public class Deck implements CardCollection
 		@Override
 		public Date dateAdded(Card c)
 		{
-			if (includes(c))
-				return Deck.this.dateAdded(c);
-			else
-				return null;
+			return includes(c) ? Deck.this.dateAdded(c) : null;
 		}
 		
 		/**
@@ -1400,10 +1361,7 @@ public class Deck implements CardCollection
 		public Set<CategorySpec> getCategories(Card c)
 		{
 			Entry e = getEntry(c);
-			if (e != null && includes(c))
-				return Deck.this.getCategories(c);
-			else
-				return null;
+			return e != null && includes(c) ? Deck.this.getCategories(c) : null;
 		}
 		
 		/**
@@ -1427,10 +1385,7 @@ public class Deck implements CardCollection
 		@Override
 		public boolean add(Card c)
 		{
-			if (includes(c))
-				return Deck.this.add(c);
-			else
-				return false;
+			return includes(c) && Deck.this.add(c);
 		}
 
 		/**
@@ -1471,10 +1426,7 @@ public class Deck implements CardCollection
 		@Override
 		public boolean remove(Object o)
 		{
-			if (!contains(o))
-				return false;
-			else
-				return Deck.this.remove(o);
+			return contains(o) && Deck.this.remove(o);
 		}
 
 		/**
