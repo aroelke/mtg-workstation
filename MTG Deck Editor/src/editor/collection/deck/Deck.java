@@ -1360,8 +1360,7 @@ public class Deck implements CardCollection
 		@Override
 		public Set<CategorySpec> getCategories(Card c)
 		{
-			Entry e = getEntry(c);
-			return e != null && includes(c) ? Deck.this.getCategories(c) : null;
+			return getEntry(c) != null && includes(c) ? Deck.this.getCategories(c) : null;
 		}
 		
 		/**
