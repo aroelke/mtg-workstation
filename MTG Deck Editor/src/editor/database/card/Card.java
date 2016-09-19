@@ -70,33 +70,83 @@ public abstract class Card
 	}
 	
 	/**
-	 * TODO: Comment these
+	 * Expansion this Card belongs to.
 	 */
 	private final Expansion expansion;
+	/**
+	 * Layout of this Card.
+	 * @see CardLayout
+	 */
 	private final CardLayout layout;
+	/**
+	 * Number of faces this Card has.
+	 */
 	private final int faces;
-	
+	/**
+	 * Unique identifier for this Card.
+	 */
 	private String id;
+	/**
+	 * Name of all faces of this Card separated by separators.
+	 */
 	private String unifiedName;
+	/**
+	 * All lower-case, normalized name of this Card with special characters removed.
+	 */
 	private List<String> normalizedName;
+	/**
+	 * If this Card is legendary, the name of the character or item depicted by it.  Otherwise,
+	 * its normalized name.
+	 */
 	private List<String> legendName;
+	/**
+	 * Smallest converted mana cost of all faces of this Card.
+	 */
 	private double minCmc;
+	/**
+	 * Type lines of all faces of this Card, separated by separators.
+	 */
 	private String unifiedTypeLine;
+	/**
+	 * List of oracle texts of the faces of this Card, converted to lower case and with special
+	 * characters removed.
+	 */
 	private List<String> normalizedOracle;
+	/**
+	 * List of flavor texts of the faces of this Card, converted to lower case and with special
+	 * characters removed.
+	 */
 	private List<String> normalizedFlavor;
+	/**
+	 * Whether or not any of this Card's faces has variable power.
+	 */
 	private Boolean powerVariable;
+	/**
+	 * Whether or not any of this Card's faces has variable toughness.
+	 */
 	private Boolean toughnessVariable;
+	/**
+	 * List of formats this Card is legal in.
+	 */
 	private List<String> legalIn;
+	/**
+	 * Whether or not this Card can be a commander.
+	 */
 	private Boolean canBeCommander;
+	/**
+	 * Whether or not to ignore the card count restriction for this Card.
+	 */
 	private Boolean ignoreCountRestriction;
 	
 	/**
-	 * TODO: Comment this
-	 * @param expansion
+	 * Create a new Card.  Most of the parameters are assigned lazily; that is, only
+	 * the first time their values are requested.
+	 * 
+	 * @param expansion Expension the new Card belongs to
+	 * @param layout Layout of the new Card
+	 * @param faces Number of faces the new Card has
 	 */
-	public Card(Expansion expansion,
-				CardLayout layout,
-				int faces)
+	public Card(Expansion expansion, CardLayout layout, int faces)
 	{
 		this.expansion = expansion;
 		this.layout = layout;
@@ -129,8 +179,7 @@ public abstract class Card
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return This Card's layout.
 	 */
 	public CardLayout layout()
 	{
@@ -138,8 +187,7 @@ public abstract class Card
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The number of faces this Card has.
 	 */
 	public int faces()
 	{
@@ -272,8 +320,7 @@ public abstract class Card
 	public abstract ManaType.Tuple colorIdentity();
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return The Expansion this Card belongs to.
 	 */
 	public Expansion expansion()
 	{

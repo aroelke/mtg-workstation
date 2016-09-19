@@ -18,9 +18,12 @@ public class DoubleFacedCard extends MultiCard
 	 */
 	private final Card front;
 	/**
-	 * TODO: Comment these
+	 * Tuple of this DoubleFacedCard's faces' mana costs.
 	 */
 	private ManaCost.Tuple manaCost;
+	/**
+	 * Converted mana costs of this DoubleFacedCard's faces.
+	 */
 	private List<Double> cmc;
 	
 	/**

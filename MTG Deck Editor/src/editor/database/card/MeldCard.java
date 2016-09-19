@@ -28,9 +28,12 @@ public class MeldCard extends MultiCard
 	 */
 	private final Card other;
 	/**
-	 * TODO: Comment these
+	 * Tuple of this MeldCard's faces' mana costs.
 	 */
 	private ManaCost.Tuple manaCost;
+	/**
+	 * Converted mana costs of this MeldCard's faces. 
+	 */
 	private List<Double> cmc;
 	
 	/**

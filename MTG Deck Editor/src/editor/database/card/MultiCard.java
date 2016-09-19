@@ -32,32 +32,86 @@ public abstract class MultiCard extends Card
 	private List<Card> faces;
 	
 	/**
-	 * TODO: Comment these
+	 * List of the names of the faces of this MultiCard.
 	 */
 	private List<String> name;
+	/**
+	 * List of mana costs of the faces of this MultiCard.
+	 */
 	private ManaCost.Tuple manaCost;
+	/**
+	 * List of converted mana costs of the faces of this MultiCard.
+	 */
 	private List<Double> cmc;
+	/**
+	 * Tuple of all of the colors of this MultiCard.
+	 */
 	private ManaType.Tuple colors;
+	/**
+	 * Tuple of the color identity of this MultiCard.
+	 */
 	private ManaType.Tuple colorIdentity;
+	/**
+	 * Set of this MultiCard's supertypes including all of its faces.
+	 */
 	private Set<String> supertypes;
+	/**
+	 * Set of this MultiCard's types including all of its faces.
+	 */
 	private Set<String> types;
+	/**
+	 * Set of this MultiCard's subtypes including all of its faces.
+	 */
 	private Set<String> subtypes;
+	/**
+	 * List containing the set of types for each of this MultiCard's faces.
+	 */
 	private List<Set<String>> allTypes;
+	/**
+	 * List containing the type line of each of this MultiCard's faces.
+	 */
 	private List<String> typeLine;
+	/**
+	 * List containing the oracle text of each of this MultiCard's faces.
+	 */
 	private List<String> oracleText;
+	/**
+	 * List containing the flavor text of each of this MultiCard's faces.
+	 */
 	private List<String> flavorText;
+	/**
+	 * List containing the artist of each of this MultiCard's faces.
+	 */
 	private List<String> artist;
+	/**
+	 * List containing the collector's number of each of this MultiCard's faces.
+	 */
 	private List<String> number;
+	/**
+	 * Tuple containing the power of each of this MultiCard's faces.
+	 */
 	private PowerToughness.Tuple power;
+	/**
+	 * Tuple containing the toughness of each of this MultiCard's faces.
+	 */
 	private PowerToughness.Tuple toughness;
+	/**
+	 * Tuple containing the loyalty of each of this MultiCard's faces.
+	 */
 	private Loyalty.Tuple loyalty;
+	/**
+	 * Map containing the rulings of this MultiCard and the dates they were made on.
+	 */
 	private Map<Date, List<String>> rulings;
+	/**
+	 * List containing the image name of each of this MultiCard's faces.
+	 */
 	private List<String> imageNames;
 	
 	/**
 	 * Create a new MultiCard out of the given list of Cards. Each one should only have one face.
 	 * 
-	 * @param layout TODO: Comment this
+	 * @param layout Layout of the new MultiCard, which should be one that has multiple faces
 	 * @param f Cards to use as faces
 	 */
 	public MultiCard(CardLayout layout, List<Card> f)
@@ -93,7 +147,7 @@ public abstract class MultiCard extends Card
 	/**
 	 * Create a new MultiCard out of the given Cards.
 	 * 
-	 * @param layout TODO: Comment this
+	 * @param layout Layout of the new MultiCard, which should be one that has muliple faces
 	 * @param f Cards to use as faces
 	 */
 	public MultiCard(CardLayout layout, Card... f)

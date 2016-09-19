@@ -55,7 +55,7 @@ public class SingleCard extends Card
 	 */
 	public final Set<String> subtypes;
 	/**
-	 * TODO: Comment this
+	 * Set containing all of the types of this SingleCard.
 	 */
 	public final Set<String> allTypes;
 	/**

@@ -18,9 +18,14 @@ public class FlipCard extends MultiCard
 	 */
 	private final Card top;
 	/**
-	 * TODO: Comment this
+	 * Tuple containing the mana cost of each side of this FlipCard (which should just be two copies
+	 * of the same value).
 	 */
 	private ManaCost.Tuple manaCost;
+	/**
+	 * List containing the converted mana cost of each side of this FlipCard (which should just be two
+	 * copies of the same value).
+	 */
 	private List<Double> cmc;
 	
 	/**
