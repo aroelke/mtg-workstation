@@ -38,6 +38,7 @@ import editor.gui.SettingsDialog;
  * number of draws.
  * 
  * TODO: Make this work with exclusion
+ * TODO: Decide if expected counts should be integers or averages
  * 
  * @author Alec Roelke
  */
@@ -63,11 +64,16 @@ public class CalculateHandPanel extends JPanel
 	/**
 	 * Column in the table showing the probability for the initial hand.
 	 */
-	private static final int INITIAL = 4;
+	private static final int P_INITIAL = 4;
 	/**
 	 * Number of columns before draw columns.
 	 */
-	private static final int INFO_COLS = 5;
+	private static final int P_INFO_COLS = 5;
+	/**
+	 * TODO: Comment these
+	 */
+	private static final int E_INITIAL = 1;
+	private static final int E_INFO_COLS = 2;
 	
 	/**
 	 * Calculate the exact value of n!, as long as it will fit into a double.
@@ -114,6 +120,29 @@ public class CalculateHandPanel extends JPanel
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @author Alec
+	 */
+	private static enum Mode
+	{
+		DESIRED_PROBABILITY("Desired Probabilities"),
+		EXPECTED_COUNT("Expected Counts");
+		
+		private final String mode;
+		
+		private Mode(final String m)
+		{
+			mode = m;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return mode;
+		}
+	}
+	
+	/**
 	 * Deck containing cards to draw from.
 	 */
 	private Deck deck;
@@ -131,6 +160,10 @@ public class CalculateHandPanel extends JPanel
 	 */
 	private Map<String, List<Double>> probabilities;
 	/**
+	 * TODO: Comment this
+	 */
+	private Map<String, List<Double>> expectedCounts;
+	/**
 	 * Spinner controlling the number of drawn cards to show.
 	 */
 	private JSpinner drawsSpinner;
@@ -146,6 +179,10 @@ public class CalculateHandPanel extends JPanel
 	 * Table showing probabilities of fulfilling category requirements.
 	 */
 	private JTable table;
+	/**
+	 * TODO: Comment this
+	 */
+	private JComboBox<Mode> modeBox;
 	
 	/**
 	 * Create a new CalculateHandPanel and populate it with its initial
@@ -163,21 +200,35 @@ public class CalculateHandPanel extends JPanel
 		desiredBoxes = new HashMap<String, JComboBox<Integer>>();
 		relationBoxes = new HashMap<String, JComboBox<Relation>>();
 		probabilities = new HashMap<String, List<Double>>();
+		expectedCounts = new HashMap<String, List<Double>>();
 		
 		// Right panel containing table and settings
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		add(tablePanel, BorderLayout.CENTER);
 		
-		// Spinners controlling draws to show and initial hand size
-		JPanel northPanel = new JPanel();
-		northPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		northPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+		JPanel northPanel = new JPanel(new BorderLayout());
 		tablePanel.add(northPanel, BorderLayout.NORTH);
-		northPanel.add(new JLabel("Hand Size: "));
-		northPanel.add(handSpinner = new JSpinner(new SpinnerNumberModel(7, 0, Integer.MAX_VALUE, 1)));
-		northPanel.add(Box.createHorizontalStrut(15));
-		northPanel.add(new JLabel("Show Draws: "));
-		northPanel.add(drawsSpinner = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1)));
+		
+		// Spinners controlling draws to show and initial hand size
+		JPanel leftControlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		northPanel.add(leftControlPanel, BorderLayout.WEST);
+		leftControlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+		leftControlPanel.add(new JLabel("Hand Size: "));
+		leftControlPanel.add(handSpinner = new JSpinner(new SpinnerNumberModel(7, 0, Integer.MAX_VALUE, 1)));
+		leftControlPanel.add(Box.createHorizontalStrut(15));
+		leftControlPanel.add(new JLabel("Show Draws: "));
+		leftControlPanel.add(drawsSpinner = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1)));
+		
+		// Combo box controlling what numbers to show in the table
+		JPanel rightControlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		rightControlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 0));
+		northPanel.add(rightControlPanel);
+		modeBox = new JComboBox<Mode>(Mode.values());
+		modeBox.addActionListener((e) -> {
+			recalculate();
+			model.fireTableStructureChanged();
+		});
+		rightControlPanel.add(modeBox);
 		
 		table = new JTable(model = new CalculationTableModel())
 		{
@@ -290,8 +341,9 @@ public class CalculateHandPanel extends JPanel
 		for (String category: categories)
 		{
 			probabilities.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
+			expectedCounts.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
 			Relation r = (Relation)relationBoxes.get(category).getSelectedItem();
-			for (int j = 0; j < probabilities.get(category).size(); j++)
+			for (int j = 0; j <= draws; j++)
 			{
 				double p = 0.0;
 				switch (r)
@@ -310,7 +362,9 @@ public class CalculateHandPanel extends JPanel
 					break;
 				}
 				probabilities.get(category).set(j, p);
+				expectedCounts.get(category).set(j, (double)deck.total(category)/deck.total()*(hand + j));
 			}
+				
 		}
 		model.fireTableDataChanged();
 	}
@@ -377,7 +431,15 @@ public class CalculateHandPanel extends JPanel
 		@Override
 		public int getColumnCount()
 		{
-			return (int)drawsSpinner.getValue() + INFO_COLS;
+			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
+			{
+			case DESIRED_PROBABILITY:
+				return (int)drawsSpinner.getValue() + P_INFO_COLS;
+			case EXPECTED_COUNT:
+				return (int)drawsSpinner.getValue() + E_INFO_COLS;
+			default:
+				throw new IllegalStateException("There should not be any other values of Mode.");
+			}
 		}
 
 		/**
@@ -387,20 +449,36 @@ public class CalculateHandPanel extends JPanel
 		@Override
 		public String getColumnName(int column)
 		{
-			switch (column)
+			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
 			{
-			case CATEGORY:
-				return "Kind of Card";
-			case COUNT:
-				return "Count";
-			case DESIRED:
-				return "Desired";
-			case RELATION:
-				return "Relation";
-			case INITIAL:
-				return "Initial Hand";
+			case DESIRED_PROBABILITY:
+				switch (column)
+				{
+				case CATEGORY:
+					return "Kind of Card";
+				case COUNT:
+					return "Count";
+				case DESIRED:
+					return "Desired";
+				case RELATION:
+					return "Relation";
+				case P_INITIAL:
+					return "Initial Hand";
+				default:
+					return "Draw " + (column - (P_INFO_COLS - 1));
+				}
+			case EXPECTED_COUNT:
+				switch (column)
+				{
+				case CATEGORY:
+					return "Kind of Card";
+				case E_INITIAL:
+					return "Initial Hand";
+				default:
+					return "Draw " + (column - (E_INFO_COLS - 1));
+				}
 			default:
-				return "Draw " + (column - (INFO_COLS - 1));
+				throw new IllegalStateException("There should not be any other values of Mode.");
 			}
 		}
 		
@@ -411,16 +489,24 @@ public class CalculateHandPanel extends JPanel
 		@Override
 		public Class<?> getColumnClass(int column)
 		{
-			switch (column)
+			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
 			{
-			case CATEGORY:
+			case DESIRED_PROBABILITY:
+				switch (column)
+				{
+				case CATEGORY:
+					return String.class;
+				case COUNT: case DESIRED:
+					return Integer.class;
+				case RELATION:
+					return Relation.class;
+				default:
+					return String.class;
+				}
+			case EXPECTED_COUNT:
 				return String.class;
-			case COUNT: case DESIRED:
-				return Integer.class;
-			case RELATION:
-				return Relation.class;
 			default:
-				return String.class;
+				throw new IllegalStateException("There should not be any other values of Mode.");
 			}
 		}
 		
@@ -434,18 +520,31 @@ public class CalculateHandPanel extends JPanel
 		{
 			String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(rowIndex);
 			
-			switch (columnIndex)
+			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
 			{
-			case CATEGORY:
-				return category;
-			case COUNT:
-				return deck.total(category);
-			case DESIRED:
-				return desiredBoxes.get(category).getSelectedItem();
-			case RELATION:
-				return relationBoxes.get(category).getSelectedItem();
+			case DESIRED_PROBABILITY:
+				switch (columnIndex)
+				{
+				case CATEGORY:
+					return category;
+				case COUNT:
+					return deck.total(category);
+				case DESIRED:
+					return desiredBoxes.get(category).getSelectedItem();
+				case RELATION:
+					return relationBoxes.get(category).getSelectedItem();
+				default:
+					return String.format("%.2f%%", probabilities.get(category).get(columnIndex - (P_INFO_COLS - 1))*100.0);
+				}
+			case EXPECTED_COUNT:
+				if (columnIndex == CATEGORY)
+					return category;
+				else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts.get(category).size())
+					return String.format("%.2f", expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
+				else
+					return "";
 			default:
-				return String.format("%.2f%%", probabilities.get(category).get(columnIndex - (INFO_COLS - 1))*100.0);
+				throw new IllegalStateException("There should not be any other values of Mode.");
 			}
 		}
 	}
