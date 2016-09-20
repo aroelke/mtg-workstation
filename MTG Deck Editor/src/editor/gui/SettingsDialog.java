@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -36,6 +37,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
@@ -55,6 +57,7 @@ import editor.database.card.Card;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
+import editor.gui.editor.CalculateHandPanel;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.gui.generic.ScrollablePanel;
 
@@ -181,6 +184,10 @@ public class SettingsDialog extends JDialog
 	 * Background color for card scans in sample hands.
 	 */
 	public static final String HAND_BGCOLOR = "hand.bgcolor";
+	/**
+	 * TODO: Comment this
+	 */
+	public static final String EXPECTED_ROUND_MODE = "hand.expectedround";
 	
 	/**
 	 * Save preferences.
@@ -244,6 +251,7 @@ public class SettingsDialog extends JDialog
 		SETTINGS.put(EDITOR_STRIPE, "#FFCCCCCC");
 		SETTINGS.put(EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
 		SETTINGS.put(HAND_SIZE, "7");
+		SETTINGS.put(EXPECTED_ROUND_MODE, "No rounding");
 		SETTINGS.put(CARD_SCANS, "images" + File.separatorChar + "cards");
 		SETTINGS.put(IMAGE_BGCOLOR, "#FFFFFFFF");
 		SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
@@ -451,6 +459,10 @@ public class SettingsDialog extends JDialog
 	 * in the category editor.
 	 */
 	private JSpinner explicitsSpinner;
+	/**
+	 * TODO: Comment this
+	 */
+	private String selectedRoundMode;
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -785,8 +797,8 @@ public class SettingsDialog extends JDialog
 		
 		// Starting Size
 		JPanel startingSizePanel = new JPanel();
-		startingSizePanel.add(Box.createHorizontalStrut(5));
 		startingSizePanel.setLayout(new BoxLayout(startingSizePanel, BoxLayout.X_AXIS));
+		startingSizePanel.add(Box.createHorizontalStrut(5));
 		startingSizePanel.add(new JLabel("Starting Size:"));
 		startingSizePanel.add(Box.createHorizontalStrut(5));
 		startingSizeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
@@ -796,6 +808,31 @@ public class SettingsDialog extends JDialog
 		startingSizePanel.setMaximumSize(startingSizePanel.getPreferredSize());
 		startingSizePanel.setAlignmentX(LEFT_ALIGNMENT);
 		sampleHandPanel.add(startingSizePanel);
+		
+		sampleHandPanel.add(Box.createVerticalStrut(5));
+		
+		// Expected counts round mode
+		JPanel expectedRoundPanel = new JPanel();
+		expectedRoundPanel.setLayout(new BoxLayout(expectedRoundPanel, BoxLayout.X_AXIS));
+		expectedRoundPanel.add(Box.createHorizontalStrut(5));
+		expectedRoundPanel.add(new JLabel("Expected Category Count Round Mode:"));
+		expectedRoundPanel.add(Box.createHorizontalStrut(5));
+		ButtonGroup roundGroup = new ButtonGroup();
+		for (String mode: CalculateHandPanel.ROUND_MODE.keySet().stream().sorted().collect(Collectors.toList()))
+		{
+			JRadioButton modeButton = new JRadioButton(mode);
+			modeButton.addActionListener((e) -> {
+				if (modeButton.isSelected())
+					selectedRoundMode = mode;
+			});
+			roundGroup.add(modeButton);
+			expectedRoundPanel.add(modeButton);
+			expectedRoundPanel.add(Box.createHorizontalStrut(5));
+			modeButton.setSelected(mode.equals(getAsString(EXPECTED_ROUND_MODE)));
+		}
+		expectedRoundPanel.setMaximumSize(expectedRoundPanel.getPreferredSize());
+		expectedRoundPanel.setAlignmentX(LEFT_ALIGNMENT);
+		sampleHandPanel.add(expectedRoundPanel);
 		
 		sampleHandPanel.add(Box.createVerticalStrut(5));
 		
@@ -887,6 +924,7 @@ public class SettingsDialog extends JDialog
 			join.add(categoriesList.getCategoryAt(i).toString());
 		SETTINGS.put(EDITOR_PRESETS, join.toString());
 		SETTINGS.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
+		SETTINGS.put(EXPECTED_ROUND_MODE, selectedRoundMode);
 		SETTINGS.put(CARD_SCANS, scansDirField.getText());
 		SETTINGS.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
 		SETTINGS.put(HAND_BGCOLOR, colorToString(handBGColor.getColor()));

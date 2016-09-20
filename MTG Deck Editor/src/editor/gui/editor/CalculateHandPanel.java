@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -45,6 +46,18 @@ import editor.gui.SettingsDialog;
 @SuppressWarnings("serial")
 public class CalculateHandPanel extends JPanel
 {
+	/**
+	 * TODO: Comment this
+	 */
+	public static final Map<String, Function<Double, String>> ROUND_MODE;
+	static
+	{
+		Map<String, Function<Double, String>> rounds = new HashMap<String, Function<Double, String>>();
+		rounds.put("No rounding", (x) -> String.format("%.2f", x));
+		rounds.put("Round to nearest", (x) -> String.format("%d", Math.round(x)));
+		rounds.put("Truncate", (x) -> String.format("%d", x.intValue()));
+		ROUND_MODE = Collections.unmodifiableMap(rounds);
+	}
 	/**
 	 * Column in the table for the category.
 	 */
@@ -123,14 +136,14 @@ public class CalculateHandPanel extends JPanel
 	 * TODO: Comment this
 	 * @author Alec
 	 */
-	private static enum Mode
+	private static enum DisplayMode
 	{
 		DESIRED_PROBABILITY("Desired Probabilities"),
 		EXPECTED_COUNT("Expected Counts");
 		
 		private final String mode;
 		
-		private Mode(final String m)
+		private DisplayMode(final String m)
 		{
 			mode = m;
 		}
@@ -182,7 +195,7 @@ public class CalculateHandPanel extends JPanel
 	/**
 	 * TODO: Comment this
 	 */
-	private JComboBox<Mode> modeBox;
+	private JComboBox<DisplayMode> modeBox;
 	
 	/**
 	 * Create a new CalculateHandPanel and populate it with its initial
@@ -223,7 +236,7 @@ public class CalculateHandPanel extends JPanel
 		JPanel rightControlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 		rightControlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 0));
 		northPanel.add(rightControlPanel);
-		modeBox = new JComboBox<Mode>(Mode.values());
+		modeBox = new JComboBox<DisplayMode>(DisplayMode.values());
 		modeBox.addActionListener((e) -> {
 			recalculate();
 			model.fireTableStructureChanged();
@@ -362,9 +375,9 @@ public class CalculateHandPanel extends JPanel
 					break;
 				}
 				probabilities.get(category).set(j, p);
+				// TODO: This might be wrong
 				expectedCounts.get(category).set(j, (double)deck.total(category)/deck.total()*(hand + j));
 			}
-				
 		}
 		model.fireTableDataChanged();
 	}
@@ -438,7 +451,7 @@ public class CalculateHandPanel extends JPanel
 			case EXPECTED_COUNT:
 				return (int)drawsSpinner.getValue() + E_INFO_COLS;
 			default:
-				throw new IllegalStateException("There should not be any other values of Mode.");
+				throw new IllegalStateException("There should not be any other values of DisplayMode.");
 			}
 		}
 
@@ -478,7 +491,7 @@ public class CalculateHandPanel extends JPanel
 					return "Draw " + (column - (E_INFO_COLS - 1));
 				}
 			default:
-				throw new IllegalStateException("There should not be any other values of Mode.");
+				throw new IllegalStateException("There should not be any other values of DisplayMode.");
 			}
 		}
 		
@@ -506,7 +519,7 @@ public class CalculateHandPanel extends JPanel
 			case EXPECTED_COUNT:
 				return String.class;
 			default:
-				throw new IllegalStateException("There should not be any other values of Mode.");
+				throw new IllegalStateException("There should not be any other values of DisplayMode.");
 			}
 		}
 		
@@ -540,11 +553,11 @@ public class CalculateHandPanel extends JPanel
 				if (columnIndex == CATEGORY)
 					return category;
 				else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts.get(category).size())
-					return String.format("%.2f", expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
+					return ROUND_MODE.get(SettingsDialog.getAsString(SettingsDialog.EXPECTED_ROUND_MODE)).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
 				else
 					return "";
 			default:
-				throw new IllegalStateException("There should not be any other values of Mode.");
+				throw new IllegalStateException("There should not be any other values of DisplayMode.");
 			}
 		}
 	}
