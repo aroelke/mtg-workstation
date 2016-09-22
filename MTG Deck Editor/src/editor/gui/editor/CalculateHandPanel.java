@@ -47,7 +47,7 @@ import editor.gui.SettingsDialog;
 public class CalculateHandPanel extends JPanel
 {
 	/**
-	 * TODO: Comment this
+	 * Rounding modes for expected value mode.
 	 */
 	public static final Map<String, Function<Double, String>> ROUND_MODE;
 	static
@@ -58,6 +58,7 @@ public class CalculateHandPanel extends JPanel
 		rounds.put("Truncate", (x) -> String.format("%d", x.intValue()));
 		ROUND_MODE = Collections.unmodifiableMap(rounds);
 	}
+	
 	/**
 	 * Column in the table for the category.
 	 */
@@ -79,13 +80,16 @@ public class CalculateHandPanel extends JPanel
 	 */
 	private static final int P_INITIAL = 4;
 	/**
-	 * Number of columns before draw columns.
+	 * Number of columns before draw columns in probability mode.
 	 */
 	private static final int P_INFO_COLS = 5;
 	/**
-	 * TODO: Comment these
+	 * Column in the table showing the expected values for the initial hand.
 	 */
 	private static final int E_INITIAL = 1;
+	/**
+	 * Number of columns before draw columns in expected value mode.
+	 */
 	private static final int E_INFO_COLS = 2;
 	
 	/**
@@ -133,21 +137,35 @@ public class CalculateHandPanel extends JPanel
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * This enum enumerates the modes that a CalculateHandPanel can be placed in.
+	 * Those modes are to display probabilities of getting given amounts of cards in
+	 * each category and to display the expected number of each kind of card that will
+	 * be drawn. 
+	 * 
 	 * @author Alec
 	 */
 	private static enum DisplayMode
 	{
-		DESIRED_PROBABILITY("Desired Probabilities"),
+		DESIRED_PROBABILITY("Probabilities"),
 		EXPECTED_COUNT("Expected Counts");
 		
+		/**
+		 * String representation of this DisplayMode.
+		 */
 		private final String mode;
 		
+		/**
+		 * Create a new DisplayMode.
+		 * @param m String representation of the new DisplayMode
+		 */
 		private DisplayMode(final String m)
 		{
 			mode = m;
 		}
 		
+		/**
+		 * @return The String representation of this DisplayMode.
+		 */
 		@Override
 		public String toString()
 		{
@@ -173,7 +191,8 @@ public class CalculateHandPanel extends JPanel
 	 */
 	private Map<String, List<Double>> probabilities;
 	/**
-	 * TODO: Comment this
+	 * List of lists of expected counts for opening hand and each draw afterward
+	 * for each category.
 	 */
 	private Map<String, List<Double>> expectedCounts;
 	/**
@@ -193,7 +212,7 @@ public class CalculateHandPanel extends JPanel
 	 */
 	private JTable table;
 	/**
-	 * TODO: Comment this
+	 * Combo box for picking the display mode.
 	 */
 	private JComboBox<DisplayMode> modeBox;
 	

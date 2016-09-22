@@ -185,7 +185,7 @@ public class SettingsDialog extends JDialog
 	 */
 	public static final String HAND_BGCOLOR = "hand.bgcolor";
 	/**
-	 * TODO: Comment this
+	 * Round mode for displaying expected category counts in the hand panel.
 	 */
 	public static final String EXPECTED_ROUND_MODE = "hand.expectedround";
 	
@@ -460,7 +460,7 @@ public class SettingsDialog extends JDialog
 	 */
 	private JSpinner explicitsSpinner;
 	/**
-	 * TODO: Comment this
+	 * Currently-chosen, but uncommitted setting for expected counts round mode.
 	 */
 	private String selectedRoundMode;
 	
