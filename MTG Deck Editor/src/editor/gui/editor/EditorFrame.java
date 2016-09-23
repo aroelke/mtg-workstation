@@ -414,10 +414,8 @@ public class EditorFrame extends JInternalFrame
 		
 		JPanel showHidePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		showHidePanel.setBackground(UIManager.getColor("window"));
-		JButton showButton = new BasicArrowButton(BasicArrowButton.NORTH);
-		showHidePanel.add(showButton);
-		JButton hideButton = new BasicArrowButton(BasicArrowButton.SOUTH);
-		showHidePanel.add(hideButton);
+		BasicArrowButton showHideButton = new BasicArrowButton(BasicArrowButton.SOUTH);
+		showHidePanel.add(showHideButton);
 		GridBagConstraints showHideConstraints = new GridBagConstraints();
 		showHideConstraints.gridx = 0;
 		showHideConstraints.gridy = 1;
@@ -432,8 +430,10 @@ public class EditorFrame extends JInternalFrame
 		sideboardConstraints.fill = GridBagConstraints.BOTH;
 		mainPanel.add(sideboardPanel, sideboardConstraints);
 		
-		showButton.addActionListener((e) -> sideboardPanel.setVisible(true));
-		hideButton.addActionListener((e) -> sideboardPanel.setVisible(false));
+		showHideButton.addActionListener((e) -> {
+			sideboardPanel.setVisible(!sideboardPanel.isVisible());
+			showHideButton.setDirection(sideboardPanel.isVisible() ? BasicArrowButton.SOUTH : BasicArrowButton.NORTH);
+		});
 		
 		listTabs.addTab("Cards", mainPanel);
 		
