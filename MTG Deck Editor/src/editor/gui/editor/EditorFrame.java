@@ -71,7 +71,7 @@ import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
-import javax.swing.border.BevelBorder;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.PopupMenuEvent;
@@ -405,7 +405,7 @@ public class EditorFrame extends JInternalFrame
 		table.setDropMode(DropMode.ON);
 		
 		JScrollPane mainDeckPane = new JScrollPane(table);
-		mainDeckPane.setBorder(BorderFactory.createLoweredBevelBorder());
+		mainDeckPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		GridBagConstraints mainConstraints = new GridBagConstraints();
 		mainConstraints.gridx = 0;
 		mainConstraints.gridy = 0;
@@ -423,7 +423,7 @@ public class EditorFrame extends JInternalFrame
 		mainPanel.add(showHidePanel, showHideConstraints);
 		
 		JPanel sideboardPanel = new JPanel(new BorderLayout());
-		sideboardPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		sideboardPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		GridBagConstraints sideboardConstraints = new GridBagConstraints();
 		sideboardConstraints.gridx = 0;
 		sideboardConstraints.gridy = 2;
