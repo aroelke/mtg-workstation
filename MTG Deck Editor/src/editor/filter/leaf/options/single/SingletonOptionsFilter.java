@@ -10,7 +10,7 @@ import editor.filter.leaf.options.OptionsFilter;
 /**
  * This class is an OptionsFilter for which characteristics only
  * have one value from the list of options.
- * TODO: Create a filter for layout
+ *
  * @author Alec Roelke
  *
  * @param <T> Type of the characteristic to be filtered
