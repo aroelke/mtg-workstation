@@ -69,29 +69,29 @@ public class LegalityChecker
 			if (format.equalsIgnoreCase("prismatic"))
 			{
 				if (deck.total() < 250)
-					warnings.get(format).add("Deck contains fewer than 250 cards");
+					warnings[format].add("Deck contains fewer than 250 cards");
 			}
 			else if (format.equalsIgnoreCase("commander"))
 			{
 				if (deck.total() != 100)
-					warnings.get(format).add("Deck does not contain exactly 100 cards");
+					warnings[format].add("Deck does not contain exactly 100 cards");
 			}
 			else if (format.equalsIgnoreCase("singleton 100"))
 			{
 				if (deck.total() < 100)
-					warnings.get(format).add("Deck does not contain exactly 100 cards");
+					warnings[format].add("Deck does not contain exactly 100 cards");
 				else if (deck.total() > 115)
-					warnings.get(format).add("Sideboard is greater than 15 cards");
+					warnings[format].add("Sideboard is greater than 15 cards");
 			}
 			else if (format.equalsIgnoreCase("freeform"))
 			{
 				if (deck.total() < 40)
-					warnings.get(format).add("Deck contains fewer than 40 cards");
+					warnings[format].add("Deck contains fewer than 40 cards");
 			}
 			else
 			{
 				if (deck.total() < 60)
-					warnings.get(format).add("Deck contains fewer than 60 cards");
+					warnings[format].add("Deck contains fewer than 60 cards");
 			}
 		}
 		
@@ -117,20 +117,20 @@ public class LegalityChecker
 			for (String format: LegalityFilter.formatList)
 			{
 				if (!c.legalIn(format))
-					warnings.get(format).add(c.unifiedName() + " is illegal in " + format);
+					warnings[format].add(c.unifiedName() + " is illegal in " + format);
 				else if (isoNameCounts.containsKey(c) && !c.ignoreCountRestriction())
 				{
 					if (format.equalsIgnoreCase("commander") || format.equalsIgnoreCase("singleton 100"))
 					{
-						if (isoNameCounts.get(c) > 1)
-							warnings.get(format).add("Deck contains more than 1 copy of " + c.unifiedName());
+						if (isoNameCounts[c] > 1)
+							warnings[format].add("Deck contains more than 1 copy of " + c.unifiedName());
 					}
 					else
 					{
-						if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts.get(c) > 1)
-							warnings.get(format).add(c.unifiedName() + " is restricted in " + format);
-						else if (isoNameCounts.get(c) > 4)
-							warnings.get(format).add("Deck contains more than 4 copies of " + c.unifiedName());
+						if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts[c] > 1)
+							warnings[format].add(c.unifiedName() + " is restricted in " + format);
+						else if (isoNameCounts[c] > 4)
+							warnings[format].add("Deck contains more than 4 copies of " + c.unifiedName());
 					}
 				}
 			}
@@ -139,7 +139,7 @@ public class LegalityChecker
 		// Commander only: commander exists and matches deck color identity
 		List<Card> possibleCommanders = deck.stream().filter(Card::canBeCommander).collect(Collectors.toList());
 		if (possibleCommanders.isEmpty())
-			warnings.get("Commander").add("Deck does not contain a legendary creature");
+			warnings["Commander"].add("Deck does not contain a legendary creature");
 		else
 		{
 			List<ManaType> deckColorIdentityList = new ArrayList<ManaType>();
@@ -150,7 +150,7 @@ public class LegalityChecker
 				if (!c.colors().containsAll(deckColorIdentity))
 					possibleCommanders.remove(c);
 			if (possibleCommanders.isEmpty())
-				warnings.get("Commander").add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
+				warnings["Commander"].add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
 		}
 		
 		// Prismatic only: there are at least 20 cards of each color, and multicolored cards only count once
@@ -162,16 +162,16 @@ public class LegalityChecker
 				binCard(c, colorBins, new ArrayList<ManaType>());
 		for (ManaType bin: colorBins.keySet())
 		{
-			System.out.println(bin + ": " + colorBins.get(bin).size());
-			for (Card c: colorBins.get(bin))
+			System.out.println(bin + ": " + colorBins[bin].size());
+			for (Card c: colorBins[bin])
 				System.out.println("\t" + c.unifiedName());
 		}
 		for (ManaType color: ManaType.values())
-			if (colorBins.get(color).size() < 20)
-				warnings.get("Prismatic").add("Deck contains fewer than 20 " + color.toString().toLowerCase() + " cards");
+			if (colorBins[color].size() < 20)
+				warnings["Prismatic"].add("Deck contains fewer than 20 " + color.toString().toLowerCase() + " cards");
 		
 		// Collate the legality lists
-		List<String> illegalList = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
+		List<String> illegalList = warnings.keySet().stream().filter((s) -> !warnings[s].isEmpty()).collect(Collectors.toList());
 		Collections.sort(illegalList);
 		List<String> legalList = new ArrayList<String>(Arrays.asList(LegalityFilter.formatList));
 		legalList.removeAll(illegalList);
@@ -194,19 +194,19 @@ public class LegalityChecker
 		if (c.colors().isEmpty())
 			return;
 		else if (c.colors().size() == 1)
-			bins.get(c.colors().get(0)).add(c);
+			bins[c.colors()[0]].add(c);
 		else
 		{
 			ManaType bin = null;
 			for (ManaType color: c.colors())
-				if (bin == null || bins.get(color).size() < bins.get(bin).size())
+				if (bin == null || bins[color].size() < bins[bin].size())
 					bin = color;
-			if (bins.get(bin).size() < 20)
-				bins.get(bin).add(c);
+			if (bins[bin].size() < 20)
+				bins[bin].add(c);
 			else
 			{
-				Card next = bins.get(bin).stream().filter((card) -> !Containment.CONTAINS_ANY_OF.test(card.colors(), exclusion)).findFirst().orElse(null);
-				bins.get(bin).add(c);
+				Card next = bins[bin].stream().filter((card) -> !Containment.CONTAINS_ANY_OF.test(card.colors(), exclusion)).findFirst().orElse(null);
+				bins[bin].add(c);
 				exclusion.add(bin);
 				if (next != null)
 					binCard(next, bins, exclusion);
@@ -237,6 +237,6 @@ public class LegalityChecker
 	 */
 	public List<String> getWarnings(String format)
 	{
-		return warnings.get(format);
+		return warnings[format];
 	}
 }
