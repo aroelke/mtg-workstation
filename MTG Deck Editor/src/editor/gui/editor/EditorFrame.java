@@ -196,9 +196,17 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private Deck deck;
 	/**
+	 * TODO: Comment this
+	 */
+	private Deck sideboard;
+	/**
 	 * Last-saved version of the deck, used for the changelog.
 	 */
-	private Deck original;
+	private Deck originalDeck;
+	/**
+	 * TODO: Comment this
+	 */
+	private Deck originalSideboard;
 	/**
 	 * Main table showing the cards in the deck.
 	 */
@@ -327,7 +335,9 @@ public class EditorFrame extends JInternalFrame
 
 		parent = p;
 		deck = new Deck();
-		original = new Deck();
+		sideboard = new Deck();
+		originalDeck = new Deck();
+		originalSideboard = new Deck();
 		file = null;
 		unsaved = false;
 		undoBuffer = new Stack<UndoableAction>();
@@ -936,7 +946,7 @@ public class EditorFrame extends JInternalFrame
 			deck.clear();
 			categoriesContainer.removeAll();
 		}
-		original.addAll(deck);
+		originalDeck.addAll(deck);
 		listTabs.setSelectedIndex(MAIN_TABLE);
 		hand.refresh();
 	}
@@ -1729,12 +1739,12 @@ public class EditorFrame extends JInternalFrame
 		{
 			deck.save(f);
 			String changes = "";
-			for (Card c: original)
-				if (deck.count(c) < original.count(c))
-					changes += ("-" + (original.count(c) - deck.count(c)) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+			for (Card c: originalDeck)
+				if (deck.count(c) < originalDeck.count(c))
+					changes += ("-" + (originalDeck.count(c) - deck.count(c)) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
 			for (Card c: deck)
-				if (original.count(c) < deck.count(c))
-					changes += ("+" + (deck.count(c) - original.count(c)) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+				if (originalDeck.count(c) < deck.count(c))
+					changes += ("+" + (deck.count(c) - originalDeck.count(c)) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
 			if (!changes.isEmpty())
 			{
 				SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
@@ -1745,8 +1755,8 @@ public class EditorFrame extends JInternalFrame
 			wr.print(changelogArea.getText());
 			wr.close();
 			
-			original = new Deck();
-			original.addAll(deck);
+			originalDeck = new Deck();
+			originalDeck.addAll(deck);
 			unsaved = false;
 			setFile(f);
 			return true;
