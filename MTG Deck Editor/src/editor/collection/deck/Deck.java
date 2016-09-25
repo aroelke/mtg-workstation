@@ -432,7 +432,7 @@ public class Deck implements CardCollection
 	 */
 	public boolean include(String name, Card c)
 	{
-		return contains(c) && categories.get(name).spec.include(c);
+		return contains(c) && categories[name].spec.include(c);
 	}
 	
 	/**
@@ -446,7 +446,7 @@ public class Deck implements CardCollection
 	 */
 	public boolean exclude(String name, Card c)
 	{
-		return contains(c) && categories.get(name).spec.exclude(c);
+		return contains(c) && categories[name].spec.exclude(c);
 	}
 	
 	/**
@@ -456,7 +456,7 @@ public class Deck implements CardCollection
 	@Override
 	public Card get(int index)
 	{
-		return masterList.get(index).card;
+		return masterList[index].card;
 	}
 	
 	/**
@@ -468,7 +468,7 @@ public class Deck implements CardCollection
 	 */
 	public Card get(String name, int index)
 	{
-		return categories.get(name).get(index);
+		return categories[name][index];
 	}
 	
 	/**
@@ -482,7 +482,7 @@ public class Deck implements CardCollection
 	@Override
 	public boolean setCount(int index, int n)
 	{
-		return setCount(masterList.get(index).card, n);
+		return setCount(masterList[index].card, n);
 	}
 	
 	/**
@@ -561,7 +561,7 @@ public class Deck implements CardCollection
 	@Override
 	public int count(int index)
 	{
-		return masterList.get(index).count;
+		return masterList[index].count;
 	}
 	
 	/**
@@ -582,7 +582,7 @@ public class Deck implements CardCollection
 	@Override
 	public Date dateAdded(int index)
 	{
-		return masterList.get(index).date;
+		return masterList[index].date;
 	}
 	
 	/**
@@ -604,7 +604,7 @@ public class Deck implements CardCollection
 	 */
 	public boolean contains(String name, Object o)
 	{
-		return o instanceof Card && categories.get(name).contains(o);
+		return o instanceof Card && categories[name].contains(o);
 	}
 	
 	/**
@@ -643,7 +643,7 @@ public class Deck implements CardCollection
 			return c;
 		}
 		else
-			return categories.get(spec.getName());
+			return categories[spec.getName()];
 	}
 	
 	/**
@@ -655,7 +655,7 @@ public class Deck implements CardCollection
 	 */
 	public boolean removeCategory(String name)
 	{
-		Category c = categories.get(name);
+		Category c = categories[name];
 		if (c != null)
 		{
 			for (Entry e: masterList)
@@ -689,7 +689,7 @@ public class Deck implements CardCollection
 	 */
 	public int getCategoryRank(String name)
 	{
-		return containsCategory(name) ? categories.get(name).rank : -1;
+		return containsCategory(name) ? categories[name].rank : -1;
 	}
 	
 	/**
@@ -705,7 +705,7 @@ public class Deck implements CardCollection
 	 */
 	public boolean swapCategoryRanks(String name, int target)
 	{
-		if (!categories.containsKey(name) || categories.get(name).rank == target
+		if (!categories.containsKey(name) || categories[name].rank == target
 				|| target >= categories.size() || target < 0)
 			return false;
 		else
@@ -715,11 +715,11 @@ public class Deck implements CardCollection
 				if (second.rank == target)
 				{
 					Map<String, Integer> oldRanks = new HashMap<String, Integer>();
-					oldRanks.put(name, categories.get(name).rank);
+					oldRanks.put(name, categories[name].rank);
 					oldRanks.put(second.spec.getName(), second.rank);
 					
-					second.rank = categories.get(name).rank;
-					categories.get(name).rank = target;
+					second.rank = categories[name].rank;
+					categories[name].rank = target;
 					
 					Event event = new Event().ranksChanged(oldRanks);
 					for (DeckListener listener: listeners)
@@ -737,8 +737,8 @@ public class Deck implements CardCollection
 	 */
 	public CategorySpec getCategorySpec(String name)
 	{
-		if (categories.get(name) != null)
-			return categories.get(name).spec;
+		if (categories[name] != null)
+			return categories[name].spec;
 		else
 			throw new IllegalArgumentException("No category named " + name + " found");
 	}
@@ -750,7 +750,7 @@ public class Deck implements CardCollection
 	 */
 	public CardCollection getCategoryCards(String name)
 	{
-		return categories.get(name);
+		return categories[name];
 	}
 	
 	/**
@@ -780,7 +780,7 @@ public class Deck implements CardCollection
 	@Override
 	public Set<CategorySpec> getCategories(int index)
 	{
-		return masterList.get(index).categories.stream().map(Category::spec).collect(Collectors.toSet());
+		return masterList[index].categories.stream().map(Category::spec).collect(Collectors.toSet());
 	}
 	
 	/**
@@ -817,7 +817,7 @@ public class Deck implements CardCollection
 	 */
 	public int size(String name)
 	{
-		return categories.get(name).size();
+		return categories[name].size();
 	}
 	
 	/**
@@ -836,7 +836,7 @@ public class Deck implements CardCollection
 	 */
 	public int total(String name)
 	{
-		return containsCategory(name) ? categories.get(name).total() : 0;
+		return containsCategory(name) ? categories[name].total() : 0;
 	}
 	
 	/**
@@ -1041,7 +1041,7 @@ public class Deck implements CardCollection
 		else
 			array = a;
 		for (int i = 0; i < a.length; i++)
-			array[i] = i < size() ? (T)get(i) : null;
+			array[i] = i < size() ? (T)this[i] : null;
 		return a;
 	}
 	
@@ -1198,8 +1198,7 @@ public class Deck implements CardCollection
 		@Override
 		public boolean setCount(int index, int n)
 		{
-			Card c = get(index);
-			return c != null && setCount(c, n);
+			return this[index] != null && setCount(this[index], n);
 		}
 		
 		/**
@@ -1236,7 +1235,7 @@ public class Deck implements CardCollection
 		@Override
 		public Card get(int index)
 		{
-			return filtrate.get(index);
+			return filtrate[index];
 		}
 		
 		/**
@@ -1271,7 +1270,7 @@ public class Deck implements CardCollection
 		@Override
 		public int count(int index)
 		{
-			return Deck.this.count(get(index));
+			return Deck.this.count(this[index]);
 		}
 		
 		/**
@@ -1292,7 +1291,7 @@ public class Deck implements CardCollection
 		@Override
 		public Date dateAdded(int index)
 		{
-			return Deck.this.dateAdded(get(index));
+			return Deck.this.dateAdded(this[index]);
 		}
 		
 		/**
@@ -1371,7 +1370,7 @@ public class Deck implements CardCollection
 		@Override
 		public Set<CategorySpec> getCategories(int index)
 		{
-			return getCategories(filtrate.get(index));
+			return getCategories(filtrate[index]);
 		}
 
 		/**
@@ -1644,7 +1643,7 @@ public class Deck implements CardCollection
 			{
 				Map<Card, Integer> cards = new HashMap<Card, Integer>(cardsChanged);
 				for (Card c: cardsChanged.keySet())
-					if (cardsChanged.get(c) < 1)
+					if (cardsChanged[c].intValue() < 1)
 						cards.remove(c);
 				return cards;
 			}
@@ -1664,7 +1663,7 @@ public class Deck implements CardCollection
 			{
 				Map<Card, Integer> cards = new HashMap<Card, Integer>(cardsChanged);
 				for (Card c: cardsChanged.keySet())
-					if (cardsChanged.get(c) > -1)
+					if (cardsChanged[c].intValue() > -1)
 						cards.remove(c);
 					else
 						cardsChanged.compute(c, (k, v) -> -v);
