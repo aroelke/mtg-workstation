@@ -1,6 +1,8 @@
 package editor.database.symbol;
 
 import java.awt.Image;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
 import javax.swing.Icon;
@@ -24,6 +26,10 @@ public abstract class Symbol
 	 * Pattern for finding an individual symbol in a string.
 	 */
 	public static final Pattern SYMBOL_PATTERN = Pattern.compile("\\{([^}]+)\\}");
+	/**
+	 * TODO: Comment this
+	 */
+	public static final String UNKNOWN_ICON = "unknown.png";
 	
 	/**
 	 * Create a Symbol from a String.
@@ -63,6 +69,11 @@ public abstract class Symbol
 	 */
 	protected Symbol(String iconName, String t)
 	{
+		if (Files.notExists(Paths.get("images/icons/" + iconName)))
+		{
+			System.err.println("Could not load file images/icons/" + iconName);
+			iconName = UNKNOWN_ICON;
+		}
 		icon = new ImageIcon("images/icons/" + (name = iconName));
 		text = t;
 	}

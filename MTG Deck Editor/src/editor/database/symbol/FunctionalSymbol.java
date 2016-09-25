@@ -1,5 +1,6 @@
 package editor.database.symbol;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,25 +27,30 @@ public class FunctionalSymbol extends Symbol
 	/**
 	 * Map of symbol texts onto their respective symbols.
 	 */
-	private static final Map<String, FunctionalSymbol> SYMBOLS = new HashMap<String, FunctionalSymbol>();
+	private static final Map<String, FunctionalSymbol> SYMBOLS;
 	static
 	{
+		Map<String, FunctionalSymbol> symbols = new HashMap<String, FunctionalSymbol>();
 		// Chaos symbol.
-		SYMBOLS.put(CHAOS.toString(), CHAOS);
+		symbols.put(CHAOS.toString(), CHAOS);
 		// Half-mana symbol.  Represents one half of a generic mana.
-		SYMBOLS.put("1/2", new FunctionalSymbol("half_mana.png", "1/2"));
-		SYMBOLS.put("½", SYMBOLS.get("1/2"));
+		symbols.put("1/2", new FunctionalSymbol("half_mana.png", "1/2"));
+		symbols.put("½", symbols.get("1/2"));
 		// Infinity mana symbol.  Represents infinity generic mana.
-		SYMBOLS.put("∞", new FunctionalSymbol("infinity_mana.png", "∞"));
+		symbols.put("∞", new FunctionalSymbol("infinity_mana.png", "∞"));
 		// Phyrexian phi symbol.
-		SYMBOLS.put("P", new FunctionalSymbol("phyrexia.png", "P"));
+		symbols.put("P", new FunctionalSymbol("phyrexia.png", "P"));
 		// Snow mana symbol.  Can only be paid with snow mana.
-		SYMBOLS.put("S", new FunctionalSymbol("snow_mana.png", "S"));
+		symbols.put("S", new FunctionalSymbol("snow_mana.png", "S"));
 		// Tap symbol.  Used in costs in card text.
-		SYMBOLS.put("T", new FunctionalSymbol("tap.png", "T"));
-		SYMBOLS.put("TAP", SYMBOLS.get("T"));
+		symbols.put("T", new FunctionalSymbol("tap.png", "T"));
+		symbols.put("TAP", symbols.get("T"));
 		// Untap symbol.  Used in costs in card text.
-		SYMBOLS.put("Q", new FunctionalSymbol("untap.png", "Q"));
+		symbols.put("Q", new FunctionalSymbol("untap.png", "Q"));
+		// Energy counter symbol.
+		symbols.put("E", new FunctionalSymbol("energy.png", "E"));
+		
+		SYMBOLS = Collections.unmodifiableMap(symbols);
 	}
 	
 	/**
