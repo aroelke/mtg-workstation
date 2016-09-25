@@ -79,7 +79,7 @@ public class CardTable extends JTable
 				costPanel.setBackground(c.getBackground());
 				for (int i = 0; i < cost.size(); i++)
 				{
-					if (!cost.get(i).isEmpty())
+					if (!cost[i].isEmpty())
 					{
 						if (i > 0)
 						{
@@ -124,7 +124,7 @@ public class CardTable extends JTable
 			if (value instanceof List)
 			{
 				List<?> values = (List<?>)value;
-				if (!values.isEmpty() && values.get(0) instanceof Double)
+				if (!values.isEmpty() && values[0] instanceof Double)
 				{
 					List<Double> cmc = values.stream().map((o) -> (Double)o).collect(Collectors.toList());
 					StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
@@ -225,7 +225,7 @@ public class CardTable extends JTable
 						{
 							int x = i*(s + 1) + 1;
 							int y = 1;
-							g.setColor(categories.get(i).getColor());
+							g.setColor(categories[i].getColor());
 							g.fillRect(x, y, s - 3, s - 3);
 							g.setColor(Color.BLACK);
 							g.drawRect(x, y, s - 3, s - 3);
@@ -326,7 +326,7 @@ public class CardTable extends JTable
 		@Override
 		public Comparator<?> getComparator(int column)
 		{
-			boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
+			boolean ascending = getSortKeys()[0].getSortOrder() == SortOrder.ASCENDING;
 			if (model.getColumnClass(column).equals(PowerToughness.Tuple.class))
 				return (a, b) -> {
 					PowerToughness pt1 = ((PowerToughness.Tuple)a).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)a).get(0));
