@@ -31,7 +31,7 @@ public class HalfColorSymbol extends ManaSymbol
 	 */
 	public static HalfColorSymbol get(ManaType col)
 	{
-		return SYMBOLS.get(col);
+		return SYMBOLS[col];
 	}
 	
 	/**

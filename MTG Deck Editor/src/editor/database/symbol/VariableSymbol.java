@@ -31,7 +31,7 @@ public class VariableSymbol extends ManaSymbol
 	 */
 	public static VariableSymbol get(String x)
 	{
-		return SYMBOLS.get(x.toUpperCase());
+		return SYMBOLS[x.toUpperCase()];
 	}
 	
 	/**
