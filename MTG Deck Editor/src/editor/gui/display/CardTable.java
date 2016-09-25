@@ -87,7 +87,7 @@ public class CardTable extends JTable
 							costPanel.add(new JLabel(Card.FACE_SEPARATOR));
 							costPanel.add(Box.createHorizontalStrut(3));
 						}
-						for (Symbol sym: cost.get(i))
+						for (Symbol sym: cost[i])
 							costPanel.add(new JLabel(sym.getIcon(13)));
 					}
 				}
@@ -329,8 +329,8 @@ public class CardTable extends JTable
 			boolean ascending = getSortKeys()[0].getSortOrder() == SortOrder.ASCENDING;
 			if (model.getColumnClass(column).equals(PowerToughness.Tuple.class))
 				return (a, b) -> {
-					PowerToughness pt1 = ((PowerToughness.Tuple)a).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)a).get(0));
-					PowerToughness pt2 = ((PowerToughness.Tuple)b).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)b).get(0));
+					PowerToughness pt1 = ((PowerToughness.Tuple)a).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)a)[0]);
+					PowerToughness pt2 = ((PowerToughness.Tuple)b).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)b)[0]);
 					if (Double.isNaN(pt1.value) && Double.isNaN(pt2.value))
 						return 0;
 					else if (Double.isNaN(pt1.value))
@@ -342,8 +342,8 @@ public class CardTable extends JTable
 				};
 			else if (model.getColumnClass(column).equals(Loyalty.Tuple.class))
 				return (a, b) -> {
-					Loyalty l1 = ((Loyalty.Tuple)a).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)a).get(0));
-					Loyalty l2 = ((Loyalty.Tuple)b).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)b).get(0));
+					Loyalty l1 = ((Loyalty.Tuple)a).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)a)[0]);
+					Loyalty l2 = ((Loyalty.Tuple)b).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)b)[0]);
 					if (l1.value < 1 && l2.value < 1)
 						return 0;
 					else if (l1.value < 1)
