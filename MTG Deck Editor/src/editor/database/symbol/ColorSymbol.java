@@ -31,7 +31,7 @@ public class ColorSymbol extends ManaSymbol
 	 */
 	public static ColorSymbol get(ManaType col)
 	{
-		return SYMBOLS.get(col);
+		return SYMBOLS[col];
 	}
 	
 	/**
