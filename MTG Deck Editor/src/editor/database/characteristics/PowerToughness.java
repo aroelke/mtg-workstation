@@ -63,8 +63,8 @@ public class PowerToughness implements Comparable<PowerToughness>
 				return 1;
 			else
 			{
-				PowerToughness first = stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(get(0));
-				PowerToughness second = stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(o.get(0));
+				PowerToughness first = stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(this[0]);
+				PowerToughness second = stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(o[0]);
 				return first.compareTo(second);
 			}
 		}
