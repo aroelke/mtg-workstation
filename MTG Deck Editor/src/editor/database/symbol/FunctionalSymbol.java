@@ -35,7 +35,7 @@ public class FunctionalSymbol extends Symbol
 		symbols.put(CHAOS.toString(), CHAOS);
 		// Half-mana symbol.  Represents one half of a generic mana.
 		symbols.put("1/2", new FunctionalSymbol("half_mana.png", "1/2"));
-		symbols.put("½", symbols.get("1/2"));
+		symbols.put("½", symbols["1/2"]);
 		// Infinity mana symbol.  Represents infinity generic mana.
 		symbols.put("∞", new FunctionalSymbol("infinity_mana.png", "∞"));
 		// Phyrexian phi symbol.
@@ -44,7 +44,7 @@ public class FunctionalSymbol extends Symbol
 		symbols.put("S", new FunctionalSymbol("snow_mana.png", "S"));
 		// Tap symbol.  Used in costs in card text.
 		symbols.put("T", new FunctionalSymbol("tap.png", "T"));
-		symbols.put("TAP", symbols.get("T"));
+		symbols.put("TAP", symbols["T"]);
 		// Untap symbol.  Used in costs in card text.
 		symbols.put("Q", new FunctionalSymbol("untap.png", "Q"));
 		// Energy counter symbol.
@@ -62,7 +62,7 @@ public class FunctionalSymbol extends Symbol
 	 */
 	public static FunctionalSymbol get(String s)
 	{
-		return SYMBOLS.get(s.toUpperCase());
+		return SYMBOLS[s.toUpperCase()];
 	}
 	
 	/**
