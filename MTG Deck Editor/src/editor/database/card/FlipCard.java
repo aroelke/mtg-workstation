@@ -53,7 +53,7 @@ public class FlipCard extends MultiCard
 	 */
 	private <T> List<T> collect(Function<Card, List<T>> characteristic)
 	{
-		return Arrays.asList(characteristic.apply(top).get(0), characteristic.apply(top).get(0));
+		return Arrays.asList(characteristic.apply(top)[0], characteristic.apply(top)[0]);
 	}
 	
 	/**
