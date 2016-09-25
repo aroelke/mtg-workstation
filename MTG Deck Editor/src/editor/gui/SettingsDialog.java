@@ -204,7 +204,7 @@ public class SettingsDialog extends JDialog
 				str.append("(");
 				str.append(c.id());
 				str.append("::");
-				str.append(Card.tags.get(c).toString());
+				str.append(Card.tags[c].toString());
 				str.append(")");
 			}
 			SETTINGS.put(CARD_TAGS, str.toString());
