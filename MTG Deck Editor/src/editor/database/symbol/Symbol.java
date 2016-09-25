@@ -27,7 +27,7 @@ public abstract class Symbol
 	 */
 	public static final Pattern SYMBOL_PATTERN = Pattern.compile("\\{([^}]+)\\}");
 	/**
-	 * TODO: Comment this
+	 * Name for a Symbol whose icon file can't be found.
 	 */
 	public static final String UNKNOWN_ICON = "unknown.png";
 	
