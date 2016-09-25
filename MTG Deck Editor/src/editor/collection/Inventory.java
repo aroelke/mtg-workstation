@@ -152,7 +152,7 @@ public class Inventory implements CardCollection
 	@Override
 	public Card get(int index)
 	{
-		return filtrate.get(index);
+		return filtrate[index];
 	}
 	
 	/**
@@ -162,7 +162,7 @@ public class Inventory implements CardCollection
 	 */
 	public Card get(String UID)
 	{
-		return IDs.get(UID);
+		return IDs[UID];
 	}
 	
 	/**
