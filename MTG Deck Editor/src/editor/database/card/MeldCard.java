@@ -73,7 +73,7 @@ public class MeldCard extends MultiCard
 	public ManaCost.Tuple manaCost()
 	{
 		if (manaCost == null)
-			manaCost = new ManaCost.Tuple(front.manaCost().get(0), new ManaCost());
+			manaCost = new ManaCost.Tuple(front.manaCost()[0], new ManaCost());
 		return manaCost;
 	}
 	
@@ -86,7 +86,7 @@ public class MeldCard extends MultiCard
 	public List<Double> cmc()
 	{
 		if (cmc == null)
-			cmc = Arrays.asList(front.cmc().get(0), front.cmc().get(0) + other.cmc().get(0));
+			cmc = Arrays.asList(front.cmc()[0], front.cmc()[0] + other.cmc()[0]);
 		return cmc;
 	}
 	

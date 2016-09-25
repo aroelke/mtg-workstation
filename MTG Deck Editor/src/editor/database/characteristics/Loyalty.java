@@ -63,8 +63,8 @@ public class Loyalty implements Comparable<Loyalty>
 				return 1;
 			else
 			{
-				Loyalty first = stream().filter((l) -> l.value > 0).findFirst().orElse(get(0));
-				Loyalty second = stream().filter((l) -> l.value > 0).findFirst().orElse(o.get(0));
+				Loyalty first = stream().filter((l) -> l.value > 0).findFirst().orElse(this[0]);
+				Loyalty second = stream().filter((l) -> l.value > 0).findFirst().orElse(o[0]);
 				return first.compareTo(second);
 			}
 		}
