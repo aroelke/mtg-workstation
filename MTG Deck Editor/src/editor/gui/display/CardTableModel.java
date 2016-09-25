@@ -93,7 +93,7 @@ public class CardTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		return characteristics.get(columnIndex).get(list, rowIndex);
+		return characteristics[columnIndex].get(list, rowIndex);
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class CardTableModel extends AbstractTableModel
 	 */
 	public CardCharacteristic getColumnCharacteristic(int column)
 	{
-		return characteristics.get(column);
+		return characteristics[column];
 	}
 	
 	/**
@@ -121,7 +121,7 @@ public class CardTableModel extends AbstractTableModel
 	@Override
 	public String getColumnName(int column)
 	{
-		return characteristics.get(column).toString();
+		return characteristics[column].toString();
 	}
 	
 	/**
@@ -131,7 +131,7 @@ public class CardTableModel extends AbstractTableModel
 	@Override
 	public Class<?> getColumnClass(int column)
 	{
-		return characteristics.get(column).columnClass;
+		return characteristics[column].columnClass;
 	}
 	
 	/**
@@ -143,7 +143,7 @@ public class CardTableModel extends AbstractTableModel
 	@Override
 	public boolean isCellEditable(int row, int column)
 	{
-		return editor != null && characteristics.get(column).isEditable();
+		return editor != null && characteristics[column].isEditable();
 	}
 	
 	/**
@@ -158,7 +158,7 @@ public class CardTableModel extends AbstractTableModel
 	{
 		if (isCellEditable(row, column))
 		{
-			characteristics.get(column).edit(editor, list.get(row), value);
+			characteristics[column].edit(editor, list[row], value);
 			fireTableDataChanged();
 		}
 	}
