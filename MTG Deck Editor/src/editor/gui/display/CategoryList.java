@@ -172,7 +172,7 @@ public class CategoryList extends JList<String>
 	 */
 	public CategorySpec getCategoryAt(int index)
 	{
-		return categories.get(index);
+		return categories[index];
 	}
 	
 	/**
@@ -190,7 +190,7 @@ public class CategoryList extends JList<String>
 		public String getElementAt(int index)
 		{
 			if (index < categories.size())
-				return categories.get(index).getName();
+				return categories[index].getName();
 			else if (!hint.isEmpty() && index == categories.size())
 				return hint;
 			else

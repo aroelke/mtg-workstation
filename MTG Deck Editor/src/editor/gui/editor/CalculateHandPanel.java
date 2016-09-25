@@ -291,14 +291,14 @@ public class CalculateHandPanel extends JPanel
 			@Override
 			public TableCellEditor getCellEditor(int row, int column)
 			{
-				String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(row);
+				String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList())[row];
 				
 				switch (column)
 				{
 				case DESIRED:
-					return new DefaultCellEditor(desiredBoxes.get(category));
+					return new DefaultCellEditor(desiredBoxes[category]);
 				case RELATION:
-					return new DefaultCellEditor(relationBoxes.get(category));
+					return new DefaultCellEditor(relationBoxes[category]);
 				default:
 					return super.getCellEditor(row, column);
 				}
@@ -342,14 +342,14 @@ public class CalculateHandPanel extends JPanel
 			JComboBox<Integer> desiredBox = new JComboBox<Integer>();
 			for (int i = 0; i <= deck.total(category); i++)
 				desiredBox.addItem(i);
-			if (oldDesired.containsKey(category) && oldDesired.get(category) < deck.total(category))
-				desiredBox.setSelectedIndex(oldDesired.get(category));
+			if (oldDesired.containsKey(category) && oldDesired[category].intValue() < deck.total(category))
+				desiredBox.setSelectedIndex(oldDesired[category]);
 			desiredBox.addActionListener((e) -> recalculate());
 			desiredBoxes.put(category, desiredBox);
 			
 			JComboBox<Relation> relationBox = new JComboBox<Relation>(Relation.values());
 			if (oldRelations.containsKey(category))
-				relationBox.setSelectedItem(oldRelations.get(category));
+				relationBox.setSelectedItem(oldRelations[category]);
 			relationBox.addActionListener((e) -> recalculate());
 			relationBoxes.put(category, relationBox);
 		}
@@ -374,28 +374,28 @@ public class CalculateHandPanel extends JPanel
 		{
 			probabilities.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
 			expectedCounts.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
-			Relation r = (Relation)relationBoxes.get(category).getSelectedItem();
+			Relation r = (Relation)relationBoxes[category].getSelectedItem();
 			for (int j = 0; j <= draws; j++)
 			{
 				double p = 0.0;
 				switch (r)
 				{
 				case AT_LEAST:
-					for (int k = 0; k < desiredBoxes.get(category).getSelectedIndex(); k++)
+					for (int k = 0; k < desiredBoxes[category].getSelectedIndex(); k++)
 						p += hypergeom(k, hand + j, deck.total(category), deck.total());
 					p = 1.0 - p;
 					break;
 				case EXACTLY:
-					p = hypergeom(desiredBoxes.get(category).getSelectedIndex(), hand + j, deck.total(category), deck.total());
+					p = hypergeom(desiredBoxes[category].getSelectedIndex(), hand + j, deck.total(category), deck.total());
 					break;
 				case AT_MOST:
-					for (int k = 0; k <= desiredBoxes.get(category).getSelectedIndex(); k++)
+					for (int k = 0; k <= desiredBoxes[category].getSelectedIndex(); k++)
 						p += hypergeom(k, hand + j, deck.total(category), deck.total());
 					break;
 				}
-				probabilities.get(category).set(j, p);
+				probabilities[category].set(j, p);
 				// TODO: This might be wrong
-				expectedCounts.get(category).set(j, (double)deck.total(category)/deck.total()*(hand + j));
+				expectedCounts[category].set(j, (double)deck.total(category)/deck.total()*(hand + j));
 			}
 		}
 		model.fireTableDataChanged();
@@ -550,7 +550,7 @@ public class CalculateHandPanel extends JPanel
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex)
 		{
-			String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(rowIndex);
+			String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList())[rowIndex];
 			
 			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
 			{
@@ -562,17 +562,17 @@ public class CalculateHandPanel extends JPanel
 				case COUNT:
 					return deck.total(category);
 				case DESIRED:
-					return desiredBoxes.get(category).getSelectedItem();
+					return desiredBoxes[category].getSelectedItem();
 				case RELATION:
-					return relationBoxes.get(category).getSelectedItem();
+					return relationBoxes[category].getSelectedItem();
 				default:
-					return String.format("%.2f%%", probabilities.get(category).get(columnIndex - (P_INFO_COLS - 1))*100.0);
+					return String.format("%.2f%%", probabilities[category][columnIndex - (P_INFO_COLS - 1)]*100.0);
 				}
 			case EXPECTED_COUNT:
 				if (columnIndex == CATEGORY)
 					return category;
-				else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts.get(category).size())
-					return ROUND_MODE.get(SettingsDialog.getAsString(SettingsDialog.EXPECTED_ROUND_MODE)).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
+				else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts[category].size())
+					return ROUND_MODE[SettingsDialog.getAsString(SettingsDialog.EXPECTED_ROUND_MODE)].apply(expectedCounts[category][columnIndex - (E_INFO_COLS - 1)]);
 				else
 					return "";
 			default:
