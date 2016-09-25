@@ -93,7 +93,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 	{
 		ColorFilter filter = (ColorFilter)FilterFactory.createFilter(type);
 		filter.contain = contain.getSelectedItem();
-		filter.colors.addAll(colors.keySet().stream().filter((c) -> colors.get(c).isSelected()).collect(Collectors.toSet()));
+		filter.colors.addAll(colors.keySet().stream().filter((c) -> colors[c].isSelected()).collect(Collectors.toSet()));
 		filter.multicolored = multiCheckBox.isSelected();
 		return filter;
 	}
@@ -110,7 +110,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 		type = filter.type;
 		contain.setSelectedItem(filter.contain);
 		for (ManaType color: ManaType.colors())
-			colors.get(color).setSelected(filter.colors.contains(color));
+			colors[color].setSelected(filter.colors.contains(color));
 		multiCheckBox.setSelected(filter.multicolored);
 	}
 
