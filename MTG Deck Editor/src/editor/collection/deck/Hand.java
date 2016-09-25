@@ -189,7 +189,7 @@ public class Hand implements CardCollection
 	@Override
 	public int count(int index)
 	{
-		return deck.count(get(index));
+		return deck.count(this[index]);
 	}
 
 	/**
@@ -219,7 +219,7 @@ public class Hand implements CardCollection
 	@Override
 	public Set<CategorySpec> getCategories(int index)
 	{
-		return deck.getCategories(get(index));
+		return deck.getCategories(this[index]);
 	}
 
 	/**
@@ -239,7 +239,7 @@ public class Hand implements CardCollection
 	@Override
 	public Date dateAdded(int index)
 	{
-		return deck.dateAdded(get(index));
+		return deck.dateAdded(this[index]);
 	}
 
 	/**
@@ -388,7 +388,7 @@ public class Hand implements CardCollection
 	@Override
 	public Card get(int index)
 	{
-		return hand.get(index);
+		return hand[index];
 	}
 
 	/**
