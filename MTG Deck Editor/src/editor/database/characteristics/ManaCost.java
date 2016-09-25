@@ -78,7 +78,7 @@ public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
 			else if (o.isEmpty())
 				return 1;
 			else
-				return get(0).compareTo(o.get(0));
+				return this[0].compareTo(o[0]);
 		}
 		
 		/**
@@ -173,7 +173,7 @@ public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
 		weights = ManaSymbol.createWeights();
 		for (ManaSymbol sym: cost)
 			for (ManaType col: weights.keySet())
-				weights.compute(col, (k, v) -> sym.colorWeights().get(k) + v);
+				weights.compute(col, (k, v) -> sym.colorWeights()[k] + v);
 	}
 	
 	/**
@@ -226,7 +226,7 @@ public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
 	@Override
 	public ManaSymbol get(int index)
 	{
-		return cost.get(index);
+		return cost[index];
 	}
 	
 	/**
@@ -348,7 +348,7 @@ public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
 				List<Double> oWeightList = new ArrayList<Double>(o.weights.values());
 				Collections.sort(oWeightList, (a, b) -> a.compareTo(b));
 				for (int i = 0; i < ManaType.values().length; i++)
-					diff += (weightList.get(i) - oWeightList.get(i))*Math.pow(10, i);	
+					diff += (weightList[i] - oWeightList[i])*Math.pow(10, i);	
 			}
 			return diff;
 		}
