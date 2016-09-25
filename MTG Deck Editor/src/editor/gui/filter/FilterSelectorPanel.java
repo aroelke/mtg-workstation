@@ -88,7 +88,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	@Override
 	public Filter filter()
 	{
-		return filterPanels.get(filterTypes.getSelectedItem()).filter();
+		return filterPanels[filterTypes.getSelectedItem()].filter();
 	}
 	
 	/**
@@ -99,7 +99,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	public void setContents(FilterLeaf<?> filter)
 	{
 		filterTypes.setSelectedItem(filter.type);
-		filterPanels.get(filter.type).setContents(filter);
+		filterPanels[filter.type].setContents(filter);
 		((CardLayout)filtersPanel.getLayout()).show(filtersPanel, filter.type.toString());
 	}
 }
