@@ -653,8 +653,8 @@ public class MainFrame extends JFrame
 		/* CONTENT PANE */
 		// Panel containing all content
 		JPanel contentPane = new JPanel(new BorderLayout());
-		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ActionEvent.CTRL_MASK), "Next Frame");
-		contentPane.getActionMap().put("Next Frame", new AbstractAction()
+		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)[KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ActionEvent.CTRL_MASK)] = "Next Frame";
+		contentPane.getActionMap()["Next Frame"] = new AbstractAction()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
@@ -662,9 +662,9 @@ public class MainFrame extends JFrame
 				if (!editors.isEmpty() && selectedFrame != null)
 					selectFrame(editors[(editors.indexOf(selectedFrame) + 1)%editors.size()]);
 			}
-		});
-		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, ActionEvent.CTRL_MASK), "Previous Frame");
-		contentPane.getActionMap().put("Previous Frame", new AbstractAction()
+		};
+		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)[KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, ActionEvent.CTRL_MASK)] = "Previous Frame";
+		contentPane.getActionMap()["Previous Frame"] = new AbstractAction()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
@@ -675,7 +675,7 @@ public class MainFrame extends JFrame
 					selectFrame(editors[next < 0 ? editors.size() - 1 : next]);
 				}
 			}
-		});
+		};
 		setContentPane(contentPane);
 		
 		// DesktopPane containing editor frames
@@ -1186,7 +1186,7 @@ public class MainFrame extends JFrame
 			}
 			JMenuItem mostRecent = new JMenuItem(f.getPath());
 			recentItems.offer(mostRecent);
-			recents.put(mostRecent, f);
+			recents[mostRecent] = f;
 			mostRecent.addActionListener((e) -> open(f));
 			recentsMenu.add(mostRecent);
 		}
