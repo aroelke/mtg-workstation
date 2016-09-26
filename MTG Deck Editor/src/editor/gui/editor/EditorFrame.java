@@ -1486,7 +1486,7 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			for (Card c: toRemove)
-				removed.put(c, deck.decrease(c, n));
+				removed[c] = deck.decrease(c, n);
 			return removed;
 		}
 	}
