@@ -6,6 +6,8 @@ import java.util.function.BiPredicate;
  * This class represents a logical comparison.  If either operand is null, then
  * a NullPointerException will be thrown except if using equals or not-equals.
  * 
+ * TODO: Make this into a map with some helper methods instead of an enum (and see about doing that for others as well)
+ * 
  * @author Alec Roelke
  */
 public enum Comparison implements BiPredicate<Double, Double>
