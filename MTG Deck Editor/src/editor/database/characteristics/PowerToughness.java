@@ -161,23 +161,6 @@ public class PowerToughness implements Comparable<PowerToughness>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param other
-	 * @return
-	 */
-	public int compareTo(double other)
-	{
-		if (Double.isNaN(value) && Double.isNaN(other))
-			return 0;
-		else if (Double.isNaN(value))
-			return 1;
-		else if (Double.isNaN(other))
-			return -1;
-		else
-			return (int)(2.0*value - 2.0*other);
-	}
-	
-	/**
 	 * @return A String representation of this PowerToughness, which is its
 	 * expression.
 	 */
