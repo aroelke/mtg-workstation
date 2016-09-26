@@ -122,14 +122,14 @@ public class LegalityChecker
 				{
 					if (format.equalsIgnoreCase("commander") || format.equalsIgnoreCase("singleton 100"))
 					{
-						if (isoNameCounts[c] > 1)
+						if (isoNameCounts[c].intValue() > 1)
 							warnings[format].add("Deck contains more than 1 copy of " + c.unifiedName());
 					}
 					else
 					{
-						if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts[c] > 1)
+						if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts[c].intValue() > 1)
 							warnings[format].add(c.unifiedName() + " is restricted in " + format);
-						else if (isoNameCounts[c] > 4)
+						else if (isoNameCounts[c].intValue() > 4)
 							warnings[format].add("Deck contains more than 4 copies of " + c.unifiedName());
 					}
 				}
