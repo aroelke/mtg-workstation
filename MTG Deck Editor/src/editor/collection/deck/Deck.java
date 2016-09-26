@@ -306,7 +306,7 @@ public class Deck implements CardCollection
 				land += n;
 			
 			Map<Card, Integer> added = new HashMap<Card, Integer>();
-			added.put(c, n);
+			added[c] = n;
 			Event event = new Event().cardsChanged(added);
 			for (DeckListener listener: listeners)
 				listener.deckChanged(event);
@@ -400,7 +400,7 @@ public class Deck implements CardCollection
 					land -= n;
 				
 				Map<Card, Integer> removed = new HashMap<Card, Integer>();
-				removed.put(c, -n);
+				removed[c] = -n;
 				Event event = new Event().cardsChanged(removed);
 				for (DeckListener listener: listeners)
 					listener.deckChanged(event);
@@ -511,7 +511,7 @@ public class Deck implements CardCollection
 				land += n - e.count;
 			
 			Map<Card, Integer> change = new HashMap<Card, Integer>();
-			change.put(c, n - e.count);
+			change[c] = n - e.count;
 			Event event = new Event().cardsChanged(change);
 			
 			e.count = n;
@@ -619,14 +619,14 @@ public class Deck implements CardCollection
 		if (!categories.containsKey(spec.getName()))
 		{
 			Category c = new Category(spec);
-			categories.put(spec.getName(), c);
+			categories[spec.getName()] = c;
 			c.update();
 			
 			spec.addCategoryListener(c.listener = (e) -> {
 				if (e.nameChanged())
 				{
 					categories.remove(e.oldName());
-					categories.put(e.newName(), c);
+					categories[e.newName()] = c;
 				}
 				if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
 					c.update();
@@ -665,7 +665,7 @@ public class Deck implements CardCollection
 			{
 				if (category.rank > c.rank)
 				{
-					oldRanks.put(category.spec.getName(), category.rank);
+					oldRanks[category.spec.getName()] = category.rank;
 					category.rank--;
 				}
 			}
@@ -715,8 +715,8 @@ public class Deck implements CardCollection
 				if (second.rank == target)
 				{
 					Map<String, Integer> oldRanks = new HashMap<String, Integer>();
-					oldRanks.put(name, categories[name].rank);
-					oldRanks.put(second.spec.getName(), second.rank);
+					oldRanks[name] = categories[name].rank;
+					oldRanks[second.spec.getName()] = second.rank;
 					
 					second.rank = categories[name].rank;
 					categories[name].rank = target;
