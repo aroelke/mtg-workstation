@@ -61,7 +61,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 		for (ManaType color: ManaType.colors())
 		{
 			JCheckBox box = new JCheckBox();
-			colors.put(color, box);
+			colors[color] = box;
 			add(box);
 			JLabel symbol = new JLabel(ColorSymbol.get(color).getIcon(13));
 			add(symbol);
