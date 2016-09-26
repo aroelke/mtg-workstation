@@ -331,11 +331,11 @@ public class CardTable extends JTable
 				return (a, b) -> {
 					PowerToughness pt1 = ((PowerToughness.Tuple)a).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)a)[0]);
 					PowerToughness pt2 = ((PowerToughness.Tuple)b).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)b)[0]);
-					if (Double.isNaN(pt1.value) && Double.isNaN(pt2.value))
+					if (!pt1.exists() && !pt2.exists())
 						return 0;
-					else if (Double.isNaN(pt1.value))
+					else if (!pt1.exists())
 						return ascending ? 1 : -1;
-					else if (Double.isNaN(pt2.value))
+					else if (pt2.exists())
 						return ascending ? -1 : 1;
 					else
 						return pt1.compareTo(pt2);
@@ -344,11 +344,11 @@ public class CardTable extends JTable
 				return (a, b) -> {
 					Loyalty l1 = ((Loyalty.Tuple)a).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)a)[0]);
 					Loyalty l2 = ((Loyalty.Tuple)b).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)b)[0]);
-					if (l1.value < 1 && l2.value < 1)
+					if (!l1.exists() && !l2.exists())
 						return 0;
-					else if (l1.value < 1)
+					else if (!l1.exists())
 						return ascending ? 1 : -1;
-					else if (l2.value < 1)
+					else if (!l2.exists())
 						return ascending ? -1 : 1;
 					else
 						return l1.compareTo(l2);
