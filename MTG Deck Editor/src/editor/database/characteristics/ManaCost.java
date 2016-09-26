@@ -344,9 +344,9 @@ public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
 			if (diff == 0)
 			{
 				List<Double> weightList = new ArrayList<Double>(weights.values());
-				Collections.sort(weightList, (a, b) -> a.compareTo(b));
+				Collections.sort(weightList, Double::compareTo);
 				List<Double> oWeightList = new ArrayList<Double>(o.weights.values());
-				Collections.sort(oWeightList, (a, b) -> a.compareTo(b));
+				Collections.sort(oWeightList, Double::compareTo);
 				for (int i = 0; i < ManaType.values().length; i++)
 					diff += (weightList[i] - oWeightList[i])*Math.pow(10, i);	
 			}
