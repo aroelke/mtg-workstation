@@ -207,7 +207,7 @@ public class SettingsDialog extends JDialog
 				str.append(Card.tags[c].toString());
 				str.append(")");
 			}
-			SETTINGS.put(CARD_TAGS, str.toString());
+			SETTINGS[CARD_TAGS] = str.toString();
 			SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
 		}
 	}
@@ -233,33 +233,33 @@ public class SettingsDialog extends JDialog
 	public static void resetDefaultSettings()
 	{
 		SETTINGS.clear();
-		SETTINGS.put(VERSION_FILE, "version.json");
-		SETTINGS.put(INVENTORY_SOURCE, "http://mtgjson.com/json/");
-		SETTINGS.put(VERSION, "");
-		SETTINGS.put(INVENTORY_FILE, "AllSets-x.json");
-		SETTINGS.put(INITIAL_CHECK, "true");
-		SETTINGS.put(SUPPRESS_LOAD_WARNINGS, "false");
-		SETTINGS.put(INVENTORY_LOCATION, ".");
-		SETTINGS.put(INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
-		SETTINGS.put(INVENTORY_STRIPE, "#FFCCCCCC");
-		SETTINGS.put(INITIALDIR, ".");
-		SETTINGS.put(RECENT_COUNT, "4");
-		SETTINGS.put(RECENT_FILES, "");
-		SETTINGS.put(EXPLICITS_ROWS, "3");
-		SETTINGS.put(CATEGORY_ROWS, "6");
-		SETTINGS.put(EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
-		SETTINGS.put(EDITOR_STRIPE, "#FFCCCCCC");
-		SETTINGS.put(EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
-		SETTINGS.put(HAND_SIZE, "7");
-		SETTINGS.put(EXPECTED_ROUND_MODE, "No rounding");
-		SETTINGS.put(CARD_SCANS, "images" + File.separatorChar + "cards");
-		SETTINGS.put(IMAGE_BGCOLOR, "#FFFFFFFF");
-		SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
+		SETTINGS[VERSION_FILE] = "version.json";
+		SETTINGS[INVENTORY_SOURCE] = "http://mtgjson.com/json/";
+		SETTINGS[VERSION] = "";
+		SETTINGS[INVENTORY_FILE] = "AllSets-x.json";
+		SETTINGS[INITIAL_CHECK] = "true";
+		SETTINGS[SUPPRESS_LOAD_WARNINGS] = "false";
+		SETTINGS[INVENTORY_LOCATION] = ".";
+		SETTINGS[INVENTORY_COLUMNS] = "Name,Mana Cost,Type,Expansion";
+		SETTINGS[INVENTORY_STRIPE] = "#FFCCCCCC";
+		SETTINGS[INITIALDIR] = ".";
+		SETTINGS[RECENT_COUNT] = "4";
+		SETTINGS[RECENT_FILES] = "";
+		SETTINGS[EXPLICITS_ROWS] = "3";
+		SETTINGS[CATEGORY_ROWS] = "6";
+		SETTINGS[EDITOR_COLUMNS] = "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added";
+		SETTINGS[EDITOR_STRIPE] = "#FFCCCCCC";
+		SETTINGS[EDITOR_PRESETS] = "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB";
+		SETTINGS[HAND_SIZE] = "7";
+		SETTINGS[EXPECTED_ROUND_MODE] = "No rounding";
+		SETTINGS[CARD_SCANS] = "images" + File.separatorChar + "cards";
+		SETTINGS[IMAGE_BGCOLOR] = "#FFFFFFFF";
+		SETTINGS[HAND_BGCOLOR] = "#FFFFFFFF";
 	}
 	
 	public static <T> void set(String name, T value)
 	{
-		SETTINGS.put(name, String.valueOf(value));
+		SETTINGS[name] = String.valueOf(value);
 	}
 	
 	/**
@@ -899,35 +899,35 @@ public class SettingsDialog extends JDialog
 	 */
 	public void confirmSettings()
 	{
-		SETTINGS.put(INVENTORY_SOURCE, inventorySiteField.getText());
-		SETTINGS.put(INVENTORY_FILE, inventoryFileField.getText());
-		SETTINGS.put(INVENTORY_LOCATION, inventoryDirField.getText());
-		SETTINGS.put(INITIAL_CHECK, Boolean.toString(updateCheckBox.isSelected()));
-		SETTINGS.put(SUPPRESS_LOAD_WARNINGS, Boolean.toString(suppressCheckBox.isSelected()));
+		SETTINGS[INVENTORY_SOURCE] = inventorySiteField.getText();
+		SETTINGS[INVENTORY_FILE] = inventoryFileField.getText();
+		SETTINGS[INVENTORY_LOCATION] = inventoryDirField.getText();
+		SETTINGS[INITIAL_CHECK] = Boolean.toString(updateCheckBox.isSelected());
+		SETTINGS[SUPPRESS_LOAD_WARNINGS] = Boolean.toString(suppressCheckBox.isSelected());
 		StringJoiner join = new StringJoiner(",");
 		for (JCheckBox box: inventoryColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		SETTINGS.put(INVENTORY_COLUMNS, join.toString());
-		SETTINGS.put(INVENTORY_STRIPE, colorToString(inventoryStripeColor.getColor()));
-		SETTINGS.put(RECENT_COUNT, recentSpinner.getValue().toString());
-		SETTINGS.put(EXPLICITS_ROWS, explicitsSpinner.getValue().toString());
-		SETTINGS.put(CATEGORY_ROWS, rowsSpinner.getValue().toString());
+		SETTINGS[INVENTORY_COLUMNS] = join.toString();
+		SETTINGS[INVENTORY_STRIPE] = colorToString(inventoryStripeColor.getColor());
+		SETTINGS[RECENT_COUNT] = recentSpinner.getValue().toString();
+		SETTINGS[EXPLICITS_ROWS] = explicitsSpinner.getValue().toString();
+		SETTINGS[CATEGORY_ROWS] = rowsSpinner.getValue().toString();
 		join = new StringJoiner(",");
 		for (JCheckBox box: editorColumnCheckBoxes)
 			if (box.isSelected())
 				join.add(box.getText());
-		SETTINGS.put(EDITOR_COLUMNS, join.toString());
-		SETTINGS.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
+		SETTINGS[EDITOR_COLUMNS] = join.toString();
+		SETTINGS[EDITOR_STRIPE] = colorToString(editorStripeColor.getColor());
 		join = new StringJoiner(SettingsDialog.CATEGORY_DELIMITER);
 		for (int i = 0; i < categoriesList.getCount(); i++)
 			join.add(categoriesList.getCategoryAt(i).toString());
-		SETTINGS.put(EDITOR_PRESETS, join.toString());
-		SETTINGS.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
-		SETTINGS.put(EXPECTED_ROUND_MODE, selectedRoundMode);
-		SETTINGS.put(CARD_SCANS, scansDirField.getText());
-		SETTINGS.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
-		SETTINGS.put(HAND_BGCOLOR, colorToString(handBGColor.getColor()));
+		SETTINGS[EDITOR_PRESETS] = join.toString();
+		SETTINGS[HAND_SIZE] = startingSizeSpinner.getValue().toString();
+		SETTINGS[EXPECTED_ROUND_MODE] = selectedRoundMode;
+		SETTINGS[CARD_SCANS] = scansDirField.getText();
+		SETTINGS[IMAGE_BGCOLOR] = colorToString(scanBGChooser.getColor());
+		SETTINGS[HAND_BGCOLOR] = colorToString(handBGColor.getColor());
 		
 		parent.applySettings();
 	}
