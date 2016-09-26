@@ -64,7 +64,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 			else
 			{
 				PowerToughness first = stream().filter(PowerToughness::exists).findFirst().orElse(this[0]);
-				PowerToughness second = stream().filter(PowerToughness::exists).findFirst().orElse(o[0]);
+				PowerToughness second = o.stream().filter(PowerToughness::exists).findFirst().orElse(o[0]);
 				return first.compareTo(second);
 			}
 		}
