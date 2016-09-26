@@ -49,7 +49,7 @@ public class LegalityChecker
 		illegal = new String[] {};
 		warnings = new HashMap<String, List<String>>();
 		for (String format: LegalityFilter.formatList)
-			warnings.put(format, new ArrayList<String>());
+			warnings[format] = new ArrayList<String>();
 	}
 	
 	/**
@@ -110,7 +110,7 @@ public class LegalityChecker
 				}
 			}
 			if (!counted)
-				isoNameCounts.put(c, deck.count(c));
+				isoNameCounts[c] = deck.count(c);
 		}
 		for (Card c: deck)
 		{
@@ -156,7 +156,7 @@ public class LegalityChecker
 		// Prismatic only: there are at least 20 cards of each color, and multicolored cards only count once
 		HashMap<ManaType, List<Card>> colorBins = new HashMap<ManaType, List<Card>>();
 		for (ManaType color: ManaType.values())
-			colorBins.put(color, new ArrayList<Card>());
+			colorBins[color] = new ArrayList<Card>();
 		for (Card c: deck.stream().sorted((a, b) -> a.colors().size() - b.colors().size()).collect(Collectors.toList()))
 			for (int i = 0; i < deck.count(c); i++)
 				binCard(c, colorBins, new ArrayList<ManaType>());
