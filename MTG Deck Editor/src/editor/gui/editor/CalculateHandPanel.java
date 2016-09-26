@@ -393,9 +393,9 @@ public class CalculateHandPanel extends JPanel
 						p += hypergeom(k, hand + j, deck.total(category), deck.total());
 					break;
 				}
-				probabilities[category].set(j, p);
+				probabilities[category][j] = p;
 				// TODO: This might be wrong
-				expectedCounts[category].set(j, (double)deck.total(category)/deck.total()*(hand + j));
+				expectedCounts[category][j] = (double)deck.total(category)/deck.total()*(hand + j);
 			}
 		}
 		model.fireTableDataChanged();
