@@ -80,7 +80,7 @@ public class IncludeExcludePanel extends ScrollablePanel
 			});
 			categoryBox.setBackground(Color.WHITE);
 			add(categoryBox);
-			categoryBoxes.put(category, categoryBox);
+			categoryBoxes[category] = categoryBox;
 			preferredViewportHeight = Math.min(preferredViewportHeight + categoryBox.getPreferredSize().height, categoryBox.getPreferredSize().height*MAX_PREFERRED_ROWS);
 		}
 	}
