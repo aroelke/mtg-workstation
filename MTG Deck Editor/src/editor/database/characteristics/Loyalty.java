@@ -119,6 +119,15 @@ public class Loyalty implements Comparable<Loyalty>
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public boolean exists()
+	{
+		return value >= 1;
+	}
+	
+	/**
 	 * @param other Loyalty to compare with
 	 * @return A negative number if this loyalty is less than the other, a positive
 	 * number if it is greater, or 0 if both are the same.  Any value less than 1 is
@@ -127,11 +136,11 @@ public class Loyalty implements Comparable<Loyalty>
 	@Override
 	public int compareTo(Loyalty other)
 	{
-		if (value < 1 && other.value < 1)
+		if (!exists() && !other.exists())
 			return 0;
-		else if (value < 1)
+		else if (!exists())
 			return 1;
-		else if (other.value < 1)
+		else if (!other.exists())
 			return -1;
 		else
 			return value - other.value;
