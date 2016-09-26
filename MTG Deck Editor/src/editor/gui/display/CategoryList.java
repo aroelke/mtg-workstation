@@ -135,7 +135,7 @@ public class CategoryList extends JList<String>
 	 */
 	public void setCategoryAt(int index, CategorySpec c)
 	{
-		categories.set(index, c);
+		categories[index] = c;
 		model.setElementAt(c.getName(), index);
 	}
 	
