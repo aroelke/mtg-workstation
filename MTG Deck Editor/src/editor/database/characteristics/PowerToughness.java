@@ -150,11 +150,11 @@ public class PowerToughness implements Comparable<PowerToughness>
 	@Override
 	public int compareTo(PowerToughness o)
 	{
-		if (Double.isNaN(value) && Double.isNaN(o.value))
+		if (!exists() && !o.exists())
 			return 0;
-		else if (Double.isNaN(value))
+		else if (!exists())
 			return 1;
-		else if (Double.isNaN(o.value))
+		else if (!o.exists())
 			return -1;
 		else
 			return (int)(2.0*value - 2.0*o.value);
