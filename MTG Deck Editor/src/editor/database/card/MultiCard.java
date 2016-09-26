@@ -424,7 +424,7 @@ public abstract class MultiCard extends Card
 				for (Date k: b.keySet())
 				{
 					if (!a.containsKey(k))
-						a.put(k, new ArrayList<String>());
+						a[k] = new ArrayList<String>();
 					a[k].addAll(b[k]);
 				}
 				return a;
