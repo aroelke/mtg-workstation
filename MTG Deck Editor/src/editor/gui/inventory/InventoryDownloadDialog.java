@@ -173,7 +173,7 @@ public class InventoryDownloadDialog extends JDialog
 		@Override
 		protected void process(List<Integer> chunks)
 		{
-			int downloaded = chunks.get(chunks.size() - 1);
+			int downloaded = chunks[chunks.size() - 1];
 			progressBar.setIndeterminate(false);
 			progressBar.setValue(downloaded);
 			String downloadedStr;
