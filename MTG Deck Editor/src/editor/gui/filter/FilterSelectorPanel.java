@@ -57,7 +57,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 		for (FilterType type: FilterType.values())
 		{
 			FilterEditorPanel<?> panel = FilterPanelFactory.createFilterPanel(type);
-			filterPanels.put(type, panel);
+			filterPanels[type] = panel;
 			filtersPanel.add(panel, type.toString());
 		}
 		filterTypes.addItemListener((e) -> {
