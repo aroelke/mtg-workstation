@@ -401,7 +401,7 @@ public class InventoryLoadDialog extends JDialog
 								Date date = format.parse(o["date"].getAsString());
 								String ruling = o["text"].getAsString();
 								if (!rulings.containsKey(date))
-									rulings.put(date, new ArrayList<String>());
+									rulings[date] = new ArrayList<String>();
 								rulings[date].add(ruling);
 							}
 						}
@@ -414,7 +414,7 @@ public class InventoryLoadDialog extends JDialog
 							{
 								JsonObject o = l.getAsJsonObject();
 								formatSet.add(o["format"].getAsString());
-								legality.put(o["format"].getAsString(), Legality.get(o["legality"].getAsString()));
+								legality[o["format"].getAsString()] = Legality.get(o["legality"].getAsString());
 							}
 						}
 						
@@ -449,7 +449,7 @@ public class InventoryLoadDialog extends JDialog
 							List<String> names = new ArrayList<String>();
 							for (JsonElement e: card["names"].getAsJsonArray())
 								names.add(e.getAsString());
-							faces.put(c, names);
+							faces[c] = names;
 						}
 						
 						cards.add(c);
@@ -573,7 +573,7 @@ public class InventoryLoadDialog extends JDialog
 			{
 				Matcher m = Pattern.compile("\\((.*?)::\\[(.*?)\\]\\)").matcher(SettingsDialog.getAsString(SettingsDialog.CARD_TAGS));
 				while (m.find())
-					Card.tags.put(inventory[m.group(1)], Arrays.stream(m.group(2).split(",")).collect(Collectors.toSet()));
+					Card.tags[inventory[m.group(1)]] = Arrays.stream(m.group(2).split(",")).collect(Collectors.toSet());
 			}
 			return inventory;
 		}
