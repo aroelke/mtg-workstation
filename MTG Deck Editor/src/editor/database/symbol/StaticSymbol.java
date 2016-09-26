@@ -20,12 +20,12 @@ public class StaticSymbol extends ManaSymbol
 	static
 	{
 		// Half-mana symbol.  Represents one half of a generic mana.
-		SYMBOLS.put("1/2", new StaticSymbol("half_mana.png", "1/2", 0.5));
-		SYMBOLS.put("½", SYMBOLS["1/2"]);
+		SYMBOLS["1/2"] = new StaticSymbol("half_mana.png", "1/2", 0.5);
+		SYMBOLS["½"] = SYMBOLS["1/2"];
 		// Infinity mana symbol.  Represents infinity generic mana.
-		SYMBOLS.put("∞", new StaticSymbol("infinity_mana.png", "∞", Double.POSITIVE_INFINITY));
+		SYMBOLS["∞"] = new StaticSymbol("infinity_mana.png", "∞", Double.POSITIVE_INFINITY);
 		// Snow mana symbol.  Can only be paid with snow mana.
-		SYMBOLS.put("S", new StaticSymbol("snow_mana.png", "S", 1));
+		SYMBOLS["S"] = new StaticSymbol("snow_mana.png", "S", 1);
 	}
 	
 	/**

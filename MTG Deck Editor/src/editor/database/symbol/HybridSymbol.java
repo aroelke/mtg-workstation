@@ -30,7 +30,7 @@ public class HybridSymbol extends ManaSymbol
 				if (i != j)
 				{
 					ManaType.Tuple tuple = new ManaType.Tuple(ManaType.colors()[i], ManaType.colors()[j]);
-					SYMBOLS.put(tuple, new HybridSymbol(tuple));
+					SYMBOLS[tuple] = new HybridSymbol(tuple);
 				}
 			}
 		}

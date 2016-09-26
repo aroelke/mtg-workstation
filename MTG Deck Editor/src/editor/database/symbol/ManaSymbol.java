@@ -37,14 +37,14 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 	public static Map<ManaType, Double> createWeights(ColorWeight... weights)
 	{
 		Map<ManaType, Double> weightsMap = new HashMap<ManaType, Double>();
-		weightsMap.put(ManaType.COLORLESS, 0.0);
-		weightsMap.put(ManaType.WHITE, 0.0);
-		weightsMap.put(ManaType.BLUE, 0.0);
-		weightsMap.put(ManaType.BLACK, 0.0);
-		weightsMap.put(ManaType.RED, 0.0);
-		weightsMap.put(ManaType.GREEN, 0.0);
+		weightsMap[ManaType.COLORLESS] = 0.0;
+		weightsMap[ManaType.WHITE] = 0.0;
+		weightsMap[ManaType.BLUE] = 0.0;
+		weightsMap[ManaType.BLACK] = 0.0;
+		weightsMap[ManaType.RED] = 0.0;
+		weightsMap[ManaType.GREEN] = 0.0;
 		for (ColorWeight w: weights)
-			weightsMap.put(w.color, w.weight);
+			weightsMap[w.color] = w.weight;
 		return weightsMap;
 	}
 	
