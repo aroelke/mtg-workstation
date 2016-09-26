@@ -63,8 +63,8 @@ public class PowerToughness implements Comparable<PowerToughness>
 				return 1;
 			else
 			{
-				PowerToughness first = stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(this[0]);
-				PowerToughness second = stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(o[0]);
+				PowerToughness first = stream().filter(PowerToughness::exists).findFirst().orElse(this[0]);
+				PowerToughness second = stream().filter(PowerToughness::exists).findFirst().orElse(o[0]);
 				return first.compareTo(second);
 			}
 		}
@@ -134,6 +134,15 @@ public class PowerToughness implements Comparable<PowerToughness>
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @return
+	 */
+	public boolean exists()
+	{
+		return !Double.isNaN(value);
+	}
+	
+	/**
 	 * @return A negative number if this PowerToughness's value is less than the other
 	 * one's or if this one is empty and the other isn't, a positive value if the reverse
 	 * is true, or 0 if they are the same.
@@ -149,6 +158,23 @@ public class PowerToughness implements Comparable<PowerToughness>
 			return -1;
 		else
 			return (int)(2.0*value - 2.0*o.value);
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param other
+	 * @return
+	 */
+	public int compareTo(double other)
+	{
+		if (Double.isNaN(value) && Double.isNaN(other))
+			return 0;
+		else if (Double.isNaN(value))
+			return 1;
+		else if (Double.isNaN(other))
+			return -1;
+		else
+			return (int)(2.0*value - 2.0*other);
 	}
 	
 	/**
