@@ -53,9 +53,9 @@ public class CalculateHandPanel extends JPanel
 	static
 	{
 		Map<String, Function<Double, String>> rounds = new HashMap<String, Function<Double, String>>();
-		rounds.put("No rounding", (x) -> String.format("%.2f", x));
-		rounds.put("Round to nearest", (x) -> String.format("%d", Math.round(x)));
-		rounds.put("Truncate", (x) -> String.format("%d", x.intValue()));
+		rounds["No rounding"] = (x) -> String.format("%.2f", x);
+		rounds["Round to nearest"] = (x) -> String.format("%d", Math.round(x));
+		rounds["Truncate"] = (x) -> String.format("%d", x.intValue());
 		ROUND_MODE = Collections.unmodifiableMap(rounds);
 	}
 	
@@ -345,13 +345,13 @@ public class CalculateHandPanel extends JPanel
 			if (oldDesired.containsKey(category) && oldDesired[category].intValue() < deck.total(category))
 				desiredBox.setSelectedIndex(oldDesired[category]);
 			desiredBox.addActionListener((e) -> recalculate());
-			desiredBoxes.put(category, desiredBox);
+			desiredBoxes[category] = desiredBox;
 			
 			JComboBox<Relation> relationBox = new JComboBox<Relation>(Relation.values());
 			if (oldRelations.containsKey(category))
 				relationBox.setSelectedItem(oldRelations[category]);
 			relationBox.addActionListener((e) -> recalculate());
-			relationBoxes.put(category, relationBox);
+			relationBoxes[category] = relationBox;
 		}
 		
 		recalculate();
@@ -372,8 +372,8 @@ public class CalculateHandPanel extends JPanel
 		
 		for (String category: categories)
 		{
-			probabilities.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
-			expectedCounts.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
+			probabilities[category] = new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0));
+			expectedCounts[category] = new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0));
 			Relation r = (Relation)relationBoxes[category].getSelectedItem();
 			for (int j = 0; j <= draws; j++)
 			{
