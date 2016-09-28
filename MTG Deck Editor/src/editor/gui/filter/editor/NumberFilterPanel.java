@@ -30,7 +30,7 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 	/**
 	 * Comparison for the operand of the filter.
 	 */
-	private ComboBoxPanel<Comparison> comparison;
+	private ComboBoxPanel<Character> comparison;
 	/**
 	 * Spinner for the operand of the filter.
 	 */
@@ -45,7 +45,7 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		// Combo box for choosing the type of comparison to make
-		comparison = new ComboBoxPanel<Comparison>(Comparison.values());
+		comparison = new ComboBoxPanel<Character>(Comparison.OPERATIONS);
 		add(comparison);
 		
 		// Value to compare the characteristic against
@@ -75,7 +75,7 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 	public Filter filter()
 	{
 		NumberFilter filter = (NumberFilter)FilterFactory.createFilter(type);
-		filter.compare = comparison.getSelectedItem();
+		filter.operation = comparison.getSelectedItem();
 		filter.operand = (double)spinner.getValue();
 		return filter;
 	}
@@ -90,7 +90,7 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 	public void setContents(NumberFilter filter)
 	{
 		type = filter.type;
-		comparison.setSelectedItem(filter.compare);
+		comparison.setSelectedItem(filter.operation);
 		spinner.setValue(filter.operand);
 	}
 

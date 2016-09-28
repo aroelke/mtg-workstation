@@ -3,76 +3,58 @@ package editor.util;
 import java.util.function.BiPredicate;
 
 /**
- * This class represents a logical comparison.  If either operand is null, then
- * a NullPointerException will be thrown except if using equals or not-equals.
+ * This class represents a logical comparison between two values.
  * 
  * TODO: Make this into a map with some helper methods instead of an enum (and see about doing that for others as well)
  * 
  * @author Alec Roelke
  */
-public enum Comparison implements BiPredicate<Double, Double>
+@FunctionalInterface
+public interface Comparison<T extends Comparable<T>> extends BiPredicate<T, T>
 {
-	EQ('=', Double::equals),
-	NE('≠', (a, b) -> !a.equals(b)),
-	GE('≥', (a, b) -> a >= b),
-	LE('≤', (a, b) -> a <= b),
-	GT('>', (a, b) -> a > b),
-	LT('<', (a, b) -> a < b);
+	/**
+	 * List of comparison operations that can be performed.
+	 */
+	static Character[] OPERATIONS = new Character[] {'=', '≠', '≥', '≤', '>', '<'};
 	
 	/**
-	 * Get a Comparison from the specified character.
+	 * Convert an operation character into a comparison between two comparable values.
 	 * 
-	 * @param comp Character to parse
-	 * @return A Comparison represented by the specified character.
+	 * @param op Operation to perform
+	 * @return A Comparison representing the comparison to perform.
 	 */
-	public static Comparison get(char comp)
+	static <U extends Comparable<U>> Comparison<U> valueOf(char op)
 	{
-		for (Comparison c: Comparison.values())
-			if (c.comparison == comp)
-				return c;
-		throw new IllegalArgumentException("Illegal comparison character '" + comp + "'");
+		switch (op)
+		{
+		case '=':
+			return U::equals;
+		case '≠':
+			return (a, b) -> !a.equals(b);
+		case '≥':
+			return (a, b) -> a >= b;
+		case '≤':
+			return (a, b) -> a <= b;
+		case '>':
+			return (a, b) -> a > b;
+		case '<':
+			return (a, b) -> a < b;
+		default:
+			throw new IllegalArgumentException("Illegal comparison '" + op + "'");
+		}
 	}
 	
 	/**
-	 * Mathematical symbol for this type of comparison.
-	 */
-	private final char comparison;
-	/**
-	 * Function to perform when making this type of comparison.
-	 */
-	private final BiPredicate<Double, Double> func;
-	
-	/**
-	 * Create a new Comparison.
+	 * Test two values according to a type of comparison.
 	 * 
-	 * @param comp Symbol for the new type of comparison
-	 * @param f Function to perform for the new type of comparison
+	 * @param op Comparison to perform
+	 * @param a First value to compare
+	 * @param b Second value to compare
+	 * @return <code>true</code> if the comparison tests true for the two values, and
+	 * <code>false</code> otherwise.
 	 */
-	private Comparison(char comp, BiPredicate<Double, Double> f)
+	static <U extends Comparable<U>> boolean test(char op, U a, U b)
 	{
-		comparison = comp;
-		func = f;
-	}
-	
-	/**
-	 * @return A String representation of this Comparison, which is its
-	 * mathematical symbol.
-	 */
-	@Override
-	public String toString()
-	{
-		return String.valueOf(comparison);
-	}
-
-	/**
-	 * Perform this Comparison on the specified operands.
-	 * 
-	 * @return <code>true</code> if this Comparison is true for the operands, and
-	 * <code>false</code> otherwise. 
-	 */
-	@Override
-	public boolean test(Double a, Double b)
-	{
-		return func.test(a, b);
+		return Comparison.<U>valueOf(op).test(a, b);
 	}
 }

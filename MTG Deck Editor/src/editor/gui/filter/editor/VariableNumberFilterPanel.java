@@ -31,7 +31,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 	/**
 	 * Combo box presenting comparison options.
 	 */
-	private ComboBoxPanel<Comparison> comparison;
+	private ComboBoxPanel<Character> comparison;
 	/**
 	 * Spinner allowing the user to choose a value to compare with.
 	 */
@@ -50,7 +50,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
-		comparison = new ComboBoxPanel<Comparison>(Comparison.values());
+		comparison = new ComboBoxPanel<Character>(Comparison.OPERATIONS);
 		add(comparison);
 		
 		spinner = new JSpinner();
@@ -82,7 +82,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 	public Filter filter()
 	{
 		VariableNumberFilter filter = (VariableNumberFilter)FilterFactory.createFilter(type);
-		filter.compare = comparison.getSelectedItem();
+		filter.operation = comparison.getSelectedItem();
 		filter.operand = (double)spinner.getValue();
 		filter.varies = variable.isSelected();
 		return filter;
@@ -98,7 +98,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 	public void setContents(VariableNumberFilter filter)
 	{
 		type = filter.type;
-		comparison.setSelectedItem(filter.compare);
+		comparison.setSelectedItem(filter.operation);
 		spinner.setValue(filter.operand);
 		variable.setSelected(filter.varies);
 		spinner.setEnabled(!filter.varies);

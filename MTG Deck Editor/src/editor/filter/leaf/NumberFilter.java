@@ -22,7 +22,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	 * Operation to compare the characteristic with this NumberFilter's
 	 * operand.
 	 */
-	public Comparison compare;
+	public char operation;
 	/**
 	 * Operand to perform the operation on.
 	 */
@@ -37,7 +37,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	public NumberFilter(FilterType t, Function<Card, Collection<Double>> f)
 	{
 		super(t, f);
-		compare = Comparison.EQ;
+		operation = '=';
 		operand = 0.0;
 	}
 
@@ -50,7 +50,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	public boolean test(Card c)
 	{
 		Collection<Double> values = function.apply(c);
-		return values.stream().anyMatch((v) -> !v.isNaN() && compare.test(v, operand));
+		return values.stream().anyMatch((v) -> !v.isNaN() && Comparison.test(operation, v, operand));
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	@Override
 	public String content()
 	{
-		return compare.toString() + operand;
+		return "" + operation + operand;
 	}
 	
 	/**
@@ -74,7 +74,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	public void parse(String s)
 	{
 		String content = checkContents(s, type);
-		compare = Comparison.get(content.charAt(0));
+		operation = content.charAt(0);
 		operand = Double.valueOf(content.substring(1));
 	}
 	
@@ -85,7 +85,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	public Filter copy()
 	{
 		NumberFilter filter = (NumberFilter)FilterFactory.createFilter(type);
-		filter.compare = compare;
+		filter.operation = operation;
 		filter.operand = operand;
 		return filter;
 	}
@@ -105,7 +105,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 		if (other.getClass() != getClass())
 			return false;
 		NumberFilter o = (NumberFilter)other;
-		return o.type == type && o.compare == compare && o.operand == operand;
+		return o.type == type && o.operation == operation && o.operand == operand;
 	}
 	
 	/**
@@ -115,6 +115,6 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, function, compare, operand);
+		return Objects.hash(type, function, operation, operand);
 	}
 }

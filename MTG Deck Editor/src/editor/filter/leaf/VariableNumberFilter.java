@@ -9,7 +9,6 @@ import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
 import editor.filter.FilterType;
-import editor.util.Comparison;
 
 /**
  * This class represents a filter for a numeric card characteristic that can
@@ -83,7 +82,7 @@ public class VariableNumberFilter extends NumberFilter
 		else
 		{
 			varies = false;
-			compare = Comparison.get(content.charAt(0));
+			operation = content.charAt(0);
 			operand = Double.valueOf(content.substring(1));
 		}
 	}
@@ -97,7 +96,7 @@ public class VariableNumberFilter extends NumberFilter
 		VariableNumberFilter filter = (VariableNumberFilter)FilterFactory.createFilter(type);
 		filter.varies = varies;
 		filter.variable = variable;
-		filter.compare = compare;
+		filter.operation = operation;
 		filter.operand = operand;
 		return filter;
 	}
@@ -120,7 +119,7 @@ public class VariableNumberFilter extends NumberFilter
 			return false;
 		VariableNumberFilter o = (VariableNumberFilter)other;
 		return o.type == type && o.varies == varies && o.variable.equals(variable)
-				&& o.compare == compare & o.operand == operand;
+				&& o.operation == operation & o.operand == operand;
 	}
 	
 	/**
@@ -131,6 +130,6 @@ public class VariableNumberFilter extends NumberFilter
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, function, varies, variable, compare, operand);
+		return Objects.hash(type, function, varies, variable, operation, operand);
 	}
 }
