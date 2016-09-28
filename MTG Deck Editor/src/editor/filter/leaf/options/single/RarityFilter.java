@@ -8,7 +8,6 @@ import editor.database.card.Card;
 import editor.database.characteristics.Rarity;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
@@ -23,7 +22,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 	 */
 	public RarityFilter()
 	{
-		super(FilterType.RARITY, Card::rarity);
+		super(FilterFactory.RARITY, Card::rarity);
 	}
 	
 	
@@ -37,7 +36,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.RARITY);
+		String content = checkContents(s, FilterFactory.RARITY);
 		int delim = content.indexOf('{');
 		contain = Containment.get(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
@@ -50,7 +49,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 	@Override
 	public Filter copy()
 	{
-		RarityFilter filter = (RarityFilter)FilterFactory.createFilter(FilterType.RARITY);
+		RarityFilter filter = (RarityFilter)FilterFactory.createFilter(FilterFactory.RARITY);
 		filter.contain = contain;
 		filter.selected = new HashSet<Rarity>(selected);
 		return filter;

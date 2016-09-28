@@ -10,7 +10,6 @@ import editor.database.card.Card;
 import editor.database.characteristics.ManaType;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
@@ -39,7 +38,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	 * @param t Type of the new ColorFilter
 	 * @param f Function for the new ColorFilter
 	 */
-	public ColorFilter(FilterType t, Function<Card, ManaType.Tuple> f)
+	public ColorFilter(String t, Function<Card, ManaType.Tuple> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
@@ -130,7 +129,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 		if (other.getClass() != getClass())
 			return false;
 		ColorFilter o = (ColorFilter)other;
-		return o.type == type && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;
+		return o.type.equals(type) && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;
 	}
 	
 	/**

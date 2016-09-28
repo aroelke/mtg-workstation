@@ -12,7 +12,6 @@ import javax.swing.event.DocumentListener;
 
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.TextFilter;
 import editor.gui.generic.ComboBoxPanel;
@@ -30,7 +29,7 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 	/**
 	 * Type of filter that this TextFilterPanel edits.
 	 */
-	private FilterType type;
+	private String type;
 	/**
 	 * Combo box for choosing set containment.
 	 */
@@ -156,6 +155,6 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		if (filter instanceof TextFilter)
 			setContents((TextFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal text filter " + filter.type.name());
+			throw new IllegalArgumentException("Illegal text filter " + filter.type);
 	}
 }

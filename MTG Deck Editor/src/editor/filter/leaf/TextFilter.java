@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
@@ -33,7 +32,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	 * @param s String to match
 	 * @return The new TextFilter.
 	 */
-	public static TextFilter createQuickFilter(FilterType t, String s)
+	public static TextFilter createQuickFilter(String t, String s)
 	{
 		try
 		{
@@ -93,7 +92,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	 * @param t Type of the new TextFilter
 	 * @param f Function for the new TextFilter
 	 */
-	public TextFilter(FilterType t, Function<Card, Collection<String>> f)
+	public TextFilter(String t, Function<Card, Collection<String>> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
@@ -230,7 +229,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		if (other.getClass() != getClass())
 			return false;
 		TextFilter o = (TextFilter)other;
-		return o.type == type && o.contain == contain && o.regex == regex && o.text.equals(text);
+		return o.type.equals(type) && o.contain == contain && o.regex == regex && o.text.equals(text);
 	}
 	
 	/**

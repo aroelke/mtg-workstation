@@ -94,7 +94,6 @@ import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.Symbol;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.filter.leaf.TextFilter;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
@@ -895,14 +894,14 @@ public class MainFrame extends JFrame
 		// Action to be taken when the user presses the Enter key after entering text into the quick-filter
 		// bar
 		nameFilterField.addActionListener((e) -> {
-			inventory.updateFilter(TextFilter.createQuickFilter(FilterType.NAME, nameFilterField.getText().toLowerCase()));
+			inventory.updateFilter(TextFilter.createQuickFilter(FilterFactory.NAME, nameFilterField.getText().toLowerCase()));
 			inventoryModel.fireTableDataChanged();
 		});
 		
 		// Action to be taken when the clear button is pressed (reset the filter)
 		clearButton.addActionListener((e) -> {
 			nameFilterField.setText("");
-			inventory.updateFilter(FilterFactory.createFilter(FilterType.ALL));
+			inventory.updateFilter(FilterFactory.createFilter(FilterFactory.ALL));
 			inventoryModel.fireTableDataChanged();
 		});
 		
@@ -910,8 +909,8 @@ public class MainFrame extends JFrame
 		// dialog)
 		advancedFilterButton.addActionListener((e) -> {
 			FilterGroupPanel panel = new FilterGroupPanel();
-			if (inventory.getFilter().equals(FilterFactory.createFilter(FilterType.ALL)))
-				panel.setContents(FilterFactory.createFilter(FilterType.NAME));
+			if (inventory.getFilter().equals(FilterFactory.createFilter(FilterFactory.ALL)))
+				panel.setContents(FilterFactory.createFilter(FilterFactory.NAME));
 			else
 				panel.setContents(inventory.getFilter());
 			panel.addChangeListener((c) -> SwingUtilities.getWindowAncestor((Component)c.getSource()).pack());

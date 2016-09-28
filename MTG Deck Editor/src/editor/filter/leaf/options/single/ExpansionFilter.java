@@ -6,7 +6,6 @@ import editor.database.card.Card;
 import editor.database.characteristics.Expansion;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
@@ -21,7 +20,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 	 */
 	public ExpansionFilter()
 	{
-		super(FilterType.EXPANSION, Card::expansion);
+		super(FilterFactory.EXPANSION, Card::expansion);
 	}
 
 	/**
@@ -34,7 +33,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.EXPANSION);
+		String content = checkContents(s, FilterFactory.EXPANSION);
 		int delim = content.indexOf('{');
 		contain = Containment.get(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
@@ -50,7 +49,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 	@Override
 	public Filter copy()
 	{
-		ExpansionFilter filter = (ExpansionFilter)FilterFactory.createFilter(FilterType.EXPANSION);
+		ExpansionFilter filter = (ExpansionFilter)FilterFactory.createFilter(FilterFactory.EXPANSION);
 		filter.contain = contain;
 		filter.selected = new HashSet<Expansion>(selected);
 		return filter;

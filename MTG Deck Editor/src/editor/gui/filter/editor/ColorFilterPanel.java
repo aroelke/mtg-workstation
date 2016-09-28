@@ -12,7 +12,6 @@ import editor.database.characteristics.ManaType;
 import editor.database.symbol.ColorSymbol;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.filter.leaf.ColorFilter;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.generic.ComboBoxPanel;
@@ -30,7 +29,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 	/**
 	 * Type of the filter being edited.
 	 */
-	private FilterType type;
+	private String type;
 	/**
 	 * Combo box showing the containment options.
 	 */
@@ -128,6 +127,6 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 		if (filter instanceof ColorFilter)
 			setContents((ColorFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal color filter " + filter.type.name());
+			throw new IllegalArgumentException("Illegal color filter " + filter.type);
 	}
 }

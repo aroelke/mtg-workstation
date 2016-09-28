@@ -8,7 +8,6 @@ import java.util.function.Predicate;
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 
 /**
  * This class represents a filter for a numeric card characteristic that can
@@ -34,7 +33,7 @@ public class VariableNumberFilter extends NumberFilter
 	 * @param f Function representing the card characteristic
 	 * @param v Function checking if the card characteristic is variable
 	 */
-	public VariableNumberFilter(FilterType t, Function<Card, Collection<Double>> f, Predicate<Card> v)
+	public VariableNumberFilter(String t, Function<Card, Collection<Double>> f, Predicate<Card> v)
 	{
 		super(t, f);
 		varies = false;
@@ -118,7 +117,7 @@ public class VariableNumberFilter extends NumberFilter
 		if (other.getClass() != getClass())
 			return false;
 		VariableNumberFilter o = (VariableNumberFilter)other;
-		return o.type == type && o.varies == varies && o.variable.equals(variable)
+		return o.type.equals(type) && o.varies == varies && o.variable.equals(variable)
 				&& o.operation == operation & o.operand == operand;
 	}
 	

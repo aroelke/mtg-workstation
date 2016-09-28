@@ -6,7 +6,6 @@ import java.util.HashSet;
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
@@ -26,7 +25,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
 	 */
 	public SupertypeFilter()
 	{
-		super(FilterType.SUPERTYPE, Card::supertypes);
+		super(FilterFactory.SUPERTYPE, Card::supertypes);
 	}
 	
 	/**
@@ -39,7 +38,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.SUPERTYPE);
+		String content = checkContents(s, FilterFactory.SUPERTYPE);
 		int delim = content.indexOf('{');
 		contain = Containment.get(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
@@ -52,7 +51,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
 	@Override
 	public Filter copy()
 	{
-		SupertypeFilter filter = (SupertypeFilter)FilterFactory.createFilter(FilterType.SUPERTYPE);
+		SupertypeFilter filter = (SupertypeFilter)FilterFactory.createFilter(FilterFactory.SUPERTYPE);
 		filter.contain = contain;
 		filter.selected = new HashSet<String>(selected);
 		return filter;

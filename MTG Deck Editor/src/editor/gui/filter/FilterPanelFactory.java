@@ -5,7 +5,6 @@ import editor.database.card.CardLayout;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.filter.leaf.ColorFilter;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.ManaCostFilter;
@@ -53,41 +52,41 @@ public interface FilterPanelFactory
 	{
 		switch (filter.type)
 		{
-		case NAME: case RULES_TEXT: case FLAVOR_TEXT: case ARTIST:
+		case FilterFactory.NAME: case FilterFactory.RULES_TEXT: case FilterFactory.FLAVOR_TEXT: case FilterFactory.ARTIST:
 			return new TextFilterPanel((TextFilter)filter);
-		case LAYOUT:
+		case FilterFactory.LAYOUT:
 			return new OptionsFilterPanel<CardLayout>((LayoutFilter)filter, CardLayout.values());
-		case MANA_COST:
+		case FilterFactory.MANA_COST:
 			return new ManaCostFilterPanel((ManaCostFilter)filter);
-		case CMC: case LOYALTY: case CARD_NUMBER:
+		case FilterFactory.CMC: case FilterFactory.LOYALTY: case FilterFactory.CARD_NUMBER:
 			return new NumberFilterPanel((NumberFilter)filter);
-		case COLOR: case COLOR_IDENTITY:
+		case FilterFactory.COLOR: case FilterFactory.COLOR_IDENTITY:
 			return new ColorFilterPanel((ColorFilter)filter);
-		case TYPE_LINE:
+		case FilterFactory.TYPE_LINE:
 			return new TypeLineFilterPanel((TypeLineFilter)filter);
-		case SUPERTYPE:
+		case FilterFactory.SUPERTYPE:
 			return new OptionsFilterPanel<String>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
-		case TYPE:
+		case FilterFactory.TYPE:
 			return new OptionsFilterPanel<String>((CardTypeFilter)filter, CardTypeFilter.typeList);
-		case SUBTYPE:
+		case FilterFactory.SUBTYPE:
 			return new OptionsFilterPanel<String>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
-		case EXPANSION:
+		case FilterFactory.EXPANSION:
 			return new OptionsFilterPanel<Expansion>((ExpansionFilter)filter, Expansion.expansions);
-		case BLOCK:
+		case FilterFactory.BLOCK:
 			return new OptionsFilterPanel<String>((BlockFilter)filter, Expansion.blocks);
-		case RARITY:
+		case FilterFactory.RARITY:
 			return new OptionsFilterPanel<Rarity>((RarityFilter)filter, Rarity.values());
-		case POWER: case TOUGHNESS:
+		case FilterFactory.POWER: case FilterFactory.TOUGHNESS:
 			return new VariableNumberFilterPanel((VariableNumberFilter)filter);
-		case FORMAT_LEGALITY:
+		case FilterFactory.FORMAT_LEGALITY:
 			return new LegalityFilterPanel((LegalityFilter)filter);
-		case TAGS:
+		case FilterFactory.TAGS:
 			return new OptionsFilterPanel<String>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
-		case DEFAULTS:
+		case FilterFactory.DEFAULTS:
 			return new DefaultsFilterPanel();
-		case NONE:
+		case FilterFactory.NONE:
 			return new BinaryFilterPanel(false);
-		case ALL:
+		case FilterFactory.ALL:
 			return new BinaryFilterPanel(true);
 		default:
 			return null;
@@ -101,9 +100,9 @@ public interface FilterPanelFactory
 	 * @return A new FilterEditorPanel corresponding to the given type with
 	 * its fields filled out with default values.
 	 */
-	public static FilterEditorPanel<?> createFilterPanel(FilterType type)
+	public static FilterEditorPanel<?> createFilterPanel(String type)
 	{
-		if (type == FilterType.DEFAULTS)
+		if (type.equals(FilterFactory.DEFAULTS))
 			return new DefaultsFilterPanel();
 		else
 			return createFilterPanel(FilterFactory.createFilter(type));

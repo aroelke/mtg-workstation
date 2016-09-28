@@ -6,7 +6,6 @@ import editor.database.card.Card;
 import editor.database.characteristics.ManaCost;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
@@ -30,7 +29,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	 */
 	public ManaCostFilter()
 	{
-		super(FilterType.MANA_COST, null);
+		super(FilterFactory.MANA_COST, null);
 		contain = Containment.CONTAINS_ANY_OF;
 		cost = new ManaCost("");
 	}
@@ -85,7 +84,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.MANA_COST);
+		String content = checkContents(s, FilterFactory.MANA_COST);
 		int delim = content.indexOf('"');
 		contain = Containment.get(content.substring(0, delim));
 		cost = ManaCost.valueOf(content.substring(delim + 1, content.lastIndexOf('"')));
@@ -97,7 +96,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	@Override
 	public Filter copy()
 	{
-		ManaCostFilter filter = (ManaCostFilter)FilterFactory.createFilter(FilterType.MANA_COST);
+		ManaCostFilter filter = (ManaCostFilter)FilterFactory.createFilter(FilterFactory.MANA_COST);
 		filter.contain = contain;
 		filter.cost = cost;
 		return filter;

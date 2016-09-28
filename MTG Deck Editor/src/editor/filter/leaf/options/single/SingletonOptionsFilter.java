@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 import editor.database.card.Card;
-import editor.filter.FilterType;
 import editor.filter.leaf.options.OptionsFilter;
 
 /**
@@ -23,7 +22,7 @@ public abstract class SingletonOptionsFilter<T> extends OptionsFilter<T>
 	 * @param t Type of the new SingletonOptionsFilter
 	 * @param f Function for the new SingletonOptionsFilter
 	 */
-	public SingletonOptionsFilter(FilterType t, Function<Card, T> f)
+	public SingletonOptionsFilter(String t, Function<Card, T> f)
 	{
 		super(t, f);
 	}

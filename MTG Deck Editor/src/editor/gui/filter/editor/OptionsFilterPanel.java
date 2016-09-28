@@ -23,7 +23,6 @@ import com.jidesoft.swing.SimpleScrollPane;
 
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
 import editor.gui.generic.ComboBoxPanel;
@@ -54,7 +53,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	/**
 	 * Type of filter this OptionsFilterPanel edits.
 	 */
-	private FilterType type;
+	private String type;
 	/**
 	 * List of options that are available to choose from.
 	 */
@@ -79,7 +78,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	 * @param t Type of the new OptionsFilterPanel
 	 * @param o List of options to choose from
 	 */
-	public OptionsFilterPanel(FilterType t, T[] o)
+	public OptionsFilterPanel(String t, T[] o)
 	{
 		super();
 		setLayout(new BorderLayout());
@@ -199,7 +198,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	@Override
 	public void setContents(OptionsFilter<T> filter)
 	{
-		if (filter.type == type)
+		if (filter.type.equals(type))
 		{
 			contain.setSelectedItem(filter.contain);
 			if (options.length == 0)
@@ -213,7 +212,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 					addItem(selected);
 		}
 		else
-			throw new IllegalArgumentException("Options filter type " + filter.type.name() + " does not match type " + type.name());
+			throw new IllegalArgumentException("Options filter type " + filter.type + " does not match type " + type);
 	}
 
 	/**
@@ -228,11 +227,11 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	@Override
 	public void setContents(FilterLeaf<?> filter)
 	{
-		if (filter instanceof OptionsFilter && filter.type == type)
+		if (filter instanceof OptionsFilter && filter.type.equals(type))
 			setContents((OptionsFilter<T>)filter);
 		else if (filter instanceof OptionsFilter)
-			throw new IllegalArgumentException("Options filter type " + filter.type.name() + " does not match type " + type.name());
+			throw new IllegalArgumentException("Options filter type " + filter.type + " does not match type " + type);
 		else
-			throw new IllegalArgumentException("Illegal options filter " + filter.type.name());
+			throw new IllegalArgumentException("Illegal options filter " + filter.type);
 	}
 }

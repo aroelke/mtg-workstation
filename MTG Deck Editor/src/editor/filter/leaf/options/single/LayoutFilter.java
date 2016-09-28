@@ -8,7 +8,6 @@ import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
@@ -23,7 +22,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 	 */
 	public LayoutFilter()
 	{
-		super(FilterType.LAYOUT, Card::layout);
+		super(FilterFactory.LAYOUT, Card::layout);
 	}
 	
 	
@@ -37,7 +36,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.RARITY);
+		String content = checkContents(s, FilterFactory.RARITY);
 		int delim = content.indexOf('{');
 		contain = Containment.get(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
@@ -50,7 +49,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 	@Override
 	public Filter copy()
 	{
-		LayoutFilter filter = (LayoutFilter)FilterFactory.createFilter(FilterType.LAYOUT);
+		LayoutFilter filter = (LayoutFilter)FilterFactory.createFilter(FilterFactory.LAYOUT);
 		filter.contain = contain;
 		filter.selected = new HashSet<CardLayout>(selected);
 		return filter;

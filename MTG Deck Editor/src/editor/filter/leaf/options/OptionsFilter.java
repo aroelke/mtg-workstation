@@ -7,7 +7,6 @@ import java.util.StringJoiner;
 import java.util.function.Function;
 
 import editor.database.card.Card;
-import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.util.Containment;
 
@@ -36,7 +35,7 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	 * @param t Type of this OptionsFilter
 	 * @param f Function for this OptionsFilter
 	 */
-	public OptionsFilter(FilterType t, Function<Card, T> f)
+	public OptionsFilter(String t, Function<Card, T> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
@@ -74,7 +73,7 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 		if (other.getClass() != getClass())
 			return false;
 		OptionsFilter<?> o = (OptionsFilter<?>)other;
-		return o.type == type && o.contain == contain && o.selected.equals(selected);
+		return o.type.equals(type) && o.contain == contain && o.selected.equals(selected);
 	}
 	
 	/**

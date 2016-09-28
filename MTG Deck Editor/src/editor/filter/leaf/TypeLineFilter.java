@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
@@ -35,7 +34,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
 	 */
 	public TypeLineFilter()
 	{
-		super(FilterType.TYPE_LINE, Card::allTypes);
+		super(FilterFactory.TYPE_LINE, Card::allTypes);
 		contain = Containment.CONTAINS_ANY_OF;
 		line = "";
 	}
@@ -76,7 +75,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.TYPE_LINE);
+		String content = checkContents(s, FilterFactory.TYPE_LINE);
 		int delim = content.indexOf('"');
 		contain = Containment.get(content.substring(0, delim));
 		line = content.substring(delim + 1, content.lastIndexOf('"'));
@@ -88,7 +87,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
 	@Override
 	public Filter copy()
 	{
-		TypeLineFilter filter = (TypeLineFilter)FilterFactory.createFilter(FilterType.TYPE_LINE);
+		TypeLineFilter filter = (TypeLineFilter)FilterFactory.createFilter(FilterFactory.TYPE_LINE);
 		filter.contain = contain;
 		filter.line = line;
 		return filter;

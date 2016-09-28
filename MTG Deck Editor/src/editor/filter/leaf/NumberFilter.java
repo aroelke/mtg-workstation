@@ -7,7 +7,6 @@ import java.util.function.Function;
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Comparison;
 
 /**
@@ -34,7 +33,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	 * @param t Type of the new NumberFilter
 	 * @param f Function for the new NumberFilter
 	 */
-	public NumberFilter(FilterType t, Function<Card, Collection<Double>> f)
+	public NumberFilter(String t, Function<Card, Collection<Double>> f)
 	{
 		super(t, f);
 		operation = '=';
@@ -105,7 +104,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 		if (other.getClass() != getClass())
 			return false;
 		NumberFilter o = (NumberFilter)other;
-		return o.type == type && o.operation == operation && o.operand == operand;
+		return o.type.equals(type) && o.operation == operation && o.operand == operand;
 	}
 	
 	/**

@@ -10,7 +10,6 @@ import editor.database.card.Card;
 import editor.database.characteristics.Legality;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
@@ -35,7 +34,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	 */
 	public LegalityFilter()
 	{
-		super(FilterType.FORMAT_LEGALITY, Card::legalIn);
+		super(FilterFactory.FORMAT_LEGALITY, Card::legalIn);
 		restricted = false;
 	}
 	
@@ -86,7 +85,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.FORMAT_LEGALITY);
+		String content = checkContents(s, FilterFactory.FORMAT_LEGALITY);
 		int delim = content.indexOf('{');
 		contain = Containment.get(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
@@ -100,7 +99,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	@Override
 	public Filter copy()
 	{
-		LegalityFilter filter = (LegalityFilter)FilterFactory.createFilter(FilterType.FORMAT_LEGALITY);
+		LegalityFilter filter = (LegalityFilter)FilterFactory.createFilter(FilterFactory.FORMAT_LEGALITY);
 		filter.contain = contain;
 		filter.selected = new HashSet<String>(selected);
 		filter.restricted = restricted;

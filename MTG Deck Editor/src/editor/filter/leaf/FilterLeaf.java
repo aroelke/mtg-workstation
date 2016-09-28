@@ -5,7 +5,6 @@ import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.filter.FilterType;
 
 /**
  * This class represents a leaf in the filter tree, which filters a
@@ -24,7 +23,7 @@ public abstract class FilterLeaf<T> extends Filter
 	/**
 	 * FilterType showing the characteristic of the cards to be filtered.
 	 */
-	public final FilterType type;
+	public final String type;
 	
 	/**
 	 * Create a new FilterLeaf.
@@ -32,7 +31,7 @@ public abstract class FilterLeaf<T> extends Filter
 	 * @param t FilterType of the new FilterLeaf
 	 * @param f Function of the new FilterLeaf
 	 */
-	public FilterLeaf(FilterType t, Function<Card, T> f)
+	public FilterLeaf(String t, Function<Card, T> f)
 	{
 		super();
 		type = t;
@@ -54,11 +53,11 @@ public abstract class FilterLeaf<T> extends Filter
 	 * @return A String representing the contents of this FilterLeaf for further
 	 * parsing.
 	 */
-	public String checkContents(String s, FilterType... correct)
+	public String checkContents(String s, String... correct)
 	{
 		int delim = s.indexOf(':');
 		String code = s.substring(1, delim);
-		if (!Arrays.asList(correct).contains(FilterType.fromCode(code)))
+		if (!Arrays.asList(correct).contains(code))
 			throw new IllegalArgumentException("Illegal filter type '" + code + "' found in string \"" + s + "\"");
 		return s.substring(delim + 1, s.length() - 1);
 	}
@@ -73,6 +72,6 @@ public abstract class FilterLeaf<T> extends Filter
 	@Override
 	public String representation()
 	{
-		return type.code + ":" + content();
+		return type + ":" + content();
 	}
 }

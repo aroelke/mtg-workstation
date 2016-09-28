@@ -5,7 +5,6 @@ import javax.swing.JTextField;
 
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.TypeLineFilter;
 import editor.gui.generic.ComboBoxPanel;
@@ -63,7 +62,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
 	@Override
 	public Filter filter()
 	{
-		TypeLineFilter filter = (TypeLineFilter)FilterFactory.createFilter(FilterType.TYPE_LINE);
+		TypeLineFilter filter = (TypeLineFilter)FilterFactory.createFilter(FilterFactory.TYPE_LINE);
 		filter.contain = contain.getSelectedItem();
 		filter.line = line.getText();
 		return filter;
@@ -96,6 +95,6 @@ public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
 		if (filter instanceof TypeLineFilter)
 			setContents((TypeLineFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal type line filter " + filter.type.name());
+			throw new IllegalArgumentException("Illegal type line filter " + filter.type);
 	}
 }

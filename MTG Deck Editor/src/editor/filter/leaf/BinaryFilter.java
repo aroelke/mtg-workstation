@@ -5,7 +5,6 @@ import java.util.Objects;
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 
 /**
  * This class represents a filter with only two options: All
@@ -27,7 +26,7 @@ public class BinaryFilter extends FilterLeaf<Void>
 	 */
 	public BinaryFilter(boolean a)
 	{
-		super(a ? FilterType.ALL : FilterType.NONE, null);
+		super(a ? FilterFactory.ALL : FilterFactory.NONE, null);
 		all = a;
 	}
 	

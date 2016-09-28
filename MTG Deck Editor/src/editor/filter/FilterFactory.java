@@ -1,5 +1,8 @@
 package editor.filter;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import editor.database.card.Card;
@@ -27,8 +30,69 @@ import editor.filter.leaf.options.single.RarityFilter;
  * 
  * @author Alec Roelke
  */
-public interface FilterFactory
+public abstract class FilterFactory
 {
+	/**
+	 * TODO: Comment these
+	 */
+	public static final String NAME = "n";
+	public static final String LAYOUT = "L";
+	public static final String MANA_COST = "m";
+	public static final String CMC = "cmc";
+	public static final String COLOR = "c";
+	public static final String COLOR_IDENTITY = "ci";
+	public static final String TYPE_LINE = "type";
+	public static final String SUPERTYPE = "super";
+	public static final String TYPE = "cardtype";
+	public static final String SUBTYPE = "sub";
+	public static final String EXPANSION = "x";
+	public static final String BLOCK = "b";
+	public static final String RARITY = "r";
+	public static final String RULES_TEXT = "o";
+	public static final String FLAVOR_TEXT = "f";
+	public static final String POWER = "p";
+	public static final String TOUGHNESS = "t";
+	public static final String LOYALTY = "l";
+	public static final String ARTIST = "a";
+	public static final String CARD_NUMBER = "#";
+	public static final String FORMAT_LEGALITY = "legal";
+	public static final String TAGS = "tag";
+	public static final String DEFAULTS = "";
+	public static final String NONE = "0";
+	public static final String ALL = "*";
+	
+	public static final Map<String, String> FILTER_TYPES;
+	static
+	{
+		Map<String, String> filterTypes = new LinkedHashMap<String, String>();
+		filterTypes[NAME] = "Name";
+		filterTypes[LAYOUT] = "Layout";
+		filterTypes[MANA_COST] = "Mana Cost";
+		filterTypes[CMC] = "CMC";
+		filterTypes[COLOR] = "Color";
+		filterTypes[COLOR_IDENTITY] = "Color Identity";
+		filterTypes[TYPE_LINE] = "Type Line";
+		filterTypes[SUPERTYPE] = "Supertype";
+		filterTypes[TYPE] = "Card Type";
+		filterTypes[SUBTYPE] = "Subtype";
+		filterTypes[EXPANSION] = "Expansion";
+		filterTypes[BLOCK] = "Block";
+		filterTypes[RARITY] = "Rarity";
+		filterTypes[RULES_TEXT] = "Rules Text";
+		filterTypes[FLAVOR_TEXT] = "Flavor Text";
+		filterTypes[POWER] = "Power";
+		filterTypes[TOUGHNESS] = "Toughness";
+		filterTypes[LOYALTY] = "Loyalty";
+		filterTypes[ARTIST] = "Artist";
+		filterTypes[CARD_NUMBER] = "Card Number";
+		filterTypes[FORMAT_LEGALITY] = "Format Legality";
+		filterTypes[TAGS] = "Tags";
+		filterTypes[DEFAULTS] = "Defaults";
+		filterTypes[NONE] = "<No Card>";
+		filterTypes[ALL] = "<Any Card>";
+		FILTER_TYPES = Collections.unmodifiableMap(filterTypes);
+	}
+	
 	/**
 	 * Create a new filter.
 	 * 
@@ -36,7 +100,7 @@ public interface FilterFactory
 	 * @return A new filter of the given type with default values.  To edit those values,
 	 * access them directly.
 	 */
-	public static FilterLeaf<?> createFilter(FilterType type)
+	public static FilterLeaf<?> createFilter(String type)
 	{
 		switch (type)
 		{
@@ -94,4 +158,7 @@ public interface FilterFactory
 			return null;
 		}
 	}
+	
+	private FilterFactory()
+	{}
 }

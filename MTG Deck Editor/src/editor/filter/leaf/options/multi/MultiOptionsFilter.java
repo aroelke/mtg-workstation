@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import editor.database.card.Card;
-import editor.filter.FilterType;
 import editor.filter.leaf.options.OptionsFilter;
 
 /**
@@ -29,7 +28,7 @@ public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
 	 * @param t Type of the new MultiOptionsFilter
 	 * @param f Function for the new MultiOptionsFilter
 	 */
-	public MultiOptionsFilter(FilterType t, Function<Card, Collection<T>> f)
+	public MultiOptionsFilter(String t, Function<Card, Collection<T>> f)
 	{
 		super(t, null);
 		function = f;

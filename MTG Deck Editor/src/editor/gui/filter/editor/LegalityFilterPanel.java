@@ -5,7 +5,7 @@ import java.awt.BorderLayout;
 import javax.swing.JCheckBox;
 
 import editor.filter.Filter;
-import editor.filter.FilterType;
+import editor.filter.FilterFactory;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
 import editor.filter.leaf.options.multi.LegalityFilter;
@@ -30,7 +30,7 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
 	 */
 	public LegalityFilterPanel()
 	{
-		super(FilterType.FORMAT_LEGALITY, LegalityFilter.formatList);
+		super(FilterFactory.FORMAT_LEGALITY, LegalityFilter.formatList);
 		add(restrictedBox = new JCheckBox("Restricted"), BorderLayout.EAST);
 	}
 	
@@ -67,8 +67,8 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
 	@Override
 	public void setContents(OptionsFilter<String> filter)
 	{
-		if (filter.type != FilterType.FORMAT_LEGALITY)
-			throw new IllegalArgumentException("Illegal legality filter type " + filter.type.name());
+		if (filter.type != FilterFactory.FORMAT_LEGALITY)
+			throw new IllegalArgumentException("Illegal legality filter type " + filter.type);
 		else
 			setContents((LegalityFilter)filter);
 	}
@@ -86,7 +86,7 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
 		if (filter instanceof LegalityFilter)
 			setContents((LegalityFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal legality filter " + filter.type.name());
+			throw new IllegalArgumentException("Illegal legality filter " + filter.type);
 			
 	}
 	

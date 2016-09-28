@@ -9,7 +9,6 @@ import javax.swing.SpinnerNumberModel;
 
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.VariableNumberFilter;
 import editor.gui.generic.ComboBoxPanel;
@@ -27,7 +26,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 	/**
 	 * Type of filter this VariableNumberFilterPanel edits.
 	 */
-	private FilterType type;
+	private String type;
 	/**
 	 * Combo box presenting comparison options.
 	 */
@@ -119,6 +118,6 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		if (filter instanceof VariableNumberFilter)
 			setContents((VariableNumberFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal variable number filter " + filter.type.name());
+			throw new IllegalArgumentException("Illegal variable number filter " + filter.type);
 	}
 }

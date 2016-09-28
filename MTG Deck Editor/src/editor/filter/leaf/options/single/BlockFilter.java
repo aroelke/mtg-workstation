@@ -5,7 +5,6 @@ import java.util.HashSet;
 
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.filter.FilterType;
 import editor.util.Containment;
 
 /**
@@ -20,7 +19,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 	 */
 	public BlockFilter()
 	{
-		super(FilterType.BLOCK, (c) -> c.expansion().block);
+		super(FilterFactory.BLOCK, (c) -> c.expansion().block);
 	}
 	
 	/**
@@ -33,7 +32,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, FilterType.BLOCK);
+		String content = checkContents(s, FilterFactory.BLOCK);
 		int delim = content.indexOf('{');
 		contain = Containment.get(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
@@ -46,7 +45,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 	@Override
 	public Filter copy()
 	{
-		BlockFilter filter = (BlockFilter)FilterFactory.createFilter(FilterType.BLOCK);
+		BlockFilter filter = (BlockFilter)FilterFactory.createFilter(FilterFactory.BLOCK);
 		filter.contain = contain;
 		filter.selected = new HashSet<String>(selected);
 		return filter;
