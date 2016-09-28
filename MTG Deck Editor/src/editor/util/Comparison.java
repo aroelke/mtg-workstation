@@ -5,7 +5,7 @@ import java.util.function.BiPredicate;
 /**
  * This class represents a logical comparison between two values.
  * 
- * TODO: Make this into a map with some helper methods instead of an enum (and see about doing that for others as well)
+ * TODO: Change other enums in a similar way to this one.
  * 
  * @author Alec Roelke
  */
