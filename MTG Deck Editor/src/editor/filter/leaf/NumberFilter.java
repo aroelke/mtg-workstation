@@ -13,6 +13,8 @@ import editor.util.Comparison;
  * This class represents a filter for a card characteristic that is a
  * number.
  * 
+ * TODO: Change this to ComparableFilter and make it generic.
+ * 
  * @author Alec Roelke
  */
 public class NumberFilter extends FilterLeaf<Collection<Double>>
