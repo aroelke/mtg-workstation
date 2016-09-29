@@ -48,8 +48,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	@Override
 	public boolean test(Card c)
 	{
-		Collection<Double> values = function.apply(c);
-		return values.stream().anyMatch((v) -> !v.isNaN() && Comparison.test(operation, v, operand));
+		return function.apply(c).stream().anyMatch((v) -> !v.isNaN() && Comparison.test(operation, v, operand));
 	}
 
 	/**
