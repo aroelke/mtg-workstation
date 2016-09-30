@@ -12,7 +12,7 @@ public interface Comparison
 	/**
 	 * List of comparison operations that can be performed.
 	 */
-	static Character[] OPERATIONS = new Character[] {'=', '≠', '≥', '≤', '>', '<'};
+	Character[] OPERATIONS = new Character[] {'=', '≠', '≥', '≤', '>', '<'};
 	
 	/**
 	 * Test two values according to a type of comparison.
