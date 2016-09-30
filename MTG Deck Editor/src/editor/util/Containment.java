@@ -6,7 +6,7 @@ import java.util.function.BiPredicate;
 /**
  * This enumeration represents a way that elements from one set can be contained in another.
  * 
- * Change this to a map like Comparison did.
+ * TODO: Change this to a map like Comparison did.
  * 
  * @author Alec Roelke
  */
