@@ -188,14 +188,14 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		int delim = content.indexOf('"');
 		if (delim > -1)
 		{
-			contain = Containment.get(content.substring(0, delim));
+			contain = Containment.fromString(content.substring(0, delim));
 			text = content.substring(delim + 1, content.lastIndexOf('"'));
 			regex = false;
 		}
 		else
 		{
 			delim = content.indexOf('/');
-			contain = Containment.get(content.substring(0, delim));
+			contain = Containment.fromString(content.substring(0, delim));
 			text = content.substring(delim + 1, content.lastIndexOf('/'));
 			regex = true;
 		}

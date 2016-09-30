@@ -6,38 +6,16 @@ import java.util.function.BiPredicate;
 /**
  * This enumeration represents a way that elements from one set can be contained in another.
  * 
- * TODO: Change this to a map like Comparison did.
- * 
  * @author Alec Roelke
  */
 public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 {
-	CONTAINS_ANY_OF((a, b) -> {
-		if (b.isEmpty())
-			return true;
-		for (Object o: b)
-			if (a.contains(o))
-				return true;
-		return false;
-	}),
-	CONTAINS_NONE_OF((a, b) -> {
-		for (Object o: b)
-			if (a.contains(o))
-				return false;
-		return true;
-	}),
-	CONTAINS_ALL_OF(Collection::containsAll),
-	CONTAINS_NOT_ALL_OF((a, b) -> CONTAINS_ANY_OF.test(a,  b) && !a.containsAll(b)),
-	CONTAINS_EXACTLY((a, b) -> a.containsAll(b) && b.containsAll(a)),
-	CONTAINS_NOT_EXACTLY((a, b) -> {
-		for (Object o: a)
-			if (!b.contains(o))
-				return true;
-		for (Object o: b)
-			if (!a.contains(o))
-				return true;
-		return false;
-	});
+	CONTAINS_ANY_OF(),
+	CONTAINS_NONE_OF(),
+	CONTAINS_ALL_OF(),
+	CONTAINS_NOT_ALL_OF(),
+	CONTAINS_EXACTLY(),
+	CONTAINS_NOT_EXACTLY();
 	
 	/**
 	 * @return Array containing Containments that have meaning when the list has only one
@@ -49,35 +27,6 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 	}
 	
 	/**
-	 * Get a Containment based on the specified String.
-	 * 
-	 * @param s String to parse
-	 * @return Containment matching the specified String.
-	 */
-	public static Containment get(String s)
-	{
-		for (Containment e: Containment.values())
-			if (s.equalsIgnoreCase(e.toString()))
-				return e;
-		throw new IllegalArgumentException("Illegal containment string \"" + s + "\"");
-	}
-	
-	/**
-	 * Function to perform when calling this Containment.
-	 */
-	private BiPredicate<Collection<?>, Collection<?>> func;
-	
-	/**
-	 * Create a new Containment.
-	 * 
-	 * @param f Function to perform when calling the new Containment.
-	 */
-	private Containment(BiPredicate<Collection<?>, Collection<?>> f)
-	{
-		func = f;
-	}
-	
-	/**
 	 * @return A String representation of this Containment, which is its name
 	 * in lower case with _ replaced with a space.
 	 */
@@ -85,6 +34,15 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 	public String toString()
 	{
 		return super.toString().replace("_", " ").toLowerCase();
+	}
+	
+	/**
+	 * @param contain String representation of the desired Containment
+	 * @return The Containment corresponding to the given String.
+	 */
+	public static Containment fromString(String contain)
+	{
+		return Containment.valueOf(contain.toUpperCase().replace(' ', '_'));
 	}
 
 	/**
@@ -99,6 +57,36 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 	@Override
 	public boolean test(Collection<?> a, Collection<?> b)
 	{
-		return func.test(a, b);
+		switch (this)
+		{
+		case CONTAINS_ANY_OF:
+			if (b.isEmpty())
+				return true;
+			for (Object o: b)
+				if (a.contains(o))
+					return true;
+			return false;
+		case CONTAINS_NONE_OF:
+			for (Object o: b)
+				if (a.contains(o))
+					return false;
+			return true;
+		case CONTAINS_ALL_OF:
+			return a.containsAll(b);
+		case CONTAINS_NOT_ALL_OF:
+			return CONTAINS_ANY_OF.test(a, b) && !a.containsAll(b);
+		case CONTAINS_EXACTLY:
+			return a.size() == b.size() && a.containsAll(b) && b.containsAll(a);
+		case CONTAINS_NOT_EXACTLY:
+			for (Object o: a)
+				if (!b.contains(o))
+					return true;
+			for (Object o: b)
+				if (!a.contains(o))
+					return true;
+			return false;
+		default:
+			throw new IllegalArgumentException("Illegal Containment " + this);
+		}
 	}
 }

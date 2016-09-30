@@ -35,7 +35,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 	{
 		String content = checkContents(s, FilterFactory.EXPANSION);
 		int delim = content.indexOf('{');
-		contain = Containment.get(content.substring(0, delim));
+		contain = Containment.fromString(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			for (String o: content.substring(delim + 1, content.length() - 1).split(","))
 				for (Expansion expansion: Expansion.expansions)

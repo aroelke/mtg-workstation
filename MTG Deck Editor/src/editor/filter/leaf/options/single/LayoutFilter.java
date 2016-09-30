@@ -38,7 +38,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 	{
 		String content = checkContents(s, FilterFactory.RARITY);
 		int delim = content.indexOf('{');
-		contain = Containment.get(content.substring(0, delim));
+		contain = Containment.fromString(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			selected = Arrays.stream(content.substring(delim + 1, content.length() - 1).split(",")).map((str) -> CardLayout.valueOf(str.toUpperCase().replaceAll("[^A-Z]", "_"))).collect(Collectors.toSet());
 	}

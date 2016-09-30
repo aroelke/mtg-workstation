@@ -89,7 +89,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	{
 		String content = checkContents(s, type);
 		int delim = content.indexOf('"');
-		contain = Containment.get(content.substring(0, delim));
+		contain = Containment.fromString(content.substring(0, delim));
 		for (char c: content.substring(delim + 1, content.lastIndexOf('"')).toCharArray())
 		{
 			if (Character.toUpperCase(c) == 'M')

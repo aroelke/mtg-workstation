@@ -77,7 +77,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
 	{
 		String content = checkContents(s, FilterFactory.TYPE_LINE);
 		int delim = content.indexOf('"');
-		contain = Containment.get(content.substring(0, delim));
+		contain = Containment.fromString(content.substring(0, delim));
 		line = content.substring(delim + 1, content.lastIndexOf('"'));
 	}
 	
