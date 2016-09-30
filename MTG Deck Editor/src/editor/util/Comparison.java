@@ -1,13 +1,14 @@
 package editor.util;
 
+import java.util.function.BiPredicate;
+
 /**
  * This class represents a logical comparison between two values.
  * 
- * TODO: Change other enums in a similar way to this one.
- * 
  * @author Alec Roelke
  */
-public interface Comparison
+@FunctionalInterface
+public interface Comparison<T extends Comparable<? super T>> extends BiPredicate<T, T>
 {
 	/**
 	 * List of comparison operations that can be performed.
@@ -23,7 +24,7 @@ public interface Comparison
 	 * @return <code>true</code> if the comparison tests true for the two values, and
 	 * <code>false</code> otherwise.
 	 */
-	static <U extends Comparable<U>> boolean test(char op, U a, U b)
+	static <U extends Comparable<? super U>> boolean test(char op, U a, U b)
 	{
 		switch (op)
 		{
