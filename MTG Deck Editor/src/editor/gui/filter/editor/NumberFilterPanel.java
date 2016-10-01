@@ -29,7 +29,7 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 	/**
 	 * Comparison for the operand of the filter.
 	 */
-	private ComboBoxPanel<Character> comparison;
+	private ComboBoxPanel<Comparison> comparison;
 	/**
 	 * Spinner for the operand of the filter.
 	 */
@@ -44,7 +44,7 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		// Combo box for choosing the type of comparison to make
-		comparison = new ComboBoxPanel<Character>(Comparison.OPERATIONS);
+		comparison = new ComboBoxPanel<Comparison>(Comparison.values());
 		add(comparison);
 		
 		// Value to compare the characteristic against

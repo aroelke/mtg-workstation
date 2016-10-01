@@ -1,32 +1,53 @@
 package editor.util;
 
-import java.util.function.BiPredicate;
-
 /**
  * This class represents a logical comparison between two values.
  * 
+ * TODO: Comment this class
+ * TODO: Change other enums to be like this one if appropriate
+ * 
  * @author Alec Roelke
  */
-@FunctionalInterface
-public interface Comparison<T extends Comparable<? super T>> extends BiPredicate<T, T>
+public enum Comparison
 {
-	/**
-	 * List of comparison operations that can be performed.
-	 */
-	Character[] OPERATIONS = new Character[] {'=', '≠', '≥', '≤', '>', '<'};
+	EQ('='),
+	NE('≠'),
+	GE('≥'),
+	LE('≤'),
+	GT('>'),
+	LT('<');
 	
-	/**
-	 * Test two values according to a type of comparison.
-	 * 
-	 * @param op Comparison to perform
-	 * @param a First value to compare
-	 * @param b Second value to compare
-	 * @return <code>true</code> if the comparison tests true for the two values, and
-	 * <code>false</code> otherwise.
-	 */
-	static <U extends Comparable<? super U>> boolean test(char op, U a, U b)
+	private final char operator;
+	
+	private Comparison(final char op)
+	{
+		operator = op;
+	}
+	
+	public static Comparison valueOf(char op)
 	{
 		switch (op)
+		{
+		case '=':
+			return EQ;
+		case '≠':
+			return NE;
+		case '≥':
+			return GE;
+		case '≤':
+			return LE;
+		case '>':
+			return GT;
+		case '<':
+			return LT;
+		default:
+			throw new IllegalArgumentException("Illegal comparison " + op);
+		}
+	}
+	
+	public <T extends Comparable<? super T>> boolean test(T a, T b)
+	{
+		switch (operator)
 		{
 		case '=':
 			return a.equals(b);
@@ -41,7 +62,13 @@ public interface Comparison<T extends Comparable<? super T>> extends BiPredicate
 		case '<':
 			return a < b;
 		default:
-			throw new IllegalArgumentException("Illegal comparison '" + op + "'");
+			throw new IllegalArgumentException("Illegal comparison " + operator);
 		}
+	}
+	
+	@Override
+	public String toString()
+	{
+		return String.valueOf(operator);
 	}
 }

@@ -118,7 +118,7 @@ public class VariableNumberFilter extends NumberFilter
 			return false;
 		VariableNumberFilter o = (VariableNumberFilter)other;
 		return o.type.equals(type) && o.varies == varies && o.variable.equals(variable)
-				&& o.operation == operation & o.operand == operand;
+				&& o.operation.equals(operation) & o.operand == operand;
 	}
 	
 	/**

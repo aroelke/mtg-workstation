@@ -23,7 +23,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	 * Operation to compare the characteristic with this NumberFilter's
 	 * operand.
 	 */
-	public char operation;
+	public Comparison operation;
 	/**
 	 * Operand to perform the operation on.
 	 */
@@ -50,7 +50,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	@Override
 	public boolean test(Card c)
 	{
-		return function.apply(c).stream().anyMatch((v) -> !v.isNaN() && Comparison.test(operation, v, operand));
+		return function.apply(c).stream().anyMatch((v) -> !v.isNaN() && operation.test(v, operand));
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 		if (other.getClass() != getClass())
 			return false;
 		NumberFilter o = (NumberFilter)other;
-		return o.type.equals(type) && o.operation == operation && o.operand == operand;
+		return o.type.equals(type) && o.operation.equals(operation) && o.operand == operand;
 	}
 	
 	/**
