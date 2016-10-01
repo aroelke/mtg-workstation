@@ -1,7 +1,7 @@
 package editor.util;
 
 /**
- * This class represents a logical comparison between two values.
+ * This enum represents a logical comparison between two values.
  * 
  * TODO: Comment this class
  * TODO: Change other enums to be like this one if appropriate
@@ -17,13 +17,27 @@ public enum Comparison
 	GT('>'),
 	LT('<');
 	
+	/**
+	 * Operator of the comparison this Comparison performs.
+	 */
 	private final char operator;
 	
+	/**
+	 * Create a new Comparison.
+	 * 
+	 * @param op Operator of the new Comparison
+	 */
 	private Comparison(final char op)
 	{
 		operator = op;
 	}
 	
+	/**
+	 * Get the Comparison corresponding to the given operator.
+	 * 
+	 * @param op Operator of the comparison to get
+	 * @return The corresponding Comparison.
+	 */
 	public static Comparison valueOf(char op)
 	{
 		switch (op)
@@ -45,6 +59,14 @@ public enum Comparison
 		}
 	}
 	
+	/**
+	 * Test two values of the same type according to this Comparison's operation.
+	 * 
+	 * @param a First value to test
+	 * @param b Second value to test
+	 * @return <code>true</code> if the two values pass the comparison, and
+	 * <code>false</code> otherwise.
+	 */
 	public <T extends Comparable<? super T>> boolean test(T a, T b)
 	{
 		switch (operator)
@@ -66,6 +88,9 @@ public enum Comparison
 		}
 	}
 	
+	/**
+	 * @return A String representation of this Comparison, which is its operator.
+	 */
 	@Override
 	public String toString()
 	{
