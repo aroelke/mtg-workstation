@@ -134,8 +134,8 @@ public class PowerToughness implements Comparable<PowerToughness>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return <code>true</code> if this value "exists" (is on the card) and
+	 * <code>false</code> otherwise.
 	 */
 	public boolean exists()
 	{

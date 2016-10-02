@@ -119,8 +119,8 @@ public class Loyalty implements Comparable<Loyalty>
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return <code>true</code> if this value exists (is on the card), and
+	 * <code>false</code> otherwise.
 	 */
 	public boolean exists()
 	{

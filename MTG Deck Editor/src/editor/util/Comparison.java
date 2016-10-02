@@ -3,7 +3,6 @@ package editor.util;
 /**
  * This enum represents a logical comparison between two values.
  * 
- * TODO: Comment this class
  * TODO: Change other enums to be like this one if appropriate
  * 
  * @author Alec Roelke
