@@ -33,34 +33,109 @@ import editor.filter.leaf.options.single.RarityFilter;
 public abstract class FilterFactory
 {
 	/**
-	 * TODO: Comment these
+	 * Code for a name filter.
 	 */
 	public static final String NAME = "n";
+	/**
+	 * Code for a layout filter.
+	 */
 	public static final String LAYOUT = "L";
+	/**
+	 * Code for a mana cost filter.
+	 */
 	public static final String MANA_COST = "m";
+	/**
+	 * Code for a converted mana cost filter.
+	 */
 	public static final String CMC = "cmc";
+	/**
+	 * Code for a color filter.
+	 */
 	public static final String COLOR = "c";
+	/**
+	 * Code for a color identity filter.
+	 */
 	public static final String COLOR_IDENTITY = "ci";
+	/**
+	 * Code for a type line filter.
+	 */
 	public static final String TYPE_LINE = "type";
+	/**
+	 * Code for a supertype filter.
+	 */
 	public static final String SUPERTYPE = "super";
+	/**
+	 * Code for a type filter.
+	 */
 	public static final String TYPE = "cardtype";
+	/**
+	 * Code for a subtype filter.
+	 */
 	public static final String SUBTYPE = "sub";
+	/**
+	 * Code for an expansion filter.
+	 */
 	public static final String EXPANSION = "x";
+	/**
+	 * Code for a block filter.
+	 */
 	public static final String BLOCK = "b";
+	/**
+	 * Code for a rarity filter.
+	 */
 	public static final String RARITY = "r";
+	/**
+	 * Code for a rules text filter.
+	 */
 	public static final String RULES_TEXT = "o";
+	/**
+	 * Code for a flavor text filter.
+	 */
 	public static final String FLAVOR_TEXT = "f";
+	/**
+	 * Code for a power filter.
+	 */
 	public static final String POWER = "p";
+	/**
+	 * Code for a toughness filter.
+	 */
 	public static final String TOUGHNESS = "t";
+	/**
+	 * Code for a loyalty filter.
+	 */
 	public static final String LOYALTY = "l";
+	/**
+	 * Code for an artist filter.
+	 */
 	public static final String ARTIST = "a";
+	/**
+	 * Code for a collector's number filter.
+	 */
 	public static final String CARD_NUMBER = "#";
+	/**
+	 * Code for a format legality filter.
+	 */
 	public static final String FORMAT_LEGALITY = "legal";
+	/**
+	 * Code for a user tags filter.
+	 */
 	public static final String TAGS = "tag";
+	/**
+	 * Code (or lack thereof) for a defaults filter.  This should never be used, and only
+	 * exists for completeness.
+	 */
 	public static final String DEFAULTS = "";
+	/**
+	 * Code for a "no cards" filter.
+	 */
 	public static final String NONE = "0";
+	/**
+	 * Code for an "all cards" filter.
+	 */
 	public static final String ALL = "*";
-	
+	/**
+	 * Map of each filter type's code onto its name.
+	 */
 	public static final Map<String, String> FILTER_TYPES;
 	static
 	{
@@ -159,6 +234,9 @@ public abstract class FilterFactory
 		}
 	}
 	
+	/**
+	 * FilterFactory cannot be instantiated and should not be extended.
+	 */
 	private FilterFactory()
 	{}
 }
