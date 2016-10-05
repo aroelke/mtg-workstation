@@ -1411,7 +1411,7 @@ public class EditorFrame extends JInternalFrame
 		if ((int)medCMC == medCMC)
 			medCMCLabel.setText("Median CMC: " + (int)medCMC);
 		else
-			medCMCLabel.setText(String.format("Median CMC: %.2f", medCMC));
+			medCMCLabel.setText(String.format("Median CMC: %.1f", medCMC));
 	}
 
 	/**
