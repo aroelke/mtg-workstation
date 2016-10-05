@@ -460,9 +460,9 @@ public class SettingsDialog extends JDialog
 	 */
 	private JSpinner explicitsSpinner;
 	/**
-	 * Currently-chosen, but uncommitted setting for expected counts round mode.
+	 * TODO: Comment this
 	 */
-	private String selectedRoundMode;
+	private List<JRadioButton> modeButtons;
 	
 	/**
 	 * Create a new SettingsDialog.
@@ -818,17 +818,15 @@ public class SettingsDialog extends JDialog
 		expectedRoundPanel.add(new JLabel("Expected Category Count Round Mode:"));
 		expectedRoundPanel.add(Box.createHorizontalStrut(5));
 		ButtonGroup roundGroup = new ButtonGroup();
+		modeButtons = new ArrayList<JRadioButton>();
 		for (String mode: CalculateHandPanel.ROUND_MODE.keySet().stream().sorted().collect(Collectors.toList()))
 		{
 			JRadioButton modeButton = new JRadioButton(mode);
-			modeButton.addActionListener((e) -> {
-				if (modeButton.isSelected())
-					selectedRoundMode = mode;
-			});
 			roundGroup.add(modeButton);
 			expectedRoundPanel.add(modeButton);
 			expectedRoundPanel.add(Box.createHorizontalStrut(5));
 			modeButton.setSelected(mode.equals(getAsString(EXPECTED_ROUND_MODE)));
+			modeButtons.add(modeButton);
 		}
 		expectedRoundPanel.setMaximumSize(expectedRoundPanel.getPreferredSize());
 		expectedRoundPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -924,7 +922,9 @@ public class SettingsDialog extends JDialog
 			join.add(categoriesList.getCategoryAt(i).toString());
 		SETTINGS[EDITOR_PRESETS] = join.toString();
 		SETTINGS[HAND_SIZE] = startingSizeSpinner.getValue().toString();
-		SETTINGS[EXPECTED_ROUND_MODE] = selectedRoundMode;
+		for (JRadioButton modeButton: modeButtons)
+			if (modeButton.isSelected())
+				SETTINGS[EXPECTED_ROUND_MODE] = modeButton.getText();
 		SETTINGS[CARD_SCANS] = scansDirField.getText();
 		SETTINGS[IMAGE_BGCOLOR] = colorToString(scanBGChooser.getColor());
 		SETTINGS[HAND_BGCOLOR] = colorToString(handBGColor.getColor());
