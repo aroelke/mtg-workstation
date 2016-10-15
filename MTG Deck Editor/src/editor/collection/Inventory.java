@@ -33,7 +33,6 @@ public class Inventory implements CardList
 {
 	private class InventoryData implements Metadata
 	{
-		@SuppressWarnings("unused")
 		private final Card card;
 		
 		private InventoryData(Card c)
@@ -56,8 +55,7 @@ public class Inventory implements CardList
 		@Override
 		public Date dateAdded()
 		{
-			// TODO: Make this the date the card's expansion came out if possible
-			throw new UnsupportedOperationException("No date added for cards.");
+			return card.expansion().releaseDate;
 		}
 	}
 	

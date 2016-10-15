@@ -285,9 +285,11 @@ public class InventoryLoadDialog extends JDialog
 					Expansion set = new Expansion(setProperties["name"].getAsString(),
 												  setProperties.has("block") ? setProperties["block"].getAsString() : "<No Block>",
 												  setProperties["code"].getAsString(),
+												  (setProperties.has("oldCode") ? setProperties["oldCode"] : setProperties["code"]).getAsString(),
 												  (setProperties.has("magicCardsInfoCode") ? setProperties["magicCardsInfoCode"] : setProperties["code"]).getAsString().toUpperCase(),
 												  (setProperties.has("gathererCode") ? setProperties["gathererCode"] : setProperties["code"]).getAsString(),
-												  setCards.size());
+												  setCards.size(),
+												  Expansion.DATE_FORMAT.parse(setProperties["releaseDate"].getAsString()));
 					expansions.add(set);
 					blockNames.add(set.block);
 					publish("Loading cards from " + set + "...");

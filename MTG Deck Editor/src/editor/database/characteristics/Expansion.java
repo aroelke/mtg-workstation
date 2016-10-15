@@ -1,5 +1,8 @@
 package editor.database.characteristics;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * This class represents an expansion set of Magic: The Gathering cards.  It has a name, a block, a code,
  * and a number of cards.
@@ -18,6 +21,7 @@ public class Expansion implements Comparable<Expansion>
 	 * Array containing all block names.
 	 */
 	public static String[] blocks = {};
+	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("YYYY-MM-DD");
 	
 	/**
 	 * This Expansion's name.
@@ -32,6 +36,10 @@ public class Expansion implements Comparable<Expansion>
 	 */
 	public final String code;
 	/**
+	 * TODO: Comment this
+	 */
+	public final String oldCode;
+	/**
 	 * This Expansion's code on magiccards.info.
 	 */
 	public final String magicCardsInfoCode;
@@ -44,10 +52,14 @@ public class Expansion implements Comparable<Expansion>
 	 * Number of cards in this Expansion.
 	 */
 	public final int count;
+	/**
+	 * TODO: Comment this
+	 */
+	public final Date releaseDate;
 	
 	/**
 	 * Create a new Expansion.
-	 * 
+	 * TODO: Fix this comment
 	 * @param name Name of the new expansion
 	 * @param block Name of the block the new Expansion belongs to
 	 * @param code Code of the new Expansion (usually three letters)
@@ -55,14 +67,16 @@ public class Expansion implements Comparable<Expansion>
 	 * @param gatherer Gatherer code of the new Expansion
 	 * @param count Number of cards in the new Expansion
 	 */
-	public Expansion(String name, String block, String code, String magicCardsInfo, String gatherer, int count)
+	public Expansion(String name, String block, String code, String old, String magicCardsInfo, String gatherer, int count, Date date)
 	{
 		this.name = name;
 		this.block = block;
 		this.code = code;
+		this.oldCode = old;
 		this.magicCardsInfoCode = magicCardsInfo;
 		this.gathererCode = gatherer;
 		this.count = count;
+		this.releaseDate = date;
 	}
 	
 	/**

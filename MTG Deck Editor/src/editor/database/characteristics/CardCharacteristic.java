@@ -88,7 +88,8 @@ public enum CardCharacteristic
 										 TOUGHNESS,
 										 LOYALTY,
 										 ARTIST,
-										 LEGAL_IN};
+										 LEGAL_IN,
+										 DATE_ADDED};
 	}
 	
 	/**
