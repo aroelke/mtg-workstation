@@ -31,6 +31,11 @@ import editor.filter.leaf.BinaryFilter;
  */
 public class Inventory implements CardList
 {
+	/**
+	 * TODO: Comment this class
+	 * @author Alec
+	 *
+	 */
 	private class InventoryData implements Metadata
 	{
 		private final Card card;
