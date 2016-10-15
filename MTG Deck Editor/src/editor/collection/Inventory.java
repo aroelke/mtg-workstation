@@ -29,8 +29,38 @@ import editor.filter.leaf.BinaryFilter;
  * @author Alec Roelke
  * @see util.CategorizableList
  */
-public class Inventory implements CardCollection
+public class Inventory implements CardList
 {
+	private class InventoryData implements Metadata
+	{
+		@SuppressWarnings("unused")
+		private final Card card;
+		
+		private InventoryData(Card c)
+		{
+			card = c;
+		}
+		
+		@Override
+		public Set<CategorySpec> categories()
+		{
+			throw new UnsupportedOperationException("Inventory cannot have categories.");
+		}
+
+		@Override
+		public int count()
+		{
+			throw new UnsupportedOperationException("Inventory does not count card copies.");
+		}
+
+		@Override
+		public Date dateAdded()
+		{
+			// TODO: Make this the date the card's expansion came out if possible
+			throw new UnsupportedOperationException("No date added for cards.");
+		}
+	}
+	
 	/**
 	 * This class represents the data that can be transferred from an inventory via
 	 * drag and drop or cut/copy/paste.  It supports card and String flavors.
@@ -100,7 +130,7 @@ public class Inventory implements CardCollection
 		{
 			return Arrays.asList(getTransferDataFlavors()).contains(flavor);
 		}
-	}
+	};
 	
 	/**
 	 * Master list of cards.
@@ -120,6 +150,14 @@ public class Inventory implements CardCollection
 	private List<Card> filtrate;
 	
 	/**
+	 * Create an empty inventory.
+	 */
+	public Inventory()
+	{
+		this(new ArrayList<Card>());
+	}
+	
+	/**
 	 * Create a new Inventory with the given list of Cards.
 	 * 
 	 * @param list List of Cards
@@ -137,90 +175,36 @@ public class Inventory implements CardCollection
 		});
 	}
 	
-	/**
-	 * Create an empty inventory.
-	 */
-	public Inventory()
-	{
-		this(new ArrayList<Card>());
-	}
-	
-	/**
-	 * @param index Index of the Card to get
-	 * @return The Card at the given index.
-	 */
 	@Override
-	public Card get(int index)
+	public boolean add(Card c)
 	{
-		return filtrate[index];
+		throw new UnsupportedOperationException();
 	}
 	
-	/**
-	 * @param UID Unique identifier of the Card to look for.
-	 * @return The Card with the given UID.
-	 * @see editor.database.card.Card#ID
-	 */
-	public Card get(String UID)
-	{
-		return IDs[UID];
-	}
-	
-	/**
-	 * Update the filtered view of this Inventory.
-	 * 
-	 * @param f New filter
-	 */
-	public void updateFilter(Filter f)
-	{
-		filter.setFilter(f);
-	}
-	
-	/**
-	 * @return The current Filter for Cards in the inventory pane.
-	 */
-	public Filter getFilter()
-	{
-		return filter.getFilter();
-	}
-	
-	/**
-	 * @return The number of Cards in this Inventory.
-	 */
 	@Override
-	public int size()
+	public boolean add(Card c, int n)
 	{
-		return filtrate.size();
+		throw new UnsupportedOperationException();
 	}
 	
-	/**
-	 * @return <code>true</code> if there are no cards in the inventory, or if they're
-	 * all filtered out, and <code>false</code> otherwise.
-	 */
 	@Override
-	public boolean isEmpty()
+	public boolean addAll(Collection<? extends Card> coll)
 	{
-		return filtrate.isEmpty();
+		throw new UnsupportedOperationException();
 	}
 	
-	/**
-	 * @return <code>true</code> if there are no cards in the inventory, and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean noCards()
+	@Override
+	public boolean addAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
 	{
-		return cards.isEmpty();
+		throw new UnsupportedOperationException();
 	}
 	
-	/**
-	 * Sort the list using the specified Comparator.
-	 * 
-	 * @param comp Comparator to use for sorting
-	 */
-	public void sort(Comparator<Card> comp)
+	@Override
+	public void clear()
 	{
-		cards.sort(comp);
+		throw new UnsupportedOperationException();
 	}
-
+	
 	/**
 	 * @param Object to look for
 	 * @return <code>true</code> if the inventory contains the given item, and
@@ -244,6 +228,67 @@ public class Inventory implements CardCollection
 	}
 	
 	/**
+	 * @param index Index of the Card to get
+	 * @return The Card at the given index.
+	 */
+	@Override
+	public Card get(int index)
+	{
+		return filtrate[index];
+	}
+
+	/**
+	 * @param UID Unique identifier of the Card to look for.
+	 * @return The Card with the given UID.
+	 * @see editor.database.card.Card#ID
+	 */
+	public Card get(String UID)
+	{
+		return IDs[UID];
+	}
+	
+	@Override
+	public Metadata getData(Card c)
+	{
+		return new InventoryData(c);
+	}
+	
+	@Override
+	public Metadata getData(int index)
+	{
+		return new InventoryData(this[index]);
+	}
+	
+	/**
+	 * @return The current Filter for Cards in the inventory pane.
+	 */
+	public Filter getFilter()
+	{
+		return filter.getFilter();
+	}
+
+	/**
+	 * @param o Object to look for
+	 * @return The index of the object into the inventory, or -1 if it isn't
+	 * in the inventory.
+	 */
+	@Override
+	public int indexOf(Object o)
+	{
+		return filtrate.indexOf(o);
+	}
+	
+	/**
+	 * @return <code>true</code> if there are no cards in the inventory, or if they're
+	 * all filtered out, and <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean isEmpty()
+	{
+		return filtrate.isEmpty();
+	}
+	
+	/**
 	 * @return An iterator over all the cards in the inventory.
 	 */
 	@Override
@@ -252,6 +297,85 @@ public class Inventory implements CardCollection
 		return cards.iterator();
 	}
 	
+	/**
+	 * @return <code>true</code> if there are no cards in the inventory, and
+	 * <code>false</code> otherwise.
+	 */
+	public boolean noCards()
+	{
+		return cards.isEmpty();
+	}
+	
+	@Override
+	public int remove(Card c, int n)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean remove(Object o)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> coll)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> coll)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean set(Card c, int n)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean set(int index, int n)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * @return The number of Cards in this Inventory.
+	 */
+	@Override
+	public int size()
+	{
+		return filtrate.size();
+	}
+
+	/**
+	 * Sort the list using the specified Comparator.
+	 * 
+	 * @param comp Comparator to use for sorting
+	 */
+	public void sort(Comparator<Card> comp)
+	{
+		cards.sort(comp);
+	}
+
+	/**
+	 * @return A sequential stream over the filtered card list.
+	 */
+	@Override
+	public Stream<Card> stream()
+	{
+		return filtrate.stream();
+	}
+
 	/**
 	 * @return An array containing all the cards in the inventory.
 	 */
@@ -272,50 +396,7 @@ public class Inventory implements CardCollection
 	{
 		return cards.toArray(a);
 	}
-	
-	/**
-	 * @return A sequential stream over the filtered card list.
-	 */
-	@Override
-	public Stream<Card> stream()
-	{
-		return filtrate.stream();
-	}
-	
-	/**
-	 * @param c Card to look for
-	 * @return 1 if the card is in the inventory and 0 otherwise.
-	 */
-	@Override
-	public int count(Card c)
-	{
-		return contains(c) ? 1 : 0;
-	}
 
-	/**
-	 * @param index Index of the card to look for
-	 * @return 1, since there is only one copy of a card in the inventory
-	 * @throws IndexOutOfBoundsException if the index is out of range
-	 */
-	@Override
-	public int count(int index)
-	{
-		if (index >= size() || index < 0)
-			throw new IndexOutOfBoundsException(String.valueOf(index));
-		return 1;
-	}
-	
-	/**
-	 * @param o Object to look for
-	 * @return The index of the object into the inventory, or -1 if it isn't
-	 * in the inventory.
-	 */
-	@Override
-	public int indexOf(Object o)
-	{
-		return filtrate.indexOf(o);
-	}
-	
 	/**
 	 * @return The total number of cards in the inventory, even ones that are filtered
 	 * out.
@@ -325,88 +406,14 @@ public class Inventory implements CardCollection
 	{
 		return cards.size();
 	}
-	
-	@Override
-	public boolean add(Card c)
-	{
-		throw new UnsupportedOperationException();
-	}
 
-	@Override
-	public boolean addAll(Collection<? extends Card> coll)
+	/**
+	 * Update the filtered view of this Inventory.
+	 * 
+	 * @param f New filter
+	 */
+	public void updateFilter(Filter f)
 	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void clear()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean remove(Object o)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean removeAll(Collection<?> coll)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean retainAll(Collection<?> coll)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Set<CategorySpec> getCategories(Card c)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Set<CategorySpec> getCategories(int index)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Date dateAdded(Card c)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Date dateAdded(int index)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean increase(Card c, int n)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int decrease(Card c, int n)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean setCount(Card c, int n)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean setCount(int index, int n)
-	{
-		throw new UnsupportedOperationException();
+		filter.setFilter(f);
 	}
 }

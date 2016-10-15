@@ -79,7 +79,7 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.table.AbstractTableModel;
 
-import editor.collection.CardCollection;
+import editor.collection.CardList;
 import editor.collection.LegalityChecker;
 import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
@@ -301,7 +301,7 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * CardCollection containing currently-selected cards.
 	 */
-	private CardCollection selectedSource;
+	private CardList selectedSource;
 	/**
 	 * Saved list of selected cards from the active table.
 	 */
@@ -460,7 +460,7 @@ public class EditorFrame extends JInternalFrame
 		JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
 		playsetPopupItem.addActionListener((e) -> {
 			for (Card c: getSelectedCards())
-				addCard(c, 4 - deck.count(c));
+				addCard(c, 4 - deck.getData(c).count());
 		});
 		tableMenu.add(playsetPopupItem);
 		
@@ -683,7 +683,7 @@ public class EditorFrame extends JInternalFrame
 					for (int i = 0; i < excludeModel.size(); i++)
 						if (excludeModel.elementAt(i).equals(c))
 							n++;
-					if (n < deck.count(c))
+					if (n < deck.getData(c).count())
 						excludeModel.addElement(c);
 				}
 			});
@@ -1077,7 +1077,7 @@ public class EditorFrame extends JInternalFrame
 		JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
 		playsetPopupItem.addActionListener((e) -> {
 			for (Card c: newCategory.getSelectedCards())
-				addCard(c, 4 - deck.count(c));
+				addCard(c, 4 - deck.getData(c).count());
 		});
 		tableMenu.add(playsetPopupItem);
 		
@@ -1386,7 +1386,7 @@ public class EditorFrame extends JInternalFrame
 		double avgCMC = 0.0;
 		for (Card card: deck)
 			if (!card.typeContains("land"))
-				avgCMC += card.minCmc()*deck.count(card);
+				avgCMC += card.minCmc()*deck.getData(card).count();
 		if (deck.nonland() > 0)
 			avgCMC /= deck.nonland();
 		if ((int)avgCMC == avgCMC)
@@ -1398,7 +1398,7 @@ public class EditorFrame extends JInternalFrame
 		List<Double> cmc = new ArrayList<Double>();
 		for (Card card: deck)
 			if (!card.typeContains("land"))
-				for (int i = 0; i < deck.count(card); i++)
+				for (int i = 0; i < deck.getData(card).count(); i++)
 					cmc.add(card.minCmc());
 		Collections.sort(cmc);
 		if (!cmc.isEmpty())
@@ -1463,7 +1463,7 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			for (Map.Entry<Card, Integer> entry: cards.entrySet())
-				deck.increase(entry.getKey(), entry.getValue());
+				deck.add(entry.getKey(), entry.getValue());
 			return true;
 		}
 	}
@@ -1486,7 +1486,7 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			for (Card c: toRemove)
-				removed[c] = deck.decrease(c, n);
+				removed[c] = deck.remove(c, n);
 			return removed;
 		}
 	}
@@ -1583,7 +1583,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean removeCards(Collection<Card> toRemove, int n)
 	{
-		Map<Card, Integer> removed = toRemove.stream().collect(Collectors.toMap(Function.identity(), (c) -> Math.min(n, deck.count(c))));
+		Map<Card, Integer> removed = toRemove.stream().collect(Collectors.toMap(Function.identity(), (c) -> Math.min(n, deck.getData(c).count())));
 		return performAction(() -> insertCards(removed), () -> !deleteCards(toRemove, n).isEmpty());
 	}
 
@@ -1613,10 +1613,10 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (deck.contains(c))
 		{
-			if (n != deck.count(c))
+			if (n != deck.getData(c).count())
 			{
-				int old = deck.count(c);
-				performAction(() -> deck.setCount(c, old), () -> deck.setCount(c, n));
+				int old = deck.getData(c).count();
+				performAction(() -> deck.set(c, old), () -> deck.set(c, n));
 			}
 		}
 		else
@@ -1703,7 +1703,7 @@ public class EditorFrame extends JInternalFrame
 	 * @param table Table to select
 	 * @param source CardCollection to select
 	 */
-	public void setSelectedSource(CardTable table, CardCollection source)
+	public void setSelectedSource(CardTable table, CardList source)
 	{
 		selectedTable = table;
 		selectedSource = source;
@@ -1712,18 +1712,20 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * @return The CardCollection containing the selected Cards.
 	 */
-	public CardCollection getSelectedSource()
+	public CardList getSelectedSource()
 	{
 		return selectedSource;
 	}
 
 	/**
+	 * TODO: Replace this with getting the card's metadata
 	 * @param c Card to look for
 	 * @return The number of copies of the given Card in the deck.
 	 */
 	public int count(Card c)
 	{
-		return deck.count(c);
+		CardList.Metadata data = deck.getData(c);
+		return data == null ? 0 : data.count();
 	}
 	
 	/**
@@ -1740,11 +1742,11 @@ public class EditorFrame extends JInternalFrame
 			deck.save(f);
 			String changes = "";
 			for (Card c: originalDeck)
-				if (deck.count(c) < originalDeck.count(c))
-					changes += ("-" + (originalDeck.count(c) - deck.count(c)) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+				if (deck.getData(c).count() < originalDeck.getData(c).count())
+					changes += ("-" + (originalDeck.getData(c).count() - deck.getData(c).count()) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
 			for (Card c: deck)
-				if (originalDeck.count(c) < deck.count(c))
-					changes += ("+" + (deck.count(c) - originalDeck.count(c)) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+				if (originalDeck.getData(c).count() < deck.getData(c).count())
+					changes += ("+" + (deck.getData(c).count() - originalDeck.getData(c).count()) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
 			if (!changes.isEmpty())
 			{
 				SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
@@ -2227,7 +2229,7 @@ public class EditorFrame extends JInternalFrame
 					String[] card = rd.readLine().trim().split("\t");
 					Card c = parent.getCard(card[0]);
 					if (c != null)
-						deck.increase(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
+						deck.add(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
 					else
 						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
 					publish(50*(i + 1)/cards);

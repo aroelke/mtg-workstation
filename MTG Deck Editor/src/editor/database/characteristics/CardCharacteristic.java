@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 import javax.swing.table.TableCellEditor;
 
-import editor.collection.CardCollection;
+import editor.collection.CardList;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.gui.editor.EditorFrame;
@@ -26,7 +26,7 @@ import editor.gui.generic.SpinnerCellEditor;
 public enum CardCharacteristic
 {
 	NAME("Name", String.class, (l, i) -> l[i].unifiedName()),
-	COUNT("Count", Integer.class, (l, i) -> l.count(i), (e) -> (c, n) -> {
+	COUNT("Count", Integer.class, (l, i) -> l.getData(i).count(), (e) -> (c, n) -> {
 		if (n instanceof Integer)
 			e.setCardCount(c, ((Integer)n).intValue());
 		else
@@ -45,7 +45,7 @@ public enum CardCharacteristic
 	LOYALTY("Loyalty", Loyalty.Tuple.class, (l, i) -> l[i].loyalty()),
 	ARTIST("Artist", String.class, (l, i) -> l[i].artist()[0]),
 	LEGAL_IN("Legal In", List.class, (l, i) -> l[i].legalIn()),
-	CATEGORIES("Categories", Set.class, (l, i) -> l.getCategories(i), (e) -> (c, p) -> {
+	CATEGORIES("Categories", Set.class, (l, i) -> l.getData(i).categories(), (e) -> (c, p) -> {
 		if (p instanceof IncludeExcludePanel)
 		{
 			IncludeExcludePanel iePanel = (IncludeExcludePanel)p;
@@ -54,7 +54,7 @@ public enum CardCharacteristic
 		else
 			throw new IllegalArgumentException("Illegal inclusion value " + p);
 	}),
-	DATE_ADDED("Date Added", Date.class, (l, i) -> l.dateAdded(i));
+	DATE_ADDED("Date Added", Date.class, (l, i) -> l.getData(i).dateAdded());
 	
 	/**
 	 * Parse a String for a CardCharacteristic.
@@ -102,7 +102,7 @@ public enum CardCharacteristic
 	/**
 	 * Function taking a list of cards and returning a characteristic of a card from a category of that list.
 	 */
-	private final BiFunction<CardCollection, Integer, ?> func;
+	private final BiFunction<CardList, Integer, ?> func;
 	/**
 	 * Function for editing the value corresponding to the characteristic.  It should be null for constant
 	 * characteristics.
@@ -119,7 +119,7 @@ public enum CardCharacteristic
 	 * @param ef Function to edit deck values from the cell
 	 * @param e Editor that should be used to perform the editing
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f, Function<EditorFrame, BiConsumer<Card, Object>> ef)
+	private CardCharacteristic(String n, Class<?> c, BiFunction<CardList, Integer, ?> f, Function<EditorFrame, BiConsumer<Card, Object>> ef)
 	{
 		name = n;
 		columnClass = c;
@@ -134,7 +134,7 @@ public enum CardCharacteristic
 	 * @param c Table column class of the new CardCharacteristic
 	 * @param f Function to get cell values from an Inventory table
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<CardCollection, Integer, ?> f)
+	private CardCharacteristic(String n, Class<?> c, BiFunction<CardList, Integer, ?> f)
 	{
 		this(n, c, f, null);
 	}
@@ -147,7 +147,7 @@ public enum CardCharacteristic
 	 * @param i Index into the collection
 	 * @return The value of the CardCharacteristic.
 	 */
-	public Object get(CardCollection c, int i)
+	public Object get(CardList c, int i)
 	{
 		return func.apply(c, i);
 	}

@@ -3,7 +3,6 @@ package editor.collection.deck;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -11,8 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import editor.collection.CardCollection;
-import editor.collection.category.CategorySpec;
+import editor.collection.CardList;
 import editor.database.card.Card;
 
 /**
@@ -22,7 +20,7 @@ import editor.database.card.Card;
  * 
  * @author Alec Roelke
  */
-public class Hand implements CardCollection
+public class Hand implements CardList
 {
 	/**
 	 * Cards in the Deck, in a random order and with multiple copies
@@ -79,7 +77,7 @@ public class Hand implements CardCollection
 		clear();
 		for (Card c: deck)
 			if (!exclusion.contains(c))
-				for (int i = 0; i < deck.count(c); i++)
+				for (int i = 0; i < deck.getData(c).count(); i++)
 					hand.add(c);
 	}
 	
@@ -172,27 +170,6 @@ public class Hand implements CardCollection
 	}
 
 	/**
-	 * @param c Card to look for
-	 * @return The number of copies of the given Card in the deck.
-	 */
-	@Override
-	public int count(Card c)
-	{
-		return deck.count(c);
-	}
-
-	/**
-	 * @param index Index of the Card to look for
-	 * @return The number of copies in the deck of the Card at the
-	 * given index
-	 */
-	@Override
-	public int count(int index)
-	{
-		return deck.count(this[index]);
-	}
-
-	/**
 	 * @return The number of Cards in this Hand.
 	 * @see Hand#size()
 	 */
@@ -201,45 +178,17 @@ public class Hand implements CardCollection
 	{
 		return size();
 	}
-
-	/**
-	 * @param c Card to look for
-	 * @return The Categories the given Card belongs to
-	 */
+	
 	@Override
-	public Set<CategorySpec> getCategories(Card c)
+	public Metadata getData(Card c)
 	{
-		return deck.getCategories(c);
+		return deck.getData(c);
 	}
-
-	/**
-	 * @param index Index of the Card to look for
-	 * @return The Categories the Card at the given index belongs to
-	 */
+	
 	@Override
-	public Set<CategorySpec> getCategories(int index)
+	public Metadata getData(int index)
 	{
-		return deck.getCategories(this[index]);
-	}
-
-	/**
-	 * @param c Card to look for
-	 * @return The Date the given Card was added to the deck
-	 */
-	@Override
-	public Date dateAdded(Card c)
-	{
-		return deck.dateAdded(c);
-	}
-
-	/**
-	 * @param index Index of the Card to look for
-	 * @return The Date the Card at the given index was added to the deck
-	 */
-	@Override
-	public Date dateAdded(int index)
-	{
-		return deck.dateAdded(this[index]);
+		return deck.getData(this[index]);
 	}
 
 	/**
@@ -403,26 +352,40 @@ public class Hand implements CardCollection
 	}
 	
 	@Override
-	public boolean increase(Card c, int n)
+	public boolean add(Card c, int n)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public int decrease(Card c, int n)
+	public int remove(Card c, int n)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean setCount(Card c, int n)
+	public boolean set(Card c, int n)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean setCount(int index, int n)
+	public boolean set(int index, int n)
 	{
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

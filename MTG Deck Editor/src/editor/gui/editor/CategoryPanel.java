@@ -199,8 +199,8 @@ public class CategoryPanel extends JPanel
 		{
 			if (deck.getCategorySpec(name).includes(card))
 			{
-				avgCMC += card.minCmc()*deck.count(card);
-				count += deck.count(card);
+				avgCMC += card.minCmc()*deck.getData(card).count();
+				count += deck.getData(card).count();
 			}
 		}
 		if (count > 0)

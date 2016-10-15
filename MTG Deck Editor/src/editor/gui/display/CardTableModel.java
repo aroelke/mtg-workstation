@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import editor.collection.CardCollection;
+import editor.collection.CardList;
 import editor.database.characteristics.CardCharacteristic;
 import editor.gui.editor.EditorFrame;
 
@@ -24,7 +24,7 @@ public class CardTableModel extends AbstractTableModel
 	/**
 	 * List of Cards the table displays.
 	 */
-	private CardCollection list;
+	private CardList list;
 	/**
 	 * List of Card characteristics to display in the table.
 	 */
@@ -37,7 +37,7 @@ public class CardTableModel extends AbstractTableModel
 	 * @param list List of Cards for the new CardTableModel to show
 	 * @param c List of characteristics of those Cards to show
 	 */
-	public CardTableModel(EditorFrame e, CardCollection d, List<CardCharacteristic> c)
+	public CardTableModel(EditorFrame e, CardList d, List<CardCharacteristic> c)
 	{
 		super();
 		editor = e;
@@ -51,7 +51,7 @@ public class CardTableModel extends AbstractTableModel
 	 * @param list List of Cards for the new CardTableModel to show
 	 * @param c List of characteristics of those Cards to show
 	 */
-	public CardTableModel(CardCollection d, List<CardCharacteristic> c)
+	public CardTableModel(CardList d, List<CardCharacteristic> c)
 	{
 		this(null, d, c);
 	}
@@ -71,7 +71,7 @@ public class CardTableModel extends AbstractTableModel
 	 * Change the list of Cards to display in this model's table.
 	 * @param d the new list to display
 	 */
-	public void setList(CardCollection d)
+	public void setList(CardList d)
 	{
 		list = d;
 	}
