@@ -54,7 +54,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
-import editor.database.characteristics.CardCharacteristic;
+import editor.database.characteristics.CardData;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
 import editor.gui.editor.CalculateHandPanel;
@@ -314,9 +314,9 @@ public class SettingsDialog extends JDialog
 	 * @return List of CardCharacteristic that is represented by the setting
 	 * @throws IllegalArgumentException If the given setting is not a list of CardCharacteristics
 	 */
-	public static List<CardCharacteristic> getAsCharacteristics(String name) throws IllegalArgumentException
+	public static List<CardData> getAsCharacteristics(String name) throws IllegalArgumentException
 	{
-		return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardCharacteristic::get).collect(Collectors.toList());
+		return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardData::get).collect(Collectors.toList());
 	}
 	
 	/**
@@ -620,7 +620,7 @@ public class SettingsDialog extends JDialog
 		JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
 		inventoryColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
 		inventoryColumnCheckBoxes = new ArrayList<JCheckBox>();
-		for (CardCharacteristic characteristic: CardCharacteristic.inventoryValues())
+		for (CardData characteristic: CardData.inventoryValues())
 		{
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			inventoryColumnCheckBoxes.add(checkBox);
@@ -765,7 +765,7 @@ public class SettingsDialog extends JDialog
 		JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
 		editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
 		editorColumnCheckBoxes = new ArrayList<JCheckBox>();
-		for (CardCharacteristic characteristic: CardCharacteristic.values())
+		for (CardData characteristic: CardData.values())
 		{
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
 			editorColumnCheckBoxes.add(checkBox);

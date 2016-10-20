@@ -42,6 +42,16 @@ public class Hand implements CardList
 	private Deck deck;
 	
 	/**
+	 * Create a new Hand from the specified Deck.
+	 * 
+	 * @param d Deck to draw Cards from
+	 */
+	public Hand(Deck d)
+	{
+		this(d, new HashSet<Card>());
+	}
+	
+	/**
 	 * Create a new Hand from the specified Deck, excluding the specified
 	 * Cards.
 	 * 
@@ -59,67 +69,54 @@ public class Hand implements CardList
 	}
 	
 	/**
-	 * Create a new Hand from the specified Deck.
+	 * Add a card to the hand (but not to the deck).
 	 * 
-	 * @param d Deck to draw Cards from
+	 * @param c Card to add
+	 * @return <code>true</code> if the Card was successfully added, and
+	 * <code>false</code> otherwise.
 	 */
-	public Hand(Deck d)
+	@Override
+	public boolean add(Card c)
 	{
-		this(d, new HashSet<Card>());
+		return hand.add(c);
+	}
+	
+	@Override
+	public boolean add(Card c, int n)
+	{
+		throw new UnsupportedOperationException();
 	}
 	
 	/**
-	 * Update the state of this Hand to exclude Cards in the exclusion
-	 * list.
-	 */
-	public void refresh()
-	{
-		clear();
-		for (Card c: deck)
-			if (!exclusion.contains(c))
-				for (int i = 0; i < deck.getData(c).count(); i++)
-					hand.add(c);
-	}
-	
-	/**
-	 * Shuffle the deck and draw a new starting hand.
+	 * Add all of the given Cards to the hand, but not the deck.
 	 * 
-	 * @param n Size of the new hand
+	 * @param coll Collection of Cards to add
+	 * @return <code>true</code> if any of the Cards were added,
+	 * and <code>false</code> otherwise.
 	 */
-	public void newHand(int n)
+	@Override
+	public boolean addAll(Collection<? extends Card> coll)
 	{
-		refresh();
-		Collections.shuffle(hand);
-		inHand = Math.min(n, hand.size());
+		return hand.addAll(coll);
+	}
+	
+	@Override
+	public boolean addAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 	/**
-	 * Take a mulligan, or shuffle the deck and draw a new hand, but
-	 * with one fewer card in it.
+	 * Remove all Cards from this hand.  New ones cannot be drawn
+	 * until a refresh is performed.
+	 * @see Hand#refresh()
 	 */
-	public void mulligan()
+	@Override
+	public void clear()
 	{
-		if (inHand > 0)
-		{
-			Collections.shuffle(hand);
-			inHand--;
-		}
-	}
-	
-	/**
-	 * Draw a card.
-	 */
-	public void draw()
-	{
-		inHand++;
-	}
-	
-	/**
-	 * @return A list of Cards representing those in the sample hand.
-	 */
-	public List<Card> getHand()
-	{
-		return hand.subList(0, size());
+		hand.clear();
+		inHand = 0;
 	}
 	
 	/**
@@ -128,6 +125,36 @@ public class Hand implements CardList
 	public void clearExclusion()
 	{
 		exclusion.clear();
+	}
+	
+	/**
+	 * @param o Object to look for
+	 * @return <code>true</code> if the given Object is in the drawn cards
+	 * of this Hand, and <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean contains(Object o)
+	{
+		return hand.subList(0, inHand).contains(o);
+	}
+	
+	/**
+	 * @param coll Collection of Objects to look for
+	 * @return <code>true</code> if the given Objects are all in the drawn
+	 * cards of this Hand, and <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean containsAll(Collection<?> coll)
+	{
+		return hand.subList(0, inHand).containsAll(coll);
+	}
+	
+	/**
+	 * Draw a card.
+	 */
+	public void draw()
+	{
+		inHand++;
 	}
 	
 	/**
@@ -142,7 +169,7 @@ public class Hand implements CardList
 	{
 		return exclusion.add(c);
 	}
-	
+
 	/**
 	 * @return The list of Cards to never draw in a hand.
 	 */
@@ -152,103 +179,44 @@ public class Hand implements CardList
 	}
 	
 	/**
-	 * @return The number of Cards in this Hand.
+	 * @param index Index of the Card to look for
+	 * @return The Card at the given index.
 	 */
 	@Override
-	public int size()
+	public Card get(int index)
 	{
-		return Math.min(inHand, hand.size());
-	}
-	
-	/**
-	 * @return A sequential Stream over all the Cards in this Hand.
-	 */
-	@Override
-	public Stream<Card> stream()
-	{
-		return hand.stream();
-	}
-
-	/**
-	 * @return The number of Cards in this Hand.
-	 * @see Hand#size()
-	 */
-	@Override
-	public int total()
-	{
-		return size();
+		return hand[index];
 	}
 	
 	@Override
-	public Metadata getData(Card c)
+	public Entry getData(Card c)
 	{
 		return deck.getData(c);
 	}
-	
+
 	@Override
-	public Metadata getData(int index)
+	public Entry getData(int index)
 	{
 		return deck.getData(this[index]);
 	}
 
 	/**
-	 * Add a card to the hand (but not to the deck).
-	 * 
-	 * @param c Card to add
-	 * @return <code>true</code> if the Card was successfully added, and
-	 * <code>false</code> otherwise.
+	 * @return A list of Cards representing those in the sample hand.
 	 */
-	@Override
-	public boolean add(Card c)
+	public List<Card> getHand()
 	{
-		return hand.add(c);
-	}
-
-	/**
-	 * Add all of the given Cards to the hand, but not the deck.
-	 * 
-	 * @param coll Collection of Cards to add
-	 * @return <code>true</code> if any of the Cards were added,
-	 * and <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean addAll(Collection<? extends Card> coll)
-	{
-		return hand.addAll(coll);
-	}
-
-	/**
-	 * Remove all Cards from this hand.  New ones cannot be drawn
-	 * until a refresh is performed.
-	 * @see Hand#refresh()
-	 */
-	@Override
-	public void clear()
-	{
-		hand.clear();
-		inHand = 0;
+		return hand.subList(0, size());
 	}
 
 	/**
 	 * @param o Object to look for
-	 * @return <code>true</code> if the given Object is in the drawn cards
-	 * of this Hand, and <code>false</code> otherwise.
+	 * @return The index of the first occurrence of the given Object in this
+	 * Hand, or -1 if it isn't there.
 	 */
 	@Override
-	public boolean contains(Object o)
+	public int indexOf(Object o)
 	{
-		return hand.subList(0, inHand).contains(o);
-	}
-
-	/**
-	 * @param coll Collection of Objects to look for
-	 * @return <code>true</code> if the given Objects are all in the drawn
-	 * cards of this Hand, and <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean containsAll(Collection<?> coll)
-	{
-		return hand.subList(0, inHand).containsAll(coll);
+		return hand.indexOf(o);
 	}
 
 	/**
@@ -271,6 +239,57 @@ public class Hand implements CardList
 	}
 
 	/**
+	 * Take a mulligan, or shuffle the deck and draw a new hand, but
+	 * with one fewer card in it.
+	 */
+	public void mulligan()
+	{
+		if (inHand > 0)
+		{
+			Collections.shuffle(hand);
+			inHand--;
+		}
+	}
+
+	/**
+	 * Shuffle the deck and draw a new starting hand.
+	 * 
+	 * @param n Size of the new hand
+	 */
+	public void newHand(int n)
+	{
+		refresh();
+		Collections.shuffle(hand);
+		inHand = Math.min(n, hand.size());
+	}
+
+	@Override
+	public Stream<Card> parallelStream()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * Update the state of this Hand to exclude Cards in the exclusion
+	 * list.
+	 */
+	public void refresh()
+	{
+		clear();
+		for (Card c: deck)
+			if (!exclusion.contains(c))
+				for (int i = 0; i < deck.getData(c).count(); i++)
+					hand.add(c);
+	}
+
+	@Override
+	public int remove(Card c, int n)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	/**
 	 * Remove the given Object from this Hand (but not the Deck).
 	 * 
 	 * @param o Object to remove
@@ -283,6 +302,13 @@ public class Hand implements CardList
 		return hand.remove(o);
 	}
 
+	@Override
+	public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 	/**
 	 * Remove all of the given Objects from this Hand (but not the Deck).
 	 * 
@@ -294,73 +320,6 @@ public class Hand implements CardList
 	public boolean removeAll(Collection<?> coll)
 	{
 		return hand.removeAll(coll);
-	}
-
-	/**
-	 * Retain only the Objects in the given collection in this Hand.
-	 * 
-	 * @param coll Collection of Objects to retain
-	 * @return <code>true</code> if this Hand changed as a result, and
-	 * <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean retainAll(Collection<?> coll)
-	{
-		return hand.retainAll(coll);
-	}
-
-	/**
-	 * @return An Array containing the Cards drawn in this Hand.
-	 */
-	@Override
-	public Object[] toArray()
-	{
-		return hand.subList(0, inHand).toArray();
-	}
-
-	/**
-	 * @param a Array specifying the runtime type of the array to return
-	 * @return An Array containing the Cards drawn in this Hand.  If the given
-	 * Array is big enough to fit them, they will placed into it.  Otherwise,
-	 * a new Array will be allocated.
-	 */
-	@Override
-	public <T> T[] toArray(T[] a)
-	{
-		return hand.subList(0, inHand).toArray(a);
-	}
-
-	/**
-	 * @param index Index of the Card to look for
-	 * @return The Card at the given index.
-	 */
-	@Override
-	public Card get(int index)
-	{
-		return hand[index];
-	}
-
-	/**
-	 * @param o Object to look for
-	 * @return The index of the first occurrence of the given Object in this
-	 * Hand, or -1 if it isn't there.
-	 */
-	@Override
-	public int indexOf(Object o)
-	{
-		return hand.indexOf(o);
-	}
-	
-	@Override
-	public boolean add(Card c, int n)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int remove(Card c, int n)
-	{
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -375,17 +334,40 @@ public class Hand implements CardList
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * @return The number of Cards in this Hand.
+	 */
 	@Override
-	public boolean addAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
+	public int size()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return Math.min(inHand, hand.size());
 	}
 
+	/**
+	 * @return A sequential Stream over all the Cards in this Hand.
+	 */
 	@Override
-	public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
+	public Stream<Card> stream()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return hand.stream();
+	}
+
+	/**
+	 * @return An Array containing the Cards drawn in this Hand.
+	 */
+	@Override
+	public Card[] toArray()
+	{
+		return hand.subList(0, inHand).toArray(new Card[inHand]);
+	}
+
+	/**
+	 * @return The number of Cards in this Hand.
+	 * @see Hand#size()
+	 */
+	@Override
+	public int total()
+	{
+		return size();
 	}
 }

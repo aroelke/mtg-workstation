@@ -36,15 +36,21 @@ public class Inventory implements CardList
 	 * @author Alec
 	 *
 	 */
-	private class InventoryData implements Metadata
+	private class InventoryEntry implements Entry
 	{
 		private final Card card;
 		
-		private InventoryData(Card c)
+		private InventoryEntry(Card c)
 		{
 			card = c;
 		}
 		
+		@Override
+		public Card card()
+		{
+			return card;
+		}
+
 		@Override
 		public Set<CategorySpec> categories()
 		{
@@ -251,15 +257,15 @@ public class Inventory implements CardList
 	}
 	
 	@Override
-	public Metadata getData(Card c)
+	public Entry getData(Card c)
 	{
-		return new InventoryData(c);
+		return new InventoryEntry(c);
 	}
 	
 	@Override
-	public Metadata getData(int index)
+	public Entry getData(int index)
 	{
-		return new InventoryData(this[index]);
+		return new InventoryEntry(this[index]);
 	}
 	
 	/**
@@ -310,6 +316,13 @@ public class Inventory implements CardList
 	}
 	
 	@Override
+	public Stream<Card> parallelStream()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public int remove(Card c, int n)
 	{
 		throw new UnsupportedOperationException();
@@ -332,13 +345,7 @@ public class Inventory implements CardList
 	{
 		throw new UnsupportedOperationException();
 	}
-
-	@Override
-	public boolean retainAll(Collection<?> coll)
-	{
-		throw new UnsupportedOperationException();
-	}
-
+	
 	@Override
 	public boolean set(Card c, int n)
 	{
@@ -350,7 +357,7 @@ public class Inventory implements CardList
 	{
 		throw new UnsupportedOperationException();
 	}
-	
+
 	/**
 	 * @return The number of Cards in this Inventory.
 	 */
@@ -383,21 +390,9 @@ public class Inventory implements CardList
 	 * @return An array containing all the cards in the inventory.
 	 */
 	@Override
-	public Object[] toArray()
+	public Card[] toArray()
 	{
-		return cards.toArray();
-	}
-
-	/**
-	 * @param a Array specifying the runtime type of the returned array
-	 * @return An array containing all the cards in the inventory.  If the
-	 * given array is big enough to fit them all, they are placed in it.  Otherwise,
-	 * a new array is allocated.
-	 */
-	@Override
-	public <T> T[] toArray(T[] a)
-	{
-		return cards.toArray(a);
+		return cards.toArray(new Card[size()]);
 	}
 
 	/**

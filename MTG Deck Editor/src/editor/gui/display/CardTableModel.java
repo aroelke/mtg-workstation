@@ -5,7 +5,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import editor.collection.CardList;
-import editor.database.characteristics.CardCharacteristic;
+import editor.database.characteristics.CardData;
 import editor.gui.editor.EditorFrame;
 
 /**
@@ -28,7 +28,7 @@ public class CardTableModel extends AbstractTableModel
 	/**
 	 * List of Card characteristics to display in the table.
 	 */
-	private List<CardCharacteristic> characteristics;
+	private List<CardData> characteristics;
 	
 	/**
 	 * Create a new DeckTableModel.
@@ -37,7 +37,7 @@ public class CardTableModel extends AbstractTableModel
 	 * @param list List of Cards for the new CardTableModel to show
 	 * @param c List of characteristics of those Cards to show
 	 */
-	public CardTableModel(EditorFrame e, CardList d, List<CardCharacteristic> c)
+	public CardTableModel(EditorFrame e, CardList d, List<CardData> c)
 	{
 		super();
 		editor = e;
@@ -51,7 +51,7 @@ public class CardTableModel extends AbstractTableModel
 	 * @param list List of Cards for the new CardTableModel to show
 	 * @param c List of characteristics of those Cards to show
 	 */
-	public CardTableModel(CardList d, List<CardCharacteristic> c)
+	public CardTableModel(CardList d, List<CardData> c)
 	{
 		this(null, d, c);
 	}
@@ -61,7 +61,7 @@ public class CardTableModel extends AbstractTableModel
 	 * 
 	 * @param c list of CardCharacteristics corresponding to the columns to display
 	 */
-	public void setColumns(List<CardCharacteristic> c)
+	public void setColumns(List<CardData> c)
 	{
 		characteristics = c;
 		fireTableStructureChanged();
@@ -93,7 +93,8 @@ public class CardTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		return characteristics[columnIndex].get(list, rowIndex);
+		return list.getData(rowIndex)[characteristics[columnIndex]];
+//		return characteristics[columnIndex].get(list, rowIndex);
 	}
 
 	/**
@@ -109,7 +110,7 @@ public class CardTableModel extends AbstractTableModel
 	 * @param column Column to check
 	 * @return The CardCharacteristic being displayed in the given column.
 	 */
-	public CardCharacteristic getColumnCharacteristic(int column)
+	public CardData getColumnCharacteristic(int column)
 	{
 		return characteristics[column];
 	}

@@ -4,12 +4,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import javax.swing.table.TableCellEditor;
 
-import editor.collection.CardList;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.gui.editor.EditorFrame;
@@ -23,29 +21,31 @@ import editor.gui.generic.SpinnerCellEditor;
  * 
  * @author Alec Roelke
  */
-public enum CardCharacteristic
+public enum CardData
 {
-	NAME("Name", String.class, (l, i) -> l[i].unifiedName()),
-	COUNT("Count", Integer.class, (l, i) -> l.getData(i).count(), (e) -> (c, n) -> {
+	// TODO: Function<Card, ?> rather than BiFunction<CardList, Integer, ?> or move it into Card
+	NAME("Name", String.class),
+	LAYOUT("Layout", CardLayout.class),
+	MANA_COST("Mana Cost", ManaCost.Tuple.class),
+	CMC("CMC", List.class),
+	COLORS("Colors", ManaType.Tuple.class),
+	COLOR_IDENTITY("Color Identity", ManaType.Tuple.class),
+	TYPE_LINE("Type", String.class),
+	EXPANSION_NAME("Expansion", String.class),
+	RARITY("Rarity", Rarity.class),
+	POWER("Power", PowerToughness.Tuple.class),
+	TOUGHNESS("Toughness", PowerToughness.Tuple.class),
+	LOYALTY("Loyalty", Loyalty.Tuple.class),
+	ARTIST("Artist", String.class),
+	LEGAL_IN("Legal In", List.class),
+	
+	COUNT("Count", Integer.class, (e) -> (c, n) -> {
 		if (n instanceof Integer)
 			e.setCardCount(c, ((Integer)n).intValue());
 		else
 			throw new IllegalArgumentException("Illegal count value " + n);
 	}),
-	LAYOUT("Layout", CardLayout.class, (l, i) -> l[i].layout()),
-	MANA_COST("Mana Cost", ManaCost.Tuple.class, (l, i) -> l[i].manaCost()),
-	CMC("CMC", List.class, (l, i) -> l[i].cmc()),
-	COLORS("Colors", ManaType.Tuple.class, (l, i) -> l[i].colors()),
-	COLOR_IDENTITY("Color Identity", ManaType.Tuple.class, (l, i) -> l[i].colorIdentity()),
-	TYPE_LINE("Type", String.class, (l, i) -> l[i].unifiedTypeLine()),
-	EXPANSION_NAME("Expansion", String.class, (l, i) -> l[i].expansion().toString()),
-	RARITY("Rarity", Rarity.class, (l, i) -> l[i].rarity()),
-	POWER("Power", PowerToughness.Tuple.class, (l, i) -> l[i].power()),
-	TOUGHNESS("Toughness", PowerToughness.Tuple.class, (l, i) -> l[i].toughness()),
-	LOYALTY("Loyalty", Loyalty.Tuple.class, (l, i) -> l[i].loyalty()),
-	ARTIST("Artist", String.class, (l, i) -> l[i].artist()[0]),
-	LEGAL_IN("Legal In", List.class, (l, i) -> l[i].legalIn()),
-	CATEGORIES("Categories", Set.class, (l, i) -> l.getData(i).categories(), (e) -> (c, p) -> {
+	CATEGORIES("Categories", Set.class, (e) -> (c, p) -> {
 		if (p instanceof IncludeExcludePanel)
 		{
 			IncludeExcludePanel iePanel = (IncludeExcludePanel)p;
@@ -54,7 +54,7 @@ public enum CardCharacteristic
 		else
 			throw new IllegalArgumentException("Illegal inclusion value " + p);
 	}),
-	DATE_ADDED("Date Added", Date.class, (l, i) -> l.getData(i).dateAdded());
+	DATE_ADDED("Date Added", Date.class);
 	
 	/**
 	 * Parse a String for a CardCharacteristic.
@@ -62,9 +62,9 @@ public enum CardCharacteristic
 	 * @param s String to parse
 	 * @return The CardCharacteristic that corresponds to the given String.
 	 */
-	public static CardCharacteristic get(String s)
+	public static CardData get(String s)
 	{
-		for (CardCharacteristic c: CardCharacteristic.values())
+		for (CardData c: CardData.values())
 			if (c.toString().equalsIgnoreCase(s))
 				return c;
 		throw new IllegalArgumentException("Illegal characteristic string \"" + s + "\"");
@@ -73,23 +73,23 @@ public enum CardCharacteristic
 	/**
 	 * @return An array containing the CardCharacteristics that can be shown in the inventory table.
 	 */
-	public static CardCharacteristic[] inventoryValues()
+	public static CardData[] inventoryValues()
 	{
-		return new CardCharacteristic[] {NAME,
-										 LAYOUT,
-										 MANA_COST,
-										 CMC,
-										 COLORS,
-										 COLOR_IDENTITY,
-										 TYPE_LINE,
-										 EXPANSION_NAME,
-										 RARITY,
-										 POWER,
-										 TOUGHNESS,
-										 LOYALTY,
-										 ARTIST,
-										 LEGAL_IN,
-										 DATE_ADDED};
+		return new CardData[] {NAME,
+							   LAYOUT,
+							   MANA_COST,
+							   CMC,
+							   COLORS,
+							   COLOR_IDENTITY,
+							   TYPE_LINE,
+							   EXPANSION_NAME,
+							   RARITY,
+							   POWER,
+							   TOUGHNESS,
+							   LOYALTY,
+							   ARTIST,
+							   LEGAL_IN,
+							   DATE_ADDED};
 	}
 	
 	/**
@@ -101,10 +101,6 @@ public enum CardCharacteristic
 	 */
 	public final Class<?> columnClass;
 	/**
-	 * Function taking a list of cards and returning a characteristic of a card from a category of that list.
-	 */
-	private final BiFunction<CardList, Integer, ?> func;
-	/**
 	 * Function for editing the value corresponding to the characteristic.  It should be null for constant
 	 * characteristics.
 	 */
@@ -115,16 +111,13 @@ public enum CardCharacteristic
 	 * 
 	 * @param n Name of the new CardCharacteristic
 	 * @param c Table column class of the new CardCharacteristic
-	 * @param f Function to get cell values from an Inventory table
-	 * @param cf Function to get cell values from a Deck table
 	 * @param ef Function to edit deck values from the cell
 	 * @param e Editor that should be used to perform the editing
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<CardList, Integer, ?> f, Function<EditorFrame, BiConsumer<Card, Object>> ef)
+	private CardData(String n, Class<?> c, Function<EditorFrame, BiConsumer<Card, Object>> ef)
 	{
 		name = n;
 		columnClass = c;
-		func = f;
 		editFunc = ef;
 	}
 	
@@ -133,24 +126,10 @@ public enum CardCharacteristic
 	 * 
 	 * @param n Name of the new CardCharacteristic
 	 * @param c Table column class of the new CardCharacteristic
-	 * @param f Function to get cell values from an Inventory table
 	 */
-	private CardCharacteristic(String n, Class<?> c, BiFunction<CardList, Integer, ?> f)
+	private CardData(String n, Class<?> c)
 	{
-		this(n, c, f, null);
-	}
-	
-	/**
-	 * Get the value of the CardCharacteristic of the card at the given index into the
-	 * collection
-	 * 
-	 * @param c CardCollection to search
-	 * @param i Index into the collection
-	 * @return The value of the CardCharacteristic.
-	 */
-	public Object get(CardList c, int i)
-	{
-		return func.apply(c, i);
+		this(n, c, null);
 	}
 	
 	/**

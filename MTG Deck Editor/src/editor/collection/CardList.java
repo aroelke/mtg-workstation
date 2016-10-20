@@ -8,27 +8,72 @@ import java.util.stream.Stream;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
+import editor.database.characteristics.CardData;
 
 /**
  * This class represents a collection of Cards.  The collection can choose whether or
  * not each card can be represented by multiple entries (add/remove) or through some
  * other means (increase/decrease).
  * TODO: Correct comments
- * TODO: Enforce overriding of default methods of Collection
+ * TODO: Clarify why this doesn't extend Collection<Card> (it has to do with contracts and remove)
  * @author Alec Roelke
  */
-public interface CardList extends Collection<Card>
+public interface CardList extends Iterable<Card>
 {
 	/**
 	 * TODO: Comment this
+	 * TODO: Make this able to return every characteristic of a card
 	 * @author Alec
 	 *
 	 */
-	public interface Metadata
+	public interface Entry
 	{
+		public Card card();
 		public Set<CategorySpec> categories();
 		public int count();
 		public Date dateAdded();
+		public default Object get(CardData data)
+		{
+			switch (data)
+			{
+			case NAME:
+				return card().unifiedName();
+			case LAYOUT:
+				return card().layout();
+			case MANA_COST:
+				return card().manaCost();
+			case CMC:
+				return card().cmc();
+			case COLORS:
+				return card().colors();
+			case COLOR_IDENTITY:
+				return card().colorIdentity();
+			case TYPE_LINE:
+				return card().unifiedTypeLine();
+			case EXPANSION_NAME:
+				return card().expansion().toString();
+			case RARITY:
+				return card().rarity();
+			case POWER:
+				return card().power();
+			case TOUGHNESS:
+				return card().toughness();
+			case LOYALTY:
+				return card().loyalty();
+			case ARTIST:
+				return card().artist()[0];
+			case LEGAL_IN:
+				return card().legalIn();
+			case COUNT:
+				return count();
+			case CATEGORIES:
+				return categories();
+			case DATE_ADDED:
+				return dateAdded();
+			default:
+				throw new IllegalArgumentException("Unknown data type " + data);
+			}
+		}
 	}
 	
 	/**
@@ -43,7 +88,6 @@ public interface CardList extends Collection<Card>
 	 * otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	@Override
 	public boolean add(Card c);
 	
 	/**
@@ -63,16 +107,20 @@ public interface CardList extends Collection<Card>
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 * @see CardList#add(Card)
 	 */
-	@Override
 	public boolean addAll(Collection<? extends Card> coll);
 	
+	/**
+	 * TODO: Comment this
+	 * @param coll
+	 * @param n
+	 * @return
+	 */
 	public boolean addAll(Collection<? extends Card> coll, Collection<? extends Integer> n);
 
 	/**
 	 * Remove all entries from this CardCollection (optional operation).
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	@Override
 	public void clear();
 
 	/**
@@ -80,7 +128,6 @@ public interface CardList extends Collection<Card>
 	 * @return <code>true</code> if this CardCollection contains the specified object,
 	 * and <code>false</code> otherwise.
 	 */
-	@Override
 	public boolean contains(Object o);
 
 	/**
@@ -88,7 +135,6 @@ public interface CardList extends Collection<Card>
 	 * @return <code>true</code> if this CardCollection contains all of the specified
 	 * objects, and <code>false</code> otherwise.
 	 */
-	@Override
 	public boolean containsAll(Collection<?> coll);
 
 	/**
@@ -103,14 +149,14 @@ public interface CardList extends Collection<Card>
 	 * @param c
 	 * @return
 	 */
-	public Metadata getData(Card c);
+	public Entry getData(Card c);
 
 	/**
 	 * TODO: Comment this
 	 * @param index
 	 * @return
 	 */
-	public Metadata getData(int index);
+	public Entry getData(int index);
 	
 	/**
 	 * @param o Object to look for
@@ -123,7 +169,6 @@ public interface CardList extends Collection<Card>
 	 * @return <code>true</code> if this CardCollection contains no Cards, and
 	 * <code>false</code> otherwise.
 	 */
-	@Override
 	public boolean isEmpty();
 	
 	/**
@@ -131,6 +176,13 @@ public interface CardList extends Collection<Card>
 	 */
 	@Override
 	public Iterator<Card> iterator();
+
+	/**
+	 * TODO: Comment this
+	 * TODO: Potentially make this default
+	 * @return
+	 */
+	public Stream<Card> parallelStream();
 
 	/**
 	 * TODO: Comment this
@@ -150,7 +202,6 @@ public interface CardList extends Collection<Card>
 	 * otherwise.
 	 * @throws UnsuportedOperationException if this operation is not supported
 	 */
-	@Override
 	public boolean remove(Object o);
 
 	/**
@@ -160,7 +211,7 @@ public interface CardList extends Collection<Card>
 	 * @return
 	 */
 	public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n);
-
+	
 	/**
 	 * Remove all of the given objects from this CardCollection (optional
 	 * operation).
@@ -171,20 +222,7 @@ public interface CardList extends Collection<Card>
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 * @see CardList#remove(Object)
 	 */
-	@Override
 	public boolean removeAll(Collection<?> coll);
-	
-	/**
-	 * Retain only the objects in the specified collection (optional operation).
-	 * 
-	 * @param coll Collection of objects to retain
-	 * @return <code>true</code> if this CardCollection changed as a result, and
-	 * <code>false</code> otherwise.
-	 * @throws UnsupportedOperationException if this operation is not supported
-	 * @see CardList#remove(Object)
-	 */
-	@Override
-	public boolean retainAll(Collection<?> coll);
 	
 	/**
 	 * Set the number of copies of a Card to the specified number (optional
@@ -220,15 +258,13 @@ public interface CardList extends Collection<Card>
 	 * Card count only once for this method.
 	 * @see CardList#total()
 	 */
-	@Override
 	public int size();
 	
 	/**
-	 * @return A sequential Stream over all the Cards in this CardCollection.  If
-	 * multiple copies of a Card are to be represented using only one entry, then
-	 * that entry should only be included in the Stream once.
+	 * TODO: Comment this
+	 * TODO: Potentially make this default
+	 * @return
 	 */
-	@Override
 	public Stream<Card> stream();
 	
 	/**
@@ -236,18 +272,7 @@ public interface CardList extends Collection<Card>
 	 * multiple copies of a Card are represented by a single entry, then each entry
 	 * should only appear once.
 	 */
-	@Override
-	public Object[] toArray();
-	
-	/**
-	 * @param a Array specifying the runtime type of the data to return
-	 * @return An array containing all of the Cards in this CardCollection whose type
-	 * is specified by the given array.  If that array is large enough to fit all of the
-	 * cards, then it will be filled with them.  Otherwise, a new array will be allocated.
-	 * @see CardList#toArray()
-	 */
-	@Override
-	public <T> T[] toArray(T[] a);
+	public Card[] toArray();
 	
 	/**
 	 * @return The total number of Cards in this CardCollection.  If multiple copies of a

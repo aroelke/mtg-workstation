@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -175,7 +175,7 @@ public class Deck implements CardList
 		}
 		
 		@Override
-		public Metadata getData(Card c)
+		public Entry getData(Card c)
 		{
 			if (includes(c))
 				return Deck.this.getData(c);
@@ -184,7 +184,7 @@ public class Deck implements CardList
 		}
 		
 		@Override
-		public Metadata getData(int index)
+		public Entry getData(int index)
 		{
 			return getData(this[index]);
 		}
@@ -229,6 +229,13 @@ public class Deck implements CardList
 			return filtrate.iterator();
 		}
 		
+		@Override
+		public Stream<Card> parallelStream()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
 		/**
 		 * Remove some number of copies of a Card from this Category if it passes
 		 * through this Category's filter.
@@ -245,7 +252,7 @@ public class Deck implements CardList
 			else
 				throw new IllegalArgumentException("Category " + spec.getName() + " does not contain card " + c);
 		}
-		
+
 		/**
 		 * Remove the given object from the Deck if it is in this Category.
 		 * 
@@ -284,23 +291,6 @@ public class Deck implements CardList
 		}
 
 		/**
-		 * Retain only the Cards in this Category that are also in the given collection.
-		 * 
-		 * @param Collection of objects to retain
-		 * @return <code>true</code> if the Deck was changed as a result, and
-		 * <code>false</code> otherwise.
-		 */
-		@Override
-		public boolean retainAll(Collection<?> coll)
-		{
-			boolean changed = false;
-			for (Card c: new ArrayList<Card>(this))
-				if (!coll.contains(c))
-					changed |= remove(c);
-			return changed;
-		}
-
-		/**
 		 * Set the number of copies of the given Card to be the given value.  If the card
 		 * isn't in the deck, it will be added.  If it isn't included in the category,
 		 * then nothing will happen.
@@ -315,7 +305,7 @@ public class Deck implements CardList
 		{
 			return includes(c) & Deck.this.set(c, n);
 		}
-
+		
 		/**
 		 * Set the number of copies of the Card at the given index to be the given value.
 		 * 
@@ -329,7 +319,7 @@ public class Deck implements CardList
 		{
 			return this[index] != null && set(this[index], n);
 		}
-
+		
 		/**
 		 * @return The number of unique Cards in this Category.
 		 */
@@ -338,7 +328,7 @@ public class Deck implements CardList
 		{
 			return filtrate.size();
 		}
-		
+
 		/**
 		 * @return This Category's specifications.
 		 */
@@ -346,8 +336,16 @@ public class Deck implements CardList
 		{
 			return spec;
 		}
-		
+
+		@Override
+		public Spliterator<Card> spliterator()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 		/**
+		 * TODO: Override spliterator instead of this
 		 * @return A sequential Stream whose source is this Category.
 		 */
 		@Override
@@ -360,23 +358,11 @@ public class Deck implements CardList
 		 * @return An array containing all of the Cards in this Category.
 		 */
 		@Override
-		public Object[] toArray()
+		public Card[] toArray()
 		{
-			return filtrate.toArray();
+			return filtrate.toArray(new Card[filtrate.size()]);
 		}
 
-		/**
-		 * @param a Array specifying the runtime type of the data to return
-		 * @return An array containing all of the Cards in this Category.  If
-		 * the provided array can fit those Cards, it is populated with them.
-		 * Otherwise, a new array is allocated.
-		 */
-		@Override
-		public <T> T[] toArray(T[] a)
-		{
-			return filtrate.toArray(a);
-		}
-		
 		/**
 		 * @return This Category's String representation.
 		 * @see editor.gui.filter.original.editor.FilterEditorPanel#setContents(String)
@@ -404,7 +390,7 @@ public class Deck implements CardList
 		public void update()
 		{
 			filtrate = masterList.stream().map((e) -> e.card).filter(spec::includes).collect(Collectors.toList());
-			for (Entry e: masterList)
+			for (DeckEntry e: masterList)
 				if (spec.includes(e.card))
 					e.categories.add(this);
 				else
@@ -418,7 +404,7 @@ public class Deck implements CardList
 	 * TODO: Correct comments
 	 * @author Alec Roelke
 	 */
-	private class Entry implements Metadata
+	private class DeckEntry implements Entry
 	{
 		/**
 		 * Card in this Entry.  It can't be changed.
@@ -446,7 +432,7 @@ public class Deck implements CardList
 		 * @param n Number of initial copies in this Entry
 		 * @param d Date the Card was added
 		 */
-		private Entry(Card c, int n, Date d)
+		private DeckEntry(Card c, int n, Date d)
 		{
 			card = c;
 			count = n;
@@ -459,7 +445,7 @@ public class Deck implements CardList
 		 * 
 		 * @param e Original Entry to copy
 		 */
-		private Entry(Entry e)
+		private DeckEntry(DeckEntry e)
 		{
 			card = e.card;
 			count = e.count;
@@ -478,6 +464,12 @@ public class Deck implements CardList
 			return count += n;
 		}
 		
+		@Override
+		public Card card()
+		{
+			return card;
+		}
+		
 		public Set<CategorySpec> categories()
 		{
 			return categories.stream().map(Category::spec).collect(Collectors.toSet());
@@ -492,7 +484,7 @@ public class Deck implements CardList
 		{
 			return date;
 		}
-		
+
 		/**
 		 * Remove copies from this Entry.  There can't be fewer than
 		 * 0 copies.
@@ -887,7 +879,7 @@ public class Deck implements CardList
 	/**
 	 * List of cards in this Deck.
 	 */
-	private List<Entry> masterList;
+	private List<DeckEntry> masterList;
 	/**
 	 * Categories in this Deck.
 	 */
@@ -912,7 +904,7 @@ public class Deck implements CardList
 	 */
 	public Deck()
 	{
-		masterList = new ArrayList<Entry>();
+		masterList = new ArrayList<DeckEntry>();
 		categories = new LinkedHashMap<String, Category>();
 		total = 0;
 		land = 0;
@@ -978,10 +970,10 @@ public class Deck implements CardList
 			return false;
 		else
 		{
-			Entry e = getEntry(c);
+			DeckEntry e = getEntry(c);
 			if (e == null)
 			{
-				masterList.add(e = new Entry(c, n, d));
+				masterList.add(e = new DeckEntry(c, n, d));
 				for (Category category: categories.values())
 				{
 					if (category.includes(c))
@@ -1040,7 +1032,7 @@ public class Deck implements CardList
 	public boolean addAll(Deck d)
 	{
 		boolean changed = false;
-		for (Entry e: d.masterList)
+		for (DeckEntry e: d.masterList)
 			changed |= add(e.card, e.count);
 		return changed;
 	}
@@ -1251,7 +1243,7 @@ public class Deck implements CardList
 	 * TODO: Comment this
 	 */
 	@Override
-	public Metadata getData(Card c)
+	public Entry getData(Card c)
 	{
 		return getEntry(c);
 	}
@@ -1260,7 +1252,7 @@ public class Deck implements CardList
 	 * TODO: Comment this
 	 */
 	@Override
-	public Metadata getData(int index)
+	public Entry getData(int index)
 	{
 		return masterList[index];
 	}
@@ -1270,9 +1262,9 @@ public class Deck implements CardList
 	 * @return The Entry corresponding to the Card, or <code>null</code>
 	 * if there is none.
 	 */
-	private Entry getEntry(Card c)
+	private DeckEntry getEntry(Card c)
 	{
-		for (Entry e: masterList)
+		for (DeckEntry e: masterList)
 			if (e.card.equals(c))
 				return e;
 		return null;
@@ -1374,6 +1366,13 @@ public class Deck implements CardList
 		return categories.size();
 	}
 	
+	@Override
+	public Stream<Card> parallelStream()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	/**
 	 * Remove some number of copies of the given Card from this Deck.  If that
 	 * number is less than one, no changes are made.
@@ -1389,7 +1388,7 @@ public class Deck implements CardList
 			return 0;
 		else
 		{
-			Entry e = getEntry(c);
+			DeckEntry e = getEntry(c);
 			if (e == null)
 				return 0;
 			else
@@ -1423,7 +1422,7 @@ public class Deck implements CardList
 			}
 		}
 	}
-	
+
 	/**
 	 * @param o Object to remove
 	 * @return <code>true</code> if the object is a Card and if one or more copies were
@@ -1434,14 +1433,14 @@ public class Deck implements CardList
 	{
 		return o instanceof Card && remove((Card)o, Integer.MAX_VALUE) > 0;
 	}
-
+	
 	@Override
 	public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
 	{
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
 	/**
 	 * Remove as many of the objects in the given list from this Deck as possible.
 	 * 
@@ -1470,7 +1469,7 @@ public class Deck implements CardList
 		Category c = categories[name];
 		if (c != null)
 		{
-			for (Entry e: masterList)
+			for (DeckEntry e: masterList)
 				e.categories.remove(c);
 			Map<String, Integer> oldRanks = new HashMap<String, Integer>();
 			for (Category category: categories.values())
@@ -1508,23 +1507,6 @@ public class Deck implements CardList
 	}
 
 	/**
-	 * Retain only the elements in the given collection that are in this Deck.
-	 * 
-	 * @param coll Collection of elemnts to retain
-	 * @return <code>true</code> if this Deck was changed as a result, and
-	 * <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean retainAll(Collection<?> coll)
-	{
-		boolean changed = false;
-		for (Card c: new ArrayList<Card>(this))
-			if (!coll.contains(c))
-				changed |= remove(c);
-		return changed;
-	}
-
-	/**
 	 * Write this Deck to a file.  The format will appear like this:
 	 * [Number of unique cards]
 	 * [Card 1 UID]\t[count]
@@ -1547,14 +1529,14 @@ public class Deck implements CardList
 		try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8")))
 		{
 			wr.println(String.valueOf(size()));
-			for (Entry e: masterList)
+			for (DeckEntry e: masterList)
 				wr.println(e.card.id() + "\t" + e.count + "\t" + DATE_FORMAT.format(e.date));
 			wr.println(String.valueOf(categories.size()));
 			for (Category c: categories.values())
 				wr.println(c.toString());
 		} 
 	}
-
+	
 	/**
 	 * Set the number of copies of the given Card to be the given value.  If the card
 	 * isn't in the deck, it will be added.
@@ -1569,7 +1551,7 @@ public class Deck implements CardList
 	{
 		if (n < 0)
 			n = 0;
-		Entry e = getEntry(c);
+		DeckEntry e = getEntry(c);
 		if (e == null)
 			return add(c, n);
 		else if (e.count == n)
@@ -1602,7 +1584,7 @@ public class Deck implements CardList
 			return true;
 		}
 	}
-
+	
 	/**
 	 * Set the number of copies of the Card at the given index to be the given value.
 	 * 
@@ -1635,6 +1617,13 @@ public class Deck implements CardList
 		return categories[name].size();
 	}
 	
+	@Override
+	public Spliterator<Card> spliterator()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	/**
 	 * @return A sequential Stream whose source is this Deck.
 	 */
@@ -1643,7 +1632,7 @@ public class Deck implements CardList
 	{
 		return masterList.stream().map((e) -> e.card);
 	}
-	
+
 	/**
 	 * Change the rank of the category with the given name to the target value.  The
 	 * category that has that value will have its rank changed to that of the one with
@@ -1682,34 +1671,14 @@ public class Deck implements CardList
 			return false;
 		}
 	}
-	
+
 	/**
 	 * @return An array containin all of the Cards in this Deck.
 	 */
 	@Override
-	public Object[] toArray()
+	public Card[] toArray()
 	{
-		return stream().toArray();
-	}
-	
-	/**
-	 * @param a Array indicating runtime type of the data to return
-	 * @return An array containing all of the Cards in this Deck.  If the provided
-	 * array is large enough to fit all of the Cards, it will be filled with them.
-	 * Otherwise, a new array will be allocated.
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T[] toArray(T[] a)
-	{
-		T[] array;
-		if (a.length < size())
-			array = (T[])Array.newInstance(a.getClass().getComponentType(), size());
-		else
-			array = a;
-		for (int i = 0; i < a.length; i++)
-			array[i] = i < size() ? (T)this[i] : null;
-		return a;
+		return stream().toArray(Card[]::new);
 	}
 
 	/**
