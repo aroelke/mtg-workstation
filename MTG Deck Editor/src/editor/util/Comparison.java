@@ -10,9 +10,9 @@ package editor.util;
 public enum Comparison
 {
 	EQ('='),
-	NE('≠'),
-	GE('≥'),
-	LE('≤'),
+	NE('\u2260'),
+	GE('\u2265'),
+	LE('\u2264'),
 	GT('>'),
 	LT('<');
 	
@@ -43,11 +43,11 @@ public enum Comparison
 		{
 		case '=':
 			return EQ;
-		case '≠':
+		case '\u2260':
 			return NE;
-		case '≥':
+		case '\u2265':
 			return GE;
-		case '≤':
+		case '\u2264':
 			return LE;
 		case '>':
 			return GT;
@@ -72,11 +72,11 @@ public enum Comparison
 		{
 		case '=':
 			return a.equals(b);
-		case '≠':
+		case '\u2260':
 			return !a.equals(b);
-		case '≥':
+		case '\u2265':
 			return a >= b;
-		case '≤':
+		case '\u2264':
 			return a <= b;
 		case '>':
 			return a > b;

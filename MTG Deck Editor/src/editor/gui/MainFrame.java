@@ -118,6 +118,7 @@ import editor.util.MouseListenerFactory;
  * TODO: Create a diff frame that shows differences between two (or more, potentially) decks
  * TODO: Add a File->Print... dialog (for the editor frame)
  * TODO: Right-click column header = create filter for that column
+ * TODO: Add constants for commonly-used UTF-8 characters
  * 
  * @author Alec Roelke
  */
@@ -1433,7 +1434,7 @@ public class MainFrame extends JFrame
 					{
 						for (String ruling: selectedCard.rulings()[date])
 						{
-							rulingsDocument.insertString(rulingsDocument.getLength(), "â€¢ ", rulingStyle);
+							rulingsDocument.insertString(rulingsDocument.getLength(), "• ", rulingStyle);
 							rulingsDocument.insertString(rulingsDocument.getLength(), format.format(date), dateStyle);
 							rulingsDocument.insertString(rulingsDocument.getLength(), ": ", rulingStyle);
 							int start = 0;
@@ -1479,7 +1480,7 @@ public class MainFrame extends JFrame
 				rulingsPane.setText("");
 			else
 			{
-				StringJoiner rulings = new StringJoiner("<br>â€¢ ", "â€¢ ", "");
+				StringJoiner rulings = new StringJoiner("<br>• ", "• ", "");
 				for (Date date: selectedCard.rulings().keySet())
 					for (String text: selectedCard.rulings().get(date))
 						rulings.add("<b>" + format.format(date) + "</b>: " + text);

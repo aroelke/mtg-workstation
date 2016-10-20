@@ -429,7 +429,7 @@ public class SettingsDialog extends JDialog
 	/**
 	 * Delimiter for preset categories in the settings file.
 	 */
-	public static final String CATEGORY_DELIMITER = "âˆŽ";
+	public static final String CATEGORY_DELIMITER = "\u220E";
 	/**
 	 * Text field containing the directory to look for card scans in.
 	 */
@@ -543,7 +543,7 @@ public class SettingsDialog extends JDialog
 		inventoryChooser.setCurrentDirectory(new File(inventoryDirField.getText()).getAbsoluteFile());
 		inventoryDirPanel.add(inventoryDirField);
 		inventoryDirPanel.add(Box.createHorizontalStrut(5));
-		JButton inventoryDirButton = new JButton("â€¦");
+		JButton inventoryDirButton = new JButton("…");
 		inventoryDirButton.addActionListener((e) -> {
 			if (inventoryChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
 			{
@@ -570,7 +570,7 @@ public class SettingsDialog extends JDialog
 		scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
 		scansDirPanel.add(scansDirField);
 		scansDirPanel.add(Box.createHorizontalStrut(5));
-		JButton scansDirButton = new JButton("â€¦");
+		JButton scansDirButton = new JButton("…");
 		scansDirButton.addActionListener((e) -> {
 			if (scansChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
 			{
@@ -717,7 +717,7 @@ public class SettingsDialog extends JDialog
 		addConstraints.fill = GridBagConstraints.BOTH;
 		categoryModPanel.add(addButton, addConstraints);
 		
-		JButton editButton = new JButton("â€¦");
+		JButton editButton = new JButton("…");
 		editButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 			{
@@ -732,7 +732,7 @@ public class SettingsDialog extends JDialog
 		editConstraints.fill = GridBagConstraints.BOTH;
 		categoryModPanel.add(editButton, editConstraints);
 		
-		JButton removeButton = new JButton("âˆ’");
+		JButton removeButton = new JButton("\u2212");
 		removeButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 				categoriesList.removeCategoryAt(categoriesList.getSelectedIndex());

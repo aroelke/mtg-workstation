@@ -69,7 +69,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			firePanelsChanged();
 		});
 		editPanel.add(addButton);
-		JButton removeButton = new JButton("−");
+		JButton removeButton = new JButton("\u2212");
 		removeButton.addActionListener((e) -> {
 			if (group == null)
 			{
@@ -84,7 +84,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			}
 		});
 		editPanel.add(removeButton);
-		JButton groupButton = new JButton("…");
+		JButton groupButton = new JButton("�");
 		groupButton.addActionListener((e) -> {
 			if (group == null)
 			{

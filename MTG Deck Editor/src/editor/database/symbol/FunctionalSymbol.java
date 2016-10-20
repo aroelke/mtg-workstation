@@ -33,15 +33,8 @@ public class FunctionalSymbol extends Symbol
 		Map<String, FunctionalSymbol> symbols = new HashMap<String, FunctionalSymbol>();
 		// Chaos symbol.
 		symbols[CHAOS.toString()] = CHAOS;
-		// Half-mana symbol.  Represents one half of a generic mana.
-		symbols["1/2"] = new FunctionalSymbol("half_mana.png", "1/2");
-		symbols["½"] = symbols["1/2"];
-		// Infinity mana symbol.  Represents infinity generic mana.
-		symbols["∞"] = new FunctionalSymbol("infinity_mana.png", "∞");
 		// Phyrexian phi symbol.
 		symbols["P"] = new FunctionalSymbol("phyrexia.png", "P");
-		// Snow mana symbol.  Can only be paid with snow mana.
-		symbols["S"] = new FunctionalSymbol("snow_mana.png", "S");
 		// Tap symbol.  Used in costs in card text.
 		symbols["T"] = new FunctionalSymbol("tap.png", "T");
 		symbols["TAP"] = symbols["T"];

@@ -68,7 +68,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 		});
 		
 		// Button to remove this from the form
-		JButton removeButton = new JButton("−");
+		JButton removeButton = new JButton("\u2212");
 		removeButton.addActionListener((e) -> {
 			group.remove(this);
 			firePanelsChanged();
@@ -76,7 +76,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 		add(removeButton);
 		
 		// Button to create a new group with this in it
-		JButton groupButton = new JButton("…");
+		JButton groupButton = new JButton("�");
 		groupButton.addActionListener((e) -> {
 			group.group(this);
 			firePanelsChanged();

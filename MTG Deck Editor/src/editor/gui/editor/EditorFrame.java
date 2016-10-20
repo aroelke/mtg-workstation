@@ -363,7 +363,7 @@ public class EditorFrame extends JInternalFrame
 		buttonPanel.add(addButton);
 
 		// Remove button to remove one copy of each selected card from the deck
-		JButton removeButton = new JButton("−");
+		JButton removeButton = new JButton("\u2212");
 		removeButton.addActionListener((e) -> removeSelectedCards(1));
 		removeButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, removeButton.getMaximumSize().height));
 		buttonPanel.add(removeButton);

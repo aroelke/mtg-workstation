@@ -132,9 +132,9 @@ public class CategoryPanel extends JPanel
 		buttonPanel.add(rankBox);
 		colorButton = new ColorButton(deck.getCategorySpec(name).getColor());
 		buttonPanel.add(colorButton);
-		editButton = new JButton("…");
+		editButton = new JButton("�");
 		buttonPanel.add(editButton);
-		removeButton = new JButton("−");
+		removeButton = new JButton("\u2212");
 		buttonPanel.add(removeButton);
 		topPanel.add(buttonPanel, BorderLayout.EAST);
 		
