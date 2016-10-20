@@ -6,4 +6,4 @@ Magic: the Gathering is owned by Wizards of the Coast, to which I have no affili
 This program depends on the following:
  - Google JSON library, GSON, which can be found at https://code.google.com/p/google-gson/
  - JIDE Common Layer, which can be found at http://www.jidesoft.com/products/oss.htm
- - Java Operator Overloading, which can be found at https://github.com/amelentev/java-oo
+ - Java Operator Overloading, which can be found at https://github.com/amelentev/java-oo (not a Maven dependency; I installed it into Eclipse)
