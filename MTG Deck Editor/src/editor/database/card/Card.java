@@ -33,7 +33,7 @@ import editor.gui.MainFrame;
 
 /**
  * This interface represents an abstract Card with various characteristics.
- * 
+ *
  * TODO: Add printed text in addition to Oracle text.
  * @author Alec Roelke
  */
@@ -60,7 +60,7 @@ public abstract class Card
 	 */
 	public static Map<Card, Set<String>> tags = new HashMap<Card, Set<String>>();
 
-	
+
 	/**
 	 * @return A Set containing all tags among all cards.
 	 */
@@ -68,7 +68,7 @@ public abstract class Card
 	{
 		return tags.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
 	}
-	
+
 	/**
 	 * Expansion this Card belongs to.
 	 */
@@ -137,11 +137,11 @@ public abstract class Card
 	 * Whether or not to ignore the card count restriction for this Card.
 	 */
 	private Boolean ignoreCountRestriction;
-	
+
 	/**
 	 * Create a new Card.  Most of the parameters are assigned lazily; that is, only
 	 * the first time their values are requested.
-	 * 
+	 *
 	 * @param expansion Expension the new Card belongs to
 	 * @param layout Layout of the new Card
 	 * @param faces Number of faces the new Card has
@@ -151,7 +151,7 @@ public abstract class Card
 		this.expansion = expansion;
 		this.layout = layout;
 		this.faces = faces;
-		
+
 		id = null;
 		unifiedName = null;
 		normalizedName = null;
@@ -166,7 +166,7 @@ public abstract class Card
 		canBeCommander = null;
 		ignoreCountRestriction = null;
 	}
-	
+
 	/**
 	 * TODO: Use the ID field from mtgjson rather than calculating it like this
 	 * @return
@@ -177,7 +177,7 @@ public abstract class Card
 			id = expansion.code + unifiedName() + imageNames()[0];
 		return id;
 	}
-	
+
 	/**
 	 * @return This Card's layout.
 	 */
@@ -185,7 +185,7 @@ public abstract class Card
 	{
 		return layout;
 	}
-	
+
 	/**
 	 * @return The number of faces this Card has.
 	 */
@@ -193,12 +193,12 @@ public abstract class Card
 	{
 		return faces;
 	}
-	
+
 	/**
 	 * @return A List containing the name of each face of this Card.
 	 */
 	public abstract List<String> name();
-	
+
 	/**
 	 * @return A String consisting of the names of each of the faces of this Card
 	 * concatenated together with a separator.
@@ -214,7 +214,7 @@ public abstract class Card
 		}
 		return unifiedName;
 	}
-	
+
 	/**
 	 * @return A version of this Card's name with special characters converted
 	 * to versions that would appear on a standard QWERTY keyboard.
@@ -223,14 +223,14 @@ public abstract class Card
 	{
 		if (normalizedName == null)
 			normalizedName = Collections.unmodifiableList(name().stream()
-					.map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("æ", "ae"))
+					.map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("\u00E6", "ae"))
 					.collect(Collectors.toList()));
 		return normalizedName;
 	}
-	
+
 	/**
 	 * @return A version of this Card's name with Legendary characteristics removed (such as
-	 * titles following "the," "of," or a comma). 
+	 * titles following "the," "of," or a comma).
 	 */
 	public List<String> legendName()
 	{
@@ -268,10 +268,10 @@ public abstract class Card
 		}
 		return legendName;
 	}
-	
+
 	/**
 	 * Compare this Card's unified name lexicographically with another's.
-	 * 
+	 *
 	 * @param other Card to compare names with
 	 * @return A positive number if this Card's name comes after the other's, 0 if
 	 * they are the same, or a negative number if it comes before.
@@ -280,17 +280,17 @@ public abstract class Card
 	{
 		return Collator.getInstance(Locale.US).compare(unifiedName(), other.unifiedName());
 	}
-	
+
 	/**
 	 * @return A list containing the mana costs of the faces of this Card.
 	 */
 	public abstract ManaCost.Tuple manaCost();
-	
+
 	/**
 	 * @return A list containing the converted mana costs of the faces of this Card.
 	 */
 	public abstract List<Double> cmc();
-	
+
 	/**
 	 * @return The smallest converted mana cost among faces of this card.
 	 */
@@ -300,25 +300,25 @@ public abstract class Card
 			minCmc = cmc().stream().reduce(Double.MAX_VALUE,Double::min);
 		return minCmc;
 	}
-	
+
 	/**
 	 * @return A list containing the colors of this Card.
 	 */
 	public abstract ManaType.Tuple colors();
-	
+
 	/**
 	 * Get the colors of one of the faces of this Card.
-	 * 
-	 * @param face Index of the face to get the colors of  
+	 *
+	 * @param face Index of the face to get the colors of
 	 * @return A list containing the colors of the given face.
 	 */
 	public abstract ManaType.Tuple colors(int face);
-	
+
 	/**
 	 * @return A list containing the colors in this Card's color identity.
 	 */
 	public abstract ManaType.Tuple colorIdentity();
-	
+
 	/**
 	 * @return The Expansion this Card belongs to.
 	 */
@@ -326,12 +326,12 @@ public abstract class Card
 	{
 		return expansion;
 	}
-	
+
 	/**
 	 * @return A set containing the supertypes among all the faces of this Card.
 	 */
 	public abstract Set<String> supertypes();
-	
+
 	/**
 	 * @param s Supertype to search for
 	 * @return <code>true</code> if the given String is among this Card's
@@ -346,12 +346,12 @@ public abstract class Card
 				return true;
 		return false;
 	}
-	
+
 	/**
 	 * @return A set containing the subtypes among all the faces of this Card.
 	 */
 	public abstract Set<String> types();
-	
+
 	/**
 	 * @param s Type to search for
 	 * @return <code>true</code> if the given String is among this Card's types,
@@ -366,24 +366,24 @@ public abstract class Card
 				return true;
 		return false;
 	}
-	
+
 	/**
 	 * @return A set containing the subtypes among all faces of this Card.
 	 */
 	public abstract Set<String> subtypes();
-	
+
 	/**
 	 * @return A list of sets of Strings which each contain all the supertypes,
 	 * types, and subtypes of the corresponding face.
 	 */
 	public abstract List<Set<String>> allTypes();
-	
+
 	/**
 	 * @return A list of Strings containing the full, formatted type line of each
 	 * face.
 	 */
 	public abstract List<String> typeLine();
-	
+
 	/**
 	 * @return A String consisting of the type lines of each face of this Card
 	 * joined with a separator.
@@ -399,17 +399,17 @@ public abstract class Card
 		}
 		return unifiedTypeLine;
 	}
-	
+
 	/**
 	 * @return This Card's Rarity.
 	 */
 	public abstract Rarity rarity();
-	
+
 	/**
 	 * @return The Oracle text of each of this Card's faces in a list.
 	 */
 	public abstract List<String> oracleText();
-	
+
 	/**
 	 * @return A list containing the Oracle text of each of this Card's faces with special characters
 	 * replaced by versions that appear on a standard QWERTY keyboard.
@@ -422,7 +422,7 @@ public abstract class Card
 			for (int i = 0; i < faces; i++)
 			{
 				String normal = Normalizer.normalize(oracleText()[i].toLowerCase(), Normalizer.Form.NFD);
-				normal = normal.replaceAll("\\p{M}", "").replace("æ", "ae");
+				normal = normal.replaceAll("\\p{M}", "").replace("\u00E6", "ae");
 				normal = normal.replace(legendName()[i], Card.THIS).replace(normalizedName()[i], Card.THIS);
 				texts.add(normal);
 			}
@@ -430,12 +430,12 @@ public abstract class Card
 		}
 		return normalizedOracle;
 	}
-	
+
 	/**
 	 * @return A list containing the flavor text of each face of this Card.
 	 */
 	public abstract List<String> flavorText();
-	
+
 	/**
 	 * @return A list containing the flavor text of each of this Card's faces with special characters
 	 * replaced by versions that appear on a standard QWERTY keyboard.
@@ -444,26 +444,26 @@ public abstract class Card
 	{
 		if (normalizedFlavor == null)
 			normalizedFlavor = Collections.unmodifiableList(flavorText().stream()
-					.map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("æ", "ae"))
+					.map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("\u00E6", "ae"))
 					.collect(Collectors.toList()));
 		return normalizedFlavor;
 	}
-	
+
 	/**
 	 * @return A list containing the artist of each face of this Card.
 	 */
 	public abstract List<String> artist();
-	
+
 	/**
 	 * @return A list containing the collector's number of each face of this Card.
 	 */
 	public abstract List<String> number();
-	
+
 	/**
 	 * @return A list containing the power of each face of this Card (that's a creature).
 	 */
 	public abstract PowerToughness.Tuple power();
-	
+
 	/**
 	 * @return <code>true</code> if this Card has a face that is a creature with variable
 	 * power (a * value), and <code>false</code> otherwise.
@@ -474,12 +474,12 @@ public abstract class Card
 			powerVariable = power().stream().anyMatch(PowerToughness::variable);
 		return powerVariable;
 	}
-	
+
 	/**
 	 * @return A list containing the toughness of each face of this Card (that's a creature).
 	 */
 	public abstract PowerToughness.Tuple toughness();
-	
+
 	/**
 	 * @return <code>true</code> if this Card has a face that is a creature with variable
 	 * toughness (a * value), and <code>false</code> otherwise.
@@ -490,25 +490,25 @@ public abstract class Card
 			toughnessVariable = toughness().stream().anyMatch(PowerToughness::variable);
 		return toughnessVariable;
 	}
-	
+
 	/**
 	 * @return A list containing the loyalty of each face of this Card (that's a
 	 * planeswalker).
 	 */
 	public abstract Loyalty.Tuple loyalty();
-	
+
 	/**
 	 * @return A map whose keys are dates and whose values are the rulings of this
 	 * Card on those dates.
 	 */
 	public abstract Map<Date, List<String>> rulings();
-	
+
 	/**
 	 * @return A map whose keys are format names and whose values are the Legalities
 	 * of this Card in those formats.
 	 */
 	public abstract Map<String, Legality> legality();
-	
+
 	/**
 	 * @param format Format to look up
 	 * @return <code>true</code> if the given format exists and this Card is legal in it, and
@@ -541,7 +541,7 @@ public abstract class Card
 		else
 			return legality()[format] != Legality.BANNED;
 	}
-	
+
 	/**
 	 * @return A list of formats that this Card is legal in.
 	 */
@@ -551,7 +551,7 @@ public abstract class Card
 			legalIn = Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList()));
 		return legalIn;
 	}
-	
+
 	/**
 	 * @param format Format to look up
 	 * @return The legality (legal, restricted, banned) of this Card in the given format.
@@ -567,12 +567,12 @@ public abstract class Card
 		else
 			return Legality.BANNED;
 	}
-	
+
 	/**
 	 * @return A list containing the name of each image corresponding to a face of this Card.
 	 */
 	public abstract List<String> imageNames();
-	
+
 	/**
 	 * @return <code>true</code> if this Card can be a commander in the Commander format, and
 	 * <code>false</code> otherwise.
@@ -583,7 +583,7 @@ public abstract class Card
 			canBeCommander = supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander"));
 		return canBeCommander;
 	}
-	
+
 	/**
 	 * @return <code>true</code> if there can be any number of copies of this Card in a deck,
 	 * and <code>false</code> otherwise.
@@ -594,11 +594,11 @@ public abstract class Card
 			ignoreCountRestriction = supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number"));
 		return ignoreCountRestriction;
 	}
-	
+
 	/**
 	 * Add text and icons to the given document so it contains a nice-looking version of this
 	 * Card's Oracle text.  The document is expected to have styles "text" and "reminder."
-	 * 
+	 *
 	 * @param document Document to format
 	 * @param f Face to add to the document
 	 */
@@ -631,14 +631,14 @@ public abstract class Card
 				{
 					Style indicatorStyle = document.addStyle("indicator", document.getStyle("text"));
 					StyleConstants.setForeground(indicatorStyle, color.color);
-					document.insertString(document.getLength(), "•", indicatorStyle);
+					document.insertString(document.getLength(), "â€¢", indicatorStyle);
 				}
 				if (!colors().isEmpty())
 					document.insertString(document.getLength(), " ", textStyle);
 			}
 			document.insertString(document.getLength(), typeLine()[f] + '\n', textStyle);
 			document.insertString(document.getLength(), expansion.name + ' ' + rarity() + '\n', textStyle);
-			
+
 			String oracle = oracleText()[f];
 			if (!oracle.isEmpty())
 			{
@@ -728,12 +728,12 @@ public abstract class Card
 				}
 				document.insertString(document.getLength(), "\n", reminderStyle);
 			}
-			
+
 			if (!Double.isNaN(power()[f].value) && !Double.isNaN(toughness()[f].value))
 				document.insertString(document.getLength(), power()[f] + "/" + toughness()[f] + "\n", textStyle);
 			else if (loyalty()[f].value > 0)
 				document.insertString(document.getLength(), loyalty()[f] + "\n", textStyle);
-			
+
 			document.insertString(document.getLength(), artist()[f] + " " + number()[f] + "/" + expansion.count, textStyle);
 		}
 		catch (BadLocationException e)
@@ -741,11 +741,11 @@ public abstract class Card
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Add the Oracle text of all of this Card's faces to the given document, separated
 	 * by a separator on its own line.
-	 * 
+	 *
 	 * @param document Document to add text to
 	 */
 	public void formatDocument(StyledDocument document)
@@ -765,7 +765,7 @@ public abstract class Card
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * @return A String representation of this Card to be used in tables.
 	 */
@@ -774,7 +774,7 @@ public abstract class Card
 	{
 		return unifiedName();
 	}
-	
+
 	/**
 	 * @return This Card's hash code.
 	 */
@@ -783,7 +783,7 @@ public abstract class Card
 	{
 		return id().hashCode();
 	}
-	
+
 	/**
 	 * @param other Object to compare with
 	 * @return <code>true</code> if this Card and the other Object both represent the exact same

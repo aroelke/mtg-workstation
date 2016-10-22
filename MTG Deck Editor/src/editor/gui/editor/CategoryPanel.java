@@ -35,7 +35,7 @@ import editor.gui.generic.ColorButton;
 
 /**
  * This class represents a panel that shows information about a category in a deck.
- * 
+ *
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -93,10 +93,10 @@ public class CategoryPanel extends JPanel
 	 * Combo box showing the user-defined rank of the category.
 	 */
 	protected JComboBox<Integer> rankBox;
-	
+
 	/**
 	 * Create a new CategoryPanel.
-	 * 
+	 *
 	 * @param d Deck containing the category to display
 	 * @param n Name of the category to display
 	 * @param editor EditorFrame containing the new CategoryPanel
@@ -108,15 +108,15 @@ public class CategoryPanel extends JPanel
 		name = n;
 		background = getBackground();
 		flashTimer = new FlashTimer();
-		
+
 		// Each category is surrounded by a border with a title
 		setBorder(border = BorderFactory.createTitledBorder(name));
-		
+
 		setLayout(new BorderLayout());
-		
+
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BorderLayout(0, 0));
-		
+
 		// Labels showing category stats
 		JPanel statsPanel = new JPanel(new GridLayout(0, 1));
 		countLabel = new JLabel("Cards: " + deck.total(name));
@@ -124,7 +124,7 @@ public class CategoryPanel extends JPanel
 		avgCMCLabel = new JLabel("Average CMC: 0");
 		statsPanel.add(avgCMCLabel);
 		topPanel.add(statsPanel, BorderLayout.WEST);
-		
+
 		// Panel containing edit and remove buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		rankBox = new JComboBox<Integer>(IntStream.range(0, deck.categories().size()).boxed().toArray(Integer[]::new));
@@ -132,14 +132,14 @@ public class CategoryPanel extends JPanel
 		buttonPanel.add(rankBox);
 		colorButton = new ColorButton(deck.getCategorySpec(name).getColor());
 		buttonPanel.add(colorButton);
-		editButton = new JButton("…");
+		editButton = new JButton("\u2026");
 		buttonPanel.add(editButton);
 		removeButton = new JButton("\u2212");
 		buttonPanel.add(removeButton);
 		topPanel.add(buttonPanel, BorderLayout.EAST);
-		
+
 		add(topPanel, BorderLayout.NORTH);
-		
+
 		// Table showing the cards in the category
 		model = new CardTableModel(editor, deck.getCategoryList(name), SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
 		table = new CardTable(model)
@@ -164,7 +164,7 @@ public class CategoryPanel extends JPanel
 
 		update();
 	}
-	
+
 	/**
 	 * @return The name of the category this CategoryPanel is displaying.
 	 */
@@ -172,7 +172,7 @@ public class CategoryPanel extends JPanel
 	{
 		return name;
 	}
-	
+
 	/**
 	 * Change the category this panel should display to a new one.
 	 * @param n Name of the new category to display
@@ -184,7 +184,7 @@ public class CategoryPanel extends JPanel
 			throw new IllegalArgumentException("deck does not have a category named " + n);
 		name = n;
 	}
-	
+
 	/**
 	 * Update the GUI to reflect changes in a category.
 	 */
@@ -192,7 +192,7 @@ public class CategoryPanel extends JPanel
 	{
 //		model.fireTableDataChanged();
 		countLabel.setText("Cards: " + deck.total(name));
-		
+
 		double avgCMC = 0.0;
 		int count = 0;
 		for (Card card: deck)
@@ -209,7 +209,7 @@ public class CategoryPanel extends JPanel
 			avgCMCLabel.setText("Average CMC: " + (int)avgCMC);
 		else
 			avgCMCLabel.setText("Average CMC: " + String.format("%.2f", avgCMC));
-		
+
 		border.setTitle(name);
 		table.revalidate();
 		table.repaint();
@@ -218,7 +218,7 @@ public class CategoryPanel extends JPanel
 		revalidate();
 		repaint();
 	}
-	
+
 	/**
 	 * @return The list of Cards corresponding to the selected rows in the category's table.
 	 */
@@ -228,7 +228,7 @@ public class CategoryPanel extends JPanel
 					 .mapToObj((r) -> deck.getCategoryList(name)[table.convertRowIndexToModel(r)])
 					 .collect(Collectors.toList());
 	}
-	
+
 	/**
 	 * Briefly flash to draw attention to this CategoryPanel.
 	 */
@@ -236,10 +236,10 @@ public class CategoryPanel extends JPanel
 	{
 		flashTimer.restart();
 	}
-	
+
 	/**
 	 * Apply settings to this CategoryPanel.
-	 * 
+	 *
 	 * @param editor EditorFrame containing this CategoryPanel
 	 */
 	public void applySettings(EditorFrame editor)
@@ -252,14 +252,14 @@ public class CategoryPanel extends JPanel
 			if (model.isCellEditable(0, i))
 				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(editor));
 	}
-	
+
 	/**
 	 * This class represents a mouse wheel listener that returns mouse wheel control to an outer scroll
 	 * pane when this one's scroll pane has reached a limit.
-	 * 
+	 *
 	 * It is adapted from a StackOverflow answer to the same problem, which can be found at
 	 * @link{http://stackoverflow.com/questions/1377887/jtextpane-prevents-scrolling-in-the-parent-jscrollpane}.
-	 * 
+	 *
 	 * @author Nemi
 	 * @since November 24, 2009
 	 */
@@ -287,7 +287,7 @@ public class CategoryPanel extends JPanel
 			parent = p;
 			bar = parent.getVerticalScrollBar();
 		}
-		
+
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e)
 		{
@@ -309,20 +309,20 @@ public class CategoryPanel extends JPanel
 				 }
 				 previousValue = bar.getValue();
 			}
-			/* 
+			/*
 			 * If parent scrollpane doesn't exist, remove this as a listener.
-			 * We have to defer this till now (vs doing it in constructor) 
+			 * We have to defer this till now (vs doing it in constructor)
 			 * because in the constructor this item has no parent yet.
 			 */
 			else
 				this.parent.removeMouseWheelListener(this);
 		}
-		
+
 		private int getMax()
 		{
 			return bar.getMaximum() - bar.getVisibleAmount();
 		}
-		
+
 		private MouseWheelEvent cloneEvent(MouseWheelEvent e)
 		{
 			return new MouseWheelEvent(getParentScrollPane(), e.getID(), e
@@ -331,11 +331,11 @@ public class CategoryPanel extends JPanel
 					.getScrollAmount(), e.getWheelRotation());
 		}
 	}
-	
+
 	/**
 	 * This class represents a timer controlling the flash of the panel when it is skipped to.
 	 * The flash will last 400ms.
-	 * 
+	 *
 	 * @author Alec Roelke
 	 */
 	private class FlashTimer extends Timer
@@ -348,12 +348,12 @@ public class CategoryPanel extends JPanel
 		 * Color of the flash.
 		 */
 		private final Color FLASH = SystemColor.textHighlight;
-		
+
 		/**
 		 * Progress of the flash.
 		 */
 		private int count;
-		
+
 		/**
 		 * Create a new FlashTimer.
 		 */
@@ -375,7 +375,7 @@ public class CategoryPanel extends JPanel
 				}
 			});
 		}
-		
+
 		/**
 		 * Stop the timer and set the panel to its default background color.
 		 */
@@ -386,7 +386,7 @@ public class CategoryPanel extends JPanel
 			setBackground(background);
 			repaint();
 		}
-		
+
 		/**
 		 * Restart the timer, resetting the progress of the flash.
 		 */
