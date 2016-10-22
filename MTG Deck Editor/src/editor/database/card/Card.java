@@ -678,7 +678,7 @@ public abstract class Card
 						start = i + 1;
 						break;
 					case 'C':
-						if (oracle.substring(i, i + 5).equals("CHAOS"))
+						if (i < oracle.length() - 5 && oracle.substring(i, i + 5).equals("CHAOS"))
 						{
 							document.insertString(document.getLength(), oracle.substring(start, i), style);
 							document.insertString(document.getLength(), "CHAOS", chaosStyle);
