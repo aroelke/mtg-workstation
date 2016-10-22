@@ -141,7 +141,7 @@ public class CategoryPanel extends JPanel
 		add(topPanel, BorderLayout.NORTH);
 		
 		// Table showing the cards in the category
-		model = new CardTableModel(editor, deck.getCategoryCards(name), SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
+		model = new CardTableModel(editor, deck.getCategoryList(name), SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
 		table = new CardTable(model)
 		{
 			@Override
@@ -225,7 +225,7 @@ public class CategoryPanel extends JPanel
 	public List<Card> getSelectedCards()
 	{
 		return Arrays.stream(table.getSelectedRows())
-					 .mapToObj((r) -> deck.getCategoryCards(name)[table.convertRowIndexToModel(r)])
+					 .mapToObj((r) -> deck.getCategoryList(name)[table.convertRowIndexToModel(r)])
 					 .collect(Collectors.toList());
 	}
 	

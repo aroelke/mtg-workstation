@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
@@ -24,7 +23,7 @@ import editor.filter.leaf.BinaryFilter;
 
 /**
  * This class represents an inventory of cards that can be added to decks.
- * 
+ * TODO: Correct comments
  * 
  * @author Alec Roelke
  * @see util.CategorizableList
@@ -40,9 +39,9 @@ public class Inventory implements CardList
 	{
 		private final Card card;
 		
-		private InventoryEntry(Card c)
+		private InventoryEntry(Card card)
 		{
-			card = c;
+			this.card = card;
 		}
 		
 		@Override
@@ -86,21 +85,21 @@ public class Inventory implements CardList
 		/**
 		 * Create a new TransferData from the given cards.
 		 * 
-		 * @param c Cards to transfer
+		 * @param cards Cards to transfer
 		 */
-		public TransferData(Card... c)
+		public TransferData(Card... cards)
 		{
-			cards = c;
+			this.cards = cards;
 		}
 		
 		/**
 		 * Create a new TransferData from the given cards.
 		 * 
-		 * @param c Cards to transfer
+		 * @param cards Cards to transfer
 		 */
-		public TransferData(Collection<Card> c)
+		public TransferData(Collection<Card> cards)
 		{
-			this(c.stream().toArray(Card[]::new));
+			this(cards.stream().toArray(Card[]::new));
 		}
 		
 		/**
@@ -185,25 +184,25 @@ public class Inventory implements CardList
 	}
 	
 	@Override
-	public boolean add(Card c)
+	public boolean add(Card card)
 	{
 		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public boolean add(Card c, int n)
+	public boolean add(Card card, int amount)
 	{
 		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public boolean addAll(Collection<? extends Card> coll)
+	public boolean addAll(Collection<? extends Card> cards)
 	{
 		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public boolean addAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
+	public boolean addAll(Collection<? extends Card> cards, Collection<? extends Integer> amounts)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -215,25 +214,25 @@ public class Inventory implements CardList
 	}
 	
 	/**
-	 * @param Object to look for
+	 * @param Card card to look for
 	 * @return <code>true</code> if the inventory contains the given item, and
 	 * <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean contains(Object o)
+	public boolean contains(Card card)
 	{
-		return cards.contains(o);
+		return IDs.values().contains(card);
 	}
 	
 	/**
-	 * @param coll Collection of objects to look for
+	 * @param cards Collection of objects to look for
 	 * @return <code>true</code> if the inventory contains all of the given items,
 	 * and <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean containsAll(Collection<?> coll)
+	public boolean containsAll(Collection<? extends Card> cards)
 	{
-		return cards.containsAll(coll);
+		return this.cards.containsAll(cards);
 	}
 	
 	/**
@@ -257,9 +256,9 @@ public class Inventory implements CardList
 	}
 	
 	@Override
-	public Entry getData(Card c)
+	public Entry getData(Card card)
 	{
-		return new InventoryEntry(c);
+		return new InventoryEntry(card);
 	}
 	
 	@Override
@@ -282,9 +281,9 @@ public class Inventory implements CardList
 	 * in the inventory.
 	 */
 	@Override
-	public int indexOf(Object o)
+	public int indexOf(Card card)
 	{
-		return filtrate.indexOf(o);
+		return filtrate.indexOf(card);
 	}
 	
 	/**
@@ -314,46 +313,39 @@ public class Inventory implements CardList
 	{
 		return cards.isEmpty();
 	}
-	
-	@Override
-	public Stream<Card> parallelStream()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
-	public int remove(Card c, int n)
+	public boolean remove(Card card)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean remove(Object o)
+	public int remove(Card card, int amount)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
+	public boolean removeAll(Collection<? extends Card> cards)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean removeAll(Collection<?> coll)
+	public boolean removeAll(Collection<? extends Card> cards, Collection<? extends Integer> amounts)
 	{
 		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public boolean set(Card c, int n)
+	public boolean set(Card card, int amount)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean set(int index, int n)
+	public boolean set(int index, int amount)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -378,15 +370,6 @@ public class Inventory implements CardList
 	}
 
 	/**
-	 * @return A sequential stream over the filtered card list.
-	 */
-	@Override
-	public Stream<Card> stream()
-	{
-		return filtrate.stream();
-	}
-
-	/**
 	 * @return An array containing all the cards in the inventory.
 	 */
 	@Override
@@ -408,10 +391,10 @@ public class Inventory implements CardList
 	/**
 	 * Update the filtered view of this Inventory.
 	 * 
-	 * @param f New filter
+	 * @param filter New filter
 	 */
-	public void updateFilter(Filter f)
+	public void updateFilter(Filter filter)
 	{
-		filter.setFilter(f);
+		this.filter.setFilter(filter);
 	}
 }
