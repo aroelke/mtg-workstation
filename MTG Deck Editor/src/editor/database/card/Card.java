@@ -223,7 +223,7 @@ public abstract class Card
 	{
 		if (normalizedName == null)
 			normalizedName = Collections.unmodifiableList(name().stream()
-					.map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("�", "ae"))
+					.map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("\u00E6", "ae"))
 					.collect(Collectors.toList()));
 		return normalizedName;
 	}
@@ -422,7 +422,7 @@ public abstract class Card
 			for (int i = 0; i < faces; i++)
 			{
 				String normal = Normalizer.normalize(oracleText()[i].toLowerCase(), Normalizer.Form.NFD);
-				normal = normal.replaceAll("\\p{M}", "").replace("�", "ae");
+				normal = normal.replaceAll("\\p{M}", "").replace("\u00E6", "ae");
 				normal = normal.replace(legendName()[i], Card.THIS).replace(normalizedName()[i], Card.THIS);
 				texts.add(normal);
 			}
@@ -444,7 +444,7 @@ public abstract class Card
 	{
 		if (normalizedFlavor == null)
 			normalizedFlavor = Collections.unmodifiableList(flavorText().stream()
-					.map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("�", "ae"))
+					.map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace("\u00E6", "ae"))
 					.collect(Collectors.toList()));
 		return normalizedFlavor;
 	}
@@ -631,7 +631,7 @@ public abstract class Card
 				{
 					Style indicatorStyle = document.addStyle("indicator", document.getStyle("text"));
 					StyleConstants.setForeground(indicatorStyle, color.color);
-					document.insertString(document.getLength(), "�", indicatorStyle);
+					document.insertString(document.getLength(), "\u2022", indicatorStyle);
 				}
 				if (!colors().isEmpty())
 					document.insertString(document.getLength(), " ", textStyle);
