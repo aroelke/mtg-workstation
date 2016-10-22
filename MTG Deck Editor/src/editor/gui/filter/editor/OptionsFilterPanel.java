@@ -154,7 +154,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 			addItem(options[0]);
 			optionsPanel.revalidate();
 		}));
-		JLabel removeButton = new JLabel("\u2212", JLabel.CENTER);
+		JLabel removeButton = new JLabel("\u00D7", JLabel.CENTER);
 		removeButton.setForeground(Color.RED);
 		removeButton.setAlignmentX(CENTER_ALIGNMENT);
 		removeButton.setFont(buttonFont);
