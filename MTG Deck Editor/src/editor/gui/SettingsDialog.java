@@ -64,7 +64,7 @@ import editor.gui.generic.ScrollablePanel;
 /**
  * This class is a dialog that allows the user to change various properties about
  * the program.
- * 
+ *
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -74,7 +74,7 @@ public class SettingsDialog extends JDialog
 	 * Global settings for the program.
 	 */
 	private static final Properties SETTINGS = new Properties();
-	 
+
 	/**
 	 * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
 	 */
@@ -91,7 +91,7 @@ public class SettingsDialog extends JDialog
 	 * Tags that have been applied to cards.
 	 */
 	public static final String CARD_TAGS = "card_tags";
-	
+
 	////////////////// INVENTORY SETTINGS ////////////////
 	/**
 	 * File to download to check the latest version of the inventory.
@@ -125,7 +125,7 @@ public class SettingsDialog extends JDialog
 	 * Location to find card scans.
 	 */
 	public static final String CARD_SCANS = "scans";
-	
+
 	////////////////// INVENTORY APPEARANCE SETTINGS ////////////////
 	/**
 	 * Columns to display in the inventory table.
@@ -139,7 +139,7 @@ public class SettingsDialog extends JDialog
 	 * Background color for card scans in the left pane.
 	 */
 	public static final String IMAGE_BGCOLOR = "inventory.scan_bgcolor";
-	
+
 	////////////////// EDITOR SETTINGS ////////////////
 	/**
 	 * Number of recently-opened files to save.
@@ -154,13 +154,13 @@ public class SettingsDialog extends JDialog
 	 * category editor.
 	 */
 	public static final String EXPLICITS_ROWS = "category.explicits_rows";
-	
+
 	////////////////// PRESET CATEGORIES ////////////////
 	/**
 	 * Preset categories that can be added to editors.
 	 */
 	public static final String EDITOR_PRESETS = "editor.presets";
-	
+
 	////////////////// EDITOR APPEARANCE ////////////////
 	/**
 	 * Maximum number of rows to show in category panels.
@@ -174,7 +174,7 @@ public class SettingsDialog extends JDialog
 	 * Stripe color for editor tables.
 	 */
 	public static final String EDITOR_STRIPE = "editor.stripe";
-	
+
 	////////////////// SAMPLE HAND SETTINGS ////////////////
 	/**
 	 * Default initial size for a hand.
@@ -188,10 +188,10 @@ public class SettingsDialog extends JDialog
 	 * Round mode for displaying expected category counts in the hand panel.
 	 */
 	public static final String EXPECTED_ROUND_MODE = "hand.expectedround";
-	
+
 	/**
 	 * Save preferences.
-	 * 
+	 *
 	 * @throws IOException If an exception occurred during saving.
 	 */
 	public static void save() throws IOException
@@ -211,10 +211,10 @@ public class SettingsDialog extends JDialog
 			SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
 		}
 	}
-	
+
 	/**
 	 * Load global settings from the settings file.
-	 * 
+	 *
 	 * @throws FileNotFoundException If the settings file can't be found.
 	 * @throws IOException If an error occurred during loading.
 	 */
@@ -226,7 +226,7 @@ public class SettingsDialog extends JDialog
 			SettingsDialog.SETTINGS.load(in);
 		}
 	}
-	
+
 	/**
 	 * Set program settings back to their default values.  This does not change card tags.
 	 */
@@ -256,12 +256,12 @@ public class SettingsDialog extends JDialog
 		SETTINGS[IMAGE_BGCOLOR] = "#FFFFFFFF";
 		SETTINGS[HAND_BGCOLOR] = "#FFFFFFFF";
 	}
-	
+
 	public static <T> void set(String name, T value)
 	{
 		SETTINGS[name] = String.valueOf(value);
 	}
-	
+
 	/**
 	 * @param name Name of the setting to get
 	 * @return The String value of the setting with the given name.
@@ -269,11 +269,11 @@ public class SettingsDialog extends JDialog
 	public static String getAsString(String name)
 	{
 		return SETTINGS.getProperty(name);
-	} 
-	
+	}
+
 	/**
 	 * Get the boolean value of the given global setting.
-	 * 
+	 *
 	 * @param name Name of the setting to get
 	 * @return <code>true</code> if the String value of the given setting is "true" and
 	 * <code>false</code> otherwise.
@@ -282,10 +282,10 @@ public class SettingsDialog extends JDialog
 	{
 		return Boolean.valueOf(SETTINGS.getProperty(name));
 	}
-	
+
 	/**
 	 * Get the integer value of the given global setting.
-	 * 
+	 *
 	 * @param name Name of the setting to get
 	 * @return The integer value of the given setting.
 	 * @throws NumberFormatException If the given setting is not a numerical setting.
@@ -294,10 +294,10 @@ public class SettingsDialog extends JDialog
 	{
 		return Integer.valueOf(SETTINGS.getProperty(name));
 	}
-	
+
 	/**
 	 * Get the Color value of the given global setting.
-	 * 
+	 *
 	 * @param name Name of the setting to get
 	 * @return The Color value of the given setting.
 	 * @throws IllegalArgumentException If the given setting does not represent a Color.
@@ -306,10 +306,10 @@ public class SettingsDialog extends JDialog
 	{
 		return stringToColor(SETTINGS.getProperty(name));
 	}
-	
+
 	/**
 	 * Get the list of CardCharacteristics represented by the given global setting.
-	 * 
+	 *
 	 * @param name Name of the setting to get
 	 * @return List of CardCharacteristic that is represented by the setting
 	 * @throws IllegalArgumentException If the given setting is not a list of CardCharacteristics
@@ -318,7 +318,7 @@ public class SettingsDialog extends JDialog
 	{
 		return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardData::get).collect(Collectors.toList());
 	}
-	
+
 	/**
 	 * @return The list of preset CategorySpecs.
 	 */
@@ -326,20 +326,20 @@ public class SettingsDialog extends JDialog
 	{
 		return Arrays.stream(SETTINGS.getProperty(EDITOR_PRESETS).split(CATEGORY_DELIMITER)).map(CategorySpec::new).collect(Collectors.toList());
 	}
-	
+
 	/**
 	 * Add a preset category to the global settings.
-	 * 
+	 *
 	 * @param category String version of the category to add.
 	 */
 	public static void addPresetCategory(String category)
 	{
 		SETTINGS.compute(SettingsDialog.EDITOR_PRESETS, (k, v) -> v += SettingsDialog.CATEGORY_DELIMITER + category);
 	}
-	
+
 	/**
 	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
-	 * 
+	 *
 	 * @param col Color to convert
 	 * @param width Minimum width of the color string
 	 * @return String code of the color.
@@ -348,10 +348,10 @@ public class SettingsDialog extends JDialog
 	{
 		return String.format("#%0" + (width*2) + "X", col.getRGB()&((1L << (width*8)) - 1));
 	}
-	
+
 	/**
 	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
-	 * 
+	 *
 	 * @param col Color to convert
 	 * @return String code of the color.
 	 */
@@ -359,11 +359,11 @@ public class SettingsDialog extends JDialog
 	{
 		return colorToString(col, 4);
 	}
-	
+
 	/**
 	 * Decode an ARGB @link{java.awt.Color} from a String of either the format
 	 * <code>#AARRGGBB</code> or <code>#RRGGBB</code>.
-	 * 
+	 *
 	 * @param s String to parse
 	 * @return The Color corresponding to the String.
 	 * @throw IllegalArgumentException if the given String does not represent a Color.
@@ -381,7 +381,7 @@ public class SettingsDialog extends JDialog
 		else
 			throw new IllegalArgumentException("Illegal color string \"" + s + "\"");
 	}
-	
+
 	/**
 	 * MainFrame showing the dialog.
 	 */
@@ -463,19 +463,19 @@ public class SettingsDialog extends JDialog
 	 * TODO: Comment this
 	 */
 	private List<JRadioButton> modeButtons;
-	
+
 	/**
 	 * Create a new SettingsDialog.
-	 * 
+	 *
 	 * @param owner Parent of the dialog
 	 */
 	public SettingsDialog(MainFrame owner)
 	{
 		super(owner, "Preferences", Dialog.ModalityType.APPLICATION_MODAL);
 		setResizable(false);
-		
+
 		parent = owner;
-		
+
 		// Tree
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Preferences");
 		DefaultMutableTreeNode inventoryNode = new DefaultMutableTreeNode("Inventory");
@@ -490,18 +490,18 @@ public class SettingsDialog extends JDialog
 		DefaultMutableTreeNode handAppearanceNode = new DefaultMutableTreeNode("Sample Hand");
 		editorNode.add(handAppearanceNode);
 		root.add(editorNode);
-		
+
 		// Settings panels
 		JPanel settingsPanel = new JPanel();
 		settingsPanel.setLayout(new CardLayout());
 		add(settingsPanel, BorderLayout.CENTER);
-		
+
 		// Inventory paths
 		JPanel inventoryPanel = new JPanel();
 		inventoryPanel.setLayout(new BoxLayout(inventoryPanel, BoxLayout.Y_AXIS));
 		inventoryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(inventoryPanel, new TreePath(inventoryNode.getPath()).toString());
-		
+
 		// Inventory site
 		JPanel inventorySitePanel = new JPanel();
 		inventorySitePanel.setLayout(new BoxLayout(inventorySitePanel, BoxLayout.X_AXIS));
@@ -513,7 +513,7 @@ public class SettingsDialog extends JDialog
 		inventorySitePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventorySitePanel.getPreferredSize().height));
 		inventoryPanel.add(inventorySitePanel);
 		inventoryPanel.add(Box.createVerticalStrut(5));
-		
+
 		// Inventory file name
 		JPanel inventoryFilePanel = new JPanel();
 		inventoryFilePanel.setLayout(new BoxLayout(inventoryFilePanel, BoxLayout.X_AXIS));
@@ -529,7 +529,7 @@ public class SettingsDialog extends JDialog
 		inventoryFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryFilePanel.getPreferredSize().height));
 		inventoryPanel.add(inventoryFilePanel);
 		inventoryPanel.add(Box.createVerticalStrut(5));
-		
+
 		// Inventory file directory
 		JPanel inventoryDirPanel = new JPanel();
 		inventoryDirPanel.setLayout(new BoxLayout(inventoryDirPanel, BoxLayout.X_AXIS));
@@ -543,7 +543,7 @@ public class SettingsDialog extends JDialog
 		inventoryChooser.setCurrentDirectory(new File(inventoryDirField.getText()).getAbsoluteFile());
 		inventoryDirPanel.add(inventoryDirField);
 		inventoryDirPanel.add(Box.createHorizontalStrut(5));
-		JButton inventoryDirButton = new JButton("…");
+		JButton inventoryDirButton = new JButton("\u2026");
 		inventoryDirButton.addActionListener((e) -> {
 			if (inventoryChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
 			{
@@ -556,7 +556,7 @@ public class SettingsDialog extends JDialog
 		inventoryDirPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryDirPanel.getPreferredSize().height));
 		inventoryPanel.add(inventoryDirPanel);
 		inventoryPanel.add(Box.createVerticalStrut(5));
-		
+
 		// Card scans directory
 		JPanel scansDirPanel = new JPanel();
 		scansDirPanel.setLayout(new BoxLayout(scansDirPanel, BoxLayout.X_AXIS));
@@ -570,7 +570,7 @@ public class SettingsDialog extends JDialog
 		scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
 		scansDirPanel.add(scansDirField);
 		scansDirPanel.add(Box.createHorizontalStrut(5));
-		JButton scansDirButton = new JButton("…");
+		JButton scansDirButton = new JButton("\u2026");
 		scansDirButton.addActionListener((e) -> {
 			if (scansChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
 			{
@@ -583,23 +583,23 @@ public class SettingsDialog extends JDialog
 		scansDirPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, scansDirPanel.getPreferredSize().height));
 		inventoryPanel.add(scansDirPanel);
 		inventoryPanel.add(Box.createVerticalStrut(5));
-		
+
 		// Check for update on startup
 		JPanel updatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		updateCheckBox = new JCheckBox("Check for update on program start", getAsBoolean(INITIAL_CHECK));
 		updatePanel.add(updateCheckBox);
 		updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
 		inventoryPanel.add(updatePanel);
-		
+
 		// Suppress warnings after loading cards
 		JPanel suppressPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		suppressCheckBox = new JCheckBox("Suppress warnings while loading cards", getAsBoolean(SUPPRESS_LOAD_WARNINGS));
 		suppressPanel.add(suppressCheckBox);
 		suppressPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, suppressPanel.getPreferredSize().height));
 		inventoryPanel.add(suppressPanel);
-		
+
 		inventoryPanel.add(Box.createVerticalGlue());
-		
+
 		// Warning panel
 		JPanel pathWarningPanel = new JPanel(new BorderLayout());
 		JLabel pathWarningLabel = new JLabel("Warning:  Changing these settings may break functionality");
@@ -608,14 +608,14 @@ public class SettingsDialog extends JDialog
 		pathWarningPanel.add(pathWarningLabel);
 		pathWarningPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, pathWarningLabel.getPreferredSize().height));
 		inventoryPanel.add(pathWarningPanel);
-		
+
 		// Inventory appearance
 		ScrollablePanel inventoryAppearancePanel = new ScrollablePanel(ScrollablePanel.TRACK_WIDTH);
 		inventoryAppearancePanel.setLayout(new BoxLayout(inventoryAppearancePanel, BoxLayout.Y_AXIS));
 		JScrollPane inventoryAppearanceScroll = new JScrollPane(inventoryAppearancePanel);
 		inventoryAppearanceScroll.setBorder(BorderFactory.createEmptyBorder());
 		settingsPanel.add(inventoryAppearanceScroll, new TreePath(inventoryAppearanceNode.getPath()).toString());
-		
+
 		// Columns
 		JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
 		inventoryColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
@@ -628,7 +628,7 @@ public class SettingsDialog extends JDialog
 			checkBox.setSelected(getAsString(INVENTORY_COLUMNS).contains(characteristic.toString()));
 		}
 		inventoryAppearancePanel.add(inventoryColumnsPanel);
-		
+
 		// Stripe color
 		JPanel inventoryColorPanel = new JPanel(new BorderLayout());
 		inventoryColorPanel.setBorder(BorderFactory.createTitledBorder("Stripe Color"));
@@ -636,7 +636,7 @@ public class SettingsDialog extends JDialog
 		createStripeChooserPreview(inventoryStripeColor);
 		inventoryColorPanel.add(inventoryStripeColor);
 		inventoryAppearancePanel.add(inventoryColorPanel);
-		
+
 		// Card image background color
 		JPanel scanBGPanel = new JPanel(new BorderLayout());
 		scanBGPanel.setBorder(BorderFactory.createTitledBorder("Image Background Color"));
@@ -646,13 +646,13 @@ public class SettingsDialog extends JDialog
 		});
 		scanBGPanel.add(scanBGChooser);
 		inventoryAppearancePanel.add(scanBGPanel);
-		
+
 		// Editor
 		JPanel editorPanel = new JPanel();
 		editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.Y_AXIS));
 		editorPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(editorPanel, new TreePath(editorNode.getPath()).toString());
-		
+
 		// Recent count
 		JPanel recentPanel = new JPanel();
 		recentPanel.setLayout(new BoxLayout(recentPanel, BoxLayout.X_AXIS));
@@ -669,7 +669,7 @@ public class SettingsDialog extends JDialog
 		recentPanel.setAlignmentX(LEFT_ALIGNMENT);
 		editorPanel.add(recentPanel);
 		editorPanel.add(Box.createVerticalStrut(5));
-		
+
 		// Whitelist and blacklist rows to show
 		JPanel explicitsPanel = new JPanel();
 		explicitsPanel.setLayout(new BoxLayout(explicitsPanel, BoxLayout.X_AXIS));
@@ -681,9 +681,9 @@ public class SettingsDialog extends JDialog
 		explicitsPanel.setMaximumSize(explicitsPanel.getPreferredSize());
 		explicitsPanel.setAlignmentX(LEFT_ALIGNMENT);
 		editorPanel.add(explicitsPanel);
-		
+
 		editorPanel.add(Box.createVerticalGlue());
-		
+
 		// Editor categories
 		JPanel categoriesPanel = new JPanel();
 		categoriesPanel.setLayout(new BorderLayout(5, 0));
@@ -694,7 +694,7 @@ public class SettingsDialog extends JDialog
 			for (String categoryString: getAsString(EDITOR_PRESETS).split(CATEGORY_DELIMITER))
 				categoriesList.addCategory(new CategorySpec(categoryString));
 		categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
-		
+
 		// Category modification buttons
 		JPanel categoryModPanel = new JPanel();
 		GridBagLayout categoryModLayout = new GridBagLayout();
@@ -704,7 +704,7 @@ public class SettingsDialog extends JDialog
 		categoryModLayout.rowWeights = new double[] {1.0, 0.0, 0.0, 0.0, 1.0};
 		categoryModPanel.setLayout(categoryModLayout);
 		categoriesPanel.add(categoryModPanel, BorderLayout.EAST);
-		
+
 		JButton addButton = new JButton("+");
 		addButton.addActionListener((e) -> {
 			CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this);
@@ -716,8 +716,8 @@ public class SettingsDialog extends JDialog
 		addConstraints.gridy = 1;
 		addConstraints.fill = GridBagConstraints.BOTH;
 		categoryModPanel.add(addButton, addConstraints);
-		
-		JButton editButton = new JButton("…");
+
+		JButton editButton = new JButton("\u2026");
 		editButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 			{
@@ -731,7 +731,7 @@ public class SettingsDialog extends JDialog
 		editConstraints.gridy = 2;
 		editConstraints.fill = GridBagConstraints.BOTH;
 		categoryModPanel.add(editButton, editConstraints);
-		
+
 		JButton removeButton = new JButton("\u2212");
 		removeButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
@@ -742,12 +742,12 @@ public class SettingsDialog extends JDialog
 		removeConstraints.gridy = 3;
 		removeConstraints.fill = GridBagConstraints.BOTH;
 		categoryModPanel.add(removeButton, removeConstraints);
-		
+
 		// Editor appearance
 		JPanel editorAppearancePanel = new JPanel();
 		editorAppearancePanel.setLayout(new BoxLayout(editorAppearancePanel, BoxLayout.Y_AXIS));
 		settingsPanel.add(editorAppearancePanel, new TreePath(editorAppearanceNode.getPath()).toString());
-		
+
 		// Editor category rows
 		JPanel rowsPanel = new JPanel();
 		rowsPanel.setLayout(new BoxLayout(rowsPanel, BoxLayout.X_AXIS));
@@ -760,7 +760,7 @@ public class SettingsDialog extends JDialog
 		rowsPanel.setMaximumSize(rowsPanel.getPreferredSize());
 		rowsPanel.setAlignmentX(LEFT_ALIGNMENT);
 		editorAppearancePanel.add(rowsPanel);
-		
+
 		// Editor table columns
 		JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
 		editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
@@ -774,7 +774,7 @@ public class SettingsDialog extends JDialog
 		}
 		editorColumnsPanel.setAlignmentX(LEFT_ALIGNMENT);
 		editorAppearancePanel.add(editorColumnsPanel);
-		
+
 		// Editor table stripe color
 		JPanel editorColorPanel = new JPanel(new BorderLayout());
 		editorColorPanel.setBorder(BorderFactory.createTitledBorder("Stripe Color"));
@@ -783,18 +783,18 @@ public class SettingsDialog extends JDialog
 		editorColorPanel.add(editorStripeColor);
 		editorColorPanel.setAlignmentX(LEFT_ALIGNMENT);
 		editorAppearancePanel.add(editorColorPanel);
-		
+
 		editorAppearancePanel.add(Box.createVerticalGlue());
-		
+
 		// Sample hand
 		ScrollablePanel sampleHandPanel = new ScrollablePanel(ScrollablePanel.TRACK_WIDTH);
 		sampleHandPanel.setLayout(new BoxLayout(sampleHandPanel, BoxLayout.Y_AXIS));
 		JScrollPane sampleHandScroll = new JScrollPane(sampleHandPanel);
 		sampleHandScroll.setBorder(BorderFactory.createEmptyBorder());
 		settingsPanel.add(sampleHandScroll, new TreePath(handAppearanceNode.getPath()).toString());
-		
+
 		sampleHandPanel.add(Box.createVerticalStrut(5));
-		
+
 		// Starting Size
 		JPanel startingSizePanel = new JPanel();
 		startingSizePanel.setLayout(new BoxLayout(startingSizePanel, BoxLayout.X_AXIS));
@@ -808,9 +808,9 @@ public class SettingsDialog extends JDialog
 		startingSizePanel.setMaximumSize(startingSizePanel.getPreferredSize());
 		startingSizePanel.setAlignmentX(LEFT_ALIGNMENT);
 		sampleHandPanel.add(startingSizePanel);
-		
+
 		sampleHandPanel.add(Box.createVerticalStrut(5));
-		
+
 		// Expected counts round mode
 		JPanel expectedRoundPanel = new JPanel();
 		expectedRoundPanel.setLayout(new BoxLayout(expectedRoundPanel, BoxLayout.X_AXIS));
@@ -831,9 +831,9 @@ public class SettingsDialog extends JDialog
 		expectedRoundPanel.setMaximumSize(expectedRoundPanel.getPreferredSize());
 		expectedRoundPanel.setAlignmentX(LEFT_ALIGNMENT);
 		sampleHandPanel.add(expectedRoundPanel);
-		
+
 		sampleHandPanel.add(Box.createVerticalStrut(5));
-		
+
 		// Sample hand background color
 		JPanel handBGColorPanel = new JPanel(new BorderLayout());
 		handBGColorPanel.setBorder(BorderFactory.createTitledBorder("Background Color"));
@@ -844,7 +844,7 @@ public class SettingsDialog extends JDialog
 		handBGColorPanel.add(handBGColor);
 		handBGColorPanel.setAlignmentX(LEFT_ALIGNMENT);
 		sampleHandPanel.add(handBGColorPanel);
-		
+
 		// Tree panel
 		JPanel treePanel = new JPanel(new BorderLayout());
 		JTree tree = new JTree(root);
@@ -857,31 +857,31 @@ public class SettingsDialog extends JDialog
 		treePanel.add(new JSeparator(SwingConstants.VERTICAL), BorderLayout.EAST);
 		treePanel.setPreferredSize(new Dimension(130, 0));
 		add(treePanel, BorderLayout.WEST);
-		
+
 		// Button panel
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		
+
 		JButton applyButton = new JButton("Apply");
 		applyButton.addActionListener((e) -> confirmSettings());
 		buttonPanel.add(applyButton);
-		
+
 		JButton okButton = new JButton("OK");
 		okButton.addActionListener((e) -> {confirmSettings(); dispose();});
 		buttonPanel.add(okButton);
-		
+
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener((e) -> {rejectSettings(); dispose();});
 		buttonPanel.add(cancelButton);
-		
+
 		JPanel bottomPanel = new JPanel(new BorderLayout());
 		bottomPanel.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.NORTH);
 		bottomPanel.add(buttonPanel, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
-		
+
 		pack();
 		setLocationRelativeTo(owner);
 	}
-	
+
 	/**
 	 * Reject any changes that were made as a result of using the settings dialog.
 	 */
@@ -890,7 +890,7 @@ public class SettingsDialog extends JDialog
 		parent.setImageBackground(getAsColor(IMAGE_BGCOLOR));
 		parent.setHandBackground(getAsColor(HAND_BGCOLOR));
 	}
-	
+
 	/**
 	 * Confirm the settings applied by the components of the dialog and send them to the parent
 	 * MainFrame.
@@ -928,15 +928,15 @@ public class SettingsDialog extends JDialog
 		SETTINGS[CARD_SCANS] = scansDirField.getText();
 		SETTINGS[IMAGE_BGCOLOR] = colorToString(scanBGChooser.getColor());
 		SETTINGS[HAND_BGCOLOR] = colorToString(handBGColor.getColor());
-		
+
 		parent.applySettings();
 	}
-	
+
 	/**
 	 * If the given file is contained the current directory, make it a relative file to
 	 * the current working directory.  If it is the current working directory, make it
 	 * "."  Otherwise, keep it what it is.
-	 * 
+	 *
 	 * @param f File to relativize
 	 * @return Relativized version of the given file.
 	 */
@@ -954,11 +954,11 @@ public class SettingsDialog extends JDialog
 		}
 		return f;
 	}
-	
+
 	/**
 	 * Create the preview panel for a color chooser that customizes the stripe color
 	 * of a CardTable.
-	 * 
+	 *
 	 * @param chooser JColorChooser to create the new preview panel for
 	 */
 	private void createStripeChooserPreview(JColorChooser chooser)
@@ -988,11 +988,11 @@ public class SettingsDialog extends JDialog
 		CardTable table = new CardTable(model);
 		table.setStripeColor(chooser.getColor());
 		preview.add(table);
-		
+
 		chooser.getSelectionModel().addChangeListener((e) -> {
 			table.setStripeColor(chooser.getColor());
 		});
-		
+
 		chooser.setPreviewPanel(preview);
 	}
 }

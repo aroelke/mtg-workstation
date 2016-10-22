@@ -68,7 +68,7 @@ import editor.gui.SettingsDialog;
 /**
  * This class represents a dialog that shows the progress for loading the
  * inventory and blocking the main frame until it is finished.
- * 
+ *
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -94,17 +94,17 @@ public class InventoryLoadDialog extends JDialog
 	 * List of errors that occurred while loading cards.
 	 */
 	private List<String> errors;
-	
+
 	public InventoryLoadDialog(JFrame owner)
 	{
 		super(owner, "Loading Inventory", Dialog.ModalityType.APPLICATION_MODAL);
 		setPreferredSize(new Dimension(350, 220));
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		
+
 		worker = null;
 		errors = new ArrayList<String>();
-		
+
 		// Content panel
 		GridBagLayout layout = new GridBagLayout();
 		layout.columnWidths = new int[] {0};
@@ -114,7 +114,7 @@ public class InventoryLoadDialog extends JDialog
 		JPanel contentPanel = new JPanel(layout);
 		contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		setContentPane(contentPanel);
-		
+
 		// Stage progress label
 		progressLabel = new JLabel("Loading inventory...");
 		GridBagConstraints labelConstraints = new GridBagConstraints();
@@ -124,7 +124,7 @@ public class InventoryLoadDialog extends JDialog
 		labelConstraints.gridy = 0;
 		labelConstraints.insets = new Insets(0, 0, 2, 0);
 		contentPanel.add(progressLabel, labelConstraints);
-		
+
 		// Overall progress bar
 		progressBar = new JProgressBar();
 		GridBagConstraints barConstraints = new GridBagConstraints();
@@ -133,7 +133,7 @@ public class InventoryLoadDialog extends JDialog
 		barConstraints.gridy = 1;
 		barConstraints.insets = new Insets(0, 0, 2, 0);
 		contentPanel.add(progressBar, barConstraints);
-		
+
 		// History text area
 		progressArea = new JTextArea();
 		progressArea.setEditable(false);
@@ -143,7 +143,7 @@ public class InventoryLoadDialog extends JDialog
 		areaConstraints.gridy = 2;
 		areaConstraints.insets = new Insets(0, 0, 10, 0);
 		contentPanel.add(new JScrollPane(progressArea), areaConstraints);
-		
+
 		// Cancel button
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener((e) -> {
@@ -154,14 +154,14 @@ public class InventoryLoadDialog extends JDialog
 		cancelConstraints.gridx = 0;
 		cancelConstraints.gridy = 3;
 		contentPanel.add(cancelButton, cancelConstraints);
-		
+
 		pack();
 	}
-	
+
 	/**
 	 * Make this dialog visible and then begin loading the inventory.  Block until it is
 	 * complete, and then return the newly-created Inventory.
-	 * 
+	 *
 	 * @return The Inventory that was created.
 	 */
 	public Inventory createInventory(File file)
@@ -185,12 +185,12 @@ public class InventoryLoadDialog extends JDialog
 			return new Inventory();
 		}
 	}
-	
+
 	/**
 	 * This class represents a worker that loads cards from a JSON file in the background.
-	 * 
+	 *
 	 * TODO: Use http://www.mtgsalvation.com/forums/magic-fundamentals/magic-software/494332-mtg-json-new-website-provides-mtg-card-data-in?page=21#c519 to generate card numbers for cards that don't have them
-	 * 
+	 *
 	 * @author Alec Roelke
 	 */
 	private class InventoryLoadWorker extends SwingWorker<Inventory, String>
@@ -199,17 +199,17 @@ public class InventoryLoadDialog extends JDialog
 		 * File to load from.
 		 */
 		private File file;
-		
+
 		/**
 		 * Create a new InventoryWorker.
-		 * 
+		 *
 		 * @param d Dialog to show progress
 		 */
 		public InventoryLoadWorker(File f)
 		{
 			super();
 			file = f;
-			
+
 			progressBar.setIndeterminate(true);
 			addPropertyChangeListener((e) -> {
 				if ("progress".equals(e.getPropertyName()))
@@ -220,7 +220,7 @@ public class InventoryLoadDialog extends JDialog
 				}
 			});
 		}
-		
+
 		/**
 		 * Change the label in the dialog to match the stage this worker is in.
 		 */
@@ -233,18 +233,18 @@ public class InventoryLoadDialog extends JDialog
 				progressArea.append(chunk + "\n");
 			}
 		}
-		
+
 		/**
 		 * Import a list of all cards that exist in Magic: the Gathering from a JSON file downloaded from
 		 * @link{http://www.mtgjson.com}.  Also populate the lists of types and expansions (and their blocks).
-		 * 
+		 *
 		 * @return The inventory of cards that can be added to a deck.
 		 */
 		@Override
 		protected Inventory doInBackground() throws Exception
 		{
 			publish("Opening " + file.getName() + "...");
-			
+
 			List<Card> cards = new ArrayList<Card>();
 			Map<Card, List<String>> faces = new HashMap<Card, List<String>>();
 			Set<Expansion> expansions = new HashSet<Expansion>();
@@ -253,7 +253,7 @@ public class InventoryLoadDialog extends JDialog
 			Set<String> typeSet = new HashSet<String>();
 			Set<String> subtypeSet = new HashSet<String>();
 			Set<String> formatSet = new HashSet<String>();
-			
+
 			// Read the inventory file
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
 			{
@@ -262,7 +262,7 @@ public class InventoryLoadDialog extends JDialog
 				int numCards = 0;
 				for (Map.Entry<String, JsonElement> setNode: root.entrySet())
 					numCards += setNode.getValue().getAsJsonObject()["cards"].getAsJsonArray().size();
-				
+
 				publish("Reading cards from " + file.getName() + "...");
 				setProgress(0);
 				for (Map.Entry<String, JsonElement> setNode: root.entrySet())
@@ -278,7 +278,7 @@ public class InventoryLoadDialog extends JDialog
 						cards.clear();
 						return new Inventory();
 					}
-					
+
 					// Create the new Expansion
 					JsonObject setProperties = setNode.getValue().getAsJsonObject();
 					JsonArray setCards = setProperties["cards"].getAsJsonArray();
@@ -293,15 +293,15 @@ public class InventoryLoadDialog extends JDialog
 					expansions.add(set);
 					blockNames.add(set.block);
 					publish("Loading cards from " + set + "...");
-					
+
 					for (JsonElement cardElement: setCards)
 					{
 						// Create the new card for the expansion
 						JsonObject card = cardElement.getAsJsonObject();
-						
+
 						// Card's name
 						String name = card["name"].getAsString();
-						
+
 						// If the card is a token, skip it
 						CardLayout layout = null;
 						try
@@ -315,10 +315,10 @@ public class InventoryLoadDialog extends JDialog
 							errors.add(name + " (" + set + "): " + e.getMessage());
 							continue;
 						}
-						
+
 						// Card's mana cost
 						String mana = card.has("manaCost") ? card["manaCost"].getAsString() : "";
-						
+
 						// Card's set of colors (which is stored as a list, since order matters)
 						List<ManaType> colors = new ArrayList<ManaType>();
 						if (card.has("colors"))
@@ -327,7 +327,7 @@ public class InventoryLoadDialog extends JDialog
 							for (JsonElement colorElement: colorsArray)
 								colors.add(ManaType.get(colorElement.getAsString()));
 						}
-						
+
 						// Card's color identity
 						List<ManaType> colorIdentity = new ArrayList<ManaType>();
 						{
@@ -338,7 +338,7 @@ public class InventoryLoadDialog extends JDialog
 									colorIdentity.add(ManaType.get(identityElement.getAsString()));
 							}
 						}
-						
+
 						// Card's set of supertypes
 						Set<String> supertypes = new LinkedHashSet<String>();
 						if (card.has("supertypes"))
@@ -350,7 +350,7 @@ public class InventoryLoadDialog extends JDialog
 								supertypeSet.add(superElement.getAsString());
 							}
 						}
-						
+
 						// Card's set of types
 						Set<String> types = new LinkedHashSet<String>();
 						for (JsonElement typeElement: card["types"].getAsJsonArray())
@@ -358,7 +358,7 @@ public class InventoryLoadDialog extends JDialog
 							types.add(typeElement.getAsString());
 							typeSet.add(typeElement.getAsString());
 						}
-						
+
 						// Card's set of subtypes
 						Set<String> subtypes = new LinkedHashSet<String>();
 						if (card.has("subtypes"))
@@ -369,29 +369,29 @@ public class InventoryLoadDialog extends JDialog
 								subtypeSet.add(subElement.getAsString());
 							}
 						}
-						
+
 						// Card's rarity
 						Rarity rarity = Rarity.get(card["rarity"].getAsString());
-						
+
 						// Card's rules text
 						String text = card.has("text") ? card["text"].getAsString() : "";
-						
+
 						// Card's flavor text
 						String flavor = card.has("flavor") ? card["flavor"].getAsString() : "";
-						
+
 						// Card's artist
 						String artist = card["artist"].getAsString();
-						
+
 						// Card's number (this is a string since some don't have numbers or are things like "1a")
 						String number = card.has("number") ? card["number"].getAsString() : "--";
-						
+
 						// Card's power and toughness (empty if it doesn't have power or toughness)
 						String power = card.has("power") ? card["power"].getAsString() : "";
 						String toughness = card.has("toughness") ? card["toughness"].getAsString() : "";
-				
+
 						// Card's loyalty (empty if it isn't a planeswalker or is Garruk, the Veil-Cursed)
 						String loyalty = card.has("loyalty") ? card["loyalty"].getAsString() : "";
-						
+
 						// Card's rulings
 						TreeMap<Date, List<String>> rulings = new TreeMap<Date, List<String>>();
 						DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -407,7 +407,7 @@ public class InventoryLoadDialog extends JDialog
 								rulings[date].add(ruling);
 							}
 						}
-						
+
 						// Card's legality in formats
 						Map<String, Legality> legality = new HashMap<String, Legality>();
 						if (card.has("legalities"))
@@ -419,10 +419,10 @@ public class InventoryLoadDialog extends JDialog
 								legality[o["format"].getAsString()] = Legality.get(o["legality"].getAsString());
 							}
 						}
-						
+
 						// Card's image name
 						String imageName = card["imageName"].getAsString();
-						
+
 						// Create the new card with all the values acquired above
 						Card c = new SingleCard(layout,
 								name,
@@ -444,7 +444,7 @@ public class InventoryLoadDialog extends JDialog
 								rulings,
 								legality,
 								imageName);
-						
+
 						// Add to map of faces if the card has multiple faces
 						if (layout.isMultiFaced)
 						{
@@ -453,18 +453,18 @@ public class InventoryLoadDialog extends JDialog
 								names.add(e.getAsString());
 							faces[c] = names;
 						}
-						
+
 						cards.add(c);
 						setProgress(cards.size()*100/numCards);
 					}
 				}
-				
+
 				publish("Processing multi-faced cards...");
 				List<Card> facesList = new ArrayList<Card>(faces.keySet());
 				while (!facesList.isEmpty())
 				{
 					boolean error = false;
-					
+
 					Card face = facesList.remove(0);
 					List<String> faceNames = faces[face];
 					List<Card> otherFaces = new ArrayList<Card>();
@@ -560,7 +560,7 @@ public class InventoryLoadDialog extends JDialog
 						break;
 					}
 				}
-				
+
 				// Store the lists of expansion and block names and types and sort them alphabetically
 				Expansion.expansions = expansions.stream().sorted().toArray(Expansion[]::new);
 				Expansion.blocks = blockNames.stream().sorted().toArray(String[]::new);
@@ -569,7 +569,7 @@ public class InventoryLoadDialog extends JDialog
 				SubtypeFilter.subtypeList = subtypeSet.stream().sorted().toArray(String[]::new);
 				LegalityFilter.formatList = formatSet.stream().sorted().toArray(String[]::new);
 			}
-			
+
 			Inventory inventory = new Inventory(cards);
 			if (SettingsDialog.getAsString(SettingsDialog.CARD_TAGS) != null)
 			{
@@ -579,7 +579,7 @@ public class InventoryLoadDialog extends JDialog
 			}
 			return inventory;
 		}
-		
+
 		/**
 		 * When this worker is finished, close the dialog and allow it to return the Inventory
 		 * that was created.
@@ -591,7 +591,7 @@ public class InventoryLoadDialog extends JDialog
 			dispose();
 			if (!SettingsDialog.getAsBoolean(SettingsDialog.SUPPRESS_LOAD_WARNINGS) && !errors.isEmpty())
 				SwingUtilities.invokeLater(() -> {
-					StringJoiner join = new StringJoiner("\n• ");
+					StringJoiner join = new StringJoiner("\n\u2022 ");
 					join.add("Errors ocurred while loading the following card(s):");
 					for (String failure: errors)
 						join.add(failure);

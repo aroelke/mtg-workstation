@@ -23,7 +23,7 @@ import editor.database.characteristics.Rarity;
  * compare them with other cards.  Each card can be uniquely identified by the set it is in, its name,
  * and its image name (which is its name followed by a number if there is more than one version of the same
  * card in the same set).  All of its values are constant.
- * 
+ *
  * @author Alec Roelke
  */
 public class SingleCard extends Card
@@ -113,10 +113,10 @@ public class SingleCard extends Card
 	 * This SingleCard's type line, which is "[Supertype(s) Type(s) - Subtype(s)]
 	 */
 	public final String typeLine;
-	
+
 	/**
 	 * Create a new Card with a single face.
-	 * 
+	 *
 	 * @param layout The new Card's layout
 	 * @param name The new Card's name
 	 * @param mana The new Card's mana cost
@@ -160,7 +160,7 @@ public class SingleCard extends Card
 			String imageName)
 	{
 		super(set, layout, 1);
-		
+
 		this.name = name;
 		this.mana = ManaCost.valueOf(mana);
 		this.colors = new ManaType.Tuple(colors);
@@ -178,16 +178,16 @@ public class SingleCard extends Card
 		this.rarity = rarity;
 		this.rulings = rulings;
 		this.legality = Collections.unmodifiableMap(legality);
-		
+
 		// Create the type line for this Card
 		StringBuilder str = new StringBuilder();
 		if (supertypes.size() > 0)
 			str.append(String.join(" ", supertypes)).append(" ");
 		str.append(String.join(" ", types));
 		if (subtypes.size() > 0)
-			str.append(" — ").append(String.join(" ", subtypes));
+			str.append(" \u2014 ").append(String.join(" ", subtypes));
 		typeLine = str.toString();
-		
+
 		if (colorIdentity.isEmpty())
 		{
 			// Try to infer the color identity if it's missing
@@ -212,14 +212,14 @@ public class SingleCard extends Card
 			}
 		}
 		this.colorIdentity = new ManaType.Tuple(colorIdentity);
-		
+
 		Set<String> faceTypes = new HashSet<String>();
 		faceTypes.addAll(supertypes);
 		faceTypes.addAll(types);
 		faceTypes.addAll(subtypes);
 		allTypes = Collections.unmodifiableSet(faceTypes);
 	}
-	
+
 	/**
 	 * @return The list of names of the faces of this SingleCard.
 	 */
@@ -228,7 +228,7 @@ public class SingleCard extends Card
 	{
 		return Arrays.asList(name);
 	}
-	
+
 	/**
 	 * @return The mana cost of this SingleCard.  This is represented as a tuple, since multi-faced
 	 * cards have multiple costs that need to be treated separately.
@@ -238,7 +238,7 @@ public class SingleCard extends Card
 	{
 		return new ManaCost.Tuple(mana);
 	}
-	
+
 	/**
 	 * @return A Tuple<Double> containing the converted mana cost of this SingleCard.
 	 */
@@ -256,7 +256,7 @@ public class SingleCard extends Card
 	{
 		return colors;
 	}
-	
+
 	/**
 	 * @param face Unused
 	 * @return The colors of this SingleCard.
@@ -266,7 +266,7 @@ public class SingleCard extends Card
 	{
 		return colors;
 	}
-	
+
 	/**
 	 * @return A String containing all the types of this SingleCard as they would appear on it.
 	 */
@@ -329,7 +329,7 @@ public class SingleCard extends Card
 	{
 		return Arrays.asList(flavor);
 	}
-	
+
 	/**
 	 * @return This SingleCard's artist.
 	 */
@@ -338,7 +338,7 @@ public class SingleCard extends Card
 	{
 		return Arrays.asList(artist);
 	}
-	
+
 	/**
 	 * @return The collector number of this Card.
 	 */
@@ -347,7 +347,7 @@ public class SingleCard extends Card
 	{
 		return Arrays.asList(number);
 	}
-	
+
 	/**
 	 * @return A tuple containing the power value of this Card.
 	 */
@@ -365,7 +365,7 @@ public class SingleCard extends Card
 	{
 		return new PowerToughness.Tuple(toughness);
 	}
-	
+
 	/**
 	 * @return A tuple containing the loyalty value of this Card.
 	 */
@@ -384,7 +384,7 @@ public class SingleCard extends Card
 	{
 		return rulings;
 	}
-	
+
 	/**
 	 * @return A map of formats onto this Card's Legalities in them.
 	 * TODO: Calculate this based on the new policy in mtgjson.com
@@ -394,7 +394,7 @@ public class SingleCard extends Card
 	{
 		return legality;
 	}
-	
+
 	/**
 	 * @return The image name of this Card.
 	 */

@@ -42,7 +42,7 @@ import editor.database.symbol.Symbol;
 /**
  * This class represents a table whose alternating occupied rows will be different
  * colors.
- * 
+ *
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -50,7 +50,7 @@ public class CardTable extends JTable
 {
 	/**
 	 * This class represents a renderer of ManaCosts in a table.
-	 * 
+	 *
 	 * @author Alec
 	 */
 	private static class ManaCostCellRenderer extends DefaultTableCellRenderer
@@ -58,8 +58,8 @@ public class CardTable extends JTable
 		/**
 		 * Create the Component that will display the contents of the specified cell.  If that cell contains
 		 * a ManaCost, then rather than displaying text, a panel containing a series of labels whose icons
-		 * are mana symbols will be displayed instead. 
-		 * 
+		 * are mana symbols will be displayed instead.
+		 *
 		 * @return The Component that should be used to render the cell.
 		 */
 		@Override
@@ -96,11 +96,11 @@ public class CardTable extends JTable
 			return c;
 		}
 	}
-	
+
 	/**
 	 * This class represents a renderer for lists in a table.  It only does anything
 	 * special for lists of doubles, which uses different separators than the default.
-	 * 
+	 *
 	 * @author Alec Roelke
 	 */
 	private static class ListRenderer extends DefaultTableCellRenderer
@@ -108,7 +108,7 @@ public class CardTable extends JTable
 		/**
 		 * Get the component that is used to render the list elements.  It consists of a panel
 		 * containing some labels whose icons are each mana symbols laid out in a row.
-		 * 
+		 *
 		 * @param table Table containing the value to render
 		 * @param value Value to render
 		 * @param isSelected Whether or not the cell is selected
@@ -144,11 +144,11 @@ public class CardTable extends JTable
 			return c;
 		}
 	}
-	
+
 	/**
 	 * This class represents a renderer for a table cell that shows a tuple of colors.  Each
 	 * color is represented by its corresponding mana symbol.
-	 * 
+	 *
 	 * @author Alec
 	 */
 	private static class ColorRenderer extends DefaultTableCellRenderer
@@ -156,7 +156,7 @@ public class CardTable extends JTable
 		/**
 		 * Get the component that is used to render the colors.  It consists of a panel
 		 * containing some labels whose icons are each mana symbols laid out in a row.
-		 * 
+		 *
 		 * @param table Table containing the value to render
 		 * @param value Value to render
 		 * @param isSelected Whether or not the cell is selected
@@ -187,18 +187,18 @@ public class CardTable extends JTable
 			return c;
 		}
 	}
-	
+
 	/**
 	 * This class represents a renderer that displays which categories a card is in.  Colored boxes
 	 * correspond to the colors of the categories a card belongs to.
-	 * 
+	 *
 	 * @author Alec Roelke
 	 */
 	private static class CategoriesCellRenderer extends DefaultTableCellRenderer
 	{
 		/**
 		 * Create a panel that draws boxes whose colors correspond to the card in the given row.
-		 * 
+		 *
 		 * @param table Table containing the element to draw
 		 * @param value Value to draw
 		 * @param isSelected Whether or not the cell is selected
@@ -237,7 +237,7 @@ public class CardTable extends JTable
 					StringBuilder tooltip = new StringBuilder();
 					tooltip.append("<html>Categories:<br>");
 					for (CategorySpec category: categories)
-						tooltip.append("• ").append(category.getName()).append("<br>");
+						tooltip.append("\u2022 ").append(category.getName()).append("<br>");
 					tooltip.append("</html>");
 					panel.setToolTipText(tooltip.toString());
 				}
@@ -250,11 +250,11 @@ public class CardTable extends JTable
 			return c;
 		}
 	}
-	
+
 	/**
 	 * This class represents a renderer for drawing cells with Dates in them.  It will format the
 	 * date according to the format specified by @link{database.Deck#DATE_FORMAT}.
-	 * 
+	 *
 	 * @author Alec Roelke
 	 */
 	private static class DateCellRenderer extends DefaultTableCellRenderer
@@ -262,7 +262,7 @@ public class CardTable extends JTable
 		/**
 		 * If the specified value is a Date, create a JPanel containing a JLabel containing the date
 		 * formatted according to @link{database.Deck#DATE_FORMAT}.
-		 * 
+		 *
 		 * @param table Table containing the data to draw
 		 * @param value Value to draw
 		 * @param isSelected Whether or not the cell is selected
@@ -291,12 +291,12 @@ public class CardTable extends JTable
 			return c;
 		}
 	}
-	
+
 	/**
 	 * This class represents a sorter that sorts a table column whose empty cells are invalid values.
 	 * Currently this only applies for power and toughness columns.  Those cells are always placed
 	 * last in the column.
-	 * 
+	 *
 	 * @author Alec Roelke
 	 */
 	private static class EmptyTableRowSorter extends TableRowSorter<TableModel>
@@ -305,10 +305,10 @@ public class CardTable extends JTable
 		 * This EmptyTableRowSorter's model for data.
 		 */
 		private TableModel model;
-		
+
 		/**
 		 * Create a new EmptyTableRowSorter.
-		 * 
+		 *
 		 * @param m Model for data.
 		 */
 		public EmptyTableRowSorter(TableModel m)
@@ -316,7 +316,7 @@ public class CardTable extends JTable
 			super(m);
 			model = m;
 		}
-		
+
 		/**
 		 * @param column column being sorted
 		 * @return A Comparator that should be used to sort the column.  For any data except
@@ -357,12 +357,12 @@ public class CardTable extends JTable
 				return super.getComparator(column);
 		}
 	}
-	
+
 	/**
 	 * Color of the alternate rows.
 	 */
 	private Color stripeColor;
-	
+
 	/**
 	 * Create a new CardTable with the default color.
 	 */
@@ -371,10 +371,10 @@ public class CardTable extends JTable
 		super();
 		init();
 	}
-	
+
 	/**
 	 * Create a new CardTable with the default color and given model.
-	 * 
+	 *
 	 * @param model Model for the new table.
 	 */
 	public CardTable(TableModel model)
@@ -382,7 +382,7 @@ public class CardTable extends JTable
 		super(model);
 		init();
 	}
-	
+
 	/**
 	 * Initialize the table.
 	 */
@@ -392,19 +392,19 @@ public class CardTable extends JTable
 
 		setFillsViewportHeight(true);
 		setShowGrid(false);
-		
+
 		setDefaultRenderer(ManaCost.Tuple.class, new ManaCostCellRenderer());
 		setDefaultRenderer(ManaType.Tuple.class, new ColorRenderer());
 		setDefaultRenderer(Set.class, new CategoriesCellRenderer());
 		setDefaultRenderer(Date.class, new DateCellRenderer());
 		setDefaultRenderer(List.class, new ListRenderer());
-		
+
 		setRowSorter(new EmptyTableRowSorter(getModel()));
 	}
-	
+
 	/**
 	 * Set the model backing the data for this table.
-	 * 
+	 *
 	 * @param model Model that gives this table data to show
 	 */
 	@Override
@@ -413,10 +413,10 @@ public class CardTable extends JTable
 		super.setModel(model);
 		setRowSorter(new EmptyTableRowSorter(model));
 	}
-	
+
 	/**
 	 * Set the color for the stripes of this CardTable.
-	 * 
+	 *
 	 * @param col New stripe color
 	 */
 	public void setStripeColor(Color col)
@@ -424,7 +424,7 @@ public class CardTable extends JTable
 		stripeColor = col;
 		repaint();
 	}
-	
+
 	/**
 	 * @param row Row to get the color of
 	 * @return The background color of the row at the given index of this CardTable.
@@ -433,7 +433,7 @@ public class CardTable extends JTable
 	{
 		return row%2 == 0 ? new Color(getBackground().getRGB()) : stripeColor;
 	}
-	
+
 	/**
 	 * The table will track the viewport width if the viewport is larger than its preferred size.
 	 */
@@ -442,7 +442,7 @@ public class CardTable extends JTable
 	{
 		return getPreferredSize().width < getParent().getWidth();
 	}
-	
+
 	/**
 	 * Prepares the renderer.  Changes its background according to the striping color.
 	 * @see JTable#prepareRenderer(TableCellRenderer, int, int)
@@ -455,11 +455,11 @@ public class CardTable extends JTable
 			c.setBackground(getRowColor(row));
 		return c;
 	}
-	
+
 	/**
 	 * If the contents of a cell are too big to fit in the cell, they (in their text form)
 	 * can be viewed as the cell's tooltip.
-	 * 
+	 *
 	 * @param e MouseEvent that should be used to determine what tooltip to display.
 	 */
 	@Override
