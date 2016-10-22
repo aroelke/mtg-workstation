@@ -17,7 +17,7 @@ import editor.gui.generic.ComboBoxPanel;
 /**
  * This class represents a panel that presents a drop-down menu that allows the user
  * to select a filter and fill out its contents.
- * 
+ *
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -36,7 +36,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	 * Panel containing the filters to flip through.
 	 */
 	private JPanel filtersPanel;
-	
+
 	/**
 	 * Create a new FilterSelectorPanel which will display the first
 	 * filter panel.
@@ -45,11 +45,11 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		
+
 		// Filter type selector
 		filterTypes = new ComboBoxPanel<String>(FilterFactory.FILTER_TYPES.values().toArray(new String[0]));
 		add(filterTypes);
-		
+
 		// Panel containing each editor panel
 		filterPanels = new HashMap<String, FilterEditorPanel<?>>();
 		filtersPanel = new JPanel(new CardLayout());
@@ -66,7 +66,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 			CardLayout cards = (CardLayout)filtersPanel.getLayout();
 			cards.show(filtersPanel, filterTypes.getSelectedItem());
 		});
-		
+
 		// Button to remove this from the form
 		JButton removeButton = new JButton("\u2212");
 		removeButton.addActionListener((e) -> {
@@ -74,16 +74,16 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 			firePanelsChanged();
 		});
 		add(removeButton);
-		
+
 		// Button to create a new group with this in it
-		JButton groupButton = new JButton("…");
+		JButton groupButton = new JButton("\u2026");
 		groupButton.addActionListener((e) -> {
 			group.group(this);
 			firePanelsChanged();
 		});
 		add(groupButton);
 	}
-	
+
 	/**
 	 * @return The filter of the currently-active filter editor.
 	 */
@@ -92,7 +92,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	{
 		return filterPanels[filterTypes.getSelectedItem()].filter();
 	}
-	
+
 	/**
 	 * Set the contents of this FilterSelectorPanel to flip to the panel corresponding
 	 * to the given filter and then filling out its contents.

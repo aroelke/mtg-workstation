@@ -36,7 +36,7 @@ import editor.util.PopupMenuListenerFactory;
  * cards according to a characteristic that takes on distinct values.  Unlike
  * other filter panels, which can be switched among different types of filters
  * as long as they are the same class, OptionsFilterPanel cannot.
- * 
+ *
  * @author Alec Roelke
  *
  * @param <T> Type that the options presented have
@@ -49,7 +49,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	 * unaffected.
 	 */
 	private static final int MAX_COMBO_WIDTH = 100;
-	
+
 	/**
 	 * Type of filter this OptionsFilterPanel edits.
 	 */
@@ -71,10 +71,10 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	 * Set containment combo box.
 	 */
 	private ComboBoxPanel<Containment> contain;
-	
+
 	/**
 	 * Create a new OptionsFilterPanel.
-	 * 
+	 *
 	 * @param t Type of the new OptionsFilterPanel
 	 * @param o List of options to choose from
 	 */
@@ -82,14 +82,14 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	{
 		super();
 		setLayout(new BorderLayout());
-		
+
 		type = t;
 		options = o;
 		optionsBoxes = new ArrayList<JComboBox<T>>();
-		
+
 		contain = new ComboBoxPanel<Containment>(Containment.values());
 		add(contain, BorderLayout.WEST);
-		
+
 		optionsPanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
 		SimpleScrollPane optionsPane = new SimpleScrollPane(optionsPanel,
@@ -97,11 +97,11 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 		optionsPane.setBorder(BorderFactory.createEmptyBorder());
 		add(optionsPane, BorderLayout.CENTER);
 	}
-	
+
 	/**
 	 * Create a new OptionsFilterPanel using the given filter to initialize its
 	 * fields and the given array to specify the set of options to choose from.
-	 * 
+	 *
 	 * @param f Filter to use for initialization
 	 * @param o List of options to choose from
 	 */
@@ -110,10 +110,10 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 		this(f.type, t);
 		setContents(f);
 	}
-	
+
 	/**
 	 * Add a new combo box for an additional option.
-	 * 
+	 *
 	 * @param value Initial value of the new combo box.
 	 */
 	private void addItem(T value)
@@ -128,7 +128,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 					SwingUtilities.invokeLater(() -> {
 						BasicComboPopup popup = (BasicComboPopup)child;
 						JScrollPane scrollPane = (JScrollPane)SwingUtilities.getAncestorOfClass(JScrollPane.class, popup.getList());
-						
+
 						int popupWidth = popup.getList().getPreferredSize().width +
 								(options.length > box.getMaximumRowCount() ? scrollPane.getVerticalScrollBar().getPreferredSize().width : 0);
 						scrollPane.setPreferredSize(new Dimension(Math.max(popupWidth, scrollPane.getPreferredSize().width), scrollPane.getPreferredSize().height));
@@ -140,11 +140,11 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 			}
 		}));
 		box.setPreferredSize(new Dimension(MAX_COMBO_WIDTH, box.getPreferredSize().height));
-		
+
 		boxPanel.add(box, BorderLayout.CENTER);
 		optionsBoxes.add(box);
 		box.setSelectedItem(value);
-		
+
 		JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 0, 0));
 		JLabel addButton = new JLabel("+", JLabel.CENTER);
 		Font buttonFont = new Font(addButton.getFont().getFontName(), Font.PLAIN, addButton.getFont().getSize() - 2);
@@ -154,7 +154,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 			addItem(options[0]);
 			optionsPanel.revalidate();
 		}));
-		JLabel removeButton = new JLabel("×", JLabel.CENTER);
+		JLabel removeButton = new JLabel("\u2212", JLabel.CENTER);
 		removeButton.setForeground(Color.RED);
 		removeButton.setAlignmentX(CENTER_ALIGNMENT);
 		removeButton.setFont(buttonFont);
@@ -169,10 +169,10 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 		buttonPanel.add(removeButton);
 		buttonPanel.add(addButton);
 		boxPanel.add(buttonPanel, BorderLayout.EAST);
-		
+
 		optionsPanel.add(boxPanel);
 	}
-	
+
 	/**
 	 * @return The OptionsFilter corresponding to the fields of this
 	 * OptionsFilterPanel.
@@ -190,7 +190,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	/**
 	 * If the given filter's type is the same as this OptionsFilterPanel's type,
 	 * add combo boxes and set their values to reflect its settings.
-	 * 
+	 *
 	 * @param filter Filter to set fields from
 	 * @throws IllegalArgumentException if the given filter is not the same
 	 * type as this OptionsFilterPanel
@@ -218,7 +218,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	/**
 	 * If the given filter's type is the same as this OptionsFilterPanel's type,
 	 * add combo boxes and set their values to reflect its settings.
-	 * 
+	 *
 	 * @param filter Filter to set fields from
 	 * @throws IllegalArgumentException if the given filter is not the same
 	 * type as this OptionsFilterPanel or isn't even an OptionsFilter

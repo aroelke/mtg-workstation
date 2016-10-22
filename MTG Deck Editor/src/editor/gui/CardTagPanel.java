@@ -30,7 +30,7 @@ import editor.util.MouseListenerFactory;
  * be selected to modify tags.  Tags are not actually modified by the panel, but
  * it provides functions indicating what has been modified so that other objects
  * can.
- * 
+ *
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
@@ -52,11 +52,11 @@ public class CardTagPanel extends ScrollablePanel
 	 * Preferred viewport height of this panel.
 	 */
 	private int preferredViewportHeight;
-	
+
 	/**
 	 * Create a new CardTagPanel for editing the tags of the given collection
 	 * of Cards.
-	 * 
+	 *
 	 * @param coll Collection containing cards whose tags should be edited
 	 */
 	public CardTagPanel(Collection<Card> coll)
@@ -67,9 +67,9 @@ public class CardTagPanel extends ScrollablePanel
 		tagBoxes = new ArrayList<TristateCheckBox>();
 		cards = coll;
 		preferredViewportHeight = 0;
-		
+
 		setTags(Card.tags().stream().sorted().collect(Collectors.toList()));
-		
+
 		for (TristateCheckBox tagBox: tagBoxes)
 		{
 			long matches = cards.stream().filter((c) -> Card.tags[c] != null && Card.tags[c].contains(tagBox.getText())).count();
@@ -81,10 +81,10 @@ public class CardTagPanel extends ScrollablePanel
 				tagBox.setSelected(true);
 		}
 	}
-	
+
 	/**
 	 * Refresh the tags displayed with the given list of tags.
-	 * 
+	 *
 	 * @param tags List of tags that should be displayed
 	 */
 	private void setTags(List<String> tags)
@@ -104,7 +104,7 @@ public class CardTagPanel extends ScrollablePanel
 				JPanel tagPanel = new JPanel();
 				tagPanel.setBackground(Color.WHITE);
 				tagPanel.setLayout(new BorderLayout());
-				
+
 				final TristateCheckBox tagBox = tagBoxes.stream().filter((t) -> t.getText().equals(tag)).findFirst().orElse(new TristateCheckBox(tag));
 				tagBox.addActionListener((e) -> {
 					if (tagBox.isMixed())
@@ -113,21 +113,21 @@ public class CardTagPanel extends ScrollablePanel
 				tagBox.setBackground(Color.WHITE);
 				tagPanel.add(tagBox, BorderLayout.WEST);
 				tagBoxes.add(tagBox);
-				
-				JLabel deleteButton = new JLabel("× ");
+
+				JLabel deleteButton = new JLabel("\u2212 ");
 				deleteButton.setForeground(Color.RED);
 				deleteButton.addMouseListener(MouseListenerFactory.createPressListener((e) -> removeTag(tag)));
 				tagPanel.add(deleteButton, BorderLayout.EAST);
-				
+
 				preferredViewportHeight = Math.min(preferredViewportHeight + tagPanel.getPreferredSize().height, tagPanel.getPreferredSize().height*MAX_PREFERRED_ROWS);
 				add(tagPanel);
 			}
 		}
 	}
-	
+
 	/**
 	 * Add a new tag to the list
-	 * 
+	 *
 	 * @param tag New tag to add
 	 * @return <code>true</code> if the tag was added, and <code>false</code> otherwise.
 	 */
@@ -142,10 +142,10 @@ public class CardTagPanel extends ScrollablePanel
 		else
 			return false;
 	}
-	
+
 	/**
 	 * Remove a tag from the list.
-	 * 
+	 *
 	 * @param tag Tag to remove
 	 * @return <code>true</code> if the tag was removed, and <code>false</code> otherwise.
 	 */
@@ -167,7 +167,7 @@ public class CardTagPanel extends ScrollablePanel
 		else
 			return false;
 	}
-	
+
 	/**
 	 * @return A map of cards onto the sets tags that were added to them.
 	 */
@@ -185,7 +185,7 @@ public class CardTagPanel extends ScrollablePanel
 					});
 		return tagged;
 	}
-	
+
 	/**
 	 * @return A map of cards onto the sets of tags that were removed from them.
 	 */
@@ -203,7 +203,7 @@ public class CardTagPanel extends ScrollablePanel
 					});
 		return untagged;
 	}
-	
+
 	/**
 	 * @return The preferred viewport size of this panel, which is the size of its contents
 	 * up to MAX_PREFERRED_ROWS rows.
