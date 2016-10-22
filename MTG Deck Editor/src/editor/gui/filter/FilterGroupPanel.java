@@ -84,7 +84,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			}
 		});
 		editPanel.add(removeButton);
-		JButton groupButton = new JButton("…");
+		JButton groupButton = new JButton("\u2026");
 		groupButton.addActionListener((e) -> {
 			if (group == null)
 			{

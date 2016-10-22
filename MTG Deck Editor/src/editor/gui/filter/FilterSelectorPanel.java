@@ -76,7 +76,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 		add(removeButton);
 		
 		// Button to create a new group with this in it
-		JButton groupButton = new JButton("…");
+		JButton groupButton = new JButton("\u2026");
 		groupButton.addActionListener((e) -> {
 			group.group(this);
 			firePanelsChanged();
