@@ -1030,7 +1030,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					clearTableSelections(newCategory.table);
 					parent.clearSelectedCards();
-					setSelectedSource(newCategory.table, deck.getCategoryList(spec.getName()));
+					setSelectedSource(newCategory.table, deck.getCategoryCards(spec.getName()));
 					if (hasSelectedCards())
 						parent.selectCard(getSelectedCards()[0]);
 				}
@@ -1250,7 +1250,7 @@ public class EditorFrame extends JInternalFrame
 	private boolean deleteCategory(CategorySpec category)
 	{
 		CategoryPanel panel = getCategory(category.getName());
-		return panel != null && deck.remove(category.getName());
+		return panel != null && deck.removeCategory(category.getName());
 	}
 	
 	/**
@@ -1441,7 +1441,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			for (CategoryPanel panel: categoryPanels)
 				if (t == panel.table)
-					return deck.getCategoryList(panel.getCategoryName())[panel.table.convertRowIndexToModel(tableIndex)];
+					return deck.getCategoryCards(panel.getCategoryName())[panel.table.convertRowIndexToModel(tableIndex)];
 			throw new IllegalArgumentException("Table not in deck " + deckName());
 		}
 	}

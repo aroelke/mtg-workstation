@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import editor.collection.CardList;
 import editor.database.card.Card;
@@ -16,7 +17,7 @@ import editor.database.card.Card;
  * This class represents a hand of Cards.  It is a subset of a Deck
  * that is randomized and with multiple copies represented by separate
  * entries. 
- * TODO: Correct comments
+ * 
  * @author Alec Roelke
  */
 public class Hand implements CardList
@@ -43,52 +44,67 @@ public class Hand implements CardList
 	/**
 	 * Create a new Hand from the specified Deck.
 	 * 
-	 * @param deck Deck to draw Cards from
+	 * @param d Deck to draw Cards from
 	 */
-	public Hand(Deck deck)
+	public Hand(Deck d)
 	{
-		this(deck, new HashSet<Card>());
+		this(d, new HashSet<Card>());
 	}
 	
 	/**
 	 * Create a new Hand from the specified Deck, excluding the specified
 	 * Cards.
 	 * 
-	 * @param deck Deck to draw Cards from
-	 * @param cards Cards to never include in the sample hand
+	 * @param d Deck to draw Cards from
+	 * @param e Cards to never include in the sample hand
 	 */
-	public Hand(Deck deck, Collection<Card> cards)
+	public Hand(Deck d, Collection<Card> e)
 	{
 		super();
 		hand = new ArrayList<Card>();
-		exclusion = new LinkedHashSet<Card>(cards);
+		exclusion = new LinkedHashSet<Card>(e);
 		inHand = 0;
-		this.deck = deck;
+		deck = d;
 		refresh();
 	}
 	
+	/**
+	 * Add a card to the hand (but not to the deck).
+	 * 
+	 * @param c Card to add
+	 * @return <code>true</code> if the Card was successfully added, and
+	 * <code>false</code> otherwise.
+	 */
 	@Override
-	public boolean add(Card card)
+	public boolean add(Card c)
+	{
+		return hand.add(c);
+	}
+	
+	@Override
+	public boolean add(Card c, int n)
 	{
 		throw new UnsupportedOperationException();
 	}
 	
+	/**
+	 * Add all of the given Cards to the hand, but not the deck.
+	 * 
+	 * @param coll Collection of Cards to add
+	 * @return <code>true</code> if any of the Cards were added,
+	 * and <code>false</code> otherwise.
+	 */
 	@Override
-	public boolean add(Card card, int amount)
+	public boolean addAll(Collection<? extends Card> coll)
 	{
-		throw new UnsupportedOperationException();
+		return hand.addAll(coll);
 	}
 	
 	@Override
-	public boolean addAll(Collection<? extends Card> cards)
+	public boolean addAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
 	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean addAll(Collection<? extends Card> cards, Collection<? extends Integer> amounts)
-	{
-		throw new UnsupportedOperationException();
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 	/**
@@ -117,20 +133,20 @@ public class Hand implements CardList
 	 * of this Hand, and <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean contains(Card card)
+	public boolean contains(Object o)
 	{
-		return hand.subList(0, inHand).contains(card);
+		return hand.subList(0, inHand).contains(o);
 	}
 	
 	/**
-	 * @param cards Collection of Objects to look for
+	 * @param coll Collection of Objects to look for
 	 * @return <code>true</code> if the given Objects are all in the drawn
 	 * cards of this Hand, and <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean containsAll(Collection<? extends Card> cards)
+	public boolean containsAll(Collection<?> coll)
 	{
-		return hand.subList(0, inHand).containsAll(cards);
+		return hand.subList(0, inHand).containsAll(coll);
 	}
 	
 	/**
@@ -144,14 +160,14 @@ public class Hand implements CardList
 	/**
 	 * Exclude a Card from being drawn in the sample hand.
 	 * 
-	 * @param card Card to exclude
+	 * @param c Card to exclude
 	 * @return <code>true</code> if the Card was added (which only happens
 	 * if it wasn't in the exclusion list already), and <code>false</code>
 	 * otherwise.
 	 */
-	public boolean exclude(Card card)
+	public boolean exclude(Card c)
 	{
-		return exclusion.add(card);
+		return exclusion.add(c);
 	}
 
 	/**
@@ -173,9 +189,9 @@ public class Hand implements CardList
 	}
 	
 	@Override
-	public Entry getData(Card card)
+	public Entry getData(Card c)
 	{
-		return deck.getData(card);
+		return deck.getData(c);
 	}
 
 	@Override
@@ -198,9 +214,9 @@ public class Hand implements CardList
 	 * Hand, or -1 if it isn't there.
 	 */
 	@Override
-	public int indexOf(Card card)
+	public int indexOf(Object o)
 	{
-		return hand.indexOf(card);
+		return hand.indexOf(o);
 	}
 
 	/**
@@ -247,6 +263,13 @@ public class Hand implements CardList
 		inHand = Math.min(n, hand.size());
 	}
 
+	@Override
+	public Stream<Card> parallelStream()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * Update the state of this Hand to exclude Cards in the exclusion
 	 * list.
@@ -261,38 +284,52 @@ public class Hand implements CardList
 	}
 
 	@Override
-	public int remove(Card card, int amount)
+	public int remove(Card c, int n)
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * Remove the given Object from this Hand (but not the Deck).
+	 * 
+	 * @param o Object to remove
+	 * @return <code>true</code> if the Object was removed, and
+	 * <code>false</code> otherwise.
+	 */
 	@Override
-	public boolean remove(Card card)
+	public boolean remove(Object o)
 	{
-		throw new UnsupportedOperationException();
+		return hand.remove(o);
 	}
 
 	@Override
-	public boolean removeAll(Collection<? extends Card> cards, Collection<? extends Integer> amounts)
+	public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
 	{
-		throw new UnsupportedOperationException();
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
-	
+	/**
+	 * Remove all of the given Objects from this Hand (but not the Deck).
+	 * 
+	 * @param coll Collection of Objects to remove
+	 * @return <code>true</code> if any of the given Objects were removed
+	 * from this Hand, and <code>false</code> otherwise.
+	 */
 	@Override
-	public boolean removeAll(Collection<? extends Card> coll)
+	public boolean removeAll(Collection<?> coll)
+	{
+		return hand.removeAll(coll);
+	}
+
+	@Override
+	public boolean set(Card c, int n)
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean set(Card card, int amount)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean set(int index, int amount)
+	public boolean set(int index, int n)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -304,6 +341,15 @@ public class Hand implements CardList
 	public int size()
 	{
 		return Math.min(inHand, hand.size());
+	}
+
+	/**
+	 * @return A sequential Stream over all the Cards in this Hand.
+	 */
+	@Override
+	public Stream<Card> stream()
+	{
+		return hand.stream();
 	}
 
 	/**

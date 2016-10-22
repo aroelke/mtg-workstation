@@ -3,10 +3,8 @@ package editor.collection;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
@@ -85,46 +83,39 @@ public interface CardList extends Iterable<Card>
 	 * copies are allowed, <code>false</code> should still be returned on an attempt
 	 * to add another copy of a Card, and its count should not increase.
 	 * 
-	 * @param card Card to add
+	 * @param c Card to add
 	 * @return <code>true</code> if the Card was added, and <code>false</code>
 	 * otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public boolean add(Card card);
+	public boolean add(Card c);
 	
 	/**
 	 * TODO: Comment this
-	 * @param card
-	 * @param amount
+	 * @param c
+	 * @param n
 	 * @return
 	 */
-	public boolean add(Card card, int amount);
+	public boolean add(Card c, int n);
 
-	/**
-	 * TODO: Comment this
-	 * @param cards
-	 * @return
-	 */
-	public boolean addAll(CardList cards);
-	
 	/**
 	 * Add several new Cards to this CardCollection (optional operation).
 	 * 
-	 * @param cards Cards to add
+	 * @param coll Cards to add
 	 * @return <code>true</code> if any of the Cards were successfully added to this
 	 * CardCollection, and <code>false</code> otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 * @see CardList#add(Card)
 	 */
-	public boolean addAll(Collection<? extends Card> cards);
-
+	public boolean addAll(Collection<? extends Card> coll);
+	
 	/**
 	 * TODO: Comment this
-	 * @param amounts
-	 * @param amounts
+	 * @param coll
+	 * @param n
 	 * @return
 	 */
-	public boolean addAll(Map<? extends Card, ? extends Integer> amounts);
+	public boolean addAll(Collection<? extends Card> coll, Collection<? extends Integer> n);
 
 	/**
 	 * Remove all entries from this CardCollection (optional operation).
@@ -137,14 +128,14 @@ public interface CardList extends Iterable<Card>
 	 * @return <code>true</code> if this CardCollection contains the specified object,
 	 * and <code>false</code> otherwise.
 	 */
-	public boolean contains(Card card);
+	public boolean contains(Object o);
 
 	/**
-	 * @param cards Collection of objects to look for
+	 * @param coll Collection of objects to look for
 	 * @return <code>true</code> if this CardCollection contains all of the specified
 	 * objects, and <code>false</code> otherwise.
 	 */
-	public boolean containsAll(Collection<? extends Card> cards);
+	public boolean containsAll(Collection<?> coll);
 
 	/**
 	 * @param index Index of the Card to look for
@@ -155,31 +146,31 @@ public interface CardList extends Iterable<Card>
 
 	/**
 	 * TODO: Comment this
-	 * @param card
+	 * @param c
 	 * @return
 	 */
-	public Entry getData(Card card);
-	
+	public Entry getData(Card c);
+
 	/**
 	 * TODO: Comment this
 	 * @param index
 	 * @return
 	 */
 	public Entry getData(int index);
-
+	
 	/**
 	 * @param o Object to look for
 	 * @return The index of the first occurrence of the given object in this
 	 * CardCollection, or -1 if there is none of them.
 	 */
-	public int indexOf(Card card);
-	
+	public int indexOf(Object o);
+
 	/**
 	 * @return <code>true</code> if this CardCollection contains no Cards, and
 	 * <code>false</code> otherwise.
 	 */
 	public boolean isEmpty();
-
+	
 	/**
 	 * @return An iterator over the Cards in this CardCollection.
 	 */
@@ -188,12 +179,18 @@ public interface CardList extends Iterable<Card>
 
 	/**
 	 * TODO: Comment this
+	 * TODO: Potentially make this default
 	 * @return
 	 */
-	public default Stream<Card> parallelStream()
-	{
-		return StreamSupport.stream(spliterator(), true);
-	}
+	public Stream<Card> parallelStream();
+
+	/**
+	 * TODO: Comment this
+	 * @param c
+	 * @param n
+	 * @return
+	 */
+	public int remove(Card c, int n);
 
 	/**
 	 * Remove an object from this CardCollection (optional operation).  If multiple
@@ -205,42 +202,27 @@ public interface CardList extends Iterable<Card>
 	 * otherwise.
 	 * @throws UnsuportedOperationException if this operation is not supported
 	 */
-	public boolean remove(Card card);
+	public boolean remove(Object o);
 
 	/**
 	 * TODO: Comment this
-	 * @param card
-	 * @param amount
+	 * @param coll
+	 * @param n
 	 * @return
 	 */
-	public int remove(Card card, int amount);
+	public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n);
 	
 	/**
 	 * Remove all of the given objects from this CardCollection (optional
 	 * operation).
 	 * 
-	 * @param amounts Collection containing objects to remove
+	 * @param coll Collection containing objects to remove
 	 * @return <code>true</code> if any of the objects were removed, and
 	 * <code>false</code> otherwise
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 * @see CardList#remove(Object)
 	 */
-	public Set<Card> removeAll(Collection<? extends Card> amounts);
-	
-	/**
-	 * TODO: Comment this
-	 * @param cards
-	 * @param amounts
-	 * @return
-	 */
-	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> cards);
-	
-	/**
-	 * TODO: Comment this
-	 * @param cards
-	 * @return
-	 */
-	public Map<Card, Integer> removeAll(CardList cards);
+	public boolean removeAll(Collection<?> coll);
 	
 	/**
 	 * Set the number of copies of a Card to the specified number (optional
@@ -248,27 +230,27 @@ public interface CardList extends Iterable<Card>
 	 * the Card left.  If there are no entries representing the Card and the number
 	 * is greater than 0, then entries should be created.
 	 * 
-	 * @param card Card to set the count of
-	 * @param amount Number of copies to set
+	 * @param c Card to set the count of
+	 * @param n Number of copies to set
 	 * @return <code>true</code> if this CardCollection changed as a result, and
 	 * <code>false</code> otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public boolean set(Card card, int amount);
+	public boolean set(Card c, int n);
 	
 	/**
 	 * Set the number of copies of the Card at the specified index (optional
 	 * operation).
 	 * 
 	 * @param index Index of the Card to set the number of
-	 * @param amount Number of copies of the Card to set
+	 * @param n Number of copies of the Card to set
 	 * @return <code>true</code> if this CardCollection changed as a result, and
 	 * <code>false</code> otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 * @throws IndexOutOfBoundsException if the index is less than 0 or is too big
 	 * @see CardList#set(Card, int)
 	 */
-	public boolean set(int index, int amount);
+	public boolean set(int index, int n);
 	
 	/**
 	 * @return The number of entries in this CardCollection.  If multiple copies
@@ -280,12 +262,10 @@ public interface CardList extends Iterable<Card>
 	
 	/**
 	 * TODO: Comment this
+	 * TODO: Potentially make this default
 	 * @return
 	 */
-	public default Stream<Card> stream()
-	{
-		return StreamSupport.stream(spliterator(), false);
-	}
+	public Stream<Card> stream();
 	
 	/**
 	 * @return An array containing all of the Cards in this CardCollection.  If
