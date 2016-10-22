@@ -631,7 +631,7 @@ public abstract class Card
 				{
 					Style indicatorStyle = document.addStyle("indicator", document.getStyle("text"));
 					StyleConstants.setForeground(indicatorStyle, color.color);
-					document.insertString(document.getLength(), "•", indicatorStyle);
+					document.insertString(document.getLength(), "\u2022", indicatorStyle);
 				}
 				if (!colors().isEmpty())
 					document.insertString(document.getLength(), " ", textStyle);
