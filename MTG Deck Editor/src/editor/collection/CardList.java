@@ -1,5 +1,6 @@
 package editor.collection;
 
+import java.awt.datatransfer.DataFlavor;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -77,6 +78,12 @@ public interface CardList extends Iterable<Card>
 			}
 		}
 	}
+
+	/**
+	 * Data flavor representing entries in a deck.  Transfer data will appear as a
+	 * map of cards onto an integer representing the number of copies to transfer.
+	 */
+	DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Map.class.getName() + "\"", "Deck Entries");
 	
 	/**
 	 * Add a new Card to this CardCollection (optional operation).  This should
@@ -108,6 +115,14 @@ public interface CardList extends Iterable<Card>
 	public boolean addAll(CardList cards);
 	
 	/**
+	 * TODO: Comment this
+	 * @param amounts
+	 * @param amounts
+	 * @return
+	 */
+	public boolean addAll(Map<? extends Card, ? extends Integer> amounts);
+
+	/**
 	 * Add several new Cards to this CardCollection (optional operation).
 	 * 
 	 * @param cards Cards to add
@@ -117,14 +132,6 @@ public interface CardList extends Iterable<Card>
 	 * @see CardList#add(Card)
 	 */
 	public boolean addAll(Set<? extends Card> cards);
-
-	/**
-	 * TODO: Comment this
-	 * @param amounts
-	 * @param amounts
-	 * @return
-	 */
-	public boolean addAll(Map<? extends Card, ? extends Integer> amounts);
 
 	/**
 	 * Remove all entries from this CardCollection (optional operation).
@@ -216,16 +223,11 @@ public interface CardList extends Iterable<Card>
 	public int remove(Card card, int amount);
 	
 	/**
-	 * Remove all of the given objects from this CardCollection (optional
-	 * operation).
-	 * 
-	 * @param cards Collection containing objects to remove
-	 * @return <code>true</code> if any of the objects were removed, and
-	 * <code>false</code> otherwise
-	 * @throws UnsupportedOperationException if this operation is not supported
-	 * @see CardList#remove(Object)
+	 * TODO: Comment this
+	 * @param cards
+	 * @return
 	 */
-	public Set<Card> removeAll(Set<? extends Card> cards);
+	public Map<Card, Integer> removeAll(CardList cards);
 	
 	/**
 	 * TODO: Comment this
@@ -236,11 +238,16 @@ public interface CardList extends Iterable<Card>
 	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> cards);
 	
 	/**
-	 * TODO: Comment this
-	 * @param cards
-	 * @return
+	 * Remove all of the given objects from this CardCollection (optional
+	 * operation).
+	 * 
+	 * @param cards Collection containing objects to remove
+	 * @return <code>true</code> if any of the objects were removed, and
+	 * <code>false</code> otherwise
+	 * @throws UnsupportedOperationException if this operation is not supported
+	 * @see CardList#remove(Object)
 	 */
-	public Map<Card, Integer> removeAll(CardList cards);
+	public Set<Card> removeAll(Set<? extends Card> cards);
 	
 	/**
 	 * Set the number of copies of a Card to the specified number (optional

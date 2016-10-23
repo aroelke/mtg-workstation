@@ -34,19 +34,16 @@ import editor.database.card.Card;
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and
  * have several category views (from which cards can also be added or removed).
- * TODO: Correct comments
- * TODO: Clean up redundant methods
+ * TODO: Decide if the sideboard should be part of the Deck or a separate class
+ * 
  * @author Alec Roelke
  */
 public class Deck implements CardList
 {
 	/**
-	 * This class represents a category of a deck.  It looks like a deck since it
-	 * contains a list of cards and can report how many copies of them there are, 
-	 * so it extends Deck.  If a card is added or removed using the add and remove
-	 * methods, the master list will be updated to reflect this only if the card
-	 * passes through the Category's filter.
-	 * TODO: Throw exceptions when trying to get information about cards that don't pass through the filter
+	 * This class represents a category of a deck.  If a card is added or removed using the add and remove
+	 * methods, the master list will be updated to reflect this only if the card passes through the Category's filter.
+	 * 
 	 * @author Alec Roelke
 	 */
 	private class Category implements CardList
@@ -62,11 +59,11 @@ public class Deck implements CardList
 		/**
 		 * Listener for changes in this category's CategorySpec.
 		 */
-		public CategoryListener listener;
+		private CategoryListener listener;
 		/**
 		 * Rank of this Category.
 		 */
-		public int rank;
+		private int rank;
 		
 		/**
 		 * Create a new Category.
@@ -81,8 +78,8 @@ public class Deck implements CardList
 		}
 		
 		/**
-		 * If the given Card belongs to this Category and isn't in the Deck, add it to the
-		 * Deck.
+		 * If the given Card belongs to this Category and isn't in the Deck, add one copy of it
+		 * to the deck.
 		 * 
 		 * @param card Card to add
 		 * @return <code>true</code> if the Card was added and <code>false</code> otherwise.
@@ -94,7 +91,7 @@ public class Deck implements CardList
 		}
 		
 		/**
-		 * Add some number of copies of a Card to this Category if it passes
+		 * Add some number of copies of a Card to the deck if it passes
 		 * through this Category's filter.
 		 * 
 		 * @param card Card to add
@@ -108,12 +105,28 @@ public class Deck implements CardList
 			return spec.includes(card) ? Deck.this.add(card, amount) : false;
 		}
 		
+		/**
+		 * Add all of the copies of the Cards in the given CardList that pass through this
+		 * Category's filter to the deck.
+		 * 
+		 * @param cards CardList of Cards to add
+		 * @return <code>true</code> if any cards were added, and <code>false</code>
+		 * otherwise.
+		 */
 		@Override
 		public boolean addAll(CardList cards)
 		{
 			return Deck.this.addAll(cards.stream().filter(spec::includes).collect(Collectors.toMap(Function.identity(), (c) -> cards.getData(c).count())));
 		}
 		
+		/**
+		 * Add some amounts of the given Cards that pass through this Category's
+		 * filter to the deck.
+		 * 
+		 * @param amounts Map containing Cards to add and amount of each one to add
+		 * @return <code>true</code> if any of the given Cards were added, and <code>false</code>
+		 * otherwise.
+		 */
 		@Override
 		public boolean addAll(Map<? extends Card, ? extends Integer> amounts)
 		{
@@ -121,8 +134,8 @@ public class Deck implements CardList
 		}
 		
 		/**
-		 * Add all of the given Cards that can belong to this Category and aren't already
-		 * in the Deck to the Deck.
+		 * Add a single copy of each of the given Cards that pass through this Category's
+		 * filter to the deck.
 		 * 
 		 * @param cards Collection of Cards to add
 		 * @return <code>true</code> if the Deck changed as a result, and <code>false</code>
@@ -134,6 +147,9 @@ public class Deck implements CardList
 			return Deck.this.addAll(cards.stream().filter(spec::includes).collect(Collectors.toSet()));
 		}
 		
+		/**
+		 * Remove all copies of Cards that belong to this Category from the deck.
+		 */
 		@Override
 		public void clear()
 		{
@@ -141,8 +157,8 @@ public class Deck implements CardList
 		}
 		
 		/**
-		 * @param o Object to look for
-		 * @return <code>true</code> if the given Object is in this Category, and
+		 * @param card Card to look for
+		 * @return <code>true</code> if the given Card is in this Category, and
 		 * <code>false</code> otherwise.
 		 */
 		@Override
@@ -152,8 +168,8 @@ public class Deck implements CardList
 		}
 		
 		/**
-		 * @param cards Collection of objects to look for
-		 * @return <code>true</code> if this Category contains all of the given objects,
+		 * @param cards Collection of Cards to look for
+		 * @return <code>true</code> if this Category contains all of the given cards,
 		 * and <code>false</code> otherwise.
 		 */
 		@Override
@@ -176,6 +192,10 @@ public class Deck implements CardList
 			return filtrate[index];
 		}
 		
+		/**
+		 * @param card Card to look up
+		 * @return The deck's data for the Card.
+		 */
 		@Override
 		public Entry getData(Card card)
 		{
@@ -185,6 +205,10 @@ public class Deck implements CardList
 				throw new IllegalArgumentException("Category " + spec.getName() + " does not contain card " + card);
 		}
 		
+		/**
+		 * @param index Index into this Category's view of the deck to look up
+		 * @return The data of the Card at the given index.
+		 */
 		@Override
 		public Entry getData(int index)
 		{
@@ -192,8 +216,8 @@ public class Deck implements CardList
 		}
 		
 		/**
-		 * @param o Object to look for
-		 * @return The index of that Object in this Category's view of the master
+		 * @param card Card to look for
+		 * @return The index of that Card in this Category's view of the master
 		 * list.
 		 */
 		@Override
@@ -222,9 +246,9 @@ public class Deck implements CardList
 		}
 
 		/**
-		 * Remove the given object from the Deck if it is in this Category.
+		 * Remove the given Card from the Deck if it is in this Category.
 		 * 
-		 * @param o Object to remove
+		 * @param card Card to remove
 		 * @return <code>true</code> if the given object was successfully remove, and
 		 * <code>false</code> otherwise.
 		 */
@@ -248,12 +272,28 @@ public class Deck implements CardList
 			return contains(card) ? Deck.this.remove(card, amount) : 0;
 		}
 
+		/**
+		 * Remove all copies of Cards in the given CardList from this Category that
+		 * pass through its filter.
+		 * 
+		 * @param cards Cards to remove
+		 * @return A Map<Card, Integer> containing the Cards that were removed and how many
+		 * were removed.
+		 */
 		@Override
 		public Map<Card, Integer> removeAll(CardList cards)
 		{
 			return Deck.this.removeAll(cards.stream().filter(spec::includes).collect(Collectors.toMap(Function.identity(), (c) -> cards.getData(c).count())));
 		}
 
+		/**
+		 * Remove some numbers of copies of each of the given Cards from the deck that
+		 * pass through this Category's filter.
+		 * 
+		 * @param amounts Cards to remove and number of each one to remove
+		 * @return A Map<Card, Integer> containing the Cards that were removed and how many
+		 * were removed.
+		 */
 		@Override
 		public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> amounts)
 		{
@@ -261,12 +301,11 @@ public class Deck implements CardList
 		}
 		
 		/**
-		 * Remove all objects from the given collection that are in this Category
-		 * from the Deck.
+		 * Remove one copy of each of the given Cards from the deck that pass through
+		 * this Category's filter.
 		 * 
-		 * @param cards Collection of objects to remove
-		 * @return <code>true</code> if any of the objects were successfully removed
-		 * from the Deck, and <code>false</code> otherwise.
+		 * @param cards Cards to remove
+		 * @return A Set<Card> containing which Cards were removed.
 		 */
 		@Override
 		public Set<Card> removeAll(Set<? extends Card> cards)
@@ -277,12 +316,13 @@ public class Deck implements CardList
 		/**
 		 * Set the number of copies of the given Card to be the given value.  If the card
 		 * isn't in the deck, it will be added.  If it isn't included in the category,
-		 * then nothing will happen.
+		 * an error is thrown.
 		 * 
 		 * @param card Card to change
 		 * @param amount Number of copies to change to
 		 * @return <code>true</code> if the number of copies was changed or if the card was
 		 * added, and <code>false</code> otherwise.
+		 * @throws IllegalArgumentException If the Card does not pass through this Category's filter.
 		 */
 		@Override
 		public boolean set(Card card, int amount)
@@ -304,7 +344,7 @@ public class Deck implements CardList
 		@Override
 		public boolean set(int index, int amount)
 		{
-			return this[index] != null && set(this[index], amount);
+			return set(this[index], amount);
 		}
 
 		/**
@@ -314,14 +354,6 @@ public class Deck implements CardList
 		public int size()
 		{
 			return filtrate.size();
-		}
-
-		/**
-		 * @return This Category's specifications.
-		 */
-		public CategorySpec spec()
-		{
-			return spec;
 		}
 
 		/**
@@ -369,15 +401,15 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * This class represents an entry into a deck.  It has a card and a
-	 * number of copies.
-	 * TODO: Correct comments
+	 * This class represents an entry into a deck.  It has a card, a number of copies of that card,
+	 * a set of categories the card belongs to, and the date the card was added.
+	 * 
 	 * @author Alec Roelke
 	 */
 	private class DeckEntry implements Entry
 	{
 		/**
-		 * Card in this Entry.  It can't be changed.
+		 * Card in this DeckEntry.
 		 */
 		private final Card card;
 		/**
@@ -385,20 +417,19 @@ public class Deck implements CardList
 		 */
 		private int count;
 		/**
-		 * Date this Entry was created (the Card was originally added).
+		 * Date this DeckEntry was created (the Card was originally added).
 		 */
 		private final Date date;
 		/**
-		 * Set of categories this Entry's Card belongs to.  Implemented using a
-		 * LinkedHashSet, so it will maintain the ordering that categories were
-		 * added.
+		 * Set of categories this DeckEntry's Card belongs to.  Implemented using a
+		 * LinkedHashSet, so it will maintain the ordering that categories were added.
 		 */
 		private Set<Category> categories;
 		
 		/**
-		 * Create a new Entry.
+		 * Create a new DeckEntry.
 		 * 
-		 * @param card Card for this Entry
+		 * @param card Card for this DeckEntry
 		 * @param amount Number of initial copies in this Entry
 		 * @param added Date the Card was added
 		 */
@@ -411,9 +442,9 @@ public class Deck implements CardList
 		}
 		
 		/**
-		 * Copy constructor for Entry.
+		 * Copy constructor for DeckEntry.
 		 * 
-		 * @param original Original Entry to copy
+		 * @param original Original DeckEntry to copy
 		 */
 		private DeckEntry(DeckEntry original)
 		{
@@ -424,44 +455,63 @@ public class Deck implements CardList
 		}
 		
 		/**
-		 * Add copies to this Entry.
+		 * Add copies to this DeckEntry.
 		 * 
 		 * @param amount Copies to add
-		 * @return The new number of copies in this Entry.
+		 * @return <code>true</code> if any copies were added, and <code>false</code>
+		 * otherwise 
 		 */
 		private boolean add(int amount)
 		{
+			if (amount < 1)
+				return false;
 			count += amount;
-			return amount > 0;
+			return true;
 		}
 		
+		/**
+		 * @return This DeckEntry's card.
+		 */
 		@Override
 		public Card card()
 		{
 			return card;
 		}
 		
+		/**
+		 * @return The categories this DeckEntry's card belongs to.
+		 */
+		@Override
 		public Set<CategorySpec> categories()
 		{
-			return categories.stream().map(Category::spec).collect(Collectors.toSet());
+			return categories.stream().map((category) -> category.spec).collect(Collectors.toSet());
 		}
 		
+		/**
+		 * @return The number of copies of this DeckEntry's card in the deck.
+		 */
+		@Override
 		public int count()
 		{
 			return count;
 		}
 		
+		/**
+		 * @return The date the card was added to the deck.
+		 */
+		@Override
 		public Date dateAdded()
 		{
 			return date;
 		}
 
 		/**
-		 * Remove copies from this Entry.  There can't be fewer than
+		 * Remove copies from this DeckEntry.  There can't be fewer than
 		 * 0 copies.
 		 * 
 		 * @param amount Number of copies to remove.
-		 * @return The new number of copies in this Entry.
+		 * @return The number of copies that were actually removed (in case there
+		 * are now 0).
 		 */
 		private int remove(int amount)
 		{
@@ -473,6 +523,7 @@ public class Deck implements CardList
 			return count - old;
 		}
 	}
+	
 	/**
 	 * This class represents an event during which a Deck may have changed.
 	 * It can indicate how many copies of Cards may have been added to or
@@ -566,6 +617,8 @@ public class Deck implements CardList
 		
 		/**
 		 * Indicate that cards and/or counts of cards in the deck changed.
+		 * A positive number means a card was added, and a negative one means it
+		 * was removed.
 		 * 
 		 * @param change Map of Cards onto their count changes
 		 * @return The Event representing the change.
@@ -808,7 +861,7 @@ public class Deck implements CardList
 		@Override
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 		{
-			if (flavor.equals(entryFlavor))
+			if (flavor.equals(CardList.entryFlavor))
 				return transferData;
 			else if (flavor.equals(Card.cardFlavor))
 				return transferData.keySet().stream().sorted(Card::compareName).toArray(Card[]::new);
@@ -825,7 +878,7 @@ public class Deck implements CardList
 		@Override
 		public DataFlavor[] getTransferDataFlavors()
 		{
-			return new DataFlavor[] {entryFlavor, Card.cardFlavor, DataFlavor.stringFlavor};
+			return new DataFlavor[] {CardList.entryFlavor, Card.cardFlavor, DataFlavor.stringFlavor};
 		}
 
 		/**
@@ -840,11 +893,6 @@ public class Deck implements CardList
 		}
 	}
 	
-	/**
-	 * Data flavor representing entries in a deck.  Transfer data will appear as a
-	 * map of cards onto an integer representing the number of copies to transfer.
-	 */
-	public static final DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Map.class.getName() + "\"", "Deck Entries");
 	/**
 	 * Formatter for dates, usually for formatting the add date of a card.
 	 */
@@ -861,12 +909,10 @@ public class Deck implements CardList
 	 * Total number of cards in this Deck, accounting for multiples.
 	 */
 	private int total;
-	
 	/**
 	 * Number of land cards in this Deck, accounting for multiples.
 	 */
 	private int land;
-	
 	/**
 	 * List of listeners for changes in this Deck.
 	 */
@@ -885,10 +931,10 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * If the given Card isn't in this Deck, add a copy of it to the Deck.
+	 * Add a copy of the given Card to the Deck.
 	 * 
 	 * @param card Card to add
-	 * @return <code>true</code> if the card wasn't in the deck and was successfully added,
+	 * @return <code>true</code> if the card was successfully added,
 	 * and <code>false</code> otherwise.
 	 */
 	@Override
@@ -915,7 +961,8 @@ public class Deck implements CardList
 	
 	/**
 	 * Add some number of Cards to this Deck.  If the number is not positive,
-	 * then no changes are made.
+	 * then no changes are made.  Normally this should only be used when loading
+	 * a Deck, and will not affects an existing Card's add date.
 	 * 
 	 * @param card Card to add
 	 * @param amount Number of copies to add
@@ -938,7 +985,7 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * Add all of the cards in the given Deck to this Deck.
+	 * Add all of the cards in the given CardList to this Deck.
 	 * 
 	 * @param d Deck to copy
 	 * @return <code>true</code> if cards were successfully added, and <code>false</code>
@@ -950,6 +997,13 @@ public class Deck implements CardList
 		return addAll(d.stream().collect(Collectors.toMap(Function.identity(), (c) -> d.getData(c).count())));
 	}
 	
+	/**
+	 * Add some amounts of each of the given Cards to this Deck.
+	 * 
+	 * @param amounts Cards to add and amounts of them to add
+	 * @return <code>true</code> if any of the given Cards were added, and
+	 * <code>false</code> otherwise.
+	 */
 	@Override
 	public boolean addAll(Map<? extends Card, ? extends Integer> amounts)
 	{
@@ -964,7 +1018,7 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * Add each of the given collection of Cards that aren't already in the Deck to the Deck.
+	 * Add one copy of each of the given Cards to this Deck.
 	 * 
 	 * @param cards Collection of Cards to add.
 	 * @return <code>true</code> if any of the Cards were successfully added, and
@@ -1028,7 +1082,7 @@ public class Deck implements CardList
 	 */
 	public Collection<CategorySpec> categories()
 	{
-		return categories.values().stream().map(Category::spec).collect(Collectors.toList());
+		return categories.values().stream().map((category) -> category.spec).collect(Collectors.toList());
 	}
 	
 	/**
@@ -1049,9 +1103,9 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * @param o Object to look for
+	 * @param card Card to look for
 	 * @return <code>true</code> if this Deck contains one or more copies
-	 * of the given Object, and <code>false</code> otherwise.
+	 * of the given Card, and <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean contains(Card card)
@@ -1060,8 +1114,8 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * @param cards Collection of objects to look for
-	 * @return <code>true</code> if all of the objects in the given collection are present
+	 * @param cards Collection of Cards to look for
+	 * @return <code>true</code> if all of the Cards in the given collection are present
 	 * in this Deck, and <code>false</code> otherwise.
 	 */
 	@Override
@@ -1084,11 +1138,15 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param card
-	 * @param amount
-	 * @param date
-	 * @return
+	 * Add the given amount of the given Card to this Deck.  Whichever method calls this
+	 * is responsible for notifying anyone of the change (if there is one).  If the Card
+	 * is already present in this Deck, ignore the date parameter.
+	 * 
+	 * @param card Card to add copies of
+	 * @param amount Amount of copies to add
+	 * @param date If the Card is not present in this Deck, the date it was added on 
+	 * @return <code>true</code> if this Deck was changed as a result of this operation,
+	 * and <code>false</code> otherwise.
 	 */
 	private boolean do_add(Card card, int amount, Date date)
 	{
@@ -1117,10 +1175,15 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param card
-	 * @param amount
-	 * @return
+	 * Remove the given amount of the given Card from this Deck.  Whichever method calls this
+	 * is responsible for notifying anyone of the change (if there is one).  If the Card
+	 * is already present in this Deck, ignore the date parameter.
+	 * 
+	 * @param card Card to remove copies of
+	 * @param amount Amount of copies to remove 
+	 * @return The number of copies of the given Card that were actually removed from
+	 * this Deck.  Normally this is the given number unless that number is greater than
+	 * the number that were originally present.
 	 */
 	public int do_remove(Card card, int amount)
 	{
@@ -1211,7 +1274,8 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param Card card to look up
+	 * @return The metadata of the given Card.
 	 */
 	@Override
 	public Entry getData(Card card)
@@ -1220,7 +1284,8 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * TODO: Comment this
+	 * @param index Index of the Card to look up
+	 * @return The metadata of the Card at the given index.
 	 */
 	@Override
 	public Entry getData(int index)
@@ -1229,7 +1294,7 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * @param card Card to search for an Entry.
+	 * @param card Card to search for a DeckEntry.
 	 * @return The Entry corresponding to the Card, or <code>null</code>
 	 * if there is none.
 	 */
@@ -1242,8 +1307,8 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * @param o Object to look for
-	 * @return Index of that Object in the master list.
+	 * @param card Card to look for
+	 * @return Index of that Card in the master list.
 	 */
 	@Override
 	public int indexOf(Card card)
@@ -1287,8 +1352,9 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * TODO: Comment this
-	 * @param event
+	 * Notify each listener of changes to this Deck.
+	 * 
+	 * @param event Event containing information about the change.
 	 */
 	private void notifyListeners(Event event)
 	{
@@ -1305,9 +1371,11 @@ public class Deck implements CardList
 	}
 
 	/**
-	 * @param o Object to remove
-	 * @return <code>true</code> if the object is a Card and if one or more copies were
-	 * removed, and <code>false</code> otherwise.
+	 * Remove a single copy of the given Card from this Deck
+	 * 
+	 * @param card Card to remove
+	 * @return <code>true</code> if a copy was removed and <code>false</code>
+	 * otherwise, which is if there wasn't one to begin with.
 	 */
 	@Override
 	public boolean remove(Card card)
@@ -1365,12 +1433,24 @@ public class Deck implements CardList
 			return false;
 	}
 
+	/**
+	 * Remove all Cards in the given CardList from this Deck.
+	 * 
+	 * @param cards Cards to remove
+	 * @return A map containing the Cards that were removed and the number of each one that was removed.
+	 */
 	@Override
 	public Map<Card, Integer> removeAll(CardList cards)
 	{
 		return removeAll(cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> cards.getData(c).count())));
 	}
 
+	/**
+	 * Remove some number of copies of the given Cards from this Deck.
+	 * 
+	 * @param amounts Cards to remove and amounts of each one to remove
+	 * @return A map containing the Cards that were removed and the number of each one that was removed.
+	 */
 	@Override
 	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> amounts)
 	{
@@ -1389,11 +1469,10 @@ public class Deck implements CardList
 	}
 
 	/**
-	 * Remove as many of the objects in the given list from this Deck as possible.
+	 * Remove one copy of each of the given Cards from this Deck.
 	 * 
-	 * @param cards Collection of objects to remove
-	 * @return <code>true</code> if any of the given objects were remove, and
-	 * <code>false</code> otherwise.
+	 * @param cards Cards to remove
+	 * @return All of the Cards that were removed.
 	 */
 	@Override
 	public Set<Card> removeAll(Set<? extends Card> cards)

@@ -2070,7 +2070,7 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		public boolean canImport(TransferSupport supp)
 		{
-			return supp.isDataFlavorSupported(Deck.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
+			return supp.isDataFlavorSupported(CardList.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
 		}
 		
 		/**
@@ -2087,10 +2087,10 @@ public class EditorFrame extends JInternalFrame
 			{
 				if (!canImport(supp))
 					return false;
-				else if (supp.isDataFlavorSupported(Deck.entryFlavor))
+				else if (supp.isDataFlavorSupported(CardList.entryFlavor))
 				{
 					@SuppressWarnings("unchecked")
-					Map<Card, Integer> data = (Map<Card, Integer>)supp.getTransferable().getTransferData(Deck.entryFlavor);
+					Map<Card, Integer> data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
 					return performAction(() -> {
 							boolean undone = false;
 							for (Map.Entry<Card, Integer> entry: data.entrySet())
