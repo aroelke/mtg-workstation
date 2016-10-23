@@ -119,7 +119,7 @@ public class CategoryPanel extends JPanel
 
 		// Labels showing category stats
 		JPanel statsPanel = new JPanel(new GridLayout(0, 1));
-		countLabel = new JLabel("Cards: " + deck.total(name));
+		countLabel = new JLabel("Cards: " + deck.getCategoryList(name).total());
 		statsPanel.add(countLabel);
 		avgCMCLabel = new JLabel("Average CMC: 0");
 		statsPanel.add(avgCMCLabel);
@@ -141,14 +141,14 @@ public class CategoryPanel extends JPanel
 		add(topPanel, BorderLayout.NORTH);
 
 		// Table showing the cards in the category
-		model = new CardTableModel(editor, deck.getCategoryCards(name), SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
+		model = new CardTableModel(editor, deck.getCategoryList(name), SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
 		table = new CardTable(model)
 		{
 			@Override
 			public Dimension getPreferredScrollableViewportSize()
 			{
 				Dimension d = getPreferredSize();
-				d.height = getRowHeight()*Math.min(SettingsDialog.getAsInt(SettingsDialog.CATEGORY_ROWS), deck.size(name));
+				d.height = getRowHeight()*Math.min(SettingsDialog.getAsInt(SettingsDialog.CATEGORY_ROWS), deck.getCategoryList(name).size());
 				return d;
 			}
 		};
@@ -156,7 +156,7 @@ public class CategoryPanel extends JPanel
 		table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
 		for (int i = 0; i < table.getColumnCount(); i++)
 			if (model.isCellEditable(0, i))
-				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(editor));
+				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnCharacteristic(i)));
 		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
 		tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -191,7 +191,7 @@ public class CategoryPanel extends JPanel
 	public void update()
 	{
 //		model.fireTableDataChanged();
-		countLabel.setText("Cards: " + deck.total(name));
+		countLabel.setText("Cards: " + deck.getCategoryList(name).total());
 
 		double avgCMC = 0.0;
 		int count = 0;
@@ -225,7 +225,7 @@ public class CategoryPanel extends JPanel
 	public List<Card> getSelectedCards()
 	{
 		return Arrays.stream(table.getSelectedRows())
-					 .mapToObj((r) -> deck.getCategoryCards(name)[table.convertRowIndexToModel(r)])
+					 .mapToObj((r) -> deck.getCategoryList(name)[table.convertRowIndexToModel(r)])
 					 .collect(Collectors.toList());
 	}
 
@@ -250,7 +250,7 @@ public class CategoryPanel extends JPanel
 		table.setStripeColor(stripe);
 		for (int i = 0; i < table.getColumnCount(); i++)
 			if (model.isCellEditable(0, i))
-				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(editor));
+				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnCharacteristic(i)));
 	}
 
 	/**

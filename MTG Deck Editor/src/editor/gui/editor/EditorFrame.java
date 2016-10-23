@@ -136,8 +136,8 @@ public class EditorFrame extends JInternalFrame
 	{
 		A_Z("A-Z", (d) -> (a, b) -> a.getName().compareToIgnoreCase(b.getName())),
 		Z_A("Z-A", (d) -> (a, b) -> -a.getName().compareToIgnoreCase(b.getName())),
-		ASCENDING("Ascending Size", (d) -> (a, b) -> d.total(a.getName()) - d.total(b.getName())),
-		DESCENDING("Descending Size", (d) -> (a, b) -> d.total(b.getName()) - d.total(a.getName())),
+		ASCENDING("Ascending Size", (d) -> (a, b) -> d.getCategoryList(a.getName()).total() - d.getCategoryList(b.getName()).total()),
+		DESCENDING("Descending Size", (d) -> (a, b) -> d.getCategoryList(b.getName()).total() - d.getCategoryList(a.getName()).total()),
 		PRIORITY("Increasing Rank", (d) -> (a, b) -> d.getCategoryRank(a.getName()) - d.getCategoryRank(b.getName())),
 		REVERSE("Decreasing Rank", (d) -> (a, b) -> d.getCategoryRank(b.getName()) - d.getCategoryRank(a.getName()));
 		
@@ -409,7 +409,7 @@ public class EditorFrame extends JInternalFrame
 		});
 		for (int i = 0; i < table.getColumnCount(); i++)
 			if (model.isCellEditable(0, i))
-				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(this));
+				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, model.getColumnCharacteristic(i)));
 		table.setTransferHandler(new EditorTableTransferHandler());
 		table.setDragEnabled(true);
 		table.setDropMode(DropMode.ON);
@@ -1030,7 +1030,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					clearTableSelections(newCategory.table);
 					parent.clearSelectedCards();
-					setSelectedSource(newCategory.table, deck.getCategoryCards(spec.getName()));
+					setSelectedSource(newCategory.table, deck.getCategoryList(spec.getName()));
 					if (hasSelectedCards())
 						parent.selectCard(getSelectedCards()[0]);
 				}
@@ -1250,7 +1250,7 @@ public class EditorFrame extends JInternalFrame
 	private boolean deleteCategory(CategorySpec category)
 	{
 		CategoryPanel panel = getCategory(category.getName());
-		return panel != null && deck.removeCategory(category.getName());
+		return panel != null && deck.remove(category.getName());
 	}
 	
 	/**
@@ -1441,7 +1441,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			for (CategoryPanel panel: categoryPanels)
 				if (t == panel.table)
-					return deck.getCategoryCards(panel.getCategoryName())[panel.table.convertRowIndexToModel(tableIndex)];
+					return deck.getCategoryList(panel.getCategoryName())[panel.table.convertRowIndexToModel(tableIndex)];
 			throw new IllegalArgumentException("Table not in deck " + deckName());
 		}
 	}
@@ -1865,7 +1865,7 @@ public class EditorFrame extends JInternalFrame
 		table.setStripeColor(stripe);
 		for (int i = 0; i < table.getColumnCount(); i++)
 			if (model.isCellEditable(0, i))
-				table.getColumn(model.getColumnName(i)).setCellEditor(model.getColumnCharacteristic(i).createCellEditor(this));
+				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, model.getColumnCharacteristic(i)));
 		for (CategoryPanel category: categoryPanels)
 			category.applySettings(this);
 		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);

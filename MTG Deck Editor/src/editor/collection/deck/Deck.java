@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EventObject;
 import java.util.HashMap;
@@ -22,10 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Spliterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import editor.collection.CardList;
 import editor.collection.category.CategoryListener;
@@ -35,7 +34,8 @@ import editor.database.card.Card;
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and
  * have several category views (from which cards can also be added or removed).
- * 
+ * TODO: Correct comments
+ * TODO: Clean up redundant methods
  * @author Alec Roelke
  */
 public class Deck implements CardList
@@ -71,11 +71,11 @@ public class Deck implements CardList
 		/**
 		 * Create a new Category.
 		 * 
-		 * @param s Specifications for the new Category
+		 * @param spec Specifications for the new Category
 		 */
-		private Category(CategorySpec s)
+		private Category(CategorySpec spec)
 		{
-			spec = s;
+			this.spec = spec;
 			rank = categories.size();
 			update();
 		}
@@ -84,58 +84,60 @@ public class Deck implements CardList
 		 * If the given Card belongs to this Category and isn't in the Deck, add it to the
 		 * Deck.
 		 * 
-		 * @param c Card to add
+		 * @param card Card to add
 		 * @return <code>true</code> if the Card was added and <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean add(Card c)
+		public boolean add(Card card)
 		{
-			return includes(c) && Deck.this.add(c);
+			return add(card, 1);
 		}
 		
 		/**
 		 * Add some number of copies of a Card to this Category if it passes
 		 * through this Category's filter.
 		 * 
-		 * @param c Card to add
-		 * @param n Number of copies to add
+		 * @param card Card to add
+		 * @param amount Number of copies to add
 		 * @return <code>true</code> if the Deck was changed as a result, and
 		 * <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean add(Card c, int n)
+		public boolean add(Card card, int amount)
 		{
-			if (includes(c))
-				return Deck.this.add(c, n);
-			else
-				throw new IllegalArgumentException("Category " + spec.getName() + " cannot contain card " + c);
+			return spec.includes(card) ? Deck.this.add(card, amount) : false;
+		}
+		
+		@Override
+		public boolean addAll(CardList cards)
+		{
+			return Deck.this.addAll(cards.stream().filter(spec::includes).collect(Collectors.toMap(Function.identity(), (c) -> cards.getData(c).count())));
+		}
+		
+		@Override
+		public boolean addAll(Map<? extends Card, ? extends Integer> amounts)
+		{
+			return Deck.this.addAll(amounts.entrySet().stream().filter((e) -> spec.includes(e.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 		}
 		
 		/**
 		 * Add all of the given Cards that can belong to this Category and aren't already
 		 * in the Deck to the Deck.
 		 * 
-		 * @param coll Collection of Cards to add
+		 * @param cards Collection of Cards to add
 		 * @return <code>true</code> if the Deck changed as a result, and <code>false</code>
 		 * otherwise.
 		 */
 		@Override
-		public boolean addAll(Collection<? extends Card> coll)
+		public boolean addAll(Set<? extends Card> cards)
 		{
-			return Deck.this.addAll(coll.stream().filter(this::includes).collect(Collectors.toList()));
-		}
-		
-		@Override
-		public boolean addAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
-		{
-			// TODO Auto-generated method stub
-			return false;
+			return Deck.this.addAll(cards.stream().filter(spec::includes).collect(Collectors.toSet()));
 		}
 		
 		@Override
 		public void clear()
 		{
-			throw new UnsupportedOperationException();
+			Deck.this.removeAll(this);
 		}
 		
 		/**
@@ -144,21 +146,21 @@ public class Deck implements CardList
 		 * <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean contains(Object o)
+		public boolean contains(Card card)
 		{
-			return filtrate.contains(o);
+			return filtrate.contains(card);
 		}
 		
 		/**
-		 * @param coll Collection of objects to look for
+		 * @param cards Collection of objects to look for
 		 * @return <code>true</code> if this Category contains all of the given objects,
 		 * and <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean containsAll(Collection<?> coll)
+		public boolean containsAll(Collection<? extends Card> cards)
 		{
-			for (Object o: coll)
-				if (!contains(o))
+			for (Card c: cards)
+				if (!contains(c))
 					return false;
 			return true;
 		}
@@ -175,12 +177,12 @@ public class Deck implements CardList
 		}
 		
 		@Override
-		public Entry getData(Card c)
+		public Entry getData(Card card)
 		{
-			if (includes(c))
-				return Deck.this.getData(c);
+			if (spec.includes(card))
+				return Deck.this.getData(card);
 			else
-				throw new IllegalArgumentException("Category " + spec.getName() + " does not contain card " + c);
+				throw new IllegalArgumentException("Category " + spec.getName() + " does not contain card " + card);
 		}
 		
 		@Override
@@ -190,24 +192,14 @@ public class Deck implements CardList
 		}
 		
 		/**
-		 * @param c Card to test
-		 * @return <code>true</code> if the given Card can belong to this Category and
-		 * <code>false</code> otherwise.
-		 */
-		public boolean includes(Card c)
-		{
-			return spec.includes(c);
-		}
-		
-		/**
 		 * @param o Object to look for
 		 * @return The index of that Object in this Category's view of the master
 		 * list.
 		 */
 		@Override
-		public int indexOf(Object o)
+		public int indexOf(Card card)
 		{
-			return filtrate.indexOf(o);
+			return filtrate.indexOf(card);
 		}
 		
 		/**
@@ -228,30 +220,6 @@ public class Deck implements CardList
 		{
 			return filtrate.iterator();
 		}
-		
-		@Override
-		public Stream<Card> parallelStream()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-		/**
-		 * Remove some number of copies of a Card from this Category if it passes
-		 * through this Category's filter.
-		 * 
-		 * @param c Card to add
-		 * @param n Number of copies to remove
-		 * @return The numbe of copies of the Card that were actually removed.
-		 */
-		@Override
-		public int remove(Card c, int n)
-		{
-			if (includes(c))
-				return Deck.this.remove(c, n);
-			else
-				throw new IllegalArgumentException("Category " + spec.getName() + " does not contain card " + c);
-		}
 
 		/**
 		 * Remove the given object from the Deck if it is in this Category.
@@ -261,65 +229,84 @@ public class Deck implements CardList
 		 * <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean remove(Object o)
+		public boolean remove(Card card)
 		{
-			return contains(o) && Deck.this.remove(o);
+			return remove(card, 1) > 0;
+		}
+
+		/**
+		 * Remove some number of copies of a Card from this Category if it passes
+		 * through this Category's filter.
+		 * 
+		 * @param card Card to add
+		 * @param amount Number of copies to remove
+		 * @return The number of copies of the Card that were actually removed.
+		 */
+		@Override
+		public int remove(Card card, int amount)
+		{
+			return contains(card) ? Deck.this.remove(card, amount) : 0;
 		}
 
 		@Override
-		public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
+		public Map<Card, Integer> removeAll(CardList cards)
 		{
-			// TODO Auto-generated method stub
-			return false;
+			return Deck.this.removeAll(cards.stream().filter(spec::includes).collect(Collectors.toMap(Function.identity(), (c) -> cards.getData(c).count())));
 		}
 
+		@Override
+		public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> amounts)
+		{
+			return Deck.this.removeAll(amounts.entrySet().stream().filter((e) -> spec.includes(e.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+		}
+		
 		/**
 		 * Remove all objects from the given collection that are in this Category
 		 * from the Deck.
 		 * 
-		 * @param coll Collection of objects to remove
+		 * @param cards Collection of objects to remove
 		 * @return <code>true</code> if any of the objects were successfully removed
 		 * from the Deck, and <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean removeAll(Collection<?> coll)
+		public Set<Card> removeAll(Set<? extends Card> cards)
 		{
-			boolean changed = false;
-			for (Object o: coll)
-				changed |= remove(o);
-			return changed;
+			return Deck.this.removeAll(cards.stream().filter(spec::includes).collect(Collectors.toSet()));
 		}
-
+		
 		/**
 		 * Set the number of copies of the given Card to be the given value.  If the card
 		 * isn't in the deck, it will be added.  If it isn't included in the category,
 		 * then nothing will happen.
 		 * 
-		 * @param c Card to change
-		 * @param n Number of copies to change to
+		 * @param card Card to change
+		 * @param amount Number of copies to change to
 		 * @return <code>true</code> if the number of copies was changed or if the card was
 		 * added, and <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean set(Card c, int n)
+		public boolean set(Card card, int amount)
 		{
-			return includes(c) & Deck.this.set(c, n);
+			if (spec.includes(card))
+				throw new IllegalArgumentException("Category " + spec.getName() + " does not include " + card);
+			else
+				return Deck.this.set(card, amount);
 		}
-		
+
 		/**
 		 * Set the number of copies of the Card at the given index to be the given value.
 		 * 
 		 * @param index Index to find the Card at
-		 * @param n Number of copies to change to
+		 * @param amount Number of copies to change to
 		 * @return <code>true</code> if the Card is in the Category and if the number of copies
 		 * was changed, and <code>false</code> otherwise.
 		 */
 		@Override
-		public boolean set(int index, int n)
+		public boolean set(int index, int amount)
 		{
-			return this[index] != null && set(this[index], n);
+			return this[index] != null && set(this[index], amount);
 		}
-		
+
 		/**
 		 * @return The number of unique Cards in this Category.
 		 */
@@ -335,23 +322,6 @@ public class Deck implements CardList
 		public CategorySpec spec()
 		{
 			return spec;
-		}
-
-		@Override
-		public Spliterator<Card> spliterator()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		/**
-		 * TODO: Override spliterator instead of this
-		 * @return A sequential Stream whose source is this Category.
-		 */
-		@Override
-		public Stream<Card> stream()
-		{
-			return filtrate.stream();
 		}
 
 		/**
@@ -380,7 +350,7 @@ public class Deck implements CardList
 		@Override
 		public int total()
 		{
-			return filtrate.stream().map(Deck.this::getEntry).mapToInt((e) -> e == null ? 0 : e.count).sum();
+			return filtrate.stream().map(Deck.this::getEntry).mapToInt(DeckEntry::count).sum();
 		}
 
 		/**
@@ -428,40 +398,41 @@ public class Deck implements CardList
 		/**
 		 * Create a new Entry.
 		 * 
-		 * @param c Card for this Entry
-		 * @param n Number of initial copies in this Entry
-		 * @param d Date the Card was added
+		 * @param card Card for this Entry
+		 * @param amount Number of initial copies in this Entry
+		 * @param added Date the Card was added
 		 */
-		private DeckEntry(Card c, int n, Date d)
+		private DeckEntry(Card card, int amount, Date added)
 		{
-			card = c;
-			count = n;
-			date = d;
+			this.card = card;
+			count = amount;
+			date = added;
 			categories = new LinkedHashSet<Category>();
 		}
 		
 		/**
 		 * Copy constructor for Entry.
 		 * 
-		 * @param e Original Entry to copy
+		 * @param original Original Entry to copy
 		 */
-		private DeckEntry(DeckEntry e)
+		private DeckEntry(DeckEntry original)
 		{
-			card = e.card;
-			count = e.count;
-			date = e.date;
-			categories = new LinkedHashSet<Category>(e.categories);
+			card = original.card;
+			count = original.count;
+			date = original.date;
+			categories = new LinkedHashSet<Category>(original.categories);
 		}
 		
 		/**
 		 * Add copies to this Entry.
 		 * 
-		 * @param n Copies to add
+		 * @param amount Copies to add
 		 * @return The new number of copies in this Entry.
 		 */
-		private int add(int n)
+		private boolean add(int amount)
 		{
-			return count += n;
+			count += amount;
+			return amount > 0;
 		}
 		
 		@Override
@@ -489,15 +460,17 @@ public class Deck implements CardList
 		 * Remove copies from this Entry.  There can't be fewer than
 		 * 0 copies.
 		 * 
-		 * @param n Number of copies to remove.
+		 * @param amount Number of copies to remove.
 		 * @return The new number of copies in this Entry.
 		 */
-		private int remove(int n)
+		private int remove(int amount)
 		{
-			if (n > count)
-				return count = 0;
-			else
-				return count -= n;
+			if (amount < 1)
+				return 0;
+			
+			int old = count;
+			count -= Math.min(count, amount);
+			return count - old;
 		}
 	}
 	/**
@@ -912,114 +885,56 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * Create a new Deck with the given cards. There will be no
-	 * categories.
-	 * 
-	 * @param cards Cards to add to the new Deck.
-	 */
-	public Deck(Collection<Card> cards)
-	{
-		this();
-		for (Card c: cards)
-			add(c, 1);
-	}
-	
-	/**
 	 * If the given Card isn't in this Deck, add a copy of it to the Deck.
 	 * 
-	 * @param c Card to add
+	 * @param card Card to add
 	 * @return <code>true</code> if the card wasn't in the deck and was successfully added,
 	 * and <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean add(Card c)
+	public boolean add(Card card)
 	{
-		return !contains(c) && increase(c);
+		return add(card, 1);
 	}
 	
 	/**
 	 * Add some number of Cards to this Deck.  If the number is not positive,
 	 * then no changes are made.
 	 * 
-	 * @param c Card to add
-	 * @param n Number of copies to add
+	 * @param card Card to add
+	 * @param amount Number of copies to add
 	 * @return <code>true</code> if the Deck changed as a result, and
 	 * <code>false</code> otherwise, which is when the number to add
 	 * is less than 1.
 	 */
 	@Override
-	public boolean add(Card c, int n)
+	public boolean add(Card card, int amount)
 	{
-		return add(c, n, new Date());
+		return add(card, amount, new Date());
 	}
 	
 	/**
 	 * Add some number of Cards to this Deck.  If the number is not positive,
 	 * then no changes are made.
 	 * 
-	 * @param c Card to add
-	 * @param n Number of copies to add
-	 * @param d Date the card was originally added
+	 * @param card Card to add
+	 * @param amount Number of copies to add
+	 * @param date Date the card was originally added
 	 * @return <code>true</code> if the Deck changed as a result, and
 	 * <code>false</code> otherwise, which is when the number to add
 	 * is less than 1.
 	 */
-	public boolean add(Card c, int n, Date d)
+	public boolean add(Card card, int amount, Date date)
 	{
-		if (n < 1)
-			return false;
-		else
+		if (do_add(card, amount, date))
 		{
-			DeckEntry e = getEntry(c);
-			if (e == null)
-			{
-				masterList.add(e = new DeckEntry(c, n, d));
-				for (Category category: categories.values())
-				{
-					if (category.includes(c))
-					{
-						category.filtrate.add(c);
-						e.categories.add(category);
-					}
-				}
-			}
-			else
-				e.add(n);
-			total += n;
-			if (c.typeContains("land"))
-				land += n;
-			
 			Map<Card, Integer> added = new HashMap<Card, Integer>();
-			added[c] = n;
-			Event event = new Event().cardsChanged(added);
-			for (DeckListener listener: listeners)
-				listener.deckChanged(event);
-			
+			added[card] = amount;
+			notifyListeners(new Event().cardsChanged(added));
 			return true;
 		}
-	}
-	
-	/**
-	 * Add each of the given collection of Cards that aren't already in the Deck to the Deck.
-	 * 
-	 * @param coll Collection of Cards to add.
-	 * @return <code>true</code> if any of the Cards were successfully added, and
-	 * <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean addAll(Collection<? extends Card> coll)
-	{
-		boolean changed = false;
-		for (Card c: coll)
-			changed |= add(c);
-		return changed;
-	}
-	
-	@Override
-	public boolean addAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
-	{
-		// TODO Auto-generated method stub
-		return false;
+		else
+			return false;
 	}
 	
 	/**
@@ -1029,12 +944,36 @@ public class Deck implements CardList
 	 * @return <code>true</code> if cards were successfully added, and <code>false</code>
 	 * otherwise.
 	 */
-	public boolean addAll(Deck d)
+	@Override
+	public boolean addAll(CardList d)
 	{
-		boolean changed = false;
-		for (DeckEntry e: d.masterList)
-			changed |= add(e.card, e.count);
-		return changed;
+		return addAll(d.stream().collect(Collectors.toMap(Function.identity(), (c) -> d.getData(c).count())));
+	}
+	
+	@Override
+	public boolean addAll(Map<? extends Card, ? extends Integer> amounts)
+	{
+		Map<Card, Integer> added = new HashMap<Card, Integer>();
+		
+		for (Card card: amounts.keySet())
+			if (do_add(card, amounts[card], new Date()))
+				added[card] = amounts[card];
+		if (!added.isEmpty())
+			notifyListeners(new Event().cardsChanged(added));
+		return !added.isEmpty();
+	}
+	
+	/**
+	 * Add each of the given collection of Cards that aren't already in the Deck to the Deck.
+	 * 
+	 * @param cards Collection of Cards to add.
+	 * @return <code>true</code> if any of the Cards were successfully added, and
+	 * <code>false</code> otherwise.
+	 */
+	@Override
+	public boolean addAll(Set<? extends Card> cards)
+	{
+		return addAll(cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> 1)));
 	}
 	
 	/**
@@ -1066,10 +1005,7 @@ public class Deck implements CardList
 					listener.deckChanged(event);
 			});
 
-			Event event = new Event().categoryAdded(c);
-			for (DeckListener listener: new HashSet<DeckListener>(listeners))
-				listener.deckChanged(event);
-			
+			notifyListeners(new Event().categoryAdded(c));
 			return c;
 		}
 		else
@@ -1109,9 +1045,7 @@ public class Deck implements CardList
 		total = 0;
 		land = 0;
 		
-		Event event = new Event().cardsChanged(removed).categoriesRemoved(categoriesRemoved);
-		for (DeckListener listener: new HashSet<DeckListener>(listeners))
-			listener.deckChanged(event);
+		notifyListeners(new Event().cardsChanged(removed).categoriesRemoved(categoriesRemoved));
 	}
 	
 	/**
@@ -1120,32 +1054,21 @@ public class Deck implements CardList
 	 * of the given Object, and <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean contains(Object o)
+	public boolean contains(Card card)
 	{
-		return o instanceof Card && getEntry((Card)o) != null;
+		return getEntry(card) != null;
 	}
 	
 	/**
-	 * @param name Name of the category to look in
-	 * @param o Card to look for in the category
-	 * @return <code>true</code> if the given Card is in the category,
-	 * and <code>false</code> otherwise.
-	 */
-	public boolean contains(String name, Object o)
-	{
-		return o instanceof Card && categories[name].contains(o);
-	}
-	
-	/**
-	 * @param coll Collection of objects to look for
+	 * @param cards Collection of objects to look for
 	 * @return <code>true</code> if all of the objects in the given collection are present
 	 * in this Deck, and <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean containsAll(Collection<?> coll)
+	public boolean containsAll(Collection<? extends Card> cards)
 	{
-		for (Object o: coll)
-			if (!contains(o))
+		for (Card c: cards)
+			if (!contains(c))
 				return false;
 		return true;
 	}
@@ -1161,14 +1084,74 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * Remove one copy of the given Card from this Deck.
-	 * 
-	 * @param c Card to remove
-	 * @return 0 if no copies were removed, and 1 if a copy was removed.
+	 * TODO: Comment this
+	 * @param card
+	 * @param amount
+	 * @param date
+	 * @return
 	 */
-	public int decrease(Card c)
+	private boolean do_add(Card card, int amount, Date date)
 	{
-		return remove(c, 1);
+		if (amount < 1)
+			return false;
+		
+		DeckEntry entry = getEntry(card);
+		if (entry == null)
+		{
+			masterList.add(entry = new DeckEntry(card, 0, date));
+			for (Category category: categories.values())
+			{
+				if (category.spec.includes(card))
+				{
+					category.filtrate.add(card);
+					entry.categories.add(category);
+				}
+			}
+		}
+		entry.add(amount);
+		total += amount;
+		if (card.typeContains("land"))
+			land += amount;
+		
+		return true;
+	}
+	
+	/**
+	 * TODO: Comment this
+	 * @param card
+	 * @param amount
+	 * @return
+	 */
+	public int do_remove(Card card, int amount)
+	{
+		if (amount < 1)
+			return 0;
+		
+		DeckEntry entry = getEntry(card);
+		if (entry == null)
+			return 0;
+		
+		int removed = entry.remove(amount);
+		if (removed > 0)
+		{
+			if (entry.count == 0)
+			{
+				for (Category category: categories.values())
+				{
+					category.filtrate.remove(card);
+					if (category.spec.getWhitelist().contains(card))
+						category.spec.exclude(card);
+					if (category.spec.getBlacklist().contains(card))
+						category.spec.include(card);
+				}
+				masterList.remove(entry);
+			}
+			total -= removed;
+			if (card.typeContains("land"))
+				land -= removed;
+		}
+		
+		return removed;
 	}
 	
 	/**
@@ -1176,13 +1159,13 @@ public class Deck implements CardList
 	 * filter.
 	 * 
 	 * @param name Name of the category to exclude from
-	 * @param c Card to exclude
+	 * @param card Card to exclude
 	 * @return <code>true</code> if the Card was successfully excluded
 	 * from the category, and <code>false</code> otherwise.
 	 */
-	public boolean exclude(String name, Card c)
+	public boolean exclude(String name, Card card)
 	{
-		return contains(c) && categories[name].spec.exclude(c);
+		return contains(card) && categories[name].spec.exclude(card);
 	}
 	
 	/**
@@ -1196,23 +1179,11 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * Get the Card at the given index in the category.
-	 * 
-	 * @param name Category to look for a card in
-	 * @param index Index to find the Card at
-	 * @return The Card at the given index.
-	 */
-	public Card get(String name, int index)
-	{
-		return categories[name][index];
-	}
-	
-	/**
 	 * @param name Name of the category to get Cards from
 	 * @return The CardCollection containing Cards in the category with the
 	 * given name.
 	 */
-	public CardList getCategoryCards(String name)
+	public CardList getCategoryList(String name)
 	{
 		return categories[name];
 	}
@@ -1243,9 +1214,9 @@ public class Deck implements CardList
 	 * TODO: Comment this
 	 */
 	@Override
-	public Entry getData(Card c)
+	public Entry getData(Card card)
 	{
-		return getEntry(c);
+		return getEntry(card);
 	}
 	
 	/**
@@ -1258,59 +1229,16 @@ public class Deck implements CardList
 	}
 	
 	/**
-	 * @param c Card to search for an Entry.
+	 * @param card Card to search for an Entry.
 	 * @return The Entry corresponding to the Card, or <code>null</code>
 	 * if there is none.
 	 */
-	private DeckEntry getEntry(Card c)
+	private DeckEntry getEntry(Card card)
 	{
 		for (DeckEntry e: masterList)
-			if (e.card.equals(c))
+			if (e.card.equals(card))
 				return e;
 		return null;
-	}
-	
-	/**
-	 * Include a Card in a category, even if it doesn't pass through
-	 * the category's filter.
-	 * 
-	 * @param name Name of the category to include a Card in
-	 * @param c Card to include in the category
-	 * @return <code>true</code> if the Card was successfully included,
-	 * and <code>false</code> otherwise.
-	 */
-	public boolean include(String name, Card c)
-	{
-		return contains(c) && categories[name].spec.include(c);
-	}
-	
-	/**
-	 * Add a single copy of a Card to this Deck.
-	 * 
-	 * @param c Card to add
-	 * @return <code>true</code>, since the Deck will always change as
-	 * a result.
-	 */
-	public boolean increase(Card c)
-	{
-		return add(c, 1);
-	}
-	
-	/**
-	 * Add some number of copies of a collection of Cards to this Deck.  If
-	 * the number is not positive, then no changes are made.
-	 * 
-	 * @param coll Collection of Cards to add
-	 * @param n Number of copies of each card to add
-	 * @return <code>true</code> if the Deck was changed as a result, and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean increaseAll(Collection<? extends Card> coll, int n)
-	{
-		boolean changed = false;
-		for (Card c: coll)
-			changed |= add(c, n);
-		return changed;
 	}
 	
 	/**
@@ -1318,9 +1246,9 @@ public class Deck implements CardList
 	 * @return Index of that Object in the master list.
 	 */
 	@Override
-	public int indexOf(Object o)
+	public int indexOf(Card card)
 	{
-		return o instanceof Card ? masterList.indexOf(getEntry((Card)o)) : -1;
+		return masterList.indexOf(getEntry(card));
 	}
 	
 	/**
@@ -1339,7 +1267,7 @@ public class Deck implements CardList
 	@Override
 	public Iterator<Card> iterator()
 	{
-		return stream().iterator();
+		return masterList.stream().map(DeckEntry::card).iterator();
 	}
 	
 	/**
@@ -1359,68 +1287,21 @@ public class Deck implements CardList
 	}
 	
 	/**
+	 * TODO: Comment this
+	 * @param event
+	 */
+	private void notifyListeners(Event event)
+	{
+		for (DeckListener listener: new HashSet<DeckListener>(listeners))
+			listener.deckChanged(event);
+	}
+	
+	/**
 	 * @return The number of categories in this Deck
 	 */
 	public int numCategories()
 	{
 		return categories.size();
-	}
-	
-	@Override
-	public Stream<Card> parallelStream()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/**
-	 * Remove some number of copies of the given Card from this Deck.  If that
-	 * number is less than one, no changes are made.
-	 * 
-	 * @param c Card to remove
-	 * @param n Number of copies to remove
-	 * @return The number of copies of the Card that were actually removed.
-	 */
-	@Override
-	public int remove(Card c, int n)
-	{
-		if (n < 1)
-			return 0;
-		else
-		{
-			DeckEntry e = getEntry(c);
-			if (e == null)
-				return 0;
-			else
-			{
-				if (n > e.count)
-					n = e.count;
-				e.remove(n);
-				if (e.count == 0)
-				{
-					for (Category category: categories.values())
-					{
-						category.filtrate.remove(c);
-						if (category.spec.getWhitelist().contains(c))
-							category.spec.exclude(c);
-						if (category.spec.getBlacklist().contains(c))
-							category.spec.include(c);
-					}
-					masterList.remove(e);
-				}
-				total -= n;
-				if (c.typeContains("land"))
-					land -= n;
-				
-				Map<Card, Integer> removed = new HashMap<Card, Integer>();
-				removed[c] = -n;
-				Event event = new Event().cardsChanged(removed);
-				for (DeckListener listener: listeners)
-					listener.deckChanged(event);
-				
-				return n;
-			}
-		}
 	}
 
 	/**
@@ -1429,34 +1310,28 @@ public class Deck implements CardList
 	 * removed, and <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean remove(Object o)
+	public boolean remove(Card card)
 	{
-		return o instanceof Card && remove((Card)o, Integer.MAX_VALUE) > 0;
+		return remove(card, Integer.MAX_VALUE) > 0;
 	}
 	
-	@Override
-	public boolean removeAll(Collection<? extends Card> coll, Collection<? extends Integer> n)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	/**
-	 * Remove as many of the objects in the given list from this Deck as possible.
+	 * Remove some number of copies of the given Card from this Deck.  If that
+	 * number is less than one, no changes are made.
 	 * 
-	 * @param coll Collection of objects to remove
-	 * @return <code>true</code> if any of the given objects were remove, and
-	 * <code>false</code> otherwise.
+	 * @param card Card to remove
+	 * @param amount Number of copies to remove
+	 * @return The number of copies of the Card that were actually removed.
 	 */
 	@Override
-	public boolean removeAll(Collection<?> coll)
+	public int remove(Card card, int amount)
 	{
-		boolean changed = false;
-		for (Object o: coll)
-			changed |= remove(o);
-		return changed;
+		int removed = do_remove(card, amount);
+		if (removed > 0)
+			notifyListeners(new Event().cardsChanged(Collections.singletonMap(card, removed)));
+		return removed;
 	}
-
+	
 	/**
 	 * Remove a Category from this Deck.
 	 * 
@@ -1464,7 +1339,7 @@ public class Deck implements CardList
 	 * @return <code>true</code> if the deck changed as a result, and
 	 * <code>false</code> otherwise.
 	 */
-	public boolean removeCategory(String name)
+	public boolean remove(String name)
 	{
 		Category c = categories[name];
 		if (c != null)
@@ -1483,14 +1358,47 @@ public class Deck implements CardList
 			categories.remove(name);
 			c.spec.removeCategoryListener(c.listener);
 			
-			Event event = new Event().categoryRemoved(c).ranksChanged(oldRanks);
-			for (DeckListener listener: new HashSet<DeckListener>(listeners))
-				listener.deckChanged(event);
-			
+			notifyListeners(new Event().categoryRemoved(c).ranksChanged(oldRanks));
 			return true;
 		}
 		else
 			return false;
+	}
+
+	@Override
+	public Map<Card, Integer> removeAll(CardList cards)
+	{
+		return removeAll(cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> cards.getData(c).count())));
+	}
+
+	@Override
+	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> amounts)
+	{
+		Map<Card, Integer> removed = new HashMap<Card, Integer>();
+		for (Card card: new HashSet<Card>(amounts.keySet()))
+		{
+			int r = do_remove(card, amounts[card]);
+			if (r > 0)
+				removed[card] = -r;
+		}
+		
+		if (!removed.isEmpty())
+			notifyListeners(new Event().cardsChanged(removed));
+		
+		return removed;
+	}
+
+	/**
+	 * Remove as many of the objects in the given list from this Deck as possible.
+	 * 
+	 * @param cards Collection of objects to remove
+	 * @return <code>true</code> if any of the given objects were remove, and
+	 * <code>false</code> otherwise.
+	 */
+	@Override
+	public Set<Card> removeAll(Set<? extends Card> cards)
+	{
+		return removeAll(cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))).keySet();
 	}
 
 	/**
@@ -1505,7 +1413,7 @@ public class Deck implements CardList
 	{
 		return listeners.remove(listener);
 	}
-
+	
 	/**
 	 * Write this Deck to a file.  The format will appear like this:
 	 * [Number of unique cards]
@@ -1541,32 +1449,32 @@ public class Deck implements CardList
 	 * Set the number of copies of the given Card to be the given value.  If the card
 	 * isn't in the deck, it will be added.
 	 * 
-	 * @param c Card to change
-	 * @param n Number of copies to change to
+	 * @param card Card to change
+	 * @param amount Number of copies to change to
 	 * @return <code>true</code> if the number of copies was changed or if the card was
 	 * added, and <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean set(Card c, int n)
+	public boolean set(Card card, int amount)
 	{
-		if (n < 0)
-			n = 0;
-		DeckEntry e = getEntry(c);
+		if (amount < 0)
+			amount = 0;
+		DeckEntry e = getEntry(card);
 		if (e == null)
-			return add(c, n);
-		else if (e.count == n)
+			return add(card, amount);
+		else if (e.count == amount)
 			return false;
 		else
 		{
-			total += n - e.count;
+			total += amount - e.count;
 			if (e.card.typeContains("land"))
-				land += n - e.count;
+				land += amount - e.count;
 			
 			Map<Card, Integer> change = new HashMap<Card, Integer>();
-			change[c] = n - e.count;
+			change[card] = amount - e.count;
 			Event event = new Event().cardsChanged(change);
 			
-			e.count = n;
+			e.count = amount;
 			if (e.count == 0)
 			{
 				masterList.remove(e);
@@ -1578,9 +1486,7 @@ public class Deck implements CardList
 				}
 			}
 			
-			for (DeckListener listener: listeners)
-				listener.deckChanged(event);
-			
+			notifyListeners(event);
 			return true;
 		}
 	}
@@ -1589,16 +1495,16 @@ public class Deck implements CardList
 	 * Set the number of copies of the Card at the given index to be the given value.
 	 * 
 	 * @param index Index to find the Card at
-	 * @param n Number of copies to change to
+	 * @param amount Number of copies to change to
 	 * @return <code>true</code> if the Card is in the Deck and if the number of copies
 	 * was changed, and <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean set(int index, int n)
+	public boolean set(int index, int amount)
 	{
-		return set(masterList[index].card, n);
+		return set(masterList[index].card, amount);
 	}
-	
+
 	/**
 	 * @return The number of unique Cards in this Deck.
 	 */
@@ -1606,31 +1512,6 @@ public class Deck implements CardList
 	public int size()
 	{
 		return masterList.size();
-	}
-	
-	/**
-	 * @param name Name of the desired category.
-	 * @return The number of unique Cards in the desired category.
-	 */
-	public int size(String name)
-	{
-		return categories[name].size();
-	}
-	
-	@Override
-	public Spliterator<Card> spliterator()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/**
-	 * @return A sequential Stream whose source is this Deck.
-	 */
-	@Override
-	public Stream<Card> stream()
-	{
-		return masterList.stream().map((e) -> e.card);
 	}
 
 	/**
@@ -1662,9 +1543,7 @@ public class Deck implements CardList
 					second.rank = categories[name].rank;
 					categories[name].rank = target;
 					
-					Event event = new Event().ranksChanged(oldRanks);
-					for (DeckListener listener: listeners)
-						listener.deckChanged(event);
+					notifyListeners(new Event().ranksChanged(oldRanks));
 					return true;
 				}
 			}
@@ -1673,7 +1552,7 @@ public class Deck implements CardList
 	}
 
 	/**
-	 * @return An array containin all of the Cards in this Deck.
+	 * @return An array containing all of the Cards in this Deck.
 	 */
 	@Override
 	public Card[] toArray()
@@ -1688,15 +1567,5 @@ public class Deck implements CardList
 	public int total()
 	{
 		return total;
-	}
-
-	/**
-	 * @param name Name of the desired category.
-	 * @return The total number of cards, including copies, in the
-	 * category.
-	 */
-	public int total(String name)
-	{
-		return containsCategory(name) ? categories[name].total() : 0;
 	}
 }

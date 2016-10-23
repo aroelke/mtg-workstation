@@ -7,6 +7,7 @@ import javax.swing.table.AbstractTableModel;
 import editor.collection.CardList;
 import editor.database.characteristics.CardData;
 import editor.gui.editor.EditorFrame;
+import editor.gui.editor.IncludeExcludePanel;
 
 /**
  * This class represents the model for displaying the contents of a decklist.  A decklist
@@ -132,7 +133,7 @@ public class CardTableModel extends AbstractTableModel
 	@Override
 	public Class<?> getColumnClass(int column)
 	{
-		return characteristics[column].columnClass;
+		return characteristics[column].dataType;
 	}
 	
 	/**
@@ -159,7 +160,26 @@ public class CardTableModel extends AbstractTableModel
 	{
 		if (isCellEditable(row, column))
 		{
-			characteristics[column].edit(editor, list[row], value);
+			switch (characteristics[column])
+			{
+			case COUNT:
+				if (value instanceof Integer)
+					editor.setCardCount(list[row], (Integer)value);
+				else
+					throw new IllegalArgumentException("Illegal count value " + value);
+				break;
+			case CATEGORIES:
+				if (value instanceof IncludeExcludePanel)
+				{
+					IncludeExcludePanel iePanel = (IncludeExcludePanel)value;
+					editor.editInclusion(iePanel.getIncluded(), iePanel.getExcluded());
+				}
+				else
+					throw new IllegalArgumentException("Illegal inclusion value " + value);
+				break;
+			default:
+				throw new IllegalArgumentException("Cannot edit data type " + characteristics[column]);
+			}
 			fireTableDataChanged();
 		}
 	}

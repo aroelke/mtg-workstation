@@ -3,17 +3,8 @@ package editor.database.characteristics;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
-import javax.swing.table.TableCellEditor;
-
-import editor.database.card.Card;
 import editor.database.card.CardLayout;
-import editor.gui.editor.EditorFrame;
-import editor.gui.editor.IncludeExcludePanel;
-import editor.gui.editor.InclusionCellEditor;
-import editor.gui.generic.SpinnerCellEditor;
 
 /**
  * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
@@ -23,7 +14,6 @@ import editor.gui.generic.SpinnerCellEditor;
  */
 public enum CardData
 {
-	// TODO: Function<Card, ?> rather than BiFunction<CardList, Integer, ?> or move it into Card
 	NAME("Name", String.class),
 	LAYOUT("Layout", CardLayout.class),
 	MANA_COST("Mana Cost", ManaCost.Tuple.class),
@@ -39,21 +29,8 @@ public enum CardData
 	ARTIST("Artist", String.class),
 	LEGAL_IN("Legal In", List.class),
 	
-	COUNT("Count", Integer.class, (e) -> (c, n) -> {
-		if (n instanceof Integer)
-			e.setCardCount(c, ((Integer)n).intValue());
-		else
-			throw new IllegalArgumentException("Illegal count value " + n);
-	}),
-	CATEGORIES("Categories", Set.class, (e) -> (c, p) -> {
-		if (p instanceof IncludeExcludePanel)
-		{
-			IncludeExcludePanel iePanel = (IncludeExcludePanel)p;
-			e.editInclusion(iePanel.getIncluded(), iePanel.getExcluded());
-		}
-		else
-			throw new IllegalArgumentException("Illegal inclusion value " + p);
-	}),
+	COUNT("Count", Integer.class),
+	CATEGORIES("Categories", Set.class),
 	DATE_ADDED("Date Added", Date.class);
 	
 	/**
@@ -99,12 +76,7 @@ public enum CardData
 	/**
 	 * Class of the data that will appear in table columns containing data of this characteristic.
 	 */
-	public final Class<?> columnClass;
-	/**
-	 * Function for editing the value corresponding to the characteristic.  It should be null for constant
-	 * characteristics.
-	 */
-	private final Function<EditorFrame, BiConsumer<Card, Object>> editFunc;
+	public final Class<?> dataType;
 	
 	/**
 	 * Create a CardCharacteristic with the specified name, column class, value function, and category function.
@@ -114,42 +86,10 @@ public enum CardData
 	 * @param ef Function to edit deck values from the cell
 	 * @param e Editor that should be used to perform the editing
 	 */
-	private CardData(String n, Class<?> c, Function<EditorFrame, BiConsumer<Card, Object>> ef)
-	{
-		name = n;
-		columnClass = c;
-		editFunc = ef;
-	}
-	
-	/**
-	 * Create a CardCharacteristic with the specified name, column class, value function, and category function.
-	 * 
-	 * @param n Name of the new CardCharacteristic
-	 * @param c Table column class of the new CardCharacteristic
-	 */
 	private CardData(String n, Class<?> c)
 	{
-		this(n, c, null);
-	}
-	
-	/**
-	 * Create an instance of the editor for cells containing this CardCharacteristic.
-	 * 
-	 * @param frame Frame containing the table with the cell to edit
-	 * @return An instance of the editor for this CardCharacteristic, or null if it can't be
-	 * edited.
-	 */
-	public TableCellEditor createCellEditor(EditorFrame frame)
-	{
-		switch (this)
-		{
-		case COUNT:
-			return new SpinnerCellEditor();
-		case CATEGORIES:
-			return new InclusionCellEditor(frame);
-		default:
-			return null;
-		}
+		name = n;
+		dataType = c;
 	}
 	
 	/**
@@ -158,19 +98,7 @@ public enum CardData
 	 */
 	public boolean isEditable()
 	{
-		return editFunc != null;
-	}
-	
-	/**
-	 * Edit the value of a CardCharacteristic in a table of the given EditorFrame.
-	 * 
-	 * @param frame EditorFrame containing the table cell to edit
-	 * @param c Card to edit the value of
-	 * @param value New value for the CardCharacteristic
-	 */
-	public void edit(EditorFrame frame, Card c, Object value)
-	{
-		editFunc.apply(frame).accept(c, value);
+		return this == COUNT || this == CATEGORIES;
 	}
 	
 	/**

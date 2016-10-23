@@ -25,6 +25,7 @@ import javax.swing.JTable;
 import javax.swing.SortOrder;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -32,12 +33,16 @@ import javax.swing.table.TableRowSorter;
 import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
+import editor.database.characteristics.CardData;
 import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.PowerToughness;
 import editor.database.symbol.ColorSymbol;
 import editor.database.symbol.Symbol;
+import editor.gui.editor.EditorFrame;
+import editor.gui.editor.InclusionCellEditor;
+import editor.gui.generic.SpinnerCellEditor;
 
 /**
  * This class represents a table whose alternating occupied rows will be different
@@ -48,6 +53,26 @@ import editor.database.symbol.Symbol;
 @SuppressWarnings("serial")
 public class CardTable extends JTable
 {
+	/**
+	 * Create an instance of the editor for cells containing this CardCharacteristic.
+	 * TODO: Correct this comment
+	 * @param frame Frame containing the table with the cell to edit
+	 * @return An instance of the editor for this CardCharacteristic, or null if it can't be
+	 * edited.
+	 */
+	public static TableCellEditor createCellEditor(EditorFrame frame, CardData type)
+	{
+		switch (type)
+		{
+		case COUNT:
+			return new SpinnerCellEditor();
+		case CATEGORIES:
+			return new InclusionCellEditor(frame);
+		default:
+			return null;
+		}
+	}
+	
 	/**
 	 * This class represents a renderer of ManaCosts in a table.
 	 *

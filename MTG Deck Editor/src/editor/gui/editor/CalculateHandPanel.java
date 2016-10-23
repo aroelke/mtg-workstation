@@ -340,9 +340,9 @@ public class CalculateHandPanel extends JPanel
 		for (String category: categories)
 		{
 			JComboBox<Integer> desiredBox = new JComboBox<Integer>();
-			for (int i = 0; i <= deck.total(category); i++)
+			for (int i = 0; i <= deck.getCategoryList(category).total(); i++)
 				desiredBox.addItem(i);
-			if (oldDesired.containsKey(category) && oldDesired[category].intValue() < deck.total(category))
+			if (oldDesired.containsKey(category) && oldDesired[category].intValue() < deck.getCategoryList(category).total())
 				desiredBox.setSelectedIndex(oldDesired[category]);
 			desiredBox.addActionListener((e) -> recalculate());
 			desiredBoxes[category] = desiredBox;
@@ -382,20 +382,20 @@ public class CalculateHandPanel extends JPanel
 				{
 				case AT_LEAST:
 					for (int k = 0; k < desiredBoxes[category].getSelectedIndex(); k++)
-						p += hypergeom(k, hand + j, deck.total(category), deck.total());
+						p += hypergeom(k, hand + j, deck.getCategoryList(category).total(), deck.total());
 					p = 1.0 - p;
 					break;
 				case EXACTLY:
-					p = hypergeom(desiredBoxes[category].getSelectedIndex(), hand + j, deck.total(category), deck.total());
+					p = hypergeom(desiredBoxes[category].getSelectedIndex(), hand + j, deck.getCategoryList(category).total(), deck.total());
 					break;
 				case AT_MOST:
 					for (int k = 0; k <= desiredBoxes[category].getSelectedIndex(); k++)
-						p += hypergeom(k, hand + j, deck.total(category), deck.total());
+						p += hypergeom(k, hand + j, deck.getCategoryList(category).total(), deck.total());
 					break;
 				}
 				probabilities[category][j] = p;
 				// TODO: This might be wrong
-				expectedCounts[category][j] = (double)deck.total(category)/deck.total()*(hand + j);
+				expectedCounts[category][j] = (double)deck.getCategoryList(category).total()/deck.total()*(hand + j);
 			}
 		}
 		model.fireTableDataChanged();
@@ -560,7 +560,7 @@ public class CalculateHandPanel extends JPanel
 				case CATEGORY:
 					return category;
 				case COUNT:
-					return deck.total(category);
+					return deck.getCategoryList(category).total();
 				case DESIRED:
 					return desiredBoxes[category].getSelectedItem();
 				case RELATION:
