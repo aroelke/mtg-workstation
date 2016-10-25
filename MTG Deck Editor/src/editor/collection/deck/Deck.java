@@ -520,7 +520,7 @@ public class Deck implements CardList
 			
 			int old = count;
 			count -= Math.min(count, amount);
-			return count - old;
+			return old - count;
 		}
 	}
 	
