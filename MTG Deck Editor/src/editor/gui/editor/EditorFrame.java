@@ -1742,11 +1742,19 @@ public class EditorFrame extends JInternalFrame
 			deck.save(f);
 			String changes = "";
 			for (Card c: originalDeck)
-				if (deck.getData(c).count() < originalDeck.getData(c).count())
-					changes += ("-" + (originalDeck.getData(c).count() - deck.getData(c).count()) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+			{
+				int had = originalDeck.contains(c) ? originalDeck.getData(c).count() : 0;
+				int has = deck.contains(c) ? deck.getData(c).count() : 0;
+				if (has < had)
+					changes += ("-" + (had - has) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+			}
 			for (Card c: deck)
-				if (originalDeck.getData(c).count() < deck.getData(c).count())
-					changes += ("+" + (deck.getData(c).count() - originalDeck.getData(c).count()) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+			{
+				int had = originalDeck.contains(c) ? originalDeck.getData(c).count() : 0;
+				int has = deck.contains(c) ? deck.getData(c).count() : 0;
+				if (had < has)
+					changes += ("+" + (has - had) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+			}
 			if (!changes.isEmpty())
 			{
 				SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
