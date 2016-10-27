@@ -60,6 +60,7 @@ import editor.gui.display.CategoryList;
 import editor.gui.editor.CalculateHandPanel;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.gui.generic.ScrollablePanel;
+import editor.util.UnicodeTable;
 
 /**
  * This class is a dialog that allows the user to change various properties about
@@ -429,7 +430,7 @@ public class SettingsDialog extends JDialog
 	/**
 	 * Delimiter for preset categories in the settings file.
 	 */
-	public static final String CATEGORY_DELIMITER = "\u220E";
+	public static final String CATEGORY_DELIMITER = UnicodeTable.END_OF_PROOF;
 	/**
 	 * Text field containing the directory to look for card scans in.
 	 */
@@ -543,7 +544,7 @@ public class SettingsDialog extends JDialog
 		inventoryChooser.setCurrentDirectory(new File(inventoryDirField.getText()).getAbsoluteFile());
 		inventoryDirPanel.add(inventoryDirField);
 		inventoryDirPanel.add(Box.createHorizontalStrut(5));
-		JButton inventoryDirButton = new JButton("\u2026");
+		JButton inventoryDirButton = new JButton(String.valueOf(UnicodeTable.ELLIPSIS));
 		inventoryDirButton.addActionListener((e) -> {
 			if (inventoryChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
 			{
@@ -570,7 +571,7 @@ public class SettingsDialog extends JDialog
 		scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
 		scansDirPanel.add(scansDirField);
 		scansDirPanel.add(Box.createHorizontalStrut(5));
-		JButton scansDirButton = new JButton("\u2026");
+		JButton scansDirButton = new JButton(String.valueOf(UnicodeTable.ELLIPSIS));
 		scansDirButton.addActionListener((e) -> {
 			if (scansChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION)
 			{
@@ -717,7 +718,7 @@ public class SettingsDialog extends JDialog
 		addConstraints.fill = GridBagConstraints.BOTH;
 		categoryModPanel.add(addButton, addConstraints);
 
-		JButton editButton = new JButton("\u2026");
+		JButton editButton = new JButton(String.valueOf(UnicodeTable.ELLIPSIS));
 		editButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 			{
@@ -732,7 +733,7 @@ public class SettingsDialog extends JDialog
 		editConstraints.fill = GridBagConstraints.BOTH;
 		categoryModPanel.add(editButton, editConstraints);
 
-		JButton removeButton = new JButton("\u2212");
+		JButton removeButton = new JButton(String.valueOf(UnicodeTable.MINUS));
 		removeButton.addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 				categoriesList.removeCategoryAt(categoriesList.getSelectedIndex());

@@ -32,6 +32,7 @@ import editor.gui.SettingsDialog;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
 import editor.gui.generic.ColorButton;
+import editor.util.UnicodeTable;
 
 /**
  * This class represents a panel that shows information about a category in a deck.
@@ -132,9 +133,9 @@ public class CategoryPanel extends JPanel
 		buttonPanel.add(rankBox);
 		colorButton = new ColorButton(deck.getCategorySpec(name).getColor());
 		buttonPanel.add(colorButton);
-		editButton = new JButton("\u2026");
+		editButton = new JButton(String.valueOf(UnicodeTable.ELLIPSIS));
 		buttonPanel.add(editButton);
-		removeButton = new JButton("\u2212");
+		removeButton = new JButton(String.valueOf(UnicodeTable.MINUS));
 		buttonPanel.add(removeButton);
 		topPanel.add(buttonPanel, BorderLayout.EAST);
 

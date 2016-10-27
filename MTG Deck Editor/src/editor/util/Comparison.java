@@ -10,9 +10,9 @@ package editor.util;
 public enum Comparison
 {
 	EQ('='),
-	NE('\u2260'),
-	GE('\u2265'),
-	LE('\u2264'),
+	NE(UnicodeTable.NOT_EQUAL),
+	GE(UnicodeTable.GREATER_OR_EQUAL),
+	LE(UnicodeTable.LESS_OR_EQUAL),
 	GT('>'),
 	LT('<');
 	
@@ -43,11 +43,11 @@ public enum Comparison
 		{
 		case '=':
 			return EQ;
-		case '\u2260':
+		case UnicodeTable.NOT_EQUAL:
 			return NE;
-		case '\u2265':
+		case UnicodeTable.GREATER_OR_EQUAL:
 			return GE;
-		case '\u2264':
+		case UnicodeTable.LESS_OR_EQUAL:
 			return LE;
 		case '>':
 			return GT;
@@ -72,11 +72,11 @@ public enum Comparison
 		{
 		case '=':
 			return a.equals(b);
-		case '\u2260':
+		case UnicodeTable.NOT_EQUAL:
 			return !a.equals(b);
-		case '\u2265':
+		case UnicodeTable.GREATER_OR_EQUAL:
 			return a >= b;
-		case '\u2264':
+		case UnicodeTable.LESS_OR_EQUAL:
 			return a <= b;
 		case '>':
 			return a > b;

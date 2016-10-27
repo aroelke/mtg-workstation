@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.filter.leaf.FilterLeaf;
+import editor.util.UnicodeTable;
 
 /**
  * This class represents a group of filter panels that corresponds to a
@@ -69,7 +70,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			firePanelsChanged();
 		});
 		editPanel.add(addButton);
-		JButton removeButton = new JButton("\u2212");
+		JButton removeButton = new JButton(String.valueOf(UnicodeTable.MINUS));
 		removeButton.addActionListener((e) -> {
 			if (group == null)
 			{
@@ -84,7 +85,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			}
 		});
 		editPanel.add(removeButton);
-		JButton groupButton = new JButton("\u2026");
+		JButton groupButton = new JButton(String.valueOf(UnicodeTable.ELLIPSIS));
 		groupButton.addActionListener((e) -> {
 			if (group == null)
 			{

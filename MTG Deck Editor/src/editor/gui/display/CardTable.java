@@ -43,6 +43,7 @@ import editor.database.symbol.Symbol;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.InclusionCellEditor;
 import editor.gui.generic.SpinnerCellEditor;
+import editor.util.UnicodeTable;
 
 /**
  * This class represents a table whose alternating occupied rows will be different
@@ -263,7 +264,7 @@ public class CardTable extends JTable
 					StringBuilder tooltip = new StringBuilder();
 					tooltip.append("<html>Categories:<br>");
 					for (CategorySpec category: categories)
-						tooltip.append("\u2022 ").append(category.getName()).append("<br>");
+						tooltip.append(String.valueOf(UnicodeTable.BULLET) + " ").append(category.getName()).append("<br>");
 					tooltip.append("</html>");
 					panel.setToolTipText(tooltip.toString());
 				}

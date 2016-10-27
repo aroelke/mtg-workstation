@@ -30,6 +30,7 @@ import editor.gui.generic.ScrollablePanel;
 import editor.util.Containment;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
+import editor.util.UnicodeTable;
 
 /**
  * This class represents a panel that corresponds to a filter that groups
@@ -154,7 +155,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 			addItem(options[0]);
 			optionsPanel.revalidate();
 		}));
-		JLabel removeButton = new JLabel("\u00D7", JLabel.CENTER);
+		JLabel removeButton = new JLabel(String.valueOf(UnicodeTable.MULTIPLY), JLabel.CENTER);
 		removeButton.setForeground(Color.RED);
 		removeButton.setAlignmentX(CENTER_ALIGNMENT);
 		removeButton.setFont(buttonFont);

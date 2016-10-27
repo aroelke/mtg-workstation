@@ -105,6 +105,7 @@ import editor.gui.generic.TableMouseAdapter;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
 import editor.util.MouseListenerFactory;
+import editor.util.UnicodeTable;
 
 /**
  * This class represents the main frame of the editor.  It contains several tabs that display information
@@ -1434,7 +1435,7 @@ public class MainFrame extends JFrame
 					{
 						for (String ruling: selectedCard.rulings()[date])
 						{
-							rulingsDocument.insertString(rulingsDocument.getLength(), "\u2022 ", rulingStyle);
+							rulingsDocument.insertString(rulingsDocument.getLength(), String.valueOf(UnicodeTable.BULLET) + " ", rulingStyle);
 							rulingsDocument.insertString(rulingsDocument.getLength(), format.format(date), dateStyle);
 							rulingsDocument.insertString(rulingsDocument.getLength(), ": ", rulingStyle);
 							int start = 0;
@@ -1475,30 +1476,6 @@ public class MainFrame extends JFrame
 					e.printStackTrace();
 				}
 			}
-/*
-			if (selectedCard.rulings().isEmpty())
-				rulingsPane.setText("");
-			else
-			{
-				StringJoiner rulings = new StringJoiner("<br>\u2022 ", "\u2022 ", "");
-				for (Date date: selectedCard.rulings().keySet())
-					for (String text: selectedCard.rulings().get(date))
-						rulings.add("<b>" + format.format(date) + "</b>: " + text);
-				String rulingsString = rulings.toString();
-				Matcher symbols = Symbol.SYMBOL_PATTERN.matcher(rulingsString);
-				while (symbols.find())
-				{
-					try
-					{
-						rulingsString = Symbol.valueOf(symbols.group(1)).substitute(rulingsString);
-					}
-					catch (Exception e)
-					{}
-				}
-				rulingsString = StaticSymbol.CHAOS.substitute(rulingsString);
-				rulingsPane.setText(rulingsString);
-			}
-*/
 			rulingsPane.setCaretPosition(0);
 			imagePanel.setCard(selectedCard);
 		}
