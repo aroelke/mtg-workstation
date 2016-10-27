@@ -10,7 +10,7 @@ import editor.util.Containment;
 
 /**
  * This class represents a filter to group Cards by mana costs.
- * 
+ * TODO: Some of the containment options don't work properly.
  * @author Alec Roelke
  */
 public class ManaCostFilter extends FilterLeaf<ManaCost>
