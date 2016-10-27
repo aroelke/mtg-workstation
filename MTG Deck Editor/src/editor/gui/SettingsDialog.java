@@ -460,7 +460,7 @@ public class SettingsDialog extends JDialog
 	 */
 	private JSpinner explicitsSpinner;
 	/**
-	 * TODO: Comment this
+	 * Button indicating the rounding mode for the expected counts tab in the editor.
 	 */
 	private List<JRadioButton> modeButtons;
 

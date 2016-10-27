@@ -16,8 +16,9 @@ import editor.database.card.Card;
 /**
  * This class represents a hand of Cards.  It is a subset of a Deck
  * that is randomized and with multiple copies represented by separate
- * entries. 
- * TODO: Correct comments
+ * entries. It also breaks the contract with CardList in that multiple
+ * copies of a Card are treated as unique entries.
+ * 
  * @author Alec Roelke
  */
 public class Hand implements CardList
@@ -58,7 +59,7 @@ public class Hand implements CardList
 	 * @param deck Deck to draw Cards from
 	 * @param cards Cards to never include in the sample hand
 	 */
-	public Hand(Deck deck, Collection<Card> cards)
+	public Hand(Deck deck, Set<Card> cards)
 	{
 		super();
 		hand = new ArrayList<Card>();
@@ -119,8 +120,8 @@ public class Hand implements CardList
 	}
 	
 	/**
-	 * @param o Object to look for
-	 * @return <code>true</code> if the given Object is in the drawn cards
+	 * @param card Card to look for
+	 * @return <code>true</code> if the given Card is in the drawn cards
 	 * of this Hand, and <code>false</code> otherwise.
 	 */
 	@Override
@@ -130,7 +131,7 @@ public class Hand implements CardList
 	}
 	
 	/**
-	 * @param cards Collection of Objects to look for
+	 * @param cards Collection of Cards to look for
 	 * @return <code>true</code> if the given Objects are all in the drawn
 	 * cards of this Hand, and <code>false</code> otherwise.
 	 */
@@ -176,15 +177,24 @@ public class Hand implements CardList
 	@Override
 	public Card get(int index)
 	{
+		if (index >= inHand)
+			throw new IndexOutOfBoundsException();
 		return hand[index];
 	}
 
+	/**
+	 * @return The Deck's metadata for the given Card, or null if it isn't in the Deck.
+	 */
 	@Override
 	public Entry getData(Card card)
 	{
 		return deck.getData(card);
 	}
 
+	/**
+	 * @return The Deck's metadata for the Card at the given index into this Hand.
+	 * @throws IndexOutOfBoundsException if the index is negative or is too big.
+	 */
 	@Override
 	public Entry getData(int index)
 	{

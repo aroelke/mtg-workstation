@@ -14,27 +14,54 @@ import editor.database.card.Card;
 import editor.database.characteristics.CardData;
 
 /**
- * This class represents a collection of Cards.  The collection can choose whether or
- * not each card can be represented by multiple entries (add/remove) or through some
- * other means (increase/decrease).
- * TODO: Correct comments
- * TODO: Clarify why this doesn't extend Collection<Card> (it has to do with contracts and remove)
+ * This class represents a collection of Cards.  Each Card should be represented by a single
+ * Entry that keeps track of information such as how many copies are in the CardList.
+ * 
+ * This does not implement Collection<Card>, List<Card>, or Set<Card> because its behavior for
+ * add and remove are slightly different than any of them.  For example, if a card is added twice,
+ * it should only take up one place in the list (like Set), but when if it is removed once, it should
+ * still be part of the CardList (like List).  It doesn't implement Collection<Card> because Collection
+ * is bound by legacy definitions like remove taking an Object and not being generic.
+ * 
  * @author Alec Roelke
  */
 public interface CardList extends Iterable<Card>
 {
 	/**
-	 * TODO: Comment this
-	 * TODO: Make this able to return every characteristic of a card
-	 * @author Alec
-	 *
+	 * This class represents an entry in a CardList whose actual implementation is dependend on the parent
+	 * list.  It contains metadata about a Card such as count and date added.
+	 * 
+	 * @author Alec Roelke
 	 */
 	public interface Entry
 	{
+		/**
+		 * @return The Card this Entry has data for.
+		 */
 		public Card card();
+		
+		/**
+		 * @return The CategorySpecs in the parent CardList this Entry's Card matches (optional
+		 * operation).
+		 */
 		public Set<CategorySpec> categories();
+		
+		/**
+		 * @return The number of copies in the parent CardList of this Entry's Card (optional operation).
+		 */
 		public int count();
+		
+		/**
+		 * @return The date this Entry's Card was added to the parent CardList (optional operation).
+		 */
 		public Date dateAdded();
+		
+		/**
+		 * Get some information about this Entry's Card.
+		 * 
+		 * @param data Type of information to get
+		 * @return The value of the given information about this Entry's Card.
+		 */
 		public default Object get(CardData data)
 		{
 			switch (data)
@@ -86,70 +113,68 @@ public interface CardList extends Iterable<Card>
 	DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Map.class.getName() + "\"", "Deck Entries");
 	
 	/**
-	 * Add a new Card to this CardCollection (optional operation).  This should
-	 * return <code>true</code> if a new entry in the list is created, and
-	 * <code>false</code> otherwise.  If a Card can only have one entry, but multiple
-	 * copies are allowed, <code>false</code> should still be returned on an attempt
-	 * to add another copy of a Card, and its count should not increase.
+	 * Add one copy of a Card to this CardList (optional operation).
 	 * 
 	 * @param card Card to add
-	 * @return <code>true</code> if the Card was added, and <code>false</code>
-	 * otherwise.
+	 * @return <code>true</code> if a copy of the Card was added, and <code>false</code> otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
 	public boolean add(Card card);
 	
 	/**
-	 * TODO: Comment this
-	 * @param card
-	 * @param amount
-	 * @return
+	 * Add some number of copies of a Card to this CardList (optional operation).
+	 * 
+	 * @param card Card to add copies of
+	 * @param amount Number of copies to add
+	 * @return <code>true</code> if any copies were added, and <code>false</code> otherwise.
+	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
 	public boolean add(Card card, int amount);
 
 	/**
-	 * TODO: Comment this
-	 * @param cards
-	 * @return
+	 * Add all Cards in the given CardList to this CardList.
+	 * 
+	 * @param cards CardList of Cards to add
+	 * @return <code>true</code> if any of the Cards were added, and <code>false</code> otherwise.
+	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
 	public boolean addAll(CardList cards);
 	
 	/**
-	 * TODO: Comment this
-	 * @param amounts
-	 * @param amounts
-	 * @return
+	 * Add some numbers of copies of each of the given Cards to this CardList (optional operation).
+	 * 
+	 * @param amounts Map of Cards onto amounts of them to add to this CardList
+	 * @return <code>true</code> if any Cards were added, and <code>false</code> otherwise.
+	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
 	public boolean addAll(Map<? extends Card, ? extends Integer> amounts);
 
 	/**
-	 * Add several new Cards to this CardCollection (optional operation).
+	 * Add one copy of each of the given set of Cards to this CardList (optional operation).
 	 * 
-	 * @param cards Cards to add
-	 * @return <code>true</code> if any of the Cards were successfully added to this
-	 * CardCollection, and <code>false</code> otherwise.
+	 * @param cards Set of Cards to add
+	 * @return <code>true</code> if any of the Cards were added, and <code>false</code> otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
-	 * @see CardList#add(Card)
 	 */
 	public boolean addAll(Set<? extends Card> cards);
 
 	/**
-	 * Remove all entries from this CardCollection (optional operation).
+	 * Remove all Cards from this CardList (optional operation).
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
 	public void clear();
 
 	/**
-	 * @param o Object to look for
-	 * @return <code>true</code> if this CardCollection contains the specified object,
+	 * @param card Card to look for
+	 * @return <code>true</code> if this CardList contains the specified Card,
 	 * and <code>false</code> otherwise.
 	 */
 	public boolean contains(Card card);
 
 	/**
-	 * @param cards Collection of objects to look for
+	 * @param cards Collection of Cards to look for
 	 * @return <code>true</code> if this CardCollection contains all of the specified
-	 * objects, and <code>false</code> otherwise.
+	 * Cards, and <code>false</code> otherwise.
 	 */
 	public boolean containsAll(Collection<? extends Card> cards);
 
@@ -161,41 +186,43 @@ public interface CardList extends Iterable<Card>
 	public Card get(int index);
 
 	/**
-	 * TODO: Comment this
-	 * @param card
-	 * @return
+	 * Get the metadata of the given Card
+	 * 
+	 * @param card Card to look up
+	 * @return The Entry corresponding to the given Card, or null if no such Card exists in
+	 * this CardList.
 	 */
 	public Entry getData(Card card);
 	
 	/**
-	 * TODO: Comment this
-	 * @param index
-	 * @return
+	 * Get the metadata of the Card at a specific position in this CardList
+	 * 
+	 * @param index Index to look up
+	 * @return The Entry corresponding to the Card at the given index
+	 * @throws IndexOutOfBoundsException if the index is less than 0 or is too big
 	 */
 	public Entry getData(int index);
 
 	/**
-	 * @param o Object to look for
-	 * @return The index of the first occurrence of the given object in this
-	 * CardCollection, or -1 if there is none of them.
+	 * @param card Card to look for
+	 * @return The index of the given Card in this CardList, or -1 if there is none of them.
 	 */
 	public int indexOf(Card card);
 	
 	/**
-	 * @return <code>true</code> if this CardCollection contains no Cards, and
+	 * @return <code>true</code> if this CardList contains no Cards, and
 	 * <code>false</code> otherwise.
 	 */
 	public boolean isEmpty();
 
 	/**
-	 * @return An iterator over the Cards in this CardCollection.
+	 * @return An iterator over the Cards in this CardList.
 	 */
 	@Override
 	public Iterator<Card> iterator();
 
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return A parallel Stream of the Cards in this CardList.
 	 */
 	public default Stream<Card> parallelStream()
 	{
@@ -203,61 +230,58 @@ public interface CardList extends Iterable<Card>
 	}
 
 	/**
-	 * Remove an object from this CardCollection (optional operation).  If multiple
-	 * copies of a Card are represented by a single entry, then an implementation of
-	 * this should remove the entire entry.
+	 * Remove a copy of a Card from this CardList (optional operation).
 	 * 
-	 * @param o Object to remove
-	 * @return <code>true</code> if the object was remove, and <code>false</code>
+	 * @param card Card to remove
+	 * @return <code>true</code> if the Card was removed, and <code>false</code>
 	 * otherwise.
 	 * @throws UnsuportedOperationException if this operation is not supported
 	 */
 	public boolean remove(Card card);
 
 	/**
-	 * TODO: Comment this
-	 * @param card
-	 * @param amount
-	 * @return
+	 * Remove some number of copies of a Card from this CardList (optional operation).
+	 * 
+	 * @param card Card to remove
+	 * @param amount Number of copies to remove
+	 * @return The actual number of copies that were removed.
 	 */
 	public int remove(Card card, int amount);
 	
 	/**
-	 * TODO: Comment this
-	 * @param cards
-	 * @return
+	 * For each Card in the given CardList, remove the number of copies of that Card in
+	 * that CardList from this CardList (optional operation).
+	 * 
+	 * @param cards CardList of Cards to remove
+	 * @return A Map<Card, Integer> containing the Cards that had copies removed and
+	 * the number of copies of each one that were removed.
 	 */
 	public Map<Card, Integer> removeAll(CardList cards);
 	
 	/**
-	 * TODO: Comment this
-	 * @param cards
-	 * @param amounts
-	 * @return
+	 * Remove some numbers of copies of the given Cards from this CardList.
+	 * 
+	 * @param amounts Cards to remove and the number of copies of each one to remove
+	 * @return A Map<Card, Integer> containing the Cards that had copies removed and
+	 * the number of copies of each one that were removed.
 	 */
 	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> cards);
 	
 	/**
-	 * Remove all of the given objects from this CardCollection (optional
-	 * operation).
+	 * Remove one copy of each of the given Cards from this CardList.
 	 * 
-	 * @param cards Collection containing objects to remove
-	 * @return <code>true</code> if any of the objects were removed, and
-	 * <code>false</code> otherwise
-	 * @throws UnsupportedOperationException if this operation is not supported
-	 * @see CardList#remove(Object)
+	 * @param cards Cards to remove
+	 * @return The set of Cards that had a copy removed.
 	 */
 	public Set<Card> removeAll(Set<? extends Card> cards);
 	
 	/**
 	 * Set the number of copies of a Card to the specified number (optional
-	 * operation).  If the number is 0, then there should be no entries representing
-	 * the Card left.  If there are no entries representing the Card and the number
-	 * is greater than 0, then entries should be created.
+	 * operation).  If the number is 0, then the Card is removed entirely.
 	 * 
 	 * @param card Card to set the count of
 	 * @param amount Number of copies to set
-	 * @return <code>true</code> if this CardCollection changed as a result, and
+	 * @return <code>true</code> if this CardList changed as a result, and
 	 * <code>false</code> otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
@@ -269,7 +293,7 @@ public interface CardList extends Iterable<Card>
 	 * 
 	 * @param index Index of the Card to set the number of
 	 * @param amount Number of copies of the Card to set
-	 * @return <code>true</code> if this CardCollection changed as a result, and
+	 * @return <code>true</code> if this CardList changed as a result, and
 	 * <code>false</code> otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 * @throws IndexOutOfBoundsException if the index is less than 0 or is too big
@@ -278,16 +302,13 @@ public interface CardList extends Iterable<Card>
 	public boolean set(int index, int amount);
 	
 	/**
-	 * @return The number of entries in this CardCollection.  If multiple copies
-	 * of a Card are to be represented by a single entry, then all copies of that
-	 * Card count only once for this method.
+	 * @return The number of unique Cards in this CardList.
 	 * @see CardList#total()
 	 */
 	public int size();
 	
 	/**
-	 * TODO: Comment this
-	 * @return
+	 * @return A Stream of the Cards in this CardList that is not necessarily parallel.
 	 */
 	public default Stream<Card> stream()
 	{
@@ -295,16 +316,13 @@ public interface CardList extends Iterable<Card>
 	}
 	
 	/**
-	 * @return An array containing all of the Cards in this CardCollection.  If
-	 * multiple copies of a Card are represented by a single entry, then each entry
-	 * should only appear once.
+	 * @return An array containing all of the Cards in this CardList.
 	 */
 	public Card[] toArray();
 	
 	/**
-	 * @return The total number of Cards in this CardCollection.  If multiple copies of a
-	 * Card are represented as a single entry, this counts each copy separately.  If they
-	 * are not, this should return the same value as {@link CardList#size()}.
+	 * @return The total number of Cards in this CardList, accounting for multiple
+	 * copies of Cards.
 	 * @see CardList#size()
 	 */
 	public int total();

@@ -54,11 +54,12 @@ import editor.gui.generic.SpinnerCellEditor;
 public class CardTable extends JTable
 {
 	/**
-	 * Create an instance of the editor for cells containing this CardCharacteristic.
-	 * TODO: Correct this comment
+	 * Create an instance of the editor for cells containing the given type of CardData.
+	 * 
 	 * @param frame Frame containing the table with the cell to edit
-	 * @return An instance of the editor for this CardCharacteristic, or null if it can't be
-	 * edited.
+	 * @param type Type of data to edit
+	 * @return An instance of the editor for the given CardData
+	 * @throws IllegalArgumentException if the given type of CardData can't be edited
 	 */
 	public static TableCellEditor createCellEditor(EditorFrame frame, CardData type)
 	{
@@ -69,7 +70,7 @@ public class CardTable extends JTable
 		case CATEGORIES:
 			return new InclusionCellEditor(frame);
 		default:
-			return null;
+			throw new IllegalArgumentException("CardData type " + type + " can't be edited.");
 		}
 	}
 	

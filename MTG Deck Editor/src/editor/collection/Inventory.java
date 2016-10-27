@@ -23,27 +23,37 @@ import editor.filter.leaf.BinaryFilter;
 
 /**
  * This class represents an inventory of cards that can be added to decks.
- * TODO: Correct comments
  * 
  * @author Alec Roelke
- * @see util.CategorizableList
  */
 public class Inventory implements CardList
 {
 	/**
-	 * TODO: Comment this class
-	 * @author Alec
-	 *
+	 * This class represents a Card's entry in the Inventory.  It can only tell a Card's
+	 * date "added," which is the date its expansion was released.
+	 * 
+	 * @author Alec Roelke
 	 */
 	private class InventoryEntry implements Entry
 	{
+		/**
+		 * Card for this InventoryEntry.
+		 */
 		private final Card card;
 		
+		/**
+		 * Create a new InventoryEntry.
+		 * 
+		 * @param card Card corresponding to the new entry
+		 */
 		private InventoryEntry(Card card)
 		{
 			this.card = card;
 		}
 		
+		/**
+		 * @return This InventoryEntry's Card.
+		 */
 		@Override
 		public Card card()
 		{
@@ -62,6 +72,9 @@ public class Inventory implements CardList
 			throw new UnsupportedOperationException("Inventory does not count card copies.");
 		}
 
+		/**
+		 * @return The date this InventoryEntry's Card's expansion was released.
+		 */
 		@Override
 		public Date dateAdded()
 		{
@@ -158,7 +171,7 @@ public class Inventory implements CardList
 	private List<Card> filtrate;
 	
 	/**
-	 * Create an empty inventory.
+	 * Create an empty Inventory.  Be careful, because Inventories are immutable.
 	 */
 	public Inventory()
 	{
@@ -231,7 +244,7 @@ public class Inventory implements CardList
 	}
 	
 	/**
-	 * @param cards Collection of objects to look for
+	 * @param cards Collection of Cards to look for
 	 * @return <code>true</code> if the inventory contains all of the given items,
 	 * and <code>false</code> otherwise.
 	 */
@@ -254,19 +267,28 @@ public class Inventory implements CardList
 	/**
 	 * @param UID Unique identifier of the Card to look for.
 	 * @return The Card with the given UID.
-	 * @see editor.database.card.Card#ID
+	 * @see editor.database.card.Card#id
 	 */
 	public Card get(String UID)
 	{
 		return IDs[UID];
 	}
 	
+	/**
+	 * @return The metadata for the given Card, which only has its expansion's
+	 * release date.
+	 */
 	@Override
 	public Entry getData(Card card)
 	{
 		return new InventoryEntry(card);
 	}
 	
+	/**
+	 * @return The metadata for the Card at the given Index, which only has its
+	 * expansion's release date.
+	 * @throws IndexOutOfBoundsException if the given index is 0 or too big
+	 */
 	@Override
 	public Entry getData(int index)
 	{
@@ -282,8 +304,8 @@ public class Inventory implements CardList
 	}
 	
 	/**
-	 * @param o Object to look for
-	 * @return The index of the object into the inventory, or -1 if it isn't
+	 * @param card Card to look for
+	 * @return The index of the card into the inventory, or -1 if it isn't
 	 * in the inventory.
 	 */
 	@Override

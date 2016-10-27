@@ -21,6 +21,9 @@ public class Expansion implements Comparable<Expansion>
 	 * Array containing all block names.
 	 */
 	public static String[] blocks = {};
+	/**
+	 * Date format used to decode expansion release dates.
+	 */
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("YYYY-MM-DD");
 	
 	/**
@@ -36,7 +39,7 @@ public class Expansion implements Comparable<Expansion>
 	 */
 	public final String code;
 	/**
-	 * TODO: Comment this
+	 * The old Gatherer code used for this Expansion.
 	 */
 	public final String oldCode;
 	/**
@@ -53,16 +56,17 @@ public class Expansion implements Comparable<Expansion>
 	 */
 	public final int count;
 	/**
-	 * TODO: Comment this
+	 * The date the expansion was released.
 	 */
 	public final Date releaseDate;
 	
 	/**
 	 * Create a new Expansion.
-	 * TODO: Fix this comment
+	 * 
 	 * @param name Name of the new expansion
 	 * @param block Name of the block the new Expansion belongs to
 	 * @param code Code of the new Expansion (usually three letters)
+	 * @param old Old Gatherer code for the new Expansion
 	 * @param magicCardsInfo magiccards.info code of the new Expansion
 	 * @param gatherer Gatherer code of the new Expansion
 	 * @param count Number of cards in the new Expansion

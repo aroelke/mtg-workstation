@@ -39,7 +39,6 @@ import editor.gui.SettingsDialog;
  * number of draws.
  * 
  * TODO: Make this work with exclusion
- * TODO: Decide if expected counts should be integers or averages
  * 
  * @author Alec Roelke
  */
