@@ -94,9 +94,15 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 			return symbol;
 	}
 	
+	/**
+	 * Sort a list of ManaSymbols according to their ordering in the color wheel.
+	 * 
+	 * @param symbols List of ManaSymbols to sort.
+	 */
 	public static void sort(List<ManaSymbol> symbols)
 	{
 		// TODO: Implement this
+		throw new UnsupportedOperationException("Sorting mana symbols is not yet implemented");
 	}
 	
 	private final double value;
