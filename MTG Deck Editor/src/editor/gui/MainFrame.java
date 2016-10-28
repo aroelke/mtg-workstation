@@ -105,7 +105,7 @@ import editor.gui.generic.TableMouseAdapter;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
 import editor.util.MouseListenerFactory;
-import editor.util.UnicodeTable;
+import editor.util.UnicodeSymbols;
 
 /**
  * This class represents the main frame of the editor.  It contains several tabs that display information
@@ -1435,7 +1435,7 @@ public class MainFrame extends JFrame
 					{
 						for (String ruling: selectedCard.rulings()[date])
 						{
-							rulingsDocument.insertString(rulingsDocument.getLength(), String.valueOf(UnicodeTable.BULLET) + " ", rulingStyle);
+							rulingsDocument.insertString(rulingsDocument.getLength(), String.valueOf(UnicodeSymbols.BULLET) + " ", rulingStyle);
 							rulingsDocument.insertString(rulingsDocument.getLength(), format.format(date), dateStyle);
 							rulingsDocument.insertString(rulingsDocument.getLength(), ": ", rulingStyle);
 							int start = 0;

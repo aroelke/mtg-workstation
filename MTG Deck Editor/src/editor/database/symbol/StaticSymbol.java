@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import editor.database.characteristics.ManaType;
-import editor.util.UnicodeTable;
+import editor.util.UnicodeSymbols;
 
 /**
  * This class represents a symbol that has no variations (like based on color or number).
@@ -22,9 +22,9 @@ public class StaticSymbol extends ManaSymbol
 	{
 		// Half-mana symbol.  Represents one half of a generic mana.
 		SYMBOLS["1/2"] = new StaticSymbol("half_mana.png", "1/2", 0.5);
-		SYMBOLS[String.valueOf(UnicodeTable.ONE_HALF)] = SYMBOLS["1/2"];
+		SYMBOLS[String.valueOf(UnicodeSymbols.ONE_HALF)] = SYMBOLS["1/2"];
 		// Infinity mana symbol.  Represents infinity generic mana.
-		SYMBOLS[String.valueOf(UnicodeTable.INFINITY)] = new StaticSymbol("infinity_mana.png", String.valueOf(UnicodeTable.INFINITY), Double.POSITIVE_INFINITY);
+		SYMBOLS[String.valueOf(UnicodeSymbols.INFINITY)] = new StaticSymbol("infinity_mana.png", String.valueOf(UnicodeSymbols.INFINITY), Double.POSITIVE_INFINITY);
 		// Snow mana symbol.  Can only be paid with snow mana.
 		SYMBOLS["S"] = new StaticSymbol("snow_mana.png", "S", 1);
 	}

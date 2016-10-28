@@ -94,7 +94,7 @@ import editor.gui.display.CardTableModel;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.util.PopupMenuListenerFactory;
-import editor.util.UnicodeTable;
+import editor.util.UnicodeSymbols;
 
 /**
  * This class represents an internal frame for editing a deck.  It contains a table that shows all cards
@@ -364,7 +364,7 @@ public class EditorFrame extends JInternalFrame
 		buttonPanel.add(addButton);
 
 		// Remove button to remove one copy of each selected card from the deck
-		JButton removeButton = new JButton(String.valueOf(UnicodeTable.MINUS));
+		JButton removeButton = new JButton(String.valueOf(UnicodeSymbols.MINUS));
 		removeButton.addActionListener((e) -> removeSelectedCards(1));
 		removeButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, removeButton.getMaximumSize().height));
 		buttonPanel.add(removeButton);

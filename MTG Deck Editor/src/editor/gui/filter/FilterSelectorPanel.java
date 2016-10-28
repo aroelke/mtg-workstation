@@ -13,7 +13,7 @@ import editor.filter.FilterFactory;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.filter.editor.FilterEditorPanel;
 import editor.gui.generic.ComboBoxPanel;
-import editor.util.UnicodeTable;
+import editor.util.UnicodeSymbols;
 
 /**
  * This class represents a panel that presents a drop-down menu that allows the user
@@ -69,7 +69,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 		});
 
 		// Button to remove this from the form
-		JButton removeButton = new JButton(String.valueOf(UnicodeTable.MINUS));
+		JButton removeButton = new JButton(String.valueOf(UnicodeSymbols.MINUS));
 		removeButton.addActionListener((e) -> {
 			group.remove(this);
 			firePanelsChanged();
@@ -77,7 +77,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 		add(removeButton);
 
 		// Button to create a new group with this in it
-		JButton groupButton = new JButton(String.valueOf(UnicodeTable.ELLIPSIS));
+		JButton groupButton = new JButton(String.valueOf(UnicodeSymbols.ELLIPSIS));
 		groupButton.addActionListener((e) -> {
 			group.group(this);
 			firePanelsChanged();

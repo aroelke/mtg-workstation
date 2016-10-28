@@ -3,7 +3,7 @@ package editor.filter;
 import java.util.function.Predicate;
 
 import editor.database.card.Card;
-import editor.util.UnicodeTable;
+import editor.util.UnicodeSymbols;
 
 
 /**
@@ -24,11 +24,11 @@ public abstract class Filter implements Predicate<Card>
 	/**
 	 * Character marking the beginning of a group.
 	 */
-	public static final char BEGIN_GROUP = UnicodeTable.LEFT_ANGLE_DOUBLE_QUOTE;
+	public static final char BEGIN_GROUP = UnicodeSymbols.LEFT_ANGLE_DOUBLE_QUOTE;
 	/**
 	 * Character marking the end of a group.
 	 */
-	public static final char END_GROUP = UnicodeTable.RIGHT_ANGLE_DOUBLE_QUOTE;
+	public static final char END_GROUP = UnicodeSymbols.RIGHT_ANGLE_DOUBLE_QUOTE;
 
 	/**
 	 * Parent of this Filter in the tree (null if this is the

@@ -16,7 +16,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 
 import editor.collection.LegalityChecker;
-import editor.util.UnicodeTable;
+import editor.util.UnicodeSymbols;
 
 /**
  * This class represents a panel that shows the formats a deck is legal and illegal in.
@@ -87,7 +87,7 @@ public class LegalityPanel extends JPanel
 
 		// Click on a list element to show why it is illegal
 		illegalList.addListSelectionListener((e) -> {
-			StringJoiner str = new StringJoiner("\n" + UnicodeTable.BULLET + " ", String.valueOf(UnicodeTable.BULLET) + " ", "");
+			StringJoiner str = new StringJoiner("\n" + UnicodeSymbols.BULLET + " ", String.valueOf(UnicodeSymbols.BULLET) + " ", "");
 			for (String warning: legality.getWarnings(illegalList.getSelectedValue()))
 				str.add(warning);
 			warningsPane.setText(str.toString());

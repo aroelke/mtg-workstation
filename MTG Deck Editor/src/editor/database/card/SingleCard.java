@@ -17,7 +17,7 @@ import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
-import editor.util.UnicodeTable;
+import editor.util.UnicodeSymbols;
 
 /**
  * This class represents a Magic: the Gathering card.  It has all of the card's characteristics and can
@@ -186,7 +186,7 @@ public class SingleCard extends Card
 			str.append(String.join(" ", supertypes)).append(" ");
 		str.append(String.join(" ", types));
 		if (subtypes.size() > 0)
-			str.append(" " + UnicodeTable.EM_DASH + " ").append(String.join(" ", subtypes));
+			str.append(" " + UnicodeSymbols.EM_DASH + " ").append(String.join(" ", subtypes));
 		typeLine = str.toString();
 
 		if (colorIdentity.isEmpty())

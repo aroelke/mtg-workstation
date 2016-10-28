@@ -22,7 +22,7 @@ import com.jidesoft.swing.TristateCheckBox;
 import editor.database.card.Card;
 import editor.gui.generic.ScrollablePanel;
 import editor.util.MouseListenerFactory;
-import editor.util.UnicodeTable;
+import editor.util.UnicodeSymbols;
 
 /**
  * This class represents a panel that displays a list of card tags with check boxes
@@ -115,7 +115,7 @@ public class CardTagPanel extends ScrollablePanel
 				tagPanel.add(tagBox, BorderLayout.WEST);
 				tagBoxes.add(tagBox);
 
-				JLabel deleteButton = new JLabel(String.valueOf(UnicodeTable.MINUS) + " ");
+				JLabel deleteButton = new JLabel(String.valueOf(UnicodeSymbols.MINUS) + " ");
 				deleteButton.setForeground(Color.RED);
 				deleteButton.addMouseListener(MouseListenerFactory.createPressListener((e) -> removeTag(tag)));
 				tagPanel.add(deleteButton, BorderLayout.EAST);

@@ -64,7 +64,7 @@ import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
 import editor.gui.SettingsDialog;
-import editor.util.UnicodeTable;
+import editor.util.UnicodeSymbols;
 
 /**
  * This class represents a dialog that shows the progress for loading the
@@ -592,7 +592,7 @@ public class InventoryLoadDialog extends JDialog
 			dispose();
 			if (!SettingsDialog.getAsBoolean(SettingsDialog.SUPPRESS_LOAD_WARNINGS) && !errors.isEmpty())
 				SwingUtilities.invokeLater(() -> {
-					StringJoiner join = new StringJoiner("\n" + UnicodeTable.BULLET + " ");
+					StringJoiner join = new StringJoiner("\n" + UnicodeSymbols.BULLET + " ");
 					join.add("Errors ocurred while loading the following card(s):");
 					for (String failure: errors)
 						join.add(failure);
