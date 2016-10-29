@@ -119,6 +119,7 @@ import editor.util.UnicodeSymbols;
  * TODO: Create a diff frame that shows differences between two (or more, potentially) decks
  * TODO: Add a File->Print... dialog (for the editor frame)
  * TODO: Right-click column header = create filter for that column
+ * TODO: Remove documentation from inherited methods and use inheritDoc for ones that need to be clarified.
  *
  * @author Alec Roelke
  */

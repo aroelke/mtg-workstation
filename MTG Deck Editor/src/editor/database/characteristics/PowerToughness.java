@@ -1,11 +1,12 @@
 package editor.database.characteristics;
 
+import java.util.AbstractList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 
 import editor.database.card.Card;
-import editor.util.UnmodifiableList;
 
 /**
  * This class represents a power value or a toughness value.  If the card is missing
@@ -22,27 +23,39 @@ public class PowerToughness implements Comparable<PowerToughness>
 	 * 
 	 * @author Alec Roelke
 	 */
-	@SuppressWarnings("serial")
-	public static class Tuple extends UnmodifiableList<PowerToughness> implements Comparable<Tuple>
+	public static class Tuple extends AbstractList<PowerToughness> implements Comparable<Tuple>
 	{
 		/**
-		 * Create a new tuple out of the given collection of PowerToughnesses.
+		 * PowerToughnesses that are part of this Tuple.
+		 */
+		private final List<PowerToughness> values;
+		
+		/**
+		 * Create a new Tuple out of the given collection of PowerToughnesses.
 		 * 
 		 * @param c Collection of PowerToughnesses to create the tuple out of
 		 */
 		public Tuple(List<? extends PowerToughness> c)
 		{
-			super(c);
+			values = Collections.unmodifiableList(c);
 		}
 		
 		/**
-		 * Create a new tuple out of the given PowerToughnesses.
+		 * Create a new Tuple out of the given PowerToughnesses.
 		 * 
 		 * @param c PowerToughnesses to create the tuple out of
 		 */
 		public Tuple(PowerToughness... c)
 		{
-			super(Arrays.asList(c));
+			this(Arrays.asList(c));
+		}
+		
+		/**
+		 * Create a new, empty Tuple of PowerToughnesses.
+		 */
+		public Tuple()
+		{
+			this(Collections.emptyList());
 		}
 		
 		/**
@@ -81,6 +94,18 @@ public class PowerToughness implements Comparable<PowerToughness>
 				if (!Double.isNaN(pt.value))
 					str.add(pt.toString());
 			return str.toString();
+		}
+
+		@Override
+		public PowerToughness get(int index)
+		{
+			return values[index];
+		}
+
+		@Override
+		public int size()
+		{
+			return values.size();
 		}
 	}
 	

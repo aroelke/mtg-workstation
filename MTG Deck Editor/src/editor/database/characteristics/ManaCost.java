@@ -1,5 +1,6 @@
 package editor.database.characteristics;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,7 +17,6 @@ import editor.database.card.Card;
 import editor.database.symbol.ManaSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
-import editor.util.UnmodifiableList;
 
 /**
  * This class represents a mana cost.  It contains a list of Symbols, which may contain duplicate elements.
@@ -26,7 +26,7 @@ import editor.util.UnmodifiableList;
  * @author Alec Roelke
  * @see editor.database.symbol.Symbol
  */
-public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
+public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<ManaCost>
 {
 	/**
 	 * Pattern for finding mana costs in Strings.
@@ -39,27 +39,39 @@ public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
 	 * 
 	 * @author Alec Roelke
 	 */
-	@SuppressWarnings("serial")
-	public static class Tuple extends UnmodifiableList<ManaCost> implements Comparable<Tuple>
+	public static class Tuple extends AbstractList<ManaCost> implements Comparable<Tuple>
 	{
 		/**
-		 * Create a new tuple out of the given collection of ManaCosts.
+		 * ManaCosts in this Tuple.
+		 */
+		private final List<ManaCost> values;
+		
+		/**
+		 * Create a new Tuple out of the given collection of ManaCosts.
 		 * 
 		 * @param c Collection to create the new tuple out of
 		 */
 		public Tuple(List<? extends ManaCost> c)
 		{
-			super(c);
+			values = Collections.unmodifiableList(c);
 		}
 		
 		/**
-		 * Create a new tuple out of the given ManaCosts.
+		 * Create a new Tuple out of the given ManaCosts.
 		 * 
 		 * @param c ManaCosts to create the new tuple out of
 		 */
 		public Tuple(ManaCost... c)
 		{
-			super(Arrays.asList(c));
+			this(Arrays.asList(c));
+		}
+		
+		/**
+		 * Create an empty Tuple of ManaCosts.
+		 */
+		public Tuple()
+		{
+			this(Collections.emptyList());
 		}
 		
 		/**
@@ -94,6 +106,18 @@ public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
 				if (!cost.isEmpty())
 					join.add(cost.toHTMLString());
 			return join.toString();
+		}
+
+		@Override
+		public ManaCost get(int index)
+		{
+			return values[index];
+		}
+
+		@Override
+		public int size()
+		{
+			return values.size();
 		}
 	}
 	
@@ -211,6 +235,9 @@ public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
 		return cmc;
 	}
 	
+	/**
+	 * @return The number of Symbols in this ManaCost.
+	 */
 	@Override
 	public int size()
 	{
@@ -469,95 +496,5 @@ public class ManaCost implements Comparable<ManaCost>, List<ManaSymbol>
 	public <T> T[] toArray(T[] a)
 	{
 		return cost.toArray(a);
-	}
-
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public boolean add(ManaSymbol e)
-	{
-		throw new UnsupportedOperationException("add");
-	}
-
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public void add(int index, ManaSymbol element)
-	{
-		throw new UnsupportedOperationException("add");
-	}
-
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public boolean addAll(Collection<? extends ManaSymbol> c)
-	{
-		throw new UnsupportedOperationException("addAll");
-	}
-
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public boolean addAll(int index, Collection<? extends ManaSymbol> c)
-	{
-		throw new UnsupportedOperationException("addAll");
-	}
-
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public void clear()
-	{
-		throw new UnsupportedOperationException("clear");
-	}
-
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public boolean remove(Object e)
-	{
-		throw new UnsupportedOperationException("remove");
-	}
-
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public ManaSymbol remove(int index)
-	{
-		throw new UnsupportedOperationException("remove");
-	}
-
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public boolean removeAll(Collection<?> c)
-	{
-		throw new UnsupportedOperationException("removeAll");
-	}
-
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public boolean retainAll(Collection<?> c)
-	{
-		throw new UnsupportedOperationException("removeAll");
-	}
-
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public ManaSymbol set(int index, ManaSymbol element)
-	{
-		throw new UnsupportedOperationException("set");
 	}
 }

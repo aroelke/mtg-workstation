@@ -1,14 +1,13 @@
 package editor.database.characteristics;
 
 import java.awt.Color;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-
-import editor.util.UnmodifiableList;
 
 /**
  * This enum represents one of the five colors of Magic: The Gathering.
@@ -17,12 +16,29 @@ import editor.util.UnmodifiableList;
  */
 public enum ManaType
 {
+	/**
+	 * White mana.
+	 */
 	WHITE("White", 'W', Color.YELLOW.darker()),
+	/**
+	 * Blue mana.
+	 */
 	BLUE("Blue", 'U', Color.BLUE),
+	/**
+	 * Black mana.
+	 */
 	BLACK("Black", 'B', Color.BLACK),
+	/**
+	 * Red mana.
+	 */
 	RED("Red", 'R', Color.RED),
+	/**
+	 * Green mana.
+	 */
 	GREEN("Green", 'G', Color.GREEN.darker()),
-	
+	/**
+	 * Colorless mana.  While this is not a color, it is a type.
+	 */
 	COLORLESS("Colorless", 'C', null);
 	
 	/**
@@ -89,9 +105,13 @@ public enum ManaType
 	 * 
 	 * @author Alec Roelke
 	 */
-	@SuppressWarnings("serial")
-	public static class Tuple extends UnmodifiableList<ManaType> implements Comparable<Tuple>
+	public static class Tuple extends AbstractList<ManaType> implements Comparable<Tuple>
 	{
+		/**
+		 * ManaTypes in this Tuple.
+		 */
+		private final List<ManaType> types;
+		
 		/**
 		 * Helper method for cleaning and sorting a collection of colors before calling the
 		 * super constructor on it.
@@ -140,24 +160,32 @@ public enum ManaType
 		}
 		
 		/**
-		 * Create a new tuple out of the given list of colors.  Unique colors will be extracted
+		 * Create a new Tuple out of the given list of colors.  Unique colors will be extracted
 		 * and then sorted around the color pie.
 		 * 
 		 * @param cols Colors to make the tuple out of
 		 */
-		public Tuple(Collection<ManaType> cols)
+		public Tuple(Collection<? extends ManaType> cols)
 		{
-			super(sorted(cols));
+			types = Collections.unmodifiableList(sorted(new ArrayList<ManaType>(cols)));
 		}
 		
 		/**
-		 * Create a new tuple out of the given colors.
+		 * Create a new Tuple out of the given colors.
 		 * 
 		 * @param cols Colors to make the tuple out of
 		 */
 		public Tuple(ManaType... cols)
 		{
 			this(Arrays.asList(cols));
+		}
+		
+		/**
+		 * Create a new, empty Tuple of ManaTypes.
+		 */
+		public Tuple()
+		{
+			this(Collections.emptyList());
 		}
 		
 		/**
@@ -174,6 +202,18 @@ public enum ManaType
 				for (int i = 0; i < size(); i++)
 					diff += this[i].compareTo(other[i])*Math.pow(10, size() - i);
 			return diff;
+		}
+
+		@Override
+		public ManaType get(int index)
+		{
+			return types[index];
+		}
+
+		@Override
+		public int size()
+		{
+			return types.size();
 		}
 	}
 	

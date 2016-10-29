@@ -1,11 +1,12 @@
 package editor.database.characteristics;
 
+import java.util.AbstractList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 
 import editor.database.card.Card;
-import editor.util.UnmodifiableList;
 
 /**
  * This class represents a loyalty value for a card.  If the card has no loyalty,
@@ -22,27 +23,39 @@ public class Loyalty implements Comparable<Loyalty>
 	 * 
 	 * @author Alec Roelke
 	 */
-	@SuppressWarnings("serial")
-	public static class Tuple extends UnmodifiableList<Loyalty> implements Comparable<Tuple>
+	public static class Tuple extends AbstractList<Loyalty> implements Comparable<Tuple>
 	{
 		/**
-		 * Create a new tuple out of the given collection of loyalties.
+		 * Loyalties that are part of this Tuple.
+		 */
+		private final List<Loyalty> values;
+		
+		/**
+		 * Create a new Tuple out of the given collection of loyalties.
 		 * 
 		 * @param c Collection of loyalties to create the tuple out of
 		 */
 		public Tuple(List<? extends Loyalty> c)
 		{
-			super(c);
+			values = Collections.unmodifiableList(c);
 		}
 		
 		/**
-		 * Create a new tuple out of the given loyalties.
+		 * Create a new Tuple out of the given loyalties.
 		 * 
 		 * @param c Loyalties to create the new tuple out of
 		 */
 		public Tuple(Loyalty... c)
 		{
-			super(Arrays.asList(c));
+			this(Arrays.asList(c));
+		}
+		
+		/**
+		 * Create an empty Tuple of Loyalties.
+		 */
+		public Tuple()
+		{
+			this(Collections.emptyList());
 		}
 		
 		/**
@@ -81,6 +94,18 @@ public class Loyalty implements Comparable<Loyalty>
 				if (l.value > 0)
 					str.add(l.toString());
 			return str.toString();
+		}
+
+		@Override
+		public Loyalty get(int index)
+		{
+			return values[index];
+		}
+
+		@Override
+		public int size()
+		{
+			return values.size();
 		}
 	}
 	
