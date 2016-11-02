@@ -8,4 +8,4 @@ This program depends on the following:
  - JIDE Common Layer, which can be found at http://www.jidesoft.com/products/oss.htm
  - Java Operator Overloading, which can be found at https://github.com/amelentev/java-oo (not a Maven dependency; I installed it into Eclipse)
 
-This depends on MTGJSON (http://www.mtgjson.com/) for its card list; currently, MTGJSON is not allowing the application to connect.  This can be worked around by turning off automatic updates in the settings dialog, manually downloading "AllSets-x.json.zip," and extracting it into the directory this editor is running in.
+This depends on MTGJSON (http://www.mtgjson.com/) for its card list.
