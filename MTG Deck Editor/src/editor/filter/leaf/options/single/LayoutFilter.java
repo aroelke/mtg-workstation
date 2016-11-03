@@ -54,4 +54,11 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 		filter.selected = new HashSet<CardLayout>(selected);
 		return filter;
 	}
+
+
+	@Override
+	public CardLayout convertFromString(String str)
+	{
+		return CardLayout.valueOf(str.replace(' ', '_').toUpperCase());
+	}
 }

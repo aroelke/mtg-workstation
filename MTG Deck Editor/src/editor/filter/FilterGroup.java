@@ -1,5 +1,8 @@
 package editor.filter;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -265,5 +268,23 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		{
 			return mode;
 		}
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		mode = (Mode)in.readObject();
+		int n = in.readInt();
+		for (int i = 0; i < n; i++)
+			children.add((Filter)in.readObject());
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		out.writeObject(mode);
+		out.writeInt(children.size());
+		for (Filter child: children)
+			out.writeObject(child);
 	}
 }

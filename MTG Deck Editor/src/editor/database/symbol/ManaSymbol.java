@@ -102,7 +102,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 	public static void sort(List<ManaSymbol> symbols)
 	{
 		// TODO: Implement this
-		System.err.println("Sorting mana symbols is not yet implemented");
+//		System.err.println("Sorting mana symbols is not yet implemented");
 	}
 	
 	private final double value;

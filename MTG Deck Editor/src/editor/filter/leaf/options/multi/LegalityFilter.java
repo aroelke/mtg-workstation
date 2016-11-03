@@ -1,5 +1,8 @@
 package editor.filter.leaf.options.multi;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -131,6 +134,26 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(contain, function, selected, restricted);
+		return Objects.hash(contain, multifunction(), selected, restricted);
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in);
+		restricted = in.readBoolean();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		super.writeExternal(out);
+		out.writeBoolean(restricted);
+	}
+
+	@Override
+	public String convertFromString(String str)
+	{
+		return str;
 	}
 }

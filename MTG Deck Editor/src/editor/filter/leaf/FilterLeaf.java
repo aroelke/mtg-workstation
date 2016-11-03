@@ -1,10 +1,14 @@
 package editor.filter.leaf;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
+import editor.util.SerializableFunction;
 
 /**
  * This class represents a leaf in the filter tree, which filters a
@@ -19,11 +23,11 @@ public abstract class FilterLeaf<T> extends Filter
 	/**
 	 * Function representing the characteristic of the cards to be filtered.
 	 */
-	protected final Function<Card, T> function;
+	private SerializableFunction<Card, T> function;
 	/**
 	 * FilterType showing the characteristic of the cards to be filtered.
 	 */
-	public final String type;
+	private String type;
 	
 	/**
 	 * Create a new FilterLeaf.
@@ -31,13 +35,28 @@ public abstract class FilterLeaf<T> extends Filter
 	 * @param t FilterType of the new FilterLeaf
 	 * @param f Function of the new FilterLeaf
 	 */
-	public FilterLeaf(String t, Function<Card, T> f)
+	public FilterLeaf(String t, SerializableFunction<Card, T> f)
 	{
 		super();
 		type = t;
 		function = f;
 	}
 
+	public FilterLeaf()
+	{
+		this("", null);
+	}
+	
+	public String type()
+	{
+		return type;
+	}
+	
+	protected Function<Card, T> function()
+	{
+		return function;
+	}
+	
 	/**
 	 * @return The String representation of the contents of this FilterLeaf,
 	 * without its code.
@@ -73,5 +92,20 @@ public abstract class FilterLeaf<T> extends Filter
 	public String representation()
 	{
 		return type + ":" + content();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		function = (SerializableFunction<Card, T>)in.readObject();
+		type = in.readUTF();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		out.writeObject(function);
+		out.writeUTF(type);
 	}
 }

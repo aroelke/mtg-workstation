@@ -101,8 +101,8 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	@Override
 	public void setContents(FilterLeaf<?> filter)
 	{
-		filterTypes.setSelectedItem(FilterFactory.FILTER_TYPES[filter.type]);
-		filterPanels[FilterFactory.FILTER_TYPES[filter.type]].setContents(filter);
-		((CardLayout)filtersPanel.getLayout()).show(filtersPanel, filter.type.toString());
+		filterTypes.setSelectedItem(FilterFactory.FILTER_TYPES[filter.type()]);
+		filterPanels[FilterFactory.FILTER_TYPES[filter.type()]].setContents(filter);
+		((CardLayout)filtersPanel.getLayout()).show(filtersPanel, filter.type());
 	}
 }

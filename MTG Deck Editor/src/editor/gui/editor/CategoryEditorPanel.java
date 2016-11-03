@@ -6,6 +6,12 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -74,9 +80,9 @@ public class CategoryEditorPanel extends JPanel
 			if (JOptionPane.showConfirmDialog(parent, editorPane, "Category Editor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 			{
 				if (editor.nameField.getText().isEmpty())
-					JOptionPane.showMessageDialog(null, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(editor, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
 				else if (editor.nameField.getText().contains(String.valueOf(Filter.BEGIN_GROUP)))
-					JOptionPane.showMessageDialog(null, "Category names cannot contain the character '" + Filter.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(editor, "Category names cannot contain the character '" + Filter.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
 				else
 				{
 					editor.updateSpec();

@@ -106,7 +106,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 	@Override
 	public void setContents(ColorFilter filter)
 	{
-		type = filter.type;
+		type = filter.type();
 		contain.setSelectedItem(filter.contain);
 		for (ManaType color: ManaType.colors())
 			colors[color].setSelected(filter.colors.contains(color));
@@ -127,6 +127,6 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 		if (filter instanceof ColorFilter)
 			setContents((ColorFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal color filter " + filter.type);
+			throw new IllegalArgumentException("Illegal color filter " + filter.type());
 	}
 }

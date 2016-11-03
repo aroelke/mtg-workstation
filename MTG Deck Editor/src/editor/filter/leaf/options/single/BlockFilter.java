@@ -50,4 +50,10 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 		filter.selected = new HashSet<String>(selected);
 		return filter;
 	}
+
+	@Override
+	public String convertFromString(String str)
+	{
+		return str;
+	}
 }

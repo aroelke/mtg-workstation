@@ -187,7 +187,7 @@ public class MainFrame extends JFrame
 	/**
 	 * Inventory of all cards.
 	 */
-	private Inventory inventory;
+	private static Inventory inventory;
 	/**
 	 * Table displaying the inventory of all cards.
 	 */
@@ -933,6 +933,43 @@ public class MainFrame extends JFrame
 			panelPane.setBorder(BorderFactory.createEmptyBorder());
 			if (JOptionPane.showConfirmDialog(this, panelPane, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 			{
+/*
+				Filter f = null;
+				
+				try
+				{
+					FileOutputStream fos = new FileOutputStream("test.txt");
+					ObjectOutputStream oos = new ObjectOutputStream(fos);
+					oos.writeObject(panel.filter());
+					oos.close();
+					
+					ObjectInputStream ois = new ObjectInputStream(new FileInputStream("test.txt"));
+					f = (Filter)ois.readObject();
+					ois.close();
+
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					ObjectOutputStream oos = new ObjectOutputStream(baos);
+					oos.writeObject(panel.filter());
+					oos.close();
+					
+					String s = Base64.getEncoder().encodeToString(baos.toByteArray());
+					
+					ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(s)));
+					Filter f = (Filter)ois.readObject();
+			
+					System.out.println("Original: " + panel.filter().toString());
+					System.out.println("Reconstructed: " + f.toString());
+					System.out.println("Equal: " + panel.filter().equals(f));
+				}
+				catch (IOException x)
+				{
+					x.printStackTrace();
+				}
+				catch (ClassNotFoundException x)
+				{
+					x.printStackTrace();
+				}
+*/
 				nameFilterField.setText("");
 				inventory.updateFilter(panel.filter());
 				inventoryModel.fireTableDataChanged();
@@ -1202,7 +1239,7 @@ public class MainFrame extends JFrame
 	{
 		SettingsDialog.addPresetCategory(category);
 
-		CategorySpec spec = new CategorySpec(category, inventory);
+		CategorySpec spec = new CategorySpec(category);
 		JMenuItem categoryItem = new JMenuItem(spec.getName());
 		categoryItem.addActionListener((e) -> {
 			if (selectedFrame != null)
@@ -1214,7 +1251,6 @@ public class MainFrame extends JFrame
 	/**
 	 * Create a new editor frame.
 	 *
-	 * @param name Name of the new frame (also the name of the file)
 	 * @see editor.gui.editor.EditorFrame
 	 */
 	public void newEditor()
@@ -1515,7 +1551,7 @@ public class MainFrame extends JFrame
 	/**
 	 * @return The inventory.
 	 */
-	public Inventory inventory()
+	public static Inventory inventory()
 	{
 		return inventory;
 	}

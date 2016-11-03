@@ -1,10 +1,15 @@
 package editor.collection.category;
 
 import java.awt.Color;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EventObject;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -12,10 +17,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import editor.collection.Inventory;
 import editor.database.card.Card;
 import editor.filter.Filter;
+import editor.filter.FilterFactory;
 import editor.filter.FilterGroup;
+import editor.gui.MainFrame;
 import editor.gui.SettingsDialog;
 
 /**
@@ -25,7 +31,7 @@ import editor.gui.SettingsDialog;
  * 
  * @author Alec Roelke
  */
-public class CategorySpec
+public class CategorySpec implements Externalizable
 {
 	/**
 	 * List separator for UIDs of cards in the String representation of a whitelist or a blacklist.
@@ -39,7 +45,7 @@ public class CategorySpec
 	 * not include the group enclosing characters, but the fifth will.  The first through third groups
 	 * will be empty strings if they are empty, but the fourth will be null.  The first and fifth groups
 	 * should never be empty.
-	 * @see editor.gui.filter.original.FilterGroupPanel#setContents(String)
+	 * @see editor.gui.filter.FilterGroupPanel#setContents(Filter)
 	 */
 	private static final Pattern CATEGORY_PATTERN = Pattern.compile(
 			"^" + Filter.BEGIN_GROUP + "([^" + Filter.END_GROUP + "]+)" + Filter.END_GROUP		// Name
@@ -106,44 +112,13 @@ public class CategorySpec
 		this(name, new HashSet<Card>(), new HashSet<Card>(), color, filter);
 	}
 	
-	/**
-	 * Create a new CategorySpec from the given category String representation.
-	 * 
-	 * @param pattern String to parse
-	 * @param inventory Inventory containing cards to convert from their IDs.
-	 */
-	public CategorySpec(String pattern, Inventory inventory)
+	public CategorySpec()
 	{
-		Matcher m = CATEGORY_PATTERN.matcher(pattern);
-		if (m.matches())
-		{
-			name = m.group(1);
-			if (!m.group(2).isEmpty())
-				whitelist = Arrays.stream(m.group(2).split(EXCEPTION_SEPARATOR)).map(inventory::get).collect(Collectors.toSet());
-			else
-				whitelist = new HashSet<Card>();
-			if (!m.group(3).isEmpty())
-				blacklist = Arrays.stream(m.group(3).split(EXCEPTION_SEPARATOR)).map(inventory::get).collect(Collectors.toSet());
-			else
-				blacklist = new HashSet<Card>();
-			if (m.group(4) != null)
-				color = SettingsDialog.stringToColor(m.group(4));
-			else
-			{
-				Random rand = new Random();
-				color = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), (float)Math.sqrt(rand.nextFloat()));
-			}
-			filter = new FilterGroup();
-			filter.parse(m.group(5));
-			listeners = new HashSet<CategoryListener>();
-		}
-		else
-			throw new IllegalArgumentException("Illegal category string " + pattern);
+		this("All Cards", Color.BLACK, FilterFactory.createFilter(FilterFactory.ALL));
 	}
 	
 	/**
-	 * Create a new CategorySpec from the given category String with
-	 * nothing in its white- or blacklist.
+	 * Create a new CategorySpec from the given category String representation.
 	 * 
 	 * @param pattern String to parse
 	 */
@@ -153,8 +128,14 @@ public class CategorySpec
 		if (m.matches())
 		{
 			name = m.group(1);
-			whitelist = new HashSet<Card>();
-			blacklist = new HashSet<Card>();
+			if (!m.group(2).isEmpty())
+				whitelist = Arrays.stream(m.group(2).split(EXCEPTION_SEPARATOR)).map(MainFrame.inventory()::get).collect(Collectors.toSet());
+			else
+				whitelist = new HashSet<Card>();
+			if (!m.group(3).isEmpty())
+				blacklist = Arrays.stream(m.group(3).split(EXCEPTION_SEPARATOR)).map(MainFrame.inventory()::get).collect(Collectors.toSet());
+			else
+				blacklist = new HashSet<Card>();
 			if (m.group(4) != null)
 				color = SettingsDialog.stringToColor(m.group(4));
 			else
@@ -409,8 +390,6 @@ public class CategorySpec
 	
 	/**
 	 * @return This CategorySpec's String representation.
-	 * @see editor.gui.filter.original.editor.FilterEditorPanel#setContents(String)
-	 * @see gui.editor.CategoryDialog#setContents(String)
 	 */
 	@Override
 	public String toString()
@@ -679,5 +658,59 @@ public class CategorySpec
 			else
 				throw new IllegalStateException("Filter of the category has not changed.");
 		}
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		int n;
+		
+		blacklist.clear();
+		whitelist.clear();
+		
+		name = in.readUTF();
+		color = (Color)in.readObject();
+		filter = (Filter)in.readObject();
+		
+		n = in.readInt();
+		for (int i = 0; i < n; i++)
+			blacklist.add(MainFrame.inventory()[in.readUTF()]);
+		n = in.readInt();
+		for (int i = 0; i < n; i++)
+			whitelist.add(MainFrame.inventory()[in.readUTF()]);
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		out.writeUTF(name);
+		out.writeObject(color);
+		out.writeObject(filter);
+		out.writeInt(blacklist.size());
+		for (Card card: blacklist)
+			out.writeUTF(card.id());
+		out.writeInt(whitelist.size());
+		for (Card card: whitelist)
+			out.writeUTF(card.id());
+	}
+	
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof CategorySpec))
+			return false;
+		CategorySpec o = (CategorySpec)other;
+		return name.equals(o.name) && color.equals(o.color) && filter.equals(o.filter)
+				&& blacklist.equals(o.blacklist) && whitelist.equals(o.whitelist);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(name, color, filter, blacklist, whitelist);
 	}
 }

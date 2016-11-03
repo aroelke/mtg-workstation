@@ -1,10 +1,10 @@
 package editor.filter.leaf.options.single;
 
 import java.util.Arrays;
-import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.filter.leaf.options.OptionsFilter;
+import editor.util.SerializableFunction;
 
 /**
  * This class is an OptionsFilter for which characteristics only
@@ -22,7 +22,7 @@ public abstract class SingletonOptionsFilter<T> extends OptionsFilter<T>
 	 * @param t Type of the new SingletonOptionsFilter
 	 * @param f Function for the new SingletonOptionsFilter
 	 */
-	public SingletonOptionsFilter(String t, Function<Card, T> f)
+	public SingletonOptionsFilter(String t, SerializableFunction<Card, T> f)
 	{
 		super(t, f);
 	}
@@ -35,6 +35,6 @@ public abstract class SingletonOptionsFilter<T> extends OptionsFilter<T>
 	@Override
 	public boolean test(Card c)
 	{
-		return contain.test(selected, Arrays.asList(function.apply(c)));
+		return contain.test(selected, Arrays.asList(function().apply(c)));
 	}
 }

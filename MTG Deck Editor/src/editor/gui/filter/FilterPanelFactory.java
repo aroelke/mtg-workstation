@@ -50,7 +50,7 @@ public interface FilterPanelFactory
 	 */
 	public static FilterEditorPanel<?> createFilterPanel(FilterLeaf<?> filter)
 	{
-		switch (filter.type)
+		switch (filter.type())
 		{
 		case FilterFactory.NAME: case FilterFactory.RULES_TEXT: case FilterFactory.FLAVOR_TEXT: case FilterFactory.ARTIST:
 			return new TextFilterPanel((TextFilter)filter);

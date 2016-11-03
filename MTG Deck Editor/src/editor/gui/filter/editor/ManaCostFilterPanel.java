@@ -132,6 +132,6 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 		if (filter instanceof ManaCostFilter)
 			setContents((ManaCostFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal mana cost filter " + filter.type);
+			throw new IllegalArgumentException("Illegal mana cost filter " + filter.type());
 	}
 }

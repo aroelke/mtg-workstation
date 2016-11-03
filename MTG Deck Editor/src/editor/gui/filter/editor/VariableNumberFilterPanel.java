@@ -96,7 +96,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 	@Override
 	public void setContents(VariableNumberFilter filter)
 	{
-		type = filter.type;
+		type = filter.type();
 		comparison.setSelectedItem(filter.operation);
 		spinner.setValue(filter.operand);
 		variable.setSelected(filter.varies);
@@ -118,6 +118,6 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		if (filter instanceof VariableNumberFilter)
 			setContents((VariableNumberFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal variable number filter " + filter.type);
+			throw new IllegalArgumentException("Illegal variable number filter " + filter.type());
 	}
 }

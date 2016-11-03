@@ -54,4 +54,11 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 		filter.selected = new HashSet<Rarity>(selected);
 		return filter;
 	}
+
+
+	@Override
+	public Rarity convertFromString(String str)
+	{
+		return Rarity.get(str);
+	}
 }

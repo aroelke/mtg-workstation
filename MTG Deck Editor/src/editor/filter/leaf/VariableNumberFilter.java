@@ -1,13 +1,16 @@
 package editor.filter.leaf;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
+import editor.util.SerializableFunction;
+import editor.util.SerializablePredicate;
 
 /**
  * This class represents a filter for a numeric card characteristic that can
@@ -24,7 +27,7 @@ public class VariableNumberFilter extends NumberFilter
 	/**
 	 * The function that determines if the filter's characteristic is variable.
 	 */
-	private Predicate<Card> variable;
+	private SerializablePredicate<Card> variable;
 	
 	/**
 	 * Create a new VariableNumberFilter.
@@ -33,11 +36,16 @@ public class VariableNumberFilter extends NumberFilter
 	 * @param f Function representing the card characteristic
 	 * @param v Function checking if the card characteristic is variable
 	 */
-	public VariableNumberFilter(String t, Function<Card, Collection<Double>> f, Predicate<Card> v)
+	public VariableNumberFilter(String t, SerializableFunction<Card, Collection<Double>> f, SerializablePredicate<Card> v)
 	{
 		super(t, f);
 		varies = false;
 		variable = v;
+	}
+	
+	public VariableNumberFilter()
+	{
+		this("", null, null);
 	}
 	
 	/**
@@ -75,7 +83,7 @@ public class VariableNumberFilter extends NumberFilter
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, type);
+		String content = checkContents(s, type());
 		if (content.equals("*"))
 			varies = true;
 		else
@@ -92,7 +100,7 @@ public class VariableNumberFilter extends NumberFilter
 	@Override
 	public Filter copy()
 	{
-		VariableNumberFilter filter = (VariableNumberFilter)FilterFactory.createFilter(type);
+		VariableNumberFilter filter = (VariableNumberFilter)FilterFactory.createFilter(type());
 		filter.varies = varies;
 		filter.variable = variable;
 		filter.operation = operation;
@@ -117,7 +125,7 @@ public class VariableNumberFilter extends NumberFilter
 		if (other.getClass() != getClass())
 			return false;
 		VariableNumberFilter o = (VariableNumberFilter)other;
-		return o.type.equals(type) && o.varies == varies && o.variable.equals(variable)
+		return o.type().equals(type()) && o.varies == varies && o.variable.equals(variable)
 				&& o.operation.equals(operation) & o.operand == operand;
 	}
 	
@@ -129,6 +137,23 @@ public class VariableNumberFilter extends NumberFilter
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, function, varies, variable, operation, operand);
+		return Objects.hash(type(), function(), varies, variable, operation, operand);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in);
+		varies = in.readBoolean();
+		variable = (SerializablePredicate<Card>)in.readObject();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		super.writeExternal(out);
+		out.writeBoolean(varies);
+		out.writeObject(variable);
 	}
 }

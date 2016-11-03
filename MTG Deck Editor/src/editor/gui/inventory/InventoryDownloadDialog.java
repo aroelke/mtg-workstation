@@ -174,8 +174,6 @@ public class InventoryDownloadDialog extends JDialog
 		protected void process(List<Integer> chunks)
 		{
 			int downloaded = chunks[chunks.size() - 1];
-			progressBar.setIndeterminate(false);
-			progressBar.setValue(downloaded);
 			String downloadedStr;
 			if (downloaded <= 1024)
 				downloadedStr = String.format("%d", downloaded);
@@ -183,7 +181,17 @@ public class InventoryDownloadDialog extends JDialog
 				downloadedStr = String.format("%.1fk", downloaded/1024.0);
 			else
 				downloadedStr = String.format("%.2fM", downloaded/1048576.0);
-			progressLabel.setText("Downloading inventory..." + downloadedStr + "B/" + bytes + "B downloaded.");
+			if (bytes.isEmpty())
+			{
+				progressBar.setVisible(false);
+				progressLabel.setText("Downloading inventory..." + downloadedStr + "B downloaded.");
+			}
+			else
+			{
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(downloaded);
+				progressLabel.setText("Downloading inventory..." + downloadedStr + "B/" + bytes + "B downloaded.");
+			}
 		}
 		
 		/**
@@ -198,13 +206,15 @@ public class InventoryDownloadDialog extends JDialog
 				// TODO: Add ETA
 				URLConnection conn = site.openConnection();
 				int toDownload = conn.getContentLength();
-				if (toDownload <= 1024)
+				if (toDownload < 0)
+					bytes = "";
+				else if (toDownload <= 1024)
 					bytes = String.format("%d", toDownload);
 				else if (toDownload <= 1048576)
 					bytes = String.format("%.1fk", toDownload/1024.0);
 				else
 					bytes = String.format("%.2fM", toDownload/1048576.0);
-				SwingUtilities.invokeAndWait(() -> progressBar.setMaximum(toDownload));
+				SwingUtilities.invokeLater(() -> progressBar.setMaximum(toDownload));
 				try (BufferedInputStream in = new BufferedInputStream((conn.getInputStream())))
 				{
 					try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file)))

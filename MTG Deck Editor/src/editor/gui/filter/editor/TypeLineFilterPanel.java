@@ -95,6 +95,6 @@ public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
 		if (filter instanceof TypeLineFilter)
 			setContents((TypeLineFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal type line filter " + filter.type);
+			throw new IllegalArgumentException("Illegal type line filter " + filter.type());
 	}
 }

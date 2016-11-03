@@ -67,8 +67,8 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
 	@Override
 	public void setContents(OptionsFilter<String> filter)
 	{
-		if (filter.type != FilterFactory.FORMAT_LEGALITY)
-			throw new IllegalArgumentException("Illegal legality filter type " + filter.type);
+		if (filter.type() != FilterFactory.FORMAT_LEGALITY)
+			throw new IllegalArgumentException("Illegal legality filter type " + filter.type());
 		else
 			setContents((LegalityFilter)filter);
 	}
@@ -86,7 +86,7 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
 		if (filter instanceof LegalityFilter)
 			setContents((LegalityFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal legality filter " + filter.type);
+			throw new IllegalArgumentException("Illegal legality filter " + filter.type());
 			
 	}
 	

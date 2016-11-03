@@ -88,7 +88,7 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 	@Override
 	public void setContents(NumberFilter filter)
 	{
-		type = filter.type;
+		type = filter.type();
 		comparison.setSelectedItem(filter.operation);
 		spinner.setValue(filter.operand);
 	}
@@ -107,6 +107,6 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 		if (filter instanceof NumberFilter)
 			setContents((NumberFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal number filter " + filter.type);
+			throw new IllegalArgumentException("Illegal number filter " + filter.type());
 	}
 }

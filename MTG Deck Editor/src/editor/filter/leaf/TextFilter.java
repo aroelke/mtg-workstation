@@ -1,9 +1,11 @@
 package editor.filter.leaf;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +14,7 @@ import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
 import editor.util.Containment;
+import editor.util.SerializableFunction;
 
 /**
  * This class represents a filter for a text characteristic of a Card.
@@ -92,12 +95,17 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	 * @param t Type of the new TextFilter
 	 * @param f Function for the new TextFilter
 	 */
-	public TextFilter(String t, Function<Card, Collection<String>> f)
+	public TextFilter(String t, SerializableFunction<Card, Collection<String>> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
 		text = "";
 		regex = false;
+	}
+	
+	public TextFilter()
+	{
+		this("", null);
 	}
 
 	/**
@@ -112,7 +120,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		if (regex)
 		{
 			Pattern p = Pattern.compile(text, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-			return function.apply(c).stream().anyMatch((s) -> p.matcher(s).find());
+			return function().apply(c).stream().anyMatch((s) -> p.matcher(s).find());
 		}
 		else
 		{
@@ -157,7 +165,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 				matcher = (s) -> false;
 				break;
 			}
-			return function.apply(c).stream().anyMatch(matcher);
+			return function().apply(c).stream().anyMatch(matcher);
 		}
 	}
 
@@ -184,7 +192,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, type);
+		String content = checkContents(s, type());
 		int delim = content.indexOf('"');
 		if (delim > -1)
 		{
@@ -207,7 +215,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	@Override
 	public Filter copy()
 	{
-		TextFilter filter = (TextFilter)FilterFactory.createFilter(type);
+		TextFilter filter = (TextFilter)FilterFactory.createFilter(type());
 		filter.contain = contain;
 		filter.regex = regex;
 		filter.text = text;
@@ -229,7 +237,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		if (other.getClass() != getClass())
 			return false;
 		TextFilter o = (TextFilter)other;
-		return o.type.equals(type) && o.contain == contain && o.regex == regex && o.text.equals(text);
+		return o.type().equals(type()) && o.contain == contain && o.regex == regex && o.text.equals(text);
 	}
 	
 	/**
@@ -239,6 +247,24 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, function, contain, regex, text);
+		return Objects.hash(type(), function(), contain, regex, text);
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in);
+		contain = (Containment)in.readObject();
+		regex = in.readBoolean();
+		text = in.readUTF();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		super.writeExternal(out);
+		out.writeObject(contain);
+		out.writeBoolean(regex);
+		out.writeUTF(text);
 	}
 }

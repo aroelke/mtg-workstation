@@ -3,9 +3,12 @@ package editor.collection.deck;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.Externalizable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -22,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,6 +34,7 @@ import editor.collection.CardList;
 import editor.collection.category.CategoryListener;
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
+import editor.gui.MainFrame;
 
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and
@@ -38,7 +43,7 @@ import editor.database.card.Card;
  * 
  * @author Alec Roelke
  */
-public class Deck implements CardList
+public class Deck implements CardList, Externalizable
 {
 	/**
 	 * This class represents a category of a deck.  If a card is added or removed using the add and remove
@@ -70,7 +75,7 @@ public class Deck implements CardList
 		 * 
 		 * @param spec Specifications for the new Category
 		 */
-		private Category(CategorySpec spec)
+		public Category(CategorySpec spec)
 		{
 			this.spec = spec;
 			rank = categories.size();
@@ -398,6 +403,24 @@ public class Deck implements CardList
 				else
 					e.categories.remove(this);
 		}
+		
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(spec);
+		}
+		
+		@Override
+		public boolean equals(Object other)
+		{
+			if (other == null)
+				return false;
+			if (other == this)
+				return true;
+			if (!(other instanceof Category))
+				return false;
+			return spec.equals(((Category)other).spec);
+		}
 	}
 	
 	/**
@@ -433,25 +456,12 @@ public class Deck implements CardList
 		 * @param amount Number of initial copies in this Entry
 		 * @param added Date the Card was added
 		 */
-		private DeckEntry(Card card, int amount, Date added)
+		public DeckEntry(Card card, int amount, Date added)
 		{
 			this.card = card;
 			count = amount;
 			date = added;
 			categories = new LinkedHashSet<Category>();
-		}
-		
-		/**
-		 * Copy constructor for DeckEntry.
-		 * 
-		 * @param original Original DeckEntry to copy
-		 */
-		private DeckEntry(DeckEntry original)
-		{
-			card = original.card;
-			count = original.count;
-			date = original.date;
-			categories = new LinkedHashSet<Category>(original.categories);
 		}
 		
 		/**
@@ -521,6 +531,25 @@ public class Deck implements CardList
 			int old = count;
 			count -= Math.min(count, amount);
 			return old - count;
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(card, count, date);
+		}
+		
+		@Override
+		public boolean equals(Object other)
+		{
+			if (other == null)
+				return false;
+			if (other == this)
+				return false;
+			if (!(other instanceof DeckEntry))
+				return false;
+			DeckEntry o = (DeckEntry)other;
+			return card.equals(o.card) && o.count == count && o.date.equals(date);
 		}
 	}
 	
@@ -1521,7 +1550,7 @@ public class Deck implements CardList
 			wr.println(String.valueOf(categories.size()));
 			for (Category c: categories.values())
 				wr.println(c.toString());
-		} 
+		}
 	}
 	
 	/**
@@ -1646,5 +1675,65 @@ public class Deck implements CardList
 	public int total()
 	{
 		return total;
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		clear();
+		
+		int n = in.readInt();
+		for (int i = 0; i < n; i++)
+		{
+			Card card = MainFrame.inventory()[in.readUTF()];
+			int count = in.readInt();
+			Date added = (Date)in.readObject();
+			do_add(card, count, added);
+		}
+		n = in.readInt();
+		for (int i = 0; i < n; i++)
+		{
+			Category category = new Category((CategorySpec)in.readObject());
+			categories[category.spec.getName()] = category;
+			category.rank = in.readInt();
+			category.update();
+		}
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		out.writeInt(masterList.size());
+		for (DeckEntry entry: masterList)
+		{
+			out.writeUTF(entry.card.id());
+			out.writeInt(entry.count);
+			out.writeObject(entry.date);
+		}
+		out.writeInt(categories.size());
+		for (Category category: categories.values())
+		{
+			out.writeObject(category.spec);
+			out.writeInt(category.rank);
+		}
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(masterList, categories);
+	}
+	
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (!(other instanceof Deck))
+			return false;
+		Deck o = (Deck)other;
+		return o.masterList.equals(masterList) && o.categories.equals(categories);
 	}
 }

@@ -1,5 +1,8 @@
 package editor.filter.leaf;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Objects;
 
 import editor.database.card.Card;
@@ -28,6 +31,11 @@ public class BinaryFilter extends FilterLeaf<Void>
 	{
 		super(a ? FilterFactory.ALL : FilterFactory.NONE, null);
 		all = a;
+	}
+	
+	public BinaryFilter()
+	{
+		this(true);
 	}
 	
 	/**
@@ -64,7 +72,7 @@ public class BinaryFilter extends FilterLeaf<Void>
 	@Override
 	public Filter copy()
 	{
-		return FilterFactory.createFilter(type);
+		return FilterFactory.createFilter(type());
 	}
 	
 	/**
@@ -91,6 +99,20 @@ public class BinaryFilter extends FilterLeaf<Void>
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, function, all);
+		return Objects.hash(type(), function(), all);
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in);
+		all = in.readBoolean();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		super.writeExternal(out);
+		out.writeBoolean(all);
 	}
 }

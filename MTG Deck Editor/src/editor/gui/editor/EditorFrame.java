@@ -1861,10 +1861,13 @@ public class EditorFrame extends JInternalFrame
 		}
 	}
 	
+	public Deck deck()
+	{
+		return deck;
+	}
+	
 	/**
 	 * Set the settings of this EditorFrame
-	 * 
-	 * @see MainFrame#resetDefaultSettings()
 	 */
 	public void applySettings()
 	{
@@ -2248,7 +2251,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					if (isCancelled())
 						return null;
-					CategorySpec spec = new CategorySpec(rd.readLine(), parent.inventory());
+					CategorySpec spec = new CategorySpec(rd.readLine());
 					addCategory(spec);
 					publish(50 + 50*(i + 1)/categories);
 				}

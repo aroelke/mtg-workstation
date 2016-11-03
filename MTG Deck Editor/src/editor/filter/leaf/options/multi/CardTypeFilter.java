@@ -58,4 +58,10 @@ public class CardTypeFilter extends MultiOptionsFilter<String>
 		filter.selected = new HashSet<String>(selected);
 		return filter;
 	}
+
+	@Override
+	public String convertFromString(String str)
+	{
+		return str;
+	}
 }

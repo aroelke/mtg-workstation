@@ -1,16 +1,19 @@
 package editor.filter.leaf;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.database.characteristics.ManaType;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
 import editor.util.Containment;
+import editor.util.SerializableFunction;
 
 /**
  * This class represents a filter to group cards by color characteristic.
@@ -38,12 +41,17 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	 * @param t Type of the new ColorFilter
 	 * @param f Function for the new ColorFilter
 	 */
-	public ColorFilter(String t, Function<Card, ManaType.Tuple> f)
+	public ColorFilter(String t, SerializableFunction<Card, ManaType.Tuple> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
 		colors = new HashSet<ManaType>();
 		multicolored = false;
+	}
+	
+	public ColorFilter()
+	{
+		this("", null);
 	}
 	
 	/**
@@ -55,8 +63,8 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	@Override
 	public boolean test(Card c)
 	{
-		return contain.test(function.apply(c), colors)
-				&& (!multicolored || function.apply(c).size() > 1);
+		return contain.test(function().apply(c), colors)
+				&& (!multicolored || function().apply(c).size() > 1);
 	}
 
 	/**
@@ -87,7 +95,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, type);
+		String content = checkContents(s, type());
 		int delim = content.indexOf('"');
 		contain = Containment.fromString(content.substring(0, delim));
 		for (char c: content.substring(delim + 1, content.lastIndexOf('"')).toCharArray())
@@ -105,7 +113,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	@Override
 	public Filter copy()
 	{
-		ColorFilter filter = (ColorFilter)FilterFactory.createFilter(type);
+		ColorFilter filter = (ColorFilter)FilterFactory.createFilter(type());
 		filter.colors = new HashSet<ManaType>(colors);
 		filter.contain = contain;
 		filter.multicolored = multicolored;
@@ -129,7 +137,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 		if (other.getClass() != getClass())
 			return false;
 		ColorFilter o = (ColorFilter)other;
-		return o.type.equals(type) && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;
+		return o.type().equals(type()) && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;
 	}
 	
 	/**
@@ -139,6 +147,28 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, function, colors, contain, multicolored);
+		return Objects.hash(type(), function(), colors, contain, multicolored);
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in);
+		contain = (Containment)in.readObject();
+		int n = in.readInt();
+		for (int i = 0; i < n; i++)
+			colors.add((ManaType)in.readObject());
+		multicolored = in.readBoolean();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		super.writeExternal(out);
+		out.writeObject(contain);
+		out.writeInt(colors.size());
+		for (ManaType type: colors)
+			out.writeObject(type);
+		out.writeBoolean(multicolored);
 	}
 }

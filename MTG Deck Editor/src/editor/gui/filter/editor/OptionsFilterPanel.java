@@ -104,11 +104,11 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	 * fields and the given array to specify the set of options to choose from.
 	 *
 	 * @param f Filter to use for initialization
-	 * @param o List of options to choose from
+	 * @param t List of options to choose from
 	 */
 	public OptionsFilterPanel(OptionsFilter<T> f, T[] t)
 	{
-		this(f.type, t);
+		this(f.type(), t);
 		setContents(f);
 	}
 
@@ -199,7 +199,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	@Override
 	public void setContents(OptionsFilter<T> filter)
 	{
-		if (filter.type.equals(type))
+		if (filter.type().equals(type))
 		{
 			contain.setSelectedItem(filter.contain);
 			if (options.length == 0)
@@ -213,7 +213,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 					addItem(selected);
 		}
 		else
-			throw new IllegalArgumentException("Options filter type " + filter.type + " does not match type " + type);
+			throw new IllegalArgumentException("Options filter type " + filter.type() + " does not match type " + type);
 	}
 
 	/**
@@ -228,11 +228,11 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	@Override
 	public void setContents(FilterLeaf<?> filter)
 	{
-		if (filter instanceof OptionsFilter && filter.type.equals(type))
+		if (filter instanceof OptionsFilter && filter.type().equals(type))
 			setContents((OptionsFilter<T>)filter);
 		else if (filter instanceof OptionsFilter)
-			throw new IllegalArgumentException("Options filter type " + filter.type + " does not match type " + type);
+			throw new IllegalArgumentException("Options filter type " + filter.type() + " does not match type " + type);
 		else
-			throw new IllegalArgumentException("Illegal options filter " + filter.type);
+			throw new IllegalArgumentException("Illegal options filter " + filter.type());
 	}
 }

@@ -134,7 +134,7 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 	@Override
 	public void setContents(TextFilter filter)
 	{
-		type = filter.type;
+		type = filter.type();
 		contain.setSelectedItem(filter.contain);
 		text.setText(filter.text);
 		regex.setSelected(filter.regex);
@@ -155,6 +155,6 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		if (filter instanceof TextFilter)
 			setContents((TextFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal text filter " + filter.type);
+			throw new IllegalArgumentException("Illegal text filter " + filter.type());
 	}
 }

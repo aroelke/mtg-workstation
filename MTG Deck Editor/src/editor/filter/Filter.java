@@ -1,5 +1,6 @@
 package editor.filter;
 
+import java.io.Externalizable;
 import java.util.function.Predicate;
 
 import editor.database.card.Card;
@@ -16,10 +17,12 @@ import editor.util.UnicodeSymbols;
  *
  * Note that because filters are mutable, they do not make good keys or Set
  * members.
+ * 
+ * TODO: Change no-arg constructors to being protected
  *
  * @author Alec Roelke
  */
-public abstract class Filter implements Predicate<Card>
+public abstract class Filter implements Predicate<Card>, Externalizable
 {
 	/**
 	 * Character marking the beginning of a group.

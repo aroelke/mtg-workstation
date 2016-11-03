@@ -38,9 +38,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 		contain = Containment.fromString(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			for (String o: content.substring(delim + 1, content.length() - 1).split(","))
-				for (Expansion expansion: Expansion.expansions)
-					if (o.equals(expansion.name))
-						selected.add(expansion);
+				selected.add(convertFromString(o));
 	}
 	
 	/**
@@ -53,5 +51,14 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 		filter.contain = contain;
 		filter.selected = new HashSet<Expansion>(selected);
 		return filter;
+	}
+
+	@Override
+	public Expansion convertFromString(String str)
+	{
+		for (Expansion expansion: Expansion.expansions)
+			if (str.equalsIgnoreCase(expansion.name))
+				return expansion;
+		throw new IllegalArgumentException("Unknown expansion name \"" + str + "\"");
 	}
 }
