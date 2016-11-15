@@ -16,8 +16,8 @@ public interface PopupMenuListenerFactory
 	/**
 	 * Create a new PopupMenuListener that only listens for cancellation.
 	 * 
-	 * @param popupMenuCanceled Action to perform when the menu is canceled
-	 * @return A PopupMenuListener that performs the given event when the menu is canceled.
+	 * @param popupMenuCanceled action to perform when the menu is canceled
+	 * @return a PopupMenuListener that performs the given event when the menu is canceled.
 	 */
 	public static PopupMenuListener createCancellationListener(Consumer<PopupMenuEvent> popupMenuCanceled)
 	{
@@ -43,8 +43,8 @@ public interface PopupMenuListenerFactory
 	 * Create a PopupMenuListener that only listens for when a popup menu is about to become
 	 * invisible.
 	 * 
-	 * @param popupMenuWillBecomeInvisible Action to perform before the menu becomes invisible
-	 * @return A PopupMenuListener that performs the given action before a menu becomes invisible
+	 * @param popupMenuWillBecomeInvisible action to perform before the menu becomes invisible
+	 * @return a PopupMenuListener that performs the given action before a menu becomes invisible
 	 */
 	public static PopupMenuListener createInvisibleListener(Consumer<PopupMenuEvent> popupMenuWillBecomeInvisible)
 	{
@@ -70,8 +70,8 @@ public interface PopupMenuListenerFactory
 	 * Create a PopupMenuListener that only listens to when a popup menu is about to become
 	 * visible.
 	 * 
-	 * @param popupMenuWillBecomeVisible Action to perform before the menu becomes visible
-	 * @return A PopupMenuListener that performs the given action just before a popup menu
+	 * @param popupMenuWillBecomeVisible action to perform before the menu becomes visible
+	 * @return a PopupMenuListener that performs the given action just before a popup menu
 	 * becomes visible.
 	 */
 	public static PopupMenuListener createVisibleListener(Consumer<PopupMenuEvent> popupMenuWillBecomeVisible)

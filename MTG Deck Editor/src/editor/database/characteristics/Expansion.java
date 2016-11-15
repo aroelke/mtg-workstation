@@ -4,8 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * This class represents an expansion set of Magic: The Gathering cards.  It has a name, a block, a code,
- * and a number of cards.
+ * This class represents an expansion set of Magic: The Gathering cards.
  * 
  * TODO: Add (some) other fields from MTGJSON and add functionality for them
  * 
@@ -14,10 +13,6 @@ import java.util.Date;
 public class Expansion implements Comparable<Expansion>
 {
 	/**
-	 * Array containing all expansion names.
-	 */
-	public static Expansion[] expansions = {};
-	/**
 	 * Array containing all block names.
 	 */
 	public static String[] blocks = {};
@@ -25,11 +20,11 @@ public class Expansion implements Comparable<Expansion>
 	 * Date format used to decode expansion release dates.
 	 */
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("YYYY-MM-DD");
-	
 	/**
-	 * This Expansion's name.
+	 * Array containing all expansion names.
 	 */
-	public final String name;
+	public static Expansion[] expansions = {};
+	
 	/**
 	 * Name of the block this Expansion belongs to (empty if there is none).
 	 */
@@ -39,22 +34,26 @@ public class Expansion implements Comparable<Expansion>
 	 */
 	public final String code;
 	/**
-	 * The old Gatherer code used for this Expansion.
+	 * Number of cards in this Expansion.
 	 */
-	public final String oldCode;
-	/**
-	 * This Expansion's code on magiccards.info.
-	 */
-	public final String magicCardsInfoCode;
+	public final int count;
 	/**
 	 * This expansion's code on Gatherer, or null if it's the same as the
 	 * set code or isn't on Gatherer.
 	 */
 	public final String gathererCode;
 	/**
-	 * Number of cards in this Expansion.
+	 * This Expansion's code on magiccards.info.
 	 */
-	public final int count;
+	public final String magicCardsInfoCode;
+	/**
+	 * This Expansion's name.
+	 */
+	public final String name;
+	/**
+	 * The old Gatherer code used for this Expansion.
+	 */
+	public final String oldCode;
 	/**
 	 * The date the expansion was released.
 	 */
@@ -63,13 +62,13 @@ public class Expansion implements Comparable<Expansion>
 	/**
 	 * Create a new Expansion.
 	 * 
-	 * @param name Name of the new expansion
-	 * @param block Name of the block the new Expansion belongs to
-	 * @param code Code of the new Expansion (usually three letters)
-	 * @param old Old Gatherer code for the new Expansion
+	 * @param name name of the new expansion
+	 * @param block name of the block the new Expansion belongs to
+	 * @param code code of the new Expansion (usually three letters)
+	 * @param old old Gatherer code for the new Expansion
 	 * @param magicCardsInfo magiccards.info code of the new Expansion
-	 * @param gatherer Gatherer code of the new Expansion
-	 * @param count Number of cards in the new Expansion
+	 * @param gatherer gatherer code of the new Expansion
+	 * @param count number of cards in the new Expansion
 	 */
 	public Expansion(String name, String block, String code, String old, String magicCardsInfo, String gatherer, int count, Date date)
 	{
@@ -83,18 +82,15 @@ public class Expansion implements Comparable<Expansion>
 		this.releaseDate = date;
 	}
 	
-	/**
-	 * @return A String representation of this Expansion. 
-	 */
 	@Override
-	public String toString()
+	public int compareTo(Expansion other)
 	{
-		return name;
+		return name.compareTo(other.name);
 	}
 	
 	/**
-	 * @param other Object to test.
-	 * @return <code>true</code> if this Expansion has the same name as the other one, and <code>false</code> otherwise.
+	 * {@inheritDoc}
+	 * Expansions are equal if they have the same name.
 	 */
 	@Override
 	public boolean equals(Object other)
@@ -109,19 +105,19 @@ public class Expansion implements Comparable<Expansion>
 		Expansion o = (Expansion)other;
 		return name.equals(o.name);
 	}
-	
-	/**
-	 * @return An integer uniquely identifying this Expansion.
-	 */
+
 	@Override
 	public int hashCode()
 	{
 		return name.hashCode();
 	}
 	
+	/**
+	 * @return A String representation of this Expansion. 
+	 */
 	@Override
-	public int compareTo(Expansion other)
+	public String toString()
 	{
-		return name.compareTo(other.name);
+		return name;
 	}
 }

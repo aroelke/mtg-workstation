@@ -17,8 +17,7 @@ import editor.database.characteristics.ManaType;
 public class PhyrexianSymbol extends ManaSymbol
 {
 	/**
-	 * Map of ManaTypes onto their corresponding Phyrexian symbols.
-	 * @see editor.database.symbol.Symbol
+	 * Map of colors onto their corresponding Phyrexian symbols.
 	 */
 	private static final Map<ManaType, PhyrexianSymbol> SYMBOLS = Collections.unmodifiableMap(
 			Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), PhyrexianSymbol::new)));
@@ -26,9 +25,8 @@ public class PhyrexianSymbol extends ManaSymbol
 	/**
 	 * Get the PhyrexianSymbol corresponding to the given color.
 	 * 
-	 * @param col ManaType corresponding to the symbol to get
-	 * @return The PhyrexianSymbol corresponding to the given ManaType, or
-	 * null if no such symbol exists.
+	 * @param col color corresponding to the symbol to get
+	 * @return the PhyrexianSymbol corresponding to the given color, or null if no such symbol exists.
 	 */
 	public static PhyrexianSymbol get(ManaType col)
 	{
@@ -40,7 +38,7 @@ public class PhyrexianSymbol extends ManaSymbol
 	 * a color character followed by either /p or /P.
 	 * 
 	 * @param col String to parse
-	 * @return The corresponding Phyrexian sybol.
+	 * @return the corresponding Phyrexian symbol.
 	 */
 	public static PhyrexianSymbol get(String col)
 	{
@@ -65,7 +63,7 @@ public class PhyrexianSymbol extends ManaSymbol
 	/**
 	 * Create a new PhyrexianSymbol.
 	 * 
-	 * @param color The new PhyrexianSymbol's color.
+	 * @param color the new PhyrexianSymbol's color
 	 */
 	private PhyrexianSymbol(ManaType color)
 	{
@@ -74,9 +72,8 @@ public class PhyrexianSymbol extends ManaSymbol
 	}
 
 	/**
-	 * @return This PhyrexianSymbol's color weights, which is 1 for its color and 0 for
-	 * the rest.
-	 * @see editor.database.symbol.Symbol#colorWeights()
+	 * {@inheritDoc}
+	 * This PhyrexianSymbols color weights are 0.5 for its color and 0 for all of the others.
 	 */
 	@Override
 	public Map<ManaType, Double> colorWeights()
@@ -84,13 +81,6 @@ public class PhyrexianSymbol extends ManaSymbol
 		return createWeights(new ColorWeight(color, 0.5));
 	}
 
-	/**
-	 * @param o Symbol to compare with
-	 * @return A negative number if this PhyrexianSymbol should come before the other Symbol
-	 * in a cost, the ordering of colors if the other Symbol is a PhyrexianSymbol, a positive
-	 * number if its should come after, and 0 if ordering is undefined.
-	 * @see editor.database.symbol.Symbol#compareTo(editor.database.symbol.Symbol)
-	 */
 	@Override
 	public int compareTo(ManaSymbol o)
 	{

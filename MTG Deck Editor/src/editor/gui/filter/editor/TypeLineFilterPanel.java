@@ -47,7 +47,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
 	 * Create a new TypeLineFilterPanel, using the given TypeLineFilter
 	 * to initialize its fields.
 	 * 
-	 * @param f Filter to use for initialization
+	 * @param f filter to use for initialization
 	 */
 	public TypeLineFilterPanel(TypeLineFilter f)
 	{
@@ -55,10 +55,6 @@ public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
 		setContents(f);
 	}
 	
-	/**
-	 * @return The TypeLineFilter corresponding to values of this
-	 * TypeLineFilterPanel's fields.
-	 */
 	@Override
 	public Filter filter()
 	{
@@ -68,33 +64,19 @@ public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
 		return filter;
 	}
 
-	/**
-	 * Fill in the fields of this TypeLineFilterPanel using the contents
-	 * of the given TypeLineFilter.
-	 * 
-	 * @param filter Filter to use for filling out fields
-	 */
 	@Override
-	public void setContents(TypeLineFilter filter)
-	{
-		contain.setSelectedItem(filter.contain);
-		line.setText(filter.line);
-	}
-
-	/**
-	 * Fill in the fields of this TypeLineFilterPanel using the contents
-	 * of the given FilterLeaf.
-	 * 
-	 * @param filter Filter to use for filling out fields
-	 * @throws IllegalArgumentException if the given filter is not a
-	 * TypeLineFilter.
-	 */
-	@Override
-	public void setContents(FilterLeaf<?> filter)
+	public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
 	{
 		if (filter instanceof TypeLineFilter)
 			setContents((TypeLineFilter)filter);
 		else
 			throw new IllegalArgumentException("Illegal type line filter " + filter.type());
+	}
+
+	@Override
+	public void setContents(TypeLineFilter filter)
+	{
+		contain.setSelectedItem(filter.contain);
+		line.setText(filter.line);
 	}
 }

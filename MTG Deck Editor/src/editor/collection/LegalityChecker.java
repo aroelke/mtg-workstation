@@ -22,18 +22,20 @@ import editor.util.Containment;
  * tell what formats a deck is legal and illegal in, and give reasons for why it is
  * illegal.
  * 
+ * TODO: This class does not work properly
+ * 
  * @author Alec Roelke
  */
 public class LegalityChecker
 {
 	/**
-	 * Array containing formats the deck is legal in.
-	 */
-	private String[] legal;
-	/**
 	 * Array containing formats the deck is illegal in.
 	 */
 	private String[] illegal;
+	/**
+	 * Array containing formats the deck is legal in.
+	 */
+	private String[] legal;
 	/**
 	 * Map of formats to reasons for being illegal in them.  Contents of the map are lists
 	 * of Strings, which will be empty for legal formats.
@@ -53,13 +55,48 @@ public class LegalityChecker
 	}
 	
 	/**
+	 * Find the color to classify a Card as to make the deck as close to 20 of each color, with
+	 * no Cards repeating, as possible.  If all classifications have 20 or more Cards, then remove
+	 * one and reclassify it.
+	 * TODO: This almost works; but make it better
+	 * 
+	 * @param c card to classify
+	 * @param bins list of colors the Card can be classified as
+	 * @param exclusion list of colors the Card should not be classified as
+	 */
+	private void binCard(Card c, HashMap<ManaType, List<Card>> bins, List<ManaType> exclusion)
+	{
+		if (c.colors().isEmpty())
+			return;
+		else if (c.colors().size() == 1)
+			bins[c.colors()[0]].add(c);
+		else
+		{
+			ManaType bin = null;
+			for (ManaType color: c.colors())
+				if (bin == null || bins[color].size() < bins[bin].size())
+					bin = color;
+			if (bins[bin].size() < 20)
+				bins[bin].add(c);
+			else
+			{
+				Card next = bins[bin].stream().filter((card) -> !Containment.CONTAINS_ANY_OF.test(card.colors(), exclusion)).findFirst().orElse(null);
+				bins[bin].add(c);
+				exclusion.add(bin);
+				if (next != null)
+					binCard(next, bins, exclusion);
+			}
+		}
+	}
+	
+	/**
 	 * Check which formats a deck is legal in, and the reasons for why it is illegal in
 	 * others.
 	 * 
 	 * TODO: Add deck construction rules for:
 	 * - Tribal Wars Legacy/Standard (1/3 of the cards of the deck must have the same creature type)
 	 * 
-	 * @param deck
+	 * @param deck deck to check
 	 */
 	public void checkLegality(Deck deck)
 	{
@@ -180,57 +217,8 @@ public class LegalityChecker
 	}
 	
 	/**
-	 * Find the color to classify a Card as to make the deck as close to 20 of each color, with
-	 * no Cards repeating, as possible.  If all classifications have 20 or more Cards, then remove
-	 * one and reclassify it.
+	 * Get the reasons the deck last checked is illegal in a format.
 	 * 
-	 * TODO: This almost works; but make it better
-	 * @param c Card to classify
-	 * @param bins List of colors the Card can be classified as
-	 * @param exclusion List of colors the Card should not be classified as
-	 */
-	private void binCard(Card c, HashMap<ManaType, List<Card>> bins, List<ManaType> exclusion)
-	{
-		if (c.colors().isEmpty())
-			return;
-		else if (c.colors().size() == 1)
-			bins[c.colors()[0]].add(c);
-		else
-		{
-			ManaType bin = null;
-			for (ManaType color: c.colors())
-				if (bin == null || bins[color].size() < bins[bin].size())
-					bin = color;
-			if (bins[bin].size() < 20)
-				bins[bin].add(c);
-			else
-			{
-				Card next = bins[bin].stream().filter((card) -> !Containment.CONTAINS_ANY_OF.test(card.colors(), exclusion)).findFirst().orElse(null);
-				bins[bin].add(c);
-				exclusion.add(bin);
-				if (next != null)
-					binCard(next, bins, exclusion);
-			}
-		}
-	}
-	
-	/**
-	 * @return The list of formats the deck is legal in.
-	 */
-	public String[] legalFormats()
-	{
-		return legal;
-	}
-	
-	/**
-	 * @return The list of formats the deck is illegal in.
-	 */
-	public String[] illegalFormats()
-	{
-		return illegal;
-	}
-	
-	/**
 	 * @param format Format to check reasons for illegality
 	 * @return A list of Strings containing reasons for why the deck is illegal
 	 * in the given format.
@@ -238,5 +226,25 @@ public class LegalityChecker
 	public List<String> getWarnings(String format)
 	{
 		return warnings[format];
+	}
+	
+	/**
+	 * Get the formats the deck last checked is illegal in.
+	 * 
+	 * @return the list of formats the deck is illegal in.
+	 */
+	public String[] illegalFormats()
+	{
+		return illegal;
+	}
+	
+	/**
+	 * Get the formats the deck last checked is legal in.
+	 * 
+	 * @return the list of formats the deck is legal in.
+	 */
+	public String[] legalFormats()
+	{
+		return legal;
 	}
 }

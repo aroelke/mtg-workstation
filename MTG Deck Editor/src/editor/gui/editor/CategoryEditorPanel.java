@@ -6,12 +6,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -28,7 +22,7 @@ import javax.swing.SwingUtilities;
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.gui.display.CardList;
+import editor.gui.display.CardJList;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.generic.ColorButton;
 import editor.gui.generic.ScrollablePanel;
@@ -51,12 +45,25 @@ public class CategoryEditorPanel extends JPanel
 	
 	/**
 	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
+	 * edited.  The panel will start off blank.
+	 * 
+	 * @param parent component to be used to determine the Frame of the dialog
+	 * @return the {@link CategorySpec} of the panel in the state it was last in while editing it, or null if the
+	 * Cancel button was pressed or the dialog was closed.
+	 */
+	public static CategorySpec showCategoryEditor(Container parent)
+	{
+		return showCategoryEditor(parent, null);
+	}
+	
+	/**
+	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
 	 * edited.
 	 * 
-	 * @param parent Component to be used to determine the Frame of the dialog
-	 * @param s Specification for the initial contents of the editor
-	 * @return The CategorySpec of the panel in the state it was last in while editing it, or <code>null</code> if
-	 * the Cancel button was pressed or the dialog was closed.
+	 * @param parent component to be used to determine the frame of the dialog
+	 * @param s specification for the initial contents of the editor
+	 * @return the {@link CategorySpec} of the panel in the state it was last in while editing it, or null if the
+	 * Cancel button was pressed or the dialog was closed.
 	 */
 	public static CategorySpec showCategoryEditor(Container parent, CategorySpec s)
 	{
@@ -95,30 +102,21 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
-	 * Show a dialog allowing the editing of categories.  If the OK button is pressed, return the panel as it was
-	 * edited.  The panel will start off blank.
-	 * 
-	 * @param parent Component to be used to determine the Frame of the dialog
-	 * @return The CategorySpec of the panel in the state it was last in while editing it, or <code>null</code> if
-	 * the Cancel button was pressed or the dialog was closed.
+	 * List displaying the category's blacklist.
 	 */
-	public static CategorySpec showCategoryEditor(Container parent)
-	{
-		return showCategoryEditor(parent, null);
-	}
-	
-	/**
-	 * Text field for editing the category's name.
-	 */
-	private JTextField nameField;
-	/**
-	 * FilterGroupPanel for editing the category's filter.
-	 */
-	private FilterGroupPanel filter;
+	private CardJList blacklist;
 	/**
 	 * Button displaying the color of the category, and allowing change of that color.
 	 */
 	private ColorButton colorButton;
+	/**
+	 * Panel for editing the category's filter.
+	 */
+	private FilterGroupPanel filter;
+	/**
+	 * Text field for editing the category's name.
+	 */
+	private JTextField nameField;
 	/**
 	 * The category specification being edited by this CategoryEditorPanel.
 	 */
@@ -126,11 +124,7 @@ public class CategoryEditorPanel extends JPanel
 	/**
 	 * List displaying the category's whitelist.
 	 */
-	private CardList whitelist;
-	/**
-	 * List displaying the category's blacklist.
-	 */
-	private CardList blacklist;
+	private CardJList whitelist;
 	
 	/**
 	 * Create a new CategoryEditorPanel.
@@ -161,11 +155,11 @@ public class CategoryEditorPanel extends JPanel
 		JPanel listPanel = new JPanel(new GridLayout(0, 2));
 		JPanel whitelistPanel = new JPanel(new BorderLayout());
 		whitelistPanel.setBorder(BorderFactory.createTitledBorder("Whitelist"));
-		whitelistPanel.add(new JScrollPane(whitelist = new CardList()), BorderLayout.CENTER);
+		whitelistPanel.add(new JScrollPane(whitelist = new CardJList()), BorderLayout.CENTER);
 		listPanel.add(whitelistPanel);
 		JPanel blacklistPanel = new JPanel(new BorderLayout());
 		blacklistPanel.setBorder(BorderFactory.createTitledBorder("Blacklist"));
-		blacklistPanel.add(new JScrollPane(blacklist = new CardList()), BorderLayout.CENTER);
+		blacklistPanel.add(new JScrollPane(blacklist = new CardJList()), BorderLayout.CENTER);
 		listPanel.add(blacklistPanel);
 		add(listPanel, BorderLayout.SOUTH);
 		
@@ -176,7 +170,7 @@ public class CategoryEditorPanel extends JPanel
 	 * Create a new CategoryEditorPanel, and then fill its contents from the specified
 	 * category specification.
 	 * 
-	 * @param s Specifications for the initial state of the editor
+	 * @param s specifications for the initial state of the editor
 	 */
 	public CategoryEditorPanel(CategorySpec s)
 	{
@@ -193,6 +187,18 @@ public class CategoryEditorPanel extends JPanel
 	}
 	
 	/**
+	 * Get the {@link CategorySpec} as it is defined by the contents of this
+	 * CategoryEditorPanel.
+	 * 
+	 * @return The category specification being edited by this CategoryEditorPanel.
+	 */
+	public CategorySpec spec()
+	{
+		updateSpec();
+		return spec;
+	}
+	
+	/**
 	 * Update this CategoryEditorPanel's specification to match its contents.
 	 */
 	public void updateSpec()
@@ -200,25 +206,5 @@ public class CategoryEditorPanel extends JPanel
 		spec.setName(nameField.getText());
 		spec.setColor(colorButton.color());
 		spec.setFilter(filter.filter());
-	}
-	
-	/**
-	 * @return The category specification being edited by this CategoryEditorPanel.
-	 * Make sure to call {@link CategoryEditorPanel#updateSpec()} in order to get its
-	 * contents.
-	 */
-	public CategorySpec spec()
-	{
-		return spec;
-	}
-	
-	/**
-	 * @return The String representation of the category being edited, which is its name
-	 * followed by the String representation of its filter.
-	 */
-	@Override
-	public String toString()
-	{
-		return spec.toString();
 	}
 }

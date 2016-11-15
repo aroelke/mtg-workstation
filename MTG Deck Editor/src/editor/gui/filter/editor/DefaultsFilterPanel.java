@@ -52,8 +52,9 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	}
 	
 	/**
-	 * @return A FilterGroup containing the parsed contents of the selected
-	 * default category. 
+	 * {@inheritDoc}
+	 * This panel doesn't have its own filter; rather, it returns a group containing
+	 * a filter corresponding to the given preset. 
 	 */
 	@Override
 	public Filter filter()
@@ -62,8 +63,8 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	}
 
 	/**
-	 * Since this panel doesn't correspond to a filter, there are no contents
-	 * to set.
+	 * {@inheritDoc}
+	 * Since this panel doesn't correspond to a filter, this doesn't do anything.
 	 */
 	@Override
 	public void setContents(FilterLeaf<?> filter)

@@ -8,17 +8,13 @@ import editor.util.UnicodeSymbols;
 
 
 /**
- * This class represents a filter to group a collection of Cards
- * by various characteristics.  Each filter has a String representation
- * and can parse a String for its values.  The overall filter is
- * represented by a tree whose internal nodes are groups and whose leaf
- * nodes filter out characteristics.  A filter can test if a Card matches
- * its characteristics.
+ * This class represents a filter to group a collection of Cards by various characteristics.
+ * Each filter has a String representation and can parse a String for its values.  The overall
+ * filter is represented by a tree whose internal nodes are groups and whose leaf nodes filter
+ * out characteristics.  A filter can test if a Card matches its characteristics.
  *
  * Note that because filters are mutable, they do not make good keys or Set
  * members.
- * 
- * TODO: Change no-arg constructors to being protected
  *
  * @author Alec Roelke
  */
@@ -34,8 +30,7 @@ public abstract class Filter implements Predicate<Card>, Externalizable
 	public static final char END_GROUP = UnicodeSymbols.RIGHT_ANGLE_DOUBLE_QUOTE;
 
 	/**
-	 * Parent of this Filter in the tree (null if this is the
-	 * root Filter).
+	 * Parent of this Filter in the tree (null if this is the root Filter).
 	 */
 	protected FilterGroup parent;
 
@@ -48,26 +43,38 @@ public abstract class Filter implements Predicate<Card>, Externalizable
 	}
 
 	/**
-	 * @return The String representation of this Filter's subtree,
-	 * excluding beginning and ending markers.
+	 * Create a copy of this Filter.
+	 * 
+	 * @return A new Filter that is a copy of this Filter.
 	 */
-	public abstract String representation();
+	public abstract Filter copy();
+
+	@Override
+	public abstract boolean equals(Object other);
+
+	@Override
+	public abstract int hashCode();
 
 	/**
-	 * Parse a String to determine the contents of this Filter.  How
-	 * the String is parsed is Filter-dependent.
+	 * Parse a String to determine the contents of this Filter.  How the String is parsed
+	 * is Filter-dependent.
 	 *
 	 * @param s String to parse
 	 */
 	public abstract void parse(String s);
 
 	/**
-	 * @return A new Filter that is a copy of this Filter.
+	 * Get the String representation of the contents of this Filter.
+	 * 
+	 * @return The String representation of this Filter's subtree, excluding beginning
+	 * and ending markers.
 	 */
-	public abstract Filter copy();
+	public abstract String representation();
 
 	/**
-	 * @return A String representation of this Filter.
+	 * {@inheritDoc}
+	 * The String representation is the String value of its contents obtained from
+	 * {@link #representation()} surrounded by {@link #BEGIN_GROUP} and {@link #END_GROUP}.
 	 * @see Filter#representation()
 	 */
 	@Override
@@ -75,19 +82,4 @@ public abstract class Filter implements Predicate<Card>, Externalizable
 	{
 		return BEGIN_GROUP + representation() + END_GROUP;
 	}
-
-	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if the other Object is the same kind of
-	 * Filter as this one and all of its fields are the same.
-	 */
-	@Override
-	public abstract boolean equals(Object other);
-
-	/**
-	 * @return The hash code of this Filter, which is composed of the hash codes
-	 * of all of its fields.
-	 */
-	@Override
-	public abstract int hashCode();
 }

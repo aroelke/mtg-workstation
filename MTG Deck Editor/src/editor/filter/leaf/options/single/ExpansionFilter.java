@@ -23,27 +23,15 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 		super(FilterFactory.EXPANSION, Card::expansion);
 	}
 
-	/**
-	 * Parse a String to determine this ExpansionFilter's containment
-	 * and expansions.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
 	@Override
-	public void parse(String s)
+	public Expansion convertFromString(String str)
 	{
-		String content = checkContents(s, FilterFactory.EXPANSION);
-		int delim = content.indexOf('{');
-		contain = Containment.fromString(content.substring(0, delim));
-		if (content.charAt(delim + 1) != '}')
-			for (String o: content.substring(delim + 1, content.length() - 1).split(","))
-				selected.add(convertFromString(o));
+		for (Expansion expansion: Expansion.expansions)
+			if (str.equalsIgnoreCase(expansion.name))
+				return expansion;
+		throw new IllegalArgumentException("Unknown expansion name \"" + str + "\"");
 	}
 	
-	/**
-	 * @return A new ExpansionFilter that is a copy of this ExpansionFilter.
-	 */
 	@Override
 	public Filter copy()
 	{
@@ -54,11 +42,13 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 	}
 
 	@Override
-	public Expansion convertFromString(String str)
+	public void parse(String s)
 	{
-		for (Expansion expansion: Expansion.expansions)
-			if (str.equalsIgnoreCase(expansion.name))
-				return expansion;
-		throw new IllegalArgumentException("Unknown expansion name \"" + str + "\"");
+		String content = checkContents(s, FilterFactory.EXPANSION);
+		int delim = content.indexOf('{');
+		contain = Containment.fromString(content.substring(0, delim));
+		if (content.charAt(delim + 1) != '}')
+			for (String o: content.substring(delim + 1, content.length() - 1).split(","))
+				selected.add(convertFromString(o));
 	}
 }

@@ -9,9 +9,7 @@ import java.util.StringJoiner;
 import editor.database.card.Card;
 
 /**
- * This class represents a power value or a toughness value.  If the card is missing
- * power or toughness, the String expression will be blank and the numeric value will
- * be "not-a-number."
+ * This class represents a power value or a toughness value.
  * 
  * @author Alec Roelke
  */
@@ -29,6 +27,14 @@ public class PowerToughness implements Comparable<PowerToughness>
 		 * PowerToughnesses that are part of this Tuple.
 		 */
 		private final List<PowerToughness> values;
+		
+		/**
+		 * Create a new, empty Tuple of PowerToughnesses.
+		 */
+		public Tuple()
+		{
+			this(Collections.emptyList());
+		}
 		
 		/**
 		 * Create a new Tuple out of the given collection of PowerToughnesses.
@@ -51,19 +57,8 @@ public class PowerToughness implements Comparable<PowerToughness>
 		}
 		
 		/**
-		 * Create a new, empty Tuple of PowerToughnesses.
-		 */
-		public Tuple()
-		{
-			this(Collections.emptyList());
-		}
-		
-		/**
-		 * @param o Tuple to compare to (must be a PowerToughness tuple)
-		 * @return A negative number if this tuple has a value and the other is empty or if
-		 * the first element of this one is less than the first element of the other one, a
-		 * positive number if the opposite is true, or 0 if both tuples are empty or if their
-		 * first elements are the same.
+		 * {@inheritDoc}
+		 * Only the first value of each Tuple is compared.
 		 */
 		@Override
 		public int compareTo(Tuple o)
@@ -82,20 +77,6 @@ public class PowerToughness implements Comparable<PowerToughness>
 			}
 		}
 		
-		/**
-		 * @return A String representation of this tuple, which is its existing values
-		 * separated by the String used to separate elements of multi-faced cards.
-		 */
-		@Override
-		public String toString()
-		{
-			StringJoiner str = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
-			for (PowerToughness pt: this)
-				if (!Double.isNaN(pt.value))
-					str.add(pt.toString());
-			return str.toString();
-		}
-
 		@Override
 		public PowerToughness get(int index)
 		{
@@ -107,16 +88,31 @@ public class PowerToughness implements Comparable<PowerToughness>
 		{
 			return values.size();
 		}
+
+		/**
+		 * {@inheritDoc}
+		 * The String representation of this tuple is its existing values separated by
+		 * {@link Card#FACE_SEPARATOR}.
+		 */
+		@Override
+		public String toString()
+		{
+			StringJoiner str = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
+			for (PowerToughness pt: this)
+				if (!Double.isNaN(pt.value))
+					str.add(pt.toString());
+			return str.toString();
+		}
 	}
 	
-	/**
-	 * Numeric value of the power or toughness for sorting.
-	 */
-	public final double value;
 	/**
 	 * String expression showing the power or toughness value (may contain *).
 	 */
 	public final String expression;
+	/**
+	 * Numeric value of the power or toughness for sorting.
+	 */
+	public final double value;
 	
 	/**
 	 * Create a new PowerToughness from a number.
@@ -132,7 +128,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 	/**
 	 * Create a new PowerToughness from an expression.
 	 * 
-	 * @param e Expression for the new PowerToughness.
+	 * @param e expression for the new PowerToughness.
 	 */
 	public PowerToughness(String e)
 	{
@@ -149,29 +145,6 @@ public class PowerToughness implements Comparable<PowerToughness>
 		}
 	}
 	
-	/**
-	 * @return <code>true</code> if this PowerToughness's expression contains *,
-	 * and <code>false</code> otherwise.
-	 */
-	public boolean variable()
-	{
-		return expression.contains("*");
-	}
-	
-	/**
-	 * @return <code>true</code> if this value "exists" (is on the card) and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean exists()
-	{
-		return !Double.isNaN(value);
-	}
-	
-	/**
-	 * @return A negative number if this PowerToughness's value is less than the other
-	 * one's or if this one is empty and the other isn't, a positive value if the reverse
-	 * is true, or 0 if they are the same.
-	 */
 	@Override
 	public int compareTo(PowerToughness o)
 	{
@@ -186,12 +159,35 @@ public class PowerToughness implements Comparable<PowerToughness>
 	}
 	
 	/**
-	 * @return A String representation of this PowerToughness, which is its
-	 * expression.
+	 * Not all cards have power or toughness.  For those cards, a value of
+	 * {@link Double#NaN} is used.
+	 * 
+	 * @return true if this PowerToughness exists, and false otherwise.
+	 */
+	public boolean exists()
+	{
+		return !Double.isNaN(value);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * If this PowerToughness doesn't exist according to {@link #exists()}, this is
+	 * an empty String.
 	 */
 	@Override
 	public String toString()
 	{
 		return expression;
+	}
+	
+	/**
+	 * If this PowerToughness's expression contains a *, it is variable.  Otherwise,
+	 * it is not.
+	 * 
+	 * @return true if this PowerToughness is variable, and false otherwise.
+	 */
+	public boolean variable()
+	{
+		return expression.contains("*");
 	}
 }

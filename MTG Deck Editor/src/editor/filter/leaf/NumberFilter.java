@@ -13,8 +13,7 @@ import editor.util.Comparison;
 import editor.util.SerializableFunction;
 
 /**
- * This class represents a filter for a card characteristic that is a
- * number.
+ * This class represents a filter for a card characteristic that is a number.
  * 
  * TODO: Change this to ComparableFilter and make it generic.
  * 
@@ -35,8 +34,8 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	/**
 	 * Create a new NumberFilter.
 	 * 
-	 * @param t Type of the new NumberFilter
-	 * @param f Function for the new NumberFilter
+	 * @param t type of the new NumberFilter
+	 * @param f function for the new NumberFilter
 	 */
 	public NumberFilter(String t, SerializableFunction<Card, Collection<Double>> f)
 	{
@@ -45,15 +44,18 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 		operand = 0.0;
 	}
 	
+	/**
+	 * Create a new NumberFilter without a type or function.  Should only be used for
+	 * deserialization.
+	 */
 	public NumberFilter()
 	{
 		this("", null);
 	}
 
 	/**
-	 * @param c Card to test
-	 * @return <code>true</code> if the numeric characteristic of the given Card
-	 * compares correctly with this NumberFilter's operand.
+	 * {@inheritDoc}
+	 * Filter cards by a numerical value according to this NumberFilter's operation and operand.
 	 */
 	@Override
 	public boolean test(Card c)

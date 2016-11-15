@@ -25,27 +25,12 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 		super(FilterFactory.LAYOUT, Card::layout);
 	}
 	
-	
-	/**
-	 * Parse a String to determine the containment and layout of this
-	 * LayoutFilter.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
 	@Override
-	public void parse(String s)
+	public CardLayout convertFromString(String str)
 	{
-		String content = checkContents(s, FilterFactory.RARITY);
-		int delim = content.indexOf('{');
-		contain = Containment.fromString(content.substring(0, delim));
-		if (content.charAt(delim + 1) != '}')
-			selected = Arrays.stream(content.substring(delim + 1, content.length() - 1).split(",")).map((str) -> CardLayout.valueOf(str.toUpperCase().replaceAll("[^A-Z]", "_"))).collect(Collectors.toSet());
+		return CardLayout.valueOf(str.replace(' ', '_').toUpperCase());
 	}
-	
-	/**
-	 * @return A new LayoutFilter that is a copy of this one.
-	 */
+
 	@Override
 	public Filter copy()
 	{
@@ -55,10 +40,13 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 		return filter;
 	}
 
-
 	@Override
-	public CardLayout convertFromString(String str)
+	public void parse(String s)
 	{
-		return CardLayout.valueOf(str.replace(' ', '_').toUpperCase());
+		String content = checkContents(s, FilterFactory.RARITY);
+		int delim = content.indexOf('{');
+		contain = Containment.fromString(content.substring(0, delim));
+		if (content.charAt(delim + 1) != '}')
+			selected = Arrays.stream(content.substring(delim + 1, content.length() - 1).split(",")).map((str) -> CardLayout.valueOf(str.toUpperCase().replaceAll("[^A-Z]", "_"))).collect(Collectors.toSet());
 	}
 }

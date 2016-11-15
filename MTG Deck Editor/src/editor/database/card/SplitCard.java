@@ -11,10 +11,20 @@ import java.util.List;
 public class SplitCard extends MultiCard
 {
 	/**
+	 * Create a new SplitCard with the given Cards as faces.
+	 * 
+	 * @param f cards to use as faces
+	 */
+	public SplitCard(Card... f)
+	{
+		this(Arrays.asList(f));
+	}
+	
+	/**
 	 * Create a new SplitCard with the given Cards as faces.  They should all indicate
 	 * with their layouts that they are split cards.
 	 * 
-	 * @param f List of Cards representing faces
+	 * @param f list of Cards representing faces
 	 */
 	public SplitCard(List<Card> f)
 	{
@@ -25,19 +35,8 @@ public class SplitCard extends MultiCard
 	}
 	
 	/**
-	 * Create a new SplitCard with the given Cards as faces.
-	 * 
-	 * @param f Cards to use as faces
-	 */
-	public SplitCard(Card... f)
-	{
-		this(Arrays.asList(f));
-	}
-	
-	/**
+	 * {@inheritDoc}
 	 * All of the faces of a SplitCard are on the front, so there is only one image for it.
-	 * 
-	 * @return The name of this SplitCard's image.
 	 */
 	@Override
 	public List<String> imageNames()

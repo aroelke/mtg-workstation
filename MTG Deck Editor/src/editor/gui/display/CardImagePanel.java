@@ -45,26 +45,13 @@ public class CardImagePanel extends JPanel
 	 */
 	private Card card;
 	/**
-	 * Image of the card this CardImagePanel should display.
-	 */
-	private BufferedImage image;
-	/**
 	 * List of images to draw for the card.
 	 */
 	private List<BufferedImage> faceImages;
-	
 	/**
-	 * Create a new CardImagePanel displaying the specified Card.
-	 * 
-	 * @param c Card to display
+	 * Image of the card this CardImagePanel should display.
 	 */
-	public CardImagePanel(Card c)
-	{
-		super(null);
-		image = null;
-		faceImages = new ArrayList<BufferedImage>();
-		setCard(c);
-	}
+	private BufferedImage image;
 	
 	/**
 	 * Create a new CardImagePanel displaying nothing.
@@ -75,50 +62,59 @@ public class CardImagePanel extends JPanel
 	}
 	
 	/**
-	 * Set the card to display.  If any of the images associated with the new Card are
-	 * missing, they are replaced with card-shaped rectangles containing a warning and
-	 * the oracle text of the associated face.
+	 * Create a new CardImagePanel displaying the specified card.
 	 * 
-	 * @param c Card to display
+	 * @param c card to display
 	 */
-	public void setCard(Card c)
+	public CardImagePanel(Card c)
 	{
-		if ((card = c) != null)
+		super(null);
+		image = null;
+		faceImages = new ArrayList<BufferedImage>();
+		setCard(c);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * The preferred size is the largest rectangle that fits the image this CardImagePanel is trying
+	 * to draw that fits within the parent container.
+	 */
+	@Override
+	public Dimension getPreferredSize()
+	{
+		if (getParent() == null)
+			return super.getPreferredSize();
+		else if (image == null)
+			return super.getPreferredSize();
+		else
 		{
-			faceImages.clear();
-			for (String name: card.imageNames())
-			{
-				BufferedImage img = null;
-				try
-				{
-					String[] codes = new String[] {card.expansion().code, card.expansion().magicCardsInfoCode, card.expansion().gathererCode, card.expansion().name};
-					File imageFile;
-					for (String code: codes)
-					{
-						imageFile = new File(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS)
-									+ "/" + code + "/" + name + ".full.jpg");
-						if (imageFile.exists())
-						{
-							img = ImageIO.read(imageFile);
-							break;
-						}
-					}
-				}
-				catch (IOException e)
-				{}
-				finally
-				{
-					if (img == null && card.layout() == CardLayout.SPLIT)
-						faceImages.addAll(Collections.nCopies(card.faces(), null));
-					else
-						faceImages.add(img);
-				}
-			}
+			double aspect = (double)image.getWidth()/(double)image.getHeight();
+			return new Dimension((int)(getParent().getHeight()*aspect), getParent().getHeight());
 		}
-		if (getParent() != null)
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * The panel will basically just be the image generated in {@link CardImagePanel#setCard(Card)}
+	 * scaled to fit the container.
+	 */
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		super.paintComponent(g);
+		if (image != null)
 		{
-			getParent().validate();
-			repaint();
+			Graphics2D g2 = (Graphics2D)g;
+			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			double aspectRatio = (double)image.getWidth()/(double)image.getHeight();
+			int width = (int)(getHeight()*aspectRatio);
+			int height = getHeight();
+			if (width > getWidth())
+			{
+				width = getWidth();
+				height = (int)(width/aspectRatio);
+			}
+			g2.drawImage(image, (getWidth() - width)/2, (getHeight() - height)/2, width, height, null);
 		}
 	}
 	
@@ -184,44 +180,50 @@ public class CardImagePanel extends JPanel
 	}
 	
 	/**
-	 * @return The preferred size of this CardImagePanel, which is the largest rectangle that fits the image
-	 * it is trying to draw that fits within the parent container.
+	 * Set the card to display.  If any of the images associated with the new Card are
+	 * missing, they are replaced with card-shaped rectangles containing a warning and
+	 * the oracle text of the associated face.
+	 * 
+	 * @param c card to display
 	 */
-	@Override
-	public Dimension getPreferredSize()
+	public void setCard(Card c)
 	{
-		if (getParent() == null)
-			return super.getPreferredSize();
-		else if (image == null)
-			return super.getPreferredSize();
-		else
+		if ((card = c) != null)
 		{
-			double aspect = (double)image.getWidth()/(double)image.getHeight();
-			return new Dimension((int)(getParent().getHeight()*aspect), getParent().getHeight());
-		}
-	}
-	
-	/**
-	 * Draw this CardImagePanel.  It will basically just be the image generated in {@link CardImagePanel#setCard(Card)}
-	 * scaled to fit the container.
-	 */
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-		if (image != null)
-		{
-			Graphics2D g2 = (Graphics2D)g;
-			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-			double aspectRatio = (double)image.getWidth()/(double)image.getHeight();
-			int width = (int)(getHeight()*aspectRatio);
-			int height = getHeight();
-			if (width > getWidth())
+			faceImages.clear();
+			for (String name: card.imageNames())
 			{
-				width = getWidth();
-				height = (int)(width/aspectRatio);
+				BufferedImage img = null;
+				try
+				{
+					String[] codes = new String[] {card.expansion().code, card.expansion().magicCardsInfoCode, card.expansion().gathererCode, card.expansion().name};
+					File imageFile;
+					for (String code: codes)
+					{
+						imageFile = new File(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS)
+									+ "/" + code + "/" + name + ".full.jpg");
+						if (imageFile.exists())
+						{
+							img = ImageIO.read(imageFile);
+							break;
+						}
+					}
+				}
+				catch (IOException e)
+				{}
+				finally
+				{
+					if (img == null && card.layout() == CardLayout.SPLIT)
+						faceImages.addAll(Collections.nCopies(card.faces(), null));
+					else
+						faceImages.add(img);
+				}
 			}
-			g2.drawImage(image, (getWidth() - width)/2, (getHeight() - height)/2, width, height, null);
+		}
+		if (getParent() != null)
+		{
+			getParent().validate();
+			repaint();
 		}
 	}
 }

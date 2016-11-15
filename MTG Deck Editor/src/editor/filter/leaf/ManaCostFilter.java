@@ -12,8 +12,8 @@ import editor.filter.FilterFactory;
 import editor.util.Containment;
 
 /**
- * This class represents a filter to group Cards by mana costs.
- * TODO: Some of the containment options don't work properly.
+ * This class represents a filter to group cards by mana costs.
+ * 
  * @author Alec Roelke
  */
 public class ManaCostFilter extends FilterLeaf<ManaCost>
@@ -38,10 +38,64 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	}
 	
 	/**
-	 * @param c Card to test
-	 * @return <code>true</code> if the given Card's mana cost matches this
-	 * ManaCostFilter's cost with the correct containment type, and
-	 * <code>false</code> otherwise.
+	 * {@inheritDoc}
+	 * This ManaCostFilter's content String is its containment followed by its cost's
+	 * content String in quotes.
+	 */
+	@Override
+	public String content()
+	{
+		return contain.toString() + "\"" + cost.toString() + "\"";
+	}
+
+	@Override
+	public Filter copy()
+	{
+		ManaCostFilter filter = (ManaCostFilter)FilterFactory.createFilter(FilterFactory.MANA_COST);
+		filter.contain = contain;
+		filter.cost = cost;
+		return filter;
+	}
+
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (other.getClass() != getClass())
+			return false;
+		ManaCostFilter o = (ManaCostFilter)other;
+		return o.contain == contain && o.cost.equals(cost);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(type(), contain, cost);
+	}
+	
+	@Override
+	public void parse(String s)
+	{
+		String content = checkContents(s, FilterFactory.MANA_COST);
+		int delim = content.indexOf('"');
+		contain = Containment.fromString(content.substring(0, delim));
+		cost = ManaCost.valueOf(content.substring(delim + 1, content.lastIndexOf('"')));
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in);
+		contain = (Containment)in.readObject();
+		cost = ManaCost.valueOf(in.readUTF());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Filter cards by their mana costs.
 	 */
 	@Override
 	public boolean test(Card c)
@@ -63,82 +117,6 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 		default:
 			return false;
 		}
-	}
-
-	/**
-	 * @return The String representation of this ManaCostFilter's content,
-	 * which is its containment's String representation followed by its
-	 * cost's String representation in quotes.
-	 * @see FilterLeaf#content()
-	 */
-	@Override
-	public String content()
-	{
-		return contain.toString() + "\"" + cost.toString() + "\"";
-	}
-
-	/**
-	 * Parse a String to determine this ManaCostFilter's containment
-	 * and mana cost.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
-	@Override
-	public void parse(String s)
-	{
-		String content = checkContents(s, FilterFactory.MANA_COST);
-		int delim = content.indexOf('"');
-		contain = Containment.fromString(content.substring(0, delim));
-		cost = ManaCost.valueOf(content.substring(delim + 1, content.lastIndexOf('"')));
-	}
-	
-	/**
-	 * @return A new ManaCostFilter that is a copy of this one.
-	 */
-	@Override
-	public Filter copy()
-	{
-		ManaCostFilter filter = (ManaCostFilter)FilterFactory.createFilter(FilterFactory.MANA_COST);
-		filter.contain = contain;
-		filter.cost = cost;
-		return filter;
-	}
-	
-	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if the other Object is a ManaCostFilter with
-	 * the same containment and symbol list.
-	 */
-	@Override
-	public boolean equals(Object other)
-	{
-		if (other == null)
-			return false;
-		if (other == this)
-			return true;
-		if (other.getClass() != getClass())
-			return false;
-		ManaCostFilter o = (ManaCostFilter)other;
-		return o.contain == contain && o.cost.equals(cost);
-	}
-	
-	/**
-	 * @return The hash code of this ManaCostFilter, which is composed of the hash
-	 * codes of its containment and its symbol list.
-	 */
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(type(), contain, cost);
-	}
-	
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-	{
-		super.readExternal(in);
-		contain = (Containment)in.readObject();
-		cost = ManaCost.valueOf(in.readUTF());
 	}
 	
 	@Override

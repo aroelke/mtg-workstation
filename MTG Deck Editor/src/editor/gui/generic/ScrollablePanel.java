@@ -11,13 +11,20 @@ import javax.swing.Scrollable;
  * This class is a JPanel except it is scroll-savvy.
  * 
  * @author Alec Roelke
- * @see javax.swing.JPanel
- * @see javax.swing.JScrollPane
- * @see javax.swing.Scrollable
+ * @see JPanel
+ * @see Scrollable
  */
 @SuppressWarnings("serial")
 public class ScrollablePanel extends JPanel implements Scrollable
 {
+	/**
+	 * Track both width and height of the viewport (equivalent to TRACK_WIDTH | TRACK_HEIGHT).
+	 */
+	public static final byte TRACK_BOTH = 0x03;
+	/**
+	 * Track height of the viewport.
+	 */
+	public static final byte TRACK_HEIGHT = 0x02;
 	/**
 	 * Track neither width nor height of the viewport.
 	 */
@@ -26,27 +33,19 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	 * Track width of the viewport.
 	 */
 	public static final byte TRACK_WIDTH = 0x01;
-	/**
-	 * Track height of the viewport.
-	 */
-	public static final byte TRACK_HEIGHT = 0x02;
-	/**
-	 * Track both width and height of the viewport (equivalent to TRACK_WIDTH | TRACK_HEIGHT).
-	 */
-	public static final byte TRACK_BOTH = 0x03;
 	
 	/**
-	 * Whether or not to track the width of the viewport.
+	 * Preferred viewport dimensions.
 	 */
-	private boolean trackWidth;
+	private Dimension preferredScrollableViewportSize;
 	/**
 	 * Whether or not to track the height of the viewport.
 	 */
 	private boolean trackHeight;
 	/**
-	 * Preferred viewport dimensions.
+	 * Whether or not to track the width of the viewport.
 	 */
-	private Dimension preferredScrollableViewportSize;
+	private boolean trackWidth;
 	
 	/**
 	 * Create a new ScrollablePanel with the default layout for a JPanel that
@@ -61,7 +60,7 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	 * Create a new ScrollablePanel with the default layout for a JPanel
 	 * that tracks the specified dimension of its viewport.
 	 * 
-	 * @param tracking
+	 * @param tracking which dimension to track
 	 */
 	public ScrollablePanel(byte tracking)
 	{
@@ -75,7 +74,7 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	 * Create a new ScrollablePanel with the specified layout that tracks
 	 * neither the width nor height of its viewport.
 	 * 
-	 * @param layout Layout of the new panel
+	 * @param layout layout of the new panel
 	 */
 	public ScrollablePanel(LayoutManager layout)
 	{
@@ -86,8 +85,8 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	 * Create a new ScrollablePanel with the specified layout that tracks
 	 * the specified dimension of its viewport.
 	 * 
-	 * @param layout
-	 * @param tracking
+	 * @param layout layout of the new panel
+	 * @param tracking which dimension to track
 	 */
 	public ScrollablePanel(LayoutManager layout, byte tracking)
 	{
@@ -98,8 +97,11 @@ public class ScrollablePanel extends JPanel implements Scrollable
 	}
 	
 	/**
-	 * @return The preferred viewport size of this ScrollablePanel, which is 0 by default
-	 * so as to not cause the scroll pane to resize according to this ScrollablePanel's size. 
+	 * {@inheritDoc}
+	 * The preferred viewport size is 0 by default so as to not cause the scroll pane to resize
+	 * according to this ScrollablePanel's size.
+	 * 
+	 * @return the preferred viewport size of this ScrollablePanel 
 	 */
 	@Override
 	public Dimension getPreferredScrollableViewportSize()
@@ -107,52 +109,38 @@ public class ScrollablePanel extends JPanel implements Scrollable
 		return preferredScrollableViewportSize;
 	}
 
-	/**
-	 * Set the preferred size of this ScrollablePanel's viewport.  This will not actually
-	 * resize the panel unless it is set to track the width or height of its viewport.
-	 * 
-	 * @param size New preferred size for the viewport
-	 */
-	public void setPreferredScrollableViewportSize(Dimension size)
-	{
-		preferredScrollableViewportSize = size;
-	}
-	
-	/**
-	 * @see Scrollable#getScrollableBlockIncrement(Rectangle, int, int)
-	 */
 	@Override
 	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction)
 	{
 		return 20;
 	}
-
-	/**
-	 * @return <code>false</code> since the size of this ScrollablePanel should not track the
-	 * viewport height.
-	 */
+	
 	@Override
 	public boolean getScrollableTracksViewportHeight()
 	{
 		return trackHeight;
 	}
 
-	/**
-	 * @return <code>false</code> since the size of this ScrollablePanel should not track the
-	 * viewport width.
-	 */
 	@Override
 	public boolean getScrollableTracksViewportWidth()
 	{
 		return trackWidth;
 	}
 
-	/**
-	 * @see Scrollable#getScrollableUnitIncrement(Rectangle, int, int)
-	 */
 	@Override
 	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction)
 	{
 		return 20;
+	}
+
+	/**
+	 * Set the preferred size of this ScrollablePanel's viewport.  This will not actually
+	 * resize the panel unless it is set to track the width or height of its viewport.
+	 * 
+	 * @param size new preferred size for the viewport
+	 */
+	public void setPreferredScrollableViewportSize(Dimension size)
+	{
+		preferredScrollableViewportSize = size;
 	}
 }

@@ -17,23 +17,76 @@ import java.util.stream.Stream;
 import editor.database.card.Card;
 
 /**
- * This class represents a group of Filters that are ANDed or ORed
- * together.
+ * This class represents a group of filters that are ANDed or ORed together.
  * 
  * @author Alec Roelke
  */
 public class FilterGroup extends Filter implements Iterable<Filter>
 {
 	/**
+	 * This class represents a method of combining filters to test a card with all of
+	 * them collectively.
+	 * 
+	 * @author Alec Roelke
+	 */
+	public enum Mode implements BiPredicate<Collection<Filter>, Card>
+	{
+		/**
+		 * All of the filters must pass a card.
+		 */
+		AND("all of", Stream<Filter>::allMatch),
+		/**
+		 * None of the filters can pass a card.
+		 */
+		NOR("none of", Stream<Filter>::noneMatch),
+		/**
+		 * Any of the filters must pass a card.
+		 */
+		OR("any of", Stream<Filter>::anyMatch);
+		
+		/**
+		 * Function representing the mode to test a card with a collection of filters.
+		 */
+		private final BiPredicate<Stream<Filter>, Predicate<? super Filter>> function;
+		/**
+		 * String representation of this Mode.
+		 */
+		private final String mode;
+		
+		/**
+		 * Create a new Mode.
+		 * 
+		 * @param m String representation of the new Mode.
+		 */
+		private Mode(String m, BiPredicate<Stream<Filter>, Predicate<? super Filter>> f)
+		{
+			mode = m;
+			function = f;
+		}
+		
+		@Override
+		public boolean test(Collection<Filter> filters, Card c)
+		{
+			return function.test(filters.stream(), (f) -> f.test(c));
+		}
+		
+		@Override
+		public String toString()
+		{
+			return mode;
+		}
+	}
+	
+	/**
 	 * Pattern to match for parsing a String to determine a FilterGroup's
 	 * properties.
 	 */
 	private static final Pattern GROUP_PATTERN = Pattern.compile("^\\s*" + Filter.BEGIN_GROUP + "\\s*(?:AND|OR)", Pattern.CASE_INSENSITIVE);
-	
 	/**
 	 * Children of this FilterGroup.
 	 */
 	private List<Filter> children;
+	
 	/**
 	 * Combination mode of this FilterGroup.
 	 */
@@ -50,10 +103,10 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	}
 	
 	/**
-	 * Create a new FilterGroup using the given list of Filters
+	 * Create a new FilterGroup using the given list of filters
 	 * as its children.
 	 * 
-	 * @param c Filters that will be the new FilterGroup's children
+	 * @param c filters that will be the new FilterGroup's children
 	 */
 	public FilterGroup(Filter... c)
 	{
@@ -65,7 +118,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	/**
 	 * Add a new child to this FilterGroup.
 	 * 
-	 * @param filter Filter to add
+	 * @param filter filter to add
 	 */
 	public void addChild(Filter filter)
 	{
@@ -76,38 +129,58 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	}
 	
 	/**
-	 * @param c Card to test
-	 * @return <code>true</code> if this FilterGroup's children match
-	 * the given Card with the correct mode, and <code>false</code>
-	 * otherwise.
+	 * {@inheritDoc}
+	 * The copy will be a deep copy in that its new children will also be copies of
+	 * the original's children.
 	 */
 	@Override
-	public boolean test(Card c)
+	public Filter copy()
 	{
-		return mode.test(children, c);
+		FilterGroup filter = new FilterGroup();
+		for (Filter child: children)
+			filter.addChild(child.copy());
+		filter.mode = mode;
+		return filter;
+	}
+
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (other.getClass() != getClass())
+			return false;
+		FilterGroup o = (FilterGroup)other;
+		if (o.mode != mode)
+			return false;
+		if (children.size() != o.children.size())
+			return false;
+		List<Filter> otherChildren = new ArrayList<Filter>(o.children);
+		for (Filter child: children)
+			otherChildren.remove(child);
+		if (!otherChildren.isEmpty())
+			return false;
+		return true;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(children, mode);
+	}
+
+	@Override
+	public Iterator<Filter> iterator()
+	{
+		return children.iterator();
 	}
 	
 	/**
-	 * @return The String representation of this FilterGroup, which is
-	 * the mode's representation followed by each child's entire
-	 * representation including beginning and ending markers.  The
-	 * outermost markers are omitted.
-	 * @see Filter#representation()
-	 */
-	@Override
-	public String representation()
-	{
-		StringJoiner join = new StringJoiner(" ");
-		join.add(mode.name());
-		for (Filter filter: children)
-			join.add(filter.toString());
-		return join.toString();
-	}
-
-	/**
-	 * Parse a String for a FilterGroup.  The String should consist of 
-	 * beginning and ending markers followed by the mode of the group,
-	 * followed by any number of Filters (that can also be groups) that
+	 * {@inheritDoc}
+	 * The String should consist of  beginning and ending markers followed by the mode
+	 * of the group, followed by any number of Filters (that can also be groups) that
 	 * are each surrounded by beginning and ending markers.
 	 */
 	@Override
@@ -156,120 +229,6 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		}
 	}
 	
-	/**
-	 * @return A new FilterGroup that is a copy of this one, with copies of all of
-	 * its children.
-	 */
-	@Override
-	public Filter copy()
-	{
-		FilterGroup filter = new FilterGroup();
-		for (Filter child: children)
-			filter.addChild(child.copy());
-		filter.mode = mode;
-		return filter;
-	}
-	
-	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if the other Object is a FilterGroup with exactly the
-	 * same children, who are also all equal.
-	 */
-	@Override
-	public boolean equals(Object other)
-	{
-		if (other == null)
-			return false;
-		if (other == this)
-			return true;
-		if (other.getClass() != getClass())
-			return false;
-		FilterGroup o = (FilterGroup)other;
-		if (o.mode != mode)
-			return false;
-		if (children.size() != o.children.size())
-			return false;
-		List<Filter> otherChildren = new ArrayList<Filter>(o.children);
-		for (Filter child: children)
-			otherChildren.remove(child);
-		if (!otherChildren.isEmpty())
-			return false;
-		return true;
-	}
-	
-	/**
-	 * @return The hash code of this FilterGroup, which is composed of the hash codes
-	 * of its children and mode.
-	 */
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(children, mode);
-	}
-	
-	/**
-	 * @return An Iterator over this FilterGroup's children.
-	 */
-	@Override
-	public Iterator<Filter> iterator()
-	{
-		return children.iterator();
-	}
-	
-	/**
-	 * This class represents a method of combining Filters to test a Card
-	 * with all of them collectively.
-	 * 
-	 * @author Alec Roelke
-	 */
-	public enum Mode implements BiPredicate<Collection<Filter>, Card>
-	{
-		AND("all of", Stream<Filter>::allMatch),
-		OR("any of", Stream<Filter>::anyMatch),
-		NOR("none of", Stream<Filter>::noneMatch);
-		
-		/**
-		 * String representation of this Mode.
-		 */
-		private final String mode;
-		/**
-		 * Function representing the mode to test a Card with a Collection of Filters.
-		 */
-		private final BiPredicate<Stream<Filter>, Predicate<? super Filter>> function;
-		
-		/**
-		 * Create a new Mode.
-		 * 
-		 * @param m String representation of the new Mode.
-		 */
-		private Mode(String m, BiPredicate<Stream<Filter>, Predicate<? super Filter>> f)
-		{
-			mode = m;
-			function = f;
-		}
-		
-		/**
-		 * @param filters Collection of filters to test
-		 * @param c Card to test the filters on
-		 * @return <code>true</code> if the card passes through the collection of Filters
-		 * with the correct mode, and <code>false</code> otherwise.
-		 */
-		@Override
-		public boolean test(Collection<Filter> filters, Card c)
-		{
-			return function.test(filters.stream(), (f) -> f.test(c));
-		}
-		
-		/**
-		 * @return The String representation of this Mode.
-		 */
-		@Override
-		public String toString()
-		{
-			return mode;
-		}
-	}
-
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
@@ -277,6 +236,28 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		int n = in.readInt();
 		for (int i = 0; i < n; i++)
 			children.add((Filter)in.readObject());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * The String representation of this FilterGroup is the mode's representation
+	 * followed by each child's entire representation including beginning and ending
+	 * markers.  The outermost markers are omitted.
+	 */
+	@Override
+	public String representation()
+	{
+		StringJoiner join = new StringJoiner(" ");
+		join.add(mode.name());
+		for (Filter filter: children)
+			join.add(filter.toString());
+		return join.toString();
+	}
+
+	@Override
+	public boolean test(Card c)
+	{
+		return mode.test(children, c);
 	}
 
 	@Override

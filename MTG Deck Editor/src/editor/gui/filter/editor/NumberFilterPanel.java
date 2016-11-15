@@ -23,10 +23,6 @@ import editor.util.Comparison;
 public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 {
 	/**
-	 * Type of the filter this panel edits.
-	 */
-	private String type;
-	/**
 	 * Comparison for the operand of the filter.
 	 */
 	private ComboBoxPanel<Comparison> comparison;
@@ -34,6 +30,10 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 	 * Spinner for the operand of the filter.
 	 */
 	private JSpinner spinner;
+	/**
+	 * Type of the filter this panel edits.
+	 */
+	private String type;
 	
 	/**
 	 * Create a new NumberFilterPanel.
@@ -58,7 +58,7 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 	 * Create a new NumberFilterPanel and initialize its fields according
 	 * to the contents of the given NumberFilter.
 	 * 
-	 * @param f Filter to use for initialization
+	 * @param f filter to use for initialization
 	 */
 	public NumberFilterPanel(NumberFilter f)
 	{
@@ -66,10 +66,6 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 		setContents(f);
 	}
 	
-	/**
-	 * @return The NumberFilter corresponding to the values of this
-	 * NumberFilterPanel's fields.
-	 */
 	@Override
 	public Filter filter()
 	{
@@ -79,34 +75,20 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 		return filter;
 	}
 
-	/**
-	 * Set the contents of this NumberFilterPanel's fields according to
-	 * the contents of the given NumberFilter.
-	 * 
-	 * @param filter Filter to use for setting fields
-	 */
+	@Override
+	public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
+	{
+		if (filter instanceof NumberFilter)
+			setContents((NumberFilter)filter);
+		else
+			throw new IllegalArgumentException("Illegal number filter " + filter.type());
+	}
+
 	@Override
 	public void setContents(NumberFilter filter)
 	{
 		type = filter.type();
 		comparison.setSelectedItem(filter.operation);
 		spinner.setValue(filter.operand);
-	}
-
-	/**
-	 * Set the contents of this NumberFilterPanel's fields according to
-	 * the contents of the given FilterLeaf.
-	 * 
-	 * @param filter Filter to use for setting fields
-	 * @throws IllegalArgumentException if the given filter is not a
-	 * NumberFilter.
-	 */
-	@Override
-	public void setContents(FilterLeaf<?> filter)
-	{
-		if (filter instanceof NumberFilter)
-			setContents((NumberFilter)filter);
-		else
-			throw new IllegalArgumentException("Illegal number filter " + filter.type());
 	}
 }

@@ -19,7 +19,6 @@ public class TwobridSymbol extends ManaSymbol
 {
 	/**
 	 * Map of colors onto their corresponding twobrid symbols.
-	 * @see editor.database.symbol.Symbol
 	 */
 	private static final Map<ManaType, TwobridSymbol> SYMBOLS = Collections.unmodifiableMap(
 			Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), TwobridSymbol::new)));
@@ -27,9 +26,8 @@ public class TwobridSymbol extends ManaSymbol
 	/**
 	 * Get the TwobridSymbol corresponding to the given color.
 	 * 
-	 * @param col Color to look up
-	 * @return The TwobridSymbol corresponding to the given ManaType, or
-	 * null if no such symbol exists.
+	 * @param col color to look up
+	 * @return the TwobridSymbol corresponding to the given ManaType, or null if no such symbol exists.
 	 */
 	public static TwobridSymbol get(ManaType col)
 	{
@@ -65,9 +63,9 @@ public class TwobridSymbol extends ManaSymbol
 	private final ManaType color;
 	
 	/**
-	 * Create a TwobridSymbol
+	 * Create a TwobridSymbol.
 	 * 
-	 * @param color The new TwobridSymbol's color.
+	 * @param color the new TwobridSymbol's color
 	 */
 	private TwobridSymbol(ManaType color)
 	{
@@ -76,9 +74,8 @@ public class TwobridSymbol extends ManaSymbol
 	}
 
 	/**
-	 * @return This TwobridSymbol's color weight, which is 0.5 for its color and 0
-	 * for the others.
-	 * @see editor.database.symbol.Symbol#colorWeights()
+	 * {@inheritDoc}
+	 * This TwobridSymbols' color weight is 0.5 for its color and 0 for everything else.
 	 */
 	@Override
 	public Map<ManaType, Double> colorWeights()
@@ -86,14 +83,6 @@ public class TwobridSymbol extends ManaSymbol
 		return createWeights(new ColorWeight(color, 0.5));
 	}
 
-	/**
-	 * @param o Symbol to compare with
-	 * @return A negative number if this TwobridSymbol should come before the other
-	 * Symbol in costs, the color ordering of the two symbols if they are both
-	 * TwobridSymbols, a postive number if it should come after, and 0 if ordering
-	 * is not defined.
-	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
-	 */
 	@Override
 	public int compareTo(ManaSymbol o)
 	{

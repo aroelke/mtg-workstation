@@ -28,17 +28,17 @@ import editor.util.UnicodeSymbols;
 public class FilterGroupPanel extends FilterPanel<Filter>
 {
 	/**
-	 * FilterPanels contained by this FilterGroupPanel.
+	 * {@link FilterPanel}s contained by this FilterGroupPanel.
 	 */
 	private List<FilterPanel<?>> children;
-	/**
-	 * Box showing the combination mode of the filter group.
-	 */
-	private JComboBox<FilterGroup.Mode> modeBox;
 	/**
 	 * Panel containing the children.
 	 */
 	private JPanel filtersPanel;
+	/**
+	 * Combo box showing the combination mode of the filter group.
+	 */
+	private JComboBox<FilterGroup.Mode> modeBox;
 
 	/**
 	 * Create a new FilterGroupPanel with one child.
@@ -117,7 +117,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 	 * FilterGroupPanel, but will not redo layout of the containing
 	 * frame.
 	 *
-	 * @param panel FilterPanel to add
+	 * @param panel #FilterPanel to add
 	 */
 	public void add(FilterPanel<?> panel)
 	{
@@ -127,11 +127,64 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 	}
 
 	/**
+	 * Clear all contents of this FilterGroupPanel.  A new filter is not
+	 * replaced, and the layout of the container is not redone.
+	 */
+	public void clear()
+	{
+		children.clear();
+		filtersPanel.removeAll();
+		modeBox.setSelectedIndex(0);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * The filter will be the composed of this FilterGroupPanel's children according
+	 * to the #FilterGroup's mode.
+	 */
+	@Override
+	public Filter filter()
+	{
+		FilterGroup group = new FilterGroup();
+		group.mode = modeBox.getItemAt(modeBox.getSelectedIndex());
+		for (FilterPanel<?> child: children)
+			group.addChild(child.filter());
+		return group;
+	}
+
+	/**
+	 * If the given #FilterPanel is a child of this FilterGroupPanel,
+	 * create a new group for it and assign that group in its place.
+	 * Otherwise, make it a child of this FilterGroupPanel first and
+	 * do it anyway.  This does not redo layout of the container.
+	 *
+	 * @param panel panel to group.
+	 */
+	public void group(FilterPanel<?> panel)
+	{
+		if (panel.group != this)
+			add(panel);
+
+		int index = children.indexOf(panel);
+		if (index >= 0)
+		{
+			filtersPanel.removeAll();
+			FilterGroupPanel newGroup = new FilterGroupPanel();
+			newGroup.clear();
+			newGroup.add(panel);
+			children[index] = newGroup;
+			newGroup.group = this;
+			for (FilterPanel<?> child: children)
+				filtersPanel.add(child);
+		}
+	}
+
+	/**
 	 * Removes the given child filter if it is in this FilterGroupPanel.
 	 * This will shrink the size of this FilterGroupPanel, but will not
 	 * redo layout of the containing frame.
 	 *
-	 * @param panel FilterPanel to remove
+	 * @param panel #FilterPanel to remove
 	 */
 	public void remove(FilterPanel<?> panel)
 	{
@@ -154,61 +207,9 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 	}
 
 	/**
-	 * Clear all contents of this FilterGroupPanel.  A new filter is not
-	 * replaced, and the layout of the container is not redone.
-	 */
-	public void clear()
-	{
-		children.clear();
-		filtersPanel.removeAll();
-		modeBox.setSelectedIndex(0);
-	}
-
-	/**
-	 * If the given FilterPanel is a child of this FilterGroupPanel,
-	 * create a new group for it and assign that group in its place.
-	 * Otherwise, make it a child of this FilterGroupPanel first and
-	 * do it anyway.  This does not redo layout of the container.
-	 *
-	 * @param panel Panel to group.
-	 */
-	public void group(FilterPanel<?> panel)
-	{
-		if (panel.group != this)
-			add(panel);
-
-		int index = children.indexOf(panel);
-		if (index >= 0)
-		{
-			filtersPanel.removeAll();
-			FilterGroupPanel newGroup = new FilterGroupPanel();
-			newGroup.clear();
-			newGroup.add(panel);
-			children[index] = newGroup;
-			newGroup.group = this;
-			for (FilterPanel<?> child: children)
-				filtersPanel.add(child);
-		}
-	}
-
-	/**
-	 * @return The filter represented by this FilterGroupPanel
-	 * and its children.
-	 */
-	@Override
-	public Filter filter()
-	{
-		FilterGroup group = new FilterGroup();
-		group.mode = modeBox.getItemAt(modeBox.getSelectedIndex());
-		for (FilterPanel<?> child: children)
-			group.addChild(child.filter());
-		return group;
-	}
-
-	/**
-	 * Clear this FilterGroupPanel, then if the given Filter is
-	 * a FilterGroup, fill it with its children.  Otherwise, create
-	 * a FilterGroup for the given filter and then do it with that.
+	 * {@inheritDoc}
+	 * This FilterGroupPanel's contents will be entirely replaced according to the
+	 * given filter.
 	 */
 	@Override
 	public void setContents(Filter filter)

@@ -39,98 +39,6 @@ import javax.swing.WindowConstants;
 public class InventoryDownloadDialog extends JDialog
 {
 	/**
-	 * Label to show download statistics.
-	 */
-	private JLabel progressLabel;
-	/**
-	 * Bar to look pretty and indicate things are happening.
-	 */
-	private JProgressBar progressBar;
-	/**
-	 * Worker that downloads the inventory.
-	 */
-	private InventoryDownloadWorker worker;
-	
-	/**
-	 * Create a new InventoryDownloadDialog.
-	 * 
-	 * @param owner Owner frame of the dialog.
-	 */
-	public InventoryDownloadDialog(JFrame owner)
-	{
-		super(owner, "Update", Dialog.ModalityType.APPLICATION_MODAL);
-		setPreferredSize(new Dimension(350, 115));
-		setResizable(false);
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		
-		worker = null;
-		
-		// Content panel
-		JPanel contentPanel = new JPanel(new BorderLayout(0, 2));
-		contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		setContentPane(contentPanel);
-		
-		// Stage progress label
-		contentPanel.add(progressLabel = new JLabel("Downloading inventory..."), BorderLayout.NORTH);
-		
-		// Overall progress bar
-		progressBar = new JProgressBar();
-		progressBar.setIndeterminate(true);
-		contentPanel.add(progressBar, BorderLayout.CENTER);
-		
-		// Cancel button
-		JPanel cancelPanel = new JPanel();
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener((e) -> {
-			if (worker != null)
-				worker.cancel(true);
-		});
-		cancelPanel.add(cancelButton);
-		contentPanel.add(cancelPanel, BorderLayout.SOUTH);
-		
-		pack();
-	}
-	
-	/**
-	 * Show this InventoryDownloadDialog and then start a worker that downloads the file.
-	 * When it is complete, return the result.
-	 * 
-	 * @param site Site to download from
-	 * @param file File to store to
-	 * @return <code>true</code> if the download successfully completed, and <code>false</code>
-	 * otherwise.
-	 */
-	public boolean downloadInventory(URL site, File file)
-	{
-		File tmp = new File(file.getPath() + ".tmp");
-		worker = new InventoryDownloadWorker(site, tmp);
-		worker.execute();
-		setVisible(true);
-		try
-		{
-			worker.get();
-			Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			return true;
-		}
-		catch (InterruptedException | ExecutionException e)
-		{
-			JOptionPane.showMessageDialog(null, "Error downloading " + file.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			tmp.delete();
-			return false;
-		}
-		catch (IOException e)
-		{
-			JOptionPane.showMessageDialog(null, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-		catch (CancellationException e)
-		{
-			tmp.delete();
-			return false;
-		}
-	}
-	
-	/**
 	 * This class represents a worker which downloads the inventory from a website
 	 * in the background.  It is tied to a dialog which blocks input until the
 	 * download is complete.
@@ -140,17 +48,17 @@ public class InventoryDownloadDialog extends JDialog
 	private class InventoryDownloadWorker extends SwingWorker<Void, Integer>
 	{
 		/**
-		 * URL to download the inventory file from.
+		 * Number of bytes to download.
 		 */
-		private URL site;
+		private String bytes;
 		/**
 		 * File to store the inventory file in.
 		 */
 		private File file;
 		/**
-		 * Number of bytes to download.
+		 * URL to download the inventory file from.
 		 */
-		private String bytes;
+		private URL site;
 		
 		/**
 		 * Create a new InventoryDownloadWorker.  A new one must be created each time
@@ -167,34 +75,7 @@ public class InventoryDownloadDialog extends JDialog
 		}
 		
 		/**
-		 * Tell the dialog how many bytes were downloaded, sometimes in kB or MB
-		 * if it is too large.
-		 */
-		@Override
-		protected void process(List<Integer> chunks)
-		{
-			int downloaded = chunks[chunks.size() - 1];
-			String downloadedStr;
-			if (downloaded <= 1024)
-				downloadedStr = String.format("%d", downloaded);
-			else if (downloaded <= 1048576)
-				downloadedStr = String.format("%.1fk", downloaded/1024.0);
-			else
-				downloadedStr = String.format("%.2fM", downloaded/1048576.0);
-			if (bytes.isEmpty())
-			{
-				progressBar.setVisible(false);
-				progressLabel.setText("Downloading inventory..." + downloadedStr + "B downloaded.");
-			}
-			else
-			{
-				progressBar.setIndeterminate(false);
-				progressBar.setValue(downloaded);
-				progressLabel.setText("Downloading inventory..." + downloadedStr + "B/" + bytes + "B downloaded.");
-			}
-		}
-		
-		/**
+		 * {@inheritDoc}
 		 * Connect to the site to download the file from, and the download the file,
 		 * periodically reporting how many bytes have been downloaded.
 		 */
@@ -237,13 +118,135 @@ public class InventoryDownloadDialog extends JDialog
 		}
 		
 		/**
-		 * When done, close the parent dialog and return control back to its parent.
+		 * {@inheritDoc}
+		 * Close the parent dialog and return control back to its parent.
 		 */
 		@Override
 		protected void done()
 		{
 			setVisible(false);
 			dispose();
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 * Tell the dialog how many bytes were downloaded, sometimes in kB or MB
+		 * if it is too large.
+		 */
+		@Override
+		protected void process(List<Integer> chunks)
+		{
+			int downloaded = chunks[chunks.size() - 1];
+			String downloadedStr;
+			if (downloaded <= 1024)
+				downloadedStr = String.format("%d", downloaded);
+			else if (downloaded <= 1048576)
+				downloadedStr = String.format("%.1fk", downloaded/1024.0);
+			else
+				downloadedStr = String.format("%.2fM", downloaded/1048576.0);
+			if (bytes.isEmpty())
+			{
+				progressBar.setVisible(false);
+				progressLabel.setText("Downloading inventory..." + downloadedStr + "B downloaded.");
+			}
+			else
+			{
+				progressBar.setIndeterminate(false);
+				progressBar.setValue(downloaded);
+				progressLabel.setText("Downloading inventory..." + downloadedStr + "B/" + bytes + "B downloaded.");
+			}
+		}
+	}
+	
+	/**
+	 * Bar to look pretty and indicate things are happening.
+	 */
+	private JProgressBar progressBar;
+	/**
+	 * Label to show download statistics.
+	 */
+	private JLabel progressLabel;
+	
+	/**
+	 * Worker that downloads the inventory.
+	 */
+	private InventoryDownloadWorker worker;
+	
+	/**
+	 * Create a new InventoryDownloadDialog.
+	 * 
+	 * @param owner owner frame of the dialog.
+	 */
+	public InventoryDownloadDialog(JFrame owner)
+	{
+		super(owner, "Update", Dialog.ModalityType.APPLICATION_MODAL);
+		setPreferredSize(new Dimension(350, 115));
+		setResizable(false);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		
+		worker = null;
+		
+		// Content panel
+		JPanel contentPanel = new JPanel(new BorderLayout(0, 2));
+		contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		setContentPane(contentPanel);
+		
+		// Stage progress label
+		contentPanel.add(progressLabel = new JLabel("Downloading inventory..."), BorderLayout.NORTH);
+		
+		// Overall progress bar
+		progressBar = new JProgressBar();
+		progressBar.setIndeterminate(true);
+		contentPanel.add(progressBar, BorderLayout.CENTER);
+		
+		// Cancel button
+		JPanel cancelPanel = new JPanel();
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener((e) -> {
+			if (worker != null)
+				worker.cancel(true);
+		});
+		cancelPanel.add(cancelButton);
+		contentPanel.add(cancelPanel, BorderLayout.SOUTH);
+		
+		pack();
+	}
+	
+	/**
+	 * Show this InventoryDownloadDialog and then start a worker that downloads the file.
+	 * When it is complete, return the result.
+	 * 
+	 * @param site site to download from
+	 * @param file #File to store to
+	 * @return true if the download successfully completed, and false otherwise.
+	 */
+	public boolean downloadInventory(URL site, File file)
+	{
+		File tmp = new File(file.getPath() + ".tmp");
+		worker = new InventoryDownloadWorker(site, tmp);
+		worker.execute();
+		setVisible(true);
+		try
+		{
+			worker.get();
+			Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			return true;
+		}
+		catch (InterruptedException | ExecutionException e)
+		{
+			JOptionPane.showMessageDialog(null, "Error downloading " + file.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			tmp.delete();
+			return false;
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(null, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		catch (CancellationException e)
+		{
+			tmp.delete();
+			return false;
 		}
 	}
 }

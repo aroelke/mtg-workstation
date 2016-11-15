@@ -27,22 +27,22 @@ import editor.util.Containment;
 public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 {
 	/**
-	 * Type of filter that this TextFilterPanel edits.
-	 */
-	private String type;
-	/**
 	 * Combo box for choosing set containment.
 	 */
 	private ComboBoxPanel<Containment> contain;
-	/**
-	 * Field for editing the text of the filter.
-	 */
-	private JTextField text;
 	/**
 	 * Check box specifying whether the text is a regular expression
 	 * or not.
 	 */
 	private JCheckBox regex;
+	/**
+	 * Field for editing the text of the filter.
+	 */
+	private JTextField text;
+	/**
+	 * Type of filter that this TextFilterPanel edits.
+	 */
+	private String type;
 	
 	/**
 	 * Create a new TextFilterPanel.
@@ -58,6 +58,24 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		text = new JTextField();
 		text.getDocument().addDocumentListener(new DocumentListener()
 		{
+			@Override
+			public void changedUpdate(DocumentEvent e)
+			{
+				update(e);
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent e)
+			{
+				update(e);
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e)
+			{
+				update(e);
+			}
+
 			private void update(DocumentEvent e)
 			{
 				text.setBackground(Color.WHITE);
@@ -73,24 +91,6 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 					}
 				}
 			}
-			
-			@Override
-			public void changedUpdate(DocumentEvent e)
-			{
-				update(e);
-			}
-
-			@Override
-			public void insertUpdate(DocumentEvent e)
-			{
-				update(e);
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e)
-			{
-				update(e);
-			}
 		});
 		add(text);
 		
@@ -103,7 +103,7 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 	 * Create a new TextFilterPanel and initialize its fields according
 	 * to the contents of the given TextFilter.
 	 * 
-	 * @param f Filter to use for initialization
+	 * @param f filter to use for initialization
 	 */
 	public TextFilterPanel(TextFilter f)
 	{
@@ -111,10 +111,6 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		setContents(f);
 	}
 	
-	/**
-	 * @return The TextFilter corresponding to the values of this
-	 * TextFilterPanel's fields.
-	 */
 	@Override
 	public Filter filter()
 	{
@@ -125,12 +121,15 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		return filter;
 	}
 
-	/**
-	 * Set the values of this TextFilterPanel's fields based on
-	 * the contents of the given TextFilter.
-	 * 
-	 * @param filter Filter to use for field values
-	 */
+	@Override
+	public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
+	{
+		if (filter instanceof TextFilter)
+			setContents((TextFilter)filter);
+		else
+			throw new IllegalArgumentException("Illegal text filter " + filter.type());
+	}
+
 	@Override
 	public void setContents(TextFilter filter)
 	{
@@ -139,22 +138,5 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		text.setText(filter.text);
 		regex.setSelected(filter.regex);
 		contain.setVisible(!filter.regex);
-	}
-
-	/**
-	 * Set the values of this TextFilterPanel's fields based on
-	 * the contents of the given FilterLeaf.
-	 * 
-	 * @param filter Filter to use for field values
-	 * @throws IllegalArgumentException if the given filter is not a
-	 * TextFilter.
-	 */
-	@Override
-	public void setContents(FilterLeaf<?> filter)
-	{
-		if (filter instanceof TextFilter)
-			setContents((TextFilter)filter);
-		else
-			throw new IllegalArgumentException("Illegal text filter " + filter.type());
 	}
 }

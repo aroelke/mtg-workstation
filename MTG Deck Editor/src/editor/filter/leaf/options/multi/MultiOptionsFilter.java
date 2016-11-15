@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 import editor.database.card.Card;
+import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
 import editor.util.SerializableFunction;
 
@@ -22,36 +23,21 @@ public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
 {
 	/**
 	 * Function representing the characteristic being filtered that hides
-	 * the superclass's function.
+	 * the superclass's function.  Replaces the function inherited from
+	 * {@link FilterLeaf}.
 	 */
 	private SerializableFunction<Card, Collection<T>> function;
 	
 	/**
 	 * Create a new MultiOptionsFilter.
 	 * 
-	 * @param t Type of the new MultiOptionsFilter
-	 * @param f Function for the new MultiOptionsFilter
+	 * @param t type of the new MultiOptionsFilter
+	 * @param f function for the new MultiOptionsFilter
 	 */
 	public MultiOptionsFilter(String t, SerializableFunction<Card, Collection<T>> f)
 	{
 		super(t, null);
 		function = f;
-	}
-	
-	protected SerializableFunction<Card, Collection<T>> multifunction()
-	{
-		return function;
-	}
-	
-	/**
-	 * @param c Card to test
-	 * @return <code>true</code> if the values in the Card's characteristic
-	 * match this MultiOptionsFilter's selected values with its containment.
-	 */
-	@Override
-	public boolean test(Card c)
-	{
-		return contain.test(function.apply(c), selected);
 	}
 	
 	@Override
@@ -60,12 +46,34 @@ public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
 		return Objects.hash(type(), function, contain, selected);
 	}
 	
+	/**
+	 * Get the function representing this MultiOptionsFilter's attribute.  Don't use
+	 * {@link #function()}, which will return <code>null</code>.
+	 * 
+	 * @return this MultiOptionsFilter's function
+	 */
+	protected SerializableFunction<Card, Collection<T>> multifunction()
+	{
+		return function;
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
 		super.readExternal(in);
 		function = (SerializableFunction<Card, Collection<T>>)in.readObject();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Filter cards by attributes that can take zero or or more of a certain value
+	 * according to this MultiOptionsFilter's selection and containment.
+	 */
+	@Override
+	public boolean test(Card c)
+	{
+		return contain.test(function.apply(c), selected);
 	}
 	
 	@Override

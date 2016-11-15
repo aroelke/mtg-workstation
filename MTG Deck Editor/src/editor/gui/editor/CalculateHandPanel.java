@@ -46,16 +46,222 @@ import editor.gui.SettingsDialog;
 public class CalculateHandPanel extends JPanel
 {
 	/**
-	 * Rounding modes for expected value mode.
+	 * This class represents the data model backing the main table showing
+	 * probabilities.
+	 * 
+	 * @author Alec Roelke
 	 */
-	public static final Map<String, Function<Double, String>> ROUND_MODE;
-	static
+	private class CalculationTableModel extends AbstractTableModel
 	{
-		Map<String, Function<Double, String>> rounds = new HashMap<String, Function<Double, String>>();
-		rounds["No rounding"] = (x) -> String.format("%.2f", x);
-		rounds["Round to nearest"] = (x) -> String.format("%d", Math.round(x));
-		rounds["Truncate"] = (x) -> String.format("%d", x.intValue());
-		ROUND_MODE = Collections.unmodifiableMap(rounds);
+		@Override
+		public Class<?> getColumnClass(int column)
+		{
+			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
+			{
+			case DESIRED_PROBABILITY:
+				switch (column)
+				{
+				case CATEGORY:
+					return String.class;
+				case COUNT: case DESIRED:
+					return Integer.class;
+				case RELATION:
+					return Relation.class;
+				default:
+					return String.class;
+				}
+			case EXPECTED_COUNT:
+				return String.class;
+			default:
+				throw new IllegalStateException("There should not be any other values of DisplayMode.");
+			}
+		}
+
+		/**
+		 * {@inheritDoc}
+		 * The number of columns depends on what is being displayed.  If the probabilities
+		 * of drawing given numbers of cards from categories is displayed, then there is a column
+		 * for category name, a column for desired count, a column for the relation to the desired
+		 * count, a column for the opening hand, and then a column for each subsequent draw.  Otherwise,
+		 * the desired count column is omitted.
+		 */
+		@Override
+		public int getColumnCount()
+		{
+			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
+			{
+			case DESIRED_PROBABILITY:
+				return (int)drawsSpinner.getValue() + P_INFO_COLS;
+			case EXPECTED_COUNT:
+				return (int)drawsSpinner.getValue() + E_INFO_COLS;
+			default:
+				throw new IllegalStateException("There should not be any other values of DisplayMode.");
+			}
+		}
+
+		@Override
+		public String getColumnName(int column)
+		{
+			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
+			{
+			case DESIRED_PROBABILITY:
+				switch (column)
+				{
+				case CATEGORY:
+					return "Kind of Card";
+				case COUNT:
+					return "Count";
+				case DESIRED:
+					return "Desired";
+				case RELATION:
+					return "Relation";
+				case P_INITIAL:
+					return "Initial Hand";
+				default:
+					return "Draw " + (column - (P_INFO_COLS - 1));
+				}
+			case EXPECTED_COUNT:
+				switch (column)
+				{
+				case CATEGORY:
+					return "Kind of Card";
+				case E_INITIAL:
+					return "Initial Hand";
+				default:
+					return "Draw " + (column - (E_INFO_COLS - 1));
+				}
+			default:
+				throw new IllegalStateException("There should not be any other values of DisplayMode.");
+			}
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 * The number of rows is the number of categories in the deck.
+		 */
+		@Override
+		public int getRowCount()
+		{
+			return deck.numCategories();
+		}
+		
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex)
+		{
+			String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList())[rowIndex];
+			
+			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
+			{
+			case DESIRED_PROBABILITY:
+				switch (columnIndex)
+				{
+				case CATEGORY:
+					return category;
+				case COUNT:
+					return deck.getCategoryList(category).total();
+				case DESIRED:
+					return desiredBoxes[category].getSelectedItem();
+				case RELATION:
+					return relationBoxes[category].getSelectedItem();
+				default:
+					return String.format("%.2f%%", probabilities[category][columnIndex - (P_INFO_COLS - 1)]*100.0);
+				}
+			case EXPECTED_COUNT:
+				if (columnIndex == CATEGORY)
+					return category;
+				else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts[category].size())
+					return ROUND_MODE[SettingsDialog.getAsString(SettingsDialog.EXPECTED_ROUND_MODE)].apply(expectedCounts[category][columnIndex - (E_INFO_COLS - 1)]);
+				else
+					return "";
+			default:
+				throw new IllegalStateException("There should not be any other values of DisplayMode.");
+			}
+		}
+	}
+	
+	/**
+	 * This enum enumerates the modes that a CalculateHandPanel can be placed in.
+	 * Those modes are to display probabilities of getting given amounts of cards in
+	 * each category and to display the expected number of each kind of card that will
+	 * be drawn. 
+	 * 
+	 * @author Alec
+	 */
+	private static enum DisplayMode
+	{
+		/**
+		 * Show the probability of drawing a given number of cards from each category in
+		 * the opening hand.
+		 */
+		DESIRED_PROBABILITY("Probabilities"),
+		/**
+		 * Show the expected number of cards from each category that will be drawn in the
+		 * opening hand.
+		 */
+		EXPECTED_COUNT("Expected Counts");
+		
+		/**
+		 * String representation of this DisplayMode.
+		 */
+		private final String mode;
+		
+		/**
+		 * Create a new DisplayMode.
+		 * @param m String representation of the new DisplayMode
+		 */
+		private DisplayMode(final String m)
+		{
+			mode = m;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return mode;
+		}
+	}
+	
+	/**
+	 * This enum represents the three relations to the desired number of cards
+	 * in a category to draw.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private enum Relation
+	{
+		/**
+		 * The opening hand should have at least as many cards.
+		 */
+		AT_LEAST("At least"),
+		/**
+		 * The opening hand should have at most as many cards.
+		 */
+		AT_MOST("At most"),
+		/**
+		 * The opening hand should have exactly as many cards.
+		 */
+		EXACTLY("Exactly");
+		
+		/**
+		 * String representation to display in a combo box.
+		 */
+		private final String relation;
+		
+		/**
+		 * Create a new Relation.
+		 * 
+		 * @param r String representation of the new Relation
+		 */
+		private Relation(String r)
+		{
+			relation = r;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return relation;
+		}
 	}
 	
 	/**
@@ -92,10 +298,24 @@ public class CalculateHandPanel extends JPanel
 	private static final int E_INFO_COLS = 2;
 	
 	/**
+	 * Rounding modes for expected value mode.
+	 */
+	public static final Map<String, Function<Double, String>> ROUND_MODE;
+	
+	static
+	{
+		Map<String, Function<Double, String>> rounds = new HashMap<String, Function<Double, String>>();
+		rounds["No rounding"] = (x) -> String.format("%.2f", x);
+		rounds["Round to nearest"] = (x) -> String.format("%d", Math.round(x));
+		rounds["Truncate"] = (x) -> String.format("%d", x.intValue());
+		ROUND_MODE = Collections.unmodifiableMap(rounds);
+	}
+	
+	/**
 	 * Calculate the exact value of n!, as long as it will fit into a double.
 	 * 
-	 * @param n Parameter for factorial
-	 * @return The factorial of n, or n!
+	 * @param n parameter for factorial
+	 * @return the factorial of n, or n!
 	 */
 	public static double factorial(int n)
 	{
@@ -106,72 +326,33 @@ public class CalculateHandPanel extends JPanel
 	}
 	
 	/**
-	 * Calculate n choose k based on the {@link CalculateHandPanel#factorial(int)}
-	 * function.
-	 * 
-	 * @param n Number of items to choose from
-	 * @param k Number of items to choose
-	 * @return The number of ways to choose k out of n items.
-	 */
-	public static double nchoosek(int n, int k)
-	{
-		return factorial(n)/(factorial(n - k)*factorial(k));
-	}
-	
-	/**
 	 * Calculate a hypergeometric distribution for drawing the given number
 	 * of cards in a hand of the given size from a deck of the given size,
 	 * when the given number of cards are successes.
 	 * 
-	 * @param n Number of desired cards
-	 * @param hand Size of hand drawn
-	 * @param count Number of successful cards in deck
-	 * @param total Number of cards in the deck
-	 * @return The hypergeometric distribution with parameters hand, count, and
+	 * @param n number of desired cards
+	 * @param hand size of hand drawn
+	 * @param count number of successful cards in deck
+	 * @param total number of cards in the deck
+	 * @return the hypergeometric distribution with parameters hand, count, and
 	 * total and argument n.
 	 */
 	public static double hypergeom(int n, int hand, int count, int total)
 	{
 		return nchoosek(count, n)*nchoosek(total - count, hand - n)/nchoosek(total, hand);
 	}
-	
 	/**
-	 * This enum enumerates the modes that a CalculateHandPanel can be placed in.
-	 * Those modes are to display probabilities of getting given amounts of cards in
-	 * each category and to display the expected number of each kind of card that will
-	 * be drawn. 
+	 * Calculate n choose k based on the {@link CalculateHandPanel#factorial(int)}
+	 * function.
 	 * 
-	 * @author Alec
+	 * @param n number of items to choose from
+	 * @param k number of items to choose
+	 * @return the number of ways to choose k out of n items.
 	 */
-	private static enum DisplayMode
+	public static double nchoosek(int n, int k)
 	{
-		DESIRED_PROBABILITY("Probabilities"),
-		EXPECTED_COUNT("Expected Counts");
-		
-		/**
-		 * String representation of this DisplayMode.
-		 */
-		private final String mode;
-		
-		/**
-		 * Create a new DisplayMode.
-		 * @param m String representation of the new DisplayMode
-		 */
-		private DisplayMode(final String m)
-		{
-			mode = m;
-		}
-		
-		/**
-		 * @return The String representation of this DisplayMode.
-		 */
-		@Override
-		public String toString()
-		{
-			return mode;
-		}
+		return factorial(n)/(factorial(n - k)*factorial(k));
 	}
-	
 	/**
 	 * Deck containing cards to draw from.
 	 */
@@ -181,46 +362,47 @@ public class CalculateHandPanel extends JPanel
 	 */
 	private Map<String, JComboBox<Integer>> desiredBoxes;
 	/**
-	 * List of combo boxes displaying relations to the desired numbers.
+	 * Spinner controlling the number of drawn cards to show.
 	 */
-	private Map<String, JComboBox<Relation>> relationBoxes;
-	/**
-	 * List of lists of probabilities for opening and hand each draw afterward
-	 * for each category.
-	 */
-	private Map<String, List<Double>> probabilities;
+	private JSpinner drawsSpinner;
 	/**
 	 * List of lists of expected counts for opening hand and each draw afterward
 	 * for each category.
 	 */
 	private Map<String, List<Double>> expectedCounts;
 	/**
-	 * Spinner controlling the number of drawn cards to show.
+	 * Spinner controlling the number of cards in the initial hand.
 	 */
-	private JSpinner drawsSpinner;
+	private JSpinner handSpinner;
+	/**
+	 * Combo box for picking the display mode.
+	 */
+	private JComboBox<DisplayMode> modeBox;
 	/**
 	 * Data model for the table showing probabilities.
 	 */
 	private CalculationTableModel model;
 	/**
-	 * Spinner controlling the number of cards in the initial hand.
+	 * List of lists of probabilities for opening and hand each draw afterward
+	 * for each category.
 	 */
-	private JSpinner handSpinner;
+	private Map<String, List<Double>> probabilities;
+	
+	/**
+	 * List of combo boxes displaying relations to the desired numbers.
+	 */
+	private Map<String, JComboBox<Relation>> relationBoxes;
+	
 	/**
 	 * Table showing probabilities of fulfilling category requirements.
 	 */
 	private JTable table;
-	/**
-	 * Combo box for picking the display mode.
-	 */
-	private JComboBox<DisplayMode> modeBox;
 	
 	/**
 	 * Create a new CalculateHandPanel and populate it with its initial
 	 * categories.
 	 * 
 	 * @param d Deck containing cards to draw
-	 * @param stripeColor Color of alternating stripes in the table
 	 */
 	public CalculateHandPanel(Deck d)
 	{
@@ -264,30 +446,6 @@ public class CalculateHandPanel extends JPanel
 		table = new JTable(model = new CalculationTableModel())
 		{
 			@Override
-			public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
-			{
-				Component c = super.prepareRenderer(renderer, row, column);
-				if (!isRowSelected(row) || !getRowSelectionAllowed())
-					c.setBackground(row%2 == 0 ? new Color(getBackground().getRGB()) : SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
-				if (model.getValueAt(row, RELATION).equals(Relation.AT_LEAST) && model.getValueAt(row, DESIRED).equals(0))
-				{
-					c.setForeground(c.getBackground().darker());
-					c.setFont(new Font(c.getFont().getFontName(), Font.ITALIC, c.getFont().getSize()));
-				}
-				else
-				{
-					c.setForeground(Color.BLACK);
-				}
-				return c;
-			}
-			
-			@Override
-			public boolean getScrollableTracksViewportWidth()
-			{
-				return getPreferredSize().width < getParent().getWidth();
-			}
-			
-			@Override
 			public TableCellEditor getCellEditor(int row, int column)
 			{
 				String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList())[row];
@@ -304,9 +462,33 @@ public class CalculateHandPanel extends JPanel
 			}
 			
 			@Override
+			public boolean getScrollableTracksViewportWidth()
+			{
+				return getPreferredSize().width < getParent().getWidth();
+			}
+			
+			@Override
 			public boolean isCellEditable(int row, int column)
 			{
 				return column == DESIRED || column == RELATION;
+			}
+			
+			@Override
+			public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+			{
+				Component c = super.prepareRenderer(renderer, row, column);
+				if (!isRowSelected(row) || !getRowSelectionAllowed())
+					c.setBackground(row%2 == 0 ? new Color(getBackground().getRGB()) : SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
+				if (model.getValueAt(row, RELATION).equals(Relation.AT_LEAST) && model.getValueAt(row, DESIRED).equals(0))
+				{
+					c.setForeground(c.getBackground().darker());
+					c.setFont(new Font(c.getFont().getFontName(), Font.ITALIC, c.getFont().getSize()));
+				}
+				else
+				{
+					c.setForeground(Color.BLACK);
+				}
+				return c;
 			}
 		};
 		table.setFillsViewportHeight(true);
@@ -325,41 +507,10 @@ public class CalculateHandPanel extends JPanel
 		handSpinner.addChangeListener((e) -> recalculate());
 	}
 	
-	public void update()
-	{
-		List<String> categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
-		
-		Map<String, Integer> oldDesired = desiredBoxes.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().getSelectedIndex()));
-		Map<String, Relation> oldRelations = relationBoxes.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().getItemAt(e.getValue().getSelectedIndex())));
-		
-		desiredBoxes.clear();
-		relationBoxes.clear();
-		probabilities.clear();
-		
-		for (String category: categories)
-		{
-			JComboBox<Integer> desiredBox = new JComboBox<Integer>();
-			for (int i = 0; i <= deck.getCategoryList(category).total(); i++)
-				desiredBox.addItem(i);
-			if (oldDesired.containsKey(category) && oldDesired[category].intValue() < deck.getCategoryList(category).total())
-				desiredBox.setSelectedIndex(oldDesired[category]);
-			desiredBox.addActionListener((e) -> recalculate());
-			desiredBoxes[category] = desiredBox;
-			
-			JComboBox<Relation> relationBox = new JComboBox<Relation>(Relation.values());
-			if (oldRelations.containsKey(category))
-				relationBox.setSelectedItem(oldRelations[category]);
-			relationBox.addActionListener((e) -> recalculate());
-			relationBoxes[category] = relationBox;
-		}
-		
-		recalculate();
-		model.fireTableStructureChanged();
-	}
-	
 	/**
 	 * Recalculate the probabilities of drawing the desired number of cards in
-	 * each category in the initial hand and after each draw.
+	 * each category in the initial hand and after each draw and the expected
+	 * number of cards from each category.
 	 */
 	public void recalculate()
 	{
@@ -401,182 +552,37 @@ public class CalculateHandPanel extends JPanel
 	}
 	
 	/**
-	 * This enum represents the three relations to the desired number of cards
-	 * in a category to draw.
-	 * 
-	 * @author Alec Roelke
+	 * Update the values in the probabilities/expected values table.
 	 */
-	private enum Relation
+	public void update()
 	{
-		AT_LEAST("At least"),
-		EXACTLY("Exactly"),
-		AT_MOST("At most");
+		List<String> categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
 		
-		/**
-		 * String representation to display in a combo box.
-		 */
-		private final String relation;
+		Map<String, Integer> oldDesired = desiredBoxes.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().getSelectedIndex()));
+		Map<String, Relation> oldRelations = relationBoxes.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().getItemAt(e.getValue().getSelectedIndex())));
 		
-		/**
-		 * Create a new Relation.
-		 * 
-		 * @param r String representation of the new Relation
-		 */
-		private Relation(String r)
-		{
-			relation = r;
-		}
+		desiredBoxes.clear();
+		relationBoxes.clear();
+		probabilities.clear();
 		
-		/**
-		 * @return The String representation of this Relation.
-		 */
-		@Override
-		public String toString()
+		for (String category: categories)
 		{
-			return relation;
-		}
-	}
-	
-	/**
-	 * This class represents the data model backing the main table showing
-	 * probabilities.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class CalculationTableModel extends AbstractTableModel
-	{
-		/**
-		 * @return The number of rows in the table, which is the same as the number
-		 * of categories to display.
-		 */
-		@Override
-		public int getRowCount()
-		{
-			return deck.numCategories();
-		}
-
-		/**
-		 * @return The number of columns in the table, which is the number of "info"
-		 * columns plus one for each card draw to display.
-		 */
-		@Override
-		public int getColumnCount()
-		{
-			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
-			{
-			case DESIRED_PROBABILITY:
-				return (int)drawsSpinner.getValue() + P_INFO_COLS;
-			case EXPECTED_COUNT:
-				return (int)drawsSpinner.getValue() + E_INFO_COLS;
-			default:
-				throw new IllegalStateException("There should not be any other values of DisplayMode.");
-			}
-		}
-
-		/**
-		 * @param column Index of the column to get the name of
-		 * @return The name of the given column.
-		 */
-		@Override
-		public String getColumnName(int column)
-		{
-			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
-			{
-			case DESIRED_PROBABILITY:
-				switch (column)
-				{
-				case CATEGORY:
-					return "Kind of Card";
-				case COUNT:
-					return "Count";
-				case DESIRED:
-					return "Desired";
-				case RELATION:
-					return "Relation";
-				case P_INITIAL:
-					return "Initial Hand";
-				default:
-					return "Draw " + (column - (P_INFO_COLS - 1));
-				}
-			case EXPECTED_COUNT:
-				switch (column)
-				{
-				case CATEGORY:
-					return "Kind of Card";
-				case E_INITIAL:
-					return "Initial Hand";
-				default:
-					return "Draw " + (column - (E_INFO_COLS - 1));
-				}
-			default:
-				throw new IllegalStateException("There should not be any other values of DisplayMode.");
-			}
-		}
-		
-		/**
-		 * @param column Index of the column to get the class of
-		 * @return The class of the information contained in the given column.
-		 */
-		@Override
-		public Class<?> getColumnClass(int column)
-		{
-			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
-			{
-			case DESIRED_PROBABILITY:
-				switch (column)
-				{
-				case CATEGORY:
-					return String.class;
-				case COUNT: case DESIRED:
-					return Integer.class;
-				case RELATION:
-					return Relation.class;
-				default:
-					return String.class;
-				}
-			case EXPECTED_COUNT:
-				return String.class;
-			default:
-				throw new IllegalStateException("There should not be any other values of DisplayMode.");
-			}
-		}
-		
-		/**
-		 * @param rowIndex Row of the cell to get the value of
-		 * @param columnIndex Column of the cell to get the value of
-		 * @return The value of the cell at the given row and column.
-		 */
-		@Override
-		public Object getValueAt(int rowIndex, int columnIndex)
-		{
-			String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList())[rowIndex];
+			JComboBox<Integer> desiredBox = new JComboBox<Integer>();
+			for (int i = 0; i <= deck.getCategoryList(category).total(); i++)
+				desiredBox.addItem(i);
+			if (oldDesired.containsKey(category) && oldDesired[category].intValue() < deck.getCategoryList(category).total())
+				desiredBox.setSelectedIndex(oldDesired[category]);
+			desiredBox.addActionListener((e) -> recalculate());
+			desiredBoxes[category] = desiredBox;
 			
-			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
-			{
-			case DESIRED_PROBABILITY:
-				switch (columnIndex)
-				{
-				case CATEGORY:
-					return category;
-				case COUNT:
-					return deck.getCategoryList(category).total();
-				case DESIRED:
-					return desiredBoxes[category].getSelectedItem();
-				case RELATION:
-					return relationBoxes[category].getSelectedItem();
-				default:
-					return String.format("%.2f%%", probabilities[category][columnIndex - (P_INFO_COLS - 1)]*100.0);
-				}
-			case EXPECTED_COUNT:
-				if (columnIndex == CATEGORY)
-					return category;
-				else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts[category].size())
-					return ROUND_MODE[SettingsDialog.getAsString(SettingsDialog.EXPECTED_ROUND_MODE)].apply(expectedCounts[category][columnIndex - (E_INFO_COLS - 1)]);
-				else
-					return "";
-			default:
-				throw new IllegalStateException("There should not be any other values of DisplayMode.");
-			}
+			JComboBox<Relation> relationBox = new JComboBox<Relation>(Relation.values());
+			if (oldRelations.containsKey(category))
+				relationBox.setSelectedItem(oldRelations[category]);
+			relationBox.addActionListener((e) -> recalculate());
+			relationBoxes[category] = relationBox;
 		}
+		
+		recalculate();
+		model.fireTableStructureChanged();
 	}
 }

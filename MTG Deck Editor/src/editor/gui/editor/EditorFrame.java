@@ -112,6 +112,387 @@ import editor.util.UnicodeSymbols;
 public class EditorFrame extends JInternalFrame
 {
 	/**
+	 * This enum represents an order that category panels can be sorted in.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private enum CategoryOrder
+	{
+		/**
+		 * Sort categories in ascending alphabetical order.
+		 */
+		A_Z("A-Z", (d) -> (a, b) -> a.getName().compareToIgnoreCase(b.getName())),
+		/**
+		 * Sort categories in order of increasing card count.
+		 */
+		ASCENDING("Ascending Size", (d) -> (a, b) -> d.getCategoryList(a.getName()).total() - d.getCategoryList(b.getName()).total()),
+		/**
+		 * Sort categories in order of decreasing card count.
+		 */
+		DESCENDING("Descending Size", (d) -> (a, b) -> d.getCategoryList(b.getName()).total() - d.getCategoryList(a.getName()).total()),
+		/**
+		 * Sort categories in order of increasing rank.
+		 */
+		PRIORITY("Increasing Rank", (d) -> (a, b) -> d.getCategoryRank(a.getName()) - d.getCategoryRank(b.getName())),
+		/**
+		 * Sort categories in order of decreasing rank.
+		 */
+		REVERSE("Decreasing Rank", (d) -> (a, b) -> d.getCategoryRank(b.getName()) - d.getCategoryRank(a.getName())),
+		/**
+		 * Sort categories in descending alphabetical order.
+		 */
+		Z_A("Z-A", (d) -> (a, b) -> -a.getName().compareToIgnoreCase(b.getName()));
+		
+		/**
+		 * String to display when a String representation of this
+		 * CategoryOrder is called for.
+		 */
+		private final String name;
+		/**
+		 * Function comparing two {@link CategorySpec}s from a deck
+		 */
+		private final Function<Deck, Comparator<CategorySpec>> order;
+		
+		/**
+		 * Create a new CategoryOrder.
+		 * 
+		 * @param n Name of the new CategoryOrder
+		 * @param o Function comparing two CategorySpecs from a Deck
+		 */
+		private CategoryOrder(String n, Function<Deck, Comparator<CategorySpec>> o)
+		{
+			name = n;
+			order = o;
+		}
+		
+		/**
+		 * Compare the two given {@link CategorySpec}s from the given Deck.
+		 * 
+		 * @param d deck containing the categories
+		 * @param a first category
+		 * @param b second category
+		 * @return a negative number if the first category comes before the second in the given deck,
+		 * a positive number if it comes after, and 0 if there is no relative order.
+		 */
+		public int compare(Deck d, CategorySpec a, CategorySpec b)
+		{
+			return order.apply(d).compare(a, b);
+		}
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+	}
+	
+	/**
+	 * This class represents a transfer handler for transferring cards to and from
+	 * a table in the editor frame.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private class EditorImportHandler extends TransferHandler
+	{
+		/**
+		 * {@inheritDoc}
+		 * Data can only be imported if it is of the card or entry flavors.
+		 */
+		@Override
+		public boolean canImport(TransferSupport supp)
+		{
+			return supp.isDataFlavorSupported(CardList.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 * If the data can be imported, copy the cards from the source to the target deck.
+		 */
+		@Override
+		public boolean importData(TransferSupport supp)
+		{
+			try
+			{
+				if (!canImport(supp))
+					return false;
+				else if (supp.isDataFlavorSupported(CardList.entryFlavor))
+				{
+					@SuppressWarnings("unchecked")
+					Map<Card, Integer> data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
+					return performAction(() -> {
+							boolean undone = false;
+							for (Map.Entry<Card, Integer> entry: data.entrySet())
+								undone |= !deleteCards(Arrays.asList(entry.getKey()), entry.getValue()).isEmpty();
+							return undone;
+						}, () -> insertCards(data));
+				}
+				else if (supp.isDataFlavorSupported(Card.cardFlavor))
+				{
+					Card[] data = (Card[])supp.getTransferable().getTransferData(Card.cardFlavor);
+					addCards(Arrays.asList(data), 1);
+					return true;
+				}
+				else
+					return false;
+			}
+			catch (UnsupportedFlavorException e)
+			{
+				return false;
+			}
+			catch (IOException e)
+			{
+				return false;
+			}
+		}
+	}
+	
+	/**
+	 * This class represents a transfer handler for moving data to and from
+	 * a table in the editor.  It can import or export data of the card or
+	 * entry flavors.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private class EditorTableTransferHandler extends EditorImportHandler
+	{
+		@Override
+		public Transferable createTransferable(JComponent c)
+		{
+			return new Deck.TransferData(deck, getSelectedCards());
+		}
+
+		@Override
+		public void exportDone(JComponent c, Transferable t, int action)
+		{
+			if (action == TransferHandler.MOVE)
+				removeSelectedCards(Integer.MAX_VALUE);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 * Only copying is supported.
+		 * TODO: Support moving
+		 */
+		@Override
+		public int getSourceActions(JComponent c)
+		{
+			return TransferHandler.COPY;
+		}
+	}
+	
+	/**
+	 * This class is a worker for loading a deck.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private class LoadWorker extends SwingWorker<Void, Integer>
+	{
+		/**
+		 * Dialog containing the progress bar.
+		 */
+		private JDialog dialog;
+		/**
+		 * File to load the deck from.
+		 */
+		private File file;
+		/**
+		 * Progress bar to display progress to.
+		 */
+		private JProgressBar progressBar;
+		
+		/**
+		 * Create a new LoadWorker.
+		 * 
+		 * @param f file to load the deck from
+		 * @param b progress bar showing progress
+		 * @param d dialog containing the progress bar
+		 */
+		public LoadWorker(File f, JProgressBar b, JDialog d)
+		{
+			file = f;
+			progressBar = b;
+			dialog = d;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 * Load the deck, updating the progress bar all the while.
+		 */
+		@Override
+		protected Void doInBackground() throws Exception
+		{
+			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
+			{
+				opening = true;
+				int cards = Integer.valueOf(rd.readLine().trim());
+				for (int i = 0; i < cards; i++)
+				{
+					if (isCancelled())
+						return null;
+					String[] card = rd.readLine().trim().split("\t");
+					Card c = parent.getCard(card[0]);
+					if (c != null)
+						deck.add(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
+					else
+						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
+					publish(50*(i + 1)/cards);
+				}
+				int categories = Integer.valueOf(rd.readLine().trim());
+				for (int i = 0; i < categories; i++)
+				{
+					if (isCancelled())
+						return null;
+					CategorySpec spec = new CategorySpec(rd.readLine());
+					addCategory(spec);
+					publish(50 + 50*(i + 1)/categories);
+				}
+				String line;
+				while ((line = rd.readLine()) != null)
+					changelogArea.append(line + "\n");
+			}
+			return null;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 * When the task is over, close the file and update the frame.
+		 */
+		@Override
+		protected void done()
+		{
+			opening = false;
+			dialog.dispose();
+			unsaved = false;
+			setFile(file);
+			undoBuffer.clear();
+			redoBuffer.clear();
+		}
+		
+		@Override
+		protected void process(List<Integer> chunks)
+		{
+			int progress = chunks[chunks.size() - 1];
+			progressBar.setValue(progress);
+		}
+	}
+	
+	/**
+	 * Popup menu listener for a CardTable of this EditorFrame.  It controls the visibility
+	 * and contents of the include and exclude options.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private class TablePopupListener implements PopupMenuListener
+	{
+		/**
+		 * Submenu for quickly adding cards to categories.
+		 */
+		private JMenu addToCategoryMenu;
+		/**
+		 * Item for editing the categories of cards.
+		 */
+		private JMenuItem editCategoriesItem;
+		/**
+		 * Separator between category edit and card edit sections of the table
+		 * popup menu.
+		 */
+		private JSeparator menuSeparator;
+		/**
+		 * Submenu for quickly removing cards from categories.
+		 */
+		private JMenu removeFromCategoryMenu;
+		/**
+		 * Table in which the menu appears.
+		 */
+		private CardTable table;
+		
+		/**
+		 * Create a new TablePopupListener.
+		 * 
+		 * @param add submenu for adding cards
+		 * @param remove submenu for removing cards
+		 * @param edit item for editing card categories
+		 * @param t table which will contain the popup
+		 */
+		public TablePopupListener(JMenu add, JMenu remove, JMenuItem edit, JSeparator sep, CardTable t)
+		{
+			addToCategoryMenu = add;
+			removeFromCategoryMenu = remove;
+			editCategoriesItem = edit;
+			menuSeparator = sep;
+			table = t;
+		}
+
+		@Override
+		public void popupMenuCanceled(PopupMenuEvent e)
+		{}
+
+		/**
+		 * {@inheritDoc}
+		 * When the popup menu becomes invisible (something is selected or it
+		 * is canceled), the submenus should be cleared so they don't get
+		 * duplicate items.
+		 */
+		@Override
+		public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+		{
+			addToCategoryMenu.removeAll();
+			removeFromCategoryMenu.removeAll();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 * Just before the popup menu becomes visible, its submenus for adding
+		 * the selected cards to categories and removing them from categories
+		 * should be populated.  If any of them are empty, they become invisible.
+		 * If there are no selected cards or there are no categories, the edit
+		 * categories item also becomes invisible.
+		 */
+		@Override
+		public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+		{
+			if (selectedTable == table)
+			{
+				if (getSelectedCards().size() == 1)
+				{
+					Card card = getSelectedCards()[0];
+					
+					for (CategorySpec category: deck.categories())
+					{
+						if (!category.includes(card))
+						{
+							JMenuItem categoryItem = new JMenuItem(category.getName());
+							categoryItem.addActionListener((e2) -> performAction(() -> category.exclude(card), () -> category.include(card)));
+							addToCategoryMenu.add(categoryItem);
+						}
+					}
+					addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount() > 0);
+					
+					for (CategorySpec category: deck.categories())
+					{
+						if (category.includes(card))
+						{
+							JMenuItem categoryItem = new JMenuItem(category.getName());
+							categoryItem.addActionListener((e2) -> performAction(() -> category.include(card), () -> category.exclude(card)));
+							removeFromCategoryMenu.add(categoryItem);
+						}
+					}
+					removeFromCategoryMenu.setVisible(removeFromCategoryMenu.getItemCount() > 0);
+				}
+				else
+				{
+					addToCategoryMenu.setVisible(false);
+					removeFromCategoryMenu.setVisible(false);
+				}
+				
+				editCategoriesItem.setVisible(!getSelectedCards().isEmpty() && !deck.categories().isEmpty());
+				
+				menuSeparator.setVisible(addToCategoryMenu.isVisible() || removeFromCategoryMenu.isVisible() || editCategoriesItem.isVisible());
+			}
+		}
+	}
+	
+	/**
 	 * Tab number containing the main list of cards.
 	 */
 	public static final int MAIN_TABLE = 0;
@@ -129,93 +510,9 @@ public class EditorFrame extends JInternalFrame
 	public static final int CHANGELOG = 3;
 	
 	/**
-	 * This enum represents an order that category panels can be sorted in.
-	 * 
-	 * @author Alec Roelke
+	 * Label showing the average CMC of nonland cards in the deck.
 	 */
-	private enum CategoryOrder
-	{
-		A_Z("A-Z", (d) -> (a, b) -> a.getName().compareToIgnoreCase(b.getName())),
-		Z_A("Z-A", (d) -> (a, b) -> -a.getName().compareToIgnoreCase(b.getName())),
-		ASCENDING("Ascending Size", (d) -> (a, b) -> d.getCategoryList(a.getName()).total() - d.getCategoryList(b.getName()).total()),
-		DESCENDING("Descending Size", (d) -> (a, b) -> d.getCategoryList(b.getName()).total() - d.getCategoryList(a.getName()).total()),
-		PRIORITY("Increasing Rank", (d) -> (a, b) -> d.getCategoryRank(a.getName()) - d.getCategoryRank(b.getName())),
-		REVERSE("Decreasing Rank", (d) -> (a, b) -> d.getCategoryRank(b.getName()) - d.getCategoryRank(a.getName()));
-		
-		/**
-		 * String to display when a String representation of this
-		 * CategoryOrder is called for.
-		 */
-		private final String name;
-		/**
-		 * Function comparing two CategorySpecs from a deck
-		 */
-		private final Function<Deck, Comparator<CategorySpec>> order;
-		
-		/**
-		 * Create a new CategoryOrder.
-		 * 
-		 * @param n Name of the new CategoryOrder
-		 * @param o Function comparing two CategorySpecs from a Deck
-		 */
-		private CategoryOrder(String n, Function<Deck, Comparator<CategorySpec>> o)
-		{
-			name = n;
-			order = o;
-		}
-		
-		/**
-		 * Compare the two given CategorySpecs from the given Deck.
-		 * 
-		 * @param d Deck containing the categories
-		 * @param a First category
-		 * @param b Second category
-		 * @return A negative number if the first category comes before the second in the given Deck,
-		 * a positive number if it comes after, and 0 if there is no relative order.
-		 */
-		public int compare(Deck d, CategorySpec a, CategorySpec b)
-		{
-			return order.apply(d).compare(a, b);
-		}
-		
-		/**
-		 * @return The String representation of this CategoryOrder
-		 */
-		@Override
-		public String toString()
-		{
-			return name;
-		}
-	}
-	
-	/**
-	 * Parent MainFrame.
-	 */
-	private MainFrame parent;
-	/**
-	 * Master decklist to which cards are added.
-	 */
-	private Deck deck;
-	/**
-	 * TODO: Comment this
-	 */
-	private Deck sideboard;
-	/**
-	 * Last-saved version of the deck, used for the changelog.
-	 */
-	private Deck originalDeck;
-	/**
-	 * TODO: Comment this
-	 */
-	private Deck originalSideboard;
-	/**
-	 * Main table showing the cards in the deck.
-	 */
-	private CardTable table;
-	/**
-	 * CardListTableModel for showing the deck list.
-	 */
-	private CardTableModel model;
+	private JLabel avgCMCLabel;
 	/**
 	 * Panel containing categories.
 	 */
@@ -226,37 +523,73 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private Collection<CategoryPanel> categoryPanels;
 	/**
+	 * Text area to show the changelog.
+	 */
+	private JTextArea changelogArea;
+	/**
 	 * Label showing the total number of cards in the deck.
 	 */
 	private JLabel countLabel;
 	/**
-	 * Label showing the total number of land cards in the deck.
+	 * Master decklist to which cards are added.
 	 */
-	private JLabel landLabel;
-	/**
-	 * Label showing the total number of nonland cards in the deck.
-	 */
-	private JLabel nonlandLabel;
-	/**
-	 * Label showing the average CMC of nonland cards in the deck.
-	 */
-	private JLabel avgCMCLabel;
-	/**
-	 * Tabbed pane for choosing whether to display the entire deck or the categories.
-	 */
-	private JTabbedPane listTabs;
+	private Deck deck;
 	/**
 	 * File where the deck was last saved.
 	 */
 	private File file;
 	/**
-	 * Whether or not the deck has been saved since it has last been changed.
+	 * Hand containing cards to show in the sample hand tab.
 	 */
-	private boolean unsaved;
+	private Hand hand;
 	/**
-	 * Stack containing past actions performed on the deck to represent the undo buffer.
+	 * Panel showing a sample hand and a table showing probabilities of category requirements.
 	 */
-	private Stack<UndoableAction> undoBuffer;
+	private CalculateHandPanel handCalculations;
+	/**
+	 * Scroll pane containing the sample hand image panel.
+	 */
+	private JScrollPane imagePane;
+	/**
+	 * Panel containing images for the sample hand.
+	 */
+	private ScrollablePanel imagePanel;
+	/**
+	 * Label showing the total number of land cards in the deck.
+	 */
+	private JLabel landLabel;
+	/**
+	 * Tabbed pane for choosing whether to display the entire deck or the categories.
+	 */
+	private JTabbedPane listTabs;
+	/**
+	 * Label showing the median CMC of nonland cards in the deck.
+	 */
+	private JLabel medCMCLabel;
+	/**
+	 * Table model for showing the deck list.
+	 */
+	private CardTableModel model;
+	/**
+	 * Label showing the total number of nonland cards in the deck.
+	 */
+	private JLabel nonlandLabel;
+	/**
+	 * Whether or not a file is being opened (used to prevent some actions when changing the deck).
+	 */
+	private boolean opening;
+	/**
+	 * Last-saved version of the deck, used for the changelog.
+	 */
+	private Deck originalDeck;
+	/**
+	 * TODO: Comment this
+	 */
+	private Deck originalSideboard;
+	/**
+	 * Parent {@link MainFrame}.
+	 */
+	private MainFrame parent;
 	/**
 	 * Stack containing future actions that have been performed on the deck to represent
 	 * the redo buffer.  This contains only things that have been on the undo buffer
@@ -264,68 +597,107 @@ public class EditorFrame extends JInternalFrame
 	 */
 	private Stack<UndoableAction> redoBuffer;
 	/**
-	 * Combo box showing categories to jump between them.
+	 * Saved list of selected cards from the active table.
 	 */
-	private JComboBox<String> switchCategoryBox;
+	private List<Card> selectedCards;
 	/**
-	 * Model for the combo box to display items.
+	 * list of currently-selected cards.
 	 */
-	private DefaultComboBoxModel<String> switchCategoryModel;
-	/**
-	 * Hand containing cards to show in the sample hand tab.
-	 */
-	private Hand hand;
-	/**
-	 * Size of starting hands.
-	 */
-	private int startingHandSize;
-	/**
-	 * Panel containing images for the sample hand.
-	 */
-	private ScrollablePanel imagePanel;
-	/**
-	 * Scroll pane containing the sample hand image panel.
-	 */
-	private JScrollPane imagePane;
-	/**
-	 * Combo box allowing changes to be made in the order that categories are display in.
-	 */
-	private JComboBox<CategoryOrder> sortCategoriesBox;
-	/**
-	 * Text area to show the changelog.
-	 */
-	private JTextArea changelogArea;
+	private CardList selectedSource;
 	/**
 	 * Table containing currently-selected cards.
 	 */
 	private CardTable selectedTable;
 	/**
-	 * CardCollection containing currently-selected cards.
+	 * TODO: Comment this
 	 */
-	private CardList selectedSource;
+	private Deck sideboard;
 	/**
-	 * Saved list of selected cards from the active table.
+	 * Combo box allowing changes to be made in the order that categories are display in.
 	 */
-	private List<Card> selectedCards;
+	private JComboBox<CategoryOrder> sortCategoriesBox;
 	/**
-	 * Whether or not a file is being opened (used to prevent some actions when changing the deck).
+	 * Size of starting hands.
 	 */
-	private boolean opening;
+	private int startingHandSize;
 	/**
-	 * Label showing the median CMC of nonland cards in the deck.
+	 * Combo box showing categories to jump between them.
 	 */
-	private JLabel medCMCLabel;
-	/**
-	 * Panel showing a sample hand and a table showing probabilities of category requirements.
-	 */
-	private CalculateHandPanel handCalculations;
+	private JComboBox<String> switchCategoryBox;
 
 	/**
-	 * Create a new EditorFrame inside the specified MainFrame and with the name
+	 * Model for the combo box to display items.
+	 */
+	private DefaultComboBoxModel<String> switchCategoryModel;
+
+	/**
+	 * Main table showing the cards in the deck.
+	 */
+	private CardTable table;
+
+	/**
+	 * Stack containing past actions performed on the deck to represent the undo buffer.
+	 */
+	private Stack<UndoableAction> undoBuffer;
+	
+	/**
+	 * Whether or not the deck has been saved since it has last been changed.
+	 */
+	private boolean unsaved;
+	
+	/**
+	 * Create an EditorFrame with the specified {@link MainFrame} as its parent and the name
+	 * of the specified file.  The deck will be loaded from the file.
+	 * 
+	 * @param f file to load a deck from
+	 * @param u number of the new EditorFrame (determines initial position in the window)
+	 * @param p parent of the new EditorFrame
+	 */
+	public EditorFrame(File f, int u, MainFrame p)
+	{
+		this(u, p);
+		
+		JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
+		JProgressBar progressBar = new JProgressBar();
+		LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
+		
+		JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
+		progressDialog.setContentPane(progressPanel);
+		progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
+		progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		progressBar.setIndeterminate(false);
+		progressPanel.add(progressBar, BorderLayout.CENTER);
+		JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener((e) -> worker.cancel(false));
+		cancelPanel.add(cancelButton);
+		progressPanel.add(cancelPanel, BorderLayout.SOUTH);
+		progressDialog.pack();
+		
+		worker.execute();
+		progressDialog.setLocationRelativeTo(parent);
+		progressDialog.setVisible(true);
+		try
+		{
+			worker.get();
+		}
+		catch (InterruptedException | ExecutionException e)
+		{
+			JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			deck.clear();
+			categoriesContainer.removeAll();
+		}
+		originalDeck.addAll(deck);
+		listTabs.setSelectedIndex(MAIN_TABLE);
+		hand.refresh();
+	}
+
+	/**
+	 * Create a new EditorFrame inside the specified {@link MainFrame} and with the name
 	 * "Untitled [u] *"
 	 * 
-	 * @param u Number of the untitled deck
-	 * @param p Parent MainFrame
+	 * @param u number of the untitled deck
+	 * @param p parent MainFrame
 	 */
 	public EditorFrame(int u, MainFrame p)
 	{
@@ -410,7 +782,7 @@ public class EditorFrame extends JInternalFrame
 		});
 		for (int i = 0; i < table.getColumnCount(); i++)
 			if (model.isCellEditable(0, i))
-				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, model.getColumnCharacteristic(i)));
+				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, model.getColumnData(i)));
 		table.setTransferHandler(new EditorTableTransferHandler());
 		table.setDragEnabled(true);
 		table.setDropMode(DropMode.ON);
@@ -904,101 +1276,169 @@ public class EditorFrame extends JInternalFrame
 			}
 		});
 	}
-
+	
 	/**
-	 * Create an EditorFrame with the specified MainFrame as its parent and the name
-	 * of the specified file.  The deck will be loaded from the file.
+	 * Add the given number of copies of the given card to the deck.  The current
+	 * selections in the category and main tables are maintained.
 	 * 
-	 * @param f File to load a deck from
-	 * @param u Number of the new EditorFrame (determines initial position in the window)
-	 * @param p Parent of the new EditorFrame
+	 * @param toAdd card to add
+	 * @param n number of copies to add
+	 * @return true if the deck changed as a result, which is always.
 	 */
-	public EditorFrame(File f, int u, MainFrame p)
+	public boolean addCard(Card toAdd, int n)
 	{
-		this(u, p);
-		
-		JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
-		JProgressBar progressBar = new JProgressBar();
-		LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
-		
-		JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
-		progressDialog.setContentPane(progressPanel);
-		progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
-		progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		progressBar.setIndeterminate(false);
-		progressPanel.add(progressBar, BorderLayout.CENTER);
-		JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener((e) -> worker.cancel(false));
-		cancelPanel.add(cancelButton);
-		progressPanel.add(cancelPanel, BorderLayout.SOUTH);
-		progressDialog.pack();
-		
-		worker.execute();
-		progressDialog.setLocationRelativeTo(parent);
-		progressDialog.setVisible(true);
-		try
-		{
-			worker.get();
-		}
-		catch (InterruptedException | ExecutionException e)
-		{
-			JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			deck.clear();
-			categoriesContainer.removeAll();
-		}
-		originalDeck.addAll(deck);
-		listTabs.setSelectedIndex(MAIN_TABLE);
-		hand.refresh();
+		return addCards(Arrays.asList(toAdd), n);
 	}
-
+	
 	/**
-	 * @return The name of the deck being edited (its file name).
+	 * Add the given number of copies of the given cards to the deck.  The current
+	 * selections in the category and main tables are maintained.  Then update the
+	 * undo and redo buffers.
+	 * 
+	 * @param toAdd cards to add
+	 * @param n number of copies to add
+	 * @return true if the deck changed as a result, and false otherwise, which is
+	 * only true if the list is empty.
 	 */
-	public String deckName()
+	public boolean addCards(List<Card> toAdd, int n)
 	{
-		String deckName;
-		if (unsaved)
-			deckName = getTitle().substring(0, getTitle().length() - 2);
+		Map<Card, Integer> cards = toAdd.stream().collect(Collectors.toMap((c) -> c, (c) -> n));
+		return performAction(() -> !deleteCards(toAdd, n).isEmpty(), () -> insertCards(cards));
+	}
+	
+	/**
+	 * Add a category to the deck.
+	 * 
+	 * @param spec specification for the category to add
+	 * @return true if the category was successfully added and false otherwise.
+	 */
+	public boolean addCategory(CategorySpec spec)
+	{
+		if (spec != null && !deck.containsCategory(spec.getName()))
+			return performAction(() -> deleteCategory(spec), () -> insertCategory(spec));
 		else
-			deckName = getTitle();
-		return deckName;
+			return false;
 	}
 	
 	/**
-	 * @return The File containing the deck being edited.
+	 * Add the currently-selected cards from the currently-selected table to the
+	 * Deck.
+	 * 
+	 * @param n number of each card to add
+	 * @return true if the Deck was changed as a result, and false otherwise.
 	 */
-	public File file()
+	public boolean addSelectedCards(int n)
 	{
-		return file;
+		if (hasSelectedCards())
+			return addCards(getSelectedCards(), n);
+		else if (parent.getSelectedCard() != null)
+			return addCard(parent.getSelectedCard(), n);
+		else
+			return false;
 	}
 	
 	/**
-	 * @return The specifications for the categories in the deck.
+	 * Set the settings of this EditorFrame
+	 */
+	public void applySettings()
+	{
+		List<CardData> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
+		Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
+		model.setColumns(columns);
+		table.setStripeColor(stripe);
+		for (int i = 0; i < table.getColumnCount(); i++)
+			if (model.isCellEditable(0, i))
+				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, model.getColumnData(i)));
+		for (CategoryPanel category: categoryPanels)
+			category.applySettings(this);
+		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
+		update();
+	}
+	
+	/**
+	 * Get the category specifications for the deck.
+	 * 
+	 * @return A collection of {@link CategorySpec} containing information about the categories
+	 * in the deck.
 	 */
 	public Collection<CategorySpec> categories()
 	{
 		return deck.categories();
 	}
+	
+	/**
+	 * Clear the selection in all of the tables in this EditorFrame except
+	 * for the given one.
+	 * 
+	 * @param except table to not clear
+	 */
+	public void clearTableSelections(CardTable except)
+	{
+		if (table != except)
+			table.clearSelection();
+		for (CategoryPanel c: categoryPanels)
+			if (c.table != except)
+				c.table.clearSelection();
+	}
 
 	/**
-	 * Get the category with the specified name in the deck.
+	 * If the deck has unsaved changes, allow the user to choose to save it or keep the
+	 * frame open.  If the user saves or declines to save, close the frame.
 	 * 
-	 * @param name Name of the category to search for
-	 * @return The category with the specified name, or <code>null</code> if there is none.
+	 * @return true if the frame was closed and false otherwise.
 	 */
-	private CategoryPanel getCategory(String name)
+	public boolean close()
 	{
-		for (CategoryPanel category: categoryPanels)
-			if (category.getCategoryName().equals(name))
-				return category;
-		return null;
+		if (unsaved)
+		{
+			String msg = "Deck \"" + getTitle().substring(0, getTitle().length() - 2) + "\" has unsaved changes.  Save?";
+			switch(JOptionPane.showConfirmDialog(this, msg, "Unsaved Changes", JOptionPane.YES_NO_CANCEL_OPTION))
+			{
+			case JOptionPane.YES_OPTION:
+				parent.save(EditorFrame.this);
+			case JOptionPane.NO_OPTION:
+				dispose();
+				return true;
+			case JOptionPane.CANCEL_OPTION: case JOptionPane.CLOSED_OPTION:
+				return false;
+			default:
+				return false;
+			}
+		}
+		else
+		{
+			dispose();
+			return true;
+		}
+	}
+	
+	/**
+	 * Check if the deck contains a card.
+	 * 
+	 * @param c Card to look for
+	 * @return true if the specified Card is in the deck, and false otherwise.
+	 */
+	public boolean containsCard(Card c)
+	{
+		return deck.contains(c);
+	}
+	
+	/**
+	 * Check whether or not the deck has a category with a particular name.
+	 * 
+	 * @param name name of the category to search for
+	 * @return true if the deck contains a category with the given name, and false
+	 * otherwise.
+	 */
+	public boolean containsCategory(String name)
+	{
+		return deck.containsCategory(name);
 	}
 	
 	/**
 	 * Open the dialog to create a new specification for a deck category.
 	 * 
-	 * @return The CategorySpec created by the dialog, or null if it was
+	 * @return the {@link CategorySpec} created by the dialog, or null if it was
 	 * canceled.
 	 */
 	public CategorySpec createCategory()
@@ -1014,10 +1454,10 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Create a new CategoryPanel out of the given specification.
+	 * Create a new {@link CategoryPanel} out of the given specification.
 	 * 
-	 * @param spec Specification for the category of the new CategoryPanel
-	 * @return The new CategoryPanel.
+	 * @param spec specification for the category of the new {@link CategoryPanel}
+	 * @return the new {@link CategoryPanel}.
 	 */
 	private CategoryPanel createCategoryPanel(CategorySpec spec)
 	{
@@ -1215,13 +1655,253 @@ public class EditorFrame extends JInternalFrame
 		
 		return newCategory;
 	}
+
+	/**
+	 * Get this EditorFrame's deck.
+	 * 
+	 * @return The deck.
+	 */
+	public Deck deck()
+	{
+		return deck;
+	}
+
+	/**
+	 * Get the file name of the deck.
+	 * 
+	 * @return the name of the deck being edited (its file name).
+	 */
+	public String deckName()
+	{
+		String deckName;
+		if (unsaved)
+			deckName = getTitle().substring(0, getTitle().length() - 2);
+		else
+			deckName = getTitle();
+		return deckName;
+	}
+	
+	/**
+	 * Remove a number of copies of the specified Cards from the deck.  The current selections
+	 * for any cards remaining in them in the category and main tables are maintained.  Don't
+	 * update the undo buffer.
+	 * 
+	 * @param toRemove list of cards to remove
+	 * @param n number of copies to remove
+	 * @return a map containing the Cards removed and the number of each that was removed.
+	 */
+	private Map<Card, Integer> deleteCards(Collection<Card> toRemove, int n)
+	{
+		saveSelectedCards();
+		Map<Card, Integer> removed = new HashMap<Card, Integer>();
+		for (Card c: toRemove)
+			removed[c] = deck.remove(c, n);
+		return removed;
+	}
+	
+	/**
+	 * Delete the category with the given specification from the deck
+	 * and remove its panel.
+	 * 
+	 * @param category specification of the category to remove
+	 * @return true if the category was successfully removed, and false
+	 * otherwise (such as if there was no such category).
+	 */
+	private boolean deleteCategory(CategorySpec category)
+	{
+		CategoryPanel panel = getCategory(category.getName());
+		return panel != null && deck.remove(category.getName());
+	}
+	
+	/**
+	 * Change the given category so it has the parameters of the other given category.
+	 * The category to edit is edited in place, while the one representing new values
+	 * is unchanged.
+	 * 
+	 * @param toEdit category to edit
+	 * @param newValues new values for the category
+	 */
+	private void editCategory(CategorySpec toEdit, CategorySpec newValues)
+	{
+		CategorySpec oldSpec = new CategorySpec(toEdit);
+		performAction(() -> toEdit.copy(oldSpec), () -> toEdit.copy(newValues));
+	}
+	
+	/**
+	 * Open the category dialog to edit the category with the given
+	 * name, if there is one, and then update the undo buffer.
+	 * 
+	 * @param name name of the category to edit
+	 */
+	public void editCategory(String name)
+	{
+		CategorySpec toEdit = deck.getCategorySpec(name);
+		if (toEdit == null)
+			JOptionPane.showMessageDialog(this, "Deck " + deckName() + " has no category named " + name + ".",
+					"Error", JOptionPane.ERROR_MESSAGE);
+		else
+		{
+			CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, toEdit);
+			if (spec != null)
+				editCategory(toEdit, spec);
+		}
+	}
+	
+	/**
+	 * Change inclusion of cards in categories according to the given maps.
+	 * 
+	 * @param included map of cards onto the set of categories they should become included in
+	 * @param excluded map of cards onto the set of categories they should become excluded from
+	 */
+	public void editInclusion(Map<Card, Set<CategorySpec>> included, Map<Card, Set<CategorySpec>> excluded)
+	{
+		performAction(() -> {
+			boolean changed = false;
+			for (Card card: included.keySet())
+				for (CategorySpec category: included[card])
+					changed |= category.exclude(card);
+			for (Card card: excluded.keySet())
+				for (CategorySpec category: excluded[card])
+					changed |= category.include(card);
+			return changed;
+		}, () -> {
+			boolean changed = false;
+			for (Card card: included.keySet())
+				for (CategorySpec category: included[card])
+					changed |= category.include(card);
+			for (Card card: excluded.keySet())
+				for (CategorySpec category: excluded[card])
+					changed |= category.exclude(card);
+			return changed;
+		});
+	}
+	
+	/**
+	 * Get the {@link File} for the deck.
+	 * 
+	 * @return the {@link File} containing the deck being edited.
+	 */
+	public File file()
+	{
+		return file;
+	}
+
+	/**
+	 * Get the card at the given index in the given table.
+	 * 
+	 * @param t table to get the card from
+	 * @param index index into the given table to get a card from
+	 * @return the card in the deck at the given index in the given table, if the table is in this EditorFrame.
+	 */
+	public Card getCardAt(CardTable t, int index)
+	{
+		if (t == table)
+			return deck[table.convertRowIndexToModel(index)];
+		else
+		{
+			for (CategoryPanel panel: categoryPanels)
+				if (t == panel.table)
+					return deck.getCategoryList(panel.getCategoryName())[panel.table.convertRowIndexToModel(index)];
+			throw new IllegalArgumentException("Table not in deck " + deckName());
+		}
+	}
+	
+	/**
+	 * Get the panel for the category with the specified name in the deck.
+	 * 
+	 * @param name name of the category to search for
+	 * @return the panel for the category with the specified name, or null if there is none.
+	 */
+	private CategoryPanel getCategory(String name)
+	{
+		for (CategoryPanel category: categoryPanels)
+			if (category.getCategoryName().equals(name))
+				return category;
+		return null;
+	}
+
+	/**
+	 * Get the metadata about a card.
+	 * 
+	 * @param c card to look for
+	 * @return the deck's metadata about the given card.
+	 */
+	public CardList.Entry getData(Card c)
+	{
+		return deck.getData(c);
+	}
+	
+	/**
+	 * Get the currently-selected cards.
+	 * 
+	 * @return The list of cards corresponding to the selection in the table that is selected.
+	 */
+	public List<Card> getSelectedCards()
+	{
+		return Arrays.stream(selectedTable.getSelectedRows())
+				  .mapToObj((r) -> selectedSource[selectedTable.convertRowIndexToModel(r)])
+				  .collect(Collectors.toList());
+	}
+	
+	/**
+	 * Get the {@link CardList} corresponding to the table with the current selection
+	 * in it.
+	 * 
+	 * @return the {@link CardList} containing the selected Cards.
+	 */
+	public CardList getSelectedSource()
+	{
+		return selectedSource;
+	}
+	
+	/**
+	 * Check if the deck has been saved since its last change.
+	 * 
+	 * @return true if there are unsaved changes in the deck, and false otherwise.
+	 */
+	public boolean getUnsaved()
+	{
+		return unsaved;
+	}
+	
+	/**
+	 * Check if there is a table with a selection in it.
+	 * 
+	 * @return true if there is a selected table and it has a selection, and false otherwise.
+	 */
+	public boolean hasSelectedCards()
+	{
+		return selectedTable != null && selectedTable.getSelectedRowCount() > 0;
+	}
+	
+	/**
+	 * Add cards to the deck, maintaining the selection in the currently-selected
+	 * table.
+	 * 
+	 * @param cards map containing cards and amounts to add
+	 * @return true if the deck changed as a result, and false otherwise, which is
+	 * only true if the list is empty.
+	 */
+	private boolean insertCards(Map<Card, Integer> cards)
+	{
+		saveSelectedCards();
+		cards.values().removeAll(Arrays.asList(0));
+		if (cards.isEmpty())
+			return false;
+		else
+		{
+			for (Map.Entry<Card, Integer> entry: cards.entrySet())
+				deck.add(entry.getKey(), entry.getValue());
+			return true;
+		}
+	}
 	
 	/**
 	 * Add a category to the deck.
 	 * 
-	 * @param category Specification for the new category
-	 * @return <code>true</code> if a category was created, and <code>false</code>
-	 * otherwise (such as if there was one with the same name already).
+	 * @param spec specification for the new category
+	 * @return true if a category was created, and false otherwise
+	 * (such as if there was one with the same name already).
 	 */
 	private boolean insertCategory(CategorySpec spec)
 	{
@@ -1241,90 +1921,104 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Delete the category with the given specification from the deck
-	 * and remove its panel.
+	 * Perform an action.  Then, if it succeeds, push it onto the undo buffer
+	 * and clear the redo buffer.
 	 * 
-	 * @param category Specification of the category to remove
-	 * @return <code>true</code> if the category was successfully removed, and
-	 * <code>false</code> otherwise (such as if there was no such category).
+	 * @param undo what to do to undo the action
+	 * @param redo the action to perform
+	 * @return true if the action succeeded, and false otherwise.
 	 */
-	private boolean deleteCategory(CategorySpec category)
+	private boolean performAction(BooleanSupplier undo, BooleanSupplier redo)
 	{
-		CategoryPanel panel = getCategory(category.getName());
-		return panel != null && deck.remove(category.getName());
-	}
-	
-	/**
-	 * Add a category to the deck.
-	 * 
-	 * @param spec Specification for the category to add
-	 * @return <code>true</code> if the category was successfully added and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean addCategory(CategorySpec spec)
-	{
-		if (spec != null && !deck.containsCategory(spec.getName()))
-			return performAction(() -> deleteCategory(spec), () -> insertCategory(spec));
-		else
-			return false;
-	}
-	
-	/**
-	 * Open the category dialog to edit the category with the given
-	 * name, if there is one, and then update the undo buffer.
-	 * 
-	 * @param name Name of the category to edit
-	 */
-	public void editCategory(String name)
-	{
-		CategorySpec toEdit = deck.getCategorySpec(name);
-		if (toEdit == null)
-			JOptionPane.showMessageDialog(this, "Deck " + deckName() + " has no category named " + name + ".",
-					"Error", JOptionPane.ERROR_MESSAGE);
+		undoBuffer.push(new UndoableAction()
+		{
+			@Override
+			public boolean redo()
+			{
+				return redo.getAsBoolean();
+			}
+
+			@Override
+			public boolean undo()
+			{
+				return undo.getAsBoolean();
+			}	
+		});
+		if (undoBuffer.peek().redo())
+		{
+			redoBuffer.clear();
+			return true;
+		}
 		else
 		{
-			CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, toEdit);
-			if (spec != null)
-				editCategory(toEdit, spec);
+			undoBuffer.pop();
+			return false;
 		}
 	}
 	
 	/**
-	 * Change the given category so it has the parameters of the other given category.
-	 * The category to edit is edited in place, while the one representing new values
-	 * is unchanged.
-	 * 
-	 * @param toEdit Category to edit
-	 * @param newValues New values for the category
+	 * Redo the last action that was undone, assuming nothing was done
+	 * between then and now.
 	 */
-	private void editCategory(CategorySpec toEdit, CategorySpec newValues)
+	public void redo()
 	{
-		CategorySpec oldSpec = new CategorySpec(toEdit);
-		performAction(() -> toEdit.copy(oldSpec), () -> toEdit.copy(newValues));
+		if (!redoBuffer.isEmpty())
+		{
+			UndoableAction action = redoBuffer.pop();
+			action.redo();
+			undoBuffer.push(action);
+		}
 	}
 
 	/**
-	 * If the given category exists in this EditorFrame, remove it and
-	 * remove it from the deck.
+	 * Remove a number of copies of the specified Card from the deck.  The current selections
+	 * for any cards remaining in the category and main tables are maintained.  Then update the
+	 * undo buffer.
 	 * 
-	 * @param category Panel representing the category to be removed
-	 * @return <code>true</code> if the category was successfully removed,
-	 * and <code>false</code> otherwise.
+	 * @param toRemove card to remove
+	 * @param n number of copies to remove
+	 * @return true if the deck was changed as a result, and false otherwise.
+	 */
+	public boolean removeCard(Card toRemove, int n)
+	{
+		return removeCards(Arrays.asList(toRemove), n);
+	}
+	
+	/**
+	 * Remove a number of copies of the specified cards from the deck.  The current selections
+	 * for any cards remaining in the category and main tables are maintained.  Then update the
+	 * undo buffer.
+	 * 
+	 * @param toRemove list of cards to remove
+	 * @param n number of copies to remove
+	 * @return true if the deck was changed as a result, and false otherwise.
+	 */
+	public boolean removeCards(Collection<Card> toRemove, int n)
+	{
+		Map<Card, Integer> removed = toRemove.stream().collect(Collectors.toMap(Function.identity(), (c) -> Math.min(n, deck.getData(c).count())));
+		return performAction(() -> insertCards(removed), () -> !deleteCards(toRemove, n).isEmpty());
+	}
+
+	/**
+	 * If the given category exists in this EditorFrame's deck, remove it from
+	 * the deck.
+	 * 
+	 * @param category panel representing the category to be removed
+	 * @return true if the category was successfully removed, and false otherwise.
 	 */
 	public boolean removeCategory(CategorySpec category)
 	{
 		return deck.containsCategory(category.getName())
 				&& performAction(() -> insertCategory(category), () -> deleteCategory(category));
 	}
-	
+
 	/**
 	 * If a category with the given name exists in the deck, remove it
 	 * and then update the undo and redo buffers.
 	 * 
-	 * @param name Name of the category to look for
-	 * @return The specification of the category that was removed, or null if no
+	 * @param name name of the category to look for
+	 * @return the specification of the category that was removed, or null if no
 	 * category was removed
-	 * @see EditorFrame#removeCategory(CategoryPanel)
 	 */
 	public CategorySpec removeCategory(String name)
 	{
@@ -1340,13 +2034,179 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * @param name Name of the category to search for
-	 * @return <code>true</code> if the deck contains a category with the given name,
-	 * and <code>false</code> otherwise.
+	 * Remove the currently-selected cards in the currently-selected table from
+	 * the deck.
+	 * 
+	 * @param n number of copies of the cards to remove
+	 * @return true if the deck changed as a result, and false otherwise.
 	 */
-	public boolean containsCategory(String name)
+	public boolean removeSelectedCards(int n)
 	{
-		return deck.containsCategory(name);
+		if (hasSelectedCards())
+			return removeCards(getSelectedCards(), n);
+		else if (parent.getSelectedCard() != null)
+			return removeCard(parent.getSelectedCard(), n);
+		else
+			return false;
+	}
+
+	/**
+	 * Save the deck to the current file.
+	 * 
+	 * @return true if the file was successfully saved, and false otherwise.
+	 */
+	public boolean save()
+	{
+		return file == null ? false : save(file);
+	}
+
+	/**
+	 * Save the deck to the given file (like Save As).
+	 * 
+	 * @param f file to save to
+	 * @return true if the file was successfully saved, and false otherwise.
+	 */
+	public boolean save(File f)
+	{
+		try
+		{
+			deck.save(f);
+			String changes = "";
+			for (Card c: originalDeck)
+			{
+				int had = originalDeck.contains(c) ? originalDeck.getData(c).count() : 0;
+				int has = deck.contains(c) ? deck.getData(c).count() : 0;
+				if (has < had)
+					changes += ("-" + (had - has) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+			}
+			for (Card c: deck)
+			{
+				int had = originalDeck.contains(c) ? originalDeck.getData(c).count() : 0;
+				int has = deck.contains(c) ? deck.getData(c).count() : 0;
+				if (had < has)
+					changes += ("+" + (has - had) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+			}
+			if (!changes.isEmpty())
+			{
+				SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
+				changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
+				changelogArea.append(changes + "\n");
+			}
+			PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f, true), "UTF8"));
+			wr.print(changelogArea.getText());
+			wr.close();
+			
+			originalDeck = new Deck();
+			originalDeck.addAll(deck);
+			unsaved = false;
+			setFile(f);
+			return true;
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(this, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+	}
+	
+	/**
+	 * Save the list of selected cards from the active table for later selection
+	 * restoration.
+	 */
+	private void saveSelectedCards()
+	{
+		if (selectedTable != null)
+			selectedCards = Arrays.stream(selectedTable.getSelectedRows())
+					.mapToObj((r) -> selectedSource[selectedTable.convertRowIndexToModel(r)])
+					.collect(Collectors.toList());
+		else
+			selectedCards = new ArrayList<Card>();
+	}
+	
+	/**
+	 * Set the number of copies of the given card if the deck contains it.  Otherwise
+	 * add the card to the deck.
+	 * 
+	 * @param c card to set (or add if it isn't present)
+	 * @param n number of copies to set to (or add if the card isn't present)
+	 */
+	public void setCardCount(Card c, int n)
+	{
+		if (deck.contains(c))
+		{
+			if (n != deck.getData(c).count())
+			{
+				int old = deck.getData(c).count();
+				performAction(() -> deck.set(c, old), () -> deck.set(c, n));
+			}
+		}
+		else
+			addCard(c, n);
+	}
+	
+	/**
+	 * Change the file this EditorFrame is associated with.  If the file has
+	 * not been saved, an error will be thrown instead.
+	 * 
+	 * @param f file to associate with
+	 */
+	public void setFile(File f)
+	{
+		if (unsaved)
+			throw new RuntimeException("Can't change the file of an unsaved deck");
+		file = f;
+		setTitle(f.getName());
+		unsaved = false;
+	}
+	
+	/**
+	 * Set the background color for the sample hand panel.
+	 * 
+	 * @param col new background color for the sample hand panel.
+	 */
+	public void setHandBackground(Color col)
+	{
+		imagePanel.setBackground(col);
+		for (Component c: imagePanel.getComponents())
+			c.setBackground(col);
+		imagePane.getViewport().setBackground(col);
+	}
+	
+	/**
+	 * Set the table and {@link CardList} that contains the current selection.
+	 * 
+	 * @param table table to select
+	 * @param source {@link CardList} to select
+	 */
+	public void setSelectedSource(CardTable table, CardList source)
+	{
+		selectedTable = table;
+		selectedSource = source;
+	}
+	
+	/**
+	 * Undo the last action that was performed on the deck.
+	 */
+	public void undo()
+	{
+		if (!undoBuffer.isEmpty())
+		{
+			UndoableAction action = undoBuffer.pop();
+			action.undo();
+			redoBuffer.push(action);
+		}
+	}
+	
+	/**
+	 * Update the GUI to show the latest state of the deck.
+	 * XXX: Graphical errors could be attributed to this function
+	 */
+	public void update()
+	{
+		revalidate();
+		repaint();
+		for (CategoryPanel panel: categoryPanels)
+			panel.update();
 	}
 	
 	/**
@@ -1413,867 +2273,5 @@ public class EditorFrame extends JInternalFrame
 			medCMCLabel.setText("Median CMC: " + (int)medCMC);
 		else
 			medCMCLabel.setText(String.format("Median CMC: %.1f", medCMC));
-	}
-
-	/**
-	 * Change the file this EditorFrame is associated with.  If the file has
-	 * not been saved, an error will be thrown instead.
-	 * 
-	 * @param f File to associate with
-	 */
-	public void setFile(File f)
-	{
-		if (unsaved)
-			throw new RuntimeException("Can't change the file of an unsaved deck");
-		file = f;
-		setTitle(f.getName());
-		unsaved = false;
-	}
-
-	/**
-	 * @param index Index into the given table to get a Card from
-	 * @return The Card in the deck at the given index in the given table, if the table is in this EditorFrame.
-	 */
-	public Card getCardAt(CardTable t, int tableIndex)
-	{
-		if (t == table)
-			return deck[table.convertRowIndexToModel(tableIndex)];
-		else
-		{
-			for (CategoryPanel panel: categoryPanels)
-				if (t == panel.table)
-					return deck.getCategoryList(panel.getCategoryName())[panel.table.convertRowIndexToModel(tableIndex)];
-			throw new IllegalArgumentException("Table not in deck " + deckName());
-		}
-	}
-	
-	/**
-	 * Add cards to the deck, maintaining the selection in the currently-selected
-	 * table.
-	 * 
-	 * @param cards Map containing cards and amounts to add
-	 * @return <code>true</code> if the deck changed as a result, and
-	 * <code>false</code> otherwise, which is only true if the list is empty.
-	 */
-	private boolean insertCards(Map<Card, Integer> cards)
-	{
-		saveSelectedCards();
-		cards.values().removeAll(Arrays.asList(0));
-		if (cards.isEmpty())
-			return false;
-		else
-		{
-			for (Map.Entry<Card, Integer> entry: cards.entrySet())
-				deck.add(entry.getKey(), entry.getValue());
-			return true;
-		}
-	}
-	
-	/**
-	 * Remove a number of copies of the specified Cards from the deck.  The current selections
-	 * for any cards remaining in them in the category and main tables are maintained.  Don't
-	 * update the undo buffer.
-	 * 
-	 * @param toRemove List of cards to remove
-	 * @param n Number of copies to remove
-	 * @return A Map containing the Cards removed and the number of each that was removed.
-	 */
-	private Map<Card, Integer> deleteCards(Collection<Card> toRemove, int n)
-	{
-		saveSelectedCards();
-		Map<Card, Integer> removed = new HashMap<Card, Integer>();
-		if (toRemove.isEmpty())
-			return removed;
-		else
-		{
-			for (Card c: toRemove)
-				removed[c] = deck.remove(c, n);
-			return removed;
-		}
-	}
-	
-	/**
-	 * Save the list of selected cards from the active table for later selection
-	 * restoration.
-	 */
-	private void saveSelectedCards()
-	{
-		if (selectedTable != null)
-			selectedCards = Arrays.stream(selectedTable.getSelectedRows())
-					.mapToObj((r) -> selectedSource[selectedTable.convertRowIndexToModel(r)])
-					.collect(Collectors.toList());
-		else
-			selectedCards = new ArrayList<Card>();
-	}
-	
-	/**
-	 * Add the currently-selected cards from the currently-selected table to the
-	 * Deck.
-	 * 
-	 * @param n Number of each card to add
-	 * @return <code>true</code> if the Deck was changed as a result, and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean addSelectedCards(int n)
-	{
-		if (hasSelectedCards())
-			return addCards(getSelectedCards(), n);
-		else if (parent.getSelectedCard() != null)
-			return addCard(parent.getSelectedCard(), n);
-		else
-			return false;
-	}
-	
-	/**
-	 * Add the given number of copies of the given Cards to the deck.  The current
-	 * selections in the category and main tables are maintained.  Then update the
-	 * undo and redo buffers.
-	 * 
-	 * @param toAdd Cards to add
-	 * @param n Number of copies to add
-	 * @return <code>true</code> if the deck changed as a result, and
-	 * <code>false</code> otherwise, which is only true if the list is empty.
-	 */
-	public boolean addCards(List<Card> toAdd, int n)
-	{
-		Map<Card, Integer> cards = toAdd.stream().collect(Collectors.toMap((c) -> c, (c) -> n));
-		return performAction(() -> !deleteCards(toAdd, n).isEmpty(), () -> insertCards(cards));
-	}
-	
-	/**
-	 * Add the given number of copies of the given Card to the deck.  The current
-	 * selections in the category and main tables are maintained.
-	 * 
-	 * @param toAdd Card to add
-	 * @param n Number of copies to add
-	 * @return <code>true</code> if the deck changed as a result, which
-	 * is always.
-	 */
-	public boolean addCard(Card toAdd, int n)
-	{
-		return addCards(Arrays.asList(toAdd), n);
-	}
-
-	/**
-	 * Remove the currently-selected cards in the currently-selected table from
-	 * the Deck.
-	 * 
-	 * @param n Number of copies of the cards to remove
-	 * @return <code>true</code> if the deck changed as a result, and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean removeSelectedCards(int n)
-	{
-		if (hasSelectedCards())
-			return removeCards(getSelectedCards(), n);
-		else if (parent.getSelectedCard() != null)
-			return removeCard(parent.getSelectedCard(), n);
-		else
-			return false;
-	}
-	
-	/**
-	 * Remove a number of copies of the specified Cards from the deck.  The current selections
-	 * for any cards remaining in the category and main tables are maintained.  Then update the
-	 * undo buffer.
-	 * 
-	 * @param toRemove List of cards to remove
-	 * @param n Number of copies to remove
-	 * @return <code>true</code> if the deck was changed as a result, and <code>false</code>
-	 * otherwise.
-	 */
-	public boolean removeCards(Collection<Card> toRemove, int n)
-	{
-		Map<Card, Integer> removed = toRemove.stream().collect(Collectors.toMap(Function.identity(), (c) -> Math.min(n, deck.getData(c).count())));
-		return performAction(() -> insertCards(removed), () -> !deleteCards(toRemove, n).isEmpty());
-	}
-
-	/**
-	 * Remove a number of copies of the specified Card from the deck.  The current selections
-	 * for any cards remaining in the category and main tables are maintained.  Then update the
-	 * undo buffer.
-	 * 
-	 * @param toRemove Card to remove
-	 * @param n Number of copies to remove
-	 * @return <code>true</code> if the deck was changed as a result, and <code>false</code>
-	 * otherwise.
-	 */
-	public boolean removeCard(Card toRemove, int n)
-	{
-		return removeCards(Arrays.asList(toRemove), n);
-	}
-	
-	/**
-	 * Set the number of copies of the given card if the deck contains it.  Otherwise
-	 * add the card to the deck.
-	 * 
-	 * @param c Card to set (or add if it isn't present)
-	 * @param n Number of copies to set to (or add if the card isn't present)
-	 */
-	public void setCardCount(Card c, int n)
-	{
-		if (deck.contains(c))
-		{
-			if (n != deck.getData(c).count())
-			{
-				int old = deck.getData(c).count();
-				performAction(() -> deck.set(c, old), () -> deck.set(c, n));
-			}
-		}
-		else
-			addCard(c, n);
-	}
-	
-	/**
-	 * Change inclusion of cards in categories according to the given maps.
-	 * 
-	 * @param included Map of cards onto the set of categories they should become included in
-	 * @param excluded Map of cards onto the set of categories they should become excluded from
-	 */
-	public void editInclusion(Map<Card, Set<CategorySpec>> included, Map<Card, Set<CategorySpec>> excluded)
-	{
-		performAction(() -> {
-			boolean changed = false;
-			for (Card card: included.keySet())
-				for (CategorySpec category: included[card])
-					changed |= category.exclude(card);
-			for (Card card: excluded.keySet())
-				for (CategorySpec category: excluded[card])
-					changed |= category.include(card);
-			return changed;
-		}, () -> {
-			boolean changed = false;
-			for (Card card: included.keySet())
-				for (CategorySpec category: included[card])
-					changed |= category.include(card);
-			for (Card card: excluded.keySet())
-				for (CategorySpec category: excluded[card])
-					changed |= category.exclude(card);
-			return changed;
-		});
-	}
-	
-	/**
-	 * @param c Card to look for
-	 * @return <code>true</code> if the specified Card is in the deck, and <code>false</code>
-	 * otherwise.
-	 */
-	public boolean containsCard(Card c)
-	{
-		return deck.contains(c);
-	}
-	
-	/**
-	 * @return The list of Cards corresponding to the current main table selection
-	 * interval.
-	 */
-	public List<Card> getSelectedCards()
-	{
-		return Arrays.stream(selectedTable.getSelectedRows())
-				  .mapToObj((r) -> selectedSource[selectedTable.convertRowIndexToModel(r)])
-				  .collect(Collectors.toList());
-	}
-	
-	/**
-	 * @return <code>true</code> if there is a selected table and it has a selection,
-	 * and <code>false</code> otherwise.
-	 */
-	public boolean hasSelectedCards()
-	{
-		return selectedTable != null && selectedTable.getSelectedRowCount() > 0;
-	}
-	
-	/**
-	 * Clear the selection in all of the tables in this EditorFrame except
-	 * for the given one.
-	 * 
-	 * @param except CardTable to not clear
-	 */
-	public void clearTableSelections(CardTable except)
-	{
-		if (table != except)
-			table.clearSelection();
-		for (CategoryPanel c: categoryPanels)
-			if (c.table != except)
-				c.table.clearSelection();
-	}
-	
-	/**
-	 * Set the table and CardCollection that contains the current selection.
-	 * 
-	 * @param table Table to select
-	 * @param source CardCollection to select
-	 */
-	public void setSelectedSource(CardTable table, CardList source)
-	{
-		selectedTable = table;
-		selectedSource = source;
-	}
-	
-	/**
-	 * @return The CardCollection containing the selected Cards.
-	 */
-	public CardList getSelectedSource()
-	{
-		return selectedSource;
-	}
-
-	/**
-	 * TODO: Replace this with getting the card's metadata
-	 * @param c Card to look for
-	 * @return The number of copies of the given Card in the deck.
-	 */
-	public int count(Card c)
-	{
-		CardList.Entry data = deck.getData(c);
-		return data == null ? 0 : data.count();
-	}
-	
-	/**
-	 * Save the deck to the given File (like Save As).
-	 * 
-	 * @param f File to save to
-	 * @return <code>true</code> if the file was successfully saved, and <code>false</code>
-	 * otherwise.
-	 */
-	public boolean save(File f)
-	{
-		try
-		{
-			deck.save(f);
-			String changes = "";
-			for (Card c: originalDeck)
-			{
-				int had = originalDeck.contains(c) ? originalDeck.getData(c).count() : 0;
-				int has = deck.contains(c) ? deck.getData(c).count() : 0;
-				if (has < had)
-					changes += ("-" + (had - has) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
-			}
-			for (Card c: deck)
-			{
-				int had = originalDeck.contains(c) ? originalDeck.getData(c).count() : 0;
-				int has = deck.contains(c) ? deck.getData(c).count() : 0;
-				if (had < has)
-					changes += ("+" + (has - had) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
-			}
-			if (!changes.isEmpty())
-			{
-				SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
-				changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
-				changelogArea.append(changes + "\n");
-			}
-			PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f, true), "UTF8"));
-			wr.print(changelogArea.getText());
-			wr.close();
-			
-			originalDeck = new Deck();
-			originalDeck.addAll(deck);
-			unsaved = false;
-			setFile(f);
-			return true;
-		}
-		catch (IOException e)
-		{
-			JOptionPane.showMessageDialog(this, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-	}
-
-	/**
-	 * Save the deck to the current file.
-	 * 
-	 * @return <code>true</code> if the file was successfully saved, and <code>false</code>
-	 * otherwise.
-	 */
-	public boolean save()
-	{
-		if (file == null)
-			return false;
-		else
-			return save(file);
-	}
-
-	/**
-	 * Undo the last action that was performed on the deck.
-	 */
-	public void undo()
-	{
-		if (!undoBuffer.isEmpty())
-		{
-			UndoableAction action = undoBuffer.pop();
-			action.undo();
-			redoBuffer.push(action);
-		}
-	}
-	
-	/**
-	 * Redo the last action that was undone, assuming nothing was done
-	 * between then and now.
-	 */
-	public void redo()
-	{
-		if (!redoBuffer.isEmpty())
-		{
-			UndoableAction action = redoBuffer.pop();
-			action.redo();
-			undoBuffer.push(action);
-		}
-	}
-
-	/**
-	 * @return <code>true</code> if there are unsaved changes in the deck, and <code>false</code>
-	 * otherwise.
-	 */
-	public boolean getUnsaved()
-	{
-		return unsaved;
-	}
-
-	/**
-	 * If the deck has unsaved changes, allow the user to choose to save it or keep the
-	 * frame open.  If the user saves or declines to save, close the frame.
-	 * 
-	 * @return <code>true</code> if the frame was closed and <code>false</code>
-	 * otherwise.
-	 */
-	public boolean close()
-	{
-		if (unsaved)
-		{
-			String msg = "Deck \"" + getTitle().substring(0, getTitle().length() - 2) + "\" has unsaved changes.  Save?";
-			switch(JOptionPane.showConfirmDialog(this, msg, "Unsaved Changes", JOptionPane.YES_NO_CANCEL_OPTION))
-			{
-			case JOptionPane.YES_OPTION:
-				parent.save(EditorFrame.this);
-			case JOptionPane.NO_OPTION:
-				dispose();
-				return true;
-			case JOptionPane.CANCEL_OPTION: case JOptionPane.CLOSED_OPTION:
-				return false;
-			default:
-				return false;
-			}
-		}
-		else
-		{
-			dispose();
-			return true;
-		}
-	}
-	
-	public Deck deck()
-	{
-		return deck;
-	}
-	
-	/**
-	 * Set the settings of this EditorFrame
-	 */
-	public void applySettings()
-	{
-		List<CardData> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
-		Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
-		model.setColumns(columns);
-		table.setStripeColor(stripe);
-		for (int i = 0; i < table.getColumnCount(); i++)
-			if (model.isCellEditable(0, i))
-				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, model.getColumnCharacteristic(i)));
-		for (CategoryPanel category: categoryPanels)
-			category.applySettings(this);
-		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
-		update();
-	}
-	
-	/**
-	 * Set the background color for the sample hand panel.
-	 * 
-	 * @param col New background color for the sample hand panel.
-	 */
-	public void setHandBackground(Color col)
-	{
-		imagePanel.setBackground(col);
-		for (Component c: imagePanel.getComponents())
-			c.setBackground(col);
-		imagePane.getViewport().setBackground(col);
-	}
-	
-	/**
-	 * Update the GUI to show the latest state of the deck.
-	 * XXX: Graphical errors could be attributed to this function
-	 */
-	public void update()
-	{
-		revalidate();
-		repaint();
-		for (CategoryPanel panel: categoryPanels)
-			panel.update();
-	}
-	
-	/**
-	 * Perform an action.  Then, if it succeeds, push it onto the undo buffer
-	 * and clear the redo buffer.
-	 * 
-	 * @param undo What to do to undo the action
-	 * @param redo The action to perform
-	 * @return <code>true</code> if the action succeeded, and <code>false</code>
-	 * otherwise.
-	 */
-	private boolean performAction(BooleanSupplier undo, BooleanSupplier redo)
-	{
-		undoBuffer.push(new UndoableAction()
-		{
-			@Override
-			public boolean undo()
-			{
-				return undo.getAsBoolean();
-			}
-
-			@Override
-			public boolean redo()
-			{
-				return redo.getAsBoolean();
-			}	
-		});
-		if (undoBuffer.peek().redo())
-		{
-			redoBuffer.clear();
-			return true;
-		}
-		else
-		{
-			undoBuffer.pop();
-			return false;
-		}
-	}
-	
-	/**
-	 * Popup menu listener for a CardTable of this EditorFrame.  It controls the visibility
-	 * and contents of the include and exclude options.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class TablePopupListener implements PopupMenuListener
-	{
-		/**
-		 * Submenu for quickly adding cards to categories.
-		 */
-		private JMenu addToCategoryMenu;
-		/**
-		 * Submenu for quickly removing cards from categories.
-		 */
-		private JMenu removeFromCategoryMenu;
-		/**
-		 * Item for editing the categories of cards.
-		 */
-		private JMenuItem editCategoriesItem;
-		/**
-		 * Separator between category edit and card edit sections of the table
-		 * popup menu.
-		 */
-		private JSeparator menuSeparator;
-		/**
-		 * Table in which the menu appears.
-		 */
-		private CardTable table;
-		
-		/**
-		 * Create a new TablePopupListener.
-		 * 
-		 * @param add Submenu for adding cards
-		 * @param remove Submenu for removing cards
-		 * @param edit Item for editing card categories
-		 * @param t Table which will contain the popup
-		 */
-		public TablePopupListener(JMenu add, JMenu remove, JMenuItem edit, JSeparator sep, CardTable t)
-		{
-			addToCategoryMenu = add;
-			removeFromCategoryMenu = remove;
-			editCategoriesItem = edit;
-			menuSeparator = sep;
-			table = t;
-		}
-
-		/**
-		 * When the popup menu becomes invisible (something is selected or it
-		 * is canceled), the submenus should be cleared so they don't get
-		 * duplicate items.
-		 * 
-		 * @param e Event containing information about the closing
-		 */
-		@Override
-		public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-		{
-			addToCategoryMenu.removeAll();
-			removeFromCategoryMenu.removeAll();
-		}
-
-		/**
-		 * Just before the popup menu becomes visible, its submenus for adding
-		 * the selected cards to categories and removing them from categories
-		 * should be populated.  If any of them are empty, they become invisible.
-		 * If there are no selected cards or there are no categories, the edit
-		 * categories item also becomes invisible.
-		 * 
-		 * @param e
-		 */
-		@Override
-		public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-		{
-			if (selectedTable == table)
-			{
-				if (getSelectedCards().size() == 1)
-				{
-					Card card = getSelectedCards()[0];
-					
-					for (CategorySpec category: deck.categories())
-					{
-						if (!category.includes(card))
-						{
-							JMenuItem categoryItem = new JMenuItem(category.getName());
-							categoryItem.addActionListener((e2) -> performAction(() -> category.exclude(card), () -> category.include(card)));
-							addToCategoryMenu.add(categoryItem);
-						}
-					}
-					addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount() > 0);
-					
-					for (CategorySpec category: deck.categories())
-					{
-						if (category.includes(card))
-						{
-							JMenuItem categoryItem = new JMenuItem(category.getName());
-							categoryItem.addActionListener((e2) -> performAction(() -> category.include(card), () -> category.exclude(card)));
-							removeFromCategoryMenu.add(categoryItem);
-						}
-					}
-					removeFromCategoryMenu.setVisible(removeFromCategoryMenu.getItemCount() > 0);
-				}
-				else
-				{
-					addToCategoryMenu.setVisible(false);
-					removeFromCategoryMenu.setVisible(false);
-				}
-				
-				editCategoriesItem.setVisible(!getSelectedCards().isEmpty() && !deck.categories().isEmpty());
-				
-				menuSeparator.setVisible(addToCategoryMenu.isVisible() || removeFromCategoryMenu.isVisible() || editCategoriesItem.isVisible());
-			}
-		}
-
-		@Override
-		public void popupMenuCanceled(PopupMenuEvent e)
-		{}
-	}
-	
-	/**
-	 * This class represents a transfer handler for transferring cards to and from
-	 * a table in the editor frame.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class EditorImportHandler extends TransferHandler
-	{
-		/**
-		 * Data can only be imported if it is of the card or entry flavors.
-		 * 
-		 * @param supp TransferSupport providing information about what is being transferred
-		 * @return <code>true</code> if the data is of the correct flavor, and <code>false</code>
-		 * otherwise.
-		 */
-		@Override
-		public boolean canImport(TransferSupport supp)
-		{
-			return supp.isDataFlavorSupported(CardList.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
-		}
-		
-		/**
-		 * If the data c)an be imported, copy the cards from the source to the target deck.
-		 * 
-		 * @param supp TransferSupport providing information about what is being transferred
-		 * @return <code>true</code> if the import was successful, and <code>false</code>
-		 * otherwise.
-		 */
-		@Override
-		public boolean importData(TransferSupport supp)
-		{
-			try
-			{
-				if (!canImport(supp))
-					return false;
-				else if (supp.isDataFlavorSupported(CardList.entryFlavor))
-				{
-					@SuppressWarnings("unchecked")
-					Map<Card, Integer> data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
-					return performAction(() -> {
-							boolean undone = false;
-							for (Map.Entry<Card, Integer> entry: data.entrySet())
-								undone |= !deleteCards(Arrays.asList(entry.getKey()), entry.getValue()).isEmpty();
-							return undone;
-						}, () -> insertCards(data));
-				}
-				else if (supp.isDataFlavorSupported(Card.cardFlavor))
-				{
-					Card[] data = (Card[])supp.getTransferable().getTransferData(Card.cardFlavor);
-					addCards(Arrays.asList(data), 1);
-					return true;
-				}
-				else
-					return false;
-			}
-			catch (UnsupportedFlavorException e)
-			{
-				return false;
-			}
-			catch (IOException e)
-			{
-				return false;
-			}
-		}
-	}
-	
-	/**
-	 * This class represents a transfer handler for moving data to and from
-	 * a table in the editor.  It can import or export data of the card or
-	 * entry flavors.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class EditorTableTransferHandler extends EditorImportHandler
-	{
-		/**
-		 * Tables support copying or moving cards from one place to another.
-		 * TODO: Make move work when the source and target decks are the same
-		 */
-		@Override
-		public int getSourceActions(JComponent c)
-		{
-			return TransferHandler.COPY;
-		}
-		
-		/**
-		 * Create the transferable to handle data transfer from a table
-		 * to its destination.
-		 * 
-		 * @param c The component containing the data to be transferred
-		 * @return The transferable containing the data to transfer.
-		 */
-		@Override
-		public Transferable createTransferable(JComponent c)
-		{
-			return new Deck.TransferData(deck, getSelectedCards());
-		}
-		
-		/**
-		 * Perform actions that need to be completed when the export
-		 * is complete.
-		 * 
-		 * @param c Component originating data to transfer
-		 * @param t Transferable containing data transferred
-		 * @param action Action performed on the data
-		 */
-		@Override
-		public void exportDone(JComponent c, Transferable t, int action)
-		{
-			if (action == TransferHandler.MOVE)
-				removeSelectedCards(Integer.MAX_VALUE);
-		}
-	}
-	
-	/**
-	 * This class is a worker for loading a deck.
-	 * 
-	 * @author Alec Roelke
-	 */
-	private class LoadWorker extends SwingWorker<Void, Integer>
-	{
-		/**
-		 * File to load the deck from.
-		 */
-		private File file;
-		/**
-		 * Progress bar to display progress to.
-		 */
-		private JProgressBar progressBar;
-		/**
-		 * Dialog containing the progress bar.
-		 */
-		private JDialog dialog;
-		
-		/**
-		 * Create a new LoadWorker.
-		 * 
-		 * @param f File to load the deck from
-		 * @param b Progress bar showing progress
-		 * @param d Dialog containing the progress bar
-		 */
-		public LoadWorker(File f, JProgressBar b, JDialog d)
-		{
-			file = f;
-			progressBar = b;
-			dialog = d;
-		}
-		
-		/**
-		 * Update the progress bar with the latest progress.
-		 * 
-		 * @param chunks Progress that has been made
-		 */
-		@Override
-		protected void process(List<Integer> chunks)
-		{
-			int progress = chunks[chunks.size() - 1];
-			progressBar.setValue(progress);
-		}
-		
-		/**
-		 * Load the deck, updating the progress bar all the while.
-		 */
-		@Override
-		protected Void doInBackground() throws Exception
-		{
-			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
-			{
-				opening = true;
-				int cards = Integer.valueOf(rd.readLine().trim());
-				for (int i = 0; i < cards; i++)
-				{
-					if (isCancelled())
-						return null;
-					String[] card = rd.readLine().trim().split("\t");
-					Card c = parent.getCard(card[0]);
-					if (c != null)
-						deck.add(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
-					else
-						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
-					publish(50*(i + 1)/cards);
-				}
-				int categories = Integer.valueOf(rd.readLine().trim());
-				for (int i = 0; i < categories; i++)
-				{
-					if (isCancelled())
-						return null;
-					CategorySpec spec = new CategorySpec(rd.readLine());
-					addCategory(spec);
-					publish(50 + 50*(i + 1)/categories);
-				}
-				String line;
-				while ((line = rd.readLine()) != null)
-					changelogArea.append(line + "\n");
-			}
-			return null;
-		}
-		
-		/**
-		 * When the task is over, close the file and update the frame.
-		 */
-		@Override
-		protected void done()
-		{
-			opening = false;
-			dialog.dispose();
-			unsaved = false;
-			setFile(file);
-			undoBuffer.clear();
-			redoBuffer.clear();
-		}
 	}
 }

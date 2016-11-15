@@ -36,8 +36,8 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	/**
 	 * Create a new OptionsFilter.
 	 * 
-	 * @param t Type of this OptionsFilter
-	 * @param f Function for this OptionsFilter
+	 * @param t type of this OptionsFilter
+	 * @param f function for this OptionsFilter
 	 */
 	public OptionsFilter(String t, SerializableFunction<Card, T> f)
 	{
@@ -47,11 +47,10 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	}
 
 	/**
-	 * @return The String representation of this OptionsFilter's content,
-	 * which is its containment's String representation followed by the
-	 * String representations of its selected options surrounded by
-	 * braces and separated by commas.
-	 * @see FilterLeaf#content()
+	 * {@inheritDoc}
+	 * The content String of this OptionsFilter is its containment followed
+	 * by the String representations of its selected options separated by
+	 * commas and surrounded by braces.
 	 */
 	@Override
 	public String content()
@@ -63,10 +62,13 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	}
 	
 	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if the other Object is the same kind of OptionsFilter
-	 * as this one and its selection and containment are the same.
+	 * Convert a String to the type that this OptionsFilter's options have.
+	 * 
+	 * @param str String to convert
+	 * @return the option corresponding to the given String
 	 */
+	public abstract T convertFromString(String str);
+	
 	@Override
 	public boolean equals(Object other)
 	{
@@ -80,17 +82,11 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 		return o.type().equals(type()) && o.contain == contain && o.selected.equals(selected);
 	}
 	
-	/**
-	 * @return The hash code of this OptionsFilter, which is composed from the hash
-	 * codes of its containment type and selected items set.
-	 */
 	@Override
 	public int hashCode()
 	{
 		return Objects.hash(type(), function(), contain, selected);
 	}
-	
-	public abstract T convertFromString(String str);
 	
 	@SuppressWarnings("unchecked")
 	@Override

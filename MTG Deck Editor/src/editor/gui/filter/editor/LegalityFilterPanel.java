@@ -38,17 +38,14 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
 	 * Create a new LegalityFilterPanel using the given LegalityFilter
 	 * to initialize its fields.
 	 * 
-	 * @param f Filter to use for initialization
+	 * @param f filter to use for initialization
 	 */
 	public LegalityFilterPanel (LegalityFilter f)
 	{
 		this();
 		setContents(f);
 	}
-	
-	/**
-	 * @return The filter this LegalityFilter is editing.
-	 */
+
 	@Override
 	public Filter filter()
 	{
@@ -56,32 +53,9 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
 		filter.restricted = restrictedBox.isSelected();
 		return filter;
 	}
-	
-	/**
-	 * If the given filter is a LegalityFilter, set the fields of this
-	 * LegalityFilterPanel to its contents.
-	 * 
-	 * @param filter Filter to use for setting contents
-	 * @throws IllegalArgumentException if the given filter is not a LegalityFilter
-	 */
+
 	@Override
-	public void setContents(OptionsFilter<String> filter)
-	{
-		if (filter.type() != FilterFactory.FORMAT_LEGALITY)
-			throw new IllegalArgumentException("Illegal legality filter type " + filter.type());
-		else
-			setContents((LegalityFilter)filter);
-	}
-	
-	/**
-	 * If the given filter is a LegalityFilter, set the fields of this
-	 * LegalityFilterPanel to its contents.
-	 * 
-	 * @param filter Filter to use for setting contents
-	 * @throws IllegalArgumentException if the given filter is not a LegalityFilter
-	 */
-	@Override
-	public void setContents(FilterLeaf<?> filter)
+	public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
 	{
 		if (filter instanceof LegalityFilter)
 			setContents((LegalityFilter)filter);
@@ -91,8 +65,7 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
 	}
 	
 	/**
-	 * Set the fields of this LegalityFilterPanel to the given
-	 * LegalityFilter's contents
+	 * Set the fields of this LegalityFilterPanel to the given LegalityFilter's contents
 	 * 
 	 * @param filter Filter to use for setting contents
 	 */
@@ -100,5 +73,14 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
 	{
 		super.setContents(filter);
 		restrictedBox.setSelected(filter.restricted);
+	}
+	
+	@Override
+	public void setContents(OptionsFilter<String> filter) throws IllegalArgumentException
+	{
+		if (filter.type() != FilterFactory.FORMAT_LEGALITY)
+			throw new IllegalArgumentException("Illegal legality filter type " + filter.type());
+		else
+			setContents((LegalityFilter)filter);
 	}
 }

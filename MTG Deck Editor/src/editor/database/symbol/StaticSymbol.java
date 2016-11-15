@@ -33,8 +33,7 @@ public class StaticSymbol extends ManaSymbol
 	 * Get the StaticSymbol corresponding to the given String.
 	 * 
 	 * @param s String to look up
-	 * @return The StaticSymbol corresponding to the given String,
-	 * or null if there is none.
+	 * @return the StaticSymbol corresponding to the given String, or null if there is none.
 	 */
 	public static StaticSymbol get(String s)
 	{
@@ -44,9 +43,9 @@ public class StaticSymbol extends ManaSymbol
 	/**
 	 * Create a new StaticSymbol.
 	 * 
-	 * @param iconName Icon name of the new symbol
-	 * @param text Text representation of the new symbol
-	 * @param v sorting value of the new StaticSymbol
+	 * @param iconName icon name of the new symbol
+	 * @param text text representation of the new symbol
+	 * @param value sorting value of the new StaticSymbol
 	 */
 	private StaticSymbol(String iconName, String text, double value)
 	{
@@ -54,7 +53,8 @@ public class StaticSymbol extends ManaSymbol
 	}
 
 	/**
-	 * @return The color weights of this StaticSymbol, which are none.
+	 * {@inheritDoc}
+	 * There are no color weights for a StaticSymbol.
 	 */
 	@Override
 	public Map<ManaType, Double> colorWeights()

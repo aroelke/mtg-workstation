@@ -5,14 +5,12 @@ import java.util.Objects;
 import editor.database.characteristics.ManaType;
 
 /**
- * This class represents a color weighting for a Symbol.  Only mana
- * Symbols will have nonzero weights for any type of mana.  For any
- * given mana Symbol, the sum of all of its color weights should be
+ * This class represents a color weighting for a Symbol.  Only mana Symbols will have nonzero weights
+ * for any type of mana.  For any given mana Symbol, the sum of all of its color weights should be
  * 1.
  * 
- * This class is simply a data structure that holds a ManaType and
- * its weight for a symbol to make it easier to populate the
- * Symbol's weight map.
+ * This class is simply a data structure that holds a {@link ManaType} and its weight for a symbol to
+ * make it easier to populate the Symbol's weight map.
  * 
  * @author Alec Roelke
  */
@@ -30,8 +28,8 @@ public class ColorWeight
 	/**
 	 * Create a new ColorWeight.
 	 * 
-	 * @param c Color of the new ColorWeight
-	 * @param w Weight of the new ColorWeight
+	 * @param c color of the new ColorWeight
+	 * @param w weight of the new ColorWeight
 	 */
 	public ColorWeight(ManaType c, double w)
 	{
@@ -39,11 +37,6 @@ public class ColorWeight
 		weight = w;
 	}
 	
-	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if the other Object is a ColorWeight, its
-	 * ManaType is the same, and its weight is the same.
-	 */
 	@Override
 	public boolean equals(Object other)
 	{
@@ -57,10 +50,6 @@ public class ColorWeight
 		return o.color.equals(color) && o.weight == weight;
 	}
 	
-	/**
-	 * @return The hash code of this ColorWeight, which is composed of the hash codes
-	 * of its ManaType and weight.
-	 */
 	@Override
 	public int hashCode()
 	{

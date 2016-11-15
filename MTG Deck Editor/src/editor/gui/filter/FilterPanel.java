@@ -40,26 +40,10 @@ public abstract class FilterPanel<F extends Filter> extends JPanel
 	}
 	
 	/**
-	 * @return The filter currently being edited by this FilterPanel.
-	 * If the panel was created from an already-existing filter, that
-	 * filter will not reflect changes made in the panel!  This function
-	 * returns a copy of that filter modified according to the fields.
-	 */
-	public abstract Filter filter();
-	
-	/**
-	 * Set the contents of this FilterPanel.
-	 * 
-	 * @param filter Filter containing the information that should
-	 * be displayed by this FilterPanel.
-	 */
-	public abstract void setContents(F filter);
-	
-	/**
-	 * Register a new ChangeListener with this FilterPanel, which will fire
+	 * Register a new #ChangeListener with this FilterPanel, which will fire
 	 * when panels or groups are added or removed.
 	 * 
-	 * @param listener ChangeListener to register
+	 * @param listener #ChangeListener to register
 	 */
 	public void addChangeListener(ChangeListener listener)
 	{
@@ -67,15 +51,11 @@ public abstract class FilterPanel<F extends Filter> extends JPanel
 	}
 	
 	/**
-	 * De-register a ChangeListener with this FilterPanel, so it will no longer
-	 * fire.
+	 * Get the filter from this FilterPanel.
 	 * 
-	 * @param listener ChangeListener to remove
+	 * @return the filter currently being edited by this FilterPanel.
 	 */
-	public void removeChangeListener(ChangeListener listener)
-	{
-		listeners.remove(listener);
-	}
+	public abstract Filter filter();
 	
 	/**
 	 * Indicate that a group or panel has been added or removed, and fire this
@@ -88,4 +68,27 @@ public abstract class FilterPanel<F extends Filter> extends JPanel
 		for (ChangeListener listener: listeners)
 			listener.stateChanged(new ChangeEvent(this));
 	}
+	
+	/**
+	 * De-register a #ChangeListener with this FilterPanel, so it will no longer
+	 * fire.
+	 * 
+	 * @param listener #ChangeListener to remove
+	 */
+	public void removeChangeListener(ChangeListener listener)
+	{
+		listeners.remove(listener);
+	}
+	
+	/**
+	 * Set the contents of this FilterPanel.  Any changes made in this
+	 * FilterPanel will not be reflected in the given #Filter; the value
+	 * returned by {@link #filter()} is a copy of it.
+	 * 
+	 * @param filter filter containing the information that should
+	 * be displayed by this FilterPanel.
+	 * @throws IllegalArgumentException if the given filter is of the wrong
+	 * type
+	 */
+	public abstract void setContents(F filter) throws IllegalArgumentException;
 }

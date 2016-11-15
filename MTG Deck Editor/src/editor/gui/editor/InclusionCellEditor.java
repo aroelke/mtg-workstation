@@ -22,8 +22,8 @@ import editor.gui.display.CardTable;
 import editor.util.MouseListenerFactory;
 
 /**
- * This class represents an editor for a table cell containing a set of CategorySpecs for a
- * Card. It can be edited by double-clicking on it, which brings up a dialog showing the
+ * This class represents an editor for a table cell containing a set of {@link CategorySpec}s for a
+ * card. It can be edited by double-clicking on it, which brings up a dialog showing the
  * available categories.
  * 
  * @author Alec Roelke
@@ -32,26 +32,26 @@ import editor.util.MouseListenerFactory;
 public class InclusionCellEditor extends AbstractCellEditor implements TableCellEditor
 {
 	/**
-	 * EditorFrame containing the deck whose card's categories are being edited.
-	 */
-	private EditorFrame frame;
-	/**
-	 * List of categories the card belongs to.
-	 */
-	private List<CategorySpec> included;
-	/**
-	 * JPanel to show while editing is occurring.
+	 * Panel to show while editing is occurring.
 	 */
 	private JPanel editor;
+	/**
+	 * {@link EditorFrame} containing the deck whose card's categories are being edited.
+	 */
+	private EditorFrame frame;
 	/**
 	 * Panel showing the list of categories to allow editing.
 	 */
 	private IncludeExcludePanel iePanel;
+	/**
+	 * List of categories the card belongs to.
+	 */
+	private List<CategorySpec> included;
 	
 	/**
-	 * Create a new InclusionCellEditor from the given EditorFrame.
+	 * Create a new InclusionCellEditor from the given frame.
 	 * 
-	 * @param f EditorFrame containing the table the new InclusionCellEditor goes in
+	 * @param f frame containing the table the new InclusionCellEditor goes in
 	 */
 	public InclusionCellEditor(EditorFrame f)
 	{
@@ -83,39 +83,12 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
 		}));
 	}
 	
-	/**
-	 * @return <code>true</code>, if the user double-clicked on the cell, and
-	 * <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean isCellEditable(EventObject eo)
-	{
-		if (eo instanceof MouseEvent && ((MouseEvent)eo).getClickCount() > 1)
-			return true;
-		else
-			return false;
-	}
-	
-	/**
-	 * @return The IncludeExcludePanel containing category edit information.
-	 */
 	@Override
 	public Object getCellEditorValue()
 	{
 		return iePanel;
 	}
-
-	/**
-	 * Construct the IncludeExcludePanel and the appearance of the renderer panel, and then return
-	 * the renderer panel.  The IncludeExcludePanel will be used when the renderer panel is clicked.
-	 * 
-	 * @param table Table containing the cell to edit
-	 * @param value Value to set the editor component to
-	 * @param isSelected Whether or not the cell is selected
-	 * @param row Row of the cell being edited
-	 * @param column Column of the cell being edited
-	 * @return The renderer panel.
-	 */
+	
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
 	{
@@ -136,5 +109,18 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
 		else
 			iePanel = new IncludeExcludePanel(frame.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getSelectedCards());
 		return editor;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * Double-clicking activates editing.
+	 */
+	@Override
+	public boolean isCellEditable(EventObject eo)
+	{
+		if (eo instanceof MouseEvent && ((MouseEvent)eo).getClickCount() > 1)
+			return true;
+		else
+			return false;
 	}
 }

@@ -42,10 +42,6 @@ public class CardTagPanel extends ScrollablePanel
 	 */
 	private static final int MAX_PREFERRED_ROWS = 10;
 	/**
-	 * Boxes corresponding to tags.
-	 */
-	private List<TristateCheckBox> tagBoxes;
-	/**
 	 * Cards whose tags are to be modified.
 	 */
 	private Collection<Card> cards;
@@ -53,12 +49,16 @@ public class CardTagPanel extends ScrollablePanel
 	 * Preferred viewport height of this panel.
 	 */
 	private int preferredViewportHeight;
+	/**
+	 * Boxes corresponding to tags.
+	 */
+	private List<TristateCheckBox> tagBoxes;
 
 	/**
 	 * Create a new CardTagPanel for editing the tags of the given collection
-	 * of Cards.
+	 * of cards.
 	 *
-	 * @param coll Collection containing cards whose tags should be edited
+	 * @param coll collection containing cards whose tags should be edited
 	 */
 	public CardTagPanel(Collection<Card> coll)
 	{
@@ -84,9 +84,109 @@ public class CardTagPanel extends ScrollablePanel
 	}
 
 	/**
+	 * Add a new tag to the list
+	 *
+	 * @param tag new tag to add
+	 * @return true if the tag was added, and false otherwise.
+	 */
+	public boolean addTag(String tag)
+	{
+		Set<String> tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
+		if (tags.add(tag))
+		{
+			setTags(tags.stream().sorted().collect(Collectors.toList()));
+			return true;
+		}
+		else
+			return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * The maximum size of this CardTagPanel is MAX_PREFERRED_ROWS rows.
+	 */
+	@Override
+	public Dimension getPreferredScrollableViewportSize()
+	{
+		if (tagBoxes.isEmpty())
+			return getPreferredSize();
+		else
+		{
+			Dimension size = getPreferredSize();
+			size.height = preferredViewportHeight;
+			return size;
+		}
+	}
+
+	/**
+	 * Get the cards that were tagged.
+	 * 
+	 * @return a map of cards onto the sets tags that were added to them.
+	 */
+	public Map<Card, Set<String>> getTagged()
+	{
+		Map<Card, Set<String>> tagged = new HashMap<Card, Set<String>>();
+		for (Card card: cards)
+			for (TristateCheckBox tagBox: tagBoxes)
+				if (tagBox.getState() == TristateCheckBox.STATE_SELECTED)
+					tagged.compute(card, (k, v) -> {
+						if (v == null)
+							v = new HashSet<String>();
+						v.add(tagBox.getText());
+						return v;
+					});
+		return tagged;
+	}
+
+	/**
+	 * Get the cards that had tags removed.
+	 * 
+	 * @return a map of cards onto the sets of tags that were removed from them.
+	 */
+	public Map<Card, Set<String>> getUntagged()
+	{
+		Map<Card, Set<String>> untagged = new HashMap<Card, Set<String>>();
+		for (Card card: cards)
+			for (TristateCheckBox tagBox: tagBoxes)
+				if (tagBox.getState() == TristateCheckBox.STATE_UNSELECTED)
+					untagged.compute(card, (k, v) -> {
+						if (v == null)
+							v = new HashSet<String>();
+						v.add(tagBox.getText());
+						return v;
+					});
+		return untagged;
+	}
+
+	/**
+	 * Remove a tag from the list.
+	 *
+	 * @param tag tag to remove
+	 * @return true if the tag was removed, and false otherwise.
+	 */
+	public boolean removeTag(String tag)
+	{
+		Set<String> tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
+		if (tags.remove(tag))
+		{
+			setTags(tags.stream().sorted().collect(Collectors.toList()));
+			if (getParent() != null)
+			{
+				getParent().revalidate();
+				getParent().repaint();
+			}
+			if (SwingUtilities.getWindowAncestor(this) != null)
+				SwingUtilities.getWindowAncestor(this).pack();
+			return true;
+		}
+		else
+			return false;
+	}
+
+	/**
 	 * Refresh the tags displayed with the given list of tags.
 	 *
-	 * @param tags List of tags that should be displayed
+	 * @param tags list of tags that should be displayed
 	 */
 	private void setTags(List<String> tags)
 	{
@@ -123,102 +223,6 @@ public class CardTagPanel extends ScrollablePanel
 				preferredViewportHeight = Math.min(preferredViewportHeight + tagPanel.getPreferredSize().height, tagPanel.getPreferredSize().height*MAX_PREFERRED_ROWS);
 				add(tagPanel);
 			}
-		}
-	}
-
-	/**
-	 * Add a new tag to the list
-	 *
-	 * @param tag New tag to add
-	 * @return <code>true</code> if the tag was added, and <code>false</code> otherwise.
-	 */
-	public boolean addTag(String tag)
-	{
-		Set<String> tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
-		if (tags.add(tag))
-		{
-			setTags(tags.stream().sorted().collect(Collectors.toList()));
-			return true;
-		}
-		else
-			return false;
-	}
-
-	/**
-	 * Remove a tag from the list.
-	 *
-	 * @param tag Tag to remove
-	 * @return <code>true</code> if the tag was removed, and <code>false</code> otherwise.
-	 */
-	public boolean removeTag(String tag)
-	{
-		Set<String> tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
-		if (tags.remove(tag))
-		{
-			setTags(tags.stream().sorted().collect(Collectors.toList()));
-			if (getParent() != null)
-			{
-				getParent().revalidate();
-				getParent().repaint();
-			}
-			if (SwingUtilities.getWindowAncestor(this) != null)
-				SwingUtilities.getWindowAncestor(this).pack();
-			return true;
-		}
-		else
-			return false;
-	}
-
-	/**
-	 * @return A map of cards onto the sets tags that were added to them.
-	 */
-	public Map<Card, Set<String>> getTagged()
-	{
-		Map<Card, Set<String>> tagged = new HashMap<Card, Set<String>>();
-		for (Card card: cards)
-			for (TristateCheckBox tagBox: tagBoxes)
-				if (tagBox.getState() == TristateCheckBox.STATE_SELECTED)
-					tagged.compute(card, (k, v) -> {
-						if (v == null)
-							v = new HashSet<String>();
-						v.add(tagBox.getText());
-						return v;
-					});
-		return tagged;
-	}
-
-	/**
-	 * @return A map of cards onto the sets of tags that were removed from them.
-	 */
-	public Map<Card, Set<String>> getUntagged()
-	{
-		Map<Card, Set<String>> untagged = new HashMap<Card, Set<String>>();
-		for (Card card: cards)
-			for (TristateCheckBox tagBox: tagBoxes)
-				if (tagBox.getState() == TristateCheckBox.STATE_UNSELECTED)
-					untagged.compute(card, (k, v) -> {
-						if (v == null)
-							v = new HashSet<String>();
-						v.add(tagBox.getText());
-						return v;
-					});
-		return untagged;
-	}
-
-	/**
-	 * @return The preferred viewport size of this panel, which is the size of its contents
-	 * up to MAX_PREFERRED_ROWS rows.
-	 */
-	@Override
-	public Dimension getPreferredScrollableViewportSize()
-	{
-		if (tagBoxes.isEmpty())
-			return getPreferredSize();
-		else
-		{
-			Dimension size = getPreferredSize();
-			size.height = preferredViewportHeight;
-			return size;
 		}
 	}
 }

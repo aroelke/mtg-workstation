@@ -1,10 +1,8 @@
 package editor.filter;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import editor.database.card.Card;
@@ -35,17 +33,21 @@ import editor.filter.leaf.options.single.RarityFilter;
 public abstract class FilterFactory
 {
 	/**
-	 * Code for a name filter.
+	 * Code for an "all cards" filter.
 	 */
-	public static final String NAME = "n";
+	public static final String ALL = "*";
 	/**
-	 * Code for a layout filter.
+	 * Code for an artist filter.
 	 */
-	public static final String LAYOUT = "L";
+	public static final String ARTIST = "a";
 	/**
-	 * Code for a mana cost filter.
+	 * Code for a block filter.
 	 */
-	public static final String MANA_COST = "m";
+	public static final String BLOCK = "b";
+	/**
+	 * Code for a collector's number filter.
+	 */
+	public static final String CARD_NUMBER = "#";
 	/**
 	 * Code for a converted mana cost filter.
 	 */
@@ -59,29 +61,50 @@ public abstract class FilterFactory
 	 */
 	public static final String COLOR_IDENTITY = "ci";
 	/**
-	 * Code for a type line filter.
+	 * Code (or lack thereof) for a defaults filter.  This should never be used, and only
+	 * exists for completeness.
 	 */
-	public static final String TYPE_LINE = "type";
-	/**
-	 * Code for a supertype filter.
-	 */
-	public static final String SUPERTYPE = "super";
-	/**
-	 * Code for a type filter.
-	 */
-	public static final String TYPE = "cardtype";
-	/**
-	 * Code for a subtype filter.
-	 */
-	public static final String SUBTYPE = "sub";
+	public static final String DEFAULTS = "";
 	/**
 	 * Code for an expansion filter.
 	 */
 	public static final String EXPANSION = "x";
 	/**
-	 * Code for a block filter.
+	 * Map of each filter type's code onto its name.
 	 */
-	public static final String BLOCK = "b";
+	public static final Map<String, String> FILTER_TYPES;
+	/**
+	 * Code for a flavor text filter.
+	 */
+	public static final String FLAVOR_TEXT = "f";
+	/**
+	 * Code for a format legality filter.
+	 */
+	public static final String FORMAT_LEGALITY = "legal";
+	/**
+	 * Code for a layout filter.
+	 */
+	public static final String LAYOUT = "L";
+	/**
+	 * Code for a loyalty filter.
+	 */
+	public static final String LOYALTY = "l";
+	/**
+	 * Code for a mana cost filter.
+	 */
+	public static final String MANA_COST = "m";
+	/**
+	 * Code for a name filter.
+	 */
+	public static final String NAME = "n";
+	/**
+	 * Code for a "no cards" filter.
+	 */
+	public static final String NONE = "0";
+	/**
+	 * Code for a power filter.
+	 */
+	public static final String POWER = "p";
 	/**
 	 * Code for a rarity filter.
 	 */
@@ -91,54 +114,29 @@ public abstract class FilterFactory
 	 */
 	public static final String RULES_TEXT = "o";
 	/**
-	 * Code for a flavor text filter.
+	 * Code for a subtype filter.
 	 */
-	public static final String FLAVOR_TEXT = "f";
+	public static final String SUBTYPE = "sub";
 	/**
-	 * Code for a power filter.
+	 * Code for a supertype filter.
 	 */
-	public static final String POWER = "p";
-	/**
-	 * Code for a toughness filter.
-	 */
-	public static final String TOUGHNESS = "t";
-	/**
-	 * Code for a loyalty filter.
-	 */
-	public static final String LOYALTY = "l";
-	/**
-	 * Code for an artist filter.
-	 */
-	public static final String ARTIST = "a";
-	/**
-	 * Code for a collector's number filter.
-	 */
-	public static final String CARD_NUMBER = "#";
-	/**
-	 * Code for a format legality filter.
-	 */
-	public static final String FORMAT_LEGALITY = "legal";
+	public static final String SUPERTYPE = "super";
 	/**
 	 * Code for a user tags filter.
 	 */
 	public static final String TAGS = "tag";
 	/**
-	 * Code (or lack thereof) for a defaults filter.  This should never be used, and only
-	 * exists for completeness.
+	 * Code for a toughness filter.
 	 */
-	public static final String DEFAULTS = "";
+	public static final String TOUGHNESS = "t";
 	/**
-	 * Code for a "no cards" filter.
+	 * Code for a type filter.
 	 */
-	public static final String NONE = "0";
+	public static final String TYPE = "cardtype";
 	/**
-	 * Code for an "all cards" filter.
+	 * Code for a type line filter.
 	 */
-	public static final String ALL = "*";
-	/**
-	 * Map of each filter type's code onto its name.
-	 */
-	public static final Map<String, String> FILTER_TYPES;
+	public static final String TYPE_LINE = "type";
 	static
 	{
 		Map<String, String> filterTypes = new LinkedHashMap<String, String>();
@@ -173,8 +171,8 @@ public abstract class FilterFactory
 	/**
 	 * Create a new filter.
 	 * 
-	 * @param type Type of filter to create
-	 * @return A new filter of the given type with default values.  To edit those values,
+	 * @param type type of filter to create
+	 * @return a new filter of the given type with default values.  To edit those values,
 	 * access them directly.
 	 */
 	public static FilterLeaf<?> createFilter(String type)

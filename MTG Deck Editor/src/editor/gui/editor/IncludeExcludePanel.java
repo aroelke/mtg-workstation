@@ -40,7 +40,7 @@ public class IncludeExcludePanel extends ScrollablePanel
 	 */
 	private Map<CategorySpec, TristateCheckBox> categoryBoxes;
 	/**
-	 * List of Cards to display inclusion for.
+	 * List of cards to display inclusion for.
 	 */
 	private Collection<Card> cards;
 	/**
@@ -52,8 +52,8 @@ public class IncludeExcludePanel extends ScrollablePanel
 	 * Create a new IncludeExcludePanel showing inclusion of the given cards in the given
 	 * categories.
 	 * 
-	 * @param categories Categories to display
-	 * @param c Cards to show inclusion for
+	 * @param categories categories to display
+	 * @param c cards to show inclusion for
 	 */
 	public IncludeExcludePanel(List<CategorySpec> categories, Collection<Card> c)
 	{
@@ -86,10 +86,10 @@ public class IncludeExcludePanel extends ScrollablePanel
 	}
 	
 	/**
-	 * Create a new IncludeExcludePanel for a single Card.
+	 * Create a new IncludeExcludePanel for a single card.
 	 * 
-	 * @param categories Categories to show inclusion for
-	 * @param card Card to show inclusion for
+	 * @param categories categories to show inclusion for
+	 * @param card card to show inclusion for
 	 */
 	public IncludeExcludePanel(List<CategorySpec> categories, Card card)
 	{
@@ -97,7 +97,10 @@ public class IncludeExcludePanel extends ScrollablePanel
 	}
 	
 	/**
-	 * @return A Map containing the cards that were selected for inclusion and the new categories
+	 * Get the cards that were selected for inclusion.  Ignore cards that were already included
+	 * from the start.
+	 * 
+	 * @return a Map containing the cards that were selected for inclusion and the new categories
 	 * they were included in.
 	 */
 	public Map<Card, Set<CategorySpec>> getIncluded()
@@ -116,7 +119,10 @@ public class IncludeExcludePanel extends ScrollablePanel
 	}
 	
 	/**
-	 * @return A Map containing the cards that were deselected for exclusion and the categories
+	 * Get the cards that were deselected for exclusion.  Ignore cards that were already excluded
+	 * from the start.
+	 * 
+	 * @return a Map containing the cards that were deselected for exclusion and the categories
 	 * they should be excluded from.
 	 */
 	public Map<Card, Set<CategorySpec>> getExcluded()
@@ -135,8 +141,9 @@ public class IncludeExcludePanel extends ScrollablePanel
 	}
 
 	/**
-	 * @return The preferred viewport size of this IncludeExcludePanel, which is the size of
-	 * its contents up to MAX_PREFERRED_ROWS rows.
+	 * {@inheritDoc}
+	 * The preferred viewport size of this IncludeExcludePanel is the size of its contents
+	 * up to {@link IncludeExcludePanel#MAX_PREFERRED_ROWS}.
 	 */
 	@Override
 	public Dimension getPreferredScrollableViewportSize()

@@ -6,8 +6,7 @@ import java.util.stream.IntStream;
 import editor.database.characteristics.ManaType;
 
 /**
- * This class represents an amount of generic mana that might appear in a mana cost
- * on a Magic: The Gathering card.
+ * This class represents an amount of generic mana that might appear in a mana cost.
  * 
  * @author Alec Roelke
  */
@@ -34,9 +33,8 @@ public class GenericSymbol extends ManaSymbol
 	/**
 	 * Get the symbol corresponding to a number.
 	 * 
-	 * @param n Number to get the symbol of
-	 * @return The GenericSymbol corresponding to the given number, or
-	 * null if none exists.
+	 * @param n number to get the symbol of
+	 * @return the GenericSymbol corresponding to the given number, or null if none exists.
 	 */
 	public static GenericSymbol get(int n)
 	{
@@ -54,8 +52,7 @@ public class GenericSymbol extends ManaSymbol
 	 * Get the symbol corresponding to a String.
 	 * 
 	 * @param n String to get the symbol of
-	 * @return The GenericSymbol corresponding to the given String,
-	 * or null if none exists.
+	 * @return the GenericSymbol corresponding to the given String, or null if none exists.
 	 */
 	public static GenericSymbol get(String n)
 	{
@@ -70,23 +67,18 @@ public class GenericSymbol extends ManaSymbol
 	}
 	
 	/**
-	 * Amount of mana this GenericSymbol represents.
-	 */
-	private final int amount;
-	
-	/**
 	 * Create a new GenericSymbol.
 	 * 
-	 * @param amount Amount of mana the new ColorlessSymbol represents.
+	 * @param amount amount of mana the new ColorlessSymbol represents.
 	 */
 	private GenericSymbol(int amount)
 	{
 		super(amount + "_mana.png", String.valueOf(amount), amount);
-		this.amount = amount;
 	}
 
 	/**
-	 * @return This GenericSymbol's color weights, which are none.
+	 * {@inheritDoc}
+	 * Generic mana symbols have no color weights.
 	 */
 	@Override
 	public Map<ManaType, Double> colorWeights()
@@ -94,18 +86,11 @@ public class GenericSymbol extends ManaSymbol
 		return createWeights();
 	}
 	
-	/**
-	 * @param o Symbol to compare to
-	 * @return A negative number if the other symbol is a color symbol, half symbol, hybrid symbol,
-	 * or snow symbol; the difference between amounts if the other symbol is a colorless symbol,
-	 * and a positive number otherwise.
-	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
-	 */
 	@Override
 	public int compareTo(ManaSymbol o)
 	{
 		if (o instanceof GenericSymbol)
-			return amount - ((GenericSymbol)o).amount;
+			return (int)value() - (int)((GenericSymbol)o).value();
 		else
 			return super.compareTo(o);
 	}

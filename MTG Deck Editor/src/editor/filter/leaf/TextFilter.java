@@ -17,7 +17,7 @@ import editor.util.Containment;
 import editor.util.SerializableFunction;
 
 /**
- * This class represents a filter for a text characteristic of a Card.
+ * This class represents a filter for a text characteristic of a card.
  * 
  * @author Alec Roelke
  */
@@ -29,11 +29,11 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	public static final Pattern WORD_PATTERN = Pattern.compile("\"([^\"]*)\"|'([^']*)'|[^\\s]+");
 	
 	/**
-	 * Create a new TextFilter that filters out Cards whose characteristic
+	 * Create a new TextFilter that filters out cards whose characteristic
 	 * matches the given String.
 	 * 
-	 * @param s String to match
-	 * @return The new TextFilter.
+	 * @param s string to match
+	 * @return the new TextFilter
 	 */
 	public static TextFilter createQuickFilter(String t, String s)
 	{
@@ -54,8 +54,8 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	 * Create a regex pattern matcher that searches a string for a set of words and quote-enclosed phrases
 	 * separated by spaces, where * is a wild card.
 	 * 
-	 * @param pattern String pattern to create a regex matcher out of
-	 * @return A Predicate that searches a String for the words and phrases in the given String.
+	 * @param pattern string pattern to create a regex matcher out of
+	 * @return a predicate that searches a string for the words and phrases in the given string.
 	 */
 	public static Predicate<String> createSimpleMatcher(String pattern)
 	{
@@ -81,13 +81,22 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	 */
 	public Containment contain;
 	/**
-	 * Text to filter.
-	 */
-	public String text;
-	/**
 	 * Whether or not the text is a regular expression.
 	 */
 	public boolean regex;
+	/**
+	 * Text to filter.
+	 */
+	public String text;
+	
+	/**
+	 * Create a new TextFilter without a type or function.  Should only be used for
+	 * deserialization.
+	 */
+	public TextFilter()
+	{
+		this("", null);
+	}
 	
 	/**
 	 * Create a new TextFilter.
@@ -102,16 +111,79 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		text = "";
 		regex = false;
 	}
-	
-	public TextFilter()
-	{
-		this("", null);
-	}
 
 	/**
-	 * @param c Card to test
-	 * @return <code>true</code> if the Card's text characteristic matches this
-	 * TextFilter's containment and text, and <code>false</code> otherwise.
+	 * {@inheritDoc}
+	 * This TextFilter's content String is its containment followed by its text in either
+	 * quotes if it is a simple matcher or in slashes (/) if it is a regular expression.
+	 */
+	@Override
+	public String content()
+	{
+		return contain.toString() + (regex ? "/" : "\"") + text + (regex ? "/" : "\"");
+	}
+
+	@Override
+	public Filter copy()
+	{
+		TextFilter filter = (TextFilter)FilterFactory.createFilter(type());
+		filter.contain = contain;
+		filter.regex = regex;
+		filter.text = text;
+		return filter;
+	}
+	
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (other.getClass() != getClass())
+			return false;
+		TextFilter o = (TextFilter)other;
+		return o.type().equals(type()) && o.contain == contain && o.regex == regex && o.text.equals(text);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(type(), function(), contain, regex, text);
+	}
+	
+	@Override
+	public void parse(String s)
+	{
+		String content = checkContents(s, type());
+		int delim = content.indexOf('"');
+		if (delim > -1)
+		{
+			contain = Containment.fromString(content.substring(0, delim));
+			text = content.substring(delim + 1, content.lastIndexOf('"'));
+			regex = false;
+		}
+		else
+		{
+			delim = content.indexOf('/');
+			contain = Containment.fromString(content.substring(0, delim));
+			text = content.substring(delim + 1, content.lastIndexOf('/'));
+			regex = true;
+		}
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in);
+		contain = (Containment)in.readObject();
+		regex = in.readBoolean();
+		text = in.readUTF();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Cards are filtered by a text attribute that matches this TextFilter's text.
 	 */
 	@Override
 	public boolean test(Card c)
@@ -167,96 +239,6 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 			}
 			return function().apply(c).stream().anyMatch(matcher);
 		}
-	}
-
-	/**
-	 * @return The String representation of this TextFilterPanel's content, which is
-	 * the String representation of its containment followed by its text in either
-	 * quotes if it's not a regex or forward slashes if it is.
-	 * 
-	 * @see FilterLeaf#content()
-	 */
-	@Override
-	public String content()
-	{
-		return contain.toString() + (regex ? "/" : "\"") + text + (regex ? "/" : "\"");
-	}
-	
-	/**
-	 * Parse a String to determine the containment, text, and regex status of
-	 * this TextFilter.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
-	@Override
-	public void parse(String s)
-	{
-		String content = checkContents(s, type());
-		int delim = content.indexOf('"');
-		if (delim > -1)
-		{
-			contain = Containment.fromString(content.substring(0, delim));
-			text = content.substring(delim + 1, content.lastIndexOf('"'));
-			regex = false;
-		}
-		else
-		{
-			delim = content.indexOf('/');
-			contain = Containment.fromString(content.substring(0, delim));
-			text = content.substring(delim + 1, content.lastIndexOf('/'));
-			regex = true;
-		}
-	}
-	
-	/**
-	 * @return A new TextFilter that is a copy of this one.
-	 */
-	@Override
-	public Filter copy()
-	{
-		TextFilter filter = (TextFilter)FilterFactory.createFilter(type());
-		filter.contain = contain;
-		filter.regex = regex;
-		filter.text = text;
-		return filter;
-	}
-	
-	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if the other Object is a TextFilter and its
-	 * type, containment, regex flag, and text are all the same.
-	 */
-	@Override
-	public boolean equals(Object other)
-	{
-		if (other == null)
-			return false;
-		if (other == this)
-			return true;
-		if (other.getClass() != getClass())
-			return false;
-		TextFilter o = (TextFilter)other;
-		return o.type().equals(type()) && o.contain == contain && o.regex == regex && o.text.equals(text);
-	}
-	
-	/**
-	 * @return The hash code of this TextFilter, which is composed of its containment,
-	 * regex flag, and text.
-	 */
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(type(), function(), contain, regex, text);
-	}
-	
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-	{
-		super.readExternal(in);
-		contain = (Containment)in.readObject();
-		regex = in.readBoolean();
-		text = in.readUTF();
 	}
 	
 	@Override

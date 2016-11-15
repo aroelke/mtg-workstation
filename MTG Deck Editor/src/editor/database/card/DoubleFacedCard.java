@@ -6,13 +6,16 @@ import java.util.List;
 import editor.database.characteristics.ManaCost;
 
 /**
- * This class represents a Card with two faces:  One on the front, and one
- * on the back.
+ * This class represents a Card with two faces:  One on the front, and one on the back.
  * 
  * @author Alec Roelke
  */
 public class DoubleFacedCard extends MultiCard
 {
+	/**
+	 * Converted mana costs of this DoubleFacedCard's faces.
+	 */
+	private List<Double> cmc;
 	/**
 	 * Card representing the front face.
 	 */
@@ -21,17 +24,13 @@ public class DoubleFacedCard extends MultiCard
 	 * Tuple of this DoubleFacedCard's faces' mana costs.
 	 */
 	private ManaCost.Tuple manaCost;
-	/**
-	 * Converted mana costs of this DoubleFacedCard's faces.
-	 */
-	private List<Double> cmc;
 	
 	/**
 	 * Create a new DoubleFacedCard with the given Cards as faces.  Their layouts should
-	 * say that they are double-faced card.
+	 * say that they are double-faced cards.
 	 * 
-	 * @param f Card representing the front face
-	 * @param b Card representing the back face
+	 * @param f card representing the front face
+	 * @param b card representing the back face
 	 */
 	public DoubleFacedCard(Card f, Card b)
 	{
@@ -45,21 +44,9 @@ public class DoubleFacedCard extends MultiCard
 	}
 	
 	/**
-	 * @return A list containing the mana cost of this DoubleFacedCard.  Only the front
-	 * face has a mana cost.
-	 */
-	@Override
-	public ManaCost.Tuple manaCost()
-	{
-		if (manaCost == null)
-			manaCost = new ManaCost.Tuple(front.manaCost()[0], new ManaCost());
-		return manaCost;
-	}
-	
-	/**
-	 * @return A list containing the converted mana cost of this DoubleFacedCard.  While only
-	 * the front face has a mana cost, the back face has the same converted mana cost as the
-	 * front.
+	 * {@inheritDoc}
+	 * While only the front face has a mana cost (see {@link DoubleFacedCard#manaCost()},
+	 * both faces have the same converted mana cost.
 	 */
 	@Override
 	public List<Double> cmc()
@@ -70,8 +57,17 @@ public class DoubleFacedCard extends MultiCard
 	}
 	
 	/**
-	 * @return The converted mana cost of this DoubleFacedCard's front face.
+	 * {@inheritDoc}
+	 * Only the front face has a mana cost.
 	 */
+	@Override
+	public ManaCost.Tuple manaCost()
+	{
+		if (manaCost == null)
+			manaCost = new ManaCost.Tuple(front.manaCost()[0], new ManaCost());
+		return manaCost;
+	}
+
 	@Override
 	public double minCmc()
 	{

@@ -22,19 +22,19 @@ import javax.swing.JTable;
 public class TableMouseAdapter extends MouseAdapter
 {
 	/**
-	 * The JTable this TableMouseAdapter operates on.
-	 */
-	private JTable table;
-	/**
 	 * The menu that will open on right-click.
 	 */
 	private JPopupMenu menu;
+	/**
+	 * The JTable this TableMouseAdapter operates on.
+	 */
+	private JTable table;
 	
 	/**
 	 * Create a new TableMouseAdapter.
 	 * 
-	 * @param t Table to operate on
-	 * @param m Menu to open
+	 * @param t table to operate on
+	 * @param m menu to open
 	 */
 	public TableMouseAdapter(JTable t, JPopupMenu m)
 	{
@@ -44,13 +44,31 @@ public class TableMouseAdapter extends MouseAdapter
 		menu = m;
 	}
 	
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		popupClick(e);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * In addition to the pop-up menu, clear the table if the mouse button is released off of it.
+	 */
+	@Override
+	public void mouseReleased(MouseEvent e)
+	{
+		popupClick(e);
+		if (table.rowAtPoint(e.getPoint()) < 0)
+			table.clearSelection();
+	}
+	
 	/**
 	 * If the event that generated the click was a pop-up event (usually
 	 * right-click), open the menu.  If the mouse is over an empty row,
 	 * then select that row first.  If the ctrl key is not held down,
 	 * deselect all other rows.
 	 * 
-	 * @param e MouseEvent corresponding to the click
+	 * @param e #MouseEvent corresponding to the click
 	 */
 	public void popupClick(MouseEvent e)
 	{
@@ -66,30 +84,5 @@ public class TableMouseAdapter extends MouseAdapter
 			}
 			menu.show(e.getComponent(), e.getX(), e.getY());
 		}
-	}
-	
-	/**
-	 * Event for pressing the mouse button.
-	 * 
-	 * @param e MouseEvent corresponding to the click
-	 */
-	@Override
-	public void mousePressed(MouseEvent e)
-	{
-		popupClick(e);
-	}
-	
-	/**
-	 * Event for releasing the mouse button.  In addition to the pop-up
-	 * menu, clear the table if the mouse button is released off of it.
-	 * 
-	 * @param e MouseEvent corresponding to the click
-	 */
-	@Override
-	public void mouseReleased(MouseEvent e)
-	{
-		popupClick(e);
-		if (table.rowAtPoint(e.getPoint()) < 0)
-			table.clearSelection();
 	}
 }

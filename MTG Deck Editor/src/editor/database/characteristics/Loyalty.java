@@ -9,8 +9,7 @@ import java.util.StringJoiner;
 import editor.database.card.Card;
 
 /**
- * This class represents a loyalty value for a card.  If the card has no loyalty,
- * then the value will be 0.
+ * This class represents a loyalty value for a card.
  * 
  * @author Alec Roelke
  */
@@ -31,9 +30,17 @@ public class Loyalty implements Comparable<Loyalty>
 		private final List<Loyalty> values;
 		
 		/**
+		 * Create an empty Tuple of Loyalties.
+		 */
+		public Tuple()
+		{
+			this(Collections.emptyList());
+		}
+		
+		/**
 		 * Create a new Tuple out of the given collection of loyalties.
 		 * 
-		 * @param c Collection of loyalties to create the tuple out of
+		 * @param c collection of loyalties to create the tuple out of
 		 */
 		public Tuple(List<? extends Loyalty> c)
 		{
@@ -51,19 +58,8 @@ public class Loyalty implements Comparable<Loyalty>
 		}
 		
 		/**
-		 * Create an empty Tuple of Loyalties.
-		 */
-		public Tuple()
-		{
-			this(Collections.emptyList());
-		}
-		
-		/**
-		 * @param o Loyalty tuple to compare with (this only works with Loyalty tuples)
-		 * @return A negative number if this tuple has elements and the other is empty or
-		 * if the first element of this tuple is less than the first element of the other,
-		 * a positive number if the opposite is true, or 0 if both are empty or the first
-		 * element of both are the same.
+		 * {@inheritDoc}
+		 * Only the first Loyalty from each Tuple is compared.
 		 */
 		@Override
 		public int compareTo(Tuple o)
@@ -82,20 +78,6 @@ public class Loyalty implements Comparable<Loyalty>
 			}
 		}
 		
-		/**
-		 * @return A String representation of this tuple, which is its positive loyalty values separated by
-		 * the String that separates card faces.
-		 */
-		@Override
-		public String toString()
-		{
-			StringJoiner str = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
-			for (Loyalty l: this)
-				if (l.value > 0)
-					str.add(l.toString());
-			return str.toString();
-		}
-
 		@Override
 		public Loyalty get(int index)
 		{
@@ -107,6 +89,20 @@ public class Loyalty implements Comparable<Loyalty>
 		{
 			return values.size();
 		}
+
+		/**
+		 * {@inheritDoc}
+		 * The String representation of each Loyalty is separated by {@link Card#FACE_SEPARATOR}.
+		 */
+		@Override
+		public String toString()
+		{
+			StringJoiner str = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
+			for (Loyalty l: this)
+				if (l.value > 0)
+					str.add(l.toString());
+			return str.toString();
+		}
 	}
 	
 	/**
@@ -115,7 +111,8 @@ public class Loyalty implements Comparable<Loyalty>
 	public final int value;
 	
 	/**
-	 * Create a new Loyalty out of the given integer.
+	 * Create a new Loyalty out of the given integer.  A value of 0 indicates
+	 * that there is no loyalty on a card.
 	 * 
 	 * @param l Integer value of the new Loyalty
 	 */
@@ -143,21 +140,6 @@ public class Loyalty implements Comparable<Loyalty>
 		value = loyal;
 	}
 	
-	/**
-	 * @return <code>true</code> if this value exists (is on the card), and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean exists()
-	{
-		return value >= 1;
-	}
-	
-	/**
-	 * @param other Loyalty to compare with
-	 * @return A negative number if this loyalty is less than the other, a positive
-	 * number if it is greater, or 0 if both are the same.  Any value less than 1 is
-	 * treated the same.
-	 */
 	@Override
 	public int compareTo(Loyalty other)
 	{
@@ -170,10 +152,20 @@ public class Loyalty implements Comparable<Loyalty>
 		else
 			return value - other.value;
 	}
+
+	/**
+	 * Get if this Loyalty exists, which is if it is nonzero.
+	 * 
+	 * @return true if this Loyalty exists, and false otherwise.
+	 */
+	public boolean exists()
+	{
+		return value >= 1;
+	}
 	
 	/**
-	 * @return A String representation of this Loyalty, which is its value, unless its value
-	 * is less than 1, in which case it is the empty String.
+	 * {@inheritDoc}
+	 * If this Loyalty does not exist, this is the empty String rather than 0.
 	 */
 	@Override
 	public String toString()

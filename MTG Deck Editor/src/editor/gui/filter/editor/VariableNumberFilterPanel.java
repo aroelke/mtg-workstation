@@ -24,10 +24,6 @@ import editor.util.Comparison;
 public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberFilter>
 {
 	/**
-	 * Type of filter this VariableNumberFilterPanel edits.
-	 */
-	private String type;
-	/**
 	 * Combo box presenting comparison options.
 	 */
 	private ComboBoxPanel<Comparison> comparison;
@@ -35,6 +31,10 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 	 * Spinner allowing the user to choose a value to compare with.
 	 */
 	private JSpinner spinner;
+	/**
+	 * Type of filter this VariableNumberFilterPanel edits.
+	 */
+	private String type;
 	/**
 	 * Check box specifying whether the characteristic should be variable
 	 * or not.
@@ -65,7 +65,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 	 * Create a new VariableNumberFilterPanel, using the given 
 	 * VariableNumberFilter to initialize its fields.
 	 * 
-	 * @param f Filter to use for initialization
+	 * @param f filter to use for initialization
 	 */
 	public VariableNumberFilterPanel(VariableNumberFilter f)
 	{
@@ -73,10 +73,6 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		setContents(f);
 	}
 
-	/**
-	 * @return The VariableNumberFilter corresponding to the values of
-	 * this VariableNumberFilterPanel's fields.
-	 */
 	@Override
 	public Filter filter()
 	{
@@ -87,12 +83,15 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		return filter;
 	}
 
-	/**
-	 * Set the values of this VariableNumberFilter's fields according to the
-	 * conents of the given VariableNumberFilter.
-	 * 
-	 * @param filter Filter to use for filling in fields
-	 */
+	@Override
+	public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
+	{
+		if (filter instanceof VariableNumberFilter)
+			setContents((VariableNumberFilter)filter);
+		else
+			throw new IllegalArgumentException("Illegal variable number filter " + filter.type());
+	}
+
 	@Override
 	public void setContents(VariableNumberFilter filter)
 	{
@@ -102,22 +101,5 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		variable.setSelected(filter.varies);
 		spinner.setEnabled(!filter.varies);
 		comparison.setEnabled(!filter.varies);
-	}
-
-	/**
-	 * Set the values of this VariableNumberFilter's fields according to the
-	 * conents of the given FilterLeaf.
-	 * 
-	 * @param filter Filter to use for filling in fields
-	 * @throws IllegalArgumentException if the given filter isn't a
-	 * VariableNumberFilter.
-	 */
-	@Override
-	public void setContents(FilterLeaf<?> filter)
-	{
-		if (filter instanceof VariableNumberFilter)
-			setContents((VariableNumberFilter)filter);
-		else
-			throw new IllegalArgumentException("Illegal variable number filter " + filter.type());
 	}
 }
