@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -77,6 +78,25 @@ public class Inventory implements CardList
 		public Date dateAdded()
 		{
 			return card.expansion().releaseDate;
+		}
+		
+		@Override
+		public boolean equals(Object other)
+		{
+			if (other == null)
+				return false;
+			if (other == this)
+				return true;
+			if (!(other instanceof InventoryEntry))
+				return false;
+			InventoryEntry o = (InventoryEntry)other;
+			return card.equals(o.card);
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(card);
 		}
 	}
 	
