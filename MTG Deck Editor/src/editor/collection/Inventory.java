@@ -25,6 +25,8 @@ import editor.filter.leaf.BinaryFilter;
 /**
  * This class represents an inventory of cards that can be added to decks.
  * 
+ * TODO: Serializing this might make initial loading of inventory faster
+ * 
  * @author Alec Roelke
  */
 public class Inventory implements CardList
