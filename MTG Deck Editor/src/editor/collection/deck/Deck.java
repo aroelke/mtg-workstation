@@ -39,7 +39,6 @@ import editor.gui.MainFrame;
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and have several category
  * views (from which cards can also be added or removed).
- * TODO: Decide if the sideboard should be part of the Deck or a separate class
  * 
  * @author Alec Roelke
  */
