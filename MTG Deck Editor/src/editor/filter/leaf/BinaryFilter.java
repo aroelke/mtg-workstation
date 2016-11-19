@@ -1,5 +1,8 @@
 package editor.filter.leaf;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Objects;
 
 import editor.database.card.Card;
@@ -7,8 +10,7 @@ import editor.filter.Filter;
 import editor.filter.FilterFactory;
 
 /**
- * This class represents a filter with only two options: All
- * Cards or no Cards.
+ * This class represents a filter with only two options: All cards or no cards.
  * 
  * @author Alec Roelke
  */
@@ -20,9 +22,18 @@ public class BinaryFilter extends FilterLeaf<Void>
 	private boolean all;
 	
 	/**
+	 * Create a new BinaryFilter that lets all cards through.  Should only be used
+	 * for deserialization.
+	 */
+	public BinaryFilter()
+	{
+		this(true);
+	}
+	
+	/**
 	 * Create a new BinaryFilter.
 	 * 
-	 * @param a Whether or not to let all Cards through the filter.
+	 * @param a whether or not to let all Cards through the filter.
 	 */
 	public BinaryFilter(boolean a)
 	{
@@ -31,19 +42,8 @@ public class BinaryFilter extends FilterLeaf<Void>
 	}
 	
 	/**
-	 * @param c Card to test
-	 * @return <code>true</code> if this BinaryFilter lets Cards
-	 * through, and <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean test(Card c)
-	{
-		return all;
-	}
-
-	/**
-	 * @return The String representation of this Binary Filter's
-	 * content, which is an empty String.
+	 * {@inheritDoc}
+	 * There is no content to a BinaryFilter.
 	 */
 	@Override
 	public String content()
@@ -51,27 +51,12 @@ public class BinaryFilter extends FilterLeaf<Void>
 		return "";
 	}
 
-	/**
-	 * BinaryFilters have no content, so there's nothing to parse.
-	 */
-	@Override
-	public void parse(String s)
-	{}
-	
-	/**
-	 * @return A new Filter that is a copy of this BinaryFilter.
-	 */
 	@Override
 	public Filter copy()
 	{
-		return FilterFactory.createFilter(type);
+		return FilterFactory.createFilter(type());
 	}
-	
-	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if the other Object is a BinaryFilter and
-	 * it filters the same Cards as this one.
-	 */
+
 	@Override
 	public boolean equals(Object other)
 	{
@@ -84,13 +69,41 @@ public class BinaryFilter extends FilterLeaf<Void>
 		return ((BinaryFilter)other).all == all;
 	}
 	
-	/**
-	 * @return The hashCode of this BinaryFilter, which is composed from
-	 * its filter direction.
-	 */
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, function, all);
+		return Objects.hash(type(), function(), all);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * BinaryFilters have no content, so there's nothing to parse.
+	 */
+	@Override
+	public void parse(String s)
+	{}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in);
+		all = in.readBoolean();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Either let all cards through or none of them.
+	 */
+	@Override
+	public boolean test(Card c)
+	{
+		return all;
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		super.writeExternal(out);
+		out.writeBoolean(all);
 	}
 }

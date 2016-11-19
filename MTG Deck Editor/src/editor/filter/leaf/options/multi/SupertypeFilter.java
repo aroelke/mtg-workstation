@@ -28,13 +28,21 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
 		super(FilterFactory.SUPERTYPE, Card::supertypes);
 	}
 	
-	/**
-	 * Parse a String to determine this SupertypeFilter's containment
-	 * and selected supertypes.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
+	@Override
+	public String convertFromString(String str)
+	{
+		return str;
+	}
+
+	@Override
+	public Filter copy()
+	{
+		SupertypeFilter filter = (SupertypeFilter)FilterFactory.createFilter(FilterFactory.SUPERTYPE);
+		filter.contain = contain;
+		filter.selected = new HashSet<String>(selected);
+		return filter;
+	}
+
 	@Override
 	public void parse(String s)
 	{
@@ -43,17 +51,5 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
 		contain = Containment.fromString(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			selected.addAll(Arrays.asList(content.substring(delim + 1, content.length() - 1).split(",")));
-	}
-	
-	/**
-	 * @return A new SupertypeFilter that is a copy of this one.
-	 */
-	@Override
-	public Filter copy()
-	{
-		SupertypeFilter filter = (SupertypeFilter)FilterFactory.createFilter(FilterFactory.SUPERTYPE);
-		filter.contain = contain;
-		filter.selected = new HashSet<String>(selected);
-		return filter;
 	}
 }

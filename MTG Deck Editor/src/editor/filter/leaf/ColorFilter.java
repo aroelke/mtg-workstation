@@ -1,16 +1,19 @@
 package editor.filter.leaf;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.database.characteristics.ManaType;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
 import editor.util.Containment;
+import editor.util.SerializableFunction;
 
 /**
  * This class represents a filter to group cards by color characteristic.
@@ -20,25 +23,34 @@ import editor.util.Containment;
 public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 {
 	/**
-	 * Containment of this ColorFilter.
-	 */
-	public Containment contain;
-	/**
 	 * Set of colors that should match cards.
 	 */
 	public Set<ManaType> colors;
+	/**
+	 * Containment of this ColorFilter.
+	 */
+	public Containment contain;
 	/**
 	 * Whether or not cards should have multiple colors.
 	 */
 	public boolean multicolored;
 
 	/**
+	 * Create a ColorFilter without a type or function.  Should be used only for
+	 * deserialization.
+	 */
+	public ColorFilter()
+	{
+		this("", null);
+	}
+	
+	/**
 	 * Create a new ColorFilter.
 	 * 
-	 * @param t Type of the new ColorFilter
-	 * @param f Function for the new ColorFilter
+	 * @param t type of the new ColorFilter
+	 * @param f function for the new ColorFilter
 	 */
-	public ColorFilter(String t, Function<Card, ManaType.Tuple> f)
+	public ColorFilter(String t, SerializableFunction<Card, ManaType.Tuple> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
@@ -47,24 +59,9 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	}
 	
 	/**
-	 * @param c Card to test
-	 * @return <code>true</code> if the given Card's color characteristic
-	 * matches this ColorFilter's colors and containment, and <code>false</code>
-	 * otherwise.
-	 */
-	@Override
-	public boolean test(Card c)
-	{
-		return contain.test(function.apply(c), colors)
-				&& (!multicolored || function.apply(c).size() > 1);
-	}
-
-	/**
-	 * @return The String representation of this ColorFilter's content,
-	 * which is its containment's String representation followed by
-	 * a list of characters representing its colors and finally an
-	 * M if cards should be multicolored.
-	 * @see FilterLeaf#content()
+	 * {@inheritDoc}
+	 * This ColorFilter's content is each of its color's characters, followed
+	 * optionally by an 'M' to indicate multicolored, surrounded by quotes.
 	 */
 	@Override
 	public String content()
@@ -76,18 +73,40 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 			join.add("M");
 		return contain.toString() + join.toString();
 	}
+
+	@Override
+	public Filter copy()
+	{
+		ColorFilter filter = (ColorFilter)FilterFactory.createFilter(type());
+		filter.colors = new HashSet<ManaType>(colors);
+		filter.contain = contain;
+		filter.multicolored = multicolored;
+		return filter;
+	}
 	
-	/**
-	 * Parse a String to determine this ColorFilter's containment, 
-	 * colors, and multicolored status.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
+	@Override
+	public boolean equals(Object other)
+	{
+		if (other == null)
+			return false;
+		if (other == this)
+			return true;
+		if (other.getClass() != getClass())
+			return false;
+		ColorFilter o = (ColorFilter)other;
+		return o.type().equals(type()) && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(type(), function(), colors, contain, multicolored);
+	}
+	
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, type);
+		String content = checkContents(s, type());
 		int delim = content.indexOf('"');
 		contain = Containment.fromString(content.substring(0, delim));
 		for (char c: content.substring(delim + 1, content.lastIndexOf('"')).toCharArray())
@@ -99,46 +118,36 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 		}
 	}
 	
-	/**
-	 * @return A new ColorFilter that is a copy of this ColorFilter.
-	 */
 	@Override
-	public Filter copy()
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		ColorFilter filter = (ColorFilter)FilterFactory.createFilter(type);
-		filter.colors = new HashSet<ManaType>(colors);
-		filter.contain = contain;
-		filter.multicolored = multicolored;
-		return filter;
+		super.readExternal(in);
+		contain = (Containment)in.readObject();
+		int n = in.readInt();
+		for (int i = 0; i < n; i++)
+			colors.add((ManaType)in.readObject());
+		multicolored = in.readBoolean();
 	}
 	
 	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if the other Object is a ColorFilter, its
-	 * set of ManaTypes is the same as this one's, the characteristic it filters
-	 * is the same, its containment is the same, and whether or not Cards should
-	 * be multicolored is the same.
+	 * {@inheritDoc}
+	 * Filter cards according to the colors in a color characteristic.
 	 */
 	@Override
-	public boolean equals(Object other)
+	public boolean test(Card c)
 	{
-		if (other == null)
-			return false;
-		if (other == this)
-			return true;
-		if (other.getClass() != getClass())
-			return false;
-		ColorFilter o = (ColorFilter)other;
-		return o.type.equals(type) && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;
+		return contain.test(function().apply(c), colors)
+				&& (!multicolored || function().apply(c).size() > 1);
 	}
 	
-	/**
-	 * @return The hash code of this ColorFilter, which is composed of the hash
-	 * codes of its type, color set, containment, and multicolored flag.
-	 */
 	@Override
-	public int hashCode()
+	public void writeExternal(ObjectOutput out) throws IOException
 	{
-		return Objects.hash(type, function, colors, contain, multicolored);
+		super.writeExternal(out);
+		out.writeObject(contain);
+		out.writeInt(colors.size());
+		for (ManaType type: colors)
+			out.writeObject(type);
+		out.writeBoolean(multicolored);
 	}
 }

@@ -1,14 +1,18 @@
 package editor.filter.leaf.options;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.filter.leaf.FilterLeaf;
 import editor.util.Containment;
+import editor.util.SerializableFunction;
 
 /**
  * This class represents a filter that groups cards based on characteristics
@@ -32,10 +36,10 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	/**
 	 * Create a new OptionsFilter.
 	 * 
-	 * @param t Type of this OptionsFilter
-	 * @param f Function for this OptionsFilter
+	 * @param t type of this OptionsFilter
+	 * @param f function for this OptionsFilter
 	 */
-	public OptionsFilter(String t, Function<Card, T> f)
+	public OptionsFilter(String t, SerializableFunction<Card, T> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
@@ -43,11 +47,10 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	}
 
 	/**
-	 * @return The String representation of this OptionsFilter's content,
-	 * which is its containment's String representation followed by the
-	 * String representations of its selected options surrounded by
-	 * braces and separated by commas.
-	 * @see FilterLeaf#content()
+	 * {@inheritDoc}
+	 * The content String of this OptionsFilter is its containment followed
+	 * by the String representations of its selected options separated by
+	 * commas and surrounded by braces.
 	 */
 	@Override
 	public String content()
@@ -59,10 +62,13 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	}
 	
 	/**
-	 * @param other Object to compare with
-	 * @return <code>true</code> if the other Object is the same kind of OptionsFilter
-	 * as this one and its selection and containment are the same.
+	 * Convert a String to the type that this OptionsFilter's options have.
+	 * 
+	 * @param str String to convert
+	 * @return the option corresponding to the given String
 	 */
+	public abstract T convertFromString(String str);
+	
 	@Override
 	public boolean equals(Object other)
 	{
@@ -73,16 +79,44 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 		if (other.getClass() != getClass())
 			return false;
 		OptionsFilter<?> o = (OptionsFilter<?>)other;
-		return o.type.equals(type) && o.contain == contain && o.selected.equals(selected);
+		return o.type().equals(type()) && o.contain == contain && o.selected.equals(selected);
 	}
 	
-	/**
-	 * @return The hash code of this OptionsFilter, which is composed from the hash
-	 * codes of its containment type and selected items set.
-	 */
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, function, contain, selected);
+		return Objects.hash(type(), function(), contain, selected);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in);
+		contain = (Containment)in.readObject();
+		int n = in.readInt();
+		for (int i = 0; i < n; i++)
+		{
+			if (in.readBoolean())
+				selected.add((T)in.readObject());
+			else
+				selected.add(convertFromString(in.readUTF()));
+		}
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		super.writeExternal(out);
+		out.writeObject(contain);
+		out.writeInt(selected.size());
+		for (T item: selected)
+		{
+			out.writeBoolean(item instanceof Serializable);
+			if (item instanceof Serializable)
+				out.writeObject(item);
+			else
+				out.writeUTF(item.toString());
+		}
 	}
 }

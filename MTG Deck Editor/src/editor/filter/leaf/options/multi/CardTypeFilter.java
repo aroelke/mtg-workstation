@@ -15,7 +15,6 @@ import editor.util.Containment;
  */
 public class CardTypeFilter extends MultiOptionsFilter<String>
 {
-	
 	/**
 	 * List of all types that appear on cards (including ones that appear on Unglued and Unhinged cards, whose
 	 * type lines were not updated for the most modern templating).
@@ -29,14 +28,22 @@ public class CardTypeFilter extends MultiOptionsFilter<String>
 	{
 		super(FilterFactory.TYPE, Card::types);
 	}
-	
-	/**
-	 * Parse a String to determine this CardTypeFilter's containment
-	 * and selected card types.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
+
+	@Override
+	public String convertFromString(String str)
+	{
+		return str;
+	}
+
+	@Override
+	public Filter copy()
+	{
+		CardTypeFilter filter = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
+		filter.contain = contain;
+		filter.selected = new HashSet<String>(selected);
+		return filter;
+	}
+
 	@Override
 	public void parse(String s)
 	{
@@ -45,17 +52,5 @@ public class CardTypeFilter extends MultiOptionsFilter<String>
 		contain = Containment.fromString(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			selected.addAll(Arrays.asList(content.substring(delim + 1, content.length() - 1).split(",")));
-	}
-	
-	/**
-	 * @return A new CardTypeFilter that is a copy of this CardTypeFilter.
-	 */
-	@Override
-	public Filter copy()
-	{
-		CardTypeFilter filter = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
-		filter.contain = contain;
-		filter.selected = new HashSet<String>(selected);
-		return filter;
 	}
 }

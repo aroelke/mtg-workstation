@@ -36,7 +36,7 @@ public class BinaryFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	/**
 	 * Create a new BinaryFilterPanel.
 	 * 
-	 * @param let Whether or not cards should pass through the filter
+	 * @param let whether or not cards should pass through the filter
 	 */
 	public BinaryFilterPanel(boolean let)
 	{
@@ -47,10 +47,6 @@ public class BinaryFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 		add(label);
 	}
 	
-	/**
-	 * @return A Filter that either filters all cards, or no cards, depending
-	 * on how this BinaryFilterPanel was created.
-	 */
 	@Override
 	public Filter filter()
 	{
@@ -58,9 +54,8 @@ public class BinaryFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	}
 
 	/**
-	 * There are no contents to set, so do nothing.
-	 * 
-	 * @param filter Filter to use
+	 * {@inheritDoc}
+	 * There are no contents to set, so this doesn't do anything.
 	 */
 	@Override
 	public void setContents(FilterLeaf<?> filter)

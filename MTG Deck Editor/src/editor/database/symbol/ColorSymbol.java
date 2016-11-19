@@ -9,25 +9,23 @@ import java.util.stream.Collectors;
 import editor.database.characteristics.ManaType;
 
 /**
- * This class represents a symbol for a single colored mana.
+ * This class represents a symbol for a single type of mana.
  * 
  * @author Alec Roelke
  */
 public class ColorSymbol extends ManaSymbol
 {
 	/**
-	 * Map of ManaType onto its corresponding symbol.  To get a colored symbol, use this Map.
-	 * @see editor.database.symbol.Symbol
+	 * Map of mana type onto its corresponding ColorSymbol.
 	 */
 	private static final Map<ManaType, ColorSymbol> SYMBOLS = Collections.unmodifiableMap(
 			Arrays.stream(ManaType.values()).collect(Collectors.toMap(Function.identity(), ColorSymbol::new)));
 	
 	/**
-	 * Get the symbol corresponding to a color.
+	 * Get the symbol corresponding to a type of mana.
 	 * 
-	 * @param col ManaType to find the symbol for
-	 * @return The ColorSymbol corresponding to the given ManaType, or null
-	 * if none exists. 
+	 * @param col type of mana to find the symbol for
+	 * @return the ColorSymbol corresponding to the given mana type , or null if none exists. 
 	 */
 	public static ColorSymbol get(ManaType col)
 	{
@@ -38,8 +36,7 @@ public class ColorSymbol extends ManaSymbol
 	 * Get the symbol corresponding to a color string.
 	 * 
 	 * @param col String to find the symbol for
-	 * @return The ColorSymbol corresponding to the given String, or null
-	 * if none exists.
+	 * @return the ColorSymbol corresponding to the given String, or null if none exists.
 	 */
 	public static ColorSymbol get(String col)
 	{
@@ -61,7 +58,7 @@ public class ColorSymbol extends ManaSymbol
 	/**
 	 * Create a new ColorSymbol.
 	 * 
-	 * @param color Color of the new ColorSymbol.
+	 * @param color mana type of the new ColorSymbol.
 	 */
 	private ColorSymbol(ManaType color)
 	{
@@ -70,9 +67,8 @@ public class ColorSymbol extends ManaSymbol
 	}
 
 	/**
-	 * @return A Map containing this ColorSymbol's color weight.  All values will be 0 except for
-	 * this ColorSymbol's color, which will be 1.
-	 * @see editor.database.symbol.Symbol#colorWeights()
+	 * {@inheritDoc}
+	 * This ColorSymbol's weights are 1 for its mana type and 0 for all the others.
 	 */
 	@Override
 	public Map<ManaType, Double> colorWeights()
@@ -80,13 +76,6 @@ public class ColorSymbol extends ManaSymbol
 		return createWeights(new ColorWeight(color, 1.0));
 	}
 
-	/**
-	 * @param o Symbol to compare with
-	 * @return A positive number if the other symbol can appear in mana costs but is not
-	 * a ColorSymbol; the color-ordering of this symbol and the other symbol if they are
-	 * both ColorSymbols; or 0 otherwise.
-	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
-	 */
 	@Override
 	public int compareTo(ManaSymbol o)
 	{

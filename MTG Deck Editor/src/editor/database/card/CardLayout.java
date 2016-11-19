@@ -8,38 +8,68 @@ package editor.database.card;
  */
 public enum CardLayout
 {
+	/**
+	 * Normal, single-faced card.
+	 * @see SingleCard
+	 */
 	NORMAL("Normal"),
-	SPLIT("Split", true),
-	FLIP("Flip", true),
-	DOUBLE_FACED("Double-faced", true),
-	MELD("Meld", true),
-	TOKEN("Token"),
-	PLANE("Plane"),
-	SCHEME("Scheme"),
-	PHENOMENON("Phenomenon"),
+	/**
+	 * Single-faced card with a special frame that has three sets of abilities.
+	 * @see SingleCard
+	 */
 	LEVELER("Leveler"),
+	/**
+	 * Card with one face on the front and another on the back.
+	 * @see DoubleFacedCard
+	 */
+	DOUBLE_FACED("Double-faced", true),
+	/**
+	 * Card with one face on the top and another on the bottom that is
+	 * accessible by rotating it 180 degrees.
+	 * @see FlipCard
+	 */
+	FLIP("Flip", true),
+	/**
+	 * Card with multiple "mini-cards" present on the front face.  Usually
+	 * there's only two.
+	 * @see SplitCard
+	 */
+	SPLIT("Split", true),
+	/**
+	 * Card with one face on the front and half of another on the back.
+	 * Another meld card will have the other half of the back.
+	 * @see MeldCard
+	 */
+	MELD("Meld", true),
+	/**
+	 * An extra-large phenomenon card for use in the Planechase format.
+	 */
+	PHENOMENON("Phenomenon"),
+	/**
+	 * An extra-large card for use in the Planechase format.
+	 */
+	PLANE("Plane"),
+	/**
+	 * An extra-large scheme card for use in the Archenemy format.
+	 */
+	SCHEME("Scheme"),
+	/**
+	 * A token card.  Not supported by this program.
+	 */
+	TOKEN("Token"),
+	/**
+	 * An extra-large card for use in the Vanguard format.
+	 */
 	VANGUARD("Vanguard");
 	
-	/**
-	 * String representation of the card's layout.
-	 */
-	private final String layout;
 	/**
 	 * Whether or not the card is multi-faced.
 	 */
 	public final boolean isMultiFaced;
-	
 	/**
-	 * Create a new CardLayout.
-	 * 
-	 * @param l String representation of the layout.
-	 * @param m Whether or not the layout is multi-faced.
+	 * String representation of the card's layout.
 	 */
-	private CardLayout(String l, boolean m)
-	{
-		layout = l;
-		isMultiFaced = m;
-	}
+	private final String layout;
 	
 	/**
 	 * Create a new CardLayout that is not multi-faced.
@@ -52,8 +82,17 @@ public enum CardLayout
 	}
 	
 	/**
-	 * @return The String representation of this CardLayout.
+	 * Create a new CardLayout.
+	 * 
+	 * @param l String representation of the layout.
+	 * @param m whether or not the layout is multi-faced.
 	 */
+	private CardLayout(String l, boolean m)
+	{
+		layout = l;
+		isMultiFaced = m;
+	}
+
 	@Override
 	public String toString()
 	{

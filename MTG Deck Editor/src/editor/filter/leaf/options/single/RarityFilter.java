@@ -25,14 +25,6 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 		super(FilterFactory.RARITY, Card::rarity);
 	}
 	
-	
-	/**
-	 * Parse a String to determine the containment and rarities of this
-	 * RarityFilter.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
 	@Override
 	public void parse(String s)
 	{
@@ -42,10 +34,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 		if (content.charAt(delim + 1) != '}')
 			selected = Arrays.stream(content.substring(delim + 1, content.length() - 1).split(",")).map(Rarity::get).collect(Collectors.toSet());
 	}
-	
-	/**
-	 * @return A new RarityFilter that is a copy of this one.
-	 */
+
 	@Override
 	public Filter copy()
 	{
@@ -53,5 +42,11 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 		filter.contain = contain;
 		filter.selected = new HashSet<Rarity>(selected);
 		return filter;
+	}
+
+	@Override
+	public Rarity convertFromString(String str)
+	{
+		return Rarity.get(str);
 	}
 }

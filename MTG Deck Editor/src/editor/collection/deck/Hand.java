@@ -14,38 +14,37 @@ import editor.collection.CardList;
 import editor.database.card.Card;
 
 /**
- * This class represents a hand of Cards.  It is a subset of a Deck
- * that is randomized and with multiple copies represented by separate
- * entries. It also breaks the contract with CardList in that multiple
- * copies of a Card are treated as unique entries.
+ * This class represents a hand of Cards.  It is a subset of a Deck that is randomized
+ * and with multiple copies represented by separate entries. It also breaks the contract
+ * with CardList in that multiple copies of a Card are treated as unique entries.
  * 
  * @author Alec Roelke
  */
 public class Hand implements CardList
 {
 	/**
-	 * Cards in the Deck, in a random order and with multiple copies
-	 * represented by multiple entries.
+	 * Deck containing the cards in the hand.
 	 */
-	private List<Card> hand;
+	private Deck deck;
 	/**
-	 * Cards to not include in a drawn hand (for example, sideboards or
-	 * Commanders).
+	 * Cards to not include in a drawn hand (for example, sideboards or Commanders).
+	 * TODO: Remove this when sideboards are implemented
 	 */
 	private Set<Card> exclusion;
+	/**
+	 * Cards in the Deck, in a random order and with multiple copies represented by multiple
+	 * entries.
+	 */
+	private List<Card> hand;
 	/**
 	 * Number of cards in the drawn hand.
 	 */
 	private int inHand;
-	/**
-	 * Deck containing the cards in the hand.
-	 */
-	private Deck deck;
 	
 	/**
 	 * Create a new Hand from the specified Deck.
 	 * 
-	 * @param deck Deck to draw Cards from
+	 * @param deck deck to draw Cards from
 	 */
 	public Hand(Deck deck)
 	{
@@ -53,11 +52,10 @@ public class Hand implements CardList
 	}
 	
 	/**
-	 * Create a new Hand from the specified Deck, excluding the specified
-	 * Cards.
+	 * Create a new Hand from the specified Deck, excluding the specified Cards.
 	 * 
-	 * @param deck Deck to draw Cards from
-	 * @param cards Cards to never include in the sample hand
+	 * @param deck deck to draw Cards from
+	 * @param cards cards to never include in the sample hand
 	 */
 	public Hand(Deck deck, Set<Card> cards)
 	{
@@ -69,39 +67,58 @@ public class Hand implements CardList
 		refresh();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
 	@Override
-	public boolean add(Card card)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean add(Card card, int amount)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean addAll(CardList cards)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean addAll(Map<? extends Card, ? extends Integer> amounts)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean addAll(Set<? extends Card> cards)
+	public boolean add(Card card) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 	
 	/**
-	 * Remove all Cards from this hand.  New ones cannot be drawn
-	 * until a refresh is performed.
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public boolean add(Card card, int amount) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public boolean addAll(CardList cards) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public boolean addAll(Map<? extends Card, ? extends Integer> amounts) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public boolean addAll(Set<? extends Card> cards) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * Remove all Cards from this hand.  New ones cannot be drawn until a refresh is performed.
 	 * @see Hand#refresh()
 	 */
 	@Override
@@ -120,9 +137,10 @@ public class Hand implements CardList
 	}
 	
 	/**
-	 * @param card Card to look for
-	 * @return <code>true</code> if the given Card is in the drawn cards
-	 * of this Hand, and <code>false</code> otherwise.
+	 * Check if a card is in the drawn hand.
+	 * 
+	 * @param card card to look for
+	 * @return true if the given card is in the drawn cards of this Hand, and false otherwise.
 	 */
 	@Override
 	public boolean contains(Card card)
@@ -131,9 +149,11 @@ public class Hand implements CardList
 	}
 	
 	/**
-	 * @param cards Collection of Cards to look for
-	 * @return <code>true</code> if the given Objects are all in the drawn
-	 * cards of this Hand, and <code>false</code> otherwise.
+	 * Check if all of the given cards are in the drawn hand.
+	 * 
+	 * @param cards collection of Cards to look for
+	 * @return true if the given Objects are all in the drawn cards of this Hand, and false
+	 * otherwise.
 	 */
 	@Override
 	public boolean containsAll(Collection<? extends Card> cards)
@@ -152,10 +172,9 @@ public class Hand implements CardList
 	/**
 	 * Exclude a Card from being drawn in the sample hand.
 	 * 
-	 * @param card Card to exclude
-	 * @return <code>true</code> if the Card was added (which only happens
-	 * if it wasn't in the exclusion list already), and <code>false</code>
-	 * otherwise.
+	 * @param card card to exclude
+	 * @return true if the Card was added (which only happens if it wasn't in the exclusion list
+	 * already), and false otherwise.
 	 */
 	public boolean exclude(Card card)
 	{
@@ -163,17 +182,15 @@ public class Hand implements CardList
 	}
 	
 	/**
-	 * @return The list of Cards to never draw in a hand.
+	 * Get the cards that will not be drawn by this Hand.
+	 * 
+	 * @return The list of cards to never draw in a hand.
 	 */
 	public List<Card> excluded()
 	{
 		return new ArrayList<Card>(exclusion);
 	}
 	
-	/**
-	 * @param index Index of the Card to look for
-	 * @return The Card at the given index.
-	 */
 	@Override
 	public Card get(int index)
 	{
@@ -183,7 +200,8 @@ public class Hand implements CardList
 	}
 
 	/**
-	 * @return The Deck's metadata for the given Card, or null if it isn't in the Deck.
+	 * {@inheritDoc}
+	 * The deck's metadata is used.
 	 */
 	@Override
 	public Entry getData(Card card)
@@ -192,28 +210,25 @@ public class Hand implements CardList
 	}
 
 	/**
-	 * @return The Deck's metadata for the Card at the given index into this Hand.
-	 * @throws IndexOutOfBoundsException if the index is negative or is too big.
+	 * {@inheritDoc}
+	 * The Deck's metadata is used.
 	 */
 	@Override
-	public Entry getData(int index)
+	public Entry getData(int index) throws IndexOutOfBoundsException
 	{
 		return deck.getData(this[index]);
 	}
 
 	/**
-	 * @return A list of Cards representing those in the sample hand.
+	 * Get the currently-drawn cards.
+	 * 
+	 * @return a list of cards representing those in the sample hand.
 	 */
 	public List<Card> getHand()
 	{
 		return hand.subList(0, size());
 	}
 
-	/**
-	 * @param o Object to look for
-	 * @return The index of the first occurrence of the given Object in this
-	 * Hand, or -1 if it isn't there.
-	 */
 	@Override
 	public int indexOf(Card card)
 	{
@@ -221,8 +236,8 @@ public class Hand implements CardList
 	}
 
 	/**
-	 * @return <code>true</code> if there are no cards drawn in this Hand,
-	 * and <code>false</code> otherwise.
+	 * {@inheritDoc}
+	 * A Hand is also considered empty if no cards are drawn.
 	 */
 	@Override
 	public boolean isEmpty()
@@ -230,9 +245,6 @@ public class Hand implements CardList
 		return hand.isEmpty() || inHand == 0;
 	}
 
-	/**
-	 * @return An iterator over the drawn cards in this Hand.
-	 */
 	@Override
 	public Iterator<Card> iterator()
 	{
@@ -240,8 +252,8 @@ public class Hand implements CardList
 	}
 
 	/**
-	 * Take a mulligan, or shuffle the deck and draw a new hand, but
-	 * with one fewer card in it.
+	 * Take a mulligan, or shuffle the deck and draw a new hand, but with one fewer
+	 * card in it.
 	 */
 	public void mulligan()
 	{
@@ -255,7 +267,7 @@ public class Hand implements CardList
 	/**
 	 * Shuffle the deck and draw a new starting hand.
 	 * 
-	 * @param n Size of the new hand
+	 * @param n size of the new hand
 	 */
 	public void newHand(int n)
 	{
@@ -265,8 +277,7 @@ public class Hand implements CardList
 	}
 
 	/**
-	 * Update the state of this Hand to exclude Cards in the exclusion
-	 * list.
+	 * Update the state of this Hand to exclude cards in the exclusion list.
 	 */
 	public void refresh()
 	{
@@ -277,51 +288,79 @@ public class Hand implements CardList
 					hand.add(c);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
 	@Override
-	public boolean remove(Card card)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int remove(Card card, int amount)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	
-	@Override
-	public Map<Card, Integer> removeAll(CardList cards)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> amounts)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Set<Card> removeAll(Set<? extends Card> coll)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean set(Card card, int amount)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean set(int index, int amount)
+	public boolean remove(Card card) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	/**
-	 * @return The number of Cards in this Hand.
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public int remove(Card card, int amount) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public Map<Card, Integer> removeAll(CardList cards) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> amounts) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public Set<Card> removeAll(Set<? extends Card> coll) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public boolean set(Card card, int amount) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public boolean set(int index, int amount) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * Only drawn cards count toward size.
 	 */
 	@Override
 	public int size()
@@ -330,7 +369,8 @@ public class Hand implements CardList
 	}
 
 	/**
-	 * @return An Array containing the Cards drawn in this Hand.
+	 * {@inheritDoc}
+	 * Only drawn cards will be put into the array.
 	 */
 	@Override
 	public Card[] toArray()
@@ -339,8 +379,9 @@ public class Hand implements CardList
 	}
 
 	/**
-	 * @return The number of Cards in this Hand.
-	 * @see Hand#size()
+	 * {@inheritDoc}
+	 * Only drawn cards count toward size.  Since each card is represented as a unique
+	 * entry, this is the same as {@link #size()}.
 	 */
 	@Override
 	public int total()

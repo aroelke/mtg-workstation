@@ -114,18 +114,82 @@ import editor.util.UnicodeSymbols;
  * The frame is divided into three sections:  On the left side is a database of all cards that can be
  * added to decks with a window below it that displays the Oracle text of the currently-selected card.  On
  * the right side is a pane which contains internal frames that allow the user to open, close, and edit
- * multiple decks at once.  See @link{gui.editor.EditorFrame} for details on the editor frames.
+ * multiple decks at once.  See #EditorFrame for details on the editor frames.
  *
  * TODO: Create a diff frame that shows differences between two (or more, potentially) decks
  * TODO: Add a File->Print... dialog (for the editor frame)
  * TODO: Right-click column header = create filter for that column
  * TODO: Remove documentation from inherited methods and use inheritDoc for ones that need to be clarified.
+ * TODO: Optionally get card images from magiccards.info rather than locally
  *
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame
 {
+	/**
+	 * This class represents a renderer for rendering table cells that display text.  If
+	 * the cell contains text and the card at the row is in the currently-active deck,
+	 * the cell is rendered bold.
+	 *
+	 * @author Alec Roelke
+	 */
+	private class CardTableCellRenderer extends DefaultTableCellRenderer
+	{
+		/**
+		 * Create a new CardTableCellRenderer.
+		 */
+		public CardTableCellRenderer()
+		{
+			super();
+		}
+
+		/**
+		 * If the cell is rendered using a JLabel, make that JLabel bold.  Otherwise, just use
+		 * the default renderer.
+		 *
+		 * @param table #JTable to render for
+		 * @param value value being rendered
+		 * @param isSelected whether or not the cell is selected
+		 * @param hasFocus whether or not the table has focus
+		 * @param row row of the cell being rendered
+		 * @param column column of the cell being rendered
+		 * @return The #Component responsible for rendering the table cell.
+		 */
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		{
+			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			if (value instanceof List)
+			{
+				List<?> values = (List<?>)value;
+				if (!values.isEmpty() && values[0] instanceof Double)
+				{
+					List<Double> cmc = values.stream().map((o) -> (Double)o).collect(Collectors.toList());
+					StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
+					for (Double cost: cmc)
+						join.add(cost.toString());
+					JPanel cmcPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+					if (hasFocus)
+						cmcPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+					else
+						cmcPanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+					cmcPanel.setForeground(c.getForeground());
+					cmcPanel.setBackground(c.getBackground());
+					JLabel cmcLabel = new JLabel(join.toString());
+					if (selectedFrame != null && c instanceof JLabel && selectedFrame.containsCard(inventory[table.convertRowIndexToModel(row)]))
+						cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.BOLD, cmcLabel.getFont().getSize()));
+					cmcPanel.add(cmcLabel);
+					return cmcPanel;
+				}
+			}
+
+			if (selectedFrame != null && c instanceof JLabel && selectedFrame.containsCard(inventory[table.convertRowIndexToModel(row)]))
+				c.setFont(new Font(c.getFont().getFontName(), Font.BOLD, c.getFont().getSize()));
+			return c;
+		}
+	}
+	
 	/**
 	 * Size of the text in oracle text and rulings tabs.
 	 */
@@ -134,6 +198,10 @@ public class MainFrame extends JFrame
 	 * Default height for displaying card images.
 	 */
 	public static final double DEFAULT_CARD_HEIGHT = 1.0/3.0;
+	/**
+	 * Maximum height that the advanced filter editor panel can attain before scrolling.
+	 */
+	public static final int MAX_FILTER_HEIGHT = 300;
 	/**
 	 * Update status value: update needed.
 	 */
@@ -146,11 +214,19 @@ public class MainFrame extends JFrame
 	 * Update status value: update needed, but was not requested.
 	 */
 	public static final int UPDATE_CANCELLED = 2;
-	/**
-	 * Maximum height that the advanced filter editor panel can attain before scrolling.
-	 */
-	public static final int MAX_FILTER_HEIGHT = 300;
 
+	/**
+	 * Inventory of all cards.
+	 */
+	private static Inventory inventory;
+	/**
+	 * @return The inventory.
+	 */
+	public static Inventory inventory()
+	{
+		return inventory;
+	}
+	
 	/**
 	 * Entry point for the program. All it does is set the look and feel to the
 	 * system one and create the GUI.
@@ -158,7 +234,7 @@ public class MainFrame extends JFrame
 	 * TODO: Add copy/paste mechanics
 	 * TODO: Try to reduce memory footprint.
 	 *
-	 * @param args Arguments to the program
+	 * @param args arguments to the program
 	 */
 	public static void main(String[] args)
 	{
@@ -183,11 +259,7 @@ public class MainFrame extends JFrame
 
 		SwingUtilities.invokeLater(() -> new MainFrame(Arrays.stream(args).map(File::new).filter(File::exists).collect(Collectors.toList())).setVisible(true));
 	}
-
-	/**
-	 * Inventory of all cards.
-	 */
-	private Inventory inventory;
+	
 	/**
 	 * Table displaying the inventory of all cards.
 	 */
@@ -446,7 +518,7 @@ public class MainFrame extends JFrame
 		playsetItem.addActionListener((e) -> {
 			if (selectedFrame != null)
 				for (Card c: getSelectedCards())
-					selectedFrame.addCard(c, 4 - selectedFrame.count(c));
+					selectedFrame.addCard(c, 4 - selectedFrame.getData(c).count());
 		});
 		addMenu.add(playsetItem);
 
@@ -590,12 +662,6 @@ public class MainFrame extends JFrame
 			TableModel expansionTableModel = new AbstractTableModel()
 			{
 				@Override
-				public int getRowCount()
-				{
-					return Expansion.expansions.length;
-				}
-
-				@Override
 				public int getColumnCount()
 				{
 					return 5;
@@ -619,6 +685,12 @@ public class MainFrame extends JFrame
 					default:
 						return null;
 					}
+				}
+
+				@Override
+				public int getRowCount()
+				{
+					return Expansion.expansions.length;
 				}
 
 				@Override
@@ -713,7 +785,7 @@ public class MainFrame extends JFrame
 		JMenuItem oraclePlaysetItem = new JMenuItem("Fill Playset");
 		oraclePlaysetItem.addActionListener((e) -> {
 			if (selectedFrame != null && selectedCard != null)
-				selectedFrame.addCard(selectedCard, 4 - selectedFrame.count(selectedCard));
+				selectedFrame.addCard(selectedCard, 4 - selectedFrame.getData(selectedCard).count());
 		});
 		oraclePopupMenu.add(oraclePlaysetItem);
 		JMenuItem oracleAddNItem = new JMenuItem("Add Copies...");
@@ -809,15 +881,15 @@ public class MainFrame extends JFrame
 			}
 
 			@Override
-			public int getSourceActions(JComponent c)
-			{
-				return TransferHandler.COPY;
-			}
-
-			@Override
 			protected Transferable createTransferable(JComponent c)
 			{
 				return new Inventory.TransferData(getSelectedCards());
+			}
+
+			@Override
+			public int getSourceActions(JComponent c)
+			{
+				return TransferHandler.COPY;
 			}
 		});
 		inventoryTable.setDragEnabled(true);
@@ -840,7 +912,7 @@ public class MainFrame extends JFrame
 		playsetPopupItem.addActionListener((e) -> {
 			if (selectedFrame != null)
 				for (Card c: getSelectedCards())
-					selectedFrame.addCard(c, 4 - selectedFrame.count(c));
+					selectedFrame.addCard(c, 4 - selectedFrame.getData(c).count());
 		});
 		inventoryMenu.add(playsetPopupItem);
 
@@ -933,6 +1005,43 @@ public class MainFrame extends JFrame
 			panelPane.setBorder(BorderFactory.createEmptyBorder());
 			if (JOptionPane.showConfirmDialog(this, panelPane, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 			{
+/*
+				Filter f = null;
+				
+				try
+				{
+					FileOutputStream fos = new FileOutputStream("test.txt");
+					ObjectOutputStream oos = new ObjectOutputStream(fos);
+					oos.writeObject(panel.filter());
+					oos.close();
+					
+					ObjectInputStream ois = new ObjectInputStream(new FileInputStream("test.txt"));
+					f = (Filter)ois.readObject();
+					ois.close();
+
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					ObjectOutputStream oos = new ObjectOutputStream(baos);
+					oos.writeObject(panel.filter());
+					oos.close();
+					
+					String s = Base64.getEncoder().encodeToString(baos.toByteArray());
+					
+					ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(s)));
+					Filter f = (Filter)ois.readObject();
+			
+					System.out.println("Original: " + panel.filter().toString());
+					System.out.println("Reconstructed: " + f.toString());
+					System.out.println("Equal: " + panel.filter().equals(f));
+				}
+				catch (IOException x)
+				{
+					x.printStackTrace();
+				}
+				catch (ClassNotFoundException x)
+				{
+					x.printStackTrace();
+				}
+*/
 				nameFilterField.setText("");
 				inventory.updateFilter(panel.filter());
 				inventoryModel.fireTableDataChanged();
@@ -975,6 +1084,12 @@ public class MainFrame extends JFrame
 		addWindowListener(new WindowAdapter()
 		{
 			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				exit();
+			}
+
+			@Override
 			public void windowOpened(WindowEvent e)
 			{
 				if ((SettingsDialog.getAsBoolean(SettingsDialog.INITIAL_CHECK) || !inventoryFile.exists())
@@ -985,42 +1100,65 @@ public class MainFrame extends JFrame
 					for (File f: files)
 						open(f);
 			}
-
-			@Override
-			public void windowClosing(WindowEvent e)
-			{
-				exit();
-			}
 		});
 	}
 
 	/**
-	 * Exit the application if all open editors successfully close.
+	 * Add a new preset category to the preset categories list.
+	 *
+	 * @param category new preset category to add
 	 */
-	public void exit()
+	public void addPreset(String category)
 	{
-		if (closeAll())
-		{
-			saveSettings();
-			System.exit(0);
-		}
+		SettingsDialog.addPresetCategory(category);
+
+		CategorySpec spec = new CategorySpec(category);
+		JMenuItem categoryItem = new JMenuItem(spec.getName());
+		categoryItem.addActionListener((e) -> {
+			if (selectedFrame != null)
+				selectedFrame.addCategory(spec);
+		});
+		presetMenu.add(categoryItem);
 	}
 
 	/**
-	 * Load the inventory and initialize the inventory table.
-	 * @see InventoryLoadDialog
+	 * Apply the global settings.
 	 */
-	public void loadInventory()
+	public void applySettings()
 	{
-		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		try
+		{
+			inventorySite = new URL(SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
+		}
+		catch (MalformedURLException e)
+		{
+			JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
+		}
+		inventoryFile = new File(SettingsDialog.getAsString(SettingsDialog.INVENTORY_LOCATION) + '\\' + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
+		recentCount = SettingsDialog.getAsInt(SettingsDialog.RECENT_COUNT);
+		if (SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).isEmpty())
+			SettingsDialog.set(SettingsDialog.INVENTORY_COLUMNS, "Name,Expansion,Mana Cost,Type");
+		inventoryModel.setColumns(Arrays.stream(SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardData::get).collect(Collectors.toList()));
+		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
+		if (SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).isEmpty())
+			SettingsDialog.set(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity");
+		for (EditorFrame frame: editors)
+			frame.applySettings();
+		presetMenu.removeAll();
+		for (CategorySpec spec: SettingsDialog.getPresetCategories())
+		{
+			JMenuItem categoryItem = new JMenuItem(spec.getName());
+			categoryItem.addActionListener((e) -> {
+				if (selectedFrame != null)
+					selectedFrame.addCategory(spec);
+			});
+			presetMenu.add(categoryItem);
+		}
+		setImageBackground(SettingsDialog.getAsColor(SettingsDialog.IMAGE_BGCOLOR));
+		setHandBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
 
-		InventoryLoadDialog loadDialog = new InventoryLoadDialog(this);
-		loadDialog.setLocationRelativeTo(this);
-		inventory = loadDialog.createInventory(inventoryFile);
-		inventory.sort((a, b) -> a.compareName(b));
-		inventoryModel = new CardTableModel(inventory, SettingsDialog.getAsCharacteristics(SettingsDialog.INVENTORY_COLUMNS));
-		inventoryTable.setModel(inventoryModel);
-		setCursor(Cursor.getDefaultCursor());
+		revalidate();
+		repaint();
 	}
 
 	/**
@@ -1075,147 +1213,177 @@ public class MainFrame extends JFrame
 	}
 
 	/**
-	 * Download the latest list of cards from the inventory site (default mtgjson.com).  If the
-	 * download is taking a while, a progress bar will appear.
+	 * Clear the selection in the inventory table.
+	 */
+	public void clearSelectedCards()
+	{
+		inventoryTable.clearSelection();
+	}
+
+	/**
+	 * Attempt to close the specified frame.
 	 *
-	 * @return <code>true</code> if the download was successful, and <code>false</code>
-	 * otherwise.
+	 * @param frame frame to close
+	 * @return true if the frame was closed, and false otherwise.
 	 */
-	public boolean updateInventory()
+	public boolean close(EditorFrame frame)
 	{
-		InventoryDownloadDialog downloadDialog = new InventoryDownloadDialog(this);
-		downloadDialog.setLocationRelativeTo(this);
-		return downloadDialog.downloadInventory(inventorySite, inventoryFile);
-	}
-
-	/**
-	 * Apply the global settings.
-	 */
-	public void applySettings()
-	{
-		try
+		if (!editors.contains(frame) || !frame.close())
+			return false;
+		else
 		{
-			inventorySite = new URL(SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
-		}
-		catch (MalformedURLException e)
-		{
-			JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
-		}
-		inventoryFile = new File(SettingsDialog.getAsString(SettingsDialog.INVENTORY_LOCATION) + '\\' + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
-		recentCount = SettingsDialog.getAsInt(SettingsDialog.RECENT_COUNT);
-		if (SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).isEmpty())
-			SettingsDialog.set(SettingsDialog.INVENTORY_COLUMNS, "Name,Expansion,Mana Cost,Type");
-		inventoryModel.setColumns(Arrays.stream(SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardData::get).collect(Collectors.toList()));
-		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
-		if (SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).isEmpty())
-			SettingsDialog.set(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity");
-		for (EditorFrame frame: editors)
-			frame.applySettings();
-		presetMenu.removeAll();
-		for (CategorySpec spec: SettingsDialog.getPresetCategories())
-		{
-			JMenuItem categoryItem = new JMenuItem(spec.getName());
-			categoryItem.addActionListener((e) -> {
-				if (selectedFrame != null)
-					selectedFrame.addCategory(spec);
-			});
-			presetMenu.add(categoryItem);
-		}
-		setImageBackground(SettingsDialog.getAsColor(SettingsDialog.IMAGE_BGCOLOR));
-		setHandBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
-
-		revalidate();
-		repaint();
-	}
-
-	/**
-	 * Write the latest values of the settings to the settings file.
-	 */
-	public void saveSettings()
-	{
-		StringJoiner str = new StringJoiner("|");
-		for (JMenuItem recent: recentItems)
-			str.add(recents[recent].getPath());
-		SettingsDialog.set(SettingsDialog.RECENT_FILES, str.toString());
-		try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE))
-		{
-			SettingsDialog.save();
-		}
-		catch (IOException e)
-		{
-			JOptionPane.showMessageDialog(this, "Error writing " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	/**
-	 * Set the background color of the panel containing the card image.
-	 *
-	 * @param col New color for the card image panel
-	 */
-	public void setImageBackground(Color col)
-	{
-		imagePanel.setBackground(col);
-	}
-
-	/**
-	 * Set the background color of the editor panels containing sample hands.
-	 *
-	 * @param col New color for sample hand panels.
-	 */
-	public void setHandBackground(Color col)
-	{
-		for (EditorFrame frame: editors)
-			frame.setHandBackground(col);
-	}
-
-	/**
-	 * Update the recently-opened files to add the most recently-opened one, and delete
-	 * the oldest one if too many are there.
-	 *
-	 * @param f File to add to the list
-	 */
-	public void updateRecents(File f)
-	{
-		if (!recents.containsValue(f))
-		{
-			recentsMenu.setEnabled(true);
-			if (recentItems.size() >= recentCount)
+			editors.remove(frame);
+			if (editors.size() > 0)
+				selectFrame(editors[0]);
+			else
 			{
-				JMenuItem eldest = recentItems.poll();
-				recents.remove(eldest);
-				recentsMenu.remove(eldest);
+				selectedFrame = null;
+				deckMenu.setEnabled(false);
 			}
-			JMenuItem mostRecent = new JMenuItem(f.getPath());
-			recentItems.offer(mostRecent);
-			recents[mostRecent] = f;
-			mostRecent.addActionListener((e) -> open(f));
-			recentsMenu.add(mostRecent);
+			revalidate();
+			repaint();
+			return true;
 		}
 	}
 
 	/**
-	 * Add a new preset category to the preset categories list.
+	 * Attempts to close all of the open editors.  If any can't be closed for
+	 * whatever reason, they will remain open, but the rest will still be closed.
 	 *
-	 * @param category New preset category to add
+	 * @return true if all open editors were successfully closed, and false otherwise.
 	 */
-	public void addPreset(String category)
+	public boolean closeAll()
 	{
-		SettingsDialog.addPresetCategory(category);
+		List<EditorFrame> e = new ArrayList<EditorFrame>(editors);
+		boolean closedAll = true;
+		for (EditorFrame editor: e)
+			closedAll &= close(editor);
+		return closedAll;
+	}
 
-		CategorySpec spec = new CategorySpec(category, inventory);
-		JMenuItem categoryItem = new JMenuItem(spec.getName());
-		categoryItem.addActionListener((e) -> {
-			if (selectedFrame != null)
-				selectedFrame.addCategory(spec);
-		});
-		presetMenu.add(categoryItem);
+	/**
+	 * Show a dialog allowing editing of the tags of the given cards and adding
+	 * new tags.
+	 *
+	 * @param cards cards whose tags should be edited
+	 */
+	public void editTags(List<Card> cards)
+	{
+		JPanel contentPanel = new JPanel(new BorderLayout());
+		CardTagPanel cardTagPanel = new CardTagPanel(cards);
+		contentPanel.add(new JScrollPane(cardTagPanel), BorderLayout.CENTER);
+		JPanel lowerPanel = new JPanel();
+		lowerPanel.setLayout(new BoxLayout(lowerPanel, BoxLayout.X_AXIS));
+		JTextField newTagField = new JTextField();
+		lowerPanel.add(newTagField);
+		JButton newTagButton = new JButton("Add");
+
+		ActionListener addListener = (e) -> {
+			if (!newTagField.getText().isEmpty())
+			{
+				if (cardTagPanel.addTag(newTagField.getText()))
+				{
+					newTagField.setText("");
+					cardTagPanel.revalidate();
+					cardTagPanel.repaint();
+					SwingUtilities.getWindowAncestor(cardTagPanel).pack();
+				}
+			}
+		};
+		newTagButton.addActionListener(addListener);
+		newTagField.addActionListener(addListener);
+		lowerPanel.add(newTagButton);
+		contentPanel.add(lowerPanel, BorderLayout.SOUTH);
+		if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+		{
+			for (Map.Entry<Card, Set<String>> entry: cardTagPanel.getTagged().entrySet())
+				Card.tags.compute(entry.getKey(), (k, v) -> {
+					if (v == null)
+						v = new HashSet<String>();
+					v.addAll(entry.getValue());
+					return v;
+				});
+			for (Map.Entry<Card, Set<String>> entry: cardTagPanel.getUntagged().entrySet())
+				Card.tags.compute(entry.getKey(), (k, v) -> {
+					if (v != null)
+					{
+						v.removeAll(entry.getValue());
+						if (v.isEmpty())
+							v = null;
+					}
+					return v;
+				});
+		}
+	}
+
+	/**
+	 * Exit the application if all open editors successfully close.
+	 */
+	public void exit()
+	{
+		if (closeAll())
+		{
+			saveSettings();
+			System.exit(0);
+		}
+	}
+
+	/**
+	 * @param id UID of the #Card to look for
+	 * @return the #Card with the given UID.
+	 */
+	public Card getCard(String id)
+	{
+		return inventory[id];
+	}
+
+	/**
+	 * Get the #Card being shown in the image window.
+	 * 
+	 * @return the card currently being shown in the card image window.
+	 */
+	public Card getSelectedCard()
+	{
+		return selectedCard;
+	}
+
+	/**
+	 * Get the currently-selected card(s).
+	 * 
+	 * @return a List containing each currently-selected card in the inventory table.
+	 */
+	public List<Card> getSelectedCards()
+	{
+		if (inventoryTable.getSelectedRowCount() > 0)
+			return Arrays.stream(inventoryTable.getSelectedRows())
+								 .mapToObj((r) -> inventory[inventoryTable.convertRowIndexToModel(r)])
+								 .collect(Collectors.toList());
+		else if (selectedCard != null)
+			return Arrays.asList(selectedCard);
+		else
+			return new ArrayList<Card>();
+	}
+
+	/**
+	 * Load the inventory and initialize the inventory table.
+	 * @see InventoryLoadDialog
+	 */
+	public void loadInventory()
+	{
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+		InventoryLoadDialog loadDialog = new InventoryLoadDialog(this);
+		loadDialog.setLocationRelativeTo(this);
+		inventory = loadDialog.createInventory(inventoryFile);
+		inventory.sort((a, b) -> a.compareName(b));
+		inventoryModel = new CardTableModel(inventory, SettingsDialog.getAsCharacteristics(SettingsDialog.INVENTORY_COLUMNS));
+		inventoryTable.setModel(inventoryModel);
+		setCursor(Cursor.getDefaultCursor());
 	}
 
 	/**
 	 * Create a new editor frame.
-	 *
-	 * @param name Name of the new frame (also the name of the file)
-	 * @see editor.gui.editor.EditorFrame
+	 * @see EditorFrame
 	 */
 	public void newEditor()
 	{
@@ -1249,7 +1417,7 @@ public class MainFrame extends JFrame
 	/**
 	 * Open the specified file and create an editor for it.
 	 *
-	 * @param f File to open.
+	 * @param f #File to open.
 	 */
 	public void open(File f)
 	{
@@ -1279,54 +1447,11 @@ public class MainFrame extends JFrame
 	}
 
 	/**
-	 * Attempt to close the specified frame.
-	 *
-	 * @param frame Frame to close
-	 * @return <code>true</code> if the frame was closed, and <code>false</code>
-	 * otherwise.
-	 */
-	public boolean close(EditorFrame frame)
-	{
-		if (!editors.contains(frame) || !frame.close())
-			return false;
-		else
-		{
-			editors.remove(frame);
-			if (editors.size() > 0)
-				selectFrame(editors[0]);
-			else
-			{
-				selectedFrame = null;
-				deckMenu.setEnabled(false);
-			}
-			revalidate();
-			repaint();
-			return true;
-		}
-	}
-
-	/**
-	 * Attempts to close all of the open editors.  If any can't be closed for
-	 * whatever reason, they will remain open, but the rest will still be closed.
-	 *
-	 * @return <code>true</code> if all open editors were successfully closed, and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean closeAll()
-	{
-		List<EditorFrame> e = new ArrayList<EditorFrame>(editors);
-		boolean closedAll = true;
-		for (EditorFrame editor: e)
-			closedAll &= close(editor);
-		return closedAll;
-	}
-
-	/**
 	 * If specified editor frame has a file associated with it, save
 	 * it to that file.  Otherwise, open the file dialog and save it
 	 * to whatever is chosen (save as).
 	 *
-	 * @param frame EditorFrame to save
+	 * @param frame #EditorFrame to save
 	 */
 	public void save(EditorFrame frame)
 	{
@@ -1335,9 +1460,19 @@ public class MainFrame extends JFrame
 	}
 
 	/**
-	 * Save the specified editor frame to a file chosen from a JFileChooser.
+	 * Attempt to save all open editors.  For each that needs a file, ask for a file
+	 * to save to.
+	 */
+	public void saveAll()
+	{
+		for (EditorFrame editor: editors)
+			save(editor);
+	}
+
+	/**
+	 * Save the specified editor frame to a file chosen from a {@link JFileChooser}.
 	 *
-	 * @param frame Frame to save.
+	 * @param frame frame to save.
 	 */
 	public void saveAs(EditorFrame frame)
 	{
@@ -1380,28 +1515,28 @@ public class MainFrame extends JFrame
 	}
 
 	/**
-	 * Attempt to save all open editors.  For each that needs a file, ask for a file
-	 * to save to.
+	 * Write the latest values of the settings to the settings file.
 	 */
-	public void saveAll()
+	public void saveSettings()
 	{
-		for (EditorFrame editor: editors)
-			save(editor);
-	}
-
-	/**
-	 * @param id UID of the Card to look for
-	 * @return The Card with the given UID.
-	 */
-	public Card getCard(String id)
-	{
-		return inventory[id];
+		StringJoiner str = new StringJoiner("|");
+		for (JMenuItem recent: recentItems)
+			str.add(recents[recent].getPath());
+		SettingsDialog.set(SettingsDialog.RECENT_FILES, str.toString());
+		try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE))
+		{
+			SettingsDialog.save();
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(this, "Error writing " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	/**
 	 * Update the currently-selected card.
 	 *
-	 * @param card Card to select
+	 * @param card #Card to select
 	 */
 	public void selectCard(Card card)
 	{
@@ -1482,50 +1617,11 @@ public class MainFrame extends JFrame
 	}
 
 	/**
-	 * @return The Card currently being shown in the card image window.
-	 */
-	public Card getSelectedCard()
-	{
-		return selectedCard;
-	}
-
-	/**
-	 * @return A List containing each currently-selected card in the inventory table.
-	 */
-	public List<Card> getSelectedCards()
-	{
-		if (inventoryTable.getSelectedRowCount() > 0)
-			return Arrays.stream(inventoryTable.getSelectedRows())
-								 .mapToObj((r) -> inventory[inventoryTable.convertRowIndexToModel(r)])
-								 .collect(Collectors.toList());
-		else if (selectedCard != null)
-			return Arrays.asList(selectedCard);
-		else
-			return new ArrayList<Card>();
-	}
-
-	/**
-	 * Clear the selection in the inventory table.
-	 */
-	public void clearSelectedCards()
-	{
-		inventoryTable.clearSelection();
-	}
-
-	/**
-	 * @return The inventory.
-	 */
-	public Inventory inventory()
-	{
-		return inventory;
-	}
-
-	/**
 	 * Set the currently-active frame.  This is the one that will be operated on
 	 * when single-deck actions are taken from the main frame, such as saving
 	 * and closing.
 	 *
-	 * @param frame EditorFrame to operate on from now on
+	 * @param frame #EditorFrame to operate on from now on
 	 */
 	public void selectFrame(EditorFrame frame)
 	{
@@ -1544,6 +1640,27 @@ public class MainFrame extends JFrame
 	}
 
 	/**
+	 * Set the background color of the editor panels containing sample hands.
+	 *
+	 * @param col new color for sample hand panels.
+	 */
+	public void setHandBackground(Color col)
+	{
+		for (EditorFrame frame: editors)
+			frame.setHandBackground(col);
+	}
+
+	/**
+	 * Set the background color of the panel containing the card image.
+	 *
+	 * @param col new color for the card image panel
+	 */
+	public void setImageBackground(Color col)
+	{
+		imagePanel.setBackground(col);
+	}
+
+	/**
 	 * Update the inventory table to bold the cards that are in the currently-selected editor.
 	 */
 	public void updateCardsInDeck()
@@ -1552,120 +1669,40 @@ public class MainFrame extends JFrame
 	}
 
 	/**
-	 * Show a dialog allowing editing of the tags of the given cards and adding
-	 * new tags.
+	 * Download the latest list of cards from the inventory site (default mtgjson.com).  If the
+	 * download is taking a while, a progress bar will appear.
 	 *
-	 * @param cards Cards whose tags should be edited
+	 * @return true if the download was successful, and false otherwise.
 	 */
-	public void editTags(List<Card> cards)
+	public boolean updateInventory()
 	{
-		JPanel contentPanel = new JPanel(new BorderLayout());
-		CardTagPanel cardTagPanel = new CardTagPanel(cards);
-		contentPanel.add(new JScrollPane(cardTagPanel), BorderLayout.CENTER);
-		JPanel lowerPanel = new JPanel();
-		lowerPanel.setLayout(new BoxLayout(lowerPanel, BoxLayout.X_AXIS));
-		JTextField newTagField = new JTextField();
-		lowerPanel.add(newTagField);
-		JButton newTagButton = new JButton("Add");
-
-		ActionListener addListener = (e) -> {
-			if (!newTagField.getText().isEmpty())
-			{
-				if (cardTagPanel.addTag(newTagField.getText()))
-				{
-					newTagField.setText("");
-					cardTagPanel.revalidate();
-					cardTagPanel.repaint();
-					SwingUtilities.getWindowAncestor(cardTagPanel).pack();
-				}
-			}
-		};
-		newTagButton.addActionListener(addListener);
-		newTagField.addActionListener(addListener);
-		lowerPanel.add(newTagButton);
-		contentPanel.add(lowerPanel, BorderLayout.SOUTH);
-		if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-		{
-			for (Map.Entry<Card, Set<String>> entry: cardTagPanel.getTagged().entrySet())
-				Card.tags.compute(entry.getKey(), (k, v) -> {
-					if (v == null)
-						v = new HashSet<String>();
-					v.addAll(entry.getValue());
-					return v;
-				});
-			for (Map.Entry<Card, Set<String>> entry: cardTagPanel.getUntagged().entrySet())
-				Card.tags.compute(entry.getKey(), (k, v) -> {
-					if (v != null)
-					{
-						v.removeAll(entry.getValue());
-						if (v.isEmpty())
-							v = null;
-					}
-					return v;
-				});
-		}
+		InventoryDownloadDialog downloadDialog = new InventoryDownloadDialog(this);
+		downloadDialog.setLocationRelativeTo(this);
+		return downloadDialog.downloadInventory(inventorySite, inventoryFile);
 	}
 
 	/**
-	 * This class represents a renderer for rendering table cells that display text.  If
-	 * the cell contains text and the card at the row is in the currently-active deck,
-	 * the cell is rendered bold.
+	 * Update the recently-opened files to add the most recently-opened one, and delete
+	 * the oldest one if too many are there.
 	 *
-	 * @author Alec Roelke
+	 * @param f #File to add to the list
 	 */
-	private class CardTableCellRenderer extends DefaultTableCellRenderer
+	public void updateRecents(File f)
 	{
-		/**
-		 * Create a new CardTableCellRenderer.
-		 */
-		public CardTableCellRenderer()
+		if (!recents.containsValue(f))
 		{
-			super();
-		}
-
-		/**
-		 * If the cell is rendered using a JLabel, make that JLabel bold.  Otherwise, just use
-		 * the default renderer.
-		 *
-		 * @param table JTable to render for
-		 * @param value Value being rendered
-		 * @param isSelected whether or not the cell is selected
-		 * @param hasFocus Whether or not the table has focus
-		 * @param row Row of the cell being rendered
-		 * @param column Column of the cell being rendered
-		 * @return The Component responsible for rendering the table cell.
-		 */
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-		{
-			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			if (value instanceof List)
+			recentsMenu.setEnabled(true);
+			if (recentItems.size() >= recentCount)
 			{
-				List<?> values = (List<?>)value;
-				if (!values.isEmpty() && values[0] instanceof Double)
-				{
-					List<Double> cmc = values.stream().map((o) -> (Double)o).collect(Collectors.toList());
-					StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
-					for (Double cost: cmc)
-						join.add(cost.toString());
-					JPanel cmcPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-					if (hasFocus)
-						cmcPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
-					else
-						cmcPanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-					cmcPanel.setForeground(c.getForeground());
-					cmcPanel.setBackground(c.getBackground());
-					JLabel cmcLabel = new JLabel(join.toString());
-					if (selectedFrame != null && c instanceof JLabel && selectedFrame.containsCard(inventory[table.convertRowIndexToModel(row)]))
-						cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.BOLD, cmcLabel.getFont().getSize()));
-					cmcPanel.add(cmcLabel);
-					return cmcPanel;
-				}
+				JMenuItem eldest = recentItems.poll();
+				recents.remove(eldest);
+				recentsMenu.remove(eldest);
 			}
-
-			if (selectedFrame != null && c instanceof JLabel && selectedFrame.containsCard(inventory[table.convertRowIndexToModel(row)]))
-				c.setFont(new Font(c.getFont().getFontName(), Font.BOLD, c.getFont().getSize()));
-			return c;
+			JMenuItem mostRecent = new JMenuItem(f.getPath());
+			recentItems.offer(mostRecent);
+			recents[mostRecent] = f;
+			mostRecent.addActionListener((e) -> open(f));
+			recentsMenu.add(mostRecent);
 		}
 	}
 }

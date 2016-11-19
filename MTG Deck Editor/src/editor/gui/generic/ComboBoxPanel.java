@@ -8,7 +8,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 /**
- * This class represents a panel containing a JComboBox that is vertically centered
+ * This class represents a panel containing a #JComboBox that is vertically centered
  * and minimum height to fit the data contained within.  Horizontally, the panel shrinks
  * to fit the combo box.
  * 
@@ -23,6 +23,21 @@ public class ComboBoxPanel<E> extends JPanel
 	 * Combo box displayed by the panel.
 	 */
 	private JComboBox<E> options;
+	
+	/**
+	 * Create a new ComboBoxPanel containing an empty combo box.
+	 */
+	public ComboBoxPanel()
+	{
+		super();
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		add(Box.createVerticalGlue());
+		options = new JComboBox<E>();
+		options.setMaximumSize(options.getPreferredSize());
+		add(options);
+		add(Box.createVerticalGlue());
+	}
 	
 	/**
 	 * Create a new ComboBoxPanel containing a combo box with the given options.
@@ -42,21 +57,19 @@ public class ComboBoxPanel<E> extends JPanel
 	}
 	
 	/**
-	 * Create a new ComboBoxPanel containing an empty combo box.
+	 * Add an event that should occur when the combo box's item changes.
+	 * 
+	 * @param aListener listener that should listen for when the combo box's
+	 * item is changed.
 	 */
-	public ComboBoxPanel()
+	public void addItemListener(ItemListener aListener)
 	{
-		super();
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		
-		add(Box.createVerticalGlue());
-		options = new JComboBox<E>();
-		options.setMaximumSize(options.getPreferredSize());
-		add(options);
-		add(Box.createVerticalGlue());
+		options.addItemListener(aListener);
 	}
 	
 	/**
+	 * Get the currently-selected item from the combo box.
+	 * 
 	 * @return The item currently displayed by the combo box.
 	 */
 	public E getSelectedItem()
@@ -65,21 +78,12 @@ public class ComboBoxPanel<E> extends JPanel
 	}
 	
 	/**
-	 * @param item Item to set the combo box to.
+	 * Set the selected item of the combo box.
+	 * 
+	 * @param item item to set the combo box to.
 	 */
-	public void setSelectedItem(Object item)
+	public void setSelectedItem(E item)
 	{
 		options.setSelectedItem(item);
-	}
-	
-	/**
-	 * Add an event that should occur when the comob box's item changes.
-	 * 
-	 * @param aListener Listener that should listen for when the combo box's
-	 * item is changed.
-	 */
-	public void addItemListener(ItemListener aListener)
-	{
-		options.addItemListener(aListener);
 	}
 }

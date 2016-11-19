@@ -1,17 +1,19 @@
 package editor.filter.leaf;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
 import editor.util.Comparison;
+import editor.util.SerializableFunction;
 
 /**
- * This class represents a filter for a card characteristic that is a
- * number.
+ * This class represents a filter for a card characteristic that is a number.
  * 
  * TODO: Change this to ComparableFilter and make it generic.
  * 
@@ -32,25 +34,33 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	/**
 	 * Create a new NumberFilter.
 	 * 
-	 * @param t Type of the new NumberFilter
-	 * @param f Function for the new NumberFilter
+	 * @param t type of the new NumberFilter
+	 * @param f function for the new NumberFilter
 	 */
-	public NumberFilter(String t, Function<Card, Collection<Double>> f)
+	public NumberFilter(String t, SerializableFunction<Card, Collection<Double>> f)
 	{
 		super(t, f);
 		operation = '=';
 		operand = 0.0;
 	}
+	
+	/**
+	 * Create a new NumberFilter without a type or function.  Should only be used for
+	 * deserialization.
+	 */
+	public NumberFilter()
+	{
+		this("", null);
+	}
 
 	/**
-	 * @param c Card to test
-	 * @return <code>true</code> if the numeric characteristic of the given Card
-	 * compares correctly with this NumberFilter's operand.
+	 * {@inheritDoc}
+	 * Filter cards by a numerical value according to this NumberFilter's operation and operand.
 	 */
 	@Override
 	public boolean test(Card c)
 	{
-		return function.apply(c).stream().anyMatch((v) -> !v.isNaN() && operation.test(v, operand));
+		return function().apply(c).stream().anyMatch((v) -> !v.isNaN() && operation.test(v, operand));
 	}
 
 	/**
@@ -73,7 +83,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	@Override
 	public void parse(String s)
 	{
-		String content = checkContents(s, type);
+		String content = checkContents(s, type());
 		operation = content.charAt(0);
 		operand = Double.valueOf(content.substring(1));
 	}
@@ -84,7 +94,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	@Override
 	public Filter copy()
 	{
-		NumberFilter filter = (NumberFilter)FilterFactory.createFilter(type);
+		NumberFilter filter = (NumberFilter)FilterFactory.createFilter(type());
 		filter.operation = operation;
 		filter.operand = operand;
 		return filter;
@@ -105,7 +115,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 		if (other.getClass() != getClass())
 			return false;
 		NumberFilter o = (NumberFilter)other;
-		return o.type.equals(type) && o.operation.equals(operation) && o.operand == operand;
+		return o.type().equals(type()) && o.operation.equals(operation) && o.operand == operand;
 	}
 	
 	/**
@@ -115,6 +125,22 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(type, function, operation, operand);
+		return Objects.hash(type(), function(), operation, operand);
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in);
+		operand = in.readDouble();
+		operation = (Comparison)in.readObject();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		super.writeExternal(out);
+		out.writeDouble(operand);
+		out.writeObject(operation);
 	}
 }

@@ -27,21 +27,21 @@ import editor.util.Containment;
 public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 {
 	/**
-	 * Type of the filter being edited.
+	 * Map of colors onto their corresponding check boxes.
 	 */
-	private String type;
+	private Map<ManaType, JCheckBox> colors;
 	/**
 	 * Combo box showing the containment options.
 	 */
 	private ComboBoxPanel<Containment> contain;
 	/**
-	 * Map of colors onto their corresponding check boxes.
-	 */
-	private Map<ManaType, JCheckBox> colors;
-	/**
 	 * Check box indicating that only multicolored cards should be matched.
 	 */
 	private JCheckBox multiCheckBox;
+	/**
+	 * Type of the filter being edited.
+	 */
+	private String type;
 	
 	/**
 	 * Create a new ColorFilterPanel.
@@ -73,20 +73,16 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 	
 	/**
 	 * Create a new ColorFilterPanel with initial contents obtained
-	 * from the given ColorFilter.
+	 * from the given filter.
 	 * 
-	 * @param f ColorFilter to get the contents from
+	 * @param f filter to get the contents from
 	 */
 	public ColorFilterPanel(ColorFilter f)
 	{
 		this();
 		setContents(f);
 	}
-	
-	/**
-	 * @return A new ColorFilter whose contents reflect the selections
-	 * made.
-	 */
+
 	@Override
 	public Filter filter()
 	{
@@ -97,36 +93,22 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 		return filter;
 	}
 
-	/**
-	 * Set the contents of this ColorFilterPanel according to the contents
-	 * of the given ColorFilter.
-	 * 
-	 * @param filter Filter to use
-	 */
 	@Override
 	public void setContents(ColorFilter filter)
 	{
-		type = filter.type;
+		type = filter.type();
 		contain.setSelectedItem(filter.contain);
 		for (ManaType color: ManaType.colors())
 			colors[color].setSelected(filter.colors.contains(color));
 		multiCheckBox.setSelected(filter.multicolored);
 	}
 
-	/**
-	 * Set the contents of this ColorFilterPanel according to the contents
-	 * of the given FilterLeaf.
-	 * 
-	 * @param filter Filter to use
-	 * @throws IllegalArgumentException if the given filter is not an instance of
-	 * ColorFilter
-	 */
 	@Override
-	public void setContents(FilterLeaf<?> filter)
+	public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
 	{
 		if (filter instanceof ColorFilter)
 			setContents((ColorFilter)filter);
 		else
-			throw new IllegalArgumentException("Illegal color filter " + filter.type);
+			throw new IllegalArgumentException("Illegal color filter " + filter.type());
 	}
 }

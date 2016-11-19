@@ -14,10 +14,29 @@ import java.util.function.Consumer;
 public interface MouseListenerFactory
 {
 	/**
+	 * Create a MouseListener that only listens for mouse click events (press followed
+	 * by release).
+	 * 
+	 * @param mouseClicked action to perform when the mouse is clicked
+	 * @return a MouseListener that performs the given action when the mouse is clicked.
+	 */
+	public static MouseListener createClickListener(Consumer<MouseEvent> mouseClicked)
+	{
+		return new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				mouseClicked.accept(e);
+			}
+		};
+	}
+	
+	/**
 	 * Create a MouseListener that only listens for mouse press events.
 	 * 
-	 * @param mousePressed Action to perform when the mouse is pressed
-	 * @return A MouseListener that performs the given action when the mouse is pressed.
+	 * @param mousePressed action to perform when the mouse is pressed
+	 * @return a MouseListener that performs the given action when the mouse is pressed.
 	 */
 	public static MouseListener createPressListener(Consumer<MouseEvent> mousePressed)
 	{
@@ -34,8 +53,8 @@ public interface MouseListenerFactory
 	/**
 	 * Create a MouseListener that only listens for mouse release events.
 	 * 
-	 * @param mouseReleased Action to perform when the mouse is released
-	 * @return A MouseListener that performs the given action when the mouse is released.
+	 * @param mouseReleased action to perform when the mouse is released
+	 * @return a MouseListener that performs the given action when the mouse is released.
 	 */
 	public static MouseListener createReleaseListener(Consumer<MouseEvent> mouseReleased)
 	{
@@ -45,25 +64,6 @@ public interface MouseListenerFactory
 			public void mouseReleased(MouseEvent e)
 			{
 				mouseReleased.accept(e);
-			}
-		};
-	}
-	
-	/**
-	 * Create a MouseListener that only listens for mouse click events (press followed
-	 * by release).
-	 * 
-	 * @param mouseClicked Action to perform when the mouse is clicked
-	 * @return A MouseListener that performs the given action when the mouse is clicked.
-	 */
-	public static MouseListener createClickListener(Consumer<MouseEvent> mouseClicked)
-	{
-		return new MouseAdapter()
-		{
-			@Override
-			public void mouseClicked(MouseEvent e)
-			{
-				mouseClicked.accept(e);
 			}
 		};
 	}

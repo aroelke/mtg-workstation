@@ -25,14 +25,21 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 		super(FilterFactory.LAYOUT, Card::layout);
 	}
 	
-	
-	/**
-	 * Parse a String to determine the containment and layout of this
-	 * LayoutFilter.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
+	@Override
+	public CardLayout convertFromString(String str)
+	{
+		return CardLayout.valueOf(str.replace(' ', '_').toUpperCase());
+	}
+
+	@Override
+	public Filter copy()
+	{
+		LayoutFilter filter = (LayoutFilter)FilterFactory.createFilter(FilterFactory.LAYOUT);
+		filter.contain = contain;
+		filter.selected = new HashSet<CardLayout>(selected);
+		return filter;
+	}
+
 	@Override
 	public void parse(String s)
 	{
@@ -41,17 +48,5 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 		contain = Containment.fromString(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			selected = Arrays.stream(content.substring(delim + 1, content.length() - 1).split(",")).map((str) -> CardLayout.valueOf(str.toUpperCase().replaceAll("[^A-Z]", "_"))).collect(Collectors.toSet());
-	}
-	
-	/**
-	 * @return A new LayoutFilter that is a copy of this one.
-	 */
-	@Override
-	public Filter copy()
-	{
-		LayoutFilter filter = (LayoutFilter)FilterFactory.createFilter(FilterFactory.LAYOUT);
-		filter.contain = contain;
-		filter.selected = new HashSet<CardLayout>(selected);
-		return filter;
 	}
 }

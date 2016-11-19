@@ -52,32 +52,45 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	private static final int MAX_COMBO_WIDTH = 100;
 
 	/**
-	 * Type of filter this OptionsFilterPanel edits.
+	 * Set containment combo box.
 	 */
-	private String type;
+	private ComboBoxPanel<Containment> contain;
 	/**
 	 * List of options that are available to choose from.
 	 */
 	private T[] options;
+	/**
+	 * List of boxes displaying the currently-selected options.
+	 */
+	private List<JComboBox<T>> optionsBoxes;
 	/**
 	 * Panel displaying the combo boxes to be used to choose
 	 * options.
 	 */
 	private ScrollablePanel optionsPanel;
 	/**
-	 * List of boxes displaying the currently-selected options.
+	 * Type of filter this OptionsFilterPanel edits.
 	 */
-	private List<JComboBox<T>> optionsBoxes;
+	private String type;
+
 	/**
-	 * Set containment combo box.
+	 * Create a new OptionsFilterPanel using the given filter to initialize its
+	 * fields and the given array to specify the set of options to choose from.
+	 *
+	 * @param f filter to use for initialization
+	 * @param t list of options to choose from
 	 */
-	private ComboBoxPanel<Containment> contain;
+	public OptionsFilterPanel(OptionsFilter<T> f, T[] t)
+	{
+		this(f.type(), t);
+		setContents(f);
+	}
 
 	/**
 	 * Create a new OptionsFilterPanel.
 	 *
-	 * @param t Type of the new OptionsFilterPanel
-	 * @param o List of options to choose from
+	 * @param t type of the new OptionsFilterPanel
+	 * @param o list of options to choose from
 	 */
 	public OptionsFilterPanel(String t, T[] o)
 	{
@@ -100,22 +113,9 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	}
 
 	/**
-	 * Create a new OptionsFilterPanel using the given filter to initialize its
-	 * fields and the given array to specify the set of options to choose from.
-	 *
-	 * @param f Filter to use for initialization
-	 * @param o List of options to choose from
-	 */
-	public OptionsFilterPanel(OptionsFilter<T> f, T[] t)
-	{
-		this(f.type, t);
-		setContents(f);
-	}
-
-	/**
 	 * Add a new combo box for an additional option.
 	 *
-	 * @param value Initial value of the new combo box.
+	 * @param value initial value of the new combo box.
 	 */
 	private void addItem(T value)
 	{
@@ -174,10 +174,6 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 		optionsPanel.add(boxPanel);
 	}
 
-	/**
-	 * @return The OptionsFilter corresponding to the fields of this
-	 * OptionsFilterPanel.
-	 */
 	@Override
 	public Filter filter()
 	{
@@ -189,17 +185,30 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	}
 
 	/**
-	 * If the given filter's type is the same as this OptionsFilterPanel's type,
-	 * add combo boxes and set their values to reflect its settings.
-	 *
-	 * @param filter Filter to set fields from
+	 * {@inheritDoc}
 	 * @throws IllegalArgumentException if the given filter is not the same
-	 * type as this OptionsFilterPanel
+	 * type as this OptionsFilterPanel or isn't even an {@link OptionsFilter}
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
+	{
+		if (filter instanceof OptionsFilter && filter.type().equals(type))
+			setContents((OptionsFilter<T>)filter);
+		else if (filter instanceof OptionsFilter)
+			throw new IllegalArgumentException("Options filter type " + filter.type() + " does not match type " + type);
+		else
+			throw new IllegalArgumentException("Illegal options filter " + filter.type());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @throws IllegalArgumentException if the given filter is of the wrong type
 	 */
 	@Override
-	public void setContents(OptionsFilter<T> filter)
+	public void setContents(OptionsFilter<T> filter) throws IllegalArgumentException
 	{
-		if (filter.type.equals(type))
+		if (filter.type().equals(type))
 		{
 			contain.setSelectedItem(filter.contain);
 			if (options.length == 0)
@@ -213,26 +222,6 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 					addItem(selected);
 		}
 		else
-			throw new IllegalArgumentException("Options filter type " + filter.type + " does not match type " + type);
-	}
-
-	/**
-	 * If the given filter's type is the same as this OptionsFilterPanel's type,
-	 * add combo boxes and set their values to reflect its settings.
-	 *
-	 * @param filter Filter to set fields from
-	 * @throws IllegalArgumentException if the given filter is not the same
-	 * type as this OptionsFilterPanel or isn't even an OptionsFilter
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public void setContents(FilterLeaf<?> filter)
-	{
-		if (filter instanceof OptionsFilter && filter.type.equals(type))
-			setContents((OptionsFilter<T>)filter);
-		else if (filter instanceof OptionsFilter)
-			throw new IllegalArgumentException("Options filter type " + filter.type + " does not match type " + type);
-		else
-			throw new IllegalArgumentException("Illegal options filter " + filter.type);
+			throw new IllegalArgumentException("Options filter type " + filter.type() + " does not match type " + type);
 	}
 }

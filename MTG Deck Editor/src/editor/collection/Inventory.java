@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -24,12 +25,14 @@ import editor.filter.leaf.BinaryFilter;
 /**
  * This class represents an inventory of cards that can be added to decks.
  * 
+ * TODO: Serializing this might make initial loading of inventory faster
+ * 
  * @author Alec Roelke
  */
 public class Inventory implements CardList
 {
 	/**
-	 * This class represents a Card's entry in the Inventory.  It can only tell a Card's
+	 * This class represents a card's entry in the Inventory.  It can only tell a Card's
 	 * date "added," which is the date its expansion was released.
 	 * 
 	 * @author Alec Roelke
@@ -44,16 +47,13 @@ public class Inventory implements CardList
 		/**
 		 * Create a new InventoryEntry.
 		 * 
-		 * @param card Card corresponding to the new entry
+		 * @param card card corresponding to the new entry
 		 */
 		private InventoryEntry(Card card)
 		{
 			this.card = card;
 		}
 		
-		/**
-		 * @return This InventoryEntry's Card.
-		 */
 		@Override
 		public Card card()
 		{
@@ -73,12 +73,32 @@ public class Inventory implements CardList
 		}
 
 		/**
-		 * @return The date this InventoryEntry's Card's expansion was released.
+		 * {@inheritDoc}
+		 * The date will be the date the card's expansion was added.
 		 */
 		@Override
 		public Date dateAdded()
 		{
 			return card.expansion().releaseDate;
+		}
+		
+		@Override
+		public boolean equals(Object other)
+		{
+			if (other == null)
+				return false;
+			if (other == this)
+				return true;
+			if (!(other instanceof InventoryEntry))
+				return false;
+			InventoryEntry o = (InventoryEntry)other;
+			return card.equals(o.card);
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(card);
 		}
 	}
 	
@@ -98,7 +118,7 @@ public class Inventory implements CardList
 		/**
 		 * Create a new TransferData from the given cards.
 		 * 
-		 * @param cards Cards to transfer
+		 * @param cards cards to transfer
 		 */
 		public TransferData(Card... cards)
 		{
@@ -108,18 +128,13 @@ public class Inventory implements CardList
 		/**
 		 * Create a new TransferData from the given cards.
 		 * 
-		 * @param cards Cards to transfer
+		 * @param cards cards to transfer
 		 */
 		public TransferData(Collection<Card> cards)
 		{
 			this(cards.stream().toArray(Card[]::new));
 		}
 		
-		/**
-		 * @param flavor Flavor of data to retrieve
-		 * @return The list of cards in the given flavor
-		 * @throws UnsupportedFlavorException If the given flavor is not supported
-		 */
 		@Override
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 		{
@@ -131,21 +146,12 @@ public class Inventory implements CardList
 				throw new UnsupportedFlavorException(flavor);
 		}
 
-		/**
-		 * @return An Array containing the data flavors supported by the inventory, which
-		 * is only card and String flavors.
-		 */
 		@Override
 		public DataFlavor[] getTransferDataFlavors()
 		{
 			return new DataFlavor[] {Card.cardFlavor, DataFlavor.stringFlavor};
 		}
 
-		/**
-		 * @param flavor DataFlavor to check
-		 * @return <code>true</code> if the given DataFlavor is supported, and
-		 * <code>false</code> otherwise.
-		 */
 		@Override
 		public boolean isDataFlavorSupported(DataFlavor flavor)
 		{
@@ -158,10 +164,6 @@ public class Inventory implements CardList
 	 */
 	private final List<Card> cards;
 	/**
-	 * Map of Card UIDs onto their Cards.
-	 */
-	private final Map<String, Card> IDs;
-	/**
 	 * Filter for Cards in the Inventory pane.
 	 */
 	private CategorySpec filter;
@@ -169,6 +171,10 @@ public class Inventory implements CardList
 	 * Filtered view of the master list.
 	 */
 	private List<Card> filtrate;
+	/**
+	 * Map of Card UIDs onto their cards.
+	 */
+	private final Map<String, Card> IDs;
 	
 	/**
 	 * Create an empty Inventory.  Be careful, because Inventories are immutable.
@@ -179,7 +185,7 @@ public class Inventory implements CardList
 	}
 	
 	/**
-	 * Create a new Inventory with the given list of Cards.
+	 * Create a new Inventory with the given list of cards.
 	 * 
 	 * @param list List of Cards
 	 */
@@ -196,47 +202,66 @@ public class Inventory implements CardList
 		});
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
 	@Override
-	public boolean add(Card card)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean add(Card card, int amount)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean addAll(CardList cards)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean addAll(Map<? extends Card, ? extends Integer> amounts)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean addAll(Set<? extends Card> cards)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void clear()
+	public boolean add(Card card) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 	
 	/**
-	 * @param Card card to look for
-	 * @return <code>true</code> if the inventory contains the given item, and
-	 * <code>false</code> otherwise.
+	 * {@inheritDoc}
+	 * Not supported.
 	 */
+	@Override
+	public boolean add(Card card, int amount) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public boolean addAll(CardList cards) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public boolean addAll(Map<? extends Card, ? extends Integer> amounts) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public boolean addAll(Set<? extends Card> cards) throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
+	@Override
+	public void clear() throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException();
+	}
+	
 	@Override
 	public boolean contains(Card card)
 	{
@@ -244,30 +269,27 @@ public class Inventory implements CardList
 	}
 	
 	/**
-	 * @param cards Collection of Cards to look for
-	 * @return <code>true</code> if the inventory contains all of the given items,
-	 * and <code>false</code> otherwise.
+	 * {@inheritDoc}
+	 * Not supported.
 	 */
 	@Override
-	public boolean containsAll(Collection<? extends Card> cards)
+	public boolean containsAll(Collection<? extends Card> cards) throws UnsupportedOperationException
 	{
 		return this.cards.containsAll(cards);
 	}
 
-	/**
-	 * @param index Index of the Card to get
-	 * @return The Card at the given index.
-	 */
 	@Override
-	public Card get(int index)
+	public Card get(int index) throws IndexOutOfBoundsException
 	{
 		return filtrate[index];
 	}
 	
 	/**
-	 * @param UID Unique identifier of the Card to look for.
-	 * @return The Card with the given UID.
-	 * @see editor.database.card.Card#id
+	 * Get the card in this Inventory with the given UID.
+	 * 
+	 * @param UID unique identifier of the Card to look for
+	 * @return the Card with the given UID, or null if no such card exists.
+	 * @see Card#id
 	 */
 	public Card get(String UID)
 	{
@@ -275,8 +297,8 @@ public class Inventory implements CardList
 	}
 	
 	/**
-	 * @return The metadata for the given Card, which only has its expansion's
-	 * release date.
+	 * {@inheritDoc}
+	 * The metadata will only have the card's release date.
 	 */
 	@Override
 	public Entry getData(Card card)
@@ -285,29 +307,25 @@ public class Inventory implements CardList
 	}
 	
 	/**
-	 * @return The metadata for the Card at the given Index, which only has its
-	 * expansion's release date.
-	 * @throws IndexOutOfBoundsException if the given index is 0 or too big
+	 * {@inheritDoc}
+	 * The metadata will only have the card's release date.
 	 */
 	@Override
-	public Entry getData(int index)
+	public Entry getData(int index) throws IndexOutOfBoundsException
 	{
 		return new InventoryEntry(this[index]);
 	}
 
 	/**
-	 * @return The current Filter for Cards in the inventory pane.
+	 * Get the filter for the cards in the inventory.
+	 * 
+	 * @return the current filter for cards in the inventory.
 	 */
 	public Filter getFilter()
 	{
 		return filter.getFilter();
 	}
 	
-	/**
-	 * @param card Card to look for
-	 * @return The index of the card into the inventory, or -1 if it isn't
-	 * in the inventory.
-	 */
 	@Override
 	public int indexOf(Card card)
 	{
@@ -315,8 +333,8 @@ public class Inventory implements CardList
 	}
 	
 	/**
-	 * @return <code>true</code> if there are no cards in the inventory, or if they're
-	 * all filtered out, and <code>false</code> otherwise.
+	 * {@inheritDoc}
+	 * An Inventory is considered empty if its filter filters out all cards.
 	 */
 	@Override
 	public boolean isEmpty()
@@ -324,9 +342,6 @@ public class Inventory implements CardList
 		return filtrate.isEmpty();
 	}
 	
-	/**
-	 * @return An iterator over all the cards in the inventory.
-	 */
 	@Override
 	public Iterator<Card> iterator()
 	{
@@ -342,44 +357,72 @@ public class Inventory implements CardList
 		return cards.isEmpty();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
 	@Override
-	public boolean remove(Card card)
+	public boolean remove(Card card) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
 	@Override
-	public int remove(Card card, int amount)
+	public int remove(Card card, int amount) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
 	@Override
-	public Map<Card, Integer> removeAll(CardList cards)
+	public Map<Card, Integer> removeAll(CardList cards) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
 	@Override
-	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> amounts)
+	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> amounts) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
 	@Override
-	public Set<Card> removeAll(Set<? extends Card> cards)
+	public Set<Card> removeAll(Set<? extends Card> cards) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
 	@Override
-	public boolean set(Card card, int amount)
+	public boolean set(Card card, int amount) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * Not supported.
+	 */
 	@Override
-	public boolean set(int index, int amount)
+	public boolean set(int index, int amount) throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -25,10 +25,6 @@ import editor.util.UnicodeSymbols;
 public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 {
 	/**
-	 * Combo box displaying the types of filters available.
-	 */
-	private ComboBoxPanel<String> filterTypes;
-	/**
 	 * Map of filter type onto filter editor panel.  This will contain
 	 * one copy of each filter editor and its respective type.
 	 */
@@ -37,10 +33,13 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	 * Panel containing the filters to flip through.
 	 */
 	private JPanel filtersPanel;
+	/**
+	 * Combo box displaying the types of filters available.
+	 */
+	private ComboBoxPanel<String> filterTypes;
 
 	/**
-	 * Create a new FilterSelectorPanel which will display the first
-	 * filter panel.
+	 * Create a new FilterSelectorPanel which will display the first filter panel.
 	 */
 	public FilterSelectorPanel()
 	{
@@ -86,6 +85,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	}
 
 	/**
+	 * {@inheritDoc}
 	 * @return The filter of the currently-active filter editor.
 	 */
 	@Override
@@ -95,14 +95,15 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	}
 
 	/**
-	 * Set the contents of this FilterSelectorPanel to flip to the panel corresponding
-	 * to the given filter and then filling out its contents.
+	 * {@inheritDoc}
+	 * Switch to the panel corresponding to the given filter and then set that panel's
+	 * contents accordingly.
 	 */
 	@Override
 	public void setContents(FilterLeaf<?> filter)
 	{
-		filterTypes.setSelectedItem(FilterFactory.FILTER_TYPES[filter.type]);
-		filterPanels[FilterFactory.FILTER_TYPES[filter.type]].setContents(filter);
-		((CardLayout)filtersPanel.getLayout()).show(filtersPanel, filter.type.toString());
+		filterTypes.setSelectedItem(FilterFactory.FILTER_TYPES[filter.type()]);
+		filterPanels[FilterFactory.FILTER_TYPES[filter.type()]].setContents(filter);
+		((CardLayout)filtersPanel.getLayout()).show(filtersPanel, filter.type());
 	}
 }

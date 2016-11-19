@@ -11,13 +11,13 @@ import editor.database.card.Card;
 import editor.gui.SettingsDialog;
 
 /**
- * This class represents an element that can display a list of Cards by name.
+ * This class represents an element that can display a list of cards by name.
  * It cannot be edited and does not support selection.
  * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class CardList extends JList<String>
+public class CardJList extends JList<String>
 {
 	/**
 	 * List of cards to display.
@@ -25,11 +25,19 @@ public class CardList extends JList<String>
 	private List<Card> cards;
 	
 	/**
-	 * Create a new CardList displaying the given list of Cards.
-	 * 
-	 * @param c Card list to display
+	 * Create an empty CardJList.
 	 */
-	public CardList(List<Card> c)
+	public CardJList()
+	{
+		this(new ArrayList<Card>());
+	}
+	
+	/**
+	 * Create a new CardJList displaying the given list of cards.
+	 * 
+	 * @param c card list to display
+	 */
+	public CardJList(List<Card> c)
 	{
 		super();
 		cards = c;
@@ -63,15 +71,7 @@ public class CardList extends JList<String>
 	}
 	
 	/**
-	 * Create an empty CardList.
-	 */
-	public CardList()
-	{
-		this(new ArrayList<Card>());
-	}
-	
-	/**
-	 * Set the list of Cards to display.
+	 * Set the list of cards to display.
 	 * 
 	 * @param c New list to display
 	 */

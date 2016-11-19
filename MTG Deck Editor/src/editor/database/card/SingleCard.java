@@ -20,124 +20,121 @@ import editor.database.characteristics.Rarity;
 import editor.util.UnicodeSymbols;
 
 /**
- * This class represents a Magic: the Gathering card.  It has all of the card's characteristics and can
- * compare them with other cards.  Each card can be uniquely identified by the set it is in, its name,
- * and its image name (which is its name followed by a number if there is more than one version of the same
- * card in the same set).  All of its values are constant.
+ * This class represents a single-faced Magic: the Gathering card.  All of the
+ * methods that return sets of attributes will only contain one value.
  *
  * @author Alec Roelke
  */
 public class SingleCard extends Card
 {
 	/**
-	 * Name of this SingleCard.
-	 */
-	public final String name;
-	/**
-	 * Mana cost of this SingleCard.  Split cards will have independent mana costs for each
-	 * face, double-faced cards typically will have no mana cost for the back face, and
-	 * flip cards have the same mana cost for both faces.
-	 */
-	public final ManaCost mana;
-	/**
-	 * This SingleCard's colors.
-	 */
-	public final ManaType.Tuple colors;
-	/**
-	 * This SingleCard's supertypes.
-	 */
-	public final Set<String> supertypes;
-	/**
-	 * This SingleCard's types.
-	 */
-	public final Set<String> types;
-	/**
-	 * This SingleCard's subtypes.
-	 */
-	public final Set<String> subtypes;
-	/**
 	 * Set containing all of the types of this SingleCard.
 	 */
 	public final Set<String> allTypes;
-	/**
-	 * This SingleCard's rules text.
-	 */
-	public final String text;
-	/**
-	 * This SingleCard's flavor text.
-	 */
-	public final String flavor;
 	/**
 	 * This SingleCard's artist.
 	 */
 	public final String artist;
 	/**
-	 * This SingleCard's collector's number.
+	 * This SingleCard's color identity.
+	 * @see Card#colorIdentity()
 	 */
-	public final String number;
+	private final ManaType.Tuple colorIdentity;
 	/**
-	 * This SingleCard's power, if it is a creature (it's empty otherwise).
+	 * This SingleCard's colors.
 	 */
-	public final PowerToughness power;
+	public final ManaType.Tuple colors;
 	/**
-	 * This SingleCard's toughness, if it is a creature (it's empty otherwise).
+	 * This SingleCard's flavor text.
 	 */
-	public final PowerToughness toughness;
+	public final String flavor;
 	/**
-	 * This SingleCard's loyalty, if it is a planeswalker (it's 0 otherwise).
+	 * This SingleCard's image name.
 	 */
-	public final Loyalty loyalty;
-	/**
-	 * This Card's rarity.
-	 */
-	private final Rarity rarity;
+	public final String imageName;
 	/**
 	 * Formats and legality for this Card.
 	 */
 	private final Map<String, Legality> legality;
 	/**
+	 * This SingleCard's loyalty.
+	 * @see Card#loyalty()
+	 */
+	public final Loyalty loyalty;
+	/**
+	 * Mana cost of this SingleCard.
+	 */
+	public final ManaCost mana;
+	/**
+	 * Name of this SingleCard.
+	 */
+	public final String name;
+	/**
+	 * This SingleCard's collector's number.
+	 */
+	public final String number;
+	/**
+	 * This SingleCard's power.
+	 * @see Card#power()
+	 */
+	public final PowerToughness power;
+	/**
+	 * This Card's rarity.
+	 */
+	private final Rarity rarity;
+	/**
 	 * Rulings for this Card.
 	 */
 	private final Map<Date, List<String>> rulings;
 	/**
-	 * This Card's color identity, which is a list containing its colors and
-	 * colors of any mana symbols that appear in its rules text that is not
-	 * reminder text, and in abilities that are given it by basic land types.
+	 * This SingleCard's subtypes.
 	 */
-	private final ManaType.Tuple colorIdentity;
+	public final Set<String> subtypes;
 	/**
-	 * This SingleCard's image name.  If the card is a flip or split card, all SingleCards
-	 * of that card will have the same image name.
+	 * This SingleCard's supertypes.
 	 */
-	public final String imageName;
+	public final Set<String> supertypes;
 	/**
-	 * This SingleCard's type line, which is "[Supertype(s) Type(s) - Subtype(s)]
+	 * This SingleCard's rules text.
+	 */
+	public final String text;
+	/**
+	 * This SingleCard's toughness.
+	 * @see Card#toughness()
+	 */
+	public final PowerToughness toughness;
+	/**
+	 * This SingleCard's type line.
+	 * @see Card#typeLine()
 	 */
 	public final String typeLine;
+	/**
+	 * This SingleCard's types.
+	 */
+	public final Set<String> types;
 
 	/**
 	 * Create a new Card with a single face.
 	 *
-	 * @param layout The new Card's layout
-	 * @param name The new Card's name
-	 * @param mana The new Card's mana cost
-	 * @param colors The new Card's colors
+	 * @param layout the new Card's layout
+	 * @param name the new Card's name
+	 * @param mana the new Card's mana cost
+	 * @param colors the new Card's colors
 	 * @param colorIdentity the new Card's color identity
-	 * @param supertype The new Card's supertypes
-	 * @param type The new Card's types
-	 * @param subtype The new Card's subtypes
-	 * @param rarity The new Card's rarity
-	 * @param set The Expansion the new Card belongs to
-	 * @param text The new Card's rules text
-	 * @param flavor The new Card's flavor text
-	 * @param artist The new Card's artist
-	 * @param number The new Card's collector's number
-	 * @param power The new Card's power
-	 * @param toughness The new Card's toughness
-	 * @param loyalty The new Card's loyalty
-	 * @param layout The new Card's layout
-	 * @param legality The new Card's legality
-	 * @param imageName The new Card's image name
+	 * @param supertype the new Card's supertypes
+	 * @param type the new Card's types
+	 * @param subtype the new Card's subtypes
+	 * @param rarity the new Card's rarity
+	 * @param set the Expansion the new Card belongs to
+	 * @param text the new Card's rules text
+	 * @param flavor the new Card's flavor text
+	 * @param artist the new Card's artist
+	 * @param number the new Card's collector's number
+	 * @param power the new Card's power
+	 * @param toughness the new Card's toughness
+	 * @param loyalty the new Card's loyalty
+	 * @param legality the new Card's legality
+	 * @param imageName the new Card's image name
 	 */
 	public SingleCard(CardLayout layout,
 			String name,
@@ -221,37 +218,30 @@ public class SingleCard extends Card
 		allTypes = Collections.unmodifiableSet(faceTypes);
 	}
 
-	/**
-	 * @return The list of names of the faces of this SingleCard.
-	 */
 	@Override
-	public List<String> name()
+	public List<Set<String>> allTypes()
 	{
-		return Arrays.asList(name);
+		return Arrays.asList(allTypes);
 	}
 
-	/**
-	 * @return The mana cost of this SingleCard.  This is represented as a tuple, since multi-faced
-	 * cards have multiple costs that need to be treated separately.
-	 */
 	@Override
-	public ManaCost.Tuple manaCost()
+	public List<String> artist()
 	{
-		return new ManaCost.Tuple(mana);
+		return Arrays.asList(artist);
 	}
 
-	/**
-	 * @return A Tuple<Double> containing the converted mana cost of this SingleCard.
-	 */
 	@Override
 	public List<Double> cmc()
 	{
 		return Arrays.asList(mana.cmc());
 	}
 
-	/**
-	 * @return The colors of this SingleCard.
-	 */
+	@Override
+	public ManaType.Tuple colorIdentity()
+	{
+		return colorIdentity;
+	}
+
 	@Override
 	public ManaType.Tuple colors()
 	{
@@ -259,167 +249,112 @@ public class SingleCard extends Card
 	}
 
 	/**
-	 * @param face Unused
-	 * @return The colors of this SingleCard.
+	 * {@inheritDoc}
+	 * This returns the same thing as {@link #colors()}.
+	 * @throw IndexOutOfBoundsException if face is not equal to 0, since SingleCards only have
+	 * one face
 	 */
 	@Override
-	public ManaType.Tuple colors(int face)
+	public ManaType.Tuple colors(int face) throws IndexOutOfBoundsException
 	{
+		if (face != 0)
+			throw new IndexOutOfBoundsException("Single-faced cards only have one face");
 		return colors;
 	}
 
-	/**
-	 * @return A String containing all the types of this SingleCard as they would appear on it.
-	 */
-	@Override
-	public List<String> typeLine()
-	{
-		return Arrays.asList(typeLine);
-	}
-
-	/**
-	 * @return A list containing all of the supertypes of this SingleCard.
-	 */
-	@Override
-	public Set<String> supertypes()
-	{
-		return supertypes;
-	}
-
-	/**
-	 * @return A list containing all of the card types on this SingleCard.
-	 */
-	@Override
-	public Set<String> types()
-	{
-		return types;
-	}
-
-	/**
-	 * @return a list containing all of the subtypes on this SingleCard.
-	 */
-	@Override
-	public Set<String> subtypes()
-	{
-		return subtypes;
-	}
-
-	/**
-	 * @return This SingleCard's Rarity.
-	 */
-	@Override
-	public Rarity rarity()
-	{
-		return rarity;
-	}
-
-	/**
-	 * @return This SingleCard's Oracle text.
-	 */
-	@Override
-	public List<String> oracleText()
-	{
-		return Arrays.asList(text);
-	}
-
-	/**
-	 * @return This SingleCard's flavor text.
-	 */
 	@Override
 	public List<String> flavorText()
 	{
 		return Arrays.asList(flavor);
 	}
 
-	/**
-	 * @return This SingleCard's artist.
-	 */
-	@Override
-	public List<String> artist()
-	{
-		return Arrays.asList(artist);
-	}
-
-	/**
-	 * @return The collector number of this Card.
-	 */
-	@Override
-	public List<String> number()
-	{
-		return Arrays.asList(number);
-	}
-
-	/**
-	 * @return A tuple containing the power value of this Card.
-	 */
-	@Override
-	public PowerToughness.Tuple power()
-	{
-		return new PowerToughness.Tuple(power);
-	}
-
-	/**
-	 * @return A tuple containing the toughness value of this Card.
-	 */
-	@Override
-	public PowerToughness.Tuple toughness()
-	{
-		return new PowerToughness.Tuple(toughness);
-	}
-
-	/**
-	 * @return A tuple containing the loyalty value of this Card.
-	 */
-	@Override
-	public Loyalty.Tuple loyalty()
-	{
-		return new Loyalty.Tuple(loyalty);
-	}
-
-	/**
-	 * @return A map containing dates and rulings that occurred on those dates
-	 * for this Card.
-	 */
-	@Override
-	public Map<Date, List<String>> rulings()
-	{
-		return rulings;
-	}
-
-	/**
-	 * @return A map of formats onto this Card's Legalities in them.
-	 * TODO: Calculate this based on the new policy in mtgjson.com
-	 */
-	@Override
-	public Map<String, Legality> legality()
-	{
-		return legality;
-	}
-
-	/**
-	 * @return The image name of this Card.
-	 */
 	@Override
 	public List<String> imageNames()
 	{
 		return Arrays.asList(imageName);
 	}
 
-	/**
-	 * @return A list containing all supertypes, card types, and subtypes of this Card.
-	 */
 	@Override
-	public List<Set<String>> allTypes()
+	public Map<String, Legality> legality()
 	{
-		return Arrays.asList(allTypes);
+		return legality;
 	}
 
-	/**
-	 * @return This Card's color identity.
-	 */
 	@Override
-	public ManaType.Tuple colorIdentity()
+	public Loyalty.Tuple loyalty()
 	{
-		return colorIdentity;
+		return new Loyalty.Tuple(loyalty);
+	}
+
+	@Override
+	public ManaCost.Tuple manaCost()
+	{
+		return new ManaCost.Tuple(mana);
+	}
+
+	@Override
+	public List<String> name()
+	{
+		return Arrays.asList(name);
+	}
+
+	@Override
+	public List<String> number()
+	{
+		return Arrays.asList(number);
+	}
+
+	@Override
+	public List<String> oracleText()
+	{
+		return Arrays.asList(text);
+	}
+
+	@Override
+	public PowerToughness.Tuple power()
+	{
+		return new PowerToughness.Tuple(power);
+	}
+
+	@Override
+	public Rarity rarity()
+	{
+		return rarity;
+	}
+
+	@Override
+	public Map<Date, List<String>> rulings()
+	{
+		return rulings;
+	}
+
+	@Override
+	public Set<String> subtypes()
+	{
+		return subtypes;
+	}
+
+	@Override
+	public Set<String> supertypes()
+	{
+		return supertypes;
+	}
+
+	@Override
+	public PowerToughness.Tuple toughness()
+	{
+		return new PowerToughness.Tuple(toughness);
+	}
+
+	@Override
+	public List<String> typeLine()
+	{
+		return Arrays.asList(typeLine);
+	}
+
+	@Override
+	public Set<String> types()
+	{
+		return types;
 	}
 }

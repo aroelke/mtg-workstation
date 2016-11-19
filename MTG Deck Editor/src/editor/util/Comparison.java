@@ -1,35 +1,38 @@
 package editor.util;
 
+import java.util.Comparator;
+
 /**
  * This enum represents a logical comparison between two values.
- * 
- * TODO: Change other enums to be like this one if appropriate
  * 
  * @author Alec Roelke
  */
 public enum Comparison
 {
+	/**
+	 * The two values are equal.  Opposite of {@link #NE}.
+	 */
 	EQ('='),
-	NE(UnicodeSymbols.NOT_EQUAL),
+	/**
+	 * The first value is greater than or equal to the second.  Opposite of {@link #LT}.
+	 */
 	GE(UnicodeSymbols.GREATER_OR_EQUAL),
-	LE(UnicodeSymbols.LESS_OR_EQUAL),
+	/**
+	 * The first value is strictly greater than the second.  Opposite of {@link #LE}.
+	 */
 	GT('>'),
-	LT('<');
-	
 	/**
-	 * Operator of the comparison this Comparison performs.
+	 * The first value is less than or equal to the second.  Opposite of {@link #GT}.
 	 */
-	private final char operator;
-	
+	LE(UnicodeSymbols.LESS_OR_EQUAL),
 	/**
-	 * Create a new Comparison.
-	 * 
-	 * @param op Operator of the new Comparison
+	 * The first value is strictly less than the second.  Opposite of {@link #GE}.
 	 */
-	private Comparison(final char op)
-	{
-		operator = op;
-	}
+	LT('<'),
+	/**
+	 * The two values are equal.  Opposite of {@link #EQ}.
+	 */
+	NE(UnicodeSymbols.NOT_EQUAL);
 	
 	/**
 	 * Get the Comparison corresponding to the given operator.
@@ -59,36 +62,64 @@ public enum Comparison
 	}
 	
 	/**
-	 * Test two values of the same type according to this Comparison's operation.
+	 * Operator of the comparison this Comparison performs.
+	 */
+	private final char operator;
+	
+	/**
+	 * Create a new Comparison.
+	 * 
+	 * @param op Operator of the new Comparison
+	 */
+	private Comparison(final char op)
+	{
+		operator = op;
+	}
+	
+	/**
+	 * Test two values according to this Comparison's operation.
 	 * 
 	 * @param a First value to test
 	 * @param b Second value to test
-	 * @return <code>true</code> if the two values pass the comparison, and
-	 * <code>false</code> otherwise.
+	 * @return true if the two arguments satisfy the comparison, and false otherwise
 	 */
 	public <T extends Comparable<? super T>> boolean test(T a, T b)
 	{
-		switch (operator)
+		return test(a, b, T::compareTo);
+	}
+	
+	/**
+	 * Test two values according to this Comparison's operation and the given comparator.
+	 * 
+	 * @param a first value to test
+	 * @param b second value to test
+	 * @param comparator comparator to use for comparison
+	 * @return true if the two arguments satisfy the comparison, and false otherwise
+	 */
+	public <T> boolean test(T a, T b, Comparator<? super T> comparator)
+	{
+		switch (this)
 		{
-		case '=':
-			return a.equals(b);
-		case UnicodeSymbols.NOT_EQUAL:
-			return !a.equals(b);
-		case UnicodeSymbols.GREATER_OR_EQUAL:
-			return a >= b;
-		case UnicodeSymbols.LESS_OR_EQUAL:
-			return a <= b;
-		case '>':
-			return a > b;
-		case '<':
-			return a < b;
+		case EQ:
+			return comparator.compare(a, b) == 0;
+		case NE:
+			return comparator.compare(a, b) != 0;
+		case GE:
+			return comparator.compare(a, b) >= 0;
+		case LE:
+			return comparator.compare(a, b) <= 0;
+		case GT:
+			return comparator.compare(a, b) > 0;
+		case LT:
+			return comparator.compare(a, b) < 0;
 		default:
-			throw new IllegalArgumentException("Illegal comparison " + operator);
+			throw new IllegalArgumentException("Illegal comparison " + this);
 		}
 	}
 	
 	/**
-	 * @return A String representation of this Comparison, which is its operator.
+	 * {@inheritDoc}
+	 * The String representation of a Comparison is its mathematical symbol.
 	 */
 	@Override
 	public String toString()

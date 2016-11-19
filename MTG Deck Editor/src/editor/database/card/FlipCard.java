@@ -14,26 +14,26 @@ import editor.database.characteristics.ManaCost;
 public class FlipCard extends MultiCard
 {
 	/**
-	 * Card representing the top face of this FlipCard.
+	 * List containing the converted mana cost of each side of this FlipCard (which should just be two
+	 * copies of the same value).
 	 */
-	private final Card top;
+	private List<Double> cmc;
 	/**
 	 * Tuple containing the mana cost of each side of this FlipCard (which should just be two copies
 	 * of the same value).
 	 */
 	private ManaCost.Tuple manaCost;
 	/**
-	 * List containing the converted mana cost of each side of this FlipCard (which should just be two
-	 * copies of the same value).
+	 * Card representing the top face of this FlipCard.
 	 */
-	private List<Double> cmc;
+	private final Card top;
 	
 	/**
 	 * Create a new FlipCard with the given Cards as its faces.  They should indicate that
 	 * their layouts are flip card layouts.
 	 * 
-	 * @param t Top face of this FlipCard
-	 * @param b Bottom face of this FlipCard
+	 * @param t top face of this FlipCard
+	 * @param b bottom face of this FlipCard
 	 */
 	public FlipCard(Card t, Card b)
 	{
@@ -47,30 +47,8 @@ public class FlipCard extends MultiCard
 	}
 	
 	/**
-	 * @param characteristic Characteristic to collect
-	 * @return A list containing the given characteristic repeated twice (once for the front
-	 * face, and once for the back).
-	 */
-	private <T> List<T> collect(Function<Card, List<T>> characteristic)
-	{
-		return Arrays.asList(characteristic.apply(top)[0], characteristic.apply(top)[0]);
-	}
-	
-	/**
-	 * @return A list containing the mana costs of this FlipCard, which are both that of
-	 * the top face.
-	 */
-	@Override
-	public ManaCost.Tuple manaCost()
-	{
-		if (manaCost == null)
-			manaCost = new ManaCost.Tuple(collect(Card::manaCost));
-		return manaCost;
-	}
-	
-	/**
-	 * @return A list containing the converted mana costs of this FlipCard, which are both
-	 * that of the top face.
+	 * {@inheritDoc}
+	 * Both faces of a FlipCard have the same converted mana cost.
 	 */
 	@Override
 	public List<Double> cmc()
@@ -81,8 +59,29 @@ public class FlipCard extends MultiCard
 	}
 	
 	/**
-	 * @return The converted mana cost of this FlipCard's top face.
+	 * Duplicate the value of the given characteristic for the front face into a list.
+	 * 
+	 * @param characteristic characteristic to collect
+	 * @return a list containing the given characteristic repeated twice (once for the front
+	 * face, and once for the back).
 	 */
+	private <T> List<T> collect(Function<Card, List<T>> characteristic)
+	{
+		return Arrays.asList(characteristic.apply(top)[0], characteristic.apply(top)[0]);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * Both faces of a FlipCard have the same mana cost.
+	 */
+	@Override
+	public ManaCost.Tuple manaCost()
+	{
+		if (manaCost == null)
+			manaCost = new ManaCost.Tuple(collect(Card::manaCost));
+		return manaCost;
+	}
+
 	@Override
 	public double minCmc()
 	{

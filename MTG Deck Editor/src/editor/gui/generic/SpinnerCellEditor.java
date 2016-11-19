@@ -15,7 +15,7 @@ import javax.swing.SpinnerNumberModel;
  * be edited using either the keyboard or the spinner arrows that appear on a double
  * click.
  * 
- * @author
+ * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class SpinnerCellEditor extends DefaultCellEditor
@@ -23,7 +23,7 @@ public class SpinnerCellEditor extends DefaultCellEditor
 	/**
 	 * Spinner that allows editing the value.
 	 */
-	JSpinner spinner;
+	private JSpinner spinner;
 
 	/**
 	 * Create a new SpinnerCellEditor.
@@ -36,16 +36,12 @@ public class SpinnerCellEditor extends DefaultCellEditor
 		((JSpinner.NumberEditor)spinner.getEditor()).getTextField().addActionListener((e) -> stopCellEditing());
 	}
 
-	/**
-	 * Set the value of the editor component and return it.
-	 * 
-	 * @param table Table containing the cell to edit
-	 * @param value Value to set the editor component to
-	 * @param isSelected Whether or not the cell is selected
-	 * @param row Row of the cell being edited
-	 * @param column Column of the cell being edited
-	 * @return The editor component.
-	 */
+	@Override
+	public Object getCellEditorValue()
+	{
+		return spinner.getValue();
+	}
+
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
 	{
@@ -54,8 +50,8 @@ public class SpinnerCellEditor extends DefaultCellEditor
 	}
 
 	/**
-	 * @return <code>true</code>, if the user double-clicked on the cell, and
-	 * <code>false</code> otherwise.
+	 * {@inheritDoc}
+	 * Double-clicking activates editing.
 	 */
 	@Override
 	public boolean isCellEditable(EventObject eo)
@@ -66,20 +62,6 @@ public class SpinnerCellEditor extends DefaultCellEditor
 			return false;
 	}
 
-	/**
-	 * @return The value of the spinner.
-	 */
-	@Override
-	public Object getCellEditorValue()
-	{
-		return spinner.getValue();
-	}
-
-	/**
-	 * Commit the value of the spinner and then stop editing.
-	 * 
-	 * @return <code>true</code>, since the cell is finished editing.
-	 */
 	@Override
 	public boolean stopCellEditing()
 	{

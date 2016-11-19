@@ -1,14 +1,14 @@
 package editor.filter.leaf.options.single;
 
 import java.util.Arrays;
-import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.filter.leaf.options.OptionsFilter;
+import editor.util.SerializableFunction;
 
 /**
- * This class is an OptionsFilter for which characteristics only
- * have one value from the list of options.
+ * This class is an {@link OptionsFilter} for which characteristics only have one
+ * value from the list of options.
  *
  * @author Alec Roelke
  *
@@ -19,22 +19,22 @@ public abstract class SingletonOptionsFilter<T> extends OptionsFilter<T>
 	/**
 	 * Create a new SingletonOptionsFilter.
 	 * 
-	 * @param t Type of the new SingletonOptionsFilter
-	 * @param f Function for the new SingletonOptionsFilter
+	 * @param t type of the new SingletonOptionsFilter
+	 * @param f function for the new SingletonOptionsFilter
 	 */
-	public SingletonOptionsFilter(String t, Function<Card, T> f)
+	public SingletonOptionsFilter(String t, SerializableFunction<Card, T> f)
 	{
 		super(t, f);
 	}
 
 	/**
-	 * @param c Card to test
-	 * @return <code>true</code> if the given Card's characteristic matches
-	 * the selected options with the given containment.
+	 * {@inheritDoc}
+	 * Filter cards according to an attribute that takes exactly one value
+	 * according to this SingletonOptionsFilter's selection and containment.
 	 */
 	@Override
 	public boolean test(Card c)
 	{
-		return contain.test(selected, Arrays.asList(function.apply(c)));
+		return contain.test(selected, Arrays.asList(function().apply(c)));
 	}
 }

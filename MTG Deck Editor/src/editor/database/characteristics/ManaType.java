@@ -42,64 +42,6 @@ public enum ManaType
 	COLORLESS("Colorless", 'C', null);
 	
 	/**
-	 * @return The colors of Magic, which is the list of ManaTypes
-	 * minus the ManaTypes that do not represent colors.
-	 */
-	public static ManaType[] colors()
-	{
-		return new ManaType[] {WHITE, BLUE, BLACK, RED, GREEN};
-	}
-	
-	/**
-	 * Get a ManaType from a String.  Acceptable values are "white," "w," "blue,"
-	 * "u," "black," "b," "red," "r," "green," or "g," case insensitive.
-	 * 
-	 * @param color String to create an ManaType from.
-	 * @return ManaType that corresponds to the String.
-	 */
-	public static ManaType get(String color)
-	{
-		for (ManaType c: ManaType.values())
-			if (c.name.equalsIgnoreCase(color) || color.equalsIgnoreCase(String.valueOf(c.shorthand)))
-				return c;
-		throw new IllegalArgumentException("Illegal color string \"" + color + "\"");
-	}
-	
-	/**
-	 * Get a ManaType from a character.  Acceptable characters are 'w,' 'u,' 'b,'
-	 * 'r,' or 'g,' case insensitive.
-	 * 
-	 * @param color Character to get a color from.
-	 * @return ManaType that corresponds to the character.
-	 */
-	public static ManaType get(char color)
-	{
-		for (ManaType c: ManaType.values())
-			if (Character.toLowerCase(c.shorthand) == Character.toLowerCase(color))
-				return c;
-		throw new IllegalArgumentException("Illegal color shorthand '" + color + "'");
-	}
-	
-	/**
-	 * Sort a list of ManaTypes in color order.  If the list contains two colors, it will be
-	 * sorted according to how they appear on a card.  Otherwise, it will be sorted according
-	 * to CWUBRG order.  It is recommended to use this rather than using Java's built-in sorting
-	 * functions.  If the list contains any duplicate colors, they will be removed.
-	 * 
-	 * @param colors List of ManaTypes to sort.
-	 */
-	public static void sort(List<ManaType> colors)
-	{
-		// TODO: Make this not remove duplicate colors
-		if (!colors.isEmpty())
-		{
-			Tuple t = new Tuple(colors);
-			colors.clear();
-			colors.addAll(t);
-		}
-	}
-	
-	/**
 	 * This class represents a sorted list of unique colors in the correct order around
 	 * the color pie.
 	 * 
@@ -108,16 +50,11 @@ public enum ManaType
 	public static class Tuple extends AbstractList<ManaType> implements Comparable<Tuple>
 	{
 		/**
-		 * ManaTypes in this Tuple.
-		 */
-		private final List<ManaType> types;
-		
-		/**
 		 * Helper method for cleaning and sorting a collection of colors before calling the
 		 * super constructor on it.
 		 * 
-		 * @param cols Collection of colors to sort
-		 * @return A cleaned and sorted copy of the given collection of colors.  Each color
+		 * @param cols collection of colors to sort
+		 * @return a cleaned and sorted copy of the given collection of colors.  Each color
 		 * will only appear once.
 		 */
 		private static List<ManaType> sorted(Collection<ManaType> cols)
@@ -160,10 +97,23 @@ public enum ManaType
 		}
 		
 		/**
+		 * ManaTypes in this Tuple.
+		 */
+		private final List<ManaType> types;
+		
+		/**
+		 * Create a new, empty Tuple of ManaTypes.
+		 */
+		public Tuple()
+		{
+			this(Collections.emptyList());
+		}
+		
+		/**
 		 * Create a new Tuple out of the given list of colors.  Unique colors will be extracted
 		 * and then sorted around the color pie.
 		 * 
-		 * @param cols Colors to make the tuple out of
+		 * @param cols colors to make the tuple out of
 		 */
 		public Tuple(Collection<? extends ManaType> cols)
 		{
@@ -180,20 +130,6 @@ public enum ManaType
 			this(Arrays.asList(cols));
 		}
 		
-		/**
-		 * Create a new, empty Tuple of ManaTypes.
-		 */
-		public Tuple()
-		{
-			this(Collections.emptyList());
-		}
-		
-		/**
-		 * @param other Tuple to compare with
-		 * @return A negative number if this tuple comes before the other one, which happens
-		 * if this one has fewer elements or if the colors come before the other one's colors,
-		 * 0 if both tuples are the same, and a positive number otherwise.
-		 */
 		@Override
 		public int compareTo(Tuple other)
 		{
@@ -218,6 +154,73 @@ public enum ManaType
 	}
 	
 	/**
+	 * Get the ManaTypes that represent colors, which is all of them except
+	 * {@link #COLORLESS}.
+	 * 
+	 * @return the colors of Magic, which is the list of ManaTypes
+	 * minus the ManaTypes that do not represent colors.
+	 */
+	public static ManaType[] colors()
+	{
+		return new ManaType[] {WHITE, BLUE, BLACK, RED, GREEN};
+	}
+	
+	/**
+	 * Get a ManaType from a character.  Acceptable characters are 'w,' 'u,' 'b,'
+	 * 'r,' 'g,' or 'c,' case insensitive.
+	 * 
+	 * @param color Character to get a color from.
+	 * @return ManaType that corresponds to the character.
+	 */
+	public static ManaType get(char color)
+	{
+		for (ManaType c: ManaType.values())
+			if (Character.toLowerCase(c.shorthand) == Character.toLowerCase(color))
+				return c;
+		throw new IllegalArgumentException("Illegal color shorthand '" + color + "'");
+	}
+	
+	/**
+	 * Get a ManaType from a String.  Acceptable values are "white," "w," "blue,"
+	 * "u," "black," "b," "red," "r," "green," "g," "colorless," or "c," case
+	 * insensitive.
+	 * 
+	 * @param color string to create an ManaType from.
+	 * @return the ManaType that corresponds to the String.
+	 */
+	public static ManaType get(String color)
+	{
+		for (ManaType c: ManaType.values())
+			if (c.name.equalsIgnoreCase(color) || color.equalsIgnoreCase(String.valueOf(c.shorthand)))
+				return c;
+		throw new IllegalArgumentException("Illegal color string \"" + color + "\"");
+	}
+	
+	/**
+	 * Sort a list of ManaTypes in color order.  If the list contains two colors, it will be
+	 * sorted according to how they appear on a card.  Otherwise, it will be sorted according
+	 * to CWUBRG order.  It is recommended to use this rather than using Java's built-in sorting
+	 * functions.  If the list contains any duplicate colors, they will be removed.
+	 * 
+	 * TODO: Make this not remove duplicate colors
+	 * 
+	 * @param colors List of ManaTypes to sort.
+	 */
+	public static void sort(List<ManaType> colors)
+	{
+		if (!colors.isEmpty())
+		{
+			Tuple t = new Tuple(colors);
+			colors.clear();
+			colors.addAll(t);
+		}
+	}
+	
+	/**
+	 * Color corresponding to this ManaType (should be null for colorless).
+	 */
+	public final Color color;
+	/**
 	 * String representation of this ManaType.
 	 */
 	private final String name;
@@ -225,18 +228,13 @@ public enum ManaType
 	 * Single-character shorthand for this ManaType.
 	 */
 	private final char shorthand;
-	/**
-	 * Color corresponding to this ManaType (should be null for colorless).
-	 */
-	public final Color color;
-	
 	
 	/**
 	 * Create a new ManaType.
 	 * 
 	 * @param n String representation of the new ManaType
-	 * @param s Single-character shorthand representation of the new ManaType
-	 * @param c Color corresponding to this ManaType
+	 * @param s single-character shorthand representation of the new ManaType
+	 * @param c color corresponding to this ManaType
 	 */
 	private ManaType(final String n, final char s, final Color c)
 	{
@@ -246,27 +244,14 @@ public enum ManaType
 	}
 	
 	/**
-	 * @return A one-character shorthand for the name of this ManaType.
-	 */
-	public char shorthand()
-	{
-		return shorthand;
-	}
-	
-	/**
-	 * @return A String representation of this ManaType (its name).
-	 */
-	@Override
-	public String toString()
-	{
-		return name;
-	}
-	
-	/**
+	 * Compare this ManaType to another ManaType according to the order they would appear in
+	 * a mana cost.  The ordering is determined according to the direction around the color pie
+	 * in which the distance from this ManaType to the other is shortest.
+	 * 
 	 * @param other ManaType to compare to
-	 * @return A negative number if this ManaType should come before the other, 0 if they are the same,
-	 * or a postive number if it should come after.  Typically this follows WUBRG order, but if the
-	 * distance is too great (like white and green), then the order is reversed.
+	 * @return a negative number if this ManaType should come first, 0 if they are the same,
+	 * or a positive number if it should come after.
+	 * @see #compareTo(ManaType)
 	 */
 	public int colorOrder(ManaType other)
 	{
@@ -284,13 +269,31 @@ public enum ManaType
 	}
 	
 	/**
+	 * Get the shortest distance around the color pie from this ManaType to the other.
+	 * 
 	 * @param other ManaType to compare to
-	 * @return The distance around the color pie from this color to the other color.
+	 * @return The distance around the color pie from this color to the other ManaType.
 	 */
 	public int distance(ManaType other)
 	{
 		if (this == COLORLESS || other == COLORLESS)
 			throw new IllegalArgumentException("Colorless is not a color");
 		return (other.ordinal() - ordinal() + colors().length)%colors().length;
+	}
+	
+	/**
+	 * Get the one-character shorthand for this ManaType.
+	 * 
+	 * @return a one-character shorthand for the name of this ManaType.
+	 */
+	public char shorthand()
+	{
+		return shorthand;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return name;
 	}
 }

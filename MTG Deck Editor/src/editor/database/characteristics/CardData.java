@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import editor.collection.Inventory;
 import editor.database.card.CardLayout;
 
 /**
@@ -14,32 +15,84 @@ import editor.database.card.CardLayout;
  */
 public enum CardData
 {
-	NAME("Name", String.class),
-	LAYOUT("Layout", CardLayout.class),
-	MANA_COST("Mana Cost", ManaCost.Tuple.class),
-	CMC("CMC", List.class),
-	COLORS("Colors", ManaType.Tuple.class),
-	COLOR_IDENTITY("Color Identity", ManaType.Tuple.class),
-	TYPE_LINE("Type", String.class),
-	EXPANSION_NAME("Expansion", String.class),
-	RARITY("Rarity", Rarity.class),
-	POWER("Power", PowerToughness.Tuple.class),
-	TOUGHNESS("Toughness", PowerToughness.Tuple.class),
-	LOYALTY("Loyalty", Loyalty.Tuple.class),
+	/**
+	 * Artist of a card.
+	 */
 	ARTIST("Artist", String.class),
-	LEGAL_IN("Legal In", List.class),
-	
-	COUNT("Count", Integer.class),
+	/**
+	 * Categories in a deck in which a card belongs.
+	 */
 	CATEGORIES("Categories", Set.class),
-	DATE_ADDED("Date Added", Date.class);
+	/**
+	 * Converted mana cost of a card.
+	 */
+	CMC("CMC", List.class),
+	/**
+	 * Color identity of a card.
+	 */
+	COLOR_IDENTITY("Color Identity", ManaType.Tuple.class),
+	/**
+	 * Colors of all faces of a card.
+	 */
+	COLORS("Colors", ManaType.Tuple.class),
+	/**
+	 * Number of copies of a card in a deck.
+	 */
+	COUNT("Count", Integer.class),
+	/**
+	 * Date a card was added to a deck.
+	 */
+	DATE_ADDED("Date Added", Date.class),
+	/**
+	 * Name of the expansion a card was released in.
+	 */
+	EXPANSION_NAME("Expansion", String.class),
+	/**
+	 * {@link CardLayout} of a card.
+	 */
+	LAYOUT("Layout", CardLayout.class),
+	/**
+	 * Set of formats a card is legal in.
+	 */
+	LEGAL_IN("Legal In", List.class),
+	/**
+	 * Loyalty of a planeswalker card.
+	 */
+	LOYALTY("Loyalty", Loyalty.Tuple.class),
+	/**
+	 * Mana cost of a card.
+	 */
+	MANA_COST("Mana Cost", ManaCost.Tuple.class),
+	/**
+	 * Name of a card.
+	 */
+	NAME("Name", String.class),
+	/**
+	 * Power of a creature card.
+	 */
+	POWER("Power", PowerToughness.Tuple.class),
 	
 	/**
-	 * Parse a String for a CardCharacteristic.
+	 * Rarity of a card in its expansion.
+	 */
+	RARITY("Rarity", Rarity.class),
+	/**
+	 * Toughness of a creature card.
+	 */
+	TOUGHNESS("Toughness", PowerToughness.Tuple.class),
+	/**
+	 * Type line of a card.
+	 */
+	TYPE_LINE("Type", String.class);
+	
+	/**
+	 * Parse a String for a CardData.
 	 * 
 	 * @param s String to parse
-	 * @return The CardCharacteristic that corresponds to the given String.
+	 * @return the CardData that corresponds to the given String.
+	 * @throws IllegalArgumentException if no such CardData exists
 	 */
-	public static CardData get(String s)
+	public static CardData get(String s) throws IllegalArgumentException
 	{
 		for (CardData c: CardData.values())
 			if (c.toString().equalsIgnoreCase(s))
@@ -48,7 +101,9 @@ public enum CardData
 	}
 	
 	/**
-	 * @return An array containing the CardCharacteristics that can be shown in the inventory table.
+	 * Get the types of CardData that can be returned by an {@link Inventory}.
+	 * 
+	 * @return An array containing the CardData that can be shown in the inventory table.
 	 */
 	public static CardData[] inventoryValues()
 	{
@@ -70,21 +125,19 @@ public enum CardData
 	}
 	
 	/**
-	 * Name of the characteristic
-	 */
-	private final String name;
-	/**
 	 * Class of the data that will appear in table columns containing data of this characteristic.
 	 */
 	public final Class<?> dataType;
+	/**
+	 * Name of the characteristic
+	 */
+	private final String name;
 	
 	/**
-	 * Create a CardCharacteristic with the specified name, column class, value function, and category function.
+	 * Create a CardCharacteristic with the specified name and column class.
 	 * 
-	 * @param n Name of the new CardCharacteristic
-	 * @param c Table column class of the new CardCharacteristic
-	 * @param ef Function to edit deck values from the cell
-	 * @param e Editor that should be used to perform the editing
+	 * @param n name of the new CardData
+	 * @param c class of the corresponding information on a card
 	 */
 	private CardData(String n, Class<?> c)
 	{
@@ -92,18 +145,6 @@ public enum CardData
 		dataType = c;
 	}
 	
-	/**
-	 * @return <code>true</code> if this CardCharacteristic can be edited, and <code>false</code>
-	 * otherwise.
-	 */
-	public boolean isEditable()
-	{
-		return this == COUNT || this == CATEGORIES;
-	}
-	
-	/**
-	 * @return A String representation of this CardCharacteristic (its name).
-	 */
 	@Override
 	public String toString()
 	{

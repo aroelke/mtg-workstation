@@ -9,16 +9,15 @@ import java.util.stream.Collectors;
 import editor.database.characteristics.ManaType;
 
 /**
- * This class represents a two-color hybrid symbol.  It will sort its colors
- * so that they appear in the correct order.
+ * This class represents a two-color hybrid symbol.  It will sort its colors so that they
+ * appear in the correct order.
  * 
  * @author Alec Roelke
  */
 public class HybridSymbol extends ManaSymbol
 {
 	/**
-	 * Map mapping each Tuple of colors to their corresponding hybrid symbols.
-	 * @see editor.database.symbol.Symbol
+	 * Map mapping each pair of colors to their corresponding hybrid symbols.
 	 */
 	private static final Map<ManaType.Tuple, HybridSymbol> SYMBOLS = new HashMap<ManaType.Tuple, HybridSymbol>();
 	static
@@ -37,11 +36,11 @@ public class HybridSymbol extends ManaSymbol
 	}
 	
 	/**
-	 * Get the HybridSymbol corresponding to the given ManaTypes.
+	 * Get the HybridSymbol corresponding to the given colors.
 	 * 
-	 * @param colors ManaTypes to look up
-	 * @return The HybridSymbol corresponding to the given ManaTypes, or
-	 * null if no such symbol exists.
+	 * @param color1 first color
+	 * @param color2 second color
+	 * @return The HybridSymbol corresponding to the given colors, or null if no such symbol exists.
 	 */
 	public static HybridSymbol get(ManaType color1, ManaType color2)
 	{
@@ -52,8 +51,8 @@ public class HybridSymbol extends ManaSymbol
 	 * Get the HybridSymbol corresponding to the String, which is two color characters
 	 * separated by a "/".
 	 * 
-	 * @param pair The String to look up
-	 * @return The HybridSymbol corresponding to the given String, or null if no
+	 * @param pair the String to look up
+	 * @return the HybridSymbol corresponding to the given String, or null if no
 	 * such symbol exists.
 	 */
 	public static HybridSymbol get(String pair)
@@ -73,7 +72,7 @@ public class HybridSymbol extends ManaSymbol
 	}
 	
 	/**
-	 * This HybridSymbol's Tuple of colors.
+	 * This HybridSymbol's pair of colors.
 	 */
 	private final ManaType.Tuple colors;
 	
@@ -90,9 +89,8 @@ public class HybridSymbol extends ManaSymbol
 	}
 
 	/**
-	 * @return This HybridSymbol's color weight, which is 0.5 for each of its two colors and
-	 * 0 for the other three.
-	 * @see editor.database.symbol.Symbol#colorWeights()
+	 * {@inheritDoc}
+	 * This HybridSymbol's weights are 0.5 for its colors and 0 for the rest.
 	 */
 	@Override
 	public Map<ManaType, Double> colorWeights()
@@ -101,13 +99,6 @@ public class HybridSymbol extends ManaSymbol
 							 new ColorWeight(colors[1], 0.5));
 	}
 
-	/**
-	 * @param o Symbol to compare with
-	 * @return A negative number if the other symbol should come after this HybridSymbol,
-	 * the two symbols' Tuples' difference if they are both HybridSymbols, 0 if color order
-	 * doesn't matter, and a postive number if the other symbol should come before.
-	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
-	 */
 	@Override
 	public int compareTo(ManaSymbol o)
 	{

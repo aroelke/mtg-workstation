@@ -10,15 +10,25 @@ package editor.database.characteristics;
  */
 public enum Legality
 {
+	/**
+	 * Card is not legal in the format.
+	 */
 	BANNED("Banned"),
-	RESTRICTED("Restricted"),
-	LEGAL("Legal");
+	/**
+	 * A normal number of cards is legal to have in a deck.
+	 */
+	LEGAL("Legal"),
+	/**
+	 * Only one copy of the card is legal in a deck.
+	 */
+	RESTRICTED("Restricted");
 	
 	/**
 	 * Parse a String for a Legality.
 	 * 
 	 * @param s String to parse
-	 * @return The Legality corresponding to the contents of the specified String.
+	 * @return the Legality corresponding to the contents of the specified String.
+	 * @throws IllegalArgumentException if there is no corresponding Legality
 	 */
 	public static Legality get(String s)
 	{
@@ -43,9 +53,6 @@ public enum Legality
 		this.legality = legality;
 	}
 	
-	/**
-	 * @return A String representation of this Legality.
-	 */
 	@Override
 	public String toString()
 	{

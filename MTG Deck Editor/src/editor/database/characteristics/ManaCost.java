@@ -17,6 +17,7 @@ import editor.database.card.Card;
 import editor.database.symbol.ManaSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
+import editor.util.Containment;
 
 /**
  * This class represents a mana cost.  It contains a list of Symbols, which may contain duplicate elements.
@@ -419,7 +420,8 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 			return false;
 		if (other == this)
 			return false;
-		return cost.equals(((ManaCost)other).cost);
+		// TODO: When sorting mana costs works, replace with just equals
+		return Containment.CONTAINS_EXACTLY.test(cost, ((ManaCost)other).cost);
 	}
 	/**
 	 * @return A unique integer for this ManaCost.

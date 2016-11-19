@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class represents a symbol that has no variations (like based on color or number).
- * Each one has a different use.
+ * This class represents a symbol that has a specific meaning that isn't related to mana costs.
  * 
  * @author Alec Roelke
  */
@@ -24,6 +23,7 @@ public class FunctionalSymbol extends Symbol
 			return "CHAOS";
 		}
 	};
+	
 	/**
 	 * Map of symbol texts onto their respective symbols.
 	 */
@@ -50,8 +50,7 @@ public class FunctionalSymbol extends Symbol
 	 * Get the StaticSymbol corresponding to the given String.
 	 * 
 	 * @param s String to look up
-	 * @return The StaticSymbol corresponding to the given String,
-	 * or null if there is none.
+	 * @return the StaticSymbol corresponding to the given String, or null if there is none.
 	 */
 	public static FunctionalSymbol get(String s)
 	{
@@ -61,8 +60,8 @@ public class FunctionalSymbol extends Symbol
 	/**
 	 * Create a new StaticSymbol.
 	 * 
-	 * @param iconName Icon name of the new symbol
-	 * @param text Text representation of the new symbol
+	 * @param iconName name of the new symbol's icon
+	 * @param text text representation of the new symbol
 	 */
 	private FunctionalSymbol(String iconName, String text)
 	{

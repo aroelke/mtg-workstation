@@ -76,118 +76,6 @@ import editor.util.UnicodeSymbols;
 public class InventoryLoadDialog extends JDialog
 {
 	/**
-	 * Label showing the current stage of loading.
-	 */
-	private JLabel progressLabel;
-	/**
-	 * Progress bar showing overall progress of loading.
-	 */
-	private JProgressBar progressBar;
-	/**
-	 * Area showing past and current progress of loading.
-	 */
-	private JTextArea progressArea;
-	/**
-	 * Worker that loads the inventory.
-	 */
-	private InventoryLoadWorker worker;
-	/**
-	 * List of errors that occurred while loading cards.
-	 */
-	private List<String> errors;
-
-	public InventoryLoadDialog(JFrame owner)
-	{
-		super(owner, "Loading Inventory", Dialog.ModalityType.APPLICATION_MODAL);
-		setPreferredSize(new Dimension(350, 220));
-		setResizable(false);
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-
-		worker = null;
-		errors = new ArrayList<String>();
-
-		// Content panel
-		GridBagLayout layout = new GridBagLayout();
-		layout.columnWidths = new int[] {0};
-		layout.columnWeights = new double[] {1.0};
-		layout.rowHeights = new int[] {0, 0, 0, 0};
-		layout.rowWeights = new double[] {0.0, 0.0, 1.0, 0.0};
-		JPanel contentPanel = new JPanel(layout);
-		contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		setContentPane(contentPanel);
-
-		// Stage progress label
-		progressLabel = new JLabel("Loading inventory...");
-		GridBagConstraints labelConstraints = new GridBagConstraints();
-		labelConstraints.anchor = GridBagConstraints.WEST;
-		labelConstraints.fill = GridBagConstraints.BOTH;
-		labelConstraints.gridx = 0;
-		labelConstraints.gridy = 0;
-		labelConstraints.insets = new Insets(0, 0, 2, 0);
-		contentPanel.add(progressLabel, labelConstraints);
-
-		// Overall progress bar
-		progressBar = new JProgressBar();
-		GridBagConstraints barConstraints = new GridBagConstraints();
-		barConstraints.fill = GridBagConstraints.BOTH;
-		barConstraints.gridx = 0;
-		barConstraints.gridy = 1;
-		barConstraints.insets = new Insets(0, 0, 2, 0);
-		contentPanel.add(progressBar, barConstraints);
-
-		// History text area
-		progressArea = new JTextArea();
-		progressArea.setEditable(false);
-		GridBagConstraints areaConstraints = new GridBagConstraints();
-		areaConstraints.fill = GridBagConstraints.BOTH;
-		areaConstraints.gridx = 0;
-		areaConstraints.gridy = 2;
-		areaConstraints.insets = new Insets(0, 0, 10, 0);
-		contentPanel.add(new JScrollPane(progressArea), areaConstraints);
-
-		// Cancel button
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener((e) -> {
-			if (worker != null)
-				worker.cancel(false);
-		});
-		GridBagConstraints cancelConstraints = new GridBagConstraints();
-		cancelConstraints.gridx = 0;
-		cancelConstraints.gridy = 3;
-		contentPanel.add(cancelButton, cancelConstraints);
-
-		pack();
-	}
-
-	/**
-	 * Make this dialog visible and then begin loading the inventory.  Block until it is
-	 * complete, and then return the newly-created Inventory.
-	 *
-	 * @return The Inventory that was created.
-	 */
-	public Inventory createInventory(File file)
-	{
-		worker = new InventoryLoadWorker(file);
-		worker.execute();
-		setVisible(true);
-		progressArea.setText("");
-		try
-		{
-			return worker.get();
-		}
-		catch (InterruptedException | ExecutionException e)
-		{
-			JOptionPane.showMessageDialog(null, "Error loading inventory: " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-			return new Inventory();
-		}
-		catch (CancellationException e)
-		{
-			return new Inventory();
-		}
-	}
-
-	/**
 	 * This class represents a worker that loads cards from a JSON file in the background.
 	 *
 	 * TODO: Use http://www.mtgsalvation.com/forums/magic-fundamentals/magic-software/494332-mtg-json-new-website-provides-mtg-card-data-in?page=21#c519 to generate card numbers for cards that don't have them
@@ -204,7 +92,7 @@ public class InventoryLoadDialog extends JDialog
 		/**
 		 * Create a new InventoryWorker.
 		 *
-		 * @param d Dialog to show progress
+		 * @param f #File to load
 		 */
 		public InventoryLoadWorker(File f)
 		{
@@ -223,21 +111,9 @@ public class InventoryLoadDialog extends JDialog
 		}
 
 		/**
-		 * Change the label in the dialog to match the stage this worker is in.
-		 */
-		@Override
-		protected void process(List<String> chunks)
-		{
-			for (String chunk: chunks)
-			{
-				progressLabel.setText(chunk);
-				progressArea.append(chunk + "\n");
-			}
-		}
-
-		/**
+		 * {@inheritDoc}
 		 * Import a list of all cards that exist in Magic: the Gathering from a JSON file downloaded from
-		 * @link{http://www.mtgjson.com}.  Also populate the lists of types and expansions (and their blocks).
+		 * {@link "http://www.mtgjson.com"}.  Also populate the lists of types and expansions (and their blocks).
 		 *
 		 * @return The inventory of cards that can be added to a deck.
 		 */
@@ -582,7 +458,8 @@ public class InventoryLoadDialog extends JDialog
 		}
 
 		/**
-		 * When this worker is finished, close the dialog and allow it to return the Inventory
+		 * {@inheritDoc}
+		 * Close the dialog and allow it to return the Inventory
 		 * that was created.
 		 */
 		@Override
@@ -598,6 +475,138 @@ public class InventoryLoadDialog extends JDialog
 						join.add(failure);
 					JOptionPane.showMessageDialog(null, join.toString(), "Warning", JOptionPane.WARNING_MESSAGE);
 				});
+		}
+
+		/**
+		 * {@inheritDoc}
+		 * Change the label in the dialog to match the stage this worker is in.
+		 */
+		@Override
+		protected void process(List<String> chunks)
+		{
+			for (String chunk: chunks)
+			{
+				progressLabel.setText(chunk);
+				progressArea.append(chunk + "\n");
+			}
+		}
+	}
+	
+	/**
+	 * List of errors that occurred while loading cards.
+	 */
+	private List<String> errors;
+	/**
+	 * Area showing past and current progress of loading.
+	 */
+	private JTextArea progressArea;
+	/**
+	 * Progress bar showing overall progress of loading.
+	 */
+	private JProgressBar progressBar;
+	/**
+	 * Label showing the current stage of loading.
+	 */
+	private JLabel progressLabel;
+
+	/**
+	 * Worker that loads the inventory.
+	 */
+	private InventoryLoadWorker worker;
+
+	/**
+	 * Create a new InventoryLoadDialog over the given {@link JFrame}.
+	 * 
+	 * @param owner owner of the new InventoryLoadDialog
+	 */
+	public InventoryLoadDialog(JFrame owner)
+	{
+		super(owner, "Loading Inventory", Dialog.ModalityType.APPLICATION_MODAL);
+		setPreferredSize(new Dimension(350, 220));
+		setResizable(false);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
+		worker = null;
+		errors = new ArrayList<String>();
+
+		// Content panel
+		GridBagLayout layout = new GridBagLayout();
+		layout.columnWidths = new int[] {0};
+		layout.columnWeights = new double[] {1.0};
+		layout.rowHeights = new int[] {0, 0, 0, 0};
+		layout.rowWeights = new double[] {0.0, 0.0, 1.0, 0.0};
+		JPanel contentPanel = new JPanel(layout);
+		contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		setContentPane(contentPanel);
+
+		// Stage progress label
+		progressLabel = new JLabel("Loading inventory...");
+		GridBagConstraints labelConstraints = new GridBagConstraints();
+		labelConstraints.anchor = GridBagConstraints.WEST;
+		labelConstraints.fill = GridBagConstraints.BOTH;
+		labelConstraints.gridx = 0;
+		labelConstraints.gridy = 0;
+		labelConstraints.insets = new Insets(0, 0, 2, 0);
+		contentPanel.add(progressLabel, labelConstraints);
+
+		// Overall progress bar
+		progressBar = new JProgressBar();
+		GridBagConstraints barConstraints = new GridBagConstraints();
+		barConstraints.fill = GridBagConstraints.BOTH;
+		barConstraints.gridx = 0;
+		barConstraints.gridy = 1;
+		barConstraints.insets = new Insets(0, 0, 2, 0);
+		contentPanel.add(progressBar, barConstraints);
+
+		// History text area
+		progressArea = new JTextArea();
+		progressArea.setEditable(false);
+		GridBagConstraints areaConstraints = new GridBagConstraints();
+		areaConstraints.fill = GridBagConstraints.BOTH;
+		areaConstraints.gridx = 0;
+		areaConstraints.gridy = 2;
+		areaConstraints.insets = new Insets(0, 0, 10, 0);
+		contentPanel.add(new JScrollPane(progressArea), areaConstraints);
+
+		// Cancel button
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener((e) -> {
+			if (worker != null)
+				worker.cancel(false);
+		});
+		GridBagConstraints cancelConstraints = new GridBagConstraints();
+		cancelConstraints.gridx = 0;
+		cancelConstraints.gridy = 3;
+		contentPanel.add(cancelButton, cancelConstraints);
+
+		pack();
+	}
+
+	/**
+	 * Make this dialog visible and then begin loading the inventory.  Block until it is
+	 * complete, and then return the newly-created Inventory.
+	 *
+	 * @return the #Inventory that was created.
+	 */
+	public Inventory createInventory(File file)
+	{
+		worker = new InventoryLoadWorker(file);
+		worker.execute();
+		setVisible(true);
+		progressArea.setText("");
+		try
+		{
+			return worker.get();
+		}
+		catch (InterruptedException | ExecutionException e)
+		{
+			JOptionPane.showMessageDialog(null, "Error loading inventory: " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+			return new Inventory();
+		}
+		catch (CancellationException e)
+		{
+			return new Inventory();
 		}
 	}
 }

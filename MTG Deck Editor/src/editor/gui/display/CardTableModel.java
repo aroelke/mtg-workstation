@@ -23,20 +23,20 @@ public class CardTableModel extends AbstractTableModel
 	 */
 	private EditorFrame editor;
 	/**
-	 * List of Cards the table displays.
+	 * List of cards the table displays.
 	 */
 	private CardList list;
 	/**
-	 * List of Card characteristics to display in the table.
+	 * List of card characteristics to display in the table.
 	 */
 	private List<CardData> characteristics;
 	
 	/**
-	 * Create a new DeckTableModel.
+	 * Create a new CardTableModel.
 	 *
-	 * @param e EditorFrame containing the table this model applies to
-	 * @param list List of Cards for the new CardTableModel to show
-	 * @param c List of characteristics of those Cards to show
+	 * @param e frame containing the table this model applies to
+	 * @param d list of cards for the new CardTableModel to show
+	 * @param c list of characteristics of those cards to show
 	 */
 	public CardTableModel(EditorFrame e, CardList d, List<CardData> c)
 	{
@@ -47,10 +47,10 @@ public class CardTableModel extends AbstractTableModel
 	}
 	
 	/**
-	 * Create a new DeckTableModel.
+	 * Create a new CardTableModel.
 	 *
-	 * @param list List of Cards for the new CardTableModel to show
-	 * @param c List of characteristics of those Cards to show
+	 * @param d list of cards for the new CardTableModel to show
+	 * @param c list of characteristics of those cards to show
 	 */
 	public CardTableModel(CardList d, List<CardData> c)
 	{
@@ -58,7 +58,7 @@ public class CardTableModel extends AbstractTableModel
 	}
 	
 	/**
-	 * Set which columns are to be displayed by this DeckTableModel.
+	 * Set which columns are to be displayed by this CardTableModel.
 	 * 
 	 * @param c list of CardCharacteristics corresponding to the columns to display
 	 */
@@ -69,7 +69,8 @@ public class CardTableModel extends AbstractTableModel
 	}
 	
 	/**
-	 * Change the list of Cards to display in this model's table.
+	 * Change the list of cards to display in this model's table.
+	 * 
 	 * @param d the new list to display
 	 */
 	public void setList(CardList d)
@@ -77,30 +78,18 @@ public class CardTableModel extends AbstractTableModel
 		list = d;
 	}
 	
-	/**
-	 * Get the number of rows in the table.
-	 */
 	@Override
 	public int getRowCount()
 	{
 		return list.size();
 	}
 	
-	/**
-	 * @param rowIndex Row index of the cell to get
-	 * @param columnIndex Column index of the cell to get
-	 * @return Value at the specified cell.
-	 */
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
 		return list.getData(rowIndex)[characteristics[columnIndex]];
-//		return characteristics[columnIndex].get(list, rowIndex);
 	}
 
-	/**
-	 * @return The number of columns in this DeckTableModel.
-	 */
 	@Override
 	public int getColumnCount()
 	{
@@ -108,53 +97,34 @@ public class CardTableModel extends AbstractTableModel
 	}
 	
 	/**
-	 * @param column Column to check
-	 * @return The CardCharacteristic being displayed in the given column.
+	 * Get the type of data displayed by the given column.
+	 * 
+	 * @param column column to check
+	 * @return the type of data being displayed in the given column.
 	 */
-	public CardData getColumnCharacteristic(int column)
+	public CardData getColumnData(int column)
 	{
 		return characteristics[column];
 	}
-	
-	/**
-	 * @param column Column to look at
-	 * @return The String representation of the characteristic at the specified column.
-	 */
+
 	@Override
 	public String getColumnName(int column)
 	{
 		return characteristics[column].toString();
 	}
 	
-	/**
-	 * @param column Column to look at
-	 * @return The class of the data in the specified column.
-	 */
 	@Override
 	public Class<?> getColumnClass(int column)
 	{
 		return characteristics[column].dataType;
 	}
 	
-	/**
-	 * @param row Row of the cell to check
-	 * @param column Column of the cell to check
-	 * @return <code>true</code> if the cell at the specified location is editable and
-	 * <code>false</code> otherwise.
-	 */
 	@Override
 	public boolean isCellEditable(int row, int column)
 	{
-		return editor != null && characteristics[column].isEditable();
+		return editor != null && (characteristics[column] == CardData.COUNT || characteristics[column] == CardData.CATEGORIES);
 	}
-	
-	/**
-	 * Set the value of the cell at the specified location if it is editable.
-	 * 
-	 * @param value Value to set
-	 * @param row Row of the cell to set
-	 * @param column Column of the cell to set
-	 */
+
 	@Override
 	public void setValueAt(Object value, int row, int column)
 	{

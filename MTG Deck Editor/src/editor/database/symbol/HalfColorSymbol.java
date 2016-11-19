@@ -16,18 +16,16 @@ import editor.database.characteristics.ManaType;
 public class HalfColorSymbol extends ManaSymbol
 {
 	/**
-	 * Map of ManaType onto its corresponding half-symbol.  To get a colored half-symbol, use this Map.
-	 * @see editor.database.symbol.Symbol
+	 * Map of color onto its corresponding half-symbol.
 	 */
 	private static final Map<ManaType, HalfColorSymbol> SYMBOLS = Collections.unmodifiableMap(
 			Arrays.stream(ManaType.values()).collect(Collectors.toMap(Function.identity(), HalfColorSymbol::new)));
 	
 	/**
-	 * Get the HalfColorSymbol corresponding to the given ManaType.
+	 * Get the HalfColorSymbol corresponding to the given color.
 	 * 
-	 * @param col ManaType to get the symbol for
-	 * @return The HalfColorSymbol corresponding to the given ManaType, or null
-	 * if no such symbol exists.
+	 * @param col color to get the symbol for
+	 * @return the HalfColorSymbol corresponding to the given color, or null if no such symbol exists.
 	 */
 	public static HalfColorSymbol get(ManaType col)
 	{
@@ -38,8 +36,8 @@ public class HalfColorSymbol extends ManaSymbol
 	 * Get the HalfColorSymbol corresponding to the given String.
 	 * 
 	 * @param col String to get the symbol for
-	 * @return The HalfColorSymbol corresponding to the given ManaType, or
-	 * null otherwise.
+	 * @return the HalfColorSymbol corresponding to the given color string, or null if no such
+	 * symbol exists.
 	 */
 	public static HalfColorSymbol get(String col)
 	{
@@ -64,7 +62,7 @@ public class HalfColorSymbol extends ManaSymbol
 	/**
 	 * Create a new HalfColorSymbol.
 	 * 
-	 * @param color Color of the new HalfColorSymbol
+	 * @param color color of the new HalfColorSymbol
 	 */
 	private HalfColorSymbol(ManaType color)
 	{
@@ -73,9 +71,8 @@ public class HalfColorSymbol extends ManaSymbol
 	}
 
 	/**
-	 * @return A Map containing this HalfColorSymbol's color weight.  All values will be 0 except for
-	 * this HalfColorSymbol's color, which will be 0.5.
-	 * @see editor.database.symbol.Symbol#colorWeights()
+	 * {@inheritDoc}
+	 * This HalfColorSymbol's weights are 0.5 for its color and 0 for all the others.
 	 */
 	@Override
 	public Map<ManaType, Double> colorWeights()
@@ -83,13 +80,6 @@ public class HalfColorSymbol extends ManaSymbol
 		return createWeights(new ColorWeight(color, 0.5));
 	}
 
-	/**
-	 * @param o Symbol to compare with
-	 * @return A negative number if the other symbol is a colored symbol or a hybrid symbol,
-	 * a positive number if it is a colorless symbol, the color-order difference between the two
-	 * symbols if the other symbol is a colored half-mana symbol, or 0 otherwise.
-	 * @see editor.database.symbol.Symbol#compareTo(Symbol)
-	 */
 	@Override
 	public int compareTo(ManaSymbol o)
 	{

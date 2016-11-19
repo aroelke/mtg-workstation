@@ -22,13 +22,21 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 		super(FilterFactory.BLOCK, (c) -> c.expansion().block);
 	}
 	
-	/**
-	 * Parse a String to determine this BlockFilter's containment and 
-	 * blocks.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
+	@Override
+	public String convertFromString(String str)
+	{
+		return str;
+	}
+	
+	@Override
+	public Filter copy()
+	{
+		BlockFilter filter = (BlockFilter)FilterFactory.createFilter(FilterFactory.BLOCK);
+		filter.contain = contain;
+		filter.selected = new HashSet<String>(selected);
+		return filter;
+	}
+
 	@Override
 	public void parse(String s)
 	{
@@ -37,17 +45,5 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 		contain = Containment.fromString(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			selected.addAll(Arrays.asList(content.substring(delim + 1, content.length() - 1).split(",")));
-	}
-	
-	/**
-	 * @return A new BlockFilter that is a copy of this BlockFilter.
-	 */
-	@Override
-	public Filter copy()
-	{
-		BlockFilter filter = (BlockFilter)FilterFactory.createFilter(FilterFactory.BLOCK);
-		filter.contain = contain;
-		filter.selected = new HashSet<String>(selected);
-		return filter;
 	}
 }

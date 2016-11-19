@@ -4,7 +4,7 @@ import java.util.EventListener;
 
 /**
  * This is an interface for  listener that performs an action when a
- * Deck is changed.
+ * deck is changed.
  * 
  * @author Alec Roelke
  */
@@ -12,10 +12,9 @@ import java.util.EventListener;
 public interface DeckListener extends EventListener
 {
 	/**
-	 * Based on the changes specified by the given DeckEvent,
-	 * perform an action.
+	 * Based on the changes specified by the given event, perform an action.
 	 * 
-	 * @param e DeckEvent specifying the change in the Deck
+	 * @param e event specifying the change in the Deck
 	 */
 	public void deckChanged(Deck.Event e);
 }

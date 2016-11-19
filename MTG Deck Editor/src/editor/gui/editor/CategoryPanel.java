@@ -43,64 +43,218 @@ import editor.util.UnicodeSymbols;
 public class CategoryPanel extends JPanel
 {
 	/**
-	 * Category in the Deck data structure.
+	 * This class represents a timer controlling the flash of the panel when it is skipped to.
+	 * The flash will last 400ms.
+	 *
+	 * @author Alec Roelke
 	 */
-	private Deck deck;
+	private class FlashTimer extends Timer
+	{
+		/**
+		 * Progress of the flash.
+		 */
+		private int count;
+		/**
+		 * Amount of ticks until the flash disappears.
+		 */
+		private final int END = 20;
+
+		/**
+		 * Color of the flash.
+		 */
+		private final Color FLASH = SystemColor.textHighlight;
+
+		/**
+		 * Create a new FlashTimer.
+		 */
+		public FlashTimer()
+		{
+			super(20, null);
+			count = 0;
+			addActionListener((e) -> {
+				if (++count > END)
+					stop();
+				else
+				{
+					double ratio = (double)count/(double)END;
+					int r = (int)(FLASH.getRed() + (background.getRed() - FLASH.getRed())*ratio);
+					int g = (int)(FLASH.getGreen() + (background.getGreen() - FLASH.getGreen())*ratio);
+					int b = (int)(FLASH.getBlue() + (background.getBlue() - FLASH.getBlue())*ratio);
+					setBackground(new Color(r, g, b));
+					repaint();
+				}
+			});
+		}
+
+		/**
+		 * Restart the timer, resetting the progress of the flash.
+		 */
+		@Override
+		public void restart()
+		{
+			count = 0;
+			super.restart();
+		}
+
+		/**
+		 * Stop the timer and set the panel to its default background color.
+		 */
+		@Override
+		public void stop()
+		{
+			super.stop();
+			setBackground(background);
+			repaint();
+		}
+	}
 	/**
-	 * Name of this category for display purposes.
+	 * This class represents a mouse wheel listener that returns mouse wheel control to an outer scroll
+	 * pane when this one's scroll pane has reached a limit.
+	 *
+	 * It is adapted from a StackOverflow answer to the same problem, which can be found at
+	 * @link{http://stackoverflow.com/questions/1377887/jtextpane-prevents-scrolling-in-the-parent-jscrollpane}.
+	 *
+	 * @author Nemi
+	 * @since November 24, 2009
 	 */
-	private String name;
-	/**
-	 * Table to display the contents of the category.
-	 */
-	protected CardTable table;
-	/**
-	 * Model to tell the table how to display the contents of the category.
-	 */
-	private CardTableModel model;
-	/**
-	 * Label showing the number of cards in the category.
-	 */
-	private JLabel countLabel;
+	private class PDMouseWheelListener implements MouseWheelListener
+	{
+		
+		@SuppressWarnings("javadoc")
+		private JScrollBar bar;
+		@SuppressWarnings("javadoc")
+		private JScrollPane parent;
+		@SuppressWarnings("javadoc")
+		private JScrollPane parentScrollPane;
+		@SuppressWarnings("javadoc")
+		private int previousValue = 0;
+
+		@SuppressWarnings("javadoc")
+		public PDMouseWheelListener(JScrollPane p)
+		{
+			parent = p;
+			bar = parent.getVerticalScrollBar();
+		}
+
+		@SuppressWarnings("javadoc")
+		private MouseWheelEvent cloneEvent(MouseWheelEvent e)
+		{
+			return new MouseWheelEvent(getParentScrollPane(), e.getID(), e
+					.getWhen(), e.getModifiers(), 1, 1, e
+					.getClickCount(), false, e.getScrollType(), e
+					.getScrollAmount(), e.getWheelRotation());
+		}
+
+		@SuppressWarnings("javadoc")
+		private int getMax()
+		{
+			return bar.getMaximum() - bar.getVisibleAmount();
+		}
+
+		@SuppressWarnings("javadoc")
+		private JScrollPane getParentScrollPane()
+		{
+			if (parentScrollPane == null)
+			{
+				Component parent = getParent();
+				while (!(parent instanceof JScrollPane) && parent != null)
+					parent = parent.getParent();
+				parentScrollPane = (JScrollPane)parent;
+			}
+			return parentScrollPane;
+		}
+
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e)
+		{
+			JScrollPane parent = getParentScrollPane();
+			if (parent != null)
+			{
+				/*
+				 * Only dispatch if we have reached top/bottom on previous scroll
+				 */
+				 if (e.getWheelRotation() < 0)
+				 {
+					 if (bar.getValue() == 0 && previousValue == 0)
+						 parent.dispatchEvent(cloneEvent(e));
+				 }
+				 else
+				 {
+					 if (bar.getValue() == getMax() && previousValue == getMax())
+						 parent.dispatchEvent(cloneEvent(e));
+				 }
+				 previousValue = bar.getValue();
+			}
+			/*
+			 * If parent scrollpane doesn't exist, remove this as a listener.
+			 * We have to defer this till now (vs doing it in constructor)
+			 * because in the constructor this item has no parent yet.
+			 */
+			else
+				this.parent.removeMouseWheelListener(this);
+		}
+	}
 	/**
 	 * Label showing the average CMC of cards in the category.
 	 */
 	private JLabel avgCMCLabel;
 	/**
-	 * Button for editing the category.
+	 * Default background color of this panel.
 	 */
-	protected JButton editButton;
-	/**
-	 * Button to remove the category.
-	 */
-	protected JButton removeButton;
-	/**
-	 * Button displaying and allowing editing of the category's color.
-	 */
-	protected ColorButton colorButton;
+	private Color background;
 	/**
 	 * Border showing the name of the category.
 	 */
 	private TitledBorder border;
 	/**
-	 * Default background color of this panel.
+	 * Button displaying and allowing editing of the category's color.
 	 */
-	private Color background;
+	protected ColorButton colorButton;
+	/**
+	 * Label showing the number of cards in the category.
+	 */
+	private JLabel countLabel;
+	/**
+	 * Category in the Deck data structure.
+	 */
+	private Deck deck;
+	/**
+	 * Button for editing the category.
+	 */
+	protected JButton editButton;
 	/**
 	 * Timer timing flashing of the border of this panel when it is skipped to.
 	 */
 	private Timer flashTimer;
+	/**
+	 * Model to tell the table how to display the contents of the category.
+	 */
+	private CardTableModel model;
+	/**
+	 * Name of this category for display purposes.
+	 */
+	private String name;
 	/**
 	 * Combo box showing the user-defined rank of the category.
 	 */
 	protected JComboBox<Integer> rankBox;
 
 	/**
+	 * Button to remove the category.
+	 */
+	protected JButton removeButton;
+
+	/**
+	 * Table to display the contents of the category.
+	 */
+	protected CardTable table;
+
+	/**
 	 * Create a new CategoryPanel.
 	 *
-	 * @param d Deck containing the category to display
-	 * @param n Name of the category to display
-	 * @param editor EditorFrame containing the new CategoryPanel
+	 * @param d deck containing the category to display
+	 * @param n name of the category to display
+	 * @param editor {@link EditorFrame} containing the new CategoryPanel
 	 */
 	public CategoryPanel(Deck d, String n, EditorFrame editor)
 	{
@@ -157,7 +311,7 @@ public class CategoryPanel extends JPanel
 		table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
 		for (int i = 0; i < table.getColumnCount(); i++)
 			if (model.isCellEditable(0, i))
-				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnCharacteristic(i)));
+				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnData(i)));
 		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
 		tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -167,6 +321,32 @@ public class CategoryPanel extends JPanel
 	}
 
 	/**
+	 * Apply settings to this CategoryPanel.
+	 *
+	 * @param editor {@link EditorFrame} containing this CategoryPanel
+	 */
+	public void applySettings(EditorFrame editor)
+	{
+		List<CardData> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
+		Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
+		model.setColumns(columns);
+		table.setStripeColor(stripe);
+		for (int i = 0; i < table.getColumnCount(); i++)
+			if (model.isCellEditable(0, i))
+				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnData(i)));
+	}
+
+	/**
+	 * Briefly flash to draw attention to this CategoryPanel.
+	 */
+	public void flash()
+	{
+		flashTimer.restart();
+	}
+
+	/**
+	 * Get the name of the corresponding category in the deck.
+	 * 
 	 * @return The name of the category this CategoryPanel is displaying.
 	 */
 	public String getCategoryName()
@@ -175,9 +355,22 @@ public class CategoryPanel extends JPanel
 	}
 
 	/**
+	 * Get the cards selected from this CategoryPanel's table.
+	 * 
+	 * @return The list of Cards corresponding to the selected rows in the category's table.
+	 */
+	public List<Card> getSelectedCards()
+	{
+		return Arrays.stream(table.getSelectedRows())
+					 .mapToObj((r) -> deck.getCategoryList(name)[table.convertRowIndexToModel(r)])
+					 .collect(Collectors.toList());
+	}
+
+	/**
 	 * Change the category this panel should display to a new one.
-	 * @param n Name of the new category to display
-	 * @throws IllegalArgumentException If the deck does not have a category with that name.
+	 * 
+	 * @param n name of the new category to display
+	 * @throws IllegalArgumentException if the deck does not have a category with that name
 	 */
 	public void setCategoryName(String n)
 	{
@@ -191,7 +384,6 @@ public class CategoryPanel extends JPanel
 	 */
 	public void update()
 	{
-//		model.fireTableDataChanged();
 		countLabel.setText("Cards: " + deck.getCategoryList(name).total());
 
 		double avgCMC = 0.0;
@@ -218,184 +410,5 @@ public class CategoryPanel extends JPanel
 		colorButton.repaint();
 		revalidate();
 		repaint();
-	}
-
-	/**
-	 * @return The list of Cards corresponding to the selected rows in the category's table.
-	 */
-	public List<Card> getSelectedCards()
-	{
-		return Arrays.stream(table.getSelectedRows())
-					 .mapToObj((r) -> deck.getCategoryList(name)[table.convertRowIndexToModel(r)])
-					 .collect(Collectors.toList());
-	}
-
-	/**
-	 * Briefly flash to draw attention to this CategoryPanel.
-	 */
-	public void flash()
-	{
-		flashTimer.restart();
-	}
-
-	/**
-	 * Apply settings to this CategoryPanel.
-	 *
-	 * @param editor EditorFrame containing this CategoryPanel
-	 */
-	public void applySettings(EditorFrame editor)
-	{
-		List<CardData> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
-		Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
-		model.setColumns(columns);
-		table.setStripeColor(stripe);
-		for (int i = 0; i < table.getColumnCount(); i++)
-			if (model.isCellEditable(0, i))
-				table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnCharacteristic(i)));
-	}
-
-	/**
-	 * This class represents a mouse wheel listener that returns mouse wheel control to an outer scroll
-	 * pane when this one's scroll pane has reached a limit.
-	 *
-	 * It is adapted from a StackOverflow answer to the same problem, which can be found at
-	 * @link{http://stackoverflow.com/questions/1377887/jtextpane-prevents-scrolling-in-the-parent-jscrollpane}.
-	 *
-	 * @author Nemi
-	 * @since November 24, 2009
-	 */
-	private class PDMouseWheelListener implements MouseWheelListener
-	{
-		private JScrollBar bar;
-		private int previousValue = 0;
-		private JScrollPane parentScrollPane;
-		private JScrollPane parent;
-
-		private JScrollPane getParentScrollPane()
-		{
-			if (parentScrollPane == null)
-			{
-				Component parent = getParent();
-				while (!(parent instanceof JScrollPane) && parent != null)
-					parent = parent.getParent();
-				parentScrollPane = (JScrollPane)parent;
-			}
-			return parentScrollPane;
-		}
-
-		public PDMouseWheelListener(JScrollPane p)
-		{
-			parent = p;
-			bar = parent.getVerticalScrollBar();
-		}
-
-		@Override
-		public void mouseWheelMoved(MouseWheelEvent e)
-		{
-			JScrollPane parent = getParentScrollPane();
-			if (parent != null)
-			{
-				/*
-				 * Only dispatch if we have reached top/bottom on previous scroll
-				 */
-				 if (e.getWheelRotation() < 0)
-				 {
-					 if (bar.getValue() == 0 && previousValue == 0)
-						 parent.dispatchEvent(cloneEvent(e));
-				 }
-				 else
-				 {
-					 if (bar.getValue() == getMax() && previousValue == getMax())
-						 parent.dispatchEvent(cloneEvent(e));
-				 }
-				 previousValue = bar.getValue();
-			}
-			/*
-			 * If parent scrollpane doesn't exist, remove this as a listener.
-			 * We have to defer this till now (vs doing it in constructor)
-			 * because in the constructor this item has no parent yet.
-			 */
-			else
-				this.parent.removeMouseWheelListener(this);
-		}
-
-		private int getMax()
-		{
-			return bar.getMaximum() - bar.getVisibleAmount();
-		}
-
-		private MouseWheelEvent cloneEvent(MouseWheelEvent e)
-		{
-			return new MouseWheelEvent(getParentScrollPane(), e.getID(), e
-					.getWhen(), e.getModifiers(), 1, 1, e
-					.getClickCount(), false, e.getScrollType(), e
-					.getScrollAmount(), e.getWheelRotation());
-		}
-	}
-
-	/**
-	 * This class represents a timer controlling the flash of the panel when it is skipped to.
-	 * The flash will last 400ms.
-	 *
-	 * @author Alec Roelke
-	 */
-	private class FlashTimer extends Timer
-	{
-		/**
-		 * Amount of ticks until the flash disappears.
-		 */
-		private final int END = 20;
-		/**
-		 * Color of the flash.
-		 */
-		private final Color FLASH = SystemColor.textHighlight;
-
-		/**
-		 * Progress of the flash.
-		 */
-		private int count;
-
-		/**
-		 * Create a new FlashTimer.
-		 */
-		public FlashTimer()
-		{
-			super(20, null);
-			count = 0;
-			addActionListener((e) -> {
-				if (++count > END)
-					stop();
-				else
-				{
-					double ratio = (double)count/(double)END;
-					int r = (int)(FLASH.getRed() + (background.getRed() - FLASH.getRed())*ratio);
-					int g = (int)(FLASH.getGreen() + (background.getGreen() - FLASH.getGreen())*ratio);
-					int b = (int)(FLASH.getBlue() + (background.getBlue() - FLASH.getBlue())*ratio);
-					setBackground(new Color(r, g, b));
-					repaint();
-				}
-			});
-		}
-
-		/**
-		 * Stop the timer and set the panel to its default background color.
-		 */
-		@Override
-		public void stop()
-		{
-			super.stop();
-			setBackground(background);
-			repaint();
-		}
-
-		/**
-		 * Restart the timer, resetting the progress of the flash.
-		 */
-		@Override
-		public void restart()
-		{
-			count = 0;
-			super.restart();
-		}
 	}
 }

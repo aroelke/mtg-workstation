@@ -20,29 +20,29 @@ import editor.database.characteristics.ManaCost;
 public class MeldCard extends MultiCard
 {
 	/**
+	 * Converted mana costs of this MeldCard's faces. 
+	 */
+	private List<Double> cmc;
+	/**
 	 * Front face of this MeldCard.
 	 */
 	private final Card front;
-	/**
-	 * This MeldCard's "sibling," with which it melds to form the back face.
-	 */
-	private final Card other;
 	/**
 	 * Tuple of this MeldCard's faces' mana costs.
 	 */
 	private ManaCost.Tuple manaCost;
 	/**
-	 * Converted mana costs of this MeldCard's faces. 
+	 * This MeldCard's "sibling," with which it melds to form the back face.
 	 */
-	private List<Double> cmc;
+	private final Card other;
 	
 	/**
-	 * Create a new MeldCard, with the given Cards as front, other front, and
+	 * Create a new MeldCard, with the given cards as front, other front, and
 	 * back faces, respectively.
 	 * 
-	 * @param f Front face of the new MeldCard
-	 * @param o Other front face of the new MeldCard
-	 * @param b Back face of the two front faces.
+	 * @param f front face of the new MeldCard
+	 * @param o other front face of the new MeldCard
+	 * @param b back face of the two front faces.
 	 */
 	public MeldCard(Card f, Card o, Card b)
 	{
@@ -58,29 +58,9 @@ public class MeldCard extends MultiCard
 	}
 	
 	/**
-	 * @return The Card this MeldCard melds with. 
-	 */
-	public Card meldsWith()
-	{
-		return other;
-	}
-	
-	/**
-	 * @return A list containing the mana cost of this DoubleFacedCard.  Only the front
-	 * face has a mana cost.
-	 */
-	@Override
-	public ManaCost.Tuple manaCost()
-	{
-		if (manaCost == null)
-			manaCost = new ManaCost.Tuple(front.manaCost()[0], new ManaCost());
-		return manaCost;
-	}
-	
-	/**
-	 * @return A list containing the converted mana cost of this DoubleFacedCard.  While only
-	 * the front face has a mana cost, the back face's converted mana cost is the sum of those
-	 * of its two front faces.
+	 * {@inheritDoc}
+	 * While only the front face has a mana cost, the back face's converted mana cost
+	 * is the sum of those of its two front faces.
 	 */
 	@Override
 	public List<Double> cmc()
@@ -89,23 +69,10 @@ public class MeldCard extends MultiCard
 			cmc = Arrays.asList(front.cmc()[0], front.cmc()[0] + other.cmc()[0]);
 		return cmc;
 	}
-	
+
 	/**
-	 * @return The converted mana cost of this MeldCard's front face.
-	 */
-	@Override
-	public double minCmc()
-	{
-		return front.minCmc();
-	}
-	
-	/**
-	 * The same as Card's {@link Card#formatDocument(StyledDocument, int)}, except
-	 * add some information to the front face indicating what the other front face is.
-	 * 
-	 * @param document Document to add text to
-	 * @param f Face to add text from.  If 0, then an additional line is added indicating
-	 * what the other half of the meld card is.
+	 * {@inheritDoc}
+	 * Includes some information to the front face indicating what the other front face is.
 	 */
 	@Override
 	public void formatDocument(StyledDocument document, int f)
@@ -123,5 +90,34 @@ public class MeldCard extends MultiCard
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * The back face of a MeldCard has no mana cost (but does have a converted mana cost,
+	 * see {@link MeldCard#cmc()}).
+	 */
+	@Override
+	public ManaCost.Tuple manaCost()
+	{
+		if (manaCost == null)
+			manaCost = new ManaCost.Tuple(front.manaCost()[0], new ManaCost());
+		return manaCost;
+	}
+
+	/**
+	 * Get the card this MeldCard melds with.
+	 * 
+	 * @return the Card this MeldCard melds with. 
+	 */
+	public Card meldsWith()
+	{
+		return other;
+	}
+	
+	@Override
+	public double minCmc()
+	{
+		return front.minCmc();
 	}
 }

@@ -29,7 +29,7 @@ public class LegalityPanel extends JPanel
 	/**
 	 * Create a new LegalityPanel showing the legality of a deck.
 	 *
-	 * @param legality Legality of a deck.  Make sure to have it calculate
+	 * @param legality legality of a deck.  Make sure to have it calculate
 	 * the legality of a deck, or nothing will be shown.
 	 */
 	public LegalityPanel(LegalityChecker legality)
@@ -51,15 +51,15 @@ public class LegalityPanel extends JPanel
 		JList<String> legalList = new JList<String>(legality.legalFormats());
 		legalList.setSelectionModel(new DefaultListSelectionModel() {
 			@Override
-			public void setSelectionInterval(int index0, int index1)
-			{
-				super.setSelectionInterval(-1, -1);
-			}
-
-			@Override
 			public int getSelectionMode()
 			{
 				return ListSelectionModel.SINGLE_SELECTION;
+			}
+
+			@Override
+			public void setSelectionInterval(int index0, int index1)
+			{
+				super.setSelectionInterval(-1, -1);
 			}
 		});
 		legalPanel.add(new JScrollPane(legalList), BorderLayout.CENTER);

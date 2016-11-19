@@ -1,7 +1,7 @@
 package editor.database.symbol;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,15 +28,15 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 			ColorSymbol.class);
 	
 	/**
-	 * Create a map of color weights for a Symbol, where the keys are ManaTypes and the values
-	 * are their weights (Doubles).
+	 * Create a map of color weights for a Symbol, where the keys are {@link ManaType}s and
+	 * the values are their weights (Doubles).
 	 * 
-	 * @param weights Initial weights to use.
-	 * @return The Map of ManaTypes onto weights.
+	 * @param weights initial weights to use.
+	 * @return the map of {@link ManaType}s onto weights.
 	 */
 	public static Map<ManaType, Double> createWeights(ColorWeight... weights)
 	{
-		Map<ManaType, Double> weightsMap = new HashMap<ManaType, Double>();
+		Map<ManaType, Double> weightsMap = new EnumMap<ManaType, Double>(ManaType.class);
 		weightsMap[ManaType.COLORLESS] = 0.0;
 		weightsMap[ManaType.WHITE] = 0.0;
 		weightsMap[ManaType.BLUE] = 0.0;
@@ -45,6 +45,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 		weightsMap[ManaType.GREEN] = 0.0;
 		for (ColorWeight w: weights)
 			weightsMap[w.color] = w.weight;
+		assert(weightsMap.values().stream().mapToDouble((v) -> v).sum() == 1.0);
 		return weightsMap;
 	}
 	
@@ -52,7 +53,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 	 * Create a ManaSymbol from a String.
 	 * 
 	 * @param s String representation of the new ManaSymbol, not surrounded by {}
-	 * @return A new ManaSymbol that the specified String represents, or null if there
+	 * @return a new ManaSymbol that the specified String represents, or null if there
 	 * is no such ManaSymbol.
 	 */
 	public static ManaSymbol get(String s)
@@ -79,11 +80,22 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 	}
 	
 	/**
+	 * Sort a list of ManaSymbols according to their ordering in the color wheel.
+	 * (Not yet implemented)
+	 * 
+	 * @param symbols List of ManaSymbols to sort.
+	 */
+	public static void sort(List<ManaSymbol> symbols)
+	{
+		// TODO: Implement this
+	}
+	
+	/**
 	 * Get the ManaSymbol value of the given String.
 	 * 
 	 * @param s String to parse
-	 * @return The ManaSymbol that corresponds to the given String.
-	 * @throws IllegalArgumentException If the String doesn't represent a Symbol.
+	 * @return 5he ManaSymbol that corresponds to the given String
+	 * @throws IllegalArgumentException if the String doesn't represent a Symbol
 	 */
 	public static ManaSymbol valueOf(String s)
 	{
@@ -95,18 +107,17 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 	}
 	
 	/**
-	 * Sort a list of ManaSymbols according to their ordering in the color wheel.
-	 * 
-	 * @param symbols List of ManaSymbols to sort.
+	 * How much this ManaSymbols is worth for calculating converted mana costs.
 	 */
-	public static void sort(List<ManaSymbol> symbols)
-	{
-		// TODO: Implement this
-		System.err.println("Sorting mana symbols is not yet implemented");
-	}
-	
 	private final double value;
 	
+	/**
+	 * Create a new ManaSymbol.
+	 * 
+	 * @param iconName name of the new ManaSymbol
+	 * @param text String representation of the new ManaSymbol
+	 * @param v value of the new ManaSymbol in a mana cost.
+	 */
 	protected ManaSymbol(String iconName, String text, double v)
 	{
 		super(iconName, text);
@@ -114,24 +125,13 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 	}
 	
 	/**
-	 * @return How much mana this Symbol is worth for calculating converted mana costs.
-	 */
-	public double value()
-	{
-		return value;
-	}
-	
-	/**
-	 * @return This Symbol's color weight map.
+	 * Get a map of each {@link ManaType} onto this ManaSymbol's weight for that type.
+	 * Each weight should always be between 0 and 1.
+	 * 
+	 * @return this ManaSymbol's color weight map
 	 */
 	public abstract Map<ManaType, Double> colorWeights();
 	
-	/**
-	 * @param other Symbol to compare with
-	 * @return A negative number if this Symbol should appear before the other in a list,
-	 * 0 if the two symbols are the same or if their order doesn't matter,
-	 * and a positive number if this Symbol should appear after it.
-	 */
 	@Override
 	public int compareTo(ManaSymbol other)
 	{
@@ -143,5 +143,15 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 			return -1;
 		else
 			return 0;
+	}
+	
+	/**
+	 * Get the value of this ManaSymbol in a mana cost.
+	 * 
+	 * @return this ManaSymbol's value
+	 */
+	public double value()
+	{
+		return value;
 	}
 }

@@ -66,82 +66,105 @@ import editor.util.UnicodeSymbols;
  * This class is a dialog that allows the user to change various properties about
  * the program.
  *
+ * TODO: Make a panel for editing tags
+ * TODO: Make a button for clearing card tags
+ *
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog
 {
 	/**
-	 * Global settings for the program.
-	 */
-	private static final Properties SETTINGS = new Properties();
-
-	/**
-	 * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
-	 */
-	public static final Pattern COLOR_PATTERN = Pattern.compile("^#([0-9a-fA-F]{2})?([0-9a-fA-F]{6})$");
-	/**
-	 * Name of the file to get settings from.
-	 */
-	public static final String PROPERTIES_FILE = "settings.txt";
-	/**
-	 * Directory to start the file chooser in.
-	 */
-	public static final String INITIALDIR = "initialdir";
-	/**
-	 * Tags that have been applied to cards.
-	 */
-	public static final String CARD_TAGS = "card_tags";
-
-	////////////////// INVENTORY SETTINGS ////////////////
-	/**
-	 * File to download to check the latest version of the inventory.
-	 */
-	public static final String VERSION_FILE = "inventory.version_file";
-	/**
-	 * Website to connect to for downloading the inventory.
-	 */
-	public static final String INVENTORY_SOURCE = "inventory.source";
-	/**
-	 * File to download containing the inventory.
-	 */
-	public static final String INVENTORY_FILE = "inventory.file";
-	/**
-	 * Current inventory version.
-	 */
-	public static final String VERSION = "inventory.version";
-	/**
-	 * Whether or not to check for the latest inventory version on startup.
-	 */
-	public static final String INITIAL_CHECK = "inventory.initialcheck";
-	/**
-	 * Whether or not to suppress warnings on load.
-	 */
-	public static final String SUPPRESS_LOAD_WARNINGS = "inventory.suppressload";
-	/**
-	 * Directory to store the inventory file in.
-	 */
-	public static final String INVENTORY_LOCATION = "inventory.location";
-	/**
 	 * Location to find card scans.
 	 */
 	public static final String CARD_SCANS = "scans";
 
-	////////////////// INVENTORY APPEARANCE SETTINGS ////////////////
 	/**
-	 * Columns to display in the inventory table.
+	 * Tags that have been applied to cards.
 	 */
-	public static final String INVENTORY_COLUMNS = "inventory.columns";
+	public static final String CARD_TAGS = "card_tags";
 	/**
-	 * Code for the color of the stripes of the inventory table.
+	 * Delimiter for preset categories in the settings file.
 	 */
-	public static final String INVENTORY_STRIPE = "inventory.stripe";
+	public static final String CATEGORY_DELIMITER = UnicodeSymbols.END_OF_PROOF;
+	/**
+	 * Maximum number of rows to show in category panels.
+	 */
+	public static final String CATEGORY_ROWS = "editor.rows";
+	/**
+	 * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
+	 */
+	public static final Pattern COLOR_PATTERN = Pattern.compile("^#([0-9a-fA-F]{2})?([0-9a-fA-F]{6})$");
+
+	/**
+	 * Columns to display in editor tables.
+	 */
+	public static final String EDITOR_COLUMNS = "editor.columns";
+	/**
+	 * Preset categories that can be added to editors.
+	 */
+	public static final String EDITOR_PRESETS = "editor.presets";
+	/**
+	 * Stripe color for editor tables.
+	 */
+	public static final String EDITOR_STRIPE = "editor.stripe";
+	/**
+	 * Round mode for displaying expected category counts in the hand panel.
+	 */
+	public static final String EXPECTED_ROUND_MODE = "hand.expectedround";
+	/**
+	 * Number of rows to show in the blacklist and whitelist displays in the
+	 * category editor.
+	 */
+	public static final String EXPLICITS_ROWS = "category.explicits_rows";
+	/**
+	 * Background color for card scans in sample hands.
+	 */
+	public static final String HAND_BGCOLOR = "hand.bgcolor";
+	/**
+	 * Default initial size for a hand.
+	 */
+	public static final String HAND_SIZE = "hand.size";
 	/**
 	 * Background color for card scans in the left pane.
 	 */
 	public static final String IMAGE_BGCOLOR = "inventory.scan_bgcolor";
 
-	////////////////// EDITOR SETTINGS ////////////////
+	/**
+	 * Whether or not to check for the latest inventory version on startup.
+	 */
+	public static final String INITIAL_CHECK = "inventory.initialcheck";
+	/**
+	 * Directory to start the file chooser in.
+	 */
+	public static final String INITIALDIR = "initialdir";
+	/**
+	 * Columns to display in the inventory table.
+	 */
+	public static final String INVENTORY_COLUMNS = "inventory.columns";
+
+	/**
+	 * File to download containing the inventory.
+	 */
+	public static final String INVENTORY_FILE = "inventory.file";
+	/**
+	 * Directory to store the inventory file in.
+	 */
+	public static final String INVENTORY_LOCATION = "inventory.location";
+	/**
+	 * Website to connect to for downloading the inventory.
+	 */
+	public static final String INVENTORY_SOURCE = "inventory.source";
+
+	/**
+	 * Code for the color of the stripes of the inventory table.
+	 */
+	public static final String INVENTORY_STRIPE = "inventory.stripe";
+
+	/**
+	 * Name of the file to get settings from.
+	 */
+	public static final String PROPERTIES_FILE = "settings.txt";
 	/**
 	 * Number of recently-opened files to save.
 	 */
@@ -150,74 +173,149 @@ public class SettingsDialog extends JDialog
 	 * Recently-opened files paths.
 	 */
 	public static final String RECENT_FILES = "recents.files";
-	/**
-	 * Number of rows to show in the blacklist and whitelist displays in the
-	 * category editor.
-	 */
-	public static final String EXPLICITS_ROWS = "category.explicits_rows";
-
-	////////////////// PRESET CATEGORIES ////////////////
-	/**
-	 * Preset categories that can be added to editors.
-	 */
-	public static final String EDITOR_PRESETS = "editor.presets";
-
-	////////////////// EDITOR APPEARANCE ////////////////
-	/**
-	 * Maximum number of rows to show in category panels.
-	 */
-	public static final String CATEGORY_ROWS = "editor.rows";
-	/**
-	 * Columns to display in editor tables.
-	 */
-	public static final String EDITOR_COLUMNS = "editor.columns";
-	/**
-	 * Stripe color for editor tables.
-	 */
-	public static final String EDITOR_STRIPE = "editor.stripe";
-
-	////////////////// SAMPLE HAND SETTINGS ////////////////
-	/**
-	 * Default initial size for a hand.
-	 */
-	public static final String HAND_SIZE = "hand.size";
-	/**
-	 * Background color for card scans in sample hands.
-	 */
-	public static final String HAND_BGCOLOR = "hand.bgcolor";
-	/**
-	 * Round mode for displaying expected category counts in the hand panel.
-	 */
-	public static final String EXPECTED_ROUND_MODE = "hand.expectedround";
 
 	/**
-	 * Save preferences.
+	 * Global settings for the program.
+	 */
+	private static final Properties SETTINGS = new Properties();
+	/**
+	 * Whether or not to suppress warnings on load.
+	 */
+	public static final String SUPPRESS_LOAD_WARNINGS = "inventory.suppressload";
+	/**
+	 * Current inventory version.
+	 */
+	public static final String VERSION = "inventory.version";
+	/**
+	 * File to download to check the latest version of the inventory.
+	 */
+	public static final String VERSION_FILE = "inventory.version_file";
+
+	/**
+	 * Add a preset category to the global settings.
 	 *
-	 * @throws IOException If an exception occurred during saving.
+	 * @param category String version of the category to add.
 	 */
-	public static void save() throws IOException
+	public static void addPresetCategory(String category)
 	{
-		try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE))
+		SETTINGS.compute(SettingsDialog.EDITOR_PRESETS, (k, v) -> v += SettingsDialog.CATEGORY_DELIMITER + category);
+	}
+
+	/**
+	 * Convert a #Color to a String in the format <code>#AARRGGBB</code>.
+	 *
+	 * @param col #Color to convert
+	 * @return String code of the color.
+	 */
+	public static String colorToString(Color col)
+	{
+		return colorToString(col, 4);
+	}
+
+	/**
+	 * Convert a #Color to a String in the format <code>#AARRGGBB</code>.
+	 *
+	 * @param col #Color to convert
+	 * @param width minimum width of the color string
+	 * @return String code of the color.
+	 */
+	public static String colorToString(Color col, int width)
+	{
+		return String.format("#%0" + (width*2) + "X", col.getRGB()&((1L << (width*8)) - 1));
+	}
+
+	/**
+	 * Get the boolean value of the given global setting.
+	 *
+	 * @param name name of the setting to get
+	 * @return true if the String value of the given setting is "true" and false otherwise.
+	 */
+	public static boolean getAsBoolean(String name)
+	{
+		return Boolean.valueOf(SETTINGS.getProperty(name));
+	}
+
+	/**
+	 * Get the list of #CardData types represented by the given global setting.
+	 *
+	 * @param name name of the setting to get
+	 * @return list of #CardData that is represented by the setting
+	 * @throws IllegalArgumentException if the given setting is not a list of #CardData types
+	 */
+	public static List<CardData> getAsCharacteristics(String name) throws IllegalArgumentException
+	{
+		try
 		{
-			StringBuilder str = new StringBuilder();
-			for (Card c: Card.tags.keySet())
-			{
-				str.append("(");
-				str.append(c.id());
-				str.append("::");
-				str.append(Card.tags[c].toString());
-				str.append(")");
-			}
-			SETTINGS[CARD_TAGS] = str.toString();
-			SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
+			return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardData::get).collect(Collectors.toList());
+		}
+		catch (IllegalArgumentException e)
+		{
+			throw new IllegalArgumentException(name + " is not a setting for a list of CardData types");
 		}
 	}
 
 	/**
-	 * Load global settings from the settings file.
+	 * Get the #Color value of the given global setting.
 	 *
-	 * @throws FileNotFoundException If the settings file can't be found.
-	 * @throws IOException If an error occurred during loading.
+	 * @param name name of the setting to get
+	 * @return the Color value of the given setting.
+	 * @throws IllegalArgumentException If the given setting does not represent a #Color.
+	 */
+	public static Color getAsColor(String name) throws IllegalArgumentException
+	{
+		try
+		{
+			return stringToColor(SETTINGS.getProperty(name));
+		}
+		catch (IllegalArgumentException e)
+		{
+			throw new IllegalArgumentException(name + " is not a color setting");
+		}
+	}
+
+	/**
+	 * Get the integer value of the given global setting.
+	 *
+	 * @param name name of the setting to get
+	 * @return the integer value of the given setting.
+	 * @throws IllegalArgumentException if the given setting is not a numerical setting.
+	 */
+	public static int getAsInt(String name) throws NumberFormatException
+	{
+		try
+		{
+			return Integer.valueOf(SETTINGS.getProperty(name));
+		}
+		catch (NumberFormatException e)
+		{
+			throw new IllegalArgumentException(name + " is not a numeric setting");
+		}
+	}
+
+	/**
+	 * @param name name of the setting to get
+	 * @return The string value of the setting with the given name.
+	 */
+	public static String getAsString(String name)
+	{
+		return SETTINGS.getProperty(name);
+	}
+
+	/**
+	 * Get the default categories.
+	 * 
+	 * @return the list of preset CategorySpecs.
+	 */
+	public static List<CategorySpec> getPresetCategories()
+	{
+		return Arrays.stream(SETTINGS.getProperty(EDITOR_PRESETS).split(CATEGORY_DELIMITER)).map(CategorySpec::new).collect(Collectors.toList());
+	}
+
+	/**
+	 * Load global settings from the settings file.  This does not affect card tags.
+	 *
+	 * @throws FileNotFoundException if the settings file can't be found.
+	 * @throws IOException if an error occurred during loading.
 	 */
 	public static void load() throws FileNotFoundException, IOException
 	{
@@ -258,116 +356,50 @@ public class SettingsDialog extends JDialog
 		SETTINGS[HAND_BGCOLOR] = "#FFFFFFFF";
 	}
 
-	public static <T> void set(String name, T value)
+	/**
+	 * Save preferences to file whose name is specified by the value of {@link #PROPERTIES_FILE}.
+	 *
+	 * @throws IOException if an exception occurred during saving.
+	 */
+	public static void save() throws IOException
 	{
+		try (FileOutputStream out = new FileOutputStream(PROPERTIES_FILE))
+		{
+			StringBuilder str = new StringBuilder();
+			for (Card c: Card.tags.keySet())
+			{
+				str.append("(");
+				str.append(c.id());
+				str.append("::");
+				str.append(Card.tags[c].toString());
+				str.append(")");
+			}
+			SETTINGS[CARD_TAGS] = str.toString();
+			SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
+		}
+	}
+
+	/**
+	 * Set the value Of the given setting.
+	 * 
+	 * @param name name of the setting to set
+	 * @param value value to set it to
+	 * @throws IllegalArgumentException if the name isn't the name of an existing setting
+	 */
+	public static void set(String name, Object value) throws IllegalArgumentException
+	{
+		if (!SETTINGS.containsKey(name))
+			throw new IllegalArgumentException("Unknown setting name " + name);
 		SETTINGS[name] = String.valueOf(value);
 	}
 
 	/**
-	 * @param name Name of the setting to get
-	 * @return The String value of the setting with the given name.
-	 */
-	public static String getAsString(String name)
-	{
-		return SETTINGS.getProperty(name);
-	}
-
-	/**
-	 * Get the boolean value of the given global setting.
-	 *
-	 * @param name Name of the setting to get
-	 * @return <code>true</code> if the String value of the given setting is "true" and
-	 * <code>false</code> otherwise.
-	 */
-	public static boolean getAsBoolean(String name)
-	{
-		return Boolean.valueOf(SETTINGS.getProperty(name));
-	}
-
-	/**
-	 * Get the integer value of the given global setting.
-	 *
-	 * @param name Name of the setting to get
-	 * @return The integer value of the given setting.
-	 * @throws NumberFormatException If the given setting is not a numerical setting.
-	 */
-	public static int getAsInt(String name) throws NumberFormatException
-	{
-		return Integer.valueOf(SETTINGS.getProperty(name));
-	}
-
-	/**
-	 * Get the Color value of the given global setting.
-	 *
-	 * @param name Name of the setting to get
-	 * @return The Color value of the given setting.
-	 * @throws IllegalArgumentException If the given setting does not represent a Color.
-	 */
-	public static Color getAsColor(String name) throws IllegalArgumentException
-	{
-		return stringToColor(SETTINGS.getProperty(name));
-	}
-
-	/**
-	 * Get the list of CardCharacteristics represented by the given global setting.
-	 *
-	 * @param name Name of the setting to get
-	 * @return List of CardCharacteristic that is represented by the setting
-	 * @throws IllegalArgumentException If the given setting is not a list of CardCharacteristics
-	 */
-	public static List<CardData> getAsCharacteristics(String name) throws IllegalArgumentException
-	{
-		return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardData::get).collect(Collectors.toList());
-	}
-
-	/**
-	 * @return The list of preset CategorySpecs.
-	 */
-	public static List<CategorySpec> getPresetCategories()
-	{
-		return Arrays.stream(SETTINGS.getProperty(EDITOR_PRESETS).split(CATEGORY_DELIMITER)).map(CategorySpec::new).collect(Collectors.toList());
-	}
-
-	/**
-	 * Add a preset category to the global settings.
-	 *
-	 * @param category String version of the category to add.
-	 */
-	public static void addPresetCategory(String category)
-	{
-		SETTINGS.compute(SettingsDialog.EDITOR_PRESETS, (k, v) -> v += SettingsDialog.CATEGORY_DELIMITER + category);
-	}
-
-	/**
-	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
-	 *
-	 * @param col Color to convert
-	 * @param width Minimum width of the color string
-	 * @return String code of the color.
-	 */
-	public static String colorToString(Color col, int width)
-	{
-		return String.format("#%0" + (width*2) + "X", col.getRGB()&((1L << (width*8)) - 1));
-	}
-
-	/**
-	 * Convert a @link{java.awt.Color} to a String in the format <code>#AARRGGBB</code>.
-	 *
-	 * @param col Color to convert
-	 * @return String code of the color.
-	 */
-	public static String colorToString(Color col)
-	{
-		return colorToString(col, 4);
-	}
-
-	/**
-	 * Decode an ARGB @link{java.awt.Color} from a String of either the format
+	 * Decode an ARGB #Color from a String of either the format
 	 * <code>#AARRGGBB</code> or <code>#RRGGBB</code>.
 	 *
 	 * @param s String to parse
-	 * @return The Color corresponding to the String.
-	 * @throw IllegalArgumentException if the given String does not represent a Color.
+	 * @return the #Color corresponding to the String.
+	 * @throw IllegalArgumentException if the given String does not represent a #Color.
 	 */
 	public static Color stringToColor(String s) throws IllegalArgumentException
 	{
@@ -382,39 +414,10 @@ public class SettingsDialog extends JDialog
 		else
 			throw new IllegalArgumentException("Illegal color string \"" + s + "\"");
 	}
-
 	/**
-	 * MainFrame showing the dialog.
+	 * List of preset categories.
 	 */
-	private MainFrame parent;
-	/**
-	 * Text field controlling the web site that the inventory should be downloaded from.
-	 */
-	private JTextField inventorySiteField;
-	/**
-	 * Text field controlling the name of the file to be downloaded.
-	 */
-	private JTextField inventoryFileField;
-	/**
-	 * Text field controlling the directory to store the inventory in once it is downloaded.
-	 */
-	private JTextField inventoryDirField;
-	/**
-	 * Check box indicating whether or not to perform a check for updates on program start.
-	 */
-	private JCheckBox updateCheckBox;
-	/**
-	 * Check boxes indicating which columns to show in the inventory table.
-	 */
-	private List<JCheckBox> inventoryColumnCheckBoxes;
-	/**
-	 * Color chooser for the color of alternate inventory table stripes.
-	 */
-	private JColorChooser inventoryStripeColor;
-	/**
-	 * Spinner for the number of recent files to save.
-	 */
-	private JSpinner recentSpinner;
+	private CategoryList categoriesList;
 	/**
 	 * Check boxes indicating which columns to show in editor tables.
 	 */
@@ -424,51 +427,75 @@ public class SettingsDialog extends JDialog
 	 */
 	private JColorChooser editorStripeColor;
 	/**
-	 * Number of cards to draw in the starting hand.
-	 */
-	private JSpinner startingSizeSpinner;
-	/**
-	 * Delimiter for preset categories in the settings file.
-	 */
-	public static final String CATEGORY_DELIMITER = UnicodeSymbols.END_OF_PROOF;
-	/**
-	 * Text field containing the directory to look for card scans in.
-	 */
-	private JTextField scansDirField;
-	/**
-	 * Color chooser for the background of the card scan tab.
-	 */
-	private JColorChooser scanBGChooser;
-	/**
-	 * Color chooser for the background of card images in the hand tab.
-	 */
-	private JColorChooser handBGColor;
-	/**
-	 * List of preset categories.
-	 */
-	private CategoryList categoriesList;
-	/**
-	 * Spinner allowing setting the maximum number of rows for category panels.
-	 */
-	private JSpinner rowsSpinner;
-	/**
-	 * Check box indicating whether or not warnings after loading cards should be suppressed.
-	 */
-	private JCheckBox suppressCheckBox;
-	/**
 	 * Spinner allowing setting the number of rows to display in whitelists/blacklists
 	 * in the category editor.
 	 */
 	private JSpinner explicitsSpinner;
 	/**
+	 * Color chooser for the background of card images in the hand tab.
+	 */
+	private JColorChooser handBGColor;
+	/**
+	 * Check boxes indicating which columns to show in the inventory table.
+	 */
+	private List<JCheckBox> inventoryColumnCheckBoxes;
+	/**
+	 * Text field controlling the directory to store the inventory in once it is downloaded.
+	 */
+	private JTextField inventoryDirField;
+	/**
+	 * Text field controlling the name of the file to be downloaded.
+	 */
+	private JTextField inventoryFileField;
+	/**
+	 * Text field controlling the web site that the inventory should be downloaded from.
+	 */
+	private JTextField inventorySiteField;
+	/**
+	 * Color chooser for the color of alternate inventory table stripes.
+	 */
+	private JColorChooser inventoryStripeColor;
+	/**
 	 * Button indicating the rounding mode for the expected counts tab in the editor.
 	 */
 	private List<JRadioButton> modeButtons;
+	/**
+	 * MainFrame showing the dialog.
+	 */
+	private MainFrame parent;
+	/**
+	 * Spinner for the number of recent files to save.
+	 */
+	private JSpinner recentSpinner;
+	/**
+	 * Spinner allowing setting the maximum number of rows for category panels.
+	 */
+	private JSpinner rowsSpinner;
+	/**
+	 * Color chooser for the background of the card scan tab.
+	 */
+	private JColorChooser scanBGChooser;
+	/**
+	 * Text field containing the directory to look for card scans in.
+	 */
+	private JTextField scansDirField;
+	/**
+	 * Number of cards to draw in the starting hand.
+	 */
+	private JSpinner startingSizeSpinner;
+	/**
+	 * Check box indicating whether or not warnings after loading cards should be suppressed.
+	 */
+	private JCheckBox suppressCheckBox;
+	/**
+	 * Check box indicating whether or not to perform a check for updates on program start.
+	 */
+	private JCheckBox updateCheckBox;
 
 	/**
 	 * Create a new SettingsDialog.
 	 *
-	 * @param owner Parent of the dialog
+	 * @param owner parent of the dialog
 	 */
 	public SettingsDialog(MainFrame owner)
 	{
@@ -884,15 +911,6 @@ public class SettingsDialog extends JDialog
 	}
 
 	/**
-	 * Reject any changes that were made as a result of using the settings dialog.
-	 */
-	public void rejectSettings()
-	{
-		parent.setImageBackground(getAsColor(IMAGE_BGCOLOR));
-		parent.setHandBackground(getAsColor(HAND_BGCOLOR));
-	}
-
-	/**
 	 * Confirm the settings applied by the components of the dialog and send them to the parent
 	 * MainFrame.
 	 */
@@ -934,33 +952,10 @@ public class SettingsDialog extends JDialog
 	}
 
 	/**
-	 * If the given file is contained the current directory, make it a relative file to
-	 * the current working directory.  If it is the current working directory, make it
-	 * "."  Otherwise, keep it what it is.
-	 *
-	 * @param f File to relativize
-	 * @return Relativized version of the given file.
-	 */
-	private File relativize(File f)
-	{
-		Path p = new File(".").getAbsoluteFile().getParentFile().toPath();
-		Path fp = f.getAbsoluteFile().toPath();
-		if (fp.startsWith(p))
-		{
-			fp = p.relativize(fp);
-			if (fp.toString().isEmpty())
-				f = new File(".");
-			else
-				f = fp.toFile();
-		}
-		return f;
-	}
-
-	/**
 	 * Create the preview panel for a color chooser that customizes the stripe color
-	 * of a CardTable.
+	 * of a #CardTable.
 	 *
-	 * @param chooser JColorChooser to create the new preview panel for
+	 * @param chooser #JColorChooser to create the new preview panel for
 	 */
 	private void createStripeChooserPreview(JColorChooser chooser)
 	{
@@ -969,13 +964,13 @@ public class SettingsDialog extends JDialog
 		TableModel model = new AbstractTableModel()
 		{
 			@Override
-			public int getRowCount()
+			public int getColumnCount()
 			{
 				return 4;
 			}
 
 			@Override
-			public int getColumnCount()
+			public int getRowCount()
 			{
 				return 4;
 			}
@@ -990,10 +985,40 @@ public class SettingsDialog extends JDialog
 		table.setStripeColor(chooser.getColor());
 		preview.add(table);
 
-		chooser.getSelectionModel().addChangeListener((e) -> {
-			table.setStripeColor(chooser.getColor());
-		});
+		chooser.getSelectionModel().addChangeListener((e) -> table.setStripeColor(chooser.getColor()));
 
 		chooser.setPreviewPanel(preview);
+	}
+
+	/**
+	 * Reject any changes that were made as a result of using the settings dialog.
+	 */
+	public void rejectSettings()
+	{
+		parent.setImageBackground(getAsColor(IMAGE_BGCOLOR));
+		parent.setHandBackground(getAsColor(HAND_BGCOLOR));
+	}
+
+	/**
+	 * If the given file is contained the current directory, make it a relative file to
+	 * the current working directory.  If it is the current working directory, make it
+	 * "."  Otherwise, keep it what it is.
+	 *
+	 * @param f #File to relativize
+	 * @return relativized version of the given file.
+	 */
+	private File relativize(File f)
+	{
+		Path p = new File(".").getAbsoluteFile().getParentFile().toPath();
+		Path fp = f.getAbsoluteFile().toPath();
+		if (fp.startsWith(p))
+		{
+			fp = p.relativize(fp);
+			if (fp.toString().isEmpty())
+				f = new File(".");
+			else
+				f = fp.toFile();
+		}
+		return f;
 	}
 }
