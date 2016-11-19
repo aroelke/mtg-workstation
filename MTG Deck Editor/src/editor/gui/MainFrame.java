@@ -19,8 +19,6 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -362,13 +360,9 @@ public class MainFrame extends JFrame
 
 		// Initialize properties to their default values, then load the current values
 		// from the properties file
-		try (InputStreamReader in = new InputStreamReader(new FileInputStream(SettingsDialog.PROPERTIES_FILE)))
+		try
 		{
 			SettingsDialog.load();
-		}
-		catch (FileNotFoundException e)
-		{
-//			JOptionPane.showMessageDialog(this, "File " + PROPERTIES_FILE + " not found.  Using default settings.", "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		catch (IOException e)
 		{
