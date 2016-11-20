@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import editor.database.characteristics.ManaCost;
+import editor.util.Lazy;
 
 /**
  * This class represents a Card with two faces:  One on the front, and one on the back.
@@ -15,7 +16,7 @@ public class DoubleFacedCard extends MultiCard
 	/**
 	 * Converted mana costs of this DoubleFacedCard's faces.
 	 */
-	private List<Double> cmc;
+	private Lazy<List<Double>> cmc;
 	/**
 	 * Card representing the front face.
 	 */
@@ -23,7 +24,7 @@ public class DoubleFacedCard extends MultiCard
 	/**
 	 * Tuple of this DoubleFacedCard's faces' mana costs.
 	 */
-	private ManaCost.Tuple manaCost;
+	private Lazy<ManaCost.Tuple> manaCost;
 	
 	/**
 	 * Create a new DoubleFacedCard with the given Cards as faces.  Their layouts should
@@ -39,8 +40,8 @@ public class DoubleFacedCard extends MultiCard
 		if (front.layout() != CardLayout.DOUBLE_FACED|| b.layout() != CardLayout.DOUBLE_FACED)
 			throw new IllegalArgumentException("can't join non-double-faced cards into double-faced cards");
 		
-		manaCost = null;
-		cmc = null;
+		manaCost = new Lazy<ManaCost.Tuple>(() -> new ManaCost.Tuple(front.manaCost()[0], new ManaCost()));
+		cmc = new Lazy<List<Double>>(() -> Arrays.asList(front.cmc()[0], front.cmc()[0]));
 	}
 	
 	/**
@@ -51,9 +52,7 @@ public class DoubleFacedCard extends MultiCard
 	@Override
 	public List<Double> cmc()
 	{
-		if (cmc == null)
-			cmc = Arrays.asList(front.cmc()[0], front.cmc()[0]);
-		return cmc;
+		return cmc.get();
 	}
 	
 	/**
@@ -63,9 +62,7 @@ public class DoubleFacedCard extends MultiCard
 	@Override
 	public ManaCost.Tuple manaCost()
 	{
-		if (manaCost == null)
-			manaCost = new ManaCost.Tuple(front.manaCost()[0], new ManaCost());
-		return manaCost;
+		return manaCost.get();
 	}
 
 	@Override

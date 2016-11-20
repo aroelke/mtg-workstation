@@ -30,6 +30,7 @@ import editor.database.characteristics.Rarity;
 import editor.database.symbol.FunctionalSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
+import editor.util.Lazy;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -77,7 +78,7 @@ public abstract class Card
 	/**
 	 * Whether or not this Card can be a commander.
 	 */
-	private Boolean canBeCommander;
+	private Lazy<Boolean> canBeCommander;
 	/**
 	 * Expansion this Card belongs to.
 	 */
@@ -89,11 +90,11 @@ public abstract class Card
 	/**
 	 * Unique identifier for this Card.
 	 */
-	private String id;
+	private Lazy<String> id;
 	/**
 	 * Whether or not to ignore the card count restriction for this Card.
 	 */
-	private Boolean ignoreCountRestriction;
+	private Lazy<Boolean> ignoreCountRestriction;
 	/**
 	 * Layout of this Card.
 	 * @see CardLayout
@@ -102,46 +103,46 @@ public abstract class Card
 	/**
 	 * List of formats this Card is legal in.
 	 */
-	private List<String> legalIn;
+	private Lazy<List<String>> legalIn;
 	/**
 	 * If this Card is legendary, the name of the character or item depicted by it.  Otherwise,
 	 * its normalized name.
 	 */
-	private List<String> legendName;
+	private Lazy<List<String>> legendName;
 	/**
 	 * Smallest converted mana cost of all faces of this Card.
 	 */
-	private double minCmc;
+	private Lazy<Double> minCmc;
 	/**
 	 * List of flavor texts of the faces of this Card, converted to lower case and with special
 	 * characters removed.
 	 */
-	private List<String> normalizedFlavor;
+	private Lazy<List<String>> normalizedFlavor;
 	/**
 	 * All lower-case, normalized name of this Card with special characters removed.
 	 */
-	private List<String> normalizedName;
+	private Lazy<List<String>> normalizedName;
 	/**
 	 * List of oracle texts of the faces of this Card, converted to lower case and with special
 	 * characters removed.
 	 */
-	private List<String> normalizedOracle;
+	private Lazy<List<String>> normalizedOracle;
 	/**
 	 * Whether or not any of this Card's faces has variable power.
 	 */
-	private Boolean powerVariable;
+	private Lazy<Boolean> powerVariable;
 	/**
 	 * Whether or not any of this Card's faces has variable toughness.
 	 */
-	private Boolean toughnessVariable;
+	private Lazy<Boolean> toughnessVariable;
 	/**
 	 * Name of all faces of this Card separated by {@link #FACE_SEPARATOR}.
 	 */
-	private String unifiedName;
+	private Lazy<String> unifiedName;
 	/**
 	 * Type lines of all faces of this Card, separated by {@link #FACE_SEPARATOR}.
 	 */
-	private String unifiedTypeLine;
+	private Lazy<String> unifiedTypeLine;
 
 	/**
 	 * Create a new Card.  Most of the parameters are assigned lazily; that is, only
@@ -157,19 +158,73 @@ public abstract class Card
 		this.layout = layout;
 		this.faces = faces;
 
-		id = null;
-		unifiedName = null;
-		normalizedName = null;
-		legendName = null;
-		minCmc = -1.0;
-		unifiedTypeLine = null;
-		normalizedOracle = null;
-		normalizedFlavor = null;
-		powerVariable = null;
-		toughnessVariable = null;
-		legalIn = null;
-		canBeCommander = null;
-		ignoreCountRestriction = null;
+		id = new Lazy<String>(() -> expansion.code + unifiedName() + imageNames()[0]);
+		unifiedName = new Lazy<String>(() -> {
+			StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
+			for (String name: name())
+				join.add(name);
+			return join.toString();
+		});
+		normalizedName = new Lazy<List<String>>(() -> Collections.unmodifiableList(name().stream()
+					.map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
+					.collect(Collectors.toList())));
+		legendName = new Lazy<List<String>>(() -> {
+			List<String> legendNames = new ArrayList<String>();
+			for (String fullName: normalizedName())
+			{
+				if (!supertypes().contains("Legendary"))
+					legendNames.add(fullName);
+				else
+				{
+					int comma = fullName.indexOf(',');
+					if (comma > 0)
+						legendNames.add(fullName.substring(0, comma).trim());
+					else
+					{
+						int the = fullName.indexOf("the ");
+						if (the == 0)
+							legendNames.add(fullName);
+						else if (the > 0)
+							legendNames.add(fullName.substring(0, the).trim());
+						else
+						{
+							int of = fullName.indexOf("of ");
+							if (of > 0)
+								legendNames.add(fullName.substring(0, of).trim());
+							else
+								legendNames.add(fullName);
+						}
+					}
+				}
+			}
+			return Collections.unmodifiableList(legendNames);
+		});
+		minCmc = new Lazy<Double>(() -> cmc().stream().reduce(Double.MAX_VALUE,Double::min));
+		unifiedTypeLine = new Lazy<String>(() -> {
+			StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
+			for (String line: typeLine())
+				join.add(line);
+			return join.toString();
+		});
+		normalizedOracle = new Lazy<List<String>>(() -> {
+			List<String> texts = new ArrayList<String>();
+			for (int i = 0; i < faces; i++)
+			{
+				String normal = Normalizer.normalize(oracleText()[i].toLowerCase(), Normalizer.Form.NFD);
+				normal = normal.replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae");
+				normal = normal.replace(legendName()[i], Card.THIS).replace(normalizedName()[i], Card.THIS);
+				texts.add(normal);
+			}
+			return Collections.unmodifiableList(texts);
+		});
+		normalizedFlavor = new Lazy<List<String>>(() -> Collections.unmodifiableList(flavorText().stream()
+				.map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
+				.collect(Collectors.toList())));
+		powerVariable = new Lazy<Boolean>(() -> power().stream().anyMatch(PowerToughness::variable));
+		toughnessVariable = new Lazy<Boolean>(() -> toughness().stream().anyMatch(PowerToughness::variable));
+		legalIn = new Lazy<List<String>>(() -> Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList())));
+		canBeCommander = new Lazy<Boolean>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
+		ignoreCountRestriction = new Lazy<Boolean>(() -> supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number")));
 	}
 
 	/**
@@ -194,9 +249,7 @@ public abstract class Card
 	 */
 	public boolean canBeCommander()
 	{
-		if (canBeCommander == null)
-			canBeCommander = supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander"));
-		return canBeCommander;
+		return canBeCommander.get();
 	}
 
 	/**
@@ -466,9 +519,7 @@ public abstract class Card
 	 */
 	public String id()
 	{
-		if (id == null)
-			id = expansion.code + unifiedName() + imageNames()[0];
-		return id;
+		return id.get();
 	}
 
 	/**
@@ -479,9 +530,7 @@ public abstract class Card
 	 */
 	public boolean ignoreCountRestriction()
 	{
-		if (ignoreCountRestriction == null)
-			ignoreCountRestriction = supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number"));
-		return ignoreCountRestriction;
+		return ignoreCountRestriction.get();
 	}
 
 	/**
@@ -508,9 +557,7 @@ public abstract class Card
 	 */
 	public List<String> legalIn()
 	{
-		if (legalIn == null)
-			legalIn = Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList()));
-		return legalIn;
+		return legalIn.get();
 	}
 
 	/**
@@ -585,39 +632,7 @@ public abstract class Card
 	 */
 	public List<String> legendName()
 	{
-		if (legendName == null)
-		{
-			List<String> legendNames = new ArrayList<String>();
-			for (String fullName: normalizedName())
-			{
-				if (!supertypes().contains("Legendary"))
-					legendNames.add(fullName);
-				else
-				{
-					int comma = fullName.indexOf(',');
-					if (comma > 0)
-						legendNames.add(fullName.substring(0, comma).trim());
-					else
-					{
-						int the = fullName.indexOf("the ");
-						if (the == 0)
-							legendNames.add(fullName);
-						else if (the > 0)
-							legendNames.add(fullName.substring(0, the).trim());
-						else
-						{
-							int of = fullName.indexOf("of ");
-							if (of > 0)
-								legendNames.add(fullName.substring(0, of).trim());
-							else
-								legendNames.add(fullName);
-						}
-					}
-				}
-			}
-			legendName = Collections.unmodifiableList(legendNames);
-		}
-		return legendName;
+		return legendName.get();
 	}
 
 	/**
@@ -642,9 +657,7 @@ public abstract class Card
 	 */
 	public double minCmc()
 	{
-		if (minCmc < 0.0)
-			minCmc = cmc().stream().reduce(Double.MAX_VALUE,Double::min);
-		return minCmc;
+		return minCmc.get();
 	}
 
 	/**
@@ -662,11 +675,7 @@ public abstract class Card
 	 */
 	public List<String> normalizedFlavor()
 	{
-		if (normalizedFlavor == null)
-			normalizedFlavor = Collections.unmodifiableList(flavorText().stream()
-					.map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
-					.collect(Collectors.toList()));
-		return normalizedFlavor;
+		return normalizedFlavor.get();
 	}
 
 	/**
@@ -677,11 +686,7 @@ public abstract class Card
 	 */
 	public List<String> normalizedName()
 	{
-		if (normalizedName == null)
-			normalizedName = Collections.unmodifiableList(name().stream()
-					.map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
-					.collect(Collectors.toList()));
-		return normalizedName;
+		return normalizedName.get();
 	}
 
 	/**
@@ -692,19 +697,7 @@ public abstract class Card
 	 */
 	public List<String> normalizedOracle()
 	{
-		if (normalizedOracle == null)
-		{
-			List<String> texts = new ArrayList<String>();
-			for (int i = 0; i < faces; i++)
-			{
-				String normal = Normalizer.normalize(oracleText()[i].toLowerCase(), Normalizer.Form.NFD);
-				normal = normal.replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae");
-				normal = normal.replace(legendName()[i], Card.THIS).replace(normalizedName()[i], Card.THIS);
-				texts.add(normal);
-			}
-			normalizedOracle = Collections.unmodifiableList(texts);
-		}
-		return normalizedOracle;
+		return normalizedOracle.get();
 	}
 
 	/**
@@ -737,9 +730,7 @@ public abstract class Card
 	 */
 	public boolean powerVariable()
 	{
-		if (powerVariable == null)
-			powerVariable = power().stream().anyMatch(PowerToughness::variable);
-		return powerVariable;
+		return powerVariable.get();
 	}
 
 	/**
@@ -810,9 +801,7 @@ public abstract class Card
 	 */
 	public boolean toughnessVariable()
 	{
-		if (toughnessVariable == null)
-			toughnessVariable = toughness().stream().anyMatch(PowerToughness::variable);
-		return toughnessVariable;
+		return toughnessVariable.get();
 	}
 
 	/**
@@ -855,14 +844,7 @@ public abstract class Card
 	 */
 	public String unifiedName()
 	{
-		if (unifiedName == null)
-		{
-			StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
-			for (String name: name())
-				join.add(name);
-			unifiedName = join.toString();
-		}
-		return unifiedName;
+		return unifiedName.get();
 	}
 
 	/**
@@ -872,13 +854,6 @@ public abstract class Card
 	 */
 	public String unifiedTypeLine()
 	{
-		if (unifiedTypeLine == null)
-		{
-			StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
-			for (String line: typeLine())
-				join.add(line);
-			unifiedTypeLine = join.toString();
-		}
-		return unifiedTypeLine;
+		return unifiedTypeLine.get();
 	}
 }

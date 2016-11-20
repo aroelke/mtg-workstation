@@ -18,6 +18,7 @@ import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.PowerToughness;
 import editor.database.characteristics.Rarity;
+import editor.util.Lazy;
 
 /**
  * This class represents an abstract card with multiple faces.
@@ -29,23 +30,23 @@ public abstract class MultiCard extends Card
 	/**
 	 * List containing the set of types for each of this MultiCard's faces.
 	 */
-	private List<Set<String>> allTypes;
+	private Lazy<List<Set<String>>> allTypes;
 	/**
 	 * List containing the artist of each of this MultiCard's faces.
 	 */
-	private List<String> artist;
+	private Lazy<List<String>> artist;
 	/**
 	 * List of converted mana costs of the faces of this MultiCard.
 	 */
-	private List<Double> cmc;
+	private Lazy<List<Double>> cmc;
 	/**
 	 * Tuple of the color identity of this MultiCard.
 	 */
-	private ManaType.Tuple colorIdentity;
+	private Lazy<ManaType.Tuple> colorIdentity;
 	/**
 	 * Tuple of all of the colors of this MultiCard.
 	 */
-	private ManaType.Tuple colors;
+	private Lazy<ManaType.Tuple> colors;
 	/**
 	 * List of Cards that represent faces.  They should all have exactly one face.
 	 */
@@ -53,59 +54,59 @@ public abstract class MultiCard extends Card
 	/**
 	 * List containing the flavor text of each of this MultiCard's faces.
 	 */
-	private List<String> flavorText;
+	private Lazy<List<String>> flavorText;
 	/**
 	 * List containing the image name of each of this MultiCard's faces.
 	 */
-	private List<String> imageNames;
+	private Lazy<List<String>> imageNames;
 	/**
 	 * Tuple containing the loyalty of each of this MultiCard's faces.
 	 */
-	private Loyalty.Tuple loyalty;
+	private Lazy<Loyalty.Tuple> loyalty;
 	/**
 	 * List of mana costs of the faces of this MultiCard.
 	 */
-	private ManaCost.Tuple manaCost;
+	private Lazy<ManaCost.Tuple> manaCost;
 	/**
 	 * List of the names of the faces of this MultiCard.
 	 */
-	private List<String> name;
+	private Lazy<List<String>> name;
 	/**
 	 * List containing the collector's number of each of this MultiCard's faces.
 	 */
-	private List<String> number;
+	private Lazy<List<String>> number;
 	/**
 	 * List containing the oracle text of each of this MultiCard's faces.
 	 */
-	private List<String> oracleText;
+	private Lazy<List<String>> oracleText;
 	/**
 	 * Tuple containing the power of each of this MultiCard's faces.
 	 */
-	private PowerToughness.Tuple power;
+	private Lazy<PowerToughness.Tuple> power;
 	/**
 	 * Map containing the rulings of this MultiCard and the dates they were made on.
 	 */
-	private Map<Date, List<String>> rulings;
+	private Lazy<Map<Date, List<String>>> rulings;
 	/**
 	 * Set of this MultiCard's subtypes including all of its faces.
 	 */
-	private Set<String> subtypes;
+	private Lazy<Set<String>> subtypes;
 	/**
 	 * Set of this MultiCard's supertypes including all of its faces.
 	 */
-	private Set<String> supertypes;
+	private Lazy<Set<String>> supertypes;
 	/**
 	 * Tuple containing the toughness of each of this MultiCard's faces.
 	 */
-	private PowerToughness.Tuple toughness;
+	private Lazy<PowerToughness.Tuple> toughness;
 	/**
 	 * List containing the type line of each of this MultiCard's faces.
 	 */
-	private List<String> typeLine;
+	private Lazy<List<String>> typeLine;
 	/**
 	 * Set of this MultiCard's types including all of its faces.
 	 */
-	private Set<String> types;
+	private Lazy<Set<String>> types;
 	
 	/**
 	 * Create a new MultiCard out of the given cards.
@@ -133,32 +134,40 @@ public abstract class MultiCard extends Card
 			if (face.faces() > 1)
 				throw new IllegalArgumentException("Only normal, single-faced cards can be joined into a multi-faced card");
 		
-		name = null;
-		manaCost = null;
-		cmc = null;
-		colors = null;
-		colorIdentity = null;
-		supertypes = null;
-		types = null;
-		subtypes = null;
-		allTypes = null;
-		typeLine = null;
-		oracleText = null;
-		flavorText = null;
-		artist = null;
-		number = null;
-		power = null;
-		toughness = null;
-		loyalty = null;
-		rulings = null;
-		imageNames = null;
-	}
-	
-	@Override
-	public List<Set<String>> allTypes()
-	{
-		if (allTypes == null)
-		{
+		name = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::name)));
+		manaCost = new Lazy<ManaCost.Tuple>(() -> new ManaCost.Tuple(collect(Card::manaCost)));
+		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(collect(Card::cmc)));
+		colors = new Lazy<ManaType.Tuple>(() -> {
+			Set<ManaType> cols = new HashSet<ManaType>();
+			for (Card face: faces)
+				cols.addAll(face.colors());
+			return new ManaType.Tuple(cols);
+		});
+		colorIdentity = new Lazy<ManaType.Tuple>(() -> {
+			Set<ManaType> colors = new HashSet<ManaType>();
+			for (Card face: faces)
+				colors.addAll(face.colorIdentity());
+			return new ManaType.Tuple(colors);
+		});
+		supertypes = new Lazy<Set<String>>(() -> {
+			Set<String> s = new HashSet<String>();
+			for (Card face: faces)
+				s.addAll(face.supertypes());
+			return Collections.unmodifiableSet(s);
+		});
+		types = new Lazy<Set<String>>(() -> {
+			Set<String> t = new HashSet<String>();
+			for (Card face: faces)
+				t.addAll(face.types());
+			return Collections.unmodifiableSet(t);
+		});
+		subtypes = new Lazy<Set<String>>(() -> {
+			Set<String> s = new HashSet<String>();
+			for (Card face: faces)
+				s.addAll(face.subtypes());
+			return Collections.unmodifiableSet(s);
+		});
+		allTypes = new Lazy<List<Set<String>>>(() -> {
 			List<Set<String>> a = new ArrayList<Set<String>>();
 			for (Card face: faces)
 			{
@@ -168,25 +177,44 @@ public abstract class MultiCard extends Card
 				faceTypes.addAll(face.subtypes());
 				a.add(Collections.unmodifiableSet(faceTypes));
 			}
-			allTypes = Collections.unmodifiableList(a);
-		}
-		return allTypes;
+			return Collections.unmodifiableList(a);
+		});
+		typeLine = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::typeLine)));
+		oracleText = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::oracleText)));
+		flavorText = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::flavorText)));
+		artist = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::artist)));
+		number = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::number)));
+		power = new Lazy<PowerToughness.Tuple>(() -> new PowerToughness.Tuple(collect(Card::power)));
+		toughness = new Lazy<PowerToughness.Tuple>(() -> new PowerToughness.Tuple(collect(Card::toughness)));
+		loyalty = new Lazy<Loyalty.Tuple>(() -> new Loyalty.Tuple(collect(Card::loyalty)));
+		rulings = new Lazy<Map<Date, List<String>>>(() -> Collections.unmodifiableMap(faces.stream().map(Card::rulings).reduce(new TreeMap<Date, List<String>>(), (a, b) -> {
+				for (Date k: b.keySet())
+				{
+					if (!a.containsKey(k))
+						a[k] = new ArrayList<String>();
+					a[k].addAll(b[k]);
+				}
+				return a;
+			})));
+		imageNames = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::imageNames)));
+	}
+	
+	@Override
+	public List<Set<String>> allTypes()
+	{
+		return allTypes.get();
 	}
 
 	@Override
 	public List<String> artist()
 	{
-		if (artist == null)
-			artist = Collections.unmodifiableList(collect(Card::artist));
-		return artist;
+		return artist.get();
 	}
 
 	@Override
 	public List<Double> cmc()
 	{
-		if (cmc == null)
-			cmc = Collections.unmodifiableList(collect(Card::cmc));
-		return cmc;
+		return cmc.get();
 	}
 
 	/**
@@ -203,27 +231,13 @@ public abstract class MultiCard extends Card
 	@Override
 	public ManaType.Tuple colorIdentity()
 	{
-		if (colorIdentity == null)
-		{
-			Set<ManaType> colors = new HashSet<ManaType>();
-			for (Card face: faces)
-				colors.addAll(face.colorIdentity());
-			colorIdentity = new ManaType.Tuple(colors);
-		}
-		return colorIdentity;
+		return colorIdentity.get();
 	}
 
 	@Override
 	public ManaType.Tuple colors()
 	{
-		if (colors == null)
-		{
-			Set<ManaType> cols = new HashSet<ManaType>();
-			for (Card face: faces)
-				cols.addAll(face.colors());
-			colors = new ManaType.Tuple(cols);
-		}
-		return colors;
+		return colors.get();
 	}
 
 	@Override
@@ -235,17 +249,13 @@ public abstract class MultiCard extends Card
 	@Override
 	public List<String> flavorText()
 	{
-		if (flavorText == null)
-			flavorText = Collections.unmodifiableList(collect(Card::flavorText));
-		return flavorText;
+		return flavorText.get();
 	}
 
 	@Override
 	public List<String> imageNames()
 	{
-		if (imageNames == null)
-			imageNames = Collections.unmodifiableList(collect(Card::imageNames));
-		return imageNames;
+		return imageNames.get();
 	}
 
 	@Override
@@ -257,49 +267,37 @@ public abstract class MultiCard extends Card
 	@Override
 	public Loyalty.Tuple loyalty()
 	{
-		if (loyalty == null)
-			loyalty = new Loyalty.Tuple(collect(Card::loyalty));
-		return loyalty;
+		return loyalty.get();
 	}
 
 	@Override
 	public ManaCost.Tuple manaCost()
 	{
-		if (manaCost == null)
-			manaCost = new ManaCost.Tuple(collect(Card::manaCost));
-		return manaCost;
+		return manaCost.get();
 	}
 
 	@Override
 	public List<String> name()
 	{
-		if (name == null)
-			name = Collections.unmodifiableList(collect(Card::name));
-		return name;
+		return name.get();
 	}
 
 	@Override
 	public List<String> number()
 	{
-		if (number == null)
-			number = Collections.unmodifiableList(collect(Card::number));
-		return number;
+		return number.get();
 	}
 
 	@Override
 	public List<String> oracleText()
 	{
-		if (oracleText == null)
-			oracleText = Collections.unmodifiableList(collect(Card::oracleText));
-		return oracleText;
+		return oracleText.get();
 	}
 
 	@Override
 	public PowerToughness.Tuple power()
 	{
-		if (power == null)
-			power = new PowerToughness.Tuple(collect(Card::power));
-		return power;
+		return power.get();
 	}
 
 	@Override
@@ -311,71 +309,36 @@ public abstract class MultiCard extends Card
 	@Override
 	public Map<Date, List<String>> rulings()
 	{
-		if (rulings == null)
-			rulings = Collections.unmodifiableMap(faces.stream().map(Card::rulings).reduce(new TreeMap<Date, List<String>>(), (a, b) -> {
-				for (Date k: b.keySet())
-				{
-					if (!a.containsKey(k))
-						a[k] = new ArrayList<String>();
-					a[k].addAll(b[k]);
-				}
-				return a;
-			}));
-		return rulings;
+		return rulings.get();
 	}
 
 	@Override
 	public Set<String> subtypes()
 	{
-		if (subtypes == null)
-		{
-			Set<String> s = new HashSet<String>();
-			for (Card face: faces)
-				s.addAll(face.subtypes());
-			subtypes = Collections.unmodifiableSet(s);
-		}
-		return subtypes;
+		return subtypes.get();
 	}
 
 	@Override
 	public Set<String> supertypes()
 	{
-		if (supertypes == null)
-		{
-			Set<String> s = new HashSet<String>();
-			for (Card face: faces)
-				s.addAll(face.supertypes());
-			supertypes = Collections.unmodifiableSet(s);
-		}
-		return supertypes;
+		return supertypes.get();
 	}
 
 	@Override
 	public PowerToughness.Tuple toughness()
 	{
-		if (toughness == null)
-			toughness = new PowerToughness.Tuple(collect(Card::toughness));
-		return toughness;
+		return toughness.get();
 	}
 
 	@Override
 	public List<String> typeLine()
 	{
-		if (typeLine == null)
-			typeLine = Collections.unmodifiableList(collect(Card::typeLine));
-		return typeLine;
+		return typeLine.get();
 	}
 
 	@Override
 	public Set<String> types()
 	{
-		if (types == null)
-		{
-			Set<String> t = new HashSet<String>();
-			for (Card face: faces)
-				t.addAll(face.types());
-			types = Collections.unmodifiableSet(t);
-		}
-		return types;
+		return types.get();
 	}
 }

@@ -8,6 +8,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 
 import editor.database.characteristics.ManaCost;
+import editor.util.Lazy;
 
 /**
  * This class represents a "meld" card, which is a double-faced card where the back face is
@@ -22,7 +23,7 @@ public class MeldCard extends MultiCard
 	/**
 	 * Converted mana costs of this MeldCard's faces. 
 	 */
-	private List<Double> cmc;
+	private Lazy<List<Double>> cmc;
 	/**
 	 * Front face of this MeldCard.
 	 */
@@ -30,7 +31,7 @@ public class MeldCard extends MultiCard
 	/**
 	 * Tuple of this MeldCard's faces' mana costs.
 	 */
-	private ManaCost.Tuple manaCost;
+	private Lazy<ManaCost.Tuple> manaCost;
 	/**
 	 * This MeldCard's "sibling," with which it melds to form the back face.
 	 */
@@ -53,8 +54,8 @@ public class MeldCard extends MultiCard
 		if (front.layout() != CardLayout.MELD || other.layout() != CardLayout.MELD || b.layout() != CardLayout.MELD)
 			throw new IllegalArgumentException("can't join non-meld cards into meld cards");
 		
-		manaCost = null;
-		cmc = null;
+		manaCost = new Lazy<ManaCost.Tuple>(() -> new ManaCost.Tuple(front.manaCost()[0], new ManaCost()));
+		cmc = new Lazy<List<Double>>(() -> Arrays.asList(front.cmc()[0], front.cmc()[0] + other.cmc()[0]));
 	}
 	
 	/**
@@ -65,9 +66,7 @@ public class MeldCard extends MultiCard
 	@Override
 	public List<Double> cmc()
 	{
-		if (cmc == null)
-			cmc = Arrays.asList(front.cmc()[0], front.cmc()[0] + other.cmc()[0]);
-		return cmc;
+		return cmc.get();
 	}
 
 	/**
@@ -100,9 +99,7 @@ public class MeldCard extends MultiCard
 	@Override
 	public ManaCost.Tuple manaCost()
 	{
-		if (manaCost == null)
-			manaCost = new ManaCost.Tuple(front.manaCost()[0], new ManaCost());
-		return manaCost;
+		return manaCost.get();
 	}
 
 	/**

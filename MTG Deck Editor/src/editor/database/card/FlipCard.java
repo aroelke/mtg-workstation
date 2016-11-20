@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import editor.database.characteristics.ManaCost;
+import editor.util.Lazy;
 
 /**
  * This class represents a flip card, which has two faces:  Top and bottom.
@@ -17,12 +18,12 @@ public class FlipCard extends MultiCard
 	 * List containing the converted mana cost of each side of this FlipCard (which should just be two
 	 * copies of the same value).
 	 */
-	private List<Double> cmc;
+	private Lazy<List<Double>> cmc;
 	/**
 	 * Tuple containing the mana cost of each side of this FlipCard (which should just be two copies
 	 * of the same value).
 	 */
-	private ManaCost.Tuple manaCost;
+	private Lazy<ManaCost.Tuple> manaCost;
 	/**
 	 * Card representing the top face of this FlipCard.
 	 */
@@ -42,8 +43,8 @@ public class FlipCard extends MultiCard
 		if (top.layout() != CardLayout.FLIP || b.layout() != CardLayout.FLIP)
 			throw new IllegalArgumentException("can't join non-flip cards into flip cards");
 		
-		manaCost = null;
-		cmc = null;
+		manaCost = new Lazy<ManaCost.Tuple>(() -> new ManaCost.Tuple(collect(Card::manaCost)));
+		cmc = new Lazy<List<Double>>(() -> collect(Card::cmc));
 	}
 	
 	/**
@@ -53,9 +54,7 @@ public class FlipCard extends MultiCard
 	@Override
 	public List<Double> cmc()
 	{
-		if (cmc == null)
-			cmc = collect(Card::cmc);
-		return cmc;
+		return cmc.get();
 	}
 	
 	/**
@@ -77,9 +76,7 @@ public class FlipCard extends MultiCard
 	@Override
 	public ManaCost.Tuple manaCost()
 	{
-		if (manaCost == null)
-			manaCost = new ManaCost.Tuple(collect(Card::manaCost));
-		return manaCost;
+		return manaCost.get();
 	}
 
 	@Override
