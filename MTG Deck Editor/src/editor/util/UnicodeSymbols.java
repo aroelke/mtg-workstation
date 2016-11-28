@@ -8,59 +8,67 @@ package editor.util;
 public interface UnicodeSymbols
 {
 	/**
-	 * Latin small letter ae, &#00e6;
+	 * Latin small letter ae, '{@value #AE_LOWER}'.
 	 */
 	char AE_LOWER = '\u00E6';
 	/**
-	 * Bullet, &#2022;
+	 * Bullet, '{@value #BULLET}'.
 	 */
 	char BULLET = '\u2022';
 	/**
-	 * Horizontal ellipsis, &#2026;
+	 * Black down-pointing triangle, '{@value #DOWN_TRIANGLE}'.
+	 */
+	char DOWN_TRIANGLE = '\u25BC';
+	/**
+	 * Horizontal ellipsis, '{@value #ELLIPSIS}'.
 	 */
 	char ELLIPSIS = '\u2026';
 	/**
-	 * Em dash, &#2014;
+	 * Em dash, '{@value #EM_DASH}'.
 	 */
 	char EM_DASH = '\u2014';
 	/**
-	 * End of proof, &#220e;
+	 * End of proof, '{@value #END_OF_PROOF}'.
 	 */
 	char END_OF_PROOF = '\u220E';
 	/**
-	 * Greater than or equal to, &#2265;
+	 * Greater than or equal to, '{@value #GREATER_OR_EQUAL}'.
 	 */
 	char GREATER_OR_EQUAL = '\u2265';
 	/**
-	 * Infinity, &#221e;
+	 * Infinity, '{@value #INFINITY}'.
 	 */
 	char INFINITY = '\u221E';
 	/**
-	 * Left-pointing double angle quotation mark, &#x00ab;
+	 * Left-pointing double angle quotation mark, '{@value #LEFT_ANGLE_DOUBLE_QUOTE}'.
 	 */
 	char LEFT_ANGLE_DOUBLE_QUOTE = '\u00AB';
 	/**
-	 * Less than or equal to, &#2264;
+	 * Less than or equal to, '{@value #LESS_OR_EQUAL}'.
 	 */
 	char LESS_OR_EQUAL = '\u2264';
 	/**
-	 * Minus sign, &#2212;
+	 * Minus sign, '{@value #MINUS}'.
 	 */
 	char MINUS = '\u2212';
 	/**
-	 * Multiplication sign, &#00d7;
+	 * Multiplication sign, '{@value #MULTIPLY}'.
 	 */
 	char MULTIPLY = '\u00D7';
 	/**
-	 * Not equal to, &#2260;
+	 * Not equal to, '{@value #NOT_EQUAL}'.
 	 */
 	char NOT_EQUAL = '\u2260';
 	/**
-	 * Vulgar fraction one half, &#00bd;
+	 * Vulgar fraction one half, '{@value #ONE_HALF}'.
 	 */
 	char ONE_HALF = '\u00BD';
 	/**
-	 * Right-pointing double angle quotation mark, &#x00bb;
+	 * Right-pointing double angle quotation mark, '{@value #RIGHT_ANGLE_DOUBLE_QUOTE}'.
 	 */
 	char RIGHT_ANGLE_DOUBLE_QUOTE = '\u00BB';
+	/**
+	 * Black up-pointing triangle, '{@value #UP_TRIANGLE}'.
+	 */
+	char UP_TRIANGLE = '\u25B2';
 }

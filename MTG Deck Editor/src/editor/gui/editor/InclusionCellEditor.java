@@ -95,7 +95,7 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
 		if (table instanceof CardTable)
 		{
 			CardTable cTable = (CardTable)table;
-			iePanel = new IncludeExcludePanel(frame.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getCardAt(cTable, row));
+			iePanel = new IncludeExcludePanel(frame.deck().categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getCardAt(cTable, row));
 			included = ((Collection<?>)value).stream().filter((o) -> o instanceof CategorySpec).map((o) -> (CategorySpec)o).collect(Collectors.toList());
 			if (!table.isRowSelected(row))
 				editor.setBackground(cTable.getRowColor(row));
@@ -107,7 +107,7 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
 			}
 		}
 		else
-			iePanel = new IncludeExcludePanel(frame.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getSelectedCards());
+			iePanel = new IncludeExcludePanel(frame.deck().categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getSelectedCards());
 		return editor;
 	}
 

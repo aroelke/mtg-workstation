@@ -7,8 +7,6 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,6 +59,7 @@ import editor.gui.editor.CalculateHandPanel;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.gui.generic.ScrollablePanel;
 import editor.util.UnicodeSymbols;
+import editor.util.VerticalButtonList;
 
 /**
  * This class is a dialog that allows the user to change various properties about
@@ -724,29 +723,13 @@ public class SettingsDialog extends JDialog
 		categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
 
 		// Category modification buttons
-		JPanel categoryModPanel = new JPanel();
-		GridBagLayout categoryModLayout = new GridBagLayout();
-		categoryModLayout.columnWidths = new int[] {0};
-		categoryModLayout.columnWeights = new double[] {0.0};
-		categoryModLayout.rowHeights = new int[] {0, 0, 0, 0, 0};
-		categoryModLayout.rowWeights = new double[] {1.0, 0.0, 0.0, 0.0, 1.0};
-		categoryModPanel.setLayout(categoryModLayout);
-		categoriesPanel.add(categoryModPanel, BorderLayout.EAST);
-
-		JButton addButton = new JButton("+");
-		addButton.addActionListener((e) -> {
+		VerticalButtonList categoryModPanel = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.ELLIPSIS), String.valueOf(UnicodeSymbols.MINUS));
+		categoryModPanel["+"].addActionListener((e) -> {
 			CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this);
 			if (spec != null)
 				categoriesList.addCategory(spec);
 		});
-		GridBagConstraints addConstraints = new GridBagConstraints();
-		addConstraints.gridx = 0;
-		addConstraints.gridy = 1;
-		addConstraints.fill = GridBagConstraints.BOTH;
-		categoryModPanel.add(addButton, addConstraints);
-
-		JButton editButton = new JButton(String.valueOf(UnicodeSymbols.ELLIPSIS));
-		editButton.addActionListener((e) -> {
+		categoryModPanel[String.valueOf(UnicodeSymbols.ELLIPSIS)].addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 			{
 				CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, categoriesList.getCategoryAt(categoriesList.getSelectedIndex()));
@@ -754,22 +737,11 @@ public class SettingsDialog extends JDialog
 					categoriesList.setCategoryAt(categoriesList.getSelectedIndex(), spec);
 			}
 		});
-		GridBagConstraints editConstraints = new GridBagConstraints();
-		editConstraints.gridx = 0;
-		editConstraints.gridy = 2;
-		editConstraints.fill = GridBagConstraints.BOTH;
-		categoryModPanel.add(editButton, editConstraints);
-
-		JButton removeButton = new JButton(String.valueOf(UnicodeSymbols.MINUS));
-		removeButton.addActionListener((e) -> {
+		categoryModPanel[String.valueOf(UnicodeSymbols.MINUS)].addActionListener((e) -> {
 			if (categoriesList.getSelectedIndex() >= 0)
 				categoriesList.removeCategoryAt(categoriesList.getSelectedIndex());
 		});
-		GridBagConstraints removeConstraints = new GridBagConstraints();
-		removeConstraints.gridx = 0;
-		removeConstraints.gridy = 3;
-		removeConstraints.fill = GridBagConstraints.BOTH;
-		categoryModPanel.add(removeButton, removeConstraints);
+		categoriesPanel.add(categoryModPanel, BorderLayout.EAST);
 
 		// Editor appearance
 		JPanel editorAppearancePanel = new JPanel();
@@ -900,7 +872,7 @@ public class SettingsDialog extends JDialog
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener((e) -> {rejectSettings(); dispose();});
 		buttonPanel.add(cancelButton);
-
+		
 		JPanel bottomPanel = new JPanel(new BorderLayout());
 		bottomPanel.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.NORTH);
 		bottomPanel.add(buttonPanel, BorderLayout.CENTER);

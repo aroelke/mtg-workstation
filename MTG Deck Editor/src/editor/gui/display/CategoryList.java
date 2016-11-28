@@ -107,7 +107,12 @@ public class CategoryList extends JList<String>
 					else
 						spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this, getCategoryAt(index));
 					if (spec != null)
-						setCategoryAt(index, spec);
+					{
+						if (index < 0)
+							addCategory(spec);
+						else
+							setCategoryAt(index, spec);
+					}
 				}
 			}));
 		}

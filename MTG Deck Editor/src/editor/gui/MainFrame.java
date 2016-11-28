@@ -175,14 +175,14 @@ public class MainFrame extends JFrame
 					cmcPanel.setForeground(c.getForeground());
 					cmcPanel.setBackground(c.getBackground());
 					JLabel cmcLabel = new JLabel(join.toString());
-					if (selectedFrame != null && c instanceof JLabel && selectedFrame.containsCard(inventory[table.convertRowIndexToModel(row)]))
+					if (selectedFrame != null && c instanceof JLabel && selectedFrame.deck().contains(inventory[table.convertRowIndexToModel(row)]))
 						cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.BOLD, cmcLabel.getFont().getSize()));
 					cmcPanel.add(cmcLabel);
 					return cmcPanel;
 				}
 			}
 
-			if (selectedFrame != null && c instanceof JLabel && selectedFrame.containsCard(inventory[table.convertRowIndexToModel(row)]))
+			if (selectedFrame != null && c instanceof JLabel && selectedFrame.deck().contains(inventory[table.convertRowIndexToModel(row)]))
 				c.setFont(new Font(c.getFont().getFontName(), Font.BOLD, c.getFont().getSize()));
 			return c;
 		}
@@ -503,7 +503,7 @@ public class MainFrame extends JFrame
 		addSingleItem.setAccelerator(KeyStroke.getKeyStroke('+'));
 		addSingleItem.addActionListener((e) -> {
 			if (selectedFrame != null)
-				selectedFrame.addSelectedCards(1);
+				selectedFrame.addSelectedCards(1, true);
 		});
 		addMenu.add(addSingleItem);
 
@@ -512,7 +512,7 @@ public class MainFrame extends JFrame
 		playsetItem.addActionListener((e) -> {
 			if (selectedFrame != null)
 				for (Card c: getSelectedCards())
-					selectedFrame.addCard(c, 4 - selectedFrame.getData(c).count());
+					selectedFrame.addCard(c, 4 - selectedFrame.deck().getData(c).count(), true);
 		});
 		addMenu.add(playsetItem);
 
@@ -526,7 +526,7 @@ public class MainFrame extends JFrame
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
 				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.addSelectedCards((Integer)spinner.getValue());
+					selectedFrame.addSelectedCards((Integer)spinner.getValue(), true);
 			}
 		});
 		addMenu.add(addNItem);
@@ -538,12 +538,12 @@ public class MainFrame extends JFrame
 		// Remove single copy item
 		JMenuItem removeSingleItem = new JMenuItem("Remove Single Copy");
 		removeSingleItem.setAccelerator(KeyStroke.getKeyStroke('-'));
-		removeSingleItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeSelectedCards(1);});
+		removeSingleItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeSelectedCards(1, true);});
 		removeMenu.add(removeSingleItem);
 
 		// Remove all item
 		JMenuItem removeAllItem = new JMenuItem("Remove All Copies");
-		removeAllItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeSelectedCards(Integer.MAX_VALUE);});
+		removeAllItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeSelectedCards(Integer.MAX_VALUE, true);});
 		removeMenu.add(removeAllItem);
 
 		// Remove variable item
@@ -556,7 +556,7 @@ public class MainFrame extends JFrame
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
 				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.removeSelectedCards((Integer)spinner.getValue());
+					selectedFrame.removeSelectedCards((Integer)spinner.getValue(), true);
 			}
 		});
 		removeMenu.add(removeNItem);
@@ -577,7 +577,7 @@ public class MainFrame extends JFrame
 			{
 				JPanel contentPanel = new JPanel(new BorderLayout());
 				contentPanel.add(new JLabel("Choose a category to edit:"), BorderLayout.NORTH);
-				JList<String> categories = new JList<String>(selectedFrame.categories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
+				JList<String> categories = new JList<String>(selectedFrame.deck().categories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
 				categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
 				if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
@@ -593,7 +593,7 @@ public class MainFrame extends JFrame
 			{
 				JPanel contentPanel = new JPanel(new BorderLayout());
 				contentPanel.add(new JLabel("Choose a category to remove:"), BorderLayout.NORTH);
-				JList<String> categories = new JList<String>(selectedFrame.categories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
+				JList<String> categories = new JList<String>(selectedFrame.deck().categories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
 				categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
 				if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
@@ -609,7 +609,7 @@ public class MainFrame extends JFrame
 		{
 			JMenuItem categoryItem = new JMenuItem(spec.getName());
 			categoryItem.addActionListener((e) -> {
-				if (selectedFrame != null && !selectedFrame.containsCategory(spec.getName()))
+				if (selectedFrame != null && !selectedFrame.deck().containsCategory(spec.getName()))
 					selectedFrame.addCategory(spec);
 			});
 			presetMenu.add(categoryItem);
@@ -773,13 +773,13 @@ public class MainFrame extends JFrame
 		JMenuItem oracleAddSingleItem = new JMenuItem("Add Single Copy");
 		oracleAddSingleItem.addActionListener((e) -> {
 			if (selectedFrame != null && selectedCard != null)
-				selectedFrame.addCard(selectedCard, 1);
+				selectedFrame.addCard(selectedCard, 1, true);
 		});
 		oraclePopupMenu.add(oracleAddSingleItem);
 		JMenuItem oraclePlaysetItem = new JMenuItem("Fill Playset");
 		oraclePlaysetItem.addActionListener((e) -> {
 			if (selectedFrame != null && selectedCard != null)
-				selectedFrame.addCard(selectedCard, 4 - selectedFrame.getData(selectedCard).count());
+				selectedFrame.addCard(selectedCard, 4 - selectedFrame.deck().getData(selectedCard).count(), true);
 		});
 		oraclePopupMenu.add(oraclePlaysetItem);
 		JMenuItem oracleAddNItem = new JMenuItem("Add Copies...");
@@ -791,7 +791,7 @@ public class MainFrame extends JFrame
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
 				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.addCard(selectedCard, (Integer)spinner.getValue());
+					selectedFrame.addCard(selectedCard, (Integer)spinner.getValue(), true);
 			}
 		});
 		oraclePopupMenu.add(oracleAddNItem);
@@ -799,13 +799,13 @@ public class MainFrame extends JFrame
 		JMenuItem oracleRemoveSingleItem = new JMenuItem("Remove Single Copy");
 		oracleRemoveSingleItem.addActionListener((e) -> {
 			if (selectedFrame != null && selectedCard != null)
-				selectedFrame.removeCard(selectedCard, 1);
+				selectedFrame.removeCard(selectedCard, 1, true);
 		});
 		oraclePopupMenu.add(oracleRemoveSingleItem);
 		JMenuItem oracleRemoveAllItem = new JMenuItem("Remove All Copies");
 		oracleRemoveAllItem.addActionListener((e) -> {
 			if (selectedFrame != null && selectedCard != null)
-				selectedFrame.removeCard(selectedCard, Integer.MAX_VALUE);
+				selectedFrame.removeCard(selectedCard, Integer.MAX_VALUE, true);
 		});
 		oraclePopupMenu.add(oracleRemoveAllItem);
 		JMenuItem oracleRemoveNItem = new JMenuItem("Remove Copies...");
@@ -817,7 +817,7 @@ public class MainFrame extends JFrame
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
 				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.removeCard(selectedCard, (Integer)spinner.getValue());
+					selectedFrame.removeCard(selectedCard, (Integer)spinner.getValue(), true);
 			}
 		});
 		oraclePopupMenu.add(oracleRemoveNItem);
@@ -864,7 +864,7 @@ public class MainFrame extends JFrame
 		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
 		inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) -> {
 			if (e.getClickCount()%2 == 0 && selectedFrame != null)
-				selectedFrame.addSelectedCards(1);
+				selectedFrame.addSelectedCards(1, true);
 		}));
 		inventoryTable.setTransferHandler(new TransferHandler()
 		{
@@ -897,7 +897,7 @@ public class MainFrame extends JFrame
 		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
 		addSinglePopupItem.addActionListener((e) -> {
 			if (selectedFrame != null)
-				selectedFrame.addSelectedCards(1);
+				selectedFrame.addSelectedCards(1, true);
 		});
 		inventoryMenu.add(addSinglePopupItem);
 
@@ -906,7 +906,7 @@ public class MainFrame extends JFrame
 		playsetPopupItem.addActionListener((e) -> {
 			if (selectedFrame != null)
 				for (Card c: getSelectedCards())
-					selectedFrame.addCard(c, 4 - selectedFrame.getData(c).count());
+					selectedFrame.addCard(c, 4 - selectedFrame.deck().getData(c).count(), true);
 		});
 		inventoryMenu.add(playsetPopupItem);
 
@@ -920,7 +920,7 @@ public class MainFrame extends JFrame
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
 				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.addSelectedCards((Integer)spinner.getValue());
+					selectedFrame.addSelectedCards((Integer)spinner.getValue(), true);
 			}
 		});
 		inventoryMenu.add(addNPopupItem);
@@ -929,12 +929,12 @@ public class MainFrame extends JFrame
 
 		// Remove single copy item
 		JMenuItem removeSinglePopupItem = new JMenuItem("Remove Single Copy");
-		removeSinglePopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeCards(getSelectedCards(), 1);});
+		removeSinglePopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeCards(getSelectedCards(), 1, true);});
 		inventoryMenu.add(removeSinglePopupItem);
 
 		// Remove all item
 		JMenuItem removeAllPopupItem = new JMenuItem("Remove All Copies");
-		removeAllPopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeCards(getSelectedCards(), Integer.MAX_VALUE);});
+		removeAllPopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeCards(getSelectedCards(), Integer.MAX_VALUE, true);});
 		inventoryMenu.add(removeAllPopupItem);
 
 		// Remove variable item
@@ -947,7 +947,7 @@ public class MainFrame extends JFrame
 				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 				contentPanel.add(spinner, BorderLayout.SOUTH);
 				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.removeCards(getSelectedCards(), (Integer)spinner.getValue());
+					selectedFrame.removeCards(getSelectedCards(), (Integer)spinner.getValue(), true);
 			}
 		});
 		inventoryMenu.add(removeNPopupItem);
