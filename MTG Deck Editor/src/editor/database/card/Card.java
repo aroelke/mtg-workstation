@@ -68,7 +68,7 @@ public abstract class Card
 	/**
 	 * Get all of the tags across all of the cards.
 	 * 
-	 * @return A Set containing all tags.
+	 * @return a set containing all tags.
 	 */
 	public static Set<String> tags()
 	{
