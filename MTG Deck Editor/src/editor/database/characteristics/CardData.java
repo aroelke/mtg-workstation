@@ -16,25 +16,65 @@ import editor.database.card.CardLayout;
 public enum CardData
 {
 	/**
-	 * Artist of a card.
+	 * Name of a card.
 	 */
-	ARTIST("Artist", String.class),
+	NAME("Name", String.class),
 	/**
-	 * Categories in a deck in which a card belongs.
+	 * {@link CardLayout} of a card.
 	 */
-	CATEGORIES("Categories", Set.class),
+	LAYOUT("Layout", CardLayout.class),
+	/**
+	 * Mana cost of a card.
+	 */
+	MANA_COST("Mana Cost", ManaCost.Tuple.class),
 	/**
 	 * Converted mana cost of a card.
 	 */
 	CMC("CMC", List.class),
 	/**
+	 * Colors of all faces of a card.
+	 */
+	COLORS("Colors", ManaType.Tuple.class),
+	/**
 	 * Color identity of a card.
 	 */
 	COLOR_IDENTITY("Color Identity", ManaType.Tuple.class),
 	/**
-	 * Colors of all faces of a card.
+	 * Type line of a card.
 	 */
-	COLORS("Colors", ManaType.Tuple.class),
+	TYPE_LINE("Type", String.class),
+	/**
+	 * Name of the expansion a card was released in.
+	 */
+	EXPANSION_NAME("Expansion", String.class),
+	/**
+	 * Rarity of a card in its expansion.
+	 */
+	RARITY("Rarity", Rarity.class),
+	/**
+	 * Power of a creature card.
+	 */
+	POWER("Power", PowerToughness.Tuple.class),
+	/**
+	 * Toughness of a creature card.
+	 */
+	TOUGHNESS("Toughness", PowerToughness.Tuple.class),
+	/**
+	 * Loyalty of a planeswalker card.
+	 */
+	LOYALTY("Loyalty", Loyalty.Tuple.class),
+	/**
+	 * Artist of a card.
+	 */
+	ARTIST("Artist", String.class),
+	/**
+	 * Set of formats a card is legal in.
+	 */
+	LEGAL_IN("Legal In", List.class),
+	/**
+	 * Categories in a deck in which a card belongs.
+	 */
+	CATEGORIES("Categories", Set.class),
 	/**
 	 * Number of copies of a card in a deck.
 	 */
@@ -42,48 +82,7 @@ public enum CardData
 	/**
 	 * Date a card was added to a deck.
 	 */
-	DATE_ADDED("Date Added", Date.class),
-	/**
-	 * Name of the expansion a card was released in.
-	 */
-	EXPANSION_NAME("Expansion", String.class),
-	/**
-	 * {@link CardLayout} of a card.
-	 */
-	LAYOUT("Layout", CardLayout.class),
-	/**
-	 * Set of formats a card is legal in.
-	 */
-	LEGAL_IN("Legal In", List.class),
-	/**
-	 * Loyalty of a planeswalker card.
-	 */
-	LOYALTY("Loyalty", Loyalty.Tuple.class),
-	/**
-	 * Mana cost of a card.
-	 */
-	MANA_COST("Mana Cost", ManaCost.Tuple.class),
-	/**
-	 * Name of a card.
-	 */
-	NAME("Name", String.class),
-	/**
-	 * Power of a creature card.
-	 */
-	POWER("Power", PowerToughness.Tuple.class),
-	
-	/**
-	 * Rarity of a card in its expansion.
-	 */
-	RARITY("Rarity", Rarity.class),
-	/**
-	 * Toughness of a creature card.
-	 */
-	TOUGHNESS("Toughness", PowerToughness.Tuple.class),
-	/**
-	 * Type line of a card.
-	 */
-	TYPE_LINE("Type", String.class);
+	DATE_ADDED("Date Added", Date.class);
 	
 	/**
 	 * Parse a String for a CardData.
