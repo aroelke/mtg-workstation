@@ -319,9 +319,12 @@ public class SettingsDialog extends JDialog
 	public static void load() throws FileNotFoundException, IOException
 	{
 		resetDefaultSettings();
-		try (InputStreamReader in = new InputStreamReader(new FileInputStream(SettingsDialog.PROPERTIES_FILE)))
+		if (new File(PROPERTIES_FILE).exists())
 		{
-			SettingsDialog.SETTINGS.load(in);
+			try (InputStreamReader in = new InputStreamReader(new FileInputStream(PROPERTIES_FILE)))
+			{
+				SettingsDialog.SETTINGS.load(in);
+			}
 		}
 	}
 
