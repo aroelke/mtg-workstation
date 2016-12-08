@@ -134,7 +134,7 @@ public class CardTableModel extends AbstractTableModel
 			{
 			case COUNT:
 				if (value instanceof Integer)
-					editor.setCardCount(list[row], (Integer)value, true); // TODO
+					editor.setCardCount(list[row], (Integer)value, list);
 				else
 					throw new IllegalArgumentException("Illegal count value " + value);
 				break;
