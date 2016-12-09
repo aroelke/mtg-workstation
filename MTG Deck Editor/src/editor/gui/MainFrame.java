@@ -175,15 +175,25 @@ public class MainFrame extends JFrame
 					cmcPanel.setForeground(c.getForeground());
 					cmcPanel.setBackground(c.getBackground());
 					JLabel cmcLabel = new JLabel(join.toString());
-					if (selectedFrame != null && c instanceof JLabel && selectedFrame.deck().contains(inventory[table.convertRowIndexToModel(row)]))
-						cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.BOLD, cmcLabel.getFont().getSize()));
+					if (selectedFrame != null && c instanceof JLabel)
+					{
+						if (selectedFrame.deck().contains(inventory[table.convertRowIndexToModel(row)]))
+							cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.BOLD, cmcLabel.getFont().getSize()));
+						else if (selectedFrame.sideboard().contains(inventory[table.convertRowIndexToModel(row)]))
+							cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.ITALIC, cmcLabel.getFont().getSize()));
+					}
 					cmcPanel.add(cmcLabel);
 					return cmcPanel;
 				}
 			}
 
-			if (selectedFrame != null && c instanceof JLabel && selectedFrame.deck().contains(inventory[table.convertRowIndexToModel(row)]))
-				c.setFont(new Font(c.getFont().getFontName(), Font.BOLD, c.getFont().getSize()));
+			if (selectedFrame != null && c instanceof JLabel)
+			{
+				if (selectedFrame.deck().contains(inventory[table.convertRowIndexToModel(row)]))
+					c.setFont(new Font(c.getFont().getFontName(), Font.BOLD, c.getFont().getSize()));
+				else if (selectedFrame.sideboard().contains(inventory[table.convertRowIndexToModel(row)]))
+					c.setFont(new Font(c.getFont().getFontName(), Font.ITALIC, c.getFont().getSize()));
+			}
 			return c;
 		}
 	}

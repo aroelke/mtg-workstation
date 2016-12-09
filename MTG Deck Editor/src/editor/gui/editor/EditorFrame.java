@@ -395,7 +395,7 @@ public class EditorFrame extends JInternalFrame
 						deck.current.add(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
 					else
 						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
-					publish(50*(i + 1)/cards);
+					publish(33*(i + 1)/cards);
 				}
 				int categories = Integer.valueOf(rd.readLine().trim());
 				for (int i = 0; i < categories; i++)
@@ -404,7 +404,20 @@ public class EditorFrame extends JInternalFrame
 						return null;
 					CategorySpec spec = new CategorySpec(rd.readLine());
 					addCategory(spec);
-					publish(50 + 50*(i + 1)/categories);
+					publish(33 + 33*(i + 1)/categories);
+				}
+				cards = Integer.valueOf(rd.readLine().trim());
+				for (int i = 0; i < cards; i++)
+				{
+					if (isCancelled())
+						return null;
+					String[] card = rd.readLine().trim().split("\t");
+					Card c = parent.getCard(card[0]);
+					if (c != null)
+						sideboard.current.add(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
+					else
+						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
+					publish(66 + 33*(i + 1)/cards);
 				}
 				String line;
 				while ((line = rd.readLine()) != null)
@@ -855,9 +868,9 @@ public class EditorFrame extends JInternalFrame
 		for (int i = 0; i < sideboard.table.getColumnCount(); i++)
 			if (sideboard.model.isCellEditable(0, i))
 				sideboard.table.getColumn(sideboard.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, sideboard.model.getColumnData(i)));
-//		sideboard.table.setTransferHandler(new EditorTableTransferHandler());
-//		sideboard.table.setDragEnabled(true);
-//		sideboard.table.setDropMode(DropMode.ON);
+		sideboard.table.setTransferHandler(new EditorTableTransferHandler(false));
+		sideboard.table.setDragEnabled(true);
+		sideboard.table.setDropMode(DropMode.ON);
 		
 		JScrollPane sideboardPane = new JScrollPane(sideboard.table);
 		sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
@@ -1328,6 +1341,34 @@ public class EditorFrame extends JInternalFrame
 			update();
 		});
 		
+		sideboard.current.addDeckListener((e) -> {
+			if (e.cardsChanged())
+			{
+				updateStats();
+				
+				if (!opening)
+					parent.updateCardsInDeck();
+				sideboard.model.fireTableDataChanged();
+				for (Card c: selectedCards)
+				{
+					if (getSelectedSource().contains(c))
+					{
+						int row = selectedTable.convertRowIndexToView(getSelectedSource().indexOf(c));
+						selectedTable.addRowSelectionInterval(row, row);
+					}
+				}
+				if (sideboard.table.isEditing())
+					sideboard.table.getCellEditor().cancelCellEditing();
+			}
+			
+			if (!unsaved)
+			{
+				setTitle(getTitle() + " *");
+				unsaved = true;
+			}
+			update();
+		});
+		
 		// Handle various frame events, including selecting and closing
 		addInternalFrameListener(new InternalFrameAdapter()
 		{
@@ -1696,7 +1737,7 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Get this EditorFrame's deck.
 	 * 
-	 * @return The deck.
+	 * @return the deck.
 	 */
 	public Deck deck()
 	{
@@ -2100,9 +2141,18 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean save(File f)
 	{
-		try
+		try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f, false), "UTF8")))
 		{
-			deck.current.save(f);
+			wr.println(String.valueOf(deck.current.size()));
+			for (Card c: deck.current)
+				wr.println(c.id() + "\t" + deck.current.getData(c).count() + "\t" + Deck.DATE_FORMAT.format(deck.current.getData(c).dateAdded()));
+			wr.println(String.valueOf(deck.current.categories().size()));
+			for (CategorySpec c: deck.current.categories())
+				wr.println(c.toString());
+			wr.println(String.valueOf(sideboard.current.size()));
+			for (Card c: sideboard.current)
+				wr.println(c.id() + "\t" + sideboard.current.getData(c).count() + "\t" + Deck.DATE_FORMAT.format(sideboard.current.getData(c).dateAdded()));
+			
 			String changes = "";
 			for (Card c: deck.original)
 			{
@@ -2124,9 +2174,7 @@ public class EditorFrame extends JInternalFrame
 				changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
 				changelogArea.append(changes + "\n");
 			}
-			PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f, true), "UTF8"));
 			wr.print(changelogArea.getText());
-			wr.close();
 			
 			deck.original = new Deck();
 			deck.original.addAll(deck.current);
@@ -2232,6 +2280,16 @@ public class EditorFrame extends JInternalFrame
 	{
 		selectedTable = table;
 		selectedSource = source;
+	}
+	
+	/**
+	 * Get this EditorFrame's sideboard.
+	 * 
+	 * @return the sideboard
+	 */
+	public CardList sideboard()
+	{
+		return sideboard.current;
 	}
 	
 	/**
