@@ -45,7 +45,6 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 		weightsMap[ManaType.GREEN] = 0.0;
 		for (ColorWeight w: weights)
 			weightsMap[w.color] = w.weight;
-		assert(weightsMap.values().stream().mapToDouble((v) -> v).sum() == 1.0);
 		return weightsMap;
 	}
 	
