@@ -136,7 +136,7 @@ public class InventoryDownloadDialog extends JDialog
 		@Override
 		protected void process(List<Integer> chunks)
 		{
-			int downloaded = chunks[chunks.size() - 1];
+			int downloaded = chunks.get(chunks.size() - 1);
 			String downloadedStr;
 			if (downloaded <= 1024)
 				downloadedStr = String.format("%d", downloaded);

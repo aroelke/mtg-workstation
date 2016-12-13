@@ -172,7 +172,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			FilterGroupPanel newGroup = new FilterGroupPanel();
 			newGroup.clear();
 			newGroup.add(panel);
-			children[index] = newGroup;
+			children.set(index, newGroup);
 			newGroup.group = this;
 			for (FilterPanel<?> child: children)
 				filtersPanel.add(child);

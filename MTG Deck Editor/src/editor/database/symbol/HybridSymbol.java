@@ -29,7 +29,7 @@ public class HybridSymbol extends ManaSymbol
 				if (i != j)
 				{
 					ManaType.Tuple tuple = new ManaType.Tuple(ManaType.colors()[i], ManaType.colors()[j]);
-					SYMBOLS[tuple] = new HybridSymbol(tuple);
+					SYMBOLS.put(tuple, new HybridSymbol(tuple));
 				}
 			}
 		}
@@ -44,7 +44,7 @@ public class HybridSymbol extends ManaSymbol
 	 */
 	public static HybridSymbol get(ManaType color1, ManaType color2)
 	{
-		return SYMBOLS[new ManaType.Tuple(color1, color2)];
+		return SYMBOLS.get(new ManaType.Tuple(color1, color2));
 	}
 	
 	/**
@@ -63,7 +63,7 @@ public class HybridSymbol extends ManaSymbol
 			if (colors.size() != 2)
 				return null;
 			else
-				return SYMBOLS[new ManaType.Tuple(colors)];
+				return SYMBOLS.get(new ManaType.Tuple(colors));
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -83,8 +83,8 @@ public class HybridSymbol extends ManaSymbol
 	 */
 	private HybridSymbol(ManaType.Tuple colors)
 	{
-		super(colors[0].toString().toLowerCase() + "_" + colors[1].toString().toLowerCase() + "_mana.png",
-				colors[0].shorthand() + "/" + colors[1].shorthand(), 1);
+		super(colors.get(0).toString().toLowerCase() + "_" + colors.get(1).toString().toLowerCase() + "_mana.png",
+				colors.get(0).shorthand() + "/" + colors.get(1).shorthand(), 1);
 		this.colors = colors;
 	}
 
@@ -95,8 +95,8 @@ public class HybridSymbol extends ManaSymbol
 	@Override
 	public Map<ManaType, Double> colorWeights()
 	{
-		return createWeights(new ColorWeight(colors[0], 0.5),
-							 new ColorWeight(colors[1], 0.5));
+		return createWeights(new ColorWeight(colors.get(0), 0.5),
+							 new ColorWeight(colors.get(1), 0.5));
 	}
 
 	@Override

@@ -59,7 +59,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 			String code = e.getKey();
 			String name = e.getValue();
 			FilterEditorPanel<?> panel = FilterPanelFactory.createFilterPanel(code);
-			filterPanels[name] = panel;
+			filterPanels.put(name, panel);
 			filtersPanel.add(panel, name);
 		}
 		filterTypes.addItemListener((e) -> {
@@ -91,7 +91,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	@Override
 	public Filter filter()
 	{
-		return filterPanels[filterTypes.getSelectedItem()].filter();
+		return filterPanels.get(filterTypes.getSelectedItem()).filter();
 	}
 
 	/**
@@ -102,8 +102,8 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 	@Override
 	public void setContents(FilterLeaf<?> filter)
 	{
-		filterTypes.setSelectedItem(FilterFactory.FILTER_TYPES[filter.type()]);
-		filterPanels[FilterFactory.FILTER_TYPES[filter.type()]].setContents(filter);
+		filterTypes.setSelectedItem(FilterFactory.FILTER_TYPES.get(filter.type()));
+		filterPanels.get(FilterFactory.FILTER_TYPES.get(filter.type())).setContents(filter);
 		((CardLayout)filtersPanel.getLayout()).show(filtersPanel, filter.type());
 	}
 }

@@ -73,7 +73,7 @@ public class CardTagPanel extends ScrollablePanel
 
 		for (TristateCheckBox tagBox: tagBoxes)
 		{
-			long matches = cards.stream().filter((c) -> Card.tags[c] != null && Card.tags[c].contains(tagBox.getText())).count();
+			long matches = cards.stream().filter((c) -> Card.tags.get(c) != null && Card.tags.get(c).contains(tagBox.getText())).count();
 			if (matches == 0)
 				tagBox.setSelected(false);
 			else if (matches < cards.size())

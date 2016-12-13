@@ -67,7 +67,7 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
 				{
 					int x = i*(s + 1) + 1;
 					int y = 1;
-					g.setColor(included[i].getColor());
+					g.setColor(included.get(i).getColor());
 					g.fillRect(x, y, s - 3, s - 3);
 					g.setColor(Color.BLACK);
 					g.drawRect(x, y, s - 3, s - 3);

@@ -148,10 +148,10 @@ public class CardImagePanel extends JPanel
 			int l = 0;
 			for (int i = 0; i < faceImages.size(); i++)
 			{
-				if (faceImages[i] != null)
+				if (faceImages.get(i) != null)
 				{
-					g.drawImage(faceImages[i], l, (h - faceImages[i].getHeight())/2, null);
-					l += faceImages[i].getWidth();
+					g.drawImage(faceImages.get(i), l, (h - faceImages.get(i).getHeight())/2, null);
+					l += faceImages.get(i).getWidth();
 				}
 				else
 				{

@@ -31,7 +31,7 @@ public class TwobridSymbol extends ManaSymbol
 	 */
 	public static TwobridSymbol get(ManaType col)
 	{
-		return SYMBOLS[col];
+		return SYMBOLS.get(col);
 	}
 	
 	/**

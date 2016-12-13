@@ -158,7 +158,7 @@ public abstract class Card
 		this.layout = layout;
 		this.faces = faces;
 
-		id = new Lazy<String>(() -> expansion.code + unifiedName() + imageNames()[0]);
+		id = new Lazy<String>(() -> expansion.code + unifiedName() + imageNames().get(0));
 		unifiedName = new Lazy<String>(() -> {
 			StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
 			for (String name: name())
@@ -210,9 +210,9 @@ public abstract class Card
 			List<String> texts = new ArrayList<String>();
 			for (int i = 0; i < faces; i++)
 			{
-				String normal = Normalizer.normalize(oracleText()[i].toLowerCase(), Normalizer.Form.NFD);
+				String normal = Normalizer.normalize(oracleText().get(i).toLowerCase(), Normalizer.Form.NFD);
 				normal = normal.replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae");
-				normal = normal.replace(legendName()[i], Card.THIS).replace(normalizedName()[i], Card.THIS);
+				normal = normal.replace(legendName().get(i), Card.THIS).replace(normalizedName().get(i), Card.THIS);
 				texts.add(normal);
 			}
 			return Collections.unmodifiableList(texts);
@@ -373,10 +373,10 @@ public abstract class Card
 		StyleConstants.setIcon(chaosStyle, FunctionalSymbol.CHAOS.getIcon(MainFrame.TEXT_SIZE));
 		try
 		{
-			document.insertString(document.getLength(), name()[f] + " ", textStyle);
-			if (!manaCost()[f].isEmpty())
+			document.insertString(document.getLength(), name().get(f) + " ", textStyle);
+			if (!manaCost().get(f).isEmpty())
 			{
-				for (Symbol symbol: manaCost()[f])
+				for (Symbol symbol: manaCost().get(f))
 				{
 					Style style = document.addStyle(symbol.toString(), null);
 					StyleConstants.setIcon(style, symbol.getIcon(MainFrame.TEXT_SIZE));
@@ -384,11 +384,11 @@ public abstract class Card
 				}
 				document.insertString(document.getLength(), " ", textStyle);
 			}
-			if (cmc()[f] == cmc()[f].doubleValue())
-				document.insertString(document.getLength(), "(" + (int)cmc()[f].doubleValue() + ")\n", textStyle);
+			if (cmc().get(f) == cmc().get(f).doubleValue())
+				document.insertString(document.getLength(), "(" + (int)cmc().get(f).doubleValue() + ")\n", textStyle);
 			else
-				document.insertString(document.getLength(), "(" + cmc()[f] + ")\n", textStyle);
-			if (!manaCost()[f].colors().equals(colors(f)))
+				document.insertString(document.getLength(), "(" + cmc().get(f) + ")\n", textStyle);
+			if (!manaCost().get(f).colors().equals(colors(f)))
 			{
 				for (ManaType color: colors(f))
 				{
@@ -399,10 +399,10 @@ public abstract class Card
 				if (!colors().isEmpty())
 					document.insertString(document.getLength(), " ", textStyle);
 			}
-			document.insertString(document.getLength(), typeLine()[f] + '\n', textStyle);
+			document.insertString(document.getLength(), typeLine().get(f) + '\n', textStyle);
 			document.insertString(document.getLength(), expansion.name + ' ' + rarity() + '\n', textStyle);
 
-			String oracle = oracleText()[f];
+			String oracle = oracleText().get(f);
 			if (!oracle.isEmpty())
 			{
 				int start = 0;
@@ -456,7 +456,7 @@ public abstract class Card
 				}
 				document.insertString(document.getLength(), "\n", textStyle);
 			}
-			String flavor = flavorText()[f];
+			String flavor = flavorText().get(f);
 			if (!flavor.isEmpty())
 			{
 				int start = 0;
@@ -492,12 +492,12 @@ public abstract class Card
 				document.insertString(document.getLength(), "\n", reminderStyle);
 			}
 
-			if (!Double.isNaN(power()[f].value) && !Double.isNaN(toughness()[f].value))
-				document.insertString(document.getLength(), power()[f] + "/" + toughness()[f] + "\n", textStyle);
-			else if (loyalty()[f].value > 0)
-				document.insertString(document.getLength(), loyalty()[f] + "\n", textStyle);
+			if (!Double.isNaN(power().get(f).value) && !Double.isNaN(toughness().get(f).value))
+				document.insertString(document.getLength(), power().get(f) + "/" + toughness().get(f) + "\n", textStyle);
+			else if (loyalty().get(f).value > 0)
+				document.insertString(document.getLength(), loyalty().get(f) + "\n", textStyle);
 
-			document.insertString(document.getLength(), artist()[f] + " " + number()[f] + "/" + expansion.count, textStyle);
+			document.insertString(document.getLength(), artist().get(f) + " " + number().get(f) + "/" + expansion.count, textStyle);
 		}
 		catch (BadLocationException e)
 		{
@@ -569,7 +569,7 @@ public abstract class Card
 	 */
 	public boolean legalIn(String format)
 	{
-		if (format.equalsIgnoreCase("prismatic") && legalIn("classic") && legality()[format] != Legality.BANNED)
+		if (format.equalsIgnoreCase("prismatic") && legalIn("classic") && legality().get(format) != Legality.BANNED)
 			return true;
 		else if (format.equalsIgnoreCase("classic") || format.equalsIgnoreCase("freeform"))
 			return true;
@@ -592,7 +592,7 @@ public abstract class Card
 		else if (!legality().containsKey(format))
 			return false;
 		else
-			return legality()[format] != Legality.BANNED;
+			return legality().get(format) != Legality.BANNED;
 	}
 
 	/**
@@ -617,7 +617,7 @@ public abstract class Card
 		{
 			if (format.equalsIgnoreCase("prismatic"))
 				format = "classic";
-			return legality().containsKey(format) ? legality()[format] : Legality.LEGAL;
+			return legality().containsKey(format) ? legality().get(format) : Legality.LEGAL;
 		}
 		else
 			return Legality.BANNED;

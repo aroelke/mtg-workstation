@@ -58,7 +58,7 @@ public class CardJList extends JList<String>
 			@Override
 			public String getElementAt(int index)
 			{
-				return cards[index].unifiedName();
+				return cards.get(index).unifiedName();
 			}
 			
 			@Override

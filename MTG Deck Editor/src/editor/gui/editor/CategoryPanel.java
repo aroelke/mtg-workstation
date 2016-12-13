@@ -362,7 +362,7 @@ public class CategoryPanel extends JPanel
 	public List<Card> getSelectedCards()
 	{
 		return Arrays.stream(table.getSelectedRows())
-					 .mapToObj((r) -> deck.getCategoryList(name)[table.convertRowIndexToModel(r)])
+					 .mapToObj((r) -> deck.getCategoryList(name).get(table.convertRowIndexToModel(r)))
 					 .collect(Collectors.toList());
 	}
 

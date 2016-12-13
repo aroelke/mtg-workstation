@@ -40,7 +40,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	public NumberFilter(String t, SerializableFunction<Card, Collection<Double>> f)
 	{
 		super(t, f);
-		operation = '=';
+		operation = Comparison.valueOf('=');
 		operand = 0.0;
 	}
 	
@@ -84,7 +84,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	public void parse(String s)
 	{
 		String content = checkContents(s, type());
-		operation = content.charAt(0);
+		operation = Comparison.valueOf(content.charAt(0));
 		operand = Double.valueOf(content.substring(1));
 	}
 	

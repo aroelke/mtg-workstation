@@ -71,8 +71,8 @@ public class PowerToughness implements Comparable<PowerToughness>
 				return 1;
 			else
 			{
-				PowerToughness first = stream().filter(PowerToughness::exists).findFirst().orElse(this[0]);
-				PowerToughness second = o.stream().filter(PowerToughness::exists).findFirst().orElse(o[0]);
+				PowerToughness first = stream().filter(PowerToughness::exists).findFirst().orElse(get(0));
+				PowerToughness second = o.stream().filter(PowerToughness::exists).findFirst().orElse(o.get(0));
 				return first.compareTo(second);
 			}
 		}
@@ -80,7 +80,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 		@Override
 		public PowerToughness get(int index)
 		{
-			return values[index];
+			return values.get(index);
 		}
 
 		@Override

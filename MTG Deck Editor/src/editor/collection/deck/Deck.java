@@ -172,7 +172,7 @@ public class Deck implements CardList, Externalizable
 		@Override
 		public Card get(int index) throws IndexOutOfBoundsException
 		{
-			return filtrate[index];
+			return filtrate.get(index);
 		}
 		
 		@Override
@@ -184,7 +184,7 @@ public class Deck implements CardList, Externalizable
 		@Override
 		public Entry getData(int index) throws IndexOutOfBoundsException
 		{
-			return getData(this[index]);
+			return getData(get(index));
 		}
 		
 		@Override
@@ -270,7 +270,7 @@ public class Deck implements CardList, Externalizable
 		@Override
 		public boolean set(int index, int amount) throws IllegalArgumentException
 		{
-			return set(this[index], amount);
+			return set(get(index), amount);
 		}
 
 		@Override
@@ -510,7 +510,7 @@ public class Deck implements CardList, Externalizable
 			{
 				Map<Card, Integer> cards = new HashMap<Card, Integer>(cardsChanged);
 				for (Card c: cardsChanged.keySet())
-					if (cardsChanged[c].intValue() < 1)
+					if (cardsChanged.get(c).intValue() < 1)
 						cards.remove(c);
 				return cards;
 			}
@@ -555,7 +555,7 @@ public class Deck implements CardList, Externalizable
 			{
 				Map<Card, Integer> cards = new HashMap<Card, Integer>(cardsChanged);
 				for (Card c: cardsChanged.keySet())
-					if (cardsChanged[c].intValue() > -1)
+					if (cardsChanged.get(c).intValue() > -1)
 						cards.remove(c);
 					else
 						cardsChanged.compute(c, (k, v) -> -v);
@@ -867,7 +867,7 @@ public class Deck implements CardList, Externalizable
 		if (do_add(card, amount, date))
 		{
 			Map<Card, Integer> added = new HashMap<Card, Integer>();
-			added[card] = amount;
+			added.put(card, amount);
 			notifyListeners(new Event().cardsChanged(added));
 			return true;
 		}
@@ -887,8 +887,8 @@ public class Deck implements CardList, Externalizable
 		Map<Card, Integer> added = new HashMap<Card, Integer>();
 		
 		for (Card card: amounts.keySet())
-			if (do_add(card, amounts[card], new Date()))
-				added[card] = amounts[card];
+			if (do_add(card, amounts.get(card), new Date()))
+				added.put(card, amounts.get(card));
 		if (!added.isEmpty())
 			notifyListeners(new Event().cardsChanged(added));
 		return !added.isEmpty();
@@ -911,14 +911,14 @@ public class Deck implements CardList, Externalizable
 		if (!categories.containsKey(spec.getName()))
 		{
 			Category c = new Category(spec);
-			categories[spec.getName()] = c;
+			categories.put(spec.getName(), c);
 			c.update();
 			
 			spec.addCategoryListener(c.listener = (e) -> {
 				if (e.nameChanged())
 				{
 					categories.remove(e.oldName());
-					categories[e.newName()] = c;
+					categories.put(e.newName(), c);
 				}
 				if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
 					c.update();
@@ -932,7 +932,7 @@ public class Deck implements CardList, Externalizable
 			return c;
 		}
 		else
-			return categories[spec.getName()];
+			return categories.get(spec.getName());
 	}
 	
 	/**
@@ -1116,13 +1116,13 @@ public class Deck implements CardList, Externalizable
 	 */
 	public boolean exclude(String name, Card card)
 	{
-		return contains(card) && categories[name].spec.exclude(card);
+		return contains(card) && categories.get(name).spec.exclude(card);
 	}
 	
 	@Override
 	public Card get(int index) throws IndexOutOfBoundsException
 	{
-		return masterList[index].card;
+		return masterList.get(index).card;
 	}
 	
 	/**
@@ -1133,7 +1133,7 @@ public class Deck implements CardList, Externalizable
 	 */
 	public CardList getCategoryList(String name)
 	{
-		return categories[name];
+		return categories.get(name);
 	}
 	
 	/**
@@ -1145,7 +1145,7 @@ public class Deck implements CardList, Externalizable
 	 */
 	public int getCategoryRank(String name)
 	{
-		return containsCategory(name) ? categories[name].rank : -1;
+		return containsCategory(name) ? categories.get(name).rank : -1;
 	}
 	
 	/**
@@ -1157,8 +1157,8 @@ public class Deck implements CardList, Externalizable
 	 */
 	public CategorySpec getCategorySpec(String name) throws IllegalArgumentException
 	{
-		if (categories[name] != null)
-			return categories[name].spec;
+		if (categories.containsKey(name))
+			return categories.get(name).spec;
 		else
 			throw new IllegalArgumentException("No category named " + name + " found");
 	}
@@ -1172,7 +1172,7 @@ public class Deck implements CardList, Externalizable
 	@Override
 	public Entry getData(int index)
 	{
-		return masterList[index];
+		return masterList.get(index);
 	}
 	
 	/**
@@ -1262,7 +1262,7 @@ public class Deck implements CardList, Externalizable
 		int n = in.readInt();
 		for (int i = 0; i < n; i++)
 		{
-			Card card = MainFrame.inventory()[in.readUTF()];
+			Card card = MainFrame.inventory().get(in.readUTF());
 			int count = in.readInt();
 			Date added = (Date)in.readObject();
 			do_add(card, count, added);
@@ -1271,7 +1271,7 @@ public class Deck implements CardList, Externalizable
 		for (int i = 0; i < n; i++)
 		{
 			Category category = new Category((CategorySpec)in.readObject());
-			categories[category.spec.getName()] = category;
+			categories.put(category.spec.getName(), category);
 			category.rank = in.readInt();
 			category.update();
 		}
@@ -1300,7 +1300,7 @@ public class Deck implements CardList, Externalizable
 	 */
 	public boolean remove(String name)
 	{
-		Category c = categories[name];
+		Category c = categories.get(name);
 		if (c != null)
 		{
 			for (DeckEntry e: masterList)
@@ -1310,7 +1310,7 @@ public class Deck implements CardList, Externalizable
 			{
 				if (category.rank > c.rank)
 				{
-					oldRanks[category.spec.getName()] = category.rank;
+					oldRanks.put(category.spec.getName(), category.rank);
 					category.rank--;
 				}
 			}
@@ -1336,9 +1336,9 @@ public class Deck implements CardList, Externalizable
 		Map<Card, Integer> removed = new HashMap<Card, Integer>();
 		for (Card card: new HashSet<Card>(amounts.keySet()))
 		{
-			int r = do_remove(card, amounts[card]);
+			int r = do_remove(card, amounts.get(card));
 			if (r > 0)
-				removed[card] = -r;
+				removed.put(card, -r);
 		}
 		
 		if (!removed.isEmpty())
@@ -1414,7 +1414,7 @@ public class Deck implements CardList, Externalizable
 				land += amount - e.count;
 			
 			Map<Card, Integer> change = new HashMap<Card, Integer>();
-			change[card] = amount - e.count;
+			change.put(card, amount - e.count);
 			Event event = new Event().cardsChanged(change);
 			
 			e.count = amount;
@@ -1437,7 +1437,7 @@ public class Deck implements CardList, Externalizable
 	@Override
 	public boolean set(int index, int amount)
 	{
-		return set(masterList[index].card, amount);
+		return set(masterList.get(index).card, amount);
 	}
 
 	@Override
@@ -1459,7 +1459,7 @@ public class Deck implements CardList, Externalizable
 	 */
 	public boolean swapCategoryRanks(String name, int target)
 	{
-		if (!categories.containsKey(name) || categories[name].rank == target
+		if (!categories.containsKey(name) || categories.get(name).rank == target
 				|| target >= categories.size() || target < 0)
 			return false;
 		else
@@ -1469,11 +1469,11 @@ public class Deck implements CardList, Externalizable
 				if (second.rank == target)
 				{
 					Map<String, Integer> oldRanks = new HashMap<String, Integer>();
-					oldRanks[name] = categories[name].rank;
-					oldRanks[second.spec.getName()] = second.rank;
+					oldRanks.put(name, categories.get(name).rank);
+					oldRanks.put(second.spec.getName(), second.rank);
 					
-					second.rank = categories[name].rank;
-					categories[name].rank = target;
+					second.rank = categories.get(name).rank;
+					categories.get(name).rank = target;
 					
 					notifyListeners(new Event().ranksChanged(oldRanks));
 					return true;

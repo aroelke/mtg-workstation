@@ -196,7 +196,7 @@ public class Hand implements CardList
 	{
 		if (index >= inHand)
 			throw new IndexOutOfBoundsException();
-		return hand[index];
+		return hand.get(index);
 	}
 
 	/**
@@ -216,7 +216,7 @@ public class Hand implements CardList
 	@Override
 	public Entry getData(int index) throws IndexOutOfBoundsException
 	{
-		return deck.getData(this[index]);
+		return deck.getData(get(index));
 	}
 
 	/**

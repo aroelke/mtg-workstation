@@ -9,6 +9,7 @@ import java.util.Objects;
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
+import editor.util.Comparison;
 import editor.util.SerializableFunction;
 import editor.util.SerializablePredicate;
 
@@ -107,7 +108,7 @@ public class VariableNumberFilter extends NumberFilter
 		else
 		{
 			varies = false;
-			operation = content.charAt(0);
+			operation = Comparison.valueOf(content.charAt(0));
 			operand = Double.valueOf(content.substring(1));
 		}
 	}

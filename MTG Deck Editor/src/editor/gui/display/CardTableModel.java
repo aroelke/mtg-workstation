@@ -87,7 +87,7 @@ public class CardTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		return list.getData(rowIndex)[characteristics[columnIndex]];
+		return list.getData(rowIndex).get(characteristics.get(columnIndex));
 	}
 
 	@Override
@@ -104,25 +104,25 @@ public class CardTableModel extends AbstractTableModel
 	 */
 	public CardData getColumnData(int column)
 	{
-		return characteristics[column];
+		return characteristics.get(column);
 	}
 
 	@Override
 	public String getColumnName(int column)
 	{
-		return characteristics[column].toString();
+		return characteristics.get(column).toString();
 	}
 	
 	@Override
 	public Class<?> getColumnClass(int column)
 	{
-		return characteristics[column].dataType;
+		return characteristics.get(column).dataType;
 	}
 	
 	@Override
 	public boolean isCellEditable(int row, int column)
 	{
-		return editor != null && (characteristics[column] == CardData.COUNT || characteristics[column] == CardData.CATEGORIES);
+		return editor != null && (characteristics.get(column) == CardData.COUNT || characteristics.get(column) == CardData.CATEGORIES);
 	}
 
 	@Override
@@ -130,11 +130,11 @@ public class CardTableModel extends AbstractTableModel
 	{
 		if (isCellEditable(row, column))
 		{
-			switch (characteristics[column])
+			switch (characteristics.get(column))
 			{
 			case COUNT:
 				if (value instanceof Integer)
-					editor.setCardCount(list[row], (Integer)value, list);
+					editor.setCardCount(list.get(row), (Integer)value, list);
 				else
 					throw new IllegalArgumentException("Illegal count value " + value);
 				break;
@@ -148,7 +148,7 @@ public class CardTableModel extends AbstractTableModel
 					throw new IllegalArgumentException("Illegal inclusion value " + value);
 				break;
 			default:
-				throw new IllegalArgumentException("Cannot edit data type " + characteristics[column]);
+				throw new IllegalArgumentException("Cannot edit data type " + characteristics.get(column));
 			}
 			fireTableDataChanged();
 		}

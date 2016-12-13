@@ -32,16 +32,16 @@ public class FunctionalSymbol extends Symbol
 	{
 		Map<String, FunctionalSymbol> symbols = new HashMap<String, FunctionalSymbol>();
 		// Chaos symbol.
-		symbols[CHAOS.toString()] = CHAOS;
+		symbols.put(CHAOS.toString(), CHAOS);
 		// Phyrexian phi symbol.
-		symbols["P"] = new FunctionalSymbol("phyrexia.png", "P");
+		symbols.put("P", new FunctionalSymbol("phyrexia.png", "P"));
 		// Tap symbol.  Used in costs in card text.
-		symbols["T"] = new FunctionalSymbol("tap.png", "T");
-		symbols["TAP"] = symbols["T"];
+		symbols.put("T", new FunctionalSymbol("tap.png", "T"));
+		symbols.put("TAP", symbols.get("T"));
 		// Untap symbol.  Used in costs in card text.
-		symbols["Q"] = new FunctionalSymbol("untap.png", "Q");
+		symbols.put("Q", new FunctionalSymbol("untap.png", "Q"));
 		// Energy counter symbol.
-		symbols["E"] = new FunctionalSymbol("energy.png", "E");
+		symbols.put("E", new FunctionalSymbol("energy.png", "E"));
 		
 		SYMBOLS = Collections.unmodifiableMap(symbols);
 	}
@@ -54,7 +54,7 @@ public class FunctionalSymbol extends Symbol
 	 */
 	public static FunctionalSymbol get(String s)
 	{
-		return SYMBOLS[s.toUpperCase()];
+		return SYMBOLS.get(s.toUpperCase());
 	}
 	
 	/**

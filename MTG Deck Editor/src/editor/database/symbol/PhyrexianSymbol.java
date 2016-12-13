@@ -30,7 +30,7 @@ public class PhyrexianSymbol extends ManaSymbol
 	 */
 	public static PhyrexianSymbol get(ManaType col)
 	{
-		return SYMBOLS[col];
+		return SYMBOLS.get(col);
 	}
 	
 	/**

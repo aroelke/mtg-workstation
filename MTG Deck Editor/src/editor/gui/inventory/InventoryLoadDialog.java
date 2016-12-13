@@ -138,7 +138,7 @@ public class InventoryLoadDialog extends JDialog
 				JsonObject root = new JsonParser().parse(reader).getAsJsonObject();
 				int numCards = 0;
 				for (Map.Entry<String, JsonElement> setNode: root.entrySet())
-					numCards += setNode.getValue().getAsJsonObject()["cards"].getAsJsonArray().size();
+					numCards += setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray().size();
 
 				publish("Reading cards from " + file.getName() + "...");
 				setProgress(0);
@@ -158,15 +158,15 @@ public class InventoryLoadDialog extends JDialog
 
 					// Create the new Expansion
 					JsonObject setProperties = setNode.getValue().getAsJsonObject();
-					JsonArray setCards = setProperties["cards"].getAsJsonArray();
-					Expansion set = new Expansion(setProperties["name"].getAsString(),
-												  setProperties.has("block") ? setProperties["block"].getAsString() : "<No Block>",
-												  setProperties["code"].getAsString(),
-												  (setProperties.has("oldCode") ? setProperties["oldCode"] : setProperties["code"]).getAsString(),
-												  (setProperties.has("magicCardsInfoCode") ? setProperties["magicCardsInfoCode"] : setProperties["code"]).getAsString().toUpperCase(),
-												  (setProperties.has("gathererCode") ? setProperties["gathererCode"] : setProperties["code"]).getAsString(),
+					JsonArray setCards = setProperties.get("cards").getAsJsonArray();
+					Expansion set = new Expansion(setProperties.get("name").getAsString(),
+												  setProperties.has("block") ? setProperties.get("block").getAsString() : "<No Block>",
+												  setProperties.get("code").getAsString(),
+												  setProperties.get(setProperties.has("oldCode") ? "oldCode" : "code").getAsString(),
+												  setProperties.get(setProperties.has("magicCardsInfoCode") ? "magicCardsInfoCode" : "code").getAsString().toUpperCase(),
+												  setProperties.get(setProperties.has("gathererCode") ? "gathererCode" : "code").getAsString(),
 												  setCards.size(),
-												  Expansion.DATE_FORMAT.parse(setProperties["releaseDate"].getAsString()));
+												  Expansion.DATE_FORMAT.parse(setProperties.get("releaseDate").getAsString()));
 					expansions.add(set);
 					blockNames.add(set.block);
 					publish("Loading cards from " + set + "...");
@@ -177,13 +177,13 @@ public class InventoryLoadDialog extends JDialog
 						JsonObject card = cardElement.getAsJsonObject();
 
 						// Card's name
-						String name = card["name"].getAsString();
+						String name = card.get("name").getAsString();
 
 						// If the card is a token, skip it
 						CardLayout layout = null;
 						try
 						{
-							layout = CardLayout.valueOf(card["layout"].getAsString().toUpperCase().replaceAll("[^A-Z]", "_"));
+							layout = CardLayout.valueOf(card.get("layout").getAsString().toUpperCase().replaceAll("[^A-Z]", "_"));
 							if (layout == CardLayout.TOKEN)
 								continue;
 						}
@@ -194,13 +194,13 @@ public class InventoryLoadDialog extends JDialog
 						}
 
 						// Card's mana cost
-						String mana = card.has("manaCost") ? card["manaCost"].getAsString() : "";
+						String mana = card.has("manaCost") ? card.get("manaCost").getAsString() : "";
 
 						// Card's set of colors (which is stored as a list, since order matters)
 						List<ManaType> colors = new ArrayList<ManaType>();
 						if (card.has("colors"))
 						{
-							JsonArray colorsArray = card["colors"].getAsJsonArray();
+							JsonArray colorsArray = card.get("colors").getAsJsonArray();
 							for (JsonElement colorElement: colorsArray)
 								colors.add(ManaType.get(colorElement.getAsString()));
 						}
@@ -210,7 +210,7 @@ public class InventoryLoadDialog extends JDialog
 						{
 							if (card.has("colorIdentity"))
 							{
-								JsonArray identityArray = card["colorIdentity"].getAsJsonArray();
+								JsonArray identityArray = card.get("colorIdentity").getAsJsonArray();
 								for (JsonElement identityElement: identityArray)
 									colorIdentity.add(ManaType.get(identityElement.getAsString()));
 							}
@@ -220,7 +220,7 @@ public class InventoryLoadDialog extends JDialog
 						Set<String> supertypes = new LinkedHashSet<String>();
 						if (card.has("supertypes"))
 						{
-							JsonArray superArray = card["supertypes"].getAsJsonArray();
+							JsonArray superArray = card.get("supertypes").getAsJsonArray();
 							for (JsonElement superElement: superArray)
 							{
 								supertypes.add(superElement.getAsString());
@@ -230,7 +230,7 @@ public class InventoryLoadDialog extends JDialog
 
 						// Card's set of types
 						Set<String> types = new LinkedHashSet<String>();
-						for (JsonElement typeElement: card["types"].getAsJsonArray())
+						for (JsonElement typeElement: card.get("types").getAsJsonArray())
 						{
 							types.add(typeElement.getAsString());
 							typeSet.add(typeElement.getAsString());
@@ -240,7 +240,7 @@ public class InventoryLoadDialog extends JDialog
 						Set<String> subtypes = new LinkedHashSet<String>();
 						if (card.has("subtypes"))
 						{
-							for (JsonElement subElement: card["subtypes"].getAsJsonArray())
+							for (JsonElement subElement: card.get("subtypes").getAsJsonArray())
 							{
 								subtypes.add(subElement.getAsString());
 								subtypeSet.add(subElement.getAsString());
@@ -248,40 +248,40 @@ public class InventoryLoadDialog extends JDialog
 						}
 
 						// Card's rarity
-						Rarity rarity = Rarity.get(card["rarity"].getAsString());
+						Rarity rarity = Rarity.get(card.get("rarity").getAsString());
 
 						// Card's rules text
-						String text = card.has("text") ? card["text"].getAsString() : "";
+						String text = card.has("text") ? card.get("text").getAsString() : "";
 
 						// Card's flavor text
-						String flavor = card.has("flavor") ? card["flavor"].getAsString() : "";
+						String flavor = card.has("flavor") ? card.get("flavor").getAsString() : "";
 
 						// Card's artist
-						String artist = card["artist"].getAsString();
+						String artist = card.get("artist").getAsString();
 
 						// Card's number (this is a string since some don't have numbers or are things like "1a")
-						String number = card.has("number") ? card["number"].getAsString() : "--";
+						String number = card.has("number") ? card.get("number").getAsString() : "--";
 
 						// Card's power and toughness (empty if it doesn't have power or toughness)
-						String power = card.has("power") ? card["power"].getAsString() : "";
-						String toughness = card.has("toughness") ? card["toughness"].getAsString() : "";
+						String power = card.has("power") ? card.get("power").getAsString() : "";
+						String toughness = card.has("toughness") ? card.get("toughness").getAsString() : "";
 
 						// Card's loyalty (empty if it isn't a planeswalker or is Garruk, the Veil-Cursed)
-						String loyalty = card.has("loyalty") ? card["loyalty"].getAsString() : "";
+						String loyalty = card.has("loyalty") ? card.get("loyalty").getAsString() : "";
 
 						// Card's rulings
 						TreeMap<Date, List<String>> rulings = new TreeMap<Date, List<String>>();
 						DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 						if (card.has("rulings"))
 						{
-							for (JsonElement l: card["rulings"].getAsJsonArray())
+							for (JsonElement l: card.get("rulings").getAsJsonArray())
 							{
 								JsonObject o = l.getAsJsonObject();
-								Date date = format.parse(o["date"].getAsString());
-								String ruling = o["text"].getAsString();
+								Date date = format.parse(o.get("date").getAsString());
+								String ruling = o.get("text").getAsString();
 								if (!rulings.containsKey(date))
-									rulings[date] = new ArrayList<String>();
-								rulings[date].add(ruling);
+									rulings.put(date, new ArrayList<String>());
+								rulings.get(date).add(ruling);
 							}
 						}
 
@@ -289,16 +289,16 @@ public class InventoryLoadDialog extends JDialog
 						Map<String, Legality> legality = new HashMap<String, Legality>();
 						if (card.has("legalities"))
 						{
-							for (JsonElement l: card["legalities"].getAsJsonArray())
+							for (JsonElement l: card.get("legalities").getAsJsonArray())
 							{
 								JsonObject o = l.getAsJsonObject();
-								formatSet.add(o["format"].getAsString());
-								legality[o["format"].getAsString()] = Legality.get(o["legality"].getAsString());
+								formatSet.add(o.get("format").getAsString());
+								legality.put(o.get("format").getAsString(), Legality.get(o.get("legality").getAsString()));
 							}
 						}
 
 						// Card's image name
-						String imageName = card["imageName"].getAsString();
+						String imageName = card.get("imageName").getAsString();
 
 						// Create the new card with all the values acquired above
 						Card c = new SingleCard(layout,
@@ -326,9 +326,9 @@ public class InventoryLoadDialog extends JDialog
 						if (layout.isMultiFaced)
 						{
 							List<String> names = new ArrayList<String>();
-							for (JsonElement e: card["names"].getAsJsonArray())
+							for (JsonElement e: card.get("names").getAsJsonArray())
 								names.add(e.getAsString());
-							faces[c] = names;
+							faces.put(c, names);
 						}
 
 						cards.add(c);
@@ -343,7 +343,7 @@ public class InventoryLoadDialog extends JDialog
 					boolean error = false;
 
 					Card face = facesList.remove(0);
-					List<String> faceNames = faces[face];
+					List<String> faceNames = faces.get(face);
 					List<Card> otherFaces = new ArrayList<Card>();
 					for (Card c: facesList)
 						if (faceNames.contains(c.unifiedName()) && c.expansion().equals(face.expansion()))
@@ -385,13 +385,13 @@ public class InventoryLoadDialog extends JDialog
 							errors.add(face.toString() + " (" + face.expansion() + "): Too many sides for flip card.");
 							error = true;
 						}
-						else if (otherFaces[0].layout() != CardLayout.FLIP || otherFaces[1].layout() != CardLayout.FLIP)
+						else if (otherFaces.get(0).layout() != CardLayout.FLIP || otherFaces.get(1).layout() != CardLayout.FLIP)
 						{
 							errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-flip faces into a flip card.");
 							error = true;
 						}
 						if (!error)
-							cards.add(new FlipCard(otherFaces[0], otherFaces[1]));
+							cards.add(new FlipCard(otherFaces.get(0), otherFaces.get(1)));
 						break;
 					case DOUBLE_FACED:
 						if (otherFaces.size() < 2)
@@ -404,13 +404,13 @@ public class InventoryLoadDialog extends JDialog
 							errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for double-faced card.");
 							error = true;
 						}
-						else if (otherFaces[0].layout() != CardLayout.DOUBLE_FACED || otherFaces[1].layout() != CardLayout.DOUBLE_FACED)
+						else if (otherFaces.get(0).layout() != CardLayout.DOUBLE_FACED || otherFaces.get(1).layout() != CardLayout.DOUBLE_FACED)
 						{
 							errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into double-faced cards.");
 							error = true;
 						}
 						if (!error)
-							cards.add(new DoubleFacedCard(otherFaces[0], otherFaces[1]));
+							cards.add(new DoubleFacedCard(otherFaces.get(0), otherFaces.get(1)));
 						break;
 					case MELD:
 						if (otherFaces.size() < 3)
@@ -423,15 +423,15 @@ public class InventoryLoadDialog extends JDialog
 							errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for meld card.");
 							error = true;
 						}
-						else if (otherFaces[0].layout() != CardLayout.MELD || otherFaces[1].layout() != CardLayout.MELD || otherFaces[2].layout() != CardLayout.MELD)
+						else if (otherFaces.get(0).layout() != CardLayout.MELD || otherFaces.get(1).layout() != CardLayout.MELD || otherFaces.get(2).layout() != CardLayout.MELD)
 						{
 							errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into meld cards.");
 							error = true;
 						}
 						if (!error)
 						{
-							cards.add(new MeldCard(otherFaces[0], otherFaces[1], otherFaces[2]));
-							cards.add(new MeldCard(otherFaces[1], otherFaces[0], otherFaces[2]));
+							cards.add(new MeldCard(otherFaces.get(0), otherFaces.get(1), otherFaces.get(2)));
+							cards.add(new MeldCard(otherFaces.get(1), otherFaces.get(0), otherFaces.get(2)));
 						}
 					default:
 						break;
@@ -452,7 +452,7 @@ public class InventoryLoadDialog extends JDialog
 			{
 				Matcher m = Pattern.compile("\\((.*?)::\\[(.*?)\\]\\)").matcher(SettingsDialog.getAsString(SettingsDialog.CARD_TAGS));
 				while (m.find())
-					Card.tags[inventory[m.group(1)]] = Arrays.stream(m.group(2).split(",")).collect(Collectors.toSet());
+					Card.tags.put(inventory.get(m.group(1)), Arrays.stream(m.group(2).split(",")).collect(Collectors.toSet()));
 			}
 			return inventory;
 		}

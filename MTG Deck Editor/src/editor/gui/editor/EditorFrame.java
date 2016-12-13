@@ -444,7 +444,7 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		protected void process(List<Integer> chunks)
 		{
-			int progress = chunks[chunks.size() - 1];
+			int progress = chunks.get(chunks.size() - 1);
 			progressBar.setValue(progress);
 		}
 	}
@@ -528,7 +528,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				if (getSelectedCards().size() == 1)
 				{
-					Card card = getSelectedCards()[0];
+					Card card = getSelectedCards().get(0);
 					
 					for (CategorySpec category: deck.current.categories())
 					{
@@ -797,7 +797,7 @@ public class EditorFrame extends JInternalFrame
 					parent.clearSelectedCards();
 					setSelectedSource(deck.table, deck.current);
 					if (hasSelectedCards())
-						parent.selectCard(getSelectedCards()[0]);
+						parent.selectCard(getSelectedCards().get(0));
 				}
 			}
 		});
@@ -814,9 +814,9 @@ public class EditorFrame extends JInternalFrame
 		mainDeckPanel.add(mainDeckPane, BorderLayout.CENTER);
 
 		VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		deckButtons["+"].addActionListener((e) -> addSelectedCards(1, true));
-		deckButtons[String.valueOf(UnicodeSymbols.MINUS)].addActionListener((e) -> removeSelectedCards(1, true));
-		deckButtons["X"].addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, true));
+		deckButtons.get("+").addActionListener((e) -> addSelectedCards(1, true));
+		deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeSelectedCards(1, true));
+		deckButtons.get("X").addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, true));
 		deckButtons.setBackground(UIManager.getColor("window"));
 		mainDeckPanel.add(deckButtons, BorderLayout.WEST);
 		mainPanel.add(mainDeckPanel, BorderLayout.CENTER);
@@ -833,9 +833,9 @@ public class EditorFrame extends JInternalFrame
 		sideboardPanel.add(showHidePanel, BorderLayout.NORTH);
 		
 		VerticalButtonList sideboardButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		sideboardButtons["+"].addActionListener((e) -> addSelectedCards(1, false));
-		sideboardButtons[String.valueOf(UnicodeSymbols.MINUS)].addActionListener((e) -> removeSelectedCards(1, false));
-		sideboardButtons["X"].addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, false));
+		sideboardButtons.get("+").addActionListener((e) -> addSelectedCards(1, false));
+		sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeSelectedCards(1, false));
+		sideboardButtons.get("X").addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, false));
 		sideboardButtons.setBackground(UIManager.getColor("window"));
 		sideboardPanel.add(sideboardButtons, BorderLayout.WEST);
 		
@@ -861,7 +861,7 @@ public class EditorFrame extends JInternalFrame
 					parent.clearSelectedCards();
 					setSelectedSource(sideboard.table, sideboard.current);
 					if (hasSelectedCards())
-						parent.selectCard(getSelectedCards()[0]);
+						parent.selectCard(getSelectedCards().get(0));
 				}
 			}
 		});
@@ -1033,9 +1033,9 @@ public class EditorFrame extends JInternalFrame
 		categoriesMainPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		
 		VerticalButtonList categoryButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		categoryButtons["+"].addActionListener((e) -> addSelectedCards(1, true));
-		categoryButtons[String.valueOf(UnicodeSymbols.MINUS)].addActionListener((e) -> removeSelectedCards(1, true));
-		categoryButtons["X"].addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, true));
+		categoryButtons.get("+").addActionListener((e) -> addSelectedCards(1, true));
+		categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeSelectedCards(1, true));
+		categoryButtons.get("X").addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, true));
 		categoryButtons.setBackground(UIManager.getColor("window"));
 		categoriesPanel.add(categoryButtons, BorderLayout.WEST);
 		
@@ -1097,7 +1097,7 @@ public class EditorFrame extends JInternalFrame
 				CardImagePanel panel = new CardImagePanel();
 				panel.setBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
 				imagePanel.add(panel);
-				panel.setCard(hand[hand.size() - 1]);
+				panel.setCard(hand.get(hand.size() - 1));
 				imagePanel.add(Box.createHorizontalStrut(10));
 				imagePanel.validate();
 				update();
@@ -1129,7 +1129,7 @@ public class EditorFrame extends JInternalFrame
 			excludePanel.add(new JScrollPane(excludeTable));
 			
 			addExclusionButton.addActionListener((a) -> {
-				for (Card c: Arrays.stream(excludeTable.getSelectedRows()).mapToObj((r) -> deck.current[excludeTable.convertRowIndexToModel(r)]).collect(Collectors.toList()))
+				for (Card c: Arrays.stream(excludeTable.getSelectedRows()).mapToObj((r) -> deck.current.get(excludeTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
 				{
 					int n = 0;
 					for (int i = 0; i < excludeModel.size(); i++)
@@ -1150,7 +1150,7 @@ public class EditorFrame extends JInternalFrame
 			
 			hand.clearExclusion();
 			for (int i = 0; i < excludeModel.size(); i++)
-				hand.exclude(excludeModel[i]);
+				hand.exclude(excludeModel.get(i));
 		});
 		handModPanel.add(excludeButton);
 		
@@ -1551,7 +1551,7 @@ public class EditorFrame extends JInternalFrame
 					parent.clearSelectedCards();
 					setSelectedSource(newCategory.table, deck.current.getCategoryList(spec.getName()));
 					if (hasSelectedCards())
-						parent.selectCard(getSelectedCards()[0]);
+						parent.selectCard(getSelectedCards().get(0));
 				}
 			}
 		});
@@ -1774,7 +1774,7 @@ public class EditorFrame extends JInternalFrame
 		saveSelectedCards();
 		Map<Card, Integer> removed = new HashMap<Card, Integer>();
 		for (Card c: toRemove)
-			removed[c] = (main ? deck : sideboard).current.remove(c, n);
+			removed.put(c, (main ? deck : sideboard).current.remove(c, n));
 		return removed;
 	}
 	
@@ -1837,19 +1837,19 @@ public class EditorFrame extends JInternalFrame
 		performAction(() -> {
 			boolean changed = false;
 			for (Card card: included.keySet())
-				for (CategorySpec category: included[card])
+				for (CategorySpec category: included.get(card))
 					changed |= category.exclude(card);
 			for (Card card: excluded.keySet())
-				for (CategorySpec category: excluded[card])
+				for (CategorySpec category: excluded.get(card))
 					changed |= category.include(card);
 			return changed;
 		}, () -> {
 			boolean changed = false;
 			for (Card card: included.keySet())
-				for (CategorySpec category: included[card])
+				for (CategorySpec category: included.get(card))
 					changed |= category.include(card);
 			for (Card card: excluded.keySet())
-				for (CategorySpec category: excluded[card])
+				for (CategorySpec category: excluded.get(card))
 					changed |= category.exclude(card);
 			return changed;
 		});
@@ -1875,12 +1875,12 @@ public class EditorFrame extends JInternalFrame
 	public Card getCardAt(CardTable t, int index)
 	{
 		if (t == deck.table)
-			return deck.current[deck.table.convertRowIndexToModel(index)];
+			return deck.current.get(deck.table.convertRowIndexToModel(index));
 		else
 		{
 			for (CategoryPanel panel: categoryPanels)
 				if (t == panel.table)
-					return deck.current.getCategoryList(panel.getCategoryName())[panel.table.convertRowIndexToModel(index)];
+					return deck.current.getCategoryList(panel.getCategoryName()).get(panel.table.convertRowIndexToModel(index));
 			throw new IllegalArgumentException("Table not in deck " + deckName());
 		}
 	}
@@ -1907,7 +1907,7 @@ public class EditorFrame extends JInternalFrame
 	public List<Card> getSelectedCards()
 	{
 		return Arrays.stream(selectedTable.getSelectedRows())
-				  .mapToObj((r) -> selectedSource[selectedTable.convertRowIndexToModel(r)])
+				  .mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
 				  .collect(Collectors.toList());
 	}
 	
@@ -2197,7 +2197,7 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (selectedTable != null)
 			selectedCards = Arrays.stream(selectedTable.getSelectedRows())
-					.mapToObj((r) -> selectedSource[selectedTable.convertRowIndexToModel(r)])
+					.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
 					.collect(Collectors.toList());
 		else
 			selectedCards = new ArrayList<Card>();
@@ -2373,9 +2373,9 @@ public class EditorFrame extends JInternalFrame
 		if (!cmc.isEmpty())
 		{
 			if (cmc.size()%2 == 0)
-				medCMC = (cmc[cmc.size()/2 - 1] + cmc[cmc.size()/2])/2;
+				medCMC = (cmc.get(cmc.size()/2 - 1) + cmc.get(cmc.size()/2))/2;
 			else
-				medCMC = cmc[cmc.size()/2];
+				medCMC = cmc.get(cmc.size()/2);
 		}
 		if ((int)medCMC == medCMC)
 			medCMCLabel.setText("Median CMC: " + (int)medCMC);

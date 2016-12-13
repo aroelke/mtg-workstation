@@ -66,7 +66,8 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 	@Override
 	public boolean test(Collection<?> a, Collection<?> b)
 	{
-		Objects.requireNonNull(a, b);
+		Objects.requireNonNull(a);
+		Objects.requireNonNull(b);
 		switch (this)
 		{
 		case CONTAINS_ANY_OF:

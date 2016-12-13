@@ -72,7 +72,7 @@ public class VerticalButtonList extends JPanel
 	 */
 	public JButton get(int index) throws IndexOutOfBoundsException
 	{
-		return buttonsList[index];
+		return buttonsList.get(index);
 	}
 	
 	/**
@@ -83,6 +83,6 @@ public class VerticalButtonList extends JPanel
 	 */
 	public JButton get(String text)
 	{
-		return buttonsMap[text];
+		return buttonsMap.get(text);
 	}
 }

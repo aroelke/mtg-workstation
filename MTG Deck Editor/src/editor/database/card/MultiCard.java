@@ -127,7 +127,7 @@ public abstract class MultiCard extends Card
 	 */
 	public MultiCard(CardLayout layout, List<Card> f)
 	{
-		super(f[0].expansion(), layout, f.size());
+		super(f.get(0).expansion(), layout, f.size());
 		
 		faces = f;
 		for (Card face: faces)
@@ -191,8 +191,8 @@ public abstract class MultiCard extends Card
 				for (Date k: b.keySet())
 				{
 					if (!a.containsKey(k))
-						a[k] = new ArrayList<String>();
-					a[k].addAll(b[k]);
+						a.put(k, new ArrayList<String>());
+					a.get(k).addAll(b.get(k));
 				}
 				return a;
 			})));
@@ -225,7 +225,7 @@ public abstract class MultiCard extends Card
 	 */
 	private <T> List<T> collect(Function<Card, List<T>> characteristic)
 	{
-		return faces.stream().map((f) -> characteristic.apply(f)[0]).collect(Collectors.toList());
+		return faces.stream().map((f) -> characteristic.apply(f).get(0)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -243,7 +243,7 @@ public abstract class MultiCard extends Card
 	@Override
 	public ManaType.Tuple colors(int face) throws IndexOutOfBoundsException
 	{
-		return faces[face].colors();
+		return faces.get(face).colors();
 	}
 
 	@Override
@@ -261,7 +261,7 @@ public abstract class MultiCard extends Card
 	@Override
 	public Map<String, Legality> legality()
 	{
-		return faces[0].legality();
+		return faces.get(0).legality();
 	}
 
 	@Override
@@ -303,7 +303,7 @@ public abstract class MultiCard extends Card
 	@Override
 	public Rarity rarity()
 	{
-		return faces[0].rarity();
+		return faces.get(0).rarity();
 	}
 
 	@Override

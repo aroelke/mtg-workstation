@@ -42,7 +42,7 @@ public class CategoryList extends JList<String>
 		public String getElementAt(int index)
 		{
 			if (index < categories.size())
-				return categories[index].getName();
+				return categories.get(index).getName();
 			else if (!hint.isEmpty() && index == categories.size())
 				return hint;
 			else
@@ -172,7 +172,7 @@ public class CategoryList extends JList<String>
 	 */
 	public CategorySpec getCategoryAt(int index)
 	{
-		return categories[index];
+		return categories.get(index);
 	}
 	
 	/**
@@ -211,7 +211,7 @@ public class CategoryList extends JList<String>
 	 */
 	public void setCategoryAt(int index, CategorySpec c)
 	{
-		categories[index] = c;
+		categories.set(index, c);
 		model.setElementAt(c.getName(), index);
 	}
 }

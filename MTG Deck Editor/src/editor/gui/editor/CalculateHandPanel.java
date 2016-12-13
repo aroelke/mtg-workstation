@@ -148,7 +148,7 @@ public class CalculateHandPanel extends JPanel
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex)
 		{
-			String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList())[rowIndex];
+			String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(rowIndex);
 			
 			switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
 			{
@@ -160,17 +160,17 @@ public class CalculateHandPanel extends JPanel
 				case COUNT:
 					return deck.getCategoryList(category).total();
 				case DESIRED:
-					return desiredBoxes[category].getSelectedItem();
+					return desiredBoxes.get(category).getSelectedItem();
 				case RELATION:
-					return relationBoxes[category].getSelectedItem();
+					return relationBoxes.get(category).getSelectedItem();
 				default:
-					return String.format("%.2f%%", probabilities[category][columnIndex - (P_INFO_COLS - 1)]*100.0);
+					return String.format("%.2f%%", probabilities.get(category).get(columnIndex - (P_INFO_COLS - 1))*100.0);
 				}
 			case EXPECTED_COUNT:
 				if (columnIndex == CATEGORY)
 					return category;
-				else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts[category].size())
-					return ROUND_MODE[SettingsDialog.getAsString(SettingsDialog.EXPECTED_ROUND_MODE)].apply(expectedCounts[category][columnIndex - (E_INFO_COLS - 1)]);
+				else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts.get(category).size())
+					return ROUND_MODE.get(SettingsDialog.getAsString(SettingsDialog.EXPECTED_ROUND_MODE)).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
 				else
 					return "";
 			default:
@@ -305,9 +305,9 @@ public class CalculateHandPanel extends JPanel
 	static
 	{
 		Map<String, Function<Double, String>> rounds = new HashMap<String, Function<Double, String>>();
-		rounds["No rounding"] = (x) -> String.format("%.2f", x);
-		rounds["Round to nearest"] = (x) -> String.format("%d", Math.round(x));
-		rounds["Truncate"] = (x) -> String.format("%d", x.intValue());
+		rounds.put("No rounding", (x) -> String.format("%.2f", x));
+		rounds.put("Round to nearest", (x) -> String.format("%d", Math.round(x)));
+		rounds.put("Truncate", (x) -> String.format("%d", x.intValue()));
 		ROUND_MODE = Collections.unmodifiableMap(rounds);
 	}
 	
@@ -448,14 +448,14 @@ public class CalculateHandPanel extends JPanel
 			@Override
 			public TableCellEditor getCellEditor(int row, int column)
 			{
-				String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList())[row];
+				String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(row);
 				
 				switch (column)
 				{
 				case DESIRED:
-					return new DefaultCellEditor(desiredBoxes[category]);
+					return new DefaultCellEditor(desiredBoxes.get(category));
 				case RELATION:
-					return new DefaultCellEditor(relationBoxes[category]);
+					return new DefaultCellEditor(relationBoxes.get(category));
 				default:
 					return super.getCellEditor(row, column);
 				}
@@ -522,30 +522,30 @@ public class CalculateHandPanel extends JPanel
 		
 		for (String category: categories)
 		{
-			probabilities[category] = new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0));
-			expectedCounts[category] = new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0));
-			Relation r = (Relation)relationBoxes[category].getSelectedItem();
+			probabilities.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
+			expectedCounts.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
+			Relation r = (Relation)relationBoxes.get(category).getSelectedItem();
 			for (int j = 0; j <= draws; j++)
 			{
 				double p = 0.0;
 				switch (r)
 				{
 				case AT_LEAST:
-					for (int k = 0; k < desiredBoxes[category].getSelectedIndex(); k++)
+					for (int k = 0; k < desiredBoxes.get(category).getSelectedIndex(); k++)
 						p += hypergeom(k, hand + j, deck.getCategoryList(category).total(), deck.total());
 					p = 1.0 - p;
 					break;
 				case EXACTLY:
-					p = hypergeom(desiredBoxes[category].getSelectedIndex(), hand + j, deck.getCategoryList(category).total(), deck.total());
+					p = hypergeom(desiredBoxes.get(category).getSelectedIndex(), hand + j, deck.getCategoryList(category).total(), deck.total());
 					break;
 				case AT_MOST:
-					for (int k = 0; k <= desiredBoxes[category].getSelectedIndex(); k++)
+					for (int k = 0; k <= desiredBoxes.get(category).getSelectedIndex(); k++)
 						p += hypergeom(k, hand + j, deck.getCategoryList(category).total(), deck.total());
 					break;
 				}
-				probabilities[category][j] = p;
+				probabilities.get(category).set(j, p);
 				// TODO: This might be wrong
-				expectedCounts[category][j] = (double)deck.getCategoryList(category).total()/deck.total()*(hand + j);
+				expectedCounts.get(category).set(j, (double)deck.getCategoryList(category).total()/deck.total()*(hand + j));
 			}
 		}
 		model.fireTableDataChanged();
@@ -570,16 +570,16 @@ public class CalculateHandPanel extends JPanel
 			JComboBox<Integer> desiredBox = new JComboBox<Integer>();
 			for (int i = 0; i <= deck.getCategoryList(category).total(); i++)
 				desiredBox.addItem(i);
-			if (oldDesired.containsKey(category) && oldDesired[category].intValue() < deck.getCategoryList(category).total())
-				desiredBox.setSelectedIndex(oldDesired[category]);
+			if (oldDesired.containsKey(category) && oldDesired.get(category).intValue() < deck.getCategoryList(category).total())
+				desiredBox.setSelectedIndex(oldDesired.get(category));
 			desiredBox.addActionListener((e) -> recalculate());
-			desiredBoxes[category] = desiredBox;
+			desiredBoxes.put(category, desiredBox);
 			
 			JComboBox<Relation> relationBox = new JComboBox<Relation>(Relation.values());
 			if (oldRelations.containsKey(category))
-				relationBox.setSelectedItem(oldRelations[category]);
+				relationBox.setSelectedItem(oldRelations.get(category));
 			relationBox.addActionListener((e) -> recalculate());
-			relationBoxes[category] = relationBox;
+			relationBoxes.put(category, relationBox);
 		}
 		
 		recalculate();

@@ -161,7 +161,7 @@ public class MainFrame extends JFrame
 			if (value instanceof List)
 			{
 				List<?> values = (List<?>)value;
-				if (!values.isEmpty() && values[0] instanceof Double)
+				if (!values.isEmpty() && values.get(0) instanceof Double)
 				{
 					List<Double> cmc = values.stream().map((o) -> (Double)o).collect(Collectors.toList());
 					StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
@@ -177,9 +177,9 @@ public class MainFrame extends JFrame
 					JLabel cmcLabel = new JLabel(join.toString());
 					if (selectedFrame != null && c instanceof JLabel)
 					{
-						if (selectedFrame.deck().contains(inventory[table.convertRowIndexToModel(row)]))
+						if (selectedFrame.deck().contains(inventory.get(table.convertRowIndexToModel(row))))
 							cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.BOLD, cmcLabel.getFont().getSize()));
-						else if (selectedFrame.sideboard().contains(inventory[table.convertRowIndexToModel(row)]))
+						else if (selectedFrame.sideboard().contains(inventory.get(table.convertRowIndexToModel(row))))
 							cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.ITALIC, cmcLabel.getFont().getSize()));
 					}
 					cmcPanel.add(cmcLabel);
@@ -189,9 +189,9 @@ public class MainFrame extends JFrame
 
 			if (selectedFrame != null && c instanceof JLabel)
 			{
-				if (selectedFrame.deck().contains(inventory[table.convertRowIndexToModel(row)]))
+				if (selectedFrame.deck().contains(inventory.get(table.convertRowIndexToModel(row))))
 					c.setFont(new Font(c.getFont().getFontName(), Font.BOLD, c.getFont().getSize()));
-				else if (selectedFrame.sideboard().contains(inventory[table.convertRowIndexToModel(row)]))
+				else if (selectedFrame.sideboard().contains(inventory.get(table.convertRowIndexToModel(row))))
 					c.setFont(new Font(c.getFont().getFontName(), Font.ITALIC, c.getFont().getSize()));
 			}
 			return c;
@@ -730,18 +730,18 @@ public class MainFrame extends JFrame
 		/* CONTENT PANE */
 		// Panel containing all content
 		JPanel contentPane = new JPanel(new BorderLayout());
-		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)[KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ActionEvent.CTRL_MASK)] = "Next Frame";
-		contentPane.getActionMap()["Next Frame"] = new AbstractAction()
+		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ActionEvent.CTRL_MASK), "Next Frame");
+		contentPane.getActionMap().put("Next Frame", new AbstractAction()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				if (!editors.isEmpty() && selectedFrame != null)
-					selectFrame(editors[(editors.indexOf(selectedFrame) + 1)%editors.size()]);
+					selectFrame(editors.get((editors.indexOf(selectedFrame) + 1)%editors.size()));
 			}
-		};
-		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)[KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, ActionEvent.CTRL_MASK)] = "Previous Frame";
-		contentPane.getActionMap()["Previous Frame"] = new AbstractAction()
+		});
+		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, ActionEvent.CTRL_MASK), "Previous Frame");
+		contentPane.getActionMap().put("Previous Frame", new AbstractAction()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
@@ -749,10 +749,10 @@ public class MainFrame extends JFrame
 				if (!editors.isEmpty() && selectedFrame != null)
 				{
 					int next = editors.indexOf(selectedFrame) - 1;
-					selectFrame(editors[next < 0 ? editors.size() - 1 : next]);
+					selectFrame(editors.get(next < 0 ? editors.size() - 1 : next));
 				}
 			}
-		};
+		});
 		setContentPane(contentPane);
 
 		// DesktopPane containing editor frames
@@ -1060,7 +1060,7 @@ public class MainFrame extends JFrame
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
 				if (!lsm.isSelectionEmpty())
 				{
-					selectCard(inventory[inventoryTable.convertRowIndexToModel(lsm.getMinSelectionIndex())]);
+					selectCard(inventory.get(inventoryTable.convertRowIndexToModel(lsm.getMinSelectionIndex())));
 					if (selectedFrame != null)
 					{
 						selectedFrame.clearTableSelections(null);
@@ -1238,7 +1238,7 @@ public class MainFrame extends JFrame
 		{
 			editors.remove(frame);
 			if (editors.size() > 0)
-				selectFrame(editors[0]);
+				selectFrame(editors.get(0));
 			else
 			{
 				selectedFrame = null;
@@ -1338,7 +1338,7 @@ public class MainFrame extends JFrame
 	 */
 	public Card getCard(String id)
 	{
-		return inventory[id];
+		return inventory.get(id);
 	}
 
 	/**
@@ -1360,7 +1360,7 @@ public class MainFrame extends JFrame
 	{
 		if (inventoryTable.getSelectedRowCount() > 0)
 			return Arrays.stream(inventoryTable.getSelectedRows())
-								 .mapToObj((r) -> inventory[inventoryTable.convertRowIndexToModel(r)])
+								 .mapToObj((r) -> inventory.get(inventoryTable.convertRowIndexToModel(r)))
 								 .collect(Collectors.toList());
 		else if (selectedCard != null)
 			return Arrays.asList(selectedCard);
@@ -1525,7 +1525,7 @@ public class MainFrame extends JFrame
 	{
 		StringJoiner str = new StringJoiner("|");
 		for (JMenuItem recent: recentItems)
-			str.add(recents[recent].getPath());
+			str.add(recents.get(recent).getPath());
 		SettingsDialog.set(SettingsDialog.RECENT_FILES, str.toString());
 		try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE))
 		{
@@ -1572,7 +1572,7 @@ public class MainFrame extends JFrame
 				{
 					for (Date date: selectedCard.rulings().keySet())
 					{
-						for (String ruling: selectedCard.rulings()[date])
+						for (String ruling: selectedCard.rulings().get(date))
 						{
 							rulingsDocument.insertString(rulingsDocument.getLength(), String.valueOf(UnicodeSymbols.BULLET) + " ", rulingStyle);
 							rulingsDocument.insertString(rulingsDocument.getLength(), format.format(date), dateStyle);
@@ -1704,7 +1704,7 @@ public class MainFrame extends JFrame
 			}
 			JMenuItem mostRecent = new JMenuItem(f.getPath());
 			recentItems.offer(mostRecent);
-			recents[mostRecent] = f;
+			recents.put(mostRecent, f);
 			mostRecent.addActionListener((e) -> open(f));
 			recentsMenu.add(mostRecent);
 		}

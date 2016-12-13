@@ -104,7 +104,7 @@ public interface CardList extends Iterable<Card>
 			case LOYALTY:
 				return card().loyalty();
 			case ARTIST:
-				return card().artist()[0];
+				return card().artist().get(0);
 			case LEGAL_IN:
 				return card().legalIn();
 			case COUNT:

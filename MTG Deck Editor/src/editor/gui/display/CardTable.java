@@ -84,7 +84,7 @@ public class CardTable extends JTable
 						{
 							int x = i*(s + 1) + 1;
 							int y = 1;
-							g.setColor(categories[i].getColor());
+							g.setColor(categories.get(i).getColor());
 							g.fillRect(x, y, s - 3, s - 3);
 							g.setColor(Color.BLACK);
 							g.drawRect(x, y, s - 3, s - 3);
@@ -209,11 +209,11 @@ public class CardTable extends JTable
 		@Override
 		public Comparator<?> getComparator(int column)
 		{
-			boolean ascending = getSortKeys()[0].getSortOrder() == SortOrder.ASCENDING;
+			boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
 			if (model.getColumnClass(column).equals(PowerToughness.Tuple.class))
 				return (a, b) -> {
-					PowerToughness pt1 = ((PowerToughness.Tuple)a).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)a)[0]);
-					PowerToughness pt2 = ((PowerToughness.Tuple)b).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)b)[0]);
+					PowerToughness pt1 = ((PowerToughness.Tuple)a).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)a).get(0));
+					PowerToughness pt2 = ((PowerToughness.Tuple)b).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)b).get(0));
 					if (!pt1.exists() && !pt2.exists())
 						return 0;
 					else if (!pt1.exists())
@@ -225,8 +225,8 @@ public class CardTable extends JTable
 				};
 			else if (model.getColumnClass(column).equals(Loyalty.Tuple.class))
 				return (a, b) -> {
-					Loyalty l1 = ((Loyalty.Tuple)a).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)a)[0]);
-					Loyalty l2 = ((Loyalty.Tuple)b).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)b)[0]);
+					Loyalty l1 = ((Loyalty.Tuple)a).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)a).get(0));
+					Loyalty l2 = ((Loyalty.Tuple)b).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)b).get(0));
 					if (!l1.exists() && !l2.exists())
 						return 0;
 					else if (!l1.exists())
@@ -260,7 +260,7 @@ public class CardTable extends JTable
 			if (value instanceof List)
 			{
 				List<?> values = (List<?>)value;
-				if (!values.isEmpty() && values[0] instanceof Double)
+				if (!values.isEmpty() && values.get(0) instanceof Double)
 				{
 					List<Double> cmc = values.stream().map((o) -> (Double)o).collect(Collectors.toList());
 					StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
@@ -310,7 +310,7 @@ public class CardTable extends JTable
 				costPanel.setBackground(c.getBackground());
 				for (int i = 0; i < cost.size(); i++)
 				{
-					if (!cost[i].isEmpty())
+					if (!cost.get(i).isEmpty())
 					{
 						if (i > 0)
 						{
@@ -318,7 +318,7 @@ public class CardTable extends JTable
 							costPanel.add(new JLabel(Card.FACE_SEPARATOR));
 							costPanel.add(Box.createHorizontalStrut(3));
 						}
-						for (Symbol sym: cost[i])
+						for (Symbol sym: cost.get(i))
 							costPanel.add(new JLabel(sym.getIcon(13)));
 					}
 				}

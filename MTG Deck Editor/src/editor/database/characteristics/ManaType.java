@@ -65,11 +65,11 @@ public enum ManaType
 			switch (colors.size())
 			{
 			case 2:
-				if (colors[0].colorOrder(colors[1]) > 0)
+				if (colors.get(0).colorOrder(colors.get(1)) > 0)
 					Collections.reverse(colors);
 				break;
 			case 3:
-				while (colors[0].distance(colors[1]) != colors[1].distance(colors[2]))
+				while (colors.get(0).distance(colors.get(1)) != colors.get(1).distance(colors.get(2)))
 					Collections.rotate(colors, 1);
 				break;
 			case 4:
@@ -79,7 +79,7 @@ public enum ManaType
 					equal = true;
 					for (int i = 0; i < 3; i++)
 					{
-						if (colors[i].distance(colors[i + 1]) != 1)
+						if (colors.get(i).distance(colors.get(i + 1)) != 1)
 						{
 							equal = false;
 							Collections.rotate(colors, 1);
@@ -136,14 +136,14 @@ public enum ManaType
 			int diff = size() - other.size();
 			if (diff == 0)
 				for (int i = 0; i < size(); i++)
-					diff += this[i].compareTo(other[i])*Math.pow(10, size() - i);
+					diff += get(i).compareTo(other.get(i))*Math.pow(10, size() - i);
 			return diff;
 		}
 
 		@Override
 		public ManaType get(int index)
 		{
-			return types[index];
+			return types.get(index);
 		}
 
 		@Override

@@ -45,7 +45,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 		List<CategorySpec> presets = SettingsDialog.getPresetCategories();
 		String[] names = presets.stream().map(CategorySpec::getName).toArray(String[]::new);
 		for (int i = 0; i < presets.size(); i++)
-			categories[names[i]] = presets[i].toListlessString();
+			categories.put(names[i], presets.get(i).toListlessString());
 		
 		defaults = new ComboBoxPanel<String>(names);
 		add(defaults);
@@ -59,7 +59,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	@Override
 	public Filter filter()
 	{
-		return new CategorySpec(categories[defaults.getSelectedItem()]).getFilter();
+		return new CategorySpec(categories.get(defaults.getSelectedItem())).getFilter();
 	}
 
 	/**

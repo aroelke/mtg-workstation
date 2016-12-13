@@ -116,7 +116,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 			Collection<String> formats = new ArrayList<String>(c.legalIn());
 			formats.retainAll(selected);
 			for (String format: formats)
-				if (c.legality()[format] != Legality.RESTRICTED)
+				if (c.legality().get(format) != Legality.RESTRICTED)
 					return false;
 			return true;
 		}

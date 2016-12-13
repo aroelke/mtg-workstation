@@ -80,7 +80,7 @@ public class IncludeExcludePanel extends ScrollablePanel
 			});
 			categoryBox.setBackground(Color.WHITE);
 			add(categoryBox);
-			categoryBoxes[category] = categoryBox;
+			categoryBoxes.put(category, categoryBox);
 			preferredViewportHeight = Math.min(preferredViewportHeight + categoryBox.getPreferredSize().height, categoryBox.getPreferredSize().height*MAX_PREFERRED_ROWS);
 		}
 	}
@@ -108,7 +108,7 @@ public class IncludeExcludePanel extends ScrollablePanel
 		Map<Card, Set<CategorySpec>> included = new HashMap<Card, Set<CategorySpec>>();
 		for (Card card: cards)
 			for (CategorySpec category: categoryBoxes.keySet())
-				if (categoryBoxes[category].getState() == TristateCheckBox.STATE_SELECTED && !category.includes(card))
+				if (categoryBoxes.get(category).getState() == TristateCheckBox.STATE_SELECTED && !category.includes(card))
 					included.compute(card, (k, v) -> {
 						if (v == null)
 							v = new HashSet<CategorySpec>();
@@ -130,7 +130,7 @@ public class IncludeExcludePanel extends ScrollablePanel
 		Map<Card, Set<CategorySpec>> excluded = new HashMap<Card, Set<CategorySpec>>();
 		for (Card card: cards)
 			for (CategorySpec category: categoryBoxes.keySet())
-				if (categoryBoxes[category].getState() == TristateCheckBox.STATE_UNSELECTED && category.includes(card))
+				if (categoryBoxes.get(category).getState() == TristateCheckBox.STATE_UNSELECTED && category.includes(card))
 					excluded.compute(card, (k, v) -> {
 						if (v == null)
 							v = new HashSet<CategorySpec>();

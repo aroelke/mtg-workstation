@@ -140,31 +140,31 @@ public abstract class FilterFactory
 	static
 	{
 		Map<String, String> filterTypes = new LinkedHashMap<String, String>();
-		filterTypes[NAME] = "Name";
-		filterTypes[LAYOUT] = "Layout";
-		filterTypes[MANA_COST] = "Mana Cost";
-		filterTypes[CMC] = "CMC";
-		filterTypes[COLOR] = "Color";
-		filterTypes[COLOR_IDENTITY] = "Color Identity";
-		filterTypes[TYPE_LINE] = "Type Line";
-		filterTypes[SUPERTYPE] = "Supertype";
-		filterTypes[TYPE] = "Card Type";
-		filterTypes[SUBTYPE] = "Subtype";
-		filterTypes[EXPANSION] = "Expansion";
-		filterTypes[BLOCK] = "Block";
-		filterTypes[RARITY] = "Rarity";
-		filterTypes[RULES_TEXT] = "Rules Text";
-		filterTypes[FLAVOR_TEXT] = "Flavor Text";
-		filterTypes[POWER] = "Power";
-		filterTypes[TOUGHNESS] = "Toughness";
-		filterTypes[LOYALTY] = "Loyalty";
-		filterTypes[ARTIST] = "Artist";
-		filterTypes[CARD_NUMBER] = "Card Number";
-		filterTypes[FORMAT_LEGALITY] = "Format Legality";
-		filterTypes[TAGS] = "Tags";
-		filterTypes[DEFAULTS] = "Defaults";
-		filterTypes[NONE] = "<No Card>";
-		filterTypes[ALL] = "<Any Card>";
+		filterTypes.put(NAME, "Name");
+		filterTypes.put(LAYOUT, "Layout");
+		filterTypes.put(MANA_COST, "Mana Cost");
+		filterTypes.put(CMC, "CMC");
+		filterTypes.put(COLOR, "Color");
+		filterTypes.put(COLOR_IDENTITY, "Color Identity");
+		filterTypes.put(TYPE_LINE, "Type Line");
+		filterTypes.put(SUPERTYPE, "Supertype");
+		filterTypes.put(TYPE, "Card Type");
+		filterTypes.put(SUBTYPE, "Subtype");
+		filterTypes.put(EXPANSION, "Expansion");
+		filterTypes.put(BLOCK, "Block");
+		filterTypes.put(RARITY, "Rarity");
+		filterTypes.put(RULES_TEXT, "Rules Text");
+		filterTypes.put(FLAVOR_TEXT, "Flavor Text");
+		filterTypes.put(POWER, "Power");
+		filterTypes.put(TOUGHNESS, "Toughness");
+		filterTypes.put(LOYALTY, "Loyalty");
+		filterTypes.put(ARTIST, "Artist");
+		filterTypes.put(CARD_NUMBER, "Card Number");
+		filterTypes.put(FORMAT_LEGALITY, "Format Legality");
+		filterTypes.put(TAGS, "Tags");
+		filterTypes.put(DEFAULTS, "Defaults");
+		filterTypes.put(NONE, "<No Card>");
+		filterTypes.put(ALL, "<Any Card>");
 		FILTER_TYPES = Collections.unmodifiableMap(filterTypes);
 	}
 	

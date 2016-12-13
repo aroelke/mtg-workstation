@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import editor.database.characteristics.ManaType;
 
@@ -36,15 +38,9 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 	 */
 	public static Map<ManaType, Double> createWeights(ColorWeight... weights)
 	{
-		Map<ManaType, Double> weightsMap = new EnumMap<ManaType, Double>(ManaType.class);
-		weightsMap[ManaType.COLORLESS] = 0.0;
-		weightsMap[ManaType.WHITE] = 0.0;
-		weightsMap[ManaType.BLUE] = 0.0;
-		weightsMap[ManaType.BLACK] = 0.0;
-		weightsMap[ManaType.RED] = 0.0;
-		weightsMap[ManaType.GREEN] = 0.0;
+		Map<ManaType, Double> weightsMap = new EnumMap<ManaType, Double>(Arrays.stream(ManaType.values()).collect(Collectors.toMap(Function.identity(), (m) -> 0.0)));
 		for (ColorWeight w: weights)
-			weightsMap[w.color] = w.weight;
+			weightsMap.put(w.color, w.weight);
 		return weightsMap;
 	}
 	

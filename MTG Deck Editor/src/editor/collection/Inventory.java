@@ -281,7 +281,7 @@ public class Inventory implements CardList
 	@Override
 	public Card get(int index) throws IndexOutOfBoundsException
 	{
-		return filtrate[index];
+		return filtrate.get(index);
 	}
 	
 	/**
@@ -293,7 +293,7 @@ public class Inventory implements CardList
 	 */
 	public Card get(String UID)
 	{
-		return IDs[UID];
+		return IDs.get(UID);
 	}
 	
 	/**
@@ -313,7 +313,7 @@ public class Inventory implements CardList
 	@Override
 	public Entry getData(int index) throws IndexOutOfBoundsException
 	{
-		return new InventoryEntry(this[index]);
+		return new InventoryEntry(get(index));
 	}
 
 	/**
