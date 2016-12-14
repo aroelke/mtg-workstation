@@ -58,13 +58,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -90,12 +88,13 @@ import editor.gui.SettingsDialog;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
+import editor.gui.generic.DeckMenuItems;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
+import editor.gui.generic.VerticalButtonList;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
 import editor.util.UnicodeSymbols;
-import editor.util.VerticalButtonList;
 
 /**
  * This class represents an internal frame for editing a deck.  It contains a table that shows all cards
@@ -455,7 +454,7 @@ public class EditorFrame extends JInternalFrame
 	 * 
 	 * @author Alec Roelke
 	 */
-	private class TablePopupListener implements PopupMenuListener
+	private class TableCategoriesPopupListener implements PopupMenuListener
 	{
 		/**
 		 * Submenu for quickly adding cards to categories.
@@ -487,7 +486,7 @@ public class EditorFrame extends JInternalFrame
 		 * @param edit item for editing card categories
 		 * @param t table which will contain the popup
 		 */
-		public TablePopupListener(JMenu add, JMenu remove, JMenuItem edit, JSeparator sep, CardTable t)
+		public TableCategoriesPopupListener(JMenu add, JMenu remove, JMenuItem edit, JSeparator sep, CardTable t)
 		{
 			addToCategoryMenu = add;
 			removeFromCategoryMenu = remove;
@@ -888,57 +887,21 @@ public class EditorFrame extends JInternalFrame
 		JPopupMenu tableMenu = new JPopupMenu();
 		deck.table.addMouseListener(new TableMouseAdapter(deck.table, tableMenu));
 		
-		// Add single copy item
-		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
-		addSinglePopupItem.addActionListener((e) -> addSelectedCards(1, true));
-		tableMenu.add(addSinglePopupItem);
-		
-		// Fill playset item
-		JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
-		playsetPopupItem.addActionListener((e) -> {
-			for (Card c: getSelectedCards())
-				addCard(c, 4 - deck.current.getData(c).count(), true);
-		});
-		tableMenu.add(playsetPopupItem);
-		
-		// Add variable item
-		JMenuItem addNPopupItem = new JMenuItem("Add Copies...");
-		addNPopupItem.addActionListener((e) -> {
-			JPanel contentPanel = new JPanel(new BorderLayout());
-			contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
-			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-				addSelectedCards((Integer)spinner.getValue(), true);
-		});
-		tableMenu.add(addNPopupItem);
-		
+		DeckMenuItems tableMenuCardItems = new DeckMenuItems(this,
+				(n) -> addSelectedCards(n, true),
+				() -> {
+					for (Card c: getSelectedCards())
+						addCard(c, 4 - deck.current.getData(c).count(), true);
+					},
+				(n) -> removeSelectedCards(n, true));
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.ADD_SINGLE));
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.FILL_PLAYSET));
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.ADD_N));
 		tableMenu.add(new JSeparator());
-		
-		// Remove single copy item
-		JMenuItem removeSinglePopupItem = new JMenuItem("Remove Single Copy");
-		removeSinglePopupItem.addActionListener((e) -> removeSelectedCards(1, true));
-		tableMenu.add(removeSinglePopupItem);
-		
-		// Remove all item
-		JMenuItem removeAllPopupItem = new JMenuItem("Remove All Copies");
-		removeAllPopupItem.addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, true));
-		tableMenu.add(removeAllPopupItem);
-		
-		// Remove variable item
-		JMenuItem removeNPopupItem = new JMenuItem("Remove Copies...");
-		removeNPopupItem.addActionListener((e) -> {
-			JPanel contentPanel = new JPanel(new BorderLayout());
-			contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
-			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-				removeSelectedCards((Integer)spinner.getValue(), true);
-		});
-		tableMenu.add(removeNPopupItem);
-		
-		JSeparator categoriesSeparator = new JSeparator();
-		tableMenu.add(categoriesSeparator);
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_SINGLE));
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_ALL));
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_N));
+		tableMenu.add(new JSeparator());
 		
 		// Quick edit categories
 		JMenu addToCategoryMenu = new JMenu("Include in");
@@ -955,14 +918,15 @@ public class EditorFrame extends JInternalFrame
 		});
 		tableMenu.add(editCategoriesItem);
 		
-		tableMenu.add(new JSeparator());
+		JSeparator categoriesSeparator = new JSeparator();
+		tableMenu.add(categoriesSeparator);
 		
 		// Edit card tags item
 		JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
 		editTagsItem.addActionListener((e) -> parent.editTags(getSelectedCards()));
 		tableMenu.add(editTagsItem);
 		
-		tableMenu.addPopupMenuListener(new TablePopupListener(addToCategoryMenu, removeFromCategoryMenu,
+		tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
 				editCategoriesItem, categoriesSeparator, deck.table));
 		
 		// Panel containing categories
@@ -1587,54 +1551,21 @@ public class EditorFrame extends JInternalFrame
 		JPopupMenu tableMenu = new JPopupMenu();
 		newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 		
-		// Add single copy item
-		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
-		addSinglePopupItem.addActionListener((e) -> addSelectedCards(1, true));
-		tableMenu.add(addSinglePopupItem);
-		
-		// Fill playset item
-		JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
-		playsetPopupItem.addActionListener((e) -> {
-			for (Card c: newCategory.getSelectedCards())
-				addCard(c, 4 - deck.current.getData(c).count(), true);
-		});
-		tableMenu.add(playsetPopupItem);
-		
-		// Add variable item
-		JMenuItem addNPopupItem = new JMenuItem("Add Copies...");
-		addNPopupItem.addActionListener((e) -> {
-			JPanel contentPanel = new JPanel(new BorderLayout());
-			contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
-			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-				addSelectedCards((Integer)spinner.getValue(), true);
-		});
-		tableMenu.add(addNPopupItem);
-		
+		DeckMenuItems tableMenuCardItems = new DeckMenuItems(this,
+				(n) -> addSelectedCards(n, true),
+				() -> {
+					for (Card c: newCategory.getSelectedCards())
+						addCard(c, 4 - deck.current.getData(c).count(), true);
+					},
+				(n) -> removeSelectedCards(n, true));
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.ADD_SINGLE));
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.FILL_PLAYSET));
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.ADD_N));
 		tableMenu.add(new JSeparator());
-		
-		// Remove single copy item
-		JMenuItem removeSinglePopupItem = new JMenuItem("Remove Single Copy");
-		removeSinglePopupItem.addActionListener((e) -> removeSelectedCards(1, true));
-		tableMenu.add(removeSinglePopupItem);
-		
-		// Remove all item
-		JMenuItem removeAllPopupItem = new JMenuItem("Remove All Copies");
-		removeAllPopupItem.addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, true));
-		tableMenu.add(removeAllPopupItem);
-		
-		// Remove variable item
-		JMenuItem removeNPopupItem = new JMenuItem("Remove Copies...");
-		removeNPopupItem.addActionListener((e) -> {
-			JPanel contentPanel = new JPanel(new BorderLayout());
-			contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
-			JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-			contentPanel.add(spinner, BorderLayout.SOUTH);
-			if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-				removeSelectedCards((Integer)spinner.getValue(), true);
-		});
-		tableMenu.add(removeNPopupItem);
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_SINGLE));
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_ALL));
+		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_N));
+		tableMenu.add(new JSeparator());
 		
 		JSeparator categoriesSeparator = new JSeparator();
 		tableMenu.add(categoriesSeparator);
@@ -1677,7 +1608,7 @@ public class EditorFrame extends JInternalFrame
 		editTagsItem.addActionListener((e) -> parent.editTags(getSelectedCards()));
 		tableMenu.add(editTagsItem);
 		
-		tableMenu.addPopupMenuListener(new TablePopupListener(addToCategoryMenu, removeFromCategoryMenu,
+		tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
 				editCategoriesItem, categoriesSeparator, newCategory.table));
 		tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> removeFromCategoryItem.setText("Exclude from " + spec.getName())));
 		

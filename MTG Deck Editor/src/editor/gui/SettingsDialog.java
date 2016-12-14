@@ -58,8 +58,8 @@ import editor.gui.display.CategoryList;
 import editor.gui.editor.CalculateHandPanel;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.gui.generic.ScrollablePanel;
+import editor.gui.generic.VerticalButtonList;
 import editor.util.UnicodeSymbols;
-import editor.util.VerticalButtonList;
 
 /**
  * This class is a dialog that allows the user to change various properties about

@@ -58,7 +58,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -66,7 +65,6 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
@@ -98,6 +96,7 @@ import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
+import editor.gui.generic.DeckMenuItems;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.inventory.InventoryDownloadDialog;
@@ -504,72 +503,31 @@ public class MainFrame extends JFrame
 		deckMenu.setEnabled(false);
 		menuBar.add(deckMenu);
 
-		// Add card menu
+		// Add/Remove card menus
 		JMenu addMenu = new JMenu("Add Cards");
 		deckMenu.add(addMenu);
-
-		// Add single copy item
-		JMenuItem addSingleItem = new JMenuItem("Add Single Copy");
-		addSingleItem.setAccelerator(KeyStroke.getKeyStroke('+'));
-		addSingleItem.addActionListener((e) -> {
-			if (selectedFrame != null)
-				selectedFrame.addSelectedCards(1, true);
-		});
-		addMenu.add(addSingleItem);
-
-		// Fill playset item
-		JMenuItem playsetItem = new JMenuItem("Fill Playset");
-		playsetItem.addActionListener((e) -> {
-			if (selectedFrame != null)
-				for (Card c: getSelectedCards())
-					selectedFrame.addCard(c, 4 - selectedFrame.deck().getData(c).count(), true);
-		});
-		addMenu.add(playsetItem);
-
-		// Add variable item
-		JMenuItem addNItem = new JMenuItem("Add Copies...");
-		addNItem.addActionListener((e) -> {
-			if (selectedFrame != null)
-			{
-				JPanel contentPanel = new JPanel(new BorderLayout());
-				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
-				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.addSelectedCards((Integer)spinner.getValue(), true);
-			}
-		});
-		addMenu.add(addNItem);
-
-		// Remove card menu
 		JMenu removeMenu = new JMenu("Remove Cards");
 		deckMenu.add(removeMenu);
-
-		// Remove single copy item
-		JMenuItem removeSingleItem = new JMenuItem("Remove Single Copy");
-		removeSingleItem.setAccelerator(KeyStroke.getKeyStroke('-'));
-		removeSingleItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeSelectedCards(1, true);});
-		removeMenu.add(removeSingleItem);
-
-		// Remove all item
-		JMenuItem removeAllItem = new JMenuItem("Remove All Copies");
-		removeAllItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeSelectedCards(Integer.MAX_VALUE, true);});
-		removeMenu.add(removeAllItem);
-
-		// Remove variable item
-		JMenuItem removeNItem = new JMenuItem("Remove Copies...");
-		removeNItem.addActionListener((e) -> {
-			if (selectedFrame != null)
-			{
-				JPanel contentPanel = new JPanel(new BorderLayout());
-				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
-				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.removeSelectedCards((Integer)spinner.getValue(), true);
-			}
-		});
-		removeMenu.add(removeNItem);
+		DeckMenuItems deckMenuCardItems = new DeckMenuItems(this,
+				(n) -> {
+					if (selectedFrame != null)
+						selectedFrame.addSelectedCards(n, true);
+				},
+				() -> {
+					if (selectedFrame != null)
+						for (Card c: getSelectedCards())
+							selectedFrame.addCard(c, 4 - selectedFrame.deck().getData(c).count(), true);
+					},
+				(n) -> {
+					if (selectedFrame != null)
+						selectedFrame.removeSelectedCards(n, true);
+				});
+		addMenu.add(deckMenuCardItems.get(DeckMenuItems.ADD_SINGLE));
+		addMenu.add(deckMenuCardItems.get(DeckMenuItems.FILL_PLAYSET));
+		addMenu.add(deckMenuCardItems.get(DeckMenuItems.ADD_N));
+		removeMenu.add(deckMenuCardItems.get(DeckMenuItems.REMOVE_SINGLE));
+		removeMenu.add(deckMenuCardItems.get(DeckMenuItems.REMOVE_ALL));
+		removeMenu.add(deckMenuCardItems.get(DeckMenuItems.REMOVE_N));
 
 		// Category menu
 		JMenu categoryMenu = new JMenu("Category");
@@ -780,58 +738,26 @@ public class MainFrame extends JFrame
 		JPopupMenu oraclePopupMenu = new JPopupMenu();
 		oracleTextPane.setComponentPopupMenu(oraclePopupMenu);
 		imagePanel.setComponentPopupMenu(oraclePopupMenu);
-		JMenuItem oracleAddSingleItem = new JMenuItem("Add Single Copy");
-		oracleAddSingleItem.addActionListener((e) -> {
-			if (selectedFrame != null && selectedCard != null)
-				selectedFrame.addCard(selectedCard, 1, true);
-		});
-		oraclePopupMenu.add(oracleAddSingleItem);
-		JMenuItem oraclePlaysetItem = new JMenuItem("Fill Playset");
-		oraclePlaysetItem.addActionListener((e) -> {
-			if (selectedFrame != null && selectedCard != null)
-				selectedFrame.addCard(selectedCard, 4 - selectedFrame.deck().getData(selectedCard).count(), true);
-		});
-		oraclePopupMenu.add(oraclePlaysetItem);
-		JMenuItem oracleAddNItem = new JMenuItem("Add Copies...");
-		oracleAddNItem.addActionListener((e) -> {
-			if (selectedFrame != null && selectedCard != null)
-			{
-				JPanel contentPanel = new JPanel(new BorderLayout());
-				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
-				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.addCard(selectedCard, (Integer)spinner.getValue(), true);
-			}
-		});
-		oraclePopupMenu.add(oracleAddNItem);
+		DeckMenuItems oracleMenuCardItems = new DeckMenuItems(this,
+				(n) -> {
+					if (selectedFrame != null && selectedCard != null)
+						selectedFrame.addCard(selectedCard, n, true);
+				},
+				() -> {
+					if (selectedFrame != null && selectedCard != null)
+						selectedFrame.addCard(selectedCard, 4 - selectedFrame.deck().getData(selectedCard).count(), true);
+				},
+				(n) -> {
+					if (selectedFrame != null && selectedCard != null)
+						selectedFrame.removeCard(selectedCard, n, true);
+				});
+		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.ADD_SINGLE));
+		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.FILL_PLAYSET));
+		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.ADD_N));
 		oraclePopupMenu.add(new JSeparator());
-		JMenuItem oracleRemoveSingleItem = new JMenuItem("Remove Single Copy");
-		oracleRemoveSingleItem.addActionListener((e) -> {
-			if (selectedFrame != null && selectedCard != null)
-				selectedFrame.removeCard(selectedCard, 1, true);
-		});
-		oraclePopupMenu.add(oracleRemoveSingleItem);
-		JMenuItem oracleRemoveAllItem = new JMenuItem("Remove All Copies");
-		oracleRemoveAllItem.addActionListener((e) -> {
-			if (selectedFrame != null && selectedCard != null)
-				selectedFrame.removeCard(selectedCard, Integer.MAX_VALUE, true);
-		});
-		oraclePopupMenu.add(oracleRemoveAllItem);
-		JMenuItem oracleRemoveNItem = new JMenuItem("Remove Copies...");
-		oracleRemoveNItem.addActionListener((e) -> {
-			if (selectedFrame != null && selectedCard != null)
-			{
-				JPanel contentPanel = new JPanel(new BorderLayout());
-				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
-				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.removeCard(selectedCard, (Integer)spinner.getValue(), true);
-			}
-		});
-		oraclePopupMenu.add(oracleRemoveNItem);
-
+		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.REMOVE_SINGLE));
+		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.REMOVE_ALL));
+		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.REMOVE_N));
 		oraclePopupMenu.add(new JSeparator());
 
 		JMenuItem oracleEditTagsItem = new JMenuItem("Edit Tags...");
@@ -902,66 +828,27 @@ public class MainFrame extends JFrame
 		// Table popup menu
 		JPopupMenu inventoryMenu = new JPopupMenu();
 		inventoryTable.addMouseListener(new TableMouseAdapter(inventoryTable, inventoryMenu));
-
-		// Add single copy item
-		JMenuItem addSinglePopupItem = new JMenuItem("Add Single Copy");
-		addSinglePopupItem.addActionListener((e) -> {
-			if (selectedFrame != null)
-				selectedFrame.addSelectedCards(1, true);
-		});
-		inventoryMenu.add(addSinglePopupItem);
-
-		// Fill playset item
-		JMenuItem playsetPopupItem = new JMenuItem("Fill Playset");
-		playsetPopupItem.addActionListener((e) -> {
-			if (selectedFrame != null)
-				for (Card c: getSelectedCards())
-					selectedFrame.addCard(c, 4 - selectedFrame.deck().getData(c).count(), true);
-		});
-		inventoryMenu.add(playsetPopupItem);
-
-		// Add variable item
-		JMenuItem addNPopupItem = new JMenuItem("Add Copies...");
-		addNPopupItem.addActionListener((e) -> {
-			if (selectedFrame != null)
-			{
-				JPanel contentPanel = new JPanel(new BorderLayout());
-				contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
-				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.addSelectedCards((Integer)spinner.getValue(), true);
-			}
-		});
-		inventoryMenu.add(addNPopupItem);
-
+		DeckMenuItems inventoryMenuCardItems = new DeckMenuItems(this,
+				(n) -> {
+					if (selectedFrame != null)
+						selectedFrame.addSelectedCards(n, true);
+				},
+				() -> {
+					if (selectedFrame != null)
+						for (Card c: getSelectedCards())
+							selectedFrame.addCard(c, 4 - selectedFrame.deck().getData(c).count(), true);
+				},
+				(n) -> {
+					if (selectedFrame != null)
+						selectedFrame.removeCards(getSelectedCards(), n, true);
+				});
+		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.ADD_SINGLE));
+		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.FILL_PLAYSET));
+		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.ADD_N));
 		inventoryMenu.add(new JSeparator());
-
-		// Remove single copy item
-		JMenuItem removeSinglePopupItem = new JMenuItem("Remove Single Copy");
-		removeSinglePopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeCards(getSelectedCards(), 1, true);});
-		inventoryMenu.add(removeSinglePopupItem);
-
-		// Remove all item
-		JMenuItem removeAllPopupItem = new JMenuItem("Remove All Copies");
-		removeAllPopupItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.removeCards(getSelectedCards(), Integer.MAX_VALUE, true);});
-		inventoryMenu.add(removeAllPopupItem);
-
-		// Remove variable item
-		JMenuItem removeNPopupItem = new JMenuItem("Remove Copies...");
-		removeNPopupItem.addActionListener((e) -> {
-			if (selectedFrame != null)
-			{
-				JPanel contentPanel = new JPanel(new BorderLayout());
-				contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
-				JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-				contentPanel.add(spinner, BorderLayout.SOUTH);
-				if (JOptionPane.showConfirmDialog(this, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.removeCards(getSelectedCards(), (Integer)spinner.getValue(), true);
-			}
-		});
-		inventoryMenu.add(removeNPopupItem);
-
+		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.REMOVE_SINGLE));
+		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.REMOVE_ALL));
+		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.REMOVE_N));
 		inventoryMenu.add(new JSeparator());
 
 		// Edit tags item

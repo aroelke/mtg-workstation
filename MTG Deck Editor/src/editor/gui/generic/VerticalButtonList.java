@@ -1,4 +1,4 @@
-package editor.util;
+package editor.gui.generic;
 
 import java.awt.Dimension;
 import java.util.Arrays;
