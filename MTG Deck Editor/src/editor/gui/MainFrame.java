@@ -96,7 +96,7 @@ import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
-import editor.gui.generic.DeckMenuItems;
+import editor.gui.generic.CardMenuItems;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.inventory.InventoryDownloadDialog;
@@ -508,7 +508,7 @@ public class MainFrame extends JFrame
 		deckMenu.add(addMenu);
 		JMenu removeMenu = new JMenu("Remove Cards");
 		deckMenu.add(removeMenu);
-		DeckMenuItems deckMenuCardItems = new DeckMenuItems(this,
+		CardMenuItems deckMenuCardItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null)
 						selectedFrame.addSelectedCards(n, true);
@@ -522,12 +522,12 @@ public class MainFrame extends JFrame
 					if (selectedFrame != null)
 						selectedFrame.removeSelectedCards(n, true);
 				});
-		addMenu.add(deckMenuCardItems.get(DeckMenuItems.ADD_SINGLE));
-		addMenu.add(deckMenuCardItems.get(DeckMenuItems.FILL_PLAYSET));
-		addMenu.add(deckMenuCardItems.get(DeckMenuItems.ADD_N));
-		removeMenu.add(deckMenuCardItems.get(DeckMenuItems.REMOVE_SINGLE));
-		removeMenu.add(deckMenuCardItems.get(DeckMenuItems.REMOVE_ALL));
-		removeMenu.add(deckMenuCardItems.get(DeckMenuItems.REMOVE_N));
+		addMenu.add(deckMenuCardItems.get(CardMenuItems.ADD_SINGLE));
+		addMenu.add(deckMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
+		addMenu.add(deckMenuCardItems.get(CardMenuItems.ADD_N));
+		removeMenu.add(deckMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
+		removeMenu.add(deckMenuCardItems.get(CardMenuItems.REMOVE_ALL));
+		removeMenu.add(deckMenuCardItems.get(CardMenuItems.REMOVE_N));
 
 		// Category menu
 		JMenu categoryMenu = new JMenu("Category");
@@ -738,7 +738,7 @@ public class MainFrame extends JFrame
 		JPopupMenu oraclePopupMenu = new JPopupMenu();
 		oracleTextPane.setComponentPopupMenu(oraclePopupMenu);
 		imagePanel.setComponentPopupMenu(oraclePopupMenu);
-		DeckMenuItems oracleMenuCardItems = new DeckMenuItems(this,
+		CardMenuItems oracleMenuCardItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null && selectedCard != null)
 						selectedFrame.addCard(selectedCard, n, true);
@@ -751,13 +751,13 @@ public class MainFrame extends JFrame
 					if (selectedFrame != null && selectedCard != null)
 						selectedFrame.removeCard(selectedCard, n, true);
 				});
-		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.ADD_SINGLE));
-		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.FILL_PLAYSET));
-		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.ADD_N));
+		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.ADD_SINGLE));
+		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
+		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.ADD_N));
 		oraclePopupMenu.add(new JSeparator());
-		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.REMOVE_SINGLE));
-		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.REMOVE_ALL));
-		oraclePopupMenu.add(oracleMenuCardItems.get(DeckMenuItems.REMOVE_N));
+		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
+		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.REMOVE_ALL));
+		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.REMOVE_N));
 		oraclePopupMenu.add(new JSeparator());
 
 		JMenuItem oracleEditTagsItem = new JMenuItem("Edit Tags...");
@@ -828,7 +828,7 @@ public class MainFrame extends JFrame
 		// Table popup menu
 		JPopupMenu inventoryMenu = new JPopupMenu();
 		inventoryTable.addMouseListener(new TableMouseAdapter(inventoryTable, inventoryMenu));
-		DeckMenuItems inventoryMenuCardItems = new DeckMenuItems(this,
+		CardMenuItems inventoryMenuCardItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null)
 						selectedFrame.addSelectedCards(n, true);
@@ -842,13 +842,13 @@ public class MainFrame extends JFrame
 					if (selectedFrame != null)
 						selectedFrame.removeCards(getSelectedCards(), n, true);
 				});
-		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.ADD_SINGLE));
-		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.FILL_PLAYSET));
-		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.ADD_N));
+		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.ADD_SINGLE));
+		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
+		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.ADD_N));
 		inventoryMenu.add(new JSeparator());
-		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.REMOVE_SINGLE));
-		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.REMOVE_ALL));
-		inventoryMenu.add(inventoryMenuCardItems.get(DeckMenuItems.REMOVE_N));
+		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
+		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.REMOVE_ALL));
+		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.REMOVE_N));
 		inventoryMenu.add(new JSeparator());
 
 		// Edit tags item

@@ -88,7 +88,7 @@ import editor.gui.SettingsDialog;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
-import editor.gui.generic.DeckMenuItems;
+import editor.gui.generic.CardMenuItems;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
@@ -887,20 +887,20 @@ public class EditorFrame extends JInternalFrame
 		JPopupMenu tableMenu = new JPopupMenu();
 		deck.table.addMouseListener(new TableMouseAdapter(deck.table, tableMenu));
 		
-		DeckMenuItems tableMenuCardItems = new DeckMenuItems(this,
+		CardMenuItems tableMenuCardItems = new CardMenuItems(this,
 				(n) -> addSelectedCards(n, true),
 				() -> {
 					for (Card c: getSelectedCards())
 						addCard(c, 4 - deck.current.getData(c).count(), true);
 					},
 				(n) -> removeSelectedCards(n, true));
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.ADD_SINGLE));
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.FILL_PLAYSET));
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.ADD_N));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_SINGLE));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_N));
 		tableMenu.add(new JSeparator());
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_SINGLE));
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_ALL));
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_N));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_ALL));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_N));
 		tableMenu.add(new JSeparator());
 		
 		// Quick edit categories
@@ -1551,20 +1551,20 @@ public class EditorFrame extends JInternalFrame
 		JPopupMenu tableMenu = new JPopupMenu();
 		newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 		
-		DeckMenuItems tableMenuCardItems = new DeckMenuItems(this,
+		CardMenuItems tableMenuCardItems = new CardMenuItems(this,
 				(n) -> addSelectedCards(n, true),
 				() -> {
 					for (Card c: newCategory.getSelectedCards())
 						addCard(c, 4 - deck.current.getData(c).count(), true);
 					},
 				(n) -> removeSelectedCards(n, true));
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.ADD_SINGLE));
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.FILL_PLAYSET));
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.ADD_N));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_SINGLE));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_N));
 		tableMenu.add(new JSeparator());
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_SINGLE));
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_ALL));
-		tableMenu.add(tableMenuCardItems.get(DeckMenuItems.REMOVE_N));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_ALL));
+		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_N));
 		tableMenu.add(new JSeparator());
 		
 		JSeparator categoriesSeparator = new JSeparator();

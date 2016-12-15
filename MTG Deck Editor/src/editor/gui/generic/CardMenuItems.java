@@ -12,18 +12,55 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-public class DeckMenuItems extends AbstractList<JMenuItem>
+/**
+ * This class represents a list of menu items for manipulating cards in a deck. There are six:
+ * add a single copy, fill a playset of copies, add some number of copies, remove one copy,
+ * remove all copies, and remove some number of copies.
+ * 
+ * @author Alec Roelke
+ */
+public class CardMenuItems extends AbstractList<JMenuItem>
 {
+	/**
+	 * Index to get the menu item for adding a single copy to a deck.
+	 */
 	public static final int ADD_SINGLE = 0;
+	/**
+	 * Index to get the menu item for filling out a playset of copies in a deck.
+	 */
 	public static final int FILL_PLAYSET = 1;
+	/**
+	 * Index to the get the menu item for adding some number of copies to a deck.
+	 */
 	public static final int ADD_N = 2;
+	/**
+	 * Index to get the menu item for removing a single copy from a deck.
+	 */
 	public static final int REMOVE_SINGLE = 3;
+	/**
+	 * Index to get the menu item for removing all of the copies from a deck.
+	 */
 	public static final int REMOVE_ALL = 4;
+	/**
+	 * Index to get the menu item for removing some number of copies from a deck.
+	 */
 	public static final int REMOVE_N = 5;
 	
+	/**
+	 * Array containing the menu items for manipulating card copies.
+	 */
 	private JMenuItem[] items;
 	
-	public DeckMenuItems(Component parent, IntConsumer addN, Runnable fillPlayset, IntConsumer removeN)
+	/**
+	 * Create a new list of items for manipulating card copies using the given functions to do the
+	 * manipulation.
+	 * 
+	 * @param parent parent component for the dialogs that will show up
+	 * @param addN function indicating what to do with the number of cards to add
+	 * @param fillPlayset function indicating how to fill a playset of cards
+	 * @param removeN function indicating what to do with the number of cards to remove
+	 */
+	public CardMenuItems(Component parent, IntConsumer addN, Runnable fillPlayset, IntConsumer removeN)
 	{
 		items = new JMenuItem[6];
 		
