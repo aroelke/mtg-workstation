@@ -738,6 +738,8 @@ public class MainFrame extends JFrame
 		JPopupMenu oraclePopupMenu = new JPopupMenu();
 		oracleTextPane.setComponentPopupMenu(oraclePopupMenu);
 		imagePanel.setComponentPopupMenu(oraclePopupMenu);
+		
+		// Add the card to the main deck
 		CardMenuItems oracleMenuCardItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null && selectedCard != null)
@@ -758,6 +760,30 @@ public class MainFrame extends JFrame
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.REMOVE_ALL));
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.REMOVE_N));
+		oraclePopupMenu.add(new JSeparator());
+		
+		// Add the card to the sideboard
+		CardMenuItems oracleMenuSBCardItems = new CardMenuItems(this,
+				(n) -> {
+					if (selectedFrame != null && selectedCard != null)
+						selectedFrame.addCard(selectedCard, n, false);
+				},
+				() -> {
+					if (selectedFrame != null && selectedCard != null)
+						selectedFrame.addCard(selectedCard, 4 - selectedFrame.deck().getData(selectedCard).count(), false);
+				},
+				(n) -> {
+					if (selectedFrame != null && selectedCard != null)
+						selectedFrame.removeCard(selectedCard, n, false);
+				});
+		oracleMenuSBCardItems.get(CardMenuItems.ADD_SINGLE).setText("Add to Sideboard");
+		oraclePopupMenu.add(oracleMenuSBCardItems.get(CardMenuItems.ADD_SINGLE));
+		oracleMenuSBCardItems.get(CardMenuItems.ADD_N).setText("Add to Sideboard...");
+		oraclePopupMenu.add(oracleMenuSBCardItems.get(CardMenuItems.ADD_N));
+		oracleMenuSBCardItems.get(CardMenuItems.REMOVE_SINGLE).setText("Remove from Sideboard");
+		oraclePopupMenu.add(oracleMenuSBCardItems.get(CardMenuItems.REMOVE_SINGLE));
+		oracleMenuSBCardItems.get(CardMenuItems.REMOVE_ALL).setText("Remove All from Sideboard");
+		oraclePopupMenu.add(oracleMenuSBCardItems.get(CardMenuItems.REMOVE_ALL));
 		oraclePopupMenu.add(new JSeparator());
 
 		JMenuItem oracleEditTagsItem = new JMenuItem("Edit Tags...");
@@ -828,6 +854,8 @@ public class MainFrame extends JFrame
 		// Table popup menu
 		JPopupMenu inventoryMenu = new JPopupMenu();
 		inventoryTable.addMouseListener(new TableMouseAdapter(inventoryTable, inventoryMenu));
+		
+		// Add cards to the main deck
 		CardMenuItems inventoryMenuCardItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null)
@@ -851,6 +879,31 @@ public class MainFrame extends JFrame
 		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.REMOVE_N));
 		inventoryMenu.add(new JSeparator());
 
+		// Add cards to the sideboard
+		CardMenuItems inventoryMenuSBItems = new CardMenuItems(this,
+				(n) -> {
+					if (selectedFrame != null)
+						selectedFrame.addSelectedCards(n, false);
+				},
+				() -> {
+					if (selectedFrame != null)
+						for (Card c: getSelectedCards())
+							selectedFrame.addCard(c, 4 - selectedFrame.deck().getData(c).count(), false);
+				},
+				(n) -> {
+					if (selectedFrame != null)
+						selectedFrame.removeCards(getSelectedCards(), n, false);
+				});
+		inventoryMenuSBItems.get(CardMenuItems.ADD_SINGLE).setText("Add to Sideboard");
+		inventoryMenu.add(inventoryMenuSBItems.get(CardMenuItems.ADD_SINGLE));
+		inventoryMenuSBItems.get(CardMenuItems.ADD_N).setText("Add to Sideboard...");
+		inventoryMenu.add(inventoryMenuSBItems.get(CardMenuItems.ADD_N));
+		inventoryMenuSBItems.get(CardMenuItems.REMOVE_SINGLE).setText("Remove from Sideboard");
+		inventoryMenu.add(inventoryMenuSBItems.get(CardMenuItems.REMOVE_SINGLE));
+		inventoryMenuSBItems.get(CardMenuItems.REMOVE_ALL).setText("Remove All from Sideboard");
+		inventoryMenu.add(inventoryMenuSBItems.get(CardMenuItems.REMOVE_ALL));
+		inventoryMenu.add(new JSeparator());
+		
 		// Edit tags item
 		JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
 		editTagsItem.addActionListener((e) -> editTags(getSelectedCards()));

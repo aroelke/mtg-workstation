@@ -1998,7 +1998,7 @@ public class EditorFrame extends JInternalFrame
 	public boolean removeCards(Collection<Card> toRemove, final int n, final boolean main)
 	{
 		CardList list = (main ? deck : sideboard).current;
-		Map<Card, Integer> removed = toRemove.stream().filter(list::contains).collect(Collectors.toMap(Function.identity(), (c) -> Math.min(n, deck.current.getData(c).count())));
+		Map<Card, Integer> removed = toRemove.stream().filter(list::contains).collect(Collectors.toMap(Function.identity(), (c) -> Math.min(n, list.getData(c).count())));
 		return performAction(() -> insertCards(removed, main), () -> !deleteCards(toRemove, n, main).isEmpty());
 	}
 
