@@ -218,7 +218,7 @@ public class CardTable extends JTable
 						return 0;
 					else if (!pt1.exists())
 						return ascending ? 1 : -1;
-					else if (pt2.exists())
+					else if (!pt2.exists())
 						return ascending ? -1 : 1;
 					else
 						return pt1.compareTo(pt2);
