@@ -25,7 +25,7 @@ import editor.database.characteristics.Legality;
 import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
-import editor.database.characteristics.PowerToughness;
+import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.FunctionalSymbol;
 import editor.database.symbol.Symbol;
@@ -220,8 +220,8 @@ public abstract class Card
 		normalizedFlavor = new Lazy<List<String>>(() -> Collections.unmodifiableList(flavorText().stream()
 				.map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
 				.collect(Collectors.toList())));
-		powerVariable = new Lazy<Boolean>(() -> power().stream().anyMatch(PowerToughness::variable));
-		toughnessVariable = new Lazy<Boolean>(() -> toughness().stream().anyMatch(PowerToughness::variable));
+		powerVariable = new Lazy<Boolean>(() -> power().stream().anyMatch(CombatStat::variable));
+		toughnessVariable = new Lazy<Boolean>(() -> toughness().stream().anyMatch(CombatStat::variable));
 		legalIn = new Lazy<List<String>>(() -> Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList())));
 		canBeCommander = new Lazy<Boolean>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
 		ignoreCountRestriction = new Lazy<Boolean>(() -> supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number")));
@@ -716,11 +716,11 @@ public abstract class Card
 
 	/**
 	 * Get this Card's power.  If it's not a creature, it's {@link Double#NaN} and will
-	 * return <code>false</code> for {@link PowerToughness#exists()}.
+	 * return <code>false</code> for {@link CombatStat#exists()}.
 	 * 
 	 * @return a list containing the power of each face of this Card.
 	 */
-	public abstract PowerToughness.Tuple power();
+	public abstract CombatStat.Tuple power();
 
 	/**
 	 * Check if this Card's power is variable, or has a * in it.
@@ -787,11 +787,11 @@ public abstract class Card
 
 	/**
 	 * Get this Card's toughness.  If it's not a creature, it's {@link Double#NaN} and will
-	 * return <code>false</code> for {@link PowerToughness#exists()}.
+	 * return <code>false</code> for {@link CombatStat#exists()}.
 	 * 
 	 * @return a list containing the toughness of each face of this Card.
 	 */
-	public abstract PowerToughness.Tuple toughness();
+	public abstract CombatStat.Tuple toughness();
 
 	/**
 	 * Check if this Card's toughness is variable, or has a * in it.

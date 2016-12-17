@@ -86,7 +86,7 @@ import editor.database.card.Card;
 import editor.database.characteristics.CardData;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Loyalty;
-import editor.database.characteristics.PowerToughness;
+import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.Symbol;
 import editor.filter.FilterFactory;
@@ -842,7 +842,7 @@ public class MainFrame extends JFrame
 		inventoryTable.setDefaultRenderer(Integer.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Rarity.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(List.class, new CardTableCellRenderer());
-		inventoryTable.setDefaultRenderer(PowerToughness.Tuple.class, new CardTableCellRenderer());
+		inventoryTable.setDefaultRenderer(CombatStat.Tuple.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Loyalty.Tuple.class, new CardTableCellRenderer());
 		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
 		inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) -> {

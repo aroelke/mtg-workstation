@@ -54,11 +54,11 @@ public enum CardData
 	/**
 	 * Power of a creature card.
 	 */
-	POWER("Power", PowerToughness.Tuple.class),
+	POWER("Power", CombatStat.Tuple.class),
 	/**
 	 * Toughness of a creature card.
 	 */
-	TOUGHNESS("Toughness", PowerToughness.Tuple.class),
+	TOUGHNESS("Toughness", CombatStat.Tuple.class),
 	/**
 	 * Loyalty of a planeswalker card.
 	 */

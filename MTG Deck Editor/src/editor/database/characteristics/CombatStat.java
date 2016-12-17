@@ -13,7 +13,7 @@ import editor.database.card.Card;
  * 
  * @author Alec Roelke
  */
-public class PowerToughness implements Comparable<PowerToughness>
+public class CombatStat implements Comparable<CombatStat>
 {
 	/**
 	 * This class represents a tuple of powers and/or toughnesses.  It is useful for displaying
@@ -21,12 +21,12 @@ public class PowerToughness implements Comparable<PowerToughness>
 	 * 
 	 * @author Alec Roelke
 	 */
-	public static class Tuple extends AbstractList<PowerToughness> implements Comparable<Tuple>
+	public static class Tuple extends AbstractList<CombatStat> implements Comparable<Tuple>
 	{
 		/**
 		 * PowerToughnesses that are part of this Tuple.
 		 */
-		private final List<PowerToughness> values;
+		private final List<CombatStat> values;
 		
 		/**
 		 * Create a new, empty Tuple of PowerToughnesses.
@@ -41,7 +41,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 		 * 
 		 * @param c Collection of PowerToughnesses to create the tuple out of
 		 */
-		public Tuple(List<? extends PowerToughness> c)
+		public Tuple(List<? extends CombatStat> c)
 		{
 			values = Collections.unmodifiableList(c);
 		}
@@ -51,7 +51,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 		 * 
 		 * @param c PowerToughnesses to create the tuple out of
 		 */
-		public Tuple(PowerToughness... c)
+		public Tuple(CombatStat... c)
 		{
 			this(Arrays.asList(c));
 		}
@@ -71,14 +71,14 @@ public class PowerToughness implements Comparable<PowerToughness>
 				return 1;
 			else
 			{
-				PowerToughness first = stream().filter(PowerToughness::exists).findFirst().orElse(get(0));
-				PowerToughness second = o.stream().filter(PowerToughness::exists).findFirst().orElse(o.get(0));
+				CombatStat first = stream().filter(CombatStat::exists).findFirst().orElse(get(0));
+				CombatStat second = o.stream().filter(CombatStat::exists).findFirst().orElse(o.get(0));
 				return first.compareTo(second);
 			}
 		}
 		
 		@Override
-		public PowerToughness get(int index)
+		public CombatStat get(int index)
 		{
 			return values.get(index);
 		}
@@ -98,7 +98,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 		public String toString()
 		{
 			StringJoiner str = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
-			for (PowerToughness pt: this)
+			for (CombatStat pt: this)
 				if (!Double.isNaN(pt.value))
 					str.add(pt.toString());
 			return str.toString();
@@ -119,7 +119,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 	 * 
 	 * @param v Numeric value of the PowerToughness
 	 */
-	public PowerToughness(double v)
+	public CombatStat(double v)
 	{
 		value = v;
 		expression = String.valueOf(v);
@@ -130,7 +130,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 	 * 
 	 * @param e expression for the new PowerToughness.
 	 */
-	public PowerToughness(String e)
+	public CombatStat(String e)
 	{
 		if (e == null || e.isEmpty())
 		{
@@ -146,7 +146,7 @@ public class PowerToughness implements Comparable<PowerToughness>
 	}
 	
 	@Override
-	public int compareTo(PowerToughness o)
+	public int compareTo(CombatStat o)
 	{
 		if (!exists() && !o.exists())
 			return 0;

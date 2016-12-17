@@ -37,7 +37,7 @@ import editor.database.characteristics.CardData;
 import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
-import editor.database.characteristics.PowerToughness;
+import editor.database.characteristics.CombatStat;
 import editor.database.symbol.ColorSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.editor.EditorFrame;
@@ -210,10 +210,10 @@ public class CardTable extends JTable
 		public Comparator<?> getComparator(int column)
 		{
 			boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
-			if (model.getColumnClass(column).equals(PowerToughness.Tuple.class))
+			if (model.getColumnClass(column).equals(CombatStat.Tuple.class))
 				return (a, b) -> {
-					PowerToughness pt1 = ((PowerToughness.Tuple)a).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)a).get(0));
-					PowerToughness pt2 = ((PowerToughness.Tuple)b).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((PowerToughness.Tuple)b).get(0));
+					CombatStat pt1 = ((CombatStat.Tuple)a).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((CombatStat.Tuple)a).get(0));
+					CombatStat pt2 = ((CombatStat.Tuple)b).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((CombatStat.Tuple)b).get(0));
 					if (!pt1.exists() && !pt2.exists())
 						return 0;
 					else if (!pt1.exists())

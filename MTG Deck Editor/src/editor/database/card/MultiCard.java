@@ -16,7 +16,7 @@ import editor.database.characteristics.Legality;
 import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
-import editor.database.characteristics.PowerToughness;
+import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Rarity;
 import editor.util.Lazy;
 
@@ -82,7 +82,7 @@ public abstract class MultiCard extends Card
 	/**
 	 * Tuple containing the power of each of this MultiCard's faces.
 	 */
-	private Lazy<PowerToughness.Tuple> power;
+	private Lazy<CombatStat.Tuple> power;
 	/**
 	 * Map containing the rulings of this MultiCard and the dates they were made on.
 	 */
@@ -98,7 +98,7 @@ public abstract class MultiCard extends Card
 	/**
 	 * Tuple containing the toughness of each of this MultiCard's faces.
 	 */
-	private Lazy<PowerToughness.Tuple> toughness;
+	private Lazy<CombatStat.Tuple> toughness;
 	/**
 	 * List containing the type line of each of this MultiCard's faces.
 	 */
@@ -184,8 +184,8 @@ public abstract class MultiCard extends Card
 		flavorText = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::flavorText)));
 		artist = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::artist)));
 		number = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::number)));
-		power = new Lazy<PowerToughness.Tuple>(() -> new PowerToughness.Tuple(collect(Card::power)));
-		toughness = new Lazy<PowerToughness.Tuple>(() -> new PowerToughness.Tuple(collect(Card::toughness)));
+		power = new Lazy<CombatStat.Tuple>(() -> new CombatStat.Tuple(collect(Card::power)));
+		toughness = new Lazy<CombatStat.Tuple>(() -> new CombatStat.Tuple(collect(Card::toughness)));
 		loyalty = new Lazy<Loyalty.Tuple>(() -> new Loyalty.Tuple(collect(Card::loyalty)));
 		rulings = new Lazy<Map<Date, List<String>>>(() -> Collections.unmodifiableMap(faces.stream().map(Card::rulings).reduce(new TreeMap<Date, List<String>>(), (a, b) -> {
 				for (Date k: b.keySet())
@@ -295,7 +295,7 @@ public abstract class MultiCard extends Card
 	}
 
 	@Override
-	public PowerToughness.Tuple power()
+	public CombatStat.Tuple power()
 	{
 		return power.get();
 	}
@@ -325,7 +325,7 @@ public abstract class MultiCard extends Card
 	}
 
 	@Override
-	public PowerToughness.Tuple toughness()
+	public CombatStat.Tuple toughness()
 	{
 		return toughness.get();
 	}

@@ -15,7 +15,7 @@ import editor.database.characteristics.Legality;
 import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
-import editor.database.characteristics.PowerToughness;
+import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Rarity;
 import editor.util.UnicodeSymbols;
 
@@ -77,7 +77,7 @@ public class SingleCard extends Card
 	 * This SingleCard's power.
 	 * @see Card#power()
 	 */
-	public final PowerToughness power;
+	public final CombatStat power;
 	/**
 	 * This Card's rarity.
 	 */
@@ -102,7 +102,7 @@ public class SingleCard extends Card
 	 * This SingleCard's toughness.
 	 * @see Card#toughness()
 	 */
-	public final PowerToughness toughness;
+	public final CombatStat toughness;
 	/**
 	 * This SingleCard's type line.
 	 * @see Card#typeLine()
@@ -169,8 +169,8 @@ public class SingleCard extends Card
 		this.flavor = flavor;
 		this.artist = artist;
 		this.number = number;
-		this.power = new PowerToughness(power);
-		this.toughness = new PowerToughness(toughness);
+		this.power = new CombatStat(power);
+		this.toughness = new CombatStat(toughness);
 		this.loyalty = new Loyalty(loyalty);
 		this.imageName = imageName;
 		this.rarity = rarity;
@@ -311,9 +311,9 @@ public class SingleCard extends Card
 	}
 
 	@Override
-	public PowerToughness.Tuple power()
+	public CombatStat.Tuple power()
 	{
-		return new PowerToughness.Tuple(power);
+		return new CombatStat.Tuple(power);
 	}
 
 	@Override
@@ -341,9 +341,9 @@ public class SingleCard extends Card
 	}
 
 	@Override
-	public PowerToughness.Tuple toughness()
+	public CombatStat.Tuple toughness()
 	{
-		return new PowerToughness.Tuple(toughness);
+		return new CombatStat.Tuple(toughness);
 	}
 
 	@Override
