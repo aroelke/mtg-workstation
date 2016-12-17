@@ -19,6 +19,10 @@ import editor.gui.editor.IncludeExcludePanel;
 public class CardTableModel extends AbstractTableModel
 {
 	/**
+	 * List of card characteristics to display in the table.
+	 */
+	private List<CardData> characteristics;
+	/**
 	 * Editor containing this model's table.
 	 */
 	private EditorFrame editor;
@@ -26,10 +30,17 @@ public class CardTableModel extends AbstractTableModel
 	 * List of cards the table displays.
 	 */
 	private CardList list;
+	
 	/**
-	 * List of card characteristics to display in the table.
+	 * Create a new CardTableModel.
+	 *
+	 * @param d list of cards for the new CardTableModel to show
+	 * @param c list of characteristics of those cards to show
 	 */
-	private List<CardData> characteristics;
+	public CardTableModel(CardList d, List<CardData> c)
+	{
+		this(null, d, c);
+	}
 	
 	/**
 	 * Create a new CardTableModel.
@@ -46,15 +57,51 @@ public class CardTableModel extends AbstractTableModel
 		characteristics = c;
 	}
 	
-	/**
-	 * Create a new CardTableModel.
-	 *
-	 * @param d list of cards for the new CardTableModel to show
-	 * @param c list of characteristics of those cards to show
-	 */
-	public CardTableModel(CardList d, List<CardData> c)
+	@Override
+	public Class<?> getColumnClass(int column)
 	{
-		this(null, d, c);
+		return characteristics.get(column).dataType;
+	}
+	
+	@Override
+	public int getColumnCount()
+	{
+		return characteristics.size();
+	}
+	
+	/**
+	 * Get the type of data displayed by the given column.
+	 * 
+	 * @param column column to check
+	 * @return the type of data being displayed in the given column.
+	 */
+	public CardData getColumnData(int column)
+	{
+		return characteristics.get(column);
+	}
+	
+	@Override
+	public String getColumnName(int column)
+	{
+		return characteristics.get(column).toString();
+	}
+
+	@Override
+	public int getRowCount()
+	{
+		return list.size();
+	}
+	
+	@Override
+	public Object getValueAt(int rowIndex, int columnIndex)
+	{
+		return list.getData(rowIndex).get(characteristics.get(columnIndex));
+	}
+
+	@Override
+	public boolean isCellEditable(int row, int column)
+	{
+		return editor != null && (characteristics.get(column) == CardData.COUNT || characteristics.get(column) == CardData.CATEGORIES);
 	}
 	
 	/**
@@ -76,53 +123,6 @@ public class CardTableModel extends AbstractTableModel
 	public void setList(CardList d)
 	{
 		list = d;
-	}
-	
-	@Override
-	public int getRowCount()
-	{
-		return list.size();
-	}
-	
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex)
-	{
-		return list.getData(rowIndex).get(characteristics.get(columnIndex));
-	}
-
-	@Override
-	public int getColumnCount()
-	{
-		return characteristics.size();
-	}
-	
-	/**
-	 * Get the type of data displayed by the given column.
-	 * 
-	 * @param column column to check
-	 * @return the type of data being displayed in the given column.
-	 */
-	public CardData getColumnData(int column)
-	{
-		return characteristics.get(column);
-	}
-
-	@Override
-	public String getColumnName(int column)
-	{
-		return characteristics.get(column).toString();
-	}
-	
-	@Override
-	public Class<?> getColumnClass(int column)
-	{
-		return characteristics.get(column).dataType;
-	}
-	
-	@Override
-	public boolean isCellEditable(int row, int column)
-	{
-		return editor != null && (characteristics.get(column) == CardData.COUNT || characteristics.get(column) == CardData.CATEGORIES);
 	}
 
 	@Override
