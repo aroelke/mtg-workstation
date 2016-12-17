@@ -529,13 +529,34 @@ public class MainFrame extends JFrame
 		removeMenu.add(deckMenuCardItems.get(CardMenuItems.REMOVE_ALL));
 		removeMenu.add(deckMenuCardItems.get(CardMenuItems.REMOVE_N));
 
+		// Sideboard menu
+		JMenu sideboardMenu = new JMenu("Sideboard");
+		deckMenu.add(sideboardMenu);
+		CardMenuItems sideboardMenuItems = new CardMenuItems(this,
+				(n) -> {
+					if (selectedFrame != null)
+						selectedFrame.addSelectedCards(n, false);
+				},
+				null,
+				(n) -> {
+					if (selectedFrame != null)
+						selectedFrame.removeSelectedCards(n, false);
+				});
+		sideboardMenu.add(sideboardMenuItems.get(CardMenuItems.ADD_SINGLE));
+		sideboardMenu.add(sideboardMenuItems.get(CardMenuItems.ADD_N));
+		sideboardMenu.add(sideboardMenuItems.get(CardMenuItems.REMOVE_SINGLE));
+		sideboardMenu.add(sideboardMenuItems.get(CardMenuItems.REMOVE_ALL));
+		
 		// Category menu
 		JMenu categoryMenu = new JMenu("Category");
 		deckMenu.add(categoryMenu);
 
 		// Add category item
 		JMenuItem addCategoryItem = new JMenuItem("Add...");
-		addCategoryItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.addCategory(selectedFrame.createCategory());});
+		addCategoryItem.addActionListener((e) -> {
+			if (selectedFrame != null)
+				selectedFrame.addCategory(selectedFrame.createCategory());
+			});
 		categoryMenu.add(addCategoryItem);
 
 		// Edit category item
