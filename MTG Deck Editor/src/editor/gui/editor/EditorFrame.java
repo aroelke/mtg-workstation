@@ -67,7 +67,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
-import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.InternalFrameAdapter;
@@ -780,7 +779,6 @@ public class EditorFrame extends JInternalFrame
 		add(listTabs, BorderLayout.CENTER);
 
 		JPanel mainPanel = new JPanel(new BorderLayout());
-		mainPanel.setBackground(UIManager.getColor("window"));
 		
 		deck.model = new CardTableModel(this, deck.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
 		deck.table = new CardTable(deck.model);
@@ -816,7 +814,6 @@ public class EditorFrame extends JInternalFrame
 		deckButtons.get("+").addActionListener((e) -> addSelectedCards(1, true));
 		deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeSelectedCards(1, true));
 		deckButtons.get("X").addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, true));
-		deckButtons.setBackground(UIManager.getColor("window"));
 		mainDeckPanel.add(deckButtons, BorderLayout.WEST);
 		mainPanel.add(mainDeckPanel, BorderLayout.CENTER);
 		
@@ -824,7 +821,6 @@ public class EditorFrame extends JInternalFrame
 		mainPanel.add(sideboardPanel, BorderLayout.SOUTH);
 		
 		JPanel showHidePanel = new JPanel(new BorderLayout());
-		showHidePanel.setBackground(UIManager.getColor("window"));
 		JLabel showHideButton = new JLabel(String.join("", Collections.nCopies(3, String.valueOf(UnicodeSymbols.DOWN_TRIANGLE))));
 		showHideButton.setHorizontalAlignment(JLabel.CENTER);
 		showHideButton.setFont(showHideButton.getFont().deriveFont(showHideButton.getFont().getSize()*2F/3F));
@@ -835,7 +831,6 @@ public class EditorFrame extends JInternalFrame
 		sideboardButtons.get("+").addActionListener((e) -> addSelectedCards(1, false));
 		sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeSelectedCards(1, false));
 		sideboardButtons.get("X").addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, false));
-		sideboardButtons.setBackground(UIManager.getColor("window"));
 		sideboardPanel.add(sideboardButtons, BorderLayout.WEST);
 		
 		sideboard.model = new CardTableModel(this, sideboard.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
@@ -1005,12 +1000,10 @@ public class EditorFrame extends JInternalFrame
 		// Panel containing components above the category panel
 		JPanel categoryHeaderPanel = new JPanel();
 		categoryHeaderPanel.setLayout(new BoxLayout(categoryHeaderPanel, BoxLayout.X_AXIS));
-		categoryHeaderPanel.setBackground(UIManager.getColor("window"));
 		categoriesMainPanel.add(categoryHeaderPanel, BorderLayout.NORTH);
 		
 		// Button to add a new category
 		JPanel addCategoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		addCategoryPanel.setBackground(UIManager.getColor("window"));
 		JButton addCategoryButton = new JButton("Add");
 		addCategoryButton.addActionListener((e) -> addCategory(createCategory()));
 		addCategoryPanel.add(addCategoryButton);
@@ -1018,7 +1011,6 @@ public class EditorFrame extends JInternalFrame
 		
 		// Combo box to change category sort order
 		JPanel sortCategoriesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		sortCategoriesPanel.setBackground(UIManager.getColor("window"));
 		sortCategoriesPanel.add(new JLabel("Display order:"));
 		sortCategoriesBox = new JComboBox<CategoryOrder>(CategoryOrder.values());
 		sortCategoriesBox.addActionListener((e) -> {
@@ -1033,7 +1025,6 @@ public class EditorFrame extends JInternalFrame
 		
 		// Combo box to switch to a different category
 		JPanel switchCategoryPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		switchCategoryPanel.setBackground(UIManager.getColor("window"));
 		switchCategoryBox = new JComboBox<String>(switchCategoryModel = new DefaultComboBoxModel<String>());
 		switchCategoryBox.setEnabled(false);
 		switchCategoryBox.addActionListener((e) -> {
@@ -1067,12 +1058,10 @@ public class EditorFrame extends JInternalFrame
 		categoryButtons.get("+").addActionListener((e) -> addSelectedCards(1, true));
 		categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeSelectedCards(1, true));
 		categoryButtons.get("X").addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, true));
-		categoryButtons.setBackground(UIManager.getColor("window"));
 		categoriesPanel.add(categoryButtons, BorderLayout.WEST);
 		
 		// Sample hands
 		JPanel handPanel = new JPanel(new BorderLayout());
-		handPanel.setBackground(UIManager.getColor("window"));
 		
 		// Table showing the cards in hand
 		hand = new Hand(deck.current);
@@ -1085,7 +1074,6 @@ public class EditorFrame extends JInternalFrame
 		
 		// Control panel for manipulating the sample hand
 		JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		handModPanel.setBackground(UIManager.getColor("window"));
 		JButton newHandButton = new JButton("New Hand");
 		newHandButton.addActionListener((e) -> {
 			hand.newHand(startingHandSize);
@@ -1245,12 +1233,10 @@ public class EditorFrame extends JInternalFrame
 
 		// Changelog
 		JPanel changelogPanel = new JPanel(new BorderLayout());
-		changelogPanel.setBackground(UIManager.getColor("window"));
 		changelogArea = new JTextArea();
 		changelogArea.setEditable(false);
 		changelogPanel.add(new JScrollPane(changelogArea), BorderLayout.CENTER);
 		JPanel clearLogPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		clearLogPanel.setBackground(UIManager.getColor("window"));
 		JButton clearLogButton = new JButton("Clear Change Log");
 		clearLogButton.addActionListener((e) -> {
 			if (!changelogArea.getText().isEmpty()
