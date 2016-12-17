@@ -12,11 +12,10 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Legality;
-import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
-import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Rarity;
 import editor.util.Lazy;
 
@@ -62,7 +61,7 @@ public abstract class MultiCard extends Card
 	/**
 	 * Tuple containing the loyalty of each of this MultiCard's faces.
 	 */
-	private Lazy<Loyalty.Tuple> loyalty;
+	private Lazy<List<Integer>> loyalty;
 	/**
 	 * List of mana costs of the faces of this MultiCard.
 	 */
@@ -82,7 +81,7 @@ public abstract class MultiCard extends Card
 	/**
 	 * Tuple containing the power of each of this MultiCard's faces.
 	 */
-	private Lazy<CombatStat.Tuple> power;
+	private Lazy<List<CombatStat>> power;
 	/**
 	 * Map containing the rulings of this MultiCard and the dates they were made on.
 	 */
@@ -98,7 +97,7 @@ public abstract class MultiCard extends Card
 	/**
 	 * Tuple containing the toughness of each of this MultiCard's faces.
 	 */
-	private Lazy<CombatStat.Tuple> toughness;
+	private Lazy<List<CombatStat>> toughness;
 	/**
 	 * List containing the type line of each of this MultiCard's faces.
 	 */
@@ -184,9 +183,9 @@ public abstract class MultiCard extends Card
 		flavorText = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::flavorText)));
 		artist = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::artist)));
 		number = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::number)));
-		power = new Lazy<CombatStat.Tuple>(() -> new CombatStat.Tuple(collect(Card::power)));
-		toughness = new Lazy<CombatStat.Tuple>(() -> new CombatStat.Tuple(collect(Card::toughness)));
-		loyalty = new Lazy<Loyalty.Tuple>(() -> new Loyalty.Tuple(collect(Card::loyalty)));
+		power = new Lazy<List<CombatStat>>(() -> Collections.unmodifiableList(collect(Card::power)));
+		toughness = new Lazy<List<CombatStat>>(() -> Collections.unmodifiableList(collect(Card::toughness)));
+		loyalty = new Lazy<List<Integer>>(() -> Collections.unmodifiableList(collect(Card::loyalty)));
 		rulings = new Lazy<Map<Date, List<String>>>(() -> Collections.unmodifiableMap(faces.stream().map(Card::rulings).reduce(new TreeMap<Date, List<String>>(), (a, b) -> {
 				for (Date k: b.keySet())
 				{
@@ -265,7 +264,7 @@ public abstract class MultiCard extends Card
 	}
 
 	@Override
-	public Loyalty.Tuple loyalty()
+	public List<Integer> loyalty()
 	{
 		return loyalty.get();
 	}
@@ -295,7 +294,7 @@ public abstract class MultiCard extends Card
 	}
 
 	@Override
-	public CombatStat.Tuple power()
+	public List<CombatStat> power()
 	{
 		return power.get();
 	}
@@ -325,7 +324,7 @@ public abstract class MultiCard extends Card
 	}
 
 	@Override
-	public CombatStat.Tuple toughness()
+	public List<CombatStat> toughness()
 	{
 		return toughness.get();
 	}

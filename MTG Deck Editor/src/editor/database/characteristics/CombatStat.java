@@ -1,12 +1,6 @@
 package editor.database.characteristics;
 
-import java.util.AbstractList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.StringJoiner;
-
-import editor.database.card.Card;
+import editor.util.UnicodeSymbols;
 
 /**
  * This class represents a power value or a toughness value.
@@ -16,94 +10,9 @@ import editor.database.card.Card;
 public class CombatStat implements Comparable<CombatStat>
 {
 	/**
-	 * This class represents a tuple of powers and/or toughnesses.  It is useful for displaying
-	 * and sorting these values for cards that may have multiple faces.
-	 * 
-	 * @author Alec Roelke
+	 * Representation for a combat stat that doesn't exist.
 	 */
-	public static class Tuple extends AbstractList<CombatStat> implements Comparable<Tuple>
-	{
-		/**
-		 * PowerToughnesses that are part of this Tuple.
-		 */
-		private final List<CombatStat> values;
-		
-		/**
-		 * Create a new, empty Tuple of PowerToughnesses.
-		 */
-		public Tuple()
-		{
-			this(Collections.emptyList());
-		}
-		
-		/**
-		 * Create a new Tuple out of the given collection of PowerToughnesses.
-		 * 
-		 * @param c Collection of PowerToughnesses to create the tuple out of
-		 */
-		public Tuple(List<? extends CombatStat> c)
-		{
-			values = Collections.unmodifiableList(c);
-		}
-		
-		/**
-		 * Create a new Tuple out of the given PowerToughnesses.
-		 * 
-		 * @param c PowerToughnesses to create the tuple out of
-		 */
-		public Tuple(CombatStat... c)
-		{
-			this(Arrays.asList(c));
-		}
-		
-		/**
-		 * {@inheritDoc}
-		 * Only the first value of each Tuple is compared.
-		 */
-		@Override
-		public int compareTo(Tuple o)
-		{
-			if (isEmpty() && o.isEmpty())
-				return 0;
-			else if (isEmpty())
-				return -1;
-			else if (o.isEmpty())
-				return 1;
-			else
-			{
-				CombatStat first = stream().filter(CombatStat::exists).findFirst().orElse(get(0));
-				CombatStat second = o.stream().filter(CombatStat::exists).findFirst().orElse(o.get(0));
-				return first.compareTo(second);
-			}
-		}
-		
-		@Override
-		public CombatStat get(int index)
-		{
-			return values.get(index);
-		}
-
-		@Override
-		public int size()
-		{
-			return values.size();
-		}
-
-		/**
-		 * {@inheritDoc}
-		 * The String representation of this tuple is its existing values separated by
-		 * {@link Card#FACE_SEPARATOR}.
-		 */
-		@Override
-		public String toString()
-		{
-			StringJoiner str = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
-			for (CombatStat pt: this)
-				if (!Double.isNaN(pt.value))
-					str.add(pt.toString());
-			return str.toString();
-		}
-	}
+	public static final CombatStat NO_COMBAT = new CombatStat(Double.NaN);
 	
 	/**
 	 * String expression showing the power or toughness value (may contain *).
@@ -117,18 +26,18 @@ public class CombatStat implements Comparable<CombatStat>
 	/**
 	 * Create a new PowerToughness from a number.
 	 * 
-	 * @param v Numeric value of the PowerToughness
+	 * @param v Numeric value of the CombatStat
 	 */
 	public CombatStat(double v)
 	{
 		value = v;
-		expression = String.valueOf(v);
+		expression = Double.isNaN(v) ? "" : String.valueOf(v);
 	}
 	
 	/**
 	 * Create a new PowerToughness from an expression.
 	 * 
-	 * @param e expression for the new PowerToughness.
+	 * @param e expression for the new CombatStat
 	 */
 	public CombatStat(String e)
 	{
@@ -140,7 +49,7 @@ public class CombatStat implements Comparable<CombatStat>
 		else
 		{
 			expression = e.replaceAll("\\s+", "");
-			e = e.replaceAll("[^0-9+-.]+","").replaceAll("[+-]$", "");
+			e = e.replaceAll("[*" + UnicodeSymbols.SUPERSCRIPT_TWO + "]+","").replaceAll("[+-]$", "");
 			value = e.isEmpty() ? 0.0 : Double.valueOf(e);
 		}
 	}
@@ -162,7 +71,7 @@ public class CombatStat implements Comparable<CombatStat>
 	 * Not all cards have power or toughness.  For those cards, a value of
 	 * {@link Double#NaN} is used.
 	 * 
-	 * @return true if this PowerToughness exists, and false otherwise.
+	 * @return true if this CombatStat exists, and false otherwise.
 	 */
 	public boolean exists()
 	{
@@ -171,7 +80,7 @@ public class CombatStat implements Comparable<CombatStat>
 	
 	/**
 	 * {@inheritDoc}
-	 * If this PowerToughness doesn't exist according to {@link #exists()}, this is
+	 * If this CombatStat doesn't exist according to {@link #exists()}, this is
 	 * an empty String.
 	 */
 	@Override
@@ -181,10 +90,10 @@ public class CombatStat implements Comparable<CombatStat>
 	}
 	
 	/**
-	 * If this PowerToughness's expression contains a *, it is variable.  Otherwise,
+	 * If this CombatStat's expression contains a *, it is variable.  Otherwise,
 	 * it is not.
 	 * 
-	 * @return true if this PowerToughness is variable, and false otherwise.
+	 * @return true if this CombatStat is variable, and false otherwise
 	 */
 	public boolean variable()
 	{

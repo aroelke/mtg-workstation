@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -34,10 +35,9 @@ import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
 import editor.database.characteristics.CardData;
-import editor.database.characteristics.Loyalty;
+import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
-import editor.database.characteristics.CombatStat;
 import editor.database.symbol.ColorSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.editor.EditorFrame;
@@ -209,35 +209,71 @@ public class CardTable extends JTable
 		@Override
 		public Comparator<?> getComparator(int column)
 		{
-			boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
-			if (model.getColumnClass(column).equals(CombatStat.Tuple.class))
-				return (a, b) -> {
-					CombatStat pt1 = ((CombatStat.Tuple)a).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((CombatStat.Tuple)a).get(0));
-					CombatStat pt2 = ((CombatStat.Tuple)b).stream().filter((pt) -> !Double.isNaN(pt.value)).findFirst().orElse(((CombatStat.Tuple)b).get(0));
-					if (!pt1.exists() && !pt2.exists())
-						return 0;
-					else if (!pt1.exists())
-						return ascending ? 1 : -1;
-					else if (!pt2.exists())
-						return ascending ? -1 : 1;
-					else
-						return pt1.compareTo(pt2);
-				};
-			else if (model.getColumnClass(column).equals(Loyalty.Tuple.class))
-				return (a, b) -> {
-					Loyalty l1 = ((Loyalty.Tuple)a).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)a).get(0));
-					Loyalty l2 = ((Loyalty.Tuple)b).stream().filter((l) -> l.value > 0).findFirst().orElse(((Loyalty.Tuple)b).get(0));
-					if (!l1.exists() && !l2.exists())
-						return 0;
-					else if (!l1.exists())
-						return ascending ? 1 : -1;
-					else if (!l2.exists())
-						return ascending ? -1 : 1;
-					else
-						return l1.compareTo(l2);
-				};
+			CardData data;
+			if (model instanceof CardTableModel)
+			{
+				data = ((CardTableModel)model).getColumnData(column);
+				boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
+				if (data == CardData.POWER || data == CardData.TOUGHNESS)
+					return (a, b) -> {
+						List<CombatStat> first, second;
+						if (a instanceof List)
+							first = ((List<?>)a).stream().filter((o) -> o instanceof CombatStat).map((o) -> (CombatStat)o).collect(Collectors.toList());
+						else
+							throw new IllegalArgumentException("Expected " + CombatStat.class + ", got " + a.getClass());
+						if (b instanceof List)
+							second = ((List<?>)b).stream().filter((o) -> o instanceof CombatStat).map((o) -> (CombatStat)o).collect(Collectors.toList());
+						else
+							throw new IllegalArgumentException("Expected " + CombatStat.class + ", got " + b.getClass());
+						
+						CombatStat pt1 = first.stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
+						CombatStat pt2 = second.stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
+						
+						int compare;
+						if (!pt1.exists() && !pt2.exists())
+							compare = 0;
+						else if (!pt1.exists())
+							compare = ascending ? 1 : -1;
+						else if (!pt2.exists())
+							compare = ascending ? -1 : 1;
+						else
+							compare = pt1.compareTo(pt2);
+						return compare;
+					};
+				else if (data == CardData.LOYALTY)
+					return (a, b) -> {
+						List<Integer> first, second;
+						if (a instanceof List)
+							first = ((List<?>)a).stream().filter((o) -> o instanceof Integer).map((o) -> (Integer)o).collect(Collectors.toList());
+						else
+							throw new IllegalArgumentException("Expected " + Integer.class + ", got " + a.getClass());
+						if (b instanceof List)
+							second = ((List<?>)b).stream().filter((o) -> o instanceof Integer).map((o) -> (Integer)o).collect(Collectors.toList());
+						else
+							throw new IllegalArgumentException("Expected " + Integer.class + ", got " + b.getClass());
+						
+						int l1 = first.stream().filter((l) -> l > 0).findFirst().orElse(0);
+						int l2 = second.stream().filter((l) -> l > 0).findFirst().orElse(0);
+						if (l1 == 0 && l2 == 0)
+							return 0;
+						else if (l1 == 0)
+							return ascending ? 1 : -1;
+						else if (l2 == 0)
+							return ascending ? -1 : 1;
+						else
+							return l1 - l2;
+					};
+			}
+			return super.getComparator(column);
+		}
+		
+		@Override
+		protected boolean useToString(int column)
+		{
+			if (model instanceof CardTableModel)
+				return !Arrays.asList(CardData.POWER, CardData.TOUGHNESS, CardData.LOYALTY).contains(((CardTableModel)model).getColumnData(column));
 			else
-				return super.getComparator(column);
+				return true;
 		}
 	}
 

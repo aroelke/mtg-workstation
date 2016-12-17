@@ -68,6 +68,10 @@ public interface UnicodeSymbols
 	 */
 	char RIGHT_ANGLE_DOUBLE_QUOTE = '\u00BB';
 	/**
+	 * Superscript two, '{@value #SUPERSCRIPT_TWO}'.
+	 */
+	char SUPERSCRIPT_TWO = '\u00B2';
+	/**
 	 * Black up-pointing triangle, '{@value #UP_TRIANGLE}'.
 	 */
 	char UP_TRIANGLE = '\u25B2';

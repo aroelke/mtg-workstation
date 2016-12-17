@@ -20,12 +20,11 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
-import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
-import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.FunctionalSymbol;
 import editor.database.symbol.Symbol;
@@ -494,7 +493,7 @@ public abstract class Card
 
 			if (!Double.isNaN(power().get(f).value) && !Double.isNaN(toughness().get(f).value))
 				document.insertString(document.getLength(), power().get(f) + "/" + toughness().get(f) + "\n", textStyle);
-			else if (loyalty().get(f).value > 0)
+			else if (loyalty().get(f) > 0)
 				document.insertString(document.getLength(), loyalty().get(f) + "\n", textStyle);
 
 			document.insertString(document.getLength(), artist().get(f) + " " + number().get(f) + "/" + expansion.count, textStyle);
@@ -636,12 +635,12 @@ public abstract class Card
 	}
 
 	/**
-	 * Get this Card's loyalty.  If it's not a planeswalker, it will be 0 and return
-	 * <code>false</code> for {@link Loyalty#exists()}.
+	 * Get this Card's loyalty.  Any nonpositive number represents a nonexistent
+	 * loyalty.
 	 * 
 	 * @return a list containing the loyalty of each face of this Card.
 	 */
-	public abstract Loyalty.Tuple loyalty();
+	public abstract List<Integer> loyalty();
 
 	/**
 	 * Get this Card's mana cost(s).
@@ -720,7 +719,7 @@ public abstract class Card
 	 * 
 	 * @return a list containing the power of each face of this Card.
 	 */
-	public abstract CombatStat.Tuple power();
+	public abstract List<CombatStat> power();
 
 	/**
 	 * Check if this Card's power is variable, or has a * in it.
@@ -791,7 +790,7 @@ public abstract class Card
 	 * 
 	 * @return a list containing the toughness of each face of this Card.
 	 */
-	public abstract CombatStat.Tuple toughness();
+	public abstract List<CombatStat> toughness();
 
 	/**
 	 * Check if this Card's toughness is variable, or has a * in it.

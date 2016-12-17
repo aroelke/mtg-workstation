@@ -10,12 +10,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 
+import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
-import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
-import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Rarity;
 import editor.util.UnicodeSymbols;
 
@@ -58,9 +57,8 @@ public class SingleCard extends Card
 	private final Map<String, Legality> legality;
 	/**
 	 * This SingleCard's loyalty.
-	 * @see Card#loyalty()
 	 */
-	public final Loyalty loyalty;
+	public final int loyalty;
 	/**
 	 * Mana cost of this SingleCard.
 	 */
@@ -132,7 +130,7 @@ public class SingleCard extends Card
 	 * @param number the new Card's collector's number
 	 * @param power the new Card's power
 	 * @param toughness the new Card's toughness
-	 * @param loyalty the new Card's loyalty
+	 * @param loyalty the new Card's loyalty (0 or less for nonexistent)
 	 * @param legality the new Card's legality
 	 * @param imageName the new Card's image name
 	 */
@@ -152,7 +150,7 @@ public class SingleCard extends Card
 			String number,
 			String power,
 			String toughness,
-			String loyalty,
+			int loyalty,
 			TreeMap<Date, List<String>> rulings,
 			Map<String, Legality> legality,
 			String imageName)
@@ -171,7 +169,7 @@ public class SingleCard extends Card
 		this.number = number;
 		this.power = new CombatStat(power);
 		this.toughness = new CombatStat(toughness);
-		this.loyalty = new Loyalty(loyalty);
+		this.loyalty = loyalty;
 		this.imageName = imageName;
 		this.rarity = rarity;
 		this.rulings = rulings;
@@ -281,9 +279,9 @@ public class SingleCard extends Card
 	}
 
 	@Override
-	public Loyalty.Tuple loyalty()
+	public List<Integer> loyalty()
 	{
-		return new Loyalty.Tuple(loyalty);
+		return Arrays.asList(loyalty);
 	}
 
 	@Override
@@ -311,9 +309,9 @@ public class SingleCard extends Card
 	}
 
 	@Override
-	public CombatStat.Tuple power()
+	public List<CombatStat> power()
 	{
-		return new CombatStat.Tuple(power);
+		return Arrays.asList(power);
 	}
 
 	@Override
@@ -341,9 +339,9 @@ public class SingleCard extends Card
 	}
 
 	@Override
-	public CombatStat.Tuple toughness()
+	public List<CombatStat> toughness()
 	{
-		return new CombatStat.Tuple(toughness);
+		return Arrays.asList(toughness);
 	}
 
 	@Override

@@ -85,8 +85,6 @@ import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
 import editor.database.characteristics.CardData;
 import editor.database.characteristics.Expansion;
-import editor.database.characteristics.Loyalty;
-import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.Symbol;
 import editor.filter.FilterFactory;
@@ -842,8 +840,6 @@ public class MainFrame extends JFrame
 		inventoryTable.setDefaultRenderer(Integer.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(Rarity.class, new CardTableCellRenderer());
 		inventoryTable.setDefaultRenderer(List.class, new CardTableCellRenderer());
-		inventoryTable.setDefaultRenderer(CombatStat.Tuple.class, new CardTableCellRenderer());
-		inventoryTable.setDefaultRenderer(Loyalty.Tuple.class, new CardTableCellRenderer());
 		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
 		inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) -> {
 			if (e.getClickCount()%2 == 0 && selectedFrame != null)
@@ -970,43 +966,6 @@ public class MainFrame extends JFrame
 			panelPane.setBorder(BorderFactory.createEmptyBorder());
 			if (JOptionPane.showConfirmDialog(this, panelPane, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 			{
-/*
-				Filter f = null;
-				
-				try
-				{
-					FileOutputStream fos = new FileOutputStream("test.txt");
-					ObjectOutputStream oos = new ObjectOutputStream(fos);
-					oos.writeObject(panel.filter());
-					oos.close();
-					
-					ObjectInputStream ois = new ObjectInputStream(new FileInputStream("test.txt"));
-					f = (Filter)ois.readObject();
-					ois.close();
-
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					ObjectOutputStream oos = new ObjectOutputStream(baos);
-					oos.writeObject(panel.filter());
-					oos.close();
-					
-					String s = Base64.getEncoder().encodeToString(baos.toByteArray());
-					
-					ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(s)));
-					Filter f = (Filter)ois.readObject();
-			
-					System.out.println("Original: " + panel.filter().toString());
-					System.out.println("Reconstructed: " + f.toString());
-					System.out.println("Equal: " + panel.filter().equals(f));
-				}
-				catch (IOException x)
-				{
-					x.printStackTrace();
-				}
-				catch (ClassNotFoundException x)
-				{
-					x.printStackTrace();
-				}
-*/
 				nameFilterField.setText("");
 				inventory.updateFilter(panel.filter());
 				inventoryModel.fireTableDataChanged();
