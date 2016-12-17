@@ -883,10 +883,11 @@ public class EditorFrame extends JInternalFrame
 		
 		listTabs.addTab("Cards", mainPanel);
 		
-		// Table popup menu
+		// Main table popup menu
 		JPopupMenu tableMenu = new JPopupMenu();
 		deck.table.addMouseListener(new TableMouseAdapter(deck.table, tableMenu));
 		
+		// Add/remove cards
 		CardMenuItems tableMenuCardItems = new CardMenuItems(this,
 				(n) -> addSelectedCards(n, true),
 				() -> {
@@ -901,6 +902,26 @@ public class EditorFrame extends JInternalFrame
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_ALL));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_N));
+		tableMenu.add(new JSeparator());
+		
+		// Move cards to sideboard
+		JMenuItem moveToSideboardItem = new JMenuItem("Move to Sideboard");
+		moveToSideboardItem.addActionListener((e) -> {
+			List<Card> selected = getSelectedCards();
+			removeCards(selected, 1, true);
+			addCards(selected, 1, false);
+		});
+		tableMenu.add(moveToSideboardItem);
+		JMenuItem moveAllToSideboardItem = new JMenuItem("Move All to Sideboard");
+		moveAllToSideboardItem.addActionListener((e) -> {
+			for (Card c: getSelectedCards())
+			{
+				int n = deck.current.getData(c).count();
+				removeCard(c, n, true);
+				addCard(c, n, false);
+			}
+		});
+		tableMenu.add(moveAllToSideboardItem);
 		tableMenu.add(new JSeparator());
 		
 		// Quick edit categories
@@ -928,6 +949,52 @@ public class EditorFrame extends JInternalFrame
 		
 		tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
 				editCategoriesItem, categoriesSeparator, deck.table));
+		
+		// Sideboard table popup menu
+		JPopupMenu sideboardMenu = new JPopupMenu();
+		sideboard.table.addMouseListener(new TableMouseAdapter(sideboard.table, sideboardMenu));
+		
+		// Add/remove cards from sideboard
+		CardMenuItems sideboardMenuCardItems = new CardMenuItems(this,
+				(n) -> addSelectedCards(n, false),
+				() -> {
+					for (Card c: getSelectedCards())
+						addCard(c, 4 - sideboard.current.getData(c).count(), false);
+					},
+				(n) -> removeSelectedCards(n, false));
+		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.ADD_SINGLE));
+		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
+		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.ADD_N));
+		sideboardMenu.add(new JSeparator());
+		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
+		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.REMOVE_ALL));
+		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.REMOVE_N));
+		sideboardMenu.add(new JSeparator());
+		
+		// Move cards to main deck
+		JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
+		moveToMainItem.addActionListener((e) -> {
+			List<Card> selected = getSelectedCards();
+			removeCards(selected, 1, false);
+			addCards(selected, 1, true);
+		});
+		sideboardMenu.add(moveToMainItem);
+		JMenuItem moveAllToMainItem = new JMenuItem("Move All to Main Deck");
+		moveAllToMainItem.addActionListener((e) -> {
+			for (Card c: getSelectedCards())
+			{
+				int n = sideboard.current.getData(c).count();
+				removeCard(c, n, false);
+				addCard(c, n, true);
+			}
+		});
+		sideboardMenu.add(moveAllToMainItem);
+		sideboardMenu.add(new JSeparator());
+		
+		// Edit card tags item in sideboard
+		JMenuItem sBeditTagsItem = new JMenuItem("Edit Tags...");
+		sBeditTagsItem.addActionListener((e) -> parent.editTags(getSelectedCards()));
+		sideboardMenu.add(sBeditTagsItem);
 		
 		// Panel containing categories
 		JPanel categoriesPanel = new JPanel(new BorderLayout());
@@ -1441,6 +1508,8 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (deck.table != except)
 			deck.table.clearSelection();
+		if (sideboard.table != except)
+			sideboard.table.clearSelection();
 		for (CategoryPanel c: categoryPanels)
 			if (c.table != except)
 				c.table.clearSelection();
