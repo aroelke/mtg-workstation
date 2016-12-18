@@ -34,7 +34,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	{
 		super(FilterFactory.MANA_COST, null);
 		contain = Containment.CONTAINS_ANY_OF;
-		cost = new ManaCost("");
+		cost = new ManaCost();
 	}
 	
 	/**

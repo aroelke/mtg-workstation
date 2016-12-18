@@ -35,21 +35,40 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 	 * Get the mana cost represented by the given String.  The String should only be a list of symbols,
 	 * and each one should be the symbol's text surrounded by {}.
 	 * 
-	 * @param s String to parse.
-	 * @return ManaCost represented by the String.
-	 * @throws IllegalArgumentException If there are invalid characters.
-	 * @see editor.database.symbol.Symbol
+	 * @param s String to parse
+	 * @return ManaCost represented by the String
+	 * @throws IllegalArgumentException if there are invalid characters
 	 */
-	public static ManaCost parseManaCost(String s)
+	public static ManaCost parseManaCost(String s) throws IllegalArgumentException
 	{
-//		try
-//		{
-			return new ManaCost(s);
-//		}
-//		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
-//		{
-//			throw new IllegalArgumentException("Illegal mana cost string \"" + s + "\"");
-//		}
+		ManaCost cost = tryParseManaCost(s);
+		if (cost == null)
+			throw new IllegalArgumentException('"' + s + "\" is not a mana cost");
+		return cost;
+	}
+	
+	/**
+	 * Get the mana cost represented by the given String.  The String should only be a list of symbols,
+	 * and each one should be the symbol's text surrounded by {}.
+	 * 
+	 * @param s String to parse
+	 * @return ManaCost represented by the String, or null if there isn't one
+	 */
+	public static ManaCost tryParseManaCost(String s)
+	{
+		List<ManaSymbol> symbols = new ArrayList<ManaSymbol>();
+		Matcher m = Symbol.SYMBOL_PATTERN.matcher(s);
+		while (m.find())
+		{
+			ManaSymbol symbol = ManaSymbol.tryParseManaSymbol(m.group(1));
+			if (symbol == null)
+				return null;
+			symbols.add(symbol);
+			s = s.replaceFirst(Pattern.quote(m.group()), "");
+		}
+		if (!s.isEmpty())
+			return null;
+		return new ManaCost(symbols);
 	}
 	
 	/**
@@ -62,60 +81,26 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 	private Map<ManaType, Double> weights;
 	
 	/**
-	 * Create a new ManaCost.  The symbols will be sorted according to their natural ordering,
-	 * and the total weights of all symbols will be calculated for ordering costs.
-	 * 
-	 * @param s String to parse to get symbols from.
+	 * Create a new, empty mana cost.
 	 */
-	public ManaCost(String s)
+	public ManaCost()
 	{
-		// Populate this ManaCost's list of Symbols
-		List<ManaSymbol> symbols = new ArrayList<ManaSymbol>();
-		Matcher m = Symbol.SYMBOL_PATTERN.matcher(s);
-		while (m.find())
-		{
-			symbols.add(ManaSymbol.parseManaSymbol(m.group(1)));
-			s = s.replaceFirst(Pattern.quote(m.group()), "");
-		}
-		
-		int index = -1;
-		do
-		{
-			if ((index = s.indexOf('/')) > -1)
-			{
-				String sym = s.substring(index - 1, index + 2);
-				s = s.replaceFirst(Pattern.quote(sym), "");
-				symbols.add(ManaSymbol.parseManaSymbol(sym));
-			}
-		} while (index > -1);
-		do
-		{
-			if ((index = s.indexOf('H')) > -1 || (index = s.indexOf('h')) > -1)
-			{
-				String sym = s.substring(index, index + 2);
-				s = s.replaceFirst(Pattern.quote(sym), "");
-				symbols.add(ManaSymbol.parseManaSymbol(sym));
-			}
-		} while (index > -1);
-		for (char sym: s.toCharArray())
-			symbols.add(ManaSymbol.parseManaSymbol(String.valueOf(sym)));
-		
+		this(new ArrayList<ManaSymbol>());
+	}
+	
+	/**
+	 * Create a new mana cost. The symbols in it will be sorted in order.
+	 * 
+	 * @param symbols not-necessarily-sorted list of symbols in the cost
+	 */
+	public ManaCost(List<ManaSymbol> symbols)
+	{
 		ManaSymbol.sort(symbols);
 		cost = Collections.unmodifiableList(symbols);
-		
-		// Calculate this ManaCost's total color weights.
 		weights = ManaSymbol.createWeights();
 		for (ManaSymbol sym: cost)
 			for (ManaType col: weights.keySet())
 				weights.compute(col, (k, v) -> sym.colorWeights().get(k) + v);
-	}
-	
-	/**
-	 * Create an empty ManaCost containing no Symbols.
-	 */
-	public ManaCost()
-	{
-		this("");
 	}
 	
 	/**
