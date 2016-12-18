@@ -40,16 +40,16 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 	 * @throws IllegalArgumentException If there are invalid characters.
 	 * @see editor.database.symbol.Symbol
 	 */
-	public static ManaCost valueOf(String s)
+	public static ManaCost parseManaCost(String s)
 	{
-		try
-		{
+//		try
+//		{
 			return new ManaCost(s);
-		}
-		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
-		{
-			throw new IllegalArgumentException("Illegal mana cost string \"" + s + "\"");
-		}
+//		}
+//		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
+//		{
+//			throw new IllegalArgumentException("Illegal mana cost string \"" + s + "\"");
+//		}
 	}
 	
 	/**
@@ -74,7 +74,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 		Matcher m = Symbol.SYMBOL_PATTERN.matcher(s);
 		while (m.find())
 		{
-			symbols.add(ManaSymbol.valueOf(m.group(1)));
+			symbols.add(ManaSymbol.parseManaSymbol(m.group(1)));
 			s = s.replaceFirst(Pattern.quote(m.group()), "");
 		}
 		
@@ -85,7 +85,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 			{
 				String sym = s.substring(index - 1, index + 2);
 				s = s.replaceFirst(Pattern.quote(sym), "");
-				symbols.add(ManaSymbol.valueOf(sym));
+				symbols.add(ManaSymbol.parseManaSymbol(sym));
 			}
 		} while (index > -1);
 		do
@@ -94,11 +94,11 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 			{
 				String sym = s.substring(index, index + 2);
 				s = s.replaceFirst(Pattern.quote(sym), "");
-				symbols.add(ManaSymbol.valueOf(sym));
+				symbols.add(ManaSymbol.parseManaSymbol(sym));
 			}
 		} while (index > -1);
 		for (char sym: s.toCharArray())
-			symbols.add(ManaSymbol.valueOf(String.valueOf(sym)));
+			symbols.add(ManaSymbol.parseManaSymbol(String.valueOf(sym)));
 		
 		ManaSymbol.sort(symbols);
 		cost = Collections.unmodifiableList(symbols);

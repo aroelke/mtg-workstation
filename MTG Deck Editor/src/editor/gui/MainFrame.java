@@ -1033,7 +1033,7 @@ public class MainFrame extends JFrame
 		recentCount = SettingsDialog.getAsInt(SettingsDialog.RECENT_COUNT);
 		if (SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).isEmpty())
 			SettingsDialog.set(SettingsDialog.INVENTORY_COLUMNS, "Name,Expansion,Mana Cost,Type");
-		inventoryModel.setColumns(Arrays.stream(SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardData::get).collect(Collectors.toList()));
+		inventoryModel.setColumns(Arrays.stream(SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardData::parseCardData).collect(Collectors.toList()));
 		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
 		if (SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).isEmpty())
 			SettingsDialog.set(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity");
@@ -1478,7 +1478,7 @@ public class MainFrame extends JFrame
 									start = i + 1;
 									break;
 								case '}':
-									Symbol symbol = Symbol.get(ruling.substring(start, i));
+									Symbol symbol = Symbol.tryParseSymbol(ruling.substring(start, i));
 									if (symbol == null)
 									{
 										System.err.println("Unexpected symbol {" + ruling.substring(start, i) + "} in ruling for " + selectedCard.unifiedName() + ".");

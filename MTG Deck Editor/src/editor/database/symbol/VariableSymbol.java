@@ -18,8 +18,23 @@ public class VariableSymbol extends ManaSymbol
 	/**
 	 * Map of variable names onto their corresponding symbols.
 	 */
-	private static final Map<String, VariableSymbol> SYMBOLS = Collections.unmodifiableMap(
+	public static final Map<String, VariableSymbol> SYMBOLS = Collections.unmodifiableMap(
 			Arrays.asList('X', 'Y', 'Z').stream().collect(Collectors.toMap(String::valueOf, VariableSymbol::new)));
+	
+	/**
+	 * Get the VariableSymbol corresponding to the given String.
+	 * 
+	 * @param x the String to look up
+	 * @return the VariableSymbol corresponding to the String
+	 * @throws IllegalArgumentException if the String doesn't correspond to a variable symbol
+	 */
+	public static VariableSymbol parseVariableSymbol(String x)
+	{
+		VariableSymbol symbol = tryParseVariableSymbol(x);
+		if (symbol == null)
+			throw new IllegalArgumentException('"' + x + "\" is not a variable symbol");
+		return symbol;
+	}
 	
 	/**
 	 * Get the VariableSymbol corresponding to the given String.
@@ -28,7 +43,7 @@ public class VariableSymbol extends ManaSymbol
 	 * @return the VariableSymbol corresponding to the String, or null if there
 	 * is no such symbol.
 	 */
-	public static VariableSymbol get(String x)
+	public static VariableSymbol tryParseVariableSymbol(String x)
 	{
 		return SYMBOLS.get(x.toUpperCase());
 	}

@@ -48,27 +48,41 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 	 * Create a ManaSymbol from a String.
 	 * 
 	 * @param s String representation of the new ManaSymbol, not surrounded by {}
-	 * @return a new ManaSymbol that the specified String represents, or null if there
-	 * is no such ManaSymbol.
+	 * @return a new ManaSymbol that the specified String represents
+	 * @throws IllegalArgumentException if the String doesn't correspond to a mana symbol
 	 */
-	public static ManaSymbol get(String s)
+	public static ManaSymbol parseManaSymbol(String s) throws IllegalArgumentException
+	{
+		ManaSymbol symbol = tryParseManaSymbol(s);
+		if (symbol == null)
+			throw new IllegalArgumentException('"' + s + "\" is not a mana symbol");
+		return symbol;
+	}
+	
+	/**
+	 * Create a ManaSymbol from a String.
+	 * 
+	 * @param s String representation of the new ManaSymbol, not surrounded by {}
+	 * @return a new ManaSymbol that the specified String represents, or null if there is none
+	 */
+	public static ManaSymbol tryParseManaSymbol(String s)
 	{
 		ManaSymbol value;
-		if ((value = ColorSymbol.get(s)) != null)
+		if ((value = ColorSymbol.tryParseColorSymbol(s)) != null)
 			return value;
-		else if ((value = GenericSymbol.get(s)) != null)
+		else if ((value = GenericSymbol.tryParseGenericSymbol(s)) != null)
 			return value;
-		else if ((value = HalfColorSymbol.get(s)) != null)
+		else if ((value = HalfColorSymbol.tryParseHalfColorSymbol(s)) != null)
 			return value;
-		else if ((value = HybridSymbol.get(s)) != null)
+		else if ((value = HybridSymbol.tryParseHybridSymbol(s)) != null)
 			return value;
-		else if ((value = PhyrexianSymbol.get(s)) != null)
+		else if ((value = PhyrexianSymbol.tryParsePhyrexianSymbol(s)) != null)
 			return value;
-		else if ((value = TwobridSymbol.get(s)) != null)
+		else if ((value = TwobridSymbol.tryParseTwobridSymbol(s)) != null)
 			return value;
-		else if ((value = VariableSymbol.get(s)) != null)
+		else if ((value = VariableSymbol.tryParseVariableSymbol(s)) != null)
 			return value;
-		else if ((value = StaticSymbol.get(s)) != null)
+		else if ((value = StaticSymbol.tryParseStaticSymbol(s)) != null)
 			return value;
 		else
 			return null;
@@ -83,22 +97,6 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
 	public static void sort(List<ManaSymbol> symbols)
 	{
 		// TODO: Implement this
-	}
-	
-	/**
-	 * Get the ManaSymbol value of the given String.
-	 * 
-	 * @param s String to parse
-	 * @return 5he ManaSymbol that corresponds to the given String
-	 * @throws IllegalArgumentException if the String doesn't represent a Symbol
-	 */
-	public static ManaSymbol valueOf(String s)
-	{
-		ManaSymbol symbol = get(s);
-		if (symbol == null)
-			throw new IllegalArgumentException("Illegal mana symbol string \"" + s + "\"");
-		else
-			return symbol;
 	}
 	
 	/**

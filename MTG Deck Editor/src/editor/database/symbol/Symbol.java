@@ -35,15 +35,30 @@ public abstract class Symbol
 	 * Create a Symbol from a String.
 	 * 
 	 * @param s String representation of the new symbol, not surrounded by {}
+	 * @return a new symbol that the specified String represents
+	 * @throws IllegalArgumentException if the String doesn't correspond to a symbol
+	 */
+	public static Symbol parseSymbol(String s) throws IllegalArgumentException
+	{
+		Symbol symbol = tryParseSymbol(s);
+		if (symbol == null)
+			throw new IllegalArgumentException('"' + s + "\" is not a symbol");
+		return symbol;
+	}
+	
+	/**
+	 * Create a Symbol from a String.
+	 * 
+	 * @param s String representation of the new symbol, not surrounded by {}
 	 * @return a new symbol that the specified String represents, or null if there is
 	 * no such symbol.
 	 */
-	public static Symbol get(String s)
+	public static Symbol tryParseSymbol(String s)
 	{
 		Symbol value;
-		if ((value = ManaSymbol.get(s)) != null)
+		if ((value = ManaSymbol.tryParseManaSymbol(s)) != null)
 			return value;
-		else if ((value = FunctionalSymbol.get(s)) != null)
+		else if ((value = FunctionalSymbol.tryParseFunctionalSymbol(s)) != null)
 			return value;
 		else
 			return null;

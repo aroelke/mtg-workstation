@@ -19,18 +19,23 @@ public class PhyrexianSymbol extends ManaSymbol
 	/**
 	 * Map of colors onto their corresponding Phyrexian symbols.
 	 */
-	private static final Map<ManaType, PhyrexianSymbol> SYMBOLS = Collections.unmodifiableMap(
-			Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), PhyrexianSymbol::new)));
+	public static final Map<ManaType, PhyrexianSymbol> SYMBOLS = Collections.unmodifiableMap(
+			Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), PhyrexianSymbol::new)));	
 	
 	/**
-	 * Get the PhyrexianSymbol corresponding to the given color.
+	 * Get the Phyrexian symbol corresponding to the given String, which should be
+	 * a color character followed by either /p or /P.
 	 * 
-	 * @param col color corresponding to the symbol to get
-	 * @return the PhyrexianSymbol corresponding to the given color, or null if no such symbol exists.
+	 * @param col String to parse
+	 * @return the corresponding Phyrexian symbol
+	 * @throws IllegalArgumentException if the String doesn't correspond to a Phyrexian symbol
 	 */
-	public static PhyrexianSymbol get(ManaType col)
+	public static PhyrexianSymbol parsePhyrexianSymbol(String col) throws IllegalArgumentException
 	{
-		return SYMBOLS.get(col);
+		PhyrexianSymbol symbol = tryParsePhyrexianSymbol(col);
+		if (symbol == null)
+			throw new IllegalArgumentException('"' + col + "\" is not a Phyrexian symbol");
+		return symbol;
 	}
 	
 	/**
@@ -38,21 +43,13 @@ public class PhyrexianSymbol extends ManaSymbol
 	 * a color character followed by either /p or /P.
 	 * 
 	 * @param col String to parse
-	 * @return the corresponding Phyrexian symbol.
+	 * @return the corresponding Phyrexian symbol, or null if there is none
 	 */
-	public static PhyrexianSymbol get(String col)
+	public static PhyrexianSymbol tryParsePhyrexianSymbol(String col)
 	{
-		try
-		{
-			if (col.length() == 3 && col.charAt(1) == '/' && Character.toUpperCase(col.charAt(2)) == 'P')
-				return get(ManaType.get(col.charAt(0)));
-			else
-				return null;
-		}
-		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
-		{
-			return null;
-		}
+		if (col.length() == 3 && col.charAt(1) == '/' && Character.toUpperCase(col.charAt(2)) == 'P')
+			return SYMBOLS.get(ManaType.tryParseManaType(col.charAt(0)));
+		return null;
 	}
 	
 	/**

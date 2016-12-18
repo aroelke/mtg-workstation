@@ -18,18 +18,22 @@ public class HalfColorSymbol extends ManaSymbol
 	/**
 	 * Map of color onto its corresponding half-symbol.
 	 */
-	private static final Map<ManaType, HalfColorSymbol> SYMBOLS = Collections.unmodifiableMap(
+	public static final Map<ManaType, HalfColorSymbol> SYMBOLS = Collections.unmodifiableMap(
 			Arrays.stream(ManaType.values()).collect(Collectors.toMap(Function.identity(), HalfColorSymbol::new)));
 	
 	/**
-	 * Get the HalfColorSymbol corresponding to the given color.
+	 * Get the HalfColorSymbol corresponding to the given String.
 	 * 
-	 * @param col color to get the symbol for
-	 * @return the HalfColorSymbol corresponding to the given color, or null if no such symbol exists.
+	 * @param col String to get the symbol for
+	 * @return the HalfColorSymbol corresponding to the given color string
+	 * @throws IllegalArgumentException if the string does not describe a half color symbol
 	 */
-	public static HalfColorSymbol get(ManaType col)
+	public static HalfColorSymbol parseHalfColorSymbol(String col) throws IllegalArgumentException
 	{
-		return SYMBOLS.get(col);
+		HalfColorSymbol symbol = tryParseHalfColorSymbol(String.valueOf(col.charAt(1)));
+		if (symbol != null)
+			return symbol;
+		throw new IllegalArgumentException('"' + col + "\" is not a half color symbol"); 
 	}
 	
 	/**
@@ -37,21 +41,13 @@ public class HalfColorSymbol extends ManaSymbol
 	 * 
 	 * @param col String to get the symbol for
 	 * @return the HalfColorSymbol corresponding to the given color string, or null if no such
-	 * symbol exists.
+	 * symbol exists
 	 */
-	public static HalfColorSymbol get(String col)
+	public static HalfColorSymbol tryParseHalfColorSymbol(String col)
 	{
-		try
-		{
-			if (col.length() == 2 && Character.toUpperCase(col.charAt(0)) == 'H')
-				return get(ManaType.get(col.charAt(1)));
-			else
-				return null;
-		}
-		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
-		{
-			return null;
-		}
+		if (col.length() == 2 && Character.toUpperCase(col.charAt(0)) == 'H')
+			return SYMBOLS.get(ManaType.tryParseManaType(col.charAt(1)));
+		return null;
 	}
 	
 	/**

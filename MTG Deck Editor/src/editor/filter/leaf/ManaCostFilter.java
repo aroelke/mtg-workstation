@@ -82,7 +82,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 		String content = checkContents(s, FilterFactory.MANA_COST);
 		int delim = content.indexOf('"');
 		contain = Containment.fromString(content.substring(0, delim));
-		cost = ManaCost.valueOf(content.substring(delim + 1, content.lastIndexOf('"')));
+		cost = ManaCost.parseManaCost(content.substring(delim + 1, content.lastIndexOf('"')));
 	}
 	
 	@Override
@@ -90,7 +90,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	{
 		super.readExternal(in);
 		contain = (Containment)in.readObject();
-		cost = ManaCost.valueOf(in.readUTF());
+		cost = ManaCost.parseManaCost(in.readUTF());
 	}
 	
 	/**

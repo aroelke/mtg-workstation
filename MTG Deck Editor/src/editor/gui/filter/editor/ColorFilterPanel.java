@@ -62,7 +62,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 			JCheckBox box = new JCheckBox();
 			colors.put(color, box);
 			add(box);
-			JLabel symbol = new JLabel(ColorSymbol.get(color).getIcon(13));
+			JLabel symbol = new JLabel(ColorSymbol.SYMBOLS.get(color).getIcon(13));
 			add(symbol);
 		}
 		

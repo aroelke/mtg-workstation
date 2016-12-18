@@ -42,7 +42,7 @@ public enum Rarity implements CharSequence
 	 * @return a Rarity representing the specified shorthand character
 	 * @throws IllegalArgumentException if a Rarity cannot be created from the specified character
 	 */
-	public static Rarity get(char rarity)
+	public static Rarity parseRarity(char rarity)
 	{
 		rarity = Character.toLowerCase(rarity);
 		switch (rarity)
@@ -71,7 +71,7 @@ public enum Rarity implements CharSequence
 	 * @return a Rarity representing the specified String
 	 * @throws IllegalArgumentException if a Rarity cannot be created from the String
 	 */
-	public static Rarity get(String rarity)
+	public static Rarity parseRarity(String rarity)
 	{
 		for (Rarity r: Rarity.values())
 			if (rarity.equalsIgnoreCase(r.rarity) || rarity.equalsIgnoreCase(String.valueOf(r.shorthand())))

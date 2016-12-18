@@ -32,7 +32,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 		int delim = content.indexOf('{');
 		contain = Containment.fromString(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
-			selected = Arrays.stream(content.substring(delim + 1, content.length() - 1).split(",")).map(Rarity::get).collect(Collectors.toSet());
+			selected = Arrays.stream(content.substring(delim + 1, content.length() - 1).split(",")).map(Rarity::parseRarity).collect(Collectors.toSet());
 	}
 
 	@Override
@@ -47,6 +47,6 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 	@Override
 	public Rarity convertFromString(String str)
 	{
-		return Rarity.get(str);
+		return Rarity.parseRarity(str);
 	}
 }

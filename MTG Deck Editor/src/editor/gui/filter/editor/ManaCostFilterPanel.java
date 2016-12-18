@@ -49,7 +49,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 			{
 				try
 				{
-					cost.setBackground(ManaCost.valueOf(cost.getText()).isEmpty() ? Color.PINK : Color.WHITE);
+					cost.setBackground(ManaCost.parseManaCost(cost.getText()).isEmpty() ? Color.PINK : Color.WHITE);
 				}
 				catch (IllegalArgumentException x)
 				{
@@ -95,7 +95,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 	{
 		ManaCostFilter filter = new ManaCostFilter();
 		filter.contain = contain.getSelectedItem();
-		filter.cost = ManaCost.valueOf(cost.getText());
+		filter.cost = ManaCost.parseManaCost(cost.getText());
 		if (filter.cost == null)
 			filter.cost = new ManaCost();
 		return filter;

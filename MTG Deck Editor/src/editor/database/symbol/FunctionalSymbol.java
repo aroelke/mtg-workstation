@@ -27,7 +27,7 @@ public class FunctionalSymbol extends Symbol
 	/**
 	 * Map of symbol texts onto their respective symbols.
 	 */
-	private static final Map<String, FunctionalSymbol> SYMBOLS;
+	public static final Map<String, FunctionalSymbol> SYMBOLS;
 	static
 	{
 		Map<String, FunctionalSymbol> symbols = new HashMap<String, FunctionalSymbol>();
@@ -47,18 +47,33 @@ public class FunctionalSymbol extends Symbol
 	}
 	
 	/**
-	 * Get the StaticSymbol corresponding to the given String.
+	 * Get the FunctionalSymbol corresponding to the given String.
 	 * 
 	 * @param s String to look up
-	 * @return the StaticSymbol corresponding to the given String, or null if there is none.
+	 * @return the FunctionalSymbol corresponding to the given String
+	 * @throws IllegalArgumentException if the String doesn't correspond to a functional symbol
 	 */
-	public static FunctionalSymbol get(String s)
+	public static FunctionalSymbol parseFunctionalSymbol(String s) throws IllegalArgumentException
+	{
+		FunctionalSymbol symbol = tryParseFunctionalSymbol(s);
+		if (symbol == null)
+			throw new IllegalArgumentException('"' + s + "\" is not a functional symbol");
+		return symbol;
+	}
+	
+	/**
+	 * Get the FunctionalSymbol corresponding to the given String.
+	 * 
+	 * @param s String to look up
+	 * @return the FunctionalSymbol corresponding to the given String, or null if there is none
+	 */
+	public static FunctionalSymbol tryParseFunctionalSymbol(String s)
 	{
 		return SYMBOLS.get(s.toUpperCase());
 	}
 	
 	/**
-	 * Create a new StaticSymbol.
+	 * Create a new FunctionalSymbol.
 	 * 
 	 * @param iconName name of the new symbol's icon
 	 * @param text text representation of the new symbol

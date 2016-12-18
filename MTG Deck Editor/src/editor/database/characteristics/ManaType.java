@@ -169,15 +169,16 @@ public enum ManaType
 	 * Get a ManaType from a character.  Acceptable characters are 'w,' 'u,' 'b,'
 	 * 'r,' 'g,' or 'c,' case insensitive.
 	 * 
-	 * @param color Character to get a color from.
-	 * @return ManaType that corresponds to the character.
+	 * @param color Character to get a color from
+	 * @return ManaType that corresponds to the character
+	 * @throws IllegalArgumentException if the character does not correspond to a mana type
 	 */
-	public static ManaType get(char color)
+	public static ManaType parseManaType(char color) throws IllegalArgumentException
 	{
-		for (ManaType c: ManaType.values())
-			if (Character.toLowerCase(c.shorthand) == Character.toLowerCase(color))
-				return c;
-		throw new IllegalArgumentException("Illegal color shorthand '" + color + "'");
+		ManaType type = tryParseManaType(color);
+		if (type == null)
+			throw new IllegalArgumentException("Illegal color shorthand '" + color + "'");
+		return type;
 	}
 	
 	/**
@@ -185,15 +186,47 @@ public enum ManaType
 	 * "u," "black," "b," "red," "r," "green," "g," "colorless," or "c," case
 	 * insensitive.
 	 * 
-	 * @param color string to create an ManaType from.
-	 * @return the ManaType that corresponds to the String.
+	 * @param color string to create an ManaType from
+	 * @return the ManaType that corresponds to the String
+	 * @throws IllegalArgumentException if the String does not correspond to a mana type
 	 */
-	public static ManaType get(String color)
+	public static ManaType parseManaType(String color) throws IllegalArgumentException
+	{
+		ManaType type = tryParseManaType(color);
+		if (type == null)
+			throw new IllegalArgumentException("Illegal color string \"" + color + "\"");
+		return type;
+	}
+	
+	/**
+	 * Get a ManaType from a character.  Acceptable characters are 'w,' 'u,' 'b,'
+	 * 'r,' 'g,' or 'c,' case insensitive.
+	 * 
+	 * @param color Character to get a color from
+	 * @return ManaType that corresponds to the character, or null if there is none
+	 */
+	public static ManaType tryParseManaType(char color)
+	{
+		for (ManaType c: ManaType.values())
+			if (Character.toLowerCase(c.shorthand) == Character.toLowerCase(color))
+				return c;
+		return null;
+	}
+	
+	/**
+	 * Get a ManaType from a String.  Acceptable values are "white," "w," "blue,"
+	 * "u," "black," "b," "red," "r," "green," "g," "colorless," or "c," case
+	 * insensitive.
+	 * 
+	 * @param color string to create an ManaType from
+	 * @return the ManaType that corresponds to the String, or null if there is none
+	 */
+	public static ManaType tryParseManaType(String color)
 	{
 		for (ManaType c: ManaType.values())
 			if (c.name.equalsIgnoreCase(color) || color.equalsIgnoreCase(String.valueOf(c.shorthand)))
 				return c;
-		throw new IllegalArgumentException("Illegal color string \"" + color + "\"");
+		return null;
 	}
 	
 	/**

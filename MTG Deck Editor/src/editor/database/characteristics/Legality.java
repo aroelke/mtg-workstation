@@ -30,7 +30,7 @@ public enum Legality
 	 * @return the Legality corresponding to the contents of the specified String.
 	 * @throws IllegalArgumentException if there is no corresponding Legality
 	 */
-	public static Legality get(String s)
+	public static Legality parseLegality(String s)
 	{
 		for (Legality l: Legality.values())
 			if (s.equalsIgnoreCase(l.toString()))

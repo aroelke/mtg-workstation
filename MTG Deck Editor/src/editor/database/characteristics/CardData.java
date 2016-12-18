@@ -91,7 +91,7 @@ public enum CardData
 	 * @return the CardData that corresponds to the given String.
 	 * @throws IllegalArgumentException if no such CardData exists
 	 */
-	public static CardData get(String s) throws IllegalArgumentException
+	public static CardData parseCardData(String s) throws IllegalArgumentException
 	{
 		for (CardData c: CardData.values())
 			if (c.toString().equalsIgnoreCase(s))

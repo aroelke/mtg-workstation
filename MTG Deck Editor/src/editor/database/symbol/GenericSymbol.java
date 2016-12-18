@@ -20,23 +20,24 @@ public class GenericSymbol extends ManaSymbol
 	/**
 	 * Array of consecutive GenericSymbols.
 	 */
-	private static final GenericSymbol[] N = IntStream.range(0, HIGHEST_CONSECUTIVE + 1).mapToObj(GenericSymbol::new).toArray(GenericSymbol[]::new);
+	public static final GenericSymbol[] N = IntStream.range(0, HIGHEST_CONSECUTIVE + 1).mapToObj(GenericSymbol::new).toArray(GenericSymbol[]::new);
 	/**
 	 * GenericSymbol representing 100 mana.
 	 */
-	private static final GenericSymbol HUNDRED = new GenericSymbol(100);
+	public static final GenericSymbol HUNDRED = new GenericSymbol(100);
 	/**
 	 * GenericSymbol representing 1,000,000 mana.
 	 */
-	private static final GenericSymbol MILLION = new GenericSymbol(1000000);
+	public static final GenericSymbol MILLION = new GenericSymbol(1000000);
 	
 	/**
 	 * Get the symbol corresponding to a number.
 	 * 
 	 * @param n number to get the symbol of
-	 * @return the GenericSymbol corresponding to the given number, or null if none exists.
+	 * @return the GenericSymbol corresponding to the given number
+	 * @throws ArrayIndexOutOfBoundsException if there is no symbol with the corresponding number
 	 */
-	public static GenericSymbol get(int n)
+	public static GenericSymbol get(int n) throws ArrayIndexOutOfBoundsException
 	{
 		if (n <= HIGHEST_CONSECUTIVE)
 			return N[n];
@@ -45,22 +46,35 @@ public class GenericSymbol extends ManaSymbol
 		else if (n == 1000000)
 			return MILLION;
 		else
-			return null;
+			throw new ArrayIndexOutOfBoundsException();
 	}
 	
 	/**
 	 * Get the symbol corresponding to a String.
 	 * 
 	 * @param n String to get the symbol of
-	 * @return the GenericSymbol corresponding to the given String, or null if none exists.
+	 * @return the GenericSymbol corresponding to the given String
+	 * @throws NumberFormatException if the string doesn't parse to an integer
+	 * @throws ArrayIndexOutOfBoundsException if the parsed string doens't correspond to a generic symbol
 	 */
-	public static GenericSymbol get(String n)
+	public static GenericSymbol parseGenericSymbol(String n) throws NumberFormatException, ArrayIndexOutOfBoundsException
+	{
+		return get(Integer.parseInt(n));
+	}
+	
+	/**
+	 * Get the symbol corresponding to a String.
+	 * 
+	 * @param n String to get the symbol of
+	 * @return the GenericSymbol corresponding to the given String, or null if none exists
+	 */
+	public static GenericSymbol tryParseGenericSymbol(String n)
 	{
 		try
 		{
 			return get(Integer.parseInt(n));
 		}
-		catch (NumberFormatException e)
+		catch (NumberFormatException | ArrayIndexOutOfBoundsException e)
 		{
 			return null;
 		}

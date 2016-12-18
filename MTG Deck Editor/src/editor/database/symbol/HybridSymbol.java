@@ -1,9 +1,10 @@
 package editor.database.symbol;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import editor.database.characteristics.ManaType;
@@ -19,32 +20,23 @@ public class HybridSymbol extends ManaSymbol
 	/**
 	 * Map mapping each pair of colors to their corresponding hybrid symbols.
 	 */
-	private static final Map<ManaType.Tuple, HybridSymbol> SYMBOLS = new HashMap<ManaType.Tuple, HybridSymbol>();
-	static
-	{
-		for (int i = 0; i < ManaType.colors().length; i++)
-		{
-			for (int j = i; j < ManaType.colors().length; j++)
-			{
-				if (i != j)
-				{
-					ManaType.Tuple tuple = new ManaType.Tuple(ManaType.colors()[i], ManaType.colors()[j]);
-					SYMBOLS.put(tuple, new HybridSymbol(tuple));
-				}
-			}
-		}
-	}
-	
+	public static final Map<ManaType, Map<ManaType, HybridSymbol>> SYMBOLS = Collections.unmodifiableMap(
+			Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), (m) -> Arrays.stream(
+					ManaType.colors()).collect(Collectors.toMap(Function.identity(), (n) -> new HybridSymbol(m, n))))));
 	/**
-	 * Get the HybridSymbol corresponding to the given colors.
+	 * Get the HybridSymbol corresponding to the String, which is two color characters
+	 * separated by a "/".
 	 * 
-	 * @param color1 first color
-	 * @param color2 second color
-	 * @return The HybridSymbol corresponding to the given colors, or null if no such symbol exists.
+	 * @param pair the String to look up
+	 * @return the HybridSymbol corresponding to the given String
+	 * @throws IllegalArgumentException if the String does not describe a hybrid symbol
 	 */
-	public static HybridSymbol get(ManaType color1, ManaType color2)
+	public static HybridSymbol parseHybridSymbol(String pair) throws IllegalArgumentException
 	{
-		return SYMBOLS.get(new ManaType.Tuple(color1, color2));
+		HybridSymbol symbol = tryParseHybridSymbol(pair);
+		if (symbol != null)
+			return symbol;
+		throw new IllegalArgumentException('"' + pair + "\" is not a hybrid symbol");
 	}
 	
 	/**
@@ -52,40 +44,38 @@ public class HybridSymbol extends ManaSymbol
 	 * separated by a "/".
 	 * 
 	 * @param pair the String to look up
-	 * @return the HybridSymbol corresponding to the given String, or null if no
-	 * such symbol exists.
+	 * @return the HybridSymbol corresponding to the given String, or null if there is none
 	 */
-	public static HybridSymbol get(String pair)
+	public static HybridSymbol tryParseHybridSymbol(String pair)
 	{
-		try
-		{
-			List<ManaType> colors = Arrays.stream(pair.split("/")).map(ManaType::get).collect(Collectors.toList());
-			if (colors.size() != 2)
-				return null;
-			else
-				return SYMBOLS.get(new ManaType.Tuple(colors));
-		}
-		catch (IllegalArgumentException e)
-		{
-			return null;
-		}
+		List<ManaType> colors = Arrays.stream(pair.split("/")).map(ManaType::tryParseManaType).collect(Collectors.toList());
+		if (colors.size() == 2 && SYMBOLS.get(colors.get(0)) != null)
+			return SYMBOLS.get(colors.get(0)).get(colors.get(1));
+		return null;
 	}
 	
 	/**
-	 * This HybridSymbol's pair of colors.
+	 * First color of the hybrid symbol.
 	 */
-	private final ManaType.Tuple colors;
+	private final ManaType color1;
+	/**
+	 * Second color of the hybrid symbol.
+	 */
+	private final ManaType color2;
 	
 	/**
-	 * Create a new HybridSymbol
+	 * Create a new hybrid symbol out of the two given colors.
 	 * 
-	 * @param colors Tuple containing the colors of the new HybridSymbol
+	 * @param col1 first color of the new hybrid symbol
+	 * @param col2 second color of the new hybrid symbol
 	 */
-	private HybridSymbol(ManaType.Tuple colors)
+	private HybridSymbol(ManaType col1, ManaType col2)
 	{
-		super(colors.get(0).toString().toLowerCase() + "_" + colors.get(1).toString().toLowerCase() + "_mana.png",
-				colors.get(0).shorthand() + "/" + colors.get(1).shorthand(), 1);
-		this.colors = colors;
+		super((col1.colorOrder(col2) > 0 ? col2 : col1).toString().toLowerCase() + '_' + (col1.colorOrder(col2) > 0 ? col1 : col2).toString().toLowerCase() + "_mana.png",
+				(col1.colorOrder(col2) > 0 ? col2 : col1).shorthand() + "/" + (col1.colorOrder(col2) > 0 ? col1 : col2).shorthand(),
+				1);
+		color1 = col1;
+		color2 = col2;
 	}
 
 	/**
@@ -95,15 +85,18 @@ public class HybridSymbol extends ManaSymbol
 	@Override
 	public Map<ManaType, Double> colorWeights()
 	{
-		return createWeights(new ColorWeight(colors.get(0), 0.5),
-							 new ColorWeight(colors.get(1), 0.5));
+		return createWeights(new ColorWeight(color1, 0.5),
+							 new ColorWeight(color2, 0.5));
 	}
 
 	@Override
 	public int compareTo(ManaSymbol o)
 	{
 		if (o instanceof HybridSymbol)
-			return colors.compareTo(((HybridSymbol)o).colors);
+		{
+			HybridSymbol other = (HybridSymbol)o;
+			return color1.compareTo(other.color1)*10 + color2.compareTo(other.color2);
+		}
 		else
 			return super.compareTo(o);
 	}

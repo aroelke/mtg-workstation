@@ -20,18 +20,22 @@ public class TwobridSymbol extends ManaSymbol
 	/**
 	 * Map of colors onto their corresponding twobrid symbols.
 	 */
-	private static final Map<ManaType, TwobridSymbol> SYMBOLS = Collections.unmodifiableMap(
+	public static final Map<ManaType, TwobridSymbol> SYMBOLS = Collections.unmodifiableMap(
 			Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), TwobridSymbol::new)));
 	
 	/**
-	 * Get the TwobridSymbol corresponding to the given color.
+	 * Get the TwobridSymbol corresponding to the given String.
 	 * 
-	 * @param col color to look up
-	 * @return the TwobridSymbol corresponding to the given ManaType, or null if no such symbol exists.
+	 * @param col Color to look up
+	 * @return The TwobridSymbol corresponding to the given String
+	 * @throws IllegalArgumentException if the String doesn't correspond to a symbol
 	 */
-	public static TwobridSymbol get(ManaType col)
+	public static TwobridSymbol parseTwobridSymbol(String col) throws IllegalArgumentException
 	{
-		return SYMBOLS.get(col);
+		TwobridSymbol symbol = tryParseTwobridSymbol(col);
+		if (symbol == null)
+			throw new IllegalArgumentException('"' + col + "\" is not a twobrid symbol");
+		return symbol;
 	}
 	
 	/**
@@ -41,20 +45,13 @@ public class TwobridSymbol extends ManaSymbol
 	 * @return The TwobridSymbol corresponding to the given String, or
 	 * null if no such symbol exists.
 	 */
-	public static TwobridSymbol get(String col)
+	public static TwobridSymbol tryParseTwobridSymbol(String col)
 	{
-		try
-		{
-			int index = col.indexOf('/');
-			if (index > 0 && col.charAt(index - 1) == '2')
-				return get(ManaType.get(col.charAt(index + 1)));
-			else
-				return null;
-		}
-		catch (IllegalArgumentException | StringIndexOutOfBoundsException e)
-		{
+		int index = col.indexOf('/');
+		if (index > 0 && col.charAt(index - 1) == '2')
+			return SYMBOLS.get(ManaType.tryParseManaType(col.charAt(index + 1)));
+		else
 			return null;
-		}
 	}
 	
 	/**

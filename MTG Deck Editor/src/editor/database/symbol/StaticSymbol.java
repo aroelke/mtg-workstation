@@ -17,7 +17,7 @@ public class StaticSymbol extends ManaSymbol
 	/**
 	 * Map of symbol texts onto their respective symbols.
 	 */
-	private static final Map<String, StaticSymbol> SYMBOLS = new HashMap<String, StaticSymbol>();
+	public static final Map<String, StaticSymbol> SYMBOLS = new HashMap<String, StaticSymbol>();
 	static
 	{
 		// Half-mana symbol.  Represents one half of a generic mana.
@@ -33,9 +33,24 @@ public class StaticSymbol extends ManaSymbol
 	 * Get the StaticSymbol corresponding to the given String.
 	 * 
 	 * @param s String to look up
+	 * @return the StaticSymbol corresponding to the given String
+	 * @throws IllegalArgumentException if the String doesn't correspond to a static symbol
+	 */
+	public static StaticSymbol parseStaticSymbol(String s) throws IllegalArgumentException
+	{
+		StaticSymbol symbol = tryParseStaticSymbol(s);
+		if (symbol == null)
+			throw new IllegalArgumentException('"' + s + "\" is not a static symbol");
+		return symbol;
+	}
+	
+	/**
+	 * Get the StaticSymbol corresponding to the given String.
+	 * 
+	 * @param s String to look up
 	 * @return the StaticSymbol corresponding to the given String, or null if there is none.
 	 */
-	public static StaticSymbol get(String s)
+	public static StaticSymbol tryParseStaticSymbol(String s)
 	{
 		return SYMBOLS.get(s.toUpperCase());
 	}

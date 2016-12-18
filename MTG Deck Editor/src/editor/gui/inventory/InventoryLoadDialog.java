@@ -202,7 +202,7 @@ public class InventoryLoadDialog extends JDialog
 						{
 							JsonArray colorsArray = card.get("colors").getAsJsonArray();
 							for (JsonElement colorElement: colorsArray)
-								colors.add(ManaType.get(colorElement.getAsString()));
+								colors.add(ManaType.parseManaType(colorElement.getAsString()));
 						}
 
 						// Card's color identity
@@ -212,7 +212,7 @@ public class InventoryLoadDialog extends JDialog
 							{
 								JsonArray identityArray = card.get("colorIdentity").getAsJsonArray();
 								for (JsonElement identityElement: identityArray)
-									colorIdentity.add(ManaType.get(identityElement.getAsString()));
+									colorIdentity.add(ManaType.parseManaType(identityElement.getAsString()));
 							}
 						}
 
@@ -248,7 +248,7 @@ public class InventoryLoadDialog extends JDialog
 						}
 
 						// Card's rarity
-						Rarity rarity = Rarity.get(card.get("rarity").getAsString());
+						Rarity rarity = Rarity.parseRarity(card.get("rarity").getAsString());
 
 						// Card's rules text
 						String text = card.has("text") ? card.get("text").getAsString() : "";
@@ -293,7 +293,7 @@ public class InventoryLoadDialog extends JDialog
 							{
 								JsonObject o = l.getAsJsonObject();
 								formatSet.add(o.get("format").getAsString());
-								legality.put(o.get("format").getAsString(), Legality.get(o.get("legality").getAsString()));
+								legality.put(o.get("format").getAsString(), Legality.parseLegality(o.get("legality").getAsString()));
 							}
 						}
 

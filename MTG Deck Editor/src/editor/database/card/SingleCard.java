@@ -158,7 +158,7 @@ public class SingleCard extends Card
 		super(set, layout, 1);
 
 		this.name = name;
-		this.mana = ManaCost.valueOf(mana);
+		this.mana = ManaCost.parseManaCost(mana);
 		this.colors = new ManaType.Tuple(colors);
 		this.supertypes = Collections.unmodifiableSet(supertype);
 		this.types = Collections.unmodifiableSet(type);
@@ -190,7 +190,7 @@ public class SingleCard extends Card
 			colorIdentity.addAll(this.mana.colors());
 			Matcher m = ManaCost.MANA_COST_PATTERN.matcher(text.replaceAll("\\(.*\\)", ""));
 			while (m.find())
-				for (ManaType col: ManaCost.valueOf(m.group()).colors())
+				for (ManaType col: ManaCost.parseManaCost(m.group()).colors())
 					if (col != ManaType.COLORLESS)
 						colorIdentity.add(col);
 			for (String sub: subtype)

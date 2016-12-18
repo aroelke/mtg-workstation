@@ -415,7 +415,7 @@ public abstract class Card
 						start = i + 1;
 						break;
 					case '}':
-						Symbol symbol = Symbol.get(oracle.substring(start, i));
+						Symbol symbol = Symbol.tryParseSymbol(oracle.substring(start, i));
 						if (symbol == null)
 						{
 							System.err.println("Unexpected symbol {" + oracle.substring(start, i) + "} in oracle text for " + unifiedName() + ".");
@@ -468,7 +468,7 @@ public abstract class Card
 						start = i + 1;
 						break;
 					case '}':
-						Symbol symbol = Symbol.get(flavor.substring(start, i));
+						Symbol symbol = Symbol.tryParseSymbol(flavor.substring(start, i));
 						if (symbol == null)
 						{
 							System.err.println("Unexpected symbol {" + flavor.substring(start, i) + "} in flavor text for " + unifiedName() + ".");

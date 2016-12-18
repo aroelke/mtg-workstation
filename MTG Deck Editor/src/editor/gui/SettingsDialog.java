@@ -245,7 +245,7 @@ public class SettingsDialog extends JDialog
 	{
 		try
 		{
-			return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardData::get).collect(Collectors.toList());
+			return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardData::parseCardData).collect(Collectors.toList());
 		}
 		catch (IllegalArgumentException e)
 		{

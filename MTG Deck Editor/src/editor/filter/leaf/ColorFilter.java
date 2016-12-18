@@ -114,7 +114,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 			if (Character.toUpperCase(c) == 'M')
 				multicolored = true;
 			else
-				colors.add(ManaType.get(c));
+				colors.add(ManaType.parseManaType(c));
 		}
 	}
 	

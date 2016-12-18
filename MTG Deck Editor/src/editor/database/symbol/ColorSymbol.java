@@ -18,36 +18,33 @@ public class ColorSymbol extends ManaSymbol
 	/**
 	 * Map of mana type onto its corresponding ColorSymbol.
 	 */
-	private static final Map<ManaType, ColorSymbol> SYMBOLS = Collections.unmodifiableMap(
+	public static final Map<ManaType, ColorSymbol> SYMBOLS = Collections.unmodifiableMap(
 			Arrays.stream(ManaType.values()).collect(Collectors.toMap(Function.identity(), ColorSymbol::new)));
 	
 	/**
-	 * Get the symbol corresponding to a type of mana.
+	 * Get the symbol corresponding to a color string.
 	 * 
-	 * @param col type of mana to find the symbol for
-	 * @return the ColorSymbol corresponding to the given mana type , or null if none exists. 
+	 * @param col String to find the symbol for
+	 * @return the ColorSymbol corresponding to the given String
+	 * @throws IllegalArgumentException if the string doesn't correspond to a color symbol
 	 */
-	public static ColorSymbol get(ManaType col)
+	public static ColorSymbol parseColorSymbol(String col) throws IllegalArgumentException
 	{
-		return SYMBOLS.get(col);
+		ColorSymbol symbol = tryParseColorSymbol(col);
+		if (symbol == null)
+			throw new IllegalArgumentException('"' + col + "\" is not a color symbol");
+		return symbol;
 	}
 	
 	/**
 	 * Get the symbol corresponding to a color string.
 	 * 
 	 * @param col String to find the symbol for
-	 * @return the ColorSymbol corresponding to the given String, or null if none exists.
+	 * @return the ColorSymbol corresponding to the given String, or null if none exists
 	 */
-	public static ColorSymbol get(String col)
+	public static ColorSymbol tryParseColorSymbol(String col)
 	{
-		try
-		{
-			return get(ManaType.get(col));
-		}
-		catch (IllegalArgumentException e)
-		{
-			return null;
-		}
+		return SYMBOLS.get(ManaType.tryParseManaType(col));
 	}
 	
 	/**
