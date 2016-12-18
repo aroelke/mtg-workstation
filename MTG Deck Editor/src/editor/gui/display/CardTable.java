@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +23,7 @@ import javax.swing.table.TableRowSorter;
 import editor.database.characteristics.CardData;
 import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.ManaCost;
+import editor.database.characteristics.ManaType;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.InclusionCellEditor;
 import editor.gui.generic.SpinnerCellEditor;
@@ -39,7 +41,7 @@ public class CardTable extends JTable
 	/**
 	 * Set of CardData that should not use toString to convert non-comparable data.
 	 */
-	private static final Set<CardData> NO_STRING = Stream.of(CardData.CMC, CardData.POWER, CardData.TOUGHNESS, CardData.LOYALTY, CardData.CATEGORIES).collect(Collectors.toSet());
+	private static final Set<CardData> NO_STRING = Stream.of(CardData.CMC, CardData.COLORS, CardData.COLOR_IDENTITY, CardData.POWER, CardData.TOUGHNESS, CardData.LOYALTY, CardData.CATEGORIES).collect(Collectors.toSet());
 	
 	/**
 	 * This class represents a sorter that sorts a table column whose empty cells are invalid values.
@@ -84,6 +86,16 @@ public class CardTable extends JTable
 					return (a, b) -> CollectionUtils.convertToList(a, ManaCost.class).get(0).compareTo(CollectionUtils.convertToList(b, ManaCost.class).get(0));
 				case CMC:
 					return (a, b) -> Double.compare(Collections.min(CollectionUtils.convertToList(a, Double.class)), Collections.min(CollectionUtils.convertToList(b, Double.class)));
+				case COLORS: case COLOR_IDENTITY:
+					return (a, b) -> {
+						List<ManaType> first = CollectionUtils.convertToList(a, ManaType.class);
+						List<ManaType> second = CollectionUtils.convertToList(b, ManaType.class);
+						int diff = first.size() - second.size();
+						if (diff == 0)
+							for (int i = 0; i < first.size(); i++)
+								diff += first.get(i).compareTo(second.get(i))*Math.pow(10, first.size() - i);
+						return diff;
+					};
 				case POWER: case TOUGHNESS:
 					return (a, b) -> {
 						CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
@@ -126,7 +138,7 @@ public class CardTable extends JTable
 		protected boolean useToString(int column)
 		{
 			if (model instanceof CardTableModel &&
-					!NO_STRING.contains(((CardTableModel)model).getColumnData(column)))
+					NO_STRING.contains(((CardTableModel)model).getColumnData(column)))
 				return false;
 			else
 				return super.useToString(column);

@@ -84,8 +84,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
 				break;
 			case COLORS: case COLOR_IDENTITY:
 				panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-				ManaType.Tuple colors = (ManaType.Tuple)value;
-				for (ManaType color: colors)
+				for (ManaType color: CollectionUtils.convertToList(value, ManaType.class))
 					panel.add(new JLabel(ColorSymbol.SYMBOLS.get(color).getIcon(13)));
 				break;
 			case POWER: case TOUGHNESS:

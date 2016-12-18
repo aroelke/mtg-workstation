@@ -124,14 +124,14 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 	 * 
 	 * @return List of ManaTypes representing all the colors in this ManaCost.
 	 */
-	public ManaType.Tuple colors()
+	public List<ManaType> colors()
 	{
 		List<ManaType> colors = new ArrayList<ManaType>();
 		for (ManaSymbol sym: cost)
 			for (Map.Entry<ManaType, Double> weight: sym.colorWeights().entrySet())
 				if (weight.getKey() != ManaType.COLORLESS && weight.getValue() > 0)
 					colors.add(weight.getKey());
-		return new ManaType.Tuple(colors);
+		return colors;
 	}
 	
 	/**

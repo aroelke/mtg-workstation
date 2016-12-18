@@ -1,13 +1,12 @@
 package editor.database.characteristics;
 
 import java.awt.Color;
-import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This enum represents one of the five colors of Magic: The Gathering.
@@ -40,119 +39,7 @@ public enum ManaType
 	 * Colorless mana.  While this is not a color, it is a type.
 	 */
 	COLORLESS("Colorless", 'C', null);
-	
-	/**
-	 * This class represents a sorted list of unique colors in the correct order around
-	 * the color pie.
-	 * 
-	 * @author Alec Roelke
-	 */
-	public static class Tuple extends AbstractList<ManaType> implements Comparable<Tuple>
-	{
-		/**
-		 * Helper method for cleaning and sorting a collection of colors before calling the
-		 * super constructor on it.
-		 * 
-		 * @param cols collection of colors to sort
-		 * @return a cleaned and sorted copy of the given collection of colors.  Each color
-		 * will only appear once.
-		 */
-		private static List<ManaType> sorted(Collection<ManaType> cols)
-		{
-			List<ManaType> colors = new ArrayList<ManaType>(new HashSet<ManaType>(cols));
-			boolean colorless = colors.remove(COLORLESS);
-			Collections.sort(colors);
-			switch (colors.size())
-			{
-			case 2:
-				if (colors.get(0).colorOrder(colors.get(1)) > 0)
-					Collections.reverse(colors);
-				break;
-			case 3:
-				while (colors.get(0).distance(colors.get(1)) != colors.get(1).distance(colors.get(2)))
-					Collections.rotate(colors, 1);
-				break;
-			case 4:
-				boolean equal;
-				do
-				{
-					equal = true;
-					for (int i = 0; i < 3; i++)
-					{
-						if (colors.get(i).distance(colors.get(i + 1)) != 1)
-						{
-							equal = false;
-							Collections.rotate(colors, 1);
-							break;
-						}
-					}
-				} while (!equal);
-				break;
-			default:
-				break;
-			}
-			if (colorless)
-				colors.add(0, COLORLESS);
-			return colors;
-		}
-		
-		/**
-		 * ManaTypes in this Tuple.
-		 */
-		private final List<ManaType> types;
-		
-		/**
-		 * Create a new, empty Tuple of ManaTypes.
-		 */
-		public Tuple()
-		{
-			this(Collections.emptyList());
-		}
-		
-		/**
-		 * Create a new Tuple out of the given list of colors.  Unique colors will be extracted
-		 * and then sorted around the color pie.
-		 * 
-		 * @param cols colors to make the tuple out of
-		 */
-		public Tuple(Collection<? extends ManaType> cols)
-		{
-			types = Collections.unmodifiableList(sorted(new ArrayList<ManaType>(cols)));
-		}
-		
-		/**
-		 * Create a new Tuple out of the given colors.
-		 * 
-		 * @param cols Colors to make the tuple out of
-		 */
-		public Tuple(ManaType... cols)
-		{
-			this(Arrays.asList(cols));
-		}
-		
-		@Override
-		public int compareTo(Tuple other)
-		{
-			int diff = size() - other.size();
-			if (diff == 0)
-				for (int i = 0; i < size(); i++)
-					diff += get(i).compareTo(other.get(i))*Math.pow(10, size() - i);
-			return diff;
-		}
 
-		@Override
-		public ManaType get(int index)
-		{
-			return types.get(index);
-		}
-
-		@Override
-		public int size()
-		{
-			return types.size();
-		}
-	}
-	
 	/**
 	 * Get the ManaTypes that represent colors, which is all of them except
 	 * {@link #COLORLESS}.
@@ -199,6 +86,48 @@ public enum ManaType
 	}
 	
 	/**
+	 * Sort a list of ManaTypes in color order.  If the list contains two colors, it will be
+	 * sorted according to how they appear on a card.  Otherwise, it will be sorted according
+	 * to CWUBRG order.  It is recommended to use this rather than using Java's built-in sorting
+	 * functions.
+	 * 
+	 * @param colors List of ManaTypes to sort
+	 */
+	public static void sort(List<ManaType> colors)
+	{
+		Map<ManaType, Integer> counts = new EnumMap<ManaType, Integer>(ManaType.class);
+		for (ManaType type: colors)
+			counts.compute(type, (k, v) -> v == null ? 1 : v + 1);
+		
+		List<ManaType> unique = Arrays.stream(colors()).filter(counts::containsKey).collect(Collectors.toList());
+		switch (unique.size())
+		{
+		case 2:
+			if (unique.get(0).colorOrder(unique.get(1)) > 0)
+				Collections.reverse(unique);
+			break;
+		case 3:
+			while (unique.get(0).distanceFrom(unique.get(1)) != unique.get(1).distanceFrom(unique.get(2)))
+				Collections.rotate(unique, 1);
+			break;
+		case 4:
+			ManaType missing = Arrays.stream(colors()).filter((m) -> !counts.containsKey(m)).collect(Collectors.toList()).get(0);
+			while (missing.distanceFrom(unique.get(0)) != 1)
+				Collections.rotate(unique, 1);
+			break;
+		default:
+			// Don't have to do anything if there are 0, 1, or all 5 colors
+			break;
+		}
+		
+		colors.clear();
+		if (counts.containsKey(COLORLESS))
+			colors.addAll(Collections.nCopies(counts.get(COLORLESS), COLORLESS));
+		for (ManaType type: unique)
+			colors.addAll(Collections.nCopies(counts.get(type), type));
+	}
+	
+	/**
 	 * Get a ManaType from a character.  Acceptable characters are 'w,' 'u,' 'b,'
 	 * 'r,' 'g,' or 'c,' case insensitive.
 	 * 
@@ -227,26 +156,6 @@ public enum ManaType
 			if (c.name.equalsIgnoreCase(color) || color.equalsIgnoreCase(String.valueOf(c.shorthand)))
 				return c;
 		return null;
-	}
-	
-	/**
-	 * Sort a list of ManaTypes in color order.  If the list contains two colors, it will be
-	 * sorted according to how they appear on a card.  Otherwise, it will be sorted according
-	 * to CWUBRG order.  It is recommended to use this rather than using Java's built-in sorting
-	 * functions.  If the list contains any duplicate colors, they will be removed.
-	 * 
-	 * TODO: Make this not remove duplicate colors
-	 * 
-	 * @param colors List of ManaTypes to sort.
-	 */
-	public static void sort(List<ManaType> colors)
-	{
-		if (!colors.isEmpty())
-		{
-			Tuple t = new Tuple(colors);
-			colors.clear();
-			colors.addAll(t);
-		}
 	}
 	
 	/**
@@ -307,7 +216,7 @@ public enum ManaType
 	 * @param other ManaType to compare to
 	 * @return The distance around the color pie from this color to the other ManaType.
 	 */
-	public int distance(ManaType other)
+	public int distanceFrom(ManaType other)
 	{
 		if (this == COLORLESS || other == COLORLESS)
 			throw new IllegalArgumentException("Colorless is not a color");

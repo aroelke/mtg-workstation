@@ -182,7 +182,7 @@ public class LegalityChecker
 			List<ManaType> deckColorIdentityList = new ArrayList<ManaType>();
 			for (Card c: deck)
 				deckColorIdentityList.addAll(c.colors());
-			ManaType.Tuple deckColorIdentity = new ManaType.Tuple(deckColorIdentityList);
+			List<ManaType> deckColorIdentity = new ArrayList<ManaType>(deckColorIdentityList);
 			for (Card c: new ArrayList<Card>(possibleCommanders))
 				if (!c.colors().containsAll(deckColorIdentity))
 					possibleCommanders.remove(c);

@@ -38,11 +38,11 @@ public class SingleCard extends Card
 	 * This SingleCard's color identity.
 	 * @see Card#colorIdentity()
 	 */
-	private final ManaType.Tuple colorIdentity;
+	private final List<ManaType> colorIdentity;
 	/**
 	 * This SingleCard's colors.
 	 */
-	public final ManaType.Tuple colors;
+	public final List<ManaType> colors;
 	/**
 	 * This SingleCard's flavor text.
 	 */
@@ -159,7 +159,6 @@ public class SingleCard extends Card
 
 		this.name = name;
 		this.mana = ManaCost.parseManaCost(mana);
-		this.colors = new ManaType.Tuple(colors);
 		this.supertypes = Collections.unmodifiableSet(supertype);
 		this.types = Collections.unmodifiableSet(type);
 		this.subtypes = Collections.unmodifiableSet(subtype);
@@ -184,6 +183,8 @@ public class SingleCard extends Card
 			str.append(" " + UnicodeSymbols.EM_DASH + " ").append(String.join(" ", subtypes));
 		typeLine = str.toString();
 
+		ManaType.sort(colors);
+		this.colors = Collections.unmodifiableList(colors);
 		if (colorIdentity.isEmpty())
 		{
 			// Try to infer the color identity if it's missing
@@ -207,7 +208,8 @@ public class SingleCard extends Card
 					colorIdentity.add(ManaType.GREEN);
 			}
 		}
-		this.colorIdentity = new ManaType.Tuple(colorIdentity);
+		ManaType.sort(colorIdentity);
+		this.colorIdentity = Collections.unmodifiableList(colorIdentity);
 
 		Set<String> faceTypes = new HashSet<String>();
 		faceTypes.addAll(supertypes);
@@ -235,13 +237,13 @@ public class SingleCard extends Card
 	}
 
 	@Override
-	public ManaType.Tuple colorIdentity()
+	public List<ManaType> colorIdentity()
 	{
 		return colorIdentity;
 	}
 
 	@Override
-	public ManaType.Tuple colors()
+	public List<ManaType> colors()
 	{
 		return colors;
 	}
@@ -253,7 +255,7 @@ public class SingleCard extends Card
 	 * one face
 	 */
 	@Override
-	public ManaType.Tuple colors(int face) throws IndexOutOfBoundsException
+	public List<ManaType> colors(int face) throws IndexOutOfBoundsException
 	{
 		if (face != 0)
 			throw new IndexOutOfBoundsException("Single-faced cards only have one face");

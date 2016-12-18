@@ -265,14 +265,14 @@ public abstract class Card
 	 * 
 	 * @return a list containing the colors in this Card's color identity.
 	 */
-	public abstract ManaType.Tuple colorIdentity();
+	public abstract List<ManaType> colorIdentity();
 
 	/**
 	 * Get all of the colors across this Card's faces.
 	 * 
 	 * @return a list containing the colors of this Card.
 	 */
-	public abstract ManaType.Tuple colors();
+	public abstract List<ManaType> colors();
 
 	/**
 	 * Get the colors of one of the faces of this Card.
@@ -280,7 +280,7 @@ public abstract class Card
 	 * @param face index of the face to get the colors of
 	 * @return a list containing the colors of the given face.
 	 */
-	public abstract ManaType.Tuple colors(int face);
+	public abstract List<ManaType> colors(int face);
 
 	/**
 	 * Compare this Card's unified name lexicographically with another's.

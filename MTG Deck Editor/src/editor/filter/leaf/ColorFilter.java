@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -20,7 +21,7 @@ import editor.util.SerializableFunction;
  * 
  * @author Alec Roelke
  */
-public class ColorFilter extends FilterLeaf<ManaType.Tuple>
+public class ColorFilter extends FilterLeaf<List<ManaType>>
 {
 	/**
 	 * Set of colors that should match cards.
@@ -50,7 +51,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	 * @param t type of the new ColorFilter
 	 * @param f function for the new ColorFilter
 	 */
-	public ColorFilter(String t, SerializableFunction<Card, ManaType.Tuple> f)
+	public ColorFilter(String t, SerializableFunction<Card, List<ManaType>> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
@@ -67,7 +68,7 @@ public class ColorFilter extends FilterLeaf<ManaType.Tuple>
 	public String content()
 	{
 		StringJoiner join = new StringJoiner("", "\"", "\"");
-		for (ManaType color: new ManaType.Tuple(colors))
+		for (ManaType color: colors)
 			join.add(String.valueOf(color.shorthand()));
 		if (multicolored)
 			join.add("M");

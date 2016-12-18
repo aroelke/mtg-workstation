@@ -41,11 +41,11 @@ public abstract class MultiCard extends Card
 	/**
 	 * Tuple of the color identity of this MultiCard.
 	 */
-	private Lazy<ManaType.Tuple> colorIdentity;
+	private Lazy<List<ManaType>> colorIdentity;
 	/**
 	 * Tuple of all of the colors of this MultiCard.
 	 */
-	private Lazy<ManaType.Tuple> colors;
+	private Lazy<List<ManaType>> colors;
 	/**
 	 * List of Cards that represent faces.  They should all have exactly one face.
 	 */
@@ -136,17 +136,21 @@ public abstract class MultiCard extends Card
 		name = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::name)));
 		manaCost = new Lazy<List<ManaCost>>(() -> Collections.unmodifiableList(collect(Card::manaCost)));
 		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(collect(Card::cmc)));
-		colors = new Lazy<ManaType.Tuple>(() -> {
+		colors = new Lazy<List<ManaType>>(() -> {
 			Set<ManaType> cols = new HashSet<ManaType>();
 			for (Card face: faces)
 				cols.addAll(face.colors());
-			return new ManaType.Tuple(cols);
+			List<ManaType> sorted = new ArrayList<ManaType>(cols);
+			ManaType.sort(sorted);
+			return Collections.unmodifiableList(sorted);
 		});
-		colorIdentity = new Lazy<ManaType.Tuple>(() -> {
+		colorIdentity = new Lazy<List<ManaType>>(() -> {
 			Set<ManaType> colors = new HashSet<ManaType>();
 			for (Card face: faces)
 				colors.addAll(face.colorIdentity());
-			return new ManaType.Tuple(colors);
+			List<ManaType> sorted = new ArrayList<ManaType>(colors);
+			ManaType.sort(sorted);
+			return Collections.unmodifiableList(sorted);
 		});
 		supertypes = new Lazy<Set<String>>(() -> {
 			Set<String> s = new HashSet<String>();
@@ -228,19 +232,19 @@ public abstract class MultiCard extends Card
 	}
 
 	@Override
-	public ManaType.Tuple colorIdentity()
+	public List<ManaType> colorIdentity()
 	{
 		return colorIdentity.get();
 	}
 
 	@Override
-	public ManaType.Tuple colors()
+	public List<ManaType> colors()
 	{
 		return colors.get();
 	}
 
 	@Override
-	public ManaType.Tuple colors(int face) throws IndexOutOfBoundsException
+	public List<ManaType> colors(int face) throws IndexOutOfBoundsException
 	{
 		return faces.get(face).colors();
 	}

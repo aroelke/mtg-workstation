@@ -34,11 +34,11 @@ public enum CardData
 	/**
 	 * Colors of all faces of a card.
 	 */
-	COLORS("Colors", ManaType.Tuple.class),
+	COLORS("Colors", List.class),
 	/**
 	 * Color identity of a card.
 	 */
-	COLOR_IDENTITY("Color Identity", ManaType.Tuple.class),
+	COLOR_IDENTITY("Color Identity", List.class),
 	/**
 	 * Type line of a card.
 	 */
