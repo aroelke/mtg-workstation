@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
@@ -71,7 +70,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -91,6 +89,7 @@ import editor.filter.FilterFactory;
 import editor.filter.leaf.TextFilter;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
+import editor.gui.display.CardTableCellRenderer;
 import editor.gui.display.CardTableModel;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
@@ -99,6 +98,7 @@ import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
+import editor.util.ComponentUtils;
 import editor.util.MouseListenerFactory;
 import editor.util.UnicodeSymbols;
 
@@ -129,12 +129,12 @@ public class MainFrame extends JFrame
 	 *
 	 * @author Alec Roelke
 	 */
-	private class CardTableCellRenderer extends DefaultTableCellRenderer
+	private class InventoryTableCellRenderer extends CardTableCellRenderer
 	{
 		/**
 		 * Create a new CardTableCellRenderer.
 		 */
-		public CardTableCellRenderer()
+		public InventoryTableCellRenderer()
 		{
 			super();
 		}
@@ -155,41 +155,12 @@ public class MainFrame extends JFrame
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 		{
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			if (value instanceof List)
-			{
-				List<?> values = (List<?>)value;
-				if (!values.isEmpty() && values.get(0) instanceof Double)
-				{
-					List<Double> cmc = values.stream().map((o) -> (Double)o).collect(Collectors.toList());
-					StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
-					for (Double cost: cmc)
-						join.add(cost.toString());
-					JPanel cmcPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-					if (hasFocus)
-						cmcPanel.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
-					else
-						cmcPanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-					cmcPanel.setForeground(c.getForeground());
-					cmcPanel.setBackground(c.getBackground());
-					JLabel cmcLabel = new JLabel(join.toString());
-					if (selectedFrame != null && c instanceof JLabel)
-					{
-						if (selectedFrame.deck().contains(inventory.get(table.convertRowIndexToModel(row))))
-							cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.BOLD, cmcLabel.getFont().getSize()));
-						else if (selectedFrame.sideboard().contains(inventory.get(table.convertRowIndexToModel(row))))
-							cmcLabel.setFont(new Font(cmcLabel.getFont().getFontName(), Font.ITALIC, cmcLabel.getFont().getSize()));
-					}
-					cmcPanel.add(cmcLabel);
-					return cmcPanel;
-				}
-			}
-
-			if (selectedFrame != null && c instanceof JLabel)
+			if (selectedFrame != null)
 			{
 				if (selectedFrame.deck().contains(inventory.get(table.convertRowIndexToModel(row))))
-					c.setFont(new Font(c.getFont().getFontName(), Font.BOLD, c.getFont().getSize()));
+					ComponentUtils.changeFontRecursive(c, c.getFont().deriveFont(Font.BOLD));
 				else if (selectedFrame.sideboard().contains(inventory.get(table.convertRowIndexToModel(row))))
-					c.setFont(new Font(c.getFont().getFontName(), Font.ITALIC, c.getFont().getSize()));
+					ComponentUtils.changeFontRecursive(c, c.getFont().deriveFont(Font.ITALIC));
 			}
 			return c;
 		}
@@ -836,10 +807,10 @@ public class MainFrame extends JFrame
 
 		// Create the inventory and put it in the table
 		inventoryTable = new CardTable();
-		inventoryTable.setDefaultRenderer(String.class, new CardTableCellRenderer());
-		inventoryTable.setDefaultRenderer(Integer.class, new CardTableCellRenderer());
-		inventoryTable.setDefaultRenderer(Rarity.class, new CardTableCellRenderer());
-		inventoryTable.setDefaultRenderer(List.class, new CardTableCellRenderer());
+		inventoryTable.setDefaultRenderer(String.class, new InventoryTableCellRenderer());
+		inventoryTable.setDefaultRenderer(Integer.class, new InventoryTableCellRenderer());
+		inventoryTable.setDefaultRenderer(Rarity.class, new InventoryTableCellRenderer());
+		inventoryTable.setDefaultRenderer(List.class, new InventoryTableCellRenderer());
 		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
 		inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) -> {
 			if (e.getClickCount()%2 == 0 && selectedFrame != null)
