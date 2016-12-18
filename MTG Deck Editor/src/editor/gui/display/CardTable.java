@@ -20,6 +20,7 @@ import javax.swing.table.TableRowSorter;
 
 import editor.database.characteristics.CardData;
 import editor.database.characteristics.CombatStat;
+import editor.database.characteristics.ManaCost;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.InclusionCellEditor;
 import editor.gui.generic.SpinnerCellEditor;
@@ -78,6 +79,8 @@ public class CardTable extends JTable
 				boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
 				switch (data)
 				{
+				case MANA_COST:
+					return (a, b) -> ((ManaCost.Tuple)a).compareTo((ManaCost.Tuple)b);
 				case CMC:
 					return (a, b) -> {
 						double first = CollectionUtils.convertToList(a, Double.class).stream().reduce(Double.POSITIVE_INFINITY, Math::min);
@@ -118,13 +121,18 @@ public class CardTable extends JTable
 				return super.getComparator(column);
 		}
 		
+		/**
+		 * {@inheritDoc}
+		 * Don't convert to a string if the data type is part of {@link #NO_STRING}.
+		 */
 		@Override
 		protected boolean useToString(int column)
 		{
-			if (model instanceof CardTableModel)
-				return !NO_STRING.contains(((CardTableModel)model).getColumnData(column));
+			if (model instanceof CardTableModel &&
+					!NO_STRING.contains(((CardTableModel)model).getColumnData(column)))
+				return false;
 			else
-				return true;
+				return super.useToString(column);
 		}
 	}
 
