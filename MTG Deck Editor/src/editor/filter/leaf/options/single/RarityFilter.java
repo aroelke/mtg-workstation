@@ -30,7 +30,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 	{
 		String content = checkContents(s, FilterFactory.RARITY);
 		int delim = content.indexOf('{');
-		contain = Containment.fromString(content.substring(0, delim));
+		contain = Containment.parseContainment(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			selected = Arrays.stream(content.substring(delim + 1, content.length() - 1).split(",")).map(Rarity::parseRarity).collect(Collectors.toSet());
 	}

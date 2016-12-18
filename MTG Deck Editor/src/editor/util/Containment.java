@@ -49,7 +49,7 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 	 * @param contain String representation of the desired Containment
 	 * @return The Containment corresponding to the given String.
 	 */
-	public static Containment fromString(String contain)
+	public static Containment parseContainment(String contain)
 	{
 		return Containment.valueOf(contain.toUpperCase().replace(' ', '_'));
 	}

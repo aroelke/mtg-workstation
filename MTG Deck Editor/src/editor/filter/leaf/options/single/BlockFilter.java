@@ -42,7 +42,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 	{
 		String content = checkContents(s, FilterFactory.BLOCK);
 		int delim = content.indexOf('{');
-		contain = Containment.fromString(content.substring(0, delim));
+		contain = Containment.parseContainment(content.substring(0, delim));
 		if (content.charAt(delim + 1) != '}')
 			selected.addAll(Arrays.asList(content.substring(delim + 1, content.length() - 1).split(",")));
 	}
