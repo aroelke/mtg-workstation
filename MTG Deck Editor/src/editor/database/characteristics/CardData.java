@@ -26,7 +26,7 @@ public enum CardData
 	/**
 	 * Mana cost of a card.
 	 */
-	MANA_COST("Mana Cost", ManaCost.Tuple.class),
+	MANA_COST("Mana Cost", List.class),
 	/**
 	 * Converted mana cost of a card.
 	 */

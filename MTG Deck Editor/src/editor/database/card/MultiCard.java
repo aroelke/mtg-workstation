@@ -65,7 +65,7 @@ public abstract class MultiCard extends Card
 	/**
 	 * List of mana costs of the faces of this MultiCard.
 	 */
-	private Lazy<ManaCost.Tuple> manaCost;
+	private Lazy<List<ManaCost>> manaCost;
 	/**
 	 * List of the names of the faces of this MultiCard.
 	 */
@@ -134,7 +134,7 @@ public abstract class MultiCard extends Card
 				throw new IllegalArgumentException("Only normal, single-faced cards can be joined into a multi-faced card");
 		
 		name = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::name)));
-		manaCost = new Lazy<ManaCost.Tuple>(() -> new ManaCost.Tuple(collect(Card::manaCost)));
+		manaCost = new Lazy<List<ManaCost>>(() -> Collections.unmodifiableList(collect(Card::manaCost)));
 		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(collect(Card::cmc)));
 		colors = new Lazy<ManaType.Tuple>(() -> {
 			Set<ManaType> cols = new HashSet<ManaType>();
@@ -270,7 +270,7 @@ public abstract class MultiCard extends Card
 	}
 
 	@Override
-	public ManaCost.Tuple manaCost()
+	public List<ManaCost> manaCost()
 	{
 		return manaCost.get();
 	}

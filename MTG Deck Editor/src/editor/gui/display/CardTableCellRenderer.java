@@ -62,7 +62,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
 			{
 			case MANA_COST:
 				panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-				ManaCost.Tuple cost = (ManaCost.Tuple)value;
+				List<ManaCost> cost = CollectionUtils.convertToList(value, ManaCost.class);
 				border = BorderFactory.createEmptyBorder(0, 1, cost.size() == 1 ? -1 : 0, 0);
 				for (int i = 0; i < cost.size(); i++)
 				{

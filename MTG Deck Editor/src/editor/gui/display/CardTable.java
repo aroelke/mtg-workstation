@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -80,13 +81,9 @@ public class CardTable extends JTable
 				switch (data)
 				{
 				case MANA_COST:
-					return (a, b) -> ((ManaCost.Tuple)a).compareTo((ManaCost.Tuple)b);
+					return (a, b) -> CollectionUtils.convertToList(a, ManaCost.class).get(0).compareTo(CollectionUtils.convertToList(b, ManaCost.class).get(0));
 				case CMC:
-					return (a, b) -> {
-						double first = CollectionUtils.convertToList(a, Double.class).stream().reduce(Double.POSITIVE_INFINITY, Math::min);
-						double second = CollectionUtils.convertToList(b, Double.class).stream().reduce(Double.POSITIVE_INFINITY, Math::min);
-						return Double.compare(first, second);
-					};
+					return (a, b) -> Double.compare(Collections.min(CollectionUtils.convertToList(a, Double.class)), Collections.min(CollectionUtils.convertToList(b, Double.class)));
 				case POWER: case TOUGHNESS:
 					return (a, b) -> {
 						CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);

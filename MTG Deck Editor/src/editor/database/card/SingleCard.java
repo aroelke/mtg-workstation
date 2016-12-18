@@ -285,9 +285,9 @@ public class SingleCard extends Card
 	}
 
 	@Override
-	public ManaCost.Tuple manaCost()
+	public List<ManaCost> manaCost()
 	{
-		return new ManaCost.Tuple(mana);
+		return Arrays.asList(mana);
 	}
 
 	@Override

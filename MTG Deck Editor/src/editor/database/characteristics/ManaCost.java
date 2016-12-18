@@ -2,18 +2,15 @@ package editor.database.characteristics;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import editor.database.card.Card;
 import editor.database.symbol.ManaSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
@@ -33,94 +30,6 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 	 * Pattern for finding mana costs in Strings.
 	 */
 	public static final Pattern MANA_COST_PATTERN = Pattern.compile("(\\{[cwubrgCWUBRG\\/phPH\\dsSxXyYzZ]+\\})+");
-	
-	/**
-	 * This class represents a tuple of ManaCosts.  It is useful for displaying and sorting
-	 * the mana costs of cards that may have mulitiple faces.
-	 * 
-	 * @author Alec Roelke
-	 */
-	public static class Tuple extends AbstractList<ManaCost> implements Comparable<Tuple>
-	{
-		/**
-		 * ManaCosts in this Tuple.
-		 */
-		private final List<ManaCost> values;
-		
-		/**
-		 * Create a new Tuple out of the given collection of ManaCosts.
-		 * 
-		 * @param c Collection to create the new tuple out of
-		 */
-		public Tuple(List<? extends ManaCost> c)
-		{
-			values = Collections.unmodifiableList(c);
-		}
-		
-		/**
-		 * Create a new Tuple out of the given ManaCosts.
-		 * 
-		 * @param c ManaCosts to create the new tuple out of
-		 */
-		public Tuple(ManaCost... c)
-		{
-			this(Arrays.asList(c));
-		}
-		
-		/**
-		 * Create an empty Tuple of ManaCosts.
-		 */
-		public Tuple()
-		{
-			this(Collections.emptyList());
-		}
-		
-		/**
-		 * @param o Tuple to compare to (must be a ManaCost tuple)
-		 * @return A negative number if the other tuple is empty and this one is not or if the first
-		 * mana cost in this one is less than the first mana cost in the other one, a positive number
-		 * if the opposite is true, or 0 if both costs are the same or if both tuples are empty.
-		 */
-		@Override
-		public int compareTo(Tuple o)
-		{
-			if (isEmpty() && o.isEmpty())
-				return 0;
-			else if (isEmpty())
-				return -1;
-			else if (o.isEmpty())
-				return 1;
-			else
-				return get(0).compareTo(o.get(0));
-		}
-		
-		/**
-		 * @return A String representation of this tuple, which is the HTML String
-		 * representations of its non-empty ManaCosts separated by card face
-		 * separators.
-		 */
-		@Override
-		public String toString()
-		{
-			StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
-			for (ManaCost cost: this)
-				if (!cost.isEmpty())
-					join.add(cost.toHTMLString());
-			return join.toString();
-		}
-
-		@Override
-		public ManaCost get(int index)
-		{
-			return values.get(index);
-		}
-
-		@Override
-		public int size()
-		{
-			return values.size();
-		}
-	}
 	
 	/**
 	 * Get the mana cost represented by the given String.  The String should only be a list of symbols,

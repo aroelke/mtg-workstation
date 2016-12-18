@@ -1,6 +1,7 @@
 package editor.database.card;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -23,7 +24,7 @@ public class FlipCard extends MultiCard
 	 * Tuple containing the mana cost of each side of this FlipCard (which should just be two copies
 	 * of the same value).
 	 */
-	private Lazy<ManaCost.Tuple> manaCost;
+	private Lazy<List<ManaCost>> manaCost;
 	/**
 	 * Card representing the top face of this FlipCard.
 	 */
@@ -43,8 +44,8 @@ public class FlipCard extends MultiCard
 		if (top.layout() != CardLayout.FLIP || b.layout() != CardLayout.FLIP)
 			throw new IllegalArgumentException("can't join non-flip cards into flip cards");
 		
-		manaCost = new Lazy<ManaCost.Tuple>(() -> new ManaCost.Tuple(collect(Card::manaCost)));
-		cmc = new Lazy<List<Double>>(() -> collect(Card::cmc));
+		manaCost = new Lazy<List<ManaCost>>(() -> Collections.unmodifiableList(collect(Card::manaCost)));
+		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(collect(Card::cmc)));
 	}
 	
 	/**
@@ -74,7 +75,7 @@ public class FlipCard extends MultiCard
 	 * Both faces of a FlipCard have the same mana cost.
 	 */
 	@Override
-	public ManaCost.Tuple manaCost()
+	public List<ManaCost> manaCost()
 	{
 		return manaCost.get();
 	}

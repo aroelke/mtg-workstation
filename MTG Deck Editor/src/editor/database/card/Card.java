@@ -647,7 +647,7 @@ public abstract class Card
 	 * 
 	 * @return a list containing the mana costs of the faces of this Card.
 	 */
-	public abstract ManaCost.Tuple manaCost();
+	public abstract List<ManaCost> manaCost();
 
 	/**
 	 * Get the smallest converted mana cost among faces of this card.
