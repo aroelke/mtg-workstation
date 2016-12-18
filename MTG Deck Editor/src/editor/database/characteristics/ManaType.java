@@ -86,10 +86,8 @@ public enum ManaType
 	}
 	
 	/**
-	 * Sort a list of ManaTypes in color order.  If the list contains two colors, it will be
-	 * sorted according to how they appear on a card.  Otherwise, it will be sorted according
-	 * to CWUBRG order.  It is recommended to use this rather than using Java's built-in sorting
-	 * functions.
+	 * Sort a list of ManaTypes in color order.  It is recommended to use this rather than
+	 * using Java's built-in sorting functions.
 	 * 
 	 * @param colors List of ManaTypes to sort
 	 */
