@@ -1,4 +1,4 @@
-package editor.util;
+package editor.gui.generic;
 
 import java.awt.Component;
 import java.awt.Container;

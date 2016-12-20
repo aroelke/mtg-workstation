@@ -94,11 +94,11 @@ import editor.gui.display.CardTableModel;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.generic.CardMenuItems;
+import editor.gui.generic.ComponentUtils;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
-import editor.util.ComponentUtils;
 import editor.util.MouseListenerFactory;
 import editor.util.UnicodeSymbols;
 
