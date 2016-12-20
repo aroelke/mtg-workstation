@@ -3,7 +3,6 @@ package editor.util;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.BiPredicate;
 
 /**
@@ -66,8 +65,6 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 	@Override
 	public boolean test(Collection<?> a, Collection<?> b)
 	{
-		Objects.requireNonNull(a);
-		Objects.requireNonNull(b);
 		switch (this)
 		{
 		case CONTAINS_ANY_OF:
