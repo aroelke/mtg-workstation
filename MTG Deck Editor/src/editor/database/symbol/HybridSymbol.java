@@ -22,7 +22,7 @@ public class HybridSymbol extends ManaSymbol
 	 */
 	public static final Map<ManaType, Map<ManaType, HybridSymbol>> SYMBOLS = Collections.unmodifiableMap(
 			Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), (m) -> Arrays.stream(
-					ManaType.colors()).collect(Collectors.toMap(Function.identity(), (n) -> new HybridSymbol(m, n))))));
+					ManaType.colors()).filter((n) -> n != m).collect(Collectors.toMap(Function.identity(), (n) -> new HybridSymbol(m, n))))));
 	/**
 	 * Get the HybridSymbol corresponding to the String, which is two color characters
 	 * separated by a "/".
