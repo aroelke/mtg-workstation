@@ -46,37 +46,24 @@ public class CategorySpec implements Externalizable
 	public class Event extends EventObject
 	{
 		/**
-		 * The name of the CategorySpec before it was changed.
+		 * Old state of the category specification.
 		 */
-		private String oldName;
+		private CategorySpec oldSpec;
 		/**
-		 * The whitelist of the CategorySpec before it was changed.
+		 * New state of the category specification.
 		 */
-		private Set<Card> oldWhitelist;
-		/**
-		 * The blacklist of the CategorySpec before it was changed.
-		 */
-		private Set<Card> oldBlacklist;
-		/**
-		 * The Color of the CategorySpec before it was changed.
-		 */
-		private Color oldColor;
-		/**
-		 * The Filter of the CategorySpec before it was changed.
-		 */
-		private Filter oldFilter;
+		private CategorySpec newSpec;
 		
 		/**
 		 * Create a new Event showing no changes.
+		 * 
+		 * @param old state of the specification before it changed
 		 */
-		public Event()
+		public Event(CategorySpec old, CategorySpec spec)
 		{
 			super(CategorySpec.this);
-			oldName = null;
-			oldWhitelist = null;
-			oldBlacklist = null;
-			oldColor = null;
-			oldFilter = null;
+			oldSpec = old;
+			newSpec = spec;
 		}
 		
 		/**
@@ -87,67 +74,7 @@ public class CategorySpec implements Externalizable
 		 */
 		public boolean blacklistChanged()
 		{
-			return oldBlacklist != null;
-		}
-		
-		/**
-		 * Indicate that the blacklist of the category changed.
-		 * 
-		 * @param old old blacklist of the category
-		 * @return event representing the change.
-		 */
-		private Event changeBlacklist(Set<Card> old)
-		{
-			oldBlacklist = old;
-			return this;
-		}
-		
-		/**
-		 * Indicate that the color of the category changed.
-		 * 
-		 * @param old old color of the category
-		 * @return event representing the change.
-		 */
-		private Event changeColor(Color old)
-		{
-			oldColor = old;
-			return this;
-		}
-		
-		/**
-		 * Indicate that the filter of the category changed.
-		 * 
-		 * @param old old filter of the category
-		 * @return event representing the change.
-		 */
-		private Event changeFilter(Filter old)
-		{
-			oldFilter = old;
-			return this;
-		}
-		
-		/**
-		 * Indicate that the name of the category changed.
-		 * 
-		 * @param old old name of the category
-		 * @return event representing the change.
-		 */
-		private Event changeName(String old)
-		{
-			oldName = old;
-			return this;
-		}
-		
-		/**
-		 * Indicate that the whitelist of the category changed.
-		 * 
-		 * @param old old whitelist of the category
-		 * @return event representing the change.
-		 */
-		private Event changeWhitelist(Set<Card> old)
-		{
-			oldWhitelist = old;
-			return this;
+			return !oldSpec.getBlacklist().equals(newSpec.getBlacklist());
 		}
 		
 		/**
@@ -158,7 +85,7 @@ public class CategorySpec implements Externalizable
 		 */
 		public boolean colorChanged()
 		{
-			return oldColor != null;
+			return !oldSpec.getColor().equals(newSpec.getColor());
 		}
 		
 		/**
@@ -169,7 +96,7 @@ public class CategorySpec implements Externalizable
 		 */
 		public boolean filterChanged()
 		{
-			return oldFilter != null;
+			return !oldSpec.getFilter().equals(newSpec.getFilter());
 		}
 		
 		@Override
@@ -185,93 +112,27 @@ public class CategorySpec implements Externalizable
 		 */
 		public boolean nameChanged()
 		{
-			return oldName != null;
+			return !oldSpec.getName().equals(newSpec.getName());
 		}
 		
 		/**
-		 * Get the new name of the category after it was changed.
+		 * Get a copy of the category specification as it was before it changed.
 		 * 
-		 * @return the new name of the category as a result of the event.
-		 * @throws IllegalStateException if the category's name has not changed.
+		 * @return the old specification
 		 */
-		public String newName()
+		public CategorySpec newSpec()
 		{
-			if (nameChanged())
-				return getSource().getName();
-			else
-				throw new IllegalStateException("Name of the category has not changed.");
+			return newSpec;
 		}
 		
 		/**
-		 * Get the blacklist as it was before it was changed.
+		 * Get a copy of the category specification after the change.
 		 * 
-		 * @return the category's blacklist as it was before the event.
-		 * @throws IllegalStateException If the category's blacklist did not change
+		 * @return the new specification
 		 */
-		public Set<Card> oldBlacklist()
+		public CategorySpec oldSpec()
 		{
-			if (blacklistChanged())
-				return oldBlacklist;
-			else
-				throw new IllegalStateException("Blacklist of the category has not changed.");
-		}
-		
-		/**
-		 * Get the old color of the category before it was changed.
-		 * 
-		 * @return the category's color as it was before the event.
-		 * @throws IllegalStateException if the category's color did not change.
-		 */
-		public Color oldColor()
-		{
-			if (colorChanged())
-				return oldColor;
-			else
-				throw new IllegalStateException("Color of the category has not changed.");
-		}
-		
-		/**
-		 * Get the old filter of the category before it was changed.
-		 * 
-		 * @return the category's filter as it was before the event.
-		 * @throws IllegalStateException if the category's filter did not change.
-		 */
-		public Filter oldFilter()
-		{
-			if (filterChanged())
-				return oldFilter;
-			else
-				throw new IllegalStateException("Filter of the category has not changed.");
-		}
-		
-		/**
-		 * Get the name of the category before it was changed.
-		 * 
-		 * @return the old name of the category before this CategoryEvent
-		 * was generated.
-		 * @throws IllegalStateException if the category's name has not changed.
-		 */
-		public String oldName()
-		{
-			if (nameChanged())
-				return oldName;
-			else
-				throw new IllegalStateException("Name of the category has not changed.");
-		}
-		
-		/**
-		 * Get the whitelist of the category as it was before it was changed.
-		 * 
-		 * @return the category's whitelist before the event.
-		 * @throws IllegalStateException if the category's whitelist did not
-		 * change.
-		 */
-		public Set<Card> oldWhitelist()
-		{
-			if (whitelistChanged())
-				return oldWhitelist;
-			else
-				throw new IllegalStateException("Whitelist of the category has not changed.");
+			return oldSpec;
 		}
 		
 		/**
@@ -282,7 +143,7 @@ public class CategorySpec implements Externalizable
 		 */
 		public boolean whitelistChanged()
 		{
-			return oldWhitelist != null;
+			return !oldSpec.getWhitelist().equals(newSpec.getWhitelist());
 		}
 	}
 	/**
@@ -442,12 +303,7 @@ public class CategorySpec implements Externalizable
 	 */
 	public boolean copy(CategorySpec other)
 	{
-		Event e = new Event()
-				.changeName(name.equals(other.name) ? null : name)
-				.changeWhitelist(whitelist.equals(other.whitelist) ? null : new HashSet<Card>(whitelist))
-				.changeBlacklist(blacklist.equals(other.blacklist) ? null : new HashSet<Card>(blacklist))
-				.changeColor(color.equals(other.color) ? null : color)
-				.changeFilter(filter.equals(other.filter) ? null : filter);
+		CategorySpec old = new CategorySpec(this);
 		
 		name = other.name;
 		whitelist.clear();
@@ -458,11 +314,14 @@ public class CategorySpec implements Externalizable
 		filter = new FilterGroup();
 		filter.parse(other.filter.toString());
 		
-		if (e.nameChanged() || e.whitelistChanged() || e.blacklistChanged() || e.colorChanged() || e.filterChanged())
-		for (CategoryListener listener: listeners)
-			listener.categoryChanged(e);
+		if (!equals(old))
+		{
+			Event e = new Event(old, new CategorySpec(this));
+			for (CategoryListener listener: listeners)
+				listener.categoryChanged(e);
+		}
 		
-		return e.nameChanged() || e.whitelistChanged() || e.blacklistChanged() || e.colorChanged() || e.filterChanged();
+		return !equals(old);
 	}
 	
 	@Override
@@ -488,22 +347,19 @@ public class CategorySpec implements Externalizable
 	 */
 	public boolean exclude(Card c)
 	{
-		Set<Card> oldWhitelist = new HashSet<Card>(whitelist);
-		Set<Card> oldBlacklist = new HashSet<Card>(blacklist);
+		CategorySpec old = new CategorySpec(this);
 		
-		if (!(filter.test(c) && blacklist.add(c)))
-			oldBlacklist = null;
-		if (!whitelist.remove(c))
-			oldWhitelist = null;
+		blacklist.add(c);
+		whitelist.remove(c);
 		
-		if (oldWhitelist != null || oldBlacklist != null)
+		Event e = new Event(old, new CategorySpec(this));
+		if (e.whitelistChanged() || e.blacklistChanged())
 		{
-			Event e = new Event().changeWhitelist(oldWhitelist).changeBlacklist(oldBlacklist);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
 		
-		return oldWhitelist != null || oldBlacklist != null;
+		return e.whitelistChanged() || e.blacklistChanged();
 	}
 	
 	/**
@@ -574,22 +430,19 @@ public class CategorySpec implements Externalizable
 	 */
 	public boolean include(Card c)
 	{
-		Set<Card> oldWhitelist = new HashSet<Card>(whitelist);
-		Set<Card> oldBlacklist = new HashSet<Card>(blacklist);
+		CategorySpec old = new CategorySpec(this);
 		
-		if (!filter.test(c) && !whitelist.add(c))
-				oldWhitelist = null;
-		if (!blacklist.remove(c))
-			oldBlacklist = null;
+		whitelist.add(c);
+		blacklist.remove(c);
 		
-		if (oldWhitelist != null || oldBlacklist != null)
+		Event e = new Event(old, new CategorySpec(this));
+		if (e.whitelistChanged() || e.blacklistChanged())
 		{
-			Event e = new Event().changeWhitelist(oldWhitelist).changeBlacklist(oldBlacklist);
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
 		
-		return oldWhitelist != null || oldBlacklist != null;
+		return e.whitelistChanged() || e.blacklistChanged();
 	}
 	
 	/**
@@ -644,10 +497,11 @@ public class CategorySpec implements Externalizable
 	{
 		if (!color.equals(c))
 		{
-			Event e = new Event().changeColor(color);
+			CategorySpec old = new CategorySpec(this);
 			
 			color = c;
 			
+			Event e = new Event(old, new CategorySpec(this));
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -663,10 +517,11 @@ public class CategorySpec implements Externalizable
 	{
 		if (!filter.equals(f))
 		{
-			Event e = new Event().changeFilter(filter);
+			CategorySpec old = new CategorySpec(this);
 			
 			filter = f;
 			
+			Event e = new Event(old, new CategorySpec(this));
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}
@@ -681,10 +536,11 @@ public class CategorySpec implements Externalizable
 	{
 		if (!name.equals(n))
 		{
-			Event e = new Event().changeName(name);
+			CategorySpec old = new CategorySpec(this);
 			
 			name = n;
 			
+			Event e = new Event(old, new CategorySpec(this));
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
 		}

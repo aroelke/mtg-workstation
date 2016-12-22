@@ -26,13 +26,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
-import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -260,17 +259,20 @@ public class EditorFrame extends JInternalFrame
 				{
 					@SuppressWarnings("unchecked")
 					Map<Card, Integer> data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
-					return performAction(() -> {
-							boolean undone = false;
-							for (Map.Entry<Card, Integer> entry: data.entrySet())
-								undone |= !deleteCards(Arrays.asList(entry.getKey()), entry.getValue(), main).isEmpty();
-							return undone;
-						}, () -> insertCards(data, main));
+					if (main)
+						deck.current.addAll(data);
+					else
+						sideboard.current.addAll(data);
+					return true;
 				}
 				else if (supp.isDataFlavorSupported(Card.cardFlavor))
 				{
+					// TODO: Account for multiples
 					Card[] data = (Card[])supp.getTransferable().getTransferData(Card.cardFlavor);
-					addCards(Arrays.asList(data), 1, main);
+					if (main)
+						deck.current.addAll(Arrays.stream(data).collect(Collectors.toSet()));
+					else
+						sideboard.current.addAll(Arrays.stream(data).collect(Collectors.toSet()));
 					return true;
 				}
 				else
@@ -323,7 +325,12 @@ public class EditorFrame extends JInternalFrame
 		public void exportDone(JComponent c, Transferable t, int action)
 		{
 			if (action == TransferHandler.MOVE)
-				removeSelectedCards(Integer.MAX_VALUE, main);
+			{
+				if (main)
+					deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
+				else
+					sideboard.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
+			}
 		}
 
 		/**
@@ -401,7 +408,7 @@ public class EditorFrame extends JInternalFrame
 					if (isCancelled())
 						return null;
 					CategorySpec spec = new CategorySpec(rd.readLine());
-					addCategory(spec);
+					deck.current.addCategory(spec);
 					publish(33 + 33*(i + 1)/categories);
 				}
 				cards = Integer.valueOf(rd.readLine().trim());
@@ -533,7 +540,7 @@ public class EditorFrame extends JInternalFrame
 						if (!category.includes(card))
 						{
 							JMenuItem categoryItem = new JMenuItem(category.getName());
-							categoryItem.addActionListener((e2) -> performAction(() -> category.exclude(card), () -> category.include(card)));
+							categoryItem.addActionListener((e2) -> category.exclude(card));
 							addToCategoryMenu.add(categoryItem);
 						}
 					}
@@ -544,7 +551,7 @@ public class EditorFrame extends JInternalFrame
 						if (category.includes(card))
 						{
 							JMenuItem categoryItem = new JMenuItem(category.getName());
-							categoryItem.addActionListener((e2) -> performAction(() -> category.include(card), () -> category.exclude(card)));
+							categoryItem.addActionListener((e2) -> category.include(card));
 							removeFromCategoryMenu.add(categoryItem);
 						}
 					}
@@ -654,7 +661,7 @@ public class EditorFrame extends JInternalFrame
 	 * the redo buffer.  This contains only things that have been on the undo buffer
 	 * and have been undone, and is cleared when a new action is performed.
 	 */
-	private Stack<UndoableAction> redoBuffer;
+	private Stack<Deck.Event> redoBuffer;
 	/**
 	 * Saved list of selected cards from the active table.
 	 */
@@ -690,7 +697,12 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Stack containing past actions performed on the deck to represent the undo buffer.
 	 */
-	private Stack<UndoableAction> undoBuffer;
+	private Stack<Deck.Event> undoBuffer;
+	/**
+	 * Whether or not the current action is undoing or redoing another action (so the undo/redo buffers
+	 * should not be changed).
+	 */
+	private boolean undoing;
 	/**
 	 * Whether or not the deck has been saved since it has last been changed.
 	 */
@@ -767,13 +779,14 @@ public class EditorFrame extends JInternalFrame
 		parent = p;
 		file = null;
 		unsaved = false;
-		undoBuffer = new Stack<UndoableAction>();
-		redoBuffer = new Stack<UndoableAction>();
+		undoBuffer = new Stack<Deck.Event>();
+		redoBuffer = new Stack<Deck.Event>();
 		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
 		selectedCards = new ArrayList<Card>();
 		selectedSource = null;
 		selectedTable = null;
 		opening = false;
+		undoing = false;
 		
 		listTabs = new JTabbedPane(SwingConstants.TOP);
 		add(listTabs, BorderLayout.CENTER);
@@ -792,9 +805,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					clearTableSelections(deck.table);
 					parent.clearSelectedCards();
-					setSelectedSource(deck.table, deck.current);
-					if (hasSelectedCards())
-						parent.selectCard(getSelectedCards().get(0));
+					setSelectedSource(getSelectedCards(), deck.table, deck.current);
 				}
 			}
 		});
@@ -811,9 +822,9 @@ public class EditorFrame extends JInternalFrame
 		mainDeckPanel.add(mainDeckPane, BorderLayout.CENTER);
 
 		VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		deckButtons.get("+").addActionListener((e) -> addSelectedCards(1, true));
-		deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeSelectedCards(1, true));
-		deckButtons.get("X").addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, true));
+		deckButtons.get("+").addActionListener((e) -> deck.current.addAll(new HashSet<Card>(getSelectedCards())));
+		deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(getSelectedCards())));
+		deckButtons.get("X").addActionListener((e) -> deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
 		mainDeckPanel.add(deckButtons, BorderLayout.WEST);
 		mainPanel.add(mainDeckPanel, BorderLayout.CENTER);
 		
@@ -828,9 +839,9 @@ public class EditorFrame extends JInternalFrame
 		sideboardPanel.add(showHidePanel, BorderLayout.NORTH);
 		
 		VerticalButtonList sideboardButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		sideboardButtons.get("+").addActionListener((e) -> addSelectedCards(1, false));
-		sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeSelectedCards(1, false));
-		sideboardButtons.get("X").addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, false));
+		sideboardButtons.get("+").addActionListener((e) -> sideboard.current.addAll(new HashSet<Card>(getSelectedCards())));
+		sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(getSelectedCards())));
+		sideboardButtons.get("X").addActionListener((e) -> deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
 		sideboardPanel.add(sideboardButtons, BorderLayout.WEST);
 		
 		sideboard.model = new CardTableModel(this, sideboard.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
@@ -853,9 +864,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					clearTableSelections(sideboard.table);
 					parent.clearSelectedCards();
-					setSelectedSource(sideboard.table, sideboard.current);
-					if (hasSelectedCards())
-						parent.selectCard(getSelectedCards().get(0));
+					setSelectedSource(getSelectedCards(), sideboard.table, sideboard.current);
 				}
 			}
 		});
@@ -884,12 +893,9 @@ public class EditorFrame extends JInternalFrame
 		
 		// Add/remove cards
 		CardMenuItems tableMenuCardItems = new CardMenuItems(this,
-				(n) -> addSelectedCards(n, true),
-				() -> {
-					for (Card c: getSelectedCards())
-						addCard(c, 4 - deck.current.getData(c).count(), true);
-					},
-				(n) -> removeSelectedCards(n, true));
+				(n) -> deck.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
+				() -> deck.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 4 - deck.current.getData(c).count()))),
+				(n) -> deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_N));
@@ -903,8 +909,8 @@ public class EditorFrame extends JInternalFrame
 		JMenuItem moveToSideboardItem = new JMenuItem("Move to Sideboard");
 		moveToSideboardItem.addActionListener((e) -> {
 			List<Card> selected = getSelectedCards();
-			removeCards(selected, 1, true);
-			addCards(selected, 1, false);
+			deck.current.removeAll(new HashSet<Card>(selected));
+			sideboard.current.addAll(new HashSet<Card>(selected));
 		});
 		tableMenu.add(moveToSideboardItem);
 		JMenuItem moveAllToSideboardItem = new JMenuItem("Move All to Sideboard");
@@ -912,8 +918,8 @@ public class EditorFrame extends JInternalFrame
 			for (Card c: getSelectedCards())
 			{
 				int n = deck.current.getData(c).count();
-				removeCard(c, n, true);
-				addCard(c, n, false);
+				deck.current.remove(c, n);
+				sideboard.current.add(c, n);
 			}
 		});
 		tableMenu.add(moveAllToSideboardItem);
@@ -951,12 +957,9 @@ public class EditorFrame extends JInternalFrame
 		
 		// Add/remove cards from sideboard
 		CardMenuItems sideboardMenuCardItems = new CardMenuItems(this,
-				(n) -> addSelectedCards(n, false),
-				() -> {
-					for (Card c: getSelectedCards())
-						addCard(c, 4 - sideboard.current.getData(c).count(), false);
-					},
-				(n) -> removeSelectedCards(n, false));
+				(n) -> sideboard.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
+				() -> sideboard.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), c -> 4 - sideboard.current.getData(c).count()))),
+				(n) -> sideboard.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
 		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.ADD_N));
@@ -970,8 +973,8 @@ public class EditorFrame extends JInternalFrame
 		JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
 		moveToMainItem.addActionListener((e) -> {
 			List<Card> selected = getSelectedCards();
-			removeCards(selected, 1, false);
-			addCards(selected, 1, true);
+			sideboard.current.removeAll(new HashSet<Card>(selected));
+			deck.current.addAll(new HashSet<Card>(selected));
 		});
 		sideboardMenu.add(moveToMainItem);
 		JMenuItem moveAllToMainItem = new JMenuItem("Move All to Main Deck");
@@ -979,8 +982,8 @@ public class EditorFrame extends JInternalFrame
 			for (Card c: getSelectedCards())
 			{
 				int n = sideboard.current.getData(c).count();
-				removeCard(c, n, false);
-				addCard(c, n, true);
+				sideboard.current.remove(c, n);
+				deck.current.add(c, n);
 			}
 		});
 		sideboardMenu.add(moveAllToMainItem);
@@ -1005,7 +1008,7 @@ public class EditorFrame extends JInternalFrame
 		// Button to add a new category
 		JPanel addCategoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton addCategoryButton = new JButton("Add");
-		addCategoryButton.addActionListener((e) -> addCategory(createCategory()));
+		addCategoryButton.addActionListener((e) -> deck.current.addCategory(createCategory()));
 		addCategoryPanel.add(addCategoryButton);
 		categoryHeaderPanel.add(addCategoryPanel);
 		
@@ -1055,9 +1058,9 @@ public class EditorFrame extends JInternalFrame
 		categoriesMainPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		
 		VerticalButtonList categoryButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		categoryButtons.get("+").addActionListener((e) -> addSelectedCards(1, true));
-		categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeSelectedCards(1, true));
-		categoryButtons.get("X").addActionListener((e) -> removeSelectedCards(Integer.MAX_VALUE, true));
+		categoryButtons.get("+").addActionListener((e) -> deck.current.addAll(new HashSet<Card>(getSelectedCards())));
+		categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(getSelectedCards())));
+		categoryButtons.get("X").addActionListener((e) -> deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
 		categoriesPanel.add(categoryButtons, BorderLayout.WEST);
 		
 		// Sample hands
@@ -1240,16 +1243,9 @@ public class EditorFrame extends JInternalFrame
 		JButton clearLogButton = new JButton("Clear Change Log");
 		clearLogButton.addActionListener((e) -> {
 			if (!changelogArea.getText().isEmpty()
-					&& JOptionPane.showConfirmDialog(EditorFrame.this, "Change log cannot be restored once saved.  Clear change log?", "Clear Change Log?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+					&& JOptionPane.showConfirmDialog(EditorFrame.this, "This change is permanent.  Clear change log?", "Clear Change Log?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
 			{
-				String text = changelogArea.getText();
-				performAction(() -> {
-					changelogArea.setText(text);
-					return true;
-				}, () -> {
-					changelogArea.setText("");
-					return true;
-				});
+				changelogArea.setText(""); // TODO: Make this undoable somehow
 			}
 		});
 		clearLogPanel.add(clearLogButton);
@@ -1289,7 +1285,7 @@ public class EditorFrame extends JInternalFrame
 			// Categories
 			if (e.categoryAdded())
 			{
-				CategoryPanel category = createCategoryPanel(deck.current.getCategorySpec(e.addedName()));
+				CategoryPanel category = createCategoryPanel(e.addedCategory());
 				categoryPanels.add(category);
 				
 				for (CategoryPanel c: categoryPanels)
@@ -1305,14 +1301,11 @@ public class EditorFrame extends JInternalFrame
 				});
 				handCalculations.update();
 			}
-			if (e.categoriesRemoved())
+			if (e.categoryRemoved())
 			{
-				categoryPanels = categoryPanels.stream()
-						.filter((panel) -> !e.removedNames().contains(panel.getCategoryName()))
-						.collect(Collectors.toList());
+				categoryPanels.remove(getCategory(e.removedCategory().getName()));
 				for (CategoryPanel panel: categoryPanels)
-					for (int i = 0; i < e.removedNames().size(); i++)
-						panel.rankBox.removeItemAt(categoryPanels.size());
+					panel.rankBox.removeItemAt(categoryPanels.size());
 				
 				listTabs.setSelectedIndex(CATEGORIES);
 				updateCategoryPanel();
@@ -1329,7 +1322,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				CategorySpec.Event event = e.categoryChanges();
 				if (event.nameChanged())
-					getCategory(event.oldName()).setCategoryName(event.newName());
+					getCategory(event.oldSpec().getName()).setCategoryName(event.newSpec().getName());
 				for (CategoryPanel c: categoryPanels)
 				{
 					((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
@@ -1339,7 +1332,7 @@ public class EditorFrame extends JInternalFrame
 				updateCategoryPanel();
 				handCalculations.update();
 				SwingUtilities.invokeLater(() -> {
-					CategoryPanel category = event.nameChanged() ? getCategory(event.newName()) : getCategory(e.categoryName());
+					CategoryPanel category = getCategory(event.newSpec().getName());
 					switchCategoryBox.setSelectedItem(category.getCategoryName());
 					if (!category.getBounds().intersects(categoriesContainer.getVisibleRect()))
 					{
@@ -1349,13 +1342,18 @@ public class EditorFrame extends JInternalFrame
 				});
 			}
 			
-			// Clean up
 			if (!unsaved)
 			{
 				setTitle(getTitle() + " *");
 				unsaved = true;
 			}
 			update();
+			
+			if (!undoing)
+			{
+				redoBuffer.clear();
+				undoBuffer.push(e);
+			}
 		});
 		
 		sideboard.current.addDeckListener((e) -> {
@@ -1384,6 +1382,12 @@ public class EditorFrame extends JInternalFrame
 				unsaved = true;
 			}
 			update();
+			
+			if (!undoing)
+			{
+				redoBuffer.clear();
+				undoBuffer.push(e);
+			}
 		});
 		
 		// Handle various frame events, including selecting and closing
@@ -1401,69 +1405,6 @@ public class EditorFrame extends JInternalFrame
 				parent.close(EditorFrame.this);
 			}
 		});
-	}
-	
-	/**
-	 * Add the given number of copies of the given card to the deck.  The current
-	 * selections in the category and main tables are maintained.
-	 * 
-	 * @param toAdd card to add
-	 * @param n number of copies to add
-	 * @param main add to the main deck (true) or sideboard (false)
-	 * @return true if the deck changed as a result, which is always.
-	 */
-	public boolean addCard(Card toAdd, int n, boolean main)
-	{
-		return addCards(Arrays.asList(toAdd), n, main);
-	}
-	
-	/**
-	 * Add the given number of copies of the given cards to the deck.  The current
-	 * selections in the category and main tables are maintained.  Then update the
-	 * undo and redo buffers.
-	 * 
-	 * @param toAdd cards to add
-	 * @param n number of copies to add
-	 * @param main add to the main deck (true) or sideboard (false)
-	 * @return true if the deck changed as a result, and false otherwise, which is
-	 * only true if the list is empty.
-	 */
-	public boolean addCards(List<Card> toAdd, final int n, final boolean main)
-	{
-		final Map<Card, Integer> cards = toAdd.stream().collect(Collectors.toMap(Function.identity(), (c) -> n));
-		return performAction(() -> !deleteCards(toAdd, n, main).isEmpty(), () -> insertCards(cards, main));
-	}
-	
-	/**
-	 * Add a category to the deck.
-	 * 
-	 * @param spec specification for the category to add
-	 * @return true if the category was successfully added and false otherwise.
-	 */
-	public boolean addCategory(CategorySpec spec)
-	{
-		if (spec != null && !deck.current.containsCategory(spec.getName()))
-			return performAction(() -> deleteCategory(spec), () -> insertCategory(spec));
-		else
-			return false;
-	}
-	
-	/**
-	 * Add the currently-selected cards from the currently-selected table to the
-	 * Deck.
-	 * 
-	 * @param n number of each card to add
-	 * @param main add to the main deck (true) or sideboard (false)
-	 * @return true if the Deck was changed as a result, and false otherwise.
-	 */
-	public boolean addSelectedCards(int n, boolean main)
-	{
-		if (hasSelectedCards())
-			return addCards(getSelectedCards(), n, main);
-		else if (parent.getSelectedCard() != null)
-			return addCard(parent.getSelectedCard(), n, main);
-		else
-			return false;
 	}
 	
 	/**
@@ -1568,25 +1509,18 @@ public class EditorFrame extends JInternalFrame
 				{
 					clearTableSelections(newCategory.table);
 					parent.clearSelectedCards();
-					setSelectedSource(newCategory.table, deck.current.getCategoryList(spec.getName()));
-					if (hasSelectedCards())
-						parent.selectCard(getSelectedCards().get(0));
+					setSelectedSource(getSelectedCards(), newCategory.table, deck.current.getCategoryList(spec.getName()));
 				}
 			}
 		});
 		// Add the behavior for the edit category button
 		newCategory.rankBox.addActionListener((e) -> {
 			if (newCategory.rankBox.isPopupVisible())
-			{
-				int oldRank = deck.current.getCategoryRank(newCategory.getCategoryName());
-				int newRank = newCategory.rankBox.getSelectedIndex();
-				performAction(() -> deck.current.swapCategoryRanks(newCategory.getCategoryName(), oldRank),
-						() -> deck.current.swapCategoryRanks(newCategory.getCategoryName(), newRank));
-			}
+				deck.current.swapCategoryRanks(newCategory.getCategoryName(), newCategory.rankBox.getSelectedIndex());
 		});
 		newCategory.editButton.addActionListener((e) -> editCategory(spec.getName()));
 		// Add the behavior for the remove category button
-		newCategory.removeButton.addActionListener((e) -> removeCategory(spec));
+		newCategory.removeButton.addActionListener((e) -> deck.current.remove(spec.getName()));
 		// Add the behavior for the color edit button
 		newCategory.colorButton.addActionListener((e) -> {
 			Color newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color());
@@ -1607,12 +1541,9 @@ public class EditorFrame extends JInternalFrame
 		newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 		
 		CardMenuItems tableMenuCardItems = new CardMenuItems(this,
-				(n) -> addSelectedCards(n, true),
-				() -> {
-					for (Card c: newCategory.getSelectedCards())
-						addCard(c, 4 - deck.current.getData(c).count(), true);
-					},
-				(n) -> removeSelectedCards(n, true));
+				(n) -> deck.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
+				() -> deck.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), c -> 4 - deck.current.getData(c).count()))),
+				(n) -> deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_N));
@@ -1630,18 +1561,9 @@ public class EditorFrame extends JInternalFrame
 		tableMenu.add(addToCategoryMenu);
 		JMenuItem removeFromCategoryItem = new JMenuItem("Exclude from " + spec.getName());
 		removeFromCategoryItem.addActionListener((e) -> {
-			List<Card> selectedCards = newCategory.getSelectedCards();
-			performAction(() -> {
-				for (Card c: selectedCards)
-					spec.include(c);
-				((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
-				return true;
-			}, () -> {
-				for (Card c: selectedCards)
-					spec.exclude(c);
-				((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
-				return true;
-			});
+			for (Card c: newCategory.getSelectedCards())
+				spec.include(c);
+			((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
 		});
 		tableMenu.add(removeFromCategoryItem);
 		JMenu removeFromCategoryMenu = new JMenu("Exclude from");
@@ -1693,7 +1615,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Delete item
 		JMenuItem deleteItem = new JMenuItem("Delete");
-		deleteItem.addActionListener((e) -> removeCategory(spec));
+		deleteItem.addActionListener((e) -> deck.current.remove(spec.getName()));
 		categoryMenu.add(deleteItem);
 		
 		// Add to presets item
@@ -1746,53 +1668,6 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Remove a number of copies of the specified Cards from the deck.  The current selections
-	 * for any cards remaining in them in the category and main tables are maintained.  Don't
-	 * update the undo buffer.
-	 * 
-	 * @param toRemove list of cards to remove
-	 * @param n number of copies to remove
-	 * @param main remove from the main deck (true) or to the sideboard (false)
-	 * @return a map containing the Cards removed and the number of each that was removed.
-	 */
-	private Map<Card, Integer> deleteCards(Collection<Card> toRemove, int n, boolean main)
-	{
-		saveSelectedCards();
-		Map<Card, Integer> removed = new HashMap<Card, Integer>();
-		for (Card c: toRemove)
-			removed.put(c, (main ? deck : sideboard).current.remove(c, n));
-		return removed;
-	}
-	
-	/**
-	 * Delete the category with the given specification from the deck
-	 * and remove its panel.
-	 * 
-	 * @param category specification of the category to remove
-	 * @return true if the category was successfully removed, and false
-	 * otherwise (such as if there was no such category).
-	 */
-	private boolean deleteCategory(CategorySpec category)
-	{
-		CategoryPanel panel = getCategory(category.getName());
-		return panel != null && deck.current.remove(category.getName());
-	}
-	
-	/**
-	 * Change the given category so it has the parameters of the other given category.
-	 * The category to edit is edited in place, while the one representing new values
-	 * is unchanged.
-	 * 
-	 * @param toEdit category to edit
-	 * @param newValues new values for the category
-	 */
-	private void editCategory(CategorySpec toEdit, CategorySpec newValues)
-	{
-		CategorySpec oldSpec = new CategorySpec(toEdit);
-		performAction(() -> toEdit.copy(oldSpec), () -> toEdit.copy(newValues));
-	}
-	
-	/**
 	 * Open the category dialog to edit the category with the given
 	 * name, if there is one, and then update the undo buffer.
 	 * 
@@ -1808,7 +1683,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, toEdit);
 			if (spec != null)
-				editCategory(toEdit, spec);
+				toEdit.copy(spec);
 		}
 	}
 	
@@ -1820,25 +1695,13 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public void editInclusion(Map<Card, Set<CategorySpec>> included, Map<Card, Set<CategorySpec>> excluded)
 	{
-		performAction(() -> {
-			boolean changed = false;
-			for (Card card: included.keySet())
-				for (CategorySpec category: included.get(card))
-					changed |= category.exclude(card);
-			for (Card card: excluded.keySet())
-				for (CategorySpec category: excluded.get(card))
-					changed |= category.include(card);
-			return changed;
-		}, () -> {
-			boolean changed = false;
-			for (Card card: included.keySet())
-				for (CategorySpec category: included.get(card))
-					changed |= category.include(card);
-			for (Card card: excluded.keySet())
-				for (CategorySpec category: excluded.get(card))
-					changed |= category.exclude(card);
-			return changed;
-		});
+		// TODO: Make this all one action
+		for (Card card: included.keySet())
+			for (CategorySpec category: included.get(card))
+				category.exclude(card);
+		for (Card card: excluded.keySet())
+			for (CategorySpec category: excluded.get(card))
+				category.include(card);
 	}
 	
 	/**
@@ -1929,89 +1792,6 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Add cards to the deck, maintaining the selection in the currently-selected
-	 * table.
-	 * 
-	 * @param cards map containing cards and amounts to add
-	 * @param main add cards to the main deck (true) or sideboard (false)
-	 * @return true if the deck changed as a result, and false otherwise, which is
-	 * only true if the list is empty.
-	 */
-	private boolean insertCards(Map<Card, Integer> cards, boolean main)
-	{
-		saveSelectedCards();
-		cards.values().removeAll(Arrays.asList(0));
-		if (cards.isEmpty())
-			return false;
-		else
-		{
-			for (Map.Entry<Card, Integer> entry: cards.entrySet())
-				(main ? deck : sideboard).current.add(entry.getKey(), entry.getValue());
-			return true;
-		}
-	}
-	
-	/**
-	 * Add a category to the deck.
-	 * 
-	 * @param spec specification for the new category
-	 * @return true if a category was created, and false otherwise
-	 * (such as if there was one with the same name already).
-	 */
-	private boolean insertCategory(CategorySpec spec)
-	{
-		if (!deck.current.containsCategory(spec.getName()))
-		{
-			deck.current.addCategory(spec);
-			return true;
-		}
-		else
-		{
-			listTabs.setSelectedIndex(CATEGORIES);
-			CategoryPanel panel = getCategory(spec.getName());
-			panel.scrollRectToVisible(new Rectangle(panel.getSize()));
-			panel.flash();
-			return false;
-		}
-	}
-	
-	/**
-	 * Perform an action.  Then, if it succeeds, push it onto the undo buffer
-	 * and clear the redo buffer.
-	 * 
-	 * @param undo what to do to undo the action
-	 * @param redo the action to perform
-	 * @return true if the action succeeded, and false otherwise.
-	 */
-	private boolean performAction(BooleanSupplier undo, BooleanSupplier redo)
-	{
-		undoBuffer.push(new UndoableAction()
-		{
-			@Override
-			public boolean redo()
-			{
-				return redo.getAsBoolean();
-			}
-
-			@Override
-			public boolean undo()
-			{
-				return undo.getAsBoolean();
-			}	
-		});
-		if (undoBuffer.peek().redo())
-		{
-			redoBuffer.clear();
-			return true;
-		}
-		else
-		{
-			undoBuffer.pop();
-			return false;
-		}
-	}
-	
-	/**
 	 * Redo the last action that was undone, assuming nothing was done
 	 * between then and now.
 	 */
@@ -2019,94 +1799,43 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (!redoBuffer.isEmpty())
 		{
-			UndoableAction action = redoBuffer.pop();
-			action.redo();
+			undoing = true;
+
+			Deck.Event action = redoBuffer.pop();			
+			if (action.cardsChanged())
+			{
+				action.getSource().addAll(action.cardsAdded());
+				action.getSource().removeAll(action.cardsRemoved());
+			}
+			if (action.categoryRemoved())
+			{
+				if (action.getSource() == sideboard.current)
+					throw new IllegalStateException("the sideboard can't have categories");
+				deck.current.remove(action.removedCategory().getName());
+			}
+			if (action.categoryAdded())
+			{
+				if (action.getSource() == sideboard.current)
+					throw new IllegalStateException("the sideboard can't have categories");
+				deck.current.addCategory(action.addedCategory());
+			}
+			if (action.categoryChanged())
+			{
+				if (action.getSource() == sideboard.current)
+					throw new IllegalStateException("the sideboard can't have categories");
+				action.categoryChanges().getSource().copy(action.categoryChanges().newSpec());
+			}
+			if (action.ranksChanged())
+			{
+				if (action.getSource() == sideboard.current)
+					throw new IllegalStateException("the sideboard can't have categories");
+				List<String> categories = new ArrayList<String>(action.oldRanks().keySet());
+				action.getSource().swapCategoryRanks(categories.get(0), action.oldRanks().get(categories.get(1)));
+			}
 			undoBuffer.push(action);
+			
+			undoing = false;
 		}
-	}
-
-	/**
-	 * Remove a number of copies of the specified Card from the deck.  The current selections
-	 * for any cards remaining in the category and main tables are maintained.  Then update the
-	 * undo buffer.
-	 * 
-	 * @param toRemove card to remove
-	 * @param n number of copies to remove
-	 * @param main remove from the main deck (true) or sideboard (false)
-	 * @return true if the deck was changed as a result, and false otherwise.
-	 */
-	public boolean removeCard(Card toRemove, int n, boolean main)
-	{
-		return removeCards(Arrays.asList(toRemove), n, main);
-	}
-	
-	/**
-	 * Remove a number of copies of the specified cards from the deck.  The current selections
-	 * for any cards remaining in the category and main tables are maintained.  Then update the
-	 * undo buffer.
-	 * 
-	 * @param toRemove list of cards to remove
-	 * @param n number of copies to remove
-	 * @param main add to the main deck (true) or sideboard (false)
-	 * @return true if the deck was changed as a result, and false otherwise.
-	 */
-	public boolean removeCards(Collection<Card> toRemove, final int n, final boolean main)
-	{
-		CardList list = (main ? deck : sideboard).current;
-		Map<Card, Integer> removed = toRemove.stream().filter(list::contains).collect(Collectors.toMap(Function.identity(), (c) -> Math.min(n, list.getData(c).count())));
-		return performAction(() -> insertCards(removed, main), () -> !deleteCards(toRemove, n, main).isEmpty());
-	}
-
-	/**
-	 * If the given category exists in this EditorFrame's deck, remove it from
-	 * the deck.
-	 * 
-	 * @param category panel representing the category to be removed
-	 * @return true if the category was successfully removed, and false otherwise.
-	 */
-	public boolean removeCategory(CategorySpec category)
-	{
-		return deck.current.containsCategory(category.getName())
-				&& performAction(() -> insertCategory(category), () -> deleteCategory(category));
-	}
-
-	/**
-	 * If a category with the given name exists in the deck, remove it
-	 * and then update the undo and redo buffers.
-	 * 
-	 * @param name name of the category to look for
-	 * @return the specification of the category that was removed, or null if no
-	 * category was removed
-	 */
-	public CategorySpec removeCategory(String name)
-	{
-		CategoryPanel removed = getCategory(name);
-		if (removed != null)
-		{
-			CategorySpec spec = deck.current.getCategorySpec(name);
-			removeCategory(spec);
-			return spec;
-		}
-		else
-			return null;
-	}
-	
-	/**
-	 * Remove the currently-selected cards in the currently-selected table from
-	 * the deck.
-	 * 
-	 * @param n number of copies of the cards to remove
-	 * @param main remove from the main deck (true) or sideboard (false)
-	 * @return true if the deck changed as a result, and false otherwise.
-	 */
-	public boolean removeSelectedCards(int n, boolean main)
-	{
-		if (hasSelectedCards())
-			return removeCards(getSelectedCards(), n, main);
-		else if (parent.getSelectedCard() != null)
-			return removeCard(parent.getSelectedCard(), n, main);
-		else
-			return false;
 	}
 
 	/**
@@ -2176,59 +1905,6 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Save the list of selected cards from the active table for later selection
-	 * restoration.
-	 */
-	private void saveSelectedCards()
-	{
-		if (selectedTable != null)
-			selectedCards = Arrays.stream(selectedTable.getSelectedRows())
-					.mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
-					.collect(Collectors.toList());
-		else
-			selectedCards = new ArrayList<Card>();
-	}
-	
-	/**
-	 * Set the number of copies of the given card if the deck contains it.  Otherwise
-	 * add the card to the deck.
-	 * 
-	 * @param c card to set (or add if it isn't present)
-	 * @param n number of copies to set to (or add if the card isn't present)
-	 * @param main set the count for the main deck (true) or sideboard (false)
-	 */
-	public void setCardCount(Card c, int n, boolean main)
-	{
-		CardList list = (main ? deck : sideboard).current;
-		if (list.contains(c))
-		{
-			if (n != list.getData(c).count())
-			{
-				int old = list.getData(c).count();
-				performAction(() -> list.set(c, old), () -> list.set(c, n));
-			}
-		}
-		else
-			addCard(c, n, main);
-	}
-	
-	/**
-	 * Set the number of copies of the given card if the deck contains it.  Otherwise
-	 * add the card to the deck.
-	 * 
-	 * @param c card to set (or add if it isn't present)
-	 * @param n number of copies to set to (or add if the card isn't present)
-	 * @param list list to add cards to (deck or table)
-	 */
-	public void setCardCount(Card c, int n, CardList list)
-	{
-		if (list != deck.current && list != sideboard.current)
-			setCardCount(c, n, list == deck.current);
-		else
-			throw new IllegalArgumentException("Can't add cards to that list");
-	}
-	
-	/**
 	 * Change the file this EditorFrame is associated with.  If the file has
 	 * not been saved, an error will be thrown instead.
 	 * 
@@ -2257,15 +1933,19 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Set the table and {@link CardList} that contains the current selection.
+	 * Set the selected cards and where they came from.
 	 * 
+	 * @param selected cards that were selected
 	 * @param table table to select
 	 * @param source {@link CardList} to select
 	 */
-	public void setSelectedSource(CardTable table, CardList source)
+	public void setSelectedSource(List<Card> selected, CardTable table, CardList source)
 	{
+		selectedCards = selected;
 		selectedTable = table;
 		selectedSource = source;
+		if (hasSelectedCards())
+			parent.selectCard(getSelectedCards().get(0));
 	}
 	
 	/**
@@ -2285,9 +1965,42 @@ public class EditorFrame extends JInternalFrame
 	{
 		if (!undoBuffer.isEmpty())
 		{
-			UndoableAction action = undoBuffer.pop();
-			action.undo();
+			undoing = true;
+			
+			Deck.Event action = undoBuffer.pop();			
+			if (action.cardsChanged())
+			{
+				action.getSource().addAll(action.cardsRemoved());
+				action.getSource().removeAll(action.cardsAdded());
+			}
+			if (action.categoryRemoved())
+			{
+				if (action.getSource() == sideboard.current)
+					throw new IllegalStateException("the sideboard can't have categories");
+				deck.current.addCategory(action.removedCategory());
+			}
+			if (action.categoryAdded())
+			{
+				if (action.getSource() == sideboard.current)
+					throw new IllegalStateException("the sideboard can't have categories");
+				deck.current.remove(action.addedCategory().getName());
+			}
+			if (action.categoryChanged())
+			{
+				if (action.getSource() == sideboard.current)
+					throw new IllegalStateException("the sideboard can't have categories");
+				action.categoryChanges().getSource().copy(action.categoryChanges().oldSpec());
+			}
+			if (action.ranksChanged())
+			{
+				if (action.getSource() == sideboard.current)
+					throw new IllegalStateException("the sideboard can't have categories");
+				List<String> categories = new ArrayList<String>(action.oldRanks().keySet());
+				action.getSource().swapCategoryRanks(categories.get(0), action.oldRanks().get(categories.get(0)));
+			}
 			redoBuffer.push(action);
+			
+			undoing = false;
 		}
 	}
 	

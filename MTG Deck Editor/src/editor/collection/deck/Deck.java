@@ -448,22 +448,18 @@ public class Deck implements CardList, Externalizable
 		 */
 		private Map<Card, Integer> cardsChanged;
 		/**
-		 * If a category's name was changed, its old name.
-		 */
-		private String changedName;
-		/**
-		 * CategoryEvent representing the changes to the CategorySpec corresponding to the
-		 * category that was changed, if any was changed.
+		 * {@link editor.collection.category.CategorySpec.Event} representing the changes to the
+		 * {@link CategorySpec} corresponding to the category that was changed, if any was changed.
 		 */
 		private CategorySpec.Event categoryChanges;
 		/**
-		 * If a category was added to the deck, its name.
+		 * If a category was added to the deck, its specification.
 		 */
-		private String addedCategory;
+		private CategorySpec addedCategory;
 		/**
 		 * Set of names of categories that have been removed, if any.
 		 */
-		private Set<String> removedCategories;
+		private CategorySpec removedCategory;
 		/**
 		 * Map of categories onto their old ranks, if they were changed.
 		 */
@@ -476,20 +472,19 @@ public class Deck implements CardList, Externalizable
 		{
 			super(Deck.this);
 			cardsChanged = null;
-			changedName = null;
 			categoryChanges = null;
 			addedCategory = null;
-			removedCategories = null;
+			removedCategory = null;
 			rankChanges = null;
 		}
 		
 		/**
-		 * If a category was added, get its name.
+		 * If a category was added, get its specification.
 		 * 
-		 * @return the name of the category that was added.
-		 * @throws IllegalStateException If no category was added.
+		 * @return the specification of the category that was added
+		 * @throws IllegalStateException if no category was added
 		 */
-		public String addedName()
+		public CategorySpec addedCategory()
 		{
 			if (categoryAdded())
 				return addedCategory;
@@ -570,23 +565,10 @@ public class Deck implements CardList, Externalizable
 		 * 
 		 * @return true if any categories were removed during the event, and false otherwise.
 		 */
-		public boolean categoriesRemoved()
+		public boolean categoryRemoved()
 		{
-			return removedCategories != null;
+			return removedCategory != null;
 		}
-		
-		/**
-		 * Indicate that categories were removed from the deck.
-		 * 
-		 * @param removed collection of categories that were removed
-		 * @return the event representing the change.
-		 */
-		private Event categoriesRemoved(Collection<Category> removed)
-		{
-			removedCategories = new HashSet<String>(removed.stream().map((c) -> c.spec.getName()).collect(Collectors.toSet()));
-			return this;
-		}
-		
 		/**
 		 * Check if a category was added to the deck.
 		 * 
@@ -605,7 +587,7 @@ public class Deck implements CardList, Externalizable
 		 */
 		private Event categoryAdded(Category added)
 		{
-			addedCategory = added.spec.getName();
+			addedCategory = added.spec;
 			return this;
 		}
 		
@@ -622,14 +604,12 @@ public class Deck implements CardList, Externalizable
 		/**
 		 * Indicate that a category was changed.
 		 * 
-		 * @param changeName name of the category that was changed
 		 * @param changes {@link editor.collection.category.CategorySpec.Event} indicating changes
 		 * to the category
 		 * @return the event representing the change.
 		 */
-		private Event categoryChanged(String changeName, CategorySpec.Event changes)
+		private Event categoryChanged(CategorySpec.Event changes)
 		{
-			changedName = changeName;
 			categoryChanges = changes;
 			return this;
 		}
@@ -649,24 +629,6 @@ public class Deck implements CardList, Externalizable
 		}
 		
 		/**
-		 * Get the name of the category that was changed as it was before the event.
-		 * Use this rather than the CategoryEvent returned by
-		 * {@link #categoryChanged(String, editor.collection.category.CategorySpec.Event)}.
-		 * to identify which category was changed if its name was not changed.
-		 * 
-		 * @return the name of the category that was changed before the event.
-		 * @throws IllegalStateException if no category was changed during the
-		 * event.
-		 */
-		public String categoryName()
-		{
-			if (categoryChanged())
-				return changedName;
-			else
-				throw new IllegalStateException("Category was not changed");
-		}
-		
-		/**
 		 * Indicate that a category was removed from the deck.
 		 * 
 		 * @param removed category that was removed
@@ -674,7 +636,7 @@ public class Deck implements CardList, Externalizable
 		 */
 		private Event categoryRemoved(Category removed)
 		{
-			removedCategories = new HashSet<String>(Arrays.asList(removed.spec.getName()));
+			removedCategory = removed.spec;
 			return this;
 		}
 		
@@ -726,15 +688,15 @@ public class Deck implements CardList, Externalizable
 		}
 		
 		/**
-		 * Get the names of categories that were removed, if any.
+		 * Get the specification of the category that was removed, if any.
 		 * 
-		 * @return the set of names of the categories that were removed during the event.
-		 * @throws IllegalStateException if no categories were removed during the event.
+		 * @return the specification of the category that was removed during the event
+		 * @throws IllegalStateException if no category was removed during the event
 		 */
-		public Set<String> removedNames()
+		public CategorySpec removedCategory()
 		{
-			if (categoriesRemoved())
-				return removedCategories;
+			if (categoryRemoved())
+				return removedCategory;
 			else
 				throw new IllegalStateException("No category has been removed from the deck");
 		}
@@ -917,13 +879,13 @@ public class Deck implements CardList, Externalizable
 			spec.addCategoryListener(c.listener = (e) -> {
 				if (e.nameChanged())
 				{
-					categories.remove(e.oldName());
-					categories.put(e.newName(), c);
+					categories.remove(e.oldSpec().getName());
+					categories.put(e.newSpec().getName(), c);
 				}
 				if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
 					c.update();
 				
-				Event event = new Event().categoryChanged(e.nameChanged() ? e.oldName() : e.getSource().getName(), e);
+				Event event = new Event().categoryChanged(e);
 				for (DeckListener listener: new HashSet<DeckListener>(listeners))
 					listener.deckChanged(event);
 			});
@@ -959,19 +921,16 @@ public class Deck implements CardList, Externalizable
 	/**
 	 * {@inheritDoc}
 	 * Also remove all categories.
+	 * 
+	 * TODO: Give this a special event
 	 */
 	@Override
 	public void clear()
 	{
-		Map<Card, Integer> removed = masterList.stream().collect(Collectors.toMap((c) -> c.card, (c) -> -c.count));
-		Collection<Category> categoriesRemoved = categories.values();
-		
 		masterList.clear();
 		categories.clear();
 		total = 0;
 		land = 0;
-		
-		notifyListeners(new Event().cardsChanged(removed).categoriesRemoved(categoriesRemoved));
 	}
 
 	@Override
@@ -1295,6 +1254,8 @@ public class Deck implements CardList, Externalizable
 	/**
 	 * Remove a category from the deck.
 	 * 
+	 * TODO: change this to removeCateogry(CategorySpec) to mirror addCategory(CategorySpec)
+	 * 
 	 * @param name name of the category to remove.
 	 * @return true if the deck changed as a result, and false otherwise.
 	 */
@@ -1317,8 +1278,15 @@ public class Deck implements CardList, Externalizable
 			categories.remove(name);
 			c.spec.removeCategoryListener(c.listener);
 			
-			notifyListeners(new Event().categoryRemoved(c).ranksChanged(oldRanks));
+			Event event = new Event().categoryRemoved(c);
+			if (!oldRanks.isEmpty())
+			{
+				oldRanks.put(c.spec.getName(), c.rank);
+				event = event.ranksChanged(oldRanks);
+			}
+			notifyListeners(event);
 			return true;
+			
 		}
 		else
 			return false;

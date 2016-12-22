@@ -37,6 +37,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -480,16 +481,15 @@ public class MainFrame extends JFrame
 		CardMenuItems deckMenuCardItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null)
-						selectedFrame.addSelectedCards(n, true);
+						selectedFrame.deck().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
 				},
 				() -> {
 					if (selectedFrame != null)
-						for (Card c: getSelectedCards())
-							selectedFrame.addCard(c, 4 - selectedFrame.deck().getData(c).count(), true);
+						selectedFrame.deck().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 4 - selectedFrame.deck().getData(c).count())));
 					},
 				(n) -> {
 					if (selectedFrame != null)
-						selectedFrame.removeSelectedCards(n, true);
+						selectedFrame.deck().removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
 				});
 		addMenu.add(deckMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		addMenu.add(deckMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
@@ -504,12 +504,12 @@ public class MainFrame extends JFrame
 		CardMenuItems sideboardMenuItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null)
-						selectedFrame.addSelectedCards(n, false);
+						selectedFrame.sideboard().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
 				},
 				null,
 				(n) -> {
 					if (selectedFrame != null)
-						selectedFrame.removeSelectedCards(n, false);
+						selectedFrame.sideboard().removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
 				});
 		sideboardMenu.add(sideboardMenuItems.get(CardMenuItems.ADD_SINGLE));
 		sideboardMenu.add(sideboardMenuItems.get(CardMenuItems.ADD_N));
@@ -524,7 +524,7 @@ public class MainFrame extends JFrame
 		JMenuItem addCategoryItem = new JMenuItem("Add...");
 		addCategoryItem.addActionListener((e) -> {
 			if (selectedFrame != null)
-				selectedFrame.addCategory(selectedFrame.createCategory());
+				selectedFrame.deck().addCategory(selectedFrame.createCategory());
 			});
 		categoryMenu.add(addCategoryItem);
 
@@ -555,7 +555,7 @@ public class MainFrame extends JFrame
 				categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
 				if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.removeCategory(categories.getSelectedValue());
+					selectedFrame.deck().remove(categories.getSelectedValue());
 			}
 		});
 		categoryMenu.add(removeCategoryItem);
@@ -568,7 +568,7 @@ public class MainFrame extends JFrame
 			JMenuItem categoryItem = new JMenuItem(spec.getName());
 			categoryItem.addActionListener((e) -> {
 				if (selectedFrame != null && !selectedFrame.deck().containsCategory(spec.getName()))
-					selectedFrame.addCategory(spec);
+					selectedFrame.deck().addCategory(spec);
 			});
 			presetMenu.add(categoryItem);
 		}
@@ -733,15 +733,15 @@ public class MainFrame extends JFrame
 		CardMenuItems oracleMenuCardItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.addCard(selectedCard, n, true);
+						selectedFrame.deck().add(selectedCard, n);
 				},
 				() -> {
 					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.addCard(selectedCard, 4 - selectedFrame.deck().getData(selectedCard).count(), true);
+						selectedFrame.deck().add(selectedCard, 4 - selectedFrame.deck().getData(selectedCard).count());
 				},
 				(n) -> {
 					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.removeCard(selectedCard, n, true);
+						selectedFrame.deck().remove(selectedCard, n);
 				});
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
@@ -756,15 +756,15 @@ public class MainFrame extends JFrame
 		CardMenuItems oracleMenuSBCardItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.addCard(selectedCard, n, false);
+						selectedFrame.sideboard().add(selectedCard, n);
 				},
 				() -> {
 					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.addCard(selectedCard, 4 - selectedFrame.deck().getData(selectedCard).count(), false);
+						selectedFrame.sideboard().add(selectedCard, 4 - selectedFrame.deck().getData(selectedCard).count());
 				},
 				(n) -> {
 					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.removeCard(selectedCard, n, false);
+						selectedFrame.sideboard().remove(selectedCard, n);
 				});
 		oracleMenuSBCardItems.get(CardMenuItems.ADD_SINGLE).setText("Add to Sideboard");
 		oraclePopupMenu.add(oracleMenuSBCardItems.get(CardMenuItems.ADD_SINGLE));
@@ -814,7 +814,7 @@ public class MainFrame extends JFrame
 		inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
 		inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) -> {
 			if (e.getClickCount()%2 == 0 && selectedFrame != null)
-				selectedFrame.addSelectedCards(1, true);
+				selectedFrame.deck().addAll(new HashSet<Card>(getSelectedCards()));
 		}));
 		inventoryTable.setTransferHandler(new TransferHandler()
 		{
@@ -847,16 +847,25 @@ public class MainFrame extends JFrame
 		CardMenuItems inventoryMenuCardItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null)
-						selectedFrame.addSelectedCards(n, true);
+						selectedFrame.deck().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
 				},
 				() -> {
 					if (selectedFrame != null)
+					{
+						Map<Card, Integer> toAdd = new HashMap<Card, Integer>();
 						for (Card c: getSelectedCards())
-							selectedFrame.addCard(c, 4 - selectedFrame.deck().getData(c).count(), true);
+						{
+							if (selectedFrame.deck().contains(c))
+								toAdd.put(c, 4 - selectedFrame.deck().getData(c).count());
+							else
+								toAdd.put(c, 4);
+						}
+						selectedFrame.deck().addAll(toAdd);
+					}
 				},
 				(n) -> {
 					if (selectedFrame != null)
-						selectedFrame.removeCards(getSelectedCards(), n, true);
+						selectedFrame.deck().removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
 				});
 		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
@@ -871,16 +880,15 @@ public class MainFrame extends JFrame
 		CardMenuItems inventoryMenuSBItems = new CardMenuItems(this,
 				(n) -> {
 					if (selectedFrame != null)
-						selectedFrame.addSelectedCards(n, false);
+						selectedFrame.sideboard().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
 				},
 				() -> {
 					if (selectedFrame != null)
-						for (Card c: getSelectedCards())
-							selectedFrame.addCard(c, 4 - selectedFrame.deck().getData(c).count(), false);
+						selectedFrame.sideboard().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 4 - selectedFrame.sideboard().getData(c).count())));
 				},
 				(n) -> {
 					if (selectedFrame != null)
-						selectedFrame.removeCards(getSelectedCards(), n, false);
+						selectedFrame.sideboard().removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
 				});
 		inventoryMenuSBItems.get(CardMenuItems.ADD_SINGLE).setText("Add to Sideboard");
 		inventoryMenu.add(inventoryMenuSBItems.get(CardMenuItems.ADD_SINGLE));
@@ -955,7 +963,7 @@ public class MainFrame extends JFrame
 					if (selectedFrame != null)
 					{
 						selectedFrame.clearTableSelections(null);
-						selectedFrame.setSelectedSource(inventoryTable, inventory);
+						selectedFrame.setSelectedSource(getSelectedCards(), inventoryTable, inventory);
 					}
 				}
 			}
@@ -1011,7 +1019,7 @@ public class MainFrame extends JFrame
 		JMenuItem categoryItem = new JMenuItem(spec.getName());
 		categoryItem.addActionListener((e) -> {
 			if (selectedFrame != null)
-				selectedFrame.addCategory(spec);
+				selectedFrame.deck().addCategory(spec);
 		});
 		presetMenu.add(categoryItem);
 	}
@@ -1045,7 +1053,7 @@ public class MainFrame extends JFrame
 			JMenuItem categoryItem = new JMenuItem(spec.getName());
 			categoryItem.addActionListener((e) -> {
 				if (selectedFrame != null)
-					selectedFrame.addCategory(spec);
+					selectedFrame.deck().addCategory(spec);
 			});
 			presetMenu.add(categoryItem);
 		}
@@ -1526,7 +1534,7 @@ public class MainFrame extends JFrame
 			deckMenu.setEnabled(true);
 			selectedFrame = frame;
 			if (!selectedFrame.hasSelectedCards() && inventoryTable.getSelectedRowCount() > 0)
-				selectedFrame.setSelectedSource(inventoryTable, inventory);
+				selectedFrame.setSelectedSource(getSelectedCards(), inventoryTable, inventory);
 			revalidate();
 			repaint();
 		}
