@@ -471,57 +471,44 @@ public class Deck implements CardList, Externalizable
 		public Event()
 		{
 			super(Deck.this);
-			cardsChanged = null;
+			cardsChanged = new HashMap<Card, Integer>();
 			categoryChanges = null;
 			addedCategory = null;
 			removedCategory = null;
-			rankChanges = null;
+			rankChanges = new HashMap<String, Integer>();
 		}
 		
 		/**
 		 * If a category was added, get its specification.
 		 * 
-		 * @return the specification of the category that was added
-		 * @throws IllegalStateException if no category was added
+		 * @return the specification of the category that was added, or null if there was
+		 * none
 		 */
 		public CategorySpec addedCategory()
 		{
-			if (categoryAdded())
-				return addedCategory;
-			else
-				throw new IllegalStateException("No category has been added to the deck");
+			return addedCategory;
 		}
 		
 		/**
 		 * If cards were added, get the cards that were added and how many of each were added.
 		 * 
 		 * @return a map containing the Cards that were added and the number of copies that were
-		 * added.
-		 * @throws IllegalStateException If no cards were added or removed during the event.
+		 * added
 		 */
 		public Map<Card, Integer> cardsAdded()
 		{
-			if (cardsChanged())
-			{
-				Map<Card, Integer> cards = new HashMap<Card, Integer>(cardsChanged);
-				for (Card c: cardsChanged.keySet())
-					if (cardsChanged.get(c).intValue() < 1)
-						cards.remove(c);
-				return cards;
-			}
-			else
-				throw new IllegalStateException("Deck cards were not changed");
+			return cardsChanged.entrySet().stream().filter((e) -> e.getValue() > 0).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		}
 		
 		/**
-		 * Check if the cards in the deck were changed.
+		 * Helper method for determining if cards were changed in the deck.  Equivalent
+		 * to <code>!cardsAdded().isEmpty() || !cardsRemoved().isEmpty()</code>.
 		 * 
-		 * @return true if cards were added to or removed from the deck during the event, and
-		 * false otherwise.
+		 * @return true if any cards were added or removed, and false otherwise
 		 */
 		public boolean cardsChanged()
 		{
-			return cardsChanged != null;
+			return !cardsChanged.isEmpty();
 		}
 		
 		/**
@@ -529,7 +516,7 @@ public class Deck implements CardList, Externalizable
 		 * means a card was added, and a negative one means it was removed.
 		 * 
 		 * @param change map of Cards onto their count changes
-		 * @return the event representing the change.
+		 * @return the event representing the change
 		 */
 		private Event cardsChanged(Map<Card, Integer> change)
 		{
@@ -542,35 +529,15 @@ public class Deck implements CardList, Externalizable
 		 * 
 		 * @return a map of cards that were removed and the number of copies that were removed.
 		 * Positive numbers are used to indicate removed cards.
-		 * @throws IllegalStateException if no cards were added or removed during the event.
 		 */
 		public Map<Card, Integer> cardsRemoved()
 		{
-			if (cardsChanged())
-			{
-				Map<Card, Integer> cards = new HashMap<Card, Integer>(cardsChanged);
-				for (Card c: cardsChanged.keySet())
-					if (cardsChanged.get(c).intValue() > -1)
-						cards.remove(c);
-					else
-						cardsChanged.compute(c, (k, v) -> -v);
-				return cards;
-			}
-			else
-				throw new IllegalStateException("Deck cards were not changed");
+			return cardsChanged.entrySet().stream().filter((e) -> e.getValue() < 0).collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue()));
 		}
 		
 		/**
-		 * Check if any categories were removed.
-		 * 
-		 * @return true if any categories were removed during the event, and false otherwise.
-		 */
-		public boolean categoryRemoved()
-		{
-			return removedCategory != null;
-		}
-		/**
-		 * Check if a category was added to the deck.
+		 * Helper method for determining if a category was added to the deck.
+		 * Equivalent of <code>addedCategory() != null</code>.
 		 * 
 		 * @return true if a category was added to the deck, and false otherwise.
 		 */
@@ -592,9 +559,10 @@ public class Deck implements CardList, Externalizable
 		}
 		
 		/**
-		 * Check if a category was changed.
+		 * Helper method for determining if a category was edited.  Equivalent to
+		 * <code>categoryChanges() != null<code>.
 		 * 
-		 * @return true if a category in the Deck was changed, and false otherwise.
+		 * @return true if a category was changed, and false otherwise
 		 */
 		public boolean categoryChanged()
 		{
@@ -617,15 +585,22 @@ public class Deck implements CardList, Externalizable
 		/**
 		 * Get the event that indicates a change to a category.
 		 * 
-		 * @return an event detailing the changes to the category.
-		 * @throws IllegalStateException if no category was changed during the event.
+		 * @return an event detailing the changes to the category, or none if no changes were made
 		 */
 		public CategorySpec.Event categoryChanges()
 		{
-			if (categoryChanged())
-				return categoryChanges;
-			else
-				throw new IllegalStateException("Category was not changed");
+			return categoryChanges;
+		}
+		
+		/**
+		 * Helper method for determining if a category was removed from the deck.
+		 * Equivalent of <code>removedCategory() != null</code>.
+		 * 
+		 * @return true if a category was removed from the deck, and false otherwise
+		 */
+		public boolean categoryRemoved()
+		{
+			return removedCategory != null;
 		}
 		
 		/**
@@ -654,25 +629,22 @@ public class Deck implements CardList, Externalizable
 		/**
 		 * Get the old ranks of the categories whose ranks changed before they were changed.
 		 * 
-		 * @return a map of category names onto their old ranks before they were changed.
-		 * @throws IllegalStateException if no category ranks were changed.
+		 * @return a map of category names onto their old ranks before they were changed
 		 */
 		public Map<String, Integer> oldRanks()
 		{
-			if (ranksChanged())
-				return rankChanges;
-			else
-				throw new IllegalStateException("No category's rank changed");
+			return rankChanges;
 		}
 		
 		/**
-		 * Check if any category ranks changed.
+		 * Helper method for determining if any category's rank changed.  Equivalent to
+		 * <code>!oldRanks().isEmpty()</code>.
 		 * 
-		 * @return true if the ranks of any categories were changed, and false otherwise.
+		 * @return true if any category's rank changed, and false otherwise
 		 */
 		public boolean ranksChanged()
 		{
-			return rankChanges != null;
+			return !rankChanges.isEmpty();
 		}
 		
 		/**
@@ -690,15 +662,12 @@ public class Deck implements CardList, Externalizable
 		/**
 		 * Get the specification of the category that was removed, if any.
 		 * 
-		 * @return the specification of the category that was removed during the event
-		 * @throws IllegalStateException if no category was removed during the event
+		 * @return the specification of the category that was removed during the event,
+		 * or null if there was none
 		 */
 		public CategorySpec removedCategory()
 		{
-			if (categoryRemoved())
-				return removedCategory;
-			else
-				throw new IllegalStateException("No category has been removed from the deck");
+			return removedCategory;
 		}
 	}
 
