@@ -18,9 +18,11 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -70,6 +72,7 @@ import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
@@ -81,6 +84,9 @@ import com.jidesoft.plaf.LookAndFeelFactory;
 
 import editor.collection.Inventory;
 import editor.collection.category.CategorySpec;
+import editor.collection.export.CardListFormat;
+import editor.collection.export.DelimitedCardListFormat;
+import editor.collection.export.TextCardListFormat;
 import editor.database.card.Card;
 import editor.database.characteristics.CardData;
 import editor.database.characteristics.Expansion;
@@ -96,6 +102,7 @@ import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.generic.CardMenuItems;
 import editor.gui.generic.ComponentUtils;
+import editor.gui.generic.OverwriteFileChooser;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.inventory.InventoryDownloadDialog;
@@ -381,7 +388,6 @@ public class MainFrame extends JFrame
 		// File menu
 		JMenu fileMenu = new JMenu("File");
 		menuBar.add(fileMenu);
-		// TODO: Add items for importing and exporting from/to different deck formats
 
 		// New file menu item
 		JMenuItem newItem = new JMenuItem("New");
@@ -437,6 +443,59 @@ public class MainFrame extends JFrame
 
 		fileMenu.add(new JSeparator());
 
+		// Import and export items
+		JMenuItem importItem = new JMenuItem("Import...");
+		fileMenu.add(importItem);
+		JMenuItem exportItem = new JMenuItem("Export...");
+		exportItem.addActionListener((e) -> {
+			if (selectedFrame != null)
+			{
+				FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
+				FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
+				
+				JFileChooser exportChooser = new OverwriteFileChooser();
+				exportChooser.setAcceptAllFileFilterUsed(false);
+				exportChooser.addChoosableFileFilter(text);
+				exportChooser.addChoosableFileFilter(delimited);
+				exportChooser.setDialogTitle("Export");
+				exportChooser.setCurrentDirectory(fileChooser.getCurrentDirectory());
+				switch (exportChooser.showSaveDialog(this))
+				{
+				case JFileChooser.APPROVE_OPTION:
+					// TODO: Add a wizard for each format
+					CardListFormat format;
+					if (exportChooser.getFileFilter() == text)
+						format = new TextCardListFormat();
+					else if (exportChooser.getFileFilter() == delimited)
+						format = new DelimitedCardListFormat();
+					else
+					{
+						JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					
+					// TODO: Add file extension if it's missing.
+					try
+					{
+						selectedFrame.export(format, exportChooser.getSelectedFile());
+					}
+					catch (UnsupportedEncodingException | FileNotFoundException x)
+					{
+						JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+					}
+					break;
+				case JFileChooser.CANCEL_OPTION:
+					break;
+				case JFileChooser.ERROR_OPTION:
+					JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+					break;
+				}
+			}
+		});
+		fileMenu.add(exportItem);
+		
+		fileMenu.add(new JSeparator());
+		
 		// Exit menu item
 		JMenuItem exitItem = new JMenuItem("Exit");
 		exitItem.addActionListener((e) -> exit());
@@ -1381,6 +1440,8 @@ public class MainFrame extends JFrame
 	{
 		// If the file exists, let the user choose whether or not to overwrite.  If he or she chooses not to,
 		// ask for a new file.  If he or she cancels at any point, stop asking and don't open a file.
+		
+		// TODO: Make this an OverwriteFileChooser
 		boolean done;
 		do
 		{

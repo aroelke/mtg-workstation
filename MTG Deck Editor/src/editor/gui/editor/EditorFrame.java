@@ -14,11 +14,13 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,6 +81,7 @@ import editor.collection.LegalityChecker;
 import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
+import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
 import editor.database.characteristics.CardData;
 import editor.gui.MainFrame;
@@ -1702,6 +1705,20 @@ public class EditorFrame extends JInternalFrame
 		for (Card card: excluded.keySet())
 			for (CategorySpec category: excluded.get(card))
 				category.include(card);
+	}
+	
+	public void export(CardListFormat format, File file) throws UnsupportedEncodingException, FileNotFoundException
+	{
+		try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF8")))
+		{
+			if (!deck.current.isEmpty())
+				wr.print(format.format(deck.current));
+			if (!sideboard.current.isEmpty())
+			{
+				wr.println();
+				wr.print(format.format(sideboard.current));
+			}
+		}
 	}
 	
 	/**
