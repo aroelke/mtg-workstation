@@ -3,8 +3,10 @@ package editor.gui.generic;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -13,6 +15,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 /**
  * This class represents a dialog that presents a series of steps to the user with
@@ -31,10 +34,6 @@ public class WizardDialog extends JDialog
 	private static final int BUTTON_BORDER = 5;
 	
 	/**
-	 * Value returned when the wizard completes successfully.
-	 */
-	public static final int FINISH_OPTION = 0;
-	/**
 	 * Value returned when the wizard is canceled.
 	 */
 	public static final int CANCEL_OPTION = 1;
@@ -42,6 +41,10 @@ public class WizardDialog extends JDialog
 	 * Value returned when the wizard is closed.
 	 */
 	public static final int CLOSE_OPTION = 2;
+	/**
+	 * Value returned when the wizard completes successfully.
+	 */
+	public static final int FINISH_OPTION = 0;
 	
 	/**
 	 * Show a wizard dialog with a series of components.
@@ -51,9 +54,9 @@ public class WizardDialog extends JDialog
 	 * @param panels panels representing steps of the wizard
 	 * @return a value indicating how the dialog was closed
 	 */
-	public static int showWizardDialog(Frame owner, String title, Component... panels)
+	public static int showWizardDialog(Component owner, String title, Component... panels)
 	{
-		return new WizardDialog(owner, title, panels).showWizard();
+		return new WizardDialog(SwingUtilities.getWindowAncestor(owner), title, panels).showWizard();
 	}
 	
 	/**
@@ -64,9 +67,9 @@ public class WizardDialog extends JDialog
 	 * @param panels panels representing steps of the wizard
 	 * @return a value indicating how the dialog was closed
 	 */
-	public static int showWizardDialog(Frame owner, String title, List<Component> panels)
+	public static int showWizardDialog(Component owner, String title, List<Component> panels)
 	{
-		return new WizardDialog(owner, title, panels.toArray(new Component[panels.size()])).showWizard();
+		return showWizardDialog(owner, title, panels.toArray(new Component[panels.size()]));
 	}
 	
 	/**
@@ -96,9 +99,45 @@ public class WizardDialog extends JDialog
 	 * @param title title of the dialog
 	 * @param panels panels representing steps of the wizard
 	 */
+	public WizardDialog(Dialog owner, String title, Component... panels)
+	{
+		super(owner, title, true);
+		init(panels);
+	}
+	
+	/**
+	 * Create a new WizardDialog.
+	 * 
+	 * @param owner parent frame of the dialog
+	 * @param title title of the dialog
+	 * @param panels panels representing steps of the wizard
+	 */
 	public WizardDialog(Frame owner, String title, Component... panels)
 	{
 		super(owner, title, true);
+		init(panels);
+	}
+	
+	/**
+	 * Create a new WizardDialog.
+	 * 
+	 * @param owner parent frame of the dialog
+	 * @param title title of the dialog
+	 * @param panels panels representing steps of the wizard
+	 */
+	public WizardDialog(Window owner, String title, Component... panels)
+	{
+		super(owner, title, Dialog.ModalityType.APPLICATION_MODAL);
+		init(panels);
+	}
+	
+	/**
+	 * Initialize a new WizardDialog.
+	 * 
+	 * @param panels components containing steps in the wizard
+	 */
+	private void init(Component[] panels)
+	{
 		CardLayout layout = new CardLayout();
 		setLayout(layout);
 		setResizable(false);
