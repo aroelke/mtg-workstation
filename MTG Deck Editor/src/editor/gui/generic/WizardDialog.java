@@ -56,7 +56,10 @@ public class WizardDialog extends JDialog
 	 */
 	public static int showWizardDialog(Component owner, String title, Component... panels)
 	{
-		return new WizardDialog(SwingUtilities.getWindowAncestor(owner), title, panels).showWizard();
+		Window window = SwingUtilities.getWindowAncestor(owner);
+		WizardDialog dialog = new WizardDialog(window, title, panels);
+		dialog.setLocationRelativeTo(window);
+		return dialog.showWizard();
 	}
 	
 	/**
