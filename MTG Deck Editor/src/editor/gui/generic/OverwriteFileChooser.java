@@ -3,13 +3,27 @@ package editor.gui.generic;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+/**
+ * This is a {@link JFileChooser} that confirms first if a file should be overwritten.
+ * 
+ * @author Alec Roelke
+ */
+@SuppressWarnings("serial")
 public class OverwriteFileChooser extends JFileChooser
 {
+	/**
+	 * Create a new OverwriteFileChooser.
+	 */
 	public OverwriteFileChooser()
 	{
 		super();
 	}
 	
+	/**
+	 * Create a new OverwriteFileChooser that starts in the given path
+	 * 
+	 * @param currentDirectoryPath path to start in
+	 */
 	public OverwriteFileChooser(String currentDirectoryPath)
 	{
 		super(currentDirectoryPath);
