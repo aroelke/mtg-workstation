@@ -16,6 +16,10 @@ public interface UnicodeSymbols
 	 */
 	char BULLET = '\u2022';
 	/**
+	 * Downwards black arrow, '{@value #DOWN_ARROW}'.
+	 */
+	char DOWN_ARROW = '\u2B07';
+	/**
 	 * Black down-pointing triangle, '{@value #DOWN_TRIANGLE}'.
 	 */
 	char DOWN_TRIANGLE = '\u25BC';
@@ -44,6 +48,10 @@ public interface UnicodeSymbols
 	 */
 	char LEFT_ANGLE_DOUBLE_QUOTE = '\u00AB';
 	/**
+	 * Leftwards black arrow, '{@value #LEFT_ARROW}'.
+	 */
+	char LEFT_ARROW = '\u2B05';
+	/**
 	 * Less than or equal to, '{@value #LESS_OR_EQUAL}'.
 	 */
 	char LESS_OR_EQUAL = '\u2264';
@@ -68,9 +76,17 @@ public interface UnicodeSymbols
 	 */
 	char RIGHT_ANGLE_DOUBLE_QUOTE = '\u00BB';
 	/**
+	 * Rightwards black arrow, '{@value #RIGHT_ARROW}'.
+	 */
+	char RIGHT_ARROW = '\u2B95';
+	/**
 	 * Superscript two, '{@value #SUPERSCRIPT_TWO}'.
 	 */
 	char SUPERSCRIPT_TWO = '\u00B2';
+	/**
+	 * Upwards black arrow, '{@value #UP_ARROW}'.
+	 */
+	char UP_ARROW = '\u2B06';
 	/**
 	 * Black up-pointing triangle, '{@value #UP_TRIANGLE}'.
 	 */
