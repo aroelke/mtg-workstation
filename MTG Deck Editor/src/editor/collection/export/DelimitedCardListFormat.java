@@ -19,25 +19,28 @@ public class DelimitedCardListFormat implements CardListFormat
 	
 	private String delimiter;
 	private String escape;
+	private boolean include;
 	private List<CardData> types;
 	
-	public DelimitedCardListFormat(String delim, List<CardData> data, String esc)
+	public DelimitedCardListFormat(String delim, List<CardData> data, String esc, boolean headers)
 	{
 		delimiter = delim;
 		types = data;
 		escape = esc;
+		include = headers;
 	}
 	
 	public DelimitedCardListFormat()
 	{
-		this(DEFAULT_DELIMITER, DEFAULT_DATA, DEFAULT_ESCAPE);
+		this(DEFAULT_DELIMITER, DEFAULT_DATA, DEFAULT_ESCAPE, true);
 	}
 	
 	@Override
 	public String format(CardList list)
 	{
 		StringJoiner join = new StringJoiner(System.lineSeparator());
-		join.add(String.join(delimiter, types.stream().map(CardData::toString).collect(Collectors.toList())));
+		if (include)
+			join.add(String.join(delimiter, types.stream().map(CardData::toString).collect(Collectors.toList())));
 		for (Card card: list)
 		{
 			StringJoiner line = new StringJoiner(delimiter);
