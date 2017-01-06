@@ -5,13 +5,13 @@ import java.awt.Color;
 import javax.swing.BoxLayout;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import editor.database.characteristics.ManaCost;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.ManaCostFilter;
 import editor.gui.generic.ComboBoxPanel;
+import editor.gui.generic.DocumentChangeListener;
 import editor.util.Containment;
 
 /**
@@ -43,32 +43,15 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 		contain = new ComboBoxPanel<Containment>(Containment.values());
 		add(contain);
 		cost = new JTextField();
-		cost.getDocument().addDocumentListener(new DocumentListener()
+		cost.getDocument().addDocumentListener(new DocumentChangeListener()
 		{
-			private void update(DocumentEvent e)
+			@Override
+			public void update(DocumentEvent e)
 			{
 				if (ManaCost.tryParseManaCost(cost.getText()) == null)
 					cost.setBackground(Color.PINK);
 				else
 					cost.setBackground(Color.WHITE);
-			}
-			
-			@Override
-			public void changedUpdate(DocumentEvent e)
-			{
-				update(e);
-			}
-
-			@Override
-			public void insertUpdate(DocumentEvent e)
-			{
-				update(e);
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e)
-			{
-				update(e);
 			}
 		});
 		add(cost);
