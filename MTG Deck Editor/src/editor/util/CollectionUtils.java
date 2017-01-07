@@ -43,7 +43,7 @@ public interface CollectionUtils
 		if (obj instanceof Set)
 			return ((Set<?>)obj).stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toSet());
 		else
-			throw new IllegalArgumentException(obj + " is not a list");
+			throw new IllegalArgumentException(obj + " is not a set");
 	}
 	
 	/**
