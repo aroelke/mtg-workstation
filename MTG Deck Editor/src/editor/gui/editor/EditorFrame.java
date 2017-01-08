@@ -1707,6 +1707,14 @@ public class EditorFrame extends JInternalFrame
 				category.include(card);
 	}
 	
+	/**
+	 * Export the deck to a different format.
+	 * 
+	 * @param format formatter to use for export
+	 * @param file file to export to
+	 * @throws UnsupportedEncodingException
+	 * @throws FileNotFoundException
+	 */
 	public void export(CardListFormat format, File file) throws UnsupportedEncodingException, FileNotFoundException
 	{
 		try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF8")))

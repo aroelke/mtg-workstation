@@ -69,15 +69,18 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
+import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -108,6 +111,7 @@ import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.generic.CardMenuItems;
 import editor.gui.generic.ComponentUtils;
+import editor.gui.generic.DocumentChangeListener;
 import editor.gui.generic.OverwriteFileChooser;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
@@ -471,18 +475,72 @@ public class MainFrame extends JFrame
 				{
 				case JFileChooser.APPROVE_OPTION:
 					CardListFormat format;
-					// TODO: export wizard for text format
 					if (exportChooser.getFileFilter() == text)
-						format = new TextCardListFormat();
+					{
+						JPanel wizardPanel = new JPanel(new BorderLayout());
+						JPanel fieldPanel = new JPanel(new BorderLayout());
+						fieldPanel.setBorder(BorderFactory.createTitledBorder("List Format:"));
+						JTextField formatField = new JTextField(TextCardListFormat.DEFAULT_FORMAT);
+						formatField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, formatField.getFont().getSize()));
+						formatField.setColumns(50);
+						fieldPanel.add(formatField, BorderLayout.CENTER);
+						JPanel addDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+						addDataPanel.add(new JLabel("Add Data: "));
+						JComboBox<CardData> addDataBox = new JComboBox<CardData>(CardData.values());
+						addDataPanel.add(addDataBox);
+						fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
+						wizardPanel.add(fieldPanel, BorderLayout.NORTH);
+						
+						if (selectedFrame.deck().total() > 0 || selectedFrame.sideboard().total() > 0)
+						{
+							JPanel previewPanel = new JPanel(new BorderLayout());
+							previewPanel.setBorder(BorderFactory.createTitledBorder("Preview:"));
+							JTextArea previewArea = new JTextArea();
+							JScrollPane previewPane = new JScrollPane(previewArea);
+							previewArea.setText(new TextCardListFormat(formatField.getText())
+									.format(selectedFrame.deck().total() > 0 ? selectedFrame.deck() : selectedFrame.sideboard()));
+							previewArea.setRows(1);
+							previewArea.setCaretPosition(0);
+							previewPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+							previewPanel.add(previewPane, BorderLayout.CENTER);
+							wizardPanel.add(previewPanel);
+							
+							addDataBox.addActionListener((v) -> {
+								int pos = formatField.getCaretPosition();
+								String data = '{' + addDataBox.getSelectedItem().toString().toLowerCase() + '}';
+								String t = formatField.getText().substring(0, pos) + data;
+								if (pos < formatField.getText().length())
+									t += formatField.getText().substring(formatField.getCaretPosition());
+								formatField.setText(t);
+								formatField.setCaretPosition(pos + data.length());
+								formatField.requestFocusInWindow();
+							});
+							
+							formatField.getDocument().addDocumentListener(new DocumentChangeListener()
+							{
+								@Override
+								public void update(DocumentEvent e)
+								{
+									previewArea.setText(new TextCardListFormat(formatField.getText())
+											.format(selectedFrame.deck().total() > 0 ? selectedFrame.deck() : selectedFrame.sideboard()));
+									previewArea.setCaretPosition(0);
+								}
+							});
+						}
+						
+						if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
+							format = new TextCardListFormat(formatField.getText());
+						else
+							return;
+					}
 					else if (exportChooser.getFileFilter() == delimited)
 					{
 						JPanel wizardPanel = new JPanel(new BorderLayout());
-						
 						JList<CardData> headersList = new JList<CardData>(CardData.values());
 						JScrollPane headersPane = new JScrollPane(headersList);
 						JPanel headersPanel = new JPanel();
 						headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));
-						headersPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
+						headersPanel.setBorder(BorderFactory.createTitledBorder("Data to Export:"));
 						VerticalButtonList rearrangeButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.UP_ARROW), String.valueOf(UnicodeSymbols.DOWN_ARROW));
 						headersPanel.add(rearrangeButtons);
 						headersPanel.add(Box.createHorizontalStrut(5));
