@@ -68,6 +68,11 @@ public enum CardData
 	 */
 	ARTIST("Artist", String.class),
 	/**
+	 * Collector number of a card.
+	 * TODO: Correct how this displays in the table and when exported
+	 */
+	CARD_NUMBER("Card Number", List.class),
+	/**
 	 * Set of formats a card is legal in.
 	 */
 	LEGAL_IN("Legal In", List.class),
@@ -119,6 +124,7 @@ public enum CardData
 							   TOUGHNESS,
 							   LOYALTY,
 							   ARTIST,
+							   CARD_NUMBER,
 							   LEGAL_IN,
 							   DATE_ADDED};
 	}
