@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -456,15 +457,58 @@ public class MainFrame extends JFrame
 		fileMenu.add(new JSeparator());
 
 		// Import and export items
+		final FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
+		final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
 		JMenuItem importItem = new JMenuItem("Import...");
+		importItem.addActionListener((e) -> {
+			JFileChooser importChooser = new JFileChooser();
+			importChooser.setAcceptAllFileFilterUsed(false);
+			importChooser.addChoosableFileFilter(text);
+			importChooser.addChoosableFileFilter(delimited);
+			importChooser.setDialogTitle("Import");
+			importChooser.setCurrentDirectory(fileChooser.getCurrentDirectory());
+			switch (importChooser.showOpenDialog(this))
+			{
+			case JFileChooser.APPROVE_OPTION:
+				CardListFormat format = new DelimitedCardListFormat(",", Arrays.asList(CardData.NAME, CardData.EXPANSION_NAME, CardData.CARD_NUMBER, CardData.COUNT, CardData.DATE_ADDED), false);
+				if (importChooser.getFileFilter() == text)
+				{
+					// TODO:
+				}
+				else if (importChooser.getFileFilter() == delimited)
+				{
+					// TODO:
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				newEditor();
+				try
+				{
+					selectedFrame.importList(format, importChooser.getSelectedFile());
+				}
+				catch (IllegalStateException | IOException | ParseException x)
+				{
+					JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+					x.printStackTrace();
+				}
+				
+				break;
+			case JFileChooser.CANCEL_OPTION:
+				break;
+			case JFileChooser.ERROR_OPTION:
+				JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+				break;
+			}
+		});
 		fileMenu.add(importItem);
 		JMenuItem exportItem = new JMenuItem("Export...");
 		exportItem.addActionListener((e) -> {
 			if (selectedFrame != null)
 			{
-				FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
-				FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
-				
 				JFileChooser exportChooser = new OverwriteFileChooser();
 				exportChooser.setAcceptAllFileFilterUsed(false);
 				exportChooser.addChoosableFileFilter(text);
@@ -547,6 +591,7 @@ public class MainFrame extends JFrame
 						DefaultListModel<CardData> selectedHeadersModel = new DefaultListModel<CardData>();
 						selectedHeadersModel.addElement(CardData.NAME);
 						selectedHeadersModel.addElement(CardData.EXPANSION_NAME);
+						selectedHeadersModel.addElement(CardData.CARD_NUMBER);
 						selectedHeadersModel.addElement(CardData.COUNT);
 						selectedHeadersModel.addElement(CardData.DATE_ADDED);
 						JList<CardData> selectedHeadersList = new JList<CardData>(selectedHeadersModel);
@@ -626,7 +671,7 @@ public class MainFrame extends JFrame
 						delimiterBox.setEditable(true);						
 						optionsPanel.add(delimiterBox);
 						JCheckBox includeCheckBox = new JCheckBox("Include Headers");
-						includeCheckBox.setEnabled(true);
+						includeCheckBox.setSelected(true);
 						optionsPanel.add(includeCheckBox);
 						wizardPanel.add(optionsPanel, BorderLayout.SOUTH);
 						
@@ -635,7 +680,7 @@ public class MainFrame extends JFrame
 							List<CardData> selected = new ArrayList<CardData>(selectedHeadersModel.size());
 							for (int i = 0; i < selectedHeadersModel.size(); i++)
 								selected.add(selectedHeadersModel.getElementAt(i));
-							format = new DelimitedCardListFormat(delimiterBox.getSelectedItem().toString(), selected, DelimitedCardListFormat.DEFAULT_ESCAPE, true);
+							format = new DelimitedCardListFormat(delimiterBox.getSelectedItem().toString(), selected, true);
 						}
 						else
 							return;
@@ -1194,7 +1239,7 @@ public class MainFrame extends JFrame
 					if (selectedFrame != null)
 					{
 						selectedFrame.clearTableSelections(null);
-						selectedFrame.setSelectedSource(getSelectedCards(), inventoryTable, inventory);
+						selectedFrame.setSelectedSource(inventoryTable, inventory);
 					}
 				}
 			}
@@ -1767,7 +1812,7 @@ public class MainFrame extends JFrame
 			deckMenu.setEnabled(true);
 			selectedFrame = frame;
 			if (!selectedFrame.hasSelectedCards() && inventoryTable.getSelectedRowCount() > 0)
-				selectedFrame.setSelectedSource(getSelectedCards(), inventoryTable, inventory);
+				selectedFrame.setSelectedSource(inventoryTable, inventory);
 			revalidate();
 			repaint();
 		}

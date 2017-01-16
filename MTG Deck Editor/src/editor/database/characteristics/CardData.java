@@ -69,7 +69,6 @@ public enum CardData
 	ARTIST("Artist", String.class),
 	/**
 	 * Collector number of a card.
-	 * TODO: Correct how this displays in the table and when exported
 	 */
 	CARD_NUMBER("Card Number", List.class),
 	/**

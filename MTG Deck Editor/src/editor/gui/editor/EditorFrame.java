@@ -21,6 +21,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -808,7 +810,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					clearTableSelections(deck.table);
 					parent.clearSelectedCards();
-					setSelectedSource(getSelectedCards(), deck.table, deck.current);
+					setSelectedSource(deck.table, deck.current);
 				}
 			}
 		});
@@ -867,7 +869,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					clearTableSelections(sideboard.table);
 					parent.clearSelectedCards();
-					setSelectedSource(getSelectedCards(), sideboard.table, sideboard.current);
+					setSelectedSource(sideboard.table, sideboard.current);
 				}
 			}
 		});
@@ -1512,7 +1514,7 @@ public class EditorFrame extends JInternalFrame
 				{
 					clearTableSelections(newCategory.table);
 					parent.clearSelectedCards();
-					setSelectedSource(getSelectedCards(), newCategory.table, deck.current.getCategoryList(spec.getName()));
+					setSelectedSource(newCategory.table, deck.current.getCategoryList(spec.getName()));
 				}
 			}
 		});
@@ -1817,6 +1819,23 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
+	 * Import a list of cards from a nonstandard file.
+	 * 
+	 * @param format format of the file
+	 * @param file file to import from
+	 * @throws IOException if the file could not be opened
+	 * @throws ParseException if parsing failed
+	 * @throws IllegalStateException if parsing failed or if the deck was not empty
+	 * @see CardListFormat
+	 */
+	public void importList(CardListFormat format, File file) throws IOException, ParseException, IllegalStateException
+	{
+		if (!deck.current.isEmpty())
+			throw new IllegalStateException("deck is not empty");
+		deck.current.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
+	}
+	
+	/**
 	 * Redo the last action that was undone, assuming nothing was done
 	 * between then and now.
 	 */
@@ -1826,7 +1845,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			undoing = true;
 
-			Deck.Event action = redoBuffer.pop();			
+			Deck.Event action = redoBuffer.pop();
 			if (action.cardsChanged())
 			{
 				action.getSource().addAll(action.cardsAdded());
@@ -1960,15 +1979,24 @@ public class EditorFrame extends JInternalFrame
 	/**
 	 * Set the selected cards and where they came from.
 	 * 
-	 * @param selected cards that were selected
 	 * @param table table to select
 	 * @param source {@link CardList} to select
 	 */
-	public void setSelectedSource(List<Card> selected, CardTable table, CardList source)
+	public void setSelectedSource(CardTable table, CardList source)
 	{
-		selectedCards = selected;
 		selectedTable = table;
 		selectedSource = source;
+		
+		selectedCards = null;
+		if (table == deck.table || table == sideboard.table)
+			selectedCards = getSelectedCards();
+		if (selectedCards == null)
+			for (CategoryPanel panel: categoryPanels)
+				if (table == panel.table)
+					selectedCards = getSelectedCards();
+		if (selectedCards == null)
+			selectedCards = parent.getSelectedCards();
+		
 		if (hasSelectedCards())
 			parent.selectCard(getSelectedCards().get(0));
 	}
