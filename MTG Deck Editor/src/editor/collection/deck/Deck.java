@@ -158,18 +158,6 @@ public class Deck implements CardList, Externalizable
 		}
 		
 		@Override
-		public boolean equals(Object other)
-		{
-			if (other == null)
-				return false;
-			if (other == this)
-				return true;
-			if (!(other instanceof Category))
-				return false;
-			return spec.equals(((Category)other).spec);
-		}
-		
-		@Override
 		public Card get(int index) throws IndexOutOfBoundsException
 		{
 			return filtrate.get(index);
@@ -185,12 +173,6 @@ public class Deck implements CardList, Externalizable
 		public Entry getData(int index) throws IndexOutOfBoundsException
 		{
 			return getData(get(index));
-		}
-		
-		@Override
-		public int hashCode()
-		{
-			return Objects.hash(spec);
 		}
 		
 		@Override
@@ -308,10 +290,12 @@ public class Deck implements CardList, Externalizable
 		{
 			filtrate = masterList.stream().map((e) -> e.card).filter(spec::includes).collect(Collectors.toList());
 			for (DeckEntry e: masterList)
+			{
 				if (spec.includes(e.card))
 					e.categories.add(this);
 				else
 					e.categories.remove(this);
+			}
 		}
 	}
 	

@@ -545,7 +545,7 @@ public class EditorFrame extends JInternalFrame
 						if (!category.includes(card))
 						{
 							JMenuItem categoryItem = new JMenuItem(category.getName());
-							categoryItem.addActionListener((e2) -> category.exclude(card));
+							categoryItem.addActionListener((e2) -> category.include(card));
 							addToCategoryMenu.add(categoryItem);
 						}
 					}
@@ -556,7 +556,7 @@ public class EditorFrame extends JInternalFrame
 						if (category.includes(card))
 						{
 							JMenuItem categoryItem = new JMenuItem(category.getName());
-							categoryItem.addActionListener((e2) -> category.include(card));
+							categoryItem.addActionListener((e2) -> category.exclude(card));
 							removeFromCategoryMenu.add(categoryItem);
 						}
 					}
@@ -1556,7 +1556,6 @@ public class EditorFrame extends JInternalFrame
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_ALL));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_N));
-		tableMenu.add(new JSeparator());
 		
 		JSeparator categoriesSeparator = new JSeparator();
 		tableMenu.add(categoriesSeparator);
@@ -1567,7 +1566,7 @@ public class EditorFrame extends JInternalFrame
 		JMenuItem removeFromCategoryItem = new JMenuItem("Exclude from " + spec.getName());
 		removeFromCategoryItem.addActionListener((e) -> {
 			for (Card c: newCategory.getSelectedCards())
-				spec.include(c);
+				spec.exclude(c);
 			((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
 		});
 		tableMenu.add(removeFromCategoryItem);
@@ -1703,10 +1702,10 @@ public class EditorFrame extends JInternalFrame
 		// TODO: Make this all one action
 		for (Card card: included.keySet())
 			for (CategorySpec category: included.get(card))
-				category.exclude(card);
+				category.include(card);
 		for (Card card: excluded.keySet())
 			for (CategorySpec category: excluded.get(card))
-				category.include(card);
+				category.exclude(card);
 	}
 	
 	/**
