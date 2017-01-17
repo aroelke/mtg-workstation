@@ -41,7 +41,14 @@ public class CardTable extends JTable
 	/**
 	 * Set of CardData that should not use toString to convert non-comparable data.
 	 */
-	private static final Set<CardData> NO_STRING = Stream.of(CardData.CMC, CardData.COLORS, CardData.COLOR_IDENTITY, CardData.POWER, CardData.TOUGHNESS, CardData.LOYALTY, CardData.CATEGORIES).collect(Collectors.toSet());
+	private static final Set<CardData> NO_STRING = Stream.of(CardData.MANA_COST,
+			CardData.CMC,
+			CardData.COLORS,
+			CardData.COLOR_IDENTITY,
+			CardData.POWER,
+			CardData.TOUGHNESS,
+			CardData.LOYALTY,
+			CardData.CATEGORIES).collect(Collectors.toSet());
 	
 	/**
 	 * This class represents a sorter that sorts a table column whose empty cells are invalid values.

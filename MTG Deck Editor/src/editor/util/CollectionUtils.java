@@ -27,7 +27,7 @@ public interface CollectionUtils
 		if (obj instanceof List)
 			return ((List<?>)obj).stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
 		else
-			throw new IllegalArgumentException(obj + " is not a list");
+			throw new IllegalArgumentException("expected list, got " + obj.getClass());
 	}
 	
 	/**
@@ -43,7 +43,7 @@ public interface CollectionUtils
 		if (obj instanceof Set)
 			return ((Set<?>)obj).stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toSet());
 		else
-			throw new IllegalArgumentException(obj + " is not a set");
+			throw new IllegalArgumentException("expected set, got " + obj.getClass());
 	}
 	
 	/**
