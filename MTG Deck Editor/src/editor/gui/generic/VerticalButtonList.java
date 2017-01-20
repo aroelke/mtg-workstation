@@ -3,6 +3,7 @@ package editor.gui.generic;
 import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -21,7 +22,7 @@ import javax.swing.JPanel;
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class VerticalButtonList extends JPanel
+public class VerticalButtonList extends JPanel implements Iterable<JButton>
 {
 	/**
 	 * List of buttons.
@@ -31,16 +32,6 @@ public class VerticalButtonList extends JPanel
 	 * Map of button text onto the corresponding button.
 	 */
 	private Map<String, JButton> buttonsMap;
-	
-	/**
-	 * Create a new ButtonList.
-	 * 
-	 * @param texts text of each button
-	 */
-	public VerticalButtonList(String... texts)
-	{
-		this(Arrays.asList(texts));
-	}
 	
 	/**
 	 * Create a new ButtonList.
@@ -64,6 +55,16 @@ public class VerticalButtonList extends JPanel
 	}
 	
 	/**
+	 * Create a new ButtonList.
+	 * 
+	 * @param texts text of each button
+	 */
+	public VerticalButtonList(String... texts)
+	{
+		this(Arrays.asList(texts));
+	}
+	
+	/**
 	 * Get the button at the specified index.
 	 * 
 	 * @param index index to search
@@ -84,5 +85,11 @@ public class VerticalButtonList extends JPanel
 	public JButton get(String text)
 	{
 		return buttonsMap.get(text);
+	}
+
+	@Override
+	public Iterator<JButton> iterator()
+	{
+		return buttonsList.iterator();
 	}
 }

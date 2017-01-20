@@ -1832,6 +1832,7 @@ public class EditorFrame extends JInternalFrame
 		if (!deck.current.isEmpty())
 			throw new IllegalStateException("deck is not empty");
 		deck.current.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
+		changelogArea.setText("");
 	}
 	
 	/**

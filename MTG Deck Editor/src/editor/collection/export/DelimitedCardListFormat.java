@@ -35,15 +35,36 @@ public class DelimitedCardListFormat implements CardListFormat
 	public static final List<CardData> DEFAULT_DATA = Arrays.asList(CardData.NAME,
 			CardData.EXPANSION_NAME,
 			CardData.COUNT);
-	
 	/**
-	 * Delimeter to separate table cells.
+	 * List of suggested delimiters.
 	 */
-	private String delimiter;
+	public static final String[] DELIMITERS = new String[] {",", ";", ":", "{tab}", "{space}"};
 	/**
 	 * String to surround cells that contain the delimiter with.
 	 */
-	private String escape;
+	public static final String ESCAPE = "\"";
+	
+	/**
+	 * Split a string along a delimiter, but only if that delimiter is not inside {@value #ESCAPE}.
+	 * If a split value is surrounded by {@value #ESCAPE}, remove them.
+	 * 
+	 * @param delimiter delimiter to split with
+	 * @param line string to split
+	 * @return an array containing the split string with delimiters and surrounding {@value #ESCAPE} removed
+	 */
+	public static String[] split(String delimiter, String line)
+	{
+		String[] cells = line.split(delimiter + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+		for (int i = 0; i < cells.length; i++)
+			if (cells[i].substring(0, ESCAPE.length()).equals(ESCAPE) || cells[i].substring(cells[i].length() - ESCAPE.length()).equals(ESCAPE))
+				cells[i] = cells[i].substring(1, cells[i].length() - 1);
+		return cells;
+	}
+	
+	/**
+	 * Delimiter to separate table cells.
+	 */
+	private String delimiter;
 	/**
 	 * Whether or not to include column headers.  Parsing will require
 	 * column headers.
@@ -65,8 +86,12 @@ public class DelimitedCardListFormat implements CardListFormat
 	{
 		delimiter = delim;
 		types = data;
-		escape = "\"";
 		include = headers;
+		
+		if ("{space}".equals(delimiter))
+			delimiter = " ";
+		else if ("{tab}".equals(delimiter))
+			delimiter = "\t";
 	}
 	
 	/**
@@ -76,20 +101,6 @@ public class DelimitedCardListFormat implements CardListFormat
 	public DelimitedCardListFormat()
 	{
 		this(DEFAULT_DELIMITER, DEFAULT_DATA, true);
-	}
-	
-	/**
-	 * Clean a cell that is surrounded by escape characters so that it is no
-	 * longer surrounded by them.
-	 * 
-	 * @param cell string to clean
-	 * @return a string that is not surrounded by escape characters
-	 */
-	private String cleanEscape(String cell)
-	{
-		if (cell.substring(0, escape.length()).equals(escape) || cell.substring(cell.length() - escape.length()).equals(escape))
-			return cell.substring(1, cell.length() - 1);
-		return cell;
 	}
 	
 	@Override
@@ -106,7 +117,7 @@ public class DelimitedCardListFormat implements CardListFormat
 			{
 				String value = format.format(list.getData(card));
 				if (value.contains(delimiter))
-					value = escape + value.replace(escape, escape + escape) + escape;
+					value = ESCAPE + value.replace(ESCAPE, ESCAPE + ESCAPE) + ESCAPE;
 				line.add(value);
 			}
 			join.add(line.toString());
@@ -160,20 +171,20 @@ public class DelimitedCardListFormat implements CardListFormat
 		Deck deck = new Deck();
 		for (String line: lines)
 		{
-			line = line.replace(escape + escape, escape);
-			String[] cells = line.split(delimiter + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+			line = line.replace(ESCAPE + ESCAPE, ESCAPE);
+			String[] cells = split(delimiter, line);
 			
-			List<Card> possibilities = MainFrame.inventory().stream().filter((c) -> c.unifiedName().equalsIgnoreCase(cleanEscape(cells[nameIndex]))).collect(Collectors.toList());
+			List<Card> possibilities = MainFrame.inventory().stream().filter((c) -> c.unifiedName().equalsIgnoreCase(cells[nameIndex])).collect(Collectors.toList());
 			if (possibilities.size() > 1 && expansionIndex > -1)
-				possibilities.removeIf((c) -> !c.expansion().name.equalsIgnoreCase(cleanEscape(cells[expansionIndex])));
+				possibilities.removeIf((c) -> !c.expansion().name.equalsIgnoreCase(cells[expansionIndex]));
 			if (possibilities.size() > 1 && numberIndex > -1)
-				possibilities.removeIf((c) -> !String.join(' ' + Card.FACE_SEPARATOR + ' ', c.number()).equals(cleanEscape(cells[numberIndex])));
+				possibilities.removeIf((c) -> !String.join(' ' + Card.FACE_SEPARATOR + ' ', c.number()).equals(cells[numberIndex]));
 			
 			if (possibilities.size() > 1)
 				System.err.println("warning: cannot determine printing of " + possibilities.get(0).unifiedName());
 			if (possibilities.isEmpty())
 				throw new ParseException("can't find card named " + cells[nameIndex], pos);
-			deck.add(possibilities.get(0), countIndex < 0 ? 1 : Integer.parseInt(cells[countIndex]), dateIndex < 0 ? new Date() : Deck.DATE_FORMAT.parse(cleanEscape(cells[dateIndex])));
+			deck.add(possibilities.get(0), countIndex < 0 ? 1 : Integer.parseInt(cells[countIndex]), dateIndex < 0 ? new Date() : Deck.DATE_FORMAT.parse(cells[dateIndex]));
 			pos += line.length();
 		}
 		

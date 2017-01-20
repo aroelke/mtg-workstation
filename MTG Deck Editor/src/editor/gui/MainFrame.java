@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -84,6 +85,7 @@ import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -470,14 +472,184 @@ public class MainFrame extends JFrame
 			switch (importChooser.showOpenDialog(this))
 			{
 			case JFileChooser.APPROVE_OPTION:
-				CardListFormat format = new DelimitedCardListFormat(",", Arrays.asList(CardData.NAME, CardData.EXPANSION_NAME, CardData.CARD_NUMBER, CardData.COUNT, CardData.DATE_ADDED), false);
+				CardListFormat format;
 				if (importChooser.getFileFilter() == text)
 				{
 					// TODO:
+					format = new DelimitedCardListFormat(",", Arrays.asList(CardData.NAME, CardData.EXPANSION_NAME, CardData.CARD_NUMBER, CardData.COUNT, CardData.DATE_ADDED), false);
 				}
 				else if (importChooser.getFileFilter() == delimited)
 				{
-					// TODO:
+					JPanel dataPanel = new JPanel(new BorderLayout());
+					JPanel optionsPanel = new JPanel(new FlowLayout(0));
+					optionsPanel.add(new JLabel("Delimiter: "));
+					JComboBox<String> delimiterBox = new JComboBox<String>(DelimitedCardListFormat.DELIMITERS);
+					delimiterBox.setEditable(true);						
+					optionsPanel.add(delimiterBox);
+					JCheckBox includeCheckBox = new JCheckBox("Read Headers");
+					includeCheckBox.setSelected(true);
+					optionsPanel.add(includeCheckBox);
+					dataPanel.add(optionsPanel, BorderLayout.NORTH);
+					JList<CardData> headersList = new JList<CardData>(CardData.values());
+					headersList.setEnabled(!includeCheckBox.isSelected());
+					JScrollPane headersPane = new JScrollPane(headersList);
+					JPanel headersPanel = new JPanel();
+					headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));
+					headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"));
+					VerticalButtonList rearrangeButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.UP_ARROW), String.valueOf(UnicodeSymbols.DOWN_ARROW));
+					for (JButton rearrange: rearrangeButtons)
+						rearrange.setEnabled(!includeCheckBox.isSelected());
+					headersPanel.add(rearrangeButtons);
+					headersPanel.add(Box.createHorizontalStrut(5));
+					DefaultListModel<CardData> selectedHeadersModel = new DefaultListModel<CardData>();
+					selectedHeadersModel.addElement(CardData.NAME);
+					selectedHeadersModel.addElement(CardData.EXPANSION_NAME);
+					selectedHeadersModel.addElement(CardData.CARD_NUMBER);
+					selectedHeadersModel.addElement(CardData.COUNT);
+					selectedHeadersModel.addElement(CardData.DATE_ADDED);
+					JList<CardData> selectedHeadersList = new JList<CardData>(selectedHeadersModel);
+					selectedHeadersList.setEnabled(!includeCheckBox.isSelected());
+					headersPanel.add(new JScrollPane(selectedHeadersList)
+					{
+						@Override
+						public Dimension getPreferredSize()
+						{
+							return headersPane.getPreferredSize();
+						}
+					});
+					headersPanel.add(Box.createHorizontalStrut(5));
+					VerticalButtonList moveButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.LEFT_ARROW), String.valueOf(UnicodeSymbols.RIGHT_ARROW));
+					for (JButton move: moveButtons)
+						move.setEnabled(!includeCheckBox.isSelected());
+					headersPanel.add(moveButtons);
+					headersPanel.add(Box.createHorizontalStrut(5));
+					headersPanel.add(headersPane);
+					dataPanel.add(headersPanel, BorderLayout.CENTER);
+					rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((v) -> {
+						List<CardData> selected = selectedHeadersList.getSelectedValuesList();
+						int ignore = 0;
+						for (int index: selectedHeadersList.getSelectedIndices())
+						{
+							if (index == ignore)
+							{
+								ignore++;
+								continue;
+							}
+							CardData temp = selectedHeadersModel.getElementAt(index - 1);
+							selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index - 1);
+							selectedHeadersModel.setElementAt(temp, index);
+						}
+						selectedHeadersList.clearSelection();
+						for (CardData type: selected)
+						{
+							int index = selectedHeadersModel.indexOf(type);
+							selectedHeadersList.addSelectionInterval(index, index);
+						}
+					});
+					rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener((v) -> {
+						List<CardData> selected = selectedHeadersList.getSelectedValuesList();
+						List<Integer> indices = Arrays.stream(selectedHeadersList.getSelectedIndices()).boxed().collect(Collectors.toList());
+						Collections.reverse(indices);
+						int ignore = selectedHeadersModel.size() - 1;
+						for (int index: indices)
+						{
+							if (index == ignore)
+							{
+								ignore--;
+								continue;
+							}
+							CardData temp = selectedHeadersModel.getElementAt(index + 1);
+							selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index + 1);
+							selectedHeadersModel.setElementAt(temp, index);
+						}
+						selectedHeadersList.clearSelection();
+						for (CardData type: selected)
+						{
+							int index = selectedHeadersModel.indexOf(type);
+							selectedHeadersList.addSelectionInterval(index, index);
+						}
+					});
+					moveButtons.get(String.valueOf(UnicodeSymbols.LEFT_ARROW)).addActionListener((v) -> {
+						for (CardData selected: headersList.getSelectedValuesList())
+							if (!selectedHeadersModel.contains(selected))
+								selectedHeadersModel.addElement(selected);
+						headersList.clearSelection();
+					});
+					moveButtons.get(String.valueOf(UnicodeSymbols.RIGHT_ARROW)).addActionListener((v) -> {
+						for (CardData selected: new ArrayList<CardData>(selectedHeadersList.getSelectedValuesList()))
+							selectedHeadersModel.removeElement(selected);
+					});
+					includeCheckBox.addActionListener((v) -> {
+						headersList.setEnabled(!includeCheckBox.isSelected());
+						selectedHeadersList.setEnabled(!includeCheckBox.isSelected());
+						for (JButton rearrange: rearrangeButtons)
+							rearrange.setEnabled(!includeCheckBox.isSelected());
+						for (JButton move: moveButtons)
+							move.setEnabled(!includeCheckBox.isSelected());
+					});
+					
+					JPanel previewPanel = new JPanel(new BorderLayout());
+					previewPanel.setBorder(BorderFactory.createTitledBorder("Data to Import:"));
+					JTable previewTable = new JTable()
+					{
+						@Override
+						public Dimension getPreferredScrollableViewportSize()
+						{
+							return new Dimension(0, 0);
+						}
+						
+						@Override
+						public boolean getScrollableTracksViewportWidth()
+			            {
+			                return getPreferredSize().width < getParent().getWidth();
+			            }
+					};
+					previewTable.setAutoCreateRowSorter(true);
+					previewPanel.add(new JScrollPane(previewTable));
+					
+					ActionListener updateTable = (v) -> {
+						try
+						{
+							DefaultTableModel model = new DefaultTableModel();
+							List<String> lines = Files.readAllLines(importChooser.getSelectedFile().toPath());
+							if (includeCheckBox.isSelected())
+							{
+								String[] columns = lines.remove(0).split(delimiterBox.getSelectedItem().toString());
+								String[][] data = lines.stream().map((s) -> DelimitedCardListFormat.split(delimiterBox.getSelectedItem().toString(), s)).toArray(String[][]::new);
+								model.setDataVector(data, columns);
+							}
+							else
+							{
+								CardData[] columns = new CardData[selectedHeadersModel.size()];
+								for (int i = 0; i < selectedHeadersModel.size(); i++)
+									columns[i] = selectedHeadersModel.getElementAt(i);
+								String[][] data = lines.stream().map((s) -> DelimitedCardListFormat.split(delimiterBox.getSelectedItem().toString(), s)).toArray(String[][]::new);
+								model.setDataVector(data, columns);
+							}
+							previewTable.setModel(model);
+						}
+						catch (IOException x)
+						{
+							JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+						}
+					};
+					delimiterBox.addActionListener(updateTable);
+					includeCheckBox.addActionListener(updateTable);
+					for (JButton rearrange: rearrangeButtons)
+						rearrange.addActionListener(updateTable);
+					for (JButton move: moveButtons)
+						move.addActionListener(updateTable);
+					updateTable.actionPerformed(null);
+					
+					if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardDialog.FINISH_OPTION)
+					{
+						List<CardData> selected = new ArrayList<CardData>(selectedHeadersModel.size());
+						for (int i = 0; i < selectedHeadersModel.size(); i++)
+							selected.add(selectedHeadersModel.getElementAt(i));
+						format = new DelimitedCardListFormat(delimiterBox.getSelectedItem().toString(), selected, !includeCheckBox.isSelected());
+					}
+					else
+						return;
 				}
 				else
 				{
@@ -493,7 +665,6 @@ public class MainFrame extends JFrame
 				catch (IllegalStateException | IOException | ParseException x)
 				{
 					JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-					x.printStackTrace();
 				}
 				
 				break;
@@ -584,7 +755,7 @@ public class MainFrame extends JFrame
 						JScrollPane headersPane = new JScrollPane(headersList);
 						JPanel headersPanel = new JPanel();
 						headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));
-						headersPanel.setBorder(BorderFactory.createTitledBorder("Data to Export:"));
+						headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"));
 						VerticalButtonList rearrangeButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.UP_ARROW), String.valueOf(UnicodeSymbols.DOWN_ARROW));
 						headersPanel.add(rearrangeButtons);
 						headersPanel.add(Box.createHorizontalStrut(5));
@@ -667,7 +838,7 @@ public class MainFrame extends JFrame
 						
 						JPanel optionsPanel = new JPanel(new FlowLayout(0));
 						optionsPanel.add(new JLabel("Delimiter: "));
-						JComboBox<String> delimiterBox = new JComboBox<String>(new String[] {",", ";", ":", "{tab}", "{space}"});
+						JComboBox<String> delimiterBox = new JComboBox<String>(DelimitedCardListFormat.DELIMITERS);
 						delimiterBox.setEditable(true);						
 						optionsPanel.add(delimiterBox);
 						JCheckBox includeCheckBox = new JCheckBox("Include Headers");
@@ -680,7 +851,7 @@ public class MainFrame extends JFrame
 							List<CardData> selected = new ArrayList<CardData>(selectedHeadersModel.size());
 							for (int i = 0; i < selectedHeadersModel.size(); i++)
 								selected.add(selectedHeadersModel.getElementAt(i));
-							format = new DelimitedCardListFormat(delimiterBox.getSelectedItem().toString(), selected, true);
+							format = new DelimitedCardListFormat(delimiterBox.getSelectedItem().toString(), selected, includeCheckBox.isSelected());
 						}
 						else
 							return;
