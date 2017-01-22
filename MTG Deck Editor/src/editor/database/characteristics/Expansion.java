@@ -1,7 +1,7 @@
 package editor.database.characteristics;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * This class represents an expansion set of Magic: The Gathering cards.
@@ -19,7 +19,7 @@ public class Expansion implements Comparable<Expansion>
 	/**
 	 * Date format used to decode expansion release dates.
 	 */
-	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("YYYY-MM-DD");
+	public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	/**
 	 * Array containing all expansion names.
 	 */
@@ -57,7 +57,7 @@ public class Expansion implements Comparable<Expansion>
 	/**
 	 * The date the expansion was released.
 	 */
-	public final Date releaseDate;
+	public final LocalDate releaseDate;
 	
 	/**
 	 * Create a new Expansion.
@@ -70,7 +70,7 @@ public class Expansion implements Comparable<Expansion>
 	 * @param gatherer gatherer code of the new Expansion
 	 * @param count number of cards in the new Expansion
 	 */
-	public Expansion(String name, String block, String code, String old, String magicCardsInfo, String gatherer, int count, Date date)
+	public Expansion(String name, String block, String code, String old, String magicCardsInfo, String gatherer, int count, LocalDate date)
 	{
 		this.name = name;
 		this.block = block;

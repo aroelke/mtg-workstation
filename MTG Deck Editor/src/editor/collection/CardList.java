@@ -1,8 +1,8 @@
 package editor.collection;
 
 import java.awt.datatransfer.DataFlavor;
+import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +67,7 @@ public interface CardList extends Iterable<Card>
 		 * @return the date this Entry's Card was added (optional operation).
 		 * @throws UnsupportedOperationException if this operation is not supported
 		 */
-		public Date dateAdded() throws UnsupportedOperationException;
+		public LocalDate dateAdded() throws UnsupportedOperationException;
 		
 		/**
 		 * Get some information about this Entry's Card.

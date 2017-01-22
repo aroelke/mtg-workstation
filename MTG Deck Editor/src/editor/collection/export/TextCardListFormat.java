@@ -51,7 +51,7 @@ public class TextCardListFormat implements CardListFormat
 	@Override
 	public CardList parse(String source)
 	{
-		// TODO Auto-generated method stub
+		String[] lines = source.split(System.lineSeparator());
 		return null;
 	}
 	

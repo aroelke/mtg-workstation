@@ -4,19 +4,15 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.Externalizable;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -318,7 +314,7 @@ public class Deck implements CardList, Externalizable
 		/**
 		 * Date this DeckEntry was created (the Card was originally added).
 		 */
-		private final Date date;
+		private final LocalDate date;
 		/**
 		 * Set of categories this DeckEntry's Card belongs to.  Implemented using a
 		 * LinkedHashSet, so it will maintain the ordering that categories were added.
@@ -332,7 +328,7 @@ public class Deck implements CardList, Externalizable
 		 * @param amount number of initial copies in this Entry
 		 * @param added date the Card was added
 		 */
-		public DeckEntry(Card card, int amount, Date added)
+		public DeckEntry(Card card, int amount, LocalDate added)
 		{
 			this.card = card;
 			count = amount;
@@ -373,7 +369,7 @@ public class Deck implements CardList, Externalizable
 		}
 		
 		@Override
-		public Date dateAdded()
+		public LocalDate dateAdded()
 		{
 			return date;
 		}
@@ -720,7 +716,7 @@ public class Deck implements CardList, Externalizable
 	/**
 	 * Formatter for dates, usually for formatting the add date of a card.
 	 */
-	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMMM d, yyyy");
+	public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM d, yyyy");
 	/**
 	 * List of cards in this Deck.
 	 */
@@ -763,7 +759,7 @@ public class Deck implements CardList, Externalizable
 	@Override
 	public boolean add(Card card, int amount)
 	{
-		return add(card, amount, new Date());
+		return add(card, amount, LocalDate.now());
 	}
 	
 	/**
@@ -777,7 +773,7 @@ public class Deck implements CardList, Externalizable
 	 * @return true if the Deck changed as a result, and false otherwise, which is when the number
 	 * to add is less than 1.
 	 */
-	public boolean add(Card card, int amount, Date date)
+	public boolean add(Card card, int amount, LocalDate date)
 	{
 		if (do_add(card, amount, date))
 		{
@@ -802,7 +798,7 @@ public class Deck implements CardList, Externalizable
 		Map<Card, Integer> added = new HashMap<Card, Integer>();
 		
 		for (Card card: amounts.keySet())
-			if (do_add(card, amounts.get(card), new Date()))
+			if (do_add(card, amounts.get(card), LocalDate.now()))
 				added.put(card, amounts.get(card));
 		if (!added.isEmpty())
 			notifyListeners(new Event().cardsChanged(added));
@@ -923,7 +919,7 @@ public class Deck implements CardList, Externalizable
 	 * @return true if this Deck was changed as a result of this operation, and false
 	 * otherwise.
 	 */
-	private boolean do_add(Card card, int amount, Date date)
+	private boolean do_add(Card card, int amount, LocalDate date)
 	{
 		if (amount < 1)
 			return false;
@@ -1176,7 +1172,7 @@ public class Deck implements CardList, Externalizable
 		{
 			Card card = MainFrame.inventory().get(in.readUTF());
 			int count = in.readInt();
-			Date added = (Date)in.readObject();
+			LocalDate added = (LocalDate)in.readObject();
 			do_add(card, count, added);
 		}
 		n = in.readInt();
@@ -1285,37 +1281,6 @@ public class Deck implements CardList, Externalizable
 	public boolean removeDeckListener(DeckListener listener)
 	{
 		return listeners.remove(listener);
-	}
-
-	/**
-	 * Write this Deck to a file.  The format will appear like this:
-	 * [Number of unique cards]
-	 * [Card 1 UID]\t[count]
-	 * [Card 2 UID]\t[count]
-	 * 		.			.
-	 * 		.			.
-	 * 		.			.
-	 * [Number of categories]
-	 * [Category 1 String representation]
-	 * [Category 2 String representation]
-	 * 				  .
-	 * 				  .
-	 * 				  .
-	 * 
-	 * @param file file to save to
-	 * @throws IOException
-	 */
-	public void save(File file) throws IOException
-	{
-		try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8")))
-		{
-			wr.println(String.valueOf(size()));
-			for (DeckEntry e: masterList)
-				wr.println(e.card.id() + "\t" + e.count + "\t" + DATE_FORMAT.format(e.date));
-			wr.println(String.valueOf(categories.size()));
-			for (Category c: categories.values())
-				wr.println(c.toString());
-		}
 	}
 
 	@Override

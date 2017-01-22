@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -402,7 +403,7 @@ public class EditorFrame extends JInternalFrame
 					String[] card = rd.readLine().trim().split("\t");
 					Card c = parent.getCard(card[0]);
 					if (c != null)
-						deck.current.add(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
+						deck.current.add(c, Integer.valueOf(card[1]), LocalDate.parse(card[2], Deck.DATE_FORMATTER));
 					else
 						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
 					publish(33*(i + 1)/cards);
@@ -424,7 +425,7 @@ public class EditorFrame extends JInternalFrame
 					String[] card = rd.readLine().trim().split("\t");
 					Card c = parent.getCard(card[0]);
 					if (c != null)
-						sideboard.current.add(c, Integer.valueOf(card[1]), Deck.DATE_FORMAT.parse(card[2]));
+						sideboard.current.add(c, Integer.valueOf(card[1]), LocalDate.parse(card[2], Deck.DATE_FORMATTER));
 					else
 						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
 					publish(66 + 33*(i + 1)/cards);
@@ -1904,13 +1905,13 @@ public class EditorFrame extends JInternalFrame
 		{
 			wr.println(String.valueOf(deck.current.size()));
 			for (Card c: deck.current)
-				wr.println(c.id() + "\t" + deck.current.getData(c).count() + "\t" + Deck.DATE_FORMAT.format(deck.current.getData(c).dateAdded()));
+				wr.println(c.id() + "\t" + deck.current.getData(c).count() + "\t" + Deck.DATE_FORMATTER.format(deck.current.getData(c).dateAdded()));
 			wr.println(String.valueOf(deck.current.categories().size()));
 			for (CategorySpec c: deck.current.categories())
 				wr.println(c.toString());
 			wr.println(String.valueOf(sideboard.current.size()));
 			for (Card c: sideboard.current)
-				wr.println(c.id() + "\t" + sideboard.current.getData(c).count() + "\t" + Deck.DATE_FORMAT.format(sideboard.current.getData(c).dateAdded()));
+				wr.println(c.id() + "\t" + sideboard.current.getData(c).count() + "\t" + Deck.DATE_FORMATTER.format(sideboard.current.getData(c).dateAdded()));
 			
 			String changes = "";
 			for (Card c: deck.original)

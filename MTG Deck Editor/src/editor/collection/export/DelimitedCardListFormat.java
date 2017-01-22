@@ -1,9 +1,9 @@
 package editor.collection.export;
 
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -184,7 +184,7 @@ public class DelimitedCardListFormat implements CardListFormat
 				System.err.println("warning: cannot determine printing of " + possibilities.get(0).unifiedName());
 			if (possibilities.isEmpty())
 				throw new ParseException("can't find card named " + cells[nameIndex], pos);
-			deck.add(possibilities.get(0), countIndex < 0 ? 1 : Integer.parseInt(cells[countIndex]), dateIndex < 0 ? new Date() : Deck.DATE_FORMAT.parse(cells[dateIndex]));
+			deck.add(possibilities.get(0), countIndex < 0 ? 1 : Integer.parseInt(cells[countIndex]), dateIndex < 0 ? LocalDate.now() : LocalDate.parse(cells[dateIndex], Deck.DATE_FORMATTER));
 			pos += line.length();
 		}
 		

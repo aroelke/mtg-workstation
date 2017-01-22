@@ -1,6 +1,6 @@
 package editor.database.characteristics;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +86,7 @@ public enum CardData
 	/**
 	 * Date a card was added to a deck.
 	 */
-	DATE_ADDED("Date Added", Date.class);
+	DATE_ADDED("Date Added", LocalDate.class);
 	
 	/**
 	 * Parse a String for a CardData.

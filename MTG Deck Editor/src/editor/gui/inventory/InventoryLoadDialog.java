@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -166,7 +167,7 @@ public class InventoryLoadDialog extends JDialog
 												  setProperties.get(setProperties.has("magicCardsInfoCode") ? "magicCardsInfoCode" : "code").getAsString().toUpperCase(),
 												  setProperties.get(setProperties.has("gathererCode") ? "gathererCode" : "code").getAsString(),
 												  setCards.size(),
-												  Expansion.DATE_FORMAT.parse(setProperties.get("releaseDate").getAsString()));
+												  LocalDate.parse(setProperties.get("releaseDate").getAsString(), Expansion.DATE_FORMATTER));
 					expansions.add(set);
 					blockNames.add(set.block);
 					publish("Loading cards from " + set + "...");

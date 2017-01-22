@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -46,7 +46,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
 	 * <li>Converted mana costs and combat stats are displayed using special delimiters
 	 * <li>Colors and color identity are displayed using the mana symbols corresponding to the colors
 	 * <li>Deck categories are displayed using colored squares
-	 * <li>Date added is displayed according to {@link Deck#DATE_FORMAT}
+	 * <li>Date added is displayed according to {@link Deck#DATE_FORMATTER}
 	 * </ul>
 	 */
 	@Override
@@ -124,7 +124,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
 				}
 				break;
 			case DATE_ADDED:
-				panel.add(new JLabel(Deck.DATE_FORMAT.format((Date)value)));
+				panel.add(new JLabel(Deck.DATE_FORMATTER.format((LocalDate)value)));
 				break;
 			default:
 				return c;

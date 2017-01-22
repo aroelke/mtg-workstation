@@ -1,14 +1,13 @@
 package editor.database.card;
 
+import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import editor.collection.CardList;
 import editor.collection.category.CategorySpec;
-import editor.collection.deck.Deck;
 import editor.database.characteristics.CardData;
 import editor.util.CollectionUtils;
 
@@ -66,7 +65,7 @@ public class CardFormat
 		}
 
 		@Override
-		public Date dateAdded()
+		public LocalDate dateAdded()
 		{
 			return card.expansion().releaseDate;
 		}
@@ -76,7 +75,7 @@ public class CardFormat
 	/**
 	 * Format specifier for a card.
 	 */
-	private String format;
+	public final String format;
 	
 	/**
 	 * Create a new CardFormat.
@@ -140,7 +139,7 @@ public class CardFormat
 						CollectionUtils.convertToSet(card.get(type), CategorySpec.class).stream().map(CategorySpec::getName).sorted().collect(Collectors.toList())));
 				break;
 			case DATE_ADDED:
-				pattern = pattern.replace(replacement, Deck.DATE_FORMAT.format((Date)card.get(type)));
+// TODO:				pattern = pattern.replace(replacement, Deck.DATE_FORMAT.format((Date)card.get(type)));
 				break;
 			default:
 				pattern = pattern.replace(replacement, String.valueOf(card.get(type)));

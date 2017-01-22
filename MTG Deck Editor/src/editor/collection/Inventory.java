@@ -4,11 +4,11 @@ import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +77,7 @@ public class Inventory implements CardList
 		 * The date will be the date the card's expansion was added.
 		 */
 		@Override
-		public Date dateAdded()
+		public LocalDate dateAdded()
 		{
 			return card.expansion().releaseDate;
 		}
