@@ -1252,6 +1252,7 @@ public class EditorFrame extends JInternalFrame
 					&& JOptionPane.showConfirmDialog(EditorFrame.this, "This change is permanent.  Clear change log?", "Clear Change Log?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
 			{
 				changelogArea.setText(""); // TODO: Make this undoable somehow
+				setUnsaved();
 			}
 		});
 		clearLogPanel.add(clearLogButton);
@@ -1382,11 +1383,7 @@ public class EditorFrame extends JInternalFrame
 					sideboard.table.getCellEditor().cancelCellEditing();
 			}
 			
-			if (!unsaved)
-			{
-				setTitle(getTitle() + " *");
-				unsaved = true;
-			}
+			setUnsaved();
 			update();
 			
 			if (!undoing)
@@ -1834,6 +1831,7 @@ public class EditorFrame extends JInternalFrame
 			throw new IllegalStateException("deck is not empty");
 		deck.current.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
 		changelogArea.setText("");
+		setUnsaved();
 	}
 	
 	/**
@@ -2000,6 +1998,18 @@ public class EditorFrame extends JInternalFrame
 		
 		if (hasSelectedCards())
 			parent.selectCard(getSelectedCards().get(0));
+	}
+	
+	/**
+	 * Change the frame title to reflect an unsaved state.
+	 */
+	private void setUnsaved()
+	{
+		if (!unsaved)
+		{
+			setTitle(getTitle() + " *");
+			unsaved = true;
+		}
 	}
 	
 	/**
