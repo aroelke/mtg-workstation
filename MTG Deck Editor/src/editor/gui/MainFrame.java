@@ -475,64 +475,7 @@ public class MainFrame extends JFrame
 				CardListFormat format;
 				if (importChooser.getFileFilter() == text)
 				{
-					JPanel wizardPanel = new JPanel(new BorderLayout());
-					JPanel fieldPanel = new JPanel(new BorderLayout());
-					fieldPanel.setBorder(BorderFactory.createTitledBorder("List Format:"));
-					JTextField formatField = new JTextField(TextCardListFormat.DEFAULT_FORMAT);
-					formatField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, formatField.getFont().getSize()));
-					formatField.setColumns(50);
-					fieldPanel.add(formatField, BorderLayout.CENTER);
-					JPanel addDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-					addDataPanel.add(new JLabel("Add Data: "));
-					JComboBox<CardData> addDataBox = new JComboBox<CardData>(CardData.values());
-					addDataPanel.add(addDataBox);
-					fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
-					wizardPanel.add(fieldPanel, BorderLayout.NORTH);
-					
-					JPanel previewPanel = new JPanel(new BorderLayout());
-					previewPanel.setBorder(BorderFactory.createTitledBorder("Preview:"));
-					JTextArea previewArea = new JTextArea();
-					JScrollPane previewPane = new JScrollPane(previewArea);
-					try
-					{
-						previewArea.setText(String.join("\n", Files.readAllLines(importChooser.getSelectedFile().toPath())));
-					}
-					catch (IOException x)
-					{
-						JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-					}
-					previewArea.setRows(1);
-					previewArea.setCaretPosition(0);
-					previewPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-					previewPanel.add(previewPane, BorderLayout.CENTER);
-					wizardPanel.add(previewPanel, BorderLayout.SOUTH);
-					
-					addDataBox.addActionListener((v) -> {
-						int pos = formatField.getCaretPosition();
-						String data = '{' + addDataBox.getSelectedItem().toString().toLowerCase() + '}';
-						String t = formatField.getText().substring(0, pos) + data;
-						if (pos < formatField.getText().length())
-							t += formatField.getText().substring(formatField.getCaretPosition());
-						formatField.setText(t);
-						formatField.setCaretPosition(pos + data.length());
-						formatField.requestFocusInWindow();
-					});
-					
-					formatField.getDocument().addDocumentListener(new DocumentChangeListener()
-					{
-						@Override
-						public void update(DocumentEvent e)
-						{
-							previewArea.setText(new TextCardListFormat(formatField.getText())
-									.format(selectedFrame.deck().total() > 0 ? selectedFrame.deck() : selectedFrame.sideboard()));
-							previewArea.setCaretPosition(0);
-						}
-					});
-					
-					if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
-						format = new TextCardListFormat(formatField.getText());
-					else
-						return;
+					format = new TextCardListFormat("");
 				}
 				else if (importChooser.getFileFilter() == delimited)
 				{
@@ -686,7 +629,7 @@ public class MainFrame extends JFrame
 						}
 						catch (IOException x)
 						{
-							JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": "  + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 						}
 					};
 					delimiterBox.addActionListener(updateTable);
@@ -709,7 +652,7 @@ public class MainFrame extends JFrame
 				}
 				else
 				{
-					JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				
@@ -720,14 +663,14 @@ public class MainFrame extends JFrame
 				}
 				catch (IllegalStateException | IOException | ParseException x)
 				{
-					JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": "  + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				}
 				
 				break;
 			case JFileChooser.CANCEL_OPTION:
 				break;
 			case JFileChooser.ERROR_OPTION:
-				JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE);
 				break;
 			}
 		});
@@ -914,7 +857,7 @@ public class MainFrame extends JFrame
 					}
 					else
 					{
-						JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + '.', "Error", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 					
@@ -925,13 +868,13 @@ public class MainFrame extends JFrame
 					}
 					catch (UnsupportedEncodingException | FileNotFoundException x)
 					{
-						JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 					}
 					break;
 				case JFileChooser.CANCEL_OPTION:
 					break;
 				case JFileChooser.ERROR_OPTION:
-					JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + '.', "Error", JOptionPane.ERROR_MESSAGE);
 					break;
 				}
 			}

@@ -1,9 +1,21 @@
 package editor.collection.export;
 
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.joestelmach.natty.Parser;
+
 import editor.collection.CardList;
+import editor.collection.deck.Deck;
+import editor.database.card.Card;
 import editor.database.card.CardFormat;
+import editor.gui.MainFrame;
 
 /**
  * This class represents a formatter that formats a card list according to a
@@ -49,10 +61,35 @@ public class TextCardListFormat implements CardListFormat
 	}
 	
 	@Override
-	public CardList parse(String source)
+	public CardList parse(String source) throws ParseException
 	{
-		String[] lines = source.split(System.lineSeparator());
-		return null;
+		// TODO: Tell the difference between a line ending in a date and a line ending in a number (August 26, 2016)
+		Deck deck = new Deck();
+		Pattern countPattern = Pattern.compile("(?:^(?:\\d+x|x\\d+|\\d+)|(?:\\d+x|x\\d+|\\d+)$)");
+		
+		for (String line: source.split(System.lineSeparator()))
+		{
+			final String cleanLine = line.trim().toLowerCase();
+	
+			List<Card> possibilities = MainFrame.inventory().stream().filter((c) -> cleanLine.contains(c.unifiedName().toLowerCase()) || c.name().stream().anyMatch((n) -> cleanLine.contains(n.toLowerCase()))).collect(Collectors.toList());			
+			if (possibilities.isEmpty())
+				throw new ParseException("Can't parse card name from \"" + line.trim() + '"', 0);
+			
+			List<Card> filtered = possibilities.stream().filter((c) -> cleanLine.contains(c.expansion().name.toLowerCase())).collect(Collectors.toList());
+			if (!filtered.isEmpty())
+				possibilities = filtered;
+			filtered = possibilities.stream().filter((c) -> !c.unifiedName().toLowerCase().equals(c.expansion().name.toLowerCase())).collect(Collectors.toList());
+			if (!filtered.isEmpty())
+				possibilities = filtered;
+			
+			if (possibilities.size() > 1)
+				System.err.println("Multiple matches for \"" + line.trim() + '"');
+			
+			Matcher countMatcher = countPattern.matcher(cleanLine);
+			LocalDate date = new Parser().parse(line).stream().flatMap((g) -> g.getDates().stream()).findFirst().orElse(new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			deck.add(possibilities.get(0), countMatcher.find() ? Integer.parseInt(countMatcher.group().replace("x", "")) : 1, date);
+		}
+		return deck;
 	}
 	
 }

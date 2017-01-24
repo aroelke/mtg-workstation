@@ -789,7 +789,10 @@ public class Deck implements CardList, Externalizable
 	@Override
 	public boolean addAll(CardList d)
 	{
-		return addAll(d.stream().collect(Collectors.toMap(Function.identity(), (c) -> d.getData(c).count())));
+		boolean added = false;
+		for (Card card: d)
+			added |= do_add(card, d.getData(card).count(), d.getData(card).dateAdded());
+		return added;
 	}
 
 	@Override
