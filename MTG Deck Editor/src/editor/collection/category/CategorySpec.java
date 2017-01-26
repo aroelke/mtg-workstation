@@ -349,15 +349,14 @@ public class CategorySpec implements Externalizable
 	{
 		CategorySpec old = new CategorySpec(this);
 		
-		blacklist.add(c);
+		if (filter.test(c))
+			blacklist.add(c);
 		whitelist.remove(c);
 		
 		Event e = new Event(old, new CategorySpec(this));
 		if (e.whitelistChanged() || e.blacklistChanged())
-		{
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
-		}
 		
 		return e.whitelistChanged() || e.blacklistChanged();
 	}
@@ -432,15 +431,14 @@ public class CategorySpec implements Externalizable
 	{
 		CategorySpec old = new CategorySpec(this);
 		
-		whitelist.add(c);
+		if (!filter.test(c))
+			whitelist.add(c);
 		blacklist.remove(c);
 		
 		Event e = new Event(old, new CategorySpec(this));
 		if (e.whitelistChanged() || e.blacklistChanged())
-		{
 			for (CategoryListener listener: listeners)
 				listener.categoryChanged(e);
-		}
 		
 		return e.whitelistChanged() || e.blacklistChanged();
 	}

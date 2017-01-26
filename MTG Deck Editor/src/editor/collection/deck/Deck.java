@@ -967,19 +967,6 @@ public class Deck implements CardList, Externalizable
 		DeckEntry entry = getEntry(card);
 		if (entry == null)
 			return 0;
-
-		for (DeckEntry e: masterList)
-		{
-			if (!e.equals(entry) && e.card.equals(entry.card))
-			{
-				System.out.println("e:     " + e.card.unifiedName() + ',' + e.count + ',' + e.date);
-				System.out.println("entry: " + entry.card.unifiedName() + ',' + entry.count + ',' + entry.date);
-				System.out.println("Card: " + e.card.equals(entry.card));
-				System.out.println("Count: " + (e.count == entry.count));
-				System.out.println("Date: " + e.date.equals(entry.date));
-				System.out.println("Equal: " + e.equals(entry));
-			}
-		}
 		
 		int removed = entry.remove(amount);
 		if (removed > 0)
