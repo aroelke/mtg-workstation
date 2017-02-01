@@ -324,7 +324,7 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		public Transferable createTransferable(JComponent c)
 		{
-			return new Deck.TransferData((main ? deck : sideboard).current, getSelectedCards());
+			return new Deck.TransferData((main ? deck : sideboard).current, parent.getSelectedCards());
 		}
 
 		@Override
@@ -333,9 +333,9 @@ public class EditorFrame extends JInternalFrame
 			if (action == TransferHandler.MOVE)
 			{
 				if (main)
-					deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
+					deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
 				else
-					sideboard.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
+					sideboard.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
 			}
 		}
 
@@ -535,11 +535,11 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 		{
-			if (selectedTable == table)
+			if (parent.getSelectedTable() == table)
 			{
-				if (getSelectedCards().size() == 1)
+				if (parent.getSelectedCards().size() == 1)
 				{
-					Card card = getSelectedCards().get(0);
+					Card card = parent.getSelectedCard();
 					
 					for (CategorySpec category: deck.current.categories())
 					{
@@ -569,7 +569,7 @@ public class EditorFrame extends JInternalFrame
 					removeFromCategoryMenu.setVisible(false);
 				}
 				
-				editCategoriesItem.setVisible(!getSelectedCards().isEmpty() && !deck.current.categories().isEmpty());
+				editCategoriesItem.setVisible(!parent.getSelectedCards().isEmpty() && !deck.current.categories().isEmpty());
 				
 				menuSeparator.setVisible(addToCategoryMenu.isVisible() || removeFromCategoryMenu.isVisible() || editCategoriesItem.isVisible());
 			}
@@ -668,18 +668,6 @@ public class EditorFrame extends JInternalFrame
 	 * and have been undone, and is cleared when a new action is performed.
 	 */
 	private Stack<Deck.Event> redoBuffer;
-	/**
-	 * Saved list of selected cards from the active table.
-	 */
-	private List<Card> selectedCards;
-	/**
-	 * list of currently-selected cards.
-	 */
-	private CardList selectedSource;
-	/**
-	 * Table containing currently-selected cards.
-	 */
-	private CardTable selectedTable;
 	/**
 	 * Sideboard data
 	 */
@@ -788,9 +776,6 @@ public class EditorFrame extends JInternalFrame
 		undoBuffer = new Stack<Deck.Event>();
 		redoBuffer = new Stack<Deck.Event>();
 		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
-		selectedCards = new ArrayList<Card>();
-		selectedSource = null;
-		selectedTable = null;
 		opening = false;
 		undoing = false;
 		
@@ -809,9 +794,7 @@ public class EditorFrame extends JInternalFrame
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
 				if (!lsm.isSelectionEmpty())
 				{
-					clearTableSelections(deck.table);
-					parent.clearSelectedCards();
-					setSelectedSource(deck.table, deck.current);
+					parent.setSelectedCards(deck.table, deck.current);
 				}
 			}
 		});
@@ -828,9 +811,9 @@ public class EditorFrame extends JInternalFrame
 		mainDeckPanel.add(mainDeckPane, BorderLayout.CENTER);
 
 		VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		deckButtons.get("+").addActionListener((e) -> deck.current.addAll(new HashSet<Card>(getSelectedCards())));
-		deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(getSelectedCards())));
-		deckButtons.get("X").addActionListener((e) -> deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
+		deckButtons.get("+").addActionListener((e) -> deck.current.addAll(new HashSet<Card>(parent.getSelectedCards())));
+		deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(parent.getSelectedCards())));
+		deckButtons.get("X").addActionListener((e) -> deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
 		mainDeckPanel.add(deckButtons, BorderLayout.WEST);
 		mainPanel.add(mainDeckPanel, BorderLayout.CENTER);
 		
@@ -845,9 +828,9 @@ public class EditorFrame extends JInternalFrame
 		sideboardPanel.add(showHidePanel, BorderLayout.NORTH);
 		
 		VerticalButtonList sideboardButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		sideboardButtons.get("+").addActionListener((e) -> sideboard.current.addAll(new HashSet<Card>(getSelectedCards())));
-		sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(getSelectedCards())));
-		sideboardButtons.get("X").addActionListener((e) -> deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
+		sideboardButtons.get("+").addActionListener((e) -> sideboard.current.addAll(new HashSet<Card>(parent.getSelectedCards())));
+		sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(parent.getSelectedCards())));
+		sideboardButtons.get("X").addActionListener((e) -> deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
 		sideboardPanel.add(sideboardButtons, BorderLayout.WEST);
 		
 		sideboard.model = new CardTableModel(this, sideboard.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
@@ -868,9 +851,7 @@ public class EditorFrame extends JInternalFrame
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
 				if (!lsm.isSelectionEmpty())
 				{
-					clearTableSelections(sideboard.table);
-					parent.clearSelectedCards();
-					setSelectedSource(sideboard.table, sideboard.current);
+					parent.setSelectedCards(sideboard.table, sideboard.current);
 				}
 			}
 		});
@@ -899,9 +880,9 @@ public class EditorFrame extends JInternalFrame
 		
 		// Add/remove cards
 		CardMenuItems tableMenuCardItems = new CardMenuItems(this,
-				(n) -> deck.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
-				() -> deck.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 4 - deck.current.getData(c).count()))),
-				(n) -> deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
+				(n) -> deck.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
+				() -> deck.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 4 - deck.current.getData(c).count()))),
+				(n) -> deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_N));
@@ -914,14 +895,14 @@ public class EditorFrame extends JInternalFrame
 		// Move cards to sideboard
 		JMenuItem moveToSideboardItem = new JMenuItem("Move to Sideboard");
 		moveToSideboardItem.addActionListener((e) -> {
-			List<Card> selected = getSelectedCards();
+			List<Card> selected = parent.getSelectedCards();
 			deck.current.removeAll(new HashSet<Card>(selected));
 			sideboard.current.addAll(new HashSet<Card>(selected));
 		});
 		tableMenu.add(moveToSideboardItem);
 		JMenuItem moveAllToSideboardItem = new JMenuItem("Move All to Sideboard");
 		moveAllToSideboardItem.addActionListener((e) -> {
-			for (Card c: getSelectedCards())
+			for (Card c: parent.getSelectedCards())
 			{
 				int n = deck.current.getData(c).count();
 				deck.current.remove(c, n);
@@ -940,7 +921,7 @@ public class EditorFrame extends JInternalFrame
 		// Edit categories item
 		JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
 		editCategoriesItem.addActionListener((e) -> {
-			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.current.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), getSelectedCards());
+			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.current.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), parent.getSelectedCards());
 			if (JOptionPane.showConfirmDialog(this, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 				editInclusion(iePanel.getIncluded(), iePanel.getExcluded());
 		});
@@ -951,7 +932,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Edit card tags item
 		JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
-		editTagsItem.addActionListener((e) -> parent.editTags(getSelectedCards()));
+		editTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
 		tableMenu.add(editTagsItem);
 		
 		tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
@@ -963,9 +944,9 @@ public class EditorFrame extends JInternalFrame
 		
 		// Add/remove cards from sideboard
 		CardMenuItems sideboardMenuCardItems = new CardMenuItems(this,
-				(n) -> sideboard.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
-				() -> sideboard.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), c -> 4 - sideboard.current.getData(c).count()))),
-				(n) -> sideboard.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
+				(n) -> sideboard.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
+				() -> sideboard.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), c -> 4 - sideboard.current.getData(c).count()))),
+				(n) -> sideboard.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
 		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.ADD_N));
@@ -978,14 +959,14 @@ public class EditorFrame extends JInternalFrame
 		// Move cards to main deck
 		JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
 		moveToMainItem.addActionListener((e) -> {
-			List<Card> selected = getSelectedCards();
-			sideboard.current.removeAll(new HashSet<Card>(selected));
-			deck.current.addAll(new HashSet<Card>(selected));
+			Set<Card> selected = new HashSet<Card>(parent.getSelectedCards());
+			sideboard.current.removeAll(selected);
+			deck.current.addAll(selected);
 		});
 		sideboardMenu.add(moveToMainItem);
 		JMenuItem moveAllToMainItem = new JMenuItem("Move All to Main Deck");
 		moveAllToMainItem.addActionListener((e) -> {
-			for (Card c: getSelectedCards())
+			for (Card c: parent.getSelectedCards())
 			{
 				int n = sideboard.current.getData(c).count();
 				sideboard.current.remove(c, n);
@@ -997,7 +978,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Edit card tags item in sideboard
 		JMenuItem sBeditTagsItem = new JMenuItem("Edit Tags...");
-		sBeditTagsItem.addActionListener((e) -> parent.editTags(getSelectedCards()));
+		sBeditTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
 		sideboardMenu.add(sBeditTagsItem);
 		
 		// Panel containing categories
@@ -1064,9 +1045,9 @@ public class EditorFrame extends JInternalFrame
 		categoriesMainPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		
 		VerticalButtonList categoryButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		categoryButtons.get("+").addActionListener((e) -> deck.current.addAll(new HashSet<Card>(getSelectedCards())));
-		categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(getSelectedCards())));
-		categoryButtons.get("X").addActionListener((e) -> deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
+		categoryButtons.get("+").addActionListener((e) -> deck.current.addAll(new HashSet<Card>(parent.getSelectedCards())));
+		categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(parent.getSelectedCards())));
+		categoryButtons.get("X").addActionListener((e) -> deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
 		categoriesPanel.add(categoryButtons, BorderLayout.WEST);
 		
 		// Sample hands
@@ -1272,12 +1253,15 @@ public class EditorFrame extends JInternalFrame
 				deck.model.fireTableDataChanged();
 				for (CategoryPanel c: categoryPanels)
 					((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-				for (Card c: selectedCards)
+				if (hasSelectedCards() && parent.getSelectedTable() == deck.table)
 				{
-					if (getSelectedSource().contains(c))
+					for (Card c: parent.getSelectedCards())
 					{
-						int row = selectedTable.convertRowIndexToView(getSelectedSource().indexOf(c));
-						selectedTable.addRowSelectionInterval(row, row);
+						if (deck.current.contains(c))
+						{
+							int row = deck.table.convertRowIndexToView(deck.current.indexOf(c));
+							deck.table.addRowSelectionInterval(row, row);
+						}
 					}
 				}
 				if (deck.table.isEditing())
@@ -1371,12 +1355,15 @@ public class EditorFrame extends JInternalFrame
 				if (!opening)
 					parent.updateCardsInDeck();
 				sideboard.model.fireTableDataChanged();
-				for (Card c: selectedCards)
+				if (hasSelectedCards() && parent.getSelectedTable() == sideboard.table)
 				{
-					if (getSelectedSource().contains(c))
+					for (Card c: parent.getSelectedCards())
 					{
-						int row = selectedTable.convertRowIndexToView(getSelectedSource().indexOf(c));
-						selectedTable.addRowSelectionInterval(row, row);
+						if (parent.getSelectedList().contains(c))
+						{
+							int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
+							parent.getSelectedTable().addRowSelectionInterval(row, row);
+						}
 					}
 				}
 				if (sideboard.table.isEditing())
@@ -1510,9 +1497,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				if (!e.getValueIsAdjusting())
 				{
-					clearTableSelections(newCategory.table);
-					parent.clearSelectedCards();
-					setSelectedSource(newCategory.table, deck.current.getCategoryList(spec.getName()));
+					parent.setSelectedCards(newCategory.table, deck.current.getCategoryList(spec.getName()));
 				}
 			}
 		});
@@ -1544,9 +1529,9 @@ public class EditorFrame extends JInternalFrame
 		newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 		
 		CardMenuItems tableMenuCardItems = new CardMenuItems(this,
-				(n) -> deck.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
-				() -> deck.current.addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), c -> 4 - deck.current.getData(c).count()))),
-				(n) -> deck.current.removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
+				(n) -> deck.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
+				() -> deck.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), c -> 4 - deck.current.getData(c).count()))),
+				(n) -> deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_N));
@@ -1574,7 +1559,7 @@ public class EditorFrame extends JInternalFrame
 		// Edit categories item
 		JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
 		editCategoriesItem.addActionListener((e) -> {
-			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.current.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), getSelectedCards());
+			IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.current.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), parent.getSelectedCards());
 			if (JOptionPane.showConfirmDialog(this, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
 				editInclusion(iePanel.getIncluded(), iePanel.getExcluded());
 		});
@@ -1584,7 +1569,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Edit tags item
 		JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
-		editTagsItem.addActionListener((e) -> parent.editTags(getSelectedCards()));
+		editTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
 		tableMenu.add(editTagsItem);
 		
 		tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
@@ -1773,29 +1758,6 @@ public class EditorFrame extends JInternalFrame
 	}
 	
 	/**
-	 * Get the currently-selected cards.
-	 * 
-	 * @return The list of cards corresponding to the selection in the table that is selected.
-	 */
-	public List<Card> getSelectedCards()
-	{
-		return Arrays.stream(selectedTable.getSelectedRows())
-				  .mapToObj((r) -> selectedSource.get(selectedTable.convertRowIndexToModel(r)))
-				  .collect(Collectors.toList());
-	}
-	
-	/**
-	 * Get the {@link CardList} corresponding to the table with the current selection
-	 * in it.
-	 * 
-	 * @return the {@link CardList} containing the selected Cards.
-	 */
-	public CardList getSelectedSource()
-	{
-		return selectedSource;
-	}
-	
-	/**
 	 * Check if the deck has been saved since its last change.
 	 * 
 	 * @return true if there are unsaved changes in the deck, and false otherwise.
@@ -1805,14 +1767,22 @@ public class EditorFrame extends JInternalFrame
 		return unsaved;
 	}
 	
-	/**
-	 * Check if there is a table with a selection in it.
-	 * 
-	 * @return true if there is a selected table and it has a selection, and false otherwise.
-	 */
+	public List<Card> getSelectedCards()
+	{
+		return parent.getSelectedCards();
+	}
+	
 	public boolean hasSelectedCards()
 	{
-		return selectedTable != null && selectedTable.getSelectedRowCount() > 0;
+		CardTable selectedTable = parent.getSelectedTable();
+		if (selectedTable == deck.table)
+			return true;
+		if (selectedTable == sideboard.table)
+			return true;
+		for (CategoryPanel panel: categoryPanels)
+			if (selectedTable == panel.table)
+				return true;
+		return false;
 	}
 	
 	/**
@@ -1973,31 +1943,6 @@ public class EditorFrame extends JInternalFrame
 		for (Component c: imagePanel.getComponents())
 			c.setBackground(col);
 		imagePane.getViewport().setBackground(col);
-	}
-	
-	/**
-	 * Set the selected cards and where they came from.
-	 * 
-	 * @param table table to select
-	 * @param source {@link CardList} to select
-	 */
-	public void setSelectedSource(CardTable table, CardList source)
-	{
-		selectedTable = table;
-		selectedSource = source;
-		
-		selectedCards = null;
-		if (table == deck.table || table == sideboard.table)
-			selectedCards = getSelectedCards();
-		if (selectedCards == null)
-			for (CategoryPanel panel: categoryPanels)
-				if (table == panel.table)
-					selectedCards = getSelectedCards();
-		if (selectedCards == null)
-			selectedCards = parent.getSelectedCards();
-		
-		if (hasSelectedCards())
-			parent.selectCard(getSelectedCards().get(0));
 	}
 	
 	/**

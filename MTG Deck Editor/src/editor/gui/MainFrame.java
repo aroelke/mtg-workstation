@@ -94,6 +94,7 @@ import javax.swing.text.StyledDocument;
 
 import com.jidesoft.plaf.LookAndFeelFactory;
 
+import editor.collection.CardList;
 import editor.collection.Inventory;
 import editor.collection.category.CategorySpec;
 import editor.collection.export.CardListFormat;
@@ -344,6 +345,9 @@ public class MainFrame extends JFrame
 	 * Top menu allowing editing of cards and categories in the selected deck.
 	 */
 	private JMenu deckMenu;
+	private List<Card> selectedCards;
+	private CardTable selectedTable;
+	private CardList selectedList;
 
 	/**
 	 * Create a new MainFrame.
@@ -353,6 +357,9 @@ public class MainFrame extends JFrame
 		super();
 
 		selectedCard = null;
+		selectedCards = Collections.emptyList();
+		selectedTable = null;
+		selectedList = null;
 		untitled = 0;
 		selectedFrame = null;
 		editors = new ArrayList<EditorFrame>();
@@ -1404,14 +1411,7 @@ public class MainFrame extends JFrame
 			{
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
 				if (!lsm.isSelectionEmpty())
-				{
-					selectCard(inventory.get(inventoryTable.convertRowIndexToModel(lsm.getMinSelectionIndex())));
-					if (selectedFrame != null)
-					{
-						selectedFrame.clearTableSelections(null);
-						selectedFrame.setSelectedSource(inventoryTable, inventory);
-					}
-				}
+					setSelectedCards(inventoryTable, inventory);
 			}
 		});
 
@@ -1562,14 +1562,6 @@ public class MainFrame extends JFrame
 	}
 
 	/**
-	 * Clear the selection in the inventory table.
-	 */
-	public void clearSelectedCards()
-	{
-		inventoryTable.clearSelection();
-	}
-
-	/**
 	 * Attempt to close the specified frame.
 	 *
 	 * @param frame frame to close
@@ -1581,6 +1573,12 @@ public class MainFrame extends JFrame
 			return false;
 		else
 		{
+			if (frame.hasSelectedCards())
+			{
+				selectedCards = Collections.emptyList();
+				selectedTable = null;
+				selectedList = null;
+			}
 			editors.remove(frame);
 			if (editors.size() > 0)
 				selectFrame(editors.get(0));
@@ -1703,14 +1701,24 @@ public class MainFrame extends JFrame
 	 */
 	public List<Card> getSelectedCards()
 	{
-		if (inventoryTable.getSelectedRowCount() > 0)
-			return Arrays.stream(inventoryTable.getSelectedRows())
-								 .mapToObj((r) -> inventory.get(inventoryTable.convertRowIndexToModel(r)))
-								 .collect(Collectors.toList());
-		else if (selectedCard != null)
+		if (selectedCards.isEmpty() && selectedCard != null)
 			return Arrays.asList(selectedCard);
-		else
-			return new ArrayList<Card>();
+		return selectedCards;
+	}
+	
+	public CardList getSelectedList()
+	{
+		return selectedList;
+	}
+	
+	public CardTable getSelectedTable()
+	{
+		return selectedTable;
+	}
+	
+	public boolean hasSelectedCards()
+	{
+		return selectedTable == inventoryTable;
 	}
 
 	/**
@@ -1981,8 +1989,6 @@ public class MainFrame extends JFrame
 			frame.setSelected(true);
 			deckMenu.setEnabled(true);
 			selectedFrame = frame;
-			if (!selectedFrame.hasSelectedCards() && inventoryTable.getSelectedRowCount() > 0)
-				selectedFrame.setSelectedSource(inventoryTable, inventory);
 			revalidate();
 			repaint();
 		}
@@ -1999,6 +2005,23 @@ public class MainFrame extends JFrame
 	{
 		for (EditorFrame frame: editors)
 			frame.setHandBackground(col);
+	}
+	
+	public void setSelectedCards(CardTable table, CardList list)
+	{
+		selectedTable = table;
+		selectedList = list;
+		selectedCards = Collections.unmodifiableList(Arrays.stream(table.getSelectedRows())
+				.mapToObj((r) -> list.get(table.convertRowIndexToModel(r)))
+				.collect(Collectors.toList()));
+
+		if (!selectedCards.isEmpty())
+			selectCard(selectedCards.get(0));
+		
+		if (table != inventoryTable)
+			inventoryTable.clearSelection();
+		for (EditorFrame editor: editors)
+			editor.clearTableSelections(table);
 	}
 
 	/**
