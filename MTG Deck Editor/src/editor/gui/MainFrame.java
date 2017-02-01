@@ -345,8 +345,19 @@ public class MainFrame extends JFrame
 	 * Top menu allowing editing of cards and categories in the selected deck.
 	 */
 	private JMenu deckMenu;
+	/**
+	 * Currently-selected cards.  Should never be null, but can be empty.
+	 */
 	private List<Card> selectedCards;
+	/**
+	 * Table containing the currently-selected cards.  Can be null if there is no
+	 * selection.
+	 */
 	private CardTable selectedTable;
+	/**
+	 * List backing the table containing the currently-selected cards.  Can be null
+	 * if there is no selection.
+	 */
 	private CardList selectedList;
 
 	/**
@@ -1706,16 +1717,31 @@ public class MainFrame extends JFrame
 		return selectedCards;
 	}
 	
+	/**
+	 * Get the list corresponding to the table with the currently-selected cards.
+	 * 
+	 * @return the list containing the currently selected cards
+	 */
 	public CardList getSelectedList()
 	{
 		return selectedList;
 	}
 	
+	/**
+	 * Get the table containing the currently selected cards.
+	 * 
+	 * @return the table with the selected cards
+	 */
 	public CardTable getSelectedTable()
 	{
 		return selectedTable;
 	}
 	
+	/**
+	 * Check whether or not the inventory has a selection.
+	 * 
+	 * @return true if the inventory has a selection, and false otherwise.
+	 */
 	public boolean hasSelectedCards()
 	{
 		return selectedTable == inventoryTable;
@@ -2007,6 +2033,13 @@ public class MainFrame extends JFrame
 			frame.setHandBackground(col);
 	}
 	
+	/**
+	 * Set the selected cards from the given table backed by the given card list.  Make sure
+	 * the list and the table represent the same set of cards!
+	 * 
+	 * @param table table with a selection to get the selected cards from
+	 * @param list list backing the given table
+	 */
 	public void setSelectedCards(CardTable table, CardList list)
 	{
 		selectedTable = table;

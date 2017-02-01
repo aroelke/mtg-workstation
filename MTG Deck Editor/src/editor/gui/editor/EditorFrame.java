@@ -793,9 +793,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
 				if (!lsm.isSelectionEmpty())
-				{
 					parent.setSelectedCards(deck.table, deck.current);
-				}
 			}
 		});
 		for (int i = 0; i < deck.table.getColumnCount(); i++)
@@ -850,9 +848,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
 				if (!lsm.isSelectionEmpty())
-				{
 					parent.setSelectedCards(sideboard.table, sideboard.current);
-				}
 			}
 		});
 		for (int i = 0; i < sideboard.table.getColumnCount(); i++)
@@ -1496,9 +1492,7 @@ public class EditorFrame extends JInternalFrame
 			if (!lsm.isSelectionEmpty())
 			{
 				if (!e.getValueIsAdjusting())
-				{
 					parent.setSelectedCards(newCategory.table, deck.current.getCategoryList(spec.getName()));
-				}
 			}
 		});
 		// Add the behavior for the edit category button
@@ -1767,11 +1761,21 @@ public class EditorFrame extends JInternalFrame
 		return unsaved;
 	}
 	
+	/**
+	 * Get the selected cards from the currently-selected list (even if it isn't this editor).
+	 * 
+	 * @return a list of cards representing the current table selection
+	 */
 	public List<Card> getSelectedCards()
 	{
 		return parent.getSelectedCards();
 	}
 	
+	/**
+	 * Check whether or not this editor has the table with the current selection.
+	 * 
+	 * @return true if this editor has the table with the current selection and false otherwise.
+	 */
 	public boolean hasSelectedCards()
 	{
 		CardTable selectedTable = parent.getSelectedTable();
