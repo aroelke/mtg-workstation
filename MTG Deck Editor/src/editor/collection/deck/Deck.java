@@ -975,11 +975,11 @@ public class Deck implements CardList, Externalizable
 			{
 				for (Category category: categories.values())
 				{
-					category.filtrate.remove(card);
 					if (category.spec.getWhitelist().contains(card))
 						category.spec.exclude(card);
 					if (category.spec.getBlacklist().contains(card))
 						category.spec.include(card);
+					category.filtrate.remove(card);
 				}
 				masterList.remove(entry);
 			}
