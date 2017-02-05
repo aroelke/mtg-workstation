@@ -1318,15 +1318,6 @@ public class EditorFrame extends JInternalFrame
 				
 				updateCategoryPanel();
 				handCalculations.update();
-				SwingUtilities.invokeLater(() -> {
-					CategoryPanel category = getCategory(event.newSpec().getName());
-					switchCategoryBox.setSelectedItem(category.getCategoryName());
-					if (!category.getBounds().intersects(categoriesContainer.getVisibleRect()))
-					{
-						category.scrollRectToVisible(new Rectangle(category.getSize()));
-						category.flash();
-					}
-				});
 			}
 			
 			if (!unsaved)
