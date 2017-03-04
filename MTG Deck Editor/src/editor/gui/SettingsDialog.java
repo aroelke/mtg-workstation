@@ -67,6 +67,7 @@ import editor.util.UnicodeSymbols;
  *
  * TODO: Make a panel for editing tags
  * TODO: Make a button for clearing card tags
+ * TODO: Consider switching to listener paradigm for applying settings.
  *
  * @author Alec Roelke
  */
