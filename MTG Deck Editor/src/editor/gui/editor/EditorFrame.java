@@ -127,6 +127,10 @@ public class EditorFrame extends JInternalFrame
 		 */
 		A_Z("A-Z", (d) -> (a, b) -> a.getName().compareToIgnoreCase(b.getName())),
 		/**
+		 * Sort categories in descending alphabetical order.
+		 */
+		Z_A("Z-A", (d) -> (a, b) -> -a.getName().compareToIgnoreCase(b.getName())),
+		/**
 		 * Sort categories in order of increasing card count.
 		 */
 		ASCENDING("Ascending Size", (d) -> (a, b) -> d.getCategoryList(a.getName()).total() - d.getCategoryList(b.getName()).total()),
@@ -141,11 +145,7 @@ public class EditorFrame extends JInternalFrame
 		/**
 		 * Sort categories in order of decreasing rank.
 		 */
-		REVERSE("Decreasing Rank", (d) -> (a, b) -> d.getCategoryRank(b.getName()) - d.getCategoryRank(a.getName())),
-		/**
-		 * Sort categories in descending alphabetical order.
-		 */
-		Z_A("Z-A", (d) -> (a, b) -> -a.getName().compareToIgnoreCase(b.getName()));
+		REVERSE("Decreasing Rank", (d) -> (a, b) -> d.getCategoryRank(b.getName()) - d.getCategoryRank(a.getName()));
 		
 		/**
 		 * String to display when a String representation of this
