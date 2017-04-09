@@ -1,6 +1,7 @@
 package editor.util;
 
 import java.util.Comparator;
+import java.util.function.Predicate;
 
 /**
  * This enum represents a logical comparison between two values.
@@ -12,27 +13,27 @@ public enum Comparison
 	/**
 	 * The two values are equal.  Opposite of {@link #NE}.
 	 */
-	EQ('='),
+	EQ('=', (x) -> x == 0),
 	/**
 	 * The first value is greater than or equal to the second.  Opposite of {@link #LT}.
 	 */
-	GE(UnicodeSymbols.GREATER_OR_EQUAL),
+	GE(UnicodeSymbols.GREATER_OR_EQUAL, (x) -> x >= 0),
 	/**
 	 * The first value is strictly greater than the second.  Opposite of {@link #LE}.
 	 */
-	GT('>'),
+	GT('>', (x) -> x > 0),
 	/**
 	 * The first value is less than or equal to the second.  Opposite of {@link #GT}.
 	 */
-	LE(UnicodeSymbols.LESS_OR_EQUAL),
+	LE(UnicodeSymbols.LESS_OR_EQUAL, (x) -> x <= 0),
 	/**
 	 * The first value is strictly less than the second.  Opposite of {@link #GE}.
 	 */
-	LT('<'),
+	LT('<', (x) -> x < 0),
 	/**
 	 * The two values are equal.  Opposite of {@link #EQ}.
 	 */
-	NE(UnicodeSymbols.NOT_EQUAL);
+	NE(UnicodeSymbols.NOT_EQUAL, (x) -> x != 0);
 	
 	/**
 	 * Get the Comparison corresponding to the given operator.
@@ -65,15 +66,21 @@ public enum Comparison
 	 * Operator of the comparison this Comparison performs.
 	 */
 	private final char operator;
+	/**
+	 * Operation to perform when comparing two items.
+	 */
+	private final Predicate<Integer> comparison;
 	
 	/**
 	 * Create a new Comparison.
 	 * 
 	 * @param op Operator of the new Comparison
+	 * @param comp Operation on the result of {@link Comparable#compareTo(Object)}
 	 */
-	private Comparison(final char op)
+	private Comparison(final char op, final Predicate<Integer> comp)
 	{
 		operator = op;
+		comparison = comp;
 	}
 	
 	/**
@@ -98,23 +105,7 @@ public enum Comparison
 	 */
 	public <T> boolean test(T a, T b, Comparator<? super T> comparator)
 	{
-		switch (this)
-		{
-		case EQ:
-			return comparator.compare(a, b) == 0;
-		case NE:
-			return comparator.compare(a, b) != 0;
-		case GE:
-			return comparator.compare(a, b) >= 0;
-		case LE:
-			return comparator.compare(a, b) <= 0;
-		case GT:
-			return comparator.compare(a, b) > 0;
-		case LT:
-			return comparator.compare(a, b) < 0;
-		default:
-			throw new IllegalArgumentException("Illegal comparison " + this);
-		}
+		return comparison.test(comparator.compare(a, b));
 	}
 	
 	/**
