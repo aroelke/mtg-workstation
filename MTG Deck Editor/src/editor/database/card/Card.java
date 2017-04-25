@@ -38,6 +38,7 @@ import editor.util.UnicodeSymbols;
  * number if there is more than one version of the same card in the same set).  All of its values are constant.
  *
  * TODO: Add printed text in addition to Oracle text.
+ * TODO: Loyalty can be X now.
  * @author Alec Roelke
  */
 public abstract class Card
