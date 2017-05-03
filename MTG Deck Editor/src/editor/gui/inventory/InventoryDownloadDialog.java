@@ -33,6 +33,8 @@ import javax.swing.WindowConstants;
  * inventory file.  It has a label which shows how many bytes have been
  * downloaded and a progress bar that indicates things are happening.
  * 
+ * TODO: Download the compressed version and uncompress it rather than downloading plain text.
+ * 
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
