@@ -58,6 +58,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		add(spinner);
 		
 		variable = new JCheckBox("Contains *");
+		variable.addActionListener((e) -> spinner.setEnabled(!variable.isSelected()));
 		add(variable);
 	}
 	
