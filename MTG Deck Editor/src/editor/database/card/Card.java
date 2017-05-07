@@ -23,6 +23,7 @@ import javax.swing.text.StyledDocument;
 import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
+import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.Rarity;
@@ -109,6 +110,7 @@ public abstract class Card
 	 * its normalized name.
 	 */
 	private Lazy<List<String>> legendName;
+	private Lazy<Boolean> loyaltyVariable;
 	/**
 	 * Smallest converted mana cost of all faces of this Card.
 	 */
@@ -222,6 +224,7 @@ public abstract class Card
 				.collect(Collectors.toList())));
 		powerVariable = new Lazy<Boolean>(() -> power().stream().anyMatch(CombatStat::variable));
 		toughnessVariable = new Lazy<Boolean>(() -> toughness().stream().anyMatch(CombatStat::variable));
+		loyaltyVariable = new Lazy<Boolean>(() -> loyalty().stream().anyMatch(Loyalty::variable));
 		legalIn = new Lazy<List<String>>(() -> Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList())));
 		canBeCommander = new Lazy<Boolean>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
 		ignoreCountRestriction = new Lazy<Boolean>(() -> supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number")));
@@ -494,7 +497,7 @@ public abstract class Card
 
 			if (!Double.isNaN(power().get(f).value) && !Double.isNaN(toughness().get(f).value))
 				document.insertString(document.getLength(), power().get(f) + "/" + toughness().get(f) + "\n", textStyle);
-			else if (loyalty().get(f) > 0)
+			else if (loyalty().get(f).exists())
 				document.insertString(document.getLength(), loyalty().get(f) + "\n", textStyle);
 
 			document.insertString(document.getLength(), artist().get(f) + " " + number().get(f) + "/" + expansion.count, textStyle);
@@ -641,7 +644,12 @@ public abstract class Card
 	 * 
 	 * @return a list containing the loyalty of each face of this Card.
 	 */
-	public abstract List<Integer> loyalty();
+	public abstract List<Loyalty> loyalty();
+	
+	public boolean loyaltyVariable()
+	{
+		return loyaltyVariable.get();
+	}
 
 	/**
 	 * Get this Card's mana cost(s).

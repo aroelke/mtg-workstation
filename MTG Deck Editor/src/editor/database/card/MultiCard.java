@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Legality;
+import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.Rarity;
@@ -61,7 +62,7 @@ public abstract class MultiCard extends Card
 	/**
 	 * Tuple containing the loyalty of each of this MultiCard's faces.
 	 */
-	private Lazy<List<Integer>> loyalty;
+	private Lazy<List<Loyalty>> loyalty;
 	/**
 	 * List of mana costs of the faces of this MultiCard.
 	 */
@@ -189,7 +190,7 @@ public abstract class MultiCard extends Card
 		number = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::number)));
 		power = new Lazy<List<CombatStat>>(() -> Collections.unmodifiableList(collect(Card::power)));
 		toughness = new Lazy<List<CombatStat>>(() -> Collections.unmodifiableList(collect(Card::toughness)));
-		loyalty = new Lazy<List<Integer>>(() -> Collections.unmodifiableList(collect(Card::loyalty)));
+		loyalty = new Lazy<List<Loyalty>>(() -> Collections.unmodifiableList(collect(Card::loyalty)));
 		rulings = new Lazy<Map<Date, List<String>>>(() -> Collections.unmodifiableMap(faces.stream().map(Card::rulings).reduce(new TreeMap<Date, List<String>>(), (a, b) -> {
 				for (Date k: b.keySet())
 				{
@@ -268,7 +269,7 @@ public abstract class MultiCard extends Card
 	}
 
 	@Override
-	public List<Integer> loyalty()
+	public List<Loyalty> loyalty()
 	{
 		return loyalty.get();
 	}

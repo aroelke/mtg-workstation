@@ -22,6 +22,7 @@ import javax.swing.table.TableRowSorter;
 
 import editor.database.characteristics.CardData;
 import editor.database.characteristics.CombatStat;
+import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.gui.editor.EditorFrame;
@@ -118,16 +119,16 @@ public class CardTable extends JTable
 					};
 				case LOYALTY:
 					return (a, b) -> {
-						int first = CollectionUtils.convertToList(a, Integer.class).stream().filter((l) -> l > 0).findFirst().orElse(0);
-						int second = CollectionUtils.convertToList(b, Integer.class).stream().filter((l) -> l > 0).findFirst().orElse(0);
-						if (first == 0 && second == 0)
+						Loyalty first = CollectionUtils.convertToList(a, Loyalty.class).stream().filter(Loyalty::exists).findFirst().orElse(Loyalty.NO_LOYALTY);
+						Loyalty second = CollectionUtils.convertToList(b, Loyalty.class).stream().filter(Loyalty::exists).findFirst().orElse(Loyalty.NO_LOYALTY);
+						if (!first.exists() && !second.exists())
 							return 0;
-						else if (first == 0)
+						else if (!first.exists())
 							return ascending ? 1 : -1;
-						else if (second == 0)
+						else if (!second.exists())
 							return ascending ? -1 : 1;
 						else
-							return Integer.compare(first, second);
+							return first.compareTo(second);
 					};
 				default:
 					return super.getComparator(column);

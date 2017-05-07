@@ -23,6 +23,7 @@ import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
 import editor.database.characteristics.CombatStat;
+import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.symbol.ColorSymbol;
@@ -91,7 +92,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
 				panel.add(new JLabel(CollectionUtils.join(join, CollectionUtils.convertToList(value, CombatStat.class))));
 				break;
 			case LOYALTY:
-				panel.add(new JLabel(CollectionUtils.join(join, CollectionUtils.convertToList(value, Integer.class))));
+				panel.add(new JLabel(CollectionUtils.join(join, CollectionUtils.convertToList(value, Loyalty.class))));
 				break;
 			case CATEGORIES:
 				List<CategorySpec> categories = new ArrayList<CategorySpec>(CollectionUtils.convertToSet(value, CategorySpec.class));

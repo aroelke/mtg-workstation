@@ -214,7 +214,7 @@ public abstract class FilterFactory
 		case TOUGHNESS:
 			return new VariableNumberFilter(type, (c) -> c.toughness().stream().map((p) -> (double)p.value).collect(Collectors.toList()), Card::toughnessVariable);
 		case LOYALTY:
-			return new NumberFilter(type, (c) -> c.loyalty().stream().map((l) -> (double)l).collect(Collectors.toList()));
+			return new VariableNumberFilter(type, (Card c) -> c.loyalty().stream().map((l) -> (double)l.value).collect(Collectors.toList()), Card::loyaltyVariable);
 		case ARTIST:
 			return new TextFilter(type, Card::artist);
 		case CARD_NUMBER:

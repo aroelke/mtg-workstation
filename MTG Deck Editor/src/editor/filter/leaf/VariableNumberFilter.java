@@ -103,7 +103,7 @@ public class VariableNumberFilter extends NumberFilter
 	public void parse(String s)
 	{
 		String content = checkContents(s, type());
-		if (content.equals("*"))
+		if (content.equals("*") || content.equalsIgnoreCase("X"))
 			varies = true;
 		else
 		{

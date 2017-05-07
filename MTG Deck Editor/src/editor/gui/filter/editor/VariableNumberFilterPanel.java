@@ -44,7 +44,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 	/**
 	 * Create a new VariableNumberFilterPanel.
 	 */
-	public VariableNumberFilterPanel()
+	public VariableNumberFilterPanel(String v)
 	{
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -57,7 +57,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		spinner.setMaximumSize(new Dimension(100, Integer.MAX_VALUE));
 		add(spinner);
 		
-		variable = new JCheckBox("Contains *");
+		variable = new JCheckBox("Contains " + v);
 		variable.addActionListener((e) -> spinner.setEnabled(!variable.isSelected()));
 		add(variable);
 	}
@@ -70,7 +70,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 	 */
 	public VariableNumberFilterPanel(VariableNumberFilter f)
 	{
-		this();
+		this(f.type().equals(FilterFactory.LOYALTY) ? "X" : "*");
 		setContents(f);
 	}
 

@@ -58,7 +58,7 @@ public interface FilterPanelFactory
 			return new OptionsFilterPanel<CardLayout>((LayoutFilter)filter, CardLayout.values());
 		case FilterFactory.MANA_COST:
 			return new ManaCostFilterPanel((ManaCostFilter)filter);
-		case FilterFactory.CMC: case FilterFactory.LOYALTY: case FilterFactory.CARD_NUMBER:
+		case FilterFactory.CMC: case FilterFactory.CARD_NUMBER:
 			return new NumberFilterPanel((NumberFilter)filter);
 		case FilterFactory.COLOR: case FilterFactory.COLOR_IDENTITY:
 			return new ColorFilterPanel((ColorFilter)filter);
@@ -76,7 +76,7 @@ public interface FilterPanelFactory
 			return new OptionsFilterPanel<String>((BlockFilter)filter, Expansion.blocks);
 		case FilterFactory.RARITY:
 			return new OptionsFilterPanel<Rarity>((RarityFilter)filter, Rarity.values());
-		case FilterFactory.POWER: case FilterFactory.TOUGHNESS:
+		case FilterFactory.POWER: case FilterFactory.TOUGHNESS: case FilterFactory.LOYALTY:
 			return new VariableNumberFilterPanel((VariableNumberFilter)filter);
 		case FilterFactory.FORMAT_LEGALITY:
 			return new LegalityFilterPanel((LegalityFilter)filter);

@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
+import editor.database.characteristics.Loyalty;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.Rarity;
@@ -58,7 +59,7 @@ public class SingleCard extends Card
 	/**
 	 * This SingleCard's loyalty.
 	 */
-	public final int loyalty;
+	public final Loyalty loyalty;
 	/**
 	 * Mana cost of this SingleCard.
 	 */
@@ -150,7 +151,7 @@ public class SingleCard extends Card
 			String number,
 			String power,
 			String toughness,
-			int loyalty,
+			String loyalty,
 			TreeMap<Date, List<String>> rulings,
 			Map<String, Legality> legality,
 			String imageName)
@@ -168,7 +169,7 @@ public class SingleCard extends Card
 		this.number = number;
 		this.power = new CombatStat(power);
 		this.toughness = new CombatStat(toughness);
-		this.loyalty = loyalty;
+		this.loyalty = new Loyalty(loyalty);
 		this.imageName = imageName;
 		this.rarity = rarity;
 		this.rulings = rulings;
@@ -281,7 +282,7 @@ public class SingleCard extends Card
 	}
 
 	@Override
-	public List<Integer> loyalty()
+	public List<Loyalty> loyalty()
 	{
 		return Arrays.asList(loyalty);
 	}
