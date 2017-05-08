@@ -110,6 +110,9 @@ public abstract class Card
 	 * its normalized name.
 	 */
 	private Lazy<List<String>> legendName;
+	/**
+	 * Whether or not this Card's loyalty is variable (X)
+	 */
 	private Lazy<Boolean> loyaltyVariable;
 	/**
 	 * Smallest converted mana cost of all faces of this Card.
@@ -646,6 +649,10 @@ public abstract class Card
 	 */
 	public abstract List<Loyalty> loyalty();
 	
+	/**
+	 * @return <code>true</code> if this Card has loyalty and it is variable (X),
+	 * and <code>false</code> otherwise.
+	 */
 	public boolean loyaltyVariable()
 	{
 		return loyaltyVariable.get();

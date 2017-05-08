@@ -2,17 +2,45 @@ package editor.database.characteristics;
 
 import java.util.Objects;
 
+import editor.database.card.Card;
+
+/**
+ * This class represents the starting loyalty of a planeswalker.  All {@link Card}s have them, but they
+ * are invisible for non-planeswalkers.
+ * 
+ * TODO: Give this and CombatStat a common superclass
+ * 
+ * @author Alec Roelke
+ */
 public class Loyalty implements Comparable<Loyalty>
 {
+	/**
+	 * Constant for an arbitrary card with no loyalty.
+	 */
 	public static final Loyalty NO_LOYALTY = new Loyalty(0);
 	
+	/**
+	 * Numerical value of the starting loyalty.  Zero means there is no loyalty and
+	 * -1 means it's X.
+	 */
 	public final int value;
 	
+	/**
+	 * Create a new Loyalty with the given value.
+	 * 
+	 * @param v value of the new Loyalty
+	 */
 	public Loyalty(int v)
 	{
 		value = Math.max(-1, v);
 	}
 	
+	/**
+	 * Parse a String for a loyalty value.  It can either be a number or "X," and if
+	 * anything else is used it is considered to not exist.
+	 * 
+	 * @param s
+	 */
 	public Loyalty(String s)
 	{
 		int v;
@@ -45,6 +73,10 @@ public class Loyalty implements Comparable<Loyalty>
 		return value == ((Loyalty)other).value;
 	}
 	
+	/**
+	 * @return <code>true</code> if this Loyalty exists (is nonzero),
+	 * and <code>false</code> otherwise.
+	 */
 	public boolean exists()
 	{
 		return value > 0;
@@ -66,6 +98,10 @@ public class Loyalty implements Comparable<Loyalty>
 		else return Integer.toString(value);
 	}
 	
+	/**
+	 * @return <code>true</code> if this Loyalty is variable (X),
+	 * and <code>false</code> otherwise.
+	 */
 	public boolean variable()
 	{
 		return value < 0;
