@@ -827,8 +827,8 @@ public class EditorFrame extends JInternalFrame
 		
 		VerticalButtonList sideboardButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
 		sideboardButtons.get("+").addActionListener((e) -> sideboard.current.addAll(new HashSet<Card>(parent.getSelectedCards())));
-		sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(parent.getSelectedCards())));
-		sideboardButtons.get("X").addActionListener((e) -> deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
+		sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> sideboard.current.removeAll(new HashSet<Card>(parent.getSelectedCards())));
+		sideboardButtons.get("X").addActionListener((e) -> sideboard.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
 		sideboardPanel.add(sideboardButtons, BorderLayout.WEST);
 		
 		sideboard.model = new CardTableModel(this, sideboard.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
