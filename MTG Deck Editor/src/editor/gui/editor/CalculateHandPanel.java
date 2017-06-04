@@ -39,6 +39,7 @@ import editor.gui.SettingsDialog;
  * number of draws.
  * 
  * TODO: Make this work with exclusion
+ * TODO: Double-clicking a probability shows a probability distribution (or it's right-click menu)
  * 
  * @author Alec Roelke
  */
