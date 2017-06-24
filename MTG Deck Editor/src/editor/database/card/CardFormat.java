@@ -18,6 +18,9 @@ import editor.util.CollectionUtils;
  * in a deck.  A format specifier consists of the name of a {@link CardData}
  * surrounded by braces ({}).
  * 
+ * TODO: Make this into a more generic formatter that takes a format string and a map
+ * 		 where specifiers in the format string are like %(label)s or {label}
+ * 
  * @author Alec Roelke
  */
 public class CardFormat
