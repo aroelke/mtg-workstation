@@ -107,8 +107,6 @@ public class DelimitedCardListFormat implements CardListFormat
 	public String format(CardList list)
 	{
 		StringJoiner join = new StringJoiner(System.lineSeparator());
-		if (include)
-			join.add(String.join(delimiter, types.stream().map(CardData::toString).collect(Collectors.toList())));
 		List<CardFormat> columnFormats = types.stream().map((t) -> new CardFormat('{' + t.toString().toLowerCase() + '}')).collect(Collectors.toList());
 		for (Card card: list)
 		{
@@ -123,6 +121,15 @@ public class DelimitedCardListFormat implements CardListFormat
 			join.add(line.toString());
 		}
 		return join.toString();
+	}
+	
+	@Override
+	public String header()
+	{
+		if (include)
+			return String.join(delimiter, types.stream().map(CardData::toString).toArray(String[]::new));
+		else
+			return "";
 	}
 	
 	/**

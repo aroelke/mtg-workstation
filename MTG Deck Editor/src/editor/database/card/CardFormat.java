@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import editor.collection.CardList;
 import editor.collection.category.CategorySpec;
+import editor.collection.deck.Deck;
 import editor.database.characteristics.CardData;
 import editor.util.CollectionUtils;
 
@@ -143,7 +144,7 @@ public class CardFormat
 						CollectionUtils.convertToSet(card.get(type), CategorySpec.class).stream().map(CategorySpec::getName).sorted().collect(Collectors.toList())));
 				break;
 			case DATE_ADDED:
-// TODO:				pattern = pattern.replace(replacement, Deck.DATE_FORMAT.format((Date)card.get(type)));
+				pattern = pattern.replace(replacement, Deck.DATE_FORMATTER.format((LocalDate)card.get(type)));
 				break;
 			default:
 				pattern = pattern.replace(replacement, String.valueOf(card.get(type)));

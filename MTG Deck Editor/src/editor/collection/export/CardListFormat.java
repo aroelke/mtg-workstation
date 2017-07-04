@@ -22,6 +22,21 @@ public interface CardListFormat
 	String format(CardList list);
 	
 	/**
+	 * @return <code>true</code> if this CardListFormat has headings, and
+	 * <code>false</code> otherwise.
+	 */
+	default boolean hasHeader()
+	{
+		return !header().isEmpty();
+	}
+	
+	/**
+	 * @return A String containing the formatted list header.  If the format
+	 * doesn't contain headers, it should be the empty String.
+	 */
+	String header();
+
+	/**
 	 * Parse a string for a list of cards.
 	 * 
 	 * @param source string to parse

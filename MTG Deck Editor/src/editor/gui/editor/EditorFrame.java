@@ -1688,6 +1688,8 @@ public class EditorFrame extends JInternalFrame
 	{
 		try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF8")))
 		{
+			if (format.hasHeader())
+				wr.println(format.header());
 			if (!deck.current.isEmpty())
 				wr.print(format.format(deck.current));
 			if (!sideboard.current.isEmpty())

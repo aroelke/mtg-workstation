@@ -61,6 +61,12 @@ public class TextCardListFormat implements CardListFormat
 	}
 	
 	@Override
+	public String header()
+	{
+		return "";
+	}
+	
+	@Override
 	public CardList parse(String source) throws ParseException
 	{
 		// TODO: Tell the difference between a line ending in a date and a line ending in a number (August 26, 2016)
