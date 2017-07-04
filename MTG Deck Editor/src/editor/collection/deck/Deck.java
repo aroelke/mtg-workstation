@@ -789,17 +789,19 @@ public class Deck implements CardList, Externalizable
 	@Override
 	public boolean addAll(CardList d)
 	{
-		boolean added = false;
+		Map<Card, Integer> added = new HashMap<Card, Integer>();
 		for (Card card: d)
-			added |= do_add(card, d.getData(card).count(), d.getData(card).dateAdded());
-		return added;
+			if (do_add(card, d.getData(card).count(), d.getData(card).dateAdded()))
+				added.put(card, d.getData(card).count());
+		if (!added.isEmpty())
+			notifyListeners(new Event().cardsChanged(added));
+		return !added.isEmpty();
 	}
 
 	@Override
 	public boolean addAll(Map<? extends Card, ? extends Integer> amounts)
 	{
 		Map<Card, Integer> added = new HashMap<Card, Integer>();
-		
 		for (Card card: amounts.keySet())
 			if (do_add(card, amounts.get(card), LocalDate.now()))
 				added.put(card, amounts.get(card));
