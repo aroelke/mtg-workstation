@@ -11,13 +11,12 @@ import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -25,7 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -395,56 +393,12 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		protected Void doInBackground() throws Exception
 		{
-/*
 			try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
 			{
 				opening = true;
 				deck.current.readExternal(ois);
 				sideboard.current.readExternal(ois);
 				changelogArea.setText((String)ois.readObject());
-			}
-*/
-			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
-			{
-				opening = true;
-				int cards = Integer.valueOf(rd.readLine().trim());
-				for (int i = 0; i < cards; i++)
-				{
-					if (isCancelled())
-						return null;
-					String[] card = rd.readLine().trim().split("\t");
-					Card c = parent.getCard(card[0]);
-					if (c != null)
-						deck.current.add(c, Integer.valueOf(card[1]), LocalDate.parse(card[2], Deck.DATE_FORMATTER));
-					else
-						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
-					publish(33*(i + 1)/cards);
-				}
-				int categories = Integer.valueOf(rd.readLine().trim());
-				for (int i = 0; i < categories; i++)
-				{
-					if (isCancelled())
-						return null;
-					CategorySpec spec = new CategorySpec(rd.readLine());
-					deck.current.addCategory(spec);
-					publish(33 + 33*(i + 1)/categories);
-				}
-				cards = Integer.valueOf(rd.readLine().trim());
-				for (int i = 0; i < cards; i++)
-				{
-					if (isCancelled())
-						return null;
-					String[] card = rd.readLine().trim().split("\t");
-					Card c = parent.getCard(card[0]);
-					if (c != null)
-						sideboard.current.add(c, Integer.valueOf(card[1]), LocalDate.parse(card[2], Deck.DATE_FORMATTER));
-					else
-						throw new IllegalStateException("Card with UID \"" + card[0] + "\" not found");
-					publish(66 + 33*(i + 1)/cards);
-				}
-				String line;
-				while ((line = rd.readLine()) != null)
-					changelogArea.append(line + "\n");
 			}
 			return null;
 		}
@@ -456,11 +410,11 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		protected void done()
 		{
-/*
 			for (CategorySpec category: deck.current.categories())
 				categoryPanels.add(createCategoryPanel(category));
 			updateCategoryPanel();
-*/
+			handCalculations.update();
+
 			opening = false;
 			dialog.dispose();
 			unsaved = false;

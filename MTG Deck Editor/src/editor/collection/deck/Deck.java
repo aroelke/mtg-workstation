@@ -44,6 +44,8 @@ public class Deck implements CardList, Externalizable
 	 * This class represents a category of a deck.  If a card is added or removed using the add and remove
 	 * methods, the master list will be updated to reflect this only if the card passes through the Category's filter.
 	 * 
+	 * TODO: Try to make spec private, and use accessors for it so updates are automatic
+	 * 
 	 * @author Alec Roelke
 	 */
 	private class Category implements CardList
@@ -824,26 +826,9 @@ public class Deck implements CardList, Externalizable
 	 */
 	public CardList addCategory(CategorySpec spec)
 	{
-		if (!categories.containsKey(spec.getName()))
+		Category c = do_addCategory(spec);
+		if (c != null)
 		{
-			Category c = new Category(spec);
-			categories.put(spec.getName(), c);
-			c.update();
-			
-			spec.addCategoryListener(c.listener = (e) -> {
-				if (e.nameChanged())
-				{
-					categories.remove(e.oldSpec().getName());
-					categories.put(e.newSpec().getName(), c);
-				}
-				if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
-					c.update();
-				
-				Event event = new Event().categoryChanged(e);
-				for (DeckListener listener: new HashSet<DeckListener>(listeners))
-					listener.deckChanged(event);
-			});
-
 			notifyListeners(new Event().categoryAdded(c));
 			return c;
 		}
@@ -948,6 +933,39 @@ public class Deck implements CardList, Externalizable
 			land += amount;
 		
 		return true;
+	}
+	
+	/**
+	 * Add a new Category without causing updates to listeners.
+	 * 
+	 * @param spec specification for the new Category
+	 * @return the new Category, or null if one with that name already existed.
+	 */
+	private Category do_addCategory(CategorySpec spec)
+	{
+		if (!categories.containsKey(spec.getName()))
+		{
+			Category c = new Category(spec);
+			categories.put(spec.getName(), c);
+			c.update();
+			
+			spec.addCategoryListener(c.listener = (e) -> {
+				if (e.nameChanged())
+				{
+					categories.remove(e.oldSpec().getName());
+					categories.put(e.newSpec().getName(), c);
+				}
+				if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
+					c.update();
+				
+				Event event = new Event().categoryChanged(e);
+				for (DeckListener listener: new HashSet<DeckListener>(listeners))
+					listener.deckChanged(event);
+			});
+			return c;
+		}
+		else
+			return null;
 	}
 	
 	/**
@@ -1169,12 +1187,7 @@ public class Deck implements CardList, Externalizable
 		}
 		n = in.readInt();
 		for (int i = 0; i < n; i++)
-		{
-			Category category = new Category((CategorySpec)in.readObject());
-			categories.put(category.spec.getName(), category);
-			category.rank = in.readInt();
-			category.update();
-		}
+			do_addCategory((CategorySpec)in.readObject()).rank = in.readInt();
 	}
 
 	@Override
