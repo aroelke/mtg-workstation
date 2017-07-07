@@ -18,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -383,6 +384,8 @@ public class EditorFrame extends JInternalFrame
 			file = f;
 			progressBar = b;
 			dialog = d;
+			
+			b.setIndeterminate(true);
 		}
 
 		/**
@@ -392,6 +395,15 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		protected Void doInBackground() throws Exception
 		{
+/*
+			try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
+			{
+				opening = true;
+				deck.current.readExternal(ois);
+				sideboard.current.readExternal(ois);
+				changelogArea.setText((String)ois.readObject());
+			}
+*/
 			try (BufferedReader rd = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
 			{
 				opening = true;
@@ -444,6 +456,11 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		protected void done()
 		{
+/*
+			for (CategorySpec category: deck.current.categories())
+				categoryPanels.add(createCategoryPanel(category));
+			updateCategoryPanel();
+*/
 			opening = false;
 			dialog.dispose();
 			unsaved = false;
@@ -451,13 +468,14 @@ public class EditorFrame extends JInternalFrame
 			undoBuffer.clear();
 			redoBuffer.clear();
 		}
-		
+/*
 		@Override
 		protected void process(List<Integer> chunks)
 		{
 			int progress = chunks.get(chunks.size() - 1);
 			progressBar.setValue(progress);
 		}
+*/
 	}
 	
 	/**
@@ -740,6 +758,9 @@ public class EditorFrame extends JInternalFrame
 		}
 		catch (InterruptedException | ExecutionException e)
 		{
+			e.printStackTrace();
+			System.exit(1);
+			
 			JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.current.clear();
 			categoriesContainer.removeAll();
@@ -747,6 +768,8 @@ public class EditorFrame extends JInternalFrame
 		deck.original.addAll(deck.current);
 		listTabs.setSelectedIndex(MAIN_TABLE);
 		hand.refresh();
+		
+		updateStats();
 	}
 
 	/**
@@ -1480,11 +1503,8 @@ public class EditorFrame extends JInternalFrame
 		// When a card is selected in a category, the others should deselect
 		newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
 			ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-			if (!lsm.isSelectionEmpty())
-			{
-				if (!e.getValueIsAdjusting())
-					parent.setSelectedCards(newCategory.table, deck.current.getCategoryList(spec.getName()));
-			}
+			if (!lsm.isSelectionEmpty() && !e.getValueIsAdjusting())
+				parent.setSelectedCards(newCategory.table, deck.current.getCategoryList(spec.getName()));
 		});
 		// Add the behavior for the edit category button
 		newCategory.rankBox.addActionListener((e) -> {
@@ -1866,17 +1886,10 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean save(File f)
 	{
-		try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f, false), "UTF8")))
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f, false)))
 		{
-			wr.println(String.valueOf(deck.current.size()));
-			for (Card c: deck.current)
-				wr.println(c.id() + "\t" + deck.current.getData(c).count() + "\t" + Deck.DATE_FORMATTER.format(deck.current.getData(c).dateAdded()));
-			wr.println(String.valueOf(deck.current.categories().size()));
-			for (CategorySpec c: deck.current.categories())
-				wr.println(c.toString());
-			wr.println(String.valueOf(sideboard.current.size()));
-			for (Card c: sideboard.current)
-				wr.println(c.id() + "\t" + sideboard.current.getData(c).count() + "\t" + Deck.DATE_FORMATTER.format(sideboard.current.getData(c).dateAdded()));
+			deck.current.writeExternal(oos);
+			sideboard.current.writeExternal(oos);
 			
 			String changes = "";
 			for (Card c: deck.original)
@@ -1899,7 +1912,7 @@ public class EditorFrame extends JInternalFrame
 				changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
 				changelogArea.append(changes + "\n");
 			}
-			wr.print(changelogArea.getText());
+			oos.writeObject(changelogArea.getText());
 			
 			deck.original = new Deck();
 			deck.original.addAll(deck.current);
@@ -1910,6 +1923,7 @@ public class EditorFrame extends JInternalFrame
 		catch (IOException e)
 		{
 			JOptionPane.showMessageDialog(this, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
 			return false;
 		}
 	}
