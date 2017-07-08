@@ -398,6 +398,7 @@ public class EditorFrame extends JInternalFrame
 				opening = true;
 				deck.current.readExternal(ois);
 				sideboard.current.readExternal(ois);
+				// TODO: Change this to use readUTF
 				changelogArea.setText((String)ois.readObject());
 			}
 			return null;
@@ -1866,6 +1867,7 @@ public class EditorFrame extends JInternalFrame
 				changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
 				changelogArea.append(changes + "\n");
 			}
+			// TODO: Change this to use readUTF
 			oos.writeObject(changelogArea.getText());
 			
 			deck.original = new Deck();
