@@ -106,7 +106,6 @@ import editor.util.UnicodeSymbols;
  * inventory from which cards can be added.
  * 
  * TODO: Add a filter bar to the main tab just like the inventory has
- * TODO: Add a second table to the main panel showing commander/sideboard/extra cards
  * TODO: Add something for calculating probability for multiple categories at once
  * 
  * @author Alec Roelke
