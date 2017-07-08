@@ -1467,7 +1467,7 @@ public class EditorFrame extends JInternalFrame
 		});
 		newCategory.editButton.addActionListener((e) -> editCategory(spec.getName()));
 		// Add the behavior for the remove category button
-		newCategory.removeButton.addActionListener((e) -> deck.current.remove(spec.getName()));
+		newCategory.removeButton.addActionListener((e) -> deck.current.removeCategory(spec));
 		// Add the behavior for the color edit button
 		newCategory.colorButton.addActionListener((e) -> {
 			Color newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color());
@@ -1561,7 +1561,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Delete item
 		JMenuItem deleteItem = new JMenuItem("Delete");
-		deleteItem.addActionListener((e) -> deck.current.remove(spec.getName()));
+		deleteItem.addActionListener((e) -> deck.current.removeCategory(spec));
 		categoryMenu.add(deleteItem);
 		
 		// Add to presets item
@@ -1795,7 +1795,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				if (action.getSource() == sideboard.current)
 					throw new IllegalStateException("the sideboard can't have categories");
-				deck.current.remove(action.removedCategory().getName());
+				deck.current.removeCategory(action.removedCategory());
 			}
 			if (action.categoryAdded())
 			{
@@ -1958,7 +1958,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				if (action.getSource() == sideboard.current)
 					throw new IllegalStateException("the sideboard can't have categories");
-				deck.current.remove(action.addedCategory().getName());
+				deck.current.removeCategory(action.addedCategory());
 			}
 			if (action.categoryChanged())
 			{

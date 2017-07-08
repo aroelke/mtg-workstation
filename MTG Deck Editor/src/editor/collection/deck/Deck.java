@@ -1208,14 +1208,12 @@ public class Deck implements CardList, Externalizable
 	/**
 	 * Remove a category from the deck.
 	 * 
-	 * TODO: change this to removeCateogry(CategorySpec) to mirror addCategory(CategorySpec)
-	 * 
-	 * @param name name of the category to remove.
+	 * @param spec specification of the category to remove
 	 * @return true if the deck changed as a result, and false otherwise.
 	 */
-	public boolean remove(String name)
+	public boolean removeCategory(CategorySpec spec)
 	{
-		Category c = categories.get(name);
+		Category c = categories.get(spec.getName());
 		if (c != null)
 		{
 			for (DeckEntry e: masterList)
@@ -1229,7 +1227,7 @@ public class Deck implements CardList, Externalizable
 					category.rank--;
 				}
 			}
-			categories.remove(name);
+			categories.remove(spec.getName());
 			c.spec.removeCategoryListener(c.listener);
 			
 			Event event = new Event().categoryRemoved(c);

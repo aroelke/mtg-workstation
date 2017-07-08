@@ -1018,7 +1018,7 @@ public class MainFrame extends JFrame
 				categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
 				if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-					selectedFrame.deck().remove(categories.getSelectedValue());
+					selectedFrame.deck().removeCategory(selectedFrame.deck().getCategorySpec(categories.getSelectedValue()));
 			}
 		});
 		categoryMenu.add(removeCategoryItem);
