@@ -38,7 +38,7 @@ import editor.gui.SettingsDialog;
  * amount of cards that match a category in an initial hand and after a given
  * number of draws.
  * 
- * TODO: Make this work with exclusion
+ * TODO: Remove exclusion
  * TODO: Double-clicking a probability shows a probability distribution (or it's right-click menu)
  * 
  * @author Alec Roelke
