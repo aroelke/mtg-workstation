@@ -268,7 +268,12 @@ public class InventoryLoadDialog extends JDialog
 						String toughness = card.has("toughness") ? card.get("toughness").getAsString() : "";
 
 						// Card's loyalty (empty if it isn't a planeswalker or is Garruk, the Veil-Cursed)
-						String loyalty = card.has("loyalty") ? card.get("loyalty").getAsString() : "";
+						String loyalty = "";
+						if (card.has("loyalty"))
+						{
+							JsonElement element = card.get("loyalty");
+							loyalty = element.isJsonNull() ? "X" : element.getAsString();
+						}
 
 						// Card's rulings
 						TreeMap<Date, List<String>> rulings = new TreeMap<Date, List<String>>();

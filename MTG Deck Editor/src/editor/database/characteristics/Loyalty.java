@@ -79,7 +79,7 @@ public class Loyalty implements Comparable<Loyalty>
 	 */
 	public boolean exists()
 	{
-		return value > 0;
+		return value != 0;
 	}
 	
 	@Override
