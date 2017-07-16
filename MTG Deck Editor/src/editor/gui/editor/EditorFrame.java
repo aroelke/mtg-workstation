@@ -107,6 +107,7 @@ import editor.util.UnicodeSymbols;
  * 
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add something for calculating probability for multiple categories at once
+ * TODO: Instead of a single dedicated extra list for sideboard, etc., start with none and allow adding arbitrary extras in tabs
  * 
  * @author Alec Roelke
  */
