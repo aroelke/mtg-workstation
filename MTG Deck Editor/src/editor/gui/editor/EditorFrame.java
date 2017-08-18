@@ -853,10 +853,7 @@ public class EditorFrame extends JInternalFrame
 		deck.table.addMouseListener(new TableMouseAdapter(deck.table, tableMenu));
 		
 		// Add/remove cards
-		CardMenuItems tableMenuCardItems = new CardMenuItems(this,
-				(n) -> deck.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
-				() -> deck.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 4 - deck.current.getData(c).count()))),
-				(n) -> deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
+		CardMenuItems tableMenuCardItems = new CardMenuItems(this, this::deck, parent::getSelectedCards);
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_N));
@@ -917,10 +914,7 @@ public class EditorFrame extends JInternalFrame
 		sideboard.table.addMouseListener(new TableMouseAdapter(sideboard.table, sideboardMenu));
 		
 		// Add/remove cards from sideboard
-		CardMenuItems sideboardMenuCardItems = new CardMenuItems(this,
-				(n) -> sideboard.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
-				() -> sideboard.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), c -> 4 - sideboard.current.getData(c).count()))),
-				(n) -> sideboard.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
+		CardMenuItems sideboardMenuCardItems = new CardMenuItems(this, this::sideboard, parent::getSelectedCards);
 		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.ADD_N));
@@ -1488,10 +1482,7 @@ public class EditorFrame extends JInternalFrame
 		JPopupMenu tableMenu = new JPopupMenu();
 		newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 		
-		CardMenuItems tableMenuCardItems = new CardMenuItems(this,
-				(n) -> deck.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))),
-				() -> deck.current.addAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), c -> 4 - deck.current.getData(c).count()))),
-				(n) -> deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n))));
+		CardMenuItems tableMenuCardItems = new CardMenuItems(this, this::deck, parent::getSelectedCards);
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_N));

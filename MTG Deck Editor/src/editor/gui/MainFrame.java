@@ -43,7 +43,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -942,19 +941,7 @@ public class MainFrame extends JFrame
 		deckMenu.add(addMenu);
 		JMenu removeMenu = new JMenu("Remove Cards");
 		deckMenu.add(removeMenu);
-		CardMenuItems deckMenuCardItems = new CardMenuItems(this,
-				(n) -> {
-					if (selectedFrame != null)
-						selectedFrame.deck().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
-				},
-				() -> {
-					if (selectedFrame != null)
-						selectedFrame.deck().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 4 - selectedFrame.deck().getData(c).count())));
-					},
-				(n) -> {
-					if (selectedFrame != null)
-						selectedFrame.deck().removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
-				});
+		CardMenuItems deckMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), this::getSelectedCards);
 		addMenu.add(deckMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		addMenu.add(deckMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		addMenu.add(deckMenuCardItems.get(CardMenuItems.ADD_N));
@@ -965,16 +952,7 @@ public class MainFrame extends JFrame
 		// Sideboard menu
 		JMenu sideboardMenu = new JMenu("Sideboard");
 		deckMenu.add(sideboardMenu);
-		CardMenuItems sideboardMenuItems = new CardMenuItems(this,
-				(n) -> {
-					if (selectedFrame != null)
-						selectedFrame.sideboard().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
-				},
-				null,
-				(n) -> {
-					if (selectedFrame != null)
-						selectedFrame.sideboard().removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
-				});
+		CardMenuItems sideboardMenuItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboard(), this::getSelectedCards);
 		sideboardMenu.add(sideboardMenuItems.get(CardMenuItems.ADD_SINGLE));
 		sideboardMenu.add(sideboardMenuItems.get(CardMenuItems.ADD_N));
 		sideboardMenu.add(sideboardMenuItems.get(CardMenuItems.REMOVE_SINGLE));
@@ -1194,19 +1172,7 @@ public class MainFrame extends JFrame
 		imagePanel.setComponentPopupMenu(oraclePopupMenu);
 		
 		// Add the card to the main deck
-		CardMenuItems oracleMenuCardItems = new CardMenuItems(this,
-				(n) -> {
-					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.deck().add(selectedCard, n);
-				},
-				() -> {
-					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.deck().add(selectedCard, 4 - selectedFrame.deck().getData(selectedCard).count());
-				},
-				(n) -> {
-					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.deck().remove(selectedCard, n);
-				});
+		CardMenuItems oracleMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), () -> Arrays.asList(selectedCard));
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.ADD_N));
@@ -1217,19 +1183,7 @@ public class MainFrame extends JFrame
 		oraclePopupMenu.add(new JSeparator());
 		
 		// Add the card to the sideboard
-		CardMenuItems oracleMenuSBCardItems = new CardMenuItems(this,
-				(n) -> {
-					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.sideboard().add(selectedCard, n);
-				},
-				() -> {
-					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.sideboard().add(selectedCard, 4 - selectedFrame.deck().getData(selectedCard).count());
-				},
-				(n) -> {
-					if (selectedFrame != null && selectedCard != null)
-						selectedFrame.sideboard().remove(selectedCard, n);
-				});
+		CardMenuItems oracleMenuSBCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboard(), () -> Arrays.asList(selectedCard));
 		oracleMenuSBCardItems.get(CardMenuItems.ADD_SINGLE).setText("Add to Sideboard");
 		oraclePopupMenu.add(oracleMenuSBCardItems.get(CardMenuItems.ADD_SINGLE));
 		oracleMenuSBCardItems.get(CardMenuItems.ADD_N).setText("Add to Sideboard...");
@@ -1308,29 +1262,7 @@ public class MainFrame extends JFrame
 		inventoryTable.addMouseListener(new TableMouseAdapter(inventoryTable, inventoryMenu));
 		
 		// Add cards to the main deck
-		CardMenuItems inventoryMenuCardItems = new CardMenuItems(this,
-				(n) -> {
-					if (selectedFrame != null)
-						selectedFrame.deck().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
-				},
-				() -> {
-					if (selectedFrame != null)
-					{
-						Map<Card, Integer> toAdd = new HashMap<Card, Integer>();
-						for (Card c: getSelectedCards())
-						{
-							if (selectedFrame.deck().contains(c))
-								toAdd.put(c, 4 - selectedFrame.deck().getData(c).count());
-							else
-								toAdd.put(c, 4);
-						}
-						selectedFrame.deck().addAll(toAdd);
-					}
-				},
-				(n) -> {
-					if (selectedFrame != null)
-						selectedFrame.deck().removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
-				});
+		CardMenuItems inventoryMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), this::getSelectedCards);
 		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		inventoryMenu.add(inventoryMenuCardItems.get(CardMenuItems.ADD_N));
@@ -1341,19 +1273,7 @@ public class MainFrame extends JFrame
 		inventoryMenu.add(new JSeparator());
 
 		// Add cards to the sideboard
-		CardMenuItems inventoryMenuSBItems = new CardMenuItems(this,
-				(n) -> {
-					if (selectedFrame != null)
-						selectedFrame.sideboard().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
-				},
-				() -> {
-					if (selectedFrame != null)
-						selectedFrame.sideboard().addAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 4 - selectedFrame.sideboard().getData(c).count())));
-				},
-				(n) -> {
-					if (selectedFrame != null)
-						selectedFrame.sideboard().removeAll(getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
-				});
+		CardMenuItems inventoryMenuSBItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboard(), this::getSelectedCards);
 		inventoryMenuSBItems.get(CardMenuItems.ADD_SINGLE).setText("Add to Sideboard");
 		inventoryMenu.add(inventoryMenuSBItems.get(CardMenuItems.ADD_SINGLE));
 		inventoryMenuSBItems.get(CardMenuItems.ADD_N).setText("Add to Sideboard...");

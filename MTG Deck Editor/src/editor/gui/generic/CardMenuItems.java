@@ -3,7 +3,13 @@ package editor.gui.generic;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.AbstractList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -11,6 +17,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+
+import editor.collection.CardList;
+import editor.database.card.Card;
 
 /**
  * This class represents a list of menu items for manipulating cards in a deck. There are six:
@@ -56,12 +65,34 @@ public class CardMenuItems extends AbstractList<JMenuItem>
 	 * manipulation.
 	 * 
 	 * @param parent parent component for the dialogs that will show up
-	 * @param addN function indicating what to do with the number of cards to add
-	 * @param fillPlayset function indicating how to fill a playset of cards
-	 * @param removeN function indicating what to do with the number of cards to remove
+	 * @param list supplier to get the list to change
+	 * @param cards supplier to get the cards to use to make changes
 	 */
-	public CardMenuItems(Component parent, IntConsumer addN, Runnable fillPlayset, IntConsumer removeN)
+	public CardMenuItems(Component parent, Supplier<? extends CardList> list, Supplier<List<Card>> cards)
 	{
+		IntConsumer addN = (n) -> {
+			if (list.get() != null)
+				list.get().addAll(cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
+		};
+		Runnable fillPlayset = () -> {
+			CardList l = list.get();
+			if (l != null)
+			{
+				Map<Card, Integer> toAdd = new HashMap<Card, Integer>();
+				for (Card c: cards.get())
+				{
+					if (l.contains(c))
+						toAdd.put(c, 4 - l.getData(c).count());
+					else
+						toAdd.put(c, 4);
+				}
+				l.addAll(toAdd);
+			}
+		};
+		IntConsumer removeN = (n) -> {
+			if (list.get() != null)
+				list.get().removeAll(cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
+		};
 		items = new JMenuItem[6];
 		
 		// Add single copy item
