@@ -1221,22 +1221,16 @@ public class EditorFrame extends JInternalFrame
 				deck.model.fireTableDataChanged();
 				for (CategoryPanel c: categoryPanels)
 					((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-				if (hasSelectedCards() && parent.getSelectedTable() == deck.table)
+				for (Card c: parent.getSelectedCards())
 				{
-					for (Card c: parent.getSelectedCards())
+					if (parent.getSelectedList().contains(c))
 					{
-						if (deck.current.contains(c))
-						{
-							int row = deck.table.convertRowIndexToView(deck.current.indexOf(c));
-							deck.table.addRowSelectionInterval(row, row);
-						}
+						int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
+						parent.getSelectedTable().addRowSelectionInterval(row, row);
 					}
 				}
-				if (deck.table.isEditing())
-					deck.table.getCellEditor().cancelCellEditing();
-				for (CategoryPanel c: categoryPanels)
-					if (c.table.isEditing())
-						c.table.getCellEditor().cancelCellEditing();
+				if (parent.getSelectedTable().isEditing())
+					parent.getSelectedTable().getCellEditor().cancelCellEditing();
 				
 				hand.refresh();
 				handCalculations.update();
