@@ -139,6 +139,7 @@ import editor.util.UnicodeSymbols;
  * TODO: Add a File->Print... dialog (for the editor frame)
  * TODO: Right-click column header = create filter for that column
  * TODO: Optionally get card images from magiccards.info rather than locally
+ * TODO: Create generator for card add/remove/remove-all actions
  *
  * @author Alec Roelke
  */
