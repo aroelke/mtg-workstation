@@ -43,7 +43,7 @@ public class SplitCard extends MultiCard
 			if (face.layout() != CardLayout.SPLIT)
 				throw new IllegalArgumentException("can't create split cards out of non-split cards");
 		
-		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(Arrays.asList(f.stream().mapToDouble((c) -> c.cmc().get(0)).sum())));
+		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(Collections.nCopies(f.size(), f.stream().mapToDouble((c) -> c.cmc().get(0)).sum())));
 	}
 	
 	/**

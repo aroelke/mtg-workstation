@@ -42,6 +42,10 @@ public enum CardLayout
 	 */
 	MELD("Meld", true),
 	/**
+	 * Card with two "mini-cards" present on the front face, with one sideways.
+	 */
+	AFTERMATH("Aftermath", true),
+	/**
 	 * An extra-large phenomenon card for use in the Planechase format.
 	 */
 	PHENOMENON("Phenomenon"),

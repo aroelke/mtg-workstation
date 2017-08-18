@@ -213,7 +213,7 @@ public class CardImagePanel extends JPanel
 				{}
 				finally
 				{
-					if (img == null && card.layout() == CardLayout.SPLIT)
+					if (img == null && (card.layout() == CardLayout.SPLIT || card.layout() == CardLayout.AFTERMATH))
 						faceImages.addAll(Collections.nCopies(card.faces(), null));
 					else
 						faceImages.add(img);

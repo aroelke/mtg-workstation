@@ -49,6 +49,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import editor.collection.Inventory;
+import editor.database.card.AftermathCard;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.card.DoubleFacedCard;
@@ -439,6 +440,26 @@ public class InventoryLoadDialog extends JDialog
 							cards.add(new MeldCard(otherFaces.get(0), otherFaces.get(1), otherFaces.get(2)));
 							cards.add(new MeldCard(otherFaces.get(1), otherFaces.get(0), otherFaces.get(2)));
 						}
+						break;
+					case AFTERMATH:
+						if (otherFaces.size() < 2)
+						{
+							errors.add(face.toString() + " (" + face.expansion() + "): Can't find some faces of aftermath card.");
+							error = true;
+						}
+						else if (otherFaces.size() > 2)
+						{
+							errors.add(face + " (" + face.expansion() + "): Too many faces for aftermath card.");
+							error = true;
+						}
+						else if (otherFaces.get(0).layout() != CardLayout.AFTERMATH || otherFaces.get(1).layout() != CardLayout.AFTERMATH)
+						{
+							errors.add(face + " (" + face.expansion() + "): Can't join single-faced cards into aftermath cards.");
+							error = true;
+						}
+						if (!error)
+							cards.add(new AftermathCard(otherFaces.get(0), otherFaces.get(1)));
+						break;
 					default:
 						break;
 					}
