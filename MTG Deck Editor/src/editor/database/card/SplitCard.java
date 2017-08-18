@@ -1,7 +1,10 @@
 package editor.database.card;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import editor.util.Lazy;
 
 /**
  * This class represents a card that has several faces all printed on the front.
@@ -12,6 +15,11 @@ import java.util.List;
  */
 public class SplitCard extends MultiCard
 {
+	/**
+	 * Converted mana costs of this SplitCard's faces. 
+	 */
+	private Lazy<List<Double>> cmc;
+	
 	/**
 	 * Create a new SplitCard with the given Cards as faces.
 	 * 
@@ -34,6 +42,19 @@ public class SplitCard extends MultiCard
 		for (Card face: f)
 			if (face.layout() != CardLayout.SPLIT)
 				throw new IllegalArgumentException("can't create split cards out of non-split cards");
+		
+		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(Arrays.asList(f.stream().mapToDouble((c) -> c.cmc().get(0)).sum())));
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * The converted mana cost of a split card is the sum of the converted mana costs of all
+	 * of its faces.
+	 */
+	@Override
+	public List<Double> cmc()
+	{
+		return cmc.get();
 	}
 	
 	/**
