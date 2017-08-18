@@ -1308,19 +1308,16 @@ public class EditorFrame extends JInternalFrame
 				if (!opening)
 					parent.updateCardsInDeck();
 				sideboard.model.fireTableDataChanged();
-				if (hasSelectedCards() && parent.getSelectedTable() == sideboard.table)
+				for (Card c: parent.getSelectedCards())
 				{
-					for (Card c: parent.getSelectedCards())
+					if (parent.getSelectedList().contains(c))
 					{
-						if (parent.getSelectedList().contains(c))
-						{
-							int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
-							parent.getSelectedTable().addRowSelectionInterval(row, row);
-						}
+						int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
+						parent.getSelectedTable().addRowSelectionInterval(row, row);
 					}
 				}
-				if (sideboard.table.isEditing())
-					sideboard.table.getCellEditor().cancelCellEditing();
+				if (parent.getSelectedTable().isEditing())
+					parent.getSelectedTable().getCellEditor().cancelCellEditing();
 			}
 			
 			setUnsaved();
