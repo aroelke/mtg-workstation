@@ -16,9 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -329,34 +327,32 @@ public class SettingsDialog extends JDialog
 	 * @throws IOException if an error occurred during loading.
 	 * @throws ClassNotFoundException if a class of a category specification can't be found or restored
 	 */
-	public static void load() throws FileNotFoundException, IOException, ClassNotFoundException
+	public static void load() throws IOException, ClassNotFoundException
 	{
 		resetDefaultSettings();
-		if (Files.isRegularFile(Paths.get(PROPERTIES_FILE)))
+		try (InputStreamReader in = new InputStreamReader(new FileInputStream(PROPERTIES_FILE)))
 		{
-			try (InputStreamReader in = new InputStreamReader(new FileInputStream(PROPERTIES_FILE)))
+			SETTINGS.load(in);
+		}
+		catch (FileNotFoundException e)
+		{}
+		List<CategorySpec> presets = new ArrayList<CategorySpec>();
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getAsString(EDITOR_PRESETS))))
+		{
+			int n = ois.readInt();
+			for (int i = 0; i < n; i++)
 			{
-				SettingsDialog.SETTINGS.load(in);
+				CategorySpec preset = new CategorySpec();
+				preset.readExternal(ois);
+				presets.add(preset);
 			}
 		}
-		if (Files.isRegularFile(Paths.get(EDITOR_PRESETS)))
+		catch (FileNotFoundException e)
+		{}
+		if (!presets.isEmpty())
 		{
-			List<CategorySpec> presets = new ArrayList<CategorySpec>();
-			try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(EDITOR_PRESETS)))
-			{
-				int n = ois.readInt();
-				for (int i = 0; i < n; i++)
-				{
-					CategorySpec preset = new CategorySpec();
-					preset.readExternal(ois);
-					presets.add(preset);
-				}
-			}
-			if (!presets.isEmpty())
-			{
-				PRESET_CATEGORIES.clear();
-				PRESET_CATEGORIES.addAll(presets);
-			}
+			PRESET_CATEGORIES.clear();
+			PRESET_CATEGORIES.addAll(presets);
 		}
 	}
 
@@ -425,7 +421,7 @@ public class SettingsDialog extends JDialog
 			SETTINGS.put(CARD_TAGS, str.toString());
 			SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
 		}
-		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(EDITOR_PRESETS)))
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getAsString(EDITOR_PRESETS))))
 		{
 			oos.writeInt(PRESET_CATEGORIES.size());
 			for (CategorySpec preset: PRESET_CATEGORIES)
