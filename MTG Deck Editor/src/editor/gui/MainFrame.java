@@ -381,8 +381,9 @@ public class MainFrame extends JFrame
 		{
 			SettingsDialog.load();
 		}
-		catch (IOException e)
+		catch (IOException | ClassNotFoundException e)
 		{
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		try
@@ -1387,11 +1388,12 @@ public class MainFrame extends JFrame
 	 *
 	 * @param category new preset category to add
 	 */
-	public void addPreset(String category)
+	public void addPreset(CategorySpec category)
 	{
-		SettingsDialog.addPresetCategory(category);
-
 		CategorySpec spec = new CategorySpec(category);
+		spec.getBlacklist().clear();
+		spec.getWhitelist().clear();
+		SettingsDialog.addPresetCategory(spec);
 		JMenuItem categoryItem = new JMenuItem(spec.getName());
 		categoryItem.addActionListener((e) -> {
 			if (selectedFrame != null)

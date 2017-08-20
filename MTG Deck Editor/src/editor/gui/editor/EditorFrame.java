@@ -1559,10 +1559,10 @@ public class EditorFrame extends JInternalFrame
 						+ "  Make this category a preset category?",
 						"Add to Presets",
 						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-					parent.addPreset(spec.toListlessString());
+					parent.addPreset(spec);
 			}
 			else
-				parent.addPreset(spec.toListlessString());
+				parent.addPreset(spec);
 		});
 		categoryMenu.add(addPresetItem);
 		

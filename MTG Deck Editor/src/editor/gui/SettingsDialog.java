@@ -14,9 +14,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringJoiner;
@@ -53,6 +58,8 @@ import javax.swing.tree.TreeSelectionModel;
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
 import editor.database.characteristics.CardData;
+import editor.filter.FilterFactory;
+import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
 import editor.gui.editor.CalculateHandPanel;
@@ -173,7 +180,11 @@ public class SettingsDialog extends JDialog
 	 * Recently-opened files paths.
 	 */
 	public static final String RECENT_FILES = "recents.files";
-
+	
+	/**
+	 * List of preset categories.
+	 */
+	private static final List<CategorySpec> PRESET_CATEGORIES = new ArrayList<CategorySpec>();
 	/**
 	 * Global settings for the program.
 	 */
@@ -190,15 +201,15 @@ public class SettingsDialog extends JDialog
 	 * File to download to check the latest version of the inventory.
 	 */
 	public static final String VERSION_FILE = "inventory.version_file";
-
+	
 	/**
-	 * Add a preset category to the global settings.
-	 *
-	 * @param category String version of the category to add.
+	 * Add a new preset category.
+	 * 
+	 * @param category specification of the preset category to add
 	 */
-	public static void addPresetCategory(String category)
+	public static void addPresetCategory(CategorySpec category)
 	{
-		SETTINGS.compute(SettingsDialog.EDITOR_PRESETS, (k, v) -> v += SettingsDialog.CATEGORY_DELIMITER + category);
+		PRESET_CATEGORIES.add(new CategorySpec(category));
 	}
 
 	/**
@@ -308,7 +319,7 @@ public class SettingsDialog extends JDialog
 	 */
 	public static List<CategorySpec> getPresetCategories()
 	{
-		return Arrays.stream(SETTINGS.getProperty(EDITOR_PRESETS).split(CATEGORY_DELIMITER)).map(CategorySpec::new).collect(Collectors.toList());
+		return Collections.unmodifiableList(PRESET_CATEGORIES);
 	}
 
 	/**
@@ -316,15 +327,35 @@ public class SettingsDialog extends JDialog
 	 *
 	 * @throws FileNotFoundException if the settings file can't be found.
 	 * @throws IOException if an error occurred during loading.
+	 * @throws ClassNotFoundException if a class of a category specification can't be found or restored
 	 */
-	public static void load() throws FileNotFoundException, IOException
+	public static void load() throws FileNotFoundException, IOException, ClassNotFoundException
 	{
 		resetDefaultSettings();
-		if (new File(PROPERTIES_FILE).exists())
+		if (Files.isRegularFile(Paths.get(PROPERTIES_FILE)))
 		{
 			try (InputStreamReader in = new InputStreamReader(new FileInputStream(PROPERTIES_FILE)))
 			{
 				SettingsDialog.SETTINGS.load(in);
+			}
+		}
+		if (Files.isRegularFile(Paths.get(EDITOR_PRESETS)))
+		{
+			List<CategorySpec> presets = new ArrayList<CategorySpec>();
+			try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(EDITOR_PRESETS)))
+			{
+				int n = ois.readInt();
+				for (int i = 0; i < n; i++)
+				{
+					CategorySpec preset = new CategorySpec();
+					preset.readExternal(ois);
+					presets.add(preset);
+				}
+			}
+			if (!presets.isEmpty())
+			{
+				PRESET_CATEGORIES.clear();
+				PRESET_CATEGORIES.addAll(presets);
 			}
 		}
 	}
@@ -351,12 +382,26 @@ public class SettingsDialog extends JDialog
 		SETTINGS.put(CATEGORY_ROWS, "6");
 		SETTINGS.put(EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
 		SETTINGS.put(EDITOR_STRIPE, "#FFCCCCCC");
-		SETTINGS.put(EDITOR_PRESETS, "\u00ABArtifacts\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"artifact\"\u00BB \u00ABtype:contains none of\"creature\"\u00BB\u00BB\u220E\u00ABCreatures\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"creature\"\u00BB\u00BB\u220E\u00ABLands\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"land\"\u00BB\u00BB\u220E\u00ABInstants/Sorceries\u00BB \u00AB\u00BB \u00AB\u00BB \u00AB\u00BB \u00ABAND \u00ABtype:contains any of\"instant sorcery\"\u00BB\u00BB");
+		SETTINGS.put(EDITOR_PRESETS, "presets");
 		SETTINGS.put(HAND_SIZE, "7");
 		SETTINGS.put(EXPECTED_ROUND_MODE, "No rounding");
 		SETTINGS.put(CARD_SCANS, "images" + File.separatorChar + "cards");
 		SETTINGS.put(IMAGE_BGCOLOR, "#FFFFFFFF");
 		SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
+		
+		PRESET_CATEGORIES.clear();
+		CardTypeFilter artifacts = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
+		artifacts.selected.add("Artifact");
+		PRESET_CATEGORIES.add(new CategorySpec("Artifacts", Collections.emptySet(), Collections.emptySet(), Color.WHITE, artifacts));
+		CardTypeFilter creatures = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
+		creatures.selected.add("Creature");
+		PRESET_CATEGORIES.add(new CategorySpec("Creatures", Collections.emptySet(), Collections.emptySet(), Color.WHITE, creatures));
+		CardTypeFilter lands = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
+		lands.selected.add("Land");
+		PRESET_CATEGORIES.add(new CategorySpec("Lands", Collections.emptySet(), Collections.emptySet(), Color.WHITE, lands));
+		CardTypeFilter spells = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
+		spells.selected.addAll(Arrays.asList("Instant", "Sorcery"));
+		PRESET_CATEGORIES.add(new CategorySpec("Instants/Sorceries", Collections.emptySet(), Collections.emptySet(), Color.WHITE, spells));
 	}
 
 	/**
@@ -379,6 +424,12 @@ public class SettingsDialog extends JDialog
 			}
 			SETTINGS.put(CARD_TAGS, str.toString());
 			SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
+		}
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(EDITOR_PRESETS)))
+		{
+			oos.writeInt(PRESET_CATEGORIES.size());
+			for (CategorySpec preset: PRESET_CATEGORIES)
+				preset.writeExternal(oos);
 		}
 	}
 
@@ -466,6 +517,10 @@ public class SettingsDialog extends JDialog
 	 * MainFrame showing the dialog.
 	 */
 	private MainFrame parent;
+	/**
+	 * Name of the file containing preset categories.
+	 */
+	private JTextField presetsFileField;
 	/**
 	 * Spinner for the number of recent files to save.
 	 */
@@ -560,7 +615,7 @@ public class SettingsDialog extends JDialog
 		inventoryFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryFilePanel.getPreferredSize().height));
 		inventoryPanel.add(inventoryFilePanel);
 		inventoryPanel.add(Box.createVerticalStrut(5));
-
+		
 		// Inventory file directory
 		JPanel inventoryDirPanel = new JPanel();
 		inventoryDirPanel.setLayout(new BoxLayout(inventoryDirPanel, BoxLayout.X_AXIS));
@@ -712,7 +767,20 @@ public class SettingsDialog extends JDialog
 		explicitsPanel.setMaximumSize(explicitsPanel.getPreferredSize());
 		explicitsPanel.setAlignmentX(LEFT_ALIGNMENT);
 		editorPanel.add(explicitsPanel);
+		editorPanel.add(Box.createVerticalStrut(5));
 
+		// Presets file name
+		JPanel presetsFilePanel = new JPanel();
+		presetsFilePanel.setLayout(new BoxLayout(presetsFilePanel, BoxLayout.X_AXIS));
+		presetsFilePanel.add(new JLabel("Preset Categories File:"));
+		presetsFilePanel.add(Box.createHorizontalStrut(5));
+		presetsFileField = new JTextField(10);
+		presetsFileField.setText(getAsString(EDITOR_PRESETS));
+		presetsFilePanel.add(presetsFileField);
+		presetsFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, presetsFilePanel.getPreferredSize().height));
+		presetsFilePanel.setAlignmentX(LEFT_ALIGNMENT);
+		editorPanel.add(presetsFilePanel);
+		
 		editorPanel.add(Box.createVerticalGlue());
 
 		// Editor categories
@@ -721,9 +789,9 @@ public class SettingsDialog extends JDialog
 		categoriesPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
 		categoriesList = new CategoryList("<html><i>&lt;Double-click to add or edit&gt;</i></html>");
-		if (!getAsString(SettingsDialog.EDITOR_PRESETS).isEmpty())
-			for (String categoryString: getAsString(EDITOR_PRESETS).split(CATEGORY_DELIMITER))
-				categoriesList.addCategory(new CategorySpec(categoryString));
+		if (!PRESET_CATEGORIES.isEmpty())
+			for (CategorySpec preset: PRESET_CATEGORIES)
+				categoriesList.addCategory(new CategorySpec(preset));
 		categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
 
 		// Category modification buttons
@@ -912,10 +980,10 @@ public class SettingsDialog extends JDialog
 				join.add(box.getText());
 		SETTINGS.put(EDITOR_COLUMNS, join.toString());
 		SETTINGS.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
-		join = new StringJoiner(SettingsDialog.CATEGORY_DELIMITER);
+		SETTINGS.put(EDITOR_PRESETS, presetsFileField.getText());
+		PRESET_CATEGORIES.clear();
 		for (int i = 0; i < categoriesList.getCount(); i++)
-			join.add(categoriesList.getCategoryAt(i).toString());
-		SETTINGS.put(EDITOR_PRESETS, join.toString());
+			addPresetCategory(categoriesList.getCategoryAt(i));
 		SETTINGS.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
 		for (JRadioButton modeButton: modeButtons)
 			if (modeButton.isSelected())
