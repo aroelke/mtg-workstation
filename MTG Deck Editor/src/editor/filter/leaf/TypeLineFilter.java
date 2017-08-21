@@ -80,18 +80,8 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
 	}
 	
 	@Override
-	public void parse(String s)
-	{
-		String content = checkContents(s, FilterFactory.TYPE_LINE);
-		int delim = content.indexOf('"');
-		contain = Containment.parseContainment(content.substring(0, delim));
-		line = content.substring(delim + 1, content.lastIndexOf('"'));
-	}
-	
-	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readExternal(in);
 		contain = (Containment)in.readObject();
 		line = in.readUTF();
 	}
@@ -112,7 +102,6 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException
 	{
-		super.writeExternal(out);
 		out.writeObject(contain);
 		out.writeUTF(line);
 	}

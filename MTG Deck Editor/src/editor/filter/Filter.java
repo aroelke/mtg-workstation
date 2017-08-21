@@ -33,13 +33,20 @@ public abstract class Filter implements Predicate<Card>, Externalizable
 	 * Parent of this Filter in the tree (null if this is the root Filter).
 	 */
 	protected FilterGroup parent;
+	/**
+	 * Code specifying the attribute of a card to be filtered.
+	 */
+	private final String type;
 
 	/**
 	 * Create a new Filter with no parent.
+	 * 
+	 * @param t type of filter being created
 	 */
-	public Filter()
+	public Filter(String t)
 	{
 		parent = null;
+		type = t;
 	}
 
 	/**
@@ -54,32 +61,14 @@ public abstract class Filter implements Predicate<Card>, Externalizable
 
 	@Override
 	public abstract int hashCode();
-
+	
 	/**
-	 * Parse a String to determine the contents of this Filter.  How the String is parsed
-	 * is Filter-dependent.
-	 *
-	 * @param s String to parse
-	 */
-	public abstract void parse(String s);
-
-	/**
-	 * Get the String representation of the contents of this Filter.
+	 * Get the type of this Filter.
 	 * 
-	 * @return The String representation of this Filter's subtree, excluding beginning
-	 * and ending markers.
+	 * @return the code specifying the attribute to be filtered.
 	 */
-	public abstract String representation();
-
-	/**
-	 * {@inheritDoc}
-	 * The String representation is the String value of its contents obtained from
-	 * {@link #representation()} surrounded by {@link #BEGIN_GROUP} and {@link #END_GROUP}.
-	 * @see Filter#representation()
-	 */
-	@Override
-	public String toString()
+	public final String type()
 	{
-		return BEGIN_GROUP + representation() + END_GROUP;
+		return type;
 	}
 }

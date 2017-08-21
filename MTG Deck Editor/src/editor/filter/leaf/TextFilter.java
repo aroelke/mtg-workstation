@@ -153,29 +153,8 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	}
 	
 	@Override
-	public void parse(String s)
-	{
-		String content = checkContents(s, type());
-		int delim = content.indexOf('"');
-		if (delim > -1)
-		{
-			contain = Containment.parseContainment(content.substring(0, delim));
-			text = content.substring(delim + 1, content.lastIndexOf('"'));
-			regex = false;
-		}
-		else
-		{
-			delim = content.indexOf('/');
-			contain = Containment.parseContainment(content.substring(0, delim));
-			text = content.substring(delim + 1, content.lastIndexOf('/'));
-			regex = true;
-		}
-	}
-	
-	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readExternal(in);
 		contain = (Containment)in.readObject();
 		regex = in.readBoolean();
 		text = in.readUTF();
@@ -244,7 +223,6 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException
 	{
-		super.writeExternal(out);
 		out.writeObject(contain);
 		out.writeBoolean(regex);
 		out.writeUTF(text);

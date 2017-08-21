@@ -6,7 +6,6 @@ import editor.database.card.Card;
 import editor.database.characteristics.Expansion;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.util.Containment;
 
 /**
  * This class represents a filter that groups cards by expansion.
@@ -39,16 +38,5 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 		filter.contain = contain;
 		filter.selected = new HashSet<Expansion>(selected);
 		return filter;
-	}
-
-	@Override
-	public void parse(String s)
-	{
-		String content = checkContents(s, FilterFactory.EXPANSION);
-		int delim = content.indexOf('{');
-		contain = Containment.parseContainment(content.substring(0, delim));
-		if (content.charAt(delim + 1) != '}')
-			for (String o: content.substring(delim + 1, content.length() - 1).split(","))
-				selected.add(convertFromString(o));
 	}
 }

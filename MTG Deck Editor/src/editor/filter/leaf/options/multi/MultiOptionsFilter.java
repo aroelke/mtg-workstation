@@ -1,8 +1,5 @@
 package editor.filter.leaf.options.multi;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -57,14 +54,6 @@ public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
 		return function;
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-	{
-		super.readExternal(in);
-		function = (SerializableFunction<Card, Collection<T>>)in.readObject();
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 * Filter cards by attributes that can take zero or or more of a certain value
@@ -74,12 +63,5 @@ public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
 	public boolean test(Card c)
 	{
 		return contain.test(function.apply(c), selected);
-	}
-	
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException
-	{
-		super.writeExternal(out);
-		out.writeObject(function);
 	}
 }

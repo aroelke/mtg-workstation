@@ -5,24 +5,17 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.EventObject;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
-import java.util.StringJoiner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
 import editor.filter.FilterGroup;
 import editor.gui.MainFrame;
-import editor.gui.SettingsDialog;
 
 /**
  * This class represents a set of specifications for a category.  Those specifications are its name,
@@ -146,26 +139,7 @@ public class CategorySpec implements Externalizable
 			return !oldSpec.getWhitelist().equals(newSpec.getWhitelist());
 		}
 	}
-	/**
-	 * List separator for UIDs of cards in the String representation of a whitelist or a blacklist.
-	 */
-	private static final String EXCEPTION_SEPARATOR = ":";	
 	
-	/**
-	 * Regex pattern for matching category strings and extracting their contents.  The first group
-	 * will be the category's name, the second group will be the UIDs of the cards in its whitelist,
-	 * the third group will the UIDs of the cards in its blacklist, the fourth group will be its color,
-	 * and the fifth group will be its filter's String representation.  The first four groups will
-	 * not include the group enclosing characters, but the fifth will.  The first through third groups
-	 * will be empty strings if they are empty, but the fourth will be null.  The first and fifth groups
-	 * should never be empty.
-	 */
-	private static final Pattern CATEGORY_PATTERN = Pattern.compile(
-			"^" + Filter.BEGIN_GROUP + "([^" + Filter.END_GROUP + "]+)" + Filter.END_GROUP		// Name
-			+ "\\s*" + Filter.BEGIN_GROUP + "([^" + Filter.END_GROUP + "]*)" + Filter.END_GROUP 	// Whitelist
-			+ "\\s*" + Filter.BEGIN_GROUP + "([^" + Filter.END_GROUP + "]*)" + Filter.END_GROUP	// Blacklist
-			+ "\\s*" + Filter.BEGIN_GROUP + "(#[0-9A-F-a-f]{6})?" + Filter.END_GROUP						// Color
-			+ "\\s*(.*)$");
 	/**
 	 * Name of the category.
 	 */
@@ -213,41 +187,6 @@ public class CategorySpec implements Externalizable
 		color = original.color;
 		filter = original.filter.copy();
 		listeners = new HashSet<CategoryListener>();
-	}
-	
-	/**
-	 * Create a new CategorySpec from the given category String representation.
-	 * 
-	 * @param pattern String to parse
-	 * @throws IllegalArgumentException if the String doesn't represent a category
-	 */
-	public CategorySpec(String pattern) throws IllegalArgumentException
-	{
-		Matcher m = CATEGORY_PATTERN.matcher(pattern);
-		if (m.matches())
-		{
-			name = m.group(1);
-			if (!m.group(2).isEmpty())
-				whitelist = Arrays.stream(m.group(2).split(EXCEPTION_SEPARATOR)).map(MainFrame.inventory()::get).collect(Collectors.toSet());
-			else
-				whitelist = new HashSet<Card>();
-			if (!m.group(3).isEmpty())
-				blacklist = Arrays.stream(m.group(3).split(EXCEPTION_SEPARATOR)).map(MainFrame.inventory()::get).collect(Collectors.toSet());
-			else
-				blacklist = new HashSet<Card>();
-			if (m.group(4) != null)
-				color = SettingsDialog.stringToColor(m.group(4));
-			else
-			{
-				Random rand = new Random();
-				color = Color.getHSBColor(rand.nextFloat(), rand.nextFloat(), (float)Math.sqrt(rand.nextFloat()));
-			}
-			filter = new FilterGroup();
-			filter.parse(m.group(5));
-			listeners = new HashSet<CategoryListener>();
-		}
-		else
-			throw new IllegalArgumentException("Illegal category string " + pattern);
 	}
 	
 	/**
@@ -312,7 +251,7 @@ public class CategorySpec implements Externalizable
 		blacklist.addAll(other.blacklist);
 		color = other.color;
 		filter = new FilterGroup();
-		filter.parse(other.filter.toString());
+		filter = other.filter.copy();
 		
 		if (!equals(old))
 		{
@@ -464,7 +403,13 @@ public class CategorySpec implements Externalizable
 		
 		name = in.readUTF();
 		color = (Color)in.readObject();
-		filter = (Filter)in.readObject();
+		
+		String type = in.readUTF();
+		if (type.equals(FilterFactory.GROUP))
+			filter = new FilterGroup();
+		else
+			filter = FilterFactory.createFilter(type);
+		filter.readExternal(in);
 		
 		n = in.readInt();
 		for (int i = 0; i < n; i++)
@@ -543,46 +488,16 @@ public class CategorySpec implements Externalizable
 				listener.categoryChanged(e);
 		}
 	}
-
-	/**
-	 * Get this CategorySpec's String representation, except with the whitelist and
-	 * blacklist empty.  Used for creating preset categories, as they should not have
-	 * exclusions or inclusions.
-	 * 
-	 * @return a String representation of this CategorySpec with the whitelist and
-	 * blacklist empty.  
-	 */
-	public String toListlessString()
-	{
-		return Filter.BEGIN_GROUP + name + Filter.END_GROUP
-				+ " " + Filter.BEGIN_GROUP + Filter.END_GROUP
-				+ " " + Filter.BEGIN_GROUP + Filter.END_GROUP
-				+ " " + Filter.BEGIN_GROUP + SettingsDialog.colorToString(color, 3) + Filter.END_GROUP
-				+ " " + filter.toString();
-	}
-	
-	@Override
-	public String toString()
-	{
-		StringJoiner white = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(Filter.BEGIN_GROUP), String.valueOf(Filter.END_GROUP));
-		for (Card c: whitelist)
-			white.add(c.id());
-		StringJoiner black = new StringJoiner(EXCEPTION_SEPARATOR, String.valueOf(Filter.BEGIN_GROUP), String.valueOf(Filter.END_GROUP));
-		for (Card c: blacklist)
-			black.add(c.id());
-		return Filter.BEGIN_GROUP + name + Filter.END_GROUP
-				+ " " + white.toString()
-				+ " " + black.toString()
-				+ " " + Filter.BEGIN_GROUP + SettingsDialog.colorToString(color, 3) + Filter.END_GROUP
-				+ " " + filter.toString();
-	}
 	
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException
 	{
 		out.writeUTF(name);
 		out.writeObject(color);
-		out.writeObject(filter);
+		
+		out.writeUTF(filter.type());
+		filter.writeExternal(out);
+		
 		out.writeInt(blacklist.size());
 		for (Card card: blacklist)
 			out.writeUTF(card.id());

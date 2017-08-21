@@ -9,7 +9,6 @@ import java.util.Objects;
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.util.Comparison;
 import editor.util.SerializableFunction;
 import editor.util.SerializablePredicate;
 
@@ -92,25 +91,6 @@ public class VariableNumberFilter extends NumberFilter
 	public int hashCode()
 	{
 		return Objects.hash(type(), function(), varies, variable, operation, operand);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * The String should contain the code for the filter, a :, and then either a * or the
-	 * right-hand side of an equation/inequality specifying the number to be filtered.
-	 */
-	@Override
-	public void parse(String s)
-	{
-		String content = checkContents(s, type());
-		if (content.equals("*") || content.equalsIgnoreCase("X"))
-			varies = true;
-		else
-		{
-			varies = false;
-			operation = Comparison.valueOf(content.charAt(0));
-			operand = Double.valueOf(content.substring(1));
-		}
 	}
 	
 	@SuppressWarnings("unchecked")

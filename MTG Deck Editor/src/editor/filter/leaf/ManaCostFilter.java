@@ -77,18 +77,8 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	}
 	
 	@Override
-	public void parse(String s)
-	{
-		String content = checkContents(s, FilterFactory.MANA_COST);
-		int delim = content.indexOf('"');
-		contain = Containment.parseContainment(content.substring(0, delim));
-		cost = ManaCost.parseManaCost(content.substring(delim + 1, content.lastIndexOf('"')));
-	}
-	
-	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readExternal(in);
 		contain = (Containment)in.readObject();
 		cost = ManaCost.parseManaCost(in.readUTF());
 	}
@@ -122,7 +112,6 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException
 	{
-		super.writeExternal(out);
 		out.writeObject(contain);
 		out.writeUTF(cost.toString());
 	}

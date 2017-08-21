@@ -167,6 +167,10 @@ public abstract class FilterFactory
 		filterTypes.put(ALL, "<Any Card>");
 		FILTER_TYPES = Collections.unmodifiableMap(filterTypes);
 	}
+	/**
+	 * Code for a group of filters.
+	 */
+	public static final String GROUP = "group";
 	
 	/**
 	 * Create a new filter.

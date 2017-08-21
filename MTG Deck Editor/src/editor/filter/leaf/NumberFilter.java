@@ -75,20 +75,6 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	}
 	
 	/**
-	 * Parse a String to determine this NumberFilter's operation and operand.
-	 * 
-	 * @param s String to parse
-	 * @see editor.filter.Filter#parse(String)
-	 */
-	@Override
-	public void parse(String s)
-	{
-		String content = checkContents(s, type());
-		operation = Comparison.valueOf(content.charAt(0));
-		operand = Double.valueOf(content.substring(1));
-	}
-	
-	/**
 	 * @return A new NumberFilter that is a copy of this one.
 	 */
 	@Override
@@ -131,7 +117,6 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readExternal(in);
 		operand = in.readDouble();
 		operation = (Comparison)in.readObject();
 	}
@@ -139,7 +124,6 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException
 	{
-		super.writeExternal(out);
 		out.writeDouble(operand);
 		out.writeObject(operation);
 	}

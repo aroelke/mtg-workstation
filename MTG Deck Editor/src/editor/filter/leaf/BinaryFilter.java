@@ -75,18 +75,9 @@ public class BinaryFilter extends FilterLeaf<Void>
 		return Objects.hash(type(), function(), all);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 * BinaryFilters have no content, so there's nothing to parse.
-	 */
-	@Override
-	public void parse(String s)
-	{}
-	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readExternal(in);
 		all = in.readBoolean();
 	}
 	
@@ -103,7 +94,6 @@ public class BinaryFilter extends FilterLeaf<Void>
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException
 	{
-		super.writeExternal(out);
 		out.writeBoolean(all);
 	}
 }

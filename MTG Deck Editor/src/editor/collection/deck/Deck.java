@@ -1187,7 +1187,11 @@ public class Deck implements CardList, Externalizable
 		}
 		n = in.readInt();
 		for (int i = 0; i < n; i++)
-			do_addCategory((CategorySpec)in.readObject()).rank = in.readInt();
+		{
+			CategorySpec spec = new CategorySpec();
+			spec.readExternal(in);
+			do_addCategory(spec).rank = in.readInt();
+		}
 	}
 
 	@Override
@@ -1397,7 +1401,7 @@ public class Deck implements CardList, Externalizable
 		out.writeInt(categories.size());
 		for (Category category: categories.values())
 		{
-			out.writeObject(category.spec);
+			category.spec.writeExternal(out);
 			out.writeInt(category.rank);
 		}
 	}

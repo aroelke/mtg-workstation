@@ -105,24 +105,8 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
 	}
 	
 	@Override
-	public void parse(String s)
-	{
-		String content = checkContents(s, type());
-		int delim = content.indexOf('"');
-		contain = Containment.parseContainment(content.substring(0, delim));
-		for (char c: content.substring(delim + 1, content.lastIndexOf('"')).toCharArray())
-		{
-			if (Character.toUpperCase(c) == 'M')
-				multicolored = true;
-			else
-				colors.add(ManaType.parseManaType(c));
-		}
-	}
-	
-	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readExternal(in);
 		contain = (Containment)in.readObject();
 		int n = in.readInt();
 		for (int i = 0; i < n; i++)
@@ -144,7 +128,6 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException
 	{
-		super.writeExternal(out);
 		out.writeObject(contain);
 		out.writeInt(colors.size());
 		for (ManaType type: colors)

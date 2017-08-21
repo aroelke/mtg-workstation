@@ -1,11 +1,9 @@
 package editor.filter.leaf.options.single;
 
-import java.util.Arrays;
 import java.util.HashSet;
 
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.util.Containment;
 
 /**
  * This class represents a filter that groups cards by block.
@@ -35,15 +33,5 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 		filter.contain = contain;
 		filter.selected = new HashSet<String>(selected);
 		return filter;
-	}
-
-	@Override
-	public void parse(String s)
-	{
-		String content = checkContents(s, FilterFactory.BLOCK);
-		int delim = content.indexOf('{');
-		contain = Containment.parseContainment(content.substring(0, delim));
-		if (content.charAt(delim + 1) != '}')
-			selected.addAll(Arrays.asList(content.substring(delim + 1, content.length() - 1).split(",")));
 	}
 }

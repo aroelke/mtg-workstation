@@ -30,7 +30,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 	/**
 	 * Map of category names onto their String representations.
 	 */
-	private Map<String, String> categories;
+	private Map<String, CategorySpec> categories;
 	
 	/**
 	 * Create a new DefaultsFilterPanel.
@@ -40,12 +40,12 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 		super();
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		
-		categories = new HashMap<String, String>();
+		categories = new HashMap<String, CategorySpec>();
 		
 		List<CategorySpec> presets = SettingsDialog.getPresetCategories();
 		String[] names = presets.stream().map(CategorySpec::getName).toArray(String[]::new);
 		for (int i = 0; i < presets.size(); i++)
-			categories.put(names[i], presets.get(i).toListlessString());
+			categories.put(names[i], presets.get(i));
 		
 		defaults = new ComboBoxPanel<String>(names);
 		add(defaults);

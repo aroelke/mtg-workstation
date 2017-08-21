@@ -92,7 +92,6 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readExternal(in);
 		contain = (Containment)in.readObject();
 		int n = in.readInt();
 		for (int i = 0; i < n; i++)
@@ -107,7 +106,6 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException
 	{
-		super.writeExternal(out);
 		out.writeObject(contain);
 		out.writeInt(selected.size());
 		for (T item: selected)

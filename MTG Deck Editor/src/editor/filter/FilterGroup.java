@@ -8,10 +8,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.StringJoiner;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import editor.database.card.Card;
@@ -76,12 +74,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 			return mode;
 		}
 	}
-	
-	/**
-	 * Pattern to match for parsing a String to determine a FilterGroup's
-	 * properties.
-	 */
-	private static final Pattern GROUP_PATTERN = Pattern.compile("^\\s*" + Filter.BEGIN_GROUP + "\\s*(?:AND|OR)", Pattern.CASE_INSENSITIVE);
+
 	/**
 	 * Children of this FilterGroup.
 	 */
@@ -97,7 +90,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	 */
 	public FilterGroup()
 	{
-		super();
+		super(FilterFactory.GROUP);
 		children = new ArrayList<Filter>();
 		mode = Mode.AND;
 	}
@@ -177,81 +170,22 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		return children.iterator();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 * The String should consist of  beginning and ending markers followed by the mode
-	 * of the group, followed by any number of Filters (that can also be groups) that
-	 * are each surrounded by beginning and ending markers.
-	 */
-	@Override
-	public void parse(String s)
-	{
-		children.clear();
-		String[] contents = s.substring(1, s.length() - 1).split("\\s+", 2);
-		mode = Mode.valueOf(contents[0]);
-		List<String> filterStrings = new ArrayList<String>();
-		int depth = 0;
-		StringBuilder str = new StringBuilder();
-		for (char c: contents[1].toCharArray())
-		{
-			switch (c)
-			{
-			case Filter.BEGIN_GROUP:
-				depth++;
-				if (depth == 1)
-					str = new StringBuilder();
-				break;
-			case Filter.END_GROUP:
-				if (depth == 1)
-				{
-					str.append(Filter.END_GROUP);
-					filterStrings.add(str.toString());
-				}
-				depth--;
-				break;
-			default:
-				break;
-			}
-			if (depth > 0)
-				str.append(c);
-		}
-		if (depth != 0)
-			throw new IllegalArgumentException("Unclosed " + String.valueOf(Filter.BEGIN_GROUP) + String.valueOf(Filter.END_GROUP) + " detected in string \"" + contents + "\"");
-		for (String filterString: filterStrings)
-		{
-			Filter filter;
-			if (GROUP_PATTERN.matcher(filterString).find())
-				filter = new FilterGroup();
-			else
-				filter = FilterFactory.createFilter(filterString.substring(1, filterString.indexOf(':')));
-			filter.parse(filterString);
-			addChild(filter);
-		}
-	}
-	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
 		mode = (Mode)in.readObject();
 		int n = in.readInt();
 		for (int i = 0; i < n; i++)
-			children.add((Filter)in.readObject());
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * The String representation of this FilterGroup is the mode's representation
-	 * followed by each child's entire representation including beginning and ending
-	 * markers.  The outermost markers are omitted.
-	 */
-	@Override
-	public String representation()
-	{
-		StringJoiner join = new StringJoiner(" ");
-		join.add(mode.name());
-		for (Filter filter: children)
-			join.add(filter.toString());
-		return join.toString();
+		{
+			Filter child;
+			String type = in.readUTF();
+			if (type.equals(FilterFactory.GROUP))
+				child = new FilterGroup();
+			else
+				child = FilterFactory.createFilter(type);
+			child.readExternal(in);
+			children.add(child);
+		}
 	}
 
 	@Override
@@ -259,13 +193,16 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	{
 		return mode.test(children, c);
 	}
-
+	
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException
 	{
 		out.writeObject(mode);
 		out.writeInt(children.size());
 		for (Filter child: children)
-			out.writeObject(child);
+		{
+			out.writeUTF(child.type());
+			child.writeExternal(out);
+		}
 	}
 }
