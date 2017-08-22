@@ -383,7 +383,6 @@ public class MainFrame extends JFrame
 		}
 		catch (IOException | ClassNotFoundException e)
 		{
-			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
 		}
 		try

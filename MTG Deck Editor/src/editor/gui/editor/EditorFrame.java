@@ -713,9 +713,6 @@ public class EditorFrame extends JInternalFrame
 		}
 		catch (InterruptedException | ExecutionException e)
 		{
-			e.printStackTrace();
-			System.exit(1);
-			
 			JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.current.clear();
 			categoriesContainer.removeAll();
@@ -1861,7 +1858,6 @@ public class EditorFrame extends JInternalFrame
 		catch (IOException e)
 		{
 			JOptionPane.showMessageDialog(this, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
 			return false;
 		}
 	}
