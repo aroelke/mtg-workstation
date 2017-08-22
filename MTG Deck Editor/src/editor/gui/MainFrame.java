@@ -395,7 +395,7 @@ public class MainFrame extends JFrame
 		}
 		try
 		{
-			inventorySite = new URL(SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
+			inventorySite = new URL(SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE) + ".zip");
 		}
 		catch (MalformedURLException e)
 		{

@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -15,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.zip.ZipInputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -40,6 +42,55 @@ import javax.swing.WindowConstants;
 @SuppressWarnings("serial")
 public class InventoryDownloadDialog extends JDialog
 {
+	/**
+	 * This class represents a worker which unzips a zipped archive of the inventory.
+	 * 
+	 * @author Alec Roelke
+	 */
+	private class InventoryUnzipWorker extends SwingWorker<Void, Void>
+	{
+		/**
+		 * Zip file containing the inventory.
+		 */
+		private File zipfile;
+		/**
+		 * File to write the unzipped inventory to.
+		 */
+		private File outfile;
+		
+		/**
+		 * Create a new InventoryUnzipWorker to unzip a file.
+		 * 
+		 * @param z file to unzip
+		 * @param o file to store the result to
+		 */
+		public InventoryUnzipWorker(File z, File o)
+		{
+			zipfile = z;
+			outfile = o;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 * Open the zip file, decompress it, and store the result back to disk.
+		 */
+		@Override
+		protected Void doInBackground() throws Exception
+		{
+			try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipfile)))
+			{
+				try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outfile)))
+				{
+					byte[] data = new byte[1024];
+					int x;
+					while ((x = zis.read(data)) > 0)
+						out.write(data, 0, x);
+				}
+			}
+			return null;
+		}
+	}
+	
 	/**
 	 * This class represents a worker which downloads the inventory from a website
 	 * in the background.  It is tied to a dialog which blocks input until the
@@ -97,7 +148,8 @@ public class InventoryDownloadDialog extends JDialog
 					bytes = String.format("%.1fk", toDownload/1024.0);
 				else
 					bytes = String.format("%.2fM", toDownload/1048576.0);
-				SwingUtilities.invokeLater(() -> progressBar.setMaximum(toDownload));
+				if (toDownload >= 0)
+					SwingUtilities.invokeLater(() -> progressBar.setMaximum(toDownload));
 				try (BufferedInputStream in = new BufferedInputStream((conn.getInputStream())))
 				{
 					try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file)))
@@ -105,7 +157,7 @@ public class InventoryDownloadDialog extends JDialog
 						byte[] data = new byte[1024];
 						int size = 0;
 						int x;
-						while ((x = in.read(data, 0, 1024)) >= 0)
+						while ((x = in.read(data)) > 0)
 						{
 							size += x;
 							out.write(data, 0, x);
@@ -172,7 +224,11 @@ public class InventoryDownloadDialog extends JDialog
 	/**
 	 * Worker that downloads the inventory.
 	 */
-	private InventoryDownloadWorker worker;
+	private InventoryDownloadWorker downloadWorker;
+	/**
+	 * Worker that unzips the inventory.
+	 */
+	private InventoryUnzipWorker unzipWorker;
 	
 	/**
 	 * Create a new InventoryDownloadDialog.
@@ -186,7 +242,8 @@ public class InventoryDownloadDialog extends JDialog
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
-		worker = null;
+		downloadWorker = null;
+		unzipWorker = null;
 		
 		// Content panel
 		JPanel contentPanel = new JPanel(new BorderLayout(0, 2));
@@ -205,8 +262,10 @@ public class InventoryDownloadDialog extends JDialog
 		JPanel cancelPanel = new JPanel();
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener((e) -> {
-			if (worker != null)
-				worker.cancel(true);
+			if (downloadWorker != null)
+				downloadWorker.cancel(true);
+			if (unzipWorker != null)
+				unzipWorker.cancel(true);
 		});
 		cancelPanel.add(cancelButton);
 		contentPanel.add(cancelPanel, BorderLayout.SOUTH);
@@ -224,19 +283,19 @@ public class InventoryDownloadDialog extends JDialog
 	 */
 	public boolean downloadInventory(URL site, File file)
 	{
-		File tmp = new File(file.getPath() + ".tmp");
-		worker = new InventoryDownloadWorker(site, tmp);
-		worker.execute();
+		File zip = new File(file.getPath() + ".zip");
+		File tmp = new File(zip.getPath() + ".tmp");
+		downloadWorker = new InventoryDownloadWorker(site, tmp);
+		downloadWorker.execute();
 		setVisible(true);
 		try
 		{
-			worker.get();
-			Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			return true;
+			downloadWorker.get();
+			Files.move(tmp.toPath(), zip.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		}
 		catch (InterruptedException | ExecutionException e)
 		{
-			JOptionPane.showMessageDialog(null, "Error downloading " + file.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error downloading " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			tmp.delete();
 			return false;
 		}
@@ -250,5 +309,27 @@ public class InventoryDownloadDialog extends JDialog
 			tmp.delete();
 			return false;
 		}
+		
+		progressLabel.setText("Unzipping archive...");
+		unzipWorker = new InventoryUnzipWorker(zip, file);
+		unzipWorker.execute();
+		try
+		{
+			unzipWorker.get();
+		}
+		catch (InterruptedException | ExecutionException e)
+		{
+			JOptionPane.showMessageDialog(null, "Error decompressing " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		catch (CancellationException e)
+		{
+			return false;
+		}
+		finally
+		{
+			zip.delete();
+		}
+		return true;
 	}
 }
