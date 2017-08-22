@@ -97,6 +97,7 @@ import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
+import editor.util.ProgressInputStream;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -383,7 +384,7 @@ public class EditorFrame extends JInternalFrame
 			progressBar = b;
 			dialog = d;
 			
-			b.setIndeterminate(true);
+			progressBar.setMaximum((int)file.length());
 		}
 
 		/**
@@ -393,13 +394,16 @@ public class EditorFrame extends JInternalFrame
 		@Override
 		protected Void doInBackground() throws Exception
 		{
-			try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
+			try (ProgressInputStream pis = new ProgressInputStream(new FileInputStream(file)))
 			{
+				pis.addPropertyChangeListener((e) -> process(Arrays.asList(((Long)e.getNewValue()).intValue())));
+				ObjectInputStream ois = new ObjectInputStream(pis);
 				opening = true;
 				deck.current.readExternal(ois);
 				sideboard.current.readExternal(ois);
 				// TODO: Change this to use readUTF
 				changelogArea.setText((String)ois.readObject());
+				ois.close();
 			}
 			return null;
 		}
@@ -423,14 +427,13 @@ public class EditorFrame extends JInternalFrame
 			undoBuffer.clear();
 			redoBuffer.clear();
 		}
-/*
+
 		@Override
 		protected void process(List<Integer> chunks)
 		{
 			int progress = chunks.get(chunks.size() - 1);
 			progressBar.setValue(progress);
 		}
-*/
 	}
 	
 	/**
@@ -695,7 +698,6 @@ public class EditorFrame extends JInternalFrame
 		progressDialog.setContentPane(progressPanel);
 		progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
 		progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		progressBar.setIndeterminate(false);
 		progressPanel.add(progressBar, BorderLayout.CENTER);
 		JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		JButton cancelButton = new JButton("Cancel");
@@ -713,6 +715,7 @@ public class EditorFrame extends JInternalFrame
 		}
 		catch (InterruptedException | ExecutionException e)
 		{
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
 			deck.current.clear();
 			categoriesContainer.removeAll();
