@@ -1,6 +1,5 @@
 package editor.filter.leaf;
 
-import java.util.Arrays;
 import java.util.function.Function;
 
 import editor.database.card.Card;
@@ -31,24 +30,6 @@ public abstract class FilterLeaf<T> extends Filter
 	{
 		super(t);
 		function = f;
-	}
-	
-	/**
-	 * Check to ensure the contents of the given String match this FilterLeaf,
-	 * and return a String containing the contents of the filter.
-	 * 
-	 * @param s String to check
-	 * @param correct list of FilterTypes indicating correct ones for this FilterLeaf
-	 * @return a String representing the contents of this FilterLeaf for further
-	 * parsing.
-	 */
-	public String checkContents(String s, String... correct)
-	{
-		int delim = s.indexOf(':');
-		String code = s.substring(1, delim);
-		if (!Arrays.asList(correct).contains(code))
-			throw new IllegalArgumentException("Illegal filter type '" + code + "' found in string \"" + s + "\"");
-		return s.substring(delim + 1, s.length() - 1);
 	}
 	
 	/**
