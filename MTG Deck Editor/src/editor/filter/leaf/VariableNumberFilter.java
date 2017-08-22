@@ -6,11 +6,11 @@ import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.util.SerializablePredicate;
 
 /**
  * This class represents a filter for a numeric card characteristic that can be variable.
@@ -22,7 +22,7 @@ public class VariableNumberFilter extends NumberFilter
 	/**
 	 * The function that determines if the filter's characteristic is variable.
 	 */
-	private SerializablePredicate<Card> variable;
+	private Predicate<Card> variable;
 	/**
 	 * Whether or not the filter should search for varying values of its characteristic.
 	 */
@@ -44,7 +44,7 @@ public class VariableNumberFilter extends NumberFilter
 	 * @param f function representing the card characteristic
 	 * @param v function checking if the card characteristic is variable
 	 */
-	public VariableNumberFilter(String t, Function<Card, Collection<Double>> f, SerializablePredicate<Card> v)
+	public VariableNumberFilter(String t, Function<Card, Collection<Double>> f, Predicate<Card> v)
 	{
 		super(t, f);
 		varies = false;
@@ -82,13 +82,11 @@ public class VariableNumberFilter extends NumberFilter
 		return Objects.hash(type(), function(), varies, variable, operation, operand);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
 		super.readExternal(in);
 		varies = in.readBoolean();
-		variable = (SerializablePredicate<Card>)in.readObject();
 	}
 	
 	/**
@@ -107,6 +105,5 @@ public class VariableNumberFilter extends NumberFilter
 	{
 		super.writeExternal(out);
 		out.writeBoolean(varies);
-		out.writeObject(variable);
 	}
 }
