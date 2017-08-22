@@ -2,11 +2,11 @@ package editor.filter.leaf.options.multi;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
-import editor.util.SerializableFunction;
 
 /**
  * This class represents a filter that groups cards by a characteristic that
@@ -23,7 +23,7 @@ public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
 	 * the superclass's function.  Replaces the function inherited from
 	 * {@link FilterLeaf}.
 	 */
-	private SerializableFunction<Card, Collection<T>> function;
+	private Function<Card, Collection<T>> function;
 	
 	/**
 	 * Create a new MultiOptionsFilter.
@@ -31,7 +31,7 @@ public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
 	 * @param t type of the new MultiOptionsFilter
 	 * @param f function for the new MultiOptionsFilter
 	 */
-	public MultiOptionsFilter(String t, SerializableFunction<Card, Collection<T>> f)
+	public MultiOptionsFilter(String t, Function<Card, Collection<T>> f)
 	{
 		super(t, null);
 		function = f;
@@ -49,7 +49,7 @@ public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
 	 * 
 	 * @return this MultiOptionsFilter's function
 	 */
-	protected SerializableFunction<Card, Collection<T>> multifunction()
+	protected Function<Card, Collection<T>> multifunction()
 	{
 		return function;
 	}

@@ -6,6 +6,7 @@ import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +15,6 @@ import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
 import editor.util.Containment;
-import editor.util.SerializableFunction;
 
 /**
  * This class represents a filter for a text characteristic of a card.
@@ -104,7 +104,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 	 * @param t Type of the new TextFilter
 	 * @param f Function for the new TextFilter
 	 */
-	public TextFilter(String t, SerializableFunction<Card, Collection<String>> f)
+	public TextFilter(String t, Function<Card, Collection<String>> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;

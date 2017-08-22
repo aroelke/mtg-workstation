@@ -7,11 +7,11 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.filter.leaf.FilterLeaf;
 import editor.util.Containment;
-import editor.util.SerializableFunction;
 
 /**
  * This class represents a filter that groups cards based on characteristics
@@ -38,7 +38,7 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	 * @param t type of this OptionsFilter
 	 * @param f function for this OptionsFilter
 	 */
-	public OptionsFilter(String t, SerializableFunction<Card, T> f)
+	public OptionsFilter(String t, Function<Card, T> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;

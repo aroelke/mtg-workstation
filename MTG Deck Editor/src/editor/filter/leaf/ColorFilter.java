@@ -7,13 +7,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.database.characteristics.ManaType;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
 import editor.util.Containment;
-import editor.util.SerializableFunction;
 
 /**
  * This class represents a filter to group cards by color characteristic.
@@ -50,7 +50,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
 	 * @param t type of the new ColorFilter
 	 * @param f function for the new ColorFilter
 	 */
-	public ColorFilter(String t, SerializableFunction<Card, List<ManaType>> f)
+	public ColorFilter(String t, Function<Card, List<ManaType>> f)
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;

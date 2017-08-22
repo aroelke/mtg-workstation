@@ -5,12 +5,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
 import editor.util.Comparison;
-import editor.util.SerializableFunction;
 
 /**
  * This class represents a filter for a card characteristic that is a number.
@@ -37,7 +37,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	 * @param t type of the new NumberFilter
 	 * @param f function for the new NumberFilter
 	 */
-	public NumberFilter(String t, SerializableFunction<Card, Collection<Double>> f)
+	public NumberFilter(String t, Function<Card, Collection<Double>> f)
 	{
 		super(t, f);
 		operation = Comparison.valueOf('=');

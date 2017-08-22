@@ -5,11 +5,11 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Function;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterFactory;
-import editor.util.SerializableFunction;
 import editor.util.SerializablePredicate;
 
 /**
@@ -44,7 +44,7 @@ public class VariableNumberFilter extends NumberFilter
 	 * @param f function representing the card characteristic
 	 * @param v function checking if the card characteristic is variable
 	 */
-	public VariableNumberFilter(String t, SerializableFunction<Card, Collection<Double>> f, SerializablePredicate<Card> v)
+	public VariableNumberFilter(String t, Function<Card, Collection<Double>> f, SerializablePredicate<Card> v)
 	{
 		super(t, f);
 		varies = false;
