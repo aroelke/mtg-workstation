@@ -112,17 +112,6 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		regex = false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * This TextFilter's content String is its containment followed by its text in either
-	 * quotes if it is a simple matcher or in slashes (/) if it is a regular expression.
-	 */
-	@Override
-	public String content()
-	{
-		return contain.toString() + (regex ? "/" : "\"") + text + (regex ? "/" : "\"");
-	}
-
 	@Override
 	public Filter copy()
 	{

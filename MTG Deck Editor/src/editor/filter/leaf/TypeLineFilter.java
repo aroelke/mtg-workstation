@@ -39,17 +39,6 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
 		contain = Containment.CONTAINS_ANY_OF;
 		line = "";
 	}
-
-	/**
-	 * {@inheritDoc}
-	 * This TypeLineFilter's content String is its containment's String value followed
-	 * by its line in quotes.
-	 */
-	@Override
-	public String content()
-	{
-		return contain.toString() + "\"" + line + "\"";
-	}
 	
 	@Override
 	public Filter copy()

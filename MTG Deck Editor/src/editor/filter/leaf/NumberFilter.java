@@ -62,17 +62,6 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
 	{
 		return function().apply(c).stream().anyMatch((v) -> !v.isNaN() && operation.test(v, operand));
 	}
-
-	/**
-	 * @return The String representation of this NumberFilter's contents,
-	 * which is its comparison's String representation followed by its operand.
-	 * @see FilterLeaf#content()
-	 */
-	@Override
-	public String content()
-	{
-		return "" + operation + operand;
-	}
 	
 	/**
 	 * @return A new NumberFilter that is a copy of this one.

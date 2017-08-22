@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.StringJoiner;
 
 import editor.database.card.Card;
 import editor.database.characteristics.ManaType;
@@ -57,22 +56,6 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
 		contain = Containment.CONTAINS_ANY_OF;
 		colors = new HashSet<ManaType>();
 		multicolored = false;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * This ColorFilter's content is each of its color's characters, followed
-	 * optionally by an 'M' to indicate multicolored, surrounded by quotes.
-	 */
-	@Override
-	public String content()
-	{
-		StringJoiner join = new StringJoiner("", "\"", "\"");
-		for (ManaType color: colors)
-			join.add(String.valueOf(color.shorthand()));
-		if (multicolored)
-			join.add("M");
-		return contain.toString() + join.toString();
 	}
 
 	@Override

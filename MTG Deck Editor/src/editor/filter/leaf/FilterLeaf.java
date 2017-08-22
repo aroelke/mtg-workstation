@@ -33,14 +33,6 @@ public abstract class FilterLeaf<T> extends Filter
 	}
 	
 	/**
-	 * Get the String representation of the contents of this FilterLeaf, without
-	 * its code from {@link #type()}.
-	 * 
-	 * @return a String representing the contents of this FilterLeaf.
-	 */
-	public abstract String content();
-	
-	/**
 	 * Get the attribute to be filtered.
 	 * 
 	 * @return a {@link Function} representing the attribute of a card to be filtered.

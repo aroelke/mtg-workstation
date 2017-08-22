@@ -50,17 +50,6 @@ public class VariableNumberFilter extends NumberFilter
 		varies = false;
 		variable = v;
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 * The content of this VariableNumberFilter is either that of its parent or a * if a variable
-	 * value is desired.
-	 */
-	@Override
-	public String content()
-	{
-		return varies ? "*" : super.content();
-	}
 
 	@Override
 	public Filter copy()

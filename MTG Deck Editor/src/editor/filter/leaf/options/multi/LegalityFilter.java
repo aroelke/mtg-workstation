@@ -41,12 +41,6 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	}
 	
 	@Override
-	public String content()
-	{
-		return super.content() + (restricted ? 'r' : 'u');
-	}
-	
-	@Override
 	public String convertFromString(String str)
 	{
 		return str;

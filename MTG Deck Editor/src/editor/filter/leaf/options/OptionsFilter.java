@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.StringJoiner;
 
 import editor.database.card.Card;
 import editor.filter.leaf.FilterLeaf;
@@ -44,21 +43,6 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
 		selected = new HashSet<T>();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * The content String of this OptionsFilter is its containment followed
-	 * by the String representations of its selected options separated by
-	 * commas and surrounded by braces.
-	 */
-	@Override
-	public String content()
-	{
-		StringJoiner join = new StringJoiner(",", "{", "}");
-		for (T option: selected)
-			join.add(option.toString());
-		return contain.toString() + join.toString();
 	}
 	
 	/**

@@ -36,17 +36,6 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
 		contain = Containment.CONTAINS_ANY_OF;
 		cost = new ManaCost();
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 * This ManaCostFilter's content String is its containment followed by its cost's
-	 * content String in quotes.
-	 */
-	@Override
-	public String content()
-	{
-		return contain.toString() + "\"" + cost.toString() + "\"";
-	}
 
 	@Override
 	public Filter copy()

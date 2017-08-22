@@ -40,16 +40,6 @@ public class BinaryFilter extends FilterLeaf<Void>
 		super(a ? FilterFactory.ALL : FilterFactory.NONE, null);
 		all = a;
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 * There is no content to a BinaryFilter.
-	 */
-	@Override
-	public String content()
-	{
-		return "";
-	}
 
 	@Override
 	public Filter copy()
