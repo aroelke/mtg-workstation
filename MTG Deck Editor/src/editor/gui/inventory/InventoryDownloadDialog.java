@@ -77,6 +77,7 @@ public class InventoryDownloadDialog extends JDialog
 		{
 			try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipfile)))
 			{
+				zis.getNextEntry();
 				try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outfile)))
 				{
 					byte[] data = new byte[1024];
