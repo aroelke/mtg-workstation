@@ -43,7 +43,7 @@ public class Expansion implements Comparable<Expansion>
 	 */
 	public final String gathererCode;
 	/**
-	 * This Expansion's code on magiccards.info.
+	 * This Expansion's code on <a href="http://magiccards.info">magiccards.info</a>.
 	 */
 	public final String magicCardsInfoCode;
 	/**
