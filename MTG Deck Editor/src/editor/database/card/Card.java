@@ -674,6 +674,10 @@ public abstract class Card
 		return minCmc.get();
 	}
 
+	/**
+	 * @return the IDs of each face of this card as they are used by
+	 * <a href="http://gatherer.wizards.com">Gatherer</a>.
+	 */
 	public abstract List<Integer> multiverseid();
 	
 	/**

@@ -75,6 +75,9 @@ public abstract class MultiCard extends Card
 	 * List containing the collector's number of each of this MultiCard's faces.
 	 */
 	private Lazy<List<String>> number;
+	/**
+	 * List containing this MultiCard's faces' multiverseids.
+	 */
 	private Lazy<List<Integer>> multiverseid;
 	/**
 	 * List containing the oracle text of each of this MultiCard's faces.

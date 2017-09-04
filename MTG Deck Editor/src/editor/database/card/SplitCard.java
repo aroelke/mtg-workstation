@@ -67,6 +67,10 @@ public class SplitCard extends MultiCard
 		return super.imageNames().subList(0, 1);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * All of the faces of a SplitCard are on the front, so only one multiverseid is necessary.
+	 */
 	@Override
 	public List<Integer> multiverseid()
 	{

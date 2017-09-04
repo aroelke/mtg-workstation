@@ -11,10 +11,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +28,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import editor.database.card.Card;
-import editor.database.card.CardLayout;
 import editor.gui.MainFrame;
 import editor.gui.SettingsDialog;
 
@@ -38,6 +35,9 @@ import editor.gui.SettingsDialog;
  * This class represents a panel that shows the images associated with a card if they
  * can be found, or a card-shaped rectangle with its oracle text and a warning if
  * they cannot.
+ * 
+ * TODO: Only display the first image in the sample hand
+ * TODO: Display rotated images for the appropriate card types (aftermath, flip)
  * 
  * @author Alec Roelke
  */
@@ -49,11 +49,29 @@ public class CardImagePanel extends JPanel
 	 */
 	public static final double ASPECT_RATIO = 63.0/88.0;
 	
+	/**
+	 * This class represents a worker that downloads a card image for its parent CardImagePanel
+	 * from Gatherer.
+	 * 
+	 * @author Alec Roelke
+	 */
 	private class ImageDownloadWorker extends SwingWorker<Void, String>
 	{
+		/**
+		 * File to save the image to.
+		 */
 		private final File img;
+		/**
+		 * URL to download the file from.
+		 */
 		private final URL site;
 		
+		/**
+		 * Create an ImageDownloadWorker to download a card.
+		 * 
+		 * @param multiverseid ID of the card to download
+		 * @throws MalformedURLException
+		 */
 		public ImageDownloadWorker(int multiverseid) throws MalformedURLException
 		{
 			img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
@@ -64,6 +82,7 @@ public class CardImagePanel extends JPanel
 		protected Void doInBackground() throws Exception
 		{
 			img.getParentFile().mkdirs();
+			// TODO: Add a timeout here
 			try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
 			{
 				try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(img)))
@@ -81,13 +100,6 @@ public class CardImagePanel extends JPanel
 		protected void done()
 		{
 			loadImages();
-		}
-		
-		@Override
-		protected void process(List<String> chunks)
-		{
-			for (String chunk: chunks)
-				System.out.println(chunk);
 		}
 	}
 	
@@ -144,6 +156,10 @@ public class CardImagePanel extends JPanel
 		}
 	}
 	
+	/**
+	 * Once the images have been downloaded, try to load them.  If they don't exist,
+	 * create a rectangle with Oracle text instead.
+	 */
 	private void loadImages()
 	{
 		if (card != null)
@@ -263,9 +279,7 @@ public class CardImagePanel extends JPanel
 	}
 	
 	/**
-	 * Set the card to display.  If any of the images associated with the new Card are
-	 * missing, they are replaced with card-shaped rectangles containing a warning and
-	 * the oracle text of the associated face.
+	 * Set the card to display.  If its image is missing, try to download it.
 	 * 
 	 * @param c card to display
 	 */

@@ -64,6 +64,9 @@ public class SingleCard extends Card
 	 * Mana cost of this SingleCard.
 	 */
 	public final ManaCost mana;
+	/**
+	 * multiverseid of this SingleCard.
+	 */
 	public final int multiverseid;
 	/**
 	 * Name of this SingleCard.

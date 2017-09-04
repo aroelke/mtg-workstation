@@ -55,7 +55,7 @@ public class AftermathCard extends MultiCard
 	
 	/**
 	 * {@inheritDoc}
-	 * All of the faces of a SplitCard are on the front, so there is only one image for it.
+	 * All of the faces of an AftermathCard are on the front, so there is only one image for it.
 	 */
 	@Override
 	public List<String> imageNames()
@@ -63,6 +63,10 @@ public class AftermathCard extends MultiCard
 		return super.imageNames().subList(0, 1);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * All of the faces of an AftermathCard are on the front, so only one multiverseid is necessary. 
+	 */
 	@Override
 	public List<Integer> multiverseid()
 	{
