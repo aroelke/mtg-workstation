@@ -62,4 +62,10 @@ public class AftermathCard extends MultiCard
 	{
 		return super.imageNames().subList(0, 1);
 	}
+	
+	@Override
+	public List<Integer> multiverseid()
+	{
+		return super.multiverseid().subList(0, 1);
+	}
 }

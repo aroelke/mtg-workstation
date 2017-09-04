@@ -306,6 +306,9 @@ public class InventoryLoadDialog extends JDialog
 
 						// Card's image name
 						String imageName = card.get("imageName").getAsString();
+						
+						// Card's multiverseid
+						int multiverseid = card.has("multiverseid") ? card.get("multiverseid").getAsInt() : -1;
 
 						// Create the new card with all the values acquired above
 						Card c = new SingleCard(layout,
@@ -321,6 +324,7 @@ public class InventoryLoadDialog extends JDialog
 								text,
 								flavor,
 								artist,
+								multiverseid,
 								number,
 								power,
 								toughness,

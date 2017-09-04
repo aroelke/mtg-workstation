@@ -75,6 +75,7 @@ public abstract class MultiCard extends Card
 	 * List containing the collector's number of each of this MultiCard's faces.
 	 */
 	private Lazy<List<String>> number;
+	private Lazy<List<Integer>> multiverseid;
 	/**
 	 * List containing the oracle text of each of this MultiCard's faces.
 	 */
@@ -201,6 +202,7 @@ public abstract class MultiCard extends Card
 				return a;
 			})));
 		imageNames = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::imageNames)));
+		multiverseid = new Lazy<List<Integer>>(() -> Collections.unmodifiableList(collect(Card::multiverseid)));
 	}
 	
 	@Override
@@ -278,6 +280,12 @@ public abstract class MultiCard extends Card
 	public List<ManaCost> manaCost()
 	{
 		return manaCost.get();
+	}
+	
+	@Override
+	public List<Integer> multiverseid()
+	{
+		return multiverseid.get();
 	}
 
 	@Override

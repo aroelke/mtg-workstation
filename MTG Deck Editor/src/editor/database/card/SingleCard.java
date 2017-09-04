@@ -64,6 +64,7 @@ public class SingleCard extends Card
 	 * Mana cost of this SingleCard.
 	 */
 	public final ManaCost mana;
+	public final int multiverseid;
 	/**
 	 * Name of this SingleCard.
 	 */
@@ -148,6 +149,7 @@ public class SingleCard extends Card
 			String text,
 			String flavor,
 			String artist,
+			int multiverseid,
 			String number,
 			String power,
 			String toughness,
@@ -167,6 +169,7 @@ public class SingleCard extends Card
 		this.flavor = flavor;
 		this.artist = artist;
 		this.number = number;
+		this.multiverseid = multiverseid;
 		this.power = new CombatStat(power);
 		this.toughness = new CombatStat(toughness);
 		this.loyalty = new Loyalty(loyalty);
@@ -305,6 +308,12 @@ public class SingleCard extends Card
 		return Arrays.asList(number);
 	}
 
+	@Override
+	public List<Integer> multiverseid()
+	{
+		return Arrays.asList(multiverseid);
+	}
+	
 	@Override
 	public List<String> oracleText()
 	{

@@ -6,8 +6,16 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +23,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
@@ -39,6 +48,48 @@ public class CardImagePanel extends JPanel
 	 * Aspect ratio of a Magic: The Gathering card.
 	 */
 	public static final double ASPECT_RATIO = 63.0/88.0;
+	
+	private class ImageDownloadWorker extends SwingWorker<Void, String>
+	{
+		private final File img;
+		private final URL site;
+		
+		public ImageDownloadWorker(int multiverseid) throws MalformedURLException
+		{
+			img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
+			site = new URL(String.join("/", "http://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
+		}
+		
+		@Override
+		protected Void doInBackground() throws Exception
+		{
+			img.getParentFile().mkdirs();
+			try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
+			{
+				try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(img)))
+				{
+					byte[] data = new byte[1024];
+					int x;
+					while ((x = in.read(data)) > 0)
+						out.write(data, 0, x);
+				}
+			}
+			return null;
+		}
+		
+		@Override
+		protected void done()
+		{
+			loadImages();
+		}
+		
+		@Override
+		protected void process(List<String> chunks)
+		{
+			for (String chunk: chunks)
+				System.out.println(chunk);
+		}
+	}
 	
 	/**
 	 * Card this CardImagePanel should display.
@@ -90,6 +141,38 @@ public class CardImagePanel extends JPanel
 		{
 			double aspect = (double)image.getWidth()/(double)image.getHeight();
 			return new Dimension((int)(getParent().getHeight()*aspect), getParent().getHeight());
+		}
+	}
+	
+	private void loadImages()
+	{
+		if (card != null)
+		{
+			faceImages.clear();
+			for (int i: card.multiverseid())
+			{
+				BufferedImage img = null;
+				try
+				{
+					if (i > 0)
+					{
+						File imageFile = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), i + ".jpg").toFile();
+						if (imageFile.exists())
+							img = ImageIO.read(imageFile);
+					}
+				}
+				catch (IOException e)
+				{}
+				finally
+				{
+					faceImages.add(img);
+				}
+			}
+			if (getParent() != null)
+			{
+				getParent().validate();
+				repaint();
+			}
 		}
 	}
 	
@@ -188,42 +271,24 @@ public class CardImagePanel extends JPanel
 	 */
 	public void setCard(Card c)
 	{
+		boolean already = true;
 		if ((card = c) != null)
 		{
-			faceImages.clear();
-			for (String name: card.imageNames())
+			for (int i: card.multiverseid())
 			{
-				BufferedImage img = null;
-				try
+				if (i > 0 && !Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), i + ".jpg").toFile().exists())
 				{
-					String[] codes = new String[] {card.expansion().code, card.expansion().magicCardsInfoCode, card.expansion().gathererCode, card.expansion().name};
-					File imageFile;
-					for (String code: codes)
+					try
 					{
-						imageFile = new File(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS)
-									+ "/" + code + "/" + name + ".full.jpg");
-						if (imageFile.exists())
-						{
-							img = ImageIO.read(imageFile);
-							break;
-						}
+						new ImageDownloadWorker(i).execute();
+						already = false;
 					}
-				}
-				catch (IOException e)
-				{}
-				finally
-				{
-					if (img == null && (card.layout() == CardLayout.SPLIT || card.layout() == CardLayout.AFTERMATH))
-						faceImages.addAll(Collections.nCopies(card.faces(), null));
-					else
-						faceImages.add(img);
+					catch (MalformedURLException e)
+					{}
 				}
 			}
 		}
-		if (getParent() != null)
-		{
-			getParent().validate();
-			repaint();
-		}
+		if (already)
+			loadImages();
 	}
 }

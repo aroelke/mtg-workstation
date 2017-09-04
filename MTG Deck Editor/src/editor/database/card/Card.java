@@ -674,6 +674,8 @@ public abstract class Card
 		return minCmc.get();
 	}
 
+	public abstract List<Integer> multiverseid();
+	
 	/**
 	 * Get the name of each of this Card's faces.
 	 * 

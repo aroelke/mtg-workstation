@@ -66,4 +66,10 @@ public class SplitCard extends MultiCard
 	{
 		return super.imageNames().subList(0, 1);
 	}
+	
+	@Override
+	public List<Integer> multiverseid()
+	{
+		return super.multiverseid().subList(0, 1);
+	}
 }
