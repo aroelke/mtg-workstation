@@ -16,7 +16,9 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -55,12 +57,16 @@ public class CardImagePanel extends JPanel
 	 * 
 	 * @author Alec Roelke
 	 */
-	private class ImageDownloadWorker extends SwingWorker<Void, String>
+	private class ImageDownloadWorker extends SwingWorker<Void, Integer>
 	{
 		/**
 		 * File to save the image to.
 		 */
 		private final File img;
+		/**
+		 * multiverseid of the card's image to download.
+		 */
+		private final int multiverseid;
 		/**
 		 * URL to download the file from.
 		 */
@@ -69,11 +75,12 @@ public class CardImagePanel extends JPanel
 		/**
 		 * Create an ImageDownloadWorker to download a card.
 		 * 
-		 * @param multiverseid ID of the card to download
+		 * @param m ID of the card to download
 		 * @throws MalformedURLException
 		 */
-		public ImageDownloadWorker(int multiverseid) throws MalformedURLException
+		public ImageDownloadWorker(int m) throws MalformedURLException
 		{
+			multiverseid = m;
 			img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
 			site = new URL(String.join("/", "http://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
 		}
@@ -93,13 +100,28 @@ public class CardImagePanel extends JPanel
 						out.write(data, 0, x);
 				}
 			}
+			catch (Exception e)
+			{
+				System.err.println("Error downloading " + multiverseid + ".jpg: " + e.getMessage());
+			}
+			finally
+			{
+				publish(multiverseid);
+			}
 			return null;
 		}
 		
 		@Override
-		protected void done()
+		protected void process(List<Integer> chunks)
 		{
-			loadImages();
+			for (int i: chunks)
+			{
+				if (card.multiverseid().contains(i))
+				{
+					loadImages();
+					downloading.remove(multiverseid);
+				}
+			}
 		}
 	}
 	
@@ -107,6 +129,10 @@ public class CardImagePanel extends JPanel
 	 * Card this CardImagePanel should display.
 	 */
 	private Card card;
+	/**
+	 * Set of multiverseids whose images are currently being downloaded.
+	 */
+	private Set<Integer> downloading;
 	/**
 	 * List of images to draw for the card.
 	 */
@@ -133,6 +159,7 @@ public class CardImagePanel extends JPanel
 	{
 		super(null);
 		image = null;
+		downloading = new HashSet<Integer>();
 		faceImages = new ArrayList<BufferedImage>();
 		setCard(c);
 	}
@@ -290,7 +317,7 @@ public class CardImagePanel extends JPanel
 		{
 			for (int i: card.multiverseid())
 			{
-				if (i > 0 && !Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), i + ".jpg").toFile().exists())
+				if (i > 0 && !downloading.contains(i) && !Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), i + ".jpg").toFile().exists())
 				{
 					try
 					{
