@@ -381,7 +381,7 @@ public class MainFrame extends JFrame
 		{
 			SettingsDialog.load();
 		}
-		catch (IOException | ClassNotFoundException e)
+		catch (IOException e)
 		{
 			JOptionPane.showMessageDialog(this, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
 		}
@@ -1004,15 +1004,6 @@ public class MainFrame extends JFrame
 		// Preset categories menu
 		presetMenu = new JMenu("Add Preset");
 		categoryMenu.add(presetMenu);
-		for (CategorySpec spec: SettingsDialog.getPresetCategories())
-		{
-			JMenuItem categoryItem = new JMenuItem(spec.getName());
-			categoryItem.addActionListener((e) -> {
-				if (selectedFrame != null && !selectedFrame.deck().containsCategory(spec.getName()))
-					selectedFrame.deck().addCategory(spec);
-			});
-			presetMenu.add(categoryItem);
-		}
 
 		// Help menu
 		JMenu helpMenu = new JMenu("Help");
@@ -1376,8 +1367,27 @@ public class MainFrame extends JFrame
 					SettingsDialog.set(SettingsDialog.VERSION, newestVersion);
 				loadInventory();
 				if (!inventory.isEmpty())
+				{
+					try
+					{
+						SettingsDialog.loadPresetCategories();
+					}
+					catch (Exception x)
+					{
+						JOptionPane.showMessageDialog(MainFrame.this, "Error opening " + SettingsDialog.EDITOR_PRESETS + ": " + x.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
+					}
+					for (CategorySpec spec: SettingsDialog.getPresetCategories())
+					{
+						JMenuItem categoryItem = new JMenuItem(spec.getName());
+						categoryItem.addActionListener((v) -> {
+							if (selectedFrame != null && !selectedFrame.deck().containsCategory(spec.getName()))
+								selectedFrame.deck().addCategory(spec);
+						});
+						presetMenu.add(categoryItem);
+					}
 					for (File f: files)
 						open(f);
+				}
 			}
 		});
 	}

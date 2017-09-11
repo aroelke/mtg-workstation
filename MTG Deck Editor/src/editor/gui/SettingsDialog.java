@@ -72,8 +72,7 @@ import editor.util.UnicodeSymbols;
  *
  * TODO: Make a panel for editing tags
  * TODO: Make a button for clearing card tags
- * TODO: Consider switching to listener paradigm for applying settings.
- * TODO: Presets need to be loaded after cards have been loaded
+ * TODO: Consider switching to listener paradigm for applying settings
  *
  * @author Alec Roelke
  */
@@ -324,11 +323,10 @@ public class SettingsDialog extends JDialog
 	/**
 	 * Load global settings from the settings file.  This does not affect card tags.
 	 *
-	 * @throws FileNotFoundException if the settings file can't be found.
-	 * @throws IOException if an error occurred during loading.
-	 * @throws ClassNotFoundException if a class of a category specification can't be found or restored
+	 * @throws FileNotFoundException if the settings file can't be found
+	 * @throws IOException if an error occurred during loading
 	 */
-	public static void load() throws IOException, ClassNotFoundException
+	public static void load() throws IOException
 	{
 		resetDefaultSettings();
 		try (InputStreamReader in = new InputStreamReader(new FileInputStream(PROPERTIES_FILE)))
@@ -337,6 +335,17 @@ public class SettingsDialog extends JDialog
 		}
 		catch (FileNotFoundException e)
 		{}
+	}
+	
+	/**
+	 * Load preset categories.
+	 * 
+	 * @throws FileNotFoundException if the settings file can't be found
+	 * @throws IOException if an error occurred during loading
+	 * @throws ClassNotFoundException if a class of a category specification can't be found or restored
+	 */
+	public static void loadPresetCategories() throws IOException, ClassNotFoundException
+	{
 		List<CategorySpec> presets = new ArrayList<CategorySpec>();
 		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getAsString(EDITOR_PRESETS))))
 		{
