@@ -929,7 +929,7 @@ public class Deck implements CardList, Externalizable
 		}
 		entry.add(amount);
 		total += amount;
-		if (card.typeContains("land"))
+		if (card.isLand())
 			land += amount;
 		
 		return true;

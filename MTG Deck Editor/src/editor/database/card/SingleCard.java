@@ -53,6 +53,10 @@ public class SingleCard extends Card
 	 */
 	public final String imageName;
 	/**
+	 * Whether or not this SingleCard is a land card.
+	 */
+	public final boolean isLand;
+	/**
 	 * Formats and legality for this Card.
 	 */
 	private final Map<String, Legality> legality;
@@ -181,6 +185,8 @@ public class SingleCard extends Card
 		this.rulings = rulings;
 		this.legality = Collections.unmodifiableMap(legality);
 
+		isLand = typeContains("land");
+		
 		// Create the type line for this Card
 		StringBuilder str = new StringBuilder();
 		if (supertypes.size() > 0)
@@ -279,6 +285,12 @@ public class SingleCard extends Card
 	public List<String> imageNames()
 	{
 		return Arrays.asList(imageName);
+	}
+	
+	@Override
+	public boolean isLand()
+	{
+		return isLand;
 	}
 
 	@Override

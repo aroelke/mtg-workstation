@@ -60,6 +60,11 @@ public abstract class MultiCard extends Card
 	 */
 	private Lazy<List<String>> imageNames;
 	/**
+	 * Whether or not this MultiCard is a land card, which it only is if its front
+	 * (first) face is a land.
+	 */
+	private boolean isLand;
+	/**
 	 * Tuple containing the loyalty of each of this MultiCard's faces.
 	 */
 	private Lazy<List<Loyalty>> loyalty;
@@ -206,6 +211,7 @@ public abstract class MultiCard extends Card
 			})));
 		imageNames = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::imageNames)));
 		multiverseid = new Lazy<List<Integer>>(() -> Collections.unmodifiableList(collect(Card::multiverseid)));
+		isLand = faces.get(0).isLand();
 	}
 	
 	@Override
@@ -267,6 +273,12 @@ public abstract class MultiCard extends Card
 		return imageNames.get();
 	}
 
+	@Override
+	public boolean isLand()
+	{
+		return isLand;
+	}
+	
 	@Override
 	public Map<String, Legality> legality()
 	{

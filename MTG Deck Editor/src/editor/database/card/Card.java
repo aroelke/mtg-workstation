@@ -546,6 +546,11 @@ public abstract class Card
 	public abstract List<String> imageNames();
 
 	/**
+	 * @return true if this Card is a land, and false otherwise.
+	 */
+	public abstract boolean isLand();
+	
+	/**
 	 * Get this Card's layout.
 	 * 
 	 * @return this Card's layout.
@@ -786,10 +791,7 @@ public abstract class Card
 	{
 		if (Pattern.compile("\\s").matcher(s).find())
 			throw new IllegalArgumentException("Supertypes don't contain white space");
-		for (String supertype: supertypes())
-			if (s.equalsIgnoreCase(supertype))
-				return true;
-		return false;
+		return supertypes().stream().anyMatch((t) -> t.equalsIgnoreCase(s));
 	}
 
 	/**
@@ -835,10 +837,7 @@ public abstract class Card
 	{
 		if (Pattern.compile("\\s").matcher(s).find())
 			throw new IllegalArgumentException("Types don't contain white space");
-		for (String type: types())
-			if (s.equalsIgnoreCase(type))
-				return true;
-		return false;
+		return types().stream().anyMatch((t) -> t.equalsIgnoreCase(s));
 	}
 
 	/**
