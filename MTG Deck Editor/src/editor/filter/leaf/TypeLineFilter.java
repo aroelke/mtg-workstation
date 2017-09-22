@@ -82,10 +82,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
 	@Override
 	public boolean test(Card c)
 	{
-		return !line.isEmpty()
-				&& c.allTypes().stream().anyMatch((f) ->
-				contain.test(f.stream().map(String::toLowerCase).collect(Collectors.toList()),
-						Arrays.asList(line.toLowerCase().split("\\s"))));
+		return !line.isEmpty() && contain.test(c.allTypes().stream().flatMap(Set::stream).map(String::toLowerCase).collect(Collectors.toSet()), Arrays.asList(line.toLowerCase().split("\\s")));
 	}
 	
 	@Override
