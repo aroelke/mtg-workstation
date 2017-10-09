@@ -19,6 +19,11 @@ import editor.util.Containment;
 /**
  * This class represents a filter for a text characteristic of a card.
  * 
+ * TODO: Add tokens to match types of strings
+ * 		 - \permanent matches any permanent type
+ * 		 - \basic matches any basic land type
+ * 		 - etc
+ * 
  * @author Alec Roelke
  */
 public class TextFilter extends FilterLeaf<Collection<String>>
