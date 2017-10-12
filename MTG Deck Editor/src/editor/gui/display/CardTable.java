@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -20,6 +21,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import editor.collection.category.CategorySpec;
 import editor.database.characteristics.CardData;
 import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Loyalty;
@@ -129,6 +131,20 @@ public class CardTable extends JTable
 							return ascending ? -1 : 1;
 						else
 							return first.compareTo(second);
+					};
+				case CATEGORIES:
+					return (a, b) -> {
+						List<CategorySpec> first = new ArrayList<CategorySpec>(CollectionUtils.convertToSet(a, CategorySpec.class));
+						List<CategorySpec> second = new ArrayList<CategorySpec>(CollectionUtils.convertToSet(b, CategorySpec.class));
+						Collections.sort(first, (c, d) -> c.getName().compareTo(d.getName()));
+						Collections.sort(second, (c, d) -> c.getName().compareTo(d.getName()));
+						for (int i = 0; i < Math.min(first.size(), second.size()); i++)
+						{
+							int diff = first.get(i).getName().compareTo(second.get(i).getName());
+							if (diff != 0)
+								return diff;
+						}
+						return Integer.compare(first.size(), second.size());
 					};
 				default:
 					return super.getComparator(column);
