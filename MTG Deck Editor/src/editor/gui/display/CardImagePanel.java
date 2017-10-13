@@ -11,18 +11,18 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.text.Style;
@@ -59,56 +59,36 @@ public class CardImagePanel extends JPanel
 	 */
 	private class ImageDownloadWorker extends SwingWorker<Void, Integer>
 	{
-		/**
-		 * File to save the image to.
-		 */
-		private final File img;
-		/**
-		 * multiverseid of the card's image to download.
-		 */
-		private final int multiverseid;
-		/**
-		 * URL to download the file from.
-		 */
-		private final URL site;
-		
-		/**
-		 * Create an ImageDownloadWorker to download a card.
-		 * 
-		 * @param m ID of the card to download
-		 * @throws MalformedURLException
-		 */
-		public ImageDownloadWorker(int m) throws MalformedURLException
-		{
-			multiverseid = m;
-			img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
-			site = new URL(String.join("/", "http://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
-		}
-		
 		@Override
 		protected Void doInBackground() throws Exception
 		{
-			img.getParentFile().mkdirs();
-			// TODO: Add a timeout here
-			try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
+			while (true)
 			{
-				try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(img)))
+				int multiverseid = toDownload.take();
+				File img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
+				URL site = new URL(String.join("/", "http://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
+				
+				img.getParentFile().mkdirs();
+				// TODO: Add a timeout here
+				try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
 				{
-					byte[] data = new byte[1024];
-					int x;
-					while ((x = in.read(data)) > 0)
-						out.write(data, 0, x);
+					try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(img)))
+					{
+						byte[] data = new byte[1024];
+						int x;
+						while ((x = in.read(data)) > 0)
+							out.write(data, 0, x);
+					}
+				}
+				catch (Exception e)
+				{
+					System.err.println("Error downloading " + multiverseid + ".jpg: " + e.getMessage());
+				}
+				finally
+				{
+					publish(multiverseid);
 				}
 			}
-			catch (Exception e)
-			{
-				System.err.println("Error downloading " + multiverseid + ".jpg: " + e.getMessage());
-			}
-			finally
-			{
-				publish(multiverseid);
-			}
-			return null;
 		}
 		
 		@Override
@@ -117,10 +97,7 @@ public class CardImagePanel extends JPanel
 			for (int i: chunks)
 			{
 				if (card.multiverseid().contains(i))
-				{
 					loadImages();
-					downloading.remove(multiverseid);
-				}
 			}
 		}
 	}
@@ -130,9 +107,9 @@ public class CardImagePanel extends JPanel
 	 */
 	private Card card;
 	/**
-	 * Set of multiverseids whose images are currently being downloaded.
+	 * Queue of multiverseids to download.
 	 */
-	private Set<Integer> downloading;
+	private BlockingQueue<Integer> toDownload;
 	/**
 	 * List of images to draw for the card.
 	 */
@@ -159,8 +136,9 @@ public class CardImagePanel extends JPanel
 	{
 		super(null);
 		image = null;
-		downloading = new HashSet<Integer>();
+		toDownload = new LinkedBlockingQueue<Integer>();
 		faceImages = new ArrayList<BufferedImage>();
+		new ImageDownloadWorker().execute();
 		setCard(c);
 	}
 	
@@ -187,7 +165,7 @@ public class CardImagePanel extends JPanel
 	 * Once the images have been downloaded, try to load them.  If they don't exist,
 	 * create a rectangle with Oracle text instead.
 	 */
-	private void loadImages()
+	private synchronized void loadImages()
 	{
 		if (card != null)
 		{
@@ -213,8 +191,10 @@ public class CardImagePanel extends JPanel
 			}
 			if (getParent() != null)
 			{
-				getParent().validate();
-				repaint();
+				SwingUtilities.invokeLater(() -> {
+					getParent().validate();
+					repaint();
+				});
 			}
 		}
 	}
@@ -312,24 +292,26 @@ public class CardImagePanel extends JPanel
 	 */
 	public void setCard(Card c)
 	{
-		boolean already = true;
 		if ((card = c) != null)
 		{
+			boolean already = true;
 			for (int i: card.multiverseid())
 			{
-				if (i > 0 && !downloading.contains(i) && !Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), i + ".jpg").toFile().exists())
+				if (i > 0 && !toDownload.contains(i) && !Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), i + ".jpg").toFile().exists())
 				{
 					try
 					{
-						new ImageDownloadWorker(i).execute();
+						toDownload.put(i);
 						already = false;
 					}
-					catch (MalformedURLException e)
-					{}
+					catch (InterruptedException e)
+					{
+						e.printStackTrace();
+					}
 				}
 			}
+			if (already)
+				loadImages();
 		}
-		if (already)
-			loadImages();
 	}
 }
