@@ -57,48 +57,49 @@ public class CardImagePanel extends JPanel
 	 * 
 	 * @author Alec Roelke
 	 */
-	private class ImageDownloadWorker extends SwingWorker<Void, Integer>
+	private class ImageDownloadWorker extends SwingWorker<Void, Card>
 	{
 		@Override
 		protected Void doInBackground() throws Exception
 		{
 			while (true)
 			{
-				int multiverseid = toDownload.take();
-				File img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
-				URL site = new URL(String.join("/", "http://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
-				
-				img.getParentFile().mkdirs();
-				// TODO: Add a timeout here
-				try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
+				Card card = toDownload.take();
+				for (int multiverseid: card.multiverseid())
 				{
-					try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(img)))
+					File img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
+					if (!img.exists())
 					{
-						byte[] data = new byte[1024];
-						int x;
-						while ((x = in.read(data)) > 0)
-							out.write(data, 0, x);
+						URL site = new URL(String.join("/", "http://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
+						
+						img.getParentFile().mkdirs();
+						// TODO: Add a timeout here
+						try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
+						{
+							try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(img)))
+							{
+								byte[] data = new byte[1024];
+								int x;
+								while ((x = in.read(data)) > 0)
+									out.write(data, 0, x);
+							}
+						}
+						catch (Exception e)
+						{
+							System.err.println("Error downloading " + multiverseid + ".jpg: " + e.getMessage());
+						}
 					}
 				}
-				catch (Exception e)
-				{
-					System.err.println("Error downloading " + multiverseid + ".jpg: " + e.getMessage());
-				}
-				finally
-				{
-					publish(multiverseid);
-				}
+				publish(card);
 			}
 		}
 		
 		@Override
-		protected void process(List<Integer> chunks)
+		protected void process(List<Card> chunks)
 		{
-			for (int i: chunks)
-			{
-				if (card.multiverseid().contains(i))
+			for (Card c: chunks)
+				if (card == c)
 					loadImages();
-			}
 		}
 	}
 	
@@ -109,7 +110,7 @@ public class CardImagePanel extends JPanel
 	/**
 	 * Queue of multiverseids to download.
 	 */
-	private BlockingQueue<Integer> toDownload;
+	private BlockingQueue<Card> toDownload;
 	/**
 	 * List of images to draw for the card.
 	 */
@@ -136,7 +137,7 @@ public class CardImagePanel extends JPanel
 	{
 		super(null);
 		image = null;
-		toDownload = new LinkedBlockingQueue<Integer>();
+		toDownload = new LinkedBlockingQueue<Card>();
 		faceImages = new ArrayList<BufferedImage>();
 		new ImageDownloadWorker().execute();
 		setCard(c);
@@ -294,24 +295,14 @@ public class CardImagePanel extends JPanel
 	{
 		if ((card = c) != null)
 		{
-			boolean already = true;
-			for (int i: card.multiverseid())
+			try
 			{
-				if (i > 0 && !toDownload.contains(i) && !Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), i + ".jpg").toFile().exists())
-				{
-					try
-					{
-						toDownload.put(i);
-						already = false;
-					}
-					catch (InterruptedException e)
-					{
-						e.printStackTrace();
-					}
-				}
+				toDownload.put(c);
 			}
-			if (already)
-				loadImages();
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 }
