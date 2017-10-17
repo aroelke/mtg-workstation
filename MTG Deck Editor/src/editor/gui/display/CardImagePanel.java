@@ -97,7 +97,7 @@ public class CardImagePanel extends JPanel
 		@Override
 		protected void process(List<Card> chunks)
 		{
-			if (chunks.stream().anyMatch(card::equals))
+			if (chunks.contains(card))
 				loadImages();
 		}
 	}
