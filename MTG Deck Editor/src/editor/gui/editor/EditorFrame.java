@@ -963,7 +963,11 @@ public class EditorFrame extends JInternalFrame
 		// Button to add a new category
 		JPanel addCategoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton addCategoryButton = new JButton("Add");
-		addCategoryButton.addActionListener((e) -> deck.current.addCategory(createCategory()));
+		addCategoryButton.addActionListener((e) -> {
+			CategorySpec spec = createCategory();
+			if (spec != null)
+				deck.current.addCategory(spec);
+		});
 		addCategoryPanel.add(addCategoryButton);
 		categoryHeaderPanel.add(addCategoryPanel);
 		

@@ -966,8 +966,12 @@ public class MainFrame extends JFrame
 		JMenuItem addCategoryItem = new JMenuItem("Add...");
 		addCategoryItem.addActionListener((e) -> {
 			if (selectedFrame != null)
-				selectedFrame.deck().addCategory(selectedFrame.createCategory());
-			});
+			{
+				CategorySpec spec = selectedFrame.createCategory();
+				if (spec != null)
+					selectedFrame.deck().addCategory(spec);
+			}
+		});
 		categoryMenu.add(addCategoryItem);
 
 		// Edit category item
