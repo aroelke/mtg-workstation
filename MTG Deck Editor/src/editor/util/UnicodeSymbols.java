@@ -44,10 +44,6 @@ public interface UnicodeSymbols
 	 */
 	char INFINITY = '\u221E';
 	/**
-	 * Left-pointing double angle quotation mark, '{@value #LEFT_ANGLE_DOUBLE_QUOTE}'.
-	 */
-	char LEFT_ANGLE_DOUBLE_QUOTE = '\u00AB';
-	/**
 	 * Leftwards black arrow, '{@value #LEFT_ARROW}'.
 	 */
 	char LEFT_ARROW = '\u2B05';
@@ -71,10 +67,6 @@ public interface UnicodeSymbols
 	 * Vulgar fraction one half, '{@value #ONE_HALF}'.
 	 */
 	char ONE_HALF = '\u00BD';
-	/**
-	 * Right-pointing double angle quotation mark, '{@value #RIGHT_ANGLE_DOUBLE_QUOTE}'.
-	 */
-	char RIGHT_ANGLE_DOUBLE_QUOTE = '\u00BB';
 	/**
 	 * Rightwards black arrow, '{@value #RIGHT_ARROW}'.
 	 */

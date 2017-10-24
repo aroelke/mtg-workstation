@@ -4,7 +4,6 @@ import java.io.Externalizable;
 import java.util.function.Predicate;
 
 import editor.database.card.Card;
-import editor.util.UnicodeSymbols;
 
 
 /**
@@ -20,15 +19,6 @@ import editor.util.UnicodeSymbols;
  */
 public abstract class Filter implements Predicate<Card>, Externalizable
 {
-	/**
-	 * Character marking the beginning of a group.
-	 */
-	public static final char BEGIN_GROUP = UnicodeSymbols.LEFT_ANGLE_DOUBLE_QUOTE;
-	/**
-	 * Character marking the end of a group.
-	 */
-	public static final char END_GROUP = UnicodeSymbols.RIGHT_ANGLE_DOUBLE_QUOTE;
-
 	/**
 	 * Parent of this Filter in the tree (null if this is the root Filter).
 	 */

@@ -21,7 +21,6 @@ import javax.swing.SwingUtilities;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
-import editor.filter.Filter;
 import editor.gui.display.CardJList;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.generic.ColorButton;
@@ -88,8 +87,6 @@ public class CategoryEditorPanel extends JPanel
 			{
 				if (editor.nameField.getText().isEmpty())
 					JOptionPane.showMessageDialog(editor, "Category must have a name.", "Error", JOptionPane.ERROR_MESSAGE);
-				else if (editor.nameField.getText().contains(String.valueOf(Filter.BEGIN_GROUP)))
-					JOptionPane.showMessageDialog(editor, "Category names cannot contain the character '" + Filter.BEGIN_GROUP + "'.", "Error", JOptionPane.ERROR_MESSAGE);
 				else
 				{
 					editor.updateSpec();
