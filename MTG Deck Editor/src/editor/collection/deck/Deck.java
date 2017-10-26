@@ -1004,7 +1004,7 @@ public class Deck implements CardList, Externalizable
 				masterList.remove(entry);
 			}
 			total -= removed;
-			if (card.typeContains("land"))
+			if (card.isLand())
 				land -= removed;
 		}
 		
@@ -1303,7 +1303,7 @@ public class Deck implements CardList, Externalizable
 		else
 		{
 			total += amount - e.count;
-			if (e.card.typeContains("land"))
+			if (e.card.isLand())
 				land += amount - e.count;
 			
 			Map<Card, Integer> change = new HashMap<Card, Integer>();
