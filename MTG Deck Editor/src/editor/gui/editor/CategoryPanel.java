@@ -114,6 +114,8 @@ public class CategoryPanel extends JPanel
 	 * It is adapted from a StackOverflow answer to the same problem, which can be found at
 	 * @link{http://stackoverflow.com/questions/1377887/jtextpane-prevents-scrolling-in-the-parent-jscrollpane}.
 	 *
+	 * TODO: Adapt this code better
+	 *
 	 * @author Nemi
 	 * @since November 24, 2009
 	 */
@@ -139,10 +141,9 @@ public class CategoryPanel extends JPanel
 		@SuppressWarnings("javadoc")
 		private MouseWheelEvent cloneEvent(MouseWheelEvent e)
 		{
-			return new MouseWheelEvent(getParentScrollPane(), e.getID(), e
-					.getWhen(), e.getModifiers(), 1, 1, e
-					.getClickCount(), false, e.getScrollType(), e
-					.getScrollAmount(), e.getWheelRotation());
+			return new MouseWheelEvent(getParentScrollPane(), e.getID(), e.getWhen(),
+									   e.getModifiersEx(), 1, 1, e.getClickCount(),
+									   false, e.getScrollType(), e.getScrollAmount(), e.getWheelRotation());
 		}
 
 		@SuppressWarnings("javadoc")

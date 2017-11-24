@@ -423,25 +423,25 @@ public class MainFrame extends JFrame
 
 		// New file menu item
 		JMenuItem newItem = new JMenuItem("New");
-		newItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
+		newItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
 		newItem.addActionListener((e) -> newEditor());
 		fileMenu.add(newItem);
 
 		// Open file menu item
 		JMenuItem openItem = new JMenuItem("Open...");
-		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
 		openItem.addActionListener((e) -> open());
 		fileMenu.add(openItem);
 
 		// Close file menu item
 		JMenuItem closeItem = new JMenuItem("Close");
-		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK));
+		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
 		closeItem.addActionListener((e) -> {if (selectedFrame != null) close(selectedFrame); else exit();});
 		fileMenu.add(closeItem);
 
 		// Close all files menu item
 		JMenuItem closeAllItem = new JMenuItem("Close All");
-		closeAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		closeAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 		closeAllItem.addActionListener((e) -> closeAll());
 		fileMenu.add(closeAllItem);
 
@@ -449,7 +449,7 @@ public class MainFrame extends JFrame
 
 		// Save file menu item
 		JMenuItem saveItem = new JMenuItem("Save");
-		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
 		saveItem.addActionListener((e) -> {if (selectedFrame != null) save(selectedFrame);});
 		fileMenu.add(saveItem);
 
@@ -461,7 +461,7 @@ public class MainFrame extends JFrame
 
 		// Save all files menu item
 		JMenuItem saveAllItem = new JMenuItem("Save All");
-		saveAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		saveAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 		saveAllItem.addActionListener((e) -> saveAll());
 		fileMenu.add(saveAllItem);
 
@@ -903,7 +903,7 @@ public class MainFrame extends JFrame
 		// Exit menu item
 		JMenuItem exitItem = new JMenuItem("Exit");
 		exitItem.addActionListener((e) -> exit());
-		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_MASK));
+		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
 		fileMenu.add(exitItem);
 
 		// Edit menu
@@ -912,13 +912,13 @@ public class MainFrame extends JFrame
 
 		// Undo menu item
 		JMenuItem undoItem = new JMenuItem("Undo");
-		undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK));
+		undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
 		undoItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.undo();});
 		editMenu.add(undoItem);
 
 		// Redo menu item
 		JMenuItem redoItem = new JMenuItem("Redo");
-		redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_MASK));
+		redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
 		redoItem.addActionListener((e) -> {if (selectedFrame != null) selectedFrame.redo();});
 		editMenu.add(redoItem);
 
