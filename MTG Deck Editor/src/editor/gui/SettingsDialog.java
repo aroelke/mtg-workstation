@@ -201,6 +201,68 @@ public class SettingsDialog extends JDialog
 	public static final String VERSION_FILE = "inventory.version_file";
 	
 	/**
+	 * Create the preview panel for a color chooser that customizes the stripe color
+	 * of a #CardTable.
+	 *
+	 * @param chooser #JColorChooser to create the new preview panel for
+	 */
+	private static void createStripeChooserPreview(JColorChooser chooser)
+	{
+		JPanel preview = new JPanel();
+		preview.setLayout(new BoxLayout(preview, BoxLayout.Y_AXIS));
+		TableModel model = new AbstractTableModel()
+		{
+			@Override
+			public int getColumnCount()
+			{
+				return 4;
+			}
+
+			@Override
+			public int getRowCount()
+			{
+				return 4;
+			}
+
+			@Override
+			public Object getValueAt(int rowIndex, int columnIndex)
+			{
+				return "Sample Text";
+			}
+		};
+		CardTable table = new CardTable(model);
+		table.setStripeColor(chooser.getColor());
+		preview.add(table);
+
+		chooser.getSelectionModel().addChangeListener((e) -> table.setStripeColor(chooser.getColor()));
+
+		chooser.setPreviewPanel(preview);
+	}
+	
+	/**
+	 * If the given file is contained the current directory, make it a relative file to
+	 * the current working directory.  If it is the current working directory, make it
+	 * "."  Otherwise, keep it what it is.
+	 *
+	 * @param f #File to relativize
+	 * @return relativized version of the given file.
+	 */
+	private static File relativize(File f)
+	{
+		Path p = new File(".").getAbsoluteFile().getParentFile().toPath();
+		Path fp = f.getAbsoluteFile().toPath();
+		if (fp.startsWith(p))
+		{
+			fp = p.relativize(fp);
+			if (fp.toString().isEmpty())
+				f = new File(".");
+			else
+				f = fp.toFile();
+		}
+		return f;
+	}
+	
+	/**
 	 * Add a new preset category.
 	 * 
 	 * @param category specification of the preset category to add
@@ -1002,73 +1064,11 @@ public class SettingsDialog extends JDialog
 	}
 
 	/**
-	 * Create the preview panel for a color chooser that customizes the stripe color
-	 * of a #CardTable.
-	 *
-	 * @param chooser #JColorChooser to create the new preview panel for
-	 */
-	private void createStripeChooserPreview(JColorChooser chooser)
-	{
-		JPanel preview = new JPanel();
-		preview.setLayout(new BoxLayout(preview, BoxLayout.Y_AXIS));
-		TableModel model = new AbstractTableModel()
-		{
-			@Override
-			public int getColumnCount()
-			{
-				return 4;
-			}
-
-			@Override
-			public int getRowCount()
-			{
-				return 4;
-			}
-
-			@Override
-			public Object getValueAt(int rowIndex, int columnIndex)
-			{
-				return "Sample Text";
-			}
-		};
-		CardTable table = new CardTable(model);
-		table.setStripeColor(chooser.getColor());
-		preview.add(table);
-
-		chooser.getSelectionModel().addChangeListener((e) -> table.setStripeColor(chooser.getColor()));
-
-		chooser.setPreviewPanel(preview);
-	}
-
-	/**
 	 * Reject any changes that were made as a result of using the settings dialog.
 	 */
 	public void rejectSettings()
 	{
 		parent.setImageBackground(getAsColor(IMAGE_BGCOLOR));
 		parent.setHandBackground(getAsColor(HAND_BGCOLOR));
-	}
-
-	/**
-	 * If the given file is contained the current directory, make it a relative file to
-	 * the current working directory.  If it is the current working directory, make it
-	 * "."  Otherwise, keep it what it is.
-	 *
-	 * @param f #File to relativize
-	 * @return relativized version of the given file.
-	 */
-	private File relativize(File f)
-	{
-		Path p = new File(".").getAbsoluteFile().getParentFile().toPath();
-		Path fp = f.getAbsoluteFile().toPath();
-		if (fp.startsWith(p))
-		{
-			fp = p.relativize(fp);
-			if (fp.toString().isEmpty())
-				f = new File(".");
-			else
-				f = fp.toFile();
-		}
-		return f;
 	}
 }

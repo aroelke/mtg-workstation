@@ -397,13 +397,14 @@ public class EditorFrame extends JInternalFrame
 			try (ProgressInputStream pis = new ProgressInputStream(new FileInputStream(file)))
 			{
 				pis.addPropertyChangeListener((e) -> process(Arrays.asList(((Long)e.getNewValue()).intValue())));
-				ObjectInputStream ois = new ObjectInputStream(pis);
-				opening = true;
-				deck.current.readExternal(ois);
-				sideboard.current.readExternal(ois);
-				// TODO: Change this to use readUTF
-				changelogArea.setText((String)ois.readObject());
-				ois.close();
+				try (ObjectInputStream ois = new ObjectInputStream(pis))
+				{
+					opening = true;
+					deck.current.readExternal(ois);
+					sideboard.current.readExternal(ois);
+					// TODO: Change this to use readUTF
+					changelogArea.setText((String)ois.readObject());
+				}
 			}
 			return null;
 		}
