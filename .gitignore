@@ -1,0 +1,7 @@
+AllSets-x.*
+settings.txt
+presets
+editor.*
+target/
+bin/
+.idea/
