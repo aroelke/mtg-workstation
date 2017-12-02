@@ -77,7 +77,7 @@ public enum Comparison
 	 * @param op Operator of the new Comparison
 	 * @param comp Operation on the result of {@link Comparable#compareTo(Object)}
 	 */
-	private Comparison(final char op, final Predicate<Integer> comp)
+	Comparison(final char op, final Predicate<Integer> comp)
 	{
 		operator = op;
 		comparison = comp;

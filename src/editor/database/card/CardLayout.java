@@ -80,7 +80,7 @@ public enum CardLayout
 	 * 
 	 * @param l String representation of the layout.
 	 */
-	private CardLayout(String l)
+	CardLayout(String l)
 	{
 		this(l, false);
 	}
@@ -91,7 +91,7 @@ public enum CardLayout
 	 * @param l String representation of the layout.
 	 * @param m whether or not the layout is multi-faced.
 	 */
-	private CardLayout(String l, boolean m)
+	CardLayout(String l, boolean m)
 	{
 		layout = l;
 		isMultiFaced = m;

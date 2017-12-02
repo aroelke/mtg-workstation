@@ -20,7 +20,7 @@ public interface MouseListenerFactory
 	 * @param mouseClicked action to perform when the mouse is clicked
 	 * @return a MouseListener that performs the given action when the mouse is clicked.
 	 */
-	public static MouseListener createClickListener(Consumer<MouseEvent> mouseClicked)
+	static MouseListener createClickListener(Consumer<MouseEvent> mouseClicked)
 	{
 		return new MouseAdapter()
 		{
@@ -38,7 +38,7 @@ public interface MouseListenerFactory
 	 * @param mousePressed action to perform when the mouse is pressed
 	 * @return a MouseListener that performs the given action when the mouse is pressed.
 	 */
-	public static MouseListener createPressListener(Consumer<MouseEvent> mousePressed)
+	static MouseListener createPressListener(Consumer<MouseEvent> mousePressed)
 	{
 		return new MouseAdapter()
 		{
@@ -56,7 +56,7 @@ public interface MouseListenerFactory
 	 * @param mouseReleased action to perform when the mouse is released
 	 * @return a MouseListener that performs the given action when the mouse is released.
 	 */
-	public static MouseListener createReleaseListener(Consumer<MouseEvent> mouseReleased)
+	static MouseListener createReleaseListener(Consumer<MouseEvent> mouseReleased)
 	{
 		return new MouseAdapter()
 		{

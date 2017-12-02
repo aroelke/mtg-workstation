@@ -176,7 +176,7 @@ public enum ManaType
 	 * @param s single-character shorthand representation of the new ManaType
 	 * @param c color corresponding to this ManaType
 	 */
-	private ManaType(final String n, final char s, final Color c)
+	ManaType(final String n, final char s, final Color c)
 	{
 		name = n;
 		shorthand = s;

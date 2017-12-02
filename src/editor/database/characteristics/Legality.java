@@ -48,7 +48,7 @@ public enum Legality
 	 * 
 	 * @param legality Type of legality a card might have.
 	 */
-	private Legality(final String legality)
+	Legality(final String legality)
 	{
 		this.legality = legality;
 	}

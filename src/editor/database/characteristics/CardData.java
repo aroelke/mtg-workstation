@@ -143,7 +143,7 @@ public enum CardData
 	 * @param n name of the new CardData
 	 * @param c class of the corresponding information on a card
 	 */
-	private CardData(String n, Class<?> c)
+	CardData(String n, Class<?> c)
 	{
 		name = n;
 		dataType = c;

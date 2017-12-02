@@ -94,7 +94,7 @@ public enum Rarity implements CharSequence
 	 * 
 	 * @param rarity String representation of the new Rarity.
 	 */
-	private Rarity(final String rarity)
+	Rarity(final String rarity)
 	{
 		this.rarity = rarity;
 	}

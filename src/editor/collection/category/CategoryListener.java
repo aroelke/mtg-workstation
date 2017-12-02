@@ -17,5 +17,5 @@ public interface CategoryListener extends EventListener
 	 * 
 	 * @param e event specifying changes to a category specification.
 	 */
-	public void categoryChanged(CategorySpec.Event e);
+    void categoryChanged(CategorySpec.Event e);
 }

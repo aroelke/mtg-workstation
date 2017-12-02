@@ -18,7 +18,7 @@ public interface ComponentUtils
 	 * @param component component to set the font of
 	 * @param f font to set the component and its children to
 	 */
-	public static void changeFontRecursive(Component component, Font f)
+	static void changeFontRecursive(Component component, Font f)
 	{
 		component.setFont(f);
 		if (component instanceof Container)

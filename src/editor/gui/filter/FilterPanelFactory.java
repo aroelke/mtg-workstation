@@ -48,7 +48,7 @@ public interface FilterPanelFactory
 	 * @return a #FilterEditorPanel whose type is determined by the given filter and
 	 * fill out its field using the values of the given filter.
 	 */
-	public static FilterEditorPanel<?> createFilterPanel(FilterLeaf<?> filter)
+	static FilterEditorPanel<?> createFilterPanel(FilterLeaf<?> filter)
 	{
 		switch (filter.type())
 		{
@@ -100,7 +100,7 @@ public interface FilterPanelFactory
 	 * @return a new #FilterEditorPanel corresponding to the given type with
 	 * its fields filled out with default values.
 	 */
-	public static FilterEditorPanel<?> createFilterPanel(String type)
+	static FilterEditorPanel<?> createFilterPanel(String type)
 	{
 		if (type.equals(FilterFactory.DEFAULTS))
 			return new DefaultsFilterPanel();

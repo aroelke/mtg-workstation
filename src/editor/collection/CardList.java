@@ -35,14 +35,14 @@ public interface CardList extends Iterable<Card>
 	 * 
 	 * @author Alec Roelke
 	 */
-	public interface Entry
+    interface Entry
 	{
 		/**
 		 * Get this Entry's card.
 		 * 
 		 * @return the Card this Entry has data for.
 		 */
-		public Card card();
+        Card card();
 		
 		/**
 		 * Get the categories this Entry's card belongs to.
@@ -51,7 +51,7 @@ public interface CardList extends Iterable<Card>
 		 * operation)
 		 * @throws UnsupportedOperationException if this operation is not supported
 		 */
-		public Set<CategorySpec> categories() throws UnsupportedOperationException;
+        Set<CategorySpec> categories() throws UnsupportedOperationException;
 		
 		/**
 		 * Get the number of copies of this Entry's card in the parent {@link CardList}.
@@ -59,7 +59,7 @@ public interface CardList extends Iterable<Card>
 		 * @return the number of copies in the parent CardList of this Entry's Card (optional operation).
 		 * @throws UnsupportedOperationException if this operation is not supported
 		 */
-		public int count() throws UnsupportedOperationException;
+        int count() throws UnsupportedOperationException;
 		
 		/**
 		 * Get the date this Entry's card was added to the parent {@link CardList}.
@@ -67,7 +67,7 @@ public interface CardList extends Iterable<Card>
 		 * @return the date this Entry's Card was added (optional operation).
 		 * @throws UnsupportedOperationException if this operation is not supported
 		 */
-		public LocalDate dateAdded() throws UnsupportedOperationException;
+        LocalDate dateAdded() throws UnsupportedOperationException;
 		
 		/**
 		 * Get some information about this Entry's Card.
@@ -75,7 +75,7 @@ public interface CardList extends Iterable<Card>
 		 * @param data type of information to get
 		 * @return the value of the given information about this Entry's Card.
 		 */
-		public default Object get(CardData data)
+		default Object get(CardData data)
 		{
 			switch (data)
 			{
@@ -134,7 +134,7 @@ public interface CardList extends Iterable<Card>
 	 * @return true if a copy of the Card was added, and false otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public boolean add(Card card) throws UnsupportedOperationException;
+    boolean add(Card card) throws UnsupportedOperationException;
 	
 	/**
 	 * Add some number of copies of a Card to this CardList (optional operation).
@@ -144,7 +144,7 @@ public interface CardList extends Iterable<Card>
 	 * @return true if any copies were added, and false otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public boolean add(Card card, int amount) throws UnsupportedOperationException;
+    boolean add(Card card, int amount) throws UnsupportedOperationException;
 
 	/**
 	 * Add all cards in the given CardList to this CardList.
@@ -153,7 +153,7 @@ public interface CardList extends Iterable<Card>
 	 * @return true if any of the Cards were added, and false otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public boolean addAll(CardList cards) throws UnsupportedOperationException;
+    boolean addAll(CardList cards) throws UnsupportedOperationException;
 	
 	/**
 	 * Add some numbers of copies of each of the given cards to this CardList (optional operation).
@@ -162,7 +162,7 @@ public interface CardList extends Iterable<Card>
 	 * @return true if any Cards were added, and false otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public boolean addAll(Map<? extends Card, ? extends Integer> amounts) throws UnsupportedOperationException;
+    boolean addAll(Map<? extends Card, ? extends Integer> amounts) throws UnsupportedOperationException;
 
 	/**
 	 * Add one copy of each of the given set of Cards to this CardList (optional operation).
@@ -171,14 +171,14 @@ public interface CardList extends Iterable<Card>
 	 * @return true if any of the Cards were added, and false otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public boolean addAll(Set<? extends Card> cards) throws UnsupportedOperationException;
+    boolean addAll(Set<? extends Card> cards) throws UnsupportedOperationException;
 
 	/**
 	 * Remove all Cards from this CardList (optional operation).
 	 * 
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public void clear() throws UnsupportedOperationException;
+    void clear() throws UnsupportedOperationException;
 
 	/**
 	 * Check if this CardList contains a particular card.
@@ -186,7 +186,7 @@ public interface CardList extends Iterable<Card>
 	 * @param card card to look for
 	 * @return true if this CardList contains the specified card, and false otherwise.
 	 */
-	public boolean contains(Card card);
+    boolean contains(Card card);
 
 	/**
 	 * Check if this CardLIst contains all of the given cards.
@@ -195,7 +195,7 @@ public interface CardList extends Iterable<Card>
 	 * @return true if this CardCollection contains all of the specified cards, and false
 	 * otherwise.
 	 */
-	public boolean containsAll(Collection<? extends Card> cards);
+    boolean containsAll(Collection<? extends Card> cards);
 
 	/**
 	 * Get a card from the CardList.
@@ -204,7 +204,7 @@ public interface CardList extends Iterable<Card>
 	 * @return the Card at the given index
 	 * @throws IndexOutOfBoundsException if the index is less than 0 or is too big
 	 */
-	public Card get(int index) throws IndexOutOfBoundsException;
+    Card get(int index) throws IndexOutOfBoundsException;
 
 	/**
 	 * Get the metadata of the given card.
@@ -213,7 +213,7 @@ public interface CardList extends Iterable<Card>
 	 * @return the {@link Entry} corresponding to the given card, or null if no such card exists in
 	 * this CardList.
 	 */
-	public Entry getData(Card card);
+    Entry getData(Card card);
 	
 	/**
 	 * Get the metadata of the card at a specific position in this CardList
@@ -222,7 +222,7 @@ public interface CardList extends Iterable<Card>
 	 * @return the {@link Entry} corresponding to the Card at the given index
 	 * @throws IndexOutOfBoundsException if the index is less than 0 or is too big
 	 */
-	public Entry getData(int index) throws IndexOutOfBoundsException;
+    Entry getData(int index) throws IndexOutOfBoundsException;
 
 	/**
 	 * Find the index of the given card in this CardList.
@@ -230,17 +230,17 @@ public interface CardList extends Iterable<Card>
 	 * @param card card to look for
 	 * @return the index of the given card in this CardList, or -1 if it isn't in it.
 	 */
-	public int indexOf(Card card);
+    int indexOf(Card card);
 	
 	/**
 	 * Check if there are no cards in this CardList.
 	 * 
 	 * @return true if this CardList contains no cards, and false otherwise.
 	 */
-	public boolean isEmpty();
+    boolean isEmpty();
 
 	@Override
-	public Iterator<Card> iterator();
+    Iterator<Card> iterator();
 
 	/**
 	 * Returns a possibly parallel Stream with this CardList as its source.
@@ -248,7 +248,7 @@ public interface CardList extends Iterable<Card>
 	 * @return A parallel Stream of the Cards in this CardList.
 	 * @see Collection#parallelStream()
 	 */
-	public default Stream<Card> parallelStream()
+	default Stream<Card> parallelStream()
 	{
 		return StreamSupport.stream(spliterator(), true);
 	}
@@ -260,7 +260,7 @@ public interface CardList extends Iterable<Card>
 	 * @return true if the Card was removed, and false otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public boolean remove(Card card) throws UnsupportedOperationException;
+    boolean remove(Card card) throws UnsupportedOperationException;
 
 	/**
 	 * Remove some number of copies of a Card from this CardList (optional operation).
@@ -270,7 +270,7 @@ public interface CardList extends Iterable<Card>
 	 * @return the actual number of copies that were removed.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public int remove(Card card, int amount) throws UnsupportedOperationException;
+    int remove(Card card, int amount) throws UnsupportedOperationException;
 	
 	/**
 	 * For each card in the given CardList, remove the number of copies of that Card in
@@ -281,7 +281,7 @@ public interface CardList extends Iterable<Card>
 	 * copies of each one that were removed.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public Map<Card, Integer> removeAll(CardList cards) throws UnsupportedOperationException;
+    Map<Card, Integer> removeAll(CardList cards) throws UnsupportedOperationException;
 	
 	/**
 	 * Remove some numbers of copies of the given Cards from this CardList (optional
@@ -292,7 +292,7 @@ public interface CardList extends Iterable<Card>
 	 * of each one that were removed.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> cards) throws UnsupportedOperationException;
+    Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> cards) throws UnsupportedOperationException;
 	
 	/**
 	 * Remove one copy of each of the given Cards from this CardList (optional operation).
@@ -301,7 +301,7 @@ public interface CardList extends Iterable<Card>
 	 * @return the set of Cards that had a copy removed.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public Set<Card> removeAll(Set<? extends Card> cards) throws UnsupportedOperationException;
+    Set<Card> removeAll(Set<? extends Card> cards) throws UnsupportedOperationException;
 	
 	/**
 	 * Set the number of copies of a Card to the specified number (optional
@@ -312,7 +312,7 @@ public interface CardList extends Iterable<Card>
 	 * @return true if this CardList changed as a result, and false otherwise.
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public boolean set(Card card, int amount) throws UnsupportedOperationException;
+    boolean set(Card card, int amount) throws UnsupportedOperationException;
 	
 	/**
 	 * Set the number of copies of the Card at the specified index (optional
@@ -324,7 +324,7 @@ public interface CardList extends Iterable<Card>
 	 * @throws IndexOutOfBoundsException if the index is less than 0 or is too big
 	 * @throws UnsupportedOperationException if this operation is not supported
 	 */
-	public boolean set(int index, int amount) throws IndexOutOfBoundsException, UnsupportedOperationException;
+    boolean set(int index, int amount) throws IndexOutOfBoundsException, UnsupportedOperationException;
 	
 	/**
 	 * Get the number of unique cards in this CardList.
@@ -332,7 +332,7 @@ public interface CardList extends Iterable<Card>
 	 * @return The number of unique card {@link Entry}s in this CardList.
 	 * @see CardList#total()
 	 */
-	public int size();
+    int size();
 	
 	/**
 	 * Returns a sequential Stream with this CardList its source.
@@ -340,7 +340,7 @@ public interface CardList extends Iterable<Card>
 	 * @return A Stream of the Cards in this CardList that is not necessarily parallel.
 	 * @see Collection#stream()
 	 */
-	public default Stream<Card> stream()
+	default Stream<Card> stream()
 	{
 		return StreamSupport.stream(spliterator(), false);
 	}
@@ -350,7 +350,7 @@ public interface CardList extends Iterable<Card>
 	 * 
 	 * @return an array containing all of the cards in this CardList.
 	 */
-	public Card[] toArray();
+    Card[] toArray();
 	
 	/**
 	 * Get the total number of cards in this CardList, accounting for multiple copies.
@@ -358,5 +358,5 @@ public interface CardList extends Iterable<Card>
 	 * @return the total number of cards in this CardList.
 	 * @see CardList#size()
 	 */
-	public int total();
+    int total();
 }

@@ -56,7 +56,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		 * 
 		 * @param m String representation of the new Mode.
 		 */
-		private Mode(String m, BiPredicate<Stream<Filter>, Predicate<? super Filter>> f)
+		Mode(String m, BiPredicate<Stream<Filter>, Predicate<? super Filter>> f)
 		{
 			mode = m;
 			function = f;

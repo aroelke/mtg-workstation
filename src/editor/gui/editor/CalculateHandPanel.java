@@ -188,7 +188,7 @@ public class CalculateHandPanel extends JPanel
 	 * 
 	 * @author Alec
 	 */
-	private static enum DisplayMode
+	private enum DisplayMode
 	{
 		/**
 		 * Show the probability of drawing a given number of cards from each category in
@@ -210,7 +210,7 @@ public class CalculateHandPanel extends JPanel
 		 * Create a new DisplayMode.
 		 * @param m String representation of the new DisplayMode
 		 */
-		private DisplayMode(final String m)
+		DisplayMode(final String m)
 		{
 			mode = m;
 		}
@@ -253,7 +253,7 @@ public class CalculateHandPanel extends JPanel
 		 * 
 		 * @param r String representation of the new Relation
 		 */
-		private Relation(String r)
+		Relation(String r)
 		{
 			relation = r;
 		}

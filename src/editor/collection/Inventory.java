@@ -157,7 +157,7 @@ public class Inventory implements CardList
 		{
 			return Arrays.asList(getTransferDataFlavors()).contains(flavor);
 		}
-	};
+	}
 	
 	/**
 	 * Master list of cards.

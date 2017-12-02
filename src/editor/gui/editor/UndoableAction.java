@@ -13,12 +13,12 @@ public interface UndoableAction
 	 * @return <code>true</code> if the action was successfully redone
 	 * or done.
 	 */
-	public boolean redo();
+	boolean redo();
 	
 	/**
 	 * Instructions to undo what was done.
 	 * 
 	 * @return <code>true</code> if the action was successfully undone.
 	 */
-	public boolean undo();
+	boolean undo();
 }

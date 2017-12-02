@@ -163,7 +163,7 @@ public class EditorFrame extends JInternalFrame
 		 * @param n Name of the new CategoryOrder
 		 * @param o Function comparing two CategorySpecs from a Deck
 		 */
-		private CategoryOrder(String n, Function<Deck, Comparator<CategorySpec>> o)
+		CategoryOrder(String n, Function<Deck, Comparator<CategorySpec>> o)
 		{
 			name = n;
 			order = o;
