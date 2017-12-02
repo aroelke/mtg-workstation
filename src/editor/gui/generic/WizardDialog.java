@@ -81,16 +81,6 @@ public class WizardDialog extends JDialog
 	 */
 	private JButton[] cancelButtons;
 	/**
-	 * Buttons used for advancing the wizard.  Each panel gets one so they can be individually
-	 * enabled or disabled, and so the last one can close the wizard.
-	 */
-	private JButton[] nextButtons;
-	/**
-	 * Buttons used for going back to the previous step in the wizard.  Each panel gets one so
-	 * they can be individually enabled or disabled.
-	 */
-	private JButton[] previousButtons;
-	/**
 	 * Value to return indicating how the dialog was closed.
 	 */
 	private int result;
@@ -150,8 +140,8 @@ public class WizardDialog extends JDialog
 		if (panels.length < 1)
 			throw new IllegalArgumentException("a wizard needs at least one step");
 		cancelButtons = new JButton[panels.length];
-		nextButtons = new JButton[panels.length];
-		previousButtons = new JButton[panels.length];
+		JButton[] nextButtons = new JButton[panels.length];
+		JButton[] previousButtons = new JButton[panels.length];
 		
 		for (int i = 0; i < panels.length; i++)
 		{

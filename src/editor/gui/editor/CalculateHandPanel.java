@@ -388,16 +388,10 @@ public class CalculateHandPanel extends JPanel
 	 * for each category.
 	 */
 	private Map<String, List<Double>> probabilities;
-	
 	/**
 	 * List of combo boxes displaying relations to the desired numbers.
 	 */
 	private Map<String, JComboBox<Relation>> relationBoxes;
-	
-	/**
-	 * Table showing probabilities of fulfilling category requirements.
-	 */
-	private JTable table;
 	
 	/**
 	 * Create a new CalculateHandPanel and populate it with its initial
@@ -444,7 +438,7 @@ public class CalculateHandPanel extends JPanel
 		});
 		rightControlPanel.add(modeBox);
 		
-		table = new JTable(model = new CalculationTableModel())
+		JTable table = new JTable(model = new CalculationTableModel())
 		{
 			@Override
 			public TableCellEditor getCellEditor(int row, int column)
