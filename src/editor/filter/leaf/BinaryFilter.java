@@ -66,7 +66,7 @@ public class BinaryFilter extends FilterLeaf<Void>
 	}
 	
 	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	public void readExternal(ObjectInput in) throws IOException
 	{
 		all = in.readBoolean();
 	}
