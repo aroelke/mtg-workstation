@@ -22,6 +22,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import editor.collection.category.CategorySpec;
+import editor.database.card.Card;
 import editor.database.characteristics.CardData;
 import editor.database.characteristics.CombatStat;
 import editor.database.characteristics.Loyalty;
@@ -250,7 +251,12 @@ public class CardTable extends JTable
 				Rectangle bounds = getCellRect(row, col, false);
 				JComponent c = (JComponent)prepareRenderer(getCellRenderer(row, col), row, col);
 				if (c.getPreferredSize().width > bounds.width)
-					tooltip = "<html>" + String.valueOf(getValueAt(row, col)) + "</html>";
+				{
+					if (((CardTableModel)getModel()).getColumnData(col) == CardData.MANA_COST)
+						tooltip = "<html>" + String.join(Card.FACE_SEPARATOR, CollectionUtils.convertToList(getValueAt(row, col), ManaCost.class).stream().map(ManaCost::toHTMLString).collect(Collectors.toList())) + "</html>";
+					else
+						tooltip = "<html>" + String.valueOf(getValueAt(row, col)) + "</html>";
+				}
 			}
 		}
 		return tooltip;
