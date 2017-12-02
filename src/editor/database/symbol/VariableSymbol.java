@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import editor.database.characteristics.ManaType;
 
@@ -19,7 +20,7 @@ public class VariableSymbol extends ManaSymbol
 	 * Map of variable names onto their corresponding symbols.
 	 */
 	public static final Map<String, VariableSymbol> SYMBOLS = Collections.unmodifiableMap(
-			Arrays.asList('X', 'Y', 'Z').stream().collect(Collectors.toMap(String::valueOf, VariableSymbol::new)));
+			Stream.of('X', 'Y', 'Z').collect(Collectors.toMap(String::valueOf, VariableSymbol::new)));
 	
 	/**
 	 * Get the VariableSymbol corresponding to the given String.

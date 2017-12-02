@@ -686,7 +686,7 @@ public class Deck implements CardList, Externalizable
 		 */
 		public TransferData(Deck d, Collection<Card> cards)
 		{
-			this(d, cards.stream().toArray(Card[]::new));
+			this(d, cards.toArray(new Card[0]));
 		}
 
 		@Override

@@ -132,7 +132,7 @@ public class Inventory implements CardList
 		 */
 		public TransferData(Collection<Card> cards)
 		{
-			this(cards.stream().toArray(Card[]::new));
+			this(cards.toArray(new Card[0]));
 		}
 		
 		@Override
