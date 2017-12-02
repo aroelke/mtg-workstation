@@ -349,15 +349,6 @@ public class Inventory implements CardList
 	}
 
 	/**
-	 * @return <code>true</code> if there are no cards in the inventory, and
-	 * <code>false</code> otherwise.
-	 */
-	public boolean noCards()
-	{
-		return cards.isEmpty();
-	}
-
-	/**
 	 * {@inheritDoc}
 	 * Not supported.
 	 */

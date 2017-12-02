@@ -32,10 +32,6 @@ public interface UnicodeSymbols
 	 */
 	char EM_DASH = '\u2014';
 	/**
-	 * End of proof, '{@value #END_OF_PROOF}'.
-	 */
-	char END_OF_PROOF = '\u220E';
-	/**
 	 * Greater than or equal to, '{@value #GREATER_OR_EQUAL}'.
 	 */
 	char GREATER_OR_EQUAL = '\u2265';

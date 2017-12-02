@@ -23,22 +23,7 @@ public class ComboBoxPanel<E> extends JPanel
 	 * Combo box displayed by the panel.
 	 */
 	private JComboBox<E> options;
-	
-	/**
-	 * Create a new ComboBoxPanel containing an empty combo box.
-	 */
-	public ComboBoxPanel()
-	{
-		super();
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		
-		add(Box.createVerticalGlue());
-		options = new JComboBox<E>();
-		options.setMaximumSize(options.getPreferredSize());
-		add(options);
-		add(Box.createVerticalGlue());
-	}
-	
+
 	/**
 	 * Create a new ComboBoxPanel containing a combo box with the given options.
 	 * 

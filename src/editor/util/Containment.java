@@ -48,20 +48,12 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 	 * @param contain String representation of the desired Containment
 	 * @return The Containment corresponding to the given String.
 	 */
-	public static Containment parseContainment(String contain)
+	public static Containment
+	parseContainment(String contain)
 	{
 		return Containment.valueOf(contain.toUpperCase().replace(' ', '_'));
 	}
-	
-	/**
-	 * @return Array containing Containments that have meaning when the list has only one
-	 * value.
-	 */
-	public static Containment[] singletonValues()
-	{
-		return new Containment[] {CONTAINS_ANY_OF, CONTAINS_NONE_OF};
-	}
-	
+
 	@Override
 	public boolean test(Collection<?> a, Collection<?> b)
 	{

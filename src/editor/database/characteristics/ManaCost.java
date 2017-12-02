@@ -280,7 +280,8 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 	 * @return A String containing this ManaCost's symbols represented by HTML
 	 * tags for display in an HTML-enabled panel.
 	 */
-	public String toHTMLString()
+	public String
+	toHTMLString()
 	{
 		StringBuilder str = new StringBuilder();
 		for (Symbol sym: cost)

@@ -89,10 +89,6 @@ public class SettingsDialog extends JDialog
 	 */
 	public static final String CARD_TAGS = "card_tags";
 	/**
-	 * Delimiter for preset categories in the settings file.
-	 */
-	public static final String CATEGORY_DELIMITER = String.valueOf(UnicodeSymbols.END_OF_PROOF);
-	/**
 	 * Maximum number of rows to show in category panels.
 	 */
 	public static final String CATEGORY_ROWS = "editor.rows";

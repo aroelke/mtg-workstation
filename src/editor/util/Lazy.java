@@ -13,17 +13,7 @@ import java.util.function.Supplier;
  */
 public class Lazy<T> implements Supplier<T>
 {
-	/**
-	 * Create a new Lazy supplier out of the given supplier.
-	 * 
-	 * @param supp supplier to lazily evaluate
-	 * @return A Lazy evaluator that caches the results of the given supplier.
-	 */
-	public static <U> Lazy<U> valueOf(Supplier<U> supp)
-	{
-		return new Lazy<U>(supp);
-	}
-	
+
 	/**
 	 * Cached value.
 	 */

@@ -45,14 +45,6 @@ public class TextCardListFormat implements CardListFormat
 		format = new CardFormat(pattern);
 	}
 	
-	/**
-	 * Create a new TextCardListFormat with the default format specifier.
-	 */
-	public TextCardListFormat()
-	{
-		this(DEFAULT_FORMAT);
-	}
-	
 	@Override
 	public String format(CardList list)
 	{

@@ -103,16 +103,6 @@ public class MeldCard extends MultiCard
 		return manaCost.get();
 	}
 
-	/**
-	 * Get the card this MeldCard melds with.
-	 * 
-	 * @return the Card this MeldCard melds with. 
-	 */
-	public Card meldsWith()
-	{
-		return other;
-	}
-	
 	@Override
 	public double minCmc()
 	{

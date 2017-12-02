@@ -93,16 +93,7 @@ public class DelimitedCardListFormat implements CardListFormat
 		else if ("{tab}".equals(delimiter))
 			delimiter = "\t";
 	}
-	
-	/**
-	 * Create a new DelimitedCardListFormat using the default values and
-	 * including headers.
-	 */
-	public DelimitedCardListFormat()
-	{
-		this(DEFAULT_DELIMITER, DEFAULT_DATA, true);
-	}
-	
+
 	@Override
 	public String format(CardList list)
 	{
