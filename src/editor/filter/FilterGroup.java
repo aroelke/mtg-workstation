@@ -153,9 +153,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		List<Filter> otherChildren = new ArrayList<Filter>(o.children);
 		for (Filter child: children)
 			otherChildren.remove(child);
-		if (!otherChildren.isEmpty())
-			return false;
-		return true;
+		return otherChildren.isEmpty();
 	}
 	
 	@Override

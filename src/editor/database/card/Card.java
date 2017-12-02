@@ -594,10 +594,8 @@ public abstract class Card
 				return true;
 			else if (format.equalsIgnoreCase("shards of alara") && expansion.block.equalsIgnoreCase("alara"))
 				return true;
-			else if (format.equalsIgnoreCase("tarkir") && expansion.block.equalsIgnoreCase("khans of tarkir"))
-				return true;
 			else
-				return false;
+				return format.equalsIgnoreCase("tarkir") && expansion.block.equalsIgnoreCase("khans of tarkir");
 		}
 		else if (!legality().containsKey(format))
 			return false;

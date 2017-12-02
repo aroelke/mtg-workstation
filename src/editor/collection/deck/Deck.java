@@ -98,7 +98,7 @@ public class Deck implements CardList, Externalizable
 		@Override
 		public boolean add(Card card, int amount)
 		{
-			return spec.includes(card) ? Deck.this.add(card, amount) : false;
+			return spec.includes(card) && Deck.this.add(card, amount);
 		}
 		
 		/**

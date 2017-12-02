@@ -1817,7 +1817,7 @@ public class EditorFrame extends JInternalFrame
 	 */
 	public boolean save()
 	{
-		return file == null ? false : save(file);
+		return file != null && save(file);
 	}
 
 	/**
