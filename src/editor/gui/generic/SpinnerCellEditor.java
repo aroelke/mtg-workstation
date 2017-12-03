@@ -2,6 +2,7 @@ package editor.gui.generic;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
+import java.text.ParseException;
 import java.util.EventObject;
 
 import javax.swing.DefaultCellEditor;
@@ -66,7 +67,7 @@ public class SpinnerCellEditor extends DefaultCellEditor
 		{
 			spinner.commitEdit();
 		}
-		catch (java.text.ParseException e)
+		catch (ParseException e)
 		{}
 		return super.stopCellEditing();
 	}
