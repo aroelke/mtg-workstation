@@ -284,11 +284,7 @@ public class EditorFrame extends JInternalFrame
 				else
 					return false;
 			}
-			catch (UnsupportedFlavorException e)
-			{
-				return false;
-			}
-			catch (IOException e)
+			catch (UnsupportedFlavorException | IOException e)
 			{
 				return false;
 			}

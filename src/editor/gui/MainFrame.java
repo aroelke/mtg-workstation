@@ -251,10 +251,6 @@ public class MainFrame extends JFrame
 		{
 			e.printStackTrace();
 		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
 
 		SwingUtilities.invokeLater(() -> new MainFrame(Arrays.stream(args).map(File::new).filter(File::exists).collect(Collectors.toList())).setVisible(true));
 	}
