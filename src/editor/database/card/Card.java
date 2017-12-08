@@ -625,7 +625,7 @@ public abstract class Card
 		{
 			if (format.equalsIgnoreCase("prismatic"))
 				format = "classic";
-			return legality().containsKey(format) ? legality().get(format) : Legality.LEGAL;
+			return legality().getOrDefault(format, Legality.LEGAL);
 		}
 		else
 			return Legality.BANNED;
