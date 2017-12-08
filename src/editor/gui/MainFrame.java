@@ -1689,7 +1689,7 @@ public class MainFrame extends JFrame
 		InventoryLoadDialog loadDialog = new InventoryLoadDialog(this);
 		loadDialog.setLocationRelativeTo(this);
 		inventory = loadDialog.createInventory(inventoryFile);
-		inventory.sort((a, b) -> a.compareName(b));
+		inventory.sort(Card::compareName);
 		inventoryModel = new CardTableModel(inventory, SettingsDialog.getAsCharacteristics(SettingsDialog.INVENTORY_COLUMNS));
 		inventoryTable.setModel(inventoryModel);
 		setCursor(Cursor.getDefaultCursor());

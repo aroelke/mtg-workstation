@@ -553,8 +553,8 @@ public class CalculateHandPanel extends JPanel
 	{
 		List<String> categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
 		
-		Map<String, Integer> oldDesired = desiredBoxes.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().getSelectedIndex()));
-		Map<String, Relation> oldRelations = relationBoxes.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().getItemAt(e.getValue().getSelectedIndex())));
+		Map<String, Integer> oldDesired = desiredBoxes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getSelectedIndex()));
+		Map<String, Relation> oldRelations = relationBoxes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getItemAt(e.getValue().getSelectedIndex())));
 		
 		desiredBoxes.clear();
 		relationBoxes.clear();

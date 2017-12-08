@@ -1118,7 +1118,7 @@ public class EditorFrame extends JInternalFrame
 				}
 			});
 			removeExclusionButton.addActionListener((f) -> {
-				for (Card c: Arrays.stream(exclude.getSelectedIndices()).mapToObj((r) -> excludeModel.getElementAt(r)).collect(Collectors.toList()))
+				for (Card c: Arrays.stream(exclude.getSelectedIndices()).mapToObj(excludeModel::getElementAt).collect(Collectors.toList()))
 					excludeModel.removeElement(c);
 			});
 			
