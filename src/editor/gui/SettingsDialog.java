@@ -791,9 +791,7 @@ public class SettingsDialog extends JDialog
 		JPanel scanBGPanel = new JPanel(new BorderLayout());
 		scanBGPanel.setBorder(BorderFactory.createTitledBorder("Image Background Color"));
 		scanBGChooser = new JColorChooser(getAsColor(IMAGE_BGCOLOR));
-		scanBGChooser.getSelectionModel().addChangeListener((e) -> {
-			parent.setImageBackground(scanBGChooser.getColor());
-		});
+		scanBGChooser.getSelectionModel().addChangeListener((e) -> parent.setImageBackground(scanBGChooser.getColor()));
 		scanBGPanel.add(scanBGChooser);
 		inventoryAppearancePanel.add(scanBGPanel);
 
@@ -974,9 +972,7 @@ public class SettingsDialog extends JDialog
 		JPanel handBGColorPanel = new JPanel(new BorderLayout());
 		handBGColorPanel.setBorder(BorderFactory.createTitledBorder("Background Color"));
 		handBGColor = new JColorChooser(getAsColor(HAND_BGCOLOR));
-		handBGColor.getSelectionModel().addChangeListener((e) -> {
-			parent.setHandBackground(handBGColor.getColor());
-		});
+		handBGColor.getSelectionModel().addChangeListener((e) -> parent.setHandBackground(handBGColor.getColor()));
 		handBGColorPanel.add(handBGColor);
 		handBGColorPanel.setAlignmentX(LEFT_ALIGNMENT);
 		sampleHandPanel.add(handBGColorPanel);
@@ -986,9 +982,7 @@ public class SettingsDialog extends JDialog
 		JTree tree = new JTree(root);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		((DefaultTreeCellRenderer)tree.getCellRenderer()).setLeafIcon(null);
-		tree.addTreeSelectionListener((e) -> {
-			((CardLayout)settingsPanel.getLayout()).show(settingsPanel, e.getPath().toString());
-		});
+		tree.addTreeSelectionListener((e) -> ((CardLayout)settingsPanel.getLayout()).show(settingsPanel, e.getPath().toString()));
 		treePanel.add(tree, BorderLayout.CENTER);
 		treePanel.add(new JSeparator(SwingConstants.VERTICAL), BorderLayout.EAST);
 		treePanel.setPreferredSize(new Dimension(130, 0));
