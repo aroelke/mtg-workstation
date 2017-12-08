@@ -12,17 +12,7 @@ import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
@@ -362,7 +352,7 @@ public class InventoryLoadDialog extends JDialog
 					facesList.removeAll(otherFaces);
 					otherFaces.add(face);
 					cards.removeAll(otherFaces);
-					otherFaces.sort((a, b) -> faceNames.indexOf(a.unifiedName()) - faceNames.indexOf(b.unifiedName()));
+					otherFaces.sort(Comparator.comparingInt((a) -> faceNames.indexOf(a.unifiedName())));
 					switch (face.layout())
 					{
 					case SPLIT:

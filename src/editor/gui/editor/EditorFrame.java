@@ -133,7 +133,7 @@ public class EditorFrame extends JInternalFrame
 		/**
 		 * Sort categories in order of increasing card count.
 		 */
-		ASCENDING("Ascending Size", (d) -> (a, b) -> d.getCategoryList(a.getName()).total() - d.getCategoryList(b.getName()).total()),
+		ASCENDING("Ascending Size", (d) -> Comparator.comparingInt((a) -> d.getCategoryList(a.getName()).total())),
 		/**
 		 * Sort categories in order of decreasing card count.
 		 */
@@ -141,7 +141,7 @@ public class EditorFrame extends JInternalFrame
 		/**
 		 * Sort categories in order of increasing rank.
 		 */
-		PRIORITY("Increasing Rank", (d) -> (a, b) -> d.getCategoryRank(a.getName()) - d.getCategoryRank(b.getName())),
+		PRIORITY("Increasing Rank", (d) -> Comparator.comparingInt((a) -> d.getCategoryRank(a.getName()))),
 		/**
 		 * Sort categories in order of decreasing rank.
 		 */

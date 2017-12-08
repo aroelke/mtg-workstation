@@ -94,9 +94,9 @@ public class CardTable extends JTable
 				switch (data)
 				{
 				case MANA_COST:
-					return (a, b) -> CollectionUtils.convertToList(a, ManaCost.class).get(0).compareTo(CollectionUtils.convertToList(b, ManaCost.class).get(0));
+					return Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0));
 				case CMC:
-					return (a, b) -> Double.compare(Collections.min(CollectionUtils.convertToList(a, Double.class)), Collections.min(CollectionUtils.convertToList(b, Double.class)));
+					return Comparator.comparingDouble((a) -> Collections.min(CollectionUtils.convertToList(a, Double.class)));
 				case COLORS: case COLOR_IDENTITY:
 					return (a, b) -> {
 						List<ManaType> first = CollectionUtils.convertToList(a, ManaType.class);
@@ -137,8 +137,8 @@ public class CardTable extends JTable
 					return (a, b) -> {
 						List<CategorySpec> first = new ArrayList<CategorySpec>(CollectionUtils.convertToSet(a, CategorySpec.class));
 						List<CategorySpec> second = new ArrayList<CategorySpec>(CollectionUtils.convertToSet(b, CategorySpec.class));
-						first.sort((c, d) -> c.getName().compareTo(d.getName()));
-						second.sort((c, d) -> c.getName().compareTo(d.getName()));
+						first.sort(Comparator.comparing(CategorySpec::getName));
+						second.sort(Comparator.comparing(CategorySpec::getName));
 						for (int i = 0; i < Math.min(first.size(), second.size()); i++)
 						{
 							int diff = first.get(i).getName().compareTo(second.get(i).getName());

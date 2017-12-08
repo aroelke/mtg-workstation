@@ -5,10 +5,7 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -97,7 +94,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
 				break;
 			case CATEGORIES:
 				List<CategorySpec> categories = new ArrayList<CategorySpec>(CollectionUtils.convertToSet(value, CategorySpec.class));
-				categories.sort((a, b) -> a.getName().compareTo(b.getName()));
+				categories.sort(Comparator.comparing(CategorySpec::getName));
 				panel = new JPanel()
 				{
 					@Override

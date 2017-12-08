@@ -1,11 +1,6 @@
 package editor.collection;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.Deck;
@@ -194,7 +189,7 @@ public class LegalityChecker
 		HashMap<ManaType, List<Card>> colorBins = new HashMap<ManaType, List<Card>>();
 		for (ManaType color: ManaType.values())
 			colorBins.put(color, new ArrayList<Card>());
-		for (Card c: deck.stream().sorted((a, b) -> a.colors().size() - b.colors().size()).collect(Collectors.toList()))
+		for (Card c: deck.stream().sorted(Comparator.comparingInt((a) -> a.colors().size())).collect(Collectors.toList()))
 			for (int i = 0; i < deck.getData(c).count(); i++)
 				binCard(c, colorBins, new ArrayList<ManaType>());
 		for (ManaType bin: colorBins.keySet())
