@@ -97,7 +97,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
 				break;
 			case CATEGORIES:
 				List<CategorySpec> categories = new ArrayList<CategorySpec>(CollectionUtils.convertToSet(value, CategorySpec.class));
-				Collections.sort(categories, (a, b) -> a.getName().compareTo(b.getName()));
+				categories.sort((a, b) -> a.getName().compareTo(b.getName()));
 				panel = new JPanel()
 				{
 					@Override

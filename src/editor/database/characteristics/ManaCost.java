@@ -266,9 +266,9 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 			if (diff == 0)
 			{
 				List<Double> weightList = new ArrayList<Double>(weights.values());
-				Collections.sort(weightList, Double::compareTo);
+				weightList.sort(Double::compareTo);
 				List<Double> oWeightList = new ArrayList<Double>(o.weights.values());
-				Collections.sort(oWeightList, Double::compareTo);
+				oWeightList.sort(Double::compareTo);
 				for (int i = 0; i < ManaType.values().length; i++)
 					diff += (weightList.get(i) - oWeightList.get(i))*Math.pow(10, i);	
 			}
