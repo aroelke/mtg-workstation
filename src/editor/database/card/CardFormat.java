@@ -125,7 +125,7 @@ public class CardFormat
 			case CMC:
 				pattern = pattern.replace(replacement, String.join(' ' + Card.FACE_SEPARATOR + ' ',
 						CollectionUtils.convertToList(card.get(type), Double.class).stream().map((n) -> {
-							if (n.doubleValue() == n.intValue())
+							if (n == n.intValue())
 								return Integer.toString(n.intValue());
 							else
 								return n.toString();

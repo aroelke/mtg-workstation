@@ -565,7 +565,7 @@ public class CalculateHandPanel extends JPanel
 			JComboBox<Integer> desiredBox = new JComboBox<Integer>();
 			for (int i = 0; i <= deck.getCategoryList(category).total(); i++)
 				desiredBox.addItem(i);
-			if (oldDesired.containsKey(category) && oldDesired.get(category).intValue() < deck.getCategoryList(category).total())
+			if (oldDesired.containsKey(category) && oldDesired.get(category) < deck.getCategoryList(category).total())
 				desiredBox.setSelectedIndex(oldDesired.get(category));
 			desiredBox.addActionListener((e) -> recalculate());
 			desiredBoxes.put(category, desiredBox);
