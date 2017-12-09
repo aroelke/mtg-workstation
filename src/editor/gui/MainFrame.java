@@ -626,7 +626,7 @@ public class MainFrame extends JFrame
 							List<String> lines = Files.readAllLines(importChooser.getSelectedFile().toPath());
 							if (includeCheckBox.isSelected())
 							{
-								String[] columns = lines.remove(0).split(delimiterBox.getSelectedItem().toString());
+								String[] columns = lines.remove(0).split(String.valueOf(delimiterBox.getSelectedItem()));
 								String[][] data = lines.stream().map((s) -> DelimitedCardListFormat.split(delimiterBox.getSelectedItem().toString(), s)).toArray(String[][]::new);
 								model.setDataVector(data, columns);
 							}
@@ -635,7 +635,7 @@ public class MainFrame extends JFrame
 								CardData[] columns = new CardData[selectedHeadersModel.size()];
 								for (int i = 0; i < selectedHeadersModel.size(); i++)
 									columns[i] = selectedHeadersModel.getElementAt(i);
-								String[][] data = lines.stream().map((s) -> DelimitedCardListFormat.split(delimiterBox.getSelectedItem().toString(), s)).toArray(String[][]::new);
+								String[][] data = lines.stream().map((s) -> DelimitedCardListFormat.split(String.valueOf(delimiterBox.getSelectedItem()), s)).toArray(String[][]::new);
 								model.setDataVector(data, columns);
 							}
 							previewTable.setModel(model);
@@ -658,7 +658,7 @@ public class MainFrame extends JFrame
 						List<CardData> selected = new ArrayList<>(selectedHeadersModel.size());
 						for (int i = 0; i < selectedHeadersModel.size(); i++)
 							selected.add(selectedHeadersModel.getElementAt(i));
-						format = new DelimitedCardListFormat(delimiterBox.getSelectedItem().toString(), selected, !includeCheckBox.isSelected());
+						format = new DelimitedCardListFormat(String.valueOf(delimiterBox.getSelectedItem()), selected, !includeCheckBox.isSelected());
 					}
 					else
 						return;
@@ -734,7 +734,7 @@ public class MainFrame extends JFrame
 							
 							addDataBox.addActionListener((v) -> {
 								int pos = formatField.getCaretPosition();
-								String data = '{' + addDataBox.getSelectedItem().toString().toLowerCase() + '}';
+								String data = '{' + String.valueOf(addDataBox.getSelectedItem()).toLowerCase() + '}';
 								String t = formatField.getText().substring(0, pos) + data;
 								if (pos < formatField.getText().length())
 									t += formatField.getText().substring(formatField.getCaretPosition());
@@ -863,7 +863,7 @@ public class MainFrame extends JFrame
 							List<CardData> selected = new ArrayList<>(selectedHeadersModel.size());
 							for (int i = 0; i < selectedHeadersModel.size(); i++)
 								selected.add(selectedHeadersModel.getElementAt(i));
-							format = new DelimitedCardListFormat(delimiterBox.getSelectedItem().toString(), selected, includeCheckBox.isSelected());
+							format = new DelimitedCardListFormat(String.valueOf(delimiterBox.getSelectedItem()), selected, includeCheckBox.isSelected());
 						}
 						else
 							return;
