@@ -191,7 +191,6 @@ public enum ManaType
 	 * @param other ManaType to compare to
 	 * @return a negative number if this ManaType should come first, 0 if they are the same,
 	 * or a positive number if it should come after.
-	 * @see #compareTo(ManaType)
 	 */
 	public int colorOrder(ManaType other)
 	{
