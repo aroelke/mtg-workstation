@@ -228,7 +228,7 @@ public abstract class FilterFactory
 		case TAGS:
 			return new TagsFilter();
 		case DEFAULTS:
-			return null;
+			return new BinaryFilter(true);
 		case NONE:
 			return new BinaryFilter(false);
 		case ALL:
