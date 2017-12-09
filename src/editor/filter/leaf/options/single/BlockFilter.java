@@ -31,7 +31,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
 	{
 		BlockFilter filter = (BlockFilter)FilterFactory.createFilter(FilterFactory.BLOCK);
 		filter.contain = contain;
-		filter.selected = new HashSet<String>(selected);
+		filter.selected = new HashSet<>(selected);
 		return filter;
 	}
 }

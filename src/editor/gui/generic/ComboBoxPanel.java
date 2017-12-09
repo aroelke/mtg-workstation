@@ -35,7 +35,7 @@ public class ComboBoxPanel<E> extends JPanel
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		add(Box.createVerticalGlue());
-		options = new JComboBox<E>(items);
+		options = new JComboBox<>(items);
 		options.setMaximumSize(options.getPreferredSize());
 		add(options);
 		add(Box.createVerticalGlue());

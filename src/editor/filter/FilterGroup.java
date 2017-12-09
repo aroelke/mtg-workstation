@@ -91,7 +91,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 	public FilterGroup()
 	{
 		super(FilterFactory.GROUP);
-		children = new ArrayList<Filter>();
+		children = new ArrayList<>();
 		mode = Mode.AND;
 	}
 	
@@ -150,7 +150,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 			return false;
 		if (children.size() != o.children.size())
 			return false;
-		List<Filter> otherChildren = new ArrayList<Filter>(o.children);
+		List<Filter> otherChildren = new ArrayList<>(o.children);
 		for (Filter child: children)
 			otherChildren.remove(child);
 		return otherChildren.isEmpty();

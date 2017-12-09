@@ -748,8 +748,8 @@ public class EditorFrame extends JInternalFrame
 		parent = p;
 		file = null;
 		unsaved = false;
-		undoBuffer = new Stack<Deck.Event>();
-		redoBuffer = new Stack<Deck.Event>();
+		undoBuffer = new Stack<>();
+		redoBuffer = new Stack<>();
 		startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
 		opening = false;
 		undoing = false;
@@ -784,8 +784,8 @@ public class EditorFrame extends JInternalFrame
 		mainDeckPanel.add(mainDeckPane, BorderLayout.CENTER);
 
 		VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		deckButtons.get("+").addActionListener((e) -> deck.current.addAll(new HashSet<Card>(parent.getSelectedCards())));
-		deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(parent.getSelectedCards())));
+		deckButtons.get("+").addActionListener((e) -> deck.current.addAll(new HashSet<>(parent.getSelectedCards())));
+		deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<>(parent.getSelectedCards())));
 		deckButtons.get("X").addActionListener((e) -> deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
 		mainDeckPanel.add(deckButtons, BorderLayout.WEST);
 		mainPanel.add(mainDeckPanel, BorderLayout.CENTER);
@@ -801,8 +801,8 @@ public class EditorFrame extends JInternalFrame
 		sideboardPanel.add(showHidePanel, BorderLayout.NORTH);
 		
 		VerticalButtonList sideboardButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		sideboardButtons.get("+").addActionListener((e) -> sideboard.current.addAll(new HashSet<Card>(parent.getSelectedCards())));
-		sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> sideboard.current.removeAll(new HashSet<Card>(parent.getSelectedCards())));
+		sideboardButtons.get("+").addActionListener((e) -> sideboard.current.addAll(new HashSet<>(parent.getSelectedCards())));
+		sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> sideboard.current.removeAll(new HashSet<>(parent.getSelectedCards())));
 		sideboardButtons.get("X").addActionListener((e) -> sideboard.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
 		sideboardPanel.add(sideboardButtons, BorderLayout.WEST);
 		
@@ -864,8 +864,8 @@ public class EditorFrame extends JInternalFrame
 		JMenuItem moveToSideboardItem = new JMenuItem("Move to Sideboard");
 		moveToSideboardItem.addActionListener((e) -> {
 			List<Card> selected = parent.getSelectedCards();
-			deck.current.removeAll(new HashSet<Card>(selected));
-			sideboard.current.addAll(new HashSet<Card>(selected));
+			deck.current.removeAll(new HashSet<>(selected));
+			sideboard.current.addAll(new HashSet<>(selected));
 		});
 		tableMenu.add(moveToSideboardItem);
 		JMenuItem moveAllToSideboardItem = new JMenuItem("Move All to Sideboard");
@@ -924,7 +924,7 @@ public class EditorFrame extends JInternalFrame
 		// Move cards to main deck
 		JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
 		moveToMainItem.addActionListener((e) -> {
-			Set<Card> selected = new HashSet<Card>(parent.getSelectedCards());
+			Set<Card> selected = new HashSet<>(parent.getSelectedCards());
 			sideboard.current.removeAll(selected);
 			deck.current.addAll(selected);
 		});
@@ -971,7 +971,7 @@ public class EditorFrame extends JInternalFrame
 		// Combo box to change category sort order
 		JPanel sortCategoriesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		sortCategoriesPanel.add(new JLabel("Display order:"));
-		sortCategoriesBox = new JComboBox<CategoryOrder>(CategoryOrder.values());
+		sortCategoriesBox = new JComboBox<>(CategoryOrder.values());
 		sortCategoriesBox.addActionListener((e) -> {
 			if (sortCategoriesBox.isPopupVisible())
 			{
@@ -984,7 +984,7 @@ public class EditorFrame extends JInternalFrame
 		
 		// Combo box to switch to a different category
 		JPanel switchCategoryPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		switchCategoryBox = new JComboBox<String>(switchCategoryModel = new DefaultComboBoxModel<String>());
+		switchCategoryBox = new JComboBox<>(switchCategoryModel = new DefaultComboBoxModel<>());
 		switchCategoryBox.setEnabled(false);
 		switchCategoryBox.addActionListener((e) -> {
 			if (switchCategoryBox.isPopupVisible())
@@ -1006,7 +1006,7 @@ public class EditorFrame extends JInternalFrame
 		JPanel categoriesSuperContainer = new ScrollablePanel(new BorderLayout(), ScrollablePanel.TRACK_WIDTH);
 		categoriesContainer = new JPanel();
 		categoriesContainer.setLayout(new BoxLayout(categoriesContainer, BoxLayout.Y_AXIS));
-		categoryPanels = new ArrayList<CategoryPanel>();
+		categoryPanels = new ArrayList<>();
 		
 		// The category panel is a vertically-scrollable panel that contains all categories stacked vertically
 		// The categories should have a constant height, but fit the container horizontally
@@ -1014,8 +1014,8 @@ public class EditorFrame extends JInternalFrame
 		categoriesMainPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		
 		VerticalButtonList categoryButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-		categoryButtons.get("+").addActionListener((e) -> deck.current.addAll(new HashSet<Card>(parent.getSelectedCards())));
-		categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<Card>(parent.getSelectedCards())));
+		categoryButtons.get("+").addActionListener((e) -> deck.current.addAll(new HashSet<>(parent.getSelectedCards())));
+		categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> deck.current.removeAll(new HashSet<>(parent.getSelectedCards())));
 		categoryButtons.get("X").addActionListener((e) -> deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
 		categoriesPanel.add(categoryButtons, BorderLayout.WEST);
 		
@@ -1087,8 +1087,8 @@ public class EditorFrame extends JInternalFrame
 			JPanel excludePanel = new JPanel();
 			excludePanel.setLayout(new BoxLayout(excludePanel, BoxLayout.X_AXIS));
 			
-			DefaultListModel<Card> excludeModel = new DefaultListModel<Card>();
-			JList<Card> exclude = new JList<Card>(excludeModel);
+			DefaultListModel<Card> excludeModel = new DefaultListModel<>();
+			JList<Card> exclude = new JList<>(excludeModel);
 			excludePanel.add(new JScrollPane(exclude));
 			
 			JPanel excludeButtonPanel = new JPanel();
@@ -1797,7 +1797,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				if (action.getSource() == sideboard.current)
 					throw new IllegalStateException("the sideboard can't have categories");
-				List<String> categories = new ArrayList<String>(action.oldRanks().keySet());
+				List<String> categories = new ArrayList<>(action.oldRanks().keySet());
 				action.getSource().swapCategoryRanks(categories.get(0), action.oldRanks().get(categories.get(1)));
 			}
 			undoBuffer.push(action);
@@ -1953,7 +1953,7 @@ public class EditorFrame extends JInternalFrame
 			{
 				if (action.getSource() == sideboard.current)
 					throw new IllegalStateException("the sideboard can't have categories");
-				List<String> categories = new ArrayList<String>(action.oldRanks().keySet());
+				List<String> categories = new ArrayList<>(action.oldRanks().keySet());
 				action.getSource().swapCategoryRanks(categories.get(0), action.oldRanks().get(categories.get(0)));
 			}
 			redoBuffer.push(action);
@@ -1987,7 +1987,7 @@ public class EditorFrame extends JInternalFrame
 		else
 		{
 			switchCategoryBox.setEnabled(true);
-			List<CategorySpec> categories = new ArrayList<CategorySpec>(deck.current.categories());
+			List<CategorySpec> categories = new ArrayList<>(deck.current.categories());
 			categories.sort((a, b) -> sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()).compare(deck.current, a, b));
 			
 			for (CategorySpec c: categories)
@@ -2021,7 +2021,7 @@ public class EditorFrame extends JInternalFrame
 			avgCMCLabel.setText(String.format("Average CMC: %.2f", avgCMC));
 		
 		double medCMC = 0.0;
-		List<Double> cmc = new ArrayList<Double>();
+		List<Double> cmc = new ArrayList<>();
 		for (Card card: deck.current)
 			if (!card.typeContains("land"))
 				for (int i = 0; i < deck.current.getData(card).count(); i++)

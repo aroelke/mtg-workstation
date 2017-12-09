@@ -38,7 +38,7 @@ public class CardTypeFilter extends MultiOptionsFilter<String>
 	{
 		CardTypeFilter filter = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
 		filter.contain = contain;
-		filter.selected = new HashSet<String>(selected);
+		filter.selected = new HashSet<>(selected);
 		return filter;
 	}
 }

@@ -65,7 +65,7 @@ public class CardTagPanel extends ScrollablePanel
 		super(TRACK_WIDTH);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBackground(Color.WHITE);
-		tagBoxes = new ArrayList<TristateCheckBox>();
+		tagBoxes = new ArrayList<>();
 		cards = coll;
 		preferredViewportHeight = 0;
 
@@ -125,13 +125,13 @@ public class CardTagPanel extends ScrollablePanel
 	 */
 	public Map<Card, Set<String>> getTagged()
 	{
-		Map<Card, Set<String>> tagged = new HashMap<Card, Set<String>>();
+		Map<Card, Set<String>> tagged = new HashMap<>();
 		for (Card card: cards)
 			for (TristateCheckBox tagBox: tagBoxes)
 				if (tagBox.getState() == TristateCheckBox.STATE_SELECTED)
 					tagged.compute(card, (k, v) -> {
 						if (v == null)
-							v = new HashSet<String>();
+							v = new HashSet<>();
 						v.add(tagBox.getText());
 						return v;
 					});
@@ -145,13 +145,13 @@ public class CardTagPanel extends ScrollablePanel
 	 */
 	public Map<Card, Set<String>> getUntagged()
 	{
-		Map<Card, Set<String>> untagged = new HashMap<Card, Set<String>>();
+		Map<Card, Set<String>> untagged = new HashMap<>();
 		for (Card card: cards)
 			for (TristateCheckBox tagBox: tagBoxes)
 				if (tagBox.getState() == TristateCheckBox.STATE_UNSELECTED)
 					untagged.compute(card, (k, v) -> {
 						if (v == null)
-							v = new HashSet<String>();
+							v = new HashSet<>();
 						v.add(tagBox.getText());
 						return v;
 					});

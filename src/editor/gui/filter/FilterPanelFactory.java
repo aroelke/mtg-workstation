@@ -55,7 +55,7 @@ public interface FilterPanelFactory
 		case FilterFactory.NAME: case FilterFactory.RULES_TEXT: case FilterFactory.FLAVOR_TEXT: case FilterFactory.ARTIST:
 			return new TextFilterPanel((TextFilter)filter);
 		case FilterFactory.LAYOUT:
-			return new OptionsFilterPanel<CardLayout>((LayoutFilter)filter, CardLayout.values());
+			return new OptionsFilterPanel<>((LayoutFilter)filter, CardLayout.values());
 		case FilterFactory.MANA_COST:
 			return new ManaCostFilterPanel((ManaCostFilter)filter);
 		case FilterFactory.CMC: case FilterFactory.CARD_NUMBER:
@@ -65,23 +65,23 @@ public interface FilterPanelFactory
 		case FilterFactory.TYPE_LINE:
 			return new TypeLineFilterPanel((TypeLineFilter)filter);
 		case FilterFactory.SUPERTYPE:
-			return new OptionsFilterPanel<String>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
+			return new OptionsFilterPanel<>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
 		case FilterFactory.TYPE:
-			return new OptionsFilterPanel<String>((CardTypeFilter)filter, CardTypeFilter.typeList);
+			return new OptionsFilterPanel<>((CardTypeFilter)filter, CardTypeFilter.typeList);
 		case FilterFactory.SUBTYPE:
-			return new OptionsFilterPanel<String>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
+			return new OptionsFilterPanel<>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
 		case FilterFactory.EXPANSION:
-			return new OptionsFilterPanel<Expansion>((ExpansionFilter)filter, Expansion.expansions);
+			return new OptionsFilterPanel<>((ExpansionFilter)filter, Expansion.expansions);
 		case FilterFactory.BLOCK:
-			return new OptionsFilterPanel<String>((BlockFilter)filter, Expansion.blocks);
+			return new OptionsFilterPanel<>((BlockFilter)filter, Expansion.blocks);
 		case FilterFactory.RARITY:
-			return new OptionsFilterPanel<Rarity>((RarityFilter)filter, Rarity.values());
+			return new OptionsFilterPanel<>((RarityFilter)filter, Rarity.values());
 		case FilterFactory.POWER: case FilterFactory.TOUGHNESS: case FilterFactory.LOYALTY:
 			return new VariableNumberFilterPanel((VariableNumberFilter)filter);
 		case FilterFactory.FORMAT_LEGALITY:
 			return new LegalityFilterPanel((LegalityFilter)filter);
 		case FilterFactory.TAGS:
-			return new OptionsFilterPanel<String>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
+			return new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
 		case FilterFactory.DEFAULTS:
 			return new DefaultsFilterPanel();
 		case FilterFactory.NONE:

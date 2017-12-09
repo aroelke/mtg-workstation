@@ -52,7 +52,7 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
-		contain = new ComboBoxPanel<Containment>(Containment.values());
+		contain = new ComboBoxPanel<>(Containment.values());
 		add(contain);
 		
 		text = new JTextField();

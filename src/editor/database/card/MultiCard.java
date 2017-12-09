@@ -143,48 +143,48 @@ public abstract class MultiCard extends Card
 			if (face.faces() > 1)
 				throw new IllegalArgumentException("Only normal, single-faced cards can be joined into a multi-faced card");
 		
-		name = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::name)));
-		manaCost = new Lazy<List<ManaCost>>(() -> Collections.unmodifiableList(collect(Card::manaCost)));
-		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(collect(Card::cmc)));
-		colors = new Lazy<List<ManaType>>(() -> {
-			Set<ManaType> cols = new HashSet<ManaType>();
-			for (Card face: faces)
+		name = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::name)));
+		manaCost = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::manaCost)));
+		cmc = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::cmc)));
+		colors = new Lazy<>(() -> {
+			Set<ManaType> cols = new HashSet<>();
+			for (Card face : faces)
 				cols.addAll(face.colors());
-			List<ManaType> sorted = new ArrayList<ManaType>(cols);
+			List<ManaType> sorted = new ArrayList<>(cols);
 			ManaType.sort(sorted);
 			return Collections.unmodifiableList(sorted);
 		});
-		colorIdentity = new Lazy<List<ManaType>>(() -> {
-			Set<ManaType> colors = new HashSet<ManaType>();
+		colorIdentity = new Lazy<>(() -> {
+			Set<ManaType> colors = new HashSet<>();
 			for (Card face: faces)
 				colors.addAll(face.colorIdentity());
-			List<ManaType> sorted = new ArrayList<ManaType>(colors);
+			List<ManaType> sorted = new ArrayList<>(colors);
 			ManaType.sort(sorted);
 			return Collections.unmodifiableList(sorted);
 		});
-		supertypes = new Lazy<Set<String>>(() -> {
-			Set<String> s = new HashSet<String>();
+		supertypes = new Lazy<>(() -> {
+			Set<String> s = new HashSet<>();
 			for (Card face: faces)
 				s.addAll(face.supertypes());
 			return Collections.unmodifiableSet(s);
 		});
-		types = new Lazy<Set<String>>(() -> {
-			Set<String> t = new HashSet<String>();
+		types = new Lazy<>(() -> {
+			Set<String> t = new HashSet<>();
 			for (Card face: faces)
 				t.addAll(face.types());
 			return Collections.unmodifiableSet(t);
 		});
-		subtypes = new Lazy<Set<String>>(() -> {
-			Set<String> s = new HashSet<String>();
+		subtypes = new Lazy<>(() -> {
+			Set<String> s = new HashSet<>();
 			for (Card face: faces)
 				s.addAll(face.subtypes());
 			return Collections.unmodifiableSet(s);
 		});
-		allTypes = new Lazy<List<Set<String>>>(() -> {
-			List<Set<String>> a = new ArrayList<Set<String>>();
+		allTypes = new Lazy<>(() -> {
+			List<Set<String>> a = new ArrayList<>();
 			for (Card face: faces)
 			{
-				Set<String> faceTypes = new HashSet<String>();
+				Set<String> faceTypes = new HashSet<>();
 				faceTypes.addAll(face.supertypes());
 				faceTypes.addAll(face.types());
 				faceTypes.addAll(face.subtypes());
@@ -192,25 +192,25 @@ public abstract class MultiCard extends Card
 			}
 			return Collections.unmodifiableList(a);
 		});
-		typeLine = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::typeLine)));
-		oracleText = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::oracleText)));
-		flavorText = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::flavorText)));
-		artist = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::artist)));
-		number = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::number)));
-		power = new Lazy<List<CombatStat>>(() -> Collections.unmodifiableList(collect(Card::power)));
-		toughness = new Lazy<List<CombatStat>>(() -> Collections.unmodifiableList(collect(Card::toughness)));
-		loyalty = new Lazy<List<Loyalty>>(() -> Collections.unmodifiableList(collect(Card::loyalty)));
-		rulings = new Lazy<Map<Date, List<String>>>(() -> Collections.unmodifiableMap(faces.stream().map(Card::rulings).reduce(new TreeMap<Date, List<String>>(), (a, b) -> {
-				for (Date k: b.keySet())
-				{
-					if (!a.containsKey(k))
-						a.put(k, new ArrayList<String>());
-					a.get(k).addAll(b.get(k));
-				}
-				return a;
-			})));
-		imageNames = new Lazy<List<String>>(() -> Collections.unmodifiableList(collect(Card::imageNames)));
-		multiverseid = new Lazy<List<Integer>>(() -> Collections.unmodifiableList(collect(Card::multiverseid)));
+		typeLine = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::typeLine)));
+		oracleText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::oracleText)));
+		flavorText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::flavorText)));
+		artist = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::artist)));
+		number = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::number)));
+		power = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::power)));
+		toughness = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::toughness)));
+		loyalty = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::loyalty)));
+		rulings = new Lazy<>(() -> Collections.unmodifiableMap(faces.stream().map(Card::rulings).reduce(new TreeMap<>(), (a, b) -> {
+			for (Date k: b.keySet())
+			{
+				if (!a.containsKey(k))
+					a.put(k, new ArrayList<>());
+				a.get(k).addAll(b.get(k));
+			}
+			return a;
+		})));
+		imageNames = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::imageNames)));
+		multiverseid = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::multiverseid)));
 		isLand = faces.get(0).isLand();
 	}
 	

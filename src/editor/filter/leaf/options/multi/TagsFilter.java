@@ -32,7 +32,7 @@ public class TagsFilter extends MultiOptionsFilter<String>
 	{
 		TagsFilter filter = (TagsFilter)FilterFactory.createFilter(FilterFactory.TAGS);
 		filter.contain = contain;
-		filter.selected = new HashSet<String>(selected);
+		filter.selected = new HashSet<>(selected);
 		return filter;
 	}
 }

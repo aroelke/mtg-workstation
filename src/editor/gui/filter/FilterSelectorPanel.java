@@ -47,11 +47,11 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
 		// Filter type selector
-		filterTypes = new ComboBoxPanel<String>(FilterFactory.FILTER_TYPES.values().toArray(new String[0]));
+		filterTypes = new ComboBoxPanel<>(FilterFactory.FILTER_TYPES.values().toArray(new String[0]));
 		add(filterTypes);
 
 		// Panel containing each editor panel
-		filterPanels = new HashMap<String, FilterEditorPanel<?>>();
+		filterPanels = new HashMap<>();
 		filtersPanel = new JPanel(new CardLayout());
 		add(filtersPanel);
 		for (Map.Entry<String, String> e: FilterFactory.FILTER_TYPES.entrySet())

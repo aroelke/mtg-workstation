@@ -136,7 +136,7 @@ public class DelimitedCardListFormat implements CardListFormat
 		if (!include)
 		{
 			String[] headers = lines.get(0).split(delimiter);
-			types = new ArrayList<CardData>(headers.length);
+			types = new ArrayList<>(headers.length);
 			for (String header: headers)
 			{
 				boolean success = false;

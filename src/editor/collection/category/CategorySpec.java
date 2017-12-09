@@ -182,11 +182,11 @@ public class CategorySpec implements Externalizable
 	public CategorySpec(CategorySpec original)
 	{
 		name = original.name;
-		whitelist = new HashSet<Card>(original.whitelist);
-		blacklist = new HashSet<Card>(original.blacklist);
+		whitelist = new HashSet<>(original.whitelist);
+		blacklist = new HashSet<>(original.blacklist);
 		color = original.color;
 		filter = original.filter.copy();
-		listeners = new HashSet<CategoryListener>();
+		listeners = new HashSet<>();
 	}
 	
 	/**
@@ -201,11 +201,11 @@ public class CategorySpec implements Externalizable
 	public CategorySpec(String name, Collection<Card> whitelist, Collection<Card> blacklist, Color color, Filter filter)
 	{
 		this.name = name;
-		this.whitelist = new HashSet<Card>(whitelist);
-		this.blacklist = new HashSet<Card>(blacklist);
+		this.whitelist = new HashSet<>(whitelist);
+		this.blacklist = new HashSet<>(blacklist);
 		this.color = color;
 		this.filter = filter;
-		listeners = new HashSet<CategoryListener>();
+		listeners = new HashSet<>();
 	}
 	
 	/**
@@ -218,7 +218,7 @@ public class CategorySpec implements Externalizable
 	 */
 	public CategorySpec(String name, Color color, Filter filter)
 	{
-		this(name, new HashSet<Card>(), new HashSet<Card>(), color, filter);
+		this(name, new HashSet<>(), new HashSet<>(), color, filter);
 	}
 	
 	/**
@@ -309,7 +309,7 @@ public class CategorySpec implements Externalizable
 	 */
 	public Set<Card> getBlacklist()
 	{
-		return new HashSet<Card>(blacklist);
+		return new HashSet<>(blacklist);
 	}
 	
 	/**
@@ -350,7 +350,7 @@ public class CategorySpec implements Externalizable
 	 */
 	public Set<Card> getWhitelist()
 	{
-		return new HashSet<Card>(whitelist);
+		return new HashSet<>(whitelist);
 	}
 	
 	@Override

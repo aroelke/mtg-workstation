@@ -78,7 +78,7 @@ public class CardMenuItems extends AbstractList<JMenuItem>
 			CardList l = list.get();
 			if (l != null)
 			{
-				Map<Card, Integer> toAdd = new HashMap<Card, Integer>();
+				Map<Card, Integer> toAdd = new HashMap<>();
 				for (Card c: cards.get())
 				{
 					if (l.contains(c))

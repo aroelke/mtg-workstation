@@ -36,7 +36,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
 	{
 		ExpansionFilter filter = (ExpansionFilter)FilterFactory.createFilter(FilterFactory.EXPANSION);
 		filter.contain = contain;
-		filter.selected = new HashSet<Expansion>(selected);
+		filter.selected = new HashSet<>(selected);
 		return filter;
 	}
 }

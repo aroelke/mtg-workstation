@@ -27,7 +27,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
 	{
 		RarityFilter filter = (RarityFilter)FilterFactory.createFilter(FilterFactory.RARITY);
 		filter.contain = contain;
-		filter.selected = new HashSet<Rarity>(selected);
+		filter.selected = new HashSet<>(selected);
 		return filter;
 	}
 

@@ -40,7 +40,7 @@ public class AftermathCard extends MultiCard
 		if (first.layout() != CardLayout.AFTERMATH || aftermath.layout() != CardLayout.AFTERMATH)
 			throw new IllegalArgumentException("can't join non-aftermath cards into aftermath cards");
 		
-		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(Collections.nCopies(2, first.cmc().get(0) + aftermath.cmc().get(0))));
+		cmc = new Lazy<>(() -> Collections.unmodifiableList(Collections.nCopies(2, first.cmc().get(0) + aftermath.cmc().get(0))));
 	}
 	
 	/**

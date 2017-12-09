@@ -42,7 +42,7 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
-		selected = new HashSet<T>();
+		selected = new HashSet<>();
 	}
 	
 	/**

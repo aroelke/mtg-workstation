@@ -44,9 +44,9 @@ public class LegalityChecker
 	{
 		legal = new String[] {};
 		illegal = new String[] {};
-		warnings = new HashMap<String, List<String>>();
+		warnings = new HashMap<>();
 		for (String format: LegalityFilter.formatList)
-			warnings.put(format, new ArrayList<String>());
+			warnings.put(format, new ArrayList<>());
 	}
 	
 	/**
@@ -128,7 +128,7 @@ public class LegalityChecker
 		}
 		
 		// Individual card legality and count
-		Map<Card, Integer> isoNameCounts = new HashMap<Card, Integer>();
+		Map<Card, Integer> isoNameCounts = new HashMap<>();
 		for (Card c: deck)
 		{
 			boolean counted = false;
@@ -174,11 +174,11 @@ public class LegalityChecker
 			warnings.get("Commander").add("Deck does not contain a legendary creature");
 		else
 		{
-			List<ManaType> deckColorIdentityList = new ArrayList<ManaType>();
+			List<ManaType> deckColorIdentityList = new ArrayList<>();
 			for (Card c: deck)
 				deckColorIdentityList.addAll(c.colors());
-			List<ManaType> deckColorIdentity = new ArrayList<ManaType>(deckColorIdentityList);
-			for (Card c: new ArrayList<Card>(possibleCommanders))
+			List<ManaType> deckColorIdentity = new ArrayList<>(deckColorIdentityList);
+			for (Card c: new ArrayList<>(possibleCommanders))
 				if (!c.colors().containsAll(deckColorIdentity))
 					possibleCommanders.remove(c);
 			if (possibleCommanders.isEmpty())
@@ -186,12 +186,12 @@ public class LegalityChecker
 		}
 		
 		// Prismatic only: there are at least 20 cards of each color, and multicolored cards only count once
-		HashMap<ManaType, List<Card>> colorBins = new HashMap<ManaType, List<Card>>();
+		HashMap<ManaType, List<Card>> colorBins = new HashMap<>();
 		for (ManaType color: ManaType.values())
-			colorBins.put(color, new ArrayList<Card>());
+			colorBins.put(color, new ArrayList<>());
 		for (Card c: deck.stream().sorted(Comparator.comparingInt((a) -> a.colors().size())).collect(Collectors.toList()))
 			for (int i = 0; i < deck.getData(c).count(); i++)
-				binCard(c, colorBins, new ArrayList<ManaType>());
+				binCard(c, colorBins, new ArrayList<>());
 		for (ManaType bin: colorBins.keySet())
 		{
 			System.out.println(bin + ": " + colorBins.get(bin).size());
@@ -205,7 +205,7 @@ public class LegalityChecker
 		// Collate the legality lists
 		List<String> illegalList = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
 		Collections.sort(illegalList);
-		List<String> legalList = new ArrayList<String>(Arrays.asList(LegalityFilter.formatList));
+		List<String> legalList = new ArrayList<>(Arrays.asList(LegalityFilter.formatList));
 		legalList.removeAll(illegalList);
 		legal = legalList.toArray(legal);
 		illegal = illegalList.toArray(illegal);

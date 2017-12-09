@@ -41,8 +41,8 @@ public class DoubleFacedCard extends MultiCard
 		if (front.layout() != CardLayout.DOUBLE_FACED|| b.layout() != CardLayout.DOUBLE_FACED)
 			throw new IllegalArgumentException("can't join non-double-faced cards into double-faced cards");
 		
-		manaCost = new Lazy<List<ManaCost>>(() -> Collections.unmodifiableList(Arrays.asList(front.manaCost().get(0), new ManaCost())));
-		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(Arrays.asList(front.cmc().get(0), front.cmc().get(0))));
+		manaCost = new Lazy<>(() -> Collections.unmodifiableList(Arrays.asList(front.manaCost().get(0), new ManaCost())));
+		cmc = new Lazy<>(() -> Collections.unmodifiableList(Arrays.asList(front.cmc().get(0), front.cmc().get(0))));
 	}
 	
 	/**

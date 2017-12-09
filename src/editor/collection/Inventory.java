@@ -181,7 +181,7 @@ public class Inventory implements CardList
 	 */
 	public Inventory()
 	{
-		this(new ArrayList<Card>());
+		this(new ArrayList<>());
 	}
 	
 	/**
@@ -191,7 +191,7 @@ public class Inventory implements CardList
 	 */
 	public Inventory(Collection<Card> list)
 	{
-		cards = new ArrayList<Card>(list);
+		cards = new ArrayList<>(list);
 		IDs = cards.stream().collect(Collectors.toMap(Card::id, Function.identity()));
 		filter = new CategorySpec("Displayed Inventory", Color.BLACK, new BinaryFilter(true));
 		filtrate = cards;

@@ -48,7 +48,7 @@ public class Hand implements CardList
 	 */
 	public Hand(Deck deck)
 	{
-		this(deck, new HashSet<Card>());
+		this(deck, new HashSet<>());
 	}
 	
 	/**
@@ -60,8 +60,8 @@ public class Hand implements CardList
 	public Hand(Deck deck, Set<Card> cards)
 	{
 		super();
-		hand = new ArrayList<Card>();
-		exclusion = new LinkedHashSet<Card>(cards);
+		hand = new ArrayList<>();
+		exclusion = new LinkedHashSet<>(cards);
 		inHand = 0;
 		this.deck = deck;
 		refresh();
@@ -188,7 +188,7 @@ public class Hand implements CardList
 	 */
 	public List<Card> excluded()
 	{
-		return new ArrayList<Card>(exclusion);
+		return new ArrayList<>(exclusion);
 	}
 	
 	@Override

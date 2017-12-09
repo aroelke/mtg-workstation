@@ -54,7 +54,7 @@ public class IncludeExcludePanel extends ScrollablePanel
 		super(TRACK_WIDTH);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBackground(Color.WHITE);
-		categoryBoxes = new HashMap<CategorySpec, TristateCheckBox>();
+		categoryBoxes = new HashMap<>();
 		cards = c;
 		preferredViewportHeight = 0;
 		
@@ -99,13 +99,13 @@ public class IncludeExcludePanel extends ScrollablePanel
 	 */
 	public Map<Card, Set<CategorySpec>> getIncluded()
 	{
-		Map<Card, Set<CategorySpec>> included = new HashMap<Card, Set<CategorySpec>>();
+		Map<Card, Set<CategorySpec>> included = new HashMap<>();
 		for (Card card: cards)
 			for (CategorySpec category: categoryBoxes.keySet())
 				if (categoryBoxes.get(category).getState() == TristateCheckBox.STATE_SELECTED && !category.includes(card))
 					included.compute(card, (k, v) -> {
 						if (v == null)
-							v = new HashSet<CategorySpec>();
+							v = new HashSet<>();
 						v.add(category);
 						return v;
 					});
@@ -121,13 +121,13 @@ public class IncludeExcludePanel extends ScrollablePanel
 	 */
 	public Map<Card, Set<CategorySpec>> getExcluded()
 	{
-		Map<Card, Set<CategorySpec>> excluded = new HashMap<Card, Set<CategorySpec>>();
+		Map<Card, Set<CategorySpec>> excluded = new HashMap<>();
 		for (Card card: cards)
 			for (CategorySpec category: categoryBoxes.keySet())
 				if (categoryBoxes.get(category).getState() == TristateCheckBox.STATE_UNSELECTED && category.includes(card))
 					excluded.compute(card, (k, v) -> {
 						if (v == null)
-							v = new HashSet<CategorySpec>();
+							v = new HashSet<>();
 						v.add(category);
 						return v;
 					});

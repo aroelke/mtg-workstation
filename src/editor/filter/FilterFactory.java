@@ -139,7 +139,7 @@ public abstract class FilterFactory
 	public static final String TYPE_LINE = "type";
 	static
 	{
-		Map<String, String> filterTypes = new LinkedHashMap<String, String>();
+		Map<String, String> filterTypes = new LinkedHashMap<>();
 		filterTypes.put(NAME, "Name");
 		filterTypes.put(LAYOUT, "Layout");
 		filterTypes.put(MANA_COST, "Mana Cost");

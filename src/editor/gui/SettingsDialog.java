@@ -178,7 +178,7 @@ public class SettingsDialog extends JDialog
 	/**
 	 * List of preset categories.
 	 */
-	private static final List<CategorySpec> PRESET_CATEGORIES = new ArrayList<CategorySpec>();
+	private static final List<CategorySpec> PRESET_CATEGORIES = new ArrayList<>();
 	/**
 	 * Global settings for the program.
 	 */
@@ -404,7 +404,7 @@ public class SettingsDialog extends JDialog
 	 */
 	public static void loadPresetCategories() throws IOException, ClassNotFoundException
 	{
-		List<CategorySpec> presets = new ArrayList<CategorySpec>();
+		List<CategorySpec> presets = new ArrayList<>();
 		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getAsString(EDITOR_PRESETS))))
 		{
 			int n = ois.readInt();
@@ -769,7 +769,7 @@ public class SettingsDialog extends JDialog
 		// Columns
 		JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
 		inventoryColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
-		inventoryColumnCheckBoxes = new ArrayList<JCheckBox>();
+		inventoryColumnCheckBoxes = new ArrayList<>();
 		for (CardData characteristic: CardData.inventoryValues())
 		{
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
@@ -898,7 +898,7 @@ public class SettingsDialog extends JDialog
 		// Editor table columns
 		JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
 		editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
-		editorColumnCheckBoxes = new ArrayList<JCheckBox>();
+		editorColumnCheckBoxes = new ArrayList<>();
 		for (CardData characteristic: CardData.values())
 		{
 			JCheckBox checkBox = new JCheckBox(characteristic.toString());
@@ -952,7 +952,7 @@ public class SettingsDialog extends JDialog
 		expectedRoundPanel.add(new JLabel("Expected Category Count Round Mode:"));
 		expectedRoundPanel.add(Box.createHorizontalStrut(5));
 		ButtonGroup roundGroup = new ButtonGroup();
-		modeButtons = new ArrayList<JRadioButton>();
+		modeButtons = new ArrayList<>();
 		for (String mode: CalculateHandPanel.ROUND_MODE.keySet().stream().sorted().collect(Collectors.toList()))
 		{
 			JRadioButton modeButton = new JRadioButton(mode);

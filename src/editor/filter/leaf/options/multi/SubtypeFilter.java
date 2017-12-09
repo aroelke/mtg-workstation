@@ -37,7 +37,7 @@ public class SubtypeFilter extends MultiOptionsFilter<String>
 	{
 		SubtypeFilter filter = (SubtypeFilter)FilterFactory.createFilter(FilterFactory.SUBTYPE);
 		filter.contain = contain;
-		filter.selected = new HashSet<String>(selected);
+		filter.selected = new HashSet<>(selected);
 		return filter;
 	}
 }

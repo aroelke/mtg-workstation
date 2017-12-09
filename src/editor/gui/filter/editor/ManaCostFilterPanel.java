@@ -40,7 +40,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
-		contain = new ComboBoxPanel<Containment>(Containment.values());
+		contain = new ComboBoxPanel<>(Containment.values());
 		add(contain);
 		cost = new JTextField();
 		cost.getDocument().addDocumentListener(new DocumentChangeListener()

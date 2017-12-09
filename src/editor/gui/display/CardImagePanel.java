@@ -136,8 +136,8 @@ public class CardImagePanel extends JPanel
 	{
 		super(null);
 		image = null;
-		toDownload = new LinkedBlockingQueue<Card>();
-		faceImages = new ArrayList<BufferedImage>();
+		toDownload = new LinkedBlockingQueue<>();
+		faceImages = new ArrayList<>();
 		new ImageDownloadWorker().execute();
 		setCard(c);
 	}

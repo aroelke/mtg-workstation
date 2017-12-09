@@ -30,7 +30,7 @@ public class FunctionalSymbol extends Symbol
 	public static final Map<String, FunctionalSymbol> SYMBOLS;
 	static
 	{
-		Map<String, FunctionalSymbol> symbols = new HashMap<String, FunctionalSymbol>();
+		Map<String, FunctionalSymbol> symbols = new HashMap<>();
 		// Chaos symbol.
 		symbols.put(CHAOS.toString(), CHAOS);
 		// Phyrexian phi symbol.

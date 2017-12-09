@@ -52,11 +52,11 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		// Containment options
-		contain = new ComboBoxPanel<Containment>(Containment.values());
+		contain = new ComboBoxPanel<>(Containment.values());
 		add(contain);
 		
 		// Check boxes for selecting colors
-		colors = new HashMap<ManaType, JCheckBox>();
+		colors = new HashMap<>();
 		for (ManaType color: ManaType.colors())
 		{
 			JCheckBox box = new JCheckBox();

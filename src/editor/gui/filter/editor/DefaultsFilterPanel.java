@@ -40,14 +40,14 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 		super();
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		
-		categories = new HashMap<String, CategorySpec>();
+		categories = new HashMap<>();
 		
 		List<CategorySpec> presets = SettingsDialog.getPresetCategories();
 		String[] names = presets.stream().map(CategorySpec::getName).toArray(String[]::new);
 		for (int i = 0; i < presets.size(); i++)
 			categories.put(names[i], presets.get(i));
 		
-		defaults = new ComboBoxPanel<String>(names);
+		defaults = new ComboBoxPanel<>(names);
 		add(defaults);
 	}
 	

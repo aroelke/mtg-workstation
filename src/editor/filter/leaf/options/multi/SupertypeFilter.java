@@ -37,7 +37,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
 	{
 		SupertypeFilter filter = (SupertypeFilter)FilterFactory.createFilter(FilterFactory.SUPERTYPE);
 		filter.contain = contain;
-		filter.selected = new HashSet<String>(selected);
+		filter.selected = new HashSet<>(selected);
 		return filter;
 	}
 }

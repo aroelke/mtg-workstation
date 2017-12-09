@@ -54,7 +54,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
 	{
 		super(t, f);
 		contain = Containment.CONTAINS_ANY_OF;
-		colors = new HashSet<ManaType>();
+		colors = new HashSet<>();
 		multicolored = false;
 	}
 
@@ -62,7 +62,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
 	public Filter copy()
 	{
 		ColorFilter filter = (ColorFilter)FilterFactory.createFilter(type());
-		filter.colors = new HashSet<ManaType>(colors);
+		filter.colors = new HashSet<>(colors);
 		filter.contain = contain;
 		filter.multicolored = multicolored;
 		return filter;

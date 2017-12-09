@@ -76,10 +76,10 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
 		case CONTAINS_NOT_ALL_OF:
 			return CONTAINS_ANY_OF.test(a, b) && !a.containsAll(b);
 		case CONTAINS_EXACTLY:
-			Map<Object, Integer> aMap = new HashMap<Object, Integer>();
+			Map<Object, Integer> aMap = new HashMap<>();
 			for (Object o: a)
 				aMap.compute(o, (k, v) -> v == null ? 1 : v + 1);
-			Map<Object, Integer> bMap = new HashMap<Object, Integer>();
+			Map<Object, Integer> bMap = new HashMap<>();
 			for (Object o: b)
 				bMap.compute(o, (k, v) -> v == null ? 1 : v + 1);
 			return aMap.equals(bMap);

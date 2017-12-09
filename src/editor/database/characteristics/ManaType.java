@@ -93,7 +93,7 @@ public enum ManaType
 	 */
 	public static void sort(List<ManaType> colors)
 	{
-		Map<ManaType, Integer> counts = new EnumMap<ManaType, Integer>(ManaType.class);
+		Map<ManaType, Integer> counts = new EnumMap<>(ManaType.class);
 		for (ManaType type: colors)
 			counts.compute(type, (k, v) -> v == null ? 1 : v + 1);
 		

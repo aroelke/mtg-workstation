@@ -48,7 +48,7 @@ public class LegalityPanel extends JPanel
 		listsPanel.add(legalPanel);
 
 		// Legal formats list.  Selection is disabled in this list
-		JList<String> legalList = new JList<String>(legality.legalFormats());
+		JList<String> legalList = new JList<>(legality.legalFormats());
 		legalList.setSelectionModel(new DefaultListSelectionModel() {
 			@Override
 			public int getSelectionMode()
@@ -70,7 +70,7 @@ public class LegalityPanel extends JPanel
 		listsPanel.add(illegalPanel);
 
 		// Illegal formats list.  Only one element can be selected at a time.
-		JList<String> illegalList = new JList<String>(legality.illegalFormats());
+		JList<String> illegalList = new JList<>(legality.illegalFormats());
 		illegalList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		illegalPanel.add(new JScrollPane(illegalList), BorderLayout.CENTER);
 

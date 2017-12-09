@@ -49,7 +49,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 		setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), BorderFactory.createEtchedBorder()));
 		setLayout(new BorderLayout());
 
-		children = new ArrayList<FilterPanel<?>>();
+		children = new ArrayList<>();
 
 		// Panel containing the mode selector and edit buttons
 		JPanel topPanel = new JPanel(new GridLayout(1, 2));
@@ -57,8 +57,8 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 
 		// Mode selection combo box
 		JPanel modePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		modeBox = new JComboBox<FilterGroup.Mode>();
-		modeBox.setModel(new DefaultComboBoxModel<FilterGroup.Mode>(FilterGroup.Mode.values()));
+		modeBox = new JComboBox<>();
+		modeBox.setModel(new DefaultComboBoxModel<>(FilterGroup.Mode.values()));
 		modePanel.add(modeBox);
 		topPanel.add(modePanel);
 

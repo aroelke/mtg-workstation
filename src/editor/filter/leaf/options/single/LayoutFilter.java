@@ -33,7 +33,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
 	{
 		LayoutFilter filter = (LayoutFilter)FilterFactory.createFilter(FilterFactory.LAYOUT);
 		filter.contain = contain;
-		filter.selected = new HashSet<CardLayout>(selected);
+		filter.selected = new HashSet<>(selected);
 		return filter;
 	}
 }

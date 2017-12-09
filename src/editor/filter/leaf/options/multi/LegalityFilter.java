@@ -51,7 +51,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 	{
 		LegalityFilter filter = (LegalityFilter)FilterFactory.createFilter(FilterFactory.FORMAT_LEGALITY);
 		filter.contain = contain;
-		filter.selected = new HashSet<String>(selected);
+		filter.selected = new HashSet<>(selected);
 		filter.restricted = restricted;
 		return filter;
 	}
@@ -94,7 +94,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
 			return false;
 		else if (restricted)
 		{
-			Collection<String> formats = new ArrayList<String>(c.legalIn());
+			Collection<String> formats = new ArrayList<>(c.legalIn());
 			formats.retainAll(selected);
 			for (String format: formats)
 				if (c.legality().get(format) != Legality.RESTRICTED)

@@ -223,7 +223,7 @@ public class SingleCard extends Card
 		ManaType.sort(colorIdentity);
 		this.colorIdentity = Collections.unmodifiableList(colorIdentity);
 
-		Set<String> faceTypes = new HashSet<String>();
+		Set<String> faceTypes = new HashSet<>();
 		faceTypes.addAll(supertypes);
 		faceTypes.addAll(types);
 		faceTypes.addAll(subtypes);

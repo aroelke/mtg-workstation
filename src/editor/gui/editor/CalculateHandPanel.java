@@ -305,7 +305,7 @@ public class CalculateHandPanel extends JPanel
 	
 	static
 	{
-		Map<String, Function<Double, String>> rounds = new HashMap<String, Function<Double, String>>();
+		Map<String, Function<Double, String>> rounds = new HashMap<>();
 		rounds.put("No rounding", (x) -> String.format("%.2f", x));
 		rounds.put("Round to nearest", (x) -> String.format("%d", Math.round(x)));
 		rounds.put("Truncate", (x) -> String.format("%d", x.intValue()));
@@ -405,10 +405,10 @@ public class CalculateHandPanel extends JPanel
 		
 		// Parameter initialization
 		deck = d;
-		desiredBoxes = new HashMap<String, JComboBox<Integer>>();
-		relationBoxes = new HashMap<String, JComboBox<Relation>>();
-		probabilities = new HashMap<String, List<Double>>();
-		expectedCounts = new HashMap<String, List<Double>>();
+		desiredBoxes = new HashMap<>();
+		relationBoxes = new HashMap<>();
+		probabilities = new HashMap<>();
+		expectedCounts = new HashMap<>();
 		
 		// Right panel containing table and settings
 		JPanel tablePanel = new JPanel(new BorderLayout());
@@ -431,7 +431,7 @@ public class CalculateHandPanel extends JPanel
 		JPanel rightControlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 		rightControlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 0));
 		northPanel.add(rightControlPanel);
-		modeBox = new JComboBox<DisplayMode>(DisplayMode.values());
+		modeBox = new JComboBox<>(DisplayMode.values());
 		modeBox.addActionListener((e) -> {
 			recalculate();
 			model.fireTableStructureChanged();
@@ -517,8 +517,8 @@ public class CalculateHandPanel extends JPanel
 		
 		for (String category: categories)
 		{
-			probabilities.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
-			expectedCounts.put(category, new ArrayList<Double>(Collections.nCopies(1 + draws, 0.0)));
+			probabilities.put(category, new ArrayList<>(Collections.nCopies(1 + draws, 0.0)));
+			expectedCounts.put(category, new ArrayList<>(Collections.nCopies(1 + draws, 0.0)));
 			Relation r = (Relation)relationBoxes.get(category).getSelectedItem();
 			for (int j = 0; j <= draws; j++)
 			{
@@ -562,7 +562,7 @@ public class CalculateHandPanel extends JPanel
 		
 		for (String category: categories)
 		{
-			JComboBox<Integer> desiredBox = new JComboBox<Integer>();
+			JComboBox<Integer> desiredBox = new JComboBox<>();
 			for (int i = 0; i <= deck.getCategoryList(category).total(); i++)
 				desiredBox.addItem(i);
 			if (oldDesired.containsKey(category) && oldDesired.get(category) < deck.getCategoryList(category).total())
@@ -570,7 +570,7 @@ public class CalculateHandPanel extends JPanel
 			desiredBox.addActionListener((e) -> recalculate());
 			desiredBoxes.put(category, desiredBox);
 			
-			JComboBox<Relation> relationBox = new JComboBox<Relation>(Relation.values());
+			JComboBox<Relation> relationBox = new JComboBox<>(Relation.values());
 			if (oldRelations.containsKey(category))
 				relationBox.setSelectedItem(oldRelations.get(category));
 			relationBox.addActionListener((e) -> recalculate());

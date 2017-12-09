@@ -93,7 +93,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
 				panel.add(new JLabel(CollectionUtils.join(join, CollectionUtils.convertToList(value, Loyalty.class))));
 				break;
 			case CATEGORIES:
-				List<CategorySpec> categories = new ArrayList<CategorySpec>(CollectionUtils.convertToSet(value, CategorySpec.class));
+				List<CategorySpec> categories = new ArrayList<>(CollectionUtils.convertToSet(value, CategorySpec.class));
 				categories.sort(Comparator.comparing(CategorySpec::getName));
 				panel = new JPanel()
 				{

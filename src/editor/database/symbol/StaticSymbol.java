@@ -17,7 +17,7 @@ public class StaticSymbol extends ManaSymbol
 	/**
 	 * Map of symbol texts onto their respective symbols.
 	 */
-	public static final Map<String, StaticSymbol> SYMBOLS = new HashMap<String, StaticSymbol>();
+	public static final Map<String, StaticSymbol> SYMBOLS = new HashMap<>();
 	static
 	{
 		// Half-mana symbol.  Represents one half of a generic mana.

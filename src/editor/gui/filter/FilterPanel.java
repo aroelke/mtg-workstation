@@ -36,7 +36,7 @@ public abstract class FilterPanel<F extends Filter> extends JPanel
 	{
 		super();
 		group = null;
-		listeners = new HashSet<ChangeListener>();
+		listeners = new HashSet<>();
 	}
 	
 	/**

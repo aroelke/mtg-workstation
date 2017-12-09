@@ -44,8 +44,8 @@ public class FlipCard extends MultiCard
 		if (top.layout() != CardLayout.FLIP || b.layout() != CardLayout.FLIP)
 			throw new IllegalArgumentException("can't join non-flip cards into flip cards");
 		
-		manaCost = new Lazy<List<ManaCost>>(() -> Collections.unmodifiableList(collect(Card::manaCost)));
-		cmc = new Lazy<List<Double>>(() -> Collections.unmodifiableList(collect(Card::cmc)));
+		manaCost = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::manaCost)));
+		cmc = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::cmc)));
 	}
 	
 	/**

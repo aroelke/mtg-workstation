@@ -335,7 +335,7 @@ public class Deck implements CardList, Externalizable
 			this.card = card;
 			count = amount;
 			date = added;
-			categories = new LinkedHashSet<Category>();
+			categories = new LinkedHashSet<>();
 		}
 		
 		/**
@@ -453,11 +453,11 @@ public class Deck implements CardList, Externalizable
 		public Event()
 		{
 			super(Deck.this);
-			cardsChanged = new HashMap<Card, Integer>();
+			cardsChanged = new HashMap<>();
 			categoryChanges = null;
 			addedCategory = null;
 			removedCategory = null;
-			rankChanges = new HashMap<String, Integer>();
+			rankChanges = new HashMap<>();
 		}
 		
 		/**
@@ -745,11 +745,11 @@ public class Deck implements CardList, Externalizable
 	 */
 	public Deck()
 	{
-		masterList = new ArrayList<DeckEntry>();
-		categories = new LinkedHashMap<String, Category>();
+		masterList = new ArrayList<>();
+		categories = new LinkedHashMap<>();
 		total = 0;
 		land = 0;
-		listeners = new HashSet<DeckListener>();
+		listeners = new HashSet<>();
 	}
 	
 	@Override
@@ -779,7 +779,7 @@ public class Deck implements CardList, Externalizable
 	{
 		if (do_add(card, amount, date))
 		{
-			Map<Card, Integer> added = new HashMap<Card, Integer>();
+			Map<Card, Integer> added = new HashMap<>();
 			added.put(card, amount);
 			notifyListeners(new Event().cardsChanged(added));
 			return true;
@@ -791,7 +791,7 @@ public class Deck implements CardList, Externalizable
 	@Override
 	public boolean addAll(CardList d)
 	{
-		Map<Card, Integer> added = new HashMap<Card, Integer>();
+		Map<Card, Integer> added = new HashMap<>();
 		for (Card card: d)
 			if (do_add(card, d.getData(card).count(), d.getData(card).dateAdded()))
 				added.put(card, d.getData(card).count());
@@ -803,7 +803,7 @@ public class Deck implements CardList, Externalizable
 	@Override
 	public boolean addAll(Map<? extends Card, ? extends Integer> amounts)
 	{
-		Map<Card, Integer> added = new HashMap<Card, Integer>();
+		Map<Card, Integer> added = new HashMap<>();
 		for (Card card: amounts.keySet())
 			if (do_add(card, amounts.get(card), LocalDate.now()))
 				added.put(card, amounts.get(card));
@@ -959,7 +959,7 @@ public class Deck implements CardList, Externalizable
 					c.update();
 				
 				Event event = new Event().categoryChanged(e);
-				for (DeckListener listener: new HashSet<DeckListener>(listeners))
+				for (DeckListener listener: new HashSet<>(listeners))
 					listener.deckChanged(event);
 			});
 			return c;
@@ -1158,7 +1158,7 @@ public class Deck implements CardList, Externalizable
 	 */
 	private void notifyListeners(Event event)
 	{
-		for (DeckListener listener: new HashSet<DeckListener>(listeners))
+		for (DeckListener listener: new HashSet<>(listeners))
 			listener.deckChanged(event);
 	}
 
@@ -1222,7 +1222,7 @@ public class Deck implements CardList, Externalizable
 		{
 			for (DeckEntry e: masterList)
 				e.categories.remove(c);
-			Map<String, Integer> oldRanks = new HashMap<String, Integer>();
+			Map<String, Integer> oldRanks = new HashMap<>();
 			for (Category category: categories.values())
 			{
 				if (category.rank > c.rank)
@@ -1257,7 +1257,7 @@ public class Deck implements CardList, Externalizable
 	@Override
 	public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> amounts)
 	{
-		Map<Card, Integer> removed = new HashMap<Card, Integer>();
+		Map<Card, Integer> removed = new HashMap<>();
 		for (Card card: new HashSet<Card>(amounts.keySet()))
 		{
 			int r = do_remove(card, amounts.get(card));
@@ -1306,7 +1306,7 @@ public class Deck implements CardList, Externalizable
 			if (e.card.isLand())
 				land += amount - e.count;
 			
-			Map<Card, Integer> change = new HashMap<Card, Integer>();
+			Map<Card, Integer> change = new HashMap<>();
 			change.put(card, amount - e.count);
 			Event event = new Event().cardsChanged(change);
 			
@@ -1361,7 +1361,7 @@ public class Deck implements CardList, Externalizable
 			{
 				if (second.rank == target)
 				{
-					Map<String, Integer> oldRanks = new HashMap<String, Integer>();
+					Map<String, Integer> oldRanks = new HashMap<>();
 					oldRanks.put(name, categories.get(name).rank);
 					oldRanks.put(second.spec.getName(), second.rank);
 					

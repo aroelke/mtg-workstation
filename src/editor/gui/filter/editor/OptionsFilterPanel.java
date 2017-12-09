@@ -99,9 +99,9 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 
 		type = t;
 		options = o;
-		optionsBoxes = new ArrayList<JComboBox<T>>();
+		optionsBoxes = new ArrayList<>();
 
-		contain = new ComboBoxPanel<Containment>(Containment.values());
+		contain = new ComboBoxPanel<>(Containment.values());
 		add(contain, BorderLayout.WEST);
 
 		optionsPanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
@@ -120,7 +120,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 	private void addItem(T value)
 	{
 		JPanel boxPanel = new JPanel(new BorderLayout());
-		JComboBox<T> box = new JComboBox<T>(options);
+		JComboBox<T> box = new JComboBox<>(options);
 		box.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
 			if (options.length > 0)
 			{

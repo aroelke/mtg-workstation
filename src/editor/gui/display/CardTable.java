@@ -135,8 +135,8 @@ public class CardTable extends JTable
 					};
 				case CATEGORIES:
 					return (a, b) -> {
-						List<CategorySpec> first = new ArrayList<CategorySpec>(CollectionUtils.convertToSet(a, CategorySpec.class));
-						List<CategorySpec> second = new ArrayList<CategorySpec>(CollectionUtils.convertToSet(b, CategorySpec.class));
+						List<CategorySpec> first = new ArrayList<>(CollectionUtils.convertToSet(a, CategorySpec.class));
+						List<CategorySpec> second = new ArrayList<>(CollectionUtils.convertToSet(b, CategorySpec.class));
 						first.sort(Comparator.comparing(CategorySpec::getName));
 						second.sort(Comparator.comparing(CategorySpec::getName));
 						for (int i = 0; i < Math.min(first.size(), second.size()); i++)

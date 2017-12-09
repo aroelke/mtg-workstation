@@ -49,7 +49,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
-		comparison = new ComboBoxPanel<Comparison>(Comparison.values());
+		comparison = new ComboBoxPanel<>(Comparison.values());
 		add(comparison);
 		
 		spinner = new JSpinner();

@@ -54,7 +54,7 @@ public abstract class Card
 	/**
 	 * Map of cards onto tags that have been applied to them.
 	 */
-	public static Map<Card, Set<String>> tags = new HashMap<Card, Set<String>>();
+	public static Map<Card, Set<String>> tags = new HashMap<>();
 	/**
 	 * Separator for card text when displaying multiple cards in a single text box.
 	 */
@@ -162,18 +162,18 @@ public abstract class Card
 		this.layout = layout;
 		this.faces = faces;
 
-		id = new Lazy<String>(() -> expansion.code + unifiedName() + imageNames().get(0));
-		unifiedName = new Lazy<String>(() -> {
+		id = new Lazy<>(() -> expansion.code + unifiedName() + imageNames().get(0));
+		unifiedName = new Lazy<>(() -> {
 			StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
 			for (String name: name())
 				join.add(name);
 			return join.toString();
 		});
-		normalizedName = new Lazy<List<String>>(() -> Collections.unmodifiableList(name().stream()
-					.map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
-					.collect(Collectors.toList())));
-		legendName = new Lazy<List<String>>(() -> {
-			List<String> legendNames = new ArrayList<String>();
+		normalizedName = new Lazy<>(() -> Collections.unmodifiableList(name().stream()
+				.map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
+				.collect(Collectors.toList())));
+		legendName = new Lazy<>(() -> {
+			List<String> legendNames = new ArrayList<>();
 			for (String fullName: normalizedName())
 			{
 				if (!supertypes().contains("Legendary"))
@@ -203,15 +203,15 @@ public abstract class Card
 			}
 			return Collections.unmodifiableList(legendNames);
 		});
-		minCmc = new Lazy<Double>(() -> cmc().stream().reduce(Double.MAX_VALUE,Double::min));
-		unifiedTypeLine = new Lazy<String>(() -> {
+		minCmc = new Lazy<>(() -> cmc().stream().reduce(Double.MAX_VALUE, Double::min));
+		unifiedTypeLine = new Lazy<>(() -> {
 			StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
 			for (String line: typeLine())
 				join.add(line);
 			return join.toString();
 		});
-		normalizedOracle = new Lazy<List<String>>(() -> {
-			List<String> texts = new ArrayList<String>();
+		normalizedOracle = new Lazy<>(() -> {
+			List<String> texts = new ArrayList<>();
 			for (int i = 0; i < faces; i++)
 			{
 				String normal = Normalizer.normalize(oracleText().get(i).toLowerCase(), Normalizer.Form.NFD);
@@ -221,15 +221,15 @@ public abstract class Card
 			}
 			return Collections.unmodifiableList(texts);
 		});
-		normalizedFlavor = new Lazy<List<String>>(() -> Collections.unmodifiableList(flavorText().stream()
+		normalizedFlavor = new Lazy<>(() -> Collections.unmodifiableList(flavorText().stream()
 				.map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
 				.collect(Collectors.toList())));
-		powerVariable = new Lazy<Boolean>(() -> power().stream().anyMatch(CombatStat::variable));
-		toughnessVariable = new Lazy<Boolean>(() -> toughness().stream().anyMatch(CombatStat::variable));
-		loyaltyVariable = new Lazy<Boolean>(() -> loyalty().stream().anyMatch(Loyalty::variable));
-		legalIn = new Lazy<List<String>>(() -> Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList())));
-		canBeCommander = new Lazy<Boolean>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
-		ignoreCountRestriction = new Lazy<Boolean>(() -> supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number")));
+		powerVariable = new Lazy<>(() -> power().stream().anyMatch(CombatStat::variable));
+		toughnessVariable = new Lazy<>(() -> toughness().stream().anyMatch(CombatStat::variable));
+		loyaltyVariable = new Lazy<>(() -> loyalty().stream().anyMatch(Loyalty::variable));
+		legalIn = new Lazy<>(() -> Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList())));
+		canBeCommander = new Lazy<>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
+		ignoreCountRestriction = new Lazy<>(() -> supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number")));
 	}
 
 	/**

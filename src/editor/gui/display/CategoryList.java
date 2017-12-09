@@ -88,7 +88,7 @@ public class CategoryList extends JList<String>
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		hint = h;
-		categories = new ArrayList<CategorySpec>();
+		categories = new ArrayList<>();
 		setModel(model = new CategoryListModel());
 		
 		if (!hint.isEmpty())

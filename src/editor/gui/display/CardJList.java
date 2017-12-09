@@ -29,7 +29,7 @@ public class CardJList extends JList<String>
 	 */
 	public CardJList()
 	{
-		this(new ArrayList<Card>());
+		this(new ArrayList<>());
 	}
 	
 	/**

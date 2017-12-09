@@ -114,14 +114,14 @@ public class InventoryLoadDialog extends JDialog
 		{
 			publish("Opening " + file.getName() + "...");
 
-			List<Card> cards = new ArrayList<Card>();
-			Map<Card, List<String>> faces = new HashMap<Card, List<String>>();
-			Set<Expansion> expansions = new HashSet<Expansion>();
-			Set<String> blockNames = new HashSet<String>();
-			Set<String> supertypeSet = new HashSet<String>();
-			Set<String> typeSet = new HashSet<String>();
-			Set<String> subtypeSet = new HashSet<String>();
-			Set<String> formatSet = new HashSet<String>();
+			List<Card> cards = new ArrayList<>();
+			Map<Card, List<String>> faces = new HashMap<>();
+			Set<Expansion> expansions = new HashSet<>();
+			Set<String> blockNames = new HashSet<>();
+			Set<String> supertypeSet = new HashSet<>();
+			Set<String> typeSet = new HashSet<>();
+			Set<String> subtypeSet = new HashSet<>();
+			Set<String> formatSet = new HashSet<>();
 
 			// Read the inventory file
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
@@ -189,7 +189,7 @@ public class InventoryLoadDialog extends JDialog
 						String mana = card.has("manaCost") ? card.get("manaCost").getAsString() : "";
 
 						// Card's set of colors (which is stored as a list, since order matters)
-						List<ManaType> colors = new ArrayList<ManaType>();
+						List<ManaType> colors = new ArrayList<>();
 						if (card.has("colors"))
 						{
 							JsonArray colorsArray = card.get("colors").getAsJsonArray();
@@ -198,7 +198,7 @@ public class InventoryLoadDialog extends JDialog
 						}
 
 						// Card's color identity
-						List<ManaType> colorIdentity = new ArrayList<ManaType>();
+						List<ManaType> colorIdentity = new ArrayList<>();
 						{
 							if (card.has("colorIdentity"))
 							{
@@ -209,7 +209,7 @@ public class InventoryLoadDialog extends JDialog
 						}
 
 						// Card's set of supertypes
-						Set<String> supertypes = new LinkedHashSet<String>();
+						Set<String> supertypes = new LinkedHashSet<>();
 						if (card.has("supertypes"))
 						{
 							JsonArray superArray = card.get("supertypes").getAsJsonArray();
@@ -221,7 +221,7 @@ public class InventoryLoadDialog extends JDialog
 						}
 
 						// Card's set of types
-						Set<String> types = new LinkedHashSet<String>();
+						Set<String> types = new LinkedHashSet<>();
 						for (JsonElement typeElement: card.get("types").getAsJsonArray())
 						{
 							types.add(typeElement.getAsString());
@@ -229,7 +229,7 @@ public class InventoryLoadDialog extends JDialog
 						}
 
 						// Card's set of subtypes
-						Set<String> subtypes = new LinkedHashSet<String>();
+						Set<String> subtypes = new LinkedHashSet<>();
 						if (card.has("subtypes"))
 						{
 							for (JsonElement subElement: card.get("subtypes").getAsJsonArray())
@@ -267,7 +267,7 @@ public class InventoryLoadDialog extends JDialog
 						}
 
 						// Card's rulings
-						TreeMap<Date, List<String>> rulings = new TreeMap<Date, List<String>>();
+						TreeMap<Date, List<String>> rulings = new TreeMap<>();
 						DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 						if (card.has("rulings"))
 						{
@@ -277,13 +277,13 @@ public class InventoryLoadDialog extends JDialog
 								Date date = format.parse(o.get("date").getAsString());
 								String ruling = o.get("text").getAsString();
 								if (!rulings.containsKey(date))
-									rulings.put(date, new ArrayList<String>());
+									rulings.put(date, new ArrayList<>());
 								rulings.get(date).add(ruling);
 							}
 						}
 
 						// Card's legality in formats
-						Map<String, Legality> legality = new HashMap<String, Legality>();
+						Map<String, Legality> legality = new HashMap<>();
 						if (card.has("legalities"))
 						{
 							for (JsonElement l: card.get("legalities").getAsJsonArray())
@@ -326,7 +326,7 @@ public class InventoryLoadDialog extends JDialog
 						// Add to map of faces if the card has multiple faces
 						if (layout.isMultiFaced)
 						{
-							List<String> names = new ArrayList<String>();
+							List<String> names = new ArrayList<>();
 							for (JsonElement e: card.get("names").getAsJsonArray())
 								names.add(e.getAsString());
 							faces.put(c, names);
@@ -338,14 +338,14 @@ public class InventoryLoadDialog extends JDialog
 				}
 
 				publish("Processing multi-faced cards...");
-				List<Card> facesList = new ArrayList<Card>(faces.keySet());
+				List<Card> facesList = new ArrayList<>(faces.keySet());
 				while (!facesList.isEmpty())
 				{
 					boolean error = false;
 
 					Card face = facesList.remove(0);
 					List<String> faceNames = faces.get(face);
-					List<Card> otherFaces = new ArrayList<Card>();
+					List<Card> otherFaces = new ArrayList<>();
 					for (Card c: facesList)
 						if (faceNames.contains(c.unifiedName()) && c.expansion().equals(face.expansion()))
 							otherFaces.add(c);
@@ -548,7 +548,7 @@ public class InventoryLoadDialog extends JDialog
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		worker = null;
-		errors = new ArrayList<String>();
+		errors = new ArrayList<>();
 
 		// Content panel
 		GridBagLayout layout = new GridBagLayout();
