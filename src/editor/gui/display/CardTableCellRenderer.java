@@ -118,7 +118,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
 					StringBuilder tooltip = new StringBuilder();
 					tooltip.append("<html>Categories:<br>");
 					for (CategorySpec category: categories)
-						tooltip.append(String.valueOf(UnicodeSymbols.BULLET) + " ").append(category.getName()).append("<br>");
+						tooltip.append(UnicodeSymbols.BULLET).append(" ").append(category.getName()).append("<br>");
 					tooltip.append("</html>");
 					panel.setToolTipText(tooltip.toString());
 				}

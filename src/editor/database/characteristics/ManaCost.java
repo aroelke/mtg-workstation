@@ -285,7 +285,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 	{
 		StringBuilder str = new StringBuilder();
 		for (Symbol sym: cost)
-			str.append("<img src=\"file:images/icons/" + sym.getName() + "\" width=\"" + MainFrame.TEXT_SIZE + "\" height=\"" + MainFrame.TEXT_SIZE + "\" />");
+			str.append("<img src=\"file:images/icons/").append(sym.getName()).append("\" width=\"").append(MainFrame.TEXT_SIZE).append("\" height=\"").append(MainFrame.TEXT_SIZE).append("\" />");
 		return str.toString();
 	}
 	

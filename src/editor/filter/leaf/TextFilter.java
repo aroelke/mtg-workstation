@@ -51,7 +51,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
 		}
 		catch (ClassCastException e)
 		{
-			throw new IllegalArgumentException("Illegal text filter type " + t.toString());
+			throw new IllegalArgumentException("Illegal text filter type " + t);
 		}
 	}
 	

@@ -1829,22 +1829,22 @@ public class EditorFrame extends JInternalFrame
 			deck.current.writeExternal(oos);
 			sideboard.current.writeExternal(oos);
 			
-			String changes = "";
+			StringBuilder changes = new StringBuilder();
 			for (Card c: deck.original)
 			{
 				int had = deck.original.contains(c) ? deck.original.getData(c).count() : 0;
 				int has = deck.current.contains(c) ? deck.current.getData(c).count() : 0;
 				if (has < had)
-					changes += ("-" + (had - has) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+					changes.append("-").append(had - has).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
 			}
 			for (Card c: deck.current)
 			{
 				int had = deck.original.contains(c) ? deck.original.getData(c).count() : 0;
 				int has = deck.current.contains(c) ? deck.current.getData(c).count() : 0;
 				if (had < has)
-					changes += ("+" + (has - had) + "x " + c.unifiedName() + " (" + c.expansion().name + ")\n");
+					changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
 			}
-			if (!changes.isEmpty())
+			if (changes.length() > 0)
 			{
 				SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
 				changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
