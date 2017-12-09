@@ -226,7 +226,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 			if (child instanceof FilterGroup)
 			{
 				FilterGroupPanel g = new FilterGroupPanel();
-				g.setContents((FilterGroup)child);
+				g.setContents(child);
 				add(g);
 			}
 			else

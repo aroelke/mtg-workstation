@@ -104,7 +104,7 @@ public class GenericSymbol extends ManaSymbol
 	public int compareTo(ManaSymbol o)
 	{
 		if (o instanceof GenericSymbol)
-			return (int)value() - (int)((GenericSymbol)o).value();
+			return (int)value() - (int)o.value();
 		else
 			return super.compareTo(o);
 	}

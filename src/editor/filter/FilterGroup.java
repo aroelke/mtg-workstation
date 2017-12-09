@@ -32,15 +32,15 @@ public class FilterGroup extends Filter implements Iterable<Filter>
 		/**
 		 * All of the filters must pass a card.
 		 */
-		AND("all of", Stream<Filter>::allMatch),
+		AND("all of", Stream::allMatch),
 		/**
 		 * None of the filters can pass a card.
 		 */
-		NOR("none of", Stream<Filter>::noneMatch),
+		NOR("none of", Stream::noneMatch),
 		/**
 		 * Any of the filters must pass a card.
 		 */
-		OR("any of", Stream<Filter>::anyMatch);
+		OR("any of", Stream::anyMatch);
 		
 		/**
 		 * Function representing the mode to test a card with a collection of filters.

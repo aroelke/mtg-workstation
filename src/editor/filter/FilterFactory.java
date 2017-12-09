@@ -214,9 +214,9 @@ public abstract class FilterFactory
 		case FLAVOR_TEXT:
 			return new TextFilter(type, Card::normalizedFlavor);
 		case POWER:
-			return new VariableNumberFilter(type, (c) -> c.power().stream().map((p) -> (double)p.value).collect(Collectors.toList()), Card::powerVariable);
+			return new VariableNumberFilter(type, (c) -> c.power().stream().map((p) -> p.value).collect(Collectors.toList()), Card::powerVariable);
 		case TOUGHNESS:
-			return new VariableNumberFilter(type, (c) -> c.toughness().stream().map((p) -> (double)p.value).collect(Collectors.toList()), Card::toughnessVariable);
+			return new VariableNumberFilter(type, (c) -> c.toughness().stream().map((p) -> p.value).collect(Collectors.toList()), Card::toughnessVariable);
 		case LOYALTY:
 			return new VariableNumberFilter(type, (Card c) -> c.loyalty().stream().map((l) -> (double)l.value).collect(Collectors.toList()), Card::loyaltyVariable);
 		case ARTIST:
