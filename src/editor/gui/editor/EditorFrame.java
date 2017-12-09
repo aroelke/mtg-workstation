@@ -851,13 +851,13 @@ public class EditorFrame extends JInternalFrame
 		
 		// Add/remove cards
 		CardMenuItems tableMenuCardItems = new CardMenuItems(this, this::deck, parent::getSelectedCards);
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_SINGLE));
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_N));
+		tableMenu.add(tableMenuCardItems.addSingle());
+		tableMenu.add(tableMenuCardItems.fillPlayset());
+		tableMenu.add(tableMenuCardItems.addN());
 		tableMenu.add(new JSeparator());
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_ALL));
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_N));
+		tableMenu.add(tableMenuCardItems.removeSingle());
+		tableMenu.add(tableMenuCardItems.removeAll());
+		tableMenu.add(tableMenuCardItems.removeN());
 		tableMenu.add(new JSeparator());
 		
 		// Move cards to sideboard
@@ -912,13 +912,13 @@ public class EditorFrame extends JInternalFrame
 		
 		// Add/remove cards from sideboard
 		CardMenuItems sideboardMenuCardItems = new CardMenuItems(this, this::sideboard, parent::getSelectedCards);
-		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.ADD_SINGLE));
-		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
-		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.ADD_N));
+		sideboardMenu.add(sideboardMenuCardItems.addSingle());
+		sideboardMenu.add(sideboardMenuCardItems.fillPlayset());
+		sideboardMenu.add(sideboardMenuCardItems.addN());
 		sideboardMenu.add(new JSeparator());
-		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
-		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.REMOVE_ALL));
-		sideboardMenu.add(sideboardMenuCardItems.get(CardMenuItems.REMOVE_N));
+		sideboardMenu.add(sideboardMenuCardItems.removeSingle());
+		sideboardMenu.add(sideboardMenuCardItems.removeAll());
+		sideboardMenu.add(sideboardMenuCardItems.removeN());
 		sideboardMenu.add(new JSeparator());
 		
 		// Move cards to main deck
@@ -1475,13 +1475,13 @@ public class EditorFrame extends JInternalFrame
 		newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 		
 		CardMenuItems tableMenuCardItems = new CardMenuItems(this, this::deck, parent::getSelectedCards);
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_SINGLE));
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.ADD_N));
+		tableMenu.add(tableMenuCardItems.addSingle());
+		tableMenu.add(tableMenuCardItems.fillPlayset());
+		tableMenu.add(tableMenuCardItems.addN());
 		tableMenu.add(new JSeparator());
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_SINGLE));
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_ALL));
-		tableMenu.add(tableMenuCardItems.get(CardMenuItems.REMOVE_N));
+		tableMenu.add(tableMenuCardItems.removeSingle());
+		tableMenu.add(tableMenuCardItems.removeAll());
+		tableMenu.add(tableMenuCardItems.removeN());
 		
 		JSeparator categoriesSeparator = new JSeparator();
 		tableMenu.add(categoriesSeparator);

@@ -2,7 +2,6 @@ package editor.gui.generic;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.util.AbstractList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,33 +27,8 @@ import editor.database.card.Card;
  * 
  * @author Alec Roelke
  */
-public class CardMenuItems extends AbstractList<JMenuItem>
+public class CardMenuItems
 {
-	/**
-	 * Index to get the menu item for adding a single copy to a deck.
-	 */
-	public static final int ADD_SINGLE = 0;
-	/**
-	 * Index to get the menu item for filling out a playset of copies in a deck.
-	 */
-	public static final int FILL_PLAYSET = 1;
-	/**
-	 * Index to the get the menu item for adding some number of copies to a deck.
-	 */
-	public static final int ADD_N = 2;
-	/**
-	 * Index to get the menu item for removing a single copy from a deck.
-	 */
-	public static final int REMOVE_SINGLE = 3;
-	/**
-	 * Index to get the menu item for removing all of the copies from a deck.
-	 */
-	public static final int REMOVE_ALL = 4;
-	/**
-	 * Index to get the menu item for removing some number of copies from a deck.
-	 */
-	public static final int REMOVE_N = 5;
-	
 	/**
 	 * Array containing the menu items for manipulating card copies.
 	 */
@@ -134,15 +108,33 @@ public class CardMenuItems extends AbstractList<JMenuItem>
 		});
 	}
 
-	@Override
-	public JMenuItem get(int index)
+	public JMenuItem addSingle()
 	{
-		return items[index];
+		return items[0];
 	}
 
-	@Override
-	public int size()
+	public JMenuItem fillPlayset()
 	{
-		return items.length;
+		return items[1];
+	}
+
+	public JMenuItem addN()
+	{
+		return items[2];
+	}
+
+	public JMenuItem removeSingle()
+	{
+		return items[3];
+	}
+
+	public JMenuItem removeAll()
+	{
+		return items[4];
+	}
+
+	public JMenuItem removeN()
+	{
+		return items[5];
 	}
 }
