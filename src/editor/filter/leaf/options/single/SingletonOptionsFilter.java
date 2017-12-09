@@ -1,6 +1,7 @@
 package editor.filter.leaf.options.single;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.Function;
 
 import editor.database.card.Card;
@@ -35,6 +36,6 @@ public abstract class SingletonOptionsFilter<T> extends OptionsFilter<T>
 	@Override
 	public boolean test(Card c)
 	{
-		return contain.test(selected, Arrays.asList(function().apply(c)));
+		return contain.test(selected, Collections.singletonList(function().apply(c)));
 	}
 }

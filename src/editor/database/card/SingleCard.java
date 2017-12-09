@@ -234,19 +234,19 @@ public class SingleCard extends Card
 	@Override
 	public List<Set<String>> allTypes()
 	{
-		return Arrays.asList(allTypes);
+		return Collections.singletonList(allTypes);
 	}
 
 	@Override
 	public List<String> artist()
 	{
-		return Arrays.asList(artist);
+		return Collections.singletonList(artist);
 	}
 
 	@Override
 	public List<Double> cmc()
 	{
-		return Arrays.asList(mana.cmc());
+		return Collections.singletonList(mana.cmc());
 	}
 
 	@Override
@@ -278,13 +278,13 @@ public class SingleCard extends Card
 	@Override
 	public List<String> flavorText()
 	{
-		return Arrays.asList(flavor);
+		return Collections.singletonList(flavor);
 	}
 
 	@Override
 	public List<String> imageNames()
 	{
-		return Arrays.asList(imageName);
+		return Collections.singletonList(imageName);
 	}
 	
 	@Override
@@ -302,43 +302,43 @@ public class SingleCard extends Card
 	@Override
 	public List<Loyalty> loyalty()
 	{
-		return Arrays.asList(loyalty);
+		return Collections.singletonList(loyalty);
 	}
 
 	@Override
 	public List<ManaCost> manaCost()
 	{
-		return Arrays.asList(mana);
+		return Collections.singletonList(mana);
 	}
 
 	@Override
 	public List<String> name()
 	{
-		return Arrays.asList(name);
+		return Collections.singletonList(name);
 	}
 
 	@Override
 	public List<String> number()
 	{
-		return Arrays.asList(number);
+		return Collections.singletonList(number);
 	}
 
 	@Override
 	public List<Integer> multiverseid()
 	{
-		return Arrays.asList(multiverseid);
+		return Collections.singletonList(multiverseid);
 	}
 	
 	@Override
 	public List<String> oracleText()
 	{
-		return Arrays.asList(text);
+		return Collections.singletonList(text);
 	}
 
 	@Override
 	public List<CombatStat> power()
 	{
-		return Arrays.asList(power);
+		return Collections.singletonList(power);
 	}
 
 	@Override
@@ -368,13 +368,13 @@ public class SingleCard extends Card
 	@Override
 	public List<CombatStat> toughness()
 	{
-		return Arrays.asList(toughness);
+		return Collections.singletonList(toughness);
 	}
 
 	@Override
 	public List<String> typeLine()
 	{
-		return Arrays.asList(typeLine);
+		return Collections.singletonList(typeLine);
 	}
 
 	@Override

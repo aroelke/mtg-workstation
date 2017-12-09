@@ -1163,7 +1163,7 @@ public class MainFrame extends JFrame
 		imagePanel.setComponentPopupMenu(oraclePopupMenu);
 		
 		// Add the card to the main deck
-		CardMenuItems oracleMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), () -> Arrays.asList(selectedCard));
+		CardMenuItems oracleMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), () -> Collections.singletonList(selectedCard));
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.ADD_SINGLE));
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.FILL_PLAYSET));
 		oraclePopupMenu.add(oracleMenuCardItems.get(CardMenuItems.ADD_N));
@@ -1174,7 +1174,7 @@ public class MainFrame extends JFrame
 		oraclePopupMenu.add(new JSeparator());
 		
 		// Add the card to the sideboard
-		CardMenuItems oracleMenuSBCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboard(), () -> Arrays.asList(selectedCard));
+		CardMenuItems oracleMenuSBCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboard(), () -> Collections.singletonList(selectedCard));
 		oracleMenuSBCardItems.get(CardMenuItems.ADD_SINGLE).setText("Add to Sideboard");
 		oraclePopupMenu.add(oracleMenuSBCardItems.get(CardMenuItems.ADD_SINGLE));
 		oracleMenuSBCardItems.get(CardMenuItems.ADD_N).setText("Add to Sideboard...");
@@ -1644,7 +1644,7 @@ public class MainFrame extends JFrame
 	public List<Card> getSelectedCards()
 	{
 		if (selectedCards.isEmpty() && selectedCard != null)
-			return Arrays.asList(selectedCard);
+			return Collections.singletonList(selectedCard);
 		return selectedCards;
 	}
 	

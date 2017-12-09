@@ -2,13 +2,7 @@ package editor.gui.editor;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.swing.BoxLayout;
 
@@ -93,7 +87,7 @@ public class IncludeExcludePanel extends ScrollablePanel
 	 */
 	public IncludeExcludePanel(List<CategorySpec> categories, Card card)
 	{
-		this(categories, Arrays.asList(card));
+		this(categories, Collections.singletonList(card));
 	}
 	
 	/**

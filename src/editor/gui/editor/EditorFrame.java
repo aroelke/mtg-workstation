@@ -392,7 +392,7 @@ public class EditorFrame extends JInternalFrame
 		{
 			try (ProgressInputStream pis = new ProgressInputStream(new FileInputStream(file)))
 			{
-				pis.addPropertyChangeListener((e) -> process(Arrays.asList(((Long)e.getNewValue()).intValue())));
+				pis.addPropertyChangeListener((e) -> process(Collections.singletonList(((Long)e.getNewValue()).intValue())));
 				try (ObjectInputStream ois = new ObjectInputStream(pis))
 				{
 					opening = true;
