@@ -519,7 +519,8 @@ public class CalculateHandPanel extends JPanel
 		{
 			probabilities.put(category, new ArrayList<>(Collections.nCopies(1 + draws, 0.0)));
 			expectedCounts.put(category, new ArrayList<>(Collections.nCopies(1 + draws, 0.0)));
-			Relation r = (Relation)relationBoxes.get(category).getSelectedItem();
+			JComboBox<Relation> box = relationBoxes.get(category);
+			Relation r = box.getItemAt(box.getSelectedIndex());
 			for (int j = 0; j <= draws; j++)
 			{
 				double p = 0.0;

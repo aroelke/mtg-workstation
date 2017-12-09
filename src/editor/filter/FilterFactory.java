@@ -234,7 +234,7 @@ public abstract class FilterFactory
 		case ALL:
 			return new BinaryFilter(true);
 		default:
-			return null;
+			return new BinaryFilter(false);
 		}
 	}
 	

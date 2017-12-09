@@ -89,7 +89,7 @@ public interface FilterPanelFactory
 		case FilterFactory.ALL:
 			return new BinaryFilterPanel(true);
 		default:
-			return null;
+			return new BinaryFilterPanel(false);
 		}
 	}
 	
