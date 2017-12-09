@@ -493,7 +493,7 @@ public class MainFrame extends JFrame
 				else if (importChooser.getFileFilter() == delimited)
 				{
 					JPanel dataPanel = new JPanel(new BorderLayout());
-					JPanel optionsPanel = new JPanel(new FlowLayout(0));
+					JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 					optionsPanel.add(new JLabel("Delimiter: "));
 					JComboBox<String> delimiterBox = new JComboBox<>(DelimitedCardListFormat.DELIMITERS);
 					delimiterBox.setEditable(true);						
@@ -848,7 +848,7 @@ public class MainFrame extends JFrame
 								selectedHeadersModel.removeElement(selected);
 						});
 						
-						JPanel optionsPanel = new JPanel(new FlowLayout(0));
+						JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 						optionsPanel.add(new JLabel("Delimiter: "));
 						JComboBox<String> delimiterBox = new JComboBox<>(DelimitedCardListFormat.DELIMITERS);
 						delimiterBox.setEditable(true);						
@@ -1111,7 +1111,7 @@ public class MainFrame extends JFrame
 		/* CONTENT PANE */
 		// Panel containing all content
 		JPanel contentPane = new JPanel(new BorderLayout());
-		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ActionEvent.CTRL_MASK), "Next Frame");
+		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.CTRL_DOWN_MASK), "Next Frame");
 		contentPane.getActionMap().put("Next Frame", new AbstractAction()
 		{
 			@Override
@@ -1121,7 +1121,7 @@ public class MainFrame extends JFrame
 					selectFrame(editors.get((editors.indexOf(selectedFrame) + 1)%editors.size()));
 			}
 		});
-		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, ActionEvent.CTRL_MASK), "Previous Frame");
+		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.CTRL_DOWN_MASK), "Previous Frame");
 		contentPane.getActionMap().put("Previous Frame", new AbstractAction()
 		{
 			@Override
