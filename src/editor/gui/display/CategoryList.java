@@ -98,7 +98,7 @@ public class CategoryList extends JList<String>
 				{
 					int index = locationToIndex(e.getPoint());
 					Rectangle rec = getCellBounds(index, index);
-					CategorySpec spec = null;
+					CategorySpec spec;
 					if (rec == null || !rec.contains(e.getPoint()))
 					{
 						clearSelection();

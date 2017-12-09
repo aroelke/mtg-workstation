@@ -172,7 +172,7 @@ public class InventoryLoadDialog extends JDialog
 						String name = card.get("name").getAsString();
 
 						// If the card is a token, skip it
-						CardLayout layout = null;
+						CardLayout layout;
 						try
 						{
 							layout = CardLayout.valueOf(card.get("layout").getAsString().toUpperCase().replaceAll("[^A-Z]", "_"));
