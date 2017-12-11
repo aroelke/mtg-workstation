@@ -21,7 +21,7 @@ public class GenericSymbol extends ManaSymbol
     /**
      * Array of consecutive GenericSymbols.
      */
-    public static final GenericSymbol[] N = IntStream.range(0, HIGHEST_CONSECUTIVE + 1).mapToObj(GenericSymbol::new).toArray(GenericSymbol[]::new);
+    public static final GenericSymbol[] N = IntStream.rangeClosed(0, HIGHEST_CONSECUTIVE).mapToObj(GenericSymbol::new).toArray(GenericSymbol[]::new);
     /**
      * GenericSymbol representing 100 mana.
      */

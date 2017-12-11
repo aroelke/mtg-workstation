@@ -27,25 +27,12 @@ public class FunctionalSymbol extends Symbol
     /**
      * Map of symbol texts onto their respective symbols.
      */
-    public static final Map<String, FunctionalSymbol> SYMBOLS;
-
-    static
-    {
-        Map<String, FunctionalSymbol> symbols = new HashMap<>();
-        // Chaos symbol.
-        symbols.put(CHAOS.toString(), CHAOS);
-        // Phyrexian phi symbol.
-        symbols.put("P", new FunctionalSymbol("phyrexia.png", "P"));
-        // Tap symbol.  Used in costs in card text.
-        symbols.put("T", new FunctionalSymbol("tap.png", "T"));
-        symbols.put("TAP", symbols.get("T"));
-        // Untap symbol.  Used in costs in card text.
-        symbols.put("Q", new FunctionalSymbol("untap.png", "Q"));
-        // Energy counter symbol.
-        symbols.put("E", new FunctionalSymbol("energy.png", "E"));
-
-        SYMBOLS = Collections.unmodifiableMap(symbols);
-    }
+    public static final Map<String, FunctionalSymbol> SYMBOLS = Map.of(CHAOS.toString(), CHAOS,
+            "P", new FunctionalSymbol("phyrexia.png", "P"),
+            "T", new FunctionalSymbol("tap.png", "T"),
+            "TAP", new FunctionalSymbol("tap.png", "T"),
+            "Q", new FunctionalSymbol("untap.png", "Q"),
+            "E", new FunctionalSymbol("energy.png", "E"));
 
     /**
      * Get the FunctionalSymbol corresponding to the given String.
