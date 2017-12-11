@@ -303,13 +303,7 @@ public abstract class Card
 	@Override
 	public boolean equals(Object other)
 	{
-		if (other == this)
-			return true;
-		if (other == null)
-			return false;
-		if (!(other instanceof Card))
-			return false;
-		return id().equals(((Card)other).id());
+		return other != null && (other == this || other instanceof Card && id().equals(((Card)other).id()));
 	}
 
 	/**
@@ -586,21 +580,14 @@ public abstract class Card
 		else if (format.contains("Block"))
 		{
 			format = format.substring(0, format.indexOf("Block")).trim();
-			if (expansion.block.equalsIgnoreCase(format))
-				return true;
-			else if (format.equalsIgnoreCase("urza") && expansion.block.equalsIgnoreCase("urza's"))
-				return true;
-			else if (format.equalsIgnoreCase("lorwyn-shadowmoor") && (expansion.block.equalsIgnoreCase("lorwyn") || expansion.block.equalsIgnoreCase("shadowmoor")))
-				return true;
-			else if (format.equalsIgnoreCase("shards of alara") && expansion.block.equalsIgnoreCase("alara"))
-				return true;
-			else
-				return format.equalsIgnoreCase("tarkir") && expansion.block.equalsIgnoreCase("khans of tarkir");
+			return expansion.block.equalsIgnoreCase(format)
+					|| format.equalsIgnoreCase("urza") && expansion.block.equalsIgnoreCase("urza's")
+					|| format.equalsIgnoreCase("lorwyn-shadowmoor") && (expansion.block.equalsIgnoreCase("lorwyn") || expansion.block.equalsIgnoreCase("shadowmoor"))
+					|| format.equalsIgnoreCase("shards of alara") && expansion.block.equalsIgnoreCase("alara")
+					|| format.equalsIgnoreCase("tarkir") && expansion.block.equalsIgnoreCase("khans of tarkir");
 		}
-		else if (!legality().containsKey(format))
-			return false;
 		else
-			return legality().get(format) != Legality.BANNED;
+			return legality().containsKey(format) && legality().get(format) != Legality.BANNED;
 	}
 
 	/**

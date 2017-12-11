@@ -50,13 +50,7 @@ public class BinaryFilter extends FilterLeaf<Void>
 	@Override
 	public boolean equals(Object other)
 	{
-		if (other == null)
-			return false;
-		if (other == this)
-			return true;
-		if (other.getClass() != getClass())
-			return false;
-		return ((BinaryFilter)other).all == all;
+		return other != null && (other == this || other.getClass() == getClass() && ((BinaryFilter)other).all == all);
 	}
 	
 	@Override

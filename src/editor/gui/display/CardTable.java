@@ -162,11 +162,8 @@ public class CardTable extends JTable
 		@Override
 		protected boolean useToString(int column)
 		{
-			if (model instanceof CardTableModel &&
-					NO_STRING.contains(((CardTableModel)model).getColumnData(column)))
-				return false;
-			else
-				return super.useToString(column);
+			return !(model instanceof CardTableModel &&
+					NO_STRING.contains(((CardTableModel)model).getColumnData(column))) && super.useToString(column);
 		}
 	}
 

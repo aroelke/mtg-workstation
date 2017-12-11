@@ -96,13 +96,7 @@ public abstract class Symbol
 	@Override
 	public boolean equals(Object other)
 	{
-		if (other == null)
-			return false;
-		if (other == this)
-			return true;
-		if (other.getClass() != getClass())
-			return false;
-		return toString().equals(other.toString());
+		return other != null && (other == this || other.getClass() == getClass() && toString().equals(other.toString()));
 	}
 	
 	/**

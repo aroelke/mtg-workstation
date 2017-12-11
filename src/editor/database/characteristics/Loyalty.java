@@ -64,13 +64,7 @@ public class Loyalty implements Comparable<Loyalty>
 	@Override
 	public boolean equals(Object other)
 	{
-		if (other == this)
-			return true;
-		if (other == null)
-			return false;
-		if (!(other instanceof Loyalty))
-			return false;
-		return value == ((Loyalty)other).value;
+		return other != null && (other == this || other instanceof Loyalty && value == ((Loyalty)other).value);
 	}
 	
 	/**
