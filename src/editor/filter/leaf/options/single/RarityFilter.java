@@ -9,31 +9,31 @@ import editor.filter.FilterFactory;
 
 /**
  * This class represents a filter that groups cards by rarity.
- * 
+ *
  * @author Alec Roelke
  */
 public class RarityFilter extends SingletonOptionsFilter<Rarity>
 {
-	/**
-	 * Create a new RarityFilter.
-	 */
-	public RarityFilter()
-	{
-		super(FilterFactory.RARITY, Card::rarity);
-	}
+    /**
+     * Create a new RarityFilter.
+     */
+    public RarityFilter()
+    {
+        super(FilterFactory.RARITY, Card::rarity);
+    }
 
-	@Override
-	public Filter copy()
-	{
-		RarityFilter filter = (RarityFilter)FilterFactory.createFilter(FilterFactory.RARITY);
-		filter.contain = contain;
-		filter.selected = new HashSet<>(selected);
-		return filter;
-	}
+    @Override
+    public Filter copy()
+    {
+        RarityFilter filter = (RarityFilter)FilterFactory.createFilter(FilterFactory.RARITY);
+        filter.contain = contain;
+        filter.selected = new HashSet<>(selected);
+        return filter;
+    }
 
-	@Override
-	public Rarity convertFromString(String str)
-	{
-		return Rarity.parseRarity(str);
-	}
+    @Override
+    public Rarity convertFromString(String str)
+    {
+        return Rarity.parseRarity(str);
+    }
 }

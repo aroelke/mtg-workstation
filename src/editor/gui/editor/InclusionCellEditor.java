@@ -25,99 +25,99 @@ import editor.util.MouseListenerFactory;
  * This class represents an editor for a table cell containing a set of {@link CategorySpec}s for a
  * card. It can be edited by double-clicking on it, which brings up a dialog showing the
  * available categories.
- * 
+ *
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class InclusionCellEditor extends AbstractCellEditor implements TableCellEditor
 {
-	/**
-	 * Panel to show while editing is occurring.
-	 */
-	private JPanel editor;
-	/**
-	 * {@link EditorFrame} containing the deck whose card's categories are being edited.
-	 */
-	private EditorFrame frame;
-	/**
-	 * Panel showing the list of categories to allow editing.
-	 */
-	private IncludeExcludePanel iePanel;
-	/**
-	 * List of categories the card belongs to.
-	 */
-	private List<CategorySpec> included;
-	
-	/**
-	 * Create a new InclusionCellEditor from the given frame.
-	 * 
-	 * @param f frame containing the table the new InclusionCellEditor goes in
-	 */
-	public InclusionCellEditor(EditorFrame f)
-	{
-		frame = f;
-		editor = new JPanel()
-		{
-			@Override
-			public void paintComponent(Graphics g)
-			{
-				super.paintComponent(g);
-				int s = getHeight();
-				for (int i = 0; i < included.size(); i++)
-				{
-					int x = i*(s + 1) + 1;
-					int y = 1;
-					g.setColor(included.get(i).getColor());
-					g.fillRect(x, y, s - 3, s - 3);
-					g.setColor(Color.BLACK);
-					g.drawRect(x, y, s - 3, s - 3);
-				}
-			}
-		};
-		editor.addMouseListener(MouseListenerFactory.createPressListener((e) -> {
-			if (JOptionPane.showConfirmDialog(frame, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-				fireEditingStopped();
-			else
-				fireEditingCanceled();
-			iePanel = null;
-		}));
-	}
-	
-	@Override
-	public Object getCellEditorValue()
-	{
-		return iePanel;
-	}
-	
-	@Override
-	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
-	{
-		if (table instanceof CardTable)
-		{
-			CardTable cTable = (CardTable)table;
-			iePanel = new IncludeExcludePanel(frame.deck().categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getCardAt(cTable, row));
-			included = ((Collection<?>)value).stream().filter((o) -> o instanceof CategorySpec).map((o) -> (CategorySpec)o).collect(Collectors.toList());
-			if (!table.isRowSelected(row))
-				editor.setBackground(cTable.getRowColor(row));
-			else
-			{
-				editor.setBackground(table.getSelectionBackground());
-				if (table.hasFocus())
-					editor.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
-			}
-		}
-		else
-			iePanel = new IncludeExcludePanel(frame.deck().categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getSelectedCards());
-		return editor;
-	}
+    /**
+     * Panel to show while editing is occurring.
+     */
+    private JPanel editor;
+    /**
+     * {@link EditorFrame} containing the deck whose card's categories are being edited.
+     */
+    private EditorFrame frame;
+    /**
+     * Panel showing the list of categories to allow editing.
+     */
+    private IncludeExcludePanel iePanel;
+    /**
+     * List of categories the card belongs to.
+     */
+    private List<CategorySpec> included;
 
-	/**
-	 * {@inheritDoc}
-	 * Double-clicking activates editing.
-	 */
-	@Override
-	public boolean isCellEditable(EventObject eo)
-	{
-		return eo instanceof MouseEvent && ((MouseEvent) eo).getClickCount() > 1;
-	}
+    /**
+     * Create a new InclusionCellEditor from the given frame.
+     *
+     * @param f frame containing the table the new InclusionCellEditor goes in
+     */
+    public InclusionCellEditor(EditorFrame f)
+    {
+        frame = f;
+        editor = new JPanel()
+        {
+            @Override
+            public void paintComponent(Graphics g)
+            {
+                super.paintComponent(g);
+                int s = getHeight();
+                for (int i = 0; i < included.size(); i++)
+                {
+                    int x = i * (s + 1) + 1;
+                    int y = 1;
+                    g.setColor(included.get(i).getColor());
+                    g.fillRect(x, y, s - 3, s - 3);
+                    g.setColor(Color.BLACK);
+                    g.drawRect(x, y, s - 3, s - 3);
+                }
+            }
+        };
+        editor.addMouseListener(MouseListenerFactory.createPressListener((e) -> {
+            if (JOptionPane.showConfirmDialog(frame, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+                fireEditingStopped();
+            else
+                fireEditingCanceled();
+            iePanel = null;
+        }));
+    }
+
+    @Override
+    public Object getCellEditorValue()
+    {
+        return iePanel;
+    }
+
+    @Override
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
+    {
+        if (table instanceof CardTable)
+        {
+            CardTable cTable = (CardTable)table;
+            iePanel = new IncludeExcludePanel(frame.deck().categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getCardAt(cTable, row));
+            included = ((Collection<?>)value).stream().filter((o) -> o instanceof CategorySpec).map((o) -> (CategorySpec)o).collect(Collectors.toList());
+            if (!table.isRowSelected(row))
+                editor.setBackground(cTable.getRowColor(row));
+            else
+            {
+                editor.setBackground(table.getSelectionBackground());
+                if (table.hasFocus())
+                    editor.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+            }
+        }
+        else
+            iePanel = new IncludeExcludePanel(frame.deck().categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getSelectedCards());
+        return editor;
+    }
+
+    /**
+     * {@inheritDoc}
+     * Double-clicking activates editing.
+     */
+    @Override
+    public boolean isCellEditable(EventObject eo)
+    {
+        return eo instanceof MouseEvent && ((MouseEvent)eo).getClickCount() > 1;
+    }
 }

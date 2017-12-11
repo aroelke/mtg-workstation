@@ -35,76 +35,83 @@ import editor.gui.filter.editor.VariableNumberFilterPanel;
 
 /**
  * This class is a factory for creating new {@link FilterEditorPanel}s.
- * 
+ *
  * @author Alec Roelke
  */
 public interface FilterPanelFactory
 {
-	/**
-	 * Create a new FilterEditorPanel and fill it out with values from the given
-	 * Filter.
-	 * 
-	 * @param filter filter to create a new panel from
-	 * @return a #FilterEditorPanel whose type is determined by the given filter and
-	 * fill out its field using the values of the given filter.
-	 */
-	static FilterEditorPanel<?> createFilterPanel(FilterLeaf<?> filter)
-	{
-		switch (filter.type())
-		{
-		case FilterFactory.NAME: case FilterFactory.RULES_TEXT: case FilterFactory.FLAVOR_TEXT: case FilterFactory.ARTIST:
-			return new TextFilterPanel((TextFilter)filter);
-		case FilterFactory.LAYOUT:
-			return new OptionsFilterPanel<>((LayoutFilter)filter, CardLayout.values());
-		case FilterFactory.MANA_COST:
-			return new ManaCostFilterPanel((ManaCostFilter)filter);
-		case FilterFactory.CMC: case FilterFactory.CARD_NUMBER:
-			return new NumberFilterPanel((NumberFilter)filter);
-		case FilterFactory.COLOR: case FilterFactory.COLOR_IDENTITY:
-			return new ColorFilterPanel((ColorFilter)filter);
-		case FilterFactory.TYPE_LINE:
-			return new TypeLineFilterPanel((TypeLineFilter)filter);
-		case FilterFactory.SUPERTYPE:
-			return new OptionsFilterPanel<>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
-		case FilterFactory.TYPE:
-			return new OptionsFilterPanel<>((CardTypeFilter)filter, CardTypeFilter.typeList);
-		case FilterFactory.SUBTYPE:
-			return new OptionsFilterPanel<>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
-		case FilterFactory.EXPANSION:
-			return new OptionsFilterPanel<>((ExpansionFilter)filter, Expansion.expansions);
-		case FilterFactory.BLOCK:
-			return new OptionsFilterPanel<>((BlockFilter)filter, Expansion.blocks);
-		case FilterFactory.RARITY:
-			return new OptionsFilterPanel<>((RarityFilter)filter, Rarity.values());
-		case FilterFactory.POWER: case FilterFactory.TOUGHNESS: case FilterFactory.LOYALTY:
-			return new VariableNumberFilterPanel((VariableNumberFilter)filter);
-		case FilterFactory.FORMAT_LEGALITY:
-			return new LegalityFilterPanel((LegalityFilter)filter);
-		case FilterFactory.TAGS:
-			return new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
-		case FilterFactory.DEFAULTS:
-			return new DefaultsFilterPanel();
-		case FilterFactory.NONE:
-			return new BinaryFilterPanel(false);
-		case FilterFactory.ALL:
-			return new BinaryFilterPanel(true);
-		default:
-			return new BinaryFilterPanel(false);
-		}
-	}
-	
-	/**
-	 * Create a new FilterEditorPanel with default values.
-	 * 
-	 * @param type type of filter to create a panel for
-	 * @return a new #FilterEditorPanel corresponding to the given type with
-	 * its fields filled out with default values.
-	 */
-	static FilterEditorPanel<?> createFilterPanel(String type)
-	{
-		if (type.equals(FilterFactory.DEFAULTS))
-			return new DefaultsFilterPanel();
-		else
-			return createFilterPanel(FilterFactory.createFilter(type));
-	}
+    /**
+     * Create a new FilterEditorPanel and fill it out with values from the given
+     * Filter.
+     *
+     * @param filter filter to create a new panel from
+     * @return a #FilterEditorPanel whose type is determined by the given filter and
+     * fill out its field using the values of the given filter.
+     */
+    static FilterEditorPanel<?> createFilterPanel(FilterLeaf<?> filter)
+    {
+        switch (filter.type())
+        {
+        case FilterFactory.NAME:
+        case FilterFactory.RULES_TEXT:
+        case FilterFactory.FLAVOR_TEXT:
+        case FilterFactory.ARTIST:
+            return new TextFilterPanel((TextFilter)filter);
+        case FilterFactory.LAYOUT:
+            return new OptionsFilterPanel<>((LayoutFilter)filter, CardLayout.values());
+        case FilterFactory.MANA_COST:
+            return new ManaCostFilterPanel((ManaCostFilter)filter);
+        case FilterFactory.CMC:
+        case FilterFactory.CARD_NUMBER:
+            return new NumberFilterPanel((NumberFilter)filter);
+        case FilterFactory.COLOR:
+        case FilterFactory.COLOR_IDENTITY:
+            return new ColorFilterPanel((ColorFilter)filter);
+        case FilterFactory.TYPE_LINE:
+            return new TypeLineFilterPanel((TypeLineFilter)filter);
+        case FilterFactory.SUPERTYPE:
+            return new OptionsFilterPanel<>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
+        case FilterFactory.TYPE:
+            return new OptionsFilterPanel<>((CardTypeFilter)filter, CardTypeFilter.typeList);
+        case FilterFactory.SUBTYPE:
+            return new OptionsFilterPanel<>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
+        case FilterFactory.EXPANSION:
+            return new OptionsFilterPanel<>((ExpansionFilter)filter, Expansion.expansions);
+        case FilterFactory.BLOCK:
+            return new OptionsFilterPanel<>((BlockFilter)filter, Expansion.blocks);
+        case FilterFactory.RARITY:
+            return new OptionsFilterPanel<>((RarityFilter)filter, Rarity.values());
+        case FilterFactory.POWER:
+        case FilterFactory.TOUGHNESS:
+        case FilterFactory.LOYALTY:
+            return new VariableNumberFilterPanel((VariableNumberFilter)filter);
+        case FilterFactory.FORMAT_LEGALITY:
+            return new LegalityFilterPanel((LegalityFilter)filter);
+        case FilterFactory.TAGS:
+            return new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
+        case FilterFactory.DEFAULTS:
+            return new DefaultsFilterPanel();
+        case FilterFactory.NONE:
+            return new BinaryFilterPanel(false);
+        case FilterFactory.ALL:
+            return new BinaryFilterPanel(true);
+        default:
+            return new BinaryFilterPanel(false);
+        }
+    }
+
+    /**
+     * Create a new FilterEditorPanel with default values.
+     *
+     * @param type type of filter to create a panel for
+     * @return a new #FilterEditorPanel corresponding to the given type with
+     * its fields filled out with default values.
+     */
+    static FilterEditorPanel<?> createFilterPanel(String type)
+    {
+        if (type.equals(FilterFactory.DEFAULTS))
+            return new DefaultsFilterPanel();
+        else
+            return createFilterPanel(FilterFactory.createFilter(type));
+    }
 }

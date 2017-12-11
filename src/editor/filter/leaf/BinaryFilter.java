@@ -11,73 +11,73 @@ import editor.filter.FilterFactory;
 
 /**
  * This class represents a filter with only two options: All cards or no cards.
- * 
+ *
  * @author Alec Roelke
  */
 public class BinaryFilter extends FilterLeaf<Void>
 {
-	/**
-	 * Whether or not to let all Cards through the filter.
-	 */
-	private boolean all;
-	
-	/**
-	 * Create a new BinaryFilter that lets all cards through.  Should only be used
-	 * for deserialization.
-	 */
-	public BinaryFilter()
-	{
-		this(true);
-	}
-	
-	/**
-	 * Create a new BinaryFilter.
-	 * 
-	 * @param a whether or not to let all Cards through the filter.
-	 */
-	public BinaryFilter(boolean a)
-	{
-		super(a ? FilterFactory.ALL : FilterFactory.NONE, null);
-		all = a;
-	}
+    /**
+     * Whether or not to let all Cards through the filter.
+     */
+    private boolean all;
 
-	@Override
-	public Filter copy()
-	{
-		return FilterFactory.createFilter(type());
-	}
+    /**
+     * Create a new BinaryFilter that lets all cards through.  Should only be used
+     * for deserialization.
+     */
+    public BinaryFilter()
+    {
+        this(true);
+    }
 
-	@Override
-	public boolean equals(Object other)
-	{
-		return other != null && (other == this || other.getClass() == getClass() && ((BinaryFilter)other).all == all);
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(type(), function(), all);
-	}
-	
-	@Override
-	public void readExternal(ObjectInput in) throws IOException
-	{
-		all = in.readBoolean();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * Either let all cards through or none of them.
-	 */
-	@Override
-	public boolean test(Card c)
-	{
-		return all;
-	}
-	
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException
-	{
-		out.writeBoolean(all);
-	}
+    /**
+     * Create a new BinaryFilter.
+     *
+     * @param a whether or not to let all Cards through the filter.
+     */
+    public BinaryFilter(boolean a)
+    {
+        super(a ? FilterFactory.ALL : FilterFactory.NONE, null);
+        all = a;
+    }
+
+    @Override
+    public Filter copy()
+    {
+        return FilterFactory.createFilter(type());
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        return other != null && (other == this || other.getClass() == getClass() && ((BinaryFilter)other).all == all);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(type(), function(), all);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException
+    {
+        all = in.readBoolean();
+    }
+
+    /**
+     * {@inheritDoc}
+     * Either let all cards through or none of them.
+     */
+    @Override
+    public boolean test(Card c)
+    {
+        return all;
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException
+    {
+        out.writeBoolean(all);
+    }
 }
