@@ -70,10 +70,6 @@ public abstract class FilterFactory
      */
     public static final String EXPANSION = "x";
     /**
-     * Map of each filter type's code onto its name.
-     */
-    public static final Map<String, String> FILTER_TYPES;
-    /**
      * Code for a flavor text filter.
      */
     public static final String FLAVOR_TEXT = "f";
@@ -105,6 +101,10 @@ public abstract class FilterFactory
      * Code for a power filter.
      */
     public static final String POWER = "p";
+    /**
+     * Code for printed text.
+     */
+    public static final String PRINTED_TEXT = "print";
     /**
      * Code for a rarity filter.
      */
@@ -138,6 +138,10 @@ public abstract class FilterFactory
      */
     public static final String TYPE_LINE = "type";
 
+    /**
+     * Map of each filter type's code onto its name.
+     */
+    public static final Map<String, String> FILTER_TYPES;
     static
     {
         Map<String, String> filterTypes = new LinkedHashMap<>();
@@ -156,6 +160,7 @@ public abstract class FilterFactory
         filterTypes.put(RARITY, "Rarity");
         filterTypes.put(RULES_TEXT, "Rules Text");
         filterTypes.put(FLAVOR_TEXT, "Flavor Text");
+        filterTypes.put(PRINTED_TEXT, "Printed Text");
         filterTypes.put(POWER, "Power");
         filterTypes.put(TOUGHNESS, "Toughness");
         filterTypes.put(LOYALTY, "Loyalty");
@@ -215,6 +220,8 @@ public abstract class FilterFactory
             return new TextFilter(type, Card::normalizedOracle);
         case FLAVOR_TEXT:
             return new TextFilter(type, Card::normalizedFlavor);
+        case PRINTED_TEXT:
+            return new TextFilter(type, Card::normalizedPrinted);
         case POWER:
             return new VariableNumberFilter(type, (c) -> c.power().stream().map((p) -> p.value).collect(Collectors.toList()), Card::powerVariable);
         case TOUGHNESS:

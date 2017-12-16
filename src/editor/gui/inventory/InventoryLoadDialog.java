@@ -248,6 +248,9 @@ public class InventoryLoadDialog extends JDialog
                         // Card's flavor text
                         String flavor = card.has("flavor") ? card.get("flavor").getAsString() : "";
 
+                        // Card's printed text
+                        String printed = card.has("originalText") ? card.get("originalText").getAsString() : "";
+
                         // Card's artist
                         String artist = card.get("artist").getAsString();
 
@@ -313,6 +316,7 @@ public class InventoryLoadDialog extends JDialog
                                 set,
                                 text,
                                 flavor,
+                                printed,
                                 artist,
                                 multiverseid,
                                 number,

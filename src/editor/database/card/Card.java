@@ -721,6 +721,17 @@ public abstract class Card
     }
 
     /**
+     * Get the printed texts of this Card's faces in lower case and with special characters replaced
+     * with versions that appear on a standard QWERTY keyboard.
+     *
+     * @return a list containing the "normalized" printed texts of this Card's faces
+     */
+    public List<String> normalizedPrinted()
+    {
+        return normalizedPrinted.get();
+    }
+
+    /**
      * Get the collector number of each face of this Card.
      *
      * @return a list containing the collector's number of each face of this Card.

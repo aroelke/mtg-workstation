@@ -55,6 +55,7 @@ public interface FilterPanelFactory
         case FilterFactory.NAME:
         case FilterFactory.RULES_TEXT:
         case FilterFactory.FLAVOR_TEXT:
+        case FilterFactory.PRINTED_TEXT:
         case FilterFactory.ARTIST:
             return new TextFilterPanel((TextFilter)filter);
         case FilterFactory.LAYOUT:
