@@ -93,6 +93,10 @@ public abstract class MultiCard extends Card
      */
     private Lazy<List<CombatStat>> power;
     /**
+     * List containing the printed text of each of this MultiCard's faces.
+     */
+    private Lazy<List<String>> printedText;
+    /**
      * Map containing the rulings of this MultiCard and the dates they were made on.
      */
     private Lazy<Map<Date, List<String>>> rulings;
@@ -195,6 +199,7 @@ public abstract class MultiCard extends Card
         typeLine = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::typeLine)));
         oracleText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::oracleText)));
         flavorText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::flavorText)));
+        printedText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::printedText)));
         artist = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::artist)));
         number = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::number)));
         power = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::power)));
@@ -325,6 +330,12 @@ public abstract class MultiCard extends Card
     public List<CombatStat> power()
     {
         return power.get();
+    }
+
+    @Override
+    public List<String> printedText()
+    {
+        return printedText.get();
     }
 
     @Override

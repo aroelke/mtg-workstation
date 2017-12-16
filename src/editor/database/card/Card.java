@@ -134,6 +134,11 @@ public abstract class Card
      */
     private Lazy<List<String>> normalizedOracle;
     /**
+     * List of printed texts of the faces of this Card, converted to lower case and with special
+     * characers removed.
+     */
+    private Lazy<List<String>> normalizedPrinted;
+    /**
      * Whether or not any of this Card's faces has variable power.
      */
     private Lazy<Boolean> powerVariable;
@@ -224,6 +229,9 @@ public abstract class Card
             return Collections.unmodifiableList(texts);
         });
         normalizedFlavor = new Lazy<>(() -> Collections.unmodifiableList(flavorText().stream()
+            .map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
+            .collect(Collectors.toList())));
+        normalizedPrinted = new Lazy<>(() -> Collections.unmodifiableList(printedText().stream()
                 .map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
                 .collect(Collectors.toList())));
         powerVariable = new Lazy<>(() -> power().stream().anyMatch(CombatStat::variable));
@@ -744,6 +752,13 @@ public abstract class Card
     {
         return powerVariable.get();
     }
+
+    /**
+     * Get the printed texts of the faces of this Card.
+     *
+     * @return the printed text of each of this Card's faces in a list.
+     */
+    public abstract List<String> printedText();
 
     /**
      * Get this Card's rarity.

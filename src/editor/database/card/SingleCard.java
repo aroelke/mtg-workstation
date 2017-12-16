@@ -87,6 +87,10 @@ public class SingleCard extends Card
      */
     public final CombatStat power;
     /**
+     * The text actually printed on the card.
+     */
+    public final String printed;
+    /**
      * This Card's rarity.
      */
     private final Rarity rarity;
@@ -138,6 +142,7 @@ public class SingleCard extends Card
      * @param set           the Expansion the new Card belongs to
      * @param text          the new Card's rules text
      * @param flavor        the new Card's flavor text
+     * @param printed       the new Card's printed text
      * @param artist        the new Card's artist
      * @param number        the new Card's collector's number
      * @param power         the new Card's power
@@ -158,6 +163,7 @@ public class SingleCard extends Card
                       Expansion set,
                       String text,
                       String flavor,
+                      String printed,
                       String artist,
                       int multiverseid,
                       String number,
@@ -177,6 +183,7 @@ public class SingleCard extends Card
         this.subtypes = Collections.unmodifiableSet(subtype);
         this.text = text;
         this.flavor = flavor;
+        this.printed = printed;
         this.artist = artist;
         this.number = number;
         this.multiverseid = multiverseid;
@@ -343,6 +350,12 @@ public class SingleCard extends Card
     public List<CombatStat> power()
     {
         return Collections.singletonList(power);
+    }
+
+    @Override
+    public List<String> printedText()
+    {
+        return Collections.singletonList(printed);
     }
 
     @Override
