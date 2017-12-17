@@ -273,6 +273,10 @@ public class MainFrame extends JFrame
      */
     private JTextPane oracleTextPane;
     /**
+     * Pane for showing the printed text of the currently-selected card.
+     */
+    private JTextPane printedTextPane;
+    /**
      * Desktop pane containing internal editor frames.
      */
     private JDesktopPane decklistDesktop;
@@ -1164,6 +1168,11 @@ public class MainFrame extends JFrame
         oracleTextPane.setCursor(new Cursor(Cursor.TEXT_CURSOR));
         cardPane.addTab("Oracle Text", new JScrollPane(oracleTextPane));
 
+        printedTextPane = new JTextPane();
+        printedTextPane.setEditable(false);
+        printedTextPane.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+        cardPane.addTab("Printed Text", new JScrollPane(printedTextPane));
+
         rulingsPane = new JTextPane();
         rulingsPane.setEditable(false);
         rulingsPane.setCursor(new Cursor(Cursor.TEXT_CURSOR));
@@ -1172,6 +1181,7 @@ public class MainFrame extends JFrame
         // Oracle text pane popup menu
         JPopupMenu oraclePopupMenu = new JPopupMenu();
         oracleTextPane.setComponentPopupMenu(oraclePopupMenu);
+        printedTextPane.setComponentPopupMenu(oraclePopupMenu);
         imagePanel.setComponentPopupMenu(oraclePopupMenu);
 
         // Add the card to the main deck
@@ -1883,8 +1893,18 @@ public class MainFrame extends JFrame
             StyleConstants.setFontSize(oracleTextStyle, TEXT_SIZE);
             Style reminderStyle = oracleDocument.addStyle("reminder", oracleTextStyle);
             StyleConstants.setItalic(reminderStyle, true);
-            selectedCard.formatDocument(oracleDocument);
+            selectedCard.formatDocument(oracleDocument, false);
             oracleTextPane.setCaretPosition(0);
+
+            printedTextPane.setText("");
+            StyledDocument printedDocument = (StyledDocument)printedTextPane.getDocument();
+            Style printedTextStyle = printedDocument.addStyle("text", null);
+            StyleConstants.setFontFamily(printedTextStyle, UIManager.getFont("Label.font").getFamily());
+            StyleConstants.setFontSize(printedTextStyle, TEXT_SIZE);
+            reminderStyle = printedDocument.addStyle("reminder", oracleTextStyle);
+            StyleConstants.setItalic(reminderStyle, true);
+            selectedCard.formatDocument(printedDocument, true);
+            printedTextPane.setCaretPosition(0);
 
             rulingsPane.setText("");
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd");

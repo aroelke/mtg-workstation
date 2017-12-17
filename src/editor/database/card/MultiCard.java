@@ -97,6 +97,10 @@ public abstract class MultiCard extends Card
      */
     private Lazy<List<String>> printedText;
     /**
+     * List containing the printed type lines of each of this MultiCard's faces.
+     */
+    private Lazy<List<String>> printedTypes;
+    /**
      * Map containing the rulings of this MultiCard and the dates they were made on.
      */
     private Lazy<Map<Date, List<String>>> rulings;
@@ -197,6 +201,7 @@ public abstract class MultiCard extends Card
             return Collections.unmodifiableList(a);
         });
         typeLine = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::typeLine)));
+        printedTypes = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::printedTypes)));
         oracleText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::oracleText)));
         flavorText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::flavorText)));
         printedText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::printedText)));
@@ -336,6 +341,12 @@ public abstract class MultiCard extends Card
     public List<String> printedText()
     {
         return printedText.get();
+    }
+
+    @Override
+    public List<String> printedTypes()
+    {
+        return printedTypes.get();
     }
 
     @Override

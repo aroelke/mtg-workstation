@@ -75,10 +75,10 @@ public class MeldCard extends MultiCard
      * Includes some information to the front face indicating what the other front face is.
      */
     @Override
-    public void formatDocument(StyledDocument document, int f)
+    public void formatDocument(StyledDocument document, boolean printed, int f)
     {
         Style reminderStyle = document.getStyle("reminder");
-        super.formatDocument(document, f);
+        super.formatDocument(document, printed, f);
         if (f == 0)
         {
             try

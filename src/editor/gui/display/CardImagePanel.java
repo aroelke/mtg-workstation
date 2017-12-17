@@ -271,7 +271,7 @@ public class CardImagePanel extends JPanel
                     StyleConstants.setFontSize(textStyle, MainFrame.TEXT_SIZE);
                     Style reminderStyle = document.addStyle("reminder", textStyle);
                     StyleConstants.setItalic(reminderStyle, true);
-                    card.formatDocument(document, i);
+                    card.formatDocument(document, false, i);
                     missingCardPane.setSize(new Dimension(faceWidth - 4, h - 4));
 
                     BufferedImage img = new BufferedImage(faceWidth, h, BufferedImage.TYPE_INT_ARGB);

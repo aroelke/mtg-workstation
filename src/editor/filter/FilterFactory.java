@@ -104,7 +104,11 @@ public abstract class FilterFactory
     /**
      * Code for printed text.
      */
-    public static final String PRINTED_TEXT = "print";
+    public static final String PRINTED_TEXT = "ptext";
+    /**
+     * Code for printed type line.
+     */
+    public static final String PRINTED_TYPES = "ptypes";
     /**
      * Code for a rarity filter.
      */
@@ -155,6 +159,7 @@ public abstract class FilterFactory
         filterTypes.put(SUPERTYPE, "Supertype");
         filterTypes.put(TYPE, "Card Type");
         filterTypes.put(SUBTYPE, "Subtype");
+        filterTypes.put(PRINTED_TYPES, "Printed Type Line");
         filterTypes.put(EXPANSION, "Expansion");
         filterTypes.put(BLOCK, "Block");
         filterTypes.put(RARITY, "Rarity");
@@ -204,6 +209,8 @@ public abstract class FilterFactory
             return new ColorFilter(type, Card::colorIdentity);
         case TYPE_LINE:
             return new TypeLineFilter();
+        case PRINTED_TYPES:
+            return new TextFilter(type, Card::printedTypes);
         case SUPERTYPE:
             return new SupertypeFilter();
         case TYPE:

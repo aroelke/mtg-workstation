@@ -57,6 +57,7 @@ public interface FilterPanelFactory
         case FilterFactory.FLAVOR_TEXT:
         case FilterFactory.PRINTED_TEXT:
         case FilterFactory.ARTIST:
+        case FilterFactory.PRINTED_TYPES:
             return new TextFilterPanel((TextFilter)filter);
         case FilterFactory.LAYOUT:
             return new OptionsFilterPanel<>((LayoutFilter)filter, CardLayout.values());

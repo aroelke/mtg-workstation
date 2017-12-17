@@ -91,6 +91,10 @@ public class SingleCard extends Card
      */
     public final String printed;
     /**
+     * The type line actually printed on the card.
+     */
+    public final String printedTypes;
+    /**
      * This Card's rarity.
      */
     private final Rarity rarity;
@@ -138,6 +142,7 @@ public class SingleCard extends Card
      * @param supertype     the new Card's supertypes
      * @param type          the new Card's types
      * @param subtype       the new Card's subtypes
+     * @param printedTypes   the new Card's printed type line
      * @param rarity        the new Card's rarity
      * @param set           the Expansion the new Card belongs to
      * @param text          the new Card's rules text
@@ -159,6 +164,7 @@ public class SingleCard extends Card
                       Set<String> supertype,
                       Set<String> type,
                       Set<String> subtype,
+                      String printedTypes,
                       Rarity rarity,
                       Expansion set,
                       String text,
@@ -181,6 +187,7 @@ public class SingleCard extends Card
         this.supertypes = Collections.unmodifiableSet(supertype);
         this.types = Collections.unmodifiableSet(type);
         this.subtypes = Collections.unmodifiableSet(subtype);
+        this.printedTypes = printedTypes;
         this.text = text;
         this.flavor = flavor;
         this.printed = printed;
@@ -356,6 +363,12 @@ public class SingleCard extends Card
     public List<String> printedText()
     {
         return Collections.singletonList(printed);
+    }
+
+    @Override
+    public List<String> printedTypes()
+    {
+        return Collections.singletonList(printedTypes);
     }
 
     @Override

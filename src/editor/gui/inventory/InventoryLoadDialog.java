@@ -239,6 +239,9 @@ public class InventoryLoadDialog extends JDialog
                             }
                         }
 
+                        // Card's printed types
+                        String printedTypes = card.has("originalType") ? card.get("originalType").getAsString() : "";
+
                         // Card's rarity
                         Rarity rarity = Rarity.parseRarity(card.get("rarity").getAsString());
 
@@ -312,6 +315,7 @@ public class InventoryLoadDialog extends JDialog
                                 supertypes,
                                 types,
                                 subtypes,
+                                printedTypes,
                                 rarity,
                                 set,
                                 text,

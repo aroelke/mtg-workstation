@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -37,8 +38,6 @@ import editor.util.UnicodeSymbols;
  * This interface represents an abstract Card with various characteristics.  Each card can be uniquely
  * identified by the set it is in, its name, and its image name (which is its name followed by a
  * number if there is more than one version of the same card in the same set).  All of its values are constant.
- * <p>
- * TODO: Add printed text in addition to Oracle text.
  *
  * @author Alec Roelke
  */
@@ -64,7 +63,6 @@ public abstract class Card
      * String representing this Card's name in its text box.
      */
     public static final String THIS = "~";
-
 
     /**
      * Get all of the tags across all of the cards.
@@ -348,15 +346,16 @@ public abstract class Card
      * by a separator on its own line.
      *
      * @param document document to add text to
+     * @param printed  whether to use printed or Oracle data for a card
      */
-    public void formatDocument(StyledDocument document)
+    public void formatDocument(StyledDocument document, boolean printed)
     {
         Style textStyle = document.getStyle("text");
         try
         {
             for (int f = 0; f < faces; f++)
             {
-                formatDocument(document, f);
+                formatDocument(document, printed, f);
                 if (f < faces - 1)
                     document.insertString(document.getLength(), "\n" + TEXT_SEPARATOR + "\n", textStyle);
             }
@@ -372,9 +371,10 @@ public abstract class Card
      * Card's Oracle text.  The document is expected to have styles "text" and "reminder."
      *
      * @param document document to format
+     * @param printed  whether to use printed or Oracle data for a card
      * @param f        face to add to the document
      */
-    public void formatDocument(StyledDocument document, int f)
+    public void formatDocument(StyledDocument document, boolean printed, int f)
     {
         Style textStyle = document.getStyle("text");
         Style reminderStyle = document.getStyle("reminder");
@@ -408,28 +408,31 @@ public abstract class Card
                 if (!colors().isEmpty())
                     document.insertString(document.getLength(), " ", textStyle);
             }
-            document.insertString(document.getLength(), typeLine().get(f) + '\n', textStyle);
+            if (printed)
+                document.insertString(document.getLength(), printedTypes().get(f) + '\n', textStyle);
+            else
+                document.insertString(document.getLength(), typeLine().get(f) + '\n', textStyle);
             document.insertString(document.getLength(), expansion.name + ' ' + rarity() + '\n', textStyle);
 
-            String oracle = oracleText().get(f);
-            if (!oracle.isEmpty())
+            String abilities = (printed ? printedText() : oracleText()).get(f);
+            if (!abilities.isEmpty())
             {
                 int start = 0;
                 Style style = textStyle;
-                for (int i = 0; i < oracle.length(); i++)
+                for (int i = 0; i < abilities.length(); i++)
                 {
-                    switch (oracle.charAt(i))
+                    switch (abilities.charAt(i))
                     {
                     case '{':
-                        document.insertString(document.getLength(), oracle.substring(start, i), style);
+                        document.insertString(document.getLength(), abilities.substring(start, i), style);
                         start = i + 1;
                         break;
                     case '}':
-                        Symbol symbol = Symbol.tryParseSymbol(oracle.substring(start, i));
+                        Symbol symbol = Symbol.tryParseSymbol(abilities.substring(start, i));
                         if (symbol == null)
                         {
-                            System.err.println("Unexpected symbol {" + oracle.substring(start, i) + "} in oracle text for " + unifiedName() + ".");
-                            document.insertString(document.getLength(), oracle.substring(start, i), textStyle);
+                            System.err.println("Unexpected symbol {" + abilities.substring(start, i) + "} in oracle text for " + unifiedName() + ".");
+                            document.insertString(document.getLength(), abilities.substring(start, i), textStyle);
                         }
                         else
                         {
@@ -440,19 +443,19 @@ public abstract class Card
                         start = i + 1;
                         break;
                     case '(':
-                        document.insertString(document.getLength(), oracle.substring(start, i), style);
+                        document.insertString(document.getLength(), abilities.substring(start, i), style);
                         style = reminderStyle;
                         start = i;
                         break;
                     case ')':
-                        document.insertString(document.getLength(), oracle.substring(start, i + 1), style);
+                        document.insertString(document.getLength(), abilities.substring(start, i + 1), style);
                         style = textStyle;
                         start = i + 1;
                         break;
                     case 'C':
-                        if (i < oracle.length() - 5 && oracle.substring(i, i + 5).equals("CHAOS"))
+                        if (i < abilities.length() - 5 && abilities.substring(i, i + 5).equals("CHAOS"))
                         {
-                            document.insertString(document.getLength(), oracle.substring(start, i), style);
+                            document.insertString(document.getLength(), abilities.substring(start, i), style);
                             document.insertString(document.getLength(), "CHAOS", chaosStyle);
                             start = i += 5;
                         }
@@ -460,8 +463,8 @@ public abstract class Card
                     default:
                         break;
                     }
-                    if (i == oracle.length() - 1 && oracle.charAt(i) != '}' && oracle.charAt(i) != ')')
-                        document.insertString(document.getLength(), oracle.substring(start, i + 1), style);
+                    if (i == abilities.length() - 1 && abilities.charAt(i) != '}' && abilities.charAt(i) != ')')
+                        document.insertString(document.getLength(), abilities.substring(start, i + 1), style);
                 }
                 document.insertString(document.getLength(), "\n", textStyle);
             }
@@ -770,6 +773,13 @@ public abstract class Card
      * @return the printed text of each of this Card's faces in a list.
      */
     public abstract List<String> printedText();
+
+    /**
+     * Get the printed types of this Card.
+     *
+     * @return the printed types of each of this Card's faces in a list.
+     */
+    public abstract List<String> printedTypes();
 
     /**
      * Get this Card's rarity.
