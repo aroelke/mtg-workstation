@@ -1,5 +1,6 @@
 package editor.filter;
 
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -145,39 +146,33 @@ public abstract class FilterFactory
     /**
      * Map of each filter type's code onto its name.
      */
-    public static final Map<String, String> FILTER_TYPES;
-    static
-    {
-        Map<String, String> filterTypes = new LinkedHashMap<>();
-        filterTypes.put(NAME, "Name");
-        filterTypes.put(LAYOUT, "Layout");
-        filterTypes.put(MANA_COST, "Mana Cost");
-        filterTypes.put(CMC, "CMC");
-        filterTypes.put(COLOR, "Color");
-        filterTypes.put(COLOR_IDENTITY, "Color Identity");
-        filterTypes.put(TYPE_LINE, "Type Line");
-        filterTypes.put(SUPERTYPE, "Supertype");
-        filterTypes.put(TYPE, "Card Type");
-        filterTypes.put(SUBTYPE, "Subtype");
-        filterTypes.put(PRINTED_TYPES, "Printed Type Line");
-        filterTypes.put(EXPANSION, "Expansion");
-        filterTypes.put(BLOCK, "Block");
-        filterTypes.put(RARITY, "Rarity");
-        filterTypes.put(RULES_TEXT, "Rules Text");
-        filterTypes.put(FLAVOR_TEXT, "Flavor Text");
-        filterTypes.put(PRINTED_TEXT, "Printed Text");
-        filterTypes.put(POWER, "Power");
-        filterTypes.put(TOUGHNESS, "Toughness");
-        filterTypes.put(LOYALTY, "Loyalty");
-        filterTypes.put(ARTIST, "Artist");
-        filterTypes.put(CARD_NUMBER, "Card Number");
-        filterTypes.put(FORMAT_LEGALITY, "Format Legality");
-        filterTypes.put(TAGS, "Tags");
-        filterTypes.put(DEFAULTS, "Defaults");
-        filterTypes.put(NONE, "<No Card>");
-        filterTypes.put(ALL, "<Any Card>");
-        FILTER_TYPES = Collections.unmodifiableMap(filterTypes);
-    }
+    public static final Map<String, String> FILTER_TYPES = Map.ofEntries(new AbstractMap.SimpleImmutableEntry<>(NAME, "Name"),
+            new AbstractMap.SimpleImmutableEntry<>(LAYOUT, "Layout"),
+            new AbstractMap.SimpleImmutableEntry<>(MANA_COST, "Mana Cost"),
+            new AbstractMap.SimpleImmutableEntry<>(CMC, "CMC"),
+            new AbstractMap.SimpleImmutableEntry<>(COLOR, "Color"),
+            new AbstractMap.SimpleImmutableEntry<>(COLOR_IDENTITY, "Color Identity"),
+            new AbstractMap.SimpleImmutableEntry<>(TYPE_LINE, "Type Line"),
+            new AbstractMap.SimpleImmutableEntry<>(SUPERTYPE, "Supertype"),
+            new AbstractMap.SimpleImmutableEntry<>(TYPE, "Card Type"),
+            new AbstractMap.SimpleImmutableEntry<>(SUBTYPE, "Subtype"),
+            new AbstractMap.SimpleImmutableEntry<>(PRINTED_TYPES, "Printed Type Line"),
+            new AbstractMap.SimpleImmutableEntry<>(EXPANSION, "Expansion"),
+            new AbstractMap.SimpleImmutableEntry<>(BLOCK, "Block"),
+            new AbstractMap.SimpleImmutableEntry<>(RARITY, "Rarity"),
+            new AbstractMap.SimpleImmutableEntry<>(RULES_TEXT, "Rules Text"),
+            new AbstractMap.SimpleImmutableEntry<>(FLAVOR_TEXT, "Flavor Text"),
+            new AbstractMap.SimpleImmutableEntry<>(PRINTED_TEXT, "Printed Text"),
+            new AbstractMap.SimpleImmutableEntry<>(POWER, "Power"),
+            new AbstractMap.SimpleImmutableEntry<>(TOUGHNESS, "Toughness"),
+            new AbstractMap.SimpleImmutableEntry<>(LOYALTY, "Loyalty"),
+            new AbstractMap.SimpleImmutableEntry<>(ARTIST, "Artist"),
+            new AbstractMap.SimpleImmutableEntry<>(CARD_NUMBER, "Card Number"),
+            new AbstractMap.SimpleImmutableEntry<>(FORMAT_LEGALITY, "Format Legality"),
+            new AbstractMap.SimpleImmutableEntry<>(TAGS, "Tags"),
+            new AbstractMap.SimpleImmutableEntry<>(DEFAULTS, "Defaults"),
+            new AbstractMap.SimpleImmutableEntry<>(NONE, "<No Card>"),
+            new AbstractMap.SimpleImmutableEntry<>(ALL, "<Any Card>"));
 
     /**
      * Code for a group of filters.
