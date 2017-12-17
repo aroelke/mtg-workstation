@@ -29,6 +29,8 @@ import editor.filter.leaf.options.single.RarityFilter;
 /**
  * This class is a factory for creating new filters.
  *
+ * TODO: Use an enum rather than a bunch of static constants
+ *
  * @author Alec Roelke
  */
 public abstract class FilterFactory
