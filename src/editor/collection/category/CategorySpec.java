@@ -5,11 +5,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collection;
-import java.util.EventObject;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import editor.database.card.Card;
 import editor.filter.Filter;
@@ -26,6 +22,35 @@ import editor.gui.MainFrame;
  */
 public class CategorySpec implements Externalizable
 {
+    private static final Map<String, String> CODES = Map.ofEntries(new AbstractMap.SimpleImmutableEntry<>(FilterFactory.TYPE, "cardtype"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.ALL, "*"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.FORMAT_LEGALITY, "legal"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.TYPE_LINE, "type"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.BLOCK, "b"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.EXPANSION, "x"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.LAYOUT, "L"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.MANA_COST, "m"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.NAME, "n"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.NONE, "0"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.RARITY, "r"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.SUBTYPE, "sub"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.SUPERTYPE, "super"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.TAGS, "tag"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.LOYALTY, "l"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.ARTIST, "a"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.CARD_NUMBER, "#"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.CMC, "cmc"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.COLOR, "c"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.COLOR_IDENTITY, "ci"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.FLAVOR_TEXT, "f"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.POWER, "p"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.PRINTED_TEXT, "ptext"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.PRINTED_TYPES, "ptypes"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.RULES_TEXT, "o"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.TOUGHNESS, "t"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.GROUP, "group"),
+                                                                   new AbstractMap.SimpleImmutableEntry<>(FilterFactory.DEFAULTS, ""));
+
     /**
      * This class represents an event that changes a {@link CategorySpec}.  It can tell
      * which {@link CategorySpec} changed, and which of its parameters changed as a result
@@ -404,12 +429,19 @@ public class CategorySpec implements Externalizable
         name = in.readUTF();
         color = (Color)in.readObject();
 
-        String type = in.readUTF();
-        if (type.equals(FilterFactory.GROUP))
-            filter = new FilterGroup();
-        else
-            filter = FilterFactory.createFilter(type);
-        filter.readExternal(in);
+        String code = in.readUTF();
+        for (String type: CODES.keySet())
+        {
+            if (code.equals(CODES.get(type)))
+            {
+                if (type.equals(FilterFactory.GROUP))
+                    filter = new FilterGroup();
+                else
+                    filter = FilterFactory.createFilter(type);
+                filter.readExternal(in);
+                break;
+            }
+        }
 
         n = in.readInt();
         for (int i = 0; i < n; i++)
@@ -495,7 +527,7 @@ public class CategorySpec implements Externalizable
         out.writeUTF(name);
         out.writeObject(color);
 
-        out.writeUTF(filter.type());
+        out.writeUTF(CODES.get(filter.type()));
         filter.writeExternal(out);
 
         out.writeInt(blacklist.size());
