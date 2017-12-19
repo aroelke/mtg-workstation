@@ -9,14 +9,14 @@ import java.util.stream.Collectors;
 import editor.collection.CardList;
 import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
-import editor.database.characteristics.CardData;
+import editor.database.characteristics.CardAttribute;
 import editor.util.CollectionUtils;
 
 /**
  * This class represents a method of formatting a card into a string.  It takes
  * a format string, which consists of arbitrary characters and format specifiers,
  * and replaces the format specifiers with the corresponding values of a card
- * in a deck.  A format specifier consists of the name of a {@link CardData}
+ * in a deck.  A format specifier consists of the name of a {@link CardAttribute}
  * surrounded by braces ({}).
  *
  * @author Alec Roelke
@@ -91,9 +91,9 @@ public class CardFormat
     /**
      * Format a card using this CardFormat's format specifier.  Deck-dependent
      * values will be statically assigned:
-     * {@link CardData#COUNT}: 1
-     * {@link CardData#CATEGORIES}: empty set
-     * {@link CardData#DATE_ADDED}: the card's release date
+     * {@link CardAttribute#COUNT}: 1
+     * {@link CardAttribute#CATEGORIES}: empty set
+     * {@link CardAttribute#DATE_ADDED}: the card's release date
      *
      * @param card card to format
      * @return the formatted string
@@ -113,7 +113,7 @@ public class CardFormat
     public String format(CardList.Entry card)
     {
         String pattern = format;
-        for (CardData type : CardData.values())
+        for (CardAttribute type : CardAttribute.values())
         {
             String replacement = '{' + type.toString().toLowerCase() + '}';
             switch (type)

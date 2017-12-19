@@ -27,7 +27,7 @@ import javax.swing.border.TitledBorder;
 
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
-import editor.database.characteristics.CardData;
+import editor.database.characteristics.CardAttribute;
 import editor.gui.SettingsDialog;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
@@ -327,7 +327,7 @@ public class CategoryPanel extends JPanel
      */
     public void applySettings(EditorFrame editor)
     {
-        List<CardData> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
+        List<CardAttribute> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
         Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
         model.setColumns(columns);
         table.setStripeColor(stripe);

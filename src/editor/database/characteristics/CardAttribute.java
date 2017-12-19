@@ -13,7 +13,7 @@ import editor.database.card.CardLayout;
  *
  * @author Alec Roelke
  */
-public enum CardData
+public enum CardAttribute
 {
     /**
      * Name of a card.
@@ -89,43 +89,43 @@ public enum CardData
     DATE_ADDED("Date Added", LocalDate.class);
 
     /**
-     * Parse a String for a CardData.
+     * Parse a String for a CardAttribute.
      *
      * @param s String to parse
-     * @return the CardData that corresponds to the given String.
-     * @throws IllegalArgumentException if no such CardData exists
+     * @return the CardAttribute that corresponds to the given String.
+     * @throws IllegalArgumentException if no such CardAttribute exists
      */
-    public static CardData parseCardData(String s) throws IllegalArgumentException
+    public static CardAttribute parseCardData(String s) throws IllegalArgumentException
     {
-        for (CardData c : CardData.values())
+        for (CardAttribute c : CardAttribute.values())
             if (c.toString().equalsIgnoreCase(s))
                 return c;
         throw new IllegalArgumentException("Illegal characteristic string \"" + s + "\"");
     }
 
     /**
-     * Get the types of CardData that can be returned by an {@link Inventory}.
+     * Get the types of CardAttribute that can be returned by an {@link Inventory}.
      *
-     * @return An array containing the CardData that can be shown in the inventory table.
+     * @return An array containing the CardAttribute that can be shown in the inventory table.
      */
-    public static CardData[] inventoryValues()
+    public static CardAttribute[] inventoryValues()
     {
-        return new CardData[]{NAME,
-                LAYOUT,
-                MANA_COST,
-                CMC,
-                COLORS,
-                COLOR_IDENTITY,
-                TYPE_LINE,
-                EXPANSION_NAME,
-                RARITY,
-                POWER,
-                TOUGHNESS,
-                LOYALTY,
-                ARTIST,
-                CARD_NUMBER,
-                LEGAL_IN,
-                DATE_ADDED};
+        return new CardAttribute[]{NAME,
+                                   LAYOUT,
+                                   MANA_COST,
+                                   CMC,
+                                   COLORS,
+                                   COLOR_IDENTITY,
+                                   TYPE_LINE,
+                                   EXPANSION_NAME,
+                                   RARITY,
+                                   POWER,
+                                   TOUGHNESS,
+                                   LOYALTY,
+                                   ARTIST,
+                                   CARD_NUMBER,
+                                   LEGAL_IN,
+                                   DATE_ADDED};
     }
 
     /**
@@ -140,10 +140,10 @@ public enum CardData
     /**
      * Create a CardCharacteristic with the specified name and column class.
      *
-     * @param n name of the new CardData
+     * @param n name of the new CardAttribute
      * @param c class of the corresponding information on a card
      */
-    CardData(String n, Class<?> c)
+    CardAttribute(String n, Class<?> c)
     {
         name = n;
         dataType = c;

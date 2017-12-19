@@ -100,7 +100,7 @@ import editor.collection.export.CardListFormat;
 import editor.collection.export.DelimitedCardListFormat;
 import editor.collection.export.TextCardListFormat;
 import editor.database.card.Card;
-import editor.database.characteristics.CardData;
+import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.Symbol;
@@ -514,7 +514,7 @@ public class MainFrame extends JFrame
                     includeCheckBox.setSelected(true);
                     optionsPanel.add(includeCheckBox);
                     dataPanel.add(optionsPanel, BorderLayout.NORTH);
-                    JList<CardData> headersList = new JList<>(CardData.values());
+                    JList<CardAttribute> headersList = new JList<>(CardAttribute.values());
                     headersList.setEnabled(!includeCheckBox.isSelected());
                     JScrollPane headersPane = new JScrollPane(headersList);
                     JPanel headersPanel = new JPanel();
@@ -525,13 +525,13 @@ public class MainFrame extends JFrame
                         rearrange.setEnabled(!includeCheckBox.isSelected());
                     headersPanel.add(rearrangeButtons);
                     headersPanel.add(Box.createHorizontalStrut(5));
-                    DefaultListModel<CardData> selectedHeadersModel = new DefaultListModel<>();
-                    selectedHeadersModel.addElement(CardData.NAME);
-                    selectedHeadersModel.addElement(CardData.EXPANSION_NAME);
-                    selectedHeadersModel.addElement(CardData.CARD_NUMBER);
-                    selectedHeadersModel.addElement(CardData.COUNT);
-                    selectedHeadersModel.addElement(CardData.DATE_ADDED);
-                    JList<CardData> selectedHeadersList = new JList<>(selectedHeadersModel);
+                    DefaultListModel<CardAttribute> selectedHeadersModel = new DefaultListModel<>();
+                    selectedHeadersModel.addElement(CardAttribute.NAME);
+                    selectedHeadersModel.addElement(CardAttribute.EXPANSION_NAME);
+                    selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER);
+                    selectedHeadersModel.addElement(CardAttribute.COUNT);
+                    selectedHeadersModel.addElement(CardAttribute.DATE_ADDED);
+                    JList<CardAttribute> selectedHeadersList = new JList<>(selectedHeadersModel);
                     selectedHeadersList.setEnabled(!includeCheckBox.isSelected());
                     headersPanel.add(new JScrollPane(selectedHeadersList)
                     {
@@ -550,7 +550,7 @@ public class MainFrame extends JFrame
                     headersPanel.add(headersPane);
                     dataPanel.add(headersPanel, BorderLayout.CENTER);
                     rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((v) -> {
-                        List<CardData> selected = selectedHeadersList.getSelectedValuesList();
+                        List<CardAttribute> selected = selectedHeadersList.getSelectedValuesList();
                         int ignore = 0;
                         for (int index : selectedHeadersList.getSelectedIndices())
                         {
@@ -559,19 +559,19 @@ public class MainFrame extends JFrame
                                 ignore++;
                                 continue;
                             }
-                            CardData temp = selectedHeadersModel.getElementAt(index - 1);
+                            CardAttribute temp = selectedHeadersModel.getElementAt(index - 1);
                             selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index - 1);
                             selectedHeadersModel.setElementAt(temp, index);
                         }
                         selectedHeadersList.clearSelection();
-                        for (CardData type : selected)
+                        for (CardAttribute type : selected)
                         {
                             int index = selectedHeadersModel.indexOf(type);
                             selectedHeadersList.addSelectionInterval(index, index);
                         }
                     });
                     rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener((v) -> {
-                        List<CardData> selected = selectedHeadersList.getSelectedValuesList();
+                        List<CardAttribute> selected = selectedHeadersList.getSelectedValuesList();
                         List<Integer> indices = Arrays.stream(selectedHeadersList.getSelectedIndices()).boxed().collect(Collectors.toList());
                         Collections.reverse(indices);
                         int ignore = selectedHeadersModel.size() - 1;
@@ -582,25 +582,25 @@ public class MainFrame extends JFrame
                                 ignore--;
                                 continue;
                             }
-                            CardData temp = selectedHeadersModel.getElementAt(index + 1);
+                            CardAttribute temp = selectedHeadersModel.getElementAt(index + 1);
                             selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index + 1);
                             selectedHeadersModel.setElementAt(temp, index);
                         }
                         selectedHeadersList.clearSelection();
-                        for (CardData type : selected)
+                        for (CardAttribute type : selected)
                         {
                             int index = selectedHeadersModel.indexOf(type);
                             selectedHeadersList.addSelectionInterval(index, index);
                         }
                     });
                     moveButtons.get(String.valueOf(UnicodeSymbols.LEFT_ARROW)).addActionListener((v) -> {
-                        for (CardData selected : headersList.getSelectedValuesList())
+                        for (CardAttribute selected : headersList.getSelectedValuesList())
                             if (!selectedHeadersModel.contains(selected))
                                 selectedHeadersModel.addElement(selected);
                         headersList.clearSelection();
                     });
                     moveButtons.get(String.valueOf(UnicodeSymbols.RIGHT_ARROW)).addActionListener((v) -> {
-                        for (CardData selected : new ArrayList<>(selectedHeadersList.getSelectedValuesList()))
+                        for (CardAttribute selected : new ArrayList<>(selectedHeadersList.getSelectedValuesList()))
                             selectedHeadersModel.removeElement(selected);
                     });
                     includeCheckBox.addActionListener((v) -> {
@@ -644,7 +644,7 @@ public class MainFrame extends JFrame
                             }
                             else
                             {
-                                CardData[] columns = new CardData[selectedHeadersModel.size()];
+                                CardAttribute[] columns = new CardAttribute[selectedHeadersModel.size()];
                                 for (int i = 0; i < selectedHeadersModel.size(); i++)
                                     columns[i] = selectedHeadersModel.getElementAt(i);
                                 String[][] data = lines.stream().map((s) -> DelimitedCardListFormat.split(String.valueOf(delimiterBox.getSelectedItem()), s)).toArray(String[][]::new);
@@ -667,7 +667,7 @@ public class MainFrame extends JFrame
 
                     if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardDialog.FINISH_OPTION)
                     {
-                        List<CardData> selected = new ArrayList<>(selectedHeadersModel.size());
+                        List<CardAttribute> selected = new ArrayList<>(selectedHeadersModel.size());
                         for (int i = 0; i < selectedHeadersModel.size(); i++)
                             selected.add(selectedHeadersModel.getElementAt(i));
                         format = new DelimitedCardListFormat(String.valueOf(delimiterBox.getSelectedItem()), selected, !includeCheckBox.isSelected());
@@ -725,7 +725,7 @@ public class MainFrame extends JFrame
                         fieldPanel.add(formatField, BorderLayout.CENTER);
                         JPanel addDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                         addDataPanel.add(new JLabel("Add Data: "));
-                        JComboBox<CardData> addDataBox = new JComboBox<>(CardData.values());
+                        JComboBox<CardAttribute> addDataBox = new JComboBox<>(CardAttribute.values());
                         addDataPanel.add(addDataBox);
                         fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
                         wizardPanel.add(fieldPanel, BorderLayout.NORTH);
@@ -775,7 +775,7 @@ public class MainFrame extends JFrame
                     else if (exportChooser.getFileFilter() == delimited)
                     {
                         JPanel wizardPanel = new JPanel(new BorderLayout());
-                        JList<CardData> headersList = new JList<>(CardData.values());
+                        JList<CardAttribute> headersList = new JList<>(CardAttribute.values());
                         JScrollPane headersPane = new JScrollPane(headersList);
                         JPanel headersPanel = new JPanel();
                         headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));
@@ -783,13 +783,13 @@ public class MainFrame extends JFrame
                         VerticalButtonList rearrangeButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.UP_ARROW), String.valueOf(UnicodeSymbols.DOWN_ARROW));
                         headersPanel.add(rearrangeButtons);
                         headersPanel.add(Box.createHorizontalStrut(5));
-                        DefaultListModel<CardData> selectedHeadersModel = new DefaultListModel<>();
-                        selectedHeadersModel.addElement(CardData.NAME);
-                        selectedHeadersModel.addElement(CardData.EXPANSION_NAME);
-                        selectedHeadersModel.addElement(CardData.CARD_NUMBER);
-                        selectedHeadersModel.addElement(CardData.COUNT);
-                        selectedHeadersModel.addElement(CardData.DATE_ADDED);
-                        JList<CardData> selectedHeadersList = new JList<>(selectedHeadersModel);
+                        DefaultListModel<CardAttribute> selectedHeadersModel = new DefaultListModel<>();
+                        selectedHeadersModel.addElement(CardAttribute.NAME);
+                        selectedHeadersModel.addElement(CardAttribute.EXPANSION_NAME);
+                        selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER);
+                        selectedHeadersModel.addElement(CardAttribute.COUNT);
+                        selectedHeadersModel.addElement(CardAttribute.DATE_ADDED);
+                        JList<CardAttribute> selectedHeadersList = new JList<>(selectedHeadersModel);
                         headersPanel.add(new JScrollPane(selectedHeadersList)
                         {
                             @Override
@@ -806,7 +806,7 @@ public class MainFrame extends JFrame
                         wizardPanel.add(headersPanel, BorderLayout.CENTER);
 
                         rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((v) -> {
-                            List<CardData> selected = selectedHeadersList.getSelectedValuesList();
+                            List<CardAttribute> selected = selectedHeadersList.getSelectedValuesList();
                             int ignore = 0;
                             for (int index : selectedHeadersList.getSelectedIndices())
                             {
@@ -815,19 +815,19 @@ public class MainFrame extends JFrame
                                     ignore++;
                                     continue;
                                 }
-                                CardData temp = selectedHeadersModel.getElementAt(index - 1);
+                                CardAttribute temp = selectedHeadersModel.getElementAt(index - 1);
                                 selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index - 1);
                                 selectedHeadersModel.setElementAt(temp, index);
                             }
                             selectedHeadersList.clearSelection();
-                            for (CardData type : selected)
+                            for (CardAttribute type : selected)
                             {
                                 int index = selectedHeadersModel.indexOf(type);
                                 selectedHeadersList.addSelectionInterval(index, index);
                             }
                         });
                         rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener((v) -> {
-                            List<CardData> selected = selectedHeadersList.getSelectedValuesList();
+                            List<CardAttribute> selected = selectedHeadersList.getSelectedValuesList();
                             List<Integer> indices = Arrays.stream(selectedHeadersList.getSelectedIndices()).boxed().collect(Collectors.toList());
                             Collections.reverse(indices);
                             int ignore = selectedHeadersModel.size() - 1;
@@ -838,25 +838,25 @@ public class MainFrame extends JFrame
                                     ignore--;
                                     continue;
                                 }
-                                CardData temp = selectedHeadersModel.getElementAt(index + 1);
+                                CardAttribute temp = selectedHeadersModel.getElementAt(index + 1);
                                 selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index + 1);
                                 selectedHeadersModel.setElementAt(temp, index);
                             }
                             selectedHeadersList.clearSelection();
-                            for (CardData type : selected)
+                            for (CardAttribute type : selected)
                             {
                                 int index = selectedHeadersModel.indexOf(type);
                                 selectedHeadersList.addSelectionInterval(index, index);
                             }
                         });
                         moveButtons.get(String.valueOf(UnicodeSymbols.LEFT_ARROW)).addActionListener((v) -> {
-                            for (CardData selected : headersList.getSelectedValuesList())
+                            for (CardAttribute selected : headersList.getSelectedValuesList())
                                 if (!selectedHeadersModel.contains(selected))
                                     selectedHeadersModel.addElement(selected);
                             headersList.clearSelection();
                         });
                         moveButtons.get(String.valueOf(UnicodeSymbols.RIGHT_ARROW)).addActionListener((v) -> {
-                            for (CardData selected : new ArrayList<>(selectedHeadersList.getSelectedValuesList()))
+                            for (CardAttribute selected : new ArrayList<>(selectedHeadersList.getSelectedValuesList()))
                                 selectedHeadersModel.removeElement(selected);
                         });
 
@@ -872,7 +872,7 @@ public class MainFrame extends JFrame
 
                         if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
                         {
-                            List<CardData> selected = new ArrayList<>(selectedHeadersModel.size());
+                            List<CardAttribute> selected = new ArrayList<>(selectedHeadersModel.size());
                             for (int i = 0; i < selectedHeadersModel.size(); i++)
                                 selected.add(selectedHeadersModel.getElementAt(i));
                             format = new DelimitedCardListFormat(String.valueOf(delimiterBox.getSelectedItem()), selected, includeCheckBox.isSelected());
@@ -1451,7 +1451,7 @@ public class MainFrame extends JFrame
         recentCount = SettingsDialog.getAsInt(SettingsDialog.RECENT_COUNT);
         if (SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).isEmpty())
             SettingsDialog.set(SettingsDialog.INVENTORY_COLUMNS, "Name,Expansion,Mana Cost,Type");
-        inventoryModel.setColumns(Arrays.stream(SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardData::parseCardData).collect(Collectors.toList()));
+        inventoryModel.setColumns(Arrays.stream(SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardAttribute::parseCardData).collect(Collectors.toList()));
         inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
         if (SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).isEmpty())
             SettingsDialog.set(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity");

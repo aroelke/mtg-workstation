@@ -23,11 +23,8 @@ import javax.swing.table.TableRowSorter;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
-import editor.database.characteristics.CardData;
-import editor.database.characteristics.CombatStat;
-import editor.database.characteristics.Loyalty;
-import editor.database.characteristics.ManaCost;
-import editor.database.characteristics.ManaType;
+import editor.database.characteristics.*;
+import editor.database.characteristics.CardAttribute;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.InclusionCellEditor;
 import editor.gui.generic.SpinnerCellEditor;
@@ -43,16 +40,16 @@ import editor.util.CollectionUtils;
 public class CardTable extends JTable
 {
     /**
-     * Set of CardData that should not use toString to convert non-comparable data.
+     * Set of CardAttribute that should not use toString to convert non-comparable data.
      */
-    private static final Set<CardData> NO_STRING = Stream.of(CardData.MANA_COST,
-            CardData.CMC,
-            CardData.COLORS,
-            CardData.COLOR_IDENTITY,
-            CardData.POWER,
-            CardData.TOUGHNESS,
-            CardData.LOYALTY,
-            CardData.CATEGORIES).collect(Collectors.toSet());
+    private static final Set<CardAttribute> NO_STRING = Stream.of(CardAttribute.MANA_COST,
+                                                                  CardAttribute.CMC,
+                                                                  CardAttribute.COLORS,
+                                                                  CardAttribute.COLOR_IDENTITY,
+                                                                  CardAttribute.POWER,
+                                                                  CardAttribute.TOUGHNESS,
+                                                                  CardAttribute.LOYALTY,
+                                                                  CardAttribute.CATEGORIES).collect(Collectors.toSet());
 
     /**
      * This class represents a sorter that sorts a table column whose empty cells are invalid values.
@@ -86,7 +83,7 @@ public class CardTable extends JTable
         @Override
         public Comparator<?> getComparator(int column)
         {
-            CardData data;
+            CardAttribute data;
             if (model instanceof CardTableModel)
             {
                 data = ((CardTableModel)model).getColumnData(column);
@@ -170,14 +167,14 @@ public class CardTable extends JTable
     }
 
     /**
-     * Create an instance of the editor for cells containing the given type of CardData.
+     * Create an instance of the editor for cells containing the given type of CardAttribute.
      *
      * @param frame frame containing the table with the cell to edit
      * @param type  type of data to edit
      * @return an instance of the editor for the given type of data
-     * @throws IllegalArgumentException if the given type of CardData can't be edited
+     * @throws IllegalArgumentException if the given type of CardAttribute can't be edited
      */
-    public static TableCellEditor createCellEditor(EditorFrame frame, CardData type) throws IllegalArgumentException
+    public static TableCellEditor createCellEditor(EditorFrame frame, CardAttribute type) throws IllegalArgumentException
     {
         switch (type)
         {
@@ -186,7 +183,7 @@ public class CardTable extends JTable
         case CATEGORIES:
             return new InclusionCellEditor(frame);
         default:
-            throw new IllegalArgumentException("CardData type " + type + " can't be edited.");
+            throw new IllegalArgumentException("CardAttribute type " + type + " can't be edited.");
         }
     }
 
@@ -251,7 +248,7 @@ public class CardTable extends JTable
                 JComponent c = (JComponent)prepareRenderer(getCellRenderer(row, col), row, col);
                 if (c.getPreferredSize().width > bounds.width)
                 {
-                    if (((CardTableModel)getModel()).getColumnData(col) == CardData.MANA_COST)
+                    if (((CardTableModel)getModel()).getColumnData(col) == CardAttribute.MANA_COST)
                         tooltip = "<html>" + String.join(Card.FACE_SEPARATOR, CollectionUtils.convertToList(getValueAt(row, col), ManaCost.class).stream().map(ManaCost::toHTMLString).collect(Collectors.toList())) + "</html>";
                     else
                         tooltip = "<html>" + String.valueOf(getValueAt(row, col)) + "</html>";
@@ -272,7 +269,7 @@ public class CardTable extends JTable
         setShowGrid(false);
 
         TableCellRenderer renderer = new CardTableCellRenderer();
-        for (CardData type : CardData.values())
+        for (CardAttribute type : CardAttribute.values())
             setDefaultRenderer(type.dataType, renderer);
         setRowSorter(new EmptyTableRowSorter(getModel()));
     }

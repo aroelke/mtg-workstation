@@ -5,7 +5,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import editor.collection.CardList;
-import editor.database.characteristics.CardData;
+import editor.database.characteristics.CardAttribute;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.IncludeExcludePanel;
 
@@ -21,7 +21,7 @@ public class CardTableModel extends AbstractTableModel
     /**
      * List of card characteristics to display in the table.
      */
-    private List<CardData> characteristics;
+    private List<CardAttribute> characteristics;
     /**
      * Editor containing this model's table.
      */
@@ -37,7 +37,7 @@ public class CardTableModel extends AbstractTableModel
      * @param d list of cards for the new CardTableModel to show
      * @param c list of characteristics of those cards to show
      */
-    public CardTableModel(CardList d, List<CardData> c)
+    public CardTableModel(CardList d, List<CardAttribute> c)
     {
         this(null, d, c);
     }
@@ -49,7 +49,7 @@ public class CardTableModel extends AbstractTableModel
      * @param d list of cards for the new CardTableModel to show
      * @param c list of characteristics of those cards to show
      */
-    public CardTableModel(EditorFrame e, CardList d, List<CardData> c)
+    public CardTableModel(EditorFrame e, CardList d, List<CardAttribute> c)
     {
         super();
         editor = e;
@@ -75,7 +75,7 @@ public class CardTableModel extends AbstractTableModel
      * @param column column to check
      * @return the type of data being displayed in the given column.
      */
-    public CardData getColumnData(int column)
+    public CardAttribute getColumnData(int column)
     {
         return characteristics.get(column);
     }
@@ -101,7 +101,7 @@ public class CardTableModel extends AbstractTableModel
     @Override
     public boolean isCellEditable(int row, int column)
     {
-        return editor != null && (characteristics.get(column) == CardData.COUNT || characteristics.get(column) == CardData.CATEGORIES);
+        return editor != null && (characteristics.get(column) == CardAttribute.COUNT || characteristics.get(column) == CardAttribute.CATEGORIES);
     }
 
     /**
@@ -109,7 +109,7 @@ public class CardTableModel extends AbstractTableModel
      *
      * @param c list of CardCharacteristics corresponding to the columns to display
      */
-    public void setColumns(List<CardData> c)
+    public void setColumns(List<CardAttribute> c)
     {
         characteristics = c;
         fireTableStructureChanged();

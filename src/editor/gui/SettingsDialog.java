@@ -55,7 +55,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
-import editor.database.characteristics.CardData;
+import editor.database.characteristics.CardAttribute;
 import editor.filter.FilterFactory;
 import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.gui.display.CardTable;
@@ -303,21 +303,21 @@ public class SettingsDialog extends JDialog
     }
 
     /**
-     * Get the list of #CardData types represented by the given global setting.
+     * Get the list of #CardAttribute types represented by the given global setting.
      *
      * @param name name of the setting to get
-     * @return list of #CardData that is represented by the setting
-     * @throws IllegalArgumentException if the given setting is not a list of #CardData types
+     * @return list of #CardAttribute that is represented by the setting
+     * @throws IllegalArgumentException if the given setting is not a list of #CardAttribute types
      */
-    public static List<CardData> getAsCharacteristics(String name) throws IllegalArgumentException
+    public static List<CardAttribute> getAsCharacteristics(String name) throws IllegalArgumentException
     {
         try
         {
-            return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardData::parseCardData).collect(Collectors.toList());
+            return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardAttribute::parseCardData).collect(Collectors.toList());
         }
         catch (IllegalArgumentException e)
         {
-            throw new IllegalArgumentException(name + " is not a setting for a list of CardData types");
+            throw new IllegalArgumentException(name + " is not a setting for a list of CardAttribute types");
         }
     }
 
@@ -773,7 +773,7 @@ public class SettingsDialog extends JDialog
         JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
         inventoryColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
         inventoryColumnCheckBoxes = new ArrayList<>();
-        for (CardData characteristic : CardData.inventoryValues())
+        for (CardAttribute characteristic : CardAttribute.inventoryValues())
         {
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
             inventoryColumnCheckBoxes.add(checkBox);
@@ -902,7 +902,7 @@ public class SettingsDialog extends JDialog
         JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
         editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
         editorColumnCheckBoxes = new ArrayList<>();
-        for (CardData characteristic : CardData.values())
+        for (CardAttribute characteristic : CardAttribute.values())
         {
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
             editorColumnCheckBoxes.add(checkBox);

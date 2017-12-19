@@ -12,7 +12,7 @@ import editor.collection.CardList;
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
 import editor.database.card.CardFormat;
-import editor.database.characteristics.CardData;
+import editor.database.characteristics.CardAttribute;
 import editor.gui.MainFrame;
 
 /**
@@ -32,9 +32,9 @@ public class DelimitedCardListFormat implements CardListFormat
      * Default data to present in the table.  By default, only a card's name,
      * expansion, and copy count will be used.
      */
-    public static final List<CardData> DEFAULT_DATA = Arrays.asList(CardData.NAME,
-            CardData.EXPANSION_NAME,
-            CardData.COUNT);
+    public static final List<CardAttribute> DEFAULT_DATA = Arrays.asList(CardAttribute.NAME,
+                                                                         CardAttribute.EXPANSION_NAME,
+                                                                         CardAttribute.COUNT);
     /**
      * List of suggested delimiters.
      */
@@ -73,7 +73,7 @@ public class DelimitedCardListFormat implements CardListFormat
     /**
      * Data types to include in the table.
      */
-    private List<CardData> types;
+    private List<CardAttribute> types;
 
     /**
      * Create a new way to format a card list into a table.
@@ -82,7 +82,7 @@ public class DelimitedCardListFormat implements CardListFormat
      * @param data    data types to use for the columns
      * @param headers whether or not to include column headers
      */
-    public DelimitedCardListFormat(String delim, List<CardData> data, boolean headers)
+    public DelimitedCardListFormat(String delim, List<CardAttribute> data, boolean headers)
     {
         delimiter = delim;
         types = data;
@@ -118,7 +118,7 @@ public class DelimitedCardListFormat implements CardListFormat
     public String header()
     {
         if (include)
-            return String.join(delimiter, types.stream().map(CardData::toString).toArray(String[]::new));
+            return String.join(delimiter, types.stream().map(CardAttribute::toString).toArray(String[]::new));
         else
             return "";
     }
@@ -141,7 +141,7 @@ public class DelimitedCardListFormat implements CardListFormat
             for (String header : headers)
             {
                 boolean success = false;
-                for (CardData type : CardData.values())
+                for (CardAttribute type : CardAttribute.values())
                 {
                     if (header.compareToIgnoreCase(type.toString()) == 0)
                     {
@@ -157,15 +157,15 @@ public class DelimitedCardListFormat implements CardListFormat
             lines.remove(0);
         }
 
-        int nameIndex = types.indexOf(CardData.NAME);
+        int nameIndex = types.indexOf(CardAttribute.NAME);
         if (nameIndex < 0)
             throw new IllegalStateException("can't parse cards without names");
-        int expansionIndex = types.indexOf(CardData.EXPANSION_NAME);
-        int numberIndex = types.indexOf(CardData.CARD_NUMBER);
-        int countIndex = types.indexOf(CardData.COUNT);
+        int expansionIndex = types.indexOf(CardAttribute.EXPANSION_NAME);
+        int numberIndex = types.indexOf(CardAttribute.CARD_NUMBER);
+        int countIndex = types.indexOf(CardAttribute.COUNT);
         if (countIndex < 0)
             System.err.println("warning: missing card count in parse; assuming one copy of each card");
-        int dateIndex = types.indexOf(CardData.DATE_ADDED);
+        int dateIndex = types.indexOf(CardAttribute.DATE_ADDED);
 
         Deck deck = new Deck();
         for (String line : lines)

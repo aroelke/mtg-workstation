@@ -12,7 +12,7 @@ import java.util.stream.StreamSupport;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
-import editor.database.characteristics.CardData;
+import editor.database.characteristics.CardAttribute;
 
 /**
  * This class represents a collection of cards.  Each card should be represented by a single entry
@@ -75,7 +75,7 @@ public interface CardList extends Iterable<Card>
          * @param data type of information to get
          * @return the value of the given information about this Entry's Card.
          */
-        default Object get(CardData data)
+        default Object get(CardAttribute data)
         {
             switch (data)
             {

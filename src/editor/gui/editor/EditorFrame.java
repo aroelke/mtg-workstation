@@ -85,7 +85,7 @@ import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
 import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
-import editor.database.characteristics.CardData;
+import editor.database.characteristics.CardAttribute;
 import editor.gui.MainFrame;
 import editor.gui.SettingsDialog;
 import editor.gui.display.CardImagePanel;
@@ -1102,7 +1102,7 @@ public class EditorFrame extends JInternalFrame
             excludeButtonPanel.add(Box.createVerticalGlue());
             excludePanel.add(excludeButtonPanel);
 
-            CardTableModel excludeTableModel = new CardTableModel(deck.current, Arrays.asList(CardData.NAME, CardData.COUNT));
+            CardTableModel excludeTableModel = new CardTableModel(deck.current, Arrays.asList(CardAttribute.NAME, CardAttribute.COUNT));
             CardTable excludeTable = new CardTable(excludeTableModel);
             excludeTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
             excludePanel.add(new JScrollPane(excludeTable));
@@ -1354,7 +1354,7 @@ public class EditorFrame extends JInternalFrame
      */
     public void applySettings()
     {
-        List<CardData> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
+        List<CardAttribute> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
         Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
         deck.model.setColumns(columns);
         deck.table.setStripeColor(stripe);
