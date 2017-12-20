@@ -4,34 +4,14 @@ import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
-import editor.filter.FilterFactory;
-import editor.filter.leaf.ColorFilter;
-import editor.filter.leaf.FilterLeaf;
-import editor.filter.leaf.ManaCostFilter;
-import editor.filter.leaf.NumberFilter;
-import editor.filter.leaf.TextFilter;
-import editor.filter.leaf.TypeLineFilter;
-import editor.filter.leaf.VariableNumberFilter;
-import editor.filter.leaf.options.multi.CardTypeFilter;
-import editor.filter.leaf.options.multi.LegalityFilter;
-import editor.filter.leaf.options.multi.SubtypeFilter;
-import editor.filter.leaf.options.multi.SupertypeFilter;
-import editor.filter.leaf.options.multi.TagsFilter;
+import editor.filter.FilterAttribute;
+import editor.filter.leaf.*;
+import editor.filter.leaf.options.multi.*;
 import editor.filter.leaf.options.single.BlockFilter;
 import editor.filter.leaf.options.single.ExpansionFilter;
 import editor.filter.leaf.options.single.LayoutFilter;
 import editor.filter.leaf.options.single.RarityFilter;
-import editor.gui.filter.editor.BinaryFilterPanel;
-import editor.gui.filter.editor.ColorFilterPanel;
-import editor.gui.filter.editor.DefaultsFilterPanel;
-import editor.gui.filter.editor.FilterEditorPanel;
-import editor.gui.filter.editor.LegalityFilterPanel;
-import editor.gui.filter.editor.ManaCostFilterPanel;
-import editor.gui.filter.editor.NumberFilterPanel;
-import editor.gui.filter.editor.OptionsFilterPanel;
-import editor.gui.filter.editor.TextFilterPanel;
-import editor.gui.filter.editor.TypeLineFilterPanel;
-import editor.gui.filter.editor.VariableNumberFilterPanel;
+import editor.gui.filter.editor.*;
 
 /**
  * This class is a factory for creating new {@link FilterEditorPanel}s.
@@ -52,50 +32,50 @@ public interface FilterPanelFactory
     {
         switch (filter.type())
         {
-        case FilterFactory.NAME:
-        case FilterFactory.RULES_TEXT:
-        case FilterFactory.FLAVOR_TEXT:
-        case FilterFactory.PRINTED_TEXT:
-        case FilterFactory.ARTIST:
-        case FilterFactory.PRINTED_TYPES:
+        case NAME:
+        case RULES_TEXT:
+        case FLAVOR_TEXT:
+        case PRINTED_TEXT:
+        case ARTIST:
+        case PRINTED_TYPES:
             return new TextFilterPanel((TextFilter)filter);
-        case FilterFactory.LAYOUT:
+        case LAYOUT:
             return new OptionsFilterPanel<>((LayoutFilter)filter, CardLayout.values());
-        case FilterFactory.MANA_COST:
+        case MANA_COST:
             return new ManaCostFilterPanel((ManaCostFilter)filter);
-        case FilterFactory.CMC:
-        case FilterFactory.CARD_NUMBER:
+        case CMC:
+        case CARD_NUMBER:
             return new NumberFilterPanel((NumberFilter)filter);
-        case FilterFactory.COLOR:
-        case FilterFactory.COLOR_IDENTITY:
+        case COLOR:
+        case COLOR_IDENTITY:
             return new ColorFilterPanel((ColorFilter)filter);
-        case FilterFactory.TYPE_LINE:
+        case TYPE_LINE:
             return new TypeLineFilterPanel((TypeLineFilter)filter);
-        case FilterFactory.SUPERTYPE:
+        case SUPERTYPE:
             return new OptionsFilterPanel<>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
-        case FilterFactory.TYPE:
+        case CARD_TYPE:
             return new OptionsFilterPanel<>((CardTypeFilter)filter, CardTypeFilter.typeList);
-        case FilterFactory.SUBTYPE:
+        case SUBTYPE:
             return new OptionsFilterPanel<>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
-        case FilterFactory.EXPANSION:
+        case EXPANSION:
             return new OptionsFilterPanel<>((ExpansionFilter)filter, Expansion.expansions);
-        case FilterFactory.BLOCK:
+        case BLOCK:
             return new OptionsFilterPanel<>((BlockFilter)filter, Expansion.blocks);
-        case FilterFactory.RARITY:
+        case RARITY:
             return new OptionsFilterPanel<>((RarityFilter)filter, Rarity.values());
-        case FilterFactory.POWER:
-        case FilterFactory.TOUGHNESS:
-        case FilterFactory.LOYALTY:
+        case POWER:
+        case TOUGHNESS:
+        case LOYALTY:
             return new VariableNumberFilterPanel((VariableNumberFilter)filter);
-        case FilterFactory.FORMAT_LEGALITY:
+        case FORMAT_LEGALITY:
             return new LegalityFilterPanel((LegalityFilter)filter);
-        case FilterFactory.TAGS:
+        case TAGS:
             return new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
-        case FilterFactory.DEFAULTS:
+        case DEFAULTS:
             return new DefaultsFilterPanel();
-        case FilterFactory.NONE:
+        case NONE:
             return new BinaryFilterPanel(false);
-        case FilterFactory.ALL:
+        case ANY:
             return new BinaryFilterPanel(true);
         default:
             return new BinaryFilterPanel(false);
@@ -109,11 +89,14 @@ public interface FilterPanelFactory
      * @return a new #FilterEditorPanel corresponding to the given type with
      * its fields filled out with default values.
      */
-    static FilterEditorPanel<?> createFilterPanel(String type)
+    static FilterEditorPanel<?> createFilterPanel(FilterAttribute type)
     {
-        if (type.equals(FilterFactory.DEFAULTS))
+        if (type.equals(FilterAttribute.DEFAULTS))
             return new DefaultsFilterPanel();
         else
-            return createFilterPanel(FilterFactory.createFilter(type));
+        {
+            System.out.println(type);
+            return createFilterPanel(FilterAttribute.createFilter(type));
+        }
     }
 }

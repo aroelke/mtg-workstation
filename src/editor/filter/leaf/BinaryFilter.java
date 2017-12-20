@@ -1,13 +1,13 @@
 package editor.filter.leaf;
 
+import editor.database.card.Card;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Objects;
-
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterFactory;
 
 /**
  * This class represents a filter with only two options: All cards or no cards.
@@ -37,14 +37,14 @@ public class BinaryFilter extends FilterLeaf<Void>
      */
     public BinaryFilter(boolean a)
     {
-        super(a ? FilterFactory.ALL : FilterFactory.NONE, null);
+        super(a ? FilterAttribute.ANY : FilterAttribute.NONE, null);
         all = a;
     }
 
     @Override
     public Filter copy()
     {
-        return FilterFactory.createFilter(type());
+        return FilterAttribute.createFilter(type());
     }
 
     @Override

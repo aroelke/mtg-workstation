@@ -1,5 +1,10 @@
 package editor.filter.leaf.options.multi;
 
+import editor.database.card.Card;
+import editor.database.characteristics.Legality;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -7,11 +12,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
-
-import editor.database.card.Card;
-import editor.database.characteristics.Legality;
-import editor.filter.Filter;
-import editor.filter.FilterFactory;
 
 /**
  * This class represents a filter that groups cards by format legality.
@@ -36,7 +36,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
      */
     public LegalityFilter()
     {
-        super(FilterFactory.FORMAT_LEGALITY, Card::legalIn);
+        super(FilterAttribute.FORMAT_LEGALITY, Card::legalIn);
         restricted = false;
     }
 
@@ -49,7 +49,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     @Override
     public Filter copy()
     {
-        LegalityFilter filter = (LegalityFilter)FilterFactory.createFilter(FilterFactory.FORMAT_LEGALITY);
+        LegalityFilter filter = (LegalityFilter)FilterAttribute.createFilter(FilterAttribute.FORMAT_LEGALITY);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         filter.restricted = restricted;

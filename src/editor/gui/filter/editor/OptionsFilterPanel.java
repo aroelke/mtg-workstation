@@ -1,28 +1,8 @@
 package editor.gui.filter.editor;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
-import javax.swing.plaf.basic.BasicComboPopup;
-
 import com.jidesoft.swing.SimpleScrollPane;
-
 import editor.filter.Filter;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
 import editor.gui.generic.ComboBoxPanel;
@@ -31,6 +11,13 @@ import editor.util.Containment;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
 import editor.util.UnicodeSymbols;
+
+import javax.swing.*;
+import javax.swing.plaf.basic.BasicComboPopup;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class represents a panel that corresponds to a filter that groups
@@ -70,7 +57,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
     /**
      * Type of filter this OptionsFilterPanel edits.
      */
-    private String type;
+    private FilterAttribute type;
 
     /**
      * Create a new OptionsFilterPanel using the given filter to initialize its
@@ -91,7 +78,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
      * @param t type of the new OptionsFilterPanel
      * @param o list of options to choose from
      */
-    public OptionsFilterPanel(String t, T[] o)
+    public OptionsFilterPanel(FilterAttribute t, T[] o)
     {
         super();
         setLayout(new BorderLayout());
@@ -177,7 +164,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
     public Filter filter()
     {
         @SuppressWarnings("unchecked")
-        OptionsFilter<T> filter = (OptionsFilter<T>)FilterFactory.createFilter(type);
+        OptionsFilter<T> filter = (OptionsFilter<T>)FilterAttribute.createFilter(type);
         filter.contain = contain.getSelectedItem();
         filter.selected = optionsBoxes.stream().map((b) -> b.getItemAt(b.getSelectedIndex())).collect(Collectors.toSet());
         return filter;

@@ -1,5 +1,11 @@
 package editor.filter.leaf;
 
+import editor.database.card.Card;
+import editor.database.characteristics.ManaType;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+import editor.util.Containment;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -8,12 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-
-import editor.database.card.Card;
-import editor.database.characteristics.ManaType;
-import editor.filter.Filter;
-import editor.filter.FilterFactory;
-import editor.util.Containment;
 
 /**
  * This class represents a filter to group cards by color characteristic.
@@ -41,7 +41,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
      */
     public ColorFilter()
     {
-        this("", null);
+        this(null, null);
     }
 
     /**
@@ -50,7 +50,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
      * @param t type of the new ColorFilter
      * @param f function for the new ColorFilter
      */
-    public ColorFilter(String t, Function<Card, List<ManaType>> f)
+    public ColorFilter(FilterAttribute t, Function<Card, List<ManaType>> f)
     {
         super(t, f);
         contain = Containment.CONTAINS_ANY_OF;
@@ -61,7 +61,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     @Override
     public Filter copy()
     {
-        ColorFilter filter = (ColorFilter)FilterFactory.createFilter(type());
+        ColorFilter filter = (ColorFilter)FilterAttribute.createFilter(type());
         filter.colors = new HashSet<>(colors);
         filter.contain = contain;
         filter.multicolored = multicolored;

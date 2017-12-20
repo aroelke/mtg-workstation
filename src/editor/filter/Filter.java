@@ -1,9 +1,9 @@
 package editor.filter;
 
+import editor.database.card.Card;
+
 import java.io.Externalizable;
 import java.util.function.Predicate;
-
-import editor.database.card.Card;
 
 
 /**
@@ -26,14 +26,14 @@ public abstract class Filter implements Predicate<Card>, Externalizable
     /**
      * Code specifying the attribute of a card to be filtered.
      */
-    private final String type;
+    private final FilterAttribute type;
 
     /**
      * Create a new Filter with no parent.
      *
      * @param t type of filter being created
      */
-    public Filter(String t)
+    public Filter(FilterAttribute t)
     {
         parent = null;
         type = t;
@@ -57,7 +57,7 @@ public abstract class Filter implements Predicate<Card>, Externalizable
      *
      * @return the code specifying the attribute to be filtered.
      */
-    public final String type()
+    public final FilterAttribute type()
     {
         return type;
     }

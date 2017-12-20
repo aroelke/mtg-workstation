@@ -1,10 +1,10 @@
 package editor.filter.leaf.options.multi;
 
-import java.util.HashSet;
-
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
+
+import java.util.HashSet;
 
 /**
  * This class represents a filter that groups cards by subtype.
@@ -23,7 +23,7 @@ public class SubtypeFilter extends MultiOptionsFilter<String>
      */
     public SubtypeFilter()
     {
-        super(FilterFactory.SUBTYPE, Card::subtypes);
+        super(FilterAttribute.SUBTYPE, Card::subtypes);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class SubtypeFilter extends MultiOptionsFilter<String>
     @Override
     public Filter copy()
     {
-        SubtypeFilter filter = (SubtypeFilter)FilterFactory.createFilter(FilterFactory.SUBTYPE);
+        SubtypeFilter filter = (SubtypeFilter)FilterAttribute.createFilter(FilterAttribute.SUBTYPE);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

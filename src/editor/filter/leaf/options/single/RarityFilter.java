@@ -1,11 +1,11 @@
 package editor.filter.leaf.options.single;
 
-import java.util.HashSet;
-
 import editor.database.card.Card;
 import editor.database.characteristics.Rarity;
 import editor.filter.Filter;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
+
+import java.util.HashSet;
 
 /**
  * This class represents a filter that groups cards by rarity.
@@ -19,13 +19,13 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
      */
     public RarityFilter()
     {
-        super(FilterFactory.RARITY, Card::rarity);
+        super(FilterAttribute.RARITY, Card::rarity);
     }
 
     @Override
     public Filter copy()
     {
-        RarityFilter filter = (RarityFilter)FilterFactory.createFilter(FilterFactory.RARITY);
+        RarityFilter filter = (RarityFilter)FilterAttribute.createFilter(FilterAttribute.RARITY);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

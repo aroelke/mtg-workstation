@@ -1,5 +1,9 @@
 package editor.filter.leaf;
 
+import editor.database.card.Card;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -7,10 +11,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterFactory;
 
 /**
  * This class represents a filter for a numeric card characteristic that can be variable.
@@ -34,7 +34,7 @@ public class VariableNumberFilter extends NumberFilter
      */
     public VariableNumberFilter()
     {
-        this("", null, null);
+        this(null, null, null);
     }
 
     /**
@@ -44,7 +44,7 @@ public class VariableNumberFilter extends NumberFilter
      * @param f function representing the card characteristic
      * @param v function checking if the card characteristic is variable
      */
-    public VariableNumberFilter(String t, Function<Card, Collection<Double>> f, Predicate<Card> v)
+    public VariableNumberFilter(FilterAttribute t, Function<Card, Collection<Double>> f, Predicate<Card> v)
     {
         super(t, f);
         varies = false;
@@ -54,7 +54,7 @@ public class VariableNumberFilter extends NumberFilter
     @Override
     public Filter copy()
     {
-        VariableNumberFilter filter = (VariableNumberFilter)FilterFactory.createFilter(type());
+        VariableNumberFilter filter = (VariableNumberFilter)FilterAttribute.createFilter(type());
         filter.varies = varies;
         filter.variable = variable;
         filter.operation = operation;

@@ -1,15 +1,15 @@
 package editor.filter.leaf;
 
+import editor.database.card.Card;
+import editor.database.characteristics.ManaCost;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+import editor.util.Containment;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Objects;
-
-import editor.database.card.Card;
-import editor.database.characteristics.ManaCost;
-import editor.filter.Filter;
-import editor.filter.FilterFactory;
-import editor.util.Containment;
 
 /**
  * This class represents a filter to group cards by mana costs.
@@ -32,7 +32,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
      */
     public ManaCostFilter()
     {
-        super(FilterFactory.MANA_COST, null);
+        super(FilterAttribute.MANA_COST, null);
         contain = Containment.CONTAINS_ANY_OF;
         cost = new ManaCost();
     }
@@ -40,7 +40,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
     @Override
     public Filter copy()
     {
-        ManaCostFilter filter = (ManaCostFilter)FilterFactory.createFilter(FilterFactory.MANA_COST);
+        ManaCostFilter filter = (ManaCostFilter)FilterAttribute.createFilter(FilterAttribute.MANA_COST);
         filter.contain = contain;
         filter.cost = cost;
         return filter;

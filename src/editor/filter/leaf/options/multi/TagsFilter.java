@@ -1,10 +1,10 @@
 package editor.filter.leaf.options.multi;
 
-import java.util.HashSet;
-
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
+
+import java.util.HashSet;
 
 /**
  * This class represents a filter that filters cards by user-controlled tags.
@@ -18,7 +18,7 @@ public class TagsFilter extends MultiOptionsFilter<String>
      */
     public TagsFilter()
     {
-        super(FilterFactory.TAGS, (c) -> Card.tags.getOrDefault(c, new HashSet<String>()));
+        super(FilterAttribute.TAGS, (c) -> Card.tags.getOrDefault(c, new HashSet<String>()));
     }
 
     @Override
@@ -30,7 +30,7 @@ public class TagsFilter extends MultiOptionsFilter<String>
     @Override
     public Filter copy()
     {
-        TagsFilter filter = (TagsFilter)FilterFactory.createFilter(FilterFactory.TAGS);
+        TagsFilter filter = (TagsFilter)FilterAttribute.createFilter(FilterAttribute.TAGS);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

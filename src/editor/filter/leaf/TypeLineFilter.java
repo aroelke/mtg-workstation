@@ -1,5 +1,10 @@
 package editor.filter.leaf;
 
+import editor.database.card.Card;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+import editor.util.Containment;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -8,11 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterFactory;
-import editor.util.Containment;
 
 /**
  * This class represents a filter that filters a card by its entire type line.
@@ -35,7 +35,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
      */
     public TypeLineFilter()
     {
-        super(FilterFactory.TYPE_LINE, Card::allTypes);
+        super(FilterAttribute.TYPE_LINE, Card::allTypes);
         contain = Containment.CONTAINS_ANY_OF;
         line = "";
     }
@@ -43,7 +43,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     @Override
     public Filter copy()
     {
-        TypeLineFilter filter = (TypeLineFilter)FilterFactory.createFilter(FilterFactory.TYPE_LINE);
+        TypeLineFilter filter = (TypeLineFilter)FilterAttribute.createFilter(FilterAttribute.TYPE_LINE);
         filter.contain = contain;
         filter.line = line;
         return filter;

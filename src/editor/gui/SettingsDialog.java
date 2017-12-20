@@ -1,62 +1,9 @@
 package editor.gui;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringJoiner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
 import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
@@ -65,6 +12,22 @@ import editor.gui.editor.CategoryEditorPanel;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.VerticalButtonList;
 import editor.util.UnicodeSymbols;
+
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
+import java.io.*;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * This class is a dialog that allows the user to change various properties about
@@ -456,16 +419,16 @@ public class SettingsDialog extends JDialog
         SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
 
         PRESET_CATEGORIES.clear();
-        CardTypeFilter artifacts = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
+        CardTypeFilter artifacts = (CardTypeFilter) FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
         artifacts.selected.add("Artifact");
         PRESET_CATEGORIES.add(new CategorySpec("Artifacts", Collections.emptySet(), Collections.emptySet(), Color.WHITE, artifacts));
-        CardTypeFilter creatures = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
+        CardTypeFilter creatures = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
         creatures.selected.add("Creature");
         PRESET_CATEGORIES.add(new CategorySpec("Creatures", Collections.emptySet(), Collections.emptySet(), Color.WHITE, creatures));
-        CardTypeFilter lands = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
+        CardTypeFilter lands = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
         lands.selected.add("Land");
         PRESET_CATEGORIES.add(new CategorySpec("Lands", Collections.emptySet(), Collections.emptySet(), Color.WHITE, lands));
-        CardTypeFilter spells = (CardTypeFilter)FilterFactory.createFilter(FilterFactory.TYPE);
+        CardTypeFilter spells = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
         spells.selected.addAll(Arrays.asList("Instant", "Sorcery"));
         PRESET_CATEGORIES.add(new CategorySpec("Instants/Sorceries", Collections.emptySet(), Collections.emptySet(), Color.WHITE, spells));
     }

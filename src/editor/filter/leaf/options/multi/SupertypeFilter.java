@@ -1,10 +1,10 @@
 package editor.filter.leaf.options.multi;
 
-import java.util.HashSet;
-
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
+
+import java.util.HashSet;
 
 /**
  * This class represents a filter that groups cards by supertype.
@@ -23,7 +23,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
      */
     public SupertypeFilter()
     {
-        super(FilterFactory.SUPERTYPE, Card::supertypes);
+        super(FilterAttribute.SUPERTYPE, Card::supertypes);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
     @Override
     public Filter copy()
     {
-        SupertypeFilter filter = (SupertypeFilter)FilterFactory.createFilter(FilterFactory.SUPERTYPE);
+        SupertypeFilter filter = (SupertypeFilter)FilterAttribute.createFilter(FilterAttribute.SUPERTYPE);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

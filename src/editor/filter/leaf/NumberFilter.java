@@ -1,16 +1,16 @@
 package editor.filter.leaf;
 
+import editor.database.card.Card;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+import editor.util.Comparison;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
-
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterFactory;
-import editor.util.Comparison;
 
 /**
  * This class represents a filter for a card characteristic that is a number.
@@ -37,7 +37,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      * @param t type of the new NumberFilter
      * @param f function for the new NumberFilter
      */
-    public NumberFilter(String t, Function<Card, Collection<Double>> f)
+    public NumberFilter(FilterAttribute t, Function<Card, Collection<Double>> f)
     {
         super(t, f);
         operation = Comparison.valueOf('=');
@@ -50,7 +50,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      */
     public NumberFilter()
     {
-        this("", null);
+        this(null, null);
     }
 
     /**
@@ -69,7 +69,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
     @Override
     public Filter copy()
     {
-        NumberFilter filter = (NumberFilter)FilterFactory.createFilter(type());
+        NumberFilter filter = (NumberFilter)FilterAttribute.createFilter(type());
         filter.operation = operation;
         filter.operand = operand;
         return filter;

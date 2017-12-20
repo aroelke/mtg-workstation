@@ -1,11 +1,11 @@
 package editor.filter.leaf.options.single;
 
-import java.util.HashSet;
-
 import editor.database.card.Card;
 import editor.database.characteristics.Expansion;
 import editor.filter.Filter;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
+
+import java.util.HashSet;
 
 /**
  * This class represents a filter that groups cards by expansion.
@@ -19,7 +19,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
      */
     public ExpansionFilter()
     {
-        super(FilterFactory.EXPANSION, Card::expansion);
+        super(FilterAttribute.EXPANSION, Card::expansion);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
     @Override
     public Filter copy()
     {
-        ExpansionFilter filter = (ExpansionFilter)FilterFactory.createFilter(FilterFactory.EXPANSION);
+        ExpansionFilter filter = (ExpansionFilter)FilterAttribute.createFilter(FilterAttribute.EXPANSION);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

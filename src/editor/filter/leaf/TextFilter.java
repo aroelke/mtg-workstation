@@ -1,5 +1,10 @@
 package editor.filter.leaf;
 
+import editor.database.card.Card;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+import editor.util.Containment;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -10,11 +15,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterFactory;
-import editor.util.Containment;
 
 /**
  * This class represents a filter for a text characteristic of a card.
@@ -40,11 +40,11 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * @param s string to match
      * @return the new TextFilter
      */
-    public static TextFilter createQuickFilter(String t, String s)
+    public static TextFilter createQuickFilter(FilterAttribute t, String s)
     {
         try
         {
-            TextFilter filter = (TextFilter)FilterFactory.createFilter(t);
+            TextFilter filter = (TextFilter)FilterAttribute.createFilter(t);
             filter.text = Pattern.quote(s);
             filter.regex = true;
             return filter;
@@ -100,7 +100,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      */
     public TextFilter()
     {
-        this("", null);
+        this(null, null);
     }
 
     /**
@@ -109,7 +109,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * @param t Type of the new TextFilter
      * @param f Function for the new TextFilter
      */
-    public TextFilter(String t, Function<Card, Collection<String>> f)
+    public TextFilter(FilterAttribute t, Function<Card, Collection<String>> f)
     {
         super(t, f);
         contain = Containment.CONTAINS_ANY_OF;
@@ -120,7 +120,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     @Override
     public Filter copy()
     {
-        TextFilter filter = (TextFilter)FilterFactory.createFilter(type());
+        TextFilter filter = (TextFilter)FilterAttribute.createFilter(type());
         filter.contain = contain;
         filter.regex = regex;
         filter.text = text;

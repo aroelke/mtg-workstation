@@ -1,18 +1,15 @@
 package editor.filter;
 
+import editor.collection.category.CategorySpec;
+import editor.database.card.Card;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import editor.database.card.Card;
 
 /**
  * This class represents a group of filters that are ANDed or ORed together.
@@ -90,7 +87,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
      */
     public FilterGroup()
     {
-        super(FilterFactory.GROUP);
+        super(FilterAttribute.GROUP);
         children = new ArrayList<>();
         mode = Mode.AND;
     }
@@ -176,13 +173,20 @@ public class FilterGroup extends Filter implements Iterable<Filter>
         for (int i = 0; i < n; i++)
         {
             Filter child;
-            String type = in.readUTF();
-            if (type.equals(FilterFactory.GROUP))
-                child = new FilterGroup();
-            else
-                child = FilterFactory.createFilter(type);
-            child.readExternal(in);
-            children.add(child);
+            String code = in.readUTF();
+            for (FilterAttribute attribute: FilterAttribute.values())
+            {
+                if (code.equals(CategorySpec.CODES.get(attribute)))
+                {
+                    if (attribute == FilterAttribute.GROUP)
+                        child = new FilterGroup();
+                    else
+                        child = FilterAttribute.createFilter(attribute);
+                    child.readExternal(in);
+                    children.add(child);
+                    break;
+                }
+            }
         }
     }
 
@@ -199,7 +203,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
         out.writeInt(children.size());
         for (Filter child : children)
         {
-            out.writeUTF(child.type());
+            out.writeUTF(CategorySpec.CODES.get(child.type()));
             child.writeExternal(out);
         }
     }

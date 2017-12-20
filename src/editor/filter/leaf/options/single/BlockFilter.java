@@ -1,9 +1,9 @@
 package editor.filter.leaf.options.single;
 
-import java.util.HashSet;
-
 import editor.filter.Filter;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
+
+import java.util.HashSet;
 
 /**
  * This class represents a filter that groups cards by block.
@@ -17,7 +17,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
      */
     public BlockFilter()
     {
-        super(FilterFactory.BLOCK, (c) -> c.expansion().block);
+        super(FilterAttribute.BLOCK, (c) -> c.expansion().block);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
     @Override
     public Filter copy()
     {
-        BlockFilter filter = (BlockFilter)FilterFactory.createFilter(FilterFactory.BLOCK);
+        BlockFilter filter = (BlockFilter)FilterAttribute.createFilter(FilterAttribute.BLOCK);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

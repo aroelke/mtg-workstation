@@ -1,11 +1,11 @@
 package editor.filter.leaf.options.single;
 
-import java.util.HashSet;
-
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.filter.Filter;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
+
+import java.util.HashSet;
 
 /**
  * This class represents a filter that groups cards by layout.
@@ -19,7 +19,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
      */
     public LayoutFilter()
     {
-        super(FilterFactory.LAYOUT, Card::layout);
+        super(FilterAttribute.LAYOUT, Card::layout);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
     @Override
     public Filter copy()
     {
-        LayoutFilter filter = (LayoutFilter)FilterFactory.createFilter(FilterFactory.LAYOUT);
+        LayoutFilter filter = (LayoutFilter)FilterAttribute.createFilter(FilterAttribute.LAYOUT);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

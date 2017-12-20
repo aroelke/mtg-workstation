@@ -1,17 +1,14 @@
 package editor.gui.filter.editor;
 
-import java.awt.Dimension;
-
-import javax.swing.BoxLayout;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-
 import editor.filter.Filter;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.NumberFilter;
 import editor.gui.generic.ComboBoxPanel;
 import editor.util.Comparison;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * This class represents a panel that corresponds to a filter that groups
@@ -33,7 +30,7 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
     /**
      * Type of the filter this panel edits.
      */
-    private String type;
+    private FilterAttribute type;
 
     /**
      * Create a new NumberFilterPanel.
@@ -69,7 +66,7 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
     @Override
     public Filter filter()
     {
-        NumberFilter filter = (NumberFilter)FilterFactory.createFilter(type);
+        NumberFilter filter = (NumberFilter)FilterAttribute.createFilter(type);
         filter.operation = comparison.getSelectedItem();
         filter.operand = (double)spinner.getValue();
         return filter;

@@ -1,19 +1,16 @@
 package editor.gui.filter;
 
-import java.awt.CardLayout;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
 import editor.filter.Filter;
-import editor.filter.FilterFactory;
+import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.filter.editor.FilterEditorPanel;
 import editor.gui.generic.ComboBoxPanel;
 import editor.util.UnicodeSymbols;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class represents a panel that presents a drop-down menu that allows the user
@@ -28,7 +25,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
      * Map of filter type onto filter editor panel.  This will contain
      * one copy of each filter editor and its respective type.
      */
-    private Map<String, FilterEditorPanel<?>> filterPanels;
+    private Map<FilterAttribute, FilterEditorPanel<?>> filterPanels;
     /**
      * Panel containing the filters to flip through.
      */
@@ -36,7 +33,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
     /**
      * Combo box displaying the types of filters available.
      */
-    private ComboBoxPanel<String> filterTypes;
+    private ComboBoxPanel<FilterAttribute> filterTypes;
 
     /**
      * Create a new FilterSelectorPanel which will display the first filter panel.
@@ -47,24 +44,26 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         // Filter type selector
-        filterTypes = new ComboBoxPanel<>(FilterFactory.FILTER_TYPES.values().toArray(new String[0]));
+        filterTypes = new ComboBoxPanel<>(FilterAttribute.values());
         add(filterTypes);
 
         // Panel containing each editor panel
         filterPanels = new HashMap<>();
         filtersPanel = new JPanel(new CardLayout());
         add(filtersPanel);
-        for (Map.Entry<String, String> e : FilterFactory.FILTER_TYPES.entrySet())
+        for (FilterAttribute attribute: FilterAttribute.values())
         {
-            String code = e.getKey();
-            String name = e.getValue();
-            FilterEditorPanel<?> panel = FilterPanelFactory.createFilterPanel(code);
-            filterPanels.put(name, panel);
-            filtersPanel.add(panel, name);
+            // TODO: Find a better way to not include groups
+            if (attribute != FilterAttribute.GROUP)
+            {
+                FilterEditorPanel<?> panel = FilterPanelFactory.createFilterPanel(attribute);
+                filterPanels.put(attribute, panel);
+                filtersPanel.add(panel, String.valueOf(attribute));
+            }
         }
         filterTypes.addItemListener((e) -> {
             CardLayout cards = (CardLayout)filtersPanel.getLayout();
-            cards.show(filtersPanel, filterTypes.getSelectedItem());
+            cards.show(filtersPanel, String.valueOf(filterTypes.getSelectedItem()));
         });
 
         // Button to remove this from the form
@@ -103,8 +102,8 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
     @Override
     public void setContents(FilterLeaf<?> filter)
     {
-        filterTypes.setSelectedItem(FilterFactory.FILTER_TYPES.get(filter.type()));
-        filterPanels.get(FilterFactory.FILTER_TYPES.get(filter.type())).setContents(filter);
-        ((CardLayout)filtersPanel.getLayout()).show(filtersPanel, filter.type());
+        filterTypes.setSelectedItem(filter.type());
+        filterPanels.get(filter.type()).setContents(filter);
+        ((CardLayout)filtersPanel.getLayout()).show(filtersPanel, String.valueOf(filter.type()));
     }
 }
