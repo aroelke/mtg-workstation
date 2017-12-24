@@ -47,7 +47,7 @@ public enum FilterAttribute
     /**
      * Filter by color identity.
      */
-    COLOR_IDENTITY("Color Identity", (a) -> new ColorFilter(a, Card::colors)),
+    COLOR_IDENTITY("Color Identity", (a) -> new ColorFilter(a, Card::colorIdentity)),
     /**
      * Filter by expansion.
      */
