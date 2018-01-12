@@ -55,8 +55,8 @@ public class MeldCard extends MultiCard
         if (front.layout() != CardLayout.MELD || other.layout() != CardLayout.MELD || b.layout() != CardLayout.MELD)
             throw new IllegalArgumentException("can't join non-meld cards into meld cards");
 
-        manaCost = new Lazy<>(() -> Collections.unmodifiableList(Arrays.asList(front.manaCost().get(0), new ManaCost())));
-        cmc = new Lazy<>(() -> Collections.unmodifiableList(Arrays.asList(front.cmc().get(0), front.cmc().get(0) + other.cmc().get(0))));
+        manaCost = new Lazy<>(() -> List.of(front.manaCost().get(0), new ManaCost()));
+        cmc = new Lazy<>(() -> List.of(front.cmc().get(0), front.cmc().get(0) + other.cmc().get(0)));
     }
 
     /**

@@ -429,7 +429,7 @@ public class SettingsDialog extends JDialog
         lands.selected.add("Land");
         PRESET_CATEGORIES.add(new CategorySpec("Lands", Collections.emptySet(), Collections.emptySet(), Color.WHITE, lands));
         CardTypeFilter spells = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
-        spells.selected.addAll(Arrays.asList("Instant", "Sorcery"));
+        spells.selected.addAll(List.of("Instant", "Sorcery"));
         PRESET_CATEGORIES.add(new CategorySpec("Instants/Sorceries", Collections.emptySet(), Collections.emptySet(), Color.WHITE, spells));
     }
 

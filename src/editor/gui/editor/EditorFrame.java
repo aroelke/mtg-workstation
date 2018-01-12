@@ -1102,7 +1102,7 @@ public class EditorFrame extends JInternalFrame
             excludeButtonPanel.add(Box.createVerticalGlue());
             excludePanel.add(excludeButtonPanel);
 
-            CardTableModel excludeTableModel = new CardTableModel(deck.current, Arrays.asList(CardAttribute.NAME, CardAttribute.COUNT));
+            CardTableModel excludeTableModel = new CardTableModel(deck.current, List.of(CardAttribute.NAME, CardAttribute.COUNT));
             CardTable excludeTable = new CardTable(excludeTableModel);
             excludeTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
             excludePanel.add(new JScrollPane(excludeTable));

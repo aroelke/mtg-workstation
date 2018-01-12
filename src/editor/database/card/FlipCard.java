@@ -44,8 +44,8 @@ public class FlipCard extends MultiCard
         if (top.layout() != CardLayout.FLIP || b.layout() != CardLayout.FLIP)
             throw new IllegalArgumentException("can't join non-flip cards into flip cards");
 
-        manaCost = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::manaCost)));
-        cmc = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::cmc)));
+        manaCost = new Lazy<>(() -> collect(Card::manaCost));
+        cmc = new Lazy<>(() -> collect(Card::cmc));
     }
 
     /**
@@ -67,7 +67,7 @@ public class FlipCard extends MultiCard
      */
     private <T> List<T> collect(Function<Card, List<T>> characteristic)
     {
-        return Arrays.asList(characteristic.apply(top).get(0), characteristic.apply(top).get(0));
+        return List.of(characteristic.apply(top).get(0), characteristic.apply(top).get(0));
     }
 
     /**
