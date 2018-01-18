@@ -8,6 +8,7 @@ import editor.filter.leaf.options.single.ExpansionFilter;
 import editor.filter.leaf.options.single.LayoutFilter;
 import editor.filter.leaf.options.single.RarityFilter;
 
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -128,11 +129,11 @@ public enum FilterAttribute
     /**
      * Filter using one of the predefined filters.  This should not be used to create a filter.
      */
-    DEFAULTS("Defaults", (a) -> null),
+    DEFAULTS("Defaults", null),
     /**
      * Group of filters.  This should not be used to create a filter.
      */
-    GROUP("Group", (a) -> null);
+    GROUP("Group", null);
 
     /**
      * Create a new filter that filters the specified attribute.
@@ -143,6 +144,17 @@ public enum FilterAttribute
     public static FilterLeaf<?> createFilter(FilterAttribute attribute)
     {
         return attribute.create();
+    }
+
+    /**
+     * Get the attributes that can be filtered.
+     *
+     * @return an array containing the attributes that can be filtered (all of the values except for
+     * {@link #DEFAULTS} and {@link #GROUP}).
+     */
+    public static FilterAttribute[] filterableValues()
+    {
+        return Arrays.stream(values()).filter((f) -> f.filter != null).toArray(FilterAttribute[]::new);
     }
 
     /**

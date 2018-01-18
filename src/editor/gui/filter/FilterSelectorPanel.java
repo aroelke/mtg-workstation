@@ -44,22 +44,18 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         // Filter type selector
-        filterTypes = new ComboBoxPanel<>(FilterAttribute.values());
+        filterTypes = new ComboBoxPanel<>(FilterAttribute.filterableValues());
         add(filterTypes);
 
         // Panel containing each editor panel
         filterPanels = new HashMap<>();
         filtersPanel = new JPanel(new CardLayout());
         add(filtersPanel);
-        for (FilterAttribute attribute: FilterAttribute.values())
+        for (FilterAttribute attribute: FilterAttribute.filterableValues())
         {
-            // TODO: Find a better way to not include groups
-            if (attribute != FilterAttribute.GROUP)
-            {
-                FilterEditorPanel<?> panel = FilterPanelFactory.createFilterPanel(attribute);
-                filterPanels.put(attribute, panel);
-                filtersPanel.add(panel, String.valueOf(attribute));
-            }
+            FilterEditorPanel<?> panel = FilterPanelFactory.createFilterPanel(attribute);
+            filterPanels.put(attribute, panel);
+            filtersPanel.add(panel, String.valueOf(attribute));
         }
         filterTypes.addItemListener((e) -> {
             CardLayout cards = (CardLayout)filtersPanel.getLayout();
