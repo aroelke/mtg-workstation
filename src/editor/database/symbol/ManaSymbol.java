@@ -19,7 +19,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
     /**
      * List of symbol types in the order they should appear in.
      */
-    private static final List<Class<? extends ManaSymbol>> ORDER = Arrays.asList(
+    private static final List<Class<? extends ManaSymbol>> ORDER = List.of(
             VariableSymbol.class,
             StaticSymbol.class,
             GenericSymbol.class,

@@ -61,7 +61,7 @@ public class VerticalButtonList extends JPanel implements Iterable<JButton>
      */
     public VerticalButtonList(String... texts)
     {
-        this(Arrays.asList(texts));
+        this(List.of(texts));
     }
 
     /**

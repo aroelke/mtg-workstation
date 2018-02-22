@@ -32,9 +32,9 @@ public class DelimitedCardListFormat implements CardListFormat
      * Default data to present in the table.  By default, only a card's name,
      * expansion, and copy count will be used.
      */
-    public static final List<CardAttribute> DEFAULT_DATA = Arrays.asList(CardAttribute.NAME,
-                                                                         CardAttribute.EXPANSION_NAME,
-                                                                         CardAttribute.COUNT);
+    public static final List<CardAttribute> DEFAULT_DATA = List.of(CardAttribute.NAME,
+                                                                   CardAttribute.EXPANSION_NAME,
+                                                                   CardAttribute.COUNT);
     /**
      * List of suggested delimiters.
      */

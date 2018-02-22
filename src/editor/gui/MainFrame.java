@@ -67,6 +67,7 @@ import java.util.stream.Collectors;
  * TODO: Right-click column header = create filter for that column
  * TODO: Optionally get card images from magiccards.info rather than locally
  * TODO: File search for cards/filter match
+ * TODO: Check for JIDE common layer 3.7 upload to Maven central
  *
  * @author Alec Roelke
  */
