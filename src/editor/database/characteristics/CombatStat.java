@@ -49,7 +49,7 @@ public class CombatStat implements Comparable<CombatStat>
         else
         {
             expression = e.replaceAll("\\s+", "");
-            e = e.replaceAll("[*?" + UnicodeSymbols.SUPERSCRIPT_TWO + "]+", "").replaceAll("[+-]$", "");
+            e = e.replaceAll("[*?" + UnicodeSymbols.SUPERSCRIPT_TWO + "]+", "").replaceAll("[+-]$", "").replace(String.valueOf(UnicodeSymbols.ONE_HALF), ".5");
             if (e.isEmpty())
                 value = 0;
             else if (e.equals(String.valueOf(UnicodeSymbols.INFINITY)))
