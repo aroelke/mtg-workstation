@@ -132,6 +132,8 @@ public class InventoryLoadDialog extends JDialog
                 for (Map.Entry<String, JsonElement> setNode : root.entrySet())
                     numCards += setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray().size();
 
+                // TODO: Remove this when mtgjson fixes the numbering issue
+                Map<Card, String> mciNumbers = new HashMap<>();
                 publish("Reading cards from " + file.getName() + "...");
                 setProgress(0);
                 for (Map.Entry<String, JsonElement> setNode : root.entrySet())
@@ -342,6 +344,8 @@ public class InventoryLoadDialog extends JDialog
 
                         cards.add(c);
                         setProgress(cards.size() * 100 / numCards);
+                        if (card.has("mciNumber"))
+                            mciNumbers.put(c, card.get("mciNumber").getAsString());
                     }
                 }
 
@@ -360,7 +364,13 @@ public class InventoryLoadDialog extends JDialog
                     facesList.removeAll(otherFaces);
                     otherFaces.add(face);
                     cards.removeAll(otherFaces);
-                    otherFaces.sort(Comparator.comparingInt((a) -> faceNames.indexOf(a.unifiedName())));
+//                    otherFaces.sort(Comparator.comparingInt((a) -> faceNames.indexOf(a.unifiedName())));
+                    otherFaces.sort((a, b) -> {
+                        if (mciNumbers.containsKey(a) && mciNumbers.containsKey(b))
+                            return mciNumbers.get(a).compareToIgnoreCase(mciNumbers.get(b));
+                        else
+                            return faceNames.indexOf(a.unifiedName()) - faceNames.indexOf(b.unifiedName());
+                    });
                     switch (face.layout())
                     {
                     case SPLIT:
