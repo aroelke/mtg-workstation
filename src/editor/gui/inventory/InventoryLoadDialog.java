@@ -364,13 +364,16 @@ public class InventoryLoadDialog extends JDialog
                     facesList.removeAll(otherFaces);
                     otherFaces.add(face);
                     cards.removeAll(otherFaces);
-//                    otherFaces.sort(Comparator.comparingInt((a) -> faceNames.indexOf(a.unifiedName())));
-                    otherFaces.sort((a, b) -> {
-                        if (mciNumbers.containsKey(a) && mciNumbers.containsKey(b))
-                            return mciNumbers.get(a).compareToIgnoreCase(mciNumbers.get(b));
-                        else
-                            return faceNames.indexOf(a.unifiedName()) - faceNames.indexOf(b.unifiedName());
-                    });
+                    // TODO: Fix this sorting when mtgjson fixes the numbering issue
+                    if (face.layout() == CardLayout.MELD)
+                        otherFaces.sort(Comparator.comparingInt((a) -> faceNames.indexOf(a.unifiedName())));
+                    else
+                        otherFaces.sort((a, b) -> {
+                            if (mciNumbers.containsKey(a) && mciNumbers.containsKey(b))
+                                return mciNumbers.get(a).compareToIgnoreCase(mciNumbers.get(b));
+                            else
+                                return faceNames.indexOf(a.unifiedName()) - faceNames.indexOf(b.unifiedName());
+                        });
                     switch (face.layout())
                     {
                     case SPLIT:
