@@ -1,7 +1,9 @@
 AllSets-x.*
 settings.txt
 presets
-editor.*
+.classpath
+.project
 target/
-bin/
 .idea/
+.vscode/
+.settings/
