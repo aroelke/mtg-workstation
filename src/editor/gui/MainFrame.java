@@ -68,6 +68,7 @@ import java.util.stream.Collectors;
  * TODO: Optionally get card images from magiccards.info rather than locally
  * TODO: File search for cards/filter match
  * TODO: Check for JIDE common layer 3.7 upload to Maven central
+ * TODO: Add a capability to list needed tokens
  *
  * @author Alec Roelke
  */
