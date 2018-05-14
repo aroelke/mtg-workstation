@@ -1,6 +1,5 @@
 package editor.database.symbol;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import editor.database.characteristics.ManaType;
