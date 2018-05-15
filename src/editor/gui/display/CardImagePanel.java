@@ -250,6 +250,7 @@ public class CardImagePanel extends JPanel
             if (h == 0)
                 h = height;
             w += (int)(h * ASPECT_RATIO * Collections.frequency(faceImages, null));
+            // TODO: Figure out why h != but w == 0
             image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
             Graphics g = image.createGraphics();
             int l = 0;
