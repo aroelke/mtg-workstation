@@ -97,7 +97,6 @@ public class CardImagePanel extends JPanel
             while (true)
             {
                 DownloadRequest req = toDownload.take();
-                System.out.println("Checking card " + req.card);
                 for (int multiverseid : req.card.multiverseid())
                 {
                     File img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
@@ -223,13 +222,11 @@ public class CardImagePanel extends JPanel
                     faceImages.add(img);
                 }
             }
-            System.out.println("Loading card " + card);
             if (getParent() != null)
             {
                 SwingUtilities.invokeLater(() -> {
                     getParent().revalidate();
                     repaint();
-                    System.out.println("Printing card " + card);
                 });
             }
         }
