@@ -51,11 +51,27 @@ public class CardImagePanel extends JPanel
      */
     public static final double ASPECT_RATIO = 63.0 / 88.0;
 
+    /**
+     * This class represents a request by a CardImagePanel to download the image(s)
+     * of a Card.
+     */
     private static class DownloadRequest
     {
+        /**
+         * CardImagePanel that needs to download a card.
+         */
         public final CardImagePanel source;
+        /**
+         * Card that needs to be downloaded.
+         */
         public final Card card;
 
+        /**
+         * Create a new DownloadRequest.
+         * 
+         * @param panel CardImagePanel making the request
+         * @param c Card whose images need to be downloaded
+         */
         public DownloadRequest(CardImagePanel panel, Card c)
         {
             source = panel;
@@ -71,14 +87,24 @@ public class CardImagePanel extends JPanel
      */
     private static class ImageDownloadWorker extends SwingWorker<Void, DownloadRequest>
     {
+        /**
+         * Queue of cards whose images still need to be downloaded.
+         */
         private BlockingQueue<DownloadRequest> toDownload;
 
+        /**
+         * Create a new ImageDownloadWorker.
+         */
         public ImageDownloadWorker()
         {
             super();
             toDownload = new LinkedBlockingQueue<>();
         }
 
+        /**
+         * Create a request to download the image(s) of a card to display on the given
+         * CardImagePanel.
+         */
         public void downloadCard(CardImagePanel source, Card card)
         {
             try
@@ -135,6 +161,9 @@ public class CardImagePanel extends JPanel
         }
     }
 
+    /**
+     * Global ImageDownloadWorker to manage downloading cards images.
+     */
     private static ImageDownloadWorker downloader = new ImageDownloadWorker();
     static
     {
