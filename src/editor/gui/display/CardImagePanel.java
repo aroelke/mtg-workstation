@@ -51,21 +51,54 @@ public class CardImagePanel extends JPanel
      */
     public static final double ASPECT_RATIO = 63.0 / 88.0;
 
+    private static class DownloadRequest
+    {
+        public final CardImagePanel source;
+        public final Card card;
+
+        public DownloadRequest(CardImagePanel panel, Card c)
+        {
+            source = panel;
+            card = c;
+        }
+    }
+
     /**
      * This class represents a worker that downloads a card image for its parent CardImagePanel
      * from Gatherer.
      *
      * @author Alec Roelke
      */
-    private class ImageDownloadWorker extends SwingWorker<Void, Card>
+    private static class ImageDownloadWorker extends SwingWorker<Void, DownloadRequest>
     {
+        private BlockingQueue<DownloadRequest> toDownload;
+
+        public ImageDownloadWorker()
+        {
+            super();
+            toDownload = new LinkedBlockingQueue<>();
+        }
+
+        public void downloadCard(CardImagePanel source, Card card)
+        {
+            try
+            {
+                toDownload.put(new DownloadRequest(source, card));
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
         @Override
         protected Void doInBackground() throws Exception
         {
             while (true)
             {
-                Card card = toDownload.take();
-                for (int multiverseid : card.multiverseid())
+                DownloadRequest req = toDownload.take();
+                System.out.println("Checking card " + req.card);
+                for (int multiverseid : req.card.multiverseid())
                 {
                     File img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
                     if (!img.exists())
@@ -90,26 +123,29 @@ public class CardImagePanel extends JPanel
                         }
                     }
                 }
-                publish(card);
+                publish(req);
             }
         }
 
         @Override
-        protected void process(List<Card> chunks)
+        protected void process(List<DownloadRequest> chunks)
         {
-            if (chunks.contains(card))
-                loadImages();
+            for (DownloadRequest req: chunks)
+                if (req.source.card == req.card)
+                    req.source.loadImages();
         }
+    }
+
+    private static ImageDownloadWorker downloader = new ImageDownloadWorker();
+    static
+    {
+        downloader.execute();
     }
 
     /**
      * Card this CardImagePanel should display.
      */
     private Card card;
-    /**
-     * Queue of multiverseids to download.
-     */
-    private BlockingQueue<Card> toDownload;
     /**
      * List of images to draw for the card.
      */
@@ -136,9 +172,7 @@ public class CardImagePanel extends JPanel
     {
         super(null);
         image = null;
-        toDownload = new LinkedBlockingQueue<>();
         faceImages = new ArrayList<>();
-        new ImageDownloadWorker().execute();
         setCard(c);
     }
 
@@ -183,18 +217,19 @@ public class CardImagePanel extends JPanel
                     }
                 }
                 catch (IOException e)
-                {
-                }
+                {}
                 finally
                 {
                     faceImages.add(img);
                 }
             }
+            System.out.println("Loading card " + card);
             if (getParent() != null)
             {
                 SwingUtilities.invokeLater(() -> {
-                    getParent().validate();
+                    getParent().revalidate();
                     repaint();
+                    System.out.println("Printing card " + card);
                 });
             }
         }
@@ -249,7 +284,9 @@ public class CardImagePanel extends JPanel
             }
             if (h == 0)
                 h = height;
-            w += (int)(h * ASPECT_RATIO * Collections.frequency(faceImages, null));
+            w += (int)(h * ASPECT_RATIO*Collections.frequency(faceImages, null));
+            if (w == 0)
+                w = (int)(h * ASPECT_RATIO*card.faces());
             // TODO: Figure out why h != but w == 0
             image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
             Graphics g = image.createGraphics();
@@ -295,15 +332,6 @@ public class CardImagePanel extends JPanel
     public void setCard(Card c)
     {
         if ((card = c) != null)
-        {
-            try
-            {
-                toDownload.put(c);
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
+            downloader.downloadCard(this, card);
     }
 }
