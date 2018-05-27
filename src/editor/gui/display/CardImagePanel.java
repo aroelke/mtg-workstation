@@ -39,9 +39,6 @@ import editor.gui.SettingsDialog;
  * This class represents a panel that shows the images associated with a card if they
  * can be found, or a card-shaped rectangle with its oracle text and a warning if
  * they cannot.
- * <p>
- * TODO: Only display the first image in the sample hand
- * TODO: Display rotated images for the appropriate card types (aftermath, flip)
  *
  * @author Alec Roelke
  */
@@ -84,8 +81,6 @@ public class CardImagePanel extends JPanel
     /**
      * This class represents a worker that downloads a card image for its parent CardImagePanel
      * from Gatherer.
-     *
-     * @author Alec Roelke
      */
     private static class ImageDownloadWorker extends SwingWorker<Void, DownloadRequest>
     {
@@ -174,8 +169,6 @@ public class CardImagePanel extends JPanel
 
     /**
      * This class represents a listener that listens for clicks on a CardImagePanel.
-     * 
-     * @author Alec Roelke
      */
     private class FaceListener extends MouseAdapter
     {
