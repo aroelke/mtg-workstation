@@ -51,7 +51,7 @@ public class CardImagePanel extends JPanel
     /**
      * Aspect ratio of a Magic: The Gathering card.
      */
-    public static final double ASPECT_RATIO = 63.0 / 88.0;
+    public static final double ASPECT_RATIO = 63.0/88.0;
 
     /**
      * This class represents a request by a CardImagePanel to download the image(s)
@@ -255,8 +255,8 @@ public class CardImagePanel extends JPanel
             return super.getPreferredSize();
         else
         {
-            double aspect = (double)image.getWidth() / (double)image.getHeight();
-            return new Dimension((int)(getParent().getHeight() * aspect), getParent().getHeight());
+            double aspect = (double)image.getWidth()/(double)image.getHeight();
+            return new Dimension((int)(getParent().getHeight()*aspect), getParent().getHeight());
         }
     }
 
