@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -14,7 +16,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -30,6 +31,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import editor.database.card.Card;
+import editor.database.card.CardLayout;
 import editor.gui.MainFrame;
 import editor.gui.SettingsDialog;
 
@@ -171,6 +173,35 @@ public class CardImagePanel extends JPanel
     }
 
     /**
+     * This class represents a listener that listens for clicks on a CardImagePanel.
+     * 
+     * @author Alec Roelke
+     */
+    private class FaceListener extends MouseAdapter
+    {
+        /**
+         * When the mouse is clicked, flip to the next face.
+         */
+        public void mousePressed(MouseEvent e)
+        {
+            if (SwingUtilities.isLeftMouseButton(e))
+            {
+                switch (card.layout())
+                {
+                case AFTERMATH: case SPLIT:
+                    face = 0;
+                    break;
+                default:
+                    face = (face + 1)%card.faces();
+                    break;
+                }
+                getParent().revalidate();
+                repaint();
+            }
+        }
+    }
+
+    /**
      * Card this CardImagePanel should display.
      */
     private Card card;
@@ -182,6 +213,10 @@ public class CardImagePanel extends JPanel
      * Image of the card this CardImagePanel should display.
      */
     private BufferedImage image;
+    /**
+     * Face of the card to display.
+     */
+    private int face;
 
     /**
      * Create a new CardImagePanel displaying nothing.
@@ -201,7 +236,9 @@ public class CardImagePanel extends JPanel
         super(null);
         image = null;
         faceImages = new ArrayList<>();
+        face = 0;
         setCard(c);
+        addMouseListener(new FaceListener());
     }
 
     /**
@@ -298,54 +335,45 @@ public class CardImagePanel extends JPanel
             image = null;
         else
         {
-            int h = 0;
-            int w = 0;
-            for (BufferedImage face : faceImages)
+            int h = 0, w = 0;
+            if (faceImages.size() < face || faceImages.get(face) == null)
             {
-                if (face != null)
-                {
-                    h = Math.max(h, face.getHeight());
-                    w += face.getWidth();
-                }
-            }
-            if (h == 0)
                 h = height;
-            w += (int)(h * ASPECT_RATIO*Collections.frequency(faceImages, null));
-            if (w == 0)
-                w = (int)(h * ASPECT_RATIO*card.faces());
-            // TODO: Figure out why h != but w == 0
+                w = (int)(h*ASPECT_RATIO);
+            }
+            else
+            {
+                h = faceImages.get(face).getHeight();
+                w = faceImages.get(face).getWidth();
+            }
             image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
             Graphics g = image.createGraphics();
-            int l = 0;
-            for (int i = 0; i < faceImages.size(); i++)
+            if (faceImages.size() < face || faceImages.get(face) == null)
             {
-                if (faceImages.get(i) != null)
-                {
-                    g.drawImage(faceImages.get(i), l, (h - faceImages.get(i).getHeight()) / 2, null);
-                    l += faceImages.get(i).getWidth();
-                }
+                int faceWidth = (int)(h*ASPECT_RATIO);
+
+                JTextPane missingCardPane = new JTextPane();
+                StyledDocument document = (StyledDocument)missingCardPane.getDocument();
+                Style textStyle = document.addStyle("text", null);
+                StyleConstants.setFontFamily(textStyle, UIManager.getFont("Label.font").getFamily());
+                StyleConstants.setFontSize(textStyle, MainFrame.TEXT_SIZE);
+                Style reminderStyle = document.addStyle("reminder", textStyle);
+                StyleConstants.setItalic(reminderStyle, true);
+                card.formatDocument(document, false, face);
+                missingCardPane.setSize(new Dimension(faceWidth - 4, h - 4));
+
+                BufferedImage img = new BufferedImage(faceWidth, h, BufferedImage.TYPE_INT_ARGB);
+                missingCardPane.paint(img.getGraphics());
+                g.drawImage(img, 2, 2, null);
+                g.setColor(Color.BLACK);
+                g.drawRect(0, 0, faceWidth - 1, h - 1);
+            }
+            else
+            {
+                if (card.layout() == CardLayout.FLIP && face%2 == 1)
+                    g.drawImage(faceImages.get(face), faceImages.get(0).getWidth(), faceImages.get(0).getHeight(), -faceImages.get(0).getWidth(), -faceImages.get(0).getHeight(), null);
                 else
-                {
-                    int faceWidth = (int)(h * ASPECT_RATIO);
-
-                    JTextPane missingCardPane = new JTextPane();
-                    StyledDocument document = (StyledDocument)missingCardPane.getDocument();
-                    Style textStyle = document.addStyle("text", null);
-                    StyleConstants.setFontFamily(textStyle, UIManager.getFont("Label.font").getFamily());
-                    StyleConstants.setFontSize(textStyle, MainFrame.TEXT_SIZE);
-                    Style reminderStyle = document.addStyle("reminder", textStyle);
-                    StyleConstants.setItalic(reminderStyle, true);
-                    card.formatDocument(document, false, i);
-                    missingCardPane.setSize(new Dimension(faceWidth - 4, h - 4));
-
-                    BufferedImage img = new BufferedImage(faceWidth, h, BufferedImage.TYPE_INT_ARGB);
-                    missingCardPane.paint(img.getGraphics());
-                    g.drawImage(img, l + 2, 2, null);
-                    g.setColor(Color.BLACK);
-                    g.drawRect(l, 0, faceWidth - 1, h - 1);
-
-                    l += faceWidth;
-                }
+                    g.drawImage(faceImages.get(face), 0, 0, null);
             }
         }
     }
@@ -358,6 +386,9 @@ public class CardImagePanel extends JPanel
     public void setCard(Card c)
     {
         if ((card = c) != null)
+        {
+            face = 0;
             downloader.downloadCard(this, card);
+        }
     }
 }
