@@ -686,7 +686,7 @@ public class EditorFrame extends JInternalFrame
     public EditorFrame(int u, MainFrame p)
     {
         super("Untitled " + u, true, true, true, true);
-        setBounds(((u - 1) % 5) * 30, ((u - 1) % 5) * 30, 600, 600);
+        setBounds(((u - 1)%5)*30, ((u - 1)%5)*30, 600, 600);
         setLayout(new BorderLayout(0, 0));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
