@@ -355,7 +355,7 @@ public class MainFrame extends JFrame
         // New file menu item
         JMenuItem newItem = new JMenuItem("New");
         newItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
-        newItem.addActionListener((e) -> newEditor());
+        newItem.addActionListener((e) -> selectFrame(newEditor()));
         fileMenu.add(newItem);
 
         // Open file menu item
@@ -611,10 +611,11 @@ public class MainFrame extends JFrame
                     return;
                 }
 
-                newEditor();
+                EditorFrame newFrame = newEditor();
                 try
                 {
-                    selectedFrame.importList(format, importChooser.getSelectedFile());
+                    newFrame.importList(format, importChooser.getSelectedFile());
+                    selectFrame(newFrame);
                 }
                 catch (IllegalStateException | IOException | ParseException x)
                 {
@@ -1649,17 +1650,16 @@ public class MainFrame extends JFrame
     }
 
     /**
-     * Create a new editor frame.
+     * Create a new editor frame.  It will not be visible or selected.
      *
      * @see EditorFrame
      */
-    public void newEditor()
+    public EditorFrame newEditor()
     {
         EditorFrame frame = new EditorFrame(++untitled, this);
-        frame.setVisible(true);
         editors.add(frame);
         decklistDesktop.add(frame);
-        selectFrame(frame);
+        return frame;
     }
 
     /**
@@ -1702,10 +1702,8 @@ public class MainFrame extends JFrame
         {
             if (frame == null)
             {
-                frame = new EditorFrame(f, ++untitled, this);
-                frame.setVisible(true);
-                editors.add(frame);
-                decklistDesktop.add(frame);
+                frame = newEditor();
+                frame.load(f);
             }
             SettingsDialog.set(SettingsDialog.INITIALDIR, fileChooser.getCurrentDirectory().getPath());
             selectFrame(frame);
@@ -1910,14 +1908,14 @@ public class MainFrame extends JFrame
         try
         {
             frame.setSelected(true);
+            frame.setVisible(true);
             deckMenu.setEnabled(true);
             selectedFrame = frame;
             revalidate();
             repaint();
         }
         catch (PropertyVetoException e)
-        {
-        }
+        {}
     }
 
     /**

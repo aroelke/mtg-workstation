@@ -677,55 +677,6 @@ public class EditorFrame extends JInternalFrame
     private boolean unsaved;
 
     /**
-     * Create an EditorFrame with the specified {@link MainFrame} as its parent and the name
-     * of the specified file.  The deck will be loaded from the file.
-     *
-     * @param f file to load a deck from
-     * @param u number of the new EditorFrame (determines initial position in the window)
-     * @param p parent of the new EditorFrame
-     */
-    public EditorFrame(File f, int u, MainFrame p)
-    {
-        this(u, p);
-
-        JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
-        JProgressBar progressBar = new JProgressBar();
-        LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
-
-        JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
-        progressDialog.setContentPane(progressPanel);
-        progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
-        progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        progressPanel.add(progressBar, BorderLayout.CENTER);
-        JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener((e) -> worker.cancel(false));
-        cancelPanel.add(cancelButton);
-        progressPanel.add(cancelPanel, BorderLayout.SOUTH);
-        progressDialog.pack();
-
-        worker.execute();
-        progressDialog.setLocationRelativeTo(parent);
-        progressDialog.setVisible(true);
-        try
-        {
-            worker.get();
-        }
-        catch (InterruptedException | ExecutionException e)
-        {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-            deck.current.clear();
-            categoriesContainer.removeAll();
-        }
-        deck.original.addAll(deck.current);
-        listTabs.setSelectedIndex(MAIN_TABLE);
-        hand.refresh();
-
-        updateStats();
-    }
-
-    /**
      * Create a new EditorFrame inside the specified {@link MainFrame} and with the name
      * "Untitled [u] *"
      *
@@ -1759,6 +1710,50 @@ public class EditorFrame extends JInternalFrame
         deck.current.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
         changelogArea.setText("");
         setUnsaved();
+    }
+
+    /**
+     * Load a deck from the given File.
+     * 
+     * @param f File to load from
+     */
+    public void load(File f)
+    {
+        JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
+        JProgressBar progressBar = new JProgressBar();
+        LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
+
+        JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
+        progressDialog.setContentPane(progressPanel);
+        progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
+        progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        progressPanel.add(progressBar, BorderLayout.CENTER);
+        JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener((e) -> worker.cancel(false));
+        cancelPanel.add(cancelButton);
+        progressPanel.add(cancelPanel, BorderLayout.SOUTH);
+        progressDialog.pack();
+
+        worker.execute();
+        progressDialog.setLocationRelativeTo(parent);
+        progressDialog.setVisible(true);
+        try
+        {
+            worker.get();
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            deck.current.clear();
+            categoriesContainer.removeAll();
+        }
+        deck.original.addAll(deck.current);
+        listTabs.setSelectedIndex(MAIN_TABLE);
+        hand.refresh();
+
+        updateStats();
     }
 
     /**
