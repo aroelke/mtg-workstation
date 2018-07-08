@@ -178,7 +178,7 @@ public class MainFrame extends JFrame
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             UIManager.put("TristateCheckBox.icon", tristateIcon);
         }
-        catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e)
+        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
             e.printStackTrace();
         }
@@ -616,7 +616,7 @@ public class MainFrame extends JFrame
                 {
                     selectedFrame.importList(format, importChooser.getSelectedFile());
                 }
-                catch (IllegalStateException|IOException|ParseException x)
+                catch (IllegalStateException | IOException | ParseException x)
                 {
                     JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -821,7 +821,7 @@ public class MainFrame extends JFrame
                     {
                         selectedFrame.export(format, exportChooser.getSelectedFile());
                     }
-                    catch (UnsupportedEncodingException|FileNotFoundException x)
+                    catch (UnsupportedEncodingException | FileNotFoundException x)
                     {
                         JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }

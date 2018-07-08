@@ -284,7 +284,7 @@ public class EditorFrame extends JInternalFrame
                 else
                     return false;
             }
-            catch (UnsupportedFlavorException|IOException e)
+            catch (UnsupportedFlavorException | IOException e)
             {
                 return false;
             }
@@ -711,7 +711,7 @@ public class EditorFrame extends JInternalFrame
         {
             worker.get();
         }
-        catch (InterruptedException|ExecutionException e)
+        catch (InterruptedException | ExecutionException e)
         {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);

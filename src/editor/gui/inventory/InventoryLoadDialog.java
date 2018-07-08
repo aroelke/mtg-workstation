@@ -640,7 +640,7 @@ public class InventoryLoadDialog extends JDialog
         {
             return worker.get();
         }
-        catch (InterruptedException|ExecutionException e)
+        catch (InterruptedException | ExecutionException e)
         {
             JOptionPane.showMessageDialog(null, "Error loading inventory: " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();

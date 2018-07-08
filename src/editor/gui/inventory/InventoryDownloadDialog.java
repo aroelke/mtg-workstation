@@ -293,7 +293,7 @@ public class InventoryDownloadDialog extends JDialog
             downloadWorker.get();
             Files.move(tmp.toPath(), zip.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
-        catch (InterruptedException|ExecutionException e)
+        catch (InterruptedException | ExecutionException e)
         {
             JOptionPane.showMessageDialog(null, "Error downloading " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             tmp.delete();
@@ -317,7 +317,7 @@ public class InventoryDownloadDialog extends JDialog
         {
             unzipWorker.get();
         }
-        catch (InterruptedException|ExecutionException e)
+        catch (InterruptedException | ExecutionException e)
         {
             JOptionPane.showMessageDialog(null, "Error decompressing " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             return false;

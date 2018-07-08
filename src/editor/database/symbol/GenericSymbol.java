@@ -75,7 +75,7 @@ public class GenericSymbol extends ManaSymbol
         {
             return get(Integer.parseInt(n));
         }
-        catch (NumberFormatException|ArrayIndexOutOfBoundsException e)
+        catch (NumberFormatException | ArrayIndexOutOfBoundsException e)
         {
             return null;
         }
