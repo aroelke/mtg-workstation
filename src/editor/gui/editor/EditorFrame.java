@@ -366,19 +366,25 @@ public class EditorFrame extends JInternalFrame
          * Progress bar to display progress to.
          */
         private JProgressBar progressBar;
+        /**
+         * Whether or not the file is expected to have a save version number.
+         */
+        private boolean versionPresent;
 
         /**
          * Create a new LoadWorker.
          *
          * @param f file to load the deck from
+         * @param v file to load contains save version number (only false if importing from before versions were implemented)
          * @param b progress bar showing progress
          * @param d dialog containing the progress bar
          */
-        public LoadWorker(File f, JProgressBar b, JDialog d)
+        public LoadWorker(File f, boolean v, JProgressBar b, JDialog d)
         {
             file = f;
             progressBar = b;
             dialog = d;
+            versionPresent = v;
 
             progressBar.setMaximum((int)file.length());
         }
@@ -396,6 +402,9 @@ public class EditorFrame extends JInternalFrame
                 try (ObjectInputStream ois = new ObjectInputStream(pis))
                 {
                     opening = true;
+                    long version = 0;
+                    if (versionPresent)
+                        version = ois.readLong();
                     deck.current.readExternal(ois);
                     sideboard.current.readExternal(ois);
                     // TODO: Change this to use readUTF
@@ -566,6 +575,10 @@ public class EditorFrame extends JInternalFrame
      * Tab number containing the changelog.
      */
     public static final int CHANGELOG = 3;
+    /**
+     * Latest version of save file.
+     */
+    private static final long SAVE_VERSION = 1;
 
     /**
      * Label showing the average CMC of nonland cards in the deck.
@@ -1713,15 +1726,36 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
+     * Import a deck from a given File that was created before save versions were implemented.
+     * 
+     * @param f file to load from
+     */
+    public void importOld(File f)
+    {
+        load(f, false);
+    }
+
+    /**
      * Load a deck from the given File.
      * 
-     * @param f File to load from
+     * @param f file to load from
      */
     public void load(File f)
     {
+        load(f, true);
+    }
+
+    /**
+     * Load a deck from the given File.
+     * 
+     * @param f file to load from
+     * @param v <code>true</code> if the file contains the save version and <code>false</code> if it is from before save versions were implemented
+     */
+    private void load(File f, boolean v)
+    {
         JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
         JProgressBar progressBar = new JProgressBar();
-        LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
+        LoadWorker worker = new LoadWorker(f, v, progressBar, progressDialog);
 
         JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
         progressDialog.setContentPane(progressPanel);
@@ -1823,6 +1857,7 @@ public class EditorFrame extends JInternalFrame
     {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f, false)))
         {
+            oos.writeLong(SAVE_VERSION);
             deck.current.writeExternal(oos);
             sideboard.current.writeExternal(oos);
 
