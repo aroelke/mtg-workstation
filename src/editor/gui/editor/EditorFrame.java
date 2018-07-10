@@ -1733,6 +1733,7 @@ public class EditorFrame extends JInternalFrame
     public void importOld(File f)
     {
         load(f, false);
+        setUnsaved();
     }
 
     /**

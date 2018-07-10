@@ -416,12 +416,14 @@ public class MainFrame extends JFrame
         // Import and export items
         final FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
         final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
+        final FileNameExtensionFilter old = new FileNameExtensionFilter("From old versions (*.dek)", "dek");
         JMenuItem importItem = new JMenuItem("Import...");
         importItem.addActionListener((e) -> {
             JFileChooser importChooser = new JFileChooser();
             importChooser.setAcceptAllFileFilterUsed(false);
             importChooser.addChoosableFileFilter(text);
             importChooser.addChoosableFileFilter(delimited);
+            importChooser.addChoosableFileFilter(old);
             importChooser.setDialogTitle("Import");
             importChooser.setCurrentDirectory(fileChooser.getCurrentDirectory());
             switch (importChooser.showOpenDialog(this))
@@ -604,6 +606,31 @@ public class MainFrame extends JFrame
                     }
                     else
                         return;
+                }
+                else if (importChooser.getFileFilter() == old)
+                {
+                    File f = importChooser.getSelectedFile();
+                    EditorFrame frame = null;
+                    for (EditorFrame d : editors)
+                    {
+                        if (d.file() != null && d.file().equals(f))
+                        {
+                            frame = d;
+                            break;
+                        }
+                    }
+                    try
+                    {
+                        if (frame == null)
+                        {
+                            frame = newEditor();
+                            frame.importOld(f);
+                        }
+                        selectFrame(frame);
+                    }
+                    catch (CancellationException x)
+                    {}
+                    return;
                 }
                 else
                 {
@@ -1303,6 +1330,8 @@ public class MainFrame extends JFrame
         // File chooser
         fileChooser = new JFileChooser(SettingsDialog.getAsString(SettingsDialog.INITIALDIR));
         fileChooser.setMultiSelectionEnabled(false);
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Deck (*.dek)", "dek"));
+        fileChooser.setAcceptAllFileFilterUsed(true);
 
         // Handle what happens when the window tries to close and when it opens.
         addWindowListener(new WindowAdapter()
@@ -1709,8 +1738,7 @@ public class MainFrame extends JFrame
             selectFrame(frame);
         }
         catch (CancellationException e)
-        {
-        }
+        {}
     }
 
     /**
