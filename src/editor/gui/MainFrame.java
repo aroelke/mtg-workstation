@@ -128,6 +128,10 @@ public class MainFrame extends JFrame
      */
     public static final double DEFAULT_CARD_HEIGHT = 1.0 / 3.0;
     /**
+     * Extension used for saved files.
+     */
+    public static final String EXTENSION = "dek";
+    /**
      * Maximum height that the advanced filter editor panel can attain before scrolling.
      */
     public static final int MAX_FILTER_HEIGHT = 300;
@@ -416,7 +420,7 @@ public class MainFrame extends JFrame
         // Import and export items
         final FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
         final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
-        final FileNameExtensionFilter old = new FileNameExtensionFilter("From old versions (*.dek)", "dek");
+        final FileNameExtensionFilter old = new FileNameExtensionFilter("From old versions (*." + EXTENSION + ')', EXTENSION);
         JMenuItem importItem = new JMenuItem("Import...");
         importItem.addActionListener((e) -> {
             JFileChooser importChooser = new JFileChooser();
@@ -1330,7 +1334,7 @@ public class MainFrame extends JFrame
         // File chooser
         fileChooser = new JFileChooser(SettingsDialog.getAsString(SettingsDialog.INITIALDIR));
         fileChooser.setMultiSelectionEnabled(false);
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Deck (*.dek)", "dek"));
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Deck (*." + EXTENSION + ')', EXTENSION));
         fileChooser.setAcceptAllFileFilterUsed(true);
 
         // Handle what happens when the window tries to close and when it opens.
@@ -1782,6 +1786,9 @@ public class MainFrame extends JFrame
             {
             case JFileChooser.APPROVE_OPTION:
                 File f = fileChooser.getSelectedFile();
+                String fname = f.getAbsolutePath();
+                if (!fname.endsWith('.' + EXTENSION))
+                    f = new File(fname + '.' + EXTENSION);
                 boolean write;
                 if (f.exists())
                 {
