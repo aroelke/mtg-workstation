@@ -1747,10 +1747,9 @@ public class MainFrame extends JFrame
         // ask for a new file.  If he or she cancels at any point, stop asking and don't open a file.
 
         // TODO: Make this an OverwriteFileChooser
-        boolean done;
-        do
+        boolean done = false;
+        while (!done)
         {
-            done = false;
             switch (fileChooser.showSaveDialog(this))
             {
             case JFileChooser.APPROVE_OPTION:
@@ -1780,7 +1779,7 @@ public class MainFrame extends JFrame
             default:
                 break;
             }
-        } while (!done);
+        }
         SettingsDialog.set(SettingsDialog.INITIALDIR, fileChooser.getCurrentDirectory().getPath());
     }
 
