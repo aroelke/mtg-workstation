@@ -1,6 +1,99 @@
 package editor.gui;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.SystemColor;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyVetoException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.concurrent.CancellationException;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDesktopPane;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+
 import com.jidesoft.plaf.LookAndFeelFactory;
+
 import editor.collection.CardList;
 import editor.collection.Inventory;
 import editor.collection.category.CategorySpec;
@@ -20,38 +113,18 @@ import editor.gui.display.CardTableCellRenderer;
 import editor.gui.display.CardTableModel;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
-import editor.gui.generic.*;
+import editor.gui.generic.CardMenuItems;
+import editor.gui.generic.ComponentUtils;
+import editor.gui.generic.DocumentChangeListener;
+import editor.gui.generic.OverwriteFileChooser;
+import editor.gui.generic.ScrollablePanel;
+import editor.gui.generic.TableMouseAdapter;
+import editor.gui.generic.VerticalButtonList;
+import editor.gui.generic.WizardDialog;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
 import editor.util.MouseListenerFactory;
 import editor.util.UnicodeSymbols;
-
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
-import java.awt.*;
-import java.awt.datatransfer.Transferable;
-import java.awt.event.*;
-import java.beans.PropertyVetoException;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.CancellationException;
-import java.util.stream.Collectors;
 
 /**
  * This class represents the main frame of the editor.  It contains several tabs that display information
@@ -613,27 +686,7 @@ public class MainFrame extends JFrame
                 }
                 else if (importChooser.getFileFilter() == old)
                 {
-                    File f = importChooser.getSelectedFile();
-                    EditorFrame frame = null;
-                    for (EditorFrame d : editors)
-                    {
-                        if (d.file() != null && d.file().equals(f))
-                        {
-                            frame = d;
-                            break;
-                        }
-                    }
-                    try
-                    {
-                        if (frame == null)
-                        {
-                            frame = newEditor();
-                            frame.importOld(f);
-                        }
-                        selectFrame(frame);
-                    }
-                    catch (CancellationException x)
-                    {}
+                    open(importChooser.getSelectedFile(), EditorFrame::importOld);
                     return;
                 }
                 else
@@ -645,6 +698,17 @@ public class MainFrame extends JFrame
                 EditorFrame newFrame = newEditor();
                 try
                 {
+                    open(importChooser.getSelectedFile(), (frame, file) -> {
+                        try
+                        {
+                            frame.importList(format, file);
+                        }
+                        catch (IllegalStateException | IOException | ParseException x)
+                        {
+                            JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    });
+
                     newFrame.importList(format, importChooser.getSelectedFile());
                     selectFrame(newFrame);
                 }
@@ -1373,7 +1437,7 @@ public class MainFrame extends JFrame
                         presetMenu.add(categoryItem);
                     }
                     for (File f : files)
-                        open(f);
+                        open(f, EditorFrame::load);
                 }
             }
         });
@@ -1704,7 +1768,7 @@ public class MainFrame extends JFrame
         switch (fileChooser.showOpenDialog(this))
         {
         case JFileChooser.APPROVE_OPTION:
-            open(fileChooser.getSelectedFile());
+            open(fileChooser.getSelectedFile(), EditorFrame::load);
             updateRecents(fileChooser.getSelectedFile());
             break;
         case JFileChooser.CANCEL_OPTION:
@@ -1720,7 +1784,7 @@ public class MainFrame extends JFrame
      *
      * @param f #File to open.
      */
-    public void open(File f)
+    public void open(File f, BiConsumer<EditorFrame, File> openFunction)
     {
         EditorFrame frame = null;
         for (EditorFrame e : editors)
@@ -1731,18 +1795,14 @@ public class MainFrame extends JFrame
                 break;
             }
         }
-        try
+        if (frame == null)
         {
-            if (frame == null)
-            {
-                frame = newEditor();
-                frame.load(f);
-            }
-            SettingsDialog.set(SettingsDialog.INITIALDIR, fileChooser.getCurrentDirectory().getPath());
-            selectFrame(frame);
+            frame = newEditor();
+            openFunction.accept(frame, f);
         }
-        catch (CancellationException e)
-        {}
+        SettingsDialog.set(SettingsDialog.INITIALDIR, f.getParent());
+        fileChooser.setCurrentDirectory(f.getParentFile());
+        selectFrame(frame);
     }
 
     /**
@@ -2038,7 +2098,7 @@ public class MainFrame extends JFrame
             JMenuItem mostRecent = new JMenuItem(f.getPath());
             recentItems.offer(mostRecent);
             recents.put(mostRecent, f);
-            mostRecent.addActionListener((e) -> open(f));
+            mostRecent.addActionListener((e) -> open(f, EditorFrame::load));
             recentsMenu.add(mostRecent);
         }
     }
