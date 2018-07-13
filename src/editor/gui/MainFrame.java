@@ -693,29 +693,16 @@ public class MainFrame extends JFrame
                     JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-
-                EditorFrame newFrame = newEditor();
-                try
-                {
-                    open(importChooser.getSelectedFile(), (frame, file) -> {
-                        try
-                        {
-                            frame.importList(format, file);
-                        }
-                        catch (IllegalStateException | IOException | ParseException x)
-                        {
-                            JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                        }
-                    });
-
-                    newFrame.importList(format, importChooser.getSelectedFile());
-                    selectFrame(newFrame);
-                }
-                catch (IllegalStateException | IOException | ParseException x)
-                {
-                    JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                }
-
+                open(importChooser.getSelectedFile(), (frame, file) -> {
+                    try
+                    {
+                        frame.importList(format, file);
+                    }
+                    catch (IllegalStateException | IOException | ParseException x)
+                    {
+                        JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
                 break;
             case JFileChooser.CANCEL_OPTION:
                 break;
@@ -1761,13 +1748,16 @@ public class MainFrame extends JFrame
     /**
      * Open the file chooser to select a file, and if a file was selected,
      * parse it and initialize a Deck from it.
+     * 
+     * @return the EditorFrame containing the opened deck
      */
-    public void open()
+    public EditorFrame open()
     {
+        EditorFrame frame = null;
         switch (fileChooser.showOpenDialog(this))
         {
         case JFileChooser.APPROVE_OPTION:
-            open(fileChooser.getSelectedFile(), EditorFrame::load);
+            frame = open(fileChooser.getSelectedFile(), EditorFrame::load);
             updateRecents(fileChooser.getSelectedFile());
             break;
         case JFileChooser.CANCEL_OPTION:
@@ -1776,14 +1766,16 @@ public class MainFrame extends JFrame
         default:
             break;
         }
+        return frame;
     }
 
     /**
      * Open the specified file and create an editor for it.
      *
      * @param f #File to open.
+     * @return the EditorFrame containing the opened deck
      */
-    public void open(File f, BiConsumer<EditorFrame, File> openFunction)
+    public EditorFrame open(File f, BiConsumer<EditorFrame, File> openFunction)
     {
         EditorFrame frame = null;
         for (EditorFrame e : editors)
@@ -1802,6 +1794,7 @@ public class MainFrame extends JFrame
         SettingsDialog.set(SettingsDialog.INITIALDIR, f.getParent());
         fileChooser.setCurrentDirectory(f.getParentFile());
         selectFrame(frame);
+        return frame;
     }
 
     /**
