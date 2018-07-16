@@ -7,6 +7,7 @@ import editor.filter.FilterAttribute;
 import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
+import editor.gui.display.DefaultCategoryTable;
 import editor.gui.editor.CalculateHandPanel;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.gui.generic.ScrollablePanel;
@@ -501,7 +502,7 @@ public class SettingsDialog extends JDialog
     /**
      * List of preset categories.
      */
-    private CategoryList categoriesList;
+    private DefaultCategoryTable categoriesTable;
     /**
      * Check boxes indicating which columns to show in editor tables.
      */
@@ -816,30 +817,29 @@ public class SettingsDialog extends JDialog
         categoriesPanel.setLayout(new BorderLayout(5, 0));
         categoriesPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
-        categoriesList = new CategoryList("<html><i>&lt;Double-click to add or edit&gt;</i></html>");
-        if (!PRESET_CATEGORIES.isEmpty())
-            for (CategorySpec preset : PRESET_CATEGORIES)
-                categoriesList.addCategory(new CategorySpec(preset));
-        categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
+        categoriesTable = new DefaultCategoryTable(PRESET_CATEGORIES, "<html><i>&lt;Double-click to add or edit&gt;</i></html>");
+        categoriesPanel.add(new JScrollPane(categoriesTable), BorderLayout.CENTER);
 
         // Category modification buttons
         VerticalButtonList categoryModPanel = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.ELLIPSIS), String.valueOf(UnicodeSymbols.MINUS));
         categoryModPanel.get("+").addActionListener((e) -> {
             CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this);
             if (spec != null)
-                categoriesList.addCategory(spec);
+                categoriesTable.addCategory(spec);
         });
         categoryModPanel.get(String.valueOf(UnicodeSymbols.ELLIPSIS)).addActionListener((e) -> {
-            if (categoriesList.getSelectedIndex() >= 0)
+            int row = categoriesTable.getSelectedRow();
+            if (row >= 0)
             {
-                CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, categoriesList.getCategoryAt(categoriesList.getSelectedIndex()));
+                CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, categoriesTable.getCategoryAt(row));
                 if (spec != null)
-                    categoriesList.setCategoryAt(categoriesList.getSelectedIndex(), spec);
+                    categoriesTable.setCategoryAt(row, spec);
             }
         });
         categoryModPanel.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> {
-            if (categoriesList.getSelectedIndex() >= 0)
-                categoriesList.removeCategoryAt(categoriesList.getSelectedIndex());
+            int row = categoriesTable.getSelectedRow();
+            if (row >= 0)
+                categoriesTable.removeCategoryAt(row);
         });
         categoriesPanel.add(categoryModPanel, BorderLayout.EAST);
 
@@ -1012,8 +1012,8 @@ public class SettingsDialog extends JDialog
         SETTINGS.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
         SETTINGS.put(EDITOR_PRESETS, presetsFileField.getText());
         PRESET_CATEGORIES.clear();
-        for (int i = 0; i < categoriesList.getCount(); i++)
-            addPresetCategory(categoriesList.getCategoryAt(i));
+        for (int i = 0; i < categoriesTable.getCategoryCount(); i++)
+            addPresetCategory(categoriesTable.getCategoryAt(i));
         SETTINGS.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
         for (JRadioButton modeButton : modeButtons)
             if (modeButton.isSelected())
