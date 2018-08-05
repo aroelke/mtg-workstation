@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -23,8 +22,11 @@ import javax.swing.table.TableRowSorter;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
-import editor.database.characteristics.*;
 import editor.database.characteristics.CardAttribute;
+import editor.database.characteristics.CombatStat;
+import editor.database.characteristics.Loyalty;
+import editor.database.characteristics.ManaCost;
+import editor.database.characteristics.ManaType;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.InclusionCellEditor;
 import editor.gui.generic.SpinnerCellEditor;
