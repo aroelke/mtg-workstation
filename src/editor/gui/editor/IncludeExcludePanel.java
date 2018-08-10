@@ -6,11 +6,11 @@ import java.util.*;
 
 import javax.swing.BoxLayout;
 
-import com.jidesoft.swing.TristateCheckBox;
-
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
 import editor.gui.generic.ScrollablePanel;
+import editor.gui.generic.TristateCheckBox;
+import editor.gui.generic.TristateCheckBox.State;
 
 /**
  * This class represents a panel that displays a list of categories with boxes next to them indicating
@@ -63,15 +63,11 @@ public class IncludeExcludePanel extends ScrollablePanel
             TristateCheckBox categoryBox = new TristateCheckBox(category.getName());
             long matches = cards.stream().filter(category::includes).count();
             if (matches == 0)
-                categoryBox.setSelected(false);
+                categoryBox.setState(State.UNSELECTED);
             else if (matches < cards.size())
-                categoryBox.setMixed(true);
+                categoryBox.setState(State.INDETERMINATE);
             else
-                categoryBox.setSelected(true);
-            categoryBox.addActionListener((e) -> {
-                if (categoryBox.isMixed())
-                    categoryBox.setSelected(false);
-            });
+                categoryBox.setState(State.SELECTED);
             categoryBox.setBackground(Color.WHITE);
             add(categoryBox);
             categoryBoxes.put(category, categoryBox);
@@ -102,7 +98,7 @@ public class IncludeExcludePanel extends ScrollablePanel
         Map<Card, Set<CategorySpec>> included = new HashMap<>();
         for (Card card : cards)
             for (CategorySpec category : categoryBoxes.keySet())
-                if (categoryBoxes.get(category).getState() == TristateCheckBox.STATE_SELECTED && !category.includes(card))
+                if (categoryBoxes.get(category).getState() == State.SELECTED && !category.includes(card))
                     included.compute(card, (k, v) -> {
                         if (v == null)
                             v = new HashSet<>();
@@ -124,7 +120,7 @@ public class IncludeExcludePanel extends ScrollablePanel
         Map<Card, Set<CategorySpec>> excluded = new HashMap<>();
         for (Card card : cards)
             for (CategorySpec category : categoryBoxes.keySet())
-                if (categoryBoxes.get(category).getState() == TristateCheckBox.STATE_UNSELECTED && category.includes(card))
+                if (categoryBoxes.get(category).getState() == State.UNSELECTED && category.includes(card))
                     excluded.compute(card, (k, v) -> {
                         if (v == null)
                             v = new HashSet<>();
