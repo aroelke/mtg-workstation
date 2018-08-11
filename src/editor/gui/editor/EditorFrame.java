@@ -16,7 +16,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -24,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -109,6 +112,7 @@ import editor.util.UnicodeSymbols;
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add something for calculating probability for multiple categories at once
  * TODO: Instead of a single dedicated extra list for sideboard, etc., start with none and allow adding arbitrary extras in tabs
+ * TODO: Create a function to initialize from an arbitrary deck, and then call that on an empty deck with a new file and the openeded deck with a non-new file
  *
  * @author Alec Roelke
  */
@@ -389,6 +393,27 @@ public class EditorFrame extends JInternalFrame
             progressBar.setMaximum((int)file.length());
         }
 
+        public void readDeck(Deck deck, ObjectInput in) throws IOException, ClassNotFoundException
+        {
+            deck.clear();
+
+            int n = in.readInt();
+            for (int i = 0; i < n; i++)
+            {
+                Card card = MainFrame.inventory().get(in.readUTF());
+                int count = in.readInt();
+                LocalDate added = (LocalDate)in.readObject();
+                deck.add(card, count, added);
+            }
+            n = in.readInt();
+            for (int i = 0; i < n; i++)
+            {
+                CategorySpec spec = new CategorySpec();
+                spec.readExternal(in);
+                deck.addCategory(spec, in.readInt());
+            }
+        }
+
         /**
          * {@inheritDoc}
          * Load the deck, updating the progress bar all the while.
@@ -405,8 +430,8 @@ public class EditorFrame extends JInternalFrame
                     long version = 0;
                     if (versionPresent)
                         version = ois.readLong();
-                    deck.current.readExternal(ois);
-                    sideboard.current.readExternal(ois);
+                    readDeck(deck.current, ois);
+                    readDeck(sideboard.current, ois);
                     // TODO: Change this to use readUTF
                     changelogArea.setText((String)ois.readObject());
                 }
@@ -491,8 +516,7 @@ public class EditorFrame extends JInternalFrame
 
         @Override
         public void popupMenuCanceled(PopupMenuEvent e)
-        {
-        }
+        {}
 
         /**
          * {@inheritDoc}
@@ -1183,23 +1207,25 @@ public class EditorFrame extends JInternalFrame
                 updateStats();
 
                 if (!opening)
-                    parent.updateCardsInDeck();
-                deck.model.fireTableDataChanged();
-                for (CategoryPanel c : categoryPanels)
-                    ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-                for (Card c : parent.getSelectedCards())
                 {
-                    if (parent.getSelectedList().contains(c))
+                        parent.updateCardsInDeck();
+                    deck.model.fireTableDataChanged();
+                    for (CategoryPanel c : categoryPanels)
+                        ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
+                    for (Card c : parent.getSelectedCards())
                     {
-                        int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
-                        parent.getSelectedTable().addRowSelectionInterval(row, row);
+                        if (parent.getSelectedList().contains(c))
+                        {
+                            int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
+                            parent.getSelectedTable().addRowSelectionInterval(row, row);
+                        }
                     }
-                }
-                if (parent.getSelectedTable().isEditing())
-                    parent.getSelectedTable().getCellEditor().cancelCellEditing();
+                    if (parent.getSelectedTable().isEditing())
+                        parent.getSelectedTable().getCellEditor().cancelCellEditing();
 
-                hand.refresh();
-                handCalculations.update();
+                    hand.refresh();
+                    handCalculations.update();
+                }
             }
             // Categories
             if (e.categoryAdded())
@@ -1272,18 +1298,20 @@ public class EditorFrame extends JInternalFrame
                 updateStats();
 
                 if (!opening)
-                    parent.updateCardsInDeck();
-                sideboard.model.fireTableDataChanged();
-                for (Card c : parent.getSelectedCards())
                 {
-                    if (parent.getSelectedList().contains(c))
+                    parent.updateCardsInDeck();
+                    sideboard.model.fireTableDataChanged();
+                    for (Card c : parent.getSelectedCards())
                     {
-                        int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
-                        parent.getSelectedTable().addRowSelectionInterval(row, row);
+                        if (parent.getSelectedList().contains(c))
+                        {
+                            int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
+                            parent.getSelectedTable().addRowSelectionInterval(row, row);
+                        }
                     }
+                    if (parent.getSelectedTable().isEditing())
+                        parent.getSelectedTable().getCellEditor().cancelCellEditing();
                 }
-                if (parent.getSelectedTable().isEditing())
-                    parent.getSelectedTable().getCellEditor().cancelCellEditing();
             }
 
             setUnsaved();
@@ -1859,8 +1887,8 @@ public class EditorFrame extends JInternalFrame
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f, false)))
         {
             oos.writeLong(SAVE_VERSION);
-            deck.current.writeExternal(oos);
-            sideboard.current.writeExternal(oos);
+            writeDeck(deck.current, oos);
+            writeDeck(sideboard.current, oos);
 
             StringBuilder changes = new StringBuilder();
             for (Card c : deck.original)
@@ -2071,5 +2099,22 @@ public class EditorFrame extends JInternalFrame
             medCMCLabel.setText("Median CMC: " + (int)medCMC);
         else
             medCMCLabel.setText(String.format("Median CMC: %.1f", medCMC));
+    }
+
+    public void writeDeck(Deck deck, ObjectOutput out) throws IOException
+    {
+        out.writeInt(deck.size());
+        for (Card card : deck)
+        {
+            out.writeUTF(card.id());
+            out.writeInt(deck.getData(card).count());
+            out.writeObject(deck.getData(card).dateAdded());
+        }
+        out.writeInt(deck.numCategories());
+        for (CategorySpec spec : deck.categories())
+        {
+            spec.writeExternal(out);
+            out.writeInt(deck.getCategoryRank(spec.getName()));
+        }
     }
 }

@@ -3,7 +3,6 @@ package editor.collection.deck;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -38,7 +37,7 @@ import editor.gui.MainFrame;
  *
  * @author Alec Roelke
  */
-public class Deck implements CardList, Externalizable
+public class Deck implements CardList
 {
     /**
      * This class represents a category of a deck.  If a card is added or removed using the add and remove
@@ -837,6 +836,23 @@ public class Deck implements CardList, Externalizable
             return categories.get(spec.getName());
     }
 
+    public CardList addCategory(CategorySpec spec, int rank)
+    {
+        Category c = do_addCategory(spec);
+        if (c != null)
+        {
+            c.rank = rank;
+            notifyListeners(new Event().categoryAdded(c));
+            return c;
+        }
+        else if (categories.get(spec.getName()).rank == rank)
+            return categories.get(spec.getName());
+        else if (swapCategoryRanks(spec.getName(), rank))
+            return categories.get(spec.getName());
+        else
+            throw new IllegalArgumentException("Could not add new category " + spec.getName() + " at rank " + rank);
+    }
+
     /**
      * Add a new listener for listening to changes in the deck.
      *
@@ -1174,28 +1190,6 @@ public class Deck implements CardList, Externalizable
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        clear();
-
-        int n = in.readInt();
-        for (int i = 0; i < n; i++)
-        {
-            Card card = MainFrame.inventory().get(in.readUTF());
-            int count = in.readInt();
-            LocalDate added = (LocalDate)in.readObject();
-            do_add(card, count, added);
-        }
-        n = in.readInt();
-        for (int i = 0; i < n; i++)
-        {
-            CategorySpec spec = new CategorySpec();
-            spec.readExternal(in);
-            do_addCategory(spec).rank = in.readInt();
-        }
-    }
-
-    @Override
     public boolean remove(Card card)
     {
         return remove(card, Integer.MAX_VALUE) > 0;
@@ -1387,23 +1381,5 @@ public class Deck implements CardList, Externalizable
     public int total()
     {
         return total;
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeInt(masterList.size());
-        for (DeckEntry entry : masterList)
-        {
-            out.writeUTF(entry.card.id());
-            out.writeInt(entry.count);
-            out.writeObject(entry.date);
-        }
-        out.writeInt(categories.size());
-        for (Category category : categories.values())
-        {
-            category.spec.writeExternal(out);
-            out.writeInt(category.rank);
-        }
     }
 }
