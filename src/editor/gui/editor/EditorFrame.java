@@ -393,7 +393,13 @@ public class EditorFrame extends JInternalFrame
             progressBar.setMaximum((int)file.length());
         }
 
-        public void readDeck(Deck deck, ObjectInput in) throws IOException, ClassNotFoundException
+        /**
+         * Read a deck from an object stream.
+         * 
+         * @param deck deck to load data into
+         * @param in input stream to read from
+         */
+        private void readDeck(Deck deck, ObjectInput in) throws IOException, ClassNotFoundException
         {
             deck.clear();
 
@@ -2101,6 +2107,12 @@ public class EditorFrame extends JInternalFrame
             medCMCLabel.setText(String.format("Median CMC: %.1f", medCMC));
     }
 
+    /**
+     * Write a deck to an output stream.
+     * 
+     * @param deck deck to write
+     * @param out stream to write to
+     */
     public void writeDeck(Deck deck, ObjectOutput out) throws IOException
     {
         out.writeInt(deck.size());

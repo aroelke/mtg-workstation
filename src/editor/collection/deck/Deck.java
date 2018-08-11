@@ -836,6 +836,16 @@ public class Deck implements CardList
             return categories.get(spec.getName());
     }
 
+    /**
+     * Add a new category at the specified rank.  If there's already a category
+     * with that rank, attempt to swap with it (so it will be the highest rank).
+     * 
+     * @param spec specification for the new Category
+     * @param rank rank of the new category
+     * @return the new Category, or the old one if it already exists
+     * @throws IllegalArgumentException if there already is a category with that
+     * name and the rank can't be switched.
+     */
     public CardList addCategory(CategorySpec spec, int rank)
     {
         Category c = do_addCategory(spec);
