@@ -1212,15 +1212,15 @@ public class EditorFrame extends JInternalFrame
 
         setTransferHandler(new EditorImportHandler(true));
 
+        // TODO: Add these listeners after loading the deck and sideboard
         deck.current.addDeckListener((e) -> {
-            // Cards
-            if (e.cardsChanged())
+            if (!opening)
             {
-                updateStats();
-
-                if (!opening)
+                // Cards
+                if (e.cardsChanged())
                 {
-                        parent.updateCardsInDeck();
+                    updateStats();
+                    parent.updateCardsInDeck();
                     deck.model.fireTableDataChanged();
                     for (CategoryPanel c : categoryPanels)
                         ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
@@ -1238,79 +1238,78 @@ public class EditorFrame extends JInternalFrame
                     hand.refresh();
                     handCalculations.update();
                 }
-            }
-            // Categories
-            if (e.categoryAdded())
-            {
-                CategoryPanel category = createCategoryPanel(e.addedCategory());
-                categoryPanels.add(category);
-
-                for (CategoryPanel c : categoryPanels)
-                    if (c != category)
-                        c.rankBox.addItem(deck.current.categories().size() - 1);
-
-                listTabs.setSelectedIndex(CATEGORIES);
-                updateCategoryPanel();
-                SwingUtilities.invokeLater(() -> {
-                    switchCategoryBox.setSelectedItem(category.getCategoryName());
-                    category.scrollRectToVisible(new Rectangle(category.getSize()));
-                    category.flash();
-                });
-                handCalculations.update();
-            }
-            if (e.categoryRemoved())
-            {
-                categoryPanels.remove(getCategory(e.removedCategory().getName()));
-                for (CategoryPanel panel : categoryPanels)
-                    panel.rankBox.removeItemAt(categoryPanels.size());
-
-                listTabs.setSelectedIndex(CATEGORIES);
-                updateCategoryPanel();
-                handCalculations.update();
-            }
-            if (e.ranksChanged())
-            {
-                for (CategoryPanel panel : categoryPanels)
-                    panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
-                listTabs.setSelectedIndex(CATEGORIES);
-                updateCategoryPanel();
-            }
-            if (e.categoryChanged())
-            {
-                CategorySpec.Event event = e.categoryChanges();
-                if (event.nameChanged())
-                    getCategory(event.oldSpec().getName()).setCategoryName(event.newSpec().getName());
-                for (CategoryPanel c : categoryPanels)
+                // Categories
+                if (e.categoryAdded())
                 {
-                    ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-                    c.update();
+                    CategoryPanel category = createCategoryPanel(e.addedCategory());
+                    categoryPanels.add(category);
+
+                    for (CategoryPanel c : categoryPanels)
+                        if (c != category)
+                            c.rankBox.addItem(deck.current.categories().size() - 1);
+
+                    listTabs.setSelectedIndex(CATEGORIES);
+                    updateCategoryPanel();
+                    SwingUtilities.invokeLater(() -> {
+                        switchCategoryBox.setSelectedItem(category.getCategoryName());
+                        category.scrollRectToVisible(new Rectangle(category.getSize()));
+                        category.flash();
+                    });
+                    handCalculations.update();
+                }
+                if (e.categoryRemoved())
+                {
+                    categoryPanels.remove(getCategory(e.removedCategory().getName()));
+                    for (CategoryPanel panel : categoryPanels)
+                        panel.rankBox.removeItemAt(categoryPanels.size());
+
+                    listTabs.setSelectedIndex(CATEGORIES);
+                    updateCategoryPanel();
+                    handCalculations.update();
+                }
+                if (e.ranksChanged())
+                {
+                    for (CategoryPanel panel : categoryPanels)
+                        panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
+                    listTabs.setSelectedIndex(CATEGORIES);
+                    updateCategoryPanel();
+                }
+                if (e.categoryChanged())
+                {
+                    CategorySpec.Event event = e.categoryChanges();
+                    if (event.nameChanged())
+                        getCategory(event.oldSpec().getName()).setCategoryName(event.newSpec().getName());
+                    for (CategoryPanel c : categoryPanels)
+                    {
+                        ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
+                        c.update();
+                    }
+
+                    updateCategoryPanel();
+                    handCalculations.update();
                 }
 
-                updateCategoryPanel();
-                handCalculations.update();
-            }
+                if (!unsaved)
+                {
+                    setTitle(getTitle() + " *");
+                    unsaved = true;
+                }
+                update();
 
-            if (!unsaved)
-            {
-                setTitle(getTitle() + " *");
-                unsaved = true;
-            }
-            update();
-
-            if (!undoing)
-            {
-                redoBuffer.clear();
-                undoBuffer.push(e);
+                if (!undoing)
+                {
+                    redoBuffer.clear();
+                    undoBuffer.push(e);
+                }
             }
         });
 
         sideboard.current.addDeckListener((e) -> {
-            if (e.cardsChanged())
+            if (!opening)
             {
-                updateStats();
-
-                if (!opening)
+                if (e.cardsChanged())
                 {
+                    updateStats();
                     parent.updateCardsInDeck();
                     sideboard.model.fireTableDataChanged();
                     for (Card c : parent.getSelectedCards())
@@ -1324,15 +1323,15 @@ public class EditorFrame extends JInternalFrame
                     if (parent.getSelectedTable().isEditing())
                         parent.getSelectedTable().getCellEditor().cancelCellEditing();
                 }
-            }
 
-            setUnsaved();
-            update();
+                setUnsaved();
+                update();
 
-            if (!undoing)
-            {
-                redoBuffer.clear();
-                undoBuffer.push(e);
+                if (!undoing)
+                {
+                    redoBuffer.clear();
+                    undoBuffer.push(e);
+                }
             }
         });
 
