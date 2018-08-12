@@ -3,9 +3,6 @@ package editor.collection.deck;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -29,7 +26,6 @@ import editor.collection.CardList;
 import editor.collection.category.CategoryListener;
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
-import editor.gui.MainFrame;
 
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and have several category
