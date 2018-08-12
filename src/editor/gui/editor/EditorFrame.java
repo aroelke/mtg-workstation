@@ -438,8 +438,10 @@ public class EditorFrame extends JInternalFrame
                         version = ois.readLong();
                     readDeck(deck.current, ois);
                     readDeck(sideboard.current, ois);
-                    // TODO: Change this to use readUTF
-                    changelogArea.setText((String)ois.readObject());
+                    if (version < 2)
+                        changelogArea.setText((String)ois.readObject());
+                    else
+                        changelogArea.setText(ois.readUTF());
                 }
             }
             return null;
@@ -607,8 +609,12 @@ public class EditorFrame extends JInternalFrame
     public static final int CHANGELOG = 3;
     /**
      * Latest version of save file.
+     * 
+     * Change log:
+     * 1. Added save version number
+     * 2. Switched changelog from read/writeObject to read/writeUTF
      */
-    private static final long SAVE_VERSION = 1;
+    private static final long SAVE_VERSION = 2;
 
     /**
      * Label showing the average CMC of nonland cards in the deck.
@@ -1917,8 +1923,7 @@ public class EditorFrame extends JInternalFrame
                 changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
                 changelogArea.append(changes + "\n");
             }
-            // TODO: Change this to use readUTF
-            oos.writeObject(changelogArea.getText());
+            oos.writeUTF(changelogArea.getText());
 
             deck.original = new Deck();
             deck.original.addAll(deck.current);
