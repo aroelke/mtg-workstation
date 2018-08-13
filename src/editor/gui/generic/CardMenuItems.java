@@ -2,6 +2,7 @@ package editor.gui.generic;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,33 +109,75 @@ public class CardMenuItems
         });
     }
 
+    /**
+     * @return the menu item for adding a single copy of a card.
+     */
     public JMenuItem addSingle()
     {
         return items[0];
     }
 
+    /**
+     * @return the menu item for filling out a playset of cards.
+     */
     public JMenuItem fillPlayset()
     {
         return items[1];
     }
 
+    /**
+     * @return the menu item for adding a specified number of copies of a card.
+     */
     public JMenuItem addN()
     {
         return items[2];
     }
 
+    /**
+     * @return the menu item for removing a single copy of a card.
+     */
     public JMenuItem removeSingle()
     {
         return items[3];
     }
 
+    /**
+     * @return the menu item for removing all copies of a card.
+     */
     public JMenuItem removeAll()
     {
         return items[4];
     }
 
+    /**
+     * @return the menu item for removing a specified number of copies of a card.
+     */
     public JMenuItem removeN()
     {
         return items[5];
+    }
+
+    /**
+     * Convenience method for adding items that add cards to decks to menus.
+     * 
+     * @param menu container to add items to
+     */
+    public void addAddItems(Container menu)
+    {
+        menu.add(addSingle());
+        menu.add(fillPlayset());
+        menu.add(addN());
+    }
+
+    /**
+     * Convenience method for adding items that remove cards from  decks to menus.
+     * 
+     * @param menu container to add items to
+     */
+    public void addRemoveItems(Container menu)
+    {
+        menu.add(removeSingle());
+        menu.add(removeAll());
+        menu.add(removeN());
     }
 }

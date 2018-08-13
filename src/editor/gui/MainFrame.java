@@ -953,12 +953,8 @@ public class MainFrame extends JFrame
         JMenu removeMenu = new JMenu("Remove Cards");
         deckMenu.add(removeMenu);
         CardMenuItems deckMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), this::getSelectedCards);
-        addMenu.add(deckMenuCardItems.addSingle());
-        addMenu.add(deckMenuCardItems.fillPlayset());
-        addMenu.add(deckMenuCardItems.addN());
-        removeMenu.add(deckMenuCardItems.removeSingle());
-        removeMenu.add(deckMenuCardItems.removeAll());
-        removeMenu.add(deckMenuCardItems.removeN());
+        deckMenuCardItems.addAddItems(addMenu);
+        deckMenuCardItems.addRemoveItems(removeMenu);
 
         // Sideboard menu
         JMenu sideboardMenu = new JMenu("Sideboard");
@@ -1185,13 +1181,9 @@ public class MainFrame extends JFrame
 
         // Add the card to the main deck
         CardMenuItems oracleMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), () -> Collections.singletonList(selectedCard));
-        oraclePopupMenu.add(oracleMenuCardItems.addSingle());
-        oraclePopupMenu.add(oracleMenuCardItems.fillPlayset());
-        oraclePopupMenu.add(oracleMenuCardItems.addN());
+        oracleMenuCardItems.addAddItems(oraclePopupMenu);
         oraclePopupMenu.add(new JSeparator());
-        oraclePopupMenu.add(oracleMenuCardItems.removeSingle());
-        oraclePopupMenu.add(oracleMenuCardItems.removeAll());
-        oraclePopupMenu.add(oracleMenuCardItems.removeN());
+        oracleMenuCardItems.addRemoveItems(oraclePopupMenu);
         oraclePopupMenu.add(new JSeparator());
 
         // Add the card to the sideboard
@@ -1275,13 +1267,9 @@ public class MainFrame extends JFrame
 
         // Add cards to the main deck
         CardMenuItems inventoryMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), this::getSelectedCards);
-        inventoryMenu.add(inventoryMenuCardItems.addSingle());
-        inventoryMenu.add(inventoryMenuCardItems.fillPlayset());
-        inventoryMenu.add(inventoryMenuCardItems.addN());
+        inventoryMenuCardItems.addAddItems(inventoryMenu);
         inventoryMenu.add(new JSeparator());
-        inventoryMenu.add(inventoryMenuCardItems.removeSingle());
-        inventoryMenu.add(inventoryMenuCardItems.removeAll());
-        inventoryMenu.add(inventoryMenuCardItems.removeN());
+        inventoryMenuCardItems.addRemoveItems(inventoryMenu);
         inventoryMenu.add(new JSeparator());
 
         // Add cards to the sideboard
