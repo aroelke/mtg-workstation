@@ -3,7 +3,6 @@ package editor.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -218,6 +216,12 @@ public class EditorFrame extends JInternalFrame
          * Table displaying the deck.
          */
         private CardTable table;
+
+        public DeckData()
+        {
+            original = new Deck();
+            current = new Deck();
+        }
     }
 
     /**
@@ -743,11 +747,7 @@ public class EditorFrame extends JInternalFrame
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         deck = new DeckData();
-        deck.current = new Deck();
-        deck.original = new Deck();
         sideboard = new DeckData();
-        sideboard.current = new Deck();
-        sideboard.original = new Deck();
 
         parent = p;
         file = null;
@@ -1762,41 +1762,33 @@ public class EditorFrame extends JInternalFrame
      */
     public void load(File f)
     {
-        JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
-        JProgressBar progressBar = new JProgressBar();
-        LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
-
-        JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
-        progressDialog.setContentPane(progressPanel);
-        progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
-        progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        progressPanel.add(progressBar, BorderLayout.CENTER);
-        JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener((e) -> worker.cancel(false));
-        cancelPanel.add(cancelButton);
-        progressPanel.add(cancelPanel, BorderLayout.SOUTH);
-        progressDialog.pack();
-
-        worker.execute();
-        progressDialog.setLocationRelativeTo(parent);
-        progressDialog.setVisible(true);
-        try
+        opening = true;
+        DeckFileManager manager = new DeckFileManager();
+        if (manager.load(f, parent))
         {
-            worker.get();
-        }
-        catch (InterruptedException | ExecutionException e)
-        {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-            deck.current.clear();
-            categoriesContainer.removeAll();
-        }
-        deck.original.addAll(deck.current);
-        listTabs.setSelectedIndex(MAIN_TABLE);
-        hand.refresh();
+            deck.current.addAll(manager.deck());
+            sideboard.current.addAll(manager.sideboard());
+            for (CategorySpec category : manager.deck().categories())
+            {
+                deck.current.addCategory(category, manager.deck().getCategoryRank(category.getName()));
+                categoryPanels.add(createCategoryPanel(category));
+            }
+            updateCategoryPanel();
 
-        updateStats();
+            handCalculations.update();
+            hand.refresh();
+
+            changelogArea.setText(manager.changelog());
+
+            updateStats();
+            setFile(f);
+            listTabs.setSelectedIndex(MAIN_TABLE);
+        }
+
+        opening = false;
+        unsaved = false;
+        undoBuffer.clear();
+        redoBuffer.clear();
     }
 
     /**
@@ -1864,46 +1856,37 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean save(File f)
     {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f, false)))
+        StringBuilder changes = new StringBuilder();
+        for (Card c : deck.original)
         {
-            oos.writeLong(SAVE_VERSION);
-            writeDeck(deck.current, oos);
-            writeDeck(sideboard.current, oos);
+            int had = deck.original.contains(c) ? deck.original.getData(c).count() : 0;
+            int has = deck.current.contains(c) ? deck.current.getData(c).count() : 0;
+            if (has < had)
+                changes.append("-").append(had - has).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
+        }
+        for (Card c : deck.current)
+        {
+            int had = deck.original.contains(c) ? deck.original.getData(c).count() : 0;
+            int has = deck.current.contains(c) ? deck.current.getData(c).count() : 0;
+            if (had < has)
+                changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
+        }
+        if (changes.length() > 0)
+        {
+            changelogArea.append("~~~~~" + DeckFileManager.CHANGELOG_DATE.format(new Date()) + "~~~~~\n");
+            changelogArea.append(changes + "\n");
+        }
 
-            StringBuilder changes = new StringBuilder();
-            for (Card c : deck.original)
-            {
-                int had = deck.original.contains(c) ? deck.original.getData(c).count() : 0;
-                int has = deck.current.contains(c) ? deck.current.getData(c).count() : 0;
-                if (has < had)
-                    changes.append("-").append(had - has).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
-            }
-            for (Card c : deck.current)
-            {
-                int had = deck.original.contains(c) ? deck.original.getData(c).count() : 0;
-                int has = deck.current.contains(c) ? deck.current.getData(c).count() : 0;
-                if (had < has)
-                    changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
-            }
-            if (changes.length() > 0)
-            {
-                SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
-                changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
-                changelogArea.append(changes + "\n");
-            }
-            oos.writeUTF(changelogArea.getText());
-
+        if (new DeckFileManager(deck.current, sideboard.current, changes.toString()).save(file, parent))
+        {
             deck.original = new Deck();
             deck.original.addAll(deck.current);
             unsaved = false;
             setFile(f);
             return true;
         }
-        catch (IOException e)
-        {
-            JOptionPane.showMessageDialog(this, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+        else
             return false;
-        }
     }
 
     /**
@@ -2078,28 +2061,5 @@ public class EditorFrame extends JInternalFrame
             medCMCLabel.setText("Median CMC: " + (int)medCMC);
         else
             medCMCLabel.setText(String.format("Median CMC: %.1f", medCMC));
-    }
-
-    /**
-     * Write a deck to an output stream.
-     * 
-     * @param deck deck to write
-     * @param out stream to write to
-     */
-    public void writeDeck(Deck deck, ObjectOutput out) throws IOException
-    {
-        out.writeInt(deck.size());
-        for (Card card : deck)
-        {
-            out.writeUTF(card.id());
-            out.writeInt(deck.getData(card).count());
-            out.writeObject(deck.getData(card).dateAdded());
-        }
-        out.writeInt(deck.numCategories());
-        for (CategorySpec spec : deck.categories())
-        {
-            spec.writeExternal(out);
-            out.writeInt(deck.getCategoryRank(spec.getName()));
-        }
     }
 }
