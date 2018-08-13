@@ -486,14 +486,12 @@ public class MainFrame extends JFrame
         // Import and export items
         final FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
         final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
-        final FileNameExtensionFilter old = new FileNameExtensionFilter("From old versions (*." + EXTENSION + ')', EXTENSION);
         JMenuItem importItem = new JMenuItem("Import...");
         importItem.addActionListener((e) -> {
             JFileChooser importChooser = new JFileChooser();
             importChooser.setAcceptAllFileFilterUsed(false);
             importChooser.addChoosableFileFilter(text);
             importChooser.addChoosableFileFilter(delimited);
-            importChooser.addChoosableFileFilter(old);
             importChooser.setDialogTitle("Import");
             importChooser.setCurrentDirectory(fileChooser.getCurrentDirectory());
             switch (importChooser.showOpenDialog(this))
@@ -676,11 +674,6 @@ public class MainFrame extends JFrame
                     }
                     else
                         return;
-                }
-                else if (importChooser.getFileFilter() == old)
-                {
-                    open(importChooser.getSelectedFile(), EditorFrame::importOld);
-                    return;
                 }
                 else
                 {

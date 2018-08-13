@@ -11,6 +11,7 @@ import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -370,10 +371,6 @@ public class EditorFrame extends JInternalFrame
          * Progress bar to display progress to.
          */
         private JProgressBar progressBar;
-        /**
-         * Whether or not the file is expected to have a save version number.
-         */
-        private boolean versionPresent;
 
         /**
          * Create a new LoadWorker.
@@ -383,12 +380,11 @@ public class EditorFrame extends JInternalFrame
          * @param b progress bar showing progress
          * @param d dialog containing the progress bar
          */
-        public LoadWorker(File f, boolean v, JProgressBar b, JDialog d)
+        public LoadWorker(File f, JProgressBar b, JDialog d)
         {
             file = f;
             progressBar = b;
             dialog = d;
-            versionPresent = v;
 
             progressBar.setMaximum((int)file.length());
         }
@@ -427,15 +423,24 @@ public class EditorFrame extends JInternalFrame
         @Override
         protected Void doInBackground() throws Exception
         {
+            long version;
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
+            {
+                version = ois.readLong();
+            }
+            // Assume that high bits in the first 64 bits are used by the serialization of a Deck
+            // object and that SAVE_VERSION will never be that high.
+            if (version > SAVE_VERSION)
+                version = 0;
+
             try (ProgressInputStream pis = new ProgressInputStream(new FileInputStream(file)))
             {
                 pis.addPropertyChangeListener((e) -> process(Collections.singletonList(((Long)e.getNewValue()).intValue())));
                 try (ObjectInputStream ois = new ObjectInputStream(pis))
                 {
                     opening = true;
-                    long version = 0;
-                    if (versionPresent)
-                        version = ois.readLong();
+                    if (version > 0)
+                        ois.readLong(); // Throw out first 64 bits that have already been read
                     readDeck(deck.current, ois);
                     readDeck(sideboard.current, ois);
                     if (version < 2)
@@ -470,8 +475,7 @@ public class EditorFrame extends JInternalFrame
         @Override
         protected void process(List<Integer> chunks)
         {
-            int progress = chunks.get(chunks.size() - 1);
-            progressBar.setValue(progress);
+            progressBar.setValue(chunks.get(chunks.size() - 1));
         }
     }
 
@@ -1765,37 +1769,15 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * Import a deck from a given File that was created before save versions were implemented.
-     * 
-     * @param f file to load from
-     */
-    public void importOld(File f)
-    {
-        load(f, false);
-        setUnsaved();
-    }
-
-    /**
      * Load a deck from the given File.
      * 
      * @param f file to load from
      */
     public void load(File f)
     {
-        load(f, true);
-    }
-
-    /**
-     * Load a deck from the given File.
-     * 
-     * @param f file to load from
-     * @param v <code>true</code> if the file contains the save version and <code>false</code> if it is from before save versions were implemented
-     */
-    private void load(File f, boolean v)
-    {
         JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
         JProgressBar progressBar = new JProgressBar();
-        LoadWorker worker = new LoadWorker(f, v, progressBar, progressDialog);
+        LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
 
         JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
         progressDialog.setContentPane(progressPanel);
