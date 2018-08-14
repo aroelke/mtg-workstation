@@ -206,6 +206,26 @@ public class EditorFrame extends JInternalFrame
          */
         private CardTable table;
 
+        public String getChanges()
+        {
+            StringBuilder changes = new StringBuilder();
+            for (Card c : original)
+            {
+                int had = original.contains(c) ? original.getData(c).count() : 0;
+                int has = current.contains(c) ? current.getData(c).count() : 0;
+                if (has < had)
+                    changes.append("-").append(had - has).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
+            }
+            for (Card c : current)
+            {
+                int had = original.contains(c) ? original.getData(c).count() : 0;
+                int has = current.contains(c) ? current.getData(c).count() : 0;
+                if (had < has)
+                    changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
+            }
+            return changes.toString();
+        }
+
         public DeckData()
         {
             original = new Deck();
@@ -1621,6 +1641,7 @@ public class EditorFrame extends JInternalFrame
         if (manager.load(f, parent))
         {
             deck.current.addAll(manager.deck());
+            deck.original.addAll(manager.deck());
             sideboard.current.addAll(manager.sideboard());
             for (CategorySpec category : manager.deck().categories())
             {
@@ -1710,28 +1731,14 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean save(File f)
     {
-        StringBuilder changes = new StringBuilder();
-        for (Card c : deck.original)
-        {
-            int had = deck.original.contains(c) ? deck.original.getData(c).count() : 0;
-            int has = deck.current.contains(c) ? deck.current.getData(c).count() : 0;
-            if (has < had)
-                changes.append("-").append(had - has).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
-        }
-        for (Card c : deck.current)
-        {
-            int had = deck.original.contains(c) ? deck.original.getData(c).count() : 0;
-            int has = deck.current.contains(c) ? deck.current.getData(c).count() : 0;
-            if (had < has)
-                changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
-        }
-        if (changes.length() > 0)
+        String changes = deck.getChanges();
+        if (!changes.isEmpty())
         {
             changelogArea.append("~~~~~" + DeckFileManager.CHANGELOG_DATE.format(new Date()) + "~~~~~\n");
             changelogArea.append(changes + "\n");
         }
 
-        if (new DeckFileManager(deck.current, sideboard.current, changes.toString()).save(file, parent))
+        if (new DeckFileManager(deck.current, sideboard.current, changelogArea.getText()).save(file, parent))
         {
             deck.original = new Deck();
             deck.original.addAll(deck.current);
