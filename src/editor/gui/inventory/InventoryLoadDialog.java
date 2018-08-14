@@ -134,6 +134,7 @@ public class InventoryLoadDialog extends JDialog
 
                 // TODO: Remove this when mtgjson fixes the numbering issue
                 Map<Card, String> mciNumbers = new HashMap<>();
+                HashSet<String> ids = new HashSet<>();
                 publish("Reading cards from " + file.getName() + "...");
                 setProgress(0);
                 for (Map.Entry<String, JsonElement> setNode : root.entrySet())
@@ -332,6 +333,13 @@ public class InventoryLoadDialog extends JDialog
                                 rulings,
                                 legality,
                                 imageName);
+                        if (ids.contains(c.id()))
+                        {
+                            errors.add("Found duplicate entry for " + c.unifiedName());
+                            continue;
+                        }
+                        else
+                            ids.add(c.id());
 
                         // Add to map of faces if the card has multiple faces
                         if (layout.isMultiFaced)
