@@ -11,21 +11,14 @@ import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,7 +43,6 @@ import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -59,7 +51,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -69,7 +60,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
@@ -98,7 +88,6 @@ import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
-import editor.util.ProgressInputStream;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -356,133 +345,6 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * This class is a worker for loading a deck.
-     *
-     * @author Alec Roelke
-     */
-    private class LoadWorker extends SwingWorker<Void, Integer>
-    {
-        /**
-         * Dialog containing the progress bar.
-         */
-        private JDialog dialog;
-        /**
-         * File to load the deck from.
-         */
-        private File file;
-        /**
-         * Progress bar to display progress to.
-         */
-        private JProgressBar progressBar;
-
-        /**
-         * Create a new LoadWorker.
-         *
-         * @param f file to load the deck from
-         * @param v file to load contains save version number (only false if importing from before versions were implemented)
-         * @param b progress bar showing progress
-         * @param d dialog containing the progress bar
-         */
-        public LoadWorker(File f, JProgressBar b, JDialog d)
-        {
-            file = f;
-            progressBar = b;
-            dialog = d;
-
-            progressBar.setMaximum((int)file.length());
-        }
-
-        /**
-         * Read a deck from an object stream.
-         * 
-         * @param deck deck to load data into
-         * @param in input stream to read from
-         */
-        private void readDeck(Deck deck, ObjectInput in) throws IOException, ClassNotFoundException
-        {
-            deck.clear();
-
-            int n = in.readInt();
-            for (int i = 0; i < n; i++)
-            {
-                Card card = MainFrame.inventory().get(in.readUTF());
-                int count = in.readInt();
-                LocalDate added = (LocalDate)in.readObject();
-                deck.add(card, count, added);
-            }
-            n = in.readInt();
-            for (int i = 0; i < n; i++)
-            {
-                CategorySpec spec = new CategorySpec();
-                spec.readExternal(in);
-                deck.addCategory(spec, in.readInt());
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         * Load the deck, updating the progress bar all the while.
-         */
-        @Override
-        protected Void doInBackground() throws Exception
-        {
-            long version;
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
-            {
-                version = ois.readLong();
-            }
-            // Assume that high bits in the first 64 bits are used by the serialization of a Deck
-            // object and that SAVE_VERSION will never be that high.
-            if (version > SAVE_VERSION)
-                version = 0;
-
-            try (ProgressInputStream pis = new ProgressInputStream(new FileInputStream(file)))
-            {
-                pis.addPropertyChangeListener((e) -> process(Collections.singletonList(((Long)e.getNewValue()).intValue())));
-                try (ObjectInputStream ois = new ObjectInputStream(pis))
-                {
-                    opening = true;
-                    if (version > 0)
-                        ois.readLong(); // Throw out first 64 bits that have already been read
-                    readDeck(deck.current, ois);
-                    readDeck(sideboard.current, ois);
-                    if (version < 2)
-                        changelogArea.setText((String)ois.readObject());
-                    else
-                        changelogArea.setText(ois.readUTF());
-                }
-            }
-            return null;
-        }
-
-        /**
-         * {@inheritDoc}
-         * When the task is over, close the file and update the frame.
-         */
-        @Override
-        protected void done()
-        {
-            for (CategorySpec category : deck.current.categories())
-                categoryPanels.add(createCategoryPanel(category));
-            updateCategoryPanel();
-            handCalculations.update();
-
-            opening = false;
-            dialog.dispose();
-            unsaved = false;
-            setFile(file);
-            undoBuffer.clear();
-            redoBuffer.clear();
-        }
-
-        @Override
-        protected void process(List<Integer> chunks)
-        {
-            progressBar.setValue(chunks.get(chunks.size() - 1));
-        }
-    }
-
-    /**
      * Popup menu listener for a CardTable of this EditorFrame.  It controls the visibility
      * and contents of the include and exclude options.
      *
@@ -614,14 +476,6 @@ public class EditorFrame extends JInternalFrame
      * Tab number containing the changelog.
      */
     public static final int CHANGELOG = 3;
-    /**
-     * Latest version of save file.
-     * 
-     * Change log:
-     * 1. Added save version number
-     * 2. Switched changelog from read/writeObject to read/writeUTF
-     */
-    private static final long SAVE_VERSION = 2;
 
     /**
      * Label showing the average CMC of nonland cards in the deck.
