@@ -120,10 +120,6 @@ public class DeckFileManager
             return null;
         }
 
-        /**
-         * {@inheritDoc}
-         * When the task is over, close the file and update the frame.
-         */
         @Override
         protected void done()
         {
@@ -237,7 +233,7 @@ public class DeckFileManager
     }
 
     /**
-     * Save the deck to the given file (like Save As).
+     * Save the deck to the given file.
      *
      * @param f file to save to
      * @return true if the file was successfully saved, and false otherwise.
