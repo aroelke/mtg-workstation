@@ -91,6 +91,8 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import com.jidesoft.plaf.LookAndFeelFactory;
+
 import editor.collection.CardList;
 import editor.collection.Inventory;
 import editor.collection.category.CategorySpec;
@@ -242,6 +244,10 @@ public class MainFrame extends JFrame
      */
     public static void main(String[] args)
     {
+        LookAndFeelFactory.setDefaultStyle(LookAndFeelFactory.VSNET_STYLE_WITHOUT_MENU);
+        LookAndFeelFactory.installDefaultLookAndFeel();
+        LookAndFeelFactory.installJideExtension();
+
         try
         {
             Object tristateIcon = UIManager.get("TristateCheckBox.icon");
