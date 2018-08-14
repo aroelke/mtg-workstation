@@ -335,7 +335,7 @@ public class InventoryLoadDialog extends JDialog
                                 imageName);
                         if (ids.contains(c.id()))
                         {
-                            errors.add("Found duplicate entry for " + c.unifiedName());
+                            errors.add(c.toString() + " (" + c.expansion() + "): Duplicate entry in JSON.");
                             continue;
                         }
                         else
