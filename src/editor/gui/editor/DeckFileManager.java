@@ -12,6 +12,8 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -29,6 +31,7 @@ import javax.swing.SwingWorker;
 
 import editor.collection.category.CategorySpec;
 import editor.collection.deck.Deck;
+import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
 import editor.gui.MainFrame;
 import editor.util.ProgressInputStream;
@@ -157,6 +160,14 @@ public class DeckFileManager
     public Deck deck()
     {
         return deck;
+    }
+
+    public void importList(CardListFormat format, File file) throws IOException, ParseException, IllegalStateException
+    {
+        // TODO: Change this to a better type of exception
+        if (!deck.isEmpty())
+            throw new IllegalStateException("Deck already loaded!");
+        deck.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
     }
 
     public boolean load(File file, Window parent)

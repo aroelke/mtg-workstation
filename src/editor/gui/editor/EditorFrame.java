@@ -1622,10 +1622,19 @@ public class EditorFrame extends JInternalFrame
      */
     public void importList(CardListFormat format, File file) throws IOException, ParseException, IllegalStateException
     {
-        if (!deck.current.isEmpty())
-            throw new IllegalStateException("deck is not empty");
-        deck.current.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
-        changelogArea.setText("");
+        // TODO: Currently assuming the deck is empty
+        DeckFileManager manager = new DeckFileManager();
+        manager.importList(format, file);
+        opening = true;
+        deck.current.addAll(manager.deck());
+        opening = false;
+
+        handCalculations.update();
+        hand.refresh();
+
+        changelogArea.setText(manager.changelog());
+
+        updateStats();
         setUnsaved();
     }
 
