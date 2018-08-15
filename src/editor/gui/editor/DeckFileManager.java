@@ -138,6 +138,7 @@ public class DeckFileManager
 
     private String changelog;
     private Deck deck;
+    private File file;
     private Deck sideboard;
 
     public DeckFileManager()
@@ -149,6 +150,7 @@ public class DeckFileManager
     {
         changelog = c;
         deck = d;
+        file = null;
         sideboard = s;
     }
 
@@ -162,6 +164,11 @@ public class DeckFileManager
         return deck;
     }
 
+    public File file()
+    {
+        return file;
+    }
+
     public void importList(CardListFormat format, File file) throws IOException, ParseException, IllegalStateException
     {
         // TODO: Change this to a better type of exception
@@ -170,19 +177,24 @@ public class DeckFileManager
         deck.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
     }
 
-    public boolean load(File file, Window parent)
+    public boolean isEmpty()
+    {
+        return file == null;
+    }
+
+    public boolean load(File f, Window parent)
     {
         // TODO: Change this to a better type of exception
-        if (!deck.isEmpty())
+        if (!isEmpty())
             throw new IllegalStateException("Deck already loaded!");
 
         JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
         JProgressBar progressBar = new JProgressBar();
-        LoadWorker worker = new LoadWorker(file, progressBar, progressDialog);
+        LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
 
         JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
         progressDialog.setContentPane(progressPanel);
-        progressPanel.add(new JLabel("Opening " + file.getName() + "..."), BorderLayout.NORTH);
+        progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
         progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         progressPanel.add(progressBar, BorderLayout.CENTER);
         JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -198,12 +210,13 @@ public class DeckFileManager
         try
         {
             worker.get();
+            file = f;
             return true;
         }
         catch (InterruptedException | ExecutionException e)
         {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(parent, "Error opening " + file.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(parent, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             reset();
             return false;
         }
@@ -240,6 +253,7 @@ public class DeckFileManager
     {
         changelog = "";
         deck = new Deck();
+        file = null;
         sideboard = new Deck();
     }
 
@@ -249,19 +263,20 @@ public class DeckFileManager
      * @param f file to save to
      * @return true if the file was successfully saved, and false otherwise.
      */
-    public boolean save(File file, Window parent)
+    public boolean save(File f, Window parent)
     {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file, false)))
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f, false)))
         {
             oos.writeLong(SAVE_VERSION);
             writeDeck(deck, oos);
             writeDeck(sideboard, oos);
             oos.writeUTF(changelog);
+            file = f;
             return true;
         }
         catch (IOException e)
         {
-            JOptionPane.showMessageDialog(parent, "Error saving " + file.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(parent, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }

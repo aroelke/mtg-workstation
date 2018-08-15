@@ -225,10 +225,16 @@ public class EditorFrame extends JInternalFrame
             return changes.toString();
         }
 
+        public DeckData(Deck deck)
+        {
+            current = deck;
+            original = new Deck();
+            original.addAll(deck);
+        }
+
         public DeckData()
         {
-            original = new Deck();
-            current = new Deck();
+            this(new Deck());
         }
     }
 
@@ -605,31 +611,25 @@ public class EditorFrame extends JInternalFrame
      */
     private boolean unsaved;
 
-    /**
-     * Create a new EditorFrame inside the specified {@link MainFrame} and with the name
-     * "Untitled [u] *"
-     *
-     * @param u number of the untitled deck
-     * @param p parent MainFrame
-     */
-    public EditorFrame(int u, MainFrame p)
+    public EditorFrame(MainFrame p, int u, DeckFileManager manager)
     {
-        super("Untitled " + u, true, true, true, true);
+        super(manager.isEmpty() ? "Untitled " + u : manager.file().getName(), true, true, true, true);
         setBounds(((u - 1)%5)*30, ((u - 1)%5)*30, 600, 600);
         setLayout(new BorderLayout(0, 0));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-        deck = new DeckData();
-        sideboard = new DeckData();
+        deck = new DeckData(manager.deck());
+        sideboard = new DeckData(manager.sideboard());
 
         parent = p;
-        file = null;
         unsaved = false;
         undoBuffer = new Stack<>();
         redoBuffer = new Stack<>();
         startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
         opening = false;
         undoing = false;
+        if (!manager.isEmpty())
+            setFile(manager.file());
 
         listTabs = new JTabbedPane(SwingConstants.TOP);
         add(listTabs, BorderLayout.CENTER);
@@ -1061,7 +1061,7 @@ public class EditorFrame extends JInternalFrame
 
         // Changelog
         JPanel changelogPanel = new JPanel(new BorderLayout());
-        changelogArea = new JTextArea();
+        changelogArea = new JTextArea(manager.changelog());
         changelogArea.setEditable(false);
         changelogPanel.add(new JScrollPane(changelogArea), BorderLayout.CENTER);
         JPanel clearLogPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -1218,6 +1218,23 @@ public class EditorFrame extends JInternalFrame
                 parent.close(EditorFrame.this);
             }
         });
+    }
+
+    public EditorFrame(MainFrame p, int u)
+    {
+        this(p, u, new DeckFileManager());
+    }
+
+    /**
+     * Create a new EditorFrame inside the specified {@link MainFrame} and with the name
+     * "Untitled [u] *"
+     *
+     * @param u number of the untitled deck
+     * @param p parent MainFrame
+     */
+    public EditorFrame(int u, MainFrame p)
+    {
+        this(p, u);
     }
 
     /**
@@ -1746,12 +1763,13 @@ public class EditorFrame extends JInternalFrame
             changelogArea.append(changes + "\n");
         }
 
-        if (new DeckFileManager(deck.current, sideboard.current, changelogArea.getText()).save(file, parent))
+        DeckFileManager manager = new DeckFileManager(deck.current, sideboard.current, changelogArea.getText());
+        if (manager.save(f, parent))
         {
             deck.original = new Deck();
             deck.original.addAll(deck.current);
             unsaved = false;
-            setFile(f);
+            setFile(manager.file());
             return true;
         }
         else
@@ -1770,7 +1788,6 @@ public class EditorFrame extends JInternalFrame
             throw new RuntimeException("Can't change the file of an unsaved deck");
         file = f;
         setTitle(f.getName());
-        unsaved = false;
     }
 
     /**
