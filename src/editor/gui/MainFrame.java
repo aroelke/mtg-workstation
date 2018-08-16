@@ -961,6 +961,10 @@ public class MainFrame extends JFrame
         CardMenuItems deckMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), this::getSelectedCards);
         deckMenuCardItems.addAddItems(addMenu);
         deckMenuCardItems.addRemoveItems(removeMenu);
+        deckMenuCardItems.addSingle().setAccelerator(KeyStroke.getKeyStroke('+'));
+        deckMenuCardItems.fillPlayset().setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
+        deckMenuCardItems.removeSingle().setAccelerator(KeyStroke.getKeyStroke('-'));
+        deckMenuCardItems.removeAll().setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK));
 
         // Sideboard menu
         JMenu sideboardMenu = new JMenu("Sideboard");
