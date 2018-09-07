@@ -42,7 +42,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -108,6 +107,7 @@ import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableCellRenderer;
 import editor.gui.display.CardTableModel;
+import editor.gui.editor.DeckFileManager;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.generic.CardMenuItems;
@@ -680,16 +680,16 @@ public class MainFrame extends JFrame
                     JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                open(importChooser.getSelectedFile(), (frame, file) -> {
-                    try
-                    {
-                        frame.importList(format, file);
-                    }
-                    catch (IllegalStateException | IOException | ParseException x)
-                    {
-                        JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                });
+                DeckFileManager manager = new DeckFileManager();
+                try
+                {
+                    manager.importList(format, importChooser.getSelectedFile());
+                }
+                catch (IllegalStateException | IOException | ParseException x)
+                {
+                    JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                selectFrame(newEditor(manager));
                 break;
             case JFileChooser.CANCEL_OPTION:
                 break;
@@ -1398,7 +1398,7 @@ public class MainFrame extends JFrame
                         presetMenu.add(categoryItem);
                     }
                     for (File f : files)
-                        open(f, EditorFrame::load);
+                        open(f);
                 }
             }
         });
@@ -1710,14 +1710,26 @@ public class MainFrame extends JFrame
     /**
      * Create a new editor frame.  It will not be visible or selected.
      *
+     * @param manager file manager containing the deck to display
+     * 
+     * @see EditorFrame
+     */
+    public EditorFrame newEditor(DeckFileManager manager)
+    {
+        EditorFrame frame = new EditorFrame(this, ++untitled, manager);
+        editors.add(frame);
+        decklistDesktop.add(frame);
+        return frame;
+    }
+
+    /**
+     * Create a new editor frame.  It will not be visible or selected.
+     * 
      * @see EditorFrame
      */
     public EditorFrame newEditor()
     {
-        EditorFrame frame = new EditorFrame(++untitled, this);
-        editors.add(frame);
-        decklistDesktop.add(frame);
-        return frame;
+        return newEditor(new DeckFileManager());
     }
 
     /**
@@ -1732,7 +1744,7 @@ public class MainFrame extends JFrame
         switch (fileChooser.showOpenDialog(this))
         {
         case JFileChooser.APPROVE_OPTION:
-            frame = open(fileChooser.getSelectedFile(), EditorFrame::load);
+            frame = open(fileChooser.getSelectedFile());
             updateRecents(fileChooser.getSelectedFile());
             break;
         case JFileChooser.CANCEL_OPTION:
@@ -1747,10 +1759,9 @@ public class MainFrame extends JFrame
     /**
      * Open the specified file and create an editor for it.
      *
-     * @param f #File to open.
      * @return the EditorFrame containing the opened deck
      */
-    public EditorFrame open(File f, BiConsumer<EditorFrame, File> openFunction)
+    public EditorFrame open(File f)
     {
         EditorFrame frame = null;
         for (EditorFrame e : editors)
@@ -1763,8 +1774,9 @@ public class MainFrame extends JFrame
         }
         if (frame == null)
         {
-            frame = newEditor();
-            openFunction.accept(frame, f);
+            DeckFileManager manager = new DeckFileManager();
+            manager.load(f, this);
+            frame = newEditor(manager);
         }
         SettingsDialog.set(SettingsDialog.INITIALDIR, f.getParent());
         fileChooser.setCurrentDirectory(f.getParentFile());
@@ -2065,7 +2077,7 @@ public class MainFrame extends JFrame
             JMenuItem mostRecent = new JMenuItem(f.getPath());
             recentItems.offer(mostRecent);
             recents.put(mostRecent, f);
-            mostRecent.addActionListener((e) -> open(f, EditorFrame::load));
+            mostRecent.addActionListener((e) -> open(f));
             recentsMenu.add(mostRecent);
         }
     }

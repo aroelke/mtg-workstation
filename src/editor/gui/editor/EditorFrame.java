@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -98,7 +97,6 @@ import editor.util.UnicodeSymbols;
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add something for calculating probability for multiple categories at once
  * TODO: Instead of a single dedicated extra list for sideboard, etc., start with none and allow adding arbitrary extras in tabs
- * TODO: Create a function to initialize from an arbitrary deck, and then call that on an empty deck with a new file and the openeded deck with a non-new file
  *
  * @author Alec Roelke
  */
@@ -230,11 +228,6 @@ public class EditorFrame extends JInternalFrame
             current = deck;
             original = new Deck();
             original.addAll(deck);
-        }
-
-        public DeckData()
-        {
-            this(new Deck());
         }
     }
 
@@ -564,10 +557,6 @@ public class EditorFrame extends JInternalFrame
      */
     private JLabel nonlandLabel;
     /**
-     * Whether or not a file is being opened (used to prevent some actions when changing the deck).
-     */
-    private boolean opening;
-    /**
      * Parent {@link MainFrame}.
      */
     private MainFrame parent;
@@ -613,7 +602,7 @@ public class EditorFrame extends JInternalFrame
 
     public EditorFrame(MainFrame p, int u, DeckFileManager manager)
     {
-        super(manager.isEmpty() ? "Untitled " + u : manager.file().getName(), true, true, true, true);
+        super(!manager.canSaveFile() ? "Untitled " + u : manager.file().getName(), true, true, true, true);
         setBounds(((u - 1)%5)*30, ((u - 1)%5)*30, 600, 600);
         setLayout(new BorderLayout(0, 0));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -626,10 +615,11 @@ public class EditorFrame extends JInternalFrame
         undoBuffer = new Stack<>();
         redoBuffer = new Stack<>();
         startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
-        opening = false;
         undoing = false;
-        if (!manager.isEmpty())
+        if (manager.canSaveFile())
             setFile(manager.file());
+        else
+            setUnsaved();
 
         listTabs = new JTabbedPane(SwingConstants.TOP);
         add(listTabs, BorderLayout.CENTER);
@@ -1011,6 +1001,7 @@ public class EditorFrame extends JInternalFrame
         handPanel.add(handModPanel, BorderLayout.NORTH);
         handPanel.add(handSplit, BorderLayout.CENTER);
         listTabs.addTab("Sample Hand", handPanel);
+        hand.refresh();
 
         // TODO: Add tabs for deck analysis
         // - category pie chart
@@ -1078,128 +1069,128 @@ public class EditorFrame extends JInternalFrame
         changelogPanel.add(clearLogPanel, BorderLayout.SOUTH);
         listTabs.addTab("Change Log", changelogPanel);
 
+        changelogArea.setText(manager.changelog());
+
         setTransferHandler(new EditorImportHandler(true));
 
-        // TODO: Add these listeners after loading the deck and sideboard
+        for (CategorySpec spec: deck.current.categories())
+            categoryPanels.add(createCategoryPanel(spec));
+        updateCategoryPanel();
+        handCalculations.update();
+
         deck.current.addDeckListener((e) -> {
-            if (!opening)
+            // Cards
+            if (e.cardsChanged())
             {
-                // Cards
-                if (e.cardsChanged())
+                updateStats();
+                parent.updateCardsInDeck();
+                deck.model.fireTableDataChanged();
+                for (CategoryPanel c : categoryPanels)
+                    ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
+                for (Card c : parent.getSelectedCards())
                 {
-                    updateStats();
-                    parent.updateCardsInDeck();
-                    deck.model.fireTableDataChanged();
-                    for (CategoryPanel c : categoryPanels)
-                        ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-                    for (Card c : parent.getSelectedCards())
+                    if (parent.getSelectedList().contains(c))
                     {
-                        if (parent.getSelectedList().contains(c))
-                        {
-                            int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
-                            parent.getSelectedTable().addRowSelectionInterval(row, row);
-                        }
+                        int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
+                        parent.getSelectedTable().addRowSelectionInterval(row, row);
                     }
-                    if (parent.getSelectedTable().isEditing())
-                        parent.getSelectedTable().getCellEditor().cancelCellEditing();
-
-                    hand.refresh();
-                    handCalculations.update();
                 }
-                // Categories
-                if (e.categoryAdded())
+                if (parent.getSelectedTable().isEditing())
+                    parent.getSelectedTable().getCellEditor().cancelCellEditing();
+
+                hand.refresh();
+                handCalculations.update();
+            }
+            // Categories
+            if (e.categoryAdded())
+            {
+                CategoryPanel category = createCategoryPanel(e.addedCategory());
+                categoryPanels.add(category);
+        
+                for (CategoryPanel c : categoryPanels)
+                    if (c != category)
+                        c.rankBox.addItem(deck.current.categories().size() - 1);
+        
+                listTabs.setSelectedIndex(CATEGORIES);
+                updateCategoryPanel();
+                SwingUtilities.invokeLater(() -> {
+                    switchCategoryBox.setSelectedItem(category.getCategoryName());
+                    category.scrollRectToVisible(new Rectangle(category.getSize()));
+                    category.flash();
+                });
+                handCalculations.update();
+            }
+            if (e.categoryRemoved())
+            {
+                categoryPanels.remove(getCategory(e.removedCategory().getName()));
+                for (CategoryPanel panel : categoryPanels)
+                    panel.rankBox.removeItemAt(categoryPanels.size());
+
+                listTabs.setSelectedIndex(CATEGORIES);
+                updateCategoryPanel();
+                handCalculations.update();
+            }
+            if (e.ranksChanged())
+            {
+                for (CategoryPanel panel : categoryPanels)
+                    panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
+                listTabs.setSelectedIndex(CATEGORIES);
+                updateCategoryPanel();
+            }
+            if (e.categoryChanged())
+            {
+                CategorySpec.Event event = e.categoryChanges();
+                if (event.nameChanged())
+                    getCategory(event.oldSpec().getName()).setCategoryName(event.newSpec().getName());
+                for (CategoryPanel c : categoryPanels)
                 {
-                    CategoryPanel category = createCategoryPanel(e.addedCategory());
-                    categoryPanels.add(category);
-
-                    for (CategoryPanel c : categoryPanels)
-                        if (c != category)
-                            c.rankBox.addItem(deck.current.categories().size() - 1);
-
-                    listTabs.setSelectedIndex(CATEGORIES);
-                    updateCategoryPanel();
-                    SwingUtilities.invokeLater(() -> {
-                        switchCategoryBox.setSelectedItem(category.getCategoryName());
-                        category.scrollRectToVisible(new Rectangle(category.getSize()));
-                        category.flash();
-                    });
-                    handCalculations.update();
-                }
-                if (e.categoryRemoved())
-                {
-                    categoryPanels.remove(getCategory(e.removedCategory().getName()));
-                    for (CategoryPanel panel : categoryPanels)
-                        panel.rankBox.removeItemAt(categoryPanels.size());
-
-                    listTabs.setSelectedIndex(CATEGORIES);
-                    updateCategoryPanel();
-                    handCalculations.update();
-                }
-                if (e.ranksChanged())
-                {
-                    for (CategoryPanel panel : categoryPanels)
-                        panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
-                    listTabs.setSelectedIndex(CATEGORIES);
-                    updateCategoryPanel();
-                }
-                if (e.categoryChanged())
-                {
-                    CategorySpec.Event event = e.categoryChanges();
-                    if (event.nameChanged())
-                        getCategory(event.oldSpec().getName()).setCategoryName(event.newSpec().getName());
-                    for (CategoryPanel c : categoryPanels)
-                    {
-                        ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-                        c.update();
-                    }
-
-                    updateCategoryPanel();
-                    handCalculations.update();
+                    ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
+                    c.update();
                 }
 
-                if (!unsaved)
-                {
-                    setTitle(getTitle() + " *");
-                    unsaved = true;
-                }
-                update();
+                updateCategoryPanel();
+                handCalculations.update();
+            }
 
-                if (!undoing)
-                {
-                    redoBuffer.clear();
-                    undoBuffer.push(e);
-                }
+            if (!unsaved)
+            {
+                setTitle(getTitle() + " *");
+                unsaved = true;
+            }
+            update();
+
+            if (!undoing)
+            {
+                redoBuffer.clear();
+                undoBuffer.push(e);
             }
         });
 
         sideboard.current.addDeckListener((e) -> {
-            if (!opening)
+            if (e.cardsChanged())
             {
-                if (e.cardsChanged())
+                updateStats();
+                parent.updateCardsInDeck();
+                sideboard.model.fireTableDataChanged();
+                for (Card c : parent.getSelectedCards())
                 {
-                    updateStats();
-                    parent.updateCardsInDeck();
-                    sideboard.model.fireTableDataChanged();
-                    for (Card c : parent.getSelectedCards())
+                    if (parent.getSelectedList().contains(c))
                     {
-                        if (parent.getSelectedList().contains(c))
-                        {
-                            int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
-                            parent.getSelectedTable().addRowSelectionInterval(row, row);
-                        }
+                        int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
+                        parent.getSelectedTable().addRowSelectionInterval(row, row);
                     }
-                    if (parent.getSelectedTable().isEditing())
-                        parent.getSelectedTable().getCellEditor().cancelCellEditing();
                 }
+                if (parent.getSelectedTable().isEditing())
+                    parent.getSelectedTable().getCellEditor().cancelCellEditing();
+            }
 
-                setUnsaved();
-                update();
+            setUnsaved();
+            update();
 
-                if (!undoing)
-                {
-                    redoBuffer.clear();
-                    undoBuffer.push(e);
-                }
+            if (!undoing)
+            {
+                redoBuffer.clear();
+                undoBuffer.push(e);
             }
         });
 
@@ -1225,16 +1216,9 @@ public class EditorFrame extends JInternalFrame
         this(p, u, new DeckFileManager());
     }
 
-    /**
-     * Create a new EditorFrame inside the specified {@link MainFrame} and with the name
-     * "Untitled [u] *"
-     *
-     * @param u number of the untitled deck
-     * @param p parent MainFrame
-     */
-    public EditorFrame(int u, MainFrame p)
+    private void addCategory(CategorySpec spec)
     {
-        this(p, u);
+
     }
 
     /**
@@ -1624,71 +1608,6 @@ public class EditorFrame extends JInternalFrame
             if (selectedTable == panel.table)
                 return true;
         return false;
-    }
-
-    /**
-     * Import a list of cards from a nonstandard file.
-     *
-     * @param format format of the file
-     * @param file   file to import from
-     * @throws IOException           if the file could not be opened
-     * @throws ParseException        if parsing failed
-     * @throws IllegalStateException if parsing failed or if the deck was not empty
-     * @see CardListFormat
-     */
-    public void importList(CardListFormat format, File file) throws IOException, ParseException, IllegalStateException
-    {
-        // TODO: Currently assuming the deck is empty
-        DeckFileManager manager = new DeckFileManager();
-        manager.importList(format, file);
-        opening = true;
-        deck.current.addAll(manager.deck());
-        opening = false;
-
-        handCalculations.update();
-        hand.refresh();
-
-        changelogArea.setText(manager.changelog());
-
-        updateStats();
-        setUnsaved();
-    }
-
-    /**
-     * Load a deck from the given File.
-     * 
-     * @param f file to load from
-     */
-    public void load(File f)
-    {
-        opening = true;
-        DeckFileManager manager = new DeckFileManager();
-        if (manager.load(f, parent))
-        {
-            deck.current.addAll(manager.deck());
-            deck.original.addAll(manager.deck());
-            sideboard.current.addAll(manager.sideboard());
-            for (CategorySpec category : manager.deck().categories())
-            {
-                deck.current.addCategory(category, manager.deck().getCategoryRank(category.getName()));
-                categoryPanels.add(createCategoryPanel(category));
-            }
-            updateCategoryPanel();
-
-            handCalculations.update();
-            hand.refresh();
-
-            changelogArea.setText(manager.changelog());
-
-            updateStats();
-            setFile(f);
-            listTabs.setSelectedIndex(MAIN_TABLE);
-        }
-
-        opening = false;
-        unsaved = false;
-        undoBuffer.clear();
-        redoBuffer.clear();
     }
 
     /**

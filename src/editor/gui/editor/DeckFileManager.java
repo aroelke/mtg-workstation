@@ -139,6 +139,7 @@ public class DeckFileManager
     private String changelog;
     private Deck deck;
     private File file;
+    private boolean imported;
     private Deck sideboard;
 
     public DeckFileManager()
@@ -151,7 +152,13 @@ public class DeckFileManager
         changelog = c;
         deck = d;
         file = null;
+        imported = false;
         sideboard = s;
+    }
+
+    public boolean canSaveFile()
+    {
+        return file != null && !imported;
     }
 
     public String changelog()
@@ -169,23 +176,29 @@ public class DeckFileManager
         return file;
     }
 
+    /**
+     * Import a list of cards from a nonstandard file.
+     *
+     * @param format format of the file
+     * @param file   file to import from
+     * @throws IOException           if the file could not be opened
+     * @throws ParseException        if parsing failed
+     * @throws IllegalStateException if parsing failed or if the deck was not empty
+     * @see CardListFormat
+     */
     public void importList(CardListFormat format, File file) throws IOException, ParseException, IllegalStateException
     {
         // TODO: Change this to a better type of exception
         if (!deck.isEmpty())
             throw new IllegalStateException("Deck already loaded!");
         deck.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
-    }
-
-    public boolean isEmpty()
-    {
-        return file == null;
+        imported = true;
     }
 
     public boolean load(File f, Window parent)
     {
         // TODO: Change this to a better type of exception
-        if (!isEmpty())
+        if (!deck.isEmpty())
             throw new IllegalStateException("Deck already loaded!");
 
         JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
