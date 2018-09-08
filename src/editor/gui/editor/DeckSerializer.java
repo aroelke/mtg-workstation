@@ -13,18 +13,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CancellationException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
@@ -258,9 +256,10 @@ public class DeckSerializer
      * 
      * @param f File to load from
      * @param parent parent window used to display errors
+     * @throws CancellationException if loading the deck was canceled
      * @throws DeckLoadException if there is already a loaded deck
      */
-    public void load(File f, Window parent) throws DeckLoadException
+    public void load(File f, Window parent) throws CancellationException, DeckLoadException
     {
         if (!deck.isEmpty())
             throw new DeckLoadException(file, "deck already loaded");
@@ -280,13 +279,18 @@ public class DeckSerializer
         cancelPanel.add(cancelButton);
         progressPanel.add(cancelPanel, BorderLayout.SOUTH);
         progressDialog.pack();
+        progressDialog.setLocationRelativeTo(parent);
 
         worker.execute();
-        progressDialog.setLocationRelativeTo(parent);
         progressDialog.setVisible(true);
         try
         {
             worker.get();
+        }
+        catch (CancellationException e)
+        {
+            reset();
+            throw e;
         }
         catch (Exception e)
         {

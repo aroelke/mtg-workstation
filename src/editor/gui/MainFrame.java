@@ -28,7 +28,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +41,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -1760,7 +1759,8 @@ public class MainFrame extends JFrame
         {
         case JFileChooser.APPROVE_OPTION:
             frame = open(fileChooser.getSelectedFile());
-            updateRecents(fileChooser.getSelectedFile());
+            if (frame != null)
+                updateRecents(fileChooser.getSelectedFile());
             break;
         case JFileChooser.CANCEL_OPTION:
         case JFileChooser.ERROR_OPTION:
@@ -1774,7 +1774,8 @@ public class MainFrame extends JFrame
     /**
      * Open the specified file and create an editor for it.
      *
-     * @return the EditorFrame containing the opened deck
+     * @return the EditorFrame containing the opened deck, or <code>null</code>
+     * if opening was canceled.
      */
     public EditorFrame open(File f)
     {
@@ -1787,12 +1788,17 @@ public class MainFrame extends JFrame
                 break;
             }
         }
+        boolean canceled = false;
         if (frame == null)
         {
             DeckSerializer manager = new DeckSerializer();
             try
             {
                 manager.load(f, this);
+            }
+            catch (CancellationException e)
+            {
+                canceled = true;
             }
             catch (DeckLoadException e)
             {
@@ -1801,12 +1807,16 @@ public class MainFrame extends JFrame
             }
             finally
             {
-                frame = newEditor(manager);
+                if (!canceled)
+                    frame = newEditor(manager);
             }
         }
-        SettingsDialog.set(SettingsDialog.INITIALDIR, f.getParent());
-        fileChooser.setCurrentDirectory(f.getParentFile());
-        selectFrame(frame);
+        if (!canceled)
+        {
+            SettingsDialog.set(SettingsDialog.INITIALDIR, f.getParent());
+            fileChooser.setCurrentDirectory(f.getParentFile());
+            selectFrame(frame);
+        }
         return frame;
     }
 
