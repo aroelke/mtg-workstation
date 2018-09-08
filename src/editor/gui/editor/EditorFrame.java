@@ -1691,16 +1691,20 @@ public class EditorFrame extends JInternalFrame
         }
 
         DeckSerializer manager = new DeckSerializer(deck.current, sideboard.current, changelogArea.getText());
-        if (manager.save(f, parent))
+        try
         {
+            manager.save(f);
             deck.original = new Deck();
             deck.original.addAll(deck.current);
             unsaved = false;
             setFile(manager.file());
             return true;
         }
-        else
+        catch (IOException e)
+        {
+            JOptionPane.showMessageDialog(parent, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
+        }
     }
 
     /**

@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -109,6 +110,7 @@ import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableCellRenderer;
 import editor.gui.display.CardTableModel;
+import editor.gui.editor.DeckLoadException;
 import editor.gui.editor.DeckSerializer;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
@@ -691,11 +693,14 @@ public class MainFrame extends JFrame
                 {
                     manager.importList(format, importChooser.getSelectedFile());
                 }
-                catch (IllegalStateException | IOException | ParseException x)
+                catch (DeckLoadException x)
                 {
                     JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
-                selectFrame(newEditor(manager));
+                finally
+                {
+                    selectFrame(newEditor(manager));
+                }
                 break;
             case JFileChooser.CANCEL_OPTION:
                 break;
@@ -1785,8 +1790,19 @@ public class MainFrame extends JFrame
         if (frame == null)
         {
             DeckSerializer manager = new DeckSerializer();
-            manager.load(f, this);
-            frame = newEditor(manager);
+            try
+            {
+                manager.load(f, this);
+            }
+            catch (DeckLoadException e)
+            {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            finally
+            {
+                frame = newEditor(manager);
+            }
         }
         SettingsDialog.set(SettingsDialog.INITIALDIR, f.getParent());
         fileChooser.setCurrentDirectory(f.getParentFile());

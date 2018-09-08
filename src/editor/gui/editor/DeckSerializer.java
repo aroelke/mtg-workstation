@@ -228,38 +228,42 @@ public class DeckSerializer
     }
 
     /**
-     * Import a list of cards from a nonstandard file.
+     * Import a list of cards from a nonstandard file.  If an error occurs during import,
+     * this serializer is reset to an empty state.
      *
      * @param format format of the file
      * @param file   file to import from
-     * @throws IOException if the file could not be opened
-     * @throws ParseException if parsing failed
-     * @throws IllegalStateException if parsing failed or if the deck was not empty
+     * @throws DeckLoadException if the deck could not be imported
      * @see CardListFormat
      */
-    public void importList(CardListFormat format, File file) throws IOException, ParseException, IllegalStateException
+    public void importList(CardListFormat format, File file) throws DeckLoadException
     {
-        // TODO: Change this to a better type of exception
         if (!deck.isEmpty())
-            throw new IllegalStateException("Deck already loaded!");
-        deck.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
-        imported = true;
+            throw new DeckLoadException(file, "deck already loaded");
+        try
+        {
+            deck.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
+            imported = true;
+        }
+        catch (Exception e)
+        {
+            reset();
+            throw new DeckLoadException(file, e);
+        }
     }
 
     /**
-     * Load a deck from a native file type.
+     * Load a deck from a native file type.  If an error occurs during loading the deck, this serializer
+     * is reset to an empty state.
      * 
      * @param f File to load from
      * @param parent parent window used to display errors
-     * @return <code>true</code> if the load was successful, and <code>false</code> otherwise.
-     * 
-     * TODO: Move error handling out of this function
+     * @throws DeckLoadException if there is already a loaded deck
      */
-    public boolean load(File f, Window parent)
+    public void load(File f, Window parent) throws DeckLoadException
     {
-        // TODO: Change this to a better type of exception
         if (!deck.isEmpty())
-            throw new IllegalStateException("Deck already loaded!");
+            throw new DeckLoadException(file, "deck already loaded");
 
         JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
         JProgressBar progressBar = new JProgressBar();
@@ -283,16 +287,13 @@ public class DeckSerializer
         try
         {
             worker.get();
-            file = f;
-            return true;
         }
-        catch (InterruptedException | ExecutionException e)
+        catch (Exception e)
         {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(parent, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             reset();
-            return false;
+            throw new DeckLoadException(file, e);
         }
+        file = f;
     }
 
     /**
@@ -337,9 +338,9 @@ public class DeckSerializer
      * Save the deck to the given file.
      *
      * @param f file to save to
-     * @return true if the file was successfully saved, and false otherwise.
+     * @throws IOException if the file could not be saved
      */
-    public boolean save(File f, Window parent)
+    public void save(File f) throws IOException
     {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f, false)))
         {
@@ -348,12 +349,6 @@ public class DeckSerializer
             writeDeck(sideboard, oos);
             oos.writeUTF(changelog);
             file = f;
-            return true;
-        }
-        catch (IOException e)
-        {
-            JOptionPane.showMessageDialog(parent, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
         }
     }
 
