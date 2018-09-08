@@ -600,7 +600,14 @@ public class EditorFrame extends JInternalFrame
      */
     private boolean unsaved;
 
-    public EditorFrame(MainFrame p, int u, DeckFileManager manager)
+    /**
+     * Create a new EditorFrame to edit a deck.
+     * 
+     * @param p MainFrame parent of the new EditorFrame
+     * @param u index of the new frame, used for initial bounds and title if it's a new deck
+     * @param manager #DeckSerializer to read the loaded deck from
+     */
+    public EditorFrame(MainFrame p, int u, DeckSerializer manager)
     {
         super(!manager.canSaveFile() ? "Untitled " + u : manager.file().getName(), true, true, true, true);
         setBounds(((u - 1)%5)*30, ((u - 1)%5)*30, 600, 600);
@@ -1211,14 +1218,15 @@ public class EditorFrame extends JInternalFrame
         });
     }
 
+    /**
+     * Create a new EditorFrame with no deck.
+     * 
+     * @param p MainFrame parent of the new EditorFrame
+     * @param u index of the new frame, used for initial bounds and title if it's a new deck
+     */
     public EditorFrame(MainFrame p, int u)
     {
-        this(p, u, new DeckFileManager());
-    }
-
-    private void addCategory(CategorySpec spec)
-    {
-
+        this(p, u, new DeckSerializer());
     }
 
     /**
@@ -1678,11 +1686,11 @@ public class EditorFrame extends JInternalFrame
         String changes = deck.getChanges();
         if (!changes.isEmpty())
         {
-            changelogArea.append("~~~~~" + DeckFileManager.CHANGELOG_DATE.format(new Date()) + "~~~~~\n");
+            changelogArea.append("~~~~~" + DeckSerializer.CHANGELOG_DATE.format(new Date()) + "~~~~~\n");
             changelogArea.append(changes + "\n");
         }
 
-        DeckFileManager manager = new DeckFileManager(deck.current, sideboard.current, changelogArea.getText());
+        DeckSerializer manager = new DeckSerializer(deck.current, sideboard.current, changelogArea.getText());
         if (manager.save(f, parent))
         {
             deck.original = new Deck();

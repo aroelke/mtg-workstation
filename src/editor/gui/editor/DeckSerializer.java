@@ -36,8 +36,19 @@ import editor.database.card.Card;
 import editor.gui.MainFrame;
 import editor.util.ProgressInputStream;
 
-public class DeckFileManager
+/**
+ * This class controls the serialization and deserialization of a #Deck.  It can
+ * serialize a deck, a sideboard, and a changelog, deserialize them, and import
+ * a deck from an external file type.  Once a deck has been loaded, another one
+ * cannot be loaded by the same instance of this class.
+ * 
+ * @author Alec Roelke
+ */
+public class DeckSerializer
 {
+    /**
+     * Format to display dates for changes made to a deck.
+     */
     public static final SimpleDateFormat CHANGELOG_DATE = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
     /**
      * Latest version of save file.
@@ -136,18 +147,44 @@ public class DeckFileManager
         }
     }
 
+    /**
+     * Changelog of the loaded deck.
+     */
     private String changelog;
+
+    /**
+     * The loaded deck.
+     */
     private Deck deck;
+
+    /**
+     * File to load the deck from or that the deck has been loaded from.
+     */
     private File file;
+
+    /**
+     * Whether or not the deck was imported from an external file type.
+     */
     private boolean imported;
+
+    /**
+     * Sideboard for the loaded deck.
+     */
     private Deck sideboard;
 
-    public DeckFileManager()
+    /**
+     * Create a new, empty DeckSerializer.  Use this to load a deck.
+     */
+    public DeckSerializer()
     {
         reset();
     }
 
-    public DeckFileManager(Deck d, Deck s, String c)
+    /**
+     * Create a new DeckSerializer with the given deck, sideboard, and changelog
+     * already loaded.  This cannot be used to load a deck, so use it to save one.
+     */
+    public DeckSerializer(Deck d, Deck s, String c)
     {
         changelog = c;
         deck = d;
@@ -156,21 +193,35 @@ public class DeckFileManager
         sideboard = s;
     }
 
+    /**
+     * @return <code>true</code> if the file that was used to open the deck can
+     * be saved to, which is if it is defined and is of the native format for
+     * this editor, and <code>false</code> otherwise.
+     */
     public boolean canSaveFile()
     {
         return file != null && !imported;
     }
 
+    /**
+     * @return the changelog for the loaded deck.
+     */
     public String changelog()
     {
         return changelog;
     }
 
+    /**
+     * @return the loaded deck.
+     */
     public Deck deck()
     {
         return deck;
     }
 
+    /**
+     * @return the File corresponding to the loaded deck.
+     */
     public File file()
     {
         return file;
@@ -181,8 +232,8 @@ public class DeckFileManager
      *
      * @param format format of the file
      * @param file   file to import from
-     * @throws IOException           if the file could not be opened
-     * @throws ParseException        if parsing failed
+     * @throws IOException if the file could not be opened
+     * @throws ParseException if parsing failed
      * @throws IllegalStateException if parsing failed or if the deck was not empty
      * @see CardListFormat
      */
@@ -195,6 +246,15 @@ public class DeckFileManager
         imported = true;
     }
 
+    /**
+     * Load a deck from a native file type.
+     * 
+     * @param f File to load from
+     * @param parent parent window used to display errors
+     * @return <code>true</code> if the load was successful, and <code>false</code> otherwise.
+     * 
+     * TODO: Move error handling out of this function
+     */
     public boolean load(File f, Window parent)
     {
         // TODO: Change this to a better type of exception
@@ -262,6 +322,9 @@ public class DeckFileManager
         }
     }
 
+    /**
+     * Clear the contents of this DeckSerializer so it can be reused.
+     */
     private void reset()
     {
         changelog = "";
@@ -294,6 +357,9 @@ public class DeckFileManager
         }
     }
 
+    /**
+     * @return the sideboard of the loaded deck.
+     */
     public Deck sideboard()
     {
         return sideboard;

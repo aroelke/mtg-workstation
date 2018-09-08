@@ -109,7 +109,7 @@ import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableCellRenderer;
 import editor.gui.display.CardTableModel;
-import editor.gui.editor.DeckFileManager;
+import editor.gui.editor.DeckSerializer;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.generic.CardMenuItems;
@@ -686,7 +686,7 @@ public class MainFrame extends JFrame
                     JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                DeckFileManager manager = new DeckFileManager();
+                DeckSerializer manager = new DeckSerializer();
                 try
                 {
                     manager.importList(format, importChooser.getSelectedFile());
@@ -1724,7 +1724,7 @@ public class MainFrame extends JFrame
      * 
      * @see EditorFrame
      */
-    public EditorFrame newEditor(DeckFileManager manager)
+    public EditorFrame newEditor(DeckSerializer manager)
     {
         EditorFrame frame = new EditorFrame(this, ++untitled, manager);
         editors.add(frame);
@@ -1739,7 +1739,7 @@ public class MainFrame extends JFrame
      */
     public EditorFrame newEditor()
     {
-        return newEditor(new DeckFileManager());
+        return newEditor(new DeckSerializer());
     }
 
     /**
@@ -1784,7 +1784,7 @@ public class MainFrame extends JFrame
         }
         if (frame == null)
         {
-            DeckFileManager manager = new DeckFileManager();
+            DeckSerializer manager = new DeckSerializer();
             manager.load(f, this);
             frame = newEditor(manager);
         }
