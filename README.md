@@ -10,3 +10,5 @@ This program depends on the following:
  - Natty, which can be found at http://natty.joestelmach.com/
 
 This depends on MTGJSON (http://www.mtgjson.com/) for its card list.
+
+To run this from the command line, run `mvn exec:java -Dexec.mainClass=editor.gui.MainFrame`.
