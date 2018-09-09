@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CancellationException;
 
 import javax.swing.BorderFactory;
@@ -218,10 +219,12 @@ public class DeckSerializer
     }
 
     /**
-     * @return the File corresponding to the loaded deck.
+     * @return the File corresponding to the saved or loaded deck.
      */
     public File file()
     {
+        if (file == null)
+            throw new NoSuchElementException("file not saved or loaded");
         return file;
     }
 
