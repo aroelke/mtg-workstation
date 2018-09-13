@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -23,8 +22,11 @@ import javax.swing.table.TableRowSorter;
 
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
-import editor.database.characteristics.*;
 import editor.database.characteristics.CardAttribute;
+import editor.database.characteristics.CombatStat;
+import editor.database.characteristics.Loyalty;
+import editor.database.characteristics.ManaCost;
+import editor.database.characteristics.ManaType;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.InclusionCellEditor;
 import editor.gui.generic.SpinnerCellEditor;
@@ -42,14 +44,14 @@ public class CardTable extends JTable
     /**
      * Set of CardAttribute that should not use toString to convert non-comparable data.
      */
-    private static final Set<CardAttribute> NO_STRING = Stream.of(CardAttribute.MANA_COST,
-                                                                  CardAttribute.CMC,
-                                                                  CardAttribute.COLORS,
-                                                                  CardAttribute.COLOR_IDENTITY,
-                                                                  CardAttribute.POWER,
-                                                                  CardAttribute.TOUGHNESS,
-                                                                  CardAttribute.LOYALTY,
-                                                                  CardAttribute.CATEGORIES).collect(Collectors.toSet());
+    private static final Set<CardAttribute> NO_STRING = Set.of(CardAttribute.MANA_COST,
+                                                               CardAttribute.CMC,
+                                                               CardAttribute.COLORS,
+                                                               CardAttribute.COLOR_IDENTITY,
+                                                               CardAttribute.POWER,
+                                                               CardAttribute.TOUGHNESS,
+                                                               CardAttribute.LOYALTY,
+                                                               CardAttribute.CATEGORIES);
 
     /**
      * This class represents a sorter that sorts a table column whose empty cells are invalid values.

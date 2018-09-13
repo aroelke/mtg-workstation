@@ -28,7 +28,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +41,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.function.BiConsumer;
+import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -110,6 +109,8 @@ import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableCellRenderer;
 import editor.gui.display.CardTableModel;
+import editor.gui.editor.DeckLoadException;
+import editor.gui.editor.DeckSerializer;
 import editor.gui.editor.EditorFrame;
 import editor.gui.filter.FilterGroupPanel;
 import editor.gui.generic.CardMenuItems;
@@ -492,14 +493,12 @@ public class MainFrame extends JFrame
         // Import and export items
         final FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
         final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
-        final FileNameExtensionFilter old = new FileNameExtensionFilter("From old versions (*." + EXTENSION + ')', EXTENSION);
         JMenuItem importItem = new JMenuItem("Import...");
         importItem.addActionListener((e) -> {
             JFileChooser importChooser = new JFileChooser();
             importChooser.setAcceptAllFileFilterUsed(false);
             importChooser.addChoosableFileFilter(text);
             importChooser.addChoosableFileFilter(delimited);
-            importChooser.addChoosableFileFilter(old);
             importChooser.setDialogTitle("Import");
             importChooser.setCurrentDirectory(fileChooser.getCurrentDirectory());
             switch (importChooser.showOpenDialog(this))
@@ -683,26 +682,24 @@ public class MainFrame extends JFrame
                     else
                         return;
                 }
-                else if (importChooser.getFileFilter() == old)
-                {
-                    open(importChooser.getSelectedFile(), EditorFrame::importOld);
-                    return;
-                }
                 else
                 {
                     JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                open(importChooser.getSelectedFile(), (frame, file) -> {
-                    try
-                    {
-                        frame.importList(format, file);
-                    }
-                    catch (IllegalStateException | IOException | ParseException x)
-                    {
-                        JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                });
+                DeckSerializer manager = new DeckSerializer();
+                try
+                {
+                    manager.importList(format, importChooser.getSelectedFile());
+                }
+                catch (DeckLoadException x)
+                {
+                    JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                finally
+                {
+                    selectFrame(newEditor(manager));
+                }
                 break;
             case JFileChooser.CANCEL_OPTION:
                 break;
@@ -966,12 +963,12 @@ public class MainFrame extends JFrame
         JMenu removeMenu = new JMenu("Remove Cards");
         deckMenu.add(removeMenu);
         CardMenuItems deckMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), this::getSelectedCards);
-        addMenu.add(deckMenuCardItems.addSingle());
-        addMenu.add(deckMenuCardItems.fillPlayset());
-        addMenu.add(deckMenuCardItems.addN());
-        removeMenu.add(deckMenuCardItems.removeSingle());
-        removeMenu.add(deckMenuCardItems.removeAll());
-        removeMenu.add(deckMenuCardItems.removeN());
+        deckMenuCardItems.addAddItems(addMenu);
+        deckMenuCardItems.addRemoveItems(removeMenu);
+        deckMenuCardItems.addSingle().setAccelerator(KeyStroke.getKeyStroke('+'));
+        deckMenuCardItems.fillPlayset().setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
+        deckMenuCardItems.removeSingle().setAccelerator(KeyStroke.getKeyStroke('-'));
+        deckMenuCardItems.removeAll().setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK));
 
         // Sideboard menu
         JMenu sideboardMenu = new JMenu("Sideboard");
@@ -1198,13 +1195,9 @@ public class MainFrame extends JFrame
 
         // Add the card to the main deck
         CardMenuItems oracleMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), () -> Collections.singletonList(selectedCard));
-        oraclePopupMenu.add(oracleMenuCardItems.addSingle());
-        oraclePopupMenu.add(oracleMenuCardItems.fillPlayset());
-        oraclePopupMenu.add(oracleMenuCardItems.addN());
+        oracleMenuCardItems.addAddItems(oraclePopupMenu);
         oraclePopupMenu.add(new JSeparator());
-        oraclePopupMenu.add(oracleMenuCardItems.removeSingle());
-        oraclePopupMenu.add(oracleMenuCardItems.removeAll());
-        oraclePopupMenu.add(oracleMenuCardItems.removeN());
+        oracleMenuCardItems.addRemoveItems(oraclePopupMenu);
         oraclePopupMenu.add(new JSeparator());
 
         // Add the card to the sideboard
@@ -1288,13 +1281,9 @@ public class MainFrame extends JFrame
 
         // Add cards to the main deck
         CardMenuItems inventoryMenuCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.deck(), this::getSelectedCards);
-        inventoryMenu.add(inventoryMenuCardItems.addSingle());
-        inventoryMenu.add(inventoryMenuCardItems.fillPlayset());
-        inventoryMenu.add(inventoryMenuCardItems.addN());
+        inventoryMenuCardItems.addAddItems(inventoryMenu);
         inventoryMenu.add(new JSeparator());
-        inventoryMenu.add(inventoryMenuCardItems.removeSingle());
-        inventoryMenu.add(inventoryMenuCardItems.removeAll());
-        inventoryMenu.add(inventoryMenuCardItems.removeN());
+        inventoryMenuCardItems.addRemoveItems(inventoryMenu);
         inventoryMenu.add(new JSeparator());
 
         // Add cards to the sideboard
@@ -1423,7 +1412,7 @@ public class MainFrame extends JFrame
                         presetMenu.add(categoryItem);
                     }
                     for (File f : files)
-                        open(f, EditorFrame::load);
+                        open(f);
                 }
             }
         });
@@ -1735,14 +1724,26 @@ public class MainFrame extends JFrame
     /**
      * Create a new editor frame.  It will not be visible or selected.
      *
+     * @param manager file manager containing the deck to display
+     * 
+     * @see EditorFrame
+     */
+    public EditorFrame newEditor(DeckSerializer manager)
+    {
+        EditorFrame frame = new EditorFrame(this, ++untitled, manager);
+        editors.add(frame);
+        decklistDesktop.add(frame);
+        return frame;
+    }
+
+    /**
+     * Create a new editor frame.  It will not be visible or selected.
+     * 
      * @see EditorFrame
      */
     public EditorFrame newEditor()
     {
-        EditorFrame frame = new EditorFrame(++untitled, this);
-        editors.add(frame);
-        decklistDesktop.add(frame);
-        return frame;
+        return newEditor(new DeckSerializer());
     }
 
     /**
@@ -1757,8 +1758,9 @@ public class MainFrame extends JFrame
         switch (fileChooser.showOpenDialog(this))
         {
         case JFileChooser.APPROVE_OPTION:
-            frame = open(fileChooser.getSelectedFile(), EditorFrame::load);
-            updateRecents(fileChooser.getSelectedFile());
+            frame = open(fileChooser.getSelectedFile());
+            if (frame != null)
+                updateRecents(fileChooser.getSelectedFile());
             break;
         case JFileChooser.CANCEL_OPTION:
         case JFileChooser.ERROR_OPTION:
@@ -1772,10 +1774,10 @@ public class MainFrame extends JFrame
     /**
      * Open the specified file and create an editor for it.
      *
-     * @param f #File to open.
-     * @return the EditorFrame containing the opened deck
+     * @return the EditorFrame containing the opened deck, or <code>null</code>
+     * if opening was canceled.
      */
-    public EditorFrame open(File f, BiConsumer<EditorFrame, File> openFunction)
+    public EditorFrame open(File f)
     {
         EditorFrame frame = null;
         for (EditorFrame e : editors)
@@ -1786,14 +1788,35 @@ public class MainFrame extends JFrame
                 break;
             }
         }
+        boolean canceled = false;
         if (frame == null)
         {
-            frame = newEditor();
-            openFunction.accept(frame, f);
+            DeckSerializer manager = new DeckSerializer();
+            try
+            {
+                manager.load(f, this);
+            }
+            catch (CancellationException e)
+            {
+                canceled = true;
+            }
+            catch (DeckLoadException e)
+            {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            finally
+            {
+                if (!canceled)
+                    frame = newEditor(manager);
+            }
         }
-        SettingsDialog.set(SettingsDialog.INITIALDIR, f.getParent());
-        fileChooser.setCurrentDirectory(f.getParentFile());
-        selectFrame(frame);
+        if (!canceled)
+        {
+            SettingsDialog.set(SettingsDialog.INITIALDIR, f.getParent());
+            fileChooser.setCurrentDirectory(f.getParentFile());
+            selectFrame(frame);
+        }
         return frame;
     }
 
@@ -2090,7 +2113,7 @@ public class MainFrame extends JFrame
             JMenuItem mostRecent = new JMenuItem(f.getPath());
             recentItems.offer(mostRecent);
             recents.put(mostRecent, f);
-            mostRecent.addActionListener((e) -> open(f, EditorFrame::load));
+            mostRecent.addActionListener((e) -> open(f));
             recentsMenu.add(mostRecent);
         }
     }

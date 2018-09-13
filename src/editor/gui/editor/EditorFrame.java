@@ -3,7 +3,6 @@ package editor.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -12,18 +11,12 @@ import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Files;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -49,7 +41,6 @@ import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -58,7 +49,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -68,7 +58,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
@@ -97,7 +86,6 @@ import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
-import editor.util.ProgressInputStream;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -214,6 +202,33 @@ public class EditorFrame extends JInternalFrame
          * Table displaying the deck.
          */
         private CardTable table;
+
+        public String getChanges()
+        {
+            StringBuilder changes = new StringBuilder();
+            for (Card c : original)
+            {
+                int had = original.contains(c) ? original.getData(c).count() : 0;
+                int has = current.contains(c) ? current.getData(c).count() : 0;
+                if (has < had)
+                    changes.append("-").append(had - has).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
+            }
+            for (Card c : current)
+            {
+                int had = original.contains(c) ? original.getData(c).count() : 0;
+                int has = current.contains(c) ? current.getData(c).count() : 0;
+                if (had < has)
+                    changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
+            }
+            return changes.toString();
+        }
+
+        public DeckData(Deck deck)
+        {
+            current = deck;
+            original = new Deck();
+            original.addAll(deck);
+        }
     }
 
     /**
@@ -348,101 +363,6 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * This class is a worker for loading a deck.
-     *
-     * @author Alec Roelke
-     */
-    private class LoadWorker extends SwingWorker<Void, Integer>
-    {
-        /**
-         * Dialog containing the progress bar.
-         */
-        private JDialog dialog;
-        /**
-         * File to load the deck from.
-         */
-        private File file;
-        /**
-         * Progress bar to display progress to.
-         */
-        private JProgressBar progressBar;
-        /**
-         * Whether or not the file is expected to have a save version number.
-         */
-        private boolean versionPresent;
-
-        /**
-         * Create a new LoadWorker.
-         *
-         * @param f file to load the deck from
-         * @param v file to load contains save version number (only false if importing from before versions were implemented)
-         * @param b progress bar showing progress
-         * @param d dialog containing the progress bar
-         */
-        public LoadWorker(File f, boolean v, JProgressBar b, JDialog d)
-        {
-            file = f;
-            progressBar = b;
-            dialog = d;
-            versionPresent = v;
-
-            progressBar.setMaximum((int)file.length());
-        }
-
-        /**
-         * {@inheritDoc}
-         * Load the deck, updating the progress bar all the while.
-         */
-        @Override
-        protected Void doInBackground() throws Exception
-        {
-            try (ProgressInputStream pis = new ProgressInputStream(new FileInputStream(file)))
-            {
-                pis.addPropertyChangeListener((e) -> process(Collections.singletonList(((Long)e.getNewValue()).intValue())));
-                try (ObjectInputStream ois = new ObjectInputStream(pis))
-                {
-                    opening = true;
-                    long version = 0;
-                    if (versionPresent)
-                        version = ois.readLong();
-                    deck.current.readExternal(ois);
-                    sideboard.current.readExternal(ois);
-                    // TODO: Change this to use readUTF
-                    changelogArea.setText((String)ois.readObject());
-                }
-            }
-            return null;
-        }
-
-        /**
-         * {@inheritDoc}
-         * When the task is over, close the file and update the frame.
-         */
-        @Override
-        protected void done()
-        {
-            for (CategorySpec category : deck.current.categories())
-                categoryPanels.add(createCategoryPanel(category));
-            updateCategoryPanel();
-            handCalculations.update();
-
-            opening = false;
-            dialog.dispose();
-            unsaved = false;
-            setFile(file);
-            undoBuffer.clear();
-            redoBuffer.clear();
-        }
-
-        @Override
-        protected void process(List<Integer> chunks)
-        {
-            int progress = chunks.get(chunks.size() - 1);
-            progressBar.setValue(progress);
-        }
-    }
-
-    /**
      * Popup menu listener for a CardTable of this EditorFrame.  It controls the visibility
      * and contents of the include and exclude options.
      *
@@ -491,8 +411,7 @@ public class EditorFrame extends JInternalFrame
 
         @Override
         public void popupMenuCanceled(PopupMenuEvent e)
-        {
-        }
+        {}
 
         /**
          * {@inheritDoc}
@@ -575,10 +494,6 @@ public class EditorFrame extends JInternalFrame
      * Tab number containing the changelog.
      */
     public static final int CHANGELOG = 3;
-    /**
-     * Latest version of save file.
-     */
-    private static final long SAVE_VERSION = 1;
 
     /**
      * Label showing the average CMC of nonland cards in the deck.
@@ -642,10 +557,6 @@ public class EditorFrame extends JInternalFrame
      */
     private JLabel nonlandLabel;
     /**
-     * Whether or not a file is being opened (used to prevent some actions when changing the deck).
-     */
-    private boolean opening;
-    /**
      * Parent {@link MainFrame}.
      */
     private MainFrame parent;
@@ -690,34 +601,32 @@ public class EditorFrame extends JInternalFrame
     private boolean unsaved;
 
     /**
-     * Create a new EditorFrame inside the specified {@link MainFrame} and with the name
-     * "Untitled [u] *"
-     *
-     * @param u number of the untitled deck
-     * @param p parent MainFrame
+     * Create a new EditorFrame to edit a deck.
+     * 
+     * @param p MainFrame parent of the new EditorFrame
+     * @param u index of the new frame, used for initial bounds and title if it's a new deck
+     * @param manager #DeckSerializer to read the loaded deck from
      */
-    public EditorFrame(int u, MainFrame p)
+    public EditorFrame(MainFrame p, int u, DeckSerializer manager)
     {
-        super("Untitled " + u, true, true, true, true);
+        super(!manager.canSaveFile() ? "Untitled " + u : manager.file().getName(), true, true, true, true);
         setBounds(((u - 1)%5)*30, ((u - 1)%5)*30, 600, 600);
         setLayout(new BorderLayout(0, 0));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-        deck = new DeckData();
-        deck.current = new Deck();
-        deck.original = new Deck();
-        sideboard = new DeckData();
-        sideboard.current = new Deck();
-        sideboard.original = new Deck();
+        deck = new DeckData(manager.deck());
+        sideboard = new DeckData(manager.sideboard());
 
         parent = p;
-        file = null;
         unsaved = false;
         undoBuffer = new Stack<>();
         redoBuffer = new Stack<>();
         startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
-        opening = false;
         undoing = false;
+        if (manager.canSaveFile())
+            setFile(manager.file());
+        else
+            setUnsaved();
 
         listTabs = new JTabbedPane(SwingConstants.TOP);
         add(listTabs, BorderLayout.CENTER);
@@ -816,13 +725,9 @@ public class EditorFrame extends JInternalFrame
 
         // Add/remove cards
         CardMenuItems tableMenuCardItems = new CardMenuItems(this, this::deck, parent::getSelectedCards);
-        tableMenu.add(tableMenuCardItems.addSingle());
-        tableMenu.add(tableMenuCardItems.fillPlayset());
-        tableMenu.add(tableMenuCardItems.addN());
+        tableMenuCardItems.addAddItems(tableMenu);
         tableMenu.add(new JSeparator());
-        tableMenu.add(tableMenuCardItems.removeSingle());
-        tableMenu.add(tableMenuCardItems.removeAll());
-        tableMenu.add(tableMenuCardItems.removeN());
+        tableMenuCardItems.addRemoveItems(tableMenu);
         tableMenu.add(new JSeparator());
 
         // Move cards to sideboard
@@ -877,13 +782,9 @@ public class EditorFrame extends JInternalFrame
 
         // Add/remove cards from sideboard
         CardMenuItems sideboardMenuCardItems = new CardMenuItems(this, this::sideboard, parent::getSelectedCards);
-        sideboardMenu.add(sideboardMenuCardItems.addSingle());
-        sideboardMenu.add(sideboardMenuCardItems.fillPlayset());
-        sideboardMenu.add(sideboardMenuCardItems.addN());
+        sideboardMenuCardItems.addAddItems(sideboardMenu);
         sideboardMenu.add(new JSeparator());
-        sideboardMenu.add(sideboardMenuCardItems.removeSingle());
-        sideboardMenu.add(sideboardMenuCardItems.removeAll());
-        sideboardMenu.add(sideboardMenuCardItems.removeN());
+        sideboardMenuCardItems.addRemoveItems(sideboardMenu);
         sideboardMenu.add(new JSeparator());
 
         // Move cards to main deck
@@ -1107,6 +1008,7 @@ public class EditorFrame extends JInternalFrame
         handPanel.add(handModPanel, BorderLayout.NORTH);
         handPanel.add(handSplit, BorderLayout.CENTER);
         listTabs.addTab("Sample Hand", handPanel);
+        hand.refresh();
 
         // TODO: Add tabs for deck analysis
         // - category pie chart
@@ -1157,7 +1059,7 @@ public class EditorFrame extends JInternalFrame
 
         // Changelog
         JPanel changelogPanel = new JPanel(new BorderLayout());
-        changelogArea = new JTextArea();
+        changelogArea = new JTextArea(manager.changelog());
         changelogArea.setEditable(false);
         changelogPanel.add(new JScrollPane(changelogArea), BorderLayout.CENTER);
         JPanel clearLogPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -1174,16 +1076,21 @@ public class EditorFrame extends JInternalFrame
         changelogPanel.add(clearLogPanel, BorderLayout.SOUTH);
         listTabs.addTab("Change Log", changelogPanel);
 
+        changelogArea.setText(manager.changelog());
+
         setTransferHandler(new EditorImportHandler(true));
+
+        for (CategorySpec spec: deck.current.categories())
+            categoryPanels.add(createCategoryPanel(spec));
+        updateCategoryPanel();
+        handCalculations.update();
 
         deck.current.addDeckListener((e) -> {
             // Cards
             if (e.cardsChanged())
             {
                 updateStats();
-
-                if (!opening)
-                    parent.updateCardsInDeck();
+                parent.updateCardsInDeck();
                 deck.model.fireTableDataChanged();
                 for (CategoryPanel c : categoryPanels)
                     ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
@@ -1206,11 +1113,11 @@ public class EditorFrame extends JInternalFrame
             {
                 CategoryPanel category = createCategoryPanel(e.addedCategory());
                 categoryPanels.add(category);
-
+        
                 for (CategoryPanel c : categoryPanels)
                     if (c != category)
                         c.rankBox.addItem(deck.current.categories().size() - 1);
-
+        
                 listTabs.setSelectedIndex(CATEGORIES);
                 updateCategoryPanel();
                 SwingUtilities.invokeLater(() -> {
@@ -1270,9 +1177,7 @@ public class EditorFrame extends JInternalFrame
             if (e.cardsChanged())
             {
                 updateStats();
-
-                if (!opening)
-                    parent.updateCardsInDeck();
+                parent.updateCardsInDeck();
                 sideboard.model.fireTableDataChanged();
                 for (Card c : parent.getSelectedCards())
                 {
@@ -1311,6 +1216,17 @@ public class EditorFrame extends JInternalFrame
                 parent.close(EditorFrame.this);
             }
         });
+    }
+
+    /**
+     * Create a new EditorFrame with no deck.
+     * 
+     * @param p MainFrame parent of the new EditorFrame
+     * @param u index of the new frame, used for initial bounds and title if it's a new deck
+     */
+    public EditorFrame(MainFrame p, int u)
+    {
+        this(p, u, new DeckSerializer());
     }
 
     /**
@@ -1441,13 +1357,9 @@ public class EditorFrame extends JInternalFrame
         newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 
         CardMenuItems tableMenuCardItems = new CardMenuItems(this, this::deck, parent::getSelectedCards);
-        tableMenu.add(tableMenuCardItems.addSingle());
-        tableMenu.add(tableMenuCardItems.fillPlayset());
-        tableMenu.add(tableMenuCardItems.addN());
+        tableMenuCardItems.addAddItems(tableMenu);
         tableMenu.add(new JSeparator());
-        tableMenu.add(tableMenuCardItems.removeSingle());
-        tableMenu.add(tableMenuCardItems.removeAll());
-        tableMenu.add(tableMenuCardItems.removeN());
+        tableMenuCardItems.addRemoveItems(tableMenu);
 
         JSeparator categoriesSeparator = new JSeparator();
         tableMenu.add(categoriesSeparator);
@@ -1707,91 +1619,6 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * Import a list of cards from a nonstandard file.
-     *
-     * @param format format of the file
-     * @param file   file to import from
-     * @throws IOException           if the file could not be opened
-     * @throws ParseException        if parsing failed
-     * @throws IllegalStateException if parsing failed or if the deck was not empty
-     * @see CardListFormat
-     */
-    public void importList(CardListFormat format, File file) throws IOException, ParseException, IllegalStateException
-    {
-        if (!deck.current.isEmpty())
-            throw new IllegalStateException("deck is not empty");
-        deck.current.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
-        changelogArea.setText("");
-        setUnsaved();
-    }
-
-    /**
-     * Import a deck from a given File that was created before save versions were implemented.
-     * 
-     * @param f file to load from
-     */
-    public void importOld(File f)
-    {
-        load(f, false);
-        setUnsaved();
-    }
-
-    /**
-     * Load a deck from the given File.
-     * 
-     * @param f file to load from
-     */
-    public void load(File f)
-    {
-        load(f, true);
-    }
-
-    /**
-     * Load a deck from the given File.
-     * 
-     * @param f file to load from
-     * @param v <code>true</code> if the file contains the save version and <code>false</code> if it is from before save versions were implemented
-     */
-    private void load(File f, boolean v)
-    {
-        JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
-        JProgressBar progressBar = new JProgressBar();
-        LoadWorker worker = new LoadWorker(f, v, progressBar, progressDialog);
-
-        JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
-        progressDialog.setContentPane(progressPanel);
-        progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
-        progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        progressPanel.add(progressBar, BorderLayout.CENTER);
-        JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener((e) -> worker.cancel(false));
-        cancelPanel.add(cancelButton);
-        progressPanel.add(cancelPanel, BorderLayout.SOUTH);
-        progressDialog.pack();
-
-        worker.execute();
-        progressDialog.setLocationRelativeTo(parent);
-        progressDialog.setVisible(true);
-        try
-        {
-            worker.get();
-        }
-        catch (InterruptedException | ExecutionException e)
-        {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-            deck.current.clear();
-            categoriesContainer.removeAll();
-        }
-        deck.original.addAll(deck.current);
-        listTabs.setSelectedIndex(MAIN_TABLE);
-        hand.refresh();
-
-        updateStats();
-    }
-
-    /**
      * Redo the last action that was undone, assuming nothing was done
      * between then and now.
      */
@@ -1856,45 +1683,26 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean save(File f)
     {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f, false)))
+        String changes = deck.getChanges();
+        if (!changes.isEmpty())
         {
-            oos.writeLong(SAVE_VERSION);
-            deck.current.writeExternal(oos);
-            sideboard.current.writeExternal(oos);
+            changelogArea.append("~~~~~" + DeckSerializer.CHANGELOG_DATE.format(new Date()) + "~~~~~\n");
+            changelogArea.append(changes + "\n");
+        }
 
-            StringBuilder changes = new StringBuilder();
-            for (Card c : deck.original)
-            {
-                int had = deck.original.contains(c) ? deck.original.getData(c).count() : 0;
-                int has = deck.current.contains(c) ? deck.current.getData(c).count() : 0;
-                if (has < had)
-                    changes.append("-").append(had - has).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
-            }
-            for (Card c : deck.current)
-            {
-                int had = deck.original.contains(c) ? deck.original.getData(c).count() : 0;
-                int has = deck.current.contains(c) ? deck.current.getData(c).count() : 0;
-                if (had < has)
-                    changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
-            }
-            if (changes.length() > 0)
-            {
-                SimpleDateFormat format = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
-                changelogArea.append("~~~~~" + format.format(new Date()) + "~~~~~\n");
-                changelogArea.append(changes + "\n");
-            }
-            // TODO: Change this to use readUTF
-            oos.writeObject(changelogArea.getText());
-
+        DeckSerializer manager = new DeckSerializer(deck.current, sideboard.current, changelogArea.getText());
+        try
+        {
+            manager.save(f);
             deck.original = new Deck();
             deck.original.addAll(deck.current);
             unsaved = false;
-            setFile(f);
+            setFile(manager.file());
             return true;
         }
         catch (IOException e)
         {
-            JOptionPane.showMessageDialog(this, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(parent, "Error saving " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
@@ -1911,7 +1719,6 @@ public class EditorFrame extends JInternalFrame
             throw new RuntimeException("Can't change the file of an unsaved deck");
         file = f;
         setTitle(f.getName());
-        unsaved = false;
     }
 
     /**

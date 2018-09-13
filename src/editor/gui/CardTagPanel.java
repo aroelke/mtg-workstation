@@ -17,10 +17,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import com.jidesoft.swing.TristateCheckBox;
-
 import editor.database.card.Card;
 import editor.gui.generic.ScrollablePanel;
+import editor.gui.generic.TristateCheckBox;
+import editor.gui.generic.TristateCheckBox.State;
 import editor.util.MouseListenerFactory;
 import editor.util.UnicodeSymbols;
 
@@ -75,11 +75,11 @@ public class CardTagPanel extends ScrollablePanel
         {
             long matches = cards.stream().filter((c) -> Card.tags.get(c) != null && Card.tags.get(c).contains(tagBox.getText())).count();
             if (matches == 0)
-                tagBox.setSelected(false);
+                tagBox.setState(State.UNSELECTED);
             else if (matches < cards.size())
-                tagBox.setMixed(true);
+                tagBox.setState(State.INDETERMINATE);
             else
-                tagBox.setSelected(true);
+                tagBox.setState(State.SELECTED);
         }
     }
 
@@ -128,7 +128,7 @@ public class CardTagPanel extends ScrollablePanel
         Map<Card, Set<String>> tagged = new HashMap<>();
         for (Card card : cards)
             for (TristateCheckBox tagBox : tagBoxes)
-                if (tagBox.getState() == TristateCheckBox.STATE_SELECTED)
+                if (tagBox.getState() == State.SELECTED)
                     tagged.compute(card, (k, v) -> {
                         if (v == null)
                             v = new HashSet<>();
@@ -148,7 +148,7 @@ public class CardTagPanel extends ScrollablePanel
         Map<Card, Set<String>> untagged = new HashMap<>();
         for (Card card : cards)
             for (TristateCheckBox tagBox : tagBoxes)
-                if (tagBox.getState() == TristateCheckBox.STATE_UNSELECTED)
+                if (tagBox.getState() == State.UNSELECTED)
                     untagged.compute(card, (k, v) -> {
                         if (v == null)
                             v = new HashSet<>();
@@ -207,10 +207,6 @@ public class CardTagPanel extends ScrollablePanel
                 tagPanel.setLayout(new BorderLayout());
 
                 final TristateCheckBox tagBox = tagBoxes.stream().filter((t) -> t.getText().equals(tag)).findFirst().orElse(new TristateCheckBox(tag));
-                tagBox.addActionListener((e) -> {
-                    if (tagBox.isMixed())
-                        tagBox.setSelected(false);
-                });
                 tagBox.setBackground(Color.WHITE);
                 tagPanel.add(tagBox, BorderLayout.WEST);
                 tagBoxes.add(tagBox);

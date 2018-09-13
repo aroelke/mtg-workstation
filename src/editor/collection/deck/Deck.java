@@ -3,10 +3,6 @@ package editor.collection.deck;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -30,7 +26,6 @@ import editor.collection.CardList;
 import editor.collection.category.CategoryListener;
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
-import editor.gui.MainFrame;
 
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and have several category
@@ -38,7 +33,7 @@ import editor.gui.MainFrame;
  *
  * @author Alec Roelke
  */
-public class Deck implements CardList, Externalizable
+public class Deck implements CardList
 {
     /**
      * This class represents a category of a deck.  If a card is added or removed using the add and remove
@@ -838,6 +833,33 @@ public class Deck implements CardList, Externalizable
     }
 
     /**
+     * Add a new category at the specified rank.  If there's already a category
+     * with that rank, attempt to swap with it (so it will be the highest rank).
+     * 
+     * @param spec specification for the new Category
+     * @param rank rank of the new category
+     * @return the new Category, or the old one if it already exists
+     * @throws IllegalArgumentException if there already is a category with that
+     * name and the rank can't be switched.
+     */
+    public CardList addCategory(CategorySpec spec, int rank)
+    {
+        Category c = do_addCategory(spec);
+        if (c != null)
+        {
+            c.rank = rank;
+            notifyListeners(new Event().categoryAdded(c));
+            return c;
+        }
+        else if (categories.get(spec.getName()).rank == rank)
+            return categories.get(spec.getName());
+        else if (swapCategoryRanks(spec.getName(), rank))
+            return categories.get(spec.getName());
+        else
+            throw new IllegalArgumentException("Could not add new category " + spec.getName() + " at rank " + rank);
+    }
+
+    /**
      * Add a new listener for listening to changes in the deck.
      *
      * @param listener listener to add
@@ -1174,28 +1196,6 @@ public class Deck implements CardList, Externalizable
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        clear();
-
-        int n = in.readInt();
-        for (int i = 0; i < n; i++)
-        {
-            Card card = MainFrame.inventory().get(in.readUTF());
-            int count = in.readInt();
-            LocalDate added = (LocalDate)in.readObject();
-            do_add(card, count, added);
-        }
-        n = in.readInt();
-        for (int i = 0; i < n; i++)
-        {
-            CategorySpec spec = new CategorySpec();
-            spec.readExternal(in);
-            do_addCategory(spec).rank = in.readInt();
-        }
-    }
-
-    @Override
     public boolean remove(Card card)
     {
         return remove(card, Integer.MAX_VALUE) > 0;
@@ -1387,23 +1387,5 @@ public class Deck implements CardList, Externalizable
     public int total()
     {
         return total;
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeInt(masterList.size());
-        for (DeckEntry entry : masterList)
-        {
-            out.writeUTF(entry.card.id());
-            out.writeInt(entry.count);
-            out.writeObject(entry.date);
-        }
-        out.writeInt(categories.size());
-        for (Category category : categories.values())
-        {
-            category.spec.writeExternal(out);
-            out.writeInt(category.rank);
-        }
     }
 }
