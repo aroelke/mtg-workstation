@@ -420,6 +420,18 @@ public abstract class Card
                 Style style = textStyle;
                 for (int i = 0; i < abilities.length(); i++)
                 {
+                    if (i == 0 || abilities.charAt(i) == '\n')
+                    {
+                        int nextLine = abilities.substring(i + 1).indexOf('\n');
+                        int dash = (nextLine > -1 ? abilities.substring(i, nextLine) : abilities.substring(i)).indexOf(UnicodeSymbols.EM_DASH);
+                        if (dash > -1)
+                        {
+                            if (i > 0)
+                                document.insertString(document.getLength(), abilities.substring(start, i), style);
+                            start = i;
+                            style = reminderStyle;
+                        }
+                    }
                     switch (abilities.charAt(i))
                     {
                     case '{':
@@ -458,6 +470,11 @@ public abstract class Card
                             document.insertString(document.getLength(), "CHAOS", chaosStyle);
                             start = i += 5;
                         }
+                        break;
+                    case UnicodeSymbols.EM_DASH:
+                        document.insertString(document.getLength(), abilities.substring(start, i), style);
+                        style = textStyle;
+                        start = i;
                         break;
                     default:
                         break;
