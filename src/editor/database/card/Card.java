@@ -423,13 +423,17 @@ public abstract class Card
                     if (i == 0 || abilities.charAt(i) == '\n')
                     {
                         int nextLine = abilities.substring(i + 1).indexOf('\n');
-                        int dash = (nextLine > -1 ? abilities.substring(i, nextLine) : abilities.substring(i)).indexOf(UnicodeSymbols.EM_DASH);
+                        int dash = (nextLine > -1 ? abilities.substring(i, nextLine + i) : abilities.substring(i)).indexOf(UnicodeSymbols.EM_DASH);
                         if (dash > -1)
                         {
+                            dash += i;
                             if (i > 0)
                                 document.insertString(document.getLength(), abilities.substring(start, i), style);
                             start = i;
-                            style = reminderStyle;
+                            // Assume that the dash used for ability words is surrounded by spaces, but not
+                            // for keywords with cost parameters when the cost is nonmana cost
+                            if (abilities.charAt(dash - 1) == ' ' && abilities.charAt(dash + 1) == ' ')
+                                style = reminderStyle;
                         }
                     }
                     switch (abilities.charAt(i))
