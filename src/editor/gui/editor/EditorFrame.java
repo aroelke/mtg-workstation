@@ -203,6 +203,11 @@ public class EditorFrame extends JInternalFrame
          */
         private CardTable table;
 
+        /**
+         * @return A String containing the cards that are different between the current deck
+         * and the original one from the last save, preceded by "-Nx" or "+Nx" to indicate
+         * count changes, where N is the number of copies added or removed.
+         */
         public String getChanges()
         {
             StringBuilder changes = new StringBuilder();
@@ -242,17 +247,17 @@ public class EditorFrame extends JInternalFrame
         /**
          * Make changes to the main deck (true) or sideboard (false).
          */
-        private boolean main;
+        protected DeckData source;
 
         /**
          * Create a new EditorImportHandler that imports from the given list.
          *
-         * @param m Import from the main deck (true) or sideboard (false)
+         * @param s source of the data to import
          */
-        public EditorImportHandler(boolean m)
+        public EditorImportHandler(DeckData s)
         {
             super();
-            main = m;
+            source = s;
         }
 
         /**
@@ -280,21 +285,13 @@ public class EditorFrame extends JInternalFrame
                 {
                     @SuppressWarnings("unchecked")
                     Map<Card, Integer> data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
-                    if (main)
-                        deck.current.addAll(data);
-                    else
-                        sideboard.current.addAll(data);
-                    return true;
+                    return source.current.addAll(data);
                 }
                 else if (supp.isDataFlavorSupported(Card.cardFlavor))
                 {
                     // TODO: Account for multiples
                     Card[] data = (Card[])supp.getTransferable().getTransferData(Card.cardFlavor);
-                    if (main)
-                        deck.current.addAll(Arrays.stream(data).collect(Collectors.toSet()));
-                    else
-                        sideboard.current.addAll(Arrays.stream(data).collect(Collectors.toSet()));
-                    return true;
+                    return source.current.addAll(Arrays.stream(data).collect(Collectors.toSet()));
                 }
                 else
                     return false;
@@ -316,38 +313,27 @@ public class EditorFrame extends JInternalFrame
     private class EditorTableTransferHandler extends EditorImportHandler
     {
         /**
-         * Handle transfers for the main deck (true) or sideboard (false).
-         */
-        private boolean main;
-
-        /**
          * Create a new EditorTableTransferHandler that handles transfers to or from
-         * the main deck or sideboard.
+         * the main deck or extras.get("Sideboard").
          *
-         * @param m handle transfers for the main deck (true) or sideboard (false)
+         * @param s source of the data to transfer
          */
-        public EditorTableTransferHandler(boolean m)
+        public EditorTableTransferHandler(DeckData s)
         {
-            super(m);
-            main = m;
+            super(s);
         }
 
         @Override
         public Transferable createTransferable(JComponent c)
         {
-            return new Deck.TransferData((main ? deck : sideboard).current, parent.getSelectedCards());
+            return new Deck.TransferData(source.current, parent.getSelectedCards());
         }
 
         @Override
         public void exportDone(JComponent c, Transferable t, int action)
         {
             if (action == TransferHandler.MOVE)
-            {
-                if (main)
-                    deck.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
-                else
-                    sideboard.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
-            }
+                source.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
         }
 
         /**
@@ -521,6 +507,10 @@ public class EditorFrame extends JInternalFrame
      */
     private DeckData deck;
     /**
+     * TODO
+     */
+    private Map<String, DeckData> extras;
+    /**
      * File where the deck was last saved.
      */
     private File file;
@@ -567,10 +557,6 @@ public class EditorFrame extends JInternalFrame
      */
     private Stack<Deck.Event> redoBuffer;
     /**
-     * Sideboard data
-     */
-    private DeckData sideboard;
-    /**
      * Combo box allowing changes to be made in the order that categories are display in.
      */
     private JComboBox<CategoryOrder> sortCategoriesBox;
@@ -615,7 +601,7 @@ public class EditorFrame extends JInternalFrame
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         deck = new DeckData(manager.deck());
-        sideboard = new DeckData(manager.sideboard());
+        extras = Map.of("Sideboard", new DeckData(manager.sideboard()));
 
         parent = p;
         unsaved = false;
@@ -648,7 +634,7 @@ public class EditorFrame extends JInternalFrame
         for (int i = 0; i < deck.table.getColumnCount(); i++)
             if (deck.model.isCellEditable(0, i))
                 deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)));
-        deck.table.setTransferHandler(new EditorTableTransferHandler(true));
+        deck.table.setTransferHandler(new EditorTableTransferHandler(deck));
         deck.table.setDragEnabled(true);
         deck.table.setDropMode(DropMode.ON);
 
@@ -675,13 +661,13 @@ public class EditorFrame extends JInternalFrame
         sideboardPanel.add(showHidePanel, BorderLayout.NORTH);
 
         VerticalButtonList sideboardButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-        sideboardButtons.get("+").addActionListener((e) -> sideboard.current.addAll(new HashSet<>(parent.getSelectedCards())));
-        sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> sideboard.current.removeAll(new HashSet<>(parent.getSelectedCards())));
-        sideboardButtons.get("X").addActionListener((e) -> sideboard.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
+        sideboardButtons.get("+").addActionListener((e) -> extras.get("Sideboard").current.addAll(new HashSet<>(parent.getSelectedCards())));
+        sideboardButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> extras.get("Sideboard").current.removeAll(new HashSet<>(parent.getSelectedCards())));
+        sideboardButtons.get("X").addActionListener((e) -> extras.get("Sideboard").current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
         sideboardPanel.add(sideboardButtons, BorderLayout.WEST);
 
-        sideboard.model = new CardTableModel(this, sideboard.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
-        sideboard.table = new CardTable(sideboard.model)
+        extras.get("Sideboard").model = new CardTableModel(this, extras.get("Sideboard").current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
+        extras.get("Sideboard").table = new CardTable(extras.get("Sideboard").model)
         {
             @Override
             public Dimension getPreferredScrollableViewportSize()
@@ -690,24 +676,24 @@ public class EditorFrame extends JInternalFrame
                 return new Dimension(s.width, getRowHeight() * 5);
             }
         };
-        sideboard.table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
+        extras.get("Sideboard").table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
         // When a card is selected in the sideboard table, select it for adding
-        sideboard.table.getSelectionModel().addListSelectionListener((e) -> {
+        extras.get("Sideboard").table.getSelectionModel().addListSelectionListener((e) -> {
             if (!e.getValueIsAdjusting())
             {
                 ListSelectionModel lsm = (ListSelectionModel)e.getSource();
                 if (!lsm.isSelectionEmpty())
-                    parent.setSelectedCards(sideboard.table, sideboard.current);
+                    parent.setSelectedCards(extras.get("Sideboard").table, extras.get("Sideboard").current);
             }
         });
-        for (int i = 0; i < sideboard.table.getColumnCount(); i++)
-            if (sideboard.model.isCellEditable(0, i))
-                sideboard.table.getColumn(sideboard.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, sideboard.model.getColumnData(i)));
-        sideboard.table.setTransferHandler(new EditorTableTransferHandler(false));
-        sideboard.table.setDragEnabled(true);
-        sideboard.table.setDropMode(DropMode.ON);
+        for (int i = 0; i < extras.get("Sideboard").table.getColumnCount(); i++)
+            if (extras.get("Sideboard").model.isCellEditable(0, i))
+                extras.get("Sideboard").table.getColumn(extras.get("Sideboard").model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, extras.get("Sideboard").model.getColumnData(i)));
+        extras.get("Sideboard").table.setTransferHandler(new EditorTableTransferHandler(extras.get("Sideboard")));
+        extras.get("Sideboard").table.setDragEnabled(true);
+        extras.get("Sideboard").table.setDropMode(DropMode.ON);
 
-        JScrollPane sideboardPane = new JScrollPane(sideboard.table);
+        JScrollPane sideboardPane = new JScrollPane(extras.get("Sideboard").table);
         sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
         sideboardPanel.add(sideboardPane, BorderLayout.CENTER);
 
@@ -735,7 +721,7 @@ public class EditorFrame extends JInternalFrame
         moveToSideboardItem.addActionListener((e) -> {
             List<Card> selected = parent.getSelectedCards();
             deck.current.removeAll(new HashSet<>(selected));
-            sideboard.current.addAll(new HashSet<>(selected));
+            extras.get("Sideboard").current.addAll(new HashSet<>(selected));
         });
         tableMenu.add(moveToSideboardItem);
         JMenuItem moveAllToSideboardItem = new JMenuItem("Move All to Sideboard");
@@ -744,7 +730,7 @@ public class EditorFrame extends JInternalFrame
             {
                 int n = deck.current.getData(c).count();
                 deck.current.remove(c, n);
-                sideboard.current.add(c, n);
+                extras.get("Sideboard").current.add(c, n);
             }
         });
         tableMenu.add(moveAllToSideboardItem);
@@ -778,7 +764,7 @@ public class EditorFrame extends JInternalFrame
 
         // Sideboard table popup menu
         JPopupMenu sideboardMenu = new JPopupMenu();
-        sideboard.table.addMouseListener(new TableMouseAdapter(sideboard.table, sideboardMenu));
+        extras.get("Sideboard").table.addMouseListener(new TableMouseAdapter(extras.get("Sideboard").table, sideboardMenu));
 
         // Add/remove cards from sideboard
         CardMenuItems sideboardMenuCardItems = new CardMenuItems(this, this::sideboard, parent::getSelectedCards);
@@ -791,7 +777,7 @@ public class EditorFrame extends JInternalFrame
         JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
         moveToMainItem.addActionListener((e) -> {
             Set<Card> selected = new HashSet<>(parent.getSelectedCards());
-            sideboard.current.removeAll(selected);
+            extras.get("Sideboard").current.removeAll(selected);
             deck.current.addAll(selected);
         });
         sideboardMenu.add(moveToMainItem);
@@ -799,8 +785,8 @@ public class EditorFrame extends JInternalFrame
         moveAllToMainItem.addActionListener((e) -> {
             for (Card c : parent.getSelectedCards())
             {
-                int n = sideboard.current.getData(c).count();
-                sideboard.current.remove(c, n);
+                int n = extras.get("Sideboard").current.getData(c).count();
+                extras.get("Sideboard").current.remove(c, n);
                 deck.current.add(c, n);
             }
         });
@@ -1078,7 +1064,7 @@ public class EditorFrame extends JInternalFrame
 
         changelogArea.setText(manager.changelog());
 
-        setTransferHandler(new EditorImportHandler(true));
+        setTransferHandler(new EditorImportHandler(deck));
 
         for (CategorySpec spec: deck.current.categories())
             categoryPanels.add(createCategoryPanel(spec));
@@ -1173,12 +1159,12 @@ public class EditorFrame extends JInternalFrame
             }
         });
 
-        sideboard.current.addDeckListener((e) -> {
+        extras.get("Sideboard").current.addDeckListener((e) -> {
             if (e.cardsChanged())
             {
                 updateStats();
                 parent.updateCardsInDeck();
-                sideboard.model.fireTableDataChanged();
+                extras.get("Sideboard").model.fireTableDataChanged();
                 for (Card c : parent.getSelectedCards())
                 {
                     if (parent.getSelectedList().contains(c))
@@ -1257,8 +1243,8 @@ public class EditorFrame extends JInternalFrame
     {
         if (deck.table != except)
             deck.table.clearSelection();
-        if (sideboard.table != except)
-            sideboard.table.clearSelection();
+        if (extras.get("Sideboard").table != except)
+            extras.get("Sideboard").table.clearSelection();
         for (CategoryPanel c : categoryPanels)
             if (c.table != except)
                 c.table.clearSelection();
@@ -1348,7 +1334,7 @@ public class EditorFrame extends JInternalFrame
             }
         });
 
-        newCategory.table.setTransferHandler(new EditorTableTransferHandler(true));
+        newCategory.table.setTransferHandler(new EditorTableTransferHandler(deck));
         newCategory.table.setDragEnabled(true);
 
         // Add the behavior for clicking on the category's table
@@ -1528,10 +1514,10 @@ public class EditorFrame extends JInternalFrame
                 wr.println(format.header());
             if (!deck.current.isEmpty())
                 wr.print(format.format(deck.current));
-            if (!sideboard.current.isEmpty())
+            if (!extras.get("Sideboard").current.isEmpty())
             {
                 wr.println();
-                wr.print(format.format(sideboard.current));
+                wr.print(format.format(extras.get("Sideboard").current));
             }
         }
     }
@@ -1610,7 +1596,7 @@ public class EditorFrame extends JInternalFrame
         CardTable selectedTable = parent.getSelectedTable();
         if (selectedTable == deck.table)
             return true;
-        if (selectedTable == sideboard.table)
+        if (selectedTable == extras.get("Sideboard").table)
             return true;
         for (CategoryPanel panel : categoryPanels)
             if (selectedTable == panel.table)
@@ -1636,25 +1622,25 @@ public class EditorFrame extends JInternalFrame
             }
             if (action.categoryRemoved())
             {
-                if (action.getSource() == sideboard.current)
+                if (action.getSource() == extras.get("Sideboard").current)
                     throw new IllegalStateException("the sideboard can't have categories");
                 deck.current.removeCategory(action.removedCategory());
             }
             if (action.categoryAdded())
             {
-                if (action.getSource() == sideboard.current)
+                if (action.getSource() == extras.get("Sideboard").current)
                     throw new IllegalStateException("the sideboard can't have categories");
                 deck.current.addCategory(action.addedCategory());
             }
             if (action.categoryChanged())
             {
-                if (action.getSource() == sideboard.current)
+                if (action.getSource() == extras.get("Sideboard").current)
                     throw new IllegalStateException("the sideboard can't have categories");
                 action.categoryChanges().getSource().copy(action.categoryChanges().newSpec());
             }
             if (action.ranksChanged())
             {
-                if (action.getSource() == sideboard.current)
+                if (action.getSource() == extras.get("Sideboard").current)
                     throw new IllegalStateException("the sideboard can't have categories");
                 List<String> categories = new ArrayList<>(action.oldRanks().keySet());
                 action.getSource().swapCategoryRanks(categories.get(0), action.oldRanks().get(categories.get(1)));
@@ -1690,7 +1676,7 @@ public class EditorFrame extends JInternalFrame
             changelogArea.append(changes + "\n");
         }
 
-        DeckSerializer manager = new DeckSerializer(deck.current, sideboard.current, changelogArea.getText());
+        DeckSerializer manager = new DeckSerializer(deck.current, extras.get("Sideboard").current, changelogArea.getText());
         try
         {
             manager.save(f);
@@ -1747,13 +1733,13 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * Get this EditorFrame's sideboard.
+     * Get this EditorFrame's extras.get("Sideboard").
      *
      * @return the sideboard
      */
     public CardList sideboard()
     {
-        return sideboard.current;
+        return extras.get("Sideboard").current;
     }
 
     /**
@@ -1773,25 +1759,25 @@ public class EditorFrame extends JInternalFrame
             }
             if (action.categoryRemoved())
             {
-                if (action.getSource() == sideboard.current)
+                if (action.getSource() == extras.get("Sideboard").current)
                     throw new IllegalStateException("the sideboard can't have categories");
                 deck.current.addCategory(action.removedCategory());
             }
             if (action.categoryAdded())
             {
-                if (action.getSource() == sideboard.current)
+                if (action.getSource() == extras.get("Sideboard").current)
                     throw new IllegalStateException("the sideboard can't have categories");
                 deck.current.removeCategory(action.addedCategory());
             }
             if (action.categoryChanged())
             {
-                if (action.getSource() == sideboard.current)
+                if (action.getSource() == extras.get("Sideboard").current)
                     throw new IllegalStateException("the sideboard can't have categories");
                 action.categoryChanges().getSource().copy(action.categoryChanges().oldSpec());
             }
             if (action.ranksChanged())
             {
-                if (action.getSource() == sideboard.current)
+                if (action.getSource() == extras.get("Sideboard").current)
                     throw new IllegalStateException("the sideboard can't have categories");
                 List<String> categories = new ArrayList<>(action.oldRanks().keySet());
                 action.getSource().swapCategoryRanks(categories.get(0), action.oldRanks().get(categories.get(0)));
