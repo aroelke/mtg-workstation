@@ -622,6 +622,8 @@ public class EditorFrame extends JInternalFrame
         extras = new LinkedHashMap<>();
         for (Map.Entry<String, Deck> sideboard : manager.sideboards().entrySet())
             extras.put(sideboard.getKey(), new DeckData(sideboard.getValue()));
+        if (extras.isEmpty())
+            extras.put("Sideboard", new DeckData());
 
         parent = p;
         unsaved = false;
