@@ -229,8 +229,10 @@ public class EditorFrame extends JInternalFrame
         }
 
         /**
-         * TODO
-         * @param deck
+         * Create a new DeckData using the given Deck.  The original deck
+         * will be a copy of it.
+         * 
+         * @param deck Deck to use as backing data
          */
         public DeckData(Deck deck)
         {
@@ -240,7 +242,7 @@ public class EditorFrame extends JInternalFrame
         }
 
         /**
-         * TODO
+         * Create a new, empty DeckData.
          */
         public DeckData()
         {
@@ -515,13 +517,16 @@ public class EditorFrame extends JInternalFrame
      */
     private JLabel countLabel;
     /**
-     * Main deck data
+     * Main deck data.
      */
     private DeckData deck;
     /**
-     * TODO
+     * Extra list deck data (e.g. sideboard).
      */
     private Map<String, DeckData> extras;
+    /**
+     * Tabs showing extra lists.
+     */
     private JTabbedPane extrasPane;
     /**
      * File where the deck was last saved.
@@ -556,9 +561,12 @@ public class EditorFrame extends JInternalFrame
      */
     private JLabel medCMCLabel;
     /**
-     * TODO
+     * Menu containing sideboards to move cards from the main deck to one at a time.
      */
     private JMenu moveToMenu;
+    /**
+     * Menu containing sideboards to move cards from the main deck to all at once.
+     */
     private JMenu moveAllToMenu;
     /**
      * Label showing the total number of nonland cards in the deck.
@@ -1357,10 +1365,12 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
-     * @param name
-     * @param extra
-     * @return
+     * Create and initialize the table, backing model, and menu items relating to a newly-created
+     * extra list.
+     * 
+     * @param name name of the new extra list
+     * @param extra data containing cards in the extra list
+     * @return the pane that contains the table showing the extra list
      */
     public JScrollPane initExtraList(String name, DeckData extra)
     {

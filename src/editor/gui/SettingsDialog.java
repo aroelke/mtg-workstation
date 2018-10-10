@@ -55,7 +55,7 @@ public class SettingsDialog extends JDialog
      */
     public static final String CATEGORY_ROWS = "editor.rows";
     /**
-     * TODO
+     * Default name for sideboard of new deck.
      */
     public static final String DEFAULT_SIDEBOARD = "editor.sideboard";
     /**
@@ -568,7 +568,7 @@ public class SettingsDialog extends JDialog
      */
     private JTextField scansDirField;
     /**
-     * TODO
+     * Text field containing the default name for the sideboard of a new deck.
      */
     private JTextField sideboardField;
     /**
