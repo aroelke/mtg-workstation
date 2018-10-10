@@ -1804,12 +1804,20 @@ public class EditorFrame extends JInternalFrame
      * @return the Deck corresponding to the tab that's currently active in the sideboards
      * panel, or a new empty Deck if there isn't one.
      */
-    public CardList sideboard()
+    private CardList sideboard()
     {
         if (extras.isEmpty())
             return new Deck();
         else
             return extras.get(extrasPane.getTitleAt(extrasPane.getSelectedIndex())).current;
+    }
+
+    public CardList sideboards()
+    {
+        Deck sideboard = new Deck();
+        for (DeckData extra : extras.values())
+            sideboard.addAll(extra.current);
+        return sideboard;
     }
 
     /**

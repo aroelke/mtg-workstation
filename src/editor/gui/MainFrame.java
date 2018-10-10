@@ -185,7 +185,7 @@ public class MainFrame extends JFrame
             {
                 if (selectedFrame.deck().contains(inventory.get(table.convertRowIndexToModel(row))))
                     ComponentUtils.changeFontRecursive(c, c.getFont().deriveFont(Font.BOLD));
-                else if (selectedFrame.sideboard().contains(inventory.get(table.convertRowIndexToModel(row))))
+                else if (selectedFrame.sideboards().contains(inventory.get(table.convertRowIndexToModel(row))))
                     ComponentUtils.changeFontRecursive(c, c.getFont().deriveFont(Font.ITALIC));
             }
             return c;
@@ -739,14 +739,14 @@ public class MainFrame extends JFrame
                         fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
                         wizardPanel.add(fieldPanel, BorderLayout.NORTH);
 
-                        if (selectedFrame.deck().total() > 0 || selectedFrame.sideboard().total() > 0)
+                        if (selectedFrame.deck().total() > 0 || selectedFrame.sideboards().total() > 0)
                         {
                             JPanel previewPanel = new JPanel(new BorderLayout());
                             previewPanel.setBorder(BorderFactory.createTitledBorder("Preview:"));
                             JTextArea previewArea = new JTextArea();
                             JScrollPane previewPane = new JScrollPane(previewArea);
                             previewArea.setText(new TextCardListFormat(formatField.getText())
-                                    .format(selectedFrame.deck().total() > 0 ? selectedFrame.deck() : selectedFrame.sideboard()));
+                                    .format(selectedFrame.deck().total() > 0 ? selectedFrame.deck() : selectedFrame.sideboards()));
                             previewArea.setRows(1);
                             previewArea.setCaretPosition(0);
                             previewPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -770,7 +770,7 @@ public class MainFrame extends JFrame
                                 public void update(DocumentEvent e)
                                 {
                                     previewArea.setText(new TextCardListFormat(formatField.getText())
-                                            .format(selectedFrame.deck().total() > 0 ? selectedFrame.deck() : selectedFrame.sideboard()));
+                                            .format(selectedFrame.deck().total() > 0 ? selectedFrame.deck() : selectedFrame.sideboards()));
                                     previewArea.setCaretPosition(0);
                                 }
                             });
@@ -973,7 +973,7 @@ public class MainFrame extends JFrame
         // Sideboard menu
         JMenu sideboardMenu = new JMenu("Sideboard");
         deckMenu.add(sideboardMenu);
-        CardMenuItems sideboardMenuItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboard(), this::getSelectedCards);
+        CardMenuItems sideboardMenuItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboards(), this::getSelectedCards);
         sideboardMenu.add(sideboardMenuItems.addSingle());
         sideboardMenu.add(sideboardMenuItems.addN());
         sideboardMenu.add(sideboardMenuItems.removeSingle());
@@ -1201,7 +1201,7 @@ public class MainFrame extends JFrame
         oraclePopupMenu.add(new JSeparator());
 
         // Add the card to the sideboard
-        CardMenuItems oracleMenuSBCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboard(), () -> Collections.singletonList(selectedCard));
+        CardMenuItems oracleMenuSBCardItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboards(), () -> Collections.singletonList(selectedCard));
         oracleMenuSBCardItems.addSingle().setText("Add to Sideboard");
         oraclePopupMenu.add(oracleMenuSBCardItems.addSingle());
         oracleMenuSBCardItems.addN().setText("Add to Sideboard...");
@@ -1287,7 +1287,7 @@ public class MainFrame extends JFrame
         inventoryMenu.add(new JSeparator());
 
         // Add cards to the sideboard
-        CardMenuItems inventoryMenuSBItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboard(), this::getSelectedCards);
+        CardMenuItems inventoryMenuSBItems = new CardMenuItems(this, () -> selectedFrame == null ? null : selectedFrame.sideboards(), this::getSelectedCards);
         inventoryMenuSBItems.addSingle().setText("Add to Sideboard");
         inventoryMenu.add(inventoryMenuSBItems.addSingle());
         inventoryMenuSBItems.addN().setText("Add to Sideboard...");
