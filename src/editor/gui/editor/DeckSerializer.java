@@ -16,7 +16,7 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -57,8 +57,9 @@ public class DeckSerializer
      * Change log:
      * 1. Added save version number
      * 2. Switched changelog from read/writeObject to read/writeUTF
+     * 3. Allow multiple sideboards
      */
-    private static final long SAVE_VERSION = 2;
+    private static final long SAVE_VERSION = 3;
 
     /**
      * This class is a worker for loading a deck.
@@ -122,7 +123,17 @@ public class DeckSerializer
                     if (version > 0)
                         ois.readLong(); // Throw out first 64 bits that have already been read
                     deck = readDeck(ois);
-                    sideboard.put("Sideboard", readDeck(ois));
+                    if (version <= 2)
+                        sideboard.put("Sideboard", readDeck(ois));
+                    else
+                    {
+                        int boards = ois.readInt();
+                        for (int i = 0; i < boards; i++)
+                        {
+                            String name = ois.readUTF();
+                            sideboard.put(name, readDeck(ois));
+                        }
+                    }
                     if (version < 2)
                         changelog = (String)ois.readObject();
                     else
@@ -184,11 +195,10 @@ public class DeckSerializer
      */
     public DeckSerializer(Deck d, Map<String, Deck> s, String c)
     {
+        this();
         changelog = c;
         deck = d;
-        file = null;
-        imported = false;
-        sideboard = new HashMap<>(s);
+        sideboard = new LinkedHashMap<>(s);
     }
 
     /**
@@ -337,7 +347,8 @@ public class DeckSerializer
         changelog = "";
         deck = new Deck();
         file = null;
-        sideboard = new HashMap<>();
+        sideboard = new LinkedHashMap<>();
+        imported = false;
     }
 
     /**
@@ -352,7 +363,12 @@ public class DeckSerializer
         {
             oos.writeLong(SAVE_VERSION);
             writeDeck(deck, oos);
-            writeDeck(sideboard.get("Sideboard"), oos);
+            oos.writeInt(sideboard.size());
+            for (Map.Entry<String, Deck> sb : sideboard.entrySet())
+            {
+                oos.writeUTF(sb.getKey());
+                writeDeck(sb.getValue(), oos);
+            }
             oos.writeUTF(changelog);
             file = f;
         }
@@ -372,7 +388,7 @@ public class DeckSerializer
      * @param deck deck to write
      * @param out stream to write to
      */
-    public void writeDeck(Deck deck, ObjectOutput out) throws IOException
+    private void writeDeck(Deck deck, ObjectOutput out) throws IOException
     {
         out.writeInt(deck.size());
         for (Card card : deck)

@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -619,7 +619,9 @@ public class EditorFrame extends JInternalFrame
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         deck = new DeckData(manager.deck());
-        extras = new HashMap<>(manager.sideboards().entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> new DeckData(e.getValue()))));
+        extras = new LinkedHashMap<>();
+        for (Map.Entry<String, Deck> sideboard : manager.sideboards().entrySet())
+            extras.put(sideboard.getKey(), new DeckData(sideboard.getValue()));
 
         parent = p;
         unsaved = false;
@@ -1724,7 +1726,10 @@ public class EditorFrame extends JInternalFrame
             changelogArea.append(changes + "\n");
         }
 
-        DeckSerializer manager = new DeckSerializer(deck.current, extras.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().current)), changelogArea.getText());
+        Map<String, Deck> sideboards = new LinkedHashMap<>();
+        for (int i = 0; i < extrasPane.getTabCount() - 1; i++)
+            sideboards.put(extrasPane.getTitleAt(i), extras.get(extrasPane.getTitleAt(i)).current);
+        DeckSerializer manager = new DeckSerializer(deck.current, sideboards, changelogArea.getText());
         try
         {
             manager.save(f);
@@ -1784,11 +1789,15 @@ public class EditorFrame extends JInternalFrame
      * Get this EditorFrame's currently-selected sideboard.
      * TODO
      *
-     * @return the sideboard
+     * @return the Deck corresponding to the tab that's currently active in the sideboards
+     * panel, or a new empty Deck if there isn't one.
      */
     public CardList sideboard()
     {
-        return extras.get(extrasPane.getTitleAt(extrasPane.getSelectedIndex())).current;
+        if (extras.isEmpty())
+            return new Deck();
+        else
+            return extras.get(extrasPane.getTitleAt(extrasPane.getSelectedIndex())).current;
     }
 
     /**
