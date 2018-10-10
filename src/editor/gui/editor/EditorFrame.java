@@ -662,39 +662,6 @@ public class EditorFrame extends JInternalFrame
 
         extrasPane = new JTabbedPane();
         extrasPanel.add(extrasPane, BorderLayout.CENTER);
-        for (Map.Entry<String, DeckData> extra: extras.entrySet())
-        {
-            extra.getValue().model = new CardTableModel(this, extra.getValue().current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
-            extra.getValue().table = new CardTable(extra.getValue().model)
-            {
-                @Override
-                public Dimension getPreferredScrollableViewportSize()
-                {
-                    Dimension s = super.getPreferredScrollableViewportSize();
-                    return new Dimension(s.width, getRowHeight() * 5);
-                }
-            };
-            extra.getValue().table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
-            // When a card is selected in a sideboard table, select it for adding
-            extra.getValue().table.getSelectionModel().addListSelectionListener((e) -> {
-                if (!e.getValueIsAdjusting())
-                {
-                    ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-                    if (!lsm.isSelectionEmpty())
-                        parent.setSelectedCards(extra.getValue().table, extra.getValue().current);
-                }
-            });
-            for (int i = 0; i < extra.getValue().table.getColumnCount(); i++)
-                if (extra.getValue().model.isCellEditable(0, i))
-                    extra.getValue().table.getColumn(extra.getValue().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, extra.getValue().model.getColumnData(i)));
-            extra.getValue().table.setTransferHandler(new EditorTableTransferHandler(extra.getValue()));
-            extra.getValue().table.setDragEnabled(true);
-            extra.getValue().table.setDropMode(DropMode.ON);
-
-            JScrollPane sideboardPane = new JScrollPane(extra.getValue().table);
-            sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-            extrasPane.addTab(extra.getKey(), sideboardPane);
-        }
 
         listTabs.addTab("Cards", mainPanel);
 
@@ -711,7 +678,7 @@ public class EditorFrame extends JInternalFrame
 
         // Move cards to sideboard
         JMenu moveToMenu = new JMenu("Move to");
-        for (Map.Entry<String, DeckData> extra: extras.entrySet())
+        for (Map.Entry<String, DeckData> extra : extras.entrySet())
         {
             JMenuItem item = new JMenuItem(extra.getKey());
             item.addActionListener((e) -> {
@@ -722,7 +689,7 @@ public class EditorFrame extends JInternalFrame
             moveToMenu.add(item);
         }
         JMenu moveAllToMenu = new JMenu("Move all to");
-        for (Map.Entry<String, DeckData> extra: extras.entrySet())
+        for (Map.Entry<String, DeckData> extra : extras.entrySet())
         {
             JMenuItem item = new JMenuItem(extra.getKey());
             item.addActionListener((e) -> {
@@ -764,45 +731,6 @@ public class EditorFrame extends JInternalFrame
 
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, deck.table));
-
-        // Extra lists table menus
-        for (Map.Entry<String, DeckData> extra : extras.entrySet())
-        {
-            JPopupMenu extraMenu = new JPopupMenu();
-            extra.getValue().table.addMouseListener(new TableMouseAdapter(extra.getValue().table, extraMenu));
-
-            // Add/remove cards from sideboard
-            CardMenuItems sideboardMenuCardItems = new CardMenuItems(this, () -> extra.getValue().current, parent::getSelectedCards);
-            sideboardMenuCardItems.addAddItems(extraMenu);
-            extraMenu.add(new JSeparator());
-            sideboardMenuCardItems.addRemoveItems(extraMenu);
-            extraMenu.add(new JSeparator());
-
-            // Move cards to main deck
-            JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
-            moveToMainItem.addActionListener((e) -> {
-                Set<Card> selected = new HashSet<>(parent.getSelectedCards());
-                extra.getValue().current.removeAll(selected);
-                deck.current.addAll(selected);
-            });
-            extraMenu.add(moveToMainItem);
-            JMenuItem moveAllToMainItem = new JMenuItem("Move All to Main Deck");
-            moveAllToMainItem.addActionListener((e) -> {
-                for (Card c : parent.getSelectedCards())
-                {
-                    int n = extra.getValue().current.getData(c).count();
-                    extra.getValue().current.remove(c, n);
-                    deck.current.add(c, n);
-                }
-            });
-            extraMenu.add(moveAllToMainItem);
-            extraMenu.add(new JSeparator());
-
-            // Edit card tags item in sideboard
-            JMenuItem sBeditTagsItem = new JMenuItem("Edit Tags...");
-            sBeditTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
-            extraMenu.add(sBeditTagsItem);
-        }
 
         // Panel containing categories
         JPanel categoriesPanel = new JPanel(new BorderLayout());
@@ -1077,6 +1005,7 @@ public class EditorFrame extends JInternalFrame
         updateCategoryPanel();
         handCalculations.update();
 
+        // Main deck change listener
         deck.current.addDeckListener((e) -> {
             // Cards
             if (e.cardsChanged())
@@ -1165,36 +1094,9 @@ public class EditorFrame extends JInternalFrame
             }
         });
 
-        for (DeckData extra: extras.values())
-        {
-            extra.current.addDeckListener((e) -> {
-                if (e.cardsChanged())
-                {
-                    updateStats();
-                    parent.updateCardsInDeck();
-                    extra.model.fireTableDataChanged();
-                    for (Card c : parent.getSelectedCards())
-                    {
-                        if (parent.getSelectedList().contains(c))
-                        {
-                            int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
-                            parent.getSelectedTable().addRowSelectionInterval(row, row);
-                        }
-                    }
-                    if (parent.getSelectedTable().isEditing())
-                        parent.getSelectedTable().getCellEditor().cancelCellEditing();
-                }
-
-                setUnsaved();
-                update();
-
-                if (!undoing)
-                {
-                    redoBuffer.clear();
-                    undoBuffer.push(e);
-                }
-            });
-        }
+        // Initialize extra lists
+        for (Map.Entry<String, DeckData> extra : extras.entrySet())
+            initExtraList(extra.getKey(), extra.getValue());
 
         // Handle various frame events, including selecting and closing
         addInternalFrameListener(new InternalFrameAdapter()
@@ -1252,7 +1154,7 @@ public class EditorFrame extends JInternalFrame
     {
         if (deck.table != except)
             deck.table.clearSelection();
-        for (DeckData extra: extras.values())
+        for (DeckData extra : extras.values())
             if (extra.table != except)
                 extra.table.clearSelection();
         for (CategoryPanel c : categoryPanels)
@@ -1447,6 +1349,111 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
+     * TODO
+     * @param name
+     * @param extra
+     */
+    public void initExtraList(String name, DeckData extra)
+    {
+        // Extra list's models
+        extra.model = new CardTableModel(this, extra.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
+        extra.table = new CardTable(extra.model)
+        {
+            @Override
+            public Dimension getPreferredScrollableViewportSize()
+            {
+                Dimension s = super.getPreferredScrollableViewportSize();
+                return new Dimension(s.width, getRowHeight() * 5);
+            }
+        };
+        extra.table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
+        // When a card is selected in a sideboard table, select it for adding
+        extra.table.getSelectionModel().addListSelectionListener((e) -> {
+            if (!e.getValueIsAdjusting())
+            {
+                ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+                if (!lsm.isSelectionEmpty())
+                    parent.setSelectedCards(extra.table, extra.current);
+            }
+        });
+        for (int i = 0; i < extra.table.getColumnCount(); i++)
+            if (extra.model.isCellEditable(0, i))
+                extra.table.getColumn(extra.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, extra.model.getColumnData(i)));
+        extra.table.setTransferHandler(new EditorTableTransferHandler(extra));
+        extra.table.setDragEnabled(true);
+        extra.table.setDropMode(DropMode.ON);
+
+        JScrollPane sideboardPane = new JScrollPane(extra.table);
+        sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+        extrasPane.addTab(name, sideboardPane);
+
+        // Extra list's table menu
+        JPopupMenu extraMenu = new JPopupMenu();
+        extra.table.addMouseListener(new TableMouseAdapter(extra.table, extraMenu));
+
+        // Add/remove cards from sideboard
+        CardMenuItems sideboardMenuCardItems = new CardMenuItems(this, () -> extra.current, parent::getSelectedCards);
+        sideboardMenuCardItems.addAddItems(extraMenu);
+        extraMenu.add(new JSeparator());
+        sideboardMenuCardItems.addRemoveItems(extraMenu);
+        extraMenu.add(new JSeparator());
+
+        // Move cards to main deck
+        JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
+        moveToMainItem.addActionListener((e) -> {
+            Set<Card> selected = new HashSet<>(parent.getSelectedCards());
+            extra.current.removeAll(selected);
+            deck.current.addAll(selected);
+        });
+        extraMenu.add(moveToMainItem);
+        JMenuItem moveAllToMainItem = new JMenuItem("Move All to Main Deck");
+        moveAllToMainItem.addActionListener((e) -> {
+            for (Card c : parent.getSelectedCards())
+            {
+                int n = extra.current.getData(c).count();
+                extra.current.remove(c, n);
+                deck.current.add(c, n);
+            }
+        });
+        extraMenu.add(moveAllToMainItem);
+        extraMenu.add(new JSeparator());
+
+        // Edit card tags item in sideboard
+        JMenuItem sBeditTagsItem = new JMenuItem("Edit Tags...");
+        sBeditTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
+        extraMenu.add(sBeditTagsItem);
+
+        // Extra list's change listener
+        extra.current.addDeckListener((e) -> {
+            if (e.cardsChanged())
+            {
+                updateStats();
+                parent.updateCardsInDeck();
+                extra.model.fireTableDataChanged();
+                for (Card c : parent.getSelectedCards())
+                {
+                    if (parent.getSelectedList().contains(c))
+                    {
+                        int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
+                        parent.getSelectedTable().addRowSelectionInterval(row, row);
+                    }
+                }
+                if (parent.getSelectedTable().isEditing())
+                    parent.getSelectedTable().getCellEditor().cancelCellEditing();
+            }
+
+            setUnsaved();
+            update();
+
+            if (!undoing)
+            {
+                redoBuffer.clear();
+                undoBuffer.push(e);
+            }
+        });
+    }
+
+    /**
      * Get this EditorFrame's deck.
      *
      * @return the deck.
@@ -1524,7 +1531,7 @@ public class EditorFrame extends JInternalFrame
                 wr.println(format.header());
             if (!deck.current.isEmpty())
                 wr.print(format.format(deck.current));
-            for (Map.Entry<String, DeckData> extra: extras.entrySet())
+            for (Map.Entry<String, DeckData> extra : extras.entrySet())
             {
                 wr.println();
                 wr.println(extra.getKey());
@@ -1607,7 +1614,7 @@ public class EditorFrame extends JInternalFrame
         CardTable selectedTable = parent.getSelectedTable();
         if (selectedTable == deck.table)
             return true;
-        for (DeckData extra: extras.values())
+        for (DeckData extra : extras.values())
             if (selectedTable == extra.table)
                 return true;
         for (CategoryPanel panel : categoryPanels)
@@ -1634,28 +1641,28 @@ public class EditorFrame extends JInternalFrame
             }
             if (action.categoryRemoved())
             {
-                for (DeckData extra: extras.values())
+                for (DeckData extra : extras.values())
                     if (action.getSource() == extra.current)
                         throw new IllegalStateException("side lists can't have categories");
                 deck.current.removeCategory(action.removedCategory());
             }
             if (action.categoryAdded())
             {
-                for (DeckData extra: extras.values())
+                for (DeckData extra : extras.values())
                     if (action.getSource() == extra.current)
                         throw new IllegalStateException("side lists can't have categories");
                 deck.current.addCategory(action.addedCategory());
             }
             if (action.categoryChanged())
             {
-                for (DeckData extra: extras.values())
+                for (DeckData extra : extras.values())
                     if (action.getSource() == extra.current)
                         throw new IllegalStateException("side lists can't have categories");
                 action.categoryChanges().getSource().copy(action.categoryChanges().newSpec());
             }
             if (action.ranksChanged())
             {
-                for (DeckData extra: extras.values())
+                for (DeckData extra : extras.values())
                     if (action.getSource() == extra.current)
                         throw new IllegalStateException("side lists can't have categories");
                 List<String> categories = new ArrayList<>(action.oldRanks().keySet());
@@ -1776,28 +1783,28 @@ public class EditorFrame extends JInternalFrame
             }
             if (action.categoryRemoved())
             {
-                for (DeckData extra: extras.values())
+                for (DeckData extra : extras.values())
                     if (action.getSource() == extra.current)
                         throw new IllegalStateException("side lists can't have categories");
                 deck.current.addCategory(action.removedCategory());
             }
             if (action.categoryAdded())
             {
-                for (DeckData extra: extras.values())
+                for (DeckData extra : extras.values())
                     if (action.getSource() == extra.current)
                         throw new IllegalStateException("side lists can't have categories");
                 deck.current.removeCategory(action.addedCategory());
             }
             if (action.categoryChanged())
             {
-                for (DeckData extra: extras.values())
+                for (DeckData extra : extras.values())
                     if (action.getSource() == extra.current)
                         throw new IllegalStateException("side lists can't have categories");
                 action.categoryChanges().getSource().copy(action.categoryChanges().oldSpec());
             }
             if (action.ranksChanged())
             {
-                for (DeckData extra: extras.values())
+                for (DeckData extra : extras.values())
                     if (action.getSource() == extra.current)
                         throw new IllegalStateException("side lists can't have categories");
                 List<String> categories = new ArrayList<>(action.oldRanks().keySet());
