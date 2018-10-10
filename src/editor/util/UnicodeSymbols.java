@@ -20,10 +20,6 @@ public interface UnicodeSymbols
      */
     char DOWN_ARROW = '\u2B07';
     /**
-     * Black down-pointing triangle, '{@value #DOWN_TRIANGLE}'.
-     */
-    char DOWN_TRIANGLE = '\u25BC';
-    /**
      * Horizontal ellipsis, '{@value #ELLIPSIS}'.
      */
     char ELLIPSIS = '\u2026';
@@ -75,8 +71,4 @@ public interface UnicodeSymbols
      * Upwards black arrow, '{@value #UP_ARROW}'.
      */
     char UP_ARROW = '\u2B06';
-    /**
-     * Black up-pointing triangle, '{@value #UP_TRIANGLE}'.
-     */
-    char UP_TRIANGLE = '\u25B2';
 }
