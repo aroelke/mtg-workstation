@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +85,6 @@ import editor.gui.generic.CardMenuItems;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
-import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
 import editor.util.UnicodeSymbols;
 
@@ -228,11 +228,23 @@ public class EditorFrame extends JInternalFrame
             return changes.toString();
         }
 
+        /**
+         * TODO
+         * @param deck
+         */
         public DeckData(Deck deck)
         {
             current = deck;
             original = new Deck();
             original.addAll(deck);
+        }
+
+        /**
+         * TODO
+         */
+        public DeckData()
+        {
+            this(new Deck());
         }
     }
 
@@ -607,7 +619,7 @@ public class EditorFrame extends JInternalFrame
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         deck = new DeckData(manager.deck());
-        extras = Map.of("Sideboard", new DeckData(manager.sideboard()));
+        extras = new HashMap<>(Map.of("Sideboard", new DeckData(manager.sideboard())));
 
         parent = p;
         unsaved = false;
@@ -1082,8 +1094,10 @@ public class EditorFrame extends JInternalFrame
             int last = extrasPane.getTabCount() - 1;
             if (extrasPane.getSelectedIndex() == last)
             {
-                extrasPane.setTitleAt(last, "Sideboard " + (last + 1));
-                extrasPane.setComponentAt(last, new JPanel());
+                String name = "Sideboard " + extrasPane.getTabCount();
+                extrasPane.setTitleAt(last, name);
+                extras.put(name, new DeckData());
+                extrasPane.setComponentAt(last, initExtraList(name, extras.get(name)));
                 extrasPane.addTab("+", null);
             }
         });
