@@ -619,7 +619,7 @@ public class EditorFrame extends JInternalFrame
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         deck = new DeckData(manager.deck());
-        extras = new HashMap<>(Map.of("Sideboard", new DeckData(manager.sideboard())));
+        extras = new HashMap<>(manager.sideboards().entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> new DeckData(e.getValue()))));
 
         parent = p;
         unsaved = false;
@@ -1724,7 +1724,7 @@ public class EditorFrame extends JInternalFrame
             changelogArea.append(changes + "\n");
         }
 
-        DeckSerializer manager = new DeckSerializer(deck.current, extras.get("Sideboard").current, changelogArea.getText());
+        DeckSerializer manager = new DeckSerializer(deck.current, extras.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().current)), changelogArea.getText());
         try
         {
             manager.save(f);

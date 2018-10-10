@@ -16,7 +16,9 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CancellationException;
 
@@ -88,9 +90,6 @@ public class DeckSerializer
          */
         public LoadWorker(File f, JProgressBar b, JDialog d)
         {
-            deck = new Deck();
-            sideboard = new Deck();
-
             file = f;
             progressBar = b;
             dialog = d;
@@ -122,8 +121,8 @@ public class DeckSerializer
                 {
                     if (version > 0)
                         ois.readLong(); // Throw out first 64 bits that have already been read
-                    readDeck(deck, ois);
-                    readDeck(sideboard, ois);
+                    deck = readDeck(ois);
+                    sideboard.put("Sideboard", readDeck(ois));
                     if (version < 2)
                         changelog = (String)ois.readObject();
                     else
@@ -169,7 +168,7 @@ public class DeckSerializer
     /**
      * Sideboard for the loaded deck.
      */
-    private Deck sideboard;
+    private Map<String, Deck> sideboard;
 
     /**
      * Create a new, empty DeckSerializer.  Use this to load a deck.
@@ -183,13 +182,13 @@ public class DeckSerializer
      * Create a new DeckSerializer with the given deck, sideboard, and changelog
      * already loaded.  This cannot be used to load a deck, so use it to save one.
      */
-    public DeckSerializer(Deck d, Deck s, String c)
+    public DeckSerializer(Deck d, Map<String, Deck> s, String c)
     {
         changelog = c;
         deck = d;
         file = null;
         imported = false;
-        sideboard = s;
+        sideboard = new HashMap<>(s);
     }
 
     /**
@@ -306,28 +305,28 @@ public class DeckSerializer
     /**
      * Read a deck from an object stream.
      * 
-     * @param deck deck to load data into
      * @param in input stream to read from
+     * @return the Deck that was read
      */
-    private void readDeck(Deck deck, ObjectInput in) throws IOException, ClassNotFoundException
+    private Deck readDeck(ObjectInput in) throws IOException, ClassNotFoundException
     {
-        deck.clear();
-
+        Deck d = new Deck();
         int n = in.readInt();
         for (int i = 0; i < n; i++)
         {
             Card card = MainFrame.inventory().get(in.readUTF());
             int count = in.readInt();
             LocalDate added = (LocalDate)in.readObject();
-            deck.add(card, count, added);
+            d.add(card, count, added);
         }
         n = in.readInt();
         for (int i = 0; i < n; i++)
         {
             CategorySpec spec = new CategorySpec();
             spec.readExternal(in);
-            deck.addCategory(spec, in.readInt());
+            d.addCategory(spec, in.readInt());
         }
+        return d;
     }
 
     /**
@@ -338,7 +337,7 @@ public class DeckSerializer
         changelog = "";
         deck = new Deck();
         file = null;
-        sideboard = new Deck();
+        sideboard = new HashMap<>();
     }
 
     /**
@@ -353,16 +352,16 @@ public class DeckSerializer
         {
             oos.writeLong(SAVE_VERSION);
             writeDeck(deck, oos);
-            writeDeck(sideboard, oos);
+            writeDeck(sideboard.get("Sideboard"), oos);
             oos.writeUTF(changelog);
             file = f;
         }
     }
 
     /**
-     * @return the sideboard of the loaded deck.
+     * @return the sideboards of the loaded deck.
      */
-    public Deck sideboard()
+    public Map<String, Deck> sideboards()
     {
         return sideboard;
     }
