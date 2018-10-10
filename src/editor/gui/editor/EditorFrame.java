@@ -623,7 +623,7 @@ public class EditorFrame extends JInternalFrame
         for (Map.Entry<String, Deck> sideboard : manager.sideboards().entrySet())
             extras.put(sideboard.getKey(), new DeckData(sideboard.getValue()));
         if (extras.isEmpty())
-            extras.put("Sideboard", new DeckData());
+            extras.put(SettingsDialog.getAsString(SettingsDialog.DEFAULT_SIDEBOARD), new DeckData());
 
         parent = p;
         unsaved = false;

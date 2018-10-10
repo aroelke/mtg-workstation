@@ -46,7 +46,6 @@ public class SettingsDialog extends JDialog
      * Location to find card scans.
      */
     public static final String CARD_SCANS = "scans";
-
     /**
      * Tags that have been applied to cards.
      */
@@ -56,10 +55,9 @@ public class SettingsDialog extends JDialog
      */
     public static final String CATEGORY_ROWS = "editor.rows";
     /**
-     * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
+     * TODO
      */
-    public static final Pattern COLOR_PATTERN = Pattern.compile("^#([0-9a-fA-F]{2})?([0-9a-fA-F]{6})$");
-
+    public static final String DEFAULT_SIDEBOARD = "editor.sideboard";
     /**
      * Columns to display in editor tables.
      */
@@ -93,7 +91,6 @@ public class SettingsDialog extends JDialog
      * Background color for card scans in the left pane.
      */
     public static final String IMAGE_BGCOLOR = "inventory.scan_bgcolor";
-
     /**
      * Whether or not to check for the latest inventory version on startup.
      */
@@ -106,7 +103,6 @@ public class SettingsDialog extends JDialog
      * Columns to display in the inventory table.
      */
     public static final String INVENTORY_COLUMNS = "inventory.columns";
-
     /**
      * File to download containing the inventory.
      */
@@ -119,12 +115,10 @@ public class SettingsDialog extends JDialog
      * Website to connect to for downloading the inventory.
      */
     public static final String INVENTORY_SOURCE = "inventory.source";
-
     /**
      * Code for the color of the stripes of the inventory table.
      */
     public static final String INVENTORY_STRIPE = "inventory.stripe";
-
     /**
      * Name of the file to get settings from.
      */
@@ -137,15 +131,6 @@ public class SettingsDialog extends JDialog
      * Recently-opened files paths.
      */
     public static final String RECENT_FILES = "recents.files";
-
-    /**
-     * List of preset categories.
-     */
-    private static final List<CategorySpec> PRESET_CATEGORIES = new ArrayList<>();
-    /**
-     * Global settings for the program.
-     */
-    private static final Properties SETTINGS = new Properties();
     /**
      * Whether or not to suppress warnings on load.
      */
@@ -158,6 +143,20 @@ public class SettingsDialog extends JDialog
      * File to download to check the latest version of the inventory.
      */
     public static final String VERSION_FILE = "inventory.version_file";
+
+    /**
+     * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
+     */
+    public static final Pattern COLOR_PATTERN = Pattern.compile("^#([0-9a-fA-F]{2})?([0-9a-fA-F]{6})$");
+
+    /**
+     * List of preset categories.
+     */
+    private static final List<CategorySpec> PRESET_CATEGORIES = new ArrayList<>();
+    /**
+     * Global settings for the program.
+     */
+    private static final Properties SETTINGS = new Properties();
 
     /**
      * Create the preview panel for a color chooser that customizes the stripe color
@@ -417,6 +416,7 @@ public class SettingsDialog extends JDialog
         SETTINGS.put(CARD_SCANS, "images" + File.separatorChar + "cards");
         SETTINGS.put(IMAGE_BGCOLOR, "#FFFFFFFF");
         SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
+        SETTINGS.put(DEFAULT_SIDEBOARD, "Sideboard");
 
         PRESET_CATEGORIES.clear();
         CardTypeFilter artifacts = (CardTypeFilter) FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
@@ -567,6 +567,10 @@ public class SettingsDialog extends JDialog
      * Text field containing the directory to look for card scans in.
      */
     private JTextField scansDirField;
+    /**
+     * TODO
+     */
+    private JTextField sideboardField;
     /**
      * Number of cards to draw in the starting hand.
      */
@@ -767,13 +771,26 @@ public class SettingsDialog extends JDialog
         editorPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         settingsPanel.add(editorPanel, new TreePath(editorNode.getPath()).toString());
 
+        // New deck default sideboard
+        JPanel sideboardPanel = new JPanel();
+        sideboardPanel.setLayout(new BoxLayout(sideboardPanel, BoxLayout.X_AXIS));
+        sideboardPanel.add(new JLabel("Default sideboard:"));
+        sideboardPanel.add(Box.createHorizontalStrut(5));
+        sideboardField = new JTextField(10);
+        sideboardField.setText(getAsString(DEFAULT_SIDEBOARD));
+        sideboardPanel.add(sideboardField);
+        sideboardPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, sideboardPanel.getPreferredSize().height));
+        sideboardPanel.setAlignmentX(LEFT_ALIGNMENT);
+        editorPanel.add(sideboardPanel);
+        editorPanel.add(Box.createVerticalStrut(5));
+
         // Recent count
         JPanel recentPanel = new JPanel();
         recentPanel.setLayout(new BoxLayout(recentPanel, BoxLayout.X_AXIS));
         recentPanel.add(new JLabel("Recent file count:"));
         recentPanel.add(Box.createHorizontalStrut(5));
         recentSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        recentSpinner.getModel().setValue(Integer.valueOf(getAsString(RECENT_COUNT)));
+        recentSpinner.getModel().setValue(getAsInt(RECENT_COUNT));
         recentPanel.add(recentSpinner);
         recentPanel.add(Box.createHorizontalStrut(5));
         JLabel recentInfoLabel = new JLabel("(Changes will not be visible until program restart)");
@@ -995,20 +1012,12 @@ public class SettingsDialog extends JDialog
         SETTINGS.put(INVENTORY_LOCATION, inventoryDirField.getText());
         SETTINGS.put(INITIAL_CHECK, Boolean.toString(updateCheckBox.isSelected()));
         SETTINGS.put(SUPPRESS_LOAD_WARNINGS, Boolean.toString(suppressCheckBox.isSelected()));
-        StringJoiner join = new StringJoiner(",");
-        for (JCheckBox box : inventoryColumnCheckBoxes)
-            if (box.isSelected())
-                join.add(box.getText());
-        SETTINGS.put(INVENTORY_COLUMNS, join.toString());
+        SETTINGS.put(INVENTORY_COLUMNS, inventoryColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map(JCheckBox::getText).reduce((a, b) -> a + "," + b).orElse(""));
         SETTINGS.put(INVENTORY_STRIPE, colorToString(inventoryStripeColor.getColor()));
         SETTINGS.put(RECENT_COUNT, recentSpinner.getValue().toString());
         SETTINGS.put(EXPLICITS_ROWS, explicitsSpinner.getValue().toString());
         SETTINGS.put(CATEGORY_ROWS, rowsSpinner.getValue().toString());
-        join = new StringJoiner(",");
-        for (JCheckBox box : editorColumnCheckBoxes)
-            if (box.isSelected())
-                join.add(box.getText());
-        SETTINGS.put(EDITOR_COLUMNS, join.toString());
+        SETTINGS.put(EDITOR_COLUMNS, editorColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map(JCheckBox::getText).reduce((a, b) -> a + "," + b).orElse(""));
         SETTINGS.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
         SETTINGS.put(EDITOR_PRESETS, presetsFileField.getText());
         PRESET_CATEGORIES.clear();
@@ -1021,6 +1030,7 @@ public class SettingsDialog extends JDialog
         SETTINGS.put(CARD_SCANS, scansDirField.getText());
         SETTINGS.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
         SETTINGS.put(HAND_BGCOLOR, colorToString(handBGColor.getColor()));
+        SETTINGS.put(DEFAULT_SIDEBOARD, sideboardField.getText());
 
         parent.applySettings();
     }
