@@ -544,6 +544,11 @@ public class EditorFrame extends JInternalFrame
      */
     private JLabel medCMCLabel;
     /**
+     * TODO
+     */
+    private JMenu moveToMenu;
+    private JMenu moveAllToMenu;
+    /**
      * Label showing the total number of nonland cards in the deck.
      */
     private JLabel nonlandLabel;
@@ -677,33 +682,8 @@ public class EditorFrame extends JInternalFrame
         tableMenu.add(new JSeparator());
 
         // Move cards to sideboard
-        JMenu moveToMenu = new JMenu("Move to");
-        for (Map.Entry<String, DeckData> extra : extras.entrySet())
-        {
-            JMenuItem item = new JMenuItem(extra.getKey());
-            item.addActionListener((e) -> {
-                Set<Card> selected = new HashSet<>(parent.getSelectedCards());
-                deck.current.removeAll(selected);
-                extra.getValue().current.addAll(selected);
-            });
-            moveToMenu.add(item);
-        }
-        JMenu moveAllToMenu = new JMenu("Move all to");
-        for (Map.Entry<String, DeckData> extra : extras.entrySet())
-        {
-            JMenuItem item = new JMenuItem(extra.getKey());
-            item.addActionListener((e) -> {
-                for (Card c : parent.getSelectedCards())
-                {
-                    int n = deck.current.getData(c).count();
-                    deck.current.remove(c, n);
-                    extra.getValue().current.add(c, n);
-                }
-            });
-            moveAllToMenu.add(item);
-        }
-        tableMenu.add(moveToMenu);
-        tableMenu.add(moveAllToMenu);
+        tableMenu.add(moveToMenu = new JMenu("Move to"));
+        tableMenu.add(moveAllToMenu = new JMenu("Move all to"));
         tableMenu.add(new JSeparator());
 
         // Quick edit categories
@@ -1096,7 +1076,17 @@ public class EditorFrame extends JInternalFrame
 
         // Initialize extra lists
         for (Map.Entry<String, DeckData> extra : extras.entrySet())
-            initExtraList(extra.getKey(), extra.getValue());
+            extrasPane.addTab(extra.getKey(), initExtraList(extra.getKey(), extra.getValue()));
+        extrasPane.addTab("+", null);
+        extrasPane.addChangeListener((e) -> {
+            int last = extrasPane.getTabCount() - 1;
+            if (extrasPane.getSelectedIndex() == last)
+            {
+                extrasPane.setTitleAt(last, "Sideboard " + (last + 1));
+                extrasPane.setComponentAt(last, new JPanel());
+                extrasPane.addTab("+", null);
+            }
+        });
 
         // Handle various frame events, including selecting and closing
         addInternalFrameListener(new InternalFrameAdapter()
@@ -1352,9 +1342,29 @@ public class EditorFrame extends JInternalFrame
      * TODO
      * @param name
      * @param extra
+     * @return
      */
-    public void initExtraList(String name, DeckData extra)
+    public JScrollPane initExtraList(String name, DeckData extra)
     {
+        // Move cards to sideboard
+        JMenuItem moveToItem = new JMenuItem(name);
+        moveToItem.addActionListener((e) -> {
+            Set<Card> selected = new HashSet<>(parent.getSelectedCards());
+            deck.current.removeAll(selected);
+            extra.current.addAll(selected);
+        });
+        moveToMenu.add(moveToItem);
+        JMenuItem moveAllToItem = new JMenuItem(name);
+        moveAllToItem.addActionListener((e) -> {
+            for (Card c : parent.getSelectedCards())
+            {
+                int n = deck.current.getData(c).count();
+                deck.current.remove(c, n);
+                extra.current.add(c, n);
+            }
+        });
+        moveAllToMenu.add(moveAllToItem);
+
         // Extra list's models
         extra.model = new CardTableModel(this, extra.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
         extra.table = new CardTable(extra.model)
@@ -1385,7 +1395,6 @@ public class EditorFrame extends JInternalFrame
 
         JScrollPane sideboardPane = new JScrollPane(extra.table);
         sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        extrasPane.addTab(name, sideboardPane);
 
         // Extra list's table menu
         JPopupMenu extraMenu = new JPopupMenu();
@@ -1451,6 +1460,8 @@ public class EditorFrame extends JInternalFrame
                 undoBuffer.push(e);
             }
         });
+
+        return sideboardPane;
     }
 
     /**
