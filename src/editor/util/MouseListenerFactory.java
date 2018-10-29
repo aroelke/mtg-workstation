@@ -14,6 +14,52 @@ import java.util.function.Consumer;
 public interface MouseListenerFactory
 {
     /**
+     * TODO
+     * @param listeners
+     * @return
+     */
+    static MouseListener composeListeners(MouseListener... listeners)
+    {
+        return new MouseListener()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                for (MouseListener listener : listeners)
+                    listener.mouseClicked(e);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e)
+            {
+                for (MouseListener listener : listeners)
+                    listener.mouseEntered(e);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e)
+            {
+                for (MouseListener listener : listeners)
+                    listener.mouseExited(e);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e)
+            {
+                for (MouseListener listener : listeners)
+                    listener.mousePressed(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e)
+            {
+                for (MouseListener listener : listeners)
+                    listener.mouseReleased(e);
+            }
+        };
+    }
+
+    /**
      * Create a MouseListener that only listens for mouse click events (press followed
      * by release).
      *
@@ -28,6 +74,22 @@ public interface MouseListenerFactory
             public void mouseClicked(MouseEvent e)
             {
                 mouseClicked.accept(e);
+            }
+        };
+    }
+
+    /**
+     * TODO
+     */
+    static MouseListener createDoubleClickListener(Consumer<MouseEvent> mouseClicked)
+    {
+        return new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if (e.getClickCount() == 2)
+                    mouseClicked.accept(e);
             }
         };
     }
@@ -64,6 +126,47 @@ public interface MouseListenerFactory
             public void mouseReleased(MouseEvent e)
             {
                 mouseReleased.accept(e);
+            }
+        };
+    }
+
+    /**
+     * TODO
+     * @param handler
+     * @return
+     */
+    static MouseListener createUniversalListener(Consumer<MouseEvent> handler)
+    {
+        return new MouseListener(){
+        
+            @Override
+            public void mouseReleased(MouseEvent e)
+            {
+                handler.accept(e);
+            }
+        
+            @Override
+            public void mousePressed(MouseEvent e)
+            {
+                handler.accept(e);
+            }
+        
+            @Override
+            public void mouseExited(MouseEvent e)
+            {
+                handler.accept(e);
+            }
+        
+            @Override
+            public void mouseEntered(MouseEvent e)
+            {
+                handler.accept(e);
+            }
+        
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                handler.accept(e);
             }
         };
     }

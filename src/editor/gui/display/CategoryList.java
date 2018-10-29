@@ -93,26 +93,23 @@ public class CategoryList extends JList<String>
 
         if (!hint.isEmpty())
         {
-            addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
-                if (e.getClickCount() == 2)
+            addMouseListener(MouseListenerFactory.createDoubleClickListener((e) -> {
+                int index = locationToIndex(e.getPoint());
+                Rectangle rec = getCellBounds(index, index);
+                CategorySpec spec;
+                if (rec == null || !rec.contains(e.getPoint()))
                 {
-                    int index = locationToIndex(e.getPoint());
-                    Rectangle rec = getCellBounds(index, index);
-                    CategorySpec spec;
-                    if (rec == null || !rec.contains(e.getPoint()))
-                    {
-                        clearSelection();
-                        spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this);
-                    }
+                    clearSelection();
+                    spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this);
+                }
+                else
+                    spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this, getCategoryAt(index));
+                if (spec != null)
+                {
+                    if (index < 0)
+                        addCategory(spec);
                     else
-                        spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this, getCategoryAt(index));
-                    if (spec != null)
-                    {
-                        if (index < 0)
-                            addCategory(spec);
-                        else
-                            setCategoryAt(index, spec);
-                    }
+                        setCategoryAt(index, spec);
                 }
             }));
         }
