@@ -82,6 +82,7 @@ import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
 import editor.gui.generic.CardMenuItems;
+import editor.gui.generic.EditablePanel;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
@@ -1100,7 +1101,10 @@ public class EditorFrame extends JInternalFrame
 
         // Initialize extra lists
         for (Map.Entry<String, DeckData> extra : extras.entrySet())
+        {
             extrasPane.addTab(extra.getKey(), initExtraList(extra.getKey(), extra.getValue()));
+            extrasPane.setTabComponentAt(extrasPane.getTabCount() - 1, new EditablePanel(extra.getKey(), extrasPane));
+        }
         extrasPane.addTab("+", null);
         extrasPane.addChangeListener((e) -> {
             int last = extrasPane.getTabCount() - 1;
@@ -1108,6 +1112,7 @@ public class EditorFrame extends JInternalFrame
             {
                 String name = "Sideboard " + extrasPane.getTabCount();
                 extrasPane.setTitleAt(last, name);
+                extrasPane.setTabComponentAt(last, new EditablePanel(name, extrasPane));
                 extras.put(name, new DeckData());
                 extrasPane.setComponentAt(last, initExtraList(name, extras.get(name)));
                 extrasPane.addTab("+", null);
