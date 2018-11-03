@@ -95,6 +95,54 @@ public interface MouseListenerFactory
     }
 
     /**
+     * TODO
+     * @param pressed
+     * @param released
+     * @return
+     */
+    static MouseListener createHoldListener(Consumer<MouseEvent> pressed, Consumer<MouseEvent> released)
+    {
+        return new MouseAdapter()
+        {
+            @Override
+            public void mousePressed(MouseEvent e)
+            {
+                pressed.accept(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e)
+            {
+                released.accept(e);
+            }
+        };
+    }
+
+    /**
+     * TODO
+     * @param entered
+     * @param exited
+     * @return
+     */
+    static MouseListener createMotionListener(Consumer<MouseEvent> entered, Consumer<MouseEvent> exited)
+    {
+        return new MouseAdapter()
+        {
+            @Override
+            public void mouseEntered(MouseEvent e)
+            {
+                entered.accept(e);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e)
+            {
+                exited.accept(e);
+            }
+        };
+    }
+
+    /**
      * Create a MouseListener that only listens for mouse press events.
      *
      * @param mousePressed action to perform when the mouse is pressed
