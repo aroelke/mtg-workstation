@@ -8,8 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.EventObject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -410,246 +408,6 @@ public class Deck implements CardList
     }
 
     /**
-     * This class represents an event during which a Deck may have changed. It can indicate how
-     * many copies of Cards may have been added to or removed from the Deck, how a category may
-     * have changed, or if any categories were removed.  If a parameter did not change and the
-     * contents of that parameter's change are requested, throw an {@link IllegalStateException}.
-     *
-     * @author Alec Roelke
-     */
-    @SuppressWarnings("serial")
-    public class Event extends EventObject
-    {
-        /**
-         * If Cards were added to or removed from the Deck, this map contains which ones and how
-         * many copies.
-         */
-        private Map<Card, Integer> cardsChanged;
-        /**
-         * {@link editor.collection.category.CategorySpec.Event} representing the changes to the
-         * {@link CategorySpec} corresponding to the category that was changed, if any was changed.
-         */
-        private CategorySpec.Event categoryChanges;
-        /**
-         * If a category was added to the deck, its specification.
-         */
-        private CategorySpec addedCategory;
-        /**
-         * Set of names of categories that have been removed, if any.
-         */
-        private CategorySpec removedCategory;
-        /**
-         * Map of categories onto their old ranks, if they were changed.
-         */
-        private Map<String, Integer> rankChanges;
-
-        /**
-         * Create a new Event with no changes to the deck.
-         */
-        public Event()
-        {
-            super(Deck.this);
-            cardsChanged = new HashMap<>();
-            categoryChanges = null;
-            addedCategory = null;
-            removedCategory = null;
-            rankChanges = new HashMap<>();
-        }
-
-        /**
-         * If a category was added, get its specification.
-         *
-         * @return the specification of the category that was added, or null if there was
-         * none
-         */
-        public CategorySpec addedCategory()
-        {
-            return addedCategory;
-        }
-
-        /**
-         * If cards were added, get the cards that were added and how many of each were added.
-         *
-         * @return a map containing the Cards that were added and the number of copies that were
-         * added
-         */
-        public Map<Card, Integer> cardsAdded()
-        {
-            return cardsChanged.entrySet().stream().filter((e) -> e.getValue() > 0).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        }
-
-        /**
-         * Helper method for determining if cards were changed in the deck.  Equivalent
-         * to <code>!cardsAdded().isEmpty() || !cardsRemoved().isEmpty()</code>.
-         *
-         * @return true if any cards were added or removed, and false otherwise
-         */
-        public boolean cardsChanged()
-        {
-            return !cardsChanged.isEmpty();
-        }
-
-        /**
-         * Indicate that cards and/or counts of cards in the deck changed. A positive number
-         * means a card was added, and a negative one means it was removed.
-         *
-         * @param change map of Cards onto their count changes
-         * @return the event representing the change
-         */
-        private Event cardsChanged(Map<Card, Integer> change)
-        {
-            cardsChanged = change;
-            return this;
-        }
-
-        /**
-         * If cards were removed, get the cards that were removed and how many of each were removed.
-         *
-         * @return a map of cards that were removed and the number of copies that were removed.
-         * Positive numbers are used to indicate removed cards.
-         */
-        public Map<Card, Integer> cardsRemoved()
-        {
-            return cardsChanged.entrySet().stream().filter((e) -> e.getValue() < 0).collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue()));
-        }
-
-        /**
-         * Helper method for determining if a category was added to the deck.
-         * Equivalent of <code>addedCategory() != null</code>.
-         *
-         * @return true if a category was added to the deck, and false otherwise.
-         */
-        public boolean categoryAdded()
-        {
-            return addedCategory != null;
-        }
-
-        /**
-         * Indicate that a category was added to the deck.
-         *
-         * @param added category that was added
-         * @return the event representing the change.
-         */
-        private Event categoryAdded(Category added)
-        {
-            addedCategory = added.spec;
-            return this;
-        }
-
-        /**
-         * Helper method for determining if a category was edited.  Equivalent to
-         * <code>categoryChanges() != null<code>.
-         *
-         * @return true if a category was changed, and false otherwise
-         */
-        public boolean categoryChanged()
-        {
-            return categoryChanges != null;
-        }
-
-        /**
-         * Indicate that a category was changed.
-         *
-         * @param changes {@link editor.collection.category.CategorySpec.Event} indicating changes
-         *                to the category
-         * @return the event representing the change.
-         */
-        private Event categoryChanged(CategorySpec.Event changes)
-        {
-            categoryChanges = changes;
-            return this;
-        }
-
-        /**
-         * Get the event that indicates a change to a category.
-         *
-         * @return an event detailing the changes to the category, or none if no changes were made
-         */
-        public CategorySpec.Event categoryChanges()
-        {
-            return categoryChanges;
-        }
-
-        /**
-         * Helper method for determining if a category was removed from the deck.
-         * Equivalent of <code>removedCategory() != null</code>.
-         *
-         * @return true if a category was removed from the deck, and false otherwise
-         */
-        public boolean categoryRemoved()
-        {
-            return removedCategory != null;
-        }
-
-        /**
-         * Indicate that a category was removed from the deck.
-         *
-         * @param removed category that was removed
-         * @return the event representing the change.
-         */
-        private Event categoryRemoved(Category removed)
-        {
-            removedCategory = removed.spec;
-            return this;
-        }
-
-        /**
-         * Get the deck that was changed.
-         *
-         * @return the deck that changed to create this DeckEvent.
-         */
-        @Override
-        public Deck getSource()
-        {
-            return Deck.this;
-        }
-
-        /**
-         * Get the old ranks of the categories whose ranks changed before they were changed.
-         *
-         * @return a map of category names onto their old ranks before they were changed
-         */
-        public Map<String, Integer> oldRanks()
-        {
-            return rankChanges;
-        }
-
-        /**
-         * Helper method for determining if any category's rank changed.  Equivalent to
-         * <code>!oldRanks().isEmpty()</code>.
-         *
-         * @return true if any category's rank changed, and false otherwise
-         */
-        public boolean ranksChanged()
-        {
-            return !rankChanges.isEmpty();
-        }
-
-        /**
-         * Indicate that the ranks of categories were changed.
-         *
-         * @param changed map of category names onto their old ranks
-         * @return the event representing the change.
-         */
-        private Event ranksChanged(Map<String, Integer> changed)
-        {
-            rankChanges = changed;
-            return this;
-        }
-
-        /**
-         * Get the specification of the category that was removed, if any.
-         *
-         * @return the specification of the category that was removed during the event,
-         * or null if there was none
-         */
-        public CategorySpec removedCategory()
-        {
-            return removedCategory;
-        }
-    }
-
-    /**
      * This class represents data being transferred via drag and drop or cut/copy/paste
      * between this Deck and another object.  The Deck only supports importing card or entry
      * data flavors, but can export Strings as well.
@@ -731,10 +489,6 @@ public class Deck implements CardList
      * Number of land cards in this Deck, accounting for multiples.
      */
     private int land;
-    /**
-     * List of listeners for changes in this Deck.
-     */
-    private Collection<DeckListener> listeners;
 
     /**
      * Create a new, empty Deck with no categories.
@@ -745,7 +499,6 @@ public class Deck implements CardList
         categories = new LinkedHashMap<>();
         total = 0;
         land = 0;
-        listeners = new HashSet<>();
     }
 
     @Override
@@ -777,7 +530,6 @@ public class Deck implements CardList
         {
             Map<Card, Integer> added = new HashMap<>();
             added.put(card, amount);
-            notifyListeners(new Event().cardsChanged(added));
             return true;
         }
         else
@@ -791,8 +543,6 @@ public class Deck implements CardList
         for (Card card : d)
             if (do_add(card, d.getData(card).count(), d.getData(card).dateAdded()))
                 added.put(card, d.getData(card).count());
-        if (!added.isEmpty())
-            notifyListeners(new Event().cardsChanged(added));
         return !added.isEmpty();
     }
 
@@ -803,8 +553,6 @@ public class Deck implements CardList
         for (Card card : amounts.keySet())
             if (do_add(card, amounts.get(card), LocalDate.now()))
                 added.put(card, amounts.get(card));
-        if (!added.isEmpty())
-            notifyListeners(new Event().cardsChanged(added));
         return !added.isEmpty();
     }
 
@@ -824,10 +572,7 @@ public class Deck implements CardList
     {
         Category c = do_addCategory(spec);
         if (c != null)
-        {
-            notifyListeners(new Event().categoryAdded(c));
             return c;
-        }
         else
             return categories.get(spec.getName());
     }
@@ -848,7 +593,6 @@ public class Deck implements CardList
         if (c != null)
         {
             c.rank = rank;
-            notifyListeners(new Event().categoryAdded(c));
             return c;
         }
         else if (categories.get(spec.getName()).rank == rank)
@@ -857,16 +601,6 @@ public class Deck implements CardList
             return categories.get(spec.getName());
         else
             throw new IllegalArgumentException("Could not add new category " + spec.getName() + " at rank " + rank);
-    }
-
-    /**
-     * Add a new listener for listening to changes in the deck.
-     *
-     * @param listener listener to add
-     */
-    public void addDeckListener(DeckListener listener)
-    {
-        listeners.add(listener);
     }
 
     /**
@@ -883,8 +617,6 @@ public class Deck implements CardList
     /**
      * {@inheritDoc}
      * Also remove all categories.
-     * <p>
-     * TODO: Give this a special event
      */
     @Override
     public void clear()
@@ -980,10 +712,6 @@ public class Deck implements CardList
                 }
                 if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
                     c.update();
-
-                Event event = new Event().categoryChanged(e);
-                for (DeckListener listener : new HashSet<>(listeners))
-                    listener.deckChanged(event);
             });
             return c;
         }
@@ -1175,17 +903,6 @@ public class Deck implements CardList
     }
 
     /**
-     * Notify each listener of changes to this Deck.
-     *
-     * @param event event containing information about the change.
-     */
-    private void notifyListeners(Event event)
-    {
-        for (DeckListener listener : new HashSet<>(listeners))
-            listener.deckChanged(event);
-    }
-
-    /**
      * Get the number of categories in the deck.
      *
      * @return the number of categories.
@@ -1205,8 +922,6 @@ public class Deck implements CardList
     public int remove(Card card, int amount)
     {
         int removed = do_remove(card, amount);
-        if (removed > 0)
-            notifyListeners(new Event().cardsChanged(Collections.singletonMap(card, removed)));
         return removed;
     }
 
@@ -1235,13 +950,8 @@ public class Deck implements CardList
             categories.remove(spec.getName());
             c.spec.removeCategoryListener(c.listener);
 
-            Event event = new Event().categoryRemoved(c);
             if (!oldRanks.isEmpty())
-            {
                 oldRanks.put(c.spec.getName(), c.rank);
-                event = event.ranksChanged(oldRanks);
-            }
-            notifyListeners(event);
             return true;
 
         }
@@ -1265,10 +975,6 @@ public class Deck implements CardList
             if (r > 0)
                 removed.put(card, -r);
         }
-
-        if (!removed.isEmpty())
-            notifyListeners(new Event().cardsChanged(removed));
-
         return removed;
     }
 
@@ -1276,19 +982,6 @@ public class Deck implements CardList
     public Set<Card> removeAll(Set<? extends Card> cards)
     {
         return removeAll(cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))).keySet();
-    }
-
-    /**
-     * Remove a listener so it no longer receives alerts to changes in the
-     * deck.
-     *
-     * @param listener listener to remove
-     * @return true if the given listener was successfully removed, and false
-     * otherwise.
-     */
-    public boolean removeDeckListener(DeckListener listener)
-    {
-        return listeners.remove(listener);
     }
 
     @Override
@@ -1309,7 +1002,6 @@ public class Deck implements CardList
 
             Map<Card, Integer> change = new HashMap<>();
             change.put(card, amount - e.count);
-            Event event = new Event().cardsChanged(change);
 
             e.count = amount;
             if (e.count == 0)
@@ -1323,7 +1015,6 @@ public class Deck implements CardList
                 }
             }
 
-            notifyListeners(event);
             return true;
         }
     }
@@ -1369,7 +1060,6 @@ public class Deck implements CardList
                     second.rank = categories.get(name).rank;
                     categories.get(name).rank = target;
 
-                    notifyListeners(new Event().ranksChanged(oldRanks));
                     return true;
                 }
             }
