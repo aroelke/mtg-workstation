@@ -1,11 +1,8 @@
 package editor.gui.generic;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
@@ -18,13 +15,15 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import editor.collection.CardList;
 import editor.database.card.Card;
+import editor.gui.editor.EditorFrame;
 
 /**
  * This class represents a list of menu items for manipulating cards in a deck. There are six:
  * add a single copy, fill a playset of copies, add some number of copies, remove one copy,
  * remove all copies, and remove some number of copies.
+ * 
+ * TODO: Remove magic number "4" for playsets and make it either a constant or setting
  *
  * @author Alec Roelke
  */
@@ -33,41 +32,25 @@ public class CardMenuItems
     /**
      * Array containing the menu items for manipulating card copies.
      */
-    private JMenuItem[] items;
+    private final JMenuItem[] items;
 
     /**
      * Create a new list of items for manipulating card copies using the given functions to do the
      * manipulation.
      *
-     * @param parent parent component for the dialogs that will show up
-     * @param list   supplier to get the list to change
-     * @param cards  supplier to get the cards to use to make changes
+     * TODO
      */
-    public CardMenuItems(Component parent, Supplier<? extends CardList> list, Supplier<List<Card>> cards)
+    public CardMenuItems(final Supplier<EditorFrame> monitor, Supplier<? extends Collection<Card>> cards, boolean main)
     {
-        IntConsumer addN = (n) -> {
-            if (list.get() != null)
-                list.get().addAll(cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
-        };
-        Runnable fillPlayset = () -> {
-            CardList l = list.get();
-            if (l != null)
-            {
-                Map<Card, Integer> toAdd = new HashMap<>();
-                for (Card c : cards.get())
-                {
-                    if (l.contains(c))
-                        toAdd.put(c, 4 - l.getData(c).count());
-                    else
-                        toAdd.put(c, 4);
-                }
-                l.addAll(toAdd);
-            }
-        };
-        IntConsumer removeN = (n) -> {
-            if (list.get() != null)
-                list.get().removeAll(cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
-        };
+        final Supplier<String> name = () -> main ? "" : monitor.get().getActiveExtraName();
+        final IntConsumer addN = (n) -> monitor.get().addCards(name.get(), cards.get(), n);
+        final Runnable fillPlayset = () -> monitor.get().modifyCards(name.get(), cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
+            if (monitor.get().hasCard(name.get(), c))
+                return Math.max(0, 4 - monitor.get().getDeck().getData(c).count());
+            else
+                return 4;
+        })));
+        final IntConsumer removeN = (n) -> monitor.get().removeCards(name.get(), cards.get(), n);
         items = new JMenuItem[6];
 
         // Add single copy item
@@ -85,7 +68,7 @@ public class CardMenuItems
             contentPanel.add(new JLabel("Copies to add:"), BorderLayout.WEST);
             JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
             contentPanel.add(spinner, BorderLayout.SOUTH);
-            if (JOptionPane.showConfirmDialog(parent, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+            if (JOptionPane.showConfirmDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
                 addN.accept((Integer)spinner.getValue());
         });
 
@@ -104,7 +87,7 @@ public class CardMenuItems
             contentPanel.add(new JLabel("Copies to remove:"), BorderLayout.WEST);
             JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
             contentPanel.add(spinner, BorderLayout.SOUTH);
-            if (JOptionPane.showConfirmDialog(parent, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+            if (JOptionPane.showConfirmDialog(null, contentPanel, "Add Cards", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
                 removeN.accept((Integer)spinner.getValue());
         });
     }

@@ -832,10 +832,14 @@ public class Deck implements CardList
             throw new IllegalArgumentException("No category named " + name + " found");
     }
 
+    // TODO: Merge this with getEntry (0 in entry's count means not contained)
     @Override
     public Entry getData(Card card)
     {
-        return getEntry(card);
+        if (contains(card))
+            return getEntry(card);
+        else
+            return new DeckEntry(card, 0, null);
     }
 
     @Override
