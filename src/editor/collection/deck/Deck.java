@@ -977,7 +977,7 @@ public class Deck implements CardList
         {
             int r = do_remove(card, amounts.get(card));
             if (r > 0)
-                removed.put(card, -r);
+                removed.put(card, r);
         }
         return removed;
     }

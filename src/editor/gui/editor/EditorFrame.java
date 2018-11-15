@@ -33,6 +33,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import javax.lang.model.util.ElementScanner6;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -305,10 +306,12 @@ public class EditorFrame extends JInternalFrame
                     return performAction(() -> {
                         if (!source.current.addAll(data))
                             throw new CardException(data.keySet(), "unable to copy cards");
+                        updateTables();
                         return true;
                     }, () -> {
                         if (!source.current.removeAll(data).equals(data))
                             throw new CardException(data.keySet(), "unable to undo copy of cards");
+                        updateTables();
                         return true;
                     });
                 }
@@ -319,10 +322,12 @@ public class EditorFrame extends JInternalFrame
                     return performAction(() -> {
                         if (!source.current.addAll(data))
                             throw new CardException(data, "unable to copy cards");
+                        updateTables();
                         return true;
                     }, () -> {
                         if (!source.current.removeAll(data).equals(data))
                             throw new CardException(data, "unable to undo copy of cards");
+                        updateTables();
                         return true;
                     });
                 }
@@ -1648,12 +1653,14 @@ public class EditorFrame extends JInternalFrame
                     throw new CardException(selected, "error moving cards from main deck");
                 if (!extra.current.addAll(selected))
                     throw new CardException(selected, "could not move cards to list \"" + name + '"');
+                    updateTables();
                 return true;
             }, () -> {
                 if (!deck.current.addAll(selected))
                     throw new CardException(selected, "could not undo move from main deck");
                 if (!extra.current.removeAll(selected).equals(selected))
                     throw new CardException(selected, "error undoing move to list \"" + name + '"');
+                updateTables();
                 return true;
             });
         });
@@ -1666,12 +1673,14 @@ public class EditorFrame extends JInternalFrame
                     throw new CardException(moves.keySet(), "error moving cards from main deck");
                 if (!extra.current.addAll(moves))
                     throw new CardException(moves.keySet(), "could not move cards to list \"" + name + '"');
+                updateTables();
                 return true;
             }, () -> {
                 if (!deck.current.addAll(moves))
                     throw new CardException(moves.keySet(), "could not undo move from main deck");
                 if (!extra.current.removeAll(moves).equals(moves))
                     throw new CardException(moves.keySet(), "error undoing move to list \"" + name + '"');
+                updateTables();
                 return true;
             });
         });
@@ -1728,12 +1737,14 @@ public class EditorFrame extends JInternalFrame
                     throw new CardException(selected, "error moving cards from list \"" + name + '"');
                 if (!deck.current.addAll(selected))
                     throw new CardException(selected, "could not move cards to main deck");
+                updateTables();
                 return true;
             }, () -> {
                 if (!extra.current.addAll(selected))
                     throw new CardException(selected, "could not undo move from list \"" + name + '"');
                 if (!deck.current.removeAll(selected).equals(selected))
                     throw new CardException(selected, "error moving cards to main deck");
+                updateTables();
                 return true;
             });
         });
@@ -1750,6 +1761,7 @@ public class EditorFrame extends JInternalFrame
                     if (!deck.current.add(move.getKey(), move.getValue()))
                         throw new CardException(move.getKey(), String.format("could not add %d copies to main deck", move.getValue()));
                 }
+                updateTables();
                 return true;
             }, () -> {
                 for (Map.Entry<Card, Integer> move : moves.entrySet())
@@ -1760,6 +1772,7 @@ public class EditorFrame extends JInternalFrame
                     if (actual != move.getValue())
                         throw new CardException(move.getKey(), String.format("could only undo addition of %d/%d copies to main deck", actual, move.getValue()));
                 }
+                updateTables();
                 return true;
             });
         });
@@ -1813,29 +1826,26 @@ public class EditorFrame extends JInternalFrame
             final DeckData target = name.isEmpty() ? deck : extras.get(name);
             final Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getData(e.getKey()).count())));
             return performAction(() -> {
-                // TODO: Simplify using streams
-                boolean changed = false;
-                for (Map.Entry<Card, Integer> change : capped.entrySet())
-                {
-                    if (change.getValue() < 0)
-                        changed |= target.current.remove(change.getKey(), -change.getValue()) > 0;
-                    else if (change.getValue() > 0)
-                        changed |= target.current.add(change.getKey(), change.getValue());
-                    // Do nothing if the change is equal to zero
-                }
+                boolean changed = capped.entrySet().stream().map((e) -> {
+                    if (e.getValue() < 0)
+                        return target.current.remove(e.getKey(), -e.getValue()) > 0;
+                    else if (e.getValue() > 0)
+                        return target.current.add(e.getKey(), e.getValue());
+                    else
+                        return false;
+                }).reduce(false, (a, b) -> a || b);
                 if (changed)
                     updateTables();
                 return changed;
             }, () -> {
-                boolean changed = false;
-                for (Map.Entry<Card, Integer> change : capped.entrySet())
-                {
-                    if (change.getValue() < 0)
-                        changed |= target.current.add(change.getKey(), -change.getValue());
-                    else if (change.getValue() > 0)
-                        changed |= target.current.remove(change.getKey(), change.getValue()) > 0;
-                    // Do nothing if the change is equal to zero
-                }
+                boolean changed = capped.entrySet().stream().map((e) -> {
+                    if (e.getValue() < 0)
+                        return target.current.add(e.getKey(), -e.getValue());
+                    else if (e.getValue() > 0)
+                        return target.current.remove(e.getKey(), e.getValue()) > 0;
+                    else
+                        return false;
+                }).reduce(false, (a, b) -> a || b);
                 if (changed)
                     updateTables();
                 return changed;
