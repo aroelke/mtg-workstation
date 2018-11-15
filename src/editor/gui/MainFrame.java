@@ -184,9 +184,13 @@ public class MainFrame extends JFrame
             if (selectedFrame != null)
             {
                 Card card = inventory.get(table.convertRowIndexToModel(row));
-                if (selectedFrame.hasCard("", card))
+                boolean main = selectedFrame.hasCard("", card);
+                boolean extra = selectedFrame.getExtraCards().contains(card);
+                if (main && extra)
+                    ComponentUtils.changeFontRecursive(c, c.getFont().deriveFont(Font.BOLD | Font.ITALIC));
+                else if (main)
                     ComponentUtils.changeFontRecursive(c, c.getFont().deriveFont(Font.BOLD));
-                else if (selectedFrame.getExtraCards().contains(card))
+                else if (extra)
                     ComponentUtils.changeFontRecursive(c, c.getFont().deriveFont(Font.ITALIC));
             }
             return c;

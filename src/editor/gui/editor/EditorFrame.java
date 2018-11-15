@@ -303,10 +303,12 @@ public class EditorFrame extends JInternalFrame
                     @SuppressWarnings("unchecked")
                     Map<Card, Integer> data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
                     return performAction(() -> {
-                        source.current.addAll(data); // TODO: exception if this returns false
+                        if (!source.current.addAll(data))
+                            throw new CardException(data.keySet(), "unable to copy cards");
                         return true;
                     }, () -> {
-                        source.current.removeAll(data); // TODO: exception if this returns not the same as data
+                        if (!source.current.removeAll(data).equals(data))
+                            throw new CardException(data.keySet(), "unable to undo copy of cards");
                         return true;
                     });
                 }
@@ -315,10 +317,12 @@ public class EditorFrame extends JInternalFrame
                     // TODO: Account for multiples
                     final Set<Card> data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
                     return performAction(() -> {
-                        source.current.addAll(data); // TODO: exception if this returns false
+                        if (!source.current.addAll(data))
+                            throw new CardException(data, "unable to copy cards");
                         return true;
                     }, () -> {
-                        source.current.removeAll(data); // TODO: exception if this returns not the same as data
+                        if (!source.current.removeAll(data).equals(data))
+                            throw new CardException(data, "unable to undo copy of cards");
                         return true;
                     });
                 }
@@ -691,9 +695,11 @@ public class EditorFrame extends JInternalFrame
         mainPanel.add(extrasPanel, BorderLayout.SOUTH);
 
         VerticalButtonList extrasButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-        extrasButtons.get("+").addActionListener((e) -> sideboard().addAll(new HashSet<>(parent.getSelectedCards())));
-        extrasButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> sideboard().removeAll(new HashSet<>(parent.getSelectedCards())));
-        extrasButtons.get("X").addActionListener((e) -> sideboard().removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> Integer.MAX_VALUE))));
+        extrasButtons.get("+").addActionListener((e) -> addCards(getActiveExtraName(), parent.getSelectedCards(), 1));
+        extrasButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> {
+            removeCards(getActiveExtraName(), parent.getSelectedCards(), 1);
+        });
+        extrasButtons.get("X").addActionListener((e) -> removeCards(getActiveExtraName(), parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getData(c).count()).reduce(0, Math::max)));
         extrasPanel.add(extrasButtons, BorderLayout.WEST);
 
         extrasPane = new JTabbedPane();
@@ -1638,12 +1644,16 @@ public class EditorFrame extends JInternalFrame
         moveToItem.addActionListener((e) -> {
             final Set<Card> selected = new HashSet<>(parent.getSelectedCards());
             performAction(() -> {
-                deck.current.removeAll(selected); // TODO: throw an exception if this does not return the same as selected
-                extra.current.addAll(selected); // TODO: throw an exception if this returns false
+                if (!deck.current.removeAll(selected).equals(selected))
+                    throw new CardException(selected, "error moving cards from main deck");
+                if (!extra.current.addAll(selected))
+                    throw new CardException(selected, "could not move cards to list \"" + name + '"');
                 return true;
             }, () -> {
-                deck.current.addAll(selected); // TODO: throw an exception if this return false
-                extra.current.removeAll(selected); // TODO: throw an exception if this does not return the same as selected
+                if (!deck.current.addAll(selected))
+                    throw new CardException(selected, "could not undo move from main deck");
+                if (!extra.current.removeAll(selected).equals(selected))
+                    throw new CardException(selected, "error undoing move to list \"" + name + '"');
                 return true;
             });
         });
@@ -1651,14 +1661,17 @@ public class EditorFrame extends JInternalFrame
         JMenuItem moveAllToItem = new JMenuItem(name);
         moveAllToItem.addActionListener((e) -> {
             final Map<Card, Integer> moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck.current.getData(c).count()));
-            // TODO: similar as above with exceptions
             performAction(() -> {
-                deck.current.removeAll(moves);
-                extra.current.addAll(moves);
+                if (!deck.current.removeAll(moves).equals(moves))
+                    throw new CardException(moves.keySet(), "error moving cards from main deck");
+                if (!extra.current.addAll(moves))
+                    throw new CardException(moves.keySet(), "could not move cards to list \"" + name + '"');
                 return true;
             }, () -> {
-                deck.current.addAll(moves);
-                extra.current.removeAll(moves);
+                if (!deck.current.addAll(moves))
+                    throw new CardException(moves.keySet(), "could not undo move from main deck");
+                if (!extra.current.removeAll(moves).equals(moves))
+                    throw new CardException(moves.keySet(), "error undoing move to list \"" + name + '"');
                 return true;
             });
         });
@@ -1711,12 +1724,16 @@ public class EditorFrame extends JInternalFrame
         moveToMainItem.addActionListener((e) -> {
             final Set<Card> selected = new HashSet<>(parent.getSelectedCards());
             performAction(() -> {
-                extra.current.removeAll(selected); // TODO: throw an exception if this does not return the same set
-                deck.current.addAll(selected); // TODO: throw an exception if this returns false
+                if (!extra.current.removeAll(selected).equals(selected))
+                    throw new CardException(selected, "error moving cards from list \"" + name + '"');
+                if (!deck.current.addAll(selected))
+                    throw new CardException(selected, "could not move cards to main deck");
                 return true;
             }, () -> {
-                extra.current.addAll(selected); // TODO: throw an exception if this returns false
-                deck.current.removeAll(selected); // TODO: throw an exception if this does not return the same set
+                if (!extra.current.addAll(selected))
+                    throw new CardException(selected, "could not undo move from list \"" + name + '"');
+                if (!deck.current.removeAll(selected).equals(selected))
+                    throw new CardException(selected, "error moving cards to main deck");
                 return true;
             });
         });
@@ -1727,15 +1744,21 @@ public class EditorFrame extends JInternalFrame
             performAction(() -> {
                 for (Map.Entry<Card, Integer> move : moves.entrySet())
                 {
-                    extra.current.remove(move.getKey(), move.getValue()); // TODO: throw an exception if this does not return moves[card]
-                    deck.current.add(move.getKey(), move.getValue()); // TODO: throw an exception if this does not return true
+                    final int actual = extra.current.remove(move.getKey(), move.getValue());
+                    if (actual != move.getValue())
+                        throw new CardException(move.getKey(), String.format("could only remove %d/%d copies from list \"%s\"", actual, move.getValue(), name));
+                    if (!deck.current.add(move.getKey(), move.getValue()))
+                        throw new CardException(move.getKey(), String.format("could not add %d copies to main deck", move.getValue()));
                 }
                 return true;
             }, () -> {
                 for (Map.Entry<Card, Integer> move : moves.entrySet())
                 {
-                    extra.current.add(move.getKey(), move.getValue()); // TODO: throw an exception if this returns false
-                    deck.current.remove(move.getKey(), move.getValue()); // TODO: throw an exception if this does not return moves[card]
+                    if (!extra.current.add(move.getKey(), move.getValue()))
+                        throw new CardException(move.getKey(), String.format("could undo removal of %d copies to list \"%s\"", move.getValue(), name));
+                    int actual = deck.current.remove(move.getKey(), move.getValue());
+                    if (actual != move.getValue())
+                        throw new CardException(move.getKey(), String.format("could only undo addition of %d/%d copies to main deck", actual, move.getValue()));
                 }
                 return true;
             });
@@ -1787,30 +1810,34 @@ public class EditorFrame extends JInternalFrame
             return false;
         else
         {
-            final Deck target = name.isEmpty() ? deck.current : extras.get(name).current;
-            final Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -deck.current.getData(e.getKey()).count())));
+            final DeckData target = name.isEmpty() ? deck : extras.get(name);
+            final Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getData(e.getKey()).count())));
             return performAction(() -> {
                 // TODO: Simplify using streams
                 boolean changed = false;
                 for (Map.Entry<Card, Integer> change : capped.entrySet())
                 {
                     if (change.getValue() < 0)
-                        changed |= target.remove(change.getKey(), -change.getValue()) > 0;
+                        changed |= target.current.remove(change.getKey(), -change.getValue()) > 0;
                     else if (change.getValue() > 0)
-                        changed |= target.add(change.getKey(), change.getValue());
+                        changed |= target.current.add(change.getKey(), change.getValue());
                     // Do nothing if the change is equal to zero
                 }
+                if (changed)
+                    updateTables();
                 return changed;
             }, () -> {
                 boolean changed = false;
                 for (Map.Entry<Card, Integer> change : capped.entrySet())
                 {
                     if (change.getValue() < 0)
-                        changed |= target.add(change.getKey(), -change.getValue());
+                        changed |= target.current.add(change.getKey(), -change.getValue());
                     else if (change.getValue() > 0)
-                        changed |= target.remove(change.getKey(), change.getValue()) > 0;
+                        changed |= target.current.remove(change.getKey(), change.getValue()) > 0;
                     // Do nothing if the change is equal to zero
                 }
+                if (changed)
+                    updateTables();
                 return changed;
             });
         }
@@ -1848,6 +1875,8 @@ public class EditorFrame extends JInternalFrame
                 undoBuffer.push(action);
                 return true;
             }
+            else
+                throw new RuntimeException("error redoing action");
         }
         return false;
 /*
@@ -2038,10 +2067,7 @@ public class EditorFrame extends JInternalFrame
                 return true;
             }
             else
-            {
-                // throw an exception; undo should always succeed
-                return false;
-            }
+                throw new RuntimeException("error undoing action");
         }
         return false;
 /*
@@ -2167,5 +2193,32 @@ public class EditorFrame extends JInternalFrame
             medCMCLabel.setText("Median CMC: " + (int)medCMC);
         else
             medCMCLabel.setText(String.format("Median CMC: %.1f", medCMC));
+    }
+
+    /**
+     * TODO
+     */
+    public void updateTables()
+    {
+        updateStats();
+        parent.updateCardsInDeck();
+        deck.model.fireTableDataChanged();
+        for (CategoryPanel c : categoryPanels)
+            ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
+        for (DeckData data : extras.values())
+            data.model.fireTableDataChanged();
+        for (Card c : parent.getSelectedCards())
+        {
+            if (parent.getSelectedList().contains(c))
+            {
+                int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
+                parent.getSelectedTable().addRowSelectionInterval(row, row);
+            }
+        }
+        if (parent.getSelectedTable().isEditing())
+            parent.getSelectedTable().getCellEditor().cancelCellEditing();
+
+        hand.refresh();
+        handCalculations.update();
     }
 }
