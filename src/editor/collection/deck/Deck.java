@@ -21,7 +21,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import editor.collection.CardList;
-import editor.collection.category.CategoryListener;
 import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
 
@@ -52,10 +51,6 @@ public class Deck implements CardList
          */
         private List<Card> filtrate;
         /**
-         * Listener for changes in this category's CategorySpec.
-         */
-        private CategoryListener listener;
-        /**
          * Rank of this Category.
          */
         private int rank;
@@ -67,9 +62,8 @@ public class Deck implements CardList
          */
         public Category(CategorySpec spec)
         {
-            this.spec = spec;
             rank = categories.size();
-            update();
+            update(spec);
         }
 
         /**
@@ -278,8 +272,9 @@ public class Deck implements CardList
         /**
          * Update this category so its filtrate reflects the new filter, whitelist, and blacklist.
          */
-        public void update()
+        public void update(CategorySpec s)
         {
+            spec = s;
             filtrate = masterList.stream().map((e) -> e.card).filter(spec::includes).collect(Collectors.toList());
             for (DeckEntry e : masterList)
             {
@@ -702,17 +697,6 @@ public class Deck implements CardList
         {
             Category c = new Category(spec);
             categories.put(spec.getName(), c);
-            c.update();
-
-            spec.addCategoryListener(c.listener = (e) -> {
-                if (e.nameChanged())
-                {
-                    categories.remove(e.oldSpec().getName());
-                    categories.put(e.newSpec().getName(), c);
-                }
-                if (e.filterChanged() || e.whitelistChanged() || e.blacklistChanged())
-                    c.update();
-            });
             return c;
         }
         else
@@ -821,13 +805,13 @@ public class Deck implements CardList
      * Get the specification for the category with the given name.
      *
      * @param name name of the category whose specification is desired
-     * @return the specification of the category with the given name.
+     * @return a copy of the specification of the category with the given name.
      * @throws IllegalArgumentException if no such category exists
      */
     public CategorySpec getCategorySpec(String name) throws IllegalArgumentException
     {
         if (categories.containsKey(name))
-            return categories.get(name).spec;
+            return new CategorySpec(categories.get(name).spec);
         else
             throw new IllegalArgumentException("No category named " + name + " found");
     }
@@ -952,7 +936,6 @@ public class Deck implements CardList
                 }
             }
             categories.remove(spec.getName());
-            c.spec.removeCategoryListener(c.listener);
 
             if (!oldRanks.isEmpty())
                 oldRanks.put(c.spec.getName(), c.rank);
@@ -1081,5 +1064,22 @@ public class Deck implements CardList
     public int total()
     {
         return total;
+    }
+
+    /**
+     * TODO
+     */
+    public CategorySpec updateCategory(String name, CategorySpec spec)
+    {
+        if (categories.containsKey(name))
+        {
+            Category c = categories.remove(name);
+            CategorySpec old = new CategorySpec(c.spec);
+            c.update(spec);
+            categories.put(spec.getName(), c);
+            return old;
+        }
+        else
+            throw new IllegalArgumentException("No category named " + name + " found");
     }
 }

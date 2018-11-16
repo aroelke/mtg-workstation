@@ -1026,96 +1026,6 @@ public class EditorFrame extends JInternalFrame
         updateCategoryPanel();
         handCalculations.update();
 
-/*
-        deck.current.addDeckListener((e) -> {
-            // Cards
-            if (e.cardsChanged())
-            {
-                updateStats();
-                parent.updateCardsInDeck();
-                deck.model.fireTableDataChanged();
-                for (CategoryPanel c : categoryPanels)
-                    ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-                for (Card c : parent.getSelectedCards())
-                {
-                    if (parent.getSelectedList().contains(c))
-                    {
-                        int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
-                        parent.getSelectedTable().addRowSelectionInterval(row, row);
-                    }
-                }
-                if (parent.getSelectedTable().isEditing())
-                    parent.getSelectedTable().getCellEditor().cancelCellEditing();
-
-                hand.refresh();
-                handCalculations.update();
-            }
-            // Categories
-            if (e.categoryAdded())
-            {
-                CategoryPanel category = createCategoryPanel(e.addedCategory());
-                categoryPanels.add(category);
-        
-                for (CategoryPanel c : categoryPanels)
-                    if (c != category)
-                        c.rankBox.addItem(deck.current.categories().size() - 1);
-        
-                listTabs.setSelectedIndex(CATEGORIES);
-                updateCategoryPanel();
-                SwingUtilities.invokeLater(() -> {
-                    switchCategoryBox.setSelectedItem(category.getCategoryName());
-                    category.scrollRectToVisible(new Rectangle(category.getSize()));
-                    category.flash();
-                });
-                handCalculations.update();
-            }
-            if (e.categoryRemoved())
-            {
-                categoryPanels.remove(getCategory(e.removedCategory().getName()));
-                for (CategoryPanel panel : categoryPanels)
-                    panel.rankBox.removeItemAt(categoryPanels.size());
-
-                listTabs.setSelectedIndex(CATEGORIES);
-                updateCategoryPanel();
-                handCalculations.update();
-            }
-            if (e.ranksChanged())
-            {
-                for (CategoryPanel panel : categoryPanels)
-                    panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
-                listTabs.setSelectedIndex(CATEGORIES);
-                updateCategoryPanel();
-            }
-            if (e.categoryChanged())
-            {
-                CategorySpec.Event event = e.categoryChanges();
-                if (event.nameChanged())
-                    getCategory(event.oldSpec().getName()).setCategoryName(event.newSpec().getName());
-                for (CategoryPanel c : categoryPanels)
-                {
-                    ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-                    c.update();
-                }
-
-                updateCategoryPanel();
-                handCalculations.update();
-            }
-
-            if (!unsaved)
-            {
-                setTitle(getTitle() + " *");
-                unsaved = true;
-            }
-            update();
-
-            if (!undoing)
-            {
-                redoBuffer.clear();
-                undoBuffer.push(e);
-            }
-        });
-*/
-
         // Initialize extra lists
         for (Map.Entry<String, DeckData> extra : extras.entrySet())
         {
@@ -1183,16 +1093,10 @@ public class EditorFrame extends JInternalFrame
         {
             return performAction(() -> {
                 if (deck.current.containsCategory(spec.getName()))
-                {
-                    // TODO: throw an exception that the category is not expected
-                    return false;
-                }
+                    throw new RuntimeException("attempting to add duplicate category " + spec.getName());
                 else
-                {
-                    deck.current.addCategory(spec);
-                    return true;
-                }
-            }, () -> deck.current.removeCategory(spec));
+                    return do_addCategory(spec);
+            }, () -> do_removeCategory(spec));
         }
     }
 
@@ -1290,7 +1194,7 @@ public class EditorFrame extends JInternalFrame
      */
     private CategoryPanel createCategoryPanel(CategorySpec spec)
     {
-        CategoryPanel newCategory = new CategoryPanel(deck.current, spec.getName(), this);
+        final CategoryPanel newCategory = new CategoryPanel(deck.current, spec.getName(), this);
         // When a card is selected in a category, the others should deselect
         newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
             ListSelectionModel lsm = (ListSelectionModel)e.getSource();
@@ -1300,19 +1204,46 @@ public class EditorFrame extends JInternalFrame
         // Add the behavior for the edit category button
         newCategory.rankBox.addActionListener((e) -> {
             if (newCategory.rankBox.isPopupVisible())
-                deck.current.swapCategoryRanks(newCategory.getCategoryName(), newCategory.rankBox.getSelectedIndex());
+            {
+                final int old = deck.current.getCategoryRank(newCategory.getCategoryName());
+                final int target = newCategory.rankBox.getSelectedIndex();
+                performAction(() -> {
+                    deck.current.swapCategoryRanks(newCategory.getCategoryName(), target);
+
+                    for (CategoryPanel panel : categoryPanels)
+                        panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
+                    listTabs.setSelectedIndex(CATEGORIES);
+                    updateCategoryPanel();
+                    return true;
+                }, () -> {
+                    deck.current.swapCategoryRanks(newCategory.getCategoryName(), old);
+
+                    for (CategoryPanel panel : categoryPanels)
+                        panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
+                    listTabs.setSelectedIndex(CATEGORIES);
+                    updateCategoryPanel();
+                    return true;
+                });
+            }
         });
         newCategory.editButton.addActionListener((e) -> editCategory(spec.getName()));
         // Add the behavior for the remove category button
-        newCategory.removeButton.addActionListener((e) -> deck.current.removeCategory(spec));
+        newCategory.removeButton.addActionListener((e) -> removeCategory(spec.getName()));
         // Add the behavior for the color edit button
         newCategory.colorButton.addActionListener((e) -> {
-            Color newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color());
+            final Color newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color());
             if (newColor != null)
             {
-                spec.setColor(newColor);
-                newCategory.colorButton.setColor(newColor);
-                newCategory.colorButton.repaint();
+                final Color oldColor = spec.getColor();
+                performAction(() -> {
+                    spec.setColor(newColor);
+                    newCategory.colorButton.setColor(newColor);
+                    return true;
+                }, () -> {
+                    spec.setColor(oldColor);
+                    newCategory.colorButton.setColor(oldColor);
+                    return true;
+                });
             }
         });
 
@@ -1434,12 +1365,57 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
+     * TODO
+     */
+    private boolean do_addCategory(CategorySpec spec)
+    {
+        deck.current.addCategory(spec);
+
+        CategoryPanel category = createCategoryPanel(spec);
+        categoryPanels.add(category);
+
+        for (CategoryPanel c : categoryPanels)
+            if (c != category)
+                c.rankBox.addItem(deck.current.categories().size() - 1);
+
+        listTabs.setSelectedIndex(CATEGORIES);
+        updateCategoryPanel();
+        SwingUtilities.invokeLater(() -> {
+            switchCategoryBox.setSelectedItem(category.getCategoryName());
+            category.scrollRectToVisible(new Rectangle(category.getSize()));
+            category.flash();
+        });
+        handCalculations.update();
+
+        return true;
+    }
+
+    /**
+     * TODO
+     */
+    private boolean do_removeCategory(CategorySpec spec)
+    {
+        deck.current.removeCategory(spec);
+
+        categoryPanels.remove(getCategory(spec.getName()));
+        for (CategoryPanel panel : categoryPanels)
+            panel.rankBox.removeItemAt(categoryPanels.size());
+
+        listTabs.setSelectedIndex(CATEGORIES);
+        updateCategoryPanel();
+        handCalculations.update();
+
+        return true;
+    }
+
+    /**
      * Open the category dialog to edit the category with the given
      * name, if there is one, and then update the undo buffer.
      *
      * @param name name of the category to edit
+     * TODO
      */
-    public void editCategory(String name)
+    public boolean editCategory(String name)
     {
         CategorySpec toEdit = deck.current.getCategorySpec(name);
         if (toEdit == null)
@@ -1447,10 +1423,20 @@ public class EditorFrame extends JInternalFrame
                     "Error", JOptionPane.ERROR_MESSAGE);
         else
         {
-            CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, toEdit);
+            final CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, toEdit);
             if (spec != null)
-                toEdit.copy(spec);
+            {
+                final CategorySpec old = deck.current.getCategorySpec(name);
+                return performAction(() -> {
+                    deck.current.updateCategory(name, spec);
+                    return true;
+                }, () -> {
+                    deck.current.updateCategory(spec.getName(), old);
+                    return true;
+                });
+            }
         }
+        return false;
     }
 
     /**
@@ -1888,51 +1874,6 @@ public class EditorFrame extends JInternalFrame
                 throw new RuntimeException("error redoing action");
         }
         return false;
-/*
-        if (!redoBuffer.isEmpty())
-        {
-            undoing = true;
-
-            Deck.Event action = redoBuffer.pop();
-            if (action.cardsChanged())
-            {
-                action.getSource().addAll(action.cardsAdded());
-                action.getSource().removeAll(action.cardsRemoved());
-            }
-            if (action.categoryRemoved())
-            {
-                for (DeckData extra : extras.values())
-                    if (action.getSource() == extra.current)
-                        throw new IllegalStateException("side lists can't have categories");
-                deck.current.removeCategory(action.removedCategory());
-            }
-            if (action.categoryAdded())
-            {
-                for (DeckData extra : extras.values())
-                    if (action.getSource() == extra.current)
-                        throw new IllegalStateException("side lists can't have categories");
-                deck.current.addCategory(action.addedCategory());
-            }
-            if (action.categoryChanged())
-            {
-                for (DeckData extra : extras.values())
-                    if (action.getSource() == extra.current)
-                        throw new IllegalStateException("side lists can't have categories");
-                action.categoryChanges().getSource().copy(action.categoryChanges().newSpec());
-            }
-            if (action.ranksChanged())
-            {
-                for (DeckData extra : extras.values())
-                    if (action.getSource() == extra.current)
-                        throw new IllegalStateException("side lists can't have categories");
-                List<String> categories = new ArrayList<>(action.oldRanks().keySet());
-                action.getSource().swapCategoryRanks(categories.get(0), action.oldRanks().get(categories.get(1)));
-            }
-            undoBuffer.push(action);
-
-            undoing = false;
-        }
-*/
     }
 
     /**
@@ -1951,17 +1892,11 @@ public class EditorFrame extends JInternalFrame
         if (deck.current.containsCategory(name))
         {
             final CategorySpec spec = deck.current.getCategorySpec(name);
-            return performAction(() -> deck.current.removeCategory(spec), () -> {
+            return performAction(() -> do_removeCategory(spec), () -> {
                 if (deck.current.containsCategory(name))
-                {
-                    // throw an exception; unexpected category
-                    return false;
-                }
+                    throw new RuntimeException("duplicate category " + name + " found when attempting to undo removal");
                 else
-                {
-                    deck.current.addCategory(spec);
-                    return true;
-                }
+                    return do_addCategory(spec);
             });
         }
         else
