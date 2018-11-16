@@ -166,7 +166,7 @@ public class Inventory implements CardList
     /**
      * Filter for Cards in the Inventory pane.
      */
-    private CategorySpec filter;
+    private Filter filter;
     /**
      * Filtered view of the master list.
      */
@@ -193,13 +193,8 @@ public class Inventory implements CardList
     {
         cards = new ArrayList<>(list);
         IDs = cards.stream().collect(Collectors.toMap(Card::id, Function.identity()));
-        filter = new CategorySpec("Displayed Inventory", Color.BLACK, new BinaryFilter(true));
+        filter = new BinaryFilter(true);
         filtrate = cards;
-
-        filter.addCategoryListener((e) -> {
-            if (e.filterChanged())
-                filtrate = cards.stream().filter(filter::includes).collect(Collectors.toList());
-        });
     }
 
     /**
@@ -323,7 +318,7 @@ public class Inventory implements CardList
      */
     public Filter getFilter()
     {
-        return filter.getFilter();
+        return filter.copy();
     }
 
     @Override
@@ -461,8 +456,9 @@ public class Inventory implements CardList
      *
      * @param filter New filter
      */
-    public void updateFilter(Filter filter)
+    public void updateFilter(Filter f)
     {
-        this.filter.setFilter(filter);
+        filter = f;
+        filtrate = cards.stream().filter(filter).collect(Collectors.toList());
     }
 }
