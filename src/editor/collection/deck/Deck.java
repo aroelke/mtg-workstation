@@ -1067,7 +1067,11 @@ public class Deck implements CardList
     }
 
     /**
-     * TODO
+     * Change the specification of a category and update its list of contained cards.
+     * 
+     * @param name current name of the category to update
+     * @param spec new specification for the category
+     * @return the old specification for the category
      */
     public CategorySpec updateCategory(String name, CategorySpec spec)
     {

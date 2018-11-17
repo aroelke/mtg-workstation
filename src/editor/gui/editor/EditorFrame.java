@@ -1237,11 +1237,11 @@ public class EditorFrame extends JInternalFrame
                 final Color oldColor = spec.getColor();
                 performAction(() -> {
                     spec.setColor(newColor);
-                    newCategory.colorButton.setColor(newColor);
+                    deck.current.updateCategory(spec.getName(), spec);
                     return true;
                 }, () -> {
                     spec.setColor(oldColor);
-                    newCategory.colorButton.setColor(oldColor);
+                    deck.current.updateCategory(spec.getName(), spec);
                     return true;
                 });
             }
@@ -1428,10 +1428,14 @@ public class EditorFrame extends JInternalFrame
             {
                 final CategorySpec old = deck.current.getCategorySpec(name);
                 return performAction(() -> {
-                    deck.current.updateCategory(name, spec);
+                    deck.current.updateCategory(old.getName(), spec);
+                    CategoryPanel panel = getCategory(old.getName());
+                    panel.setCategoryName(spec.getName());
                     return true;
                 }, () -> {
                     deck.current.updateCategory(spec.getName(), old);
+                    CategoryPanel panel = getCategory(spec.getName());
+                    panel.setCategoryName(old.getName());
                     return true;
                 });
             }
@@ -1769,36 +1773,6 @@ public class EditorFrame extends JInternalFrame
         sBeditTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
         extraMenu.add(sBeditTagsItem);
 
-/*
-        extra.current.addDeckListener((e) -> {
-            if (e.cardsChanged())
-            {
-                updateStats();
-                parent.updateCardsInDeck();
-                extra.model.fireTableDataChanged();
-                for (Card c : parent.getSelectedCards())
-                {
-                    if (parent.getSelectedList().contains(c))
-                    {
-                        int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
-                        parent.getSelectedTable().addRowSelectionInterval(row, row);
-                    }
-                }
-                if (parent.getSelectedTable().isEditing())
-                    parent.getSelectedTable().getCellEditor().cancelCellEditing();
-            }
-
-            setUnsaved();
-            update();
-
-            if (!undoing)
-            {
-                redoBuffer.clear();
-                undoBuffer.push(e);
-            }
-        });
-*/
-
         return sideboardPane;
     }
 
@@ -2014,51 +1988,6 @@ public class EditorFrame extends JInternalFrame
                 throw new RuntimeException("error undoing action");
         }
         return false;
-/*
-        if (!undoBuffer.isEmpty())
-        {
-            undoing = true;
-
-            Deck.Event action = undoBuffer.pop();
-            if (action.cardsChanged())
-            {
-                action.getSource().addAll(action.cardsRemoved());
-                action.getSource().removeAll(action.cardsAdded());
-            }
-            if (action.categoryRemoved())
-            {
-                for (DeckData extra : extras.values())
-                    if (action.getSource() == extra.current)
-                        throw new IllegalStateException("side lists can't have categories");
-                deck.current.addCategory(action.removedCategory());
-            }
-            if (action.categoryAdded())
-            {
-                for (DeckData extra : extras.values())
-                    if (action.getSource() == extra.current)
-                        throw new IllegalStateException("side lists can't have categories");
-                deck.current.removeCategory(action.addedCategory());
-            }
-            if (action.categoryChanged())
-            {
-                for (DeckData extra : extras.values())
-                    if (action.getSource() == extra.current)
-                        throw new IllegalStateException("side lists can't have categories");
-                action.categoryChanges().getSource().copy(action.categoryChanges().oldSpec());
-            }
-            if (action.ranksChanged())
-            {
-                for (DeckData extra : extras.values())
-                    if (action.getSource() == extra.current)
-                        throw new IllegalStateException("side lists can't have categories");
-                List<String> categories = new ArrayList<>(action.oldRanks().keySet());
-                action.getSource().swapCategoryRanks(categories.get(0), action.oldRanks().get(categories.get(0)));
-            }
-            redoBuffer.push(action);
-
-            undoing = false;
-        }
-*/
     }
 
     /**
