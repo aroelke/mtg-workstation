@@ -2,6 +2,9 @@ package editor.util;
 
 import java.util.function.Supplier;
 
+/**
+ * TODO
+ */
 public class UndoableAction<U, R>
 {
     private final Supplier<R> forward;

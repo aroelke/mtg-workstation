@@ -31,6 +31,9 @@ import javax.swing.plaf.basic.BasicButtonUI;
 
 import editor.util.MouseListenerFactory;
 
+/**
+ * TODO
+ */
 @SuppressWarnings("serial")
 public class EditablePanel extends JPanel
 {
@@ -86,12 +89,14 @@ public class EditablePanel extends JPanel
     private JPanel front;
     private JLabel label;
     private Set<ActionListener> listeners;
+    private String old;
 
     public EditablePanel(String title, Component parent)
     {
         super();
         setLayout(new OverlayLayout(this));
         setOpaque(false);
+        old = null;
 
         front = new JPanel(new BorderLayout());
         front.setOpaque(false);
@@ -124,13 +129,14 @@ public class EditablePanel extends JPanel
             }),
             MouseListenerFactory.createDoubleClickListener((e) -> {
                 front.setVisible(false);
+                field.setText(label.getText());
                 field.setVisible(true);
                 field.requestFocusInWindow();
                 field.selectAll();
             })
         ));
 
-        addFocusListener(new FocusListener() {
+        field.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {}
 
@@ -162,6 +168,7 @@ public class EditablePanel extends JPanel
         field.transferFocusUpCycle();
         if (commit)
         {
+            old = label.getText();
             label.setText(field.getText());
             for (ActionListener listener : listeners)
                 listener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, EDIT));
@@ -172,5 +179,21 @@ public class EditablePanel extends JPanel
             for (ActionListener listener : listeners)
                 listener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, CANCEL));
         }
+    }
+
+    public String getOldTitle()
+    {
+        return old;
+    }
+
+    public String getTitle()
+    {
+        return label.getText();
+    }
+
+    public void setTitle(String title)
+    {
+        old = label.getText();
+        label.setText(title);
     }
 }

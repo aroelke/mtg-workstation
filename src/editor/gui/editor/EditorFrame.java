@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -57,6 +59,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.OverlayLayout;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -87,6 +90,7 @@ import editor.gui.generic.EditablePanel;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
+import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
 import editor.util.UndoableAction;
 import editor.util.UnicodeSymbols;
@@ -229,6 +233,17 @@ public class EditorFrame extends JInternalFrame
                     changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
             }
             return changes.toString();
+        }
+
+        /**
+         * TODO
+         */
+        public DeckData(DeckData d)
+        {
+            current = new Deck();
+            current.addAll(d.current);
+            original = new Deck();
+            original.addAll(d.original);
         }
 
         /**
@@ -544,9 +559,17 @@ public class EditorFrame extends JInternalFrame
      */
     private DeckData deck;
     /**
+     * TODO
+     */
+    private JPanel emptyPanel;
+    /**
      * Extra list deck data (e.g. sideboard).
      */
     private Map<String, DeckData> extras;
+    /**
+     * TODO
+     */
+    private JPanel extrasPanel;
     /**
      * Tabs showing extra lists.
      */
@@ -644,10 +667,6 @@ public class EditorFrame extends JInternalFrame
 
         deck = new DeckData(manager.deck());
         extras = new LinkedHashMap<>();
-        for (Map.Entry<String, Deck> sideboard : manager.sideboards().entrySet())
-            extras.put(sideboard.getKey(), new DeckData(sideboard.getValue()));
-        if (extras.isEmpty())
-            extras.put(SettingsDialog.getAsString(SettingsDialog.DEFAULT_SIDEBOARD), new DeckData());
 
         parent = p;
         unsaved = false;
@@ -695,8 +714,12 @@ public class EditorFrame extends JInternalFrame
         mainDeckPanel.add(deckButtons, BorderLayout.WEST);
         mainPanel.add(mainDeckPanel, BorderLayout.CENTER);
 
-        JPanel extrasPanel = new JPanel(new BorderLayout());
-        mainPanel.add(extrasPanel, BorderLayout.SOUTH);
+        JPanel southPanel = new JPanel();
+        southPanel.setLayout(new OverlayLayout(southPanel));
+        mainPanel.add(southPanel, BorderLayout.SOUTH);
+
+        extrasPanel = new JPanel(new BorderLayout());
+        southPanel.add(extrasPanel, BorderLayout.SOUTH);
 
         VerticalButtonList extrasButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         extrasButtons.get("+").addActionListener((e) -> addCards(getActiveExtraName(), parent.getSelectedCards(), 1));
@@ -708,6 +731,13 @@ public class EditorFrame extends JInternalFrame
 
         extrasPane = new JTabbedPane();
         extrasPanel.add(extrasPane, BorderLayout.CENTER);
+
+        emptyPanel = new JPanel(new BorderLayout());
+        emptyPanel.setBorder(BorderFactory.createEtchedBorder());
+        JLabel emptyLabel = new JLabel("Click to add a sideboard.");
+        emptyLabel.setHorizontalAlignment(JLabel.CENTER);
+        emptyPanel.add(emptyLabel, BorderLayout.CENTER);
+        southPanel.add(emptyPanel);
 
         listTabs.addTab("Cards", mainPanel);
 
@@ -1027,24 +1057,39 @@ public class EditorFrame extends JInternalFrame
         handCalculations.update();
 
         // Initialize extra lists
-        for (Map.Entry<String, DeckData> extra : extras.entrySet())
-        {
-            extrasPane.addTab(extra.getKey(), initExtraList(extra.getKey(), extra.getValue()));
-            extrasPane.setTabComponentAt(extrasPane.getTabCount() - 1, new EditablePanel(extra.getKey(), extrasPane));
-        }
         extrasPane.addTab("+", null);
-        extrasPane.addChangeListener((e) -> {
+        extrasPanel.setVisible(!extras.isEmpty());
+        emptyPanel.setVisible(extras.isEmpty());
+        for (Map.Entry<String, Deck> extra : manager.sideboards().entrySet())
+        {
+            createExtra(extra.getKey(), extrasPane.getTabCount() - 1);
+            extras.put(extra.getKey(), new DeckData(extra.getValue()));
+        }
+        extrasPane.setSelectedIndex(0);
+        Consumer<MouseEvent> addSideboard = (e) -> {
+            int index = extrasPanel.isVisible() ? extrasPane.indexAtLocation(e.getX(), e.getY()) : 0;
             int last = extrasPane.getTabCount() - 1;
-            if (extrasPane.getSelectedIndex() == last)
+            if (index == last)
             {
                 String name = "Sideboard " + extrasPane.getTabCount();
-                extrasPane.setTitleAt(last, name);
-                extrasPane.setTabComponentAt(last, new EditablePanel(name, extrasPane));
-                extras.put(name, new DeckData());
-                extrasPane.setComponentAt(last, initExtraList(name, extras.get(name)));
-                extrasPane.addTab("+", null);
+                performAction(() -> {
+                    createExtra(name, last);
+                    extrasPanel.setVisible(!extras.isEmpty());
+                    emptyPanel.setVisible(extras.isEmpty());
+                    return true;
+                }, () -> {
+                    extras.remove(name);
+                    extrasPane.remove(last);
+                    if (last > 0)
+                        extrasPane.setSelectedIndex(last - 1);
+                    extrasPanel.setVisible(!extras.isEmpty());
+                    emptyPanel.setVisible(extras.isEmpty());
+                    return true;
+                });
             }
-        });
+        };
+        extrasPane.addMouseListener(MouseListenerFactory.createPressListener(addSideboard));
+        emptyPanel.addMouseListener(MouseListenerFactory.createClickListener(addSideboard));
 
         // Handle various frame events, including selecting and closing
         addInternalFrameListener(new InternalFrameAdapter()
@@ -1347,6 +1392,64 @@ public class EditorFrame extends JInternalFrame
         newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 
         return newCategory;
+    }
+
+    private void createExtra(String name, int index)
+    {
+        extras.put(name, new DeckData());
+        final EditablePanel panel = new EditablePanel(name, extrasPane);
+        extrasPane.insertTab(name, null, initExtraList(name, extras.get(name)), null, index);
+        extrasPane.setTabComponentAt(index, panel);
+        extrasPane.setSelectedIndex(index);
+        extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
+
+        panel.addActionListener((e) -> {
+            switch (e.getActionCommand())
+            {
+            case EditablePanel.CLOSE:
+                final String n = panel.getTitle();
+                final DeckData extra = new DeckData(extras.get(n));
+                final int i = extrasPane.indexOfTab(n);
+                performAction(() -> {
+                    extras.remove(n);
+                    extrasPane.remove(i);
+                    if (index > 0)
+                    {
+                        extrasPane.setSelectedIndex(i - 1);
+                        extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
+                    }
+                    extrasPanel.setVisible(!extras.isEmpty());
+                    emptyPanel.setVisible(extras.isEmpty());
+                    return true;
+                }, () -> {
+                    createExtra(n, i);
+                    extras.get(n).current.addAll(extra.current);
+                    extras.get(n).original.addAll(extra.original);
+                    extrasPanel.setVisible(!extras.isEmpty());
+                    emptyPanel.setVisible(extras.isEmpty());
+                    return true;
+                });
+                break;
+            case EditablePanel.EDIT:
+                final String current = panel.getTitle();
+                final String old = panel.getOldTitle();
+                final int j = extrasPane.indexOfTab(old);
+                performAction(() -> {
+                    extras.put(current, extras.remove(old));
+                    ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(current);
+                    extrasPane.setTitleAt(j, current);
+                    return true;
+                }, () -> {
+                    extras.put(old, extras.remove(current));
+                    ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(old);
+                    extrasPane.setTitleAt(j, old);
+                    return true;
+                });
+                break;
+            case EditablePanel.CANCEL:
+                break;
+            }
+        });
     }
 
     /**
@@ -1782,9 +1885,9 @@ public class EditorFrame extends JInternalFrame
             return false;
         else
         {
-            final DeckData target = name.isEmpty() ? deck : extras.get(name);
-            final Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getData(e.getKey()).count())));
             return performAction(() -> {
+                DeckData target = name.isEmpty() ? deck : extras.get(name);
+                Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getData(e.getKey()).count())));
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
                         return target.current.remove(e.getKey(), -e.getValue()) > 0;
@@ -1797,6 +1900,8 @@ public class EditorFrame extends JInternalFrame
                     updateTables();
                 return changed;
             }, () -> {
+                DeckData target = name.isEmpty() ? deck : extras.get(name);
+                Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getData(e.getKey()).count())));
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
                         return target.current.add(e.getKey(), -e.getValue());
