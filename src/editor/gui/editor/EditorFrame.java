@@ -719,6 +719,7 @@ public class EditorFrame extends JInternalFrame
         mainPanel.add(southPanel, BorderLayout.SOUTH);
 
         extrasPanel = new JPanel(new BorderLayout());
+        extrasPanel.setVisible(false);
         southPanel.add(extrasPanel, BorderLayout.SOUTH);
 
         VerticalButtonList extrasButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
@@ -1058,8 +1059,6 @@ public class EditorFrame extends JInternalFrame
 
         // Initialize extra lists
         extrasPane.addTab("+", null);
-        extrasPanel.setVisible(!extras.isEmpty());
-        emptyPanel.setVisible(extras.isEmpty());
         for (Map.Entry<String, Deck> extra : manager.sideboards().entrySet())
         {
             createExtra(extra.getKey(), extrasPane.getTabCount() - 1);
@@ -1071,21 +1070,11 @@ public class EditorFrame extends JInternalFrame
             int last = extrasPane.getTabCount() - 1;
             if (index == last)
             {
-                String name = "Sideboard " + extrasPane.getTabCount();
-                performAction(() -> {
-                    createExtra(name, last);
-                    extrasPanel.setVisible(!extras.isEmpty());
-                    emptyPanel.setVisible(extras.isEmpty());
-                    return true;
-                }, () -> {
-                    extras.remove(name);
-                    extrasPane.remove(last);
-                    if (last > 0)
-                        extrasPane.setSelectedIndex(last - 1);
-                    extrasPanel.setVisible(!extras.isEmpty());
-                    emptyPanel.setVisible(extras.isEmpty());
-                    return true;
-                });
+                int i = extrasPane.getTabCount();
+                while (extras.containsKey("Sideboard " + i))
+                    i++;
+                String name = "Sideboard " + i;
+                performAction(() -> createExtra(name, last), () -> deleteExtra(name, last));
             }
         };
         extrasPane.addMouseListener(MouseListenerFactory.createPressListener(addSideboard));
@@ -1394,14 +1383,23 @@ public class EditorFrame extends JInternalFrame
         return newCategory;
     }
 
-    private void createExtra(String name, int index)
+    /**
+     * TODO
+     */
+    private boolean createExtra(String name, int index)
     {
+        if (extras.containsKey(name))
+            throw new IllegalArgumentException("sideboard \"" + name + "\" already exists");
+
         extras.put(name, new DeckData());
         final EditablePanel panel = new EditablePanel(name, extrasPane);
         extrasPane.insertTab(name, null, initExtraList(name, extras.get(name)), null, index);
         extrasPane.setTabComponentAt(index, panel);
         extrasPane.setSelectedIndex(index);
         extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
+
+        extrasPanel.setVisible(!extras.isEmpty());
+        emptyPanel.setVisible(extras.isEmpty());
 
         panel.addActionListener((e) -> {
             switch (e.getActionCommand())
@@ -1410,46 +1408,45 @@ public class EditorFrame extends JInternalFrame
                 final String n = panel.getTitle();
                 final DeckData extra = new DeckData(extras.get(n));
                 final int i = extrasPane.indexOfTab(n);
-                performAction(() -> {
-                    extras.remove(n);
-                    extrasPane.remove(i);
-                    if (index > 0)
-                    {
-                        extrasPane.setSelectedIndex(i - 1);
-                        extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
-                    }
-                    extrasPanel.setVisible(!extras.isEmpty());
-                    emptyPanel.setVisible(extras.isEmpty());
-                    return true;
-                }, () -> {
-                    createExtra(n, i);
-                    extras.get(n).current.addAll(extra.current);
-                    extras.get(n).original.addAll(extra.original);
-                    extrasPanel.setVisible(!extras.isEmpty());
-                    emptyPanel.setVisible(extras.isEmpty());
-                    return true;
+                performAction(() -> deleteExtra(n, i), () -> {
+                    boolean success = createExtra(n, i);
+                    success |= extras.get(n).current.addAll(extra.current);
+                    success |= extras.get(n).original.addAll(extra.original);
+                    return success;
                 });
                 break;
             case EditablePanel.EDIT:
                 final String current = panel.getTitle();
                 final String old = panel.getOldTitle();
-                final int j = extrasPane.indexOfTab(old);
-                performAction(() -> {
-                    extras.put(current, extras.remove(old));
-                    ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(current);
-                    extrasPane.setTitleAt(j, current);
-                    return true;
-                }, () -> {
-                    extras.put(old, extras.remove(current));
-                    ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(old);
-                    extrasPane.setTitleAt(j, old);
-                    return true;
-                });
+                if (current.isEmpty())
+                    panel.setTitle(old);
+                else if (extras.containsKey(current))
+                {
+                    panel.setTitle(old);
+                    JOptionPane.showMessageDialog(EditorFrame.this, "Sideboard \"" + current + "\" already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                else if (!current.equals(old))
+                {
+                    final int j = extrasPane.indexOfTab(old);
+                    performAction(() -> {
+                        extras.put(current, extras.remove(old));
+                        ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(current);
+                        extrasPane.setTitleAt(j, current);
+                        return true;
+                    }, () -> {
+                        extras.put(old, extras.remove(current));
+                        ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(old);
+                        extrasPane.setTitleAt(j, old);
+                        return true;
+                    });
+                }
                 break;
             case EditablePanel.CANCEL:
                 break;
             }
         });
+
+        return true;
     }
 
     /**
@@ -1465,6 +1462,27 @@ public class EditorFrame extends JInternalFrame
         else
             deckName = getTitle();
         return deckName;
+    }
+
+    /**
+     * TODO
+     */
+    private boolean deleteExtra(String name, int index)
+    {
+        if (!extras.containsKey(name))
+            throw new RuntimeException("missing sideboard \"" + name + '"');
+
+        extras.remove(name);
+        extrasPane.remove(index);
+        if (index > 0)
+        {
+            extrasPane.setSelectedIndex(index - 1);
+            extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
+        }
+        extrasPanel.setVisible(!extras.isEmpty());
+        emptyPanel.setVisible(extras.isEmpty());
+
+        return true;
     }
 
     /**
