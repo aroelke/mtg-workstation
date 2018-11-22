@@ -55,10 +55,6 @@ public class SettingsDialog extends JDialog
      */
     public static final String CATEGORY_ROWS = "editor.rows";
     /**
-     * Default name for sideboard of new deck.
-     */
-    public static final String DEFAULT_SIDEBOARD = "editor.sideboard";
-    /**
      * Columns to display in editor tables.
      */
     public static final String EDITOR_COLUMNS = "editor.columns";
@@ -416,7 +412,6 @@ public class SettingsDialog extends JDialog
         SETTINGS.put(CARD_SCANS, "images" + File.separatorChar + "cards");
         SETTINGS.put(IMAGE_BGCOLOR, "#FFFFFFFF");
         SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
-        SETTINGS.put(DEFAULT_SIDEBOARD, "Sideboard");
 
         PRESET_CATEGORIES.clear();
         CardTypeFilter artifacts = (CardTypeFilter) FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
@@ -567,10 +562,6 @@ public class SettingsDialog extends JDialog
      * Text field containing the directory to look for card scans in.
      */
     private JTextField scansDirField;
-    /**
-     * Text field containing the default name for the sideboard of a new deck.
-     */
-    private JTextField sideboardField;
     /**
      * Number of cards to draw in the starting hand.
      */
@@ -770,19 +761,6 @@ public class SettingsDialog extends JDialog
         editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.Y_AXIS));
         editorPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         settingsPanel.add(editorPanel, new TreePath(editorNode.getPath()).toString());
-
-        // New deck default sideboard
-        JPanel sideboardPanel = new JPanel();
-        sideboardPanel.setLayout(new BoxLayout(sideboardPanel, BoxLayout.X_AXIS));
-        sideboardPanel.add(new JLabel("Default sideboard:"));
-        sideboardPanel.add(Box.createHorizontalStrut(5));
-        sideboardField = new JTextField(10);
-        sideboardField.setText(getAsString(DEFAULT_SIDEBOARD));
-        sideboardPanel.add(sideboardField);
-        sideboardPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, sideboardPanel.getPreferredSize().height));
-        sideboardPanel.setAlignmentX(LEFT_ALIGNMENT);
-        editorPanel.add(sideboardPanel);
-        editorPanel.add(Box.createVerticalStrut(5));
 
         // Recent count
         JPanel recentPanel = new JPanel();
@@ -1030,7 +1008,6 @@ public class SettingsDialog extends JDialog
         SETTINGS.put(CARD_SCANS, scansDirField.getText());
         SETTINGS.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
         SETTINGS.put(HAND_BGCOLOR, colorToString(handBGColor.getColor()));
-        SETTINGS.put(DEFAULT_SIDEBOARD, sideboardField.getText());
 
         parent.applySettings();
     }
