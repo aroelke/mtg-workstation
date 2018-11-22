@@ -236,7 +236,9 @@ public class EditorFrame extends JInternalFrame
         }
 
         /**
-         * TODO
+         * Create a copy of a DeckData.
+         * 
+         * @Param d DeckData to copy
          */
         public DeckData(DeckData d)
         {
@@ -559,7 +561,7 @@ public class EditorFrame extends JInternalFrame
      */
     private DeckData deck;
     /**
-     * TODO
+     * Panel containing components to display when there are no extra lists.
      */
     private JPanel emptyPanel;
     /**
@@ -567,7 +569,7 @@ public class EditorFrame extends JInternalFrame
      */
     private Map<String, DeckData> extras;
     /**
-     * TODO
+     * Panel containing extra lists.
      */
     private JPanel extrasPanel;
     /**
@@ -623,7 +625,8 @@ public class EditorFrame extends JInternalFrame
      */
     private MainFrame parent;
     /**
-     * TODO
+     * Buffer containing actions to redo.  Clears whenever an action is performed
+     * (but not when it is redone).
      */
     private Stack<UndoableAction<Boolean, Boolean>> redoBuffer;
     /**
@@ -643,7 +646,7 @@ public class EditorFrame extends JInternalFrame
      */
     private DefaultComboBoxModel<String> switchCategoryModel;
     /**
-     * TODO
+     * Stack containing actions to undo.
      */
     private Stack<UndoableAction<Boolean, Boolean>> undoBuffer;
     /**
@@ -723,11 +726,11 @@ public class EditorFrame extends JInternalFrame
         southPanel.add(extrasPanel, BorderLayout.SOUTH);
 
         VerticalButtonList extrasButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-        extrasButtons.get("+").addActionListener((e) -> addCards(getActiveExtraName(), parent.getSelectedCards(), 1));
+        extrasButtons.get("+").addActionListener((e) -> addCards(getSelectedExtraName(), parent.getSelectedCards(), 1));
         extrasButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> {
-            removeCards(getActiveExtraName(), parent.getSelectedCards(), 1);
+            removeCards(getSelectedExtraName(), parent.getSelectedCards(), 1);
         });
-        extrasButtons.get("X").addActionListener((e) -> removeCards(getActiveExtraName(), parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getData(c).count()).reduce(0, Math::max)));
+        extrasButtons.get("X").addActionListener((e) -> removeCards(getSelectedExtraName(), parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getData(c).count()).reduce(0, Math::max)));
         extrasPanel.add(extrasButtons, BorderLayout.WEST);
 
         extrasPane = new JTabbedPane();
@@ -1109,7 +1112,12 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Add copies of a collection of cards to the specified list.
+     * 
+     * @param name name of the list to add to.  An empty string specifies the main deck
+     * @param cards cards to add
+     * @param n number of copies of each card to add
+     * @return <code>true</code> if the cards were added, and <code>false</code> otherwise.
      */
     public boolean addCards(String name, Collection<Card> cards, int n)
     {
@@ -1117,7 +1125,11 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Add a new category to the main deck.
+     * 
+     * @param spec specification for the new category
+     * @return <code>true</code> if adding the category was successful, and <code>false</code>
+     * otherwise.
      */
     public boolean addCategory(CategorySpec spec)
     {
@@ -1384,69 +1396,79 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Create a new extra, uncategorized, untracked list, which usually will be used for a
+     * sideboard.
+     * 
+     * @param name name of the extra list, i.e. "Sideboard"; should be unique
+     * @param index index of the tab to insert the new list at
+     * @return <code>true</code> if the list was successfully added, and <code>false</code>
+     * otherwise.
      */
     private boolean createExtra(String name, int index)
     {
         if (extras.containsKey(name))
             throw new IllegalArgumentException("sideboard \"" + name + "\" already exists");
 
-        extras.put(name, new DeckData());
-        final EditablePanel panel = new EditablePanel(name, extrasPane);
-        extrasPane.insertTab(name, null, initExtraList(name, extras.get(name)), null, index);
-        extrasPane.setTabComponentAt(index, panel);
-        extrasPane.setSelectedIndex(index);
-        extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
+        if (extras.put(name, new DeckData()) == null)
+            return false;
+        else
+        {
+            final EditablePanel panel = new EditablePanel(name, extrasPane);
+            extrasPane.insertTab(name, null, initExtraList(name, extras.get(name)), null, index);
+            extrasPane.setTabComponentAt(index, panel);
+            extrasPane.setSelectedIndex(index);
+            extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
 
-        extrasPanel.setVisible(!extras.isEmpty());
-        emptyPanel.setVisible(extras.isEmpty());
+            extrasPanel.setVisible(!extras.isEmpty());
+            emptyPanel.setVisible(extras.isEmpty());
 
-        panel.addActionListener((e) -> {
-            switch (e.getActionCommand())
-            {
-            case EditablePanel.CLOSE:
-                final String n = panel.getTitle();
-                final DeckData extra = new DeckData(extras.get(n));
-                final int i = extrasPane.indexOfTab(n);
-                performAction(() -> deleteExtra(n, i), () -> {
-                    boolean success = createExtra(n, i);
-                    success |= extras.get(n).current.addAll(extra.current);
-                    success |= extras.get(n).original.addAll(extra.original);
-                    return success;
-                });
-                break;
-            case EditablePanel.EDIT:
-                final String current = panel.getTitle();
-                final String old = panel.getOldTitle();
-                if (current.isEmpty())
-                    panel.setTitle(old);
-                else if (extras.containsKey(current))
+            panel.addActionListener((e) -> {
+                switch (e.getActionCommand())
                 {
-                    panel.setTitle(old);
-                    JOptionPane.showMessageDialog(EditorFrame.this, "Sideboard \"" + current + "\" already exists.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                else if (!current.equals(old))
-                {
-                    final int j = extrasPane.indexOfTab(old);
-                    performAction(() -> {
-                        extras.put(current, extras.remove(old));
-                        ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(current);
-                        extrasPane.setTitleAt(j, current);
-                        return true;
-                    }, () -> {
-                        extras.put(old, extras.remove(current));
-                        ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(old);
-                        extrasPane.setTitleAt(j, old);
-                        return true;
+                case EditablePanel.CLOSE:
+                    final String n = panel.getTitle();
+                    final DeckData extra = new DeckData(extras.get(n));
+                    final int i = extrasPane.indexOfTab(n);
+                    performAction(() -> deleteExtra(n, i), () -> {
+                        boolean success = createExtra(n, i);
+                        success |= extras.get(n).current.addAll(extra.current);
+                        success |= extras.get(n).original.addAll(extra.original);
+                        return success;
                     });
+                    break;
+                case EditablePanel.EDIT:
+                    final String current = panel.getTitle();
+                    final String old = panel.getOldTitle();
+                    if (current.isEmpty())
+                        panel.setTitle(old);
+                    else if (extras.containsKey(current))
+                    {
+                        panel.setTitle(old);
+                        JOptionPane.showMessageDialog(EditorFrame.this, "Sideboard \"" + current + "\" already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    else if (!current.equals(old))
+                    {
+                        final int j = extrasPane.indexOfTab(old);
+                        performAction(() -> {
+                            extras.put(current, extras.remove(old));
+                            ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(current);
+                            extrasPane.setTitleAt(j, current);
+                            return true;
+                        }, () -> {
+                            extras.put(old, extras.remove(current));
+                            ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(old);
+                            extrasPane.setTitleAt(j, old);
+                            return true;
+                        });
+                    }
+                    break;
+                case EditablePanel.CANCEL:
+                    break;
                 }
-                break;
-            case EditablePanel.CANCEL:
-                break;
-            }
-        });
+            });
 
-        return true;
+            return true;
+        }
     }
 
     /**
@@ -1465,28 +1487,41 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Delete an extra list.
+     * 
+     * @param name name of the list to delete
+     * @param index index of the tab containing the list
+     * @return <code>true</code> if the list was successfully removed, and <code>false</code>
+     * otherwise.
      */
     private boolean deleteExtra(String name, int index)
     {
         if (!extras.containsKey(name))
-            throw new RuntimeException("missing sideboard \"" + name + '"');
+            throw new IllegalArgumentException("missing sideboard \"" + name + '"');
 
-        extras.remove(name);
-        extrasPane.remove(index);
-        if (index > 0)
+        if (extras.remove(name) == null)
+            return false;
+        else
         {
-            extrasPane.setSelectedIndex(index - 1);
-            extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
-        }
-        extrasPanel.setVisible(!extras.isEmpty());
-        emptyPanel.setVisible(extras.isEmpty());
+            extrasPane.remove(index);
+            if (index > 0)
+            {
+                extrasPane.setSelectedIndex(index - 1);
+                extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
+            }
+            extrasPanel.setVisible(!extras.isEmpty());
+            emptyPanel.setVisible(extras.isEmpty());
 
-        return true;
+            return true;
+        }
     }
 
     /**
-     * TODO
+     * Helper method for adding a category.
+     * 
+     * @param spec specification of the new category
+     * @return <code>true</code> if the category was successfully added, and <code>false</code>
+     * otherwise
      */
     private boolean do_addCategory(CategorySpec spec)
     {
@@ -1512,7 +1547,11 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Helper method for removing a category.
+     * 
+     * @param spec specification of the category to remove
+     * @return <code>true</code> if the category was removed, and <code>false</code>
+     * otherwise.
      */
     private boolean do_removeCategory(CategorySpec spec)
     {
@@ -1534,7 +1573,8 @@ public class EditorFrame extends JInternalFrame
      * name, if there is one, and then update the undo buffer.
      *
      * @param name name of the category to edit
-     * TODO
+     * @return <code>true</code> if the category was edited, and <code>false</code>
+     * otherwise.
      */
     public boolean editCategory(String name)
     {
@@ -1617,9 +1657,9 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * @return a copy of the extra list corresponding to the selected tab.
      */
-    public CardList getActiveExtra()
+    public CardList getSelectedExtra()
     {
         Deck copy = new Deck();
         copy.addAll(sideboard());
@@ -1627,9 +1667,9 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * @return the name of the extra list corresponding to the selected tab.
      */
-    public String getActiveExtraName()
+    public String getSelectedExtraName()
     {
         return extrasPane.getTitleAt(extrasPane.getSelectedIndex());
     }
@@ -1674,7 +1714,7 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * @return a copy of the main deck.
      */
     public CardList getDeck()
     {
@@ -1684,7 +1724,7 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * @return a {@link CardList} containing all of the cards in extra lists.
      */
     public CardList getExtraCards()
     {
@@ -1715,7 +1755,10 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * @param name name of the list to search, with the empty string specifying the main deck
+     * @param card card to search for
+     * @return <code>true</code> if the specified list contains the specified card, and
+     * <code>false</code> otherwise.
      */
     public boolean hasCard(String name, Card card)
     {
@@ -1974,7 +2017,13 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Remove some copies of each of a collection of cards from the specified list.
+     * 
+     * @param name name of the list to remove cards from
+     * @param cards cards to remove
+     * @param n number of copies to remove
+     * @return <code>true</code> if any copies were removed, and <code>false</code>
+     * otherwise.
      */
     public boolean removeCards(String name, Collection<Card> cards, int n)
     {
@@ -1982,7 +2031,11 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Remove a category from the deck.
+     * 
+     * @param name name of the category to remove
+     * @return <code>true</code> if the category was removed, and <code>false</code>
+     * otherwise.
      */
     public boolean removeCategory(String name)
     {
@@ -2090,12 +2143,14 @@ public class EditorFrame extends JInternalFrame
      */
     private CardList sideboard()
     {
-        return extras.get(getActiveExtraName()).current;
+        return extras.get(getSelectedExtraName()).current;
     }
 
     /**
      * Undo the last action that was performed on the deck.
-     * TODO
+     * 
+     * @return <code>true</code> if the action was successfully undone, and
+     * <code>false</code> otherwise.
      */
     public boolean undo()
     {
@@ -2192,7 +2247,8 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Update all of the tables and components with the contents of the cards in the
+     * deck.
      */
     public void updateTables()
     {
