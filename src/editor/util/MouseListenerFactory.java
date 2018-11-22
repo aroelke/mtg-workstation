@@ -14,9 +14,11 @@ import java.util.function.Consumer;
 public interface MouseListenerFactory
 {
     /**
-     * TODO
-     * @param listeners
-     * @return
+     * Compose several MouseListeners.
+     * 
+     * @param listeners MouseListeners to compose
+     * @return a MouseListener that performs all of the actions of the given listeners
+     * in the order they are listed.
      */
     static MouseListener composeListeners(MouseListener... listeners)
     {
@@ -79,7 +81,11 @@ public interface MouseListenerFactory
     }
 
     /**
-     * TODO
+     * Create a MouseListener that only listens for mouse double-click events.
+     * 
+     * @param mouseClicked action to perform when the mouse is double-clicked
+     * @return a MouseListener that performs the given action when the mouse is
+     * double-clicked.
      */
     static MouseListener createDoubleClickListener(Consumer<MouseEvent> mouseClicked)
     {
@@ -95,10 +101,14 @@ public interface MouseListenerFactory
     }
 
     /**
-     * TODO
-     * @param pressed
-     * @param released
-     * @return
+     * Create a MouseListener that listens for a mouse being held down (pressed + released).
+     * A mouse-hold event can be simulated by setting a state that continuously applies some
+     * function or changes a property when the mouse is pressed and stopping or undoing the
+     * change when the mouse is released.
+     * 
+     * @param pressed action to perform when the mouse is pressed
+     * @param released action to perform when the mouse is released
+     * @return a MouseListener that listens for a mouse press and a mouse release.
      */
     static MouseListener createHoldListener(Consumer<MouseEvent> pressed, Consumer<MouseEvent> released)
     {
@@ -119,10 +129,13 @@ public interface MouseListenerFactory
     }
 
     /**
-     * TODO
-     * @param entered
-     * @param exited
-     * @return
+     * Create a MouseEvent that listens for a mouse to be inside a component (entered + exited).
+     * This can be simulated by setting a state that continuously applies a function or changes
+     * a property when the mouse enters and stopping or undoing the change when it exits.
+     * 
+     * @param entered action to perform when the mouse enters
+     * @param exited action to perform when the mouse exits
+     * @return a MouseListener that listens for a mouse entering or exiting
      */
     static MouseListener createMotionListener(Consumer<MouseEvent> entered, Consumer<MouseEvent> exited)
     {
@@ -179,9 +192,12 @@ public interface MouseListenerFactory
     }
 
     /**
-     * TODO
-     * @param handler
-     * @return
+     * Create a MouseListener that does the same thing for all mouse events
+     * (click, press, release, enter, and exit).
+     * 
+     * @param handler action to perform on the mouse event
+     * @return a MouseListener that performs the same action for all types of
+     * events.
      */
     static MouseListener createUniversalListener(Consumer<MouseEvent> handler)
     {
