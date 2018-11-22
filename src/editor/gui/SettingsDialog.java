@@ -144,6 +144,10 @@ public class SettingsDialog extends JDialog
      * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
      */
     public static final Pattern COLOR_PATTERN = Pattern.compile("^#([0-9a-fA-F]{2})?([0-9a-fA-F]{6})$");
+    /**
+     * Number of cards in a playset.
+     */
+    public static final int PLAYSET_SIZE = 4;
 
     /**
      * List of preset categories.

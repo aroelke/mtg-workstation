@@ -16,14 +16,13 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import editor.database.card.Card;
+import editor.gui.SettingsDialog;
 import editor.gui.editor.EditorFrame;
 
 /**
  * This class represents a list of menu items for manipulating cards in a deck. There are six:
  * add a single copy, fill a playset of copies, add some number of copies, remove one copy,
  * remove all copies, and remove some number of copies.
- * 
- * TODO: Remove magic number "4" for playsets and make it either a constant or setting
  *
  * @author Alec Roelke
  */
@@ -38,17 +37,19 @@ public class CardMenuItems
      * Create a new list of items for manipulating card copies using the given functions to do the
      * manipulation.
      *
-     * TODO
+     * @param monitor supplier for getting the editor to make changes to
+     * @param cards supplier for determining which cards to make changes with
+     * @param main whether or not this CardMenuItems should operate on the main deck
      */
-    public CardMenuItems(final Supplier<EditorFrame> monitor, Supplier<? extends Collection<Card>> cards, boolean main)
+    public CardMenuItems(final Supplier<EditorFrame> monitor, final Supplier<? extends Collection<Card>> cards, final boolean main)
     {
-        final Supplier<String> name = () -> main ? "" : monitor.get().getActiveExtraName();
+        final Supplier<String> name = () -> main ? "" : monitor.get().getSelectedExtraName();
         final IntConsumer addN = (n) -> monitor.get().addCards(name.get(), cards.get(), n);
         final Runnable fillPlayset = () -> monitor.get().modifyCards(name.get(), cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
             if (monitor.get().hasCard(name.get(), c))
-                return Math.max(0, 4 - monitor.get().getDeck().getData(c).count());
+                return Math.max(0, SettingsDialog.PLAYSET_SIZE - monitor.get().getDeck().getData(c).count());
             else
-                return 4;
+                return SettingsDialog.PLAYSET_SIZE;
         })));
         final IntConsumer removeN = (n) -> monitor.get().removeCards(name.get(), cards.get(), n);
         items = new JMenuItem[6];
