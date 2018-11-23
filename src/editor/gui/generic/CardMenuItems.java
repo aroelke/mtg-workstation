@@ -2,7 +2,9 @@ package editor.gui.generic;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
@@ -26,7 +28,7 @@ import editor.gui.editor.EditorFrame;
  *
  * @author Alec Roelke
  */
-public class CardMenuItems
+public class CardMenuItems implements Iterable<JMenuItem>
 {
     /**
      * Array containing the menu items for manipulating card copies.
@@ -94,6 +96,38 @@ public class CardMenuItems
     }
 
     /**
+     * Convenience method for adding items that add cards to decks to menus.
+     * 
+     * @param menu container to add items to
+     */
+    public void addAddItems(Container menu)
+    {
+        menu.add(addSingle());
+        menu.add(fillPlayset());
+        menu.add(addN());
+    }
+
+    /**
+     * @return the menu item for adding a specified number of copies of a card.
+     */
+    public JMenuItem addN()
+    {
+        return items[2];
+    }
+    
+    /**
+     * Convenience method for adding items that remove cards from  decks to menus.
+     * 
+     * @param menu container to add items to
+     */
+    public void addRemoveItems(Container menu)
+    {
+        menu.add(removeSingle());
+        menu.add(removeAll());
+        menu.add(removeN());
+    }
+
+    /**
      * @return the menu item for adding a single copy of a card.
      */
     public JMenuItem addSingle()
@@ -109,20 +143,10 @@ public class CardMenuItems
         return items[1];
     }
 
-    /**
-     * @return the menu item for adding a specified number of copies of a card.
-     */
-    public JMenuItem addN()
+    @Override
+    public Iterator<JMenuItem> iterator()
     {
-        return items[2];
-    }
-
-    /**
-     * @return the menu item for removing a single copy of a card.
-     */
-    public JMenuItem removeSingle()
-    {
-        return items[3];
+        return Arrays.asList(items).iterator();
     }
 
     /**
@@ -142,26 +166,10 @@ public class CardMenuItems
     }
 
     /**
-     * Convenience method for adding items that add cards to decks to menus.
-     * 
-     * @param menu container to add items to
+     * @return the menu item for removing a single copy of a card.
      */
-    public void addAddItems(Container menu)
+    public JMenuItem removeSingle()
     {
-        menu.add(addSingle());
-        menu.add(fillPlayset());
-        menu.add(addN());
-    }
-
-    /**
-     * Convenience method for adding items that remove cards from  decks to menus.
-     * 
-     * @param menu container to add items to
-     */
-    public void addRemoveItems(Container menu)
-    {
-        menu.add(removeSingle());
-        menu.add(removeAll());
-        menu.add(removeN());
+        return items[3];
     }
 }

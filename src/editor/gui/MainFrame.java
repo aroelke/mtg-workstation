@@ -125,6 +125,7 @@ import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
 import editor.util.MenuListenerFactory;
 import editor.util.MouseListenerFactory;
+import editor.util.PopupMenuListenerFactory;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -966,6 +967,7 @@ public class MainFrame extends JFrame
             redoItem.setEnabled(selectedFrame != null);
         }));
 
+        // Deck menu
         deckMenu = new JMenu("Deck");
         deckMenu.setEnabled(false);
         menuBar.add(deckMenu);
@@ -1034,6 +1036,14 @@ public class MainFrame extends JFrame
         // Preset categories menu
         presetMenu = new JMenu("Add Preset");
         categoryMenu.add(presetMenu);
+
+        // Deck menu listener
+        deckMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
+            addMenu.setEnabled(selectedFrame != null && selectedCard != null);
+            removeMenu.setEnabled(selectedFrame != null && selectedCard != null);
+            sideboardMenu.setEnabled(selectedFrame != null && selectedCard != null);
+            presetMenu.setEnabled(presetMenu.getMenuComponentCount() > 0);
+        }));
 
         // Help menu
         JMenu helpMenu = new JMenu("Help");
@@ -1220,9 +1230,18 @@ public class MainFrame extends JFrame
         oracleEditTagsItem.addActionListener((e) -> editTags(getSelectedCards()));
         oraclePopupMenu.add(oracleEditTagsItem);
 
+        // Popup listener for oracle popup menu
+        oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            for (JMenuItem item : oracleMenuCardItems)
+                item.setEnabled(selectedFrame != null && selectedCard != null);
+            for (JMenuItem item : oracleMenuSBCardItems)
+                item.setEnabled(selectedFrame != null && selectedCard != null);
+            oracleEditTagsItem.setEnabled(selectedCard != null);
+        }));
+
         // Panel containing inventory and image of currently-selected card
         JPanel inventoryPanel = new JPanel(new BorderLayout(0, 0));
-        inventoryPanel.setPreferredSize(new Dimension(getWidth() / 4, getHeight() * 3 / 4));
+        inventoryPanel.setPreferredSize(new Dimension(getWidth()/4, getHeight()*3/4));
 
         // Panel containing the inventory and the quick-filter bar
         JPanel tablePanel = new JPanel(new BorderLayout(0, 0));
@@ -1306,6 +1325,15 @@ public class MainFrame extends JFrame
         JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
         editTagsItem.addActionListener((e) -> editTags(getSelectedCards()));
         inventoryMenu.add(editTagsItem);
+
+        // Inventory menu listener
+        inventoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            for (JMenuItem item : inventoryMenuCardItems)
+                item.setEnabled(selectedFrame != null && selectedCard != null);
+            for (JMenuItem item : inventoryMenuSBItems)
+                item.setEnabled(selectedFrame != null && selectedCard != null);
+            editTagsItem.setEnabled(selectedCard != null);
+        }));
 
         // Action to be taken when the user presses the Enter key after entering text into the quick-filter
         // bar
