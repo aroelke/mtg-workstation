@@ -1065,7 +1065,8 @@ public class EditorFrame extends JInternalFrame
         for (Map.Entry<String, Deck> extra : manager.sideboards().entrySet())
         {
             createExtra(extra.getKey(), extrasPane.getTabCount() - 1);
-            extras.put(extra.getKey(), new DeckData(extra.getValue()));
+            extras.get(extra.getKey()).current.addAll(extra.getValue());
+            extras.get(extra.getKey()).original.addAll(extra.getValue());
         }
         extrasPane.setSelectedIndex(0);
         Consumer<MouseEvent> addSideboard = (e) -> {
@@ -1409,7 +1410,7 @@ public class EditorFrame extends JInternalFrame
         if (extras.containsKey(name))
             throw new IllegalArgumentException("sideboard \"" + name + "\" already exists");
 
-        if (extras.put(name, new DeckData()) == null)
+        if (extras.put(name, new DeckData()) != null)
             return false;
         else
         {
