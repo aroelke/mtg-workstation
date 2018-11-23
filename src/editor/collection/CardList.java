@@ -213,16 +213,15 @@ public interface CardList extends Iterable<Card>
      * @return the {@link Entry} corresponding to the given card, or null if no such card exists in
      * this CardList.
      */
-    Entry getData(Card card);
+    Entry getEntry(Card card);
 
     /**
      * Get the metadata of the card at a specific position in this CardList
      *
      * @param index index to look up
      * @return the {@link Entry} corresponding to the Card at the given index
-     * @throws IndexOutOfBoundsException if the index is less than 0 or is too big
      */
-    Entry getData(int index) throws IndexOutOfBoundsException;
+    Entry getEntry(int index);
 
     /**
      * Find the index of the given card in this CardList.

@@ -49,7 +49,7 @@ public class TextCardListFormat implements CardListFormat
     public String format(CardList list)
     {
         return String.join(System.lineSeparator(),
-                list.stream().map((c) -> format.format(list.getData(c))).collect(Collectors.toList()));
+                list.stream().map((c) -> format.format(list.getEntry(c))).collect(Collectors.toList()));
     }
 
     @Override

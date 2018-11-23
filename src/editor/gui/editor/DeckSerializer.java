@@ -394,8 +394,8 @@ public class DeckSerializer
         for (Card card : deck)
         {
             out.writeUTF(card.id());
-            out.writeInt(deck.getData(card).count());
-            out.writeObject(deck.getData(card).dateAdded());
+            out.writeInt(deck.getEntry(card).count());
+            out.writeObject(deck.getEntry(card).dateAdded());
         }
         out.writeInt(deck.numCategories());
         for (CategorySpec spec : deck.categories())

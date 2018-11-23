@@ -220,15 +220,15 @@ public class EditorFrame extends JInternalFrame
             StringBuilder changes = new StringBuilder();
             for (Card c : original)
             {
-                int had = original.contains(c) ? original.getData(c).count() : 0;
-                int has = current.contains(c) ? current.getData(c).count() : 0;
+                int had = original.contains(c) ? original.getEntry(c).count() : 0;
+                int has = current.contains(c) ? current.getEntry(c).count() : 0;
                 if (has < had)
                     changes.append("-").append(had - has).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
             }
             for (Card c : current)
             {
-                int had = original.contains(c) ? original.getData(c).count() : 0;
-                int has = current.contains(c) ? current.getData(c).count() : 0;
+                int had = original.contains(c) ? original.getEntry(c).count() : 0;
+                int has = current.contains(c) ? current.getEntry(c).count() : 0;
                 if (had < has)
                     changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
             }
@@ -713,7 +713,7 @@ public class EditorFrame extends JInternalFrame
         VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         deckButtons.get("+").addActionListener((e) -> addCards("", parent.getSelectedCards(), 1));
         deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards("",  parent.getSelectedCards(), 1));
-        deckButtons.get("X").addActionListener((e) -> removeCards("",  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck.current.getData(c).count()).reduce(0, Math::max)));
+        deckButtons.get("X").addActionListener((e) -> removeCards("",  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck.current.getEntry(c).count()).reduce(0, Math::max)));
         mainDeckPanel.add(deckButtons, BorderLayout.WEST);
         mainPanel.add(mainDeckPanel, BorderLayout.CENTER);
 
@@ -730,7 +730,7 @@ public class EditorFrame extends JInternalFrame
         extrasButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> {
             removeCards(getSelectedExtraName(), parent.getSelectedCards(), 1);
         });
-        extrasButtons.get("X").addActionListener((e) -> removeCards(getSelectedExtraName(), parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getData(c).count()).reduce(0, Math::max)));
+        extrasButtons.get("X").addActionListener((e) -> removeCards(getSelectedExtraName(), parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getEntry(c).count()).reduce(0, Math::max)));
         extrasPanel.add(extrasButtons, BorderLayout.WEST);
 
         extrasPane = new JTabbedPane();
@@ -857,7 +857,7 @@ public class EditorFrame extends JInternalFrame
         VerticalButtonList categoryButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         categoryButtons.get("+").addActionListener((e) -> addCards("", parent.getSelectedCards(), 1));
         categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards("", parent.getSelectedCards(), 1));
-        categoryButtons.get("X").addActionListener((e) -> removeCards("", parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck.current.getData(c).count()).reduce(0, Math::max)));
+        categoryButtons.get("X").addActionListener((e) -> removeCards("", parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck.current.getEntry(c).count()).reduce(0, Math::max)));
         categoriesPanel.add(categoryButtons, BorderLayout.WEST);
 
         // Sample hands
@@ -954,7 +954,7 @@ public class EditorFrame extends JInternalFrame
                     for (int i = 0; i < excludeModel.size(); i++)
                         if (excludeModel.elementAt(i).equals(c))
                             n++;
-                    if (n < deck.current.getData(c).count())
+                    if (n < deck.current.getEntry(c).count())
                         excludeModel.addElement(c);
                 }
             });
@@ -1820,7 +1820,7 @@ public class EditorFrame extends JInternalFrame
         moveToMenu.add(moveToItem);
         JMenuItem moveAllToItem = new JMenuItem(name);
         moveAllToItem.addActionListener((e) -> {
-            final Map<Card, Integer> moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck.current.getData(c).count()));
+            final Map<Card, Integer> moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck.current.getEntry(c).count()));
             performAction(() -> {
                 if (!deck.current.removeAll(moves).equals(moves))
                     throw new CardException(moves.keySet(), "error moving cards from main deck");
@@ -1904,7 +1904,7 @@ public class EditorFrame extends JInternalFrame
         extraMenu.add(moveToMainItem);
         JMenuItem moveAllToMainItem = new JMenuItem("Move All to Main Deck");
         moveAllToMainItem.addActionListener((e) -> {
-            final Map<Card, Integer> moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> extra.current.getData(c).count()));
+            final Map<Card, Integer> moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> extra.current.getEntry(c).count()));
             performAction(() -> {
                 for (Map.Entry<Card, Integer> move : moves.entrySet())
                 {
@@ -1948,7 +1948,7 @@ public class EditorFrame extends JInternalFrame
         {
             return performAction(() -> {
                 DeckData target = name.isEmpty() ? deck : extras.get(name);
-                Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getData(e.getKey()).count())));
+                Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getEntry(e.getKey()).count())));
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
                         return target.current.remove(e.getKey(), -e.getValue()) > 0;
@@ -1962,7 +1962,7 @@ public class EditorFrame extends JInternalFrame
                 return changed;
             }, () -> {
                 DeckData target = name.isEmpty() ? deck : extras.get(name);
-                Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getData(e.getKey()).count())));
+                Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getEntry(e.getKey()).count())));
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
                         return target.current.add(e.getKey(), -e.getValue());
@@ -2218,7 +2218,7 @@ public class EditorFrame extends JInternalFrame
         double avgCMC = 0.0;
         for (Card card : deck.current)
             if (!card.typeContains("land"))
-                avgCMC += card.minCmc() * deck.current.getData(card).count();
+                avgCMC += card.minCmc() * deck.current.getEntry(card).count();
         if (deck.current.nonland() > 0)
             avgCMC /= deck.current.nonland();
         if ((int)avgCMC == avgCMC)
@@ -2230,7 +2230,7 @@ public class EditorFrame extends JInternalFrame
         List<Double> cmc = new ArrayList<>();
         for (Card card : deck.current)
             if (!card.typeContains("land"))
-                for (int i = 0; i < deck.current.getData(card).count(); i++)
+                for (int i = 0; i < deck.current.getEntry(card).count(); i++)
                     cmc.add(card.minCmc());
         Collections.sort(cmc);
         if (!cmc.isEmpty())

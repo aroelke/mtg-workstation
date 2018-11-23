@@ -295,7 +295,7 @@ public class Inventory implements CardList
      * The metadata will only have the card's release date.
      */
     @Override
-    public Entry getData(Card card)
+    public Entry getEntry(Card card)
     {
         return new InventoryEntry(card);
     }
@@ -305,7 +305,7 @@ public class Inventory implements CardList
      * The metadata will only have the card's release date.
      */
     @Override
-    public Entry getData(int index) throws IndexOutOfBoundsException
+    public Entry getEntry(int index) throws IndexOutOfBoundsException
     {
         return new InventoryEntry(get(index));
     }

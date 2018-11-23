@@ -205,9 +205,9 @@ public class Hand implements CardList
      * The deck's metadata is used.
      */
     @Override
-    public Entry getData(Card card)
+    public Entry getEntry(Card card)
     {
-        return deck.getData(card);
+        return deck.getEntry(card);
     }
 
     /**
@@ -215,9 +215,9 @@ public class Hand implements CardList
      * The Deck's metadata is used.
      */
     @Override
-    public Entry getData(int index) throws IndexOutOfBoundsException
+    public Entry getEntry(int index) throws IndexOutOfBoundsException
     {
-        return deck.getData(get(index));
+        return deck.getEntry(get(index));
     }
 
     /**
@@ -285,7 +285,7 @@ public class Hand implements CardList
         clear();
         for (Card c : deck)
             if (!exclusion.contains(c))
-                for (int i = 0; i < deck.getData(c).count(); i++)
+                for (int i = 0; i < deck.getEntry(c).count(); i++)
                     hand.add(c);
     }
 

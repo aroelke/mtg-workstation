@@ -47,7 +47,7 @@ public class CardMenuItems
         final IntConsumer addN = (n) -> monitor.get().addCards(name.get(), cards.get(), n);
         final Runnable fillPlayset = () -> monitor.get().modifyCards(name.get(), cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
             if (monitor.get().hasCard(name.get(), c))
-                return Math.max(0, SettingsDialog.PLAYSET_SIZE - monitor.get().getDeck().getData(c).count());
+                return Math.max(0, SettingsDialog.PLAYSET_SIZE - monitor.get().getDeck().getEntry(c).count());
             else
                 return SettingsDialog.PLAYSET_SIZE;
         })));

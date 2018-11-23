@@ -34,8 +34,6 @@ public class Deck implements CardList
     /**
      * This class represents a category of a deck.  If a card is added or removed using the add and remove
      * methods, the master list will be updated to reflect this only if the card passes through the Category's filter.
-     * <p>
-     * TODO: Try to make spec private, and use accessors for it so updates are automatic
      *
      * @author Alec Roelke
      */
@@ -94,7 +92,7 @@ public class Deck implements CardList
         @Override
         public boolean addAll(CardList cards)
         {
-            return Deck.this.addAll(cards.stream().filter(spec::includes).collect(Collectors.toMap(Function.identity(), (c) -> cards.getData(c).count())));
+            return Deck.this.addAll(cards.stream().filter(spec::includes).collect(Collectors.toMap(Function.identity(), (c) -> cards.getEntry(c).count())));
         }
 
         /**
@@ -148,15 +146,15 @@ public class Deck implements CardList
         }
 
         @Override
-        public Entry getData(Card card) throws IllegalArgumentException
+        public Entry getEntry(Card card) throws IllegalArgumentException
         {
-            return spec.includes(card) ? Deck.this.getData(card) : null;
+            return spec.includes(card) ? Deck.this.getEntry(card) : null;
         }
 
         @Override
-        public Entry getData(int index) throws IndexOutOfBoundsException
+        public Entry getEntry(int index) throws IndexOutOfBoundsException
         {
-            return getData(get(index));
+            return getEntry(get(index));
         }
 
         @Override
@@ -204,7 +202,7 @@ public class Deck implements CardList
         @Override
         public Map<Card, Integer> removeAll(CardList cards)
         {
-            return Deck.this.removeAll(cards.stream().filter(spec::includes).collect(Collectors.toMap(Function.identity(), (c) -> cards.getData(c).count())));
+            return Deck.this.removeAll(cards.stream().filter(spec::includes).collect(Collectors.toMap(Function.identity(), (c) -> cards.getEntry(c).count())));
         }
 
         /**
@@ -265,7 +263,7 @@ public class Deck implements CardList
         @Override
         public int total()
         {
-            return filtrate.stream().map(Deck.this::getEntry).mapToInt(DeckEntry::count).sum();
+            return filtrate.stream().map(Deck.this::getEntry).mapToInt(Entry::count).sum();
         }
 
         /**
@@ -523,8 +521,8 @@ public class Deck implements CardList
         if (amount < 1)
             return false;
 
-        DeckEntry entry = getEntry(card);
-        if (entry == null)
+        DeckEntry entry = (DeckEntry)getEntry(card);
+        if (entry.count == 0)
         {
             masterList.add(entry = new DeckEntry(card, 0, date));
             for (Category category : categories.values())
@@ -549,8 +547,8 @@ public class Deck implements CardList
     {
         Map<Card, Integer> added = new HashMap<>();
         for (Card card : d)
-            if (add(card, d.getData(card).count(), d.getData(card).dateAdded()))
-                added.put(card, d.getData(card).count());
+            if (add(card, d.getEntry(card).count(), d.getEntry(card).dateAdded()))
+                added.put(card, d.getEntry(card).count());
         return !added.isEmpty();
     }
 
@@ -638,7 +636,7 @@ public class Deck implements CardList
     @Override
     public boolean contains(Card card)
     {
-        return getEntry(card) != null;
+        return getEntry(card).count() > 0;
     }
 
     @Override
@@ -749,34 +747,19 @@ public class Deck implements CardList
             throw new IllegalArgumentException("No category named " + name + " found");
     }
 
-    // TODO: Merge this with getEntry (0 in entry's count means not contained)
     @Override
-    public Entry getData(Card card)
-    {
-        if (contains(card))
-            return getEntry(card);
-        else
-            return new DeckEntry(card, 0, null);
-    }
-
-    @Override
-    public Entry getData(int index)
-    {
-        return masterList.get(index);
-    }
-
-    /**
-     * Get the {@link DeckEntry} for the given card.
-     *
-     * @param card card to look up
-     * @return the entry corresponding to the card, or null if there is none.
-     */
-    private DeckEntry getEntry(Card card)
+    public Entry getEntry(Card card)
     {
         for (DeckEntry e : masterList)
             if (e.card.equals(card))
                 return e;
-        return null;
+        return new DeckEntry(card, 0, null);
+    }
+
+    @Override
+    public Entry getEntry(int index)
+    {
+        return masterList.get(index);
     }
 
     @Override
@@ -845,8 +828,8 @@ public class Deck implements CardList
         if (amount < 1)
             return 0;
 
-        DeckEntry entry = getEntry(card);
-        if (entry == null)
+        DeckEntry entry = (DeckEntry)getEntry(card);
+        if (entry.count == 0)
             return 0;
 
         int removed = entry.remove(amount);
@@ -908,7 +891,7 @@ public class Deck implements CardList
     @Override
     public Map<Card, Integer> removeAll(CardList cards)
     {
-        return removeAll(cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> cards.getData(c).count())));
+        return removeAll(cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> cards.getEntry(c).count())));
     }
 
     @Override
@@ -935,8 +918,8 @@ public class Deck implements CardList
     {
         if (amount < 0)
             amount = 0;
-        DeckEntry e = getEntry(card);
-        if (e == null)
+        DeckEntry e = (DeckEntry)getEntry(card);
+        if (e.count == 0)
             return add(card, amount);
         else if (e.count == amount)
             return false;

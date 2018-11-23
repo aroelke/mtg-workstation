@@ -95,7 +95,7 @@ public class CardTableModel extends AbstractTableModel
     @Override
     public Object getValueAt(int rowIndex, int columnIndex)
     {
-        return list.getData(rowIndex).get(characteristics.get(columnIndex));
+        return list.getEntry(rowIndex).get(characteristics.get(columnIndex));
     }
 
     @Override

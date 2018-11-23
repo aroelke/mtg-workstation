@@ -136,13 +136,13 @@ public class LegalityChecker
             {
                 if (name.compareName(c) == 0)
                 {
-                    isoNameCounts.compute(name, (k, v) -> v += deck.getData(name).count());
+                    isoNameCounts.compute(name, (k, v) -> v += deck.getEntry(name).count());
                     counted = true;
                     break;
                 }
             }
             if (!counted)
-                isoNameCounts.put(c, deck.getData(c).count());
+                isoNameCounts.put(c, deck.getEntry(c).count());
         }
         for (Card c : deck)
         {
@@ -190,7 +190,7 @@ public class LegalityChecker
         for (ManaType color : ManaType.values())
             colorBins.put(color, new ArrayList<>());
         for (Card c : deck.stream().sorted(Comparator.comparingInt((a) -> a.colors().size())).collect(Collectors.toList()))
-            for (int i = 0; i < deck.getData(c).count(); i++)
+            for (int i = 0; i < deck.getEntry(c).count(); i++)
                 binCard(c, colorBins, new ArrayList<>());
         for (ManaType bin : colorBins.keySet())
         {

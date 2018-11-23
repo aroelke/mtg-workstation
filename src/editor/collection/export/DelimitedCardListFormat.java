@@ -104,7 +104,7 @@ public class DelimitedCardListFormat implements CardListFormat
             StringJoiner line = new StringJoiner(delimiter);
             for (CardFormat format : columnFormats)
             {
-                String value = format.format(list.getData(card));
+                String value = format.format(list.getEntry(card));
                 if (value.contains(delimiter))
                     value = ESCAPE + value.replace(ESCAPE, ESCAPE + ESCAPE) + ESCAPE;
                 line.add(value);
