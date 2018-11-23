@@ -17,7 +17,7 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellEditor;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.gui.display.CardTable;
 import editor.util.MouseListenerFactory;
 

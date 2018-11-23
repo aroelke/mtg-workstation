@@ -74,7 +74,7 @@ import javax.swing.table.AbstractTableModel;
 
 import editor.collection.CardList;
 import editor.collection.LegalityChecker;
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
 import editor.collection.export.CardListFormat;

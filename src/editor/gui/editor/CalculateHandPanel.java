@@ -29,7 +29,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.gui.SettingsDialog;
 

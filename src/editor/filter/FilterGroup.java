@@ -1,15 +1,19 @@
 package editor.filter;
 
-import editor.collection.category.CategorySpec;
-import editor.database.card.Card;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import editor.collection.deck.CategorySpec;
+import editor.database.card.Card;
 
 /**
  * This class represents a group of filters that are ANDed or ORed together.

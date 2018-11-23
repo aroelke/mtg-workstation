@@ -19,7 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
 import editor.gui.display.CardJList;
 import editor.gui.filter.FilterGroupPanel;

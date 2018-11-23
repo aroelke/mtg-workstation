@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
 

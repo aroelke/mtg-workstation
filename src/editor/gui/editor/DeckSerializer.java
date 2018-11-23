@@ -30,7 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
 import editor.database.card.Card;

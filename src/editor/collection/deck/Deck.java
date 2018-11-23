@@ -21,7 +21,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import editor.collection.CardList;
-import editor.collection.category.CategorySpec;
 import editor.database.card.Card;
 
 /**

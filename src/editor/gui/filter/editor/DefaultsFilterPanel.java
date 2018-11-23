@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.SettingsDialog;

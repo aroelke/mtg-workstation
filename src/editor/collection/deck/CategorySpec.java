@@ -1,4 +1,4 @@
-package editor.collection.category;
+package editor.collection.deck;
 
 import editor.database.card.Card;
 import editor.filter.Filter;

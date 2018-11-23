@@ -11,7 +11,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.util.MouseListenerFactory;
 

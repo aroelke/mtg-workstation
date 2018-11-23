@@ -2,11 +2,17 @@ package editor.gui.editor;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BoxLayout;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TristateCheckBox;

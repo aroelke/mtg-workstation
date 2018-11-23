@@ -94,7 +94,7 @@ import com.jidesoft.plaf.LookAndFeelFactory;
 
 import editor.collection.CardList;
 import editor.collection.Inventory;
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.collection.export.CardListFormat;
 import editor.collection.export.DelimitedCardListFormat;
 import editor.collection.export.TextCardListFormat;

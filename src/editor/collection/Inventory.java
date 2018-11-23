@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.leaf.BinaryFilter;

@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import editor.collection.CardList;
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.database.characteristics.CardAttribute;
 import editor.util.CollectionUtils;

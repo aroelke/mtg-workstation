@@ -5,7 +5,10 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.StringJoiner;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -17,7 +20,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
 import editor.database.characteristics.CombatStat;

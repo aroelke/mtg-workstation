@@ -20,7 +20,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import editor.collection.category.CategorySpec;
+import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.CombatStat;
