@@ -1940,15 +1940,25 @@ public class EditorFrame extends JInternalFrame
         return sideboardPane;
     }
 
+    /**
+     * Change the number of copies of cards in the deck, adding and removing entries as
+     * needed.
+     * 
+     * @param name name of the list to add to, with the empty string representing the main deck
+     * @param changes map of card onto integer representing the number of copies of each card to
+     * add (positive number) or remove (negative number)
+     * @return <code>true</code> if the list deck changed as a result, or <code>false</code>
+     * otherwise
+     */
     public boolean modifyCards(final String name, final Map<Card, Integer> changes)
     {
         if (changes.isEmpty() || changes.values().stream().allMatch((n) -> n == 0))
             return false;
         else
         {
+            Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -(name.isEmpty() ? deck : extras.get(name)).current.getEntry(e.getKey()).count())));
             return performAction(() -> {
                 DeckData target = name.isEmpty() ? deck : extras.get(name);
-                Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getEntry(e.getKey()).count())));
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
                         return target.current.remove(e.getKey(), -e.getValue()) > 0;
@@ -1962,7 +1972,6 @@ public class EditorFrame extends JInternalFrame
                 return changed;
             }, () -> {
                 DeckData target = name.isEmpty() ? deck : extras.get(name);
-                Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -target.current.getEntry(e.getKey()).count())));
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
                         return target.current.add(e.getKey(), -e.getValue());
