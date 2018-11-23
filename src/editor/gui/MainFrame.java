@@ -960,6 +960,12 @@ public class MainFrame extends JFrame
         });
         editMenu.add(preferencesItem);
 
+        // Edit menu listener
+        editMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
+            undoItem.setEnabled(selectedFrame != null);
+            redoItem.setEnabled(selectedFrame != null);
+        }));
+
         deckMenu = new JMenu("Deck");
         deckMenu.setEnabled(false);
         menuBar.add(deckMenu);
