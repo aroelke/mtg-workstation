@@ -30,14 +30,10 @@ public interface PopupMenuListenerFactory
             }
 
             @Override
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-            {
-            }
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
 
             @Override
-            public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-            {
-            }
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {}
         };
     }
 
@@ -53,9 +49,7 @@ public interface PopupMenuListenerFactory
         return new PopupMenuListener()
         {
             @Override
-            public void popupMenuCanceled(PopupMenuEvent e)
-            {
-            }
+            public void popupMenuCanceled(PopupMenuEvent e) {}
 
             @Override
             public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
@@ -64,9 +58,7 @@ public interface PopupMenuListenerFactory
             }
 
             @Override
-            public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-            {
-            }
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {}
         };
     }
 
@@ -83,14 +75,10 @@ public interface PopupMenuListenerFactory
         return new PopupMenuListener()
         {
             @Override
-            public void popupMenuCanceled(PopupMenuEvent e)
-            {
-            }
+            public void popupMenuCanceled(PopupMenuEvent e) {}
 
             @Override
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-            {
-            }
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
 
             @Override
             public void popupMenuWillBecomeVisible(PopupMenuEvent e)

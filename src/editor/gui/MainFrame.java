@@ -123,6 +123,7 @@ import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
+import editor.util.MenuListenerFactory;
 import editor.util.MouseListenerFactory;
 import editor.util.UnicodeSymbols;
 
@@ -922,6 +923,16 @@ public class MainFrame extends JFrame
         exitItem.addActionListener((e) -> exit());
         exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
         fileMenu.add(exitItem);
+
+        // File menu listener
+        fileMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
+            closeItem.setEnabled(selectedFrame != null);
+            closeAllItem.setEnabled(!editors.isEmpty());
+            saveItem.setEnabled(selectedFrame != null && selectedFrame.getUnsaved());
+            saveAsItem.setEnabled(selectedFrame != null);
+            saveAllItem.setEnabled(editors.stream().map((f) -> f.getUnsaved()).reduce(false, (a, b) -> a || b));
+            exportItem.setEnabled(selectedFrame != null);
+        }));
 
         // Edit menu
         JMenu editMenu = new JMenu("Edit");
