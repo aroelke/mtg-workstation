@@ -520,14 +520,28 @@ public class Deck implements CardList
      */
     public boolean add(Card card, int amount, LocalDate date)
     {
-        if (do_add(card, amount, date))
-        {
-            Map<Card, Integer> added = new HashMap<>();
-            added.put(card, amount);
-            return true;
-        }
-        else
+        if (amount < 1)
             return false;
+
+        DeckEntry entry = getEntry(card);
+        if (entry == null)
+        {
+            masterList.add(entry = new DeckEntry(card, 0, date));
+            for (Category category : categories.values())
+            {
+                if (category.spec.includes(card))
+                {
+                    category.filtrate.add(card);
+                    entry.categories.add(category);
+                }
+            }
+        }
+        entry.add(amount);
+        total += amount;
+        if (card.isLand())
+            land += amount;
+
+        return true;
     }
 
     @Override
@@ -535,7 +549,7 @@ public class Deck implements CardList
     {
         Map<Card, Integer> added = new HashMap<>();
         for (Card card : d)
-            if (do_add(card, d.getData(card).count(), d.getData(card).dateAdded()))
+            if (add(card, d.getData(card).count(), d.getData(card).dateAdded()))
                 added.put(card, d.getData(card).count());
         return !added.isEmpty();
     }
@@ -545,7 +559,7 @@ public class Deck implements CardList
     {
         Map<Card, Integer> added = new HashMap<>();
         for (Card card : amounts.keySet())
-            if (do_add(card, amounts.get(card), LocalDate.now()))
+            if (add(card, amounts.get(card), LocalDate.now()))
                 added.put(card, amounts.get(card));
         return !added.isEmpty();
     }
@@ -564,7 +578,7 @@ public class Deck implements CardList
      */
     public CardList addCategory(CategorySpec spec)
     {
-        Category c = do_addCategory(spec);
+        Category c = createCategory(spec);
         if (c != null)
             return c;
         else
@@ -583,7 +597,7 @@ public class Deck implements CardList
      */
     public CardList addCategory(CategorySpec spec, int rank)
     {
-        Category c = do_addCategory(spec);
+        Category c = createCategory(spec);
         if (c != null)
         {
             c.rank = rank;
@@ -648,49 +662,12 @@ public class Deck implements CardList
     }
 
     /**
-     * Add the given amount of the given card to the deck.  Whichever method calls this
-     * is responsible for notifying anyone of the change (if there is one).  If the card
-     * is already present, ignore the date parameter.
-     *
-     * @param card   card to add copies of
-     * @param amount amount of copies to add
-     * @param date   if the Card is not present in this Deck, the date it was added on
-     * @return true if this Deck was changed as a result of this operation, and false
-     * otherwise.
-     */
-    private boolean do_add(Card card, int amount, LocalDate date)
-    {
-        if (amount < 1)
-            return false;
-
-        DeckEntry entry = getEntry(card);
-        if (entry == null)
-        {
-            masterList.add(entry = new DeckEntry(card, 0, date));
-            for (Category category : categories.values())
-            {
-                if (category.spec.includes(card))
-                {
-                    category.filtrate.add(card);
-                    entry.categories.add(category);
-                }
-            }
-        }
-        entry.add(amount);
-        total += amount;
-        if (card.isLand())
-            land += amount;
-
-        return true;
-    }
-
-    /**
-     * Add a new Category without causing updates to listeners.
+     * Add a new Category.
      *
      * @param spec specification for the new Category
      * @return the new Category, or null if one with that name already existed.
      */
-    private Category do_addCategory(CategorySpec spec)
+    private Category createCategory(CategorySpec spec)
     {
         if (!categories.containsKey(spec.getName()))
         {
@@ -700,49 +677,6 @@ public class Deck implements CardList
         }
         else
             return null;
-    }
-
-    /**
-     * Remove the given amount of the given card from the deck.  Whichever method calls this
-     * is responsible for notifying anyone of the change (if there is one).  If the card
-     * is already present, ignore the date parameter.
-     *
-     * @param card   card to remove copies of
-     * @param amount amount of copies to remove
-     * @return the number of copies of the given Card that were actually removed from the deck.
-     * Normally this is the given number unless that number is greater than the number that were
-     * originally present.
-     */
-    public int do_remove(Card card, int amount)
-    {
-        if (amount < 1)
-            return 0;
-
-        DeckEntry entry = getEntry(card);
-        if (entry == null)
-            return 0;
-
-        int removed = entry.remove(amount);
-        if (removed > 0)
-        {
-            if (entry.count == 0)
-            {
-                for (Category category : categories.values())
-                {
-                    if (category.spec.getWhitelist().contains(card))
-                        category.spec.exclude(card);
-                    if (category.spec.getBlacklist().contains(card))
-                        category.spec.include(card);
-                    category.filtrate.remove(card);
-                }
-                masterList.remove(entry);
-            }
-            total -= removed;
-            if (card.isLand())
-                land -= removed;
-        }
-
-        return removed;
     }
 
     @Override
@@ -908,7 +842,33 @@ public class Deck implements CardList
     @Override
     public int remove(Card card, int amount)
     {
-        int removed = do_remove(card, amount);
+        if (amount < 1)
+            return 0;
+
+        DeckEntry entry = getEntry(card);
+        if (entry == null)
+            return 0;
+
+        int removed = entry.remove(amount);
+        if (removed > 0)
+        {
+            if (entry.count == 0)
+            {
+                for (Category category : categories.values())
+                {
+                    if (category.spec.getWhitelist().contains(card))
+                        category.spec.exclude(card);
+                    if (category.spec.getBlacklist().contains(card))
+                        category.spec.include(card);
+                    category.filtrate.remove(card);
+                }
+                masterList.remove(entry);
+            }
+            total -= removed;
+            if (card.isLand())
+                land -= removed;
+        }
+
         return removed;
     }
 
@@ -957,7 +917,7 @@ public class Deck implements CardList
         Map<Card, Integer> removed = new HashMap<>();
         for (Card card : new HashSet<Card>(amounts.keySet()))
         {
-            int r = do_remove(card, amounts.get(card));
+            int r = remove(card, amounts.get(card));
             if (r > 0)
                 removed.put(card, r);
         }
