@@ -435,10 +435,11 @@ public class EditorFrame extends JInternalFrame
         /**
          * Create a new TablePopupListener.
          *
-         * @param add    submenu for adding cards
+         * @param add submenu for adding cards
          * @param remove submenu for removing cards
-         * @param edit   item for editing card categories
-         * @param t      table which will contain the popup
+         * @param edit item for editing card categories
+         * @param sep separator between menu items
+         * @param t table which will contain the popup
          */
         public TableCategoriesPopupListener(JMenu add, JMenu remove, JMenuItem edit, JSeparator sep, CardTable t)
         {
@@ -784,8 +785,19 @@ public class EditorFrame extends JInternalFrame
         editTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
         tableMenu.add(editTagsItem);
 
+        // Table memu popup listeners
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, deck.table));
+        tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            for (JMenuItem item : tableMenuCardItems)
+                item.setEnabled(parent.getSelectedCard() != null);
+            moveToMenu.setEnabled(!extras.isEmpty());
+            moveAllToMenu.setEnabled(!extras.isEmpty());
+            addToCategoryMenu.setEnabled(!categoryPanels.isEmpty());
+            removeFromCategoryMenu.setEnabled(!categoryPanels.isEmpty());
+            editCategoriesItem.setEnabled(!categoryPanels.isEmpty());
+            editTagsItem.setEnabled(parent.getSelectedCard() != null);
+        }));
 
         // Panel containing categories
         JPanel categoriesPanel = new JPanel(new BorderLayout());
@@ -1339,10 +1351,18 @@ public class EditorFrame extends JInternalFrame
         editTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
         tableMenu.add(editTagsItem);
 
+        // Table menu popup listeners
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, newCategory.table));
-        tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> removeFromCategoryItem.setText("Exclude from " + spec.getName())));
+        tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            removeFromCategoryItem.setText("Exclude from " + spec.getName());
 
+            for (JMenuItem item : tableMenuCardItems)
+                item.setEnabled(parent.getSelectedCard() != null);
+                editTagsItem.setEnabled(parent.getSelectedCard() != null);
+        }));
+
+        
         // Category popup menu
         JPopupMenu categoryMenu = new JPopupMenu();
         newCategory.setComponentPopupMenu(categoryMenu);
