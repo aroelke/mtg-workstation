@@ -489,7 +489,7 @@ public class EditorFrame extends JInternalFrame
                         if (!category.includes(card))
                         {
                             JMenuItem categoryItem = new JMenuItem(category.getName());
-                            categoryItem.addActionListener((e2) -> category.include(card));
+                            categoryItem.addActionListener((e2) -> includeIn(card, category));
                             addToCategoryMenu.add(categoryItem);
                         }
                     }
@@ -500,7 +500,7 @@ public class EditorFrame extends JInternalFrame
                         if (category.includes(card))
                         {
                             JMenuItem categoryItem = new JMenuItem(category.getName());
-                            categoryItem.addActionListener((e2) -> category.exclude(card));
+                            categoryItem.addActionListener((e2) -> excludeFrom(card, category));
                             removeFromCategoryMenu.add(categoryItem);
                         }
                     }
@@ -1326,11 +1326,7 @@ public class EditorFrame extends JInternalFrame
         JMenu addToCategoryMenu = new JMenu("Include in");
         tableMenu.add(addToCategoryMenu);
         JMenuItem removeFromCategoryItem = new JMenuItem("Exclude from " + spec.getName());
-        removeFromCategoryItem.addActionListener((e) -> {
-            for (Card c : newCategory.getSelectedCards())
-                spec.exclude(c);
-            ((AbstractTableModel)newCategory.table.getModel()).fireTableDataChanged();
-        });
+        removeFromCategoryItem.addActionListener((e) -> modifyInclusion(Collections.<Card>emptyList(), newCategory.getSelectedCards(), spec));
         tableMenu.add(removeFromCategoryItem);
         JMenu removeFromCategoryMenu = new JMenu("Exclude from");
         tableMenu.add(removeFromCategoryMenu);
@@ -1643,6 +1639,14 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
+     * TODO
+     */
+    public boolean excludeFrom(final Card card, CategorySpec spec)
+    {
+        return modifyInclusion(Collections.<Card>emptyList(), Arrays.asList(card), spec);
+    }
+
+    /**
      * Export the deck to a different format.
      *
      * @param format formatter to use for export
@@ -1806,6 +1810,15 @@ public class EditorFrame extends JInternalFrame
             if (selectedTable == panel.table)
                 return true;
         return false;
+    }
+
+    /**
+     * TODO
+     * @return
+     */
+    public boolean includeIn(final Card card, CategorySpec spec)
+    {
+        return modifyInclusion(Arrays.asList(card), Collections.<Card>emptyList(), spec);
     }
 
     /**
@@ -2008,6 +2021,45 @@ public class EditorFrame extends JInternalFrame
         }
     }
 
+    /**
+     * TODO
+     */
+    public boolean modifyInclusion(Collection<Card> include, Collection<Card> exclude, CategorySpec spec)
+    {
+        if (!deck.current.containsCategory(spec.getName()))
+            throw new IllegalArgumentException("can't include a card in a category that doesn't exist");
+        if (!deck.current.getCategorySpec(spec.getName()).equals(spec))
+            throw new IllegalArgumentException("category name matches, but specification doesn't");
+
+        if (!include.stream().map(spec::includes).reduce(true, (a, b) -> a && b) ||
+            exclude.stream().map(spec::includes).reduce(false, (a, b) -> a || b))
+        {
+            final String name = spec.getName();
+            return performAction(() -> {
+                CategorySpec mod = deck.current.getCategorySpec(name);
+                for (Card c : include)
+                    mod.include(c);
+                for (Card c : exclude)
+                    mod.exclude(c);
+                deck.current.updateCategory(name, mod);
+                return true;
+            }, () -> {
+                CategorySpec mod = deck.current.getCategorySpec(name);
+                for (Card c : include)
+                    mod.exclude(c);
+                for (Card c : exclude)
+                    mod.include(c);
+                deck.current.updateCategory(name, mod);
+                return true;
+            });
+        }
+        else
+            return false;
+    }
+
+    /**
+     * TODO
+     */
     public boolean performAction(Supplier<Boolean> redo, Supplier<Boolean> undo)
     {
         UndoableAction<Boolean, Boolean> action = new UndoableAction<>(() -> {
