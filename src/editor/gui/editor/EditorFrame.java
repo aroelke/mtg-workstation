@@ -104,7 +104,6 @@ import editor.util.UnicodeSymbols;
  * <p>
  * TODO: Add a filter bar to the main tab just like the inventory has
  * TODO: Add something for calculating probability for multiple categories at once
- * TODO: Instead of a single dedicated extra list for sideboard, etc., start with none and allow adding arbitrary extras in tabs
  *
  * @author Alec Roelke
  */
@@ -1676,7 +1675,13 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Exclude a card from a category.
+     * 
+     * @param card card to exclude
+     * @param spec specification for the category to exclude it from; must be a category in the
+     * main deck
+     * @return <code>true</code> if the card was successfully excluded from the category, and
+     * <code>false</code> otherwise (such as if the card already wasn't in the category).
      */
     public boolean excludeFrom(final Card card, CategorySpec spec)
     {
@@ -1850,8 +1855,13 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
-     * @return
+     * Include a card in a category.
+     * 
+     * @param card card to include
+     * @param spec specification for the category to include the card in; must be a category in
+     * the deck
+     * @return <code>true</code> if the card was sucessfully included in the category, and
+     * <code>false</code> otherwise (such as if the card was already in the category).
      */
     public boolean includeIn(final Card card, CategorySpec spec)
     {
@@ -2059,7 +2069,15 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Modify the inclusion of cards in a category.
+     * 
+     * @param include cards to include in the category
+     * @param exclude cards to exclude from the category
+     * @param spec specification for the category to modify card inclusion for; must be part of
+     * the deck
+     * @return <code>true</code> if the category was modified, and <code>false</code>
+     * otherwise (such as if the included cards already existed in the category and the
+     * excluded cards didn't).
      */
     public boolean modifyInclusion(Collection<Card> include, Collection<Card> exclude, CategorySpec spec)
     {
@@ -2095,7 +2113,14 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * TODO
+     * Peform an action that can be undone.  Actions and their inverses should
+     * return a boolean value indicating if they were successful.
+     * 
+     * @param redo action to perform; this gets performed upon calling this method
+     * and stored for later in case it needs to be redone
+     * @param undo action to perform when undoing the action
+     * @return <code>true</code> if the action was successful, and <code>false</code>
+     * otherwise.
      */
     public boolean performAction(Supplier<Boolean> redo, Supplier<Boolean> undo)
     {
