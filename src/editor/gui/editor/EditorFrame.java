@@ -1626,52 +1626,63 @@ public class EditorFrame extends JInternalFrame
      *
      * @param included map of cards onto the set of categories they should become included in
      * @param excluded map of cards onto the set of categories they should become excluded from
+     * @return <code>true</code> if any categories were modified, and <code>false</code>
+     * otherwise.
      */
-    public void editInclusion(final Map<Card, Set<CategorySpec>> included, final Map<Card, Set<CategorySpec>> excluded)
+    public boolean editInclusion(final Map<Card, Set<CategorySpec>> included, final Map<Card, Set<CategorySpec>> excluded)
     {
-        performAction(() -> {
-            Map<String, CategorySpec> mods = new HashMap<String, CategorySpec>();
-            for (Card card : included.keySet())
-            {
-                for (CategorySpec category : included.get(card))
+        for (Card card : included.keySet())
+            included.compute(card, (k, v) -> v.stream().filter((c) -> !c.includes(k)).collect(Collectors.toSet()));
+        for (Card card : excluded.keySet())
+            excluded.compute(card, (k, v) -> v.stream().filter((c) -> c.includes(k)).collect(Collectors.toSet()));
+        if (included.isEmpty() && excluded.isEmpty())
+            return false;
+        else
+        {
+            return performAction(() -> {
+                Map<String, CategorySpec> mods = new HashMap<String, CategorySpec>();
+                for (Card card : included.keySet())
                 {
-                    mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
-                    mods.get(category.getName()).include(card);
+                    for (CategorySpec category : included.get(card))
+                    {
+                        mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
+                        mods.get(category.getName()).include(card);
+                    }
                 }
-            }
-            for (Card card : excluded.keySet())
-            {
-                for (CategorySpec category : excluded.get(card))
+                for (Card card : excluded.keySet())
                 {
-                    mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
-                    mods.get(category.getName()).exclude(card);
+                    for (CategorySpec category : excluded.get(card))
+                    {
+                        mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
+                        mods.get(category.getName()).exclude(card);
+                    }
                 }
-            }
-            for (Map.Entry<String, CategorySpec> mod : mods.entrySet())
-                deck.current.updateCategory(mod.getKey(), mod.getValue());
-            return true;
-        }, () -> {
-            Map<String, CategorySpec> mods = new HashMap<String, CategorySpec>();
-            for (Card card : included.keySet())
-            {
-                for (CategorySpec category : included.get(card))
+                for (Map.Entry<String, CategorySpec> mod : mods.entrySet())
+                    deck.current.updateCategory(mod.getKey(), mod.getValue());
+                return true;
+            }, () -> {
+                Map<String, CategorySpec> mods = new HashMap<String, CategorySpec>();
+                for (Card card : included.keySet())
                 {
-                    mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
-                    mods.get(category.getName()).exclude(card);
+                    for (CategorySpec category : included.get(card))
+                    {
+                        mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
+                        mods.get(category.getName()).exclude(card);
+                    }
                 }
-            }
-            for (Card card : excluded.keySet())
-            {
-                for (CategorySpec category : excluded.get(card))
+                for (Card card : excluded.keySet())
                 {
-                    mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
-                    mods.get(category.getName()).include(card);
+                    for (CategorySpec category : excluded.get(card))
+                    {
+                        mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
+                        mods.get(category.getName()).include(card);
+                    }
                 }
-            }
-            for (Map.Entry<String, CategorySpec> mod : mods.entrySet())
-                deck.current.updateCategory(mod.getKey(), mod.getValue());
-            return true;
-        });
+                for (Map.Entry<String, CategorySpec> mod : mods.entrySet())
+                    deck.current.updateCategory(mod.getKey(), mod.getValue());
+                return true;
+            });
+        }
     }
 
     /**
