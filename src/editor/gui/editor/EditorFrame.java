@@ -1632,9 +1632,19 @@ public class EditorFrame extends JInternalFrame
     public boolean editInclusion(final Map<Card, Set<CategorySpec>> included, final Map<Card, Set<CategorySpec>> excluded)
     {
         for (Card card : included.keySet())
-            included.compute(card, (k, v) -> v.stream().filter((c) -> !c.includes(k)).collect(Collectors.toSet()));
+        {
+            included.compute(card, (k, v) -> {
+                Set<CategorySpec> s = v.stream().filter((c) -> !c.includes(k)).collect(Collectors.toSet());
+                return s.isEmpty() ? null : s;
+            });
+        }
         for (Card card : excluded.keySet())
-            excluded.compute(card, (k, v) -> v.stream().filter((c) -> c.includes(k)).collect(Collectors.toSet()));
+        {
+            excluded.compute(card, (k, v) -> {
+                Set<CategorySpec> s = v.stream().filter((c) -> c.includes(k)).collect(Collectors.toSet());
+                return s.isEmpty() ? null : s;
+            });
+        }
         if (included.isEmpty() && excluded.isEmpty())
             return false;
         else
@@ -1645,6 +1655,8 @@ public class EditorFrame extends JInternalFrame
                 {
                     for (CategorySpec category : included.get(card))
                     {
+                        if (deck.current.getCategorySpec(category.getName()).includes(card))
+                            throw new IllegalArgumentException(card + " is already in " + category.getName());
                         mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
                         mods.get(category.getName()).include(card);
                     }
@@ -1653,6 +1665,8 @@ public class EditorFrame extends JInternalFrame
                 {
                     for (CategorySpec category : excluded.get(card))
                     {
+                        if (!deck.current.getCategorySpec(category.getName()).includes(card))
+                            throw new IllegalArgumentException(card + " is already not in " + category.getName());
                         mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
                         mods.get(category.getName()).exclude(card);
                     }
@@ -1666,6 +1680,8 @@ public class EditorFrame extends JInternalFrame
                 {
                     for (CategorySpec category : included.get(card))
                     {
+                        if (!deck.current.getCategorySpec(category.getName()).includes(card))
+                            throw new IllegalArgumentException("error undoing category edit: " + card + " is already not in " + category.getName());
                         mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
                         mods.get(category.getName()).exclude(card);
                     }
@@ -1674,6 +1690,8 @@ public class EditorFrame extends JInternalFrame
                 {
                     for (CategorySpec category : excluded.get(card))
                     {
+                        if (deck.current.getCategorySpec(category.getName()).includes(card))
+                            throw new IllegalArgumentException("error undoing category edit: " + card + " is already in " + category.getName());
                         mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
                         mods.get(category.getName()).include(card);
                     }
@@ -2097,30 +2115,47 @@ public class EditorFrame extends JInternalFrame
         if (!deck.current.getCategorySpec(spec.getName()).equals(spec))
             throw new IllegalArgumentException("category name matches, but specification doesn't");
 
-        if (!include.stream().map(spec::includes).reduce(true, (a, b) -> a && b) ||
-            exclude.stream().map(spec::includes).reduce(false, (a, b) -> a || b))
+        include.removeIf(spec::includes);
+        exclude.removeIf((c) -> !spec.includes(c));
+        if (include.isEmpty() && exclude.isEmpty())
+            return false;
+        else
         {
             final String name = spec.getName();
             return performAction(() -> {
                 CategorySpec mod = deck.current.getCategorySpec(name);
                 for (Card c : include)
+                {
+                    if (mod.includes(c))
+                        throw new IllegalArgumentException(mod.getName() + " already includes " + c);
                     mod.include(c);
+                }
                 for (Card c : exclude)
+                {
+                    if (!mod.includes(c))
+                        throw new IllegalArgumentException(mod.getName() + " already doesn't include " + c);
                     mod.exclude(c);
+                }
                 deck.current.updateCategory(name, mod);
                 return true;
             }, () -> {
                 CategorySpec mod = deck.current.getCategorySpec(name);
                 for (Card c : include)
+                {
+                    if (!mod.includes(c))
+                        throw new IllegalArgumentException("error undoing include: " + mod.getName() + " already doesn't include " + c);
                     mod.exclude(c);
+                }
                 for (Card c : exclude)
+                {
+                    if (mod.includes(c))
+                        throw new IllegalArgumentException("error undoing exclude: " + mod.getName() + " already includes " + c);
                     mod.include(c);
+                }
                 deck.current.updateCategory(name, mod);
                 return true;
             });
         }
-        else
-            return false;
     }
 
     /**
