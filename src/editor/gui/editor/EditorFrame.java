@@ -797,6 +797,52 @@ public class EditorFrame extends JInternalFrame
             removeFromCategoryMenu.setEnabled(!categoryPanels.isEmpty());
             editCategoriesItem.setEnabled(!categoryPanels.isEmpty());
             editTagsItem.setEnabled(parent.getSelectedCard() != null);
+
+            moveToMenu.removeAll();
+            moveAllToMenu.removeAll();
+            for (final Map.Entry<String, DeckData> extra : extras.entrySet())
+            {
+                JMenuItem moveToItem = new JMenuItem(extra.getKey());
+                moveToItem.addActionListener((e2) -> {
+                    final Set<Card> selected = new HashSet<>(parent.getSelectedCards());
+                    performAction(() -> {
+                        if (!deck.current.removeAll(selected).equals(selected))
+                            throw new CardException(selected, "error moving cards from main deck");
+                        if (!extra.getValue().current.addAll(selected))
+                            throw new CardException(selected, "could not move cards to list \"" + extra.getKey() + '"');
+                            updateTables();
+                        return true;
+                    }, () -> {
+                        if (!deck.current.addAll(selected))
+                            throw new CardException(selected, "could not undo move from main deck");
+                        if (!extra.getValue().current.removeAll(selected).equals(selected))
+                            throw new CardException(selected, "error undoing move to list \"" + extra.getKey() + '"');
+                        updateTables();
+                        return true;
+                    });
+                });
+                moveToMenu.add(moveToItem);
+                JMenuItem moveAllToItem = new JMenuItem(extra.getKey());
+                moveAllToItem.addActionListener((e2) -> {
+                    final Map<Card, Integer> moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck.current.getEntry(c).count()));
+                    performAction(() -> {
+                        if (!deck.current.removeAll(moves).equals(moves))
+                            throw new CardException(moves.keySet(), "error moving cards from main deck");
+                        if (!extra.getValue().current.addAll(moves))
+                            throw new CardException(moves.keySet(), "could not move cards to list \"" + extra.getKey() + '"');
+                        updateTables();
+                        return true;
+                    }, () -> {
+                        if (!deck.current.addAll(moves))
+                            throw new CardException(moves.keySet(), "could not undo move from main deck");
+                        if (!extra.getValue().current.removeAll(moves).equals(moves))
+                            throw new CardException(moves.keySet(), "error undoing move to list \"" + extra.getKey() + '"');
+                        updateTables();
+                        return true;
+                    });
+                });
+                moveAllToMenu.add(moveAllToItem);
+            }
         }));
 
         // Panel containing categories
@@ -1588,7 +1634,7 @@ public class EditorFrame extends JInternalFrame
     /**
      * Open the category dialog to edit the category with the given
      * name, if there is one, and then update the undo buffer.
-     *
+     * TODO: This doesn't work properly
      * @param name name of the category to edit
      * @return <code>true</code> if the category was edited, and <code>false</code>
      * otherwise.
@@ -1907,48 +1953,6 @@ public class EditorFrame extends JInternalFrame
      */
     public JScrollPane initExtraList(String name, DeckData extra)
     {
-        // Move cards to sideboard
-        JMenuItem moveToItem = new JMenuItem(name);
-        moveToItem.addActionListener((e) -> {
-            final Set<Card> selected = new HashSet<>(parent.getSelectedCards());
-            performAction(() -> {
-                if (!deck.current.removeAll(selected).equals(selected))
-                    throw new CardException(selected, "error moving cards from main deck");
-                if (!extra.current.addAll(selected))
-                    throw new CardException(selected, "could not move cards to list \"" + name + '"');
-                    updateTables();
-                return true;
-            }, () -> {
-                if (!deck.current.addAll(selected))
-                    throw new CardException(selected, "could not undo move from main deck");
-                if (!extra.current.removeAll(selected).equals(selected))
-                    throw new CardException(selected, "error undoing move to list \"" + name + '"');
-                updateTables();
-                return true;
-            });
-        });
-        moveToMenu.add(moveToItem);
-        JMenuItem moveAllToItem = new JMenuItem(name);
-        moveAllToItem.addActionListener((e) -> {
-            final Map<Card, Integer> moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck.current.getEntry(c).count()));
-            performAction(() -> {
-                if (!deck.current.removeAll(moves).equals(moves))
-                    throw new CardException(moves.keySet(), "error moving cards from main deck");
-                if (!extra.current.addAll(moves))
-                    throw new CardException(moves.keySet(), "could not move cards to list \"" + name + '"');
-                updateTables();
-                return true;
-            }, () -> {
-                if (!deck.current.addAll(moves))
-                    throw new CardException(moves.keySet(), "could not undo move from main deck");
-                if (!extra.current.removeAll(moves).equals(moves))
-                    throw new CardException(moves.keySet(), "error undoing move to list \"" + name + '"');
-                updateTables();
-                return true;
-            });
-        });
-        moveAllToMenu.add(moveAllToItem);
-
         // Extra list's models
         extra.model = new CardTableModel(this, extra.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
         extra.table = new CardTable(extra.model)
