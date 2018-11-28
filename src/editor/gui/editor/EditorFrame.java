@@ -1304,7 +1304,7 @@ public class EditorFrame extends JInternalFrame
         newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
             ListSelectionModel lsm = (ListSelectionModel)e.getSource();
             if (!lsm.isSelectionEmpty() && !e.getValueIsAdjusting())
-                parent.setSelectedCards(newCategory.table, deck.current.getCategoryList(spec.getName()));
+                parent.setSelectedCards(newCategory.table, deck.current.getCategoryList(newCategory.getCategoryName()));
         });
         // Add the behavior for the edit category button
         newCategory.rankBox.addActionListener((e) -> {
@@ -1331,22 +1331,24 @@ public class EditorFrame extends JInternalFrame
                 });
             }
         });
-        newCategory.editButton.addActionListener((e) -> editCategory(spec.getName()));
+        newCategory.editButton.addActionListener((e) -> editCategory(newCategory.getCategoryName()));
         // Add the behavior for the remove category button
-        newCategory.removeButton.addActionListener((e) -> removeCategory(spec.getName()));
+        newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory.getCategoryName()));
         // Add the behavior for the color edit button
         newCategory.colorButton.addActionListener((e) -> {
             final Color newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color());
             if (newColor != null)
             {
-                final Color oldColor = spec.getColor();
+                final Color oldColor = deck.current.getCategorySpec(newCategory.getCategoryName()).getColor();
                 performAction(() -> {
-                    spec.setColor(newColor);
-                    deck.current.updateCategory(spec.getName(), spec);
+                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
+                    mod.setColor(newColor);
+                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
                     return true;
                 }, () -> {
-                    spec.setColor(oldColor);
-                    deck.current.updateCategory(spec.getName(), spec);
+                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
+                    mod.setColor(oldColor);
+                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
                     return true;
                 });
             }
@@ -1372,7 +1374,7 @@ public class EditorFrame extends JInternalFrame
         JMenu addToCategoryMenu = new JMenu("Include in");
         tableMenu.add(addToCategoryMenu);
         JMenuItem removeFromCategoryItem = new JMenuItem("Exclude from " + spec.getName());
-        removeFromCategoryItem.addActionListener((e) -> modifyInclusion(Collections.<Card>emptyList(), newCategory.getSelectedCards(), spec));
+        removeFromCategoryItem.addActionListener((e) -> modifyInclusion(Collections.<Card>emptyList(), newCategory.getSelectedCards(), deck.current.getCategorySpec(newCategory.getCategoryName())));
         tableMenu.add(removeFromCategoryItem);
         JMenu removeFromCategoryMenu = new JMenu("Exclude from");
         tableMenu.add(removeFromCategoryMenu);
@@ -1397,7 +1399,7 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, newCategory.table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            removeFromCategoryItem.setText("Exclude from " + spec.getName());
+            removeFromCategoryItem.setText("Exclude from " + newCategory.getCategoryName());
 
             for (JMenuItem item : tableMenuCardItems)
                 item.setEnabled(parent.getSelectedCard() != null);
@@ -1426,30 +1428,31 @@ public class EditorFrame extends JInternalFrame
 
         // Edit item
         JMenuItem editItem = new JMenuItem("Edit...");
-        editItem.addActionListener((e) -> editCategory(spec.getName()));
+        editItem.addActionListener((e) -> editCategory(newCategory.getCategoryName()));
         categoryMenu.add(editItem);
 
         // Delete item
         JMenuItem deleteItem = new JMenuItem("Delete");
-        deleteItem.addActionListener((e) -> deck.current.removeCategory(spec));
+        deleteItem.addActionListener((e) -> deck.current.removeCategory(newCategory.getCategoryName()));
         categoryMenu.add(deleteItem);
 
         // Add to presets item
         JMenuItem addPresetItem = new JMenuItem("Add to presets");
         addPresetItem.addActionListener((e) -> {
-            if (!spec.getWhitelist().isEmpty() || !spec.getBlacklist().isEmpty())
+            CategorySpec s = deck.current.getCategorySpec(newCategory.getCategoryName());
+            if (!s.getWhitelist().isEmpty() || !s.getBlacklist().isEmpty())
             {
                 if (JOptionPane.showConfirmDialog(this,
                         "Category "
-                                + spec.getName()
+                                + s.getName()
                                 + " contains cards in its whitelist or blacklist which will not be included in the preset category."
                                 + "  Make this category a preset category?",
                         "Add to Presets",
                         JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-                    parent.addPreset(spec);
+                    parent.addPreset(s);
             }
             else
-                parent.addPreset(spec);
+                parent.addPreset(s);
         });
         categoryMenu.add(addPresetItem);
 
@@ -1634,7 +1637,7 @@ public class EditorFrame extends JInternalFrame
     /**
      * Open the category dialog to edit the category with the given
      * name, if there is one, and then update the undo buffer.
-     * TODO: This doesn't work properly
+     *
      * @param name name of the category to edit
      * @return <code>true</code> if the category was edited, and <code>false</code>
      * otherwise.
@@ -1652,14 +1655,20 @@ public class EditorFrame extends JInternalFrame
             {
                 final CategorySpec old = deck.current.getCategorySpec(name);
                 return performAction(() -> {
-                    deck.current.updateCategory(old.getName(), spec);
+                    if (!deck.current.updateCategory(old.getName(), spec).equals(old))
+                        throw new RuntimeException("edited unexpected category");
                     CategoryPanel panel = getCategory(old.getName());
                     panel.setCategoryName(spec.getName());
+                    ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
+                    updateCategoryPanel();
                     return true;
                 }, () -> {
-                    deck.current.updateCategory(spec.getName(), old);
+                    if (!deck.current.updateCategory(spec.getName(), old).equals(spec))
+                        throw new RuntimeException("restored from unexpected category");
                     CategoryPanel panel = getCategory(spec.getName());
                     panel.setCategoryName(old.getName());
+                    ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
+                    updateCategoryPanel();
                     return true;
                 });
             }
@@ -2141,6 +2150,10 @@ public class EditorFrame extends JInternalFrame
                     mod.exclude(c);
                 }
                 deck.current.updateCategory(name, mod);
+                for (CategoryPanel panel : categoryPanels)
+                    if (panel.getCategoryName().equals(name))
+                        ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
+                updateCategoryPanel();
                 return true;
             }, () -> {
                 CategorySpec mod = deck.current.getCategorySpec(name);
@@ -2157,6 +2170,10 @@ public class EditorFrame extends JInternalFrame
                     mod.include(c);
                 }
                 deck.current.updateCategory(name, mod);
+                for (CategoryPanel panel : categoryPanels)
+                    if (panel.getCategoryName().equals(name))
+                        ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
+                updateCategoryPanel();
                 return true;
             });
         }

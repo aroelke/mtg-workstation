@@ -859,7 +859,8 @@ public class Deck implements CardList
      * Remove a category from the deck.
      *
      * @param spec specification of the category to remove
-     * @return true if the deck changed as a result, and false otherwise.
+     * @return <code>true</code> if the deck changed as a result, and <code>false</code>
+     * otherwise.
      */
     public boolean removeCategory(CategorySpec spec)
     {
@@ -884,6 +885,21 @@ public class Deck implements CardList
             return true;
 
         }
+        else
+            return false;
+    }
+
+    /**
+     * Remove a category from the deck.
+     * 
+     * @param name name of the category to remove
+     * @return <code>true</code> if the deck changed as a result, and <code>false</code>
+     * otherwise.
+     */
+    public boolean removeCategory(String name)
+    {
+        if (categories.containsKey(name))
+            return removeCategory(getCategorySpec(name));
         else
             return false;
     }
