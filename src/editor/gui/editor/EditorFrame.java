@@ -810,7 +810,7 @@ public class EditorFrame extends JInternalFrame
                             throw new CardException(selected, "error moving cards from main deck");
                         if (!extra.getValue().current.addAll(selected))
                             throw new CardException(selected, "could not move cards to list \"" + extra.getKey() + '"');
-                            updateTables();
+                        updateTables();
                         return true;
                     }, () -> {
                         if (!deck.current.addAll(selected))
