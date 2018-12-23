@@ -1,4 +1,4 @@
-AllSets-x.*
+*.json
 settings.txt
 presets
 .classpath
