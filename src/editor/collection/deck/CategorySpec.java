@@ -348,9 +348,9 @@ public class CategorySpec implements Externalizable
 
         out.writeInt(blacklist.size());
         for (Card card : blacklist)
-            out.writeUTF(card.id());
+            out.writeLong(card.multiverseid().get(0));
         out.writeInt(whitelist.size());
         for (Card card : whitelist)
-            out.writeUTF(card.id());
+            out.writeLong(card.multiverseid().get(0));
     }
 }

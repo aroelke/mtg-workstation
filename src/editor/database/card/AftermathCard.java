@@ -68,7 +68,7 @@ public class AftermathCard extends MultiCard
      * All of the faces of an AftermathCard are on the front, so only one multiverseid is necessary.
      */
     @Override
-    public List<Integer> multiverseid()
+    public List<Long> multiverseid()
     {
         return super.multiverseid().subList(0, 1);
     }

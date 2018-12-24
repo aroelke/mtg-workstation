@@ -120,7 +120,7 @@ public class CardImagePanel extends JPanel
             while (true)
             {
                 DownloadRequest req = toDownload.take();
-                for (int multiverseid : req.card.multiverseid())
+                for (long multiverseid : req.card.multiverseid())
                 {
                     File img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
                     if (!img.exists())
@@ -262,7 +262,7 @@ public class CardImagePanel extends JPanel
         if (card != null)
         {
             faceImages.clear();
-            for (int i : card.multiverseid())
+            for (long i : card.multiverseid())
             {
                 BufferedImage img = null;
                 try

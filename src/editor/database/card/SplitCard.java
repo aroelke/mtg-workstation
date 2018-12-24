@@ -72,7 +72,7 @@ public class SplitCard extends MultiCard
      * All of the faces of a SplitCard are on the front, so only one multiverseid is necessary.
      */
     @Override
-    public List<Integer> multiverseid()
+    public List<Long> multiverseid()
     {
         return super.multiverseid().subList(0, 1);
     }
