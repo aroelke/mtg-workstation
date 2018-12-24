@@ -393,7 +393,7 @@ public class DeckSerializer
         out.writeInt(deck.size());
         for (Card card : deck)
         {
-            out.writeUTF(card.id());
+            out.writeInt(card.multiverseid().get(0));
             out.writeInt(deck.getEntry(card).count());
             out.writeObject(deck.getEntry(card).dateAdded());
         }
