@@ -134,7 +134,7 @@ public class InventoryLoadDialog extends JDialog
 
                 // TODO: Remove this when mtgjson fixes the numbering issue
                 Map<Card, String> mciNumbers = new HashMap<>();
-                HashSet<String> ids = new HashSet<>();
+                HashSet<Long> ids = new HashSet<>();
                 publish("Reading cards from " + file.getName() + "...");
                 setProgress(0);
                 for (Map.Entry<String, JsonElement> setNode : root.entrySet())
@@ -333,13 +333,13 @@ public class InventoryLoadDialog extends JDialog
                                 rulings,
                                 legality,
                                 imageName);
-                        if (ids.contains(c.id()))
+                        if (ids.contains(c.multiverseid().get(0)))
                         {
                             errors.add(c.toString() + " (" + c.expansion() + "): Duplicate entry in JSON.");
                             continue;
                         }
                         else
-                            ids.add(c.id());
+                            ids.add(c.multiverseid().get(0));
 
                         // Add to map of faces if the card has multiple faces
                         if (layout.isMultiFaced)
@@ -502,7 +502,7 @@ public class InventoryLoadDialog extends JDialog
             {
                 Matcher m = Pattern.compile("\\((.*?)::\\[(.*?)\\]\\)").matcher(SettingsDialog.getAsString(SettingsDialog.CARD_TAGS));
                 while (m.find())
-                    Card.tags.put(inventory.get(m.group(1)), Arrays.stream(m.group(2).split(",")).collect(Collectors.toSet()));
+                    Card.tags.put(inventory.get(Long.parseLong(m.group(1))), Arrays.stream(m.group(2).split(",")).collect(Collectors.toSet()));
             }
             return inventory;
         }

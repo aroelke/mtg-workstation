@@ -310,7 +310,7 @@ public abstract class Card
     @Override
     public boolean equals(Object other)
     {
-        return other != null && (other == this || other instanceof Card && id().equals(((Card)other).id()));
+        return other != null && (other == this || other instanceof Card && multiverseid().equals(((Card)other).multiverseid()));
     }
 
     /**

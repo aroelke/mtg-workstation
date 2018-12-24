@@ -300,10 +300,10 @@ public class CategorySpec implements Externalizable
 
         n = in.readInt();
         for (int i = 0; i < n; i++)
-            blacklist.add(MainFrame.inventory().get(in.readUTF()));
+            blacklist.add(MainFrame.inventory().get(in.readLong()));
         n = in.readInt();
         for (int i = 0; i < n; i++)
-            whitelist.add(MainFrame.inventory().get(in.readUTF()));
+            whitelist.add(MainFrame.inventory().get(in.readLong()));
     }
 
     /**

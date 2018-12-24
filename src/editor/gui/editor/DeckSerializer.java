@@ -324,7 +324,7 @@ public class DeckSerializer
         int n = in.readInt();
         for (int i = 0; i < n; i++)
         {
-            Card card = MainFrame.inventory().get(in.readUTF());
+            Card card = MainFrame.inventory().get(in.readLong());
             int count = in.readInt();
             LocalDate added = (LocalDate)in.readObject();
             d.add(card, count, added);

@@ -1666,10 +1666,10 @@ public class MainFrame extends JFrame
     }
 
     /**
-     * @param id UID of the #Card to look for
-     * @return the #Card with the given UID.
+     * @param id multiverseid of the #Card to look for
+     * @return the #Card with the given multiverseid.
      */
-    public Card getCard(String id)
+    public Card getCard(long id)
     {
         return inventory.get(id);
     }
