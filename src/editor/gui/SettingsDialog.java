@@ -431,9 +431,9 @@ public class SettingsDialog extends JDialog
     {
         SETTINGS.clear();
         SETTINGS.put(VERSION_FILE, "version.json");
-        SETTINGS.put(INVENTORY_SOURCE, "http://mtgjson.com/json/");
+        SETTINGS.put(INVENTORY_SOURCE, "https://mtgjson.com/json/");
         SETTINGS.put(VERSION, "");
-        SETTINGS.put(INVENTORY_FILE, "AllSets-x.json");
+        SETTINGS.put(INVENTORY_FILE, "AllSets.json");
         SETTINGS.put(INITIAL_CHECK, "true");
         SETTINGS.put(SUPPRESS_LOAD_WARNINGS, "false");
         SETTINGS.put(INVENTORY_LOCATION, ".");

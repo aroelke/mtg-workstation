@@ -90,6 +90,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import com.google.gson.JsonParser;
 import com.jidesoft.plaf.LookAndFeelFactory;
 
 import editor.collection.CardList;
@@ -1504,11 +1505,12 @@ public class MainFrame extends JFrame
      * Check to see if the inventory needs to be updated.  If it does, ask the user if it should be.
      * <p>
      * TODO: Add a timeout
+     * TODO: Reduce repeated code
      *
      * @return an integer value representing the state of the update.  It can be:
-     * UPDATE_NEEDED
-     * NO_UPDATE
-     * UPDATE_CANCELLED
+     * {@link #UPDATE_NEEDED}
+     * {@link #NO_UPDATE}
+     * {@link #UPDATE_CANCELLED}
      */
     public int checkForUpdate()
     {
@@ -1517,8 +1519,7 @@ public class MainFrame extends JFrame
             JOptionPane.showMessageDialog(this, inventoryFile.getName() + " not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE);
             try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
             {
-                newestVersion = in.readLine();
-                newestVersion = newestVersion.substring(1, newestVersion.length() - 1);
+                newestVersion = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString();
             }
             catch (IOException e)
             {
@@ -1531,8 +1532,7 @@ public class MainFrame extends JFrame
         {
             try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
             {
-                newestVersion = in.readLine();
-                newestVersion = newestVersion.substring(1, newestVersion.length() - 1);
+                newestVersion = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString();
                 if (!newestVersion.equals(SettingsDialog.getAsString(SettingsDialog.VERSION)))
                 {
                     if (JOptionPane.showConfirmDialog(this, "Inventory is out of date.  Download update?", "Update", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
