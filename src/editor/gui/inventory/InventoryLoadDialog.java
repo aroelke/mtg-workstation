@@ -340,9 +340,6 @@ public class InventoryLoadDialog extends JDialog
                             }
                         }
 
-                        // Card's image name
-//                        String imageName = card.get("imageName").getAsString();
-
                         // Create the new card with all the values acquired above
                         Card c = new SingleCard(layout,
                                 name,
@@ -507,17 +504,6 @@ public class InventoryLoadDialog extends JDialog
                     }
                 }
 
-/*
-                publish("Checking for duplicate entries...");
-                Set<Long> ids = new HashSet<>();
-                for (Card c : cards)
-                {
-                    if (ids.contains(c.multiverseid().get(0)))
-                        errors.add(c.toString() + " (" + c.expansion() + "): Wrong number of entries in JSON.");
-                    else
-                        ids.add(c.multiverseid().get(0));
-                }
-*/
                 publish("Removing duplicate entries...");
                 Map<Long, Card> unique = new HashMap<>();
                 for (Card c : cards)
