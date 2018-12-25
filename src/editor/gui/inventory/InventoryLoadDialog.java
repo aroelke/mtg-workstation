@@ -110,7 +110,12 @@ public class InventoryLoadDialog extends JDialog
         }
 
         /**
-         * TODO
+         * Convert a card that has a single face but incorrectly is loaded as a
+         * multi-faced card into a card with a {@link CardLayout#NORMAL} layout.
+         * 
+         * @param card card to convert
+         * @return a {@link Card} with the same information as the input but a
+         * {@link CardLayout#NORMAL} layout.
          */
         private Card convertToNormal(Card card)
         {
