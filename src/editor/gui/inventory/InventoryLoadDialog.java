@@ -103,6 +103,36 @@ public class InventoryLoadDialog extends JDialog
         }
 
         /**
+         * TODO
+         */
+        private Card convertToNormal(Card card)
+        {
+            return new SingleCard(CardLayout.NORMAL,
+                                  card.name().get(0),
+                                  card.manaCost().get(0).toString(),
+                                  new ArrayList<>(card.colors()),
+                                  new ArrayList<>(card.colorIdentity()),
+                                  card.supertypes(),
+                                  card.types(),
+                                  card.subtypes(),
+                                  card.printedTypes().get(0),
+                                  card.rarity(),
+                                  card.expansion(),
+                                  card.oracleText().get(0),
+                                  card.flavorText().get(0),
+                                  card.printedText().get(0),
+                                  card.artist().get(0),
+                                  card.multiverseid().get(0),
+                                  card.number().get(0),
+                                  card.power().get(0).toString(),
+                                  card.toughness().get(0).toString(),
+                                  card.loyalty().get(0).toString(),
+                                  new TreeMap<>(card.rulings()),
+                                  card.legality(),
+                                  card.imageNames().get(0));
+        }
+
+        /**
          * {@inheritDoc}
          * Import a list of all cards that exist in Magic: the Gathering from a JSON file downloaded from
          * {@link "http://www.mtgjson.com"}.  Also populate the lists of types and expansions (and their blocks).
@@ -134,7 +164,6 @@ public class InventoryLoadDialog extends JDialog
 
                 // TODO: Remove this when mtgjson fixes the numbering issue
                 Map<Card, String> mciNumbers = new HashMap<>();
-                HashSet<Long> ids = new HashSet<>();
                 publish("Reading cards from " + file.getName() + "...");
                 setProgress(0);
                 for (Map.Entry<String, JsonElement> setNode : root.entrySet())
@@ -170,6 +199,11 @@ public class InventoryLoadDialog extends JDialog
                     {
                         // Create the new card for the expansion
                         JsonObject card = cardElement.getAsJsonObject();
+
+                        // Card's multiverseid.  Skip cards that aren't in gatherer
+                        long multiverseid = card.has("multiverseid") ? card.get("multiverseid").getAsLong() : -1;
+                        if (multiverseid < 0)
+                            continue;
 
                         // Card's name
                         String name = card.get("name").getAsString();
@@ -306,40 +340,30 @@ public class InventoryLoadDialog extends JDialog
                         // Card's image name
                         String imageName = card.get("imageName").getAsString();
 
-                        // Card's multiverseid
-                        int multiverseid = card.has("multiverseid") ? card.get("multiverseid").getAsInt() : -1;
-
                         // Create the new card with all the values acquired above
                         Card c = new SingleCard(layout,
-                                name,
-                                mana,
-                                colors,
-                                colorIdentity,
-                                supertypes,
-                                types,
-                                subtypes,
-                                printedTypes,
-                                rarity,
-                                set,
-                                text,
-                                flavor,
-                                printed,
-                                artist,
-                                multiverseid,
-                                number,
-                                power,
-                                toughness,
-                                loyalty,
-                                rulings,
-                                legality,
-                                imageName);
-                        if (ids.contains(c.multiverseid().get(0)))
-                        {
-                            errors.add(c.toString() + " (" + c.expansion() + "): Duplicate entry in JSON.");
-                            continue;
-                        }
-                        else
-                            ids.add(c.multiverseid().get(0));
+                                                name,
+                                                mana,
+                                                colors,
+                                                colorIdentity,
+                                                supertypes,
+                                                types,
+                                                subtypes,
+                                                printedTypes,
+                                                rarity,
+                                                set,
+                                                text,
+                                                flavor,
+                                                printed,
+                                                artist,
+                                                multiverseid,
+                                                number,
+                                                power,
+                                                toughness,
+                                                loyalty,
+                                                rulings,
+                                                legality,
+                                                imageName);
 
                         // Add to map of faces if the card has multiple faces
                         if (layout.isMultiFaced)
@@ -403,6 +427,9 @@ public class InventoryLoadDialog extends JDialog
                         }
                         if (!error)
                             cards.add(new SplitCard(otherFaces));
+                        else
+                            for (Card f : otherFaces)
+                                cards.add(convertToNormal(f));
                         break;
                     case FLIP:
                         if (otherFaces.size() < 2)
@@ -422,6 +449,9 @@ public class InventoryLoadDialog extends JDialog
                         }
                         if (!error)
                             cards.add(new FlipCard(otherFaces.get(0), otherFaces.get(1)));
+                        else
+                            for (Card f : otherFaces)
+                                cards.add(convertToNormal(f));
                         break;
                     case DOUBLE_FACED:
                         if (otherFaces.size() < 2)
@@ -441,6 +471,9 @@ public class InventoryLoadDialog extends JDialog
                         }
                         if (!error)
                             cards.add(new DoubleFacedCard(otherFaces.get(0), otherFaces.get(1)));
+                        else
+                            for (Card f : otherFaces)
+                                cards.add(convertToNormal(f));
                         break;
                     case MELD:
                         if (otherFaces.size() < 3)
@@ -463,6 +496,9 @@ public class InventoryLoadDialog extends JDialog
                             cards.add(new MeldCard(otherFaces.get(0), otherFaces.get(1), otherFaces.get(2)));
                             cards.add(new MeldCard(otherFaces.get(1), otherFaces.get(0), otherFaces.get(2)));
                         }
+                        else
+                            for (Card f : otherFaces)
+                                cards.add(convertToNormal(f));
                         break;
                     case AFTERMATH:
                         if (otherFaces.size() < 2)
@@ -482,11 +518,32 @@ public class InventoryLoadDialog extends JDialog
                         }
                         if (!error)
                             cards.add(new AftermathCard(otherFaces.get(0), otherFaces.get(1)));
+                        else
+                            for (Card f : otherFaces)
+                                cards.add(convertToNormal(f));
                         break;
                     default:
                         break;
                     }
                 }
+
+/*
+                publish("Checking for duplicate entries...");
+                Set<Long> ids = new HashSet<>();
+                for (Card c : cards)
+                {
+                    if (ids.contains(c.multiverseid().get(0)))
+                        errors.add(c.toString() + " (" + c.expansion() + "): Wrong number of entries in JSON.");
+                    else
+                        ids.add(c.multiverseid().get(0));
+                }
+*/
+                publish("Removing duplicate entries...");
+                Map<Long, Card> unique = new HashMap<>();
+                for (Card c : cards)
+                    if (!unique.containsKey(c.multiverseid().get(0)))
+                        unique.put(c.multiverseid().get(0), c);
+                cards = new ArrayList<>(unique.values());
 
                 // Store the lists of expansion and block names and types and sort them alphabetically
                 Expansion.expansions = expansions.stream().sorted().toArray(Expansion[]::new);
