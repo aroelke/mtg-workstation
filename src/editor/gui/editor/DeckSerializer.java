@@ -324,7 +324,7 @@ public class DeckSerializer
         int n = in.readInt();
         for (int i = 0; i < n; i++)
         {
-            Card card = MainFrame.inventory().get(in.readUTF());
+            Card card = MainFrame.inventory().get(in.readLong());
             int count = in.readInt();
             LocalDate added = (LocalDate)in.readObject();
             d.add(card, count, added);
@@ -393,7 +393,7 @@ public class DeckSerializer
         out.writeInt(deck.size());
         for (Card card : deck)
         {
-            out.writeUTF(card.id());
+            out.writeLong(card.multiverseid().get(0));
             out.writeInt(deck.getEntry(card).count());
             out.writeObject(deck.getEntry(card).dateAdded());
         }

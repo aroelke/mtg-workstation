@@ -310,7 +310,7 @@ public abstract class Card
     @Override
     public boolean equals(Object other)
     {
-        return other != null && (other == this || other instanceof Card && id().equals(((Card)other).id()));
+        return other != null && (other == this || other instanceof Card && multiverseid().equals(((Card)other).multiverseid()));
     }
 
     /**
@@ -701,7 +701,7 @@ public abstract class Card
      * @return the IDs of each face of this card as they are used by
      * <a href="http://gatherer.wizards.com">Gatherer</a>.
      */
-    public abstract List<Integer> multiverseid();
+    public abstract List<Long> multiverseid();
 
     /**
      * Get the name of each of this Card's faces.

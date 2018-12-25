@@ -71,7 +71,7 @@ public class SingleCard extends Card
     /**
      * multiverseid of this SingleCard.
      */
-    public final int multiverseid;
+    public final long multiverseid;
     /**
      * Name of this SingleCard.
      */
@@ -170,7 +170,7 @@ public class SingleCard extends Card
                       String flavor,
                       String printed,
                       String artist,
-                      int multiverseid,
+                      long multiverseid,
                       String number,
                       String power,
                       String toughness,
@@ -340,7 +340,7 @@ public class SingleCard extends Card
     }
 
     @Override
-    public List<Integer> multiverseid()
+    public List<Long> multiverseid()
     {
         return Collections.singletonList(multiverseid);
     }

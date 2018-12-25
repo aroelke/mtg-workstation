@@ -171,9 +171,9 @@ public class Inventory implements CardList
      */
     private List<Card> filtrate;
     /**
-     * Map of Card UIDs onto their cards.
+     * Map of Card multiverseids onto their cards.
      */
-    private final Map<String, Card> IDs;
+    private final Map<Long, Card> ids;
 
     /**
      * Create an empty Inventory.  Be careful, because Inventories are immutable.
@@ -191,7 +191,7 @@ public class Inventory implements CardList
     public Inventory(Collection<Card> list)
     {
         cards = new ArrayList<>(list);
-        IDs = cards.stream().collect(Collectors.toMap(Card::id, Function.identity()));
+        ids = cards.stream().collect(Collectors.toMap((c) -> c.multiverseid().get(0), Function.identity()));
         filter = new BinaryFilter(true);
         filtrate = cards;
     }
@@ -259,7 +259,7 @@ public class Inventory implements CardList
     @Override
     public boolean contains(Card card)
     {
-        return IDs.values().contains(card);
+        return ids.values().contains(card);
     }
 
     /**
@@ -281,13 +281,13 @@ public class Inventory implements CardList
     /**
      * Get the card in this Inventory with the given UID.
      *
-     * @param UID unique identifier of the Card to look for
-     * @return the Card with the given UID, or null if no such card exists.
+     * @param id multiverseid of the Card to look for
+     * @return the Card with the given multiverseid, or null if no such card exists.
      * @see Card#id
      */
-    public Card get(String UID)
+    public Card get(long id)
     {
-        return IDs.get(UID);
+        return ids.get(id);
     }
 
     /**

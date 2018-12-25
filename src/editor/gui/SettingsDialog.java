@@ -481,7 +481,7 @@ public class SettingsDialog extends JDialog
             for (Card c : Card.tags.keySet())
             {
                 str.append("(");
-                str.append(c.id());
+                str.append(c.multiverseid().get(0));
                 str.append("::");
                 str.append(Card.tags.get(c).toString());
                 str.append(")");
