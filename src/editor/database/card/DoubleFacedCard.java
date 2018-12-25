@@ -7,6 +7,8 @@ import editor.util.Lazy;
 
 /**
  * This class represents a Card with two faces:  One on the front, and one on the back.
+ * 
+ * TODO: Rename TransformCard.
  *
  * @author Alec Roelke
  */
@@ -34,9 +36,9 @@ public class DoubleFacedCard extends MultiCard
      */
     public DoubleFacedCard(Card f, Card b)
     {
-        super(CardLayout.DOUBLE_FACED, f, b);
+        super(CardLayout.TRANSFORM, f, b);
         front = f;
-        if (front.layout() != CardLayout.DOUBLE_FACED || b.layout() != CardLayout.DOUBLE_FACED)
+        if (front.layout() != CardLayout.TRANSFORM || b.layout() != CardLayout.TRANSFORM)
             throw new IllegalArgumentException("can't join non-double-faced cards into double-faced cards");
 
         manaCost = new Lazy<>(() -> List.of(front.manaCost().get(0), new ManaCost()));

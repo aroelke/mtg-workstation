@@ -15,17 +15,12 @@ public enum CardLayout
      */
     NORMAL("Normal"),
     /**
-     * Single-faced card with a special frame that has three sets of abilities.
+     * Card with multiple "mini-cards" present on the front face.  Usually
+     * there's only two.
      *
-     * @see SingleCard
+     * @see SplitCard
      */
-    LEVELER("Leveler"),
-    /**
-     * Card with one face on the front and another on the back.
-     *
-     * @see DoubleFacedCard
-     */
-    DOUBLE_FACED("Double-faced", true),
+    SPLIT("Split", true),
     /**
      * Card with one face on the top and another on the bottom that is
      * accessible by rotating it 180 degrees.
@@ -34,12 +29,11 @@ public enum CardLayout
      */
     FLIP("Flip", true),
     /**
-     * Card with multiple "mini-cards" present on the front face.  Usually
-     * there's only two.
+     * Card with one face on the front and another on the back.
      *
-     * @see SplitCard
+     * @see DoubleFacedCard
      */
-    SPLIT("Split", true),
+    TRANSFORM("Transform", true),
     /**
      * Card with one face on the front and half of another on the back.
      * Another meld card will have the other half of the back.
@@ -48,29 +42,39 @@ public enum CardLayout
      */
     MELD("Meld", true),
     /**
-     * Card with two "mini-cards" present on the front face, with one sideways.
+     * Single-faced card with a special frame that has three sets of abilities.
+     *
+     * @see SingleCard
      */
-    AFTERMATH("Aftermath", true),
+    LEVELER("Leveler"),
     /**
-     * An extra-large phenomenon card for use in the Planechase format.
+     * Single-faced card with a special frame that indicates three "chapters"
+     * of a story.
+     * 
+     * @see SingleCard
      */
-    PHENOMENON("Phenomenon"),
+    SAGA("Saga"),
     /**
      * An extra-large card for use in the Planechase format.
      */
-    PLANE("Plane"),
+    PLANAR("Planar"),
     /**
      * An extra-large scheme card for use in the Archenemy format.
      */
     SCHEME("Scheme"),
     /**
-     * A token card.  Not supported by this program.
-     */
-    TOKEN("Token"),
-    /**
      * An extra-large card for use in the Vanguard format.
      */
-    VANGUARD("Vanguard");
+    VANGUARD("Vanguard"),
+    /**
+     * A single-faced card intended to host an #{@link #AUGMENT}.
+     */
+    HOST("Host"),
+    /**
+     * A single-faced card intended to attach to a {@link #HOST} and improve
+     * it.
+     */
+    AUGMENT("Augment");
 
     /**
      * Whether or not the card is multi-faced.

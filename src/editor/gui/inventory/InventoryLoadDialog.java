@@ -48,7 +48,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import editor.collection.Inventory;
-import editor.database.card.AftermathCard;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.card.DoubleFacedCard;
@@ -208,7 +207,7 @@ public class InventoryLoadDialog extends JDialog
                         JsonObject card = cardElement.getAsJsonObject();
 
                         // Card's multiverseid.  Skip cards that aren't in gatherer
-                        long multiverseid = card.has("multiverseid") ? card.get("multiverseid").getAsLong() : -1;
+                        long multiverseid = card.has("multiverseId") ? card.get("multiverseId").getAsLong() : -1;
                         if (multiverseid < 0)
                             continue;
 
@@ -220,8 +219,6 @@ public class InventoryLoadDialog extends JDialog
                         try
                         {
                             layout = CardLayout.valueOf(card.get("layout").getAsString().toUpperCase().replaceAll("[^A-Z]", "_"));
-                            if (layout == CardLayout.TOKEN)
-                                continue;
                         }
                         catch (IllegalArgumentException e)
                         {
@@ -458,7 +455,7 @@ public class InventoryLoadDialog extends JDialog
                             for (Card f : otherFaces)
                                 cards.add(convertToNormal(f));
                         break;
-                    case DOUBLE_FACED:
+                    case TRANSFORM:
                         if (otherFaces.size() < 2)
                         {
                             errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face of double-faced card.");
@@ -469,7 +466,7 @@ public class InventoryLoadDialog extends JDialog
                             errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for double-faced card.");
                             error = true;
                         }
-                        else if (otherFaces.get(0).layout() != CardLayout.DOUBLE_FACED || otherFaces.get(1).layout() != CardLayout.DOUBLE_FACED)
+                        else if (otherFaces.get(0).layout() != CardLayout.TRANSFORM || otherFaces.get(1).layout() != CardLayout.TRANSFORM)
                         {
                             errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into double-faced cards.");
                             error = true;
@@ -498,31 +495,9 @@ public class InventoryLoadDialog extends JDialog
                         }
                         if (!error)
                         {
-                            cards.add(new MeldCard(otherFaces.get(0), otherFaces.get(1), otherFaces.get(2)));
-                            cards.add(new MeldCard(otherFaces.get(1), otherFaces.get(0), otherFaces.get(2)));
+                            cards.add(new MeldCard(otherFaces.get(0), otherFaces.get(2), otherFaces.get(1)));
+                            cards.add(new MeldCard(otherFaces.get(2), otherFaces.get(0), otherFaces.get(1)));
                         }
-                        else
-                            for (Card f : otherFaces)
-                                cards.add(convertToNormal(f));
-                        break;
-                    case AFTERMATH:
-                        if (otherFaces.size() < 2)
-                        {
-                            errors.add(face.toString() + " (" + face.expansion() + "): Can't find some faces of aftermath card.");
-                            error = true;
-                        }
-                        else if (otherFaces.size() > 2)
-                        {
-                            errors.add(face + " (" + face.expansion() + "): Too many faces for aftermath card.");
-                            error = true;
-                        }
-                        else if (otherFaces.get(0).layout() != CardLayout.AFTERMATH || otherFaces.get(1).layout() != CardLayout.AFTERMATH)
-                        {
-                            errors.add(face + " (" + face.expansion() + "): Can't join single-faced cards into aftermath cards.");
-                            error = true;
-                        }
-                        if (!error)
-                            cards.add(new AftermathCard(otherFaces.get(0), otherFaces.get(1)));
                         else
                             for (Card f : otherFaces)
                                 cards.add(convertToNormal(f));
