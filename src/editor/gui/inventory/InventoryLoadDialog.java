@@ -171,7 +171,9 @@ public class InventoryLoadDialog extends JDialog
                 JsonObject root = new JsonParser().parse(reader).getAsJsonObject();
                 int numCards = 0;
                 for (Map.Entry<String, JsonElement> setNode : root.entrySet())
-                    numCards += setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray().size();
+                    for (JsonElement card : setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray())
+                        if (card.getAsJsonObject().has("multiverseId"))
+                            numCards += 1;
 
                 publish("Reading cards from " + file.getName() + "...");
                 setProgress(0);
