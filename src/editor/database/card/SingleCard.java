@@ -134,27 +134,26 @@ public class SingleCard extends Card
     /**
      * Create a new Card with a single face.
      *
-     * @param layout        the new Card's layout
-     * @param name          the new Card's name
-     * @param mana          the new Card's mana cost
-     * @param colors        the new Card's colors
+     * @param layout the new Card's layout
+     * @param name the new Card's name
+     * @param mana the new Card's mana cost
+     * @param colors the new Card's colors
      * @param colorIdentity the new Card's color identity
-     * @param supertype     the new Card's supertypes
-     * @param type          the new Card's types
-     * @param subtype       the new Card's subtypes
-     * @param printedTypes   the new Card's printed type line
-     * @param rarity        the new Card's rarity
-     * @param set           the Expansion the new Card belongs to
-     * @param text          the new Card's rules text
-     * @param flavor        the new Card's flavor text
-     * @param printed       the new Card's printed text
-     * @param artist        the new Card's artist
-     * @param number        the new Card's collector's number
-     * @param power         the new Card's power
-     * @param toughness     the new Card's toughness
-     * @param loyalty       the new Card's loyalty (0 or less for nonexistent)
-     * @param legality      the new Card's legality
-     * @param imageName     the new Card's image name
+     * @param supertype the new Card's supertypes
+     * @param type the new Card's types
+     * @param subtype the new Card's subtypes
+     * @param printedTypes the new Card's printed type line
+     * @param rarity the new Card's rarity
+     * @param set the Expansion the new Card belongs to
+     * @param text the new Card's rules text
+     * @param flavor the new Card's flavor text
+     * @param printed the new Card's printed text
+     * @param artist the new Card's artist
+     * @param number the new Card's collector's number
+     * @param power the new Card's power
+     * @param toughness the new Card's toughness
+     * @param loyalty the new Card's loyalty (0 or less for nonexistent)
+     * @param legality the new Card's legality\
      */
     public SingleCard(CardLayout layout,
                       String name,
@@ -177,8 +176,7 @@ public class SingleCard extends Card
                       String toughness,
                       String loyalty,
                       TreeMap<Date, List<String>> rulings,
-                      Map<String, Legality> legality,
-                      String imageName)
+                      Map<String, Legality> legality)
     {
         super(set, layout, 1);
 
@@ -197,7 +195,7 @@ public class SingleCard extends Card
         this.power = new CombatStat(power);
         this.toughness = new CombatStat(toughness);
         this.loyalty = new Loyalty(loyalty);
-        this.imageName = imageName;
+        this.imageName = name.toLowerCase();
         this.rarity = rarity;
         this.rulings = rulings;
         this.legality = Collections.unmodifiableMap(legality);
