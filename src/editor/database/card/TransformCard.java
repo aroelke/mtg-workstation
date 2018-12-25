@@ -7,12 +7,11 @@ import editor.util.Lazy;
 
 /**
  * This class represents a Card with two faces:  One on the front, and one on the back.
- * 
- * TODO: Rename TransformCard.
+ * During a game, it will transform from one to the other.
  *
  * @author Alec Roelke
  */
-public class DoubleFacedCard extends MultiCard
+public class TransformCard extends MultiCard
 {
     /**
      * Converted mana costs of this DoubleFacedCard's faces.
@@ -34,7 +33,7 @@ public class DoubleFacedCard extends MultiCard
      * @param f card representing the front face
      * @param b card representing the back face
      */
-    public DoubleFacedCard(Card f, Card b)
+    public TransformCard(Card f, Card b)
     {
         super(CardLayout.TRANSFORM, f, b);
         front = f;
@@ -47,7 +46,7 @@ public class DoubleFacedCard extends MultiCard
 
     /**
      * {@inheritDoc}
-     * While only the front face has a mana cost (see {@link DoubleFacedCard#manaCost()},
+     * While only the front face has a mana cost (see {@link TransformCard#manaCost()},
      * both faces have the same converted mana cost.
      */
     @Override

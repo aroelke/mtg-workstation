@@ -50,7 +50,7 @@ import com.google.gson.JsonParser;
 import editor.collection.Inventory;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
-import editor.database.card.DoubleFacedCard;
+import editor.database.card.TransformCard;
 import editor.database.card.FlipCard;
 import editor.database.card.MeldCard;
 import editor.database.card.SingleCard;
@@ -472,7 +472,7 @@ public class InventoryLoadDialog extends JDialog
                             error = true;
                         }
                         if (!error)
-                            cards.add(new DoubleFacedCard(otherFaces.get(0), otherFaces.get(1)));
+                            cards.add(new TransformCard(otherFaces.get(0), otherFaces.get(1)));
                         else
                             for (Card f : otherFaces)
                                 cards.add(convertToNormal(f));
