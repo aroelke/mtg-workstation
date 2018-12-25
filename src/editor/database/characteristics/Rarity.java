@@ -73,15 +73,21 @@ public enum Rarity implements CharSequence
      */
     public static Rarity parseRarity(String rarity)
     {
-        for (Rarity r : Rarity.values())
-            if (rarity.equalsIgnoreCase(r.rarity) || rarity.equalsIgnoreCase(String.valueOf(r.shorthand())))
-                return r;
         if (rarity.contains("mythic"))
             return MYTHIC_RARE;
+        else if (rarity.contains("rare"))
+            return RARE;
+        else if (rarity.contains("uncommon"))
+            return UNCOMMON;
+        else if (rarity.contains("common"))
+            return COMMON;
         else if (rarity.contains("basic"))
             return BASIC_LAND;
         else
-            throw new IllegalArgumentException("Illegal rarity string \"" + rarity + "\"");
+        {
+            System.err.println("warning: Could not determine rarity of \"" + rarity + '"');
+            return SPECIAL;
+        }
     }
 
     /**
