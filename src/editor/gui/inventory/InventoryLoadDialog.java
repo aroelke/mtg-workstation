@@ -295,16 +295,15 @@ public class InventoryLoadDialog extends JDialog
                         Map<String, Legality> legality = new HashMap<>();
                         if (card.has("legalities"))
                         {
-                            for (JsonElement l : card.get("legalities").getAsJsonArray())
+                            for (var entry : card.get("legalities").getAsJsonObject().entrySet())
                             {
-                                JsonObject o = l.getAsJsonObject();
-                                formatSet.add(o.get("format").getAsString());
-                                legality.put(o.get("format").getAsString(), Legality.parseLegality(o.get("legality").getAsString()));
+                                formatSet.add(entry.getKey());
+                                legality.put(entry.getKey(), Legality.parseLegality(entry.getValue().getAsString()));
                             }
                         }
 
                         // Card's image name
-                        String imageName = card.get("imageName").getAsString();
+//                        String imageName = card.get("imageName").getAsString();
 
                         // Card's multiverseid
                         int multiverseid = card.has("multiverseid") ? card.get("multiverseid").getAsInt() : -1;
@@ -331,11 +330,10 @@ public class InventoryLoadDialog extends JDialog
                                 toughness,
                                 loyalty,
                                 rulings,
-                                legality,
-                                imageName);
+                                legality);
                         if (ids.contains(c.id()))
                         {
-                            errors.add(c.toString() + " (" + c.expansion() + "): Duplicate entry in JSON.");
+                            errors.add(c.toString() + " (" + c.expansion() + ") [UID " + c.id() + "]: Duplicate entry in JSON.");
                             continue;
                         }
                         else
@@ -518,6 +516,12 @@ public class InventoryLoadDialog extends JDialog
             setVisible(false);
             dispose();
             if (!SettingsDialog.getAsBoolean(SettingsDialog.SUPPRESS_LOAD_WARNINGS) && !errors.isEmpty())
+            {
+                System.err.println(errors.size() + " errors found while loading inventory:");
+                for (String error : errors)
+                    System.err.println("\t- " + error);
+            }
+/*
                 SwingUtilities.invokeLater(() -> {
                     StringJoiner join = new StringJoiner("\n" + UnicodeSymbols.BULLET + " ");
                     join.add("Errors ocurred while loading the following card(s):");
@@ -525,6 +529,7 @@ public class InventoryLoadDialog extends JDialog
                         join.add(failure);
                     JOptionPane.showMessageDialog(null, join.toString(), "Warning", JOptionPane.WARNING_MESSAGE);
                 });
+*/
         }
 
         /**
