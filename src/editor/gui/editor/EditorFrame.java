@@ -318,7 +318,7 @@ public class EditorFrame extends JInternalFrame
                 else if (supp.isDataFlavorSupported(CardList.entryFlavor))
                 {
                     @SuppressWarnings("unchecked")
-                    Map<Card, Integer> data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
+                    var data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
                     return performAction(() -> {
                         if (!source.current.addAll(data))
                             throw new CardException(data.keySet(), "unable to copy cards");
@@ -334,7 +334,7 @@ public class EditorFrame extends JInternalFrame
                 else if (supp.isDataFlavorSupported(Card.cardFlavor))
                 {
                     // TODO: Account for multiples
-                    final Set<Card> data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
+                    final var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
                     return performAction(() -> {
                         if (!source.current.addAll(data))
                             throw new CardException(data, "unable to copy cards");
@@ -800,11 +800,11 @@ public class EditorFrame extends JInternalFrame
 
             moveToMenu.removeAll();
             moveAllToMenu.removeAll();
-            for (final Map.Entry<String, DeckData> extra : extras.entrySet())
+            for (final var extra : extras.entrySet())
             {
                 JMenuItem moveToItem = new JMenuItem(extra.getKey());
                 moveToItem.addActionListener((e2) -> {
-                    final Set<Card> selected = new HashSet<>(parent.getSelectedCards());
+                    final var selected = new HashSet<>(parent.getSelectedCards());
                     performAction(() -> {
                         if (!deck.current.removeAll(selected).equals(selected))
                             throw new CardException(selected, "error moving cards from main deck");
@@ -824,7 +824,7 @@ public class EditorFrame extends JInternalFrame
                 moveToMenu.add(moveToItem);
                 JMenuItem moveAllToItem = new JMenuItem(extra.getKey());
                 moveAllToItem.addActionListener((e2) -> {
-                    final Map<Card, Integer> moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck.current.getEntry(c).count()));
+                    final var moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck.current.getEntry(c).count()));
                     performAction(() -> {
                         if (!deck.current.removeAll(moves).equals(moves))
                             throw new CardException(moves.keySet(), "error moving cards from main deck");
@@ -986,8 +986,8 @@ public class EditorFrame extends JInternalFrame
             JPanel excludePanel = new JPanel();
             excludePanel.setLayout(new BoxLayout(excludePanel, BoxLayout.X_AXIS));
 
-            DefaultListModel<Card> excludeModel = new DefaultListModel<>();
-            JList<Card> exclude = new JList<>(excludeModel);
+            var excludeModel = new DefaultListModel<Card>();
+            var exclude = new JList<>(excludeModel);
             excludePanel.add(new JScrollPane(exclude));
 
             JPanel excludeButtonPanel = new JPanel();
@@ -1120,7 +1120,7 @@ public class EditorFrame extends JInternalFrame
 
         // Initialize extra lists
         extrasPane.addTab("+", null);
-        for (Map.Entry<String, Deck> extra : manager.sideboards().entrySet())
+        for (var extra : manager.sideboards().entrySet())
         {
             createExtra(extra.getKey(), extrasPane.getTabCount() - 1);
             extras.get(extra.getKey()).current.addAll(extra.getValue());
@@ -1210,7 +1210,7 @@ public class EditorFrame extends JInternalFrame
      */
     public void applySettings()
     {
-        List<CardAttribute> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
+        var columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
         Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
         deck.model.setColumns(columns);
         deck.table.setStripeColor(stripe);
@@ -1705,7 +1705,7 @@ public class EditorFrame extends JInternalFrame
         else
         {
             return performAction(() -> {
-                Map<String, CategorySpec> mods = new HashMap<String, CategorySpec>();
+                var mods = new HashMap<String, CategorySpec>();
                 for (Card card : included.keySet())
                 {
                     for (CategorySpec category : included.get(card))
@@ -1726,11 +1726,11 @@ public class EditorFrame extends JInternalFrame
                         mods.get(category.getName()).exclude(card);
                     }
                 }
-                for (Map.Entry<String, CategorySpec> mod : mods.entrySet())
+                for (var mod : mods.entrySet())
                     deck.current.updateCategory(mod.getKey(), mod.getValue());
                 return true;
             }, () -> {
-                Map<String, CategorySpec> mods = new HashMap<String, CategorySpec>();
+                var mods = new HashMap<String, CategorySpec>();
                 for (Card card : included.keySet())
                 {
                     for (CategorySpec category : included.get(card))
@@ -1751,7 +1751,7 @@ public class EditorFrame extends JInternalFrame
                         mods.get(category.getName()).include(card);
                     }
                 }
-                for (Map.Entry<String, CategorySpec> mod : mods.entrySet())
+                for (var mod : mods.entrySet())
                     deck.current.updateCategory(mod.getKey(), mod.getValue());
                 return true;
             });
@@ -1788,7 +1788,7 @@ public class EditorFrame extends JInternalFrame
                 wr.println(format.header());
             if (!deck.current.isEmpty())
                 wr.print(format.format(deck.current));
-            for (Map.Entry<String, DeckData> extra : extras.entrySet())
+            for (var extra : extras.entrySet())
             {
                 wr.println();
                 wr.println(extra.getKey());
@@ -2079,7 +2079,7 @@ public class EditorFrame extends JInternalFrame
             return false;
         else
         {
-            Map<Card, Integer> capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -(name.isEmpty() ? deck : extras.get(name)).current.getEntry(e.getKey()).count())));
+            var capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -(name.isEmpty() ? deck : extras.get(name)).current.getEntry(e.getKey()).count())));
             return performAction(() -> {
                 DeckData target = name.isEmpty() ? deck : extras.get(name);
                 boolean changed = capped.entrySet().stream().map((e) -> {
@@ -2191,7 +2191,7 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean performAction(Supplier<Boolean> redo, Supplier<Boolean> undo)
     {
-        UndoableAction<Boolean, Boolean> action = new UndoableAction<>(() -> {
+        var action = new UndoableAction<>(() -> {
             boolean done = redo.get();
             setUnsaved();
             update();
@@ -2215,7 +2215,7 @@ public class EditorFrame extends JInternalFrame
     {
         if (!redoBuffer.isEmpty())
         {
-            UndoableAction<Boolean, Boolean> action = redoBuffer.pop();
+            var action = redoBuffer.pop();
             if (action.redo())
             {
                 undoBuffer.push(action);
@@ -2289,7 +2289,7 @@ public class EditorFrame extends JInternalFrame
             changelogArea.append(changes + "\n");
         }
 
-        Map<String, Deck> sideboards = new LinkedHashMap<>();
+        var sideboards = new LinkedHashMap<String, Deck>();
         for (int i = 0; i < extrasPane.getTabCount() - 1; i++)
             sideboards.put(extrasPane.getTitleAt(i), extras.get(extrasPane.getTitleAt(i)).current);
         DeckSerializer manager = new DeckSerializer(deck.current, sideboards, changelogArea.getText());
@@ -2367,7 +2367,7 @@ public class EditorFrame extends JInternalFrame
     {
         if (!undoBuffer.isEmpty())
         {
-            UndoableAction<Boolean, Boolean> action = undoBuffer.pop();
+            var action = undoBuffer.pop();
             if (action.undo())
             {
                 redoBuffer.push(action);
@@ -2404,7 +2404,7 @@ public class EditorFrame extends JInternalFrame
         else
         {
             switchCategoryBox.setEnabled(true);
-            List<CategorySpec> categories = new ArrayList<>(deck.current.categories());
+            var categories = new ArrayList<>(deck.current.categories());
             categories.sort((a, b) -> sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()).compare(deck.current, a, b));
 
             for (CategorySpec c : categories)
@@ -2438,7 +2438,7 @@ public class EditorFrame extends JInternalFrame
             avgCMCLabel.setText(String.format("Average CMC: %.2f", avgCMC));
 
         double medCMC = 0.0;
-        List<Double> cmc = new ArrayList<>();
+        var cmc = new ArrayList<Double>();
         for (Card card : deck.current)
             if (!card.typeContains("land"))
                 for (int i = 0; i < deck.current.getEntry(card).count(); i++)

@@ -18,7 +18,7 @@ public interface CollectionUtils
      * Convert an Object that is known to be a list to a list with a specific containing type.
      * Useful for Swing containers that return Objects.
      *
-     * @param obj   object to convert
+     * @param obj object to convert
      * @param clazz class of the type contained in the list
      * @return the given object converted to a list of the given type
      */
@@ -34,7 +34,7 @@ public interface CollectionUtils
      * Convert an Object that is known to be a set to a set with a specific containing type.
      * Useful for Swing containers that return Objects.
      *
-     * @param obj   object to convert
+     * @param obj object to convert
      * @param clazz class of the type contained in the set
      * @return the given object converted to a set of the given type
      */
@@ -49,7 +49,7 @@ public interface CollectionUtils
     /**
      * Join a collection of objects into a String.
      *
-     * @param join    {@link StringJoiner} used to join String-ed objects
+     * @param join {@link StringJoiner} used to join String-ed objects
      * @param objects collection of objects to join
      * @return a String containing the String-ed versions of the given objects joined using the
      * given joiner

@@ -20,8 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -39,6 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 
@@ -50,11 +50,11 @@ import com.google.gson.JsonParser;
 import editor.collection.Inventory;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
-import editor.database.card.TransformCard;
 import editor.database.card.FlipCard;
 import editor.database.card.MeldCard;
 import editor.database.card.SingleCard;
 import editor.database.card.SplitCard;
+import editor.database.card.TransformCard;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Legality;
 import editor.database.characteristics.ManaType;
@@ -64,6 +64,7 @@ import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
 import editor.gui.SettingsDialog;
+import editor.util.UnicodeSymbols;
 
 /**
  * This class represents a dialog that shows the progress for loading the
@@ -155,14 +156,14 @@ public class InventoryLoadDialog extends JDialog
         {
             publish("Opening " + file.getName() + "...");
 
-            List<Card> cards = new ArrayList<>();
-            Map<Card, List<String>> faces = new HashMap<>();
-            Set<Expansion> expansions = new HashSet<>();
-            Set<String> blockNames = new HashSet<>();
-            Set<String> supertypeSet = new HashSet<>();
-            Set<String> typeSet = new HashSet<>();
-            Set<String> subtypeSet = new HashSet<>();
-            Set<String> formatSet = new HashSet<>();
+            var cards = new ArrayList<Card>();
+            var faces = new HashMap<Card, List<String>>();
+            var expansions = new HashSet<Expansion>();
+            var blockNames = new HashSet<String>();
+            var supertypeSet = new HashSet<String>();
+            var typeSet = new HashSet<String>();
+            var subtypeSet = new HashSet<String>();
+            var formatSet = new HashSet<String>();
 
             // Read the inventory file
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
@@ -170,14 +171,14 @@ public class InventoryLoadDialog extends JDialog
                 publish("Parsing " + file.getName() + "...");
                 JsonObject root = new JsonParser().parse(reader).getAsJsonObject();
                 int numCards = 0;
-                for (Map.Entry<String, JsonElement> setNode : root.entrySet())
+                for (var setNode : root.entrySet())
                     for (JsonElement card : setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray())
                         if (card.getAsJsonObject().has("multiverseId"))
                             numCards += 1;
 
                 publish("Reading cards from " + file.getName() + "...");
                 setProgress(0);
-                for (Map.Entry<String, JsonElement> setNode : root.entrySet())
+                for (var setNode : root.entrySet())
                 {
                     if (isCancelled())
                     {
@@ -235,7 +236,7 @@ public class InventoryLoadDialog extends JDialog
                         String mana = card.has("manaCost") ? card.get("manaCost").getAsString() : "";
 
                         // Card's set of colors (which is stored as a list, since order matters)
-                        List<ManaType> colors = new ArrayList<>();
+                        var colors = new ArrayList<ManaType>();
                         if (card.has("colors"))
                         {
                             JsonArray colorsArray = card.get("colors").getAsJsonArray();
@@ -244,7 +245,7 @@ public class InventoryLoadDialog extends JDialog
                         }
 
                         // Card's color identity
-                        List<ManaType> colorIdentity = new ArrayList<>();
+                        var colorIdentity = new ArrayList<ManaType>();
                         {
                             if (card.has("colorIdentity"))
                             {
@@ -255,7 +256,7 @@ public class InventoryLoadDialog extends JDialog
                         }
 
                         // Card's set of supertypes
-                        Set<String> supertypes = new LinkedHashSet<>();
+                        var supertypes = new LinkedHashSet<String>();
                         if (card.has("supertypes"))
                         {
                             JsonArray superArray = card.get("supertypes").getAsJsonArray();
@@ -267,7 +268,7 @@ public class InventoryLoadDialog extends JDialog
                         }
 
                         // Card's set of types
-                        Set<String> types = new LinkedHashSet<>();
+                        var types = new LinkedHashSet<String>();
                         for (JsonElement typeElement : card.get("types").getAsJsonArray())
                         {
                             types.add(typeElement.getAsString());
@@ -275,7 +276,7 @@ public class InventoryLoadDialog extends JDialog
                         }
 
                         // Card's set of subtypes
-                        Set<String> subtypes = new LinkedHashSet<>();
+                        var subtypes = new LinkedHashSet<String>();
                         if (card.has("subtypes"))
                         {
                             for (JsonElement subElement : card.get("subtypes").getAsJsonArray())
@@ -335,7 +336,7 @@ public class InventoryLoadDialog extends JDialog
                         }
 
                         // Card's legality in formats
-                        Map<String, Legality> legality = new HashMap<>();
+                        var legality = new HashMap<String, Legality>();
                         if (card.has("legalities"))
                         {
                             for (var entry : card.get("legalities").getAsJsonObject().entrySet())
@@ -372,7 +373,7 @@ public class InventoryLoadDialog extends JDialog
                         // Add to map of faces if the card has multiple faces
                         if (layout.isMultiFaced)
                         {
-                            List<String> names = new ArrayList<>();
+                            var names = new ArrayList<String>();
                             for (JsonElement e : card.get("names").getAsJsonArray())
                                 names.add(e.getAsString());
                             faces.put(c, names);
@@ -390,8 +391,8 @@ public class InventoryLoadDialog extends JDialog
                     boolean error = false;
 
                     Card face = facesList.remove(0);
-                    List<String> faceNames = faces.get(face);
-                    List<Card> otherFaces = new ArrayList<>();
+                    var faceNames = faces.get(face);
+                    var otherFaces = new ArrayList<Card>();
                     for (Card c : facesList)
                         if (faceNames.contains(c.unifiedName()) && c.expansion().equals(face.expansion()))
                             otherFaces.add(c);
@@ -500,7 +501,7 @@ public class InventoryLoadDialog extends JDialog
                 }
 
                 publish("Removing duplicate entries...");
-                Map<Long, Card> unique = new HashMap<>();
+                var unique = new HashMap<Long, Card>();
                 for (Card c : cards)
                     if (!unique.containsKey(c.multiverseid().get(0)))
                         unique.put(c.multiverseid().get(0), c);
@@ -537,11 +538,6 @@ public class InventoryLoadDialog extends JDialog
             dispose();
             if (!SettingsDialog.getAsBoolean(SettingsDialog.SUPPRESS_LOAD_WARNINGS) && !errors.isEmpty())
             {
-                System.err.println(errors.size() + " errors found while loading inventory:");
-                for (String error : errors)
-                    System.err.println("\t- " + error);
-            }
-/*
                 SwingUtilities.invokeLater(() -> {
                     StringJoiner join = new StringJoiner("\n" + UnicodeSymbols.BULLET + " ");
                     join.add("Errors ocurred while loading the following card(s):");
@@ -549,7 +545,7 @@ public class InventoryLoadDialog extends JDialog
                         join.add(failure);
                     JOptionPane.showMessageDialog(null, join.toString(), "Warning", JOptionPane.WARNING_MESSAGE);
                 });
-*/
+            }
         }
 
         /**

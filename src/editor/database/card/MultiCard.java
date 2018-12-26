@@ -155,41 +155,20 @@ public abstract class MultiCard extends Card
         manaCost = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::manaCost)));
         cmc = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::cmc)));
         colors = new Lazy<>(() -> {
-            Set<ManaType> cols = new HashSet<>();
-            for (Card face : faces)
-                cols.addAll(face.colors());
-            List<ManaType> sorted = new ArrayList<>(cols);
+            var sorted = new ArrayList<>(faces.stream().flatMap((c) -> c.colors().stream()).collect(Collectors.toSet()));
             ManaType.sort(sorted);
             return Collections.unmodifiableList(sorted);
         });
         colorIdentity = new Lazy<>(() -> {
-            Set<ManaType> colors = new HashSet<>();
-            for (Card face : faces)
-                colors.addAll(face.colorIdentity());
-            List<ManaType> sorted = new ArrayList<>(colors);
+            var sorted = new ArrayList<>(faces.stream().flatMap((c) -> c.colors().stream()).collect(Collectors.toSet()));
             ManaType.sort(sorted);
             return Collections.unmodifiableList(sorted);
         });
-        supertypes = new Lazy<>(() -> {
-            Set<String> s = new HashSet<>();
-            for (Card face : faces)
-                s.addAll(face.supertypes());
-            return Collections.unmodifiableSet(s);
-        });
-        types = new Lazy<>(() -> {
-            Set<String> t = new HashSet<>();
-            for (Card face : faces)
-                t.addAll(face.types());
-            return Collections.unmodifiableSet(t);
-        });
-        subtypes = new Lazy<>(() -> {
-            Set<String> s = new HashSet<>();
-            for (Card face : faces)
-                s.addAll(face.subtypes());
-            return Collections.unmodifiableSet(s);
-        });
+        supertypes = new Lazy<>(() -> faces.stream().flatMap((c) -> c.supertypes().stream()).collect(Collectors.toSet()));
+        types = new Lazy<>(() -> faces.stream().flatMap((c) -> c.types().stream()).collect(Collectors.toSet()));
+        subtypes = new Lazy<>(() -> faces.stream().flatMap((c) -> c.subtypes().stream()).collect(Collectors.toSet()));
         allTypes = new Lazy<>(() -> {
-            List<Set<String>> a = new ArrayList<>();
+            var a = new ArrayList<Set<String>>();
             for (Card face : faces)
             {
                 Set<String> faceTypes = new HashSet<>();
@@ -212,11 +191,7 @@ public abstract class MultiCard extends Card
         loyalty = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::loyalty)));
         rulings = new Lazy<>(() -> Collections.unmodifiableMap(faces.stream().map(Card::rulings).reduce(new TreeMap<>(), (a, b) -> {
             for (Date k : b.keySet())
-            {
-                if (!a.containsKey(k))
-                    a.put(k, new ArrayList<>());
-                a.get(k).addAll(b.get(k));
-            }
+                a.getOrDefault(k, new ArrayList<>()).addAll(b.get(k));
             return a;
         })));
         imageNames = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::imageNames)));

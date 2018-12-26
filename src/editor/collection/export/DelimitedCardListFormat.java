@@ -49,7 +49,7 @@ public class DelimitedCardListFormat implements CardListFormat
      * If a split value is surrounded by {@value #ESCAPE}, remove them.
      *
      * @param delimiter delimiter to split with
-     * @param line      string to split
+     * @param line string to split
      * @return an array containing the split string with delimiters and surrounding {@value #ESCAPE} removed
      */
     public static String[] split(String delimiter, String line)
@@ -78,8 +78,8 @@ public class DelimitedCardListFormat implements CardListFormat
     /**
      * Create a new way to format a card list into a table.
      *
-     * @param delim   delimiter for the table cells
-     * @param data    data types to use for the columns
+     * @param delim delimiter for the table cells
+     * @param data data types to use for the columns
      * @param headers whether or not to include column headers
      */
     public DelimitedCardListFormat(String delim, List<CardAttribute> data, boolean headers)
@@ -98,7 +98,7 @@ public class DelimitedCardListFormat implements CardListFormat
     public String format(CardList list)
     {
         StringJoiner join = new StringJoiner(System.lineSeparator());
-        List<CardFormat> columnFormats = types.stream().map((t) -> new CardFormat('{' + t.toString().toLowerCase() + '}')).collect(Collectors.toList());
+        var columnFormats = types.stream().map((t) -> new CardFormat('{' + t.toString().toLowerCase() + '}')).collect(Collectors.toList());
         for (Card card : list)
         {
             StringJoiner line = new StringJoiner(delimiter);
@@ -131,7 +131,7 @@ public class DelimitedCardListFormat implements CardListFormat
     @Override
     public CardList parse(String source) throws ParseException, IllegalStateException
     {
-        List<String> lines = Arrays.stream(source.split(System.lineSeparator())).collect(Collectors.toList());
+        var lines = Arrays.stream(source.split(System.lineSeparator())).collect(Collectors.toList());
 
         int pos = 0;
         if (!include)
@@ -173,7 +173,7 @@ public class DelimitedCardListFormat implements CardListFormat
             line = line.replace(ESCAPE + ESCAPE, ESCAPE);
             String[] cells = split(delimiter, line);
 
-            List<Card> possibilities = MainFrame.inventory().stream().filter((c) -> c.unifiedName().equalsIgnoreCase(cells[nameIndex])).collect(Collectors.toList());
+            var possibilities = MainFrame.inventory().stream().filter((c) -> c.unifiedName().equalsIgnoreCase(cells[nameIndex])).collect(Collectors.toList());
             if (possibilities.size() > 1 && expansionIndex > -1)
                 possibilities.removeIf((c) -> !c.expansion().name.equalsIgnoreCase(cells[expansionIndex]));
             if (possibilities.size() > 1 && numberIndex > -1)

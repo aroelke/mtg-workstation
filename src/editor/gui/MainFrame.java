@@ -39,7 +39,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
@@ -520,14 +519,14 @@ public class MainFrame extends JFrame
                     JPanel dataPanel = new JPanel(new BorderLayout());
                     JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                     optionsPanel.add(new JLabel("Delimiter: "));
-                    JComboBox<String> delimiterBox = new JComboBox<>(DelimitedCardListFormat.DELIMITERS);
+                    var delimiterBox = new JComboBox<>(DelimitedCardListFormat.DELIMITERS);
                     delimiterBox.setEditable(true);
                     optionsPanel.add(delimiterBox);
                     JCheckBox includeCheckBox = new JCheckBox("Read Headers");
                     includeCheckBox.setSelected(true);
                     optionsPanel.add(includeCheckBox);
                     dataPanel.add(optionsPanel, BorderLayout.NORTH);
-                    JList<CardAttribute> headersList = new JList<>(CardAttribute.values());
+                    var headersList = new JList<>(CardAttribute.values());
                     headersList.setEnabled(!includeCheckBox.isSelected());
                     JScrollPane headersPane = new JScrollPane(headersList);
                     JPanel headersPanel = new JPanel();
@@ -538,13 +537,13 @@ public class MainFrame extends JFrame
                         rearrange.setEnabled(!includeCheckBox.isSelected());
                     headersPanel.add(rearrangeButtons);
                     headersPanel.add(Box.createHorizontalStrut(5));
-                    DefaultListModel<CardAttribute> selectedHeadersModel = new DefaultListModel<>();
+                    var selectedHeadersModel = new DefaultListModel<CardAttribute>();
                     selectedHeadersModel.addElement(CardAttribute.NAME);
                     selectedHeadersModel.addElement(CardAttribute.EXPANSION_NAME);
                     selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER);
                     selectedHeadersModel.addElement(CardAttribute.COUNT);
                     selectedHeadersModel.addElement(CardAttribute.DATE_ADDED);
-                    JList<CardAttribute> selectedHeadersList = new JList<>(selectedHeadersModel);
+                    var selectedHeadersList = new JList<>(selectedHeadersModel);
                     selectedHeadersList.setEnabled(!includeCheckBox.isSelected());
                     headersPanel.add(new JScrollPane(selectedHeadersList)
                     {
@@ -563,7 +562,7 @@ public class MainFrame extends JFrame
                     headersPanel.add(headersPane);
                     dataPanel.add(headersPanel, BorderLayout.CENTER);
                     rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((v) -> {
-                        List<CardAttribute> selected = selectedHeadersList.getSelectedValuesList();
+                        var selected = selectedHeadersList.getSelectedValuesList();
                         int ignore = 0;
                         for (int index : selectedHeadersList.getSelectedIndices())
                         {
@@ -584,8 +583,8 @@ public class MainFrame extends JFrame
                         }
                     });
                     rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener((v) -> {
-                        List<CardAttribute> selected = selectedHeadersList.getSelectedValuesList();
-                        List<Integer> indices = Arrays.stream(selectedHeadersList.getSelectedIndices()).boxed().collect(Collectors.toList());
+                        var selected = selectedHeadersList.getSelectedValuesList();
+                        var indices = Arrays.stream(selectedHeadersList.getSelectedIndices()).boxed().collect(Collectors.toList());
                         Collections.reverse(indices);
                         int ignore = selectedHeadersModel.size() - 1;
                         for (int index : indices)
@@ -648,7 +647,7 @@ public class MainFrame extends JFrame
                         try
                         {
                             DefaultTableModel model = new DefaultTableModel();
-                            List<String> lines = Files.readAllLines(importChooser.getSelectedFile().toPath());
+                            var lines = Files.readAllLines(importChooser.getSelectedFile().toPath());
                             if (includeCheckBox.isSelected())
                             {
                                 String[] columns = lines.remove(0).split(String.valueOf(delimiterBox.getSelectedItem()));
@@ -680,7 +679,7 @@ public class MainFrame extends JFrame
 
                     if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardDialog.FINISH_OPTION)
                     {
-                        List<CardAttribute> selected = new ArrayList<>(selectedHeadersModel.size());
+                        var selected = new ArrayList<CardAttribute>(selectedHeadersModel.size());
                         for (int i = 0; i < selectedHeadersModel.size(); i++)
                             selected.add(selectedHeadersModel.getElementAt(i));
                         format = new DelimitedCardListFormat(String.valueOf(delimiterBox.getSelectedItem()), selected, !includeCheckBox.isSelected());
@@ -738,7 +737,7 @@ public class MainFrame extends JFrame
                     fieldPanel.add(formatField, BorderLayout.CENTER);
                     JPanel addDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                     addDataPanel.add(new JLabel("Add Data: "));
-                    JComboBox<CardAttribute> addDataBox = new JComboBox<>(CardAttribute.values());
+                    var addDataBox = new JComboBox<>(CardAttribute.values());
                     addDataPanel.add(addDataBox);
                     fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
                     wizardPanel.add(fieldPanel, BorderLayout.NORTH);
@@ -788,7 +787,7 @@ public class MainFrame extends JFrame
                 else if (exportChooser.getFileFilter() == delimited)
                 {
                     JPanel wizardPanel = new JPanel(new BorderLayout());
-                    JList<CardAttribute> headersList = new JList<>(CardAttribute.values());
+                    var headersList = new JList<>(CardAttribute.values());
                     JScrollPane headersPane = new JScrollPane(headersList);
                     JPanel headersPanel = new JPanel();
                     headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));
@@ -796,13 +795,13 @@ public class MainFrame extends JFrame
                     VerticalButtonList rearrangeButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.UP_ARROW), String.valueOf(UnicodeSymbols.DOWN_ARROW));
                     headersPanel.add(rearrangeButtons);
                     headersPanel.add(Box.createHorizontalStrut(5));
-                    DefaultListModel<CardAttribute> selectedHeadersModel = new DefaultListModel<>();
+                    var selectedHeadersModel = new DefaultListModel<CardAttribute>();
                     selectedHeadersModel.addElement(CardAttribute.NAME);
                     selectedHeadersModel.addElement(CardAttribute.EXPANSION_NAME);
                     selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER);
                     selectedHeadersModel.addElement(CardAttribute.COUNT);
                     selectedHeadersModel.addElement(CardAttribute.DATE_ADDED);
-                    JList<CardAttribute> selectedHeadersList = new JList<>(selectedHeadersModel);
+                    var selectedHeadersList = new JList<>(selectedHeadersModel);
                     headersPanel.add(new JScrollPane(selectedHeadersList)
                     {
                         @Override
@@ -819,7 +818,7 @@ public class MainFrame extends JFrame
                     wizardPanel.add(headersPanel, BorderLayout.CENTER);
 
                     rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((v) -> {
-                        List<CardAttribute> selected = selectedHeadersList.getSelectedValuesList();
+                        var selected = selectedHeadersList.getSelectedValuesList();
                         int ignore = 0;
                         for (int index : selectedHeadersList.getSelectedIndices())
                         {
@@ -840,8 +839,8 @@ public class MainFrame extends JFrame
                         }
                     });
                     rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener((v) -> {
-                        List<CardAttribute> selected = selectedHeadersList.getSelectedValuesList();
-                        List<Integer> indices = Arrays.stream(selectedHeadersList.getSelectedIndices()).boxed().collect(Collectors.toList());
+                        var selected = selectedHeadersList.getSelectedValuesList();
+                        var indices = Arrays.stream(selectedHeadersList.getSelectedIndices()).boxed().collect(Collectors.toList());
                         Collections.reverse(indices);
                         int ignore = selectedHeadersModel.size() - 1;
                         for (int index : indices)
@@ -875,7 +874,7 @@ public class MainFrame extends JFrame
 
                     JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                     optionsPanel.add(new JLabel("Delimiter: "));
-                    JComboBox<String> delimiterBox = new JComboBox<>(DelimitedCardListFormat.DELIMITERS);
+                    var delimiterBox = new JComboBox<>(DelimitedCardListFormat.DELIMITERS);
                     delimiterBox.setEditable(true);
                     optionsPanel.add(delimiterBox);
                     JCheckBox includeCheckBox = new JCheckBox("Include Headers");
@@ -885,7 +884,7 @@ public class MainFrame extends JFrame
 
                     if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
                     {
-                        List<CardAttribute> selected = new ArrayList<>(selectedHeadersModel.size());
+                        var selected = new ArrayList<CardAttribute>(selectedHeadersModel.size());
                         for (int i = 0; i < selectedHeadersModel.size(); i++)
                             selected.add(selectedHeadersModel.getElementAt(i));
                         format = new DelimitedCardListFormat(String.valueOf(delimiterBox.getSelectedItem()), selected, includeCheckBox.isSelected());
@@ -1013,7 +1012,7 @@ public class MainFrame extends JFrame
         editCategoryItem.addActionListener((e) -> {
             JPanel contentPanel = new JPanel(new BorderLayout());
             contentPanel.add(new JLabel("Choose a category to edit:"), BorderLayout.NORTH);
-            JList<String> categories = new JList<>(selectedFrame.getCategories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
+            var categories = new JList<>(selectedFrame.getCategories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
             categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
             if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
@@ -1026,7 +1025,7 @@ public class MainFrame extends JFrame
         removeCategoryItem.addActionListener((e) -> {
             JPanel contentPanel = new JPanel(new BorderLayout());
             contentPanel.add(new JLabel("Choose a category to remove:"), BorderLayout.NORTH);
-            JList<String> categories = new JList<>(selectedFrame.getCategories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
+            var categories = new JList<>(selectedFrame.getCategories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
             categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
             if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
@@ -1591,7 +1590,7 @@ public class MainFrame extends JFrame
      */
     public boolean closeAll()
     {
-        List<EditorFrame> e = new ArrayList<>(editors);
+        var e = new ArrayList<>(editors);
         boolean closedAll = true;
         for (EditorFrame editor : e)
             closedAll &= close(editor);
@@ -1633,14 +1632,14 @@ public class MainFrame extends JFrame
         contentPanel.add(lowerPanel, BorderLayout.SOUTH);
         if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
         {
-            for (Map.Entry<Card, Set<String>> entry : cardTagPanel.getTagged().entrySet())
+            for (var entry : cardTagPanel.getTagged().entrySet())
                 Card.tags.compute(entry.getKey(), (k, v) -> {
                     if (v == null)
                         v = new HashSet<>();
                     v.addAll(entry.getValue());
                     return v;
                 });
-            for (Map.Entry<Card, Set<String>> entry : cardTagPanel.getUntagged().entrySet())
+            for (var entry : cardTagPanel.getUntagged().entrySet())
                 Card.tags.compute(entry.getKey(), (k, v) -> {
                     if (v != null)
                     {

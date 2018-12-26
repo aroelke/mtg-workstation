@@ -27,7 +27,6 @@ import javax.swing.border.TitledBorder;
 
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
 import editor.gui.SettingsDialog;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
@@ -120,24 +119,17 @@ public class CategoryPanel extends JPanel
      */
     private class PDMouseWheelListener implements MouseWheelListener
     {
-
-        @SuppressWarnings("javadoc")
         private JScrollBar bar;
-        @SuppressWarnings("javadoc")
         private JScrollPane parent;
-        @SuppressWarnings("javadoc")
         private JScrollPane parentScrollPane;
-        @SuppressWarnings("javadoc")
         private int previousValue = 0;
 
-        @SuppressWarnings("javadoc")
         public PDMouseWheelListener(JScrollPane p)
         {
             parent = p;
             bar = parent.getVerticalScrollBar();
         }
 
-        @SuppressWarnings("javadoc")
         private MouseWheelEvent cloneEvent(MouseWheelEvent e)
         {
             return new MouseWheelEvent(getParentScrollPane(), e.getID(), e.getWhen(),
@@ -145,13 +137,11 @@ public class CategoryPanel extends JPanel
                     false, e.getScrollType(), e.getScrollAmount(), e.getWheelRotation());
         }
 
-        @SuppressWarnings("javadoc")
         private int getMax()
         {
             return bar.getMaximum() - bar.getVisibleAmount();
         }
 
-        @SuppressWarnings("javadoc")
         private JScrollPane getParentScrollPane()
         {
             if (parentScrollPane == null)
@@ -253,8 +243,8 @@ public class CategoryPanel extends JPanel
     /**
      * Create a new CategoryPanel.
      *
-     * @param d      deck containing the category to display
-     * @param n      name of the category to display
+     * @param d deck containing the category to display
+     * @param n name of the category to display
      * @param editor {@link EditorFrame} containing the new CategoryPanel
      */
     public CategoryPanel(Deck d, String n, EditorFrame editor)
@@ -327,7 +317,7 @@ public class CategoryPanel extends JPanel
      */
     public void applySettings(EditorFrame editor)
     {
-        List<CardAttribute> columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
+        var columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
         Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
         model.setColumns(columns);
         table.setStripeColor(stripe);

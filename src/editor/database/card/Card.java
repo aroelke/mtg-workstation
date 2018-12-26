@@ -177,7 +177,7 @@ public abstract class Card
                 .map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
                 .collect(Collectors.toList())));
         legendName = new Lazy<>(() -> {
-            List<String> legendNames = new ArrayList<>();
+            var legendNames = new ArrayList<String>();
             for (String fullName : normalizedName())
             {
                 if (!supertypes().contains("Legendary"))
@@ -215,7 +215,7 @@ public abstract class Card
             return join.toString();
         });
         normalizedOracle = new Lazy<>(() -> {
-            List<String> texts = new ArrayList<>();
+            var texts = new ArrayList<String>();
             for (int i = 0; i < faces; i++)
             {
                 String normal = Normalizer.normalize(oracleText().get(i).toLowerCase(), Normalizer.Form.NFD);

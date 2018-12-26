@@ -101,7 +101,7 @@ public class IncludeExcludePanel extends ScrollablePanel
      */
     public Map<Card, Set<CategorySpec>> getIncluded()
     {
-        Map<Card, Set<CategorySpec>> included = new HashMap<>();
+        var included = new HashMap<Card, Set<CategorySpec>>();
         for (Card card : cards)
             for (CategorySpec category : categoryBoxes.keySet())
                 if (categoryBoxes.get(category).getState() == State.SELECTED && !category.includes(card))
@@ -123,7 +123,7 @@ public class IncludeExcludePanel extends ScrollablePanel
      */
     public Map<Card, Set<CategorySpec>> getExcluded()
     {
-        Map<Card, Set<CategorySpec>> excluded = new HashMap<>();
+        var excluded = new HashMap<Card, Set<CategorySpec>>();
         for (Card card : cards)
             for (CategorySpec category : categoryBoxes.keySet())
                 if (categoryBoxes.get(category).getState() == State.UNSELECTED && category.includes(card))

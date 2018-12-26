@@ -8,7 +8,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -99,8 +98,8 @@ public class CardTable extends JTable
                 case COLORS:
                 case COLOR_IDENTITY:
                     return (a, b) -> {
-                        List<ManaType> first = CollectionUtils.convertToList(a, ManaType.class);
-                        List<ManaType> second = CollectionUtils.convertToList(b, ManaType.class);
+                        var first = CollectionUtils.convertToList(a, ManaType.class);
+                        var second = CollectionUtils.convertToList(b, ManaType.class);
                         int diff = first.size() - second.size();
                         if (diff == 0)
                             for (int i = 0; i < first.size(); i++)
@@ -136,8 +135,8 @@ public class CardTable extends JTable
                     };
                 case CATEGORIES:
                     return (a, b) -> {
-                        List<CategorySpec> first = new ArrayList<>(CollectionUtils.convertToSet(a, CategorySpec.class));
-                        List<CategorySpec> second = new ArrayList<>(CollectionUtils.convertToSet(b, CategorySpec.class));
+                        var first = new ArrayList<>(CollectionUtils.convertToSet(a, CategorySpec.class));
+                        var second = new ArrayList<>(CollectionUtils.convertToSet(b, CategorySpec.class));
                         first.sort(Comparator.comparing(CategorySpec::getName));
                         second.sort(Comparator.comparing(CategorySpec::getName));
                         for (int i = 0; i < Math.min(first.size(), second.size()); i++)

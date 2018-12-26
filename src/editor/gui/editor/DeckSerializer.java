@@ -242,7 +242,7 @@ public class DeckSerializer
      * this serializer is reset to an empty state.
      *
      * @param format format of the file
-     * @param file   file to import from
+     * @param file file to import from
      * @throws DeckLoadException if the deck could not be imported
      * @see CardListFormat
      */

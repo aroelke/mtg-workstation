@@ -2,7 +2,6 @@ package editor.util;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BiPredicate;
 
 /**
@@ -48,8 +47,7 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
      * @param contain String representation of the desired Containment
      * @return The Containment corresponding to the given String.
      */
-    public static Containment
-    parseContainment(String contain)
+    public static Containment parseContainment(String contain)
     {
         return Containment.valueOf(contain.toUpperCase().replace(' ', '_'));
     }
@@ -76,10 +74,10 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
         case CONTAINS_NOT_ALL_OF:
             return CONTAINS_ANY_OF.test(a, b) && !a.containsAll(b);
         case CONTAINS_EXACTLY:
-            Map<Object, Integer> aMap = new HashMap<>();
+            var aMap = new HashMap<Object, Integer>();
             for (Object o : a)
                 aMap.compute(o, (k, v) -> v == null ? 1 : v + 1);
-            Map<Object, Integer> bMap = new HashMap<>();
+            var bMap = new HashMap<Object, Integer>();
             for (Object o : b)
                 bMap.compute(o, (k, v) -> v == null ? 1 : v + 1);
             return aMap.equals(bMap);

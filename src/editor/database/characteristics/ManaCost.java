@@ -56,7 +56,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public static ManaCost tryParseManaCost(String s)
     {
-        List<ManaSymbol> symbols = new ArrayList<>();
+        var symbols = new ArrayList<ManaSymbol>();
         Matcher m = Symbol.SYMBOL_PATTERN.matcher(s);
         while (m.find())
         {
@@ -111,9 +111,9 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public List<ManaType> colors()
     {
-        List<ManaType> colors = new ArrayList<>();
+        var colors = new ArrayList<ManaType>();
         for (ManaSymbol sym : cost)
-            for (Map.Entry<ManaType, Double> weight : sym.colorWeights().entrySet())
+            for (var weight : sym.colorWeights().entrySet())
                 if (weight.getKey() != ManaType.COLORLESS && weight.getValue() > 0 && !colors.contains(weight.getKey()))
                     colors.add(weight.getKey());
         return colors;
@@ -230,7 +230,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public boolean isSubset(ManaCost o)
     {
-        List<Symbol> copy = new ArrayList<>(cost);
+        var copy = new ArrayList<Symbol>(cost);
         for (Symbol sym : cost)
             if (!copy.remove(sym))
                 return false;
@@ -265,9 +265,9 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
             int diff = (int)(2 * (cmc() - o.cmc()));
             if (diff == 0)
             {
-                List<Double> weightList = new ArrayList<>(weights.values());
+                var weightList = new ArrayList<>(weights.values());
                 weightList.sort(Double::compareTo);
-                List<Double> oWeightList = new ArrayList<>(o.weights.values());
+                var oWeightList = new ArrayList<>(o.weights.values());
                 oWeightList.sort(Double::compareTo);
                 for (int i = 0; i < ManaType.values().length; i++)
                     diff += (weightList.get(i) - oWeightList.get(i)) * Math.pow(10, i);

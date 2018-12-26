@@ -68,8 +68,7 @@ public class SpinnerCellEditor extends DefaultCellEditor
             spinner.commitEdit();
         }
         catch (ParseException e)
-        {
-        }
+        {}
         return super.stopCellEditing();
     }
 }

@@ -62,7 +62,7 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
             return true;
         if (other.getClass() != getClass())
             return false;
-        OptionsFilter<?> o = (OptionsFilter<?>)other;
+        var o = (OptionsFilter<?>)other;
         return o.type().equals(type()) && o.contain == contain && o.selected.equals(selected);
     }
 

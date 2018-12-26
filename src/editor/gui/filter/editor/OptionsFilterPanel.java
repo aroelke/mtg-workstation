@@ -106,7 +106,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
     private void addItem(T value)
     {
         JPanel boxPanel = new JPanel(new BorderLayout());
-        JComboBox<T> box = new JComboBox<>(options);
+        var box = new JComboBox<>(options);
         box.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             if (options.length > 0)
             {
@@ -164,7 +164,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
     public Filter filter()
     {
         @SuppressWarnings("unchecked")
-        OptionsFilter<T> filter = (OptionsFilter<T>)FilterAttribute.createFilter(type);
+        var filter = (OptionsFilter<T>)FilterAttribute.createFilter(type);
         filter.contain = contain.getSelectedItem();
         filter.selected = optionsBoxes.stream().map((b) -> b.getItemAt(b.getSelectedIndex())).collect(Collectors.toSet());
         return filter;

@@ -91,7 +91,7 @@ public class CardTagPanel extends ScrollablePanel
      */
     public boolean addTag(String tag)
     {
-        Set<String> tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
+        var tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
         if (tags.add(tag))
         {
             setTags(tags.stream().sorted().collect(Collectors.toList()));
@@ -125,7 +125,7 @@ public class CardTagPanel extends ScrollablePanel
      */
     public Map<Card, Set<String>> getTagged()
     {
-        Map<Card, Set<String>> tagged = new HashMap<>();
+        var tagged = new HashMap<Card, Set<String>>();
         for (Card card : cards)
             for (TristateCheckBox tagBox : tagBoxes)
                 if (tagBox.getState() == State.SELECTED)
@@ -145,7 +145,7 @@ public class CardTagPanel extends ScrollablePanel
      */
     public Map<Card, Set<String>> getUntagged()
     {
-        Map<Card, Set<String>> untagged = new HashMap<>();
+        var untagged = new HashMap<Card, Set<String>>();
         for (Card card : cards)
             for (TristateCheckBox tagBox : tagBoxes)
                 if (tagBox.getState() == State.UNSELECTED)
@@ -166,7 +166,7 @@ public class CardTagPanel extends ScrollablePanel
      */
     public boolean removeTag(String tag)
     {
-        Set<String> tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
+        var tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
         if (tags.remove(tag))
         {
             setTags(tags.stream().sorted().collect(Collectors.toList()));

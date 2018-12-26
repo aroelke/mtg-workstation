@@ -280,7 +280,7 @@ public class SettingsDialog extends JDialog
     /**
      * Convert a #Color to a String in the format <code>#AARRGGBB</code>.
      *
-     * @param col   #Color to convert
+     * @param col #Color to convert
      * @param width minimum width of the color string
      * @return String code of the color.
      */
@@ -380,7 +380,7 @@ public class SettingsDialog extends JDialog
      * Load global settings from the settings file.  This does not affect card tags.
      *
      * @throws FileNotFoundException if the settings file can't be found
-     * @throws IOException           if an error occurred during loading
+     * @throws IOException if an error occurred during loading
      */
     public static void load() throws IOException
     {
@@ -390,20 +390,19 @@ public class SettingsDialog extends JDialog
             SETTINGS.load(in);
         }
         catch (FileNotFoundException e)
-        {
-        }
+        {}
     }
 
     /**
      * Load preset categories.
      *
      * @throws FileNotFoundException  if the settings file can't be found
-     * @throws IOException            if an error occurred during loading
+     * @throws IOException if an error occurred during loading
      * @throws ClassNotFoundException if a class of a category specification can't be found or restored
      */
     public static void loadPresetCategories() throws IOException, ClassNotFoundException
     {
-        List<CategorySpec> presets = new ArrayList<>();
+        var presets = new ArrayList<CategorySpec>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getAsString(EDITOR_PRESETS))))
         {
             int n = ois.readInt();
@@ -415,8 +414,7 @@ public class SettingsDialog extends JDialog
             }
         }
         catch (FileNotFoundException e)
-        {
-        }
+        {}
         if (!presets.isEmpty())
         {
             PRESET_CATEGORIES.clear();
@@ -500,7 +498,7 @@ public class SettingsDialog extends JDialog
     /**
      * Set the value Of the given setting.
      *
-     * @param name  name of the setting to set
+     * @param name name of the setting to set
      * @param value value to set it to
      * @throws IllegalArgumentException if the name isn't the name of an existing setting
      */

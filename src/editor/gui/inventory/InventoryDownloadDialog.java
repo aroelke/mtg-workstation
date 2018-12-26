@@ -166,8 +166,7 @@ public class InventoryDownloadDialog extends JDialog
                 }
             }
             finally
-            {
-            }
+            {}
             return null;
         }
 

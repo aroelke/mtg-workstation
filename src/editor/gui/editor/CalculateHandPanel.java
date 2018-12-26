@@ -303,16 +303,9 @@ public class CalculateHandPanel extends JPanel
     /**
      * Rounding modes for expected value mode.
      */
-    public static final Map<String, Function<Double, String>> ROUND_MODE;
-
-    static
-    {
-        Map<String, Function<Double, String>> rounds = new HashMap<>();
-        rounds.put("No rounding", (x) -> String.format("%.2f", x));
-        rounds.put("Round to nearest", (x) -> String.format("%d", Math.round(x)));
-        rounds.put("Truncate", (x) -> String.format("%d", x.intValue()));
-        ROUND_MODE = Collections.unmodifiableMap(rounds);
-    }
+    public static final Map<String, Function<Double, String>> ROUND_MODE = Map.of("No rounding", (x) -> String.format("%.2f", x),
+                                                                                  "Round to nearest", (x) -> String.format("%d", Math.round(x)),
+                                                                                  "Truncate", (x) -> String.format("%d", x.intValue()));
 
     /**
      * Calculate the exact value of n!, as long as it will fit into a double.
@@ -513,7 +506,7 @@ public class CalculateHandPanel extends JPanel
      */
     public void recalculate()
     {
-        List<String> categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
+        var categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
 
         probabilities.clear();
         int hand = (int)handSpinner.getValue();
@@ -523,7 +516,7 @@ public class CalculateHandPanel extends JPanel
         {
             probabilities.put(category, new ArrayList<>(Collections.nCopies(1 + draws, 0.0)));
             expectedCounts.put(category, new ArrayList<>(Collections.nCopies(1 + draws, 0.0)));
-            JComboBox<Relation> box = relationBoxes.get(category);
+            var box = relationBoxes.get(category);
             Relation r = box.getItemAt(box.getSelectedIndex());
             for (int j = 0; j <= draws; j++)
             {
@@ -556,10 +549,10 @@ public class CalculateHandPanel extends JPanel
      */
     public void update()
     {
-        List<String> categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
+        var categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
 
-        Map<String, Integer> oldDesired = desiredBoxes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getSelectedIndex()));
-        Map<String, Relation> oldRelations = relationBoxes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getItemAt(e.getValue().getSelectedIndex())));
+        var oldDesired = desiredBoxes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getSelectedIndex()));
+        var oldRelations = relationBoxes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getItemAt(e.getValue().getSelectedIndex())));
 
         desiredBoxes.clear();
         relationBoxes.clear();
@@ -567,7 +560,7 @@ public class CalculateHandPanel extends JPanel
 
         for (String category : categories)
         {
-            JComboBox<Integer> desiredBox = new JComboBox<>();
+            var desiredBox = new JComboBox<Integer>();
             for (int i = 0; i <= deck.getCategoryList(category).total(); i++)
                 desiredBox.addItem(i);
             if (oldDesired.containsKey(category) && oldDesired.get(category) < deck.getCategoryList(category).total())
@@ -575,7 +568,7 @@ public class CalculateHandPanel extends JPanel
             desiredBox.addActionListener((e) -> recalculate());
             desiredBoxes.put(category, desiredBox);
 
-            JComboBox<Relation> relationBox = new JComboBox<>(Relation.values());
+            var relationBox = new JComboBox<>(Relation.values());
             if (oldRelations.containsKey(category))
                 relationBox.setSelectedItem(oldRelations.get(category));
             relationBox.addActionListener((e) -> recalculate());

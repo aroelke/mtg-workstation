@@ -2,7 +2,6 @@ package editor.gui.filter.editor;
 
 import java.awt.FlowLayout;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import editor.collection.deck.CategorySpec;
@@ -42,7 +41,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 
         categories = new HashMap<>();
 
-        List<CategorySpec> presets = SettingsDialog.getPresetCategories();
+        var presets = SettingsDialog.getPresetCategories();
         String[] names = presets.stream().map(CategorySpec::getName).toArray(String[]::new);
         for (int i = 0; i < presets.size(); i++)
             categories.put(names[i], presets.get(i));
@@ -68,6 +67,5 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
      */
     @Override
     public void setContents(FilterLeaf<?> filter)
-    {
-    }
+    {}
 }

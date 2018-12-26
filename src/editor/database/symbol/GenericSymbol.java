@@ -55,7 +55,7 @@ public class GenericSymbol extends ManaSymbol
      *
      * @param n String to get the symbol of
      * @return the GenericSymbol corresponding to the given String
-     * @throws NumberFormatException          if the string doesn't parse to an integer
+     * @throws NumberFormatException if the string doesn't parse to an integer
      * @throws ArrayIndexOutOfBoundsException if the parsed string doens't correspond to a generic symbol
      */
     public static GenericSymbol parseGenericSymbol(String n) throws NumberFormatException, ArrayIndexOutOfBoundsException

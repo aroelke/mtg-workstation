@@ -545,7 +545,7 @@ public class Deck implements CardList
     @Override
     public boolean addAll(CardList d)
     {
-        Map<Card, Integer> added = new HashMap<>();
+        var added = new HashMap<Card, Integer>();
         for (Card card : d)
             if (add(card, d.getEntry(card).count(), d.getEntry(card).dateAdded()))
                 added.put(card, d.getEntry(card).count());
@@ -555,7 +555,7 @@ public class Deck implements CardList
     @Override
     public boolean addAll(Map<? extends Card, ? extends Integer> amounts)
     {
-        Map<Card, Integer> added = new HashMap<>();
+        var added = new HashMap<Card, Integer>();
         for (Card card : amounts.keySet())
             if (add(card, amounts.get(card), LocalDate.now()))
                 added.put(card, amounts.get(card));
@@ -869,7 +869,7 @@ public class Deck implements CardList
         {
             for (DeckEntry e : masterList)
                 e.categories.remove(c);
-            Map<String, Integer> oldRanks = new HashMap<>();
+            var oldRanks = new HashMap<String, Integer>();
             for (Category category : categories.values())
             {
                 if (category.rank > c.rank)
@@ -913,7 +913,7 @@ public class Deck implements CardList
     @Override
     public Map<Card, Integer> removeAll(Map<? extends Card, ? extends Integer> amounts)
     {
-        Map<Card, Integer> removed = new HashMap<>();
+        var removed = new HashMap<Card, Integer>();
         for (Card card : new HashSet<Card>(amounts.keySet()))
         {
             int r = remove(card, amounts.get(card));
@@ -945,7 +945,7 @@ public class Deck implements CardList
             if (e.card.isLand())
                 land += amount - e.count;
 
-            Map<Card, Integer> change = new HashMap<>();
+            var change = new HashMap<Card, Integer>();
             change.put(card, amount - e.count);
 
             e.count = amount;
@@ -998,7 +998,7 @@ public class Deck implements CardList
             {
                 if (second.rank == target)
                 {
-                    Map<String, Integer> oldRanks = new HashMap<>();
+                    var oldRanks = new HashMap<String, Integer>();
                     oldRanks.put(name, categories.get(name).rank);
                     oldRanks.put(second.spec.getName(), second.rank);
 

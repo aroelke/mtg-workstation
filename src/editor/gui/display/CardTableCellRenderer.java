@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.StringJoiner;
 
 import javax.swing.BorderFactory;
@@ -64,7 +63,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
             {
             case MANA_COST:
                 panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-                List<ManaCost> cost = CollectionUtils.convertToList(value, ManaCost.class);
+                var cost = CollectionUtils.convertToList(value, ManaCost.class);
                 border = BorderFactory.createEmptyBorder(0, 1, cost.size() == 1 ? -1 : 0, 0);
                 for (int i = 0; i < cost.size(); i++)
                 {
@@ -98,7 +97,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
                 panel.add(new JLabel(CollectionUtils.join(join, CollectionUtils.convertToList(value, Loyalty.class))));
                 break;
             case CATEGORIES:
-                List<CategorySpec> categories = new ArrayList<>(CollectionUtils.convertToSet(value, CategorySpec.class));
+                var categories = new ArrayList<>(CollectionUtils.convertToSet(value, CategorySpec.class));
                 categories.sort(Comparator.comparing(CategorySpec::getName));
                 panel = new JPanel()
                 {

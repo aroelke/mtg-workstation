@@ -2,7 +2,6 @@ package editor.database.symbol;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,7 +48,7 @@ public class HybridSymbol extends ManaSymbol
      */
     public static HybridSymbol tryParseHybridSymbol(String pair)
     {
-        List<ManaType> colors = Arrays.stream(pair.split("/")).map(ManaType::tryParseManaType).collect(Collectors.toList());
+        var colors = Arrays.stream(pair.split("/")).map(ManaType::tryParseManaType).collect(Collectors.toList());
         if (colors.size() == 2 && SYMBOLS.get(colors.get(0)) != null)
             return SYMBOLS.get(colors.get(0)).get(colors.get(1));
         return null;

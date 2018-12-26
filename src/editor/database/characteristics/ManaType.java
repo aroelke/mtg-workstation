@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -93,11 +92,11 @@ public enum ManaType
      */
     public static void sort(List<ManaType> colors)
     {
-        Map<ManaType, Integer> counts = new EnumMap<>(ManaType.class);
+        var counts = new EnumMap<ManaType, Integer>(ManaType.class);
         for (ManaType type : colors)
             counts.compute(type, (k, v) -> v == null ? 1 : v + 1);
 
-        List<ManaType> unique = Arrays.stream(colors()).filter(counts::containsKey).collect(Collectors.toList());
+        var unique = Arrays.stream(colors()).filter(counts::containsKey).collect(Collectors.toList());
         switch (unique.size())
         {
         case 2:

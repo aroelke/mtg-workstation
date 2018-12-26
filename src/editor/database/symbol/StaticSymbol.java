@@ -51,8 +51,8 @@ public class StaticSymbol extends ManaSymbol
      * Create a new StaticSymbol.
      *
      * @param iconName icon name of the new symbol
-     * @param text     text representation of the new symbol
-     * @param value    sorting value of the new StaticSymbol
+     * @param text text representation of the new symbol
+     * @param value sorting value of the new StaticSymbol
      */
     private StaticSymbol(String iconName, String text, double value)
     {

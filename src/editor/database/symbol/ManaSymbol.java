@@ -38,7 +38,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
      */
     public static Map<ManaType, Double> createWeights(ColorWeight... weights)
     {
-        Map<ManaType, Double> weightsMap = new EnumMap<>(Arrays.stream(ManaType.values()).collect(Collectors.toMap(Function.identity(), (m) -> 0.0)));
+        var weightsMap = new EnumMap<ManaType, Double>(Arrays.stream(ManaType.values()).collect(Collectors.toMap(Function.identity(), (m) -> 0.0)));
         for (ColorWeight w : weights)
             weightsMap.put(w.color, w.weight);
         return weightsMap;
