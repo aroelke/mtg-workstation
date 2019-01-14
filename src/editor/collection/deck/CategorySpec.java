@@ -22,7 +22,6 @@ import java.util.*;
  */
 public class CategorySpec implements Externalizable
 {
-    // TODO: Remove this
     public static final Map<FilterAttribute, String> CODES = Map.ofEntries(new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.CARD_TYPE, "cardtype"),
                                                                            new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.ANY, "*"),
                                                                            new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.FORMAT_LEGALITY, "legal"),
