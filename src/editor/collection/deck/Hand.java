@@ -28,7 +28,6 @@ public class Hand implements CardList
     private Deck deck;
     /**
      * Cards to not include in a drawn hand (for example, sideboards or Commanders).
-     * TODO: Remove this when sideboards are implemented
      */
     private Set<Card> exclusion;
     /**
