@@ -17,8 +17,6 @@ import java.util.*;
  * This class represents a set of specifications for a category.  Those specifications are its name,
  * the lists of cards to include or exclude regardless of filter, its color, its filter, and its String
  * representation.
- * 
- * TODO: Consider making this immutable (editing functions will return copies)
  *
  * @author Alec Roelke
  */
