@@ -59,7 +59,6 @@ public class TextCardListFormat implements CardListFormat
     @Override
     public CardList parse(String source) throws ParseException
     {
-        // TODO: Tell the difference between a line ending in a date and a line ending in a number (August 26, 2016)
         Deck deck = new Deck();
         Pattern countPattern = Pattern.compile("(?:^(?:\\d+x|x\\d+|\\d+)|(?:\\d+x|x\\d+|\\d+)$)");
 
