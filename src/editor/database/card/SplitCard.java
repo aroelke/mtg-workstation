@@ -8,8 +8,6 @@ import editor.util.Lazy;
 
 /**
  * This class represents a card that has several faces all printed on the front.
- * <p>
- * TODO: Change this to have CMC the sum of its parts (and potentially this means all cards only have one CMC now)
  *
  * @author Alec Roelke
  */
