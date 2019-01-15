@@ -545,7 +545,6 @@ public abstract class Card
 
     /**
      * Get this Card's unique identifier.
-     * TODO: Use the ID field from mtgjson rather than calculating it like this
      *
      * @return this Card's UID.
      */
@@ -625,7 +624,6 @@ public abstract class Card
 
     /**
      * Get the set of formats and this Card's legalities in each one.
-     * TODO: Calculate this based on the new policy in mtgjson.com
      *
      * @return a map whose keys are format names and whose values are the legalities
      * of this Card in those formats.
