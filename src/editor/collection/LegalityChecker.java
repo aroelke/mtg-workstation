@@ -16,8 +16,6 @@ import editor.util.Containment;
  * only be used once and then thrown away once viewing the results are complete.  It can
  * tell what formats a deck is legal and illegal in, and give reasons for why it is
  * illegal.
- * <p>
- * TODO: This class does not work properly
  *
  * @author Alec Roelke
  */
@@ -53,10 +51,9 @@ public class LegalityChecker
      * Find the color to classify a Card as to make the deck as close to 20 of each color, with
      * no Cards repeating, as possible.  If all classifications have 20 or more Cards, then remove
      * one and reclassify it.
-     * TODO: This almost works; but make it better
      *
-     * @param c         card to classify
-     * @param bins      list of colors the Card can be classified as
+     * @param c card to classify
+     * @param bins list of colors the Card can be classified as
      * @param exclusion list of colors the Card should not be classified as
      */
     private void binCard(Card c, HashMap<ManaType, List<Card>> bins, List<ManaType> exclusion)
@@ -87,9 +84,6 @@ public class LegalityChecker
     /**
      * Check which formats a deck is legal in, and the reasons for why it is illegal in
      * others.
-     * <p>
-     * TODO: Add deck construction rules for:
-     * - Tribal Wars Legacy/Standard (1/3 of the cards of the deck must have the same creature type)
      *
      * @param deck deck to check
      */
