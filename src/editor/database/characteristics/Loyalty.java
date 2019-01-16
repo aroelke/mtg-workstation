@@ -7,8 +7,6 @@ import editor.database.card.Card;
 /**
  * This class represents the starting loyalty of a planeswalker.  All {@link Card}s have them, but they
  * are invisible for non-planeswalkers.
- * <p>
- * TODO: Give this and CombatStat a common superclass
  *
  * @author Alec Roelke
  */
