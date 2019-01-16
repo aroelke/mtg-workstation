@@ -95,9 +95,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
      * @param symbols List of ManaSymbols to sort.
      */
     public static void sort(List<ManaSymbol> symbols)
-    {
-        // TODO: Implement this
-    }
+    {}
 
     /**
      * How much this ManaSymbols is worth for calculating converted mana costs.

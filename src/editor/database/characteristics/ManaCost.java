@@ -315,7 +315,6 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
             return false;
         if (other == this)
             return false;
-        // TODO: When sorting mana costs works, replace with just equals
         return Containment.CONTAINS_EXACTLY.test(cost, ((ManaCost)other).cost);
     }
 
