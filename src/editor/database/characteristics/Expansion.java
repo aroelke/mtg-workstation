@@ -5,8 +5,6 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * This class represents an expansion set of Magic: The Gathering cards.
- * <p>
- * TODO: Add (some) other fields from MTGJSON and add functionality for them
  *
  * @author Alec
  */
