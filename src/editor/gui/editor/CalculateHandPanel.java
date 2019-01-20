@@ -36,10 +36,6 @@ import editor.gui.SettingsDialog;
 /**
  * This class represents a panel that shows the probability of getting a certain
  * amount of cards that match a category in an initial hand and after a given
- * number of draws.
- * <p>
- * TODO: Remove exclusion
- * TODO: Double-clicking a probability shows a probability distribution (or it's right-click menu)
  *
  * @author Alec Roelke
  */
@@ -537,7 +533,6 @@ public class CalculateHandPanel extends JPanel
                     break;
                 }
                 probabilities.get(category).set(j, p);
-                // TODO: This might be wrong
                 expectedCounts.get(category).set(j, (double)deck.getCategoryList(category).total() / deck.total() * (hand + j));
             }
         }

@@ -103,7 +103,6 @@ import editor.util.UnicodeSymbols;
  * inventory from which cards can be added.
  * <p>
  * TODO: Add a filter bar to the main tab just like the inventory has
- * TODO: Add something for calculating probability for multiple categories at once
  *
  * @author Alec Roelke
  */
