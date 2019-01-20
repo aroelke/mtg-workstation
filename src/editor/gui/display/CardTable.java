@@ -233,7 +233,6 @@ public class CardTable extends JTable
     /**
      * {@inheritDoc}
      * Tooltips are only available for cells whose contents don't fit.
-     * TODO: Look into why some text gets cut off sometimes
      */
     @Override
     public String getToolTipText(MouseEvent e)
