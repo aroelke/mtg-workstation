@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 /**
  * This enum represents an attribute by which a card can be filtered.
  *
- * TODO: Merge with CardAttribute
- *
  * @author Alec Roelke
  */
 public enum FilterAttribute
