@@ -14,8 +14,6 @@ import java.util.function.Function;
 
 /**
  * This class represents a filter for a card characteristic that is a number.
- * <p>
- * TODO: Change this to ComparableFilter and make it generic.
  *
  * @author Alec Roelke
  */
