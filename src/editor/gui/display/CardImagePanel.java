@@ -128,7 +128,6 @@ public class CardImagePanel extends JPanel
                         URL site = new URL(String.join("/", "http://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
 
                         img.getParentFile().mkdirs();
-                        // TODO: Add a timeout here
                         try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
                         {
                             try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(img)))
