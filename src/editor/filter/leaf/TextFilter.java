@@ -18,11 +18,6 @@ import java.util.regex.Pattern;
 
 /**
  * This class represents a filter for a text characteristic of a card.
- * <p>
- * TODO: Add tokens to match types of strings
- * - \permanent matches any permanent type
- * - \basic matches any basic land type
- * - etc
  *
  * @author Alec Roelke
  */
