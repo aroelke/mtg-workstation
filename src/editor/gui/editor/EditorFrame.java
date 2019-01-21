@@ -101,8 +101,6 @@ import editor.util.UnicodeSymbols;
  * and their counts in the deck as well as zero or more tables for categories within it.  It can add cards
  * to a deck and add, edit, and delete categories.  It is contained within the main frame, which has the
  * inventory from which cards can be added.
- * <p>
- * TODO: Add a filter bar to the main tab just like the inventory has
  *
  * @author Alec Roelke
  */
