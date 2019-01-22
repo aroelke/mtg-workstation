@@ -12,9 +12,6 @@ import editor.filter.Filter;
 /**
  * This class represents a panel that corresponds to a filter but
  * allows the user to edit its contents.
- *
- * TODO: Add a component to switch between only checking the front side of a card or checking all sides
- * TODO: Add a capability to comment filters
  * 
  * @param <F> Type of filter being edited
  * @author Alec Roelke
