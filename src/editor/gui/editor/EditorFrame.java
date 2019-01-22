@@ -1089,7 +1089,7 @@ public class EditorFrame extends JInternalFrame
             if (!changelogArea.getText().isEmpty()
                     && JOptionPane.showConfirmDialog(EditorFrame.this, "This change is permanent.  Clear change log?", "Clear Change Log?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
             {
-                changelogArea.setText(""); // TODO: Make this undoable somehow
+                changelogArea.setText("");
                 setUnsaved();
             }
         });
