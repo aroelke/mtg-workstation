@@ -330,7 +330,6 @@ public class EditorFrame extends JInternalFrame
                 }
                 else if (supp.isDataFlavorSupported(Card.cardFlavor))
                 {
-                    // TODO: Account for multiples
                     final var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
                     return performAction(() -> {
                         if (!source.current.addAll(data))
@@ -390,7 +389,6 @@ public class EditorFrame extends JInternalFrame
         /**
          * {@inheritDoc}
          * Only copying is supported.
-         * TODO: Support moving
          */
         @Override
         public int getSourceActions(JComponent c)
@@ -1410,17 +1408,17 @@ public class EditorFrame extends JInternalFrame
 
         // Cut item
         JMenuItem cutItem = new JMenuItem("Cut");
-        cutItem.setEnabled(false); // TODO: Implement this
+        cutItem.setEnabled(false);
         categoryMenu.add(cutItem);
 
         // Copy item
         JMenuItem copyItem = new JMenuItem("Copy");
-        copyItem.setEnabled(false); // TODO: Implement this
+        copyItem.setEnabled(false);
         categoryMenu.add(copyItem);
 
         // Paste item
         JMenuItem pasteItem = new JMenuItem("Paste");
-        pasteItem.setEnabled(false); // TODO: Implement this
+        pasteItem.setEnabled(false);
         categoryMenu.add(pasteItem);
 
         // Edit item
