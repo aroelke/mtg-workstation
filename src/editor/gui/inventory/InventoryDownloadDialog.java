@@ -136,7 +136,6 @@ public class InventoryDownloadDialog extends JDialog
         {
             try
             {
-                // TODO: Add ETA
                 URLConnection conn = site.openConnection();
                 int toDownload = conn.getContentLength();
                 if (toDownload < 0)
