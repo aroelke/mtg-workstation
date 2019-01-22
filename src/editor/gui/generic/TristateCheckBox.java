@@ -122,7 +122,6 @@ public class TristateCheckBox extends JCheckBox
         super(text, s != State.UNSELECTED);
         setState(s);
         setIcon(new IndeterminateIcon(UIManager.getColor("CheckBox.foreground")));
-        // TODO: Try to get this to be the right rollover color
         setRolloverIcon(new IndeterminateIcon(UIManager.getColor("CheckBox.foreground")));
         addActionListener(new ClickListener());
     }
