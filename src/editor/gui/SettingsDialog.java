@@ -68,7 +68,6 @@ import editor.util.UnicodeSymbols;
 /**
  * This class is a dialog that allows the user to change various properties about
  * the program.
- * TODO: Consider switching to listener paradigm for applying settings
  *
  * @author Alec Roelke
  */
