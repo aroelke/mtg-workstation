@@ -77,8 +77,6 @@ public class InventoryLoadDialog extends JDialog
 {
     /**
      * This class represents a worker that loads cards from a JSON file in the background.
-     * <p>
-     * TODO: Use http://www.mtgsalvation.com/forums/magic-fundamentals/magic-software/494332-mtg-json-new-website-provides-mtg-card-data-in?page=21#c519 to generate card numbers for cards that don't have them
      *
      * @author Alec Roelke
      */
