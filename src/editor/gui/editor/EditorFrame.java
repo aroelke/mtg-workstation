@@ -1038,13 +1038,6 @@ public class EditorFrame extends JInternalFrame
         listTabs.addTab("Sample Hand", handPanel);
         hand.refresh();
 
-        // TODO: Add tabs for deck analysis
-        // - category pie chart
-        // - mana curve
-        // - color distribution (cards/devotion[max,avg,total])
-        // - mana production distribution
-        // - notes
-
         // Panel to show the stats of the deck
         JPanel bottomPanel = new JPanel();
         GridBagLayout bottomLayout = new GridBagLayout();
