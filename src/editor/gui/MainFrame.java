@@ -922,9 +922,9 @@ public class MainFrame extends JFrame
         fileMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
             closeItem.setEnabled(selectedFrame.isPresent());
             closeAllItem.setEnabled(!editors.isEmpty());
-            saveItem.setEnabled(selectedFrame.map((f) -> f.getUnsaved()).orElse(false));
+            saveItem.setEnabled(selectedFrame.map(EditorFrame::getUnsaved).orElse(false));
             saveAsItem.setEnabled(selectedFrame.isPresent());
-            saveAllItem.setEnabled(editors.stream().map((f) -> f.getUnsaved()).reduce(false, (a, b) -> a || b));
+            saveAllItem.setEnabled(editors.stream().map(EditorFrame::getUnsaved).reduce(false, (a, b) -> a || b));
             exportItem.setEnabled(selectedFrame.isPresent());
         }));
         // Items are enabled while hidden so their listeners can be used
@@ -944,13 +944,13 @@ public class MainFrame extends JFrame
         // Undo menu item
         JMenuItem undoItem = new JMenuItem("Undo");
         undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
-        undoItem.addActionListener((e) -> selectedFrame.ifPresent((f) -> f.undo()));
+        undoItem.addActionListener((e) -> selectedFrame.ifPresent(EditorFrame::undo));
         editMenu.add(undoItem);
 
         // Redo menu item
         JMenuItem redoItem = new JMenuItem("Redo");
         redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
-        redoItem.addActionListener((e) -> selectedFrame.ifPresent((f) -> f.redo()));
+        redoItem.addActionListener((e) -> selectedFrame.ifPresent(EditorFrame::redo));
         editMenu.add(redoItem);
 
         editMenu.add(new JSeparator());

@@ -46,7 +46,7 @@ public class CardMenuItems implements Iterable<JMenuItem>
      */
     public CardMenuItems(final Supplier<Optional<EditorFrame>> monitor, final Supplier<? extends Collection<Card>> cards, final boolean main)
     {
-        final Supplier<String> name = () -> main ? "" : monitor.get().map((f) -> f.getSelectedExtraName()).orElse(null);
+        final Supplier<String> name = () -> main ? "" : monitor.get().map(EditorFrame::getSelectedExtraName).orElse(null);
         final IntConsumer addN = (n) -> { if (name.get() != null) monitor.get().ifPresent((f) -> f.addCards(name.get(), cards.get(), n)); };
         final Runnable fillPlayset = () -> {
             if (name.get() != null)
