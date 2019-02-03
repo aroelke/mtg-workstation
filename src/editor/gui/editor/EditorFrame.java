@@ -478,7 +478,7 @@ public class EditorFrame extends JInternalFrame
             {
                 if (parent.getSelectedCards().size() == 1)
                 {
-                    Card card = parent.getSelectedCard();
+                    Card card = parent.getSelectedCards().get(0);
 
                     for (CategorySpec category : deck.current.categories())
                     {
@@ -786,13 +786,13 @@ public class EditorFrame extends JInternalFrame
                 editCategoriesItem, categoriesSeparator, deck.table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             for (JMenuItem item : tableMenuCardItems)
-                item.setEnabled(parent.getSelectedCard() != null);
+                item.setEnabled(!parent.getSelectedCards().isEmpty());
             moveToMenu.setEnabled(!extras.isEmpty());
             moveAllToMenu.setEnabled(!extras.isEmpty());
             addToCategoryMenu.setEnabled(!categoryPanels.isEmpty());
             removeFromCategoryMenu.setEnabled(!categoryPanels.isEmpty());
             editCategoriesItem.setEnabled(!categoryPanels.isEmpty());
-            editTagsItem.setEnabled(parent.getSelectedCard() != null);
+            editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
 
             moveToMenu.removeAll();
             moveAllToMenu.removeAll();
@@ -1391,8 +1391,8 @@ public class EditorFrame extends JInternalFrame
             removeFromCategoryItem.setText("Exclude from " + newCategory.getCategoryName());
 
             for (JMenuItem item : tableMenuCardItems)
-                item.setEnabled(parent.getSelectedCard() != null);
-                editTagsItem.setEnabled(parent.getSelectedCard() != null);
+                item.setEnabled(!parent.getSelectedCards().isEmpty());
+                editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
         }));
 
         
