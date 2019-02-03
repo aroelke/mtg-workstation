@@ -5,6 +5,7 @@ import java.awt.Container;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
@@ -43,22 +44,22 @@ public class CardMenuItems implements Iterable<JMenuItem>
      * @param cards supplier for determining which cards to make changes with
      * @param main whether or not this CardMenuItems should operate on the main deck
      */
-    public CardMenuItems(final Supplier<EditorFrame> monitor, final Supplier<? extends Collection<Card>> cards, final boolean main)
+    public CardMenuItems(final Supplier<Optional<EditorFrame>> monitor, final Supplier<? extends Collection<Card>> cards, final boolean main)
     {
-        final Supplier<String> name = () -> main ? "" : monitor.get().getSelectedExtraName();
-        final IntConsumer addN = (n) -> { if (name.get() != null) monitor.get().addCards(name.get(), cards.get(), n); };
+        final Supplier<String> name = () -> main ? "" : monitor.get().map((f) -> f.getSelectedExtraName()).orElse(null);
+        final IntConsumer addN = (n) -> { if (name.get() != null) monitor.get().ifPresent((f) -> f.addCards(name.get(), cards.get(), n)); };
         final Runnable fillPlayset = () -> {
             if (name.get() != null)
             {
-                monitor.get().modifyCards(name.get(), cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
-                    if (monitor.get().hasCard(name.get(), c))
-                        return Math.max(0, SettingsDialog.PLAYSET_SIZE - monitor.get().getDeck().getEntry(c).count());
+                monitor.get().ifPresent((f) -> f.modifyCards(name.get(), cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
+                    if (f.hasCard(name.get(), c))
+                        return Math.max(0, SettingsDialog.PLAYSET_SIZE - f.getDeck().getEntry(c).count());
                     else
                         return SettingsDialog.PLAYSET_SIZE;
-                })));
+                }))));
             }
         };
-        final IntConsumer removeN = (n) -> { if (name.get() != null) monitor.get().removeCards(name.get(), cards.get(), n); };
+        final IntConsumer removeN = (n) -> { if (name.get() != null) monitor.get().ifPresent((f) -> f.removeCards(name.get(), cards.get(), n)); };
         items = new JMenuItem[6];
 
         // Add single copy item

@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Consumer;
@@ -746,7 +747,7 @@ public class EditorFrame extends JInternalFrame
         deck.table.addMouseListener(new TableMouseAdapter(deck.table, tableMenu));
 
         // Add/remove cards
-        CardMenuItems tableMenuCardItems = new CardMenuItems(() -> this, parent::getSelectedCards, true);
+        CardMenuItems tableMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, true);
         tableMenuCardItems.addAddItems(tableMenu);
         tableMenu.add(new JSeparator());
         tableMenuCardItems.addRemoveItems(tableMenu);
@@ -1350,7 +1351,7 @@ public class EditorFrame extends JInternalFrame
         JPopupMenu tableMenu = new JPopupMenu();
         newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 
-        CardMenuItems tableMenuCardItems = new CardMenuItems(() -> this, parent::getSelectedCards, true);
+        CardMenuItems tableMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, true);
         tableMenuCardItems.addAddItems(tableMenu);
         tableMenu.add(new JSeparator());
         tableMenuCardItems.addRemoveItems(tableMenu);
@@ -1990,7 +1991,7 @@ public class EditorFrame extends JInternalFrame
         extra.table.addMouseListener(new TableMouseAdapter(extra.table, extraMenu));
 
         // Add/remove cards from sideboard
-        CardMenuItems sideboardMenuCardItems = new CardMenuItems(() -> this, parent::getSelectedCards, false);
+        CardMenuItems sideboardMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, false);
         sideboardMenuCardItems.addAddItems(extraMenu);
         extraMenu.add(new JSeparator());
         sideboardMenuCardItems.addRemoveItems(extraMenu);
