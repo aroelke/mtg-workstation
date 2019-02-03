@@ -361,7 +361,7 @@ public class MainFrame extends JFrame
      * Table containing the currently-selected cards.  Can be null if there is no
      * selection.
      */
-    private CardTable selectedTable;
+    private Optional<CardTable> selectedTable;
     /**
      * List backing the table containing the currently-selected cards.  Can be null
      * if there is no selection.
@@ -376,7 +376,7 @@ public class MainFrame extends JFrame
         super();
 
         selectedCards = Collections.emptyList();
-        selectedTable = null;
+        selectedTable = Optional.empty();
         selectedList = null;
         untitled = 0;
         selectedFrame = Optional.empty();
@@ -1705,7 +1705,7 @@ public class MainFrame extends JFrame
      *
      * @return the table with the selected cards
      */
-    public CardTable getSelectedTable()
+    public Optional<CardTable> getSelectedTable()
     {
         return selectedTable;
     }
@@ -1717,7 +1717,7 @@ public class MainFrame extends JFrame
      */
     public boolean hasSelectedCards()
     {
-        return selectedTable == inventoryTable;
+        return selectedTable.filter((f) -> f == inventoryTable).isPresent();
     }
 
     /**
@@ -1971,7 +1971,7 @@ public class MainFrame extends JFrame
      */
     public void setSelectedCards(CardTable table, CardList list)
     {
-        selectedTable = table;
+        selectedTable = Optional.of(table);
         selectedList = list;
         selectedCards = Collections.unmodifiableList(Arrays.stream(table.getSelectedRows())
                 .mapToObj((r) -> list.get(table.convertRowIndexToModel(r)))

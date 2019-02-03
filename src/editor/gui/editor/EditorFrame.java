@@ -474,7 +474,7 @@ public class EditorFrame extends JInternalFrame
         @Override
         public void popupMenuWillBecomeVisible(PopupMenuEvent e)
         {
-            if (parent.getSelectedTable() == table)
+            if (parent.getSelectedTable().filter((f) -> f == table).isPresent())
             {
                 if (parent.getSelectedCards().size() == 1)
                 {
@@ -1919,16 +1919,17 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean hasSelectedCards()
     {
-        CardTable selectedTable = parent.getSelectedTable();
-        if (selectedTable == deck.table)
-            return true;
-        for (DeckData extra : extras.values())
-            if (selectedTable == extra.table)
+        return parent.getSelectedTable().map((t) -> {
+            if (t == deck.table)
                 return true;
-        for (CategoryPanel panel : categoryPanels)
-            if (selectedTable == panel.table)
-                return true;
-        return false;
+            for (DeckData extra : extras.values())
+                if (t == extra.table)
+                    return true;
+            for (CategoryPanel panel : categoryPanels)
+                if (t == panel.table)
+                    return true;
+            return false;
+        }).orElse(false);
     }
 
     /**
@@ -2467,12 +2468,14 @@ public class EditorFrame extends JInternalFrame
         {
             if (parent.getSelectedList().contains(c))
             {
-                int row = parent.getSelectedTable().convertRowIndexToView(parent.getSelectedList().indexOf(c));
-                parent.getSelectedTable().addRowSelectionInterval(row, row);
+                int row = parent.getSelectedTable().get().convertRowIndexToView(parent.getSelectedList().indexOf(c));
+                parent.getSelectedTable().get().addRowSelectionInterval(row, row);
             }
         }
-        if (parent.getSelectedTable().isEditing())
-            parent.getSelectedTable().getCellEditor().cancelCellEditing();
+        parent.getSelectedTable().ifPresent((t) -> {
+            if (t.isEditing())
+                t.getCellEditor().cancelCellEditing();
+        });
 
         hand.refresh();
         handCalculations.update();
