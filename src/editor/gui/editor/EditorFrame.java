@@ -2466,11 +2466,13 @@ public class EditorFrame extends JInternalFrame
             data.model.fireTableDataChanged();
         for (Card c : parent.getSelectedCards())
         {
-            if (parent.getSelectedList().contains(c))
-            {
-                int row = parent.getSelectedTable().get().convertRowIndexToView(parent.getSelectedList().indexOf(c));
-                parent.getSelectedTable().get().addRowSelectionInterval(row, row);
-            }
+            parent.getSelectedList().ifPresent((l) -> {
+                if (l.contains(c))
+                {
+                    int row = parent.getSelectedTable().get().convertRowIndexToView(l.indexOf(c));
+                    parent.getSelectedTable().get().addRowSelectionInterval(row, row);
+                }
+            });
         }
         parent.getSelectedTable().ifPresent((t) -> {
             if (t.isEditing())

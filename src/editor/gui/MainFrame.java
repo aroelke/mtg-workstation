@@ -366,7 +366,7 @@ public class MainFrame extends JFrame
      * List backing the table containing the currently-selected cards.  Can be null
      * if there is no selection.
      */
-    private CardList selectedList;
+    private Optional<CardList> selectedList;
 
     /**
      * Create a new MainFrame.
@@ -377,7 +377,7 @@ public class MainFrame extends JFrame
 
         selectedCards = Collections.emptyList();
         selectedTable = Optional.empty();
-        selectedList = null;
+        selectedList = Optional.empty();
         untitled = 0;
         selectedFrame = Optional.empty();
         editors = new ArrayList<>();
@@ -1695,7 +1695,7 @@ public class MainFrame extends JFrame
      *
      * @return the list containing the currently selected cards
      */
-    public CardList getSelectedList()
+    public Optional<CardList> getSelectedList()
     {
         return selectedList;
     }
@@ -1972,7 +1972,7 @@ public class MainFrame extends JFrame
     public void setSelectedCards(CardTable table, CardList list)
     {
         selectedTable = Optional.of(table);
-        selectedList = list;
+        selectedList = Optional.of(list);
         selectedCards = Collections.unmodifiableList(Arrays.stream(table.getSelectedRows())
                 .mapToObj((r) -> list.get(table.convertRowIndexToModel(r)))
                 .collect(Collectors.toList()));
