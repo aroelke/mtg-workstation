@@ -1058,7 +1058,7 @@ public class MainFrame extends JFrame
         deckMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
             addMenu.setEnabled(selectedFrame != null && selectedCard != null);
             removeMenu.setEnabled(selectedFrame != null && selectedCard != null);
-            sideboardMenu.setEnabled(selectedFrame != null && selectedCard != null);
+            sideboardMenu.setEnabled(selectedFrame != null && selectedCard != null && selectedFrame.getSelectedExtraName() != null);
             presetMenu.setEnabled(presetMenu.getMenuComponentCount() > 0);
         }));
         // Items are enabled while hidden so their listeners can be used.

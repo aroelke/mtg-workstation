@@ -46,14 +46,19 @@ public class CardMenuItems implements Iterable<JMenuItem>
     public CardMenuItems(final Supplier<EditorFrame> monitor, final Supplier<? extends Collection<Card>> cards, final boolean main)
     {
         final Supplier<String> name = () -> main ? "" : monitor.get().getSelectedExtraName();
-        final IntConsumer addN = (n) -> monitor.get().addCards(name.get(), cards.get(), n);
-        final Runnable fillPlayset = () -> monitor.get().modifyCards(name.get(), cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
-            if (monitor.get().hasCard(name.get(), c))
-                return Math.max(0, SettingsDialog.PLAYSET_SIZE - monitor.get().getDeck().getEntry(c).count());
-            else
-                return SettingsDialog.PLAYSET_SIZE;
-        })));
-        final IntConsumer removeN = (n) -> monitor.get().removeCards(name.get(), cards.get(), n);
+        final IntConsumer addN = (n) -> { if (name.get() != null) monitor.get().addCards(name.get(), cards.get(), n); };
+        final Runnable fillPlayset = () -> {
+            if (name.get() != null)
+            {
+                monitor.get().modifyCards(name.get(), cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
+                    if (monitor.get().hasCard(name.get(), c))
+                        return Math.max(0, SettingsDialog.PLAYSET_SIZE - monitor.get().getDeck().getEntry(c).count());
+                    else
+                        return SettingsDialog.PLAYSET_SIZE;
+                })));
+            }
+        };
+        final IntConsumer removeN = (n) -> { if (name.get() != null) monitor.get().removeCards(name.get(), cards.get(), n); };
         items = new JMenuItem[6];
 
         // Add single copy item

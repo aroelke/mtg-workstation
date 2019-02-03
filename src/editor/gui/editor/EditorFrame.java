@@ -1806,11 +1806,15 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * @return the name of the extra list corresponding to the selected tab.
+     * @return the name of the extra list corresponding to the selected tab, or
+     * <code>null</code> if there are no extra lists.
      */
     public String getSelectedExtraName()
     {
-        return extrasPane.getTitleAt(extrasPane.getSelectedIndex());
+        if (extras.isEmpty())
+            return null;
+        else
+            return extrasPane.getTitleAt(extrasPane.getSelectedIndex());
     }
 
     /**
