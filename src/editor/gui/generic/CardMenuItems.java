@@ -46,20 +46,19 @@ public class CardMenuItems implements Iterable<JMenuItem>
      */
     public CardMenuItems(final Supplier<Optional<EditorFrame>> monitor, final Supplier<? extends Collection<Card>> cards, final boolean main)
     {
-        final Supplier<String> name = () -> main ? "" : monitor.get().map(EditorFrame::getSelectedExtraName).orElse(null);
-        final IntConsumer addN = (n) -> { if (name.get() != null) monitor.get().ifPresent((f) -> f.addCards(name.get(), cards.get(), n)); };
-        final Runnable fillPlayset = () -> {
-            if (name.get() != null)
-            {
-                monitor.get().ifPresent((f) -> f.modifyCards(name.get(), cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
-                    if (f.hasCard(name.get(), c))
-                        return Math.max(0, SettingsDialog.PLAYSET_SIZE - f.getDeck().getEntry(c).count());
-                    else
-                        return SettingsDialog.PLAYSET_SIZE;
-                }))));
-            }
+        final Function<EditorFrame, Optional<String>> name = (f) -> main ? Optional.of("") : f.getSelectedExtraName();
+        final IntConsumer addN = (i) -> monitor.get().ifPresent((f) -> name.apply(f).ifPresent((n) -> f.addCards(n, cards.get(), i)));
+        final Runnable fillPlayset = () -> monitor.get().ifPresent((f) -> name.apply(f).ifPresent((n) -> {
+            f.modifyCards(n, cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
+                if (f.hasCard(n, c))
+                    return Math.max(0, SettingsDialog.PLAYSET_SIZE - f.getDeck().getEntry(c).count());
+                else
+                    return SettingsDialog.PLAYSET_SIZE;
+            })));
+        }));
+        final IntConsumer removeN = (i) -> {
+            monitor.get().ifPresent((f) -> name.apply(f).ifPresent((n) -> f.removeCards(n, cards.get(), i)));
         };
-        final IntConsumer removeN = (n) -> { if (name.get() != null) monitor.get().ifPresent((f) -> f.removeCards(name.get(), cards.get(), n)); };
         items = new JMenuItem[6];
 
         // Add single copy item

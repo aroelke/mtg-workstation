@@ -723,11 +723,13 @@ public class EditorFrame extends JInternalFrame
         southPanel.add(extrasPanel, BorderLayout.SOUTH);
 
         VerticalButtonList extrasButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-        extrasButtons.get("+").addActionListener((e) -> addCards(getSelectedExtraName(), parent.getSelectedCards(), 1));
+        extrasButtons.get("+").addActionListener((e) -> getSelectedExtraName().ifPresent((x) -> addCards(x, parent.getSelectedCards(), 1)));
         extrasButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> {
-            removeCards(getSelectedExtraName(), parent.getSelectedCards(), 1);
+            getSelectedExtraName().ifPresent((x) -> removeCards(x, parent.getSelectedCards(), 1));
         });
-        extrasButtons.get("X").addActionListener((e) -> removeCards(getSelectedExtraName(), parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getEntry(c).count()).reduce(0, Math::max)));
+        extrasButtons.get("X").addActionListener((e) -> getSelectedExtraName().ifPresent((x) -> {
+            removeCards(x, parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getEntry(c).count()).reduce(0, Math::max));
+        }));
         extrasPanel.add(extrasButtons, BorderLayout.WEST);
 
         extrasPane = new JTabbedPane();
@@ -1807,15 +1809,14 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * @return the name of the extra list corresponding to the selected tab, or
-     * <code>null</code> if there are no extra lists.
+     * @return the name of the extra list corresponding to the selected tab.
      */
-    public String getSelectedExtraName()
+    public Optional<String> getSelectedExtraName()
     {
         if (extras.isEmpty())
-            return null;
+            return Optional.empty();
         else
-            return extrasPane.getTitleAt(extrasPane.getSelectedIndex());
+            return Optional.of(extrasPane.getTitleAt(extrasPane.getSelectedIndex()));
     }
 
     /**
@@ -2348,7 +2349,7 @@ public class EditorFrame extends JInternalFrame
      */
     private CardList sideboard()
     {
-        return extras.get(getSelectedExtraName()).current;
+        return extras.get(getSelectedExtraName().get()).current;
     }
 
     /**
