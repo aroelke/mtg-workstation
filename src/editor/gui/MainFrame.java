@@ -470,13 +470,13 @@ public class MainFrame extends JFrame
         // Save file menu item
         JMenuItem saveItem = new JMenuItem("Save");
         saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-        saveItem.addActionListener((e) -> save(selectedFrame));
+        saveItem.addActionListener((e) -> { if (selectedFrame != null) save(selectedFrame); });
         fileMenu.add(saveItem);
 
         // Save file as menu item
         JMenuItem saveAsItem = new JMenuItem("Save As...");
         saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
-        saveAsItem.addActionListener((e) -> saveAs(selectedFrame));
+        saveAsItem.addActionListener((e) -> { if (selectedFrame != null) saveAs(selectedFrame); });
         fileMenu.add(saveAsItem);
 
         // Save all files menu item
@@ -716,203 +716,206 @@ public class MainFrame extends JFrame
         fileMenu.add(importItem);
         JMenuItem exportItem = new JMenuItem("Export...");
         exportItem.addActionListener((e) -> {
-            JFileChooser exportChooser = new OverwriteFileChooser();
-            exportChooser.setAcceptAllFileFilterUsed(false);
-            exportChooser.addChoosableFileFilter(text);
-            exportChooser.addChoosableFileFilter(delimited);
-            exportChooser.setDialogTitle("Export");
-            exportChooser.setCurrentDirectory(fileChooser.getCurrentDirectory());
-            switch (exportChooser.showSaveDialog(this))
+            if (selectedFrame != null)
             {
-            case JFileChooser.APPROVE_OPTION:
-                CardListFormat format;
-                if (exportChooser.getFileFilter() == text)
+                JFileChooser exportChooser = new OverwriteFileChooser();
+                exportChooser.setAcceptAllFileFilterUsed(false);
+                exportChooser.addChoosableFileFilter(text);
+                exportChooser.addChoosableFileFilter(delimited);
+                exportChooser.setDialogTitle("Export");
+                exportChooser.setCurrentDirectory(fileChooser.getCurrentDirectory());
+                switch (exportChooser.showSaveDialog(this))
                 {
-                    JPanel wizardPanel = new JPanel(new BorderLayout());
-                    JPanel fieldPanel = new JPanel(new BorderLayout());
-                    fieldPanel.setBorder(BorderFactory.createTitledBorder("List Format:"));
-                    JTextField formatField = new JTextField(TextCardListFormat.DEFAULT_FORMAT);
-                    formatField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, formatField.getFont().getSize()));
-                    formatField.setColumns(50);
-                    fieldPanel.add(formatField, BorderLayout.CENTER);
-                    JPanel addDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                    addDataPanel.add(new JLabel("Add Data: "));
-                    var addDataBox = new JComboBox<>(CardAttribute.values());
-                    addDataPanel.add(addDataBox);
-                    fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
-                    wizardPanel.add(fieldPanel, BorderLayout.NORTH);
-
-                    if (selectedFrame.getDeck().total() > 0 || selectedFrame.getExtraCards().total() > 0)
+                case JFileChooser.APPROVE_OPTION:
+                    CardListFormat format;
+                    if (exportChooser.getFileFilter() == text)
                     {
-                        JPanel previewPanel = new JPanel(new BorderLayout());
-                        previewPanel.setBorder(BorderFactory.createTitledBorder("Preview:"));
-                        JTextArea previewArea = new JTextArea();
-                        JScrollPane previewPane = new JScrollPane(previewArea);
-                        previewArea.setText(new TextCardListFormat(formatField.getText())
-                                .format(selectedFrame.getDeck().total() > 0 ? selectedFrame.getDeck() : selectedFrame.getExtraCards()));
-                        previewArea.setRows(1);
-                        previewArea.setCaretPosition(0);
-                        previewPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-                        previewPanel.add(previewPane, BorderLayout.CENTER);
-                        wizardPanel.add(previewPanel);
+                        JPanel wizardPanel = new JPanel(new BorderLayout());
+                        JPanel fieldPanel = new JPanel(new BorderLayout());
+                        fieldPanel.setBorder(BorderFactory.createTitledBorder("List Format:"));
+                        JTextField formatField = new JTextField(TextCardListFormat.DEFAULT_FORMAT);
+                        formatField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, formatField.getFont().getSize()));
+                        formatField.setColumns(50);
+                        fieldPanel.add(formatField, BorderLayout.CENTER);
+                        JPanel addDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                        addDataPanel.add(new JLabel("Add Data: "));
+                        var addDataBox = new JComboBox<>(CardAttribute.values());
+                        addDataPanel.add(addDataBox);
+                        fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
+                        wizardPanel.add(fieldPanel, BorderLayout.NORTH);
 
-                        addDataBox.addActionListener((v) -> {
-                            int pos = formatField.getCaretPosition();
-                            String data = '{' + String.valueOf(addDataBox.getSelectedItem()).toLowerCase() + '}';
-                            String t = formatField.getText().substring(0, pos) + data;
-                            if (pos < formatField.getText().length())
-                                t += formatField.getText().substring(formatField.getCaretPosition());
-                            formatField.setText(t);
-                            formatField.setCaretPosition(pos + data.length());
-                            formatField.requestFocusInWindow();
-                        });
+                        if (selectedFrame.getDeck().total() > 0 || selectedFrame.getExtraCards().total() > 0)
+                        {
+                            JPanel previewPanel = new JPanel(new BorderLayout());
+                            previewPanel.setBorder(BorderFactory.createTitledBorder("Preview:"));
+                            JTextArea previewArea = new JTextArea();
+                            JScrollPane previewPane = new JScrollPane(previewArea);
+                            previewArea.setText(new TextCardListFormat(formatField.getText())
+                                    .format(selectedFrame.getDeck().total() > 0 ? selectedFrame.getDeck() : selectedFrame.getExtraCards()));
+                            previewArea.setRows(1);
+                            previewArea.setCaretPosition(0);
+                            previewPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+                            previewPanel.add(previewPane, BorderLayout.CENTER);
+                            wizardPanel.add(previewPanel);
 
-                        formatField.getDocument().addDocumentListener(new DocumentChangeListener()
+                            addDataBox.addActionListener((v) -> {
+                                int pos = formatField.getCaretPosition();
+                                String data = '{' + String.valueOf(addDataBox.getSelectedItem()).toLowerCase() + '}';
+                                String t = formatField.getText().substring(0, pos) + data;
+                                if (pos < formatField.getText().length())
+                                    t += formatField.getText().substring(formatField.getCaretPosition());
+                                formatField.setText(t);
+                                formatField.setCaretPosition(pos + data.length());
+                                formatField.requestFocusInWindow();
+                            });
+
+                            formatField.getDocument().addDocumentListener(new DocumentChangeListener()
+                            {
+                                @Override
+                                public void update(DocumentEvent e)
+                                {
+                                    previewArea.setText(new TextCardListFormat(formatField.getText())
+                                            .format(selectedFrame.getDeck().total() > 0 ? selectedFrame.getDeck() : selectedFrame.getExtraCards()));
+                                    previewArea.setCaretPosition(0);
+                                }
+                            });
+                        }
+
+                        if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
+                            format = new TextCardListFormat(formatField.getText());
+                        else
+                            return;
+                    }
+                    else if (exportChooser.getFileFilter() == delimited)
+                    {
+                        JPanel wizardPanel = new JPanel(new BorderLayout());
+                        var headersList = new JList<>(CardAttribute.values());
+                        JScrollPane headersPane = new JScrollPane(headersList);
+                        JPanel headersPanel = new JPanel();
+                        headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));
+                        headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"));
+                        VerticalButtonList rearrangeButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.UP_ARROW), String.valueOf(UnicodeSymbols.DOWN_ARROW));
+                        headersPanel.add(rearrangeButtons);
+                        headersPanel.add(Box.createHorizontalStrut(5));
+                        var selectedHeadersModel = new DefaultListModel<CardAttribute>();
+                        selectedHeadersModel.addElement(CardAttribute.NAME);
+                        selectedHeadersModel.addElement(CardAttribute.EXPANSION_NAME);
+                        selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER);
+                        selectedHeadersModel.addElement(CardAttribute.COUNT);
+                        selectedHeadersModel.addElement(CardAttribute.DATE_ADDED);
+                        var selectedHeadersList = new JList<>(selectedHeadersModel);
+                        headersPanel.add(new JScrollPane(selectedHeadersList)
                         {
                             @Override
-                            public void update(DocumentEvent e)
+                            public Dimension getPreferredSize()
                             {
-                                previewArea.setText(new TextCardListFormat(formatField.getText())
-                                        .format(selectedFrame.getDeck().total() > 0 ? selectedFrame.getDeck() : selectedFrame.getExtraCards()));
-                                previewArea.setCaretPosition(0);
+                                return headersPane.getPreferredSize();
                             }
                         });
-                    }
+                        headersPanel.add(Box.createHorizontalStrut(5));
+                        VerticalButtonList moveButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.LEFT_ARROW), String.valueOf(UnicodeSymbols.RIGHT_ARROW));
+                        headersPanel.add(moveButtons);
+                        headersPanel.add(Box.createHorizontalStrut(5));
+                        headersPanel.add(headersPane);
+                        wizardPanel.add(headersPanel, BorderLayout.CENTER);
 
-                    if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
-                        format = new TextCardListFormat(formatField.getText());
-                    else
-                        return;
-                }
-                else if (exportChooser.getFileFilter() == delimited)
-                {
-                    JPanel wizardPanel = new JPanel(new BorderLayout());
-                    var headersList = new JList<>(CardAttribute.values());
-                    JScrollPane headersPane = new JScrollPane(headersList);
-                    JPanel headersPanel = new JPanel();
-                    headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));
-                    headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"));
-                    VerticalButtonList rearrangeButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.UP_ARROW), String.valueOf(UnicodeSymbols.DOWN_ARROW));
-                    headersPanel.add(rearrangeButtons);
-                    headersPanel.add(Box.createHorizontalStrut(5));
-                    var selectedHeadersModel = new DefaultListModel<CardAttribute>();
-                    selectedHeadersModel.addElement(CardAttribute.NAME);
-                    selectedHeadersModel.addElement(CardAttribute.EXPANSION_NAME);
-                    selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER);
-                    selectedHeadersModel.addElement(CardAttribute.COUNT);
-                    selectedHeadersModel.addElement(CardAttribute.DATE_ADDED);
-                    var selectedHeadersList = new JList<>(selectedHeadersModel);
-                    headersPanel.add(new JScrollPane(selectedHeadersList)
-                    {
-                        @Override
-                        public Dimension getPreferredSize()
-                        {
-                            return headersPane.getPreferredSize();
-                        }
-                    });
-                    headersPanel.add(Box.createHorizontalStrut(5));
-                    VerticalButtonList moveButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.LEFT_ARROW), String.valueOf(UnicodeSymbols.RIGHT_ARROW));
-                    headersPanel.add(moveButtons);
-                    headersPanel.add(Box.createHorizontalStrut(5));
-                    headersPanel.add(headersPane);
-                    wizardPanel.add(headersPanel, BorderLayout.CENTER);
-
-                    rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((v) -> {
-                        var selected = selectedHeadersList.getSelectedValuesList();
-                        int ignore = 0;
-                        for (int index : selectedHeadersList.getSelectedIndices())
-                        {
-                            if (index == ignore)
+                        rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((v) -> {
+                            var selected = selectedHeadersList.getSelectedValuesList();
+                            int ignore = 0;
+                            for (int index : selectedHeadersList.getSelectedIndices())
                             {
-                                ignore++;
-                                continue;
+                                if (index == ignore)
+                                {
+                                    ignore++;
+                                    continue;
+                                }
+                                CardAttribute temp = selectedHeadersModel.getElementAt(index - 1);
+                                selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index - 1);
+                                selectedHeadersModel.setElementAt(temp, index);
                             }
-                            CardAttribute temp = selectedHeadersModel.getElementAt(index - 1);
-                            selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index - 1);
-                            selectedHeadersModel.setElementAt(temp, index);
-                        }
-                        selectedHeadersList.clearSelection();
-                        for (CardAttribute type : selected)
-                        {
-                            int index = selectedHeadersModel.indexOf(type);
-                            selectedHeadersList.addSelectionInterval(index, index);
-                        }
-                    });
-                    rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener((v) -> {
-                        var selected = selectedHeadersList.getSelectedValuesList();
-                        var indices = Arrays.stream(selectedHeadersList.getSelectedIndices()).boxed().collect(Collectors.toList());
-                        Collections.reverse(indices);
-                        int ignore = selectedHeadersModel.size() - 1;
-                        for (int index : indices)
-                        {
-                            if (index == ignore)
+                            selectedHeadersList.clearSelection();
+                            for (CardAttribute type : selected)
                             {
-                                ignore--;
-                                continue;
+                                int index = selectedHeadersModel.indexOf(type);
+                                selectedHeadersList.addSelectionInterval(index, index);
                             }
-                            CardAttribute temp = selectedHeadersModel.getElementAt(index + 1);
-                            selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index + 1);
-                            selectedHeadersModel.setElementAt(temp, index);
-                        }
-                        selectedHeadersList.clearSelection();
-                        for (CardAttribute type : selected)
+                        });
+                        rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener((v) -> {
+                            var selected = selectedHeadersList.getSelectedValuesList();
+                            var indices = Arrays.stream(selectedHeadersList.getSelectedIndices()).boxed().collect(Collectors.toList());
+                            Collections.reverse(indices);
+                            int ignore = selectedHeadersModel.size() - 1;
+                            for (int index : indices)
+                            {
+                                if (index == ignore)
+                                {
+                                    ignore--;
+                                    continue;
+                                }
+                                CardAttribute temp = selectedHeadersModel.getElementAt(index + 1);
+                                selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index + 1);
+                                selectedHeadersModel.setElementAt(temp, index);
+                            }
+                            selectedHeadersList.clearSelection();
+                            for (CardAttribute type : selected)
+                            {
+                                int index = selectedHeadersModel.indexOf(type);
+                                selectedHeadersList.addSelectionInterval(index, index);
+                            }
+                        });
+                        moveButtons.get(String.valueOf(UnicodeSymbols.LEFT_ARROW)).addActionListener((v) -> {
+                            for (CardAttribute selected : headersList.getSelectedValuesList())
+                                if (!selectedHeadersModel.contains(selected))
+                                    selectedHeadersModel.addElement(selected);
+                            headersList.clearSelection();
+                        });
+                        moveButtons.get(String.valueOf(UnicodeSymbols.RIGHT_ARROW)).addActionListener((v) -> {
+                            for (CardAttribute selected : new ArrayList<>(selectedHeadersList.getSelectedValuesList()))
+                                selectedHeadersModel.removeElement(selected);
+                        });
+
+                        JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                        optionsPanel.add(new JLabel("Delimiter: "));
+                        var delimiterBox = new JComboBox<>(DelimitedCardListFormat.DELIMITERS);
+                        delimiterBox.setEditable(true);
+                        optionsPanel.add(delimiterBox);
+                        JCheckBox includeCheckBox = new JCheckBox("Include Headers");
+                        includeCheckBox.setSelected(true);
+                        optionsPanel.add(includeCheckBox);
+                        wizardPanel.add(optionsPanel, BorderLayout.SOUTH);
+
+                        if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
                         {
-                            int index = selectedHeadersModel.indexOf(type);
-                            selectedHeadersList.addSelectionInterval(index, index);
+                            var selected = new ArrayList<CardAttribute>(selectedHeadersModel.size());
+                            for (int i = 0; i < selectedHeadersModel.size(); i++)
+                                selected.add(selectedHeadersModel.getElementAt(i));
+                            format = new DelimitedCardListFormat(String.valueOf(delimiterBox.getSelectedItem()), selected, includeCheckBox.isSelected());
                         }
-                    });
-                    moveButtons.get(String.valueOf(UnicodeSymbols.LEFT_ARROW)).addActionListener((v) -> {
-                        for (CardAttribute selected : headersList.getSelectedValuesList())
-                            if (!selectedHeadersModel.contains(selected))
-                                selectedHeadersModel.addElement(selected);
-                        headersList.clearSelection();
-                    });
-                    moveButtons.get(String.valueOf(UnicodeSymbols.RIGHT_ARROW)).addActionListener((v) -> {
-                        for (CardAttribute selected : new ArrayList<>(selectedHeadersList.getSelectedValuesList()))
-                            selectedHeadersModel.removeElement(selected);
-                    });
-
-                    JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                    optionsPanel.add(new JLabel("Delimiter: "));
-                    var delimiterBox = new JComboBox<>(DelimitedCardListFormat.DELIMITERS);
-                    delimiterBox.setEditable(true);
-                    optionsPanel.add(delimiterBox);
-                    JCheckBox includeCheckBox = new JCheckBox("Include Headers");
-                    includeCheckBox.setSelected(true);
-                    optionsPanel.add(includeCheckBox);
-                    wizardPanel.add(optionsPanel, BorderLayout.SOUTH);
-
-                    if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
-                    {
-                        var selected = new ArrayList<CardAttribute>(selectedHeadersModel.size());
-                        for (int i = 0; i < selectedHeadersModel.size(); i++)
-                            selected.add(selectedHeadersModel.getElementAt(i));
-                        format = new DelimitedCardListFormat(String.valueOf(delimiterBox.getSelectedItem()), selected, includeCheckBox.isSelected());
+                        else
+                            return;
                     }
                     else
+                    {
+                        JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + '.', "Error", JOptionPane.ERROR_MESSAGE);
                         return;
-                }
-                else
-                {
+                    }
+
+                    // TODO: Add file extension if it's missing.
+                    try
+                    {
+                        selectedFrame.export(format, exportChooser.getSelectedFile());
+                    }
+                    catch (UnsupportedEncodingException | FileNotFoundException x)
+                    {
+                        JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    break;
+                case JFileChooser.CANCEL_OPTION:
+                    break;
+                case JFileChooser.ERROR_OPTION:
                     JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + '.', "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                    break;
                 }
-
-                // TODO: Add file extension if it's missing.
-                try
-                {
-                    selectedFrame.export(format, exportChooser.getSelectedFile());
-                }
-                catch (UnsupportedEncodingException | FileNotFoundException x)
-                {
-                    JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + ": " + x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                break;
-            case JFileChooser.CANCEL_OPTION:
-                break;
-            case JFileChooser.ERROR_OPTION:
-                JOptionPane.showMessageDialog(this, "Could not export " + selectedFrame.deckName() + '.', "Error", JOptionPane.ERROR_MESSAGE);
-                break;
             }
         });
         fileMenu.add(exportItem);
@@ -933,6 +936,14 @@ public class MainFrame extends JFrame
             saveAsItem.setEnabled(selectedFrame != null);
             saveAllItem.setEnabled(editors.stream().map((f) -> f.getUnsaved()).reduce(false, (a, b) -> a || b));
             exportItem.setEnabled(selectedFrame != null);
+        }));
+        fileMenu.addMenuListener(MenuListenerFactory.createDeselectedListener((e) -> {
+            closeItem.setEnabled(true);
+            closeAllItem.setEnabled(true);
+            saveItem.setEnabled(true);
+            saveAsItem.setEnabled(true);
+            saveAllItem.setEnabled(true);
+            exportItem.setEnabled(true);
         }));
 
         // Edit menu
