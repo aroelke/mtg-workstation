@@ -857,11 +857,7 @@ public class EditorFrame extends JInternalFrame
         // Button to add a new category
         JPanel addCategoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton addCategoryButton = new JButton("Add");
-        addCategoryButton.addActionListener((e) -> {
-            CategorySpec spec = createCategory();
-            if (spec != null)
-                addCategory(spec);
-        });
+        addCategoryButton.addActionListener((e) -> createCategory().ifPresent(this::addCategory));
         addCategoryPanel.add(addCategoryButton);
         categoryHeaderPanel.add(addCategoryPanel);
 
@@ -1270,15 +1266,16 @@ public class EditorFrame extends JInternalFrame
      * @return the {@link CategorySpec} created by the dialog, or null if it was
      * canceled.
      */
-    public CategorySpec createCategory()
+    public Optional<CategorySpec> createCategory()
     {
-        CategorySpec spec = null;
+        Optional<CategorySpec> spec = Optional.empty();
         do
         {
-            spec = CategoryEditorPanel.showCategoryEditor(this, spec);
-            if (spec != null && deck.current.containsCategory(spec.getName()))
+            (spec = CategoryEditorPanel.showCategoryEditor(this, spec)).ifPresent((s) -> {
+            if (deck.current.containsCategory(s.getName()))
                 JOptionPane.showMessageDialog(this, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
-        } while (spec != null && deck.current.containsCategory(spec.getName()));
+            });
+        } while (spec.isPresent() && deck.current.containsCategory(spec.get().getName()));
         return spec;
     }
 
@@ -1639,32 +1636,26 @@ public class EditorFrame extends JInternalFrame
         if (toEdit == null)
             JOptionPane.showMessageDialog(this, "Deck " + deckName() + " has no category named " + name + ".",
                     "Error", JOptionPane.ERROR_MESSAGE);
-        else
-        {
-            final CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, toEdit);
-            if (spec != null)
-            {
-                final CategorySpec old = deck.current.getCategorySpec(name);
-                return performAction(() -> {
-                    if (!deck.current.updateCategory(old.getName(), spec).equals(old))
-                        throw new RuntimeException("edited unexpected category");
-                    CategoryPanel panel = getCategory(old.getName());
-                    panel.setCategoryName(spec.getName());
-                    ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
-                    updateCategoryPanel();
-                    return true;
-                }, () -> {
-                    if (!deck.current.updateCategory(spec.getName(), old).equals(spec))
-                        throw new RuntimeException("restored from unexpected category");
-                    CategoryPanel panel = getCategory(spec.getName());
-                    panel.setCategoryName(old.getName());
-                    ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
-                    updateCategoryPanel();
-                    return true;
-                });
-            }
-        }
-        return false;
+        return CategoryEditorPanel.showCategoryEditor(this, Optional.of(toEdit)).map((s) -> {
+            final CategorySpec old = deck.current.getCategorySpec(name);
+            return performAction(() -> {
+                if (!deck.current.updateCategory(old.getName(), s).equals(old))
+                    throw new RuntimeException("edited unexpected category");
+                CategoryPanel panel = getCategory(old.getName());
+                panel.setCategoryName(s.getName());
+                ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
+                updateCategoryPanel();
+                return true;
+            }, () -> {
+                if (!deck.current.updateCategory(s.getName(), old).equals(s))
+                    throw new RuntimeException("restored from unexpected category");
+                CategoryPanel panel = getCategory(s.getName());
+                panel.setCategoryName(old.getName());
+                ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
+                updateCategoryPanel();
+                return true;
+            });
+        }).orElse(false);
     }
 
     /**

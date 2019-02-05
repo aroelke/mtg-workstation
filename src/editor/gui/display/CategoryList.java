@@ -1,11 +1,11 @@
 package editor.gui.display;
 
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -95,22 +95,13 @@ public class CategoryList extends JList<String>
         {
             addMouseListener(MouseListenerFactory.createDoubleClickListener((e) -> {
                 int index = locationToIndex(e.getPoint());
-                Rectangle rec = getCellBounds(index, index);
-                CategorySpec spec;
-                if (rec == null || !rec.contains(e.getPoint()))
-                {
-                    clearSelection();
-                    spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this);
-                }
-                else
-                    spec = CategoryEditorPanel.showCategoryEditor(CategoryList.this, getCategoryAt(index));
-                if (spec != null)
-                {
+                var rec = Optional.ofNullable(getCellBounds(index, index));
+                CategoryEditorPanel.showCategoryEditor(CategoryList.this, rec.filter((r) -> r.contains(e.getPoint())).map((r) -> getCategoryAt(index))).ifPresent((s) -> {
                     if (index < 0)
-                        addCategory(spec);
+                        addCategory(s);
                     else
-                        setCategoryAt(index, spec);
-                }
+                        setCategoryAt(index, s);
+                });
             }));
         }
     }

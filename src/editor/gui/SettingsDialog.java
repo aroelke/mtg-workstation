@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -853,17 +854,13 @@ public class SettingsDialog extends JDialog
 
         // Category modification buttons
         VerticalButtonList categoryModPanel = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.ELLIPSIS), String.valueOf(UnicodeSymbols.MINUS));
-        categoryModPanel.get("+").addActionListener((e) -> {
-            CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this);
-            if (spec != null)
-                categoriesList.addCategory(spec);
-        });
+        categoryModPanel.get("+").addActionListener((e) -> CategoryEditorPanel.showCategoryEditor(this).ifPresent(categoriesList::addCategory));
         categoryModPanel.get(String.valueOf(UnicodeSymbols.ELLIPSIS)).addActionListener((e) -> {
             if (categoriesList.getSelectedIndex() >= 0)
             {
-                CategorySpec spec = CategoryEditorPanel.showCategoryEditor(this, categoriesList.getCategoryAt(categoriesList.getSelectedIndex()));
-                if (spec != null)
-                    categoriesList.setCategoryAt(categoriesList.getSelectedIndex(), spec);
+                CategoryEditorPanel.showCategoryEditor(this, Optional.of(categoriesList.getCategoryAt(categoriesList.getSelectedIndex()))).ifPresent((s) -> {
+                    categoriesList.setCategoryAt(categoriesList.getSelectedIndex(), s);
+                });
             }
         });
         categoryModPanel.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> {

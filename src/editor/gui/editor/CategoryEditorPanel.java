@@ -1,11 +1,11 @@
 package editor.gui.editor;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -50,9 +50,9 @@ public class CategoryEditorPanel extends JPanel
      * @return the {@link CategorySpec} of the panel in the state it was last in while editing it, or null if the
      * Cancel button was pressed or the dialog was closed.
      */
-    public static CategorySpec showCategoryEditor(Container parent)
+    public static Optional<CategorySpec> showCategoryEditor(Container parent)
     {
-        return showCategoryEditor(parent, null);
+        return showCategoryEditor(parent, Optional.empty());
     }
 
     /**
@@ -60,11 +60,11 @@ public class CategoryEditorPanel extends JPanel
      * edited.
      *
      * @param parent component to be used to determine the frame of the dialog
-     * @param s      specification for the initial contents of the editor
+     * @param s specification for the initial contents of the editor, or {@link Optional#empty()} if it should be empty
      * @return the {@link CategorySpec} of the panel in the state it was last in while editing it, or null if the
      * Cancel button was pressed or the dialog was closed.
      */
-    public static CategorySpec showCategoryEditor(Container parent, CategorySpec s)
+    public static Optional<CategorySpec> showCategoryEditor(Container parent, Optional<CategorySpec> s)
     {
         CategoryEditorPanel editor = new CategoryEditorPanel(s);
         editor.filter.addChangeListener((e) -> SwingUtilities.getWindowAncestor((Component)e.getSource()).pack());
@@ -90,11 +90,11 @@ public class CategoryEditorPanel extends JPanel
                 else
                 {
                     editor.updateSpec();
-                    return editor.spec;
+                    return Optional.of(editor.spec);
                 }
             }
             else
-                return null;
+                return Optional.empty();
         }
     }
 
@@ -137,14 +137,10 @@ public class CategoryEditorPanel extends JPanel
         namePanel.add(nameField = new JTextField());
         namePanel.add(Box.createHorizontalStrut(5));
         namePanel.add(colorButton = new ColorButton());
-        colorButton.addActionListener((e) -> {
-            Color newColor = JColorChooser.showDialog(null, "Choose a Color", colorButton.color());
-            if (newColor != null)
-            {
-                colorButton.setColor(newColor);
-                colorButton.repaint();
-            }
-        });
+        colorButton.addActionListener((e) ->  Optional.ofNullable(JColorChooser.showDialog(null, "Choose a Color", colorButton.color())).ifPresent((c) -> {
+            colorButton.setColor(c);
+            colorButton.repaint();
+        }));
         add(namePanel, BorderLayout.NORTH);
 
         add(filter = new FilterGroupPanel(), BorderLayout.CENTER);
@@ -167,20 +163,20 @@ public class CategoryEditorPanel extends JPanel
      * Create a new CategoryEditorPanel, and then fill its contents from the specified
      * category specification.
      *
-     * @param s specifications for the initial state of the editor
+     * @param s specifications for the initial state of the editor, or {@link Optional#empty()} if
+     * it should be blank.
      */
-    public CategoryEditorPanel(CategorySpec s)
+    public CategoryEditorPanel(Optional<CategorySpec> s)
     {
         this();
-        if (s != null)
-        {
-            spec = new CategorySpec(s);
+        s.ifPresent((x) -> {
+            spec = new CategorySpec(x);
             nameField.setText(spec.getName());
             colorButton.setColor(spec.getColor());
             filter.setContents(spec.getFilter());
             whitelist.setCards(spec.getWhitelist().stream().sorted(Card::compareName).collect(Collectors.toList()));
             blacklist.setCards(spec.getBlacklist().stream().sorted(Card::compareName).collect(Collectors.toList()));
-        }
+        });
     }
 
     /**
