@@ -294,7 +294,7 @@ public class InventoryLoadDialog extends JDialog
                         String text = card.has("text") ? card.get("text").getAsString() : "";
 
                         // Card's flavor text
-                        String flavor = card.has("flavor") ? card.get("flavor").getAsString() : "";
+                        String flavor = card.has("flavorText") ? card.get("flavorText").getAsString() : "";
 
                         // Card's printed text
                         String printed = card.has("originalText") ? card.get("originalText").getAsString() : "";
