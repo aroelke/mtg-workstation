@@ -212,7 +212,7 @@ public class InventoryLoadDialog extends JDialog
                         JsonObject card = cardElement.getAsJsonObject();
 
                         // Card's multiverseid.  Skip cards that aren't in gatherer
-                        long multiverseid = card.has("multiverseId") ? card.get("multiverseId").getAsLong() : -1;
+                        long multiverseid = Optional.ofNullable(card.get("multiverseId")).map(JsonElement::getAsLong).orElse(-1L);
                         if (multiverseid < 0)
                             continue;
 
@@ -230,9 +230,6 @@ public class InventoryLoadDialog extends JDialog
                             errors.add(name + " (" + set + "): " + e.getMessage());
                             continue;
                         }
-
-                        // Card's mana cost
-                        String mana = card.has("manaCost") ? card.get("manaCost").getAsString() : "";
 
                         // Card's set of colors (which is stored as a list, since order matters)
                         var colors = new ArrayList<ManaType>();
@@ -348,7 +345,7 @@ public class InventoryLoadDialog extends JDialog
                         // Create the new card with all the values acquired above
                         Card c = new SingleCard(layout,
                                 name,
-                                mana,
+                                Optional.ofNullable(card.get("manaCost")).map(JsonElement::getAsString).orElse(""),
                                 colors,
                                 colorIdentity,
                                 supertypes,
