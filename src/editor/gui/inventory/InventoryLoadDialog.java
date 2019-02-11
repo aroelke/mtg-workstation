@@ -231,9 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's flavor text
-                        String flavor = card.has("flavorText") ? card.get("flavorText").getAsString() : "";
-
                         // Card's printed text
                         String printed = card.has("originalText") ? card.get("originalText").getAsString() : "";
 
@@ -320,7 +317,7 @@ public class InventoryLoadDialog extends JDialog
                                 Rarity.parseRarity(card.get("rarity").getAsString()),
                                 set,
                                 Optional.ofNullable(card.get("text")).map(JsonElement::getAsString).orElse(""),
-                                flavor,
+                                Optional.ofNullable(card.get("flavorText")).map(JsonElement::getAsString).orElse(""),
                                 printed,
                                 artist,
                                 multiverseid,
