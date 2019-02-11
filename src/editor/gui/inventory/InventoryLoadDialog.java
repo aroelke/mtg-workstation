@@ -231,17 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's color identity
-                        var colorIdentity = new ArrayList<ManaType>();
-                        {
-                            if (card.has("colorIdentity"))
-                            {
-                                JsonArray identityArray = card.get("colorIdentity").getAsJsonArray();
-                                for (JsonElement identityElement : identityArray)
-                                    colorIdentity.add(ManaType.parseManaType(identityElement.getAsString()));
-                            }
-                        }
-
                         // Card's set of supertypes
                         var supertypes = new LinkedHashSet<String>();
                         if (card.has("supertypes"))
@@ -343,7 +332,12 @@ public class InventoryLoadDialog extends JDialog
                                         colors.add(ManaType.parseManaType(colorElement.getAsString()));
                                     return colors;
                                 }).orElse(new ArrayList<>()),
-                                colorIdentity,
+                                Optional.ofNullable(card.get("colorIdentity")).map((e) -> {
+                                    var colorIdentity = new ArrayList<ManaType>();
+                                    for (JsonElement identityElement : e.getAsJsonArray())
+                                        colorIdentity.add(ManaType.parseManaType(identityElement.getAsString()));
+                                    return colorIdentity;
+                                }).orElse(new ArrayList<>()),
                                 supertypes,
                                 types,
                                 subtypes,
