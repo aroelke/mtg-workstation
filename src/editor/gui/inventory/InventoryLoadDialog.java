@@ -231,18 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's set of supertypes
-                        var supertypes = new LinkedHashSet<String>();
-                        if (card.has("supertypes"))
-                        {
-                            JsonArray superArray = card.get("supertypes").getAsJsonArray();
-                            for (JsonElement superElement : superArray)
-                            {
-                                supertypes.add(superElement.getAsString());
-                                supertypeSet.add(superElement.getAsString());
-                            }
-                        }
-
                         // Card's set of types
                         var types = new LinkedHashSet<String>();
                         for (JsonElement typeElement : card.get("types").getAsJsonArray())
@@ -338,7 +326,12 @@ public class InventoryLoadDialog extends JDialog
                                         colorIdentity.add(ManaType.parseManaType(identityElement.getAsString()));
                                     return colorIdentity;
                                 }).orElse(new ArrayList<>()),
-                                supertypes,
+                                Optional.ofNullable(card.get("supertypes")).map((e) -> {
+                                    var supertypes = new LinkedHashSet<String>();
+                                    for (JsonElement superElement : e.getAsJsonArray())
+                                        supertypes.add(superElement.getAsString());
+                                    return supertypes;
+                                }).orElse(new LinkedHashSet<>()),
                                 types,
                                 subtypes,
                                 printedTypes,
@@ -355,6 +348,7 @@ public class InventoryLoadDialog extends JDialog
                                 loyalty,
                                 rulings,
                                 legality);
+                        supertypeSet.addAll(c.supertypes());
 
                         // Add to map of faces if the card has multiple faces
                         if (layout.isMultiFaced)
