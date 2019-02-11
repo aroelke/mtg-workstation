@@ -231,10 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's power and toughness (empty if it doesn't have power or toughness)
-                        String power = card.has("power") ? card.get("power").getAsString() : "";
-                        String toughness = card.has("toughness") ? card.get("toughness").getAsString() : "";
-
                         // Card's loyalty (empty if it isn't a planeswalker or is Garruk, the Veil-Cursed)
                         String loyalty = "";
                         if (card.has("loyalty"))
@@ -313,8 +309,8 @@ public class InventoryLoadDialog extends JDialog
                                 card.get("artist").getAsString(),
                                 multiverseid,
                                 Optional.ofNullable(card.get("number")).map(JsonElement::getAsString).orElse(""),
-                                power,
-                                toughness,
+                                Optional.ofNullable(card.get("power")).map(JsonElement::getAsString).orElse(""),
+                                Optional.ofNullable(card.get("toughness")).map(JsonElement::getAsString).orElse(""),
                                 loyalty,
                                 rulings,
                                 legality);
