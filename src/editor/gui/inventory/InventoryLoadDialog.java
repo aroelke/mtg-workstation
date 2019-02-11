@@ -231,9 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's number (this is a string since some don't have numbers or are things like "1a")
-                        String number = card.has("number") ? card.get("number").getAsString() : "--";
-
                         // Card's power and toughness (empty if it doesn't have power or toughness)
                         String power = card.has("power") ? card.get("power").getAsString() : "";
                         String toughness = card.has("toughness") ? card.get("toughness").getAsString() : "";
@@ -315,7 +312,7 @@ public class InventoryLoadDialog extends JDialog
                                 Optional.ofNullable(card.get("originalText")).map(JsonElement::getAsString).orElse(""),
                                 card.get("artist").getAsString(),
                                 multiverseid,
-                                number,
+                                Optional.ofNullable(card.get("number")).map(JsonElement::getAsString).orElse(""),
                                 power,
                                 toughness,
                                 loyalty,

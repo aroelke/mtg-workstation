@@ -753,7 +753,8 @@ public abstract class Card
     }
 
     /**
-     * Get the collector number of each face of this Card.
+     * Get the collector number of each face of this Card.  This is a string since some cards don't
+     * have numbers or are things like "1a"
      *
      * @return a list containing the collector's number of each face of this Card.
      */
