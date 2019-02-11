@@ -231,9 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's rules text
-                        String text = card.has("text") ? card.get("text").getAsString() : "";
-
                         // Card's flavor text
                         String flavor = card.has("flavorText") ? card.get("flavorText").getAsString() : "";
 
@@ -322,7 +319,7 @@ public class InventoryLoadDialog extends JDialog
                                 Optional.ofNullable(card.get("originalType")).map(JsonElement::getAsString).orElse(""),
                                 Rarity.parseRarity(card.get("rarity").getAsString()),
                                 set,
-                                text,
+                                Optional.ofNullable(card.get("text")).map(JsonElement::getAsString).orElse(""),
                                 flavor,
                                 printed,
                                 artist,
