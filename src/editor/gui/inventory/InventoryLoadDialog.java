@@ -231,9 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's rarity
-                        Rarity rarity = Rarity.parseRarity(card.get("rarity").getAsString());
-
                         // Card's rules text
                         String text = card.has("text") ? card.get("text").getAsString() : "";
 
@@ -323,7 +320,7 @@ public class InventoryLoadDialog extends JDialog
                                     return subtypes;
                                 }).orElse(new LinkedHashSet<>()),
                                 Optional.ofNullable(card.get("originalType")).map(JsonElement::getAsString).orElse(""),
-                                rarity,
+                                Rarity.parseRarity(card.get("rarity").getAsString()),
                                 set,
                                 text,
                                 flavor,
