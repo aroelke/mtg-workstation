@@ -231,9 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's artist
-                        String artist = card.get("artist").getAsString();
-
                         // Card's number (this is a string since some don't have numbers or are things like "1a")
                         String number = card.has("number") ? card.get("number").getAsString() : "--";
 
@@ -316,7 +313,7 @@ public class InventoryLoadDialog extends JDialog
                                 Optional.ofNullable(card.get("text")).map(JsonElement::getAsString).orElse(""),
                                 Optional.ofNullable(card.get("flavorText")).map(JsonElement::getAsString).orElse(""),
                                 Optional.ofNullable(card.get("originalText")).map(JsonElement::getAsString).orElse(""),
-                                artist,
+                                card.get("artist").getAsString(),
                                 multiverseid,
                                 number,
                                 power,
