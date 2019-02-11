@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
@@ -194,7 +195,7 @@ public class InventoryLoadDialog extends JDialog
                     JsonObject setProperties = setNode.getValue().getAsJsonObject();
                     JsonArray setCards = setProperties.get("cards").getAsJsonArray();
                     Expansion set = new Expansion(setProperties.get("name").getAsString(),
-                            setProperties.has("block") ? setProperties.get("block").getAsString() : "<No Block>",
+                            Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse("<No Block>"),
                             setProperties.get("code").getAsString(),
                             setProperties.get(setProperties.has("oldCode") ? "oldCode" : "code").getAsString(),
                             setProperties.get(setProperties.has("magicCardsInfoCode") ? "magicCardsInfoCode" : "code").getAsString().toUpperCase(),
