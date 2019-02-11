@@ -231,17 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's set of subtypes
-                        var subtypes = new LinkedHashSet<String>();
-                        if (card.has("subtypes"))
-                        {
-                            for (JsonElement subElement : card.get("subtypes").getAsJsonArray())
-                            {
-                                subtypes.add(subElement.getAsString());
-                                subtypeSet.add(subElement.getAsString());
-                            }
-                        }
-
                         // Card's printed types
                         String printedTypes = card.has("originalType") ? card.get("originalType").getAsString() : "";
 
@@ -330,7 +319,12 @@ public class InventoryLoadDialog extends JDialog
                                         types.add(typeElement.getAsString());
                                     return types;
                                 }).orElse(new LinkedHashSet<>()),
-                                subtypes,
+                                Optional.ofNullable(card.get("subtypes")).map((e) -> {
+                                    var subtypes = new LinkedHashSet<String>();
+                                    for (JsonElement subElement : e.getAsJsonArray())
+                                        subtypes.add(subElement.getAsString());
+                                    return subtypes;
+                                }).orElse(new LinkedHashSet<>()),
                                 printedTypes,
                                 rarity,
                                 set,
@@ -347,6 +341,7 @@ public class InventoryLoadDialog extends JDialog
                                 legality);
                         supertypeSet.addAll(c.supertypes());
                         typeSet.addAll(c.types());
+                        subtypeSet.addAll(c.subtypes());
 
                         // Add to map of faces if the card has multiple faces
                         if (layout.isMultiFaced)
