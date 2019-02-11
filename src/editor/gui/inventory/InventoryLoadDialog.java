@@ -231,15 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's set of colors (which is stored as a list, since order matters)
-                        var colors = new ArrayList<ManaType>();
-                        if (card.has("colors"))
-                        {
-                            JsonArray colorsArray = card.get("colors").getAsJsonArray();
-                            for (JsonElement colorElement : colorsArray)
-                                colors.add(ManaType.parseManaType(colorElement.getAsString()));
-                        }
-
                         // Card's color identity
                         var colorIdentity = new ArrayList<ManaType>();
                         {
@@ -346,7 +337,12 @@ public class InventoryLoadDialog extends JDialog
                         Card c = new SingleCard(layout,
                                 name,
                                 Optional.ofNullable(card.get("manaCost")).map(JsonElement::getAsString).orElse(""),
-                                colors,
+                                Optional.ofNullable(card.get("colors")).map((e) -> {
+                                    var colors = new ArrayList<ManaType>();
+                                    for (JsonElement colorElement : e.getAsJsonArray())
+                                        colors.add(ManaType.parseManaType(colorElement.getAsString()));
+                                    return colors;
+                                }).orElse(new ArrayList<>()),
                                 colorIdentity,
                                 supertypes,
                                 types,
