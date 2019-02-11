@@ -231,14 +231,6 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's set of types
-                        var types = new LinkedHashSet<String>();
-                        for (JsonElement typeElement : card.get("types").getAsJsonArray())
-                        {
-                            types.add(typeElement.getAsString());
-                            typeSet.add(typeElement.getAsString());
-                        }
-
                         // Card's set of subtypes
                         var subtypes = new LinkedHashSet<String>();
                         if (card.has("subtypes"))
@@ -332,7 +324,12 @@ public class InventoryLoadDialog extends JDialog
                                         supertypes.add(superElement.getAsString());
                                     return supertypes;
                                 }).orElse(new LinkedHashSet<>()),
-                                types,
+                                Optional.ofNullable(card.get("types")).map((e) -> {
+                                    var types = new LinkedHashSet<String>();
+                                    for (JsonElement typeElement : e.getAsJsonArray())
+                                        types.add(typeElement.getAsString());
+                                    return types;
+                                }).orElse(new LinkedHashSet<>()),
                                 subtypes,
                                 printedTypes,
                                 rarity,
@@ -349,6 +346,7 @@ public class InventoryLoadDialog extends JDialog
                                 rulings,
                                 legality);
                         supertypeSet.addAll(c.supertypes());
+                        typeSet.addAll(c.types());
 
                         // Add to map of faces if the card has multiple faces
                         if (layout.isMultiFaced)
