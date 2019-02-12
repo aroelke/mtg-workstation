@@ -247,17 +247,6 @@ public class InventoryLoadDialog extends JDialog
                             }
                         }
 
-                        // Card's legality in formats
-                        var legality = new HashMap<String, Legality>();
-                        if (card.has("legalities"))
-                        {
-                            for (var entry : card.get("legalities").getAsJsonObject().entrySet())
-                            {
-                                formatSet.add(entry.getKey());
-                                legality.put(entry.getKey(), Legality.parseLegality(entry.getValue().getAsString()));
-                            }
-                        }
-
                         // Create the new card with all the values acquired above
                         Card c = new SingleCard(layout,
                                 name,
@@ -305,10 +294,16 @@ public class InventoryLoadDialog extends JDialog
                                 Optional.ofNullable(card.get("toughness")).map(JsonElement::getAsString).orElse(""),
                                 Optional.ofNullable(card.get("loyalty")).map((e) -> e.isJsonNull() ? "X" : e.getAsString()).orElse(""),
                                 rulings,
-                                legality);
+                                Optional.ofNullable(card.get("legalities")).map((e) -> {
+                                    var l = new HashMap<String, Legality>();
+                                    for (var entry : e.getAsJsonObject().entrySet())
+                                        l.put(entry.getKey(), Legality.parseLegality(entry.getValue().getAsString()));
+                                    return l;
+                                }).orElse(new HashMap<>()));
                         supertypeSet.addAll(c.supertypes());
                         typeSet.addAll(c.types());
                         subtypeSet.addAll(c.subtypes());
+                        formatSet.addAll(c.legality().keySet().stream().map((e) -> e.substring(0, 1).toUpperCase() + e.substring(1)).collect(Collectors.toSet()));
 
                         // Add to map of faces if the card has multiple faces
                         if (layout.isMultiFaced)
