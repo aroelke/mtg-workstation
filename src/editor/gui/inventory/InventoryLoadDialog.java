@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -121,26 +122,26 @@ public class InventoryLoadDialog extends JDialog
         {
             return new SingleCard(CardLayout.NORMAL,
                                   card.name().get(0),
-                                  card.manaCost().get(0).toString(),
-                                  new ArrayList<>(card.colors()),
-                                  new ArrayList<>(card.colorIdentity()),
-                                  card.supertypes(),
+                                  Optional.of(card.manaCost().get(0).toString()),
+                                  Optional.of(new ArrayList<>(card.colors())),
+                                  Optional.of(new ArrayList<>(card.colorIdentity())),
+                                  Optional.of(card.supertypes()),
                                   card.types(),
-                                  card.subtypes(),
-                                  card.printedTypes().get(0),
+                                  Optional.of(card.subtypes()),
+                                  Optional.of(card.printedTypes().get(0)),
                                   card.rarity(),
                                   card.expansion(),
-                                  card.oracleText().get(0),
-                                  card.flavorText().get(0),
-                                  card.printedText().get(0),
+                                  Optional.of(card.oracleText().get(0)),
+                                  Optional.of(card.flavorText().get(0)),
+                                  Optional.of(card.printedText().get(0)),
                                   card.artist().get(0),
                                   card.multiverseid().get(0),
-                                  card.number().get(0),
-                                  card.power().get(0).toString(),
-                                  card.toughness().get(0).toString(),
-                                  card.loyalty().get(0).toString(),
-                                  new TreeMap<>(card.rulings()),
-                                  card.legality());
+                                  Optional.of(card.number().get(0)),
+                                  Optional.of(card.power().get(0).toString()),
+                                  Optional.of(card.toughness().get(0).toString()),
+                                  Optional.of(card.loyalty().get(0).toString()),
+                                  Optional.of(new TreeMap<>(card.rulings())),
+                                  Optional.of(card.legality()));
         }
 
         /**
@@ -153,6 +154,8 @@ public class InventoryLoadDialog extends JDialog
         @Override
         protected Inventory doInBackground() throws Exception
         {
+            final DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
             publish("Opening " + file.getName() + "...");
 
             var cards = new ArrayList<Card>();
@@ -231,75 +234,77 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        // Card's rulings
-                        TreeMap<Date, List<String>> rulings = new TreeMap<>();
-                        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                        if (card.has("rulings"))
-                        {
-                            for (JsonElement l : card.get("rulings").getAsJsonArray())
-                            {
-                                JsonObject o = l.getAsJsonObject();
-                                Date date = format.parse(o.get("date").getAsString());
-                                String ruling = o.get("text").getAsString();
-                                if (!rulings.containsKey(date))
-                                    rulings.put(date, new ArrayList<>());
-                                rulings.get(date).add(ruling);
-                            }
-                        }
-
-                        // Create the new card with all the values acquired above
                         Card c = new SingleCard(layout,
                                 name,
-                                Optional.ofNullable(card.get("manaCost")).map(JsonElement::getAsString).orElse(""),
+                                Optional.ofNullable(card.get("manaCost")).map(JsonElement::getAsString),
                                 Optional.ofNullable(card.get("colors")).map((e) -> {
                                     var colors = new ArrayList<ManaType>();
                                     for (JsonElement colorElement : e.getAsJsonArray())
                                         colors.add(ManaType.parseManaType(colorElement.getAsString()));
                                     return colors;
-                                }).orElse(new ArrayList<>()),
+                                }),
                                 Optional.ofNullable(card.get("colorIdentity")).map((e) -> {
                                     var colorIdentity = new ArrayList<ManaType>();
                                     for (JsonElement identityElement : e.getAsJsonArray())
                                         colorIdentity.add(ManaType.parseManaType(identityElement.getAsString()));
                                     return colorIdentity;
-                                }).orElse(new ArrayList<>()),
+                                }),
                                 Optional.ofNullable(card.get("supertypes")).map((e) -> {
                                     var supertypes = new LinkedHashSet<String>();
                                     for (JsonElement superElement : e.getAsJsonArray())
                                         supertypes.add(superElement.getAsString());
                                     return supertypes;
-                                }).orElse(new LinkedHashSet<>()),
+                                }),
                                 Optional.ofNullable(card.get("types")).map((e) -> {
                                     var types = new LinkedHashSet<String>();
                                     for (JsonElement typeElement : e.getAsJsonArray())
                                         types.add(typeElement.getAsString());
                                     return types;
-                                }).orElse(new LinkedHashSet<>()),
+                                }).get(),
                                 Optional.ofNullable(card.get("subtypes")).map((e) -> {
                                     var subtypes = new LinkedHashSet<String>();
                                     for (JsonElement subElement : e.getAsJsonArray())
                                         subtypes.add(subElement.getAsString());
                                     return subtypes;
-                                }).orElse(new LinkedHashSet<>()),
-                                Optional.ofNullable(card.get("originalType")).map(JsonElement::getAsString).orElse(""),
+                                }),
+                                Optional.ofNullable(card.get("originalType")).map(JsonElement::getAsString),
                                 Rarity.parseRarity(card.get("rarity").getAsString()),
                                 set,
-                                Optional.ofNullable(card.get("text")).map(JsonElement::getAsString).orElse(""),
-                                Optional.ofNullable(card.get("flavorText")).map(JsonElement::getAsString).orElse(""),
-                                Optional.ofNullable(card.get("originalText")).map(JsonElement::getAsString).orElse(""),
+                                Optional.ofNullable(card.get("text")).map(JsonElement::getAsString),
+                                Optional.ofNullable(card.get("flavorText")).map(JsonElement::getAsString),
+                                Optional.ofNullable(card.get("originalText")).map(JsonElement::getAsString),
                                 card.get("artist").getAsString(),
                                 multiverseid,
-                                Optional.ofNullable(card.get("number")).map(JsonElement::getAsString).orElse(""),
-                                Optional.ofNullable(card.get("power")).map(JsonElement::getAsString).orElse(""),
-                                Optional.ofNullable(card.get("toughness")).map(JsonElement::getAsString).orElse(""),
-                                Optional.ofNullable(card.get("loyalty")).map((e) -> e.isJsonNull() ? "X" : e.getAsString()).orElse(""),
-                                rulings,
+                                Optional.ofNullable(card.get("number")).map(JsonElement::getAsString),
+                                Optional.ofNullable(card.get("power")).map(JsonElement::getAsString),
+                                Optional.ofNullable(card.get("toughness")).map(JsonElement::getAsString),
+                                Optional.ofNullable(card.get("loyalty")).map((e) -> e.isJsonNull() ? "X" : e.getAsString()),
+                                Optional.ofNullable(card.get("rulings")).map((e) -> {
+                                    var r = new TreeMap<Date, List<String>>();
+                                    for (JsonElement l : e.getAsJsonArray())
+                                    {
+                                        try
+                                        {
+                                            JsonObject o = l.getAsJsonObject();
+                                            Date date = format.parse(o.get("date").getAsString());
+                                            String ruling = o.get("text").getAsString();
+                                            if (!r.containsKey(date))
+                                                r.put(date, new ArrayList<>());
+                                            r.get(date).add(ruling);
+                                        }
+                                        catch (ParseException x)
+                                        {
+                                            // This needs to be handled
+                                        }
+                                    }
+                                    return r;
+                                }),
                                 Optional.ofNullable(card.get("legalities")).map((e) -> {
                                     var l = new HashMap<String, Legality>();
                                     for (var entry : e.getAsJsonObject().entrySet())
                                         l.put(entry.getKey(), Legality.parseLegality(entry.getValue().getAsString()));
                                     return l;
-                                }).orElse(new HashMap<>()));
+                                }));
                         supertypeSet.addAll(c.supertypes());
                         typeSet.addAll(c.types());
                         subtypeSet.addAll(c.subtypes());

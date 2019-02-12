@@ -1,10 +1,13 @@
 package editor.database.card;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -157,48 +160,48 @@ public class SingleCard extends Card
      */
     public SingleCard(CardLayout layout,
                       String name,
-                      String mana,
-                      List<ManaType> colors,
-                      List<ManaType> colorIdentity,
-                      Set<String> supertype,
+                      Optional<String> mana,
+                      Optional<List<ManaType>> colors,
+                      Optional<List<ManaType>> colorIdentity,
+                      Optional<Set<String>> supertype,
                       Set<String> type,
-                      Set<String> subtype,
-                      String printedTypes,
+                      Optional<Set<String>> subtype,
+                      Optional<String> printedTypes,
                       Rarity rarity,
                       Expansion set,
-                      String text,
-                      String flavor,
-                      String printed,
+                      Optional<String> text,
+                      Optional<String> flavor,
+                      Optional<String> printed,
                       String artist,
                       long multiverseid,
-                      String number,
-                      String power,
-                      String toughness,
-                      String loyalty,
-                      TreeMap<Date, List<String>> rulings,
-                      Map<String, Legality> legality)
+                      Optional<String> number,
+                      Optional<String> power,
+                      Optional<String> toughness,
+                      Optional<String> loyalty,
+                      Optional<TreeMap<Date, List<String>>> rulings,
+                      Optional<Map<String, Legality>> legality)
     {
         super(set, layout, 1);
 
         this.name = name;
-        this.mana = ManaCost.parseManaCost(mana);
-        this.supertypes = Collections.unmodifiableSet(supertype);
+        this.mana = ManaCost.parseManaCost(mana.orElse(""));
+        this.supertypes = Collections.unmodifiableSet(supertype.orElse(new HashSet<>()));
         this.types = Collections.unmodifiableSet(type);
-        this.subtypes = Collections.unmodifiableSet(subtype);
-        this.printedTypes = printedTypes;
-        this.text = text;
-        this.flavor = flavor;
-        this.printed = printed;
+        this.subtypes = Collections.unmodifiableSet(subtype.orElse(new HashSet<>()));
+        this.printedTypes = printedTypes.orElse("");
+        this.text = text.orElse("");
+        this.flavor = flavor.orElse("");
+        this.printed = printed.orElse("");
         this.artist = artist;
-        this.number = number;
+        this.number = number.orElse("");
         this.multiverseid = multiverseid;
-        this.power = new CombatStat(power);
-        this.toughness = new CombatStat(toughness);
-        this.loyalty = new Loyalty(loyalty);
+        this.power = new CombatStat(power.orElse(""));
+        this.toughness = new CombatStat(toughness.orElse(""));
+        this.loyalty = new Loyalty(loyalty.orElse(""));
         this.imageName = name.toLowerCase();
         this.rarity = rarity;
-        this.rulings = rulings;
-        this.legality = Collections.unmodifiableMap(legality);
+        this.rulings = rulings.orElse(new TreeMap<>());
+        this.legality = Collections.unmodifiableMap(legality.orElse(new HashMap<>()));
 
         isLand = typeContains("land");
 
@@ -211,33 +214,33 @@ public class SingleCard extends Card
             str.append(" " + UnicodeSymbols.EM_DASH + " ").append(String.join(" ", subtypes));
         typeLine = str.toString();
 
-        ManaType.sort(colors);
-        this.colors = Collections.unmodifiableList(colors);
-        if (colorIdentity.isEmpty())
+        var tempColors = colors.orElse(new ArrayList<>());
+        ManaType.sort(tempColors);
+        this.colors = Collections.unmodifiableList(tempColors);
+        var tempIdentity = colorIdentity.orElse(new ArrayList<>());
+        if (tempIdentity.isEmpty())
         {
             // Try to infer the color identity if it's missing
-            colorIdentity.addAll(this.mana.colors());
-            Matcher m = ManaCost.MANA_COST_PATTERN.matcher(text.replaceAll("\\(.*\\)", ""));
+            tempIdentity.addAll(this.mana.colors());
+            Matcher m = ManaCost.MANA_COST_PATTERN.matcher(this.text.replaceAll("\\(.*\\)", ""));
             while (m.find())
                 for (ManaType col : ManaCost.parseManaCost(m.group()).colors())
                     if (col != ManaType.COLORLESS)
-                        colorIdentity.add(col);
-            for (String sub : subtype)
+                        tempIdentity.add(col);
+            for (String sub : subtypes)
             {
-                if (sub.equalsIgnoreCase("plains"))
-                    colorIdentity.add(ManaType.WHITE);
-                else if (sub.equalsIgnoreCase("island"))
-                    colorIdentity.add(ManaType.BLUE);
-                else if (sub.equalsIgnoreCase("swamp"))
-                    colorIdentity.add(ManaType.BLACK);
-                else if (sub.equalsIgnoreCase("mountain"))
-                    colorIdentity.add(ManaType.RED);
-                else if (sub.equalsIgnoreCase("forest"))
-                    colorIdentity.add(ManaType.GREEN);
+                switch (sub.toLowerCase())
+                {
+                    case "plains": tempIdentity.add(ManaType.WHITE);
+                    case "island": tempIdentity.add(ManaType.BLUE);
+                    case "swamp": tempIdentity.add(ManaType.BLACK);
+                    case "mountain": tempIdentity.add(ManaType.RED);
+                    case "forest": tempIdentity.add(ManaType.GREEN);
+                }
             }
         }
-        ManaType.sort(colorIdentity);
-        this.colorIdentity = Collections.unmodifiableList(colorIdentity);
+        ManaType.sort(tempIdentity);
+        this.colorIdentity = Collections.unmodifiableList(tempIdentity);
 
         var faceTypes = new HashSet<String>();
         faceTypes.addAll(supertypes);
