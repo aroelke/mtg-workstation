@@ -134,7 +134,7 @@ public class InventoryLoadDialog extends JDialog
                                   Optional.of(card.oracleText().get(0)),
                                   Optional.of(card.flavorText().get(0)),
                                   Optional.of(card.printedText().get(0)),
-                                  card.artist().get(0),
+                                  Optional.of(card.artist().get(0)),
                                   card.multiverseid().get(0),
                                   Optional.of(card.number().get(0)),
                                   Optional.of(card.power().get(0).toString()),
@@ -273,7 +273,7 @@ public class InventoryLoadDialog extends JDialog
                                 Optional.ofNullable(card.get("text")).map(JsonElement::getAsString),
                                 Optional.ofNullable(card.get("flavorText")).map(JsonElement::getAsString),
                                 Optional.ofNullable(card.get("originalText")).map(JsonElement::getAsString),
-                                card.get("artist").getAsString(),
+                                Optional.ofNullable(card.get("artist")).map(JsonElement::getAsString),
                                 multiverseid,
                                 Optional.ofNullable(card.get("number")).map(JsonElement::getAsString),
                                 Optional.ofNullable(card.get("power")).map(JsonElement::getAsString),
@@ -309,6 +309,12 @@ public class InventoryLoadDialog extends JDialog
                         typeSet.addAll(c.types());
                         subtypeSet.addAll(c.subtypes());
                         formatSet.addAll(c.legality().keySet().stream().map((e) -> e.substring(0, 1).toUpperCase() + e.substring(1)).collect(Collectors.toSet()));
+
+                        // Collect unexpected card values
+                        if (c.artist().stream().anyMatch(String::isEmpty))
+                        {
+                            errors.add(c.unifiedName() + " (" + c.expansion() + "): Missing artist!");
+                        }
 
                         // Add to map of faces if the card has multiple faces
                         if (layout.isMultiFaced)

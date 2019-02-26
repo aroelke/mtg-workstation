@@ -172,7 +172,7 @@ public class SingleCard extends Card
                       Optional<String> text,
                       Optional<String> flavor,
                       Optional<String> printed,
-                      String artist,
+                      Optional<String> artist,
                       long multiverseid,
                       Optional<String> number,
                       Optional<String> power,
@@ -192,7 +192,7 @@ public class SingleCard extends Card
         this.text = text.orElse("");
         this.flavor = flavor.orElse("");
         this.printed = printed.orElse("");
-        this.artist = artist;
+        this.artist = artist.orElse("");
         this.number = number.orElse("");
         this.multiverseid = multiverseid;
         this.power = new CombatStat(power.orElse(""));
