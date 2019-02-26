@@ -312,9 +312,7 @@ public class InventoryLoadDialog extends JDialog
 
                         // Collect unexpected card values
                         if (c.artist().stream().anyMatch(String::isEmpty))
-                        {
                             errors.add(c.unifiedName() + " (" + c.expansion() + "): Missing artist!");
-                        }
 
                         // Add to map of faces if the card has multiple faces
                         if (layout.isMultiFaced)
