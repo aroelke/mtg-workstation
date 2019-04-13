@@ -283,18 +283,18 @@ public class InventoryLoadDialog extends JDialog
                                     var r = new TreeMap<Date, List<String>>();
                                     for (JsonElement l : e.getAsJsonArray())
                                     {
+                                        JsonObject o = l.getAsJsonObject();
+                                        String ruling = o.get("text").getAsString();
                                         try
                                         {
-                                            JsonObject o = l.getAsJsonObject();
                                             Date date = format.parse(o.get("date").getAsString());
-                                            String ruling = o.get("text").getAsString();
                                             if (!r.containsKey(date))
                                                 r.put(date, new ArrayList<>());
                                             r.get(date).add(ruling);
                                         }
                                         catch (ParseException x)
                                         {
-                                            // This needs to be handled
+                                            errors.add(name + " (" + set + "): " + x.getMessage());
                                         }
                                     }
                                     return r;
