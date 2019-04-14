@@ -1,10 +1,5 @@
 package editor.filter.leaf.options;
 
-import editor.database.card.Card;
-import editor.filter.FilterAttribute;
-import editor.filter.leaf.FilterLeaf;
-import editor.util.Containment;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -13,6 +8,16 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collector;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import editor.database.card.Card;
+import editor.filter.FilterAttribute;
+import editor.filter.leaf.FilterLeaf;
+import editor.util.Containment;
 
 /**
  * This class represents a filter that groups cards based on characteristics
@@ -51,7 +56,7 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
      * @param str String to convert
      * @return the option corresponding to the given String
      */
-    public abstract T convertFromString(String str);
+    protected abstract T convertFromString(String str);
 
     @Override
     public boolean equals(Object other)
@@ -100,5 +105,24 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
             else
                 out.writeUTF(item.toString());
         }
+    }
+
+    /**
+     * Convert an option to JSON.
+     * 
+     * @param item item to convert
+     * @return A serialized version of the item.
+     */
+    protected abstract JsonElement convertToJson(T item);
+
+    @Override
+    protected void serializeFields(JsonObject fields)
+    {
+        fields.addProperty("contains", contain.toString());
+        fields.add("selected",
+                   selected.stream().collect(Collector.of(
+                       JsonArray::new, (a, i) -> a.add(convertToJson(i)),
+                       (l, r) -> { l.addAll(r); return l; }
+                   )));
     }
 }

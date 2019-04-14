@@ -1,11 +1,14 @@
 package editor.filter.leaf.options.single;
 
+import java.util.HashSet;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 import editor.database.card.Card;
 import editor.database.characteristics.Rarity;
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
-
-import java.util.HashSet;
 
 /**
  * This class represents a filter that groups cards by rarity.
@@ -32,8 +35,14 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
     }
 
     @Override
-    public Rarity convertFromString(String str)
+    protected Rarity convertFromString(String str)
     {
         return Rarity.parseRarity(str);
+    }
+
+    @Override
+    protected JsonElement convertToJson(Rarity item)
+    {
+        return new JsonPrimitive(item.toString());
     }
 }

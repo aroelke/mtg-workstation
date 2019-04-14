@@ -1,15 +1,17 @@
 package editor.filter.leaf;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Objects;
+
+import com.google.gson.JsonObject;
+
 import editor.database.card.Card;
 import editor.database.characteristics.ManaCost;
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
 import editor.util.Containment;
-
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.Objects;
 
 /**
  * This class represents a filter to group cards by mana costs.
@@ -103,5 +105,12 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
     {
         out.writeObject(contain);
         out.writeUTF(cost.toString());
+    }
+
+    @Override
+    public void serializeFields(JsonObject fields)
+    {
+        fields.addProperty("contains", contain.toString());
+        fields.addProperty("cost", cost.toString());
     }
 }

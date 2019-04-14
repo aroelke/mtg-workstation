@@ -1,11 +1,14 @@
 package editor.filter.leaf.options.single;
 
+import java.util.HashSet;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 import editor.database.card.Card;
 import editor.database.characteristics.Expansion;
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
-
-import java.util.HashSet;
 
 /**
  * This class represents a filter that groups cards by expansion.
@@ -23,7 +26,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
     }
 
     @Override
-    public Expansion convertFromString(String str)
+    protected Expansion convertFromString(String str)
     {
         for (Expansion expansion : Expansion.expansions)
             if (str.equalsIgnoreCase(expansion.name))
@@ -38,5 +41,11 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;
+    }
+
+    @Override
+    protected JsonElement convertToJson(Expansion item)
+    {
+        return new JsonPrimitive(item.name);
     }
 }

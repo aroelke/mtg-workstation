@@ -31,7 +31,7 @@ public enum Comparison
      */
     LT('<', (x) -> x < 0),
     /**
-     * The two values are equal.  Opposite of {@link #EQ}.
+     * The two values are not equal.  Opposite of {@link #EQ}.
      */
     NE(UnicodeSymbols.NOT_EQUAL, (x) -> x != 0);
 
@@ -74,8 +74,8 @@ public enum Comparison
     /**
      * Create a new Comparison.
      *
-     * @param op   Operator of the new Comparison
-     * @param comp Operation on the result of {@link Comparable#compareTo(Object)}
+     * @param op operator of the new Comparison
+     * @param comp operation on the result of {@link Comparable#compareTo(Object)}
      */
     Comparison(final char op, final Predicate<Integer> comp)
     {
@@ -86,8 +86,8 @@ public enum Comparison
     /**
      * Test two values according to this Comparison's operation.
      *
-     * @param a First value to test
-     * @param b Second value to test
+     * @param a first value to test
+     * @param b second value to test
      * @return true if the two arguments satisfy the comparison, and false otherwise
      */
     public <T extends Comparable<? super T>> boolean test(T a, T b)
@@ -98,8 +98,8 @@ public enum Comparison
     /**
      * Test two values according to this Comparison's operation and the given comparator.
      *
-     * @param a          first value to test
-     * @param b          second value to test
+     * @param a first value to test
+     * @param b second value to test
      * @param comparator comparator to use for comparison
      * @return true if the two arguments satisfy the comparison, and false otherwise
      */

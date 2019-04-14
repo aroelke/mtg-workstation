@@ -1,10 +1,5 @@
 package editor.filter.leaf;
 
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterAttribute;
-import editor.util.Containment;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -15,6 +10,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.google.gson.JsonObject;
+
+import editor.database.card.Card;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+import editor.util.Containment;
 
 /**
  * This class represents a filter for a text characteristic of a card.
@@ -216,5 +218,13 @@ public class TextFilter extends FilterLeaf<Collection<String>>
         out.writeObject(contain);
         out.writeBoolean(regex);
         out.writeUTF(text);
+    }
+
+    @Override
+    public void serializeFields(JsonObject fields)
+    {
+        fields.addProperty("contains", contain.toString());
+        fields.addProperty("regex", regex);
+        fields.addProperty("pattern", text);
     }
 }

@@ -10,7 +10,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
@@ -210,5 +214,17 @@ public class FilterGroup extends Filter implements Iterable<Filter>
             out.writeUTF(CategorySpec.CODES.get(child.type()));
             child.writeExternal(out);
         }
+    }
+
+    @Override
+    protected void serializeFields(JsonObject fields)
+    {
+        fields.addProperty("mode", mode.toString());
+        fields.add("children",
+                   children.stream().collect(Collector.of(
+                       JsonArray::new,
+                       (a, i) -> a.add(i.toJsonObject()),
+                       (l, r) -> { l.addAll(r); return l; }
+                   )));
     }
 }

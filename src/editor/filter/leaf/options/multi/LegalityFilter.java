@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 import editor.database.card.Card;
 import editor.database.characteristics.Legality;
 import editor.filter.Filter;
@@ -40,7 +44,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     }
 
     @Override
-    public String convertFromString(String str)
+    protected String convertFromString(String str)
     {
         return str;
     }
@@ -106,5 +110,18 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     {
         super.writeExternal(out);
         out.writeBoolean(restricted);
+    }
+
+    @Override
+    protected JsonElement convertToJson(String item)
+    {
+        return new JsonPrimitive(item);
+    }
+
+    @Override
+    protected void serializeFields(JsonObject fields)
+    {
+        super.serializeFields(fields);
+        fields.addProperty("restricted", restricted);
     }
 }

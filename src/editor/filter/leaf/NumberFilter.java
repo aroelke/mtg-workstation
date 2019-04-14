@@ -1,16 +1,18 @@
 package editor.filter.leaf;
 
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterAttribute;
-import editor.util.Comparison;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
+
+import com.google.gson.JsonObject;
+
+import editor.database.card.Card;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+import editor.util.Comparison;
 
 /**
  * This class represents a filter for a card characteristic that is a number.
@@ -38,7 +40,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
     public NumberFilter(FilterAttribute t, Function<Card, Collection<Double>> f)
     {
         super(t, f);
-        operation = Comparison.valueOf('=');
+        operation = Comparison.EQ;
         operand = 0.0;
     }
 
@@ -113,5 +115,12 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
     {
         out.writeDouble(operand);
         out.writeObject(operation);
+    }
+
+    @Override
+    public void serializeFields(JsonObject fields)
+    {
+        fields.addProperty("operation", operation.toString());
+        fields.addProperty("operand", operand);
     }
 }
