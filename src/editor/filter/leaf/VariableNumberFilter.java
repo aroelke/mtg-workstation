@@ -1,9 +1,5 @@
 package editor.filter.leaf;
 
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterAttribute;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -11,6 +7,12 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import com.google.gson.JsonObject;
+
+import editor.database.card.Card;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter for a numeric card characteristic that can be variable.
@@ -105,5 +107,12 @@ public class VariableNumberFilter extends NumberFilter
     {
         super.writeExternal(out);
         out.writeBoolean(varies);
+    }
+
+    @Override
+    public void serializeFields(JsonObject fields)
+    {
+        super.serializeFields(fields);
+        fields.addProperty("varies", varies);
     }
 }

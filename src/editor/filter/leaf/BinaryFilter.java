@@ -1,13 +1,15 @@
 package editor.filter.leaf;
 
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterAttribute;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Objects;
+
+import com.google.gson.JsonObject;
+
+import editor.database.card.Card;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter with only two options: All cards or no cards.
@@ -79,5 +81,11 @@ public class BinaryFilter extends FilterLeaf<Void>
     public void writeExternal(ObjectOutput out) throws IOException
     {
         out.writeBoolean(all);
+    }
+
+    @Override
+    public void serializeFields(JsonObject fields)
+    {
+        fields.addProperty("all", all);
     }
 }

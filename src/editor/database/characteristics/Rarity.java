@@ -44,8 +44,7 @@ public enum Rarity implements CharSequence
      */
     public static Rarity parseRarity(char rarity)
     {
-        rarity = Character.toLowerCase(rarity);
-        switch (rarity)
+        switch (Character.toLowerCase(rarity))
         {
         case 'c':
             return COMMON;

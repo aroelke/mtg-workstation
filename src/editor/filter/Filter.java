@@ -1,9 +1,12 @@
 package editor.filter;
 
-import editor.database.card.Card;
-
 import java.io.Externalizable;
 import java.util.function.Predicate;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import editor.database.card.Card;
 
 
 /**
@@ -60,5 +63,26 @@ public abstract class Filter implements Predicate<Card>, Externalizable
     public final FilterAttribute type()
     {
         return type;
+    }
+
+    /**
+     * Add the fields of this Filter to the given {@link JsonObject}.
+     * 
+     * @param fields {@link JsonObject} to add fields to
+     */
+    protected abstract void serializeFields(JsonObject fields);
+
+    /**
+     * Convert this Filter to a JSON.
+     * 
+     * @return A {@link JsonElement} representing a serialized version of
+     * this Filter.
+     */
+    public final JsonElement toJsonObject()
+    {
+        JsonObject fields = new JsonObject();
+        fields.addProperty("type", type.toString());
+        serializeFields(fields);
+        return fields;
     }
 }

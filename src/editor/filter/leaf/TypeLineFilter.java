@@ -1,10 +1,5 @@
 package editor.filter.leaf;
 
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterAttribute;
-import editor.util.Containment;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -13,6 +8,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.gson.JsonObject;
+
+import editor.database.card.Card;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+import editor.util.Containment;
 
 /**
  * This class represents a filter that filters a card by its entire type line.
@@ -90,5 +92,12 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     {
         out.writeObject(contain);
         out.writeUTF(line);
+    }
+
+    @Override
+    public void serializeFields(JsonObject fields)
+    {
+        fields.addProperty("contains", contain.toString());
+        fields.addProperty("pattern", line);
     }
 }

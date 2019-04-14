@@ -1,11 +1,5 @@
 package editor.filter.leaf;
 
-import editor.database.card.Card;
-import editor.database.characteristics.ManaType;
-import editor.filter.Filter;
-import editor.filter.FilterAttribute;
-import editor.util.Containment;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -14,6 +8,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import editor.database.card.Card;
+import editor.database.characteristics.ManaType;
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
+import editor.util.Containment;
 
 /**
  * This class represents a filter to group cards by color characteristic.
@@ -116,5 +119,17 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
         for (ManaType type : colors)
             out.writeObject(type);
         out.writeBoolean(multicolored);
+    }
+
+    @Override
+    public void serializeFields(JsonObject fields)
+    {
+        JsonArray array = new JsonArray();
+        for (ManaType c : colors)
+            array.add(c.toString());
+
+        fields.addProperty("contains", contain.toString());
+        fields.add("colors", array);
+        fields.addProperty("multicolored", multicolored);
     }
 }

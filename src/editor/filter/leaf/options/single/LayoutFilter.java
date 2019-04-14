@@ -1,11 +1,14 @@
 package editor.filter.leaf.options.single;
 
+import java.util.HashSet;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
-
-import java.util.HashSet;
 
 /**
  * This class represents a filter that groups cards by layout.
@@ -23,7 +26,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
     }
 
     @Override
-    public CardLayout convertFromString(String str)
+    protected CardLayout convertFromString(String str)
     {
         return CardLayout.valueOf(str.replace(' ', '_').toUpperCase());
     }
@@ -35,5 +38,11 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;
+    }
+
+    @Override
+    protected JsonElement convertToJson(CardLayout item)
+    {
+        return new JsonPrimitive(item.toString());
     }
 }
