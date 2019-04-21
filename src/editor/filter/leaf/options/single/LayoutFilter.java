@@ -45,4 +45,10 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
     {
         return new JsonPrimitive(item.toString());
     }
+
+    @Override
+    protected CardLayout convertFromJson(JsonElement item)
+    {
+        return CardLayout.valueOf(item.getAsString().replace(' ', '_').toUpperCase());
+    }
 }

@@ -43,4 +43,10 @@ public class BlockFilter extends SingletonOptionsFilter<String>
     {
         return new JsonPrimitive(item);
     }
+
+    @Override
+    protected String convertFromJson(JsonElement item)
+    {
+        return item.getAsString();
+    }
 }

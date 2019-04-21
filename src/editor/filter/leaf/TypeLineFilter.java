@@ -95,9 +95,16 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     }
 
     @Override
-    public void serializeFields(JsonObject fields)
+    protected void serializeFields(JsonObject fields)
     {
         fields.addProperty("contains", contain.toString());
         fields.addProperty("pattern", line);
+    }
+
+    @Override
+    protected void deserializeFields(JsonObject fields)
+    {
+        contain = Containment.parseContainment(fields.get("contains").getAsString());
+        line = fields.get("pattern").getAsString();
     }
 }

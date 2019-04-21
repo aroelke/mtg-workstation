@@ -125,4 +125,14 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
                        (l, r) -> { l.addAll(r); return l; }
                    )));
     }
+
+    protected abstract T convertFromJson(JsonElement item);
+
+    @Override
+    protected void deserializeFields(JsonObject fields)
+    {
+        contain = Containment.parseContainment(fields.get("contains").getAsString());
+        for (JsonElement element : fields.get("selected").getAsJsonArray())
+            selected.add(convertFromJson(element));
+    }
 }

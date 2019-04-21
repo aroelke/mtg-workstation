@@ -124,4 +124,17 @@ public class LegalityFilter extends MultiOptionsFilter<String>
         super.serializeFields(fields);
         fields.addProperty("restricted", restricted);
     }
+
+    @Override
+    protected String convertFromJson(JsonElement item)
+    {
+        return item.getAsString();
+    }
+
+    @Override
+    protected void deserializeFields(JsonObject fields)
+    {
+        super.deserializeFields(fields);
+        restricted = fields.get("restricted").getAsBoolean();
+    }
 }

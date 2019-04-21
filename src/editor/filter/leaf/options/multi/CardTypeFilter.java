@@ -50,4 +50,10 @@ public class CardTypeFilter extends MultiOptionsFilter<String>
     {
         return new JsonPrimitive(item);
     }
+
+    @Override
+    protected String convertFromJson(JsonElement item)
+    {
+        return item.getAsString();
+    }
 }
