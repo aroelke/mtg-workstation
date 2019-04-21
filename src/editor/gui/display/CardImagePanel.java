@@ -126,7 +126,6 @@ public class CardImagePanel extends JPanel
                     if (!img.exists())
                     {
                         URL site = new URL(String.join("/", "https://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
-                        System.out.println(site.toString());
 
                         img.getParentFile().mkdirs();
                         try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
