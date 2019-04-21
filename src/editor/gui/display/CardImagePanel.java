@@ -125,7 +125,8 @@ public class CardImagePanel extends JPanel
                     File img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
                     if (!img.exists())
                     {
-                        URL site = new URL(String.join("/", "http://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
+                        URL site = new URL(String.join("/", "https://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
+                        System.out.println(site.toString());
 
                         img.getParentFile().mkdirs();
                         try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
