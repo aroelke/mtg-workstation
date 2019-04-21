@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import editor.collection.deck.CategorySpec;
@@ -226,5 +228,27 @@ public class FilterGroup extends Filter implements Iterable<Filter>
                        (a, i) -> a.add(i.toJsonObject()),
                        (l, r) -> { l.addAll(r); return l; }
                    )));
+    }
+
+    @Override
+    protected void deserializeFields(JsonObject fields)
+    {
+        mode = Arrays.stream(Mode.values()).filter((m) -> m.toString().equals(fields.get("mode").getAsString())).findAny().get();
+        for (JsonElement element : fields.get("children").getAsJsonArray())
+        {
+            Filter child;
+            FilterAttribute attribute = Arrays.stream(FilterAttribute.values()).filter((a) -> a.toString().equals(element.getAsJsonObject().get("type").getAsString())).findAny().get();
+            switch (attribute)
+            {
+            case GROUP:
+                child = new FilterGroup();
+                break;
+            default:
+                child = FilterAttribute.createFilter(attribute);
+                break;
+            }
+            child.fromJsonObject(element.getAsJsonObject());
+            children.add(child);
+        }
     }
 }

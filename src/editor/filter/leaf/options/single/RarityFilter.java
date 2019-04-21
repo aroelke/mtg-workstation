@@ -45,4 +45,10 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
     {
         return new JsonPrimitive(item.toString());
     }
+
+    @Override
+    protected Rarity convertFromJson(JsonElement item)
+    {
+        return Rarity.parseRarity(item.getAsString());
+    }
 }

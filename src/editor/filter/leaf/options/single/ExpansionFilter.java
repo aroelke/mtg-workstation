@@ -1,5 +1,6 @@
 package editor.filter.leaf.options.single;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 import com.google.gson.JsonElement;
@@ -47,5 +48,11 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
     protected JsonElement convertToJson(Expansion item)
     {
         return new JsonPrimitive(item.name);
+    }
+
+    @Override
+    protected Expansion convertFromJson(JsonElement item)
+    {
+        return Arrays.stream(Expansion.expansions).filter((e) -> e.name.equalsIgnoreCase(item.getAsString())).findAny().get();
     }
 }

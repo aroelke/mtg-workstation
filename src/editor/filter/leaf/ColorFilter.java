@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import editor.database.card.Card;
@@ -122,7 +123,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     }
 
     @Override
-    public void serializeFields(JsonObject fields)
+    protected void serializeFields(JsonObject fields)
     {
         JsonArray array = new JsonArray();
         for (ManaType c : colors)
@@ -131,5 +132,14 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
         fields.addProperty("contains", contain.toString());
         fields.add("colors", array);
         fields.addProperty("multicolored", multicolored);
+    }
+
+    @Override
+    protected void deserializeFields(JsonObject fields)
+    {
+        contain = Containment.parseContainment(fields.get("contains").getAsString());
+        for (JsonElement element : fields.get("colors").getAsJsonArray())
+            colors.add(ManaType.parseManaType(element.getAsString()));
+        multicolored = fields.get("multicolored").getAsBoolean();
     }
 }

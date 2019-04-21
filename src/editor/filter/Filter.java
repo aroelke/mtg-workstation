@@ -85,4 +85,11 @@ public abstract class Filter implements Predicate<Card>, Externalizable
         serializeFields(fields);
         return fields;
     }
+
+    protected abstract void deserializeFields(JsonObject fields);
+
+    public final void fromJsonObject(JsonObject object)
+    {
+        deserializeFields(object);
+    }
 }
