@@ -1568,8 +1568,8 @@ public class MainFrame extends JFrame
             if (frame.hasSelectedCards())
             {
                 selectedCards = Collections.emptyList();
-                selectedTable = null;
-                selectedList = null;
+                selectedTable = Optional.empty();
+                selectedList = Optional.empty();
             }
             editors.remove(frame);
             if (editors.size() > 0)
