@@ -36,10 +36,13 @@ public class SplitCard extends MultiCard
      */
     public SplitCard(List<Card> f)
     {
-        super(CardLayout.SPLIT, f);
+        super(f.get(0).layout(), f);
         for (Card face : f)
-            if (face.layout() != CardLayout.SPLIT)
+            if (face.layout() != CardLayout.SPLIT && face.layout() != CardLayout.AFTERMATH)
                 throw new IllegalArgumentException("can't create split cards out of non-split cards");
+        for (Card face : f)
+            if (face.layout() != f.get(0).layout())
+                throw new IllegalArgumentException("all faces of a split card must be of the same type");
 
         cmc = new Lazy<>(() -> Collections.unmodifiableList(Collections.nCopies(f.size(), f.stream().mapToDouble((c) -> c.cmc().get(0)).sum())));
     }
