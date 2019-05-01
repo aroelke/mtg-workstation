@@ -347,7 +347,7 @@ public class InventoryLoadDialog extends JDialog
                     otherFaces.sort(Comparator.comparingInt((a) -> faceNames.indexOf(a.unifiedName())));
                     switch (face.layout())
                     {
-                    case SPLIT:
+                    case SPLIT: case AFTERMATH:
                         if (otherFaces.size() < 2)
                         {
                             errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face(s) for split card.");
@@ -357,7 +357,7 @@ public class InventoryLoadDialog extends JDialog
                         {
                             for (Card f : otherFaces)
                             {
-                                if (f.layout() != CardLayout.SPLIT)
+                                if (f.layout() != face.layout())
                                 {
                                     errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-split faces into a split card.");
                                     error = true;

@@ -180,7 +180,7 @@ public class CardImagePanel extends JPanel
             {
                 switch (card.layout())
                 {
-                case SPLIT:
+                case SPLIT: case AFTERMATH:
                     face = 0;
                     break;
                 default:

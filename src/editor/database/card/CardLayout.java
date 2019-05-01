@@ -22,6 +22,11 @@ public enum CardLayout
      */
     SPLIT("Split", true),
     /**
+     * Special split card where one of the "mini-cards" can only be cast from
+     * the graveyard.
+     */
+    AFTERMATH("Aftermath", true),
+    /**
      * Card with one face on the top and another on the bottom that is
      * accessible by rotating it 180 degrees.
      *
