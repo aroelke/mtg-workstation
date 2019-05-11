@@ -53,6 +53,11 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import editor.collection.deck.CategorySerializer;
 import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
@@ -490,6 +495,12 @@ public class SettingsDialog extends JDialog
             for (CategorySpec preset : PRESET_CATEGORIES)
                 preset.writeExternal(oos);
         }
+        Gson gson = new GsonBuilder().registerTypeAdapter(CategorySpec.class, new CategorySerializer())
+                                        .setPrettyPrinting()
+                                        .create();
+        String serialized = gson.toJson(PRESET_CATEGORIES);
+        System.out.println(serialized);
+        List<CategorySpec> deserialized = gson.fromJson(serialized, new TypeToken<List<CategorySpec>>(){}.getType());
     }
 
     /**

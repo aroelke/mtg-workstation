@@ -14,8 +14,8 @@ import com.google.gson.JsonSerializer;
 public class FilterSerializer implements JsonSerializer<Filter>
 {
     @Override
-    public JsonElement serialize(Filter filter, Type t, JsonSerializationContext context)
+    public JsonElement serialize(Filter src, Type typeOfSrc, JsonSerializationContext context)
     {
-        return filter.toJsonObject();
+        return src.toJsonObject();
     }
 }

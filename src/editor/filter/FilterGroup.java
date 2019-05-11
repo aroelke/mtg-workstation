@@ -222,12 +222,11 @@ public class FilterGroup extends Filter implements Iterable<Filter>
     protected void serializeFields(JsonObject fields)
     {
         fields.addProperty("mode", mode.toString());
-        fields.add("children",
-                   children.stream().collect(Collector.of(
-                       JsonArray::new,
-                       (a, i) -> a.add(i.toJsonObject()),
-                       (l, r) -> { l.addAll(r); return l; }
-                   )));
+        fields.add("children", children.stream().collect(Collector.of(
+            JsonArray::new,
+            (a, i) -> a.add(i.toJsonObject()),
+            (l, r) -> { l.addAll(r); return l; }
+        )));
     }
 
     @Override

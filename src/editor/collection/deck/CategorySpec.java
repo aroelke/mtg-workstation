@@ -1,17 +1,22 @@
 package editor.collection.deck;
 
+import java.awt.Color;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.AbstractMap;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
 import editor.filter.FilterGroup;
 import editor.gui.MainFrame;
-
-import java.awt.*;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.*;
 
 /**
  * This class represents a set of specifications for a category.  Those specifications are its name,
@@ -22,34 +27,36 @@ import java.util.*;
  */
 public class CategorySpec implements Externalizable
 {
-    public static final Map<FilterAttribute, String> CODES = Map.ofEntries(new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.CARD_TYPE, "cardtype"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.ANY, "*"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.FORMAT_LEGALITY, "legal"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.TYPE_LINE, "type"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.BLOCK, "b"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.EXPANSION, "x"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.LAYOUT, "L"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.MANA_COST, "m"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.NAME, "n"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.NONE, "0"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.RARITY, "r"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.SUBTYPE, "sub"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.SUPERTYPE, "super"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.TAGS, "tag"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.LOYALTY, "l"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.ARTIST, "a"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.CARD_NUMBER, "#"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.CMC, "cmc"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.COLOR, "c"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.COLOR_IDENTITY, "ci"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.FLAVOR_TEXT, "f"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.POWER, "p"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.PRINTED_TEXT, "ptext"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.PRINTED_TYPES, "ptypes"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.RULES_TEXT, "o"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.TOUGHNESS, "t"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.GROUP, "group"),
-                                                                           new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.DEFAULTS, ""));
+    public static final Map<FilterAttribute, String> CODES = Map.ofEntries(
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.CARD_TYPE, "cardtype"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.ANY, "*"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.FORMAT_LEGALITY, "legal"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.TYPE_LINE, "type"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.BLOCK, "b"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.EXPANSION, "x"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.LAYOUT, "L"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.MANA_COST, "m"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.NAME, "n"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.NONE, "0"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.RARITY, "r"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.SUBTYPE, "sub"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.SUPERTYPE, "super"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.TAGS, "tag"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.LOYALTY, "l"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.ARTIST, "a"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.CARD_NUMBER, "#"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.CMC, "cmc"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.COLOR, "c"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.COLOR_IDENTITY, "ci"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.FLAVOR_TEXT, "f"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.POWER, "p"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.PRINTED_TEXT, "ptext"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.PRINTED_TYPES, "ptypes"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.RULES_TEXT, "o"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.TOUGHNESS, "t"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.GROUP, "group"),
+        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.DEFAULTS, "")
+    );
 
     /**
      * Name of the category.
