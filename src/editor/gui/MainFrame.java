@@ -90,11 +90,14 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.jidesoft.plaf.LookAndFeelFactory;
 
 import editor.collection.CardList;
 import editor.collection.Inventory;
+import editor.collection.deck.CategoryAdapter;
 import editor.collection.deck.CategorySpec;
 import editor.collection.export.CardListFormat;
 import editor.collection.export.DelimitedCardListFormat;
@@ -104,6 +107,8 @@ import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.Symbol;
+import editor.filter.Filter;
+import editor.filter.FilterAdapter;
 import editor.filter.FilterAttribute;
 import editor.filter.leaf.TextFilter;
 import editor.gui.display.CardImagePanel;
@@ -204,7 +209,7 @@ public class MainFrame extends JFrame
     /**
      * Default height for displaying card images.
      */
-    public static final double DEFAULT_CARD_HEIGHT = 1.0 / 3.0;
+    public static final double DEFAULT_CARD_HEIGHT = 1.0/3.0;
     /**
      * Extension used for saved files.
      */
@@ -213,6 +218,11 @@ public class MainFrame extends JFrame
      * Maximum height that the advanced filter editor panel can attain before scrolling.
      */
     public static final int MAX_FILTER_HEIGHT = 300;
+    public static final Gson SERIALIZER = new GsonBuilder()
+        .registerTypeAdapter(CategorySpec.class, new CategoryAdapter())
+        .registerTypeHierarchyAdapter(Filter.class, new FilterAdapter())
+        .setPrettyPrinting()
+        .create();
     /**
      * Update status value: update needed.
      */

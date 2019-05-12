@@ -73,7 +73,7 @@ public abstract class Filter implements Predicate<Card>, Externalizable
     protected abstract void serializeFields(JsonObject fields);
 
     /**
-     * Convert this Filter to a JSON.
+     * Convert this Filter to JSON.
      * 
      * @return A {@link JsonElement} representing a serialized version of
      * this Filter.

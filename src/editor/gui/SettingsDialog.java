@@ -12,11 +12,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,11 +55,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import editor.collection.deck.CategorySerializer;
 import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
@@ -404,23 +403,11 @@ public class SettingsDialog extends JDialog
      */
     public static void loadPresetCategories() throws IOException, ClassNotFoundException
     {
-        var presets = new ArrayList<CategorySpec>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getAsString(EDITOR_PRESETS))))
-        {
-            int n = ois.readInt();
-            for (int i = 0; i < n; i++)
-            {
-                CategorySpec preset = new CategorySpec();
-                preset.readExternal(ois);
-                presets.add(preset);
-            }
-        }
-        catch (FileNotFoundException e)
-        {}
-        if (!presets.isEmpty())
+        Path path = Paths.get(EDITOR_PRESETS);
+        if (Files.exists(path))
         {
             PRESET_CATEGORIES.clear();
-            PRESET_CATEGORIES.addAll(presets);
+            PRESET_CATEGORIES.addAll(MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Paths.get(getAsString(EDITOR_PRESETS)))), new TypeToken<List<CategorySpec>>() {}.getType()));
         }
     }
 
@@ -446,7 +433,7 @@ public class SettingsDialog extends JDialog
         SETTINGS.put(CATEGORY_ROWS, "6");
         SETTINGS.put(EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
         SETTINGS.put(EDITOR_STRIPE, "#FFCCCCCC");
-        SETTINGS.put(EDITOR_PRESETS, "presets");
+        SETTINGS.put(EDITOR_PRESETS, "presets.json");
         SETTINGS.put(HAND_SIZE, "7");
         SETTINGS.put(EXPECTED_ROUND_MODE, "No rounding");
         SETTINGS.put(CARD_SCANS, "images" + File.separatorChar + "cards");
@@ -489,18 +476,7 @@ public class SettingsDialog extends JDialog
             SETTINGS.put(CARD_TAGS, str.toString());
             SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
         }
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getAsString(EDITOR_PRESETS))))
-        {
-            oos.writeInt(PRESET_CATEGORIES.size());
-            for (CategorySpec preset : PRESET_CATEGORIES)
-                preset.writeExternal(oos);
-        }
-        Gson gson = new GsonBuilder().registerTypeAdapter(CategorySpec.class, new CategorySerializer())
-                                        .setPrettyPrinting()
-                                        .create();
-        String serialized = gson.toJson(PRESET_CATEGORIES);
-        System.out.println(serialized);
-        List<CategorySpec> deserialized = gson.fromJson(serialized, new TypeToken<List<CategorySpec>>(){}.getType());
+        Files.writeString(Paths.get(getAsString(EDITOR_PRESETS)), MainFrame.SERIALIZER.toJson(PRESET_CATEGORIES));
     }
 
     /**
