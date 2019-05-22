@@ -22,6 +22,8 @@ public class ColorAdapter implements JsonSerializer<Color>, JsonDeserializer<Col
     @Override
     public Color deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        return new Color(Integer.valueOf(json.getAsString(), 16), true);
+        // Need to parse as a long and cast to int in case the color is white,
+        // which has value 0xFFFFFFFF and is outside the range of an int
+        return new Color((int)Long.parseLong(json.getAsString(), 16), true);
     }
 }
