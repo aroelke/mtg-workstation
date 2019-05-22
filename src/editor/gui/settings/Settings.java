@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,31 @@ public final class Settings
             this.background = background;
             this.stripe = stripe;
         }
+
+        @Override
+        public boolean equals(Object other)
+        {
+            if (other == null)
+                return false;
+            if (other == this)
+                return true;
+            if (!(other instanceof InventorySettings))
+                return false;
+
+            InventorySettings o = (InventorySettings)other;
+            return source.equals(o.source) &&
+                   file.equals(o.file) &&
+                   versionFile.equals(o.versionFile) &&
+                   version.equals(o.version) &&
+                   location.equals(o.location) &&
+                   scans.equals(o.scans) &&
+                   tags.equals(o.tags) &&
+                   update == o.update &&
+                   warn == o.warn &&
+                   columns.equals(o.columns) &&
+                   background.equals(o.background) &&
+                   stripe.equals(o.stripe);
+        }
     }
 
     public static final class EditorSettings
@@ -72,6 +98,26 @@ public final class Settings
                 this.count = count;
                 this.files = Collections.unmodifiableList(new ArrayList<>(files));
             }
+
+            @Override
+            public boolean equals(Object other)
+            {
+                if (other == null)
+                    return false;
+                if (other == this)
+                    return true;
+                if (!(other instanceof RecentsSettings))
+                    return false;
+
+                RecentsSettings o = (RecentsSettings)other;
+                return count == o.count && files.equals(o.files);
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return Objects.hash(count, files);
+            }
         }
 
         public static final class CategoriesSettings
@@ -83,6 +129,26 @@ public final class Settings
             {
                 this.presets = Collections.unmodifiableList(new ArrayList<>(presets));
                 this.rows = rows;
+            }
+
+            @Override
+            public boolean equals(Object other)
+            {
+                if (other == null)
+                    return false;
+                if (other == this)
+                    return true;
+                if (!(other instanceof CategoriesSettings))
+                    return false;
+
+                CategoriesSettings o = (CategoriesSettings)other;
+                return presets.equals(o.presets) && rows == o.rows;
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return Objects.hash(presets, rows);
             }
         }
 
@@ -97,6 +163,26 @@ public final class Settings
                 this.size = size;
                 this.rounding = rounding;
                 this.background = background;
+            }
+
+            @Override
+            public boolean equals(Object other)
+            {
+                if (other == null)
+                    return false;
+                if (other == this)
+                    return true;
+                if (!(other instanceof HandSettings))
+                    return false;
+                
+                HandSettings o = (HandSettings)other;
+                return size == o.size && rounding.equals(o.rounding) && background.equals(o.background);
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return Objects.hash(size, rounding, background);
             }
         }
 
@@ -120,6 +206,31 @@ public final class Settings
             this.stripe = stripe;
             this.hand = new HandSettings(handSize, handRounding, handBackground);
         }
+
+        @Override
+        public boolean equals(Object other)
+        {
+            if (other == null)
+                return false;
+            if (other == this)
+                return true;
+            if (!(other instanceof EditorSettings))
+                return false;
+            
+            EditorSettings o = (EditorSettings)other;
+            return recents.equals(o.recents) &&
+                   explicits == o.explicits &&
+                   categories.equals(o.categories) &&
+                   columns.equals(o.columns) &&
+                   stripe.equals(o.stripe) &&
+                   hand.equals(o.hand);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(recents, explicits, categories, columns, stripe, hand);
+        }
     }
 
     public final InventorySettings inventory;
@@ -129,5 +240,25 @@ public final class Settings
     {
         inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
         editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground);
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other == null)
+            return false;
+        if (this == other)
+            return true;
+        if (!(other instanceof Settings))
+            return false;
+
+        Settings o = (Settings)other;
+        return inventory.equals(o.inventory) && editor.equals(o.editor);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(inventory, editor);
     }
 }
