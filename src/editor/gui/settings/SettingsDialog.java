@@ -1,4 +1,4 @@
-package editor.gui;
+package editor.gui.settings;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -12,10 +12,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -62,6 +60,7 @@ import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
 import editor.filter.FilterAttribute;
 import editor.filter.leaf.options.multi.CardTypeFilter;
+import editor.gui.MainFrame;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
 import editor.gui.editor.CalculateHandPanel;
@@ -441,7 +440,7 @@ public class SettingsDialog extends JDialog
         SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
 
         PRESET_CATEGORIES.clear();
-        CardTypeFilter artifacts = (CardTypeFilter) FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
+        CardTypeFilter artifacts = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
         artifacts.selected.add("Artifact");
         PRESET_CATEGORIES.add(new CategorySpec("Artifacts", Collections.emptySet(), Collections.emptySet(), Color.WHITE, artifacts));
         CardTypeFilter creatures = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
@@ -477,6 +476,10 @@ public class SettingsDialog extends JDialog
             SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
         }
         Files.writeString(Paths.get(getAsString(EDITOR_PRESETS)), MainFrame.SERIALIZER.toJson(PRESET_CATEGORIES));
+
+        Settings settings = new SettingsBuilder().defaults().build();
+        Files.writeString(Paths.get(PROPERTIES_FILE + ".json"), MainFrame.SERIALIZER.toJson(settings));
+
     }
 
     /**

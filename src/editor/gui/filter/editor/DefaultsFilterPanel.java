@@ -7,8 +7,8 @@ import java.util.Map;
 import editor.collection.deck.CategorySpec;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
-import editor.gui.SettingsDialog;
 import editor.gui.generic.ComboBoxPanel;
+import editor.gui.settings.SettingsDialog;
 
 /**
  * This class represents a panel that presents the user with a

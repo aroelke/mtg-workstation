@@ -103,6 +103,8 @@ import editor.collection.export.CardListFormat;
 import editor.collection.export.DelimitedCardListFormat;
 import editor.collection.export.TextCardListFormat;
 import editor.database.card.Card;
+import editor.database.card.CardAdapter;
+import editor.database.characteristics.AttributeAdapter;
 import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
@@ -129,6 +131,8 @@ import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
+import editor.gui.settings.SettingsDialog;
+import editor.util.ColorAdapter;
 import editor.util.MenuListenerFactory;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
@@ -221,6 +225,9 @@ public class MainFrame extends JFrame
     public static final Gson SERIALIZER = new GsonBuilder()
         .registerTypeAdapter(CategorySpec.class, new CategoryAdapter())
         .registerTypeHierarchyAdapter(Filter.class, new FilterAdapter())
+        .registerTypeAdapter(Color.class, new ColorAdapter())
+        .registerTypeAdapter(Card.class, new CardAdapter())
+        .registerTypeAdapter(CardAttribute.class, new AttributeAdapter())
         .setPrettyPrinting()
         .create();
     /**

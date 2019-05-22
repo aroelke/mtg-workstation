@@ -24,7 +24,7 @@ public class CategoryAdapter implements JsonSerializer<CategorySpec>, JsonDeseri
         category.addProperty("name", src.getName());
         category.add("whitelist", context.serialize(src.getWhitelist().stream().map((c) -> c.multiverseid().get(0)).collect(Collectors.toSet())));
         category.add("blacklist", context.serialize(src.getBlacklist().stream().map((c) -> c.multiverseid().get(0)).collect(Collectors.toSet())));
-        category.addProperty("color", src.getColor().getRGB());
+        category.add("color", context.serialize(src.getColor()));
         category.add("filter", context.serialize(src.getFilter()));
 
         return category;
@@ -41,7 +41,7 @@ public class CategoryAdapter implements JsonSerializer<CategorySpec>, JsonDeseri
             category.include(MainFrame.inventory().get(element.getAsLong()));
         for (JsonElement element : obj.get("blacklist").getAsJsonArray())
             category.exclude(MainFrame.inventory().get(element.getAsLong()));
-        category.setColor(new Color(obj.get("color").getAsInt(), true));
+        category.setColor(context.deserialize(obj.get("color"), Color.class));
         category.setFilter(context.deserialize(obj.get("filter"), Filter.class));
 
         return category;

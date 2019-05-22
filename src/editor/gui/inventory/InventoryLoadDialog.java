@@ -65,7 +65,7 @@ import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
-import editor.gui.SettingsDialog;
+import editor.gui.settings.SettingsDialog;
 import editor.util.UnicodeSymbols;
 
 /**

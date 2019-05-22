@@ -261,6 +261,18 @@ public class Inventory implements CardList
     }
 
     /**
+     * Determine if there is a card with the given Gatherer ID.
+     * 
+     * @param multiverseid ID to check
+     * @return <code>true</code> if a Card with the given Gatherer ID exists in the
+     * inventory, and <code>false</code> otherwise.
+     */
+    public boolean contains(long multiverseid)
+    {
+        return ids.keySet().contains(multiverseid);
+    }
+
+    /**
      * {@inheritDoc}
      * Not supported.
      */

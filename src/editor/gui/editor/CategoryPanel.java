@@ -27,10 +27,10 @@ import javax.swing.border.TitledBorder;
 
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
-import editor.gui.SettingsDialog;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
 import editor.gui.generic.ColorButton;
+import editor.gui.settings.SettingsDialog;
 import editor.util.UnicodeSymbols;
 
 /**

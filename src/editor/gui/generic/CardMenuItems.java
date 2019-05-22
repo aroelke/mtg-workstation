@@ -19,8 +19,8 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import editor.database.card.Card;
-import editor.gui.SettingsDialog;
 import editor.gui.editor.EditorFrame;
+import editor.gui.settings.SettingsDialog;
 
 /**
  * This class represents a list of menu items for manipulating cards in a deck. There are six:

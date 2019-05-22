@@ -31,7 +31,7 @@ import javax.swing.table.TableCellRenderer;
 
 import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
-import editor.gui.SettingsDialog;
+import editor.gui.settings.SettingsDialog;
 
 /**
  * This class represents a panel that shows the probability of getting a certain
@@ -299,9 +299,11 @@ public class CalculateHandPanel extends JPanel
     /**
      * Rounding modes for expected value mode.
      */
-    public static final Map<String, Function<Double, String>> ROUND_MODE = Map.of("No rounding", (x) -> String.format("%.2f", x),
-                                                                                  "Round to nearest", (x) -> String.format("%d", Math.round(x)),
-                                                                                  "Truncate", (x) -> String.format("%d", x.intValue()));
+    public static final Map<String, Function<Double, String>> ROUND_MODE = Map.of(
+        "No rounding", (x) -> String.format("%.2f", x),
+        "Round to nearest", (x) -> String.format("%d", Math.round(x)),
+        "Truncate", (x) -> String.format("%d", x.intValue())
+    );
 
     /**
      * Calculate the exact value of n!, as long as it will fit into a double.

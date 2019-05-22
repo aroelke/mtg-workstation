@@ -8,7 +8,7 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.JList;
 
 import editor.database.card.Card;
-import editor.gui.SettingsDialog;
+import editor.gui.settings.SettingsDialog;
 
 /**
  * This class represents an element that can display a list of cards by name.

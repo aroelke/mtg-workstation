@@ -110,22 +110,24 @@ public enum CardAttribute
      */
     public static CardAttribute[] inventoryValues()
     {
-        return new CardAttribute[]{NAME,
-                                   LAYOUT,
-                                   MANA_COST,
-                                   CMC,
-                                   COLORS,
-                                   COLOR_IDENTITY,
-                                   TYPE_LINE,
-                                   EXPANSION_NAME,
-                                   RARITY,
-                                   POWER,
-                                   TOUGHNESS,
-                                   LOYALTY,
-                                   ARTIST,
-                                   CARD_NUMBER,
-                                   LEGAL_IN,
-                                   DATE_ADDED};
+        return new CardAttribute[] {
+            NAME,
+            LAYOUT,
+            MANA_COST,
+            CMC,
+            COLORS,
+            COLOR_IDENTITY,
+            TYPE_LINE,
+            EXPANSION_NAME,
+            RARITY,
+            POWER,
+            TOUGHNESS,
+            LOYALTY,
+            ARTIST,
+            CARD_NUMBER,
+            LEGAL_IN,
+            DATE_ADDED
+        };
     }
 
     /**
