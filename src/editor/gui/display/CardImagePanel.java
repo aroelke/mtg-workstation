@@ -122,7 +122,7 @@ public class CardImagePanel extends JPanel
                 DownloadRequest req = toDownload.take();
                 for (long multiverseid : req.card.multiverseid())
                 {
-                    File img = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), multiverseid + ".jpg").toFile();
+                    File img = Paths.get(SettingsDialog.settings().inventory.scans, multiverseid + ".jpg").toFile();
                     if (!img.exists())
                     {
                         URL site = new URL(String.join("/", "https://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
@@ -268,7 +268,7 @@ public class CardImagePanel extends JPanel
                 {
                     if (i > 0)
                     {
-                        File imageFile = Paths.get(SettingsDialog.getAsString(SettingsDialog.CARD_SCANS), i + ".jpg").toFile();
+                        File imageFile = Paths.get(SettingsDialog.settings().inventory.scans, i + ".jpg").toFile();
                         if (imageFile.exists())
                             img = ImageIO.read(imageFile);
                     }

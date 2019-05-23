@@ -6,7 +6,6 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,10 +50,6 @@ public abstract class Card
      */
     public static final String FACE_SEPARATOR = "//";
     /**
-     * Map of cards onto tags that have been applied to them.
-     */
-    public static Map<Card, Set<String>> tags = new HashMap<>();
-    /**
      * Separator for card text when displaying multiple cards in a single text box.
      */
     public static final String TEXT_SEPARATOR = "-----";
@@ -62,16 +57,6 @@ public abstract class Card
      * String representing this Card's name in its text box.
      */
     public static final String THIS = "~";
-
-    /**
-     * Get all of the tags across all of the cards.
-     *
-     * @return a set containing all tags.
-     */
-    public static Set<String> tags()
-    {
-        return tags.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-    }
 
     /**
      * Whether or not this Card can be a commander.

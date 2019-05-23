@@ -168,7 +168,7 @@ public class CalculateHandPanel extends JPanel
                 if (columnIndex == CATEGORY)
                     return category;
                 else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts.get(category).size())
-                    return ROUND_MODE.get(SettingsDialog.getAsString(SettingsDialog.EXPECTED_ROUND_MODE)).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
+                    return ROUND_MODE.get(SettingsDialog.settings().editor.hand.rounding).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
                 else
                     return "";
             default:
@@ -468,7 +468,7 @@ public class CalculateHandPanel extends JPanel
             {
                 Component c = super.prepareRenderer(renderer, row, column);
                 if (!isRowSelected(row) || !getRowSelectionAllowed())
-                    c.setBackground(row % 2 == 0 ? new Color(getBackground().getRGB()) : SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
+                    c.setBackground(row % 2 == 0 ? new Color(getBackground().getRGB()) : SettingsDialog.settings().editor.stripe);
                 if (model.getValueAt(row, RELATION).equals(Relation.AT_LEAST) && model.getValueAt(row, DESIRED).equals(0))
                 {
                     c.setForeground(c.getBackground().darker());

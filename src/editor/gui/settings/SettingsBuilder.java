@@ -10,7 +10,6 @@ import static editor.database.characteristics.CardAttribute.TYPE_LINE;
 
 import java.awt.Color;
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,7 +20,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
-import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
 import editor.filter.FilterAttribute;
 import editor.filter.leaf.options.multi.CardTypeFilter;
@@ -34,7 +32,7 @@ public class SettingsBuilder
     private String inventoryVersion;
     private String inventoryLocation;
     private String inventoryScans;
-    private Map<Card, Set<String>> inventoryTags;
+    private Map<Long, Set<String>> inventoryTags;
     private boolean inventoryUpdate;
     private boolean inventoryWarn;
     private List<CardAttribute> inventoryColumns;
@@ -50,11 +48,17 @@ public class SettingsBuilder
     private int handSize;
     private String handRounding;
     private Color handBackground;
+    private String cwd;
 
     public SettingsBuilder()
     {}
 
-    public Settings build() throws MalformedURLException
+    public SettingsBuilder(Settings copy)
+    {
+        copy(copy);
+    }
+
+    public Settings build()
     {
         return new Settings(
             inventorySource,
@@ -78,13 +82,14 @@ public class SettingsBuilder
             editorStripe,
             handSize,
             handRounding,
-            handBackground
+            handBackground,
+            cwd
         );
     }
 
     public SettingsBuilder copy(Settings original)
     {
-        inventorySource = original.inventory.source.toExternalForm();
+        inventorySource = original.inventory.source;
         inventoryFile = original.inventory.file;
         inventoryVersionFile = original.inventory.versionFile;
         inventoryVersion = original.inventory.version;
@@ -98,7 +103,7 @@ public class SettingsBuilder
         inventoryStripe = original.inventory.stripe;
         recentsCount = original.editor.recents.count;
         recentsFiles = original.editor.recents.files;
-        presetCategories = original.editor.categories.presets.stream().map(CategorySpec::new).collect(Collectors.toList());
+        presetCategories = new ArrayList<>(original.editor.categories.presets.stream().map(CategorySpec::new).collect(Collectors.toList()));
         categoryRows = original.editor.categories.rows;
         explicits = original.editor.explicits;
         editorColumns = original.editor.columns;
@@ -106,6 +111,7 @@ public class SettingsBuilder
         handSize = original.editor.hand.size;
         handRounding = original.editor.hand.rounding;
         handBackground = original.editor.hand.background;
+        cwd = original.cwd;
 
         return this;
     }
@@ -133,6 +139,7 @@ public class SettingsBuilder
         handSize = 7;
         handRounding = "No rounding";
         handBackground = Color.WHITE;
+        cwd = ".";
 
         presetCategories = new ArrayList<CategorySpec>();
         CardTypeFilter artifacts = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
@@ -187,7 +194,7 @@ public class SettingsBuilder
         return this;
     }
 
-    public SettingsBuilder inventoryTags(Map<Card, Set<String>> tags)
+    public SettingsBuilder inventoryTags(Map<Long, ? extends Set<String>> tags)
     {
         inventoryTags = tags.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> new HashSet<>(e.getValue())));
         return this;
@@ -265,6 +272,12 @@ public class SettingsBuilder
         return this;
     }
 
+    public SettingsBuilder addPresetCategory(CategorySpec category)
+    {
+        presetCategories.add(new CategorySpec(category));
+        return this;
+    }
+
     public SettingsBuilder categoryRows(int rows)
     {
         categoryRows = rows;
@@ -304,6 +317,12 @@ public class SettingsBuilder
     public SettingsBuilder handBackground(Color background)
     {
         handBackground = background;
+        return this;
+    }
+
+    public SettingsBuilder cwd(String dir)
+    {
+        cwd = dir;
         return this;
     }
 }

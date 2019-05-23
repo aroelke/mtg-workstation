@@ -21,6 +21,7 @@ import editor.database.card.Card;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TristateCheckBox;
 import editor.gui.generic.TristateCheckBox.State;
+import editor.gui.settings.SettingsDialog;
 import editor.util.MouseListenerFactory;
 import editor.util.UnicodeSymbols;
 
@@ -69,11 +70,12 @@ public class CardTagPanel extends ScrollablePanel
         cards = coll;
         preferredViewportHeight = 0;
 
-        setTags(Card.tags().stream().sorted().collect(Collectors.toList()));
+        setTags(SettingsDialog.settings().inventory.tags().stream().sorted().collect(Collectors.toList()));
 
+        var tags = SettingsDialog.settings().inventory.tags.entrySet().stream().collect(Collectors.toMap((e) -> MainFrame.inventory().get(e.getKey()), Map.Entry::getValue));
         for (TristateCheckBox tagBox : tagBoxes)
         {
-            long matches = cards.stream().filter((c) -> Card.tags.get(c) != null && Card.tags.get(c).contains(tagBox.getText())).count();
+            long matches = cards.stream().filter((c) -> tags.get(c) != null && tags.get(c).contains(tagBox.getText())).count();
             if (matches == 0)
                 tagBox.setState(State.UNSELECTED);
             else if (matches < cards.size())

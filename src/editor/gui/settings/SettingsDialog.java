@@ -3,27 +3,26 @@ package editor.gui.settings;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -37,6 +36,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -46,6 +46,7 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -53,13 +54,10 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import com.google.gson.reflect.TypeToken;
-
 import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
-import editor.filter.FilterAttribute;
-import editor.filter.leaf.options.multi.CardTypeFilter;
+import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
@@ -78,103 +76,7 @@ import editor.util.UnicodeSymbols;
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog
 {
-    /**
-     * Location to find card scans.
-     */
-    public static final String CARD_SCANS = "scans";
-    /**
-     * Tags that have been applied to cards.
-     */
-    public static final String CARD_TAGS = "card_tags";
-    /**
-     * Maximum number of rows to show in category panels.
-     */
-    public static final String CATEGORY_ROWS = "editor.rows";
-    /**
-     * Columns to display in editor tables.
-     */
-    public static final String EDITOR_COLUMNS = "editor.columns";
-    /**
-     * Preset categories that can be added to editors.
-     */
-    public static final String EDITOR_PRESETS = "editor.presets";
-    /**
-     * Stripe color for editor tables.
-     */
-    public static final String EDITOR_STRIPE = "editor.stripe";
-    /**
-     * Round mode for displaying expected category counts in the hand panel.
-     */
-    public static final String EXPECTED_ROUND_MODE = "hand.expectedround";
-    /**
-     * Number of rows to show in the blacklist and whitelist displays in the
-     * category editor.
-     */
-    public static final String EXPLICITS_ROWS = "category.explicits_rows";
-    /**
-     * Background color for card scans in sample hands.
-     */
-    public static final String HAND_BGCOLOR = "hand.bgcolor";
-    /**
-     * Default initial size for a hand.
-     */
-    public static final String HAND_SIZE = "hand.size";
-    /**
-     * Background color for card scans in the left pane.
-     */
-    public static final String IMAGE_BGCOLOR = "inventory.scan_bgcolor";
-    /**
-     * Whether or not to check for the latest inventory version on startup.
-     */
-    public static final String INITIAL_CHECK = "inventory.initialcheck";
-    /**
-     * Directory to start the file chooser in.
-     */
-    public static final String INITIALDIR = "initialdir";
-    /**
-     * Columns to display in the inventory table.
-     */
-    public static final String INVENTORY_COLUMNS = "inventory.columns";
-    /**
-     * File to download containing the inventory.
-     */
-    public static final String INVENTORY_FILE = "inventory.file";
-    /**
-     * Directory to store the inventory file in.
-     */
-    public static final String INVENTORY_LOCATION = "inventory.location";
-    /**
-     * Website to connect to for downloading the inventory.
-     */
-    public static final String INVENTORY_SOURCE = "inventory.source";
-    /**
-     * Code for the color of the stripes of the inventory table.
-     */
-    public static final String INVENTORY_STRIPE = "inventory.stripe";
-    /**
-     * Name of the file to get settings from.
-     */
-    public static final String PROPERTIES_FILE = "settings.txt";
-    /**
-     * Number of recently-opened files to save.
-     */
-    public static final String RECENT_COUNT = "recents.count";
-    /**
-     * Recently-opened files paths.
-     */
-    public static final String RECENT_FILES = "recents.files";
-    /**
-     * Whether or not to suppress warnings on load.
-     */
-    public static final String SUPPRESS_LOAD_WARNINGS = "inventory.suppressload";
-    /**
-     * Current inventory version.
-     */
-    public static final String VERSION = "inventory.version";
-    /**
-     * File to download to check the latest version of the inventory.
-     */
-    public static final String VERSION_FILE = "inventory.version_file";
+    private static Settings settings;
 
     /**
      * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
@@ -184,15 +86,7 @@ public class SettingsDialog extends JDialog
      * Number of cards in a playset.
      */
     public static final int PLAYSET_SIZE = 4;
-
-    /**
-     * List of preset categories.
-     */
-    private static final List<CategorySpec> PRESET_CATEGORIES = new ArrayList<>();
-    /**
-     * Global settings for the program.
-     */
-    private static final Properties SETTINGS = new Properties();
+    public static final String PROPERTIES_FILE = "settings.json";
 
     /**
      * Create the preview panel for a color chooser that customizes the stripe color
@@ -263,117 +157,71 @@ public class SettingsDialog extends JDialog
      */
     public static void addPresetCategory(CategorySpec category)
     {
-        PRESET_CATEGORIES.add(new CategorySpec(category));
+        settings = new SettingsBuilder(settings).addPresetCategory(category).build();
+    }
+
+    @Deprecated
+    public static void applySettings(Settings toApply)
+    {
+        settings = new SettingsBuilder(settings).copy(toApply).build();
     }
 
     /**
-     * Convert a #Color to a String in the format <code>#AARRGGBB</code>.
+     * Show a dialog allowing editing of the tags of the given cards and adding
+     * new tags.
      *
-     * @param col #Color to convert
-     * @return String code of the color.
+     * @param cards cards whose tags should be edited
      */
-    public static String colorToString(Color col)
+    public static void editTags(List<Card> cards, Component parent)
     {
-        return colorToString(col, 4);
-    }
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        CardTagPanel cardTagPanel = new CardTagPanel(cards);
+        contentPanel.add(new JScrollPane(cardTagPanel), BorderLayout.CENTER);
+        JPanel lowerPanel = new JPanel();
+        lowerPanel.setLayout(new BoxLayout(lowerPanel, BoxLayout.X_AXIS));
+        JTextField newTagField = new JTextField();
+        lowerPanel.add(newTagField);
+        JButton newTagButton = new JButton("Add");
 
-    /**
-     * Convert a #Color to a String in the format <code>#AARRGGBB</code>.
-     *
-     * @param col #Color to convert
-     * @param width minimum width of the color string
-     * @return String code of the color.
-     */
-    public static String colorToString(Color col, int width)
-    {
-        return String.format("#%0" + (width * 2) + "X", col.getRGB()&((1L << (width * 8)) - 1));
-    }
-
-    /**
-     * Get the boolean value of the given global setting.
-     *
-     * @param name name of the setting to get
-     * @return true if the String value of the given setting is "true" and false otherwise.
-     */
-    public static boolean getAsBoolean(String name)
-    {
-        return Boolean.valueOf(SETTINGS.getProperty(name));
-    }
-
-    /**
-     * Get the list of #CardAttribute types represented by the given global setting.
-     *
-     * @param name name of the setting to get
-     * @return list of #CardAttribute that is represented by the setting
-     * @throws IllegalArgumentException if the given setting is not a list of #CardAttribute types
-     */
-    public static List<CardAttribute> getAsCharacteristics(String name) throws IllegalArgumentException
-    {
-        try
+        ActionListener addListener = (e) -> {
+            if (!newTagField.getText().isEmpty())
+            {
+                if (cardTagPanel.addTag(newTagField.getText()))
+                {
+                    newTagField.setText("");
+                    cardTagPanel.revalidate();
+                    cardTagPanel.repaint();
+                    SwingUtilities.getWindowAncestor(cardTagPanel).pack();
+                }
+            }
+        };
+        newTagButton.addActionListener(addListener);
+        newTagField.addActionListener(addListener);
+        lowerPanel.add(newTagButton);
+        contentPanel.add(lowerPanel, BorderLayout.SOUTH);
+        if (JOptionPane.showConfirmDialog(parent, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
         {
-            return Arrays.stream(SETTINGS.getProperty(name).split(",")).map(CardAttribute::parseCardData).collect(Collectors.toList());
-        }
-        catch (IllegalArgumentException e)
-        {
-            throw new IllegalArgumentException(name + " is not a setting for a list of CardAttribute types");
-        }
-    }
+            var tags = new HashMap<>(settings.inventory.tags.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> new HashSet<>(e.getValue()))));
 
-    /**
-     * Get the #Color value of the given global setting.
-     *
-     * @param name name of the setting to get
-     * @return the Color value of the given setting.
-     * @throws IllegalArgumentException If the given setting does not represent a #Color.
-     */
-    public static Color getAsColor(String name) throws IllegalArgumentException
-    {
-        try
-        {
-            return stringToColor(SETTINGS.getProperty(name));
+            for (var entry : cardTagPanel.getTagged().entrySet())
+                tags.compute(entry.getKey().multiverseid().get(0), (k, v) -> {
+                    if (v == null)
+                        v = new HashSet<>();
+                    v.addAll(entry.getValue());
+                    return v;
+                });
+            for (var entry : cardTagPanel.getUntagged().entrySet())
+                tags.compute(entry.getKey().multiverseid().get(0), (k, v) -> {
+                    if (v != null)
+                    {
+                        v.removeAll(entry.getValue());
+                        if (v.isEmpty())
+                            v = null;
+                    }
+                    return v;
+                });
+            settings = new SettingsBuilder(settings).inventoryTags(tags).build();
         }
-        catch (IllegalArgumentException e)
-        {
-            throw new IllegalArgumentException(name + " is not a color setting");
-        }
-    }
-
-    /**
-     * Get the integer value of the given global setting.
-     *
-     * @param name name of the setting to get
-     * @return the integer value of the given setting.
-     * @throws IllegalArgumentException if the given setting is not a numerical setting.
-     */
-    public static int getAsInt(String name) throws NumberFormatException
-    {
-        try
-        {
-            return Integer.valueOf(SETTINGS.getProperty(name));
-        }
-        catch (NumberFormatException e)
-        {
-            throw new IllegalArgumentException(name + " is not a numeric setting");
-        }
-    }
-
-    /**
-     * @param name name of the setting to get
-     * @return The string value of the setting with the given name.
-     */
-    public static String getAsString(String name)
-    {
-        return SETTINGS.getProperty(name);
-    }
-
-    /**
-     * Get the default categories.
-     *
-     * @return the list of preset CategorySpecs.
-     */
-    public static List<CategorySpec> getPresetCategories()
-    {
-        return Collections.unmodifiableList(PRESET_CATEGORIES);
     }
 
     /**
@@ -384,30 +232,10 @@ public class SettingsDialog extends JDialog
      */
     public static void load() throws IOException
     {
-        resetDefaultSettings();
-        try (InputStreamReader in = new InputStreamReader(new FileInputStream(PROPERTIES_FILE)))
-        {
-            SETTINGS.load(in);
-        }
-        catch (FileNotFoundException e)
-        {}
-    }
-
-    /**
-     * Load preset categories.
-     *
-     * @throws FileNotFoundException  if the settings file can't be found
-     * @throws IOException if an error occurred during loading
-     * @throws ClassNotFoundException if a class of a category specification can't be found or restored
-     */
-    public static void loadPresetCategories() throws IOException, ClassNotFoundException
-    {
-        Path path = Paths.get(EDITOR_PRESETS);
-        if (Files.exists(path))
-        {
-            PRESET_CATEGORIES.clear();
-            PRESET_CATEGORIES.addAll(MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Paths.get(getAsString(EDITOR_PRESETS)))), new TypeToken<List<CategorySpec>>() {}.getType()));
-        }
+        if (Files.exists(Path.of(PROPERTIES_FILE)))
+            settings = MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Path.of(PROPERTIES_FILE))), Settings.class);
+        else
+            resetDefaultSettings();
     }
 
     /**
@@ -415,43 +243,7 @@ public class SettingsDialog extends JDialog
      */
     public static void resetDefaultSettings()
     {
-        SETTINGS.clear();
-        SETTINGS.put(VERSION_FILE, "version.json");
-        SETTINGS.put(INVENTORY_SOURCE, "https://mtgjson.com/json/");
-        SETTINGS.put(VERSION, "");
-        SETTINGS.put(INVENTORY_FILE, "AllSets.json");
-        SETTINGS.put(INITIAL_CHECK, "true");
-        SETTINGS.put(SUPPRESS_LOAD_WARNINGS, "false");
-        SETTINGS.put(INVENTORY_LOCATION, ".");
-        SETTINGS.put(INVENTORY_COLUMNS, "Name,Mana Cost,Type,Expansion");
-        SETTINGS.put(INVENTORY_STRIPE, "#FFCCCCCC");
-        SETTINGS.put(INITIALDIR, ".");
-        SETTINGS.put(RECENT_COUNT, "4");
-        SETTINGS.put(RECENT_FILES, "");
-        SETTINGS.put(EXPLICITS_ROWS, "3");
-        SETTINGS.put(CATEGORY_ROWS, "6");
-        SETTINGS.put(EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity,Categories,Date Added");
-        SETTINGS.put(EDITOR_STRIPE, "#FFCCCCCC");
-        SETTINGS.put(EDITOR_PRESETS, "presets.json");
-        SETTINGS.put(HAND_SIZE, "7");
-        SETTINGS.put(EXPECTED_ROUND_MODE, "No rounding");
-        SETTINGS.put(CARD_SCANS, "images" + File.separatorChar + "cards");
-        SETTINGS.put(IMAGE_BGCOLOR, "#FFFFFFFF");
-        SETTINGS.put(HAND_BGCOLOR, "#FFFFFFFF");
-
-        PRESET_CATEGORIES.clear();
-        CardTypeFilter artifacts = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
-        artifacts.selected.add("Artifact");
-        PRESET_CATEGORIES.add(new CategorySpec("Artifacts", Collections.emptySet(), Collections.emptySet(), Color.WHITE, artifacts));
-        CardTypeFilter creatures = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
-        creatures.selected.add("Creature");
-        PRESET_CATEGORIES.add(new CategorySpec("Creatures", Collections.emptySet(), Collections.emptySet(), Color.WHITE, creatures));
-        CardTypeFilter lands = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
-        lands.selected.add("Land");
-        PRESET_CATEGORIES.add(new CategorySpec("Lands", Collections.emptySet(), Collections.emptySet(), Color.WHITE, lands));
-        CardTypeFilter spells = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
-        spells.selected.addAll(List.of("Instant", "Sorcery"));
-        PRESET_CATEGORIES.add(new CategorySpec("Instants/Sorceries", Collections.emptySet(), Collections.emptySet(), Color.WHITE, spells));
+        settings = new SettingsBuilder().defaults().build();
     }
 
     /**
@@ -461,61 +253,27 @@ public class SettingsDialog extends JDialog
      */
     public static void save() throws IOException
     {
-        try (FileOutputStream out = new FileOutputStream(PROPERTIES_FILE))
-        {
-            StringBuilder str = new StringBuilder();
-            for (Card c : Card.tags.keySet())
-            {
-                str.append("(");
-                str.append(c.multiverseid().get(0));
-                str.append("::");
-                str.append(Card.tags.get(c).toString());
-                str.append(")");
-            }
-            SETTINGS.put(CARD_TAGS, str.toString());
-            SETTINGS.store(out, "Settings for the deck editor.  Don't touch this file; edit settings using the settings dialog!");
-        }
-        Files.writeString(Paths.get(getAsString(EDITOR_PRESETS)), MainFrame.SERIALIZER.toJson(PRESET_CATEGORIES));
-
-        Settings settings = new SettingsBuilder().defaults().build();
-        Files.writeString(Paths.get(PROPERTIES_FILE + ".json"), MainFrame.SERIALIZER.toJson(settings));
-
+        Files.writeString(Paths.get(PROPERTIES_FILE), MainFrame.SERIALIZER.toJson(settings));
     }
 
-    /**
-     * Set the value Of the given setting.
-     *
-     * @param name name of the setting to set
-     * @param value value to set it to
-     * @throws IllegalArgumentException if the name isn't the name of an existing setting
-     */
-    public static void set(String name, Object value) throws IllegalArgumentException
+    public static void setRecents(List<String> files)
     {
-        if (!SETTINGS.containsKey(name))
-            throw new IllegalArgumentException("Unknown setting name " + name);
-        SETTINGS.put(name, String.valueOf(value));
+        settings = new SettingsBuilder(settings).recentsFiles(files).build();
     }
 
-    /**
-     * Decode an ARGB #Color from a String of either the format
-     * <code>#AARRGGBB</code> or <code>#RRGGBB</code>.
-     *
-     * @param s String to parse
-     * @return the #Color corresponding to the String.
-     * @throw IllegalArgumentException if the given String does not represent a #Color.
-     */
-    public static Color stringToColor(String s) throws IllegalArgumentException
+    public static void setStartingDir(String dir)
     {
-        Matcher m = COLOR_PATTERN.matcher(s);
-        if (m.matches())
-        {
-            Color col = Color.decode("#" + m.group(2));
-            if (m.group(1) != null)
-                col = new Color(col.getRed(), col.getGreen(), col.getBlue(), Integer.parseInt(m.group(1), 16));
-            return col;
-        }
-        else
-            throw new IllegalArgumentException("Illegal color string \"" + s + "\"");
+        settings = new SettingsBuilder(settings).cwd(dir).build();
+    }
+
+    public static Settings settings()
+    {
+        return new SettingsBuilder(settings).build();
+    }
+
+    public static void setInventoryVersion(String version)
+    {
+        settings = new SettingsBuilder(settings).inventoryVersion(version).build();
     }
 
     /**
@@ -567,10 +325,6 @@ public class SettingsDialog extends JDialog
      * MainFrame showing the dialog.
      */
     private MainFrame parent;
-    /**
-     * Name of the file containing preset categories.
-     */
-    private JTextField presetsFileField;
     /**
      * Spinner for the number of recent files to save.
      */
@@ -644,7 +398,7 @@ public class SettingsDialog extends JDialog
         inventorySitePanel.add(new JLabel("Inventory Site:"));
         inventorySitePanel.add(Box.createHorizontalStrut(5));
         inventorySiteField = new JTextField(15);
-        inventorySiteField.setText(getAsString(INVENTORY_SOURCE));
+        inventorySiteField.setText(settings.inventory.source);
         inventorySitePanel.add(inventorySiteField);
         inventorySitePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventorySitePanel.getPreferredSize().height));
         inventoryPanel.add(inventorySitePanel);
@@ -656,10 +410,10 @@ public class SettingsDialog extends JDialog
         inventoryFilePanel.add(new JLabel("Inventory File:"));
         inventoryFilePanel.add(Box.createHorizontalStrut(5));
         inventoryFileField = new JTextField(10);
-        inventoryFileField.setText(getAsString(INVENTORY_FILE));
+        inventoryFileField.setText(settings.inventory.file);
         inventoryFilePanel.add(inventoryFileField);
         inventoryFilePanel.add(Box.createHorizontalStrut(5));
-        JLabel currentVersionLabel = new JLabel("(Current version: " + getAsString(VERSION) + ")");
+        JLabel currentVersionLabel = new JLabel("(Current version: " + settings.inventory.version + ")");
         currentVersionLabel.setFont(new Font(currentVersionLabel.getFont().getFontName(), Font.ITALIC, currentVersionLabel.getFont().getSize()));
         inventoryFilePanel.add(currentVersionLabel);
         inventoryFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryFilePanel.getPreferredSize().height));
@@ -675,7 +429,7 @@ public class SettingsDialog extends JDialog
         JFileChooser inventoryChooser = new JFileChooser();
         inventoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         inventoryChooser.setAcceptAllFileFilterUsed(false);
-        inventoryDirField.setText(getAsString(INVENTORY_LOCATION));
+        inventoryDirField.setText(settings.inventory.location);
         inventoryChooser.setCurrentDirectory(new File(inventoryDirField.getText()).getAbsoluteFile());
         inventoryDirPanel.add(inventoryDirField);
         inventoryDirPanel.add(Box.createHorizontalStrut(5));
@@ -702,7 +456,7 @@ public class SettingsDialog extends JDialog
         JFileChooser scansChooser = new JFileChooser();
         scansChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         scansChooser.setAcceptAllFileFilterUsed(false);
-        scansDirField.setText(getAsString(CARD_SCANS));
+        scansDirField.setText(settings.inventory.scans);
         scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
         scansDirPanel.add(scansDirField);
         scansDirPanel.add(Box.createHorizontalStrut(5));
@@ -722,14 +476,14 @@ public class SettingsDialog extends JDialog
 
         // Check for update on startup
         JPanel updatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        updateCheckBox = new JCheckBox("Check for update on program start", getAsBoolean(INITIAL_CHECK));
+        updateCheckBox = new JCheckBox("Check for update on program start", settings.inventory.update);
         updatePanel.add(updateCheckBox);
         updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
         inventoryPanel.add(updatePanel);
 
-        // Suppress warnings after loading cards
+        // Show warnings from loading inventory
         JPanel suppressPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        suppressCheckBox = new JCheckBox("Suppress warnings while loading cards", getAsBoolean(SUPPRESS_LOAD_WARNINGS));
+        suppressCheckBox = new JCheckBox("Show warnings from loading inventory", settings.inventory.warn);
         suppressPanel.add(suppressCheckBox);
         suppressPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, suppressPanel.getPreferredSize().height));
         inventoryPanel.add(suppressPanel);
@@ -761,14 +515,14 @@ public class SettingsDialog extends JDialog
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
             inventoryColumnCheckBoxes.add(checkBox);
             inventoryColumnsPanel.add(checkBox);
-            checkBox.setSelected(getAsString(INVENTORY_COLUMNS).contains(characteristic.toString()));
+            checkBox.setSelected(settings.inventory.columns.contains(characteristic));
         }
         inventoryAppearancePanel.add(inventoryColumnsPanel);
 
         // Stripe color
         JPanel inventoryColorPanel = new JPanel(new BorderLayout());
         inventoryColorPanel.setBorder(BorderFactory.createTitledBorder("Stripe Color"));
-        inventoryStripeColor = new JColorChooser(getAsColor(INVENTORY_STRIPE));
+        inventoryStripeColor = new JColorChooser(settings.inventory.stripe);
         createStripeChooserPreview(inventoryStripeColor);
         inventoryColorPanel.add(inventoryStripeColor);
         inventoryAppearancePanel.add(inventoryColorPanel);
@@ -776,7 +530,7 @@ public class SettingsDialog extends JDialog
         // Card image background color
         JPanel scanBGPanel = new JPanel(new BorderLayout());
         scanBGPanel.setBorder(BorderFactory.createTitledBorder("Image Background Color"));
-        scanBGChooser = new JColorChooser(getAsColor(IMAGE_BGCOLOR));
+        scanBGChooser = new JColorChooser(settings.inventory.background);
         scanBGChooser.getSelectionModel().addChangeListener((e) -> parent.setImageBackground(scanBGChooser.getColor()));
         scanBGPanel.add(scanBGChooser);
         inventoryAppearancePanel.add(scanBGPanel);
@@ -793,7 +547,7 @@ public class SettingsDialog extends JDialog
         recentPanel.add(new JLabel("Recent file count:"));
         recentPanel.add(Box.createHorizontalStrut(5));
         recentSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        recentSpinner.getModel().setValue(getAsInt(RECENT_COUNT));
+        recentSpinner.getModel().setValue(settings.editor.recents.count);
         recentPanel.add(recentSpinner);
         recentPanel.add(Box.createHorizontalStrut(5));
         JLabel recentInfoLabel = new JLabel("(Changes will not be visible until program restart)");
@@ -810,24 +564,12 @@ public class SettingsDialog extends JDialog
         explicitsPanel.add(new JLabel("Blacklist/Whitelist rows to display:"));
         explicitsPanel.add(Box.createHorizontalStrut(5));
         explicitsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        explicitsSpinner.getModel().setValue(Integer.valueOf(getAsString(EXPLICITS_ROWS)));
+        explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor.explicits));
         explicitsPanel.add(explicitsSpinner);
         explicitsPanel.setMaximumSize(explicitsPanel.getPreferredSize());
         explicitsPanel.setAlignmentX(LEFT_ALIGNMENT);
         editorPanel.add(explicitsPanel);
         editorPanel.add(Box.createVerticalStrut(5));
-
-        // Presets file name
-        JPanel presetsFilePanel = new JPanel();
-        presetsFilePanel.setLayout(new BoxLayout(presetsFilePanel, BoxLayout.X_AXIS));
-        presetsFilePanel.add(new JLabel("Preset Categories File:"));
-        presetsFilePanel.add(Box.createHorizontalStrut(5));
-        presetsFileField = new JTextField(10);
-        presetsFileField.setText(getAsString(EDITOR_PRESETS));
-        presetsFilePanel.add(presetsFileField);
-        presetsFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, presetsFilePanel.getPreferredSize().height));
-        presetsFilePanel.setAlignmentX(LEFT_ALIGNMENT);
-        editorPanel.add(presetsFilePanel);
 
         editorPanel.add(Box.createVerticalGlue());
 
@@ -837,9 +579,8 @@ public class SettingsDialog extends JDialog
         categoriesPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
         categoriesList = new CategoryList("<html><i>&lt;Double-click to add or edit&gt;</i></html>");
-        if (!PRESET_CATEGORIES.isEmpty())
-            for (CategorySpec preset : PRESET_CATEGORIES)
-                categoriesList.addCategory(new CategorySpec(preset));
+        for (CategorySpec preset : settings.editor.categories.presets)
+            categoriesList.addCategory(new CategorySpec(preset));
         categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
 
         // Category modification buttons
@@ -871,7 +612,7 @@ public class SettingsDialog extends JDialog
         rowsPanel.add(new JLabel("Maximum displayed rows in categories:"));
         rowsPanel.add(Box.createHorizontalStrut(5));
         rowsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        rowsSpinner.getModel().setValue(Integer.valueOf(getAsString(CATEGORY_ROWS)));
+        rowsSpinner.getModel().setValue(settings.editor.categories.rows);
         rowsPanel.add(rowsSpinner);
         rowsPanel.setMaximumSize(rowsPanel.getPreferredSize());
         rowsPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -886,7 +627,7 @@ public class SettingsDialog extends JDialog
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
             editorColumnCheckBoxes.add(checkBox);
             editorColumnsPanel.add(checkBox);
-            checkBox.setSelected(getAsString(EDITOR_COLUMNS).contains(characteristic.toString()));
+            checkBox.setSelected(settings.editor.columns.contains(characteristic));
         }
         editorColumnsPanel.setAlignmentX(LEFT_ALIGNMENT);
         editorAppearancePanel.add(editorColumnsPanel);
@@ -894,7 +635,7 @@ public class SettingsDialog extends JDialog
         // Editor table stripe color
         JPanel editorColorPanel = new JPanel(new BorderLayout());
         editorColorPanel.setBorder(BorderFactory.createTitledBorder("Stripe Color"));
-        editorStripeColor = new JColorChooser(getAsColor(EDITOR_STRIPE));
+        editorStripeColor = new JColorChooser(settings.editor.stripe);
         createStripeChooserPreview(editorStripeColor);
         editorColorPanel.add(editorStripeColor);
         editorColorPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -918,7 +659,7 @@ public class SettingsDialog extends JDialog
         startingSizePanel.add(new JLabel("Starting Size:"));
         startingSizePanel.add(Box.createHorizontalStrut(5));
         startingSizeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        startingSizeSpinner.getModel().setValue(Integer.valueOf(getAsString(HAND_SIZE)));
+        startingSizeSpinner.getModel().setValue(settings.editor.hand.size);
         startingSizePanel.add(startingSizeSpinner);
         startingSizePanel.add(Box.createHorizontalGlue());
         startingSizePanel.setMaximumSize(startingSizePanel.getPreferredSize());
@@ -941,7 +682,7 @@ public class SettingsDialog extends JDialog
             roundGroup.add(modeButton);
             expectedRoundPanel.add(modeButton);
             expectedRoundPanel.add(Box.createHorizontalStrut(5));
-            modeButton.setSelected(mode.equals(getAsString(EXPECTED_ROUND_MODE)));
+            modeButton.setSelected(mode.equals(settings.editor.hand.rounding));
             modeButtons.add(modeButton);
         }
         expectedRoundPanel.setMaximumSize(expectedRoundPanel.getPreferredSize());
@@ -953,7 +694,7 @@ public class SettingsDialog extends JDialog
         // Sample hand background color
         JPanel handBGColorPanel = new JPanel(new BorderLayout());
         handBGColorPanel.setBorder(BorderFactory.createTitledBorder("Background Color"));
-        handBGColor = new JColorChooser(getAsColor(HAND_BGCOLOR));
+        handBGColor = new JColorChooser(settings.editor.hand.background);
         handBGColor.getSelectionModel().addChangeListener((e) -> parent.setHandBackground(handBGColor.getColor()));
         handBGColorPanel.add(handBGColor);
         handBGColorPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -1006,29 +747,41 @@ public class SettingsDialog extends JDialog
      */
     public void confirmSettings()
     {
-        SETTINGS.put(INVENTORY_SOURCE, inventorySiteField.getText());
-        SETTINGS.put(INVENTORY_FILE, inventoryFileField.getText());
-        SETTINGS.put(INVENTORY_LOCATION, inventoryDirField.getText());
-        SETTINGS.put(INITIAL_CHECK, Boolean.toString(updateCheckBox.isSelected()));
-        SETTINGS.put(SUPPRESS_LOAD_WARNINGS, Boolean.toString(suppressCheckBox.isSelected()));
-        SETTINGS.put(INVENTORY_COLUMNS, inventoryColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map(JCheckBox::getText).reduce((a, b) -> a + "," + b).orElse(""));
-        SETTINGS.put(INVENTORY_STRIPE, colorToString(inventoryStripeColor.getColor()));
-        SETTINGS.put(RECENT_COUNT, recentSpinner.getValue().toString());
-        SETTINGS.put(EXPLICITS_ROWS, explicitsSpinner.getValue().toString());
-        SETTINGS.put(CATEGORY_ROWS, rowsSpinner.getValue().toString());
-        SETTINGS.put(EDITOR_COLUMNS, editorColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map(JCheckBox::getText).reduce((a, b) -> a + "," + b).orElse(""));
-        SETTINGS.put(EDITOR_STRIPE, colorToString(editorStripeColor.getColor()));
-        SETTINGS.put(EDITOR_PRESETS, presetsFileField.getText());
-        PRESET_CATEGORIES.clear();
-        for (int i = 0; i < categoriesList.getCount(); i++)
-            addPresetCategory(categoriesList.getCategoryAt(i));
-        SETTINGS.put(HAND_SIZE, startingSizeSpinner.getValue().toString());
-        for (JRadioButton modeButton : modeButtons)
-            if (modeButton.isSelected())
-                SETTINGS.put(EXPECTED_ROUND_MODE, modeButton.getText());
-        SETTINGS.put(CARD_SCANS, scansDirField.getText());
-        SETTINGS.put(IMAGE_BGCOLOR, colorToString(scanBGChooser.getColor()));
-        SETTINGS.put(HAND_BGCOLOR, colorToString(handBGColor.getColor()));
+        try
+        {
+            recentSpinner.commitEdit();
+            explicitsSpinner.commitEdit();
+            rowsSpinner.commitEdit();
+            startingSizeSpinner.commitEdit();
+
+            var presets = new ArrayList<CategorySpec>(categoriesList.getCount());
+            for (int i = 0; i < categoriesList.getCount(); i++)
+                presets.add(categoriesList.getCategoryAt(i));
+
+            settings = new SettingsBuilder(settings)
+                .inventorySource(inventorySiteField.getText())
+                .inventoryFile(inventoryFileField.getText())
+                .inventoryLocation(inventoryDirField.getText())
+                .inventoryUpdate(updateCheckBox.isSelected())
+                .inventoryWarn(suppressCheckBox.isSelected())
+                .inventoryColumns(inventoryColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.parseCardData(c.getText())).collect(Collectors.toList()))
+                .inventoryStripe(inventoryStripeColor.getColor())
+                .recentsCount((Integer)recentSpinner.getValue())
+                .explicits((Integer)explicitsSpinner.getValue())
+                .categoryRows((Integer)rowsSpinner.getValue())
+                .editorColumns(editorColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.parseCardData(c.getText())).collect(Collectors.toList()))
+                .editorStripe(editorStripeColor.getColor())
+                .presetCategories(presets)
+                .handSize((Integer)startingSizeSpinner.getValue())
+                .handRounding(modeButtons.stream().filter(JRadioButton::isSelected).map(JRadioButton::getText).findAny().orElse("No rounding"))
+                .inventoryScans(scansDirField.getText())
+                .inventoryBackground(scanBGChooser.getColor())
+                .build();
+        }
+        catch (ParseException e)
+        {
+            e.printStackTrace();
+        }
 
         parent.applySettings();
     }
@@ -1038,7 +791,7 @@ public class SettingsDialog extends JDialog
      */
     public void rejectSettings()
     {
-        parent.setImageBackground(getAsColor(IMAGE_BGCOLOR));
-        parent.setHandBackground(getAsColor(HAND_BGCOLOR));
+        parent.setImageBackground(settings.inventory.background);
+        parent.setHandBackground(settings.editor.hand.background);
     }
 }

@@ -1,17 +1,37 @@
 package editor.gui.filter;
 
-import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
 import editor.filter.FilterAttribute;
-import editor.filter.leaf.*;
-import editor.filter.leaf.options.multi.*;
+import editor.filter.leaf.ColorFilter;
+import editor.filter.leaf.FilterLeaf;
+import editor.filter.leaf.ManaCostFilter;
+import editor.filter.leaf.NumberFilter;
+import editor.filter.leaf.TextFilter;
+import editor.filter.leaf.TypeLineFilter;
+import editor.filter.leaf.VariableNumberFilter;
+import editor.filter.leaf.options.multi.CardTypeFilter;
+import editor.filter.leaf.options.multi.LegalityFilter;
+import editor.filter.leaf.options.multi.SubtypeFilter;
+import editor.filter.leaf.options.multi.SupertypeFilter;
+import editor.filter.leaf.options.multi.TagsFilter;
 import editor.filter.leaf.options.single.BlockFilter;
 import editor.filter.leaf.options.single.ExpansionFilter;
 import editor.filter.leaf.options.single.LayoutFilter;
 import editor.filter.leaf.options.single.RarityFilter;
-import editor.gui.filter.editor.*;
+import editor.gui.filter.editor.BinaryFilterPanel;
+import editor.gui.filter.editor.ColorFilterPanel;
+import editor.gui.filter.editor.DefaultsFilterPanel;
+import editor.gui.filter.editor.FilterEditorPanel;
+import editor.gui.filter.editor.LegalityFilterPanel;
+import editor.gui.filter.editor.ManaCostFilterPanel;
+import editor.gui.filter.editor.NumberFilterPanel;
+import editor.gui.filter.editor.OptionsFilterPanel;
+import editor.gui.filter.editor.TextFilterPanel;
+import editor.gui.filter.editor.TypeLineFilterPanel;
+import editor.gui.filter.editor.VariableNumberFilterPanel;
+import editor.gui.settings.SettingsDialog;
 
 /**
  * This class is a factory for creating new {@link FilterEditorPanel}s.
@@ -70,7 +90,7 @@ public interface FilterPanelFactory
         case FORMAT_LEGALITY:
             return new LegalityFilterPanel((LegalityFilter)filter);
         case TAGS:
-            return new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
+            return new OptionsFilterPanel<>((TagsFilter)filter, SettingsDialog.settings().inventory.tags().stream().sorted().toArray(String[]::new));
         case DEFAULTS:
             return new DefaultsFilterPanel();
         case NONE:

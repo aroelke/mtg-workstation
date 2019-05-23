@@ -287,18 +287,18 @@ public class CategoryPanel extends JPanel
         add(topPanel, BorderLayout.NORTH);
 
         // Table showing the cards in the category
-        model = new CardTableModel(editor, deck.getCategoryList(name), SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
+        model = new CardTableModel(editor, deck.getCategoryList(name), SettingsDialog.settings().editor.columns);
         table = new CardTable(model)
         {
             @Override
             public Dimension getPreferredScrollableViewportSize()
             {
                 Dimension d = getPreferredSize();
-                d.height = getRowHeight() * Math.min(SettingsDialog.getAsInt(SettingsDialog.CATEGORY_ROWS), deck.getCategoryList(name).size());
+                d.height = getRowHeight() * Math.min(SettingsDialog.settings().editor.categories.rows, deck.getCategoryList(name).size());
                 return d;
             }
         };
-        table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
+        table.setStripeColor(SettingsDialog.settings().editor.stripe);
         for (int i = 0; i < table.getColumnCount(); i++)
             if (model.isCellEditable(0, i))
                 table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnData(i)));
@@ -317,8 +317,8 @@ public class CategoryPanel extends JPanel
      */
     public void applySettings(EditorFrame editor)
     {
-        var columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
-        Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
+        var columns = SettingsDialog.settings().editor.columns;
+        Color stripe = SettingsDialog.settings().editor.stripe;
         model.setColumns(columns);
         table.setStripeColor(stripe);
         for (int i = 0; i < table.getColumnCount(); i++)

@@ -14,7 +14,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,8 +25,6 @@ import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -461,12 +458,6 @@ public class InventoryLoadDialog extends JDialog
             }
 
             Inventory inventory = new Inventory(cards);
-            if (SettingsDialog.getAsString(SettingsDialog.CARD_TAGS) != null)
-            {
-                Matcher m = Pattern.compile("\\((.*?)::\\[(.*?)\\]\\)").matcher(SettingsDialog.getAsString(SettingsDialog.CARD_TAGS));
-                while (m.find())
-                    Card.tags.put(inventory.get(Long.parseLong(m.group(1))), Arrays.stream(m.group(2).split(",")).collect(Collectors.toSet()));
-            }
             return inventory;
         }
 
@@ -480,7 +471,7 @@ public class InventoryLoadDialog extends JDialog
         {
             setVisible(false);
             dispose();
-            if (!SettingsDialog.getAsBoolean(SettingsDialog.SUPPRESS_LOAD_WARNINGS) && !errors.isEmpty())
+            if (SettingsDialog.settings().inventory.warn && !errors.isEmpty())
             {
                 SwingUtilities.invokeLater(() -> {
                     StringJoiner join = new StringJoiner("\n" + UnicodeSymbols.BULLET + " ");

@@ -672,7 +672,7 @@ public class EditorFrame extends JInternalFrame
         unsaved = false;
         undoBuffer = new Stack<>();
         redoBuffer = new Stack<>();
-        startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
+        startingHandSize = SettingsDialog.settings().editor.hand.size;
         if (manager.canSaveFile())
             setFile(manager.file());
         else
@@ -683,9 +683,9 @@ public class EditorFrame extends JInternalFrame
 
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        deck.model = new CardTableModel(this, deck.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
+        deck.model = new CardTableModel(this, deck.current, SettingsDialog.settings().editor.columns);
         deck.table = new CardTable(deck.model);
-        deck.table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
+        deck.table.setStripeColor(SettingsDialog.settings().editor.stripe);
         // When a card is selected in the master list table, select it for adding
         deck.table.getSelectionModel().addListSelectionListener((e) -> {
             if (!e.getValueIsAdjusting())
@@ -780,7 +780,7 @@ public class EditorFrame extends JInternalFrame
 
         // Edit card tags item
         JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
-        editTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
+        editTagsItem.addActionListener((e) -> SettingsDialog.editTags(parent.getSelectedCards(), parent));
         tableMenu.add(editTagsItem);
 
         // Table memu popup listeners
@@ -922,7 +922,7 @@ public class EditorFrame extends JInternalFrame
         imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
         imagePane = new JScrollPane(imagePanel);
         imagePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        setHandBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
+        setHandBackground(SettingsDialog.settings().editor.hand.background);
 
         // Control panel for manipulating the sample hand
         JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -936,7 +936,7 @@ public class EditorFrame extends JInternalFrame
                 CardImagePanel panel = new CardImagePanel();
                 imagePanel.add(panel);
                 panel.setCard(c);
-                panel.setBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
+                panel.setBackground(SettingsDialog.settings().editor.hand.background);
                 imagePanel.add(Box.createHorizontalStrut(10));
             }
             imagePanel.validate();
@@ -953,7 +953,7 @@ public class EditorFrame extends JInternalFrame
                 CardImagePanel panel = new CardImagePanel();
                 imagePanel.add(panel);
                 panel.setCard(c);
-                panel.setBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
+                panel.setBackground(SettingsDialog.settings().editor.hand.background);
                 imagePanel.add(Box.createHorizontalStrut(10));
             }
             imagePanel.validate();
@@ -966,7 +966,7 @@ public class EditorFrame extends JInternalFrame
             {
                 hand.draw();
                 CardImagePanel panel = new CardImagePanel();
-                panel.setBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
+                panel.setBackground(SettingsDialog.settings().editor.hand.background);
                 imagePanel.add(panel);
                 panel.setCard(hand.get(hand.size() - 1));
                 imagePanel.add(Box.createHorizontalStrut(10));
@@ -996,7 +996,7 @@ public class EditorFrame extends JInternalFrame
 
             CardTableModel excludeTableModel = new CardTableModel(deck.current, List.of(CardAttribute.NAME, CardAttribute.COUNT));
             CardTable excludeTable = new CardTable(excludeTableModel);
-            excludeTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
+            excludeTable.setStripeColor(SettingsDialog.settings().editor.stripe);
             excludePanel.add(new JScrollPane(excludeTable));
 
             addExclusionButton.addActionListener((a) -> {
@@ -1197,8 +1197,8 @@ public class EditorFrame extends JInternalFrame
      */
     public void applySettings()
     {
-        var columns = SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS);
-        Color stripe = SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE);
+        var columns = SettingsDialog.settings().editor.columns;
+        Color stripe = SettingsDialog.settings().editor.stripe;
         deck.model.setColumns(columns);
         deck.table.setStripeColor(stripe);
         for (int i = 0; i < deck.table.getColumnCount(); i++)
@@ -1206,7 +1206,7 @@ public class EditorFrame extends JInternalFrame
                 deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)));
         for (CategoryPanel category : categoryPanels)
             category.applySettings(this);
-        startingHandSize = SettingsDialog.getAsInt(SettingsDialog.HAND_SIZE);
+        startingHandSize = SettingsDialog.settings().editor.hand.size;
         update();
     }
 
@@ -1380,7 +1380,7 @@ public class EditorFrame extends JInternalFrame
 
         // Edit tags item
         JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
-        editTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
+        editTagsItem.addActionListener((e) -> SettingsDialog.editTags(parent.getSelectedCards(), parent));
         tableMenu.add(editTagsItem);
 
         // Table menu popup listeners
@@ -1949,7 +1949,7 @@ public class EditorFrame extends JInternalFrame
     public JScrollPane initExtraList(String name, DeckData extra)
     {
         // Extra list's models
-        extra.model = new CardTableModel(this, extra.current, SettingsDialog.getAsCharacteristics(SettingsDialog.EDITOR_COLUMNS));
+        extra.model = new CardTableModel(this, extra.current, SettingsDialog.settings().editor.columns);
         extra.table = new CardTable(extra.model)
         {
             @Override
@@ -1959,7 +1959,7 @@ public class EditorFrame extends JInternalFrame
                 return new Dimension(s.width, getRowHeight() * 5);
             }
         };
-        extra.table.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.EDITOR_STRIPE));
+        extra.table.setStripeColor(SettingsDialog.settings().editor.stripe);
         // When a card is selected in a sideboard table, select it for adding
         extra.table.getSelectionModel().addListSelectionListener((e) -> {
             if (!e.getValueIsAdjusting())
@@ -2043,7 +2043,7 @@ public class EditorFrame extends JInternalFrame
 
         // Edit card tags item in sideboard
         JMenuItem sBeditTagsItem = new JMenuItem("Edit Tags...");
-        sBeditTagsItem.addActionListener((e) -> parent.editTags(parent.getSelectedCards()));
+        sBeditTagsItem.addActionListener((e) -> SettingsDialog.editTags(parent.getSelectedCards(), parent));
         extraMenu.add(sBeditTagsItem);
 
         return sideboardPane;

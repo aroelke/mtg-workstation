@@ -1,8 +1,7 @@
 package editor.gui.settings;
 
 import java.awt.Color;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,20 +12,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
-import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
 
 public final class Settings
 {
     public static final class InventorySettings
     {
-        public final URL source;
+        public final String source;
         public final String file;
         public final String versionFile;
         public final String version;
         public final String location;
         public final String scans;
-        public final Map<Card, Set<String>> tags;
+        public final Map<Long, Set<String>> tags;
         public final boolean update;
         public final boolean warn;
         public final List<CardAttribute> columns;
@@ -39,14 +37,14 @@ public final class Settings
                                     String version,
                                     String location,
                                     String scans,
-                                    Map<Card, Set<String>> tags,
+                                    Map<Long, Set<String>> tags,
                                     boolean update,
                                     boolean warn,
                                     List<CardAttribute> columns,
                                     Color background,
-                                    Color stripe) throws MalformedURLException
+                                    Color stripe)
         {
-            this.source = new URL(source);
+            this.source = source;
             this.file = file;
             this.versionFile = versionFile;
             this.version = version;
@@ -58,6 +56,26 @@ public final class Settings
             this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
             this.background = background;
             this.stripe = stripe;
+        }
+
+        public String path()
+        {
+            return location + File.separator + file;
+        }
+
+        public Set<String> tags()
+        {
+            return tags.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+        }
+
+        public String url()
+        {
+            return source + file;
+        }
+
+        public String versionSite()
+        {
+            return source + versionFile;
         }
 
         @Override
@@ -235,11 +253,13 @@ public final class Settings
 
     public final InventorySettings inventory;
     public final EditorSettings editor;
+    public final String cwd;
 
-    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, String inventoryVersion, String inventoryLocation, String inventoryScans, Map<Card, Set<String>> inventoryTags, boolean inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground) throws MalformedURLException
+    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, String inventoryVersion, String inventoryLocation, String inventoryScans, Map<Long, Set<String>> inventoryTags, boolean inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, String cwd)
     {
-        inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
-        editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground);
+        this.inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
+        this.editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground);
+        this.cwd = cwd;
     }
 
     @Override
@@ -253,12 +273,12 @@ public final class Settings
             return false;
 
         Settings o = (Settings)other;
-        return inventory.equals(o.inventory) && editor.equals(o.editor);
+        return inventory.equals(o.inventory) && editor.equals(o.editor) && cwd == o.cwd;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(inventory, editor);
+        return Objects.hash(inventory, editor, cwd);
     }
 }

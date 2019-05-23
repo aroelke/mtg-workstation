@@ -34,13 +34,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
-import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
@@ -131,6 +129,7 @@ import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
+import editor.gui.settings.SettingsBuilder;
 import editor.gui.settings.SettingsDialog;
 import editor.util.ColorAdapter;
 import editor.util.MenuListenerFactory;
@@ -413,23 +412,23 @@ public class MainFrame extends JFrame
         }
         try
         {
-            versionSite = new URL(SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.VERSION_FILE));
+            versionSite = new URL(SettingsDialog.settings().inventory.versionSite());
         }
         catch (MalformedURLException e)
         {
-            JOptionPane.showMessageDialog(this, "Bad version URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.VERSION_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Bad version URL: " + SettingsDialog.settings().inventory.versionSite(), "Warning", JOptionPane.WARNING_MESSAGE);
         }
         try
         {
-            inventorySite = new URL(SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE) + ".zip");
+            inventorySite = new URL(SettingsDialog.settings().inventory.url() + ".zip");
         }
         catch (MalformedURLException e)
         {
-            JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.settings().inventory.url() + ".zip", "Warning", JOptionPane.WARNING_MESSAGE);
         }
-        inventoryFile = new File(SettingsDialog.getAsString(SettingsDialog.INVENTORY_LOCATION) + File.separator + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
-        recentCount = Integer.valueOf(SettingsDialog.getAsString(SettingsDialog.RECENT_COUNT));
-        newestVersion = SettingsDialog.getAsString(SettingsDialog.VERSION);
+        inventoryFile = new File(SettingsDialog.settings().inventory.path());
+        recentCount = SettingsDialog.settings().editor.recents.count;
+        newestVersion = SettingsDialog.settings().inventory.version;
 
         // TODO: Pick a title and icon
         setTitle("MTG Deck Editor");
@@ -493,9 +492,8 @@ public class MainFrame extends JFrame
         // Recent files menu
         recentsMenu = new JMenu("Open Recent");
         recentsMenu.setEnabled(false);
-        if (!SettingsDialog.getAsString(SettingsDialog.RECENT_FILES).isEmpty())
-            for (String fname : SettingsDialog.getAsString(SettingsDialog.RECENT_FILES).split("\\|"))
-                updateRecents(new File(fname));
+        for (String fname : SettingsDialog.settings().editor.recents.files)
+            updateRecents(new File(fname));
         fileMenu.add(recentsMenu);
 
         fileMenu.add(new JSeparator());
@@ -1078,7 +1076,7 @@ public class MainFrame extends JFrame
             case UPDATE_NEEDED:
                 if (updateInventory())
                 {
-                    SettingsDialog.set(SettingsDialog.VERSION, newestVersion);
+                    SettingsDialog.setInventoryVersion(newestVersion);
                     loadInventory();
                 }
                 break;
@@ -1203,7 +1201,7 @@ public class MainFrame extends JFrame
 
         // Panel showing the image of the currently-selected card
         cardPane.addTab("Image", imagePanel = new CardImagePanel());
-        setImageBackground(SettingsDialog.getAsColor(SettingsDialog.IMAGE_BGCOLOR));
+        setImageBackground(SettingsDialog.settings().inventory.background);
 
         // Pane displaying the Oracle text
         oracleTextPane = new JTextPane();
@@ -1247,7 +1245,7 @@ public class MainFrame extends JFrame
         oraclePopupMenu.add(new JSeparator());
 
         JMenuItem oracleEditTagsItem = new JMenuItem("Edit Tags...");
-        oracleEditTagsItem.addActionListener((e) -> editTags(getSelectedCards()));
+        oracleEditTagsItem.addActionListener((e) -> SettingsDialog.editTags(getSelectedCards(), this));
         oraclePopupMenu.add(oracleEditTagsItem);
 
         // Popup listener for oracle popup menu
@@ -1290,7 +1288,7 @@ public class MainFrame extends JFrame
         inventoryTable.setDefaultRenderer(Integer.class, new InventoryTableCellRenderer());
         inventoryTable.setDefaultRenderer(Rarity.class, new InventoryTableCellRenderer());
         inventoryTable.setDefaultRenderer(List.class, new InventoryTableCellRenderer());
-        inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
+        inventoryTable.setStripeColor(SettingsDialog.settings().inventory.stripe);
         inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) -> selectedFrame.ifPresent((f) -> {
             if (e.getClickCount() % 2 == 0)
                 f.addCards("", getSelectedCards(), 1);
@@ -1343,7 +1341,7 @@ public class MainFrame extends JFrame
 
         // Edit tags item
         JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
-        editTagsItem.addActionListener((e) -> editTags(getSelectedCards()));
+        editTagsItem.addActionListener((e) -> SettingsDialog.editTags(getSelectedCards(), this));
         inventoryMenu.add(editTagsItem);
 
         // Inventory menu listener
@@ -1423,7 +1421,7 @@ public class MainFrame extends JFrame
         contentPane.add(editorSplit, BorderLayout.CENTER);
 
         // File chooser
-        fileChooser = new JFileChooser(SettingsDialog.getAsString(SettingsDialog.INITIALDIR));
+        fileChooser = new JFileChooser(SettingsDialog.settings().cwd);
         fileChooser.setMultiSelectionEnabled(false);
         fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Deck (*." + EXTENSION + ')', EXTENSION));
         fileChooser.setAcceptAllFileFilterUsed(true);
@@ -1440,21 +1438,13 @@ public class MainFrame extends JFrame
             @Override
             public void windowOpened(WindowEvent e)
             {
-                if ((SettingsDialog.getAsBoolean(SettingsDialog.INITIAL_CHECK) || !inventoryFile.exists())
+                if ((SettingsDialog.settings().inventory.update || !inventoryFile.exists())
                         && (checkForUpdate() == UPDATE_NEEDED && updateInventory()))
-                    SettingsDialog.set(SettingsDialog.VERSION, newestVersion);
+                    SettingsDialog.setInventoryVersion(newestVersion);
                 loadInventory();
                 if (!inventory.isEmpty())
                 {
-                    try
-                    {
-                        SettingsDialog.loadPresetCategories();
-                    }
-                    catch (Exception x)
-                    {
-                        JOptionPane.showMessageDialog(MainFrame.this, "Error opening " + SettingsDialog.EDITOR_PRESETS + ": " + x.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
-                    }
-                    for (CategorySpec spec : SettingsDialog.getPresetCategories())
+                    for (CategorySpec spec : SettingsDialog.settings().editor.categories.presets)
                     {
                         JMenuItem categoryItem = new JMenuItem(spec.getName());
                         categoryItem.addActionListener((v) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));
@@ -1490,31 +1480,45 @@ public class MainFrame extends JFrame
     {
         try
         {
-            inventorySite = new URL(SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
+            inventorySite = new URL(SettingsDialog.settings().inventory.url() + ".zip");
         }
         catch (MalformedURLException e)
         {
-            JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.getAsString(SettingsDialog.INVENTORY_SOURCE) + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE), "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.settings().inventory.url() + ".zip", "Warning", JOptionPane.WARNING_MESSAGE);
         }
-        inventoryFile = new File(SettingsDialog.getAsString(SettingsDialog.INVENTORY_LOCATION) + '\\' + SettingsDialog.getAsString(SettingsDialog.INVENTORY_FILE));
-        recentCount = SettingsDialog.getAsInt(SettingsDialog.RECENT_COUNT);
-        if (SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).isEmpty())
-            SettingsDialog.set(SettingsDialog.INVENTORY_COLUMNS, "Name,Expansion,Mana Cost,Type");
-        inventoryModel.setColumns(Arrays.stream(SettingsDialog.getAsString(SettingsDialog.INVENTORY_COLUMNS).split(",")).map(CardAttribute::parseCardData).collect(Collectors.toList()));
-        inventoryTable.setStripeColor(SettingsDialog.getAsColor(SettingsDialog.INVENTORY_STRIPE));
-        if (SettingsDialog.getAsString(SettingsDialog.EDITOR_COLUMNS).isEmpty())
-            SettingsDialog.set(SettingsDialog.EDITOR_COLUMNS, "Name,Count,Mana Cost,Type,Expansion,Rarity");
+        inventoryFile = new File(SettingsDialog.settings().inventory.path());
+        recentCount = SettingsDialog.settings().editor.recents.count;
+        if (SettingsDialog.settings().inventory.columns.isEmpty())
+            SettingsDialog.applySettings(new SettingsBuilder(SettingsDialog.settings())
+                                         .inventoryColumns(
+                                             CardAttribute.NAME,
+                                             CardAttribute.EXPANSION_NAME,
+                                             CardAttribute.MANA_COST,
+                                             CardAttribute.TYPE_LINE
+                                         ).build());
+        inventoryModel.setColumns(SettingsDialog.settings().inventory.columns);
+        inventoryTable.setStripeColor(SettingsDialog.settings().inventory.stripe);
+        if (SettingsDialog.settings().editor.columns.isEmpty())
+            SettingsDialog.applySettings(new SettingsBuilder(SettingsDialog.settings())
+                                         .editorColumns(
+                                             CardAttribute.NAME,
+                                             CardAttribute.COUNT,
+                                             CardAttribute.MANA_COST,
+                                             CardAttribute.TYPE_LINE,
+                                             CardAttribute.EXPANSION_NAME,
+                                             CardAttribute.RARITY
+                                         ).build());
         for (EditorFrame frame : editors)
             frame.applySettings();
         presetMenu.removeAll();
-        for (CategorySpec spec : SettingsDialog.getPresetCategories())
+        for (CategorySpec spec : SettingsDialog.settings().editor.categories.presets)
         {
             JMenuItem categoryItem = new JMenuItem(spec.getName());
             categoryItem.addActionListener((e) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));
             presetMenu.add(categoryItem);
         }
-        setImageBackground(SettingsDialog.getAsColor(SettingsDialog.IMAGE_BGCOLOR));
-        setHandBackground(SettingsDialog.getAsColor(SettingsDialog.HAND_BGCOLOR));
+        setImageBackground(SettingsDialog.settings().inventory.background);
+        setHandBackground(SettingsDialog.settings().editor.hand.background);
 
         revalidate();
         repaint();
@@ -1552,7 +1556,7 @@ public class MainFrame extends JFrame
             try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
             {
                 newestVersion = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString();
-                if (!newestVersion.equals(SettingsDialog.getAsString(SettingsDialog.VERSION)))
+                if (!newestVersion.equals(SettingsDialog.settings().inventory.version))
                 {
                     if (JOptionPane.showConfirmDialog(this, "Inventory is out of date.  Download update?", "Update", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
                         return UPDATE_NEEDED;
@@ -1615,61 +1619,6 @@ public class MainFrame extends JFrame
         for (EditorFrame editor : e)
             closedAll &= close(editor);
         return closedAll;
-    }
-
-    /**
-     * Show a dialog allowing editing of the tags of the given cards and adding
-     * new tags.
-     *
-     * @param cards cards whose tags should be edited
-     */
-    public void editTags(List<Card> cards)
-    {
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        CardTagPanel cardTagPanel = new CardTagPanel(cards);
-        contentPanel.add(new JScrollPane(cardTagPanel), BorderLayout.CENTER);
-        JPanel lowerPanel = new JPanel();
-        lowerPanel.setLayout(new BoxLayout(lowerPanel, BoxLayout.X_AXIS));
-        JTextField newTagField = new JTextField();
-        lowerPanel.add(newTagField);
-        JButton newTagButton = new JButton("Add");
-
-        ActionListener addListener = (e) -> {
-            if (!newTagField.getText().isEmpty())
-            {
-                if (cardTagPanel.addTag(newTagField.getText()))
-                {
-                    newTagField.setText("");
-                    cardTagPanel.revalidate();
-                    cardTagPanel.repaint();
-                    SwingUtilities.getWindowAncestor(cardTagPanel).pack();
-                }
-            }
-        };
-        newTagButton.addActionListener(addListener);
-        newTagField.addActionListener(addListener);
-        lowerPanel.add(newTagButton);
-        contentPanel.add(lowerPanel, BorderLayout.SOUTH);
-        if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-        {
-            for (var entry : cardTagPanel.getTagged().entrySet())
-                Card.tags.compute(entry.getKey(), (k, v) -> {
-                    if (v == null)
-                        v = new HashSet<>();
-                    v.addAll(entry.getValue());
-                    return v;
-                });
-            for (var entry : cardTagPanel.getUntagged().entrySet())
-                Card.tags.compute(entry.getKey(), (k, v) -> {
-                    if (v != null)
-                    {
-                        v.removeAll(entry.getValue());
-                        if (v.isEmpty())
-                            v = null;
-                    }
-                    return v;
-                });
-        }
     }
 
     /**
@@ -1746,7 +1695,7 @@ public class MainFrame extends JFrame
         loadDialog.setLocationRelativeTo(this);
         inventory = loadDialog.createInventory(inventoryFile);
         inventory.sort(Card::compareName);
-        inventoryModel = new CardTableModel(inventory, SettingsDialog.getAsCharacteristics(SettingsDialog.INVENTORY_COLUMNS));
+        inventoryModel = new CardTableModel(inventory, SettingsDialog.settings().inventory.columns);
         inventoryTable.setModel(inventoryModel);
         setCursor(Cursor.getDefaultCursor());
     }
@@ -1843,7 +1792,7 @@ public class MainFrame extends JFrame
         }
         if (!canceled)
         {
-            SettingsDialog.set(SettingsDialog.INITIALDIR, f.getParent());
+            SettingsDialog.setStartingDir(f.getParent());
             fileChooser.setCurrentDirectory(f.getParentFile());
             selectFrame(frame);
         }
@@ -1920,7 +1869,7 @@ public class MainFrame extends JFrame
                 break;
             }
         }
-        SettingsDialog.set(SettingsDialog.INITIALDIR, fileChooser.getCurrentDirectory().getPath());
+        SettingsDialog.setStartingDir(fileChooser.getCurrentDirectory().getPath());
     }
 
     /**
@@ -1928,10 +1877,7 @@ public class MainFrame extends JFrame
      */
     public void saveSettings()
     {
-        StringJoiner str = new StringJoiner("|");
-        for (JMenuItem recent : recentItems)
-            str.add(recents.get(recent).getPath());
-        SettingsDialog.set(SettingsDialog.RECENT_FILES, str.toString());
+        SettingsDialog.setRecents(recentItems.stream().map((i) -> recents.get(i).getPath()).collect(Collectors.toList()));
         try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE))
         {
             SettingsDialog.save();
