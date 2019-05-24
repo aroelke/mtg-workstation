@@ -204,7 +204,7 @@ public class SettingsDialog extends JDialog
 
     public static Settings settings()
     {
-        return new SettingsBuilder(settings).build();
+        return settings;
     }
 
     public static void setInventoryVersion(String version)
