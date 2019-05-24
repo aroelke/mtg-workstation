@@ -1,5 +1,6 @@
 package editor.gui.filter;
 
+import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
@@ -31,7 +32,6 @@ import editor.gui.filter.editor.OptionsFilterPanel;
 import editor.gui.filter.editor.TextFilterPanel;
 import editor.gui.filter.editor.TypeLineFilterPanel;
 import editor.gui.filter.editor.VariableNumberFilterPanel;
-import editor.gui.settings.SettingsDialog;
 
 /**
  * This class is a factory for creating new {@link FilterEditorPanel}s.
@@ -90,7 +90,7 @@ public interface FilterPanelFactory
         case FORMAT_LEGALITY:
             return new LegalityFilterPanel((LegalityFilter)filter);
         case TAGS:
-            return new OptionsFilterPanel<>((TagsFilter)filter, SettingsDialog.settings().inventory.tags().stream().sorted().toArray(String[]::new));
+            return new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
         case DEFAULTS:
             return new DefaultsFilterPanel();
         case NONE:

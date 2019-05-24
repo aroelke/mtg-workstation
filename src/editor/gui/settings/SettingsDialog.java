@@ -9,7 +9,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +16,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -48,6 +48,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
 import editor.gui.MainFrame;
 import editor.gui.display.CardTable;
@@ -160,7 +161,6 @@ public class SettingsDialog extends JDialog
     /**
      * Load global settings from the settings file.  This does not affect card tags.
      *
-     * @throws FileNotFoundException if the settings file can't be found
      * @throws IOException if an error occurred during loading
      */
     public static void load() throws IOException
@@ -181,11 +181,14 @@ public class SettingsDialog extends JDialog
 
     /**
      * Save preferences to file whose name is specified by the value of {@link #PROPERTIES_FILE}.
+     * Also save tags to the separate tags file.
      *
      * @throws IOException if an exception occurred during saving.
      */
     public static void save() throws IOException
     {
+        if (!Card.tags.isEmpty())
+            Files.writeString(Paths.get(settings.inventory.tags), MainFrame.SERIALIZER.toJson(Card.tags.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey().multiverseid().get(0), Map.Entry::getValue))));
         Files.writeString(Paths.get(PROPERTIES_FILE), MainFrame.SERIALIZER.toJson(settings));
     }
 

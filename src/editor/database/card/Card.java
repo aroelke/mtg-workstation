@@ -6,6 +6,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -57,6 +58,13 @@ public abstract class Card
      * String representing this Card's name in its text box.
      */
     public static final String THIS = "~";
+
+    public static final Map<Card, Set<String>> tags = new HashMap<>();
+
+    public static Set<String> tags()
+    {
+        return tags.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+    }
 
     /**
      * Whether or not this Card can be a commander.

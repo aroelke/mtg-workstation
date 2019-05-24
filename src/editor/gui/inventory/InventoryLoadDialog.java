@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,7 +22,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
@@ -45,6 +49,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 import editor.collection.Inventory;
 import editor.database.card.Card;
@@ -62,6 +67,7 @@ import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
+import editor.gui.MainFrame;
 import editor.gui.settings.SettingsDialog;
 import editor.util.UnicodeSymbols;
 
@@ -458,6 +464,15 @@ public class InventoryLoadDialog extends JDialog
             }
 
             Inventory inventory = new Inventory(cards);
+
+            if (Files.exists(Path.of(SettingsDialog.settings().inventory.tags)))
+            {
+                @SuppressWarnings("unchecked")
+                var rawTags = (Map<Long, Set<String>>)MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Path.of(SettingsDialog.settings().inventory.tags))), new TypeToken<Map<Long, Set<String>>>() {}.getType());
+                Card.tags.clear();
+                Card.tags.putAll(rawTags.entrySet().stream().collect(Collectors.toMap((e) -> inventory.get(e.getKey()), Map.Entry::getValue)));
+            }
+
             return inventory;
         }
 

@@ -5,9 +5,9 @@ import java.util.HashSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
-import editor.gui.settings.SettingsDialog;
 
 /**
  * This class represents a filter that filters cards by user-controlled tags.
@@ -21,7 +21,7 @@ public class TagsFilter extends MultiOptionsFilter<String>
      */
     public TagsFilter()
     {
-        super(FilterAttribute.TAGS, (c) -> SettingsDialog.settings().inventory.tags.getOrDefault(c.multiverseid().get(0), new HashSet<String>()));
+        super(FilterAttribute.TAGS, (c) -> Card.tags.getOrDefault(c.multiverseid().get(0), new HashSet<String>()));
     }
 
     @Override

@@ -13,10 +13,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
@@ -32,7 +29,7 @@ public class SettingsBuilder
     private String inventoryVersion;
     private String inventoryLocation;
     private String inventoryScans;
-    private Map<Long, Set<String>> inventoryTags;
+    private String inventoryTags;
     private boolean inventoryUpdate;
     private boolean inventoryWarn;
     private List<CardAttribute> inventoryColumns;
@@ -124,7 +121,7 @@ public class SettingsBuilder
         inventoryVersion = "";
         inventoryLocation = ".";
         inventoryScans = "images" + File.separatorChar +  "cards";
-        inventoryTags = Collections.emptyMap();
+        inventoryTags = "tags.json";
         inventoryUpdate = true;
         inventoryWarn = true;
         inventoryColumns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION_NAME);
@@ -194,9 +191,9 @@ public class SettingsBuilder
         return this;
     }
 
-    public SettingsBuilder inventoryTags(Map<Long, ? extends Set<String>> tags)
+    public SettingsBuilder inventoryTags(String tags)
     {
-        inventoryTags = tags.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> new HashSet<>(e.getValue())));
+        inventoryTags = tags;
         return this;
     }
 

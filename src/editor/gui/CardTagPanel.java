@@ -27,8 +27,6 @@ import editor.database.card.Card;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TristateCheckBox;
 import editor.gui.generic.TristateCheckBox.State;
-import editor.gui.settings.SettingsBuilder;
-import editor.gui.settings.SettingsDialog;
 import editor.util.MouseListenerFactory;
 import editor.util.UnicodeSymbols;
 
@@ -85,17 +83,15 @@ public class CardTagPanel extends ScrollablePanel
         contentPanel.add(lowerPanel, BorderLayout.SOUTH);
         if (JOptionPane.showConfirmDialog(parent, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
         {
-            var tags = new HashMap<>(SettingsDialog.settings().inventory.tags.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> new HashSet<>(e.getValue()))));
-
             for (var entry : cardTagPanel.getTagged().entrySet())
-                tags.compute(entry.getKey().multiverseid().get(0), (k, v) -> {
+                Card.tags.compute(entry.getKey(), (k, v) -> {
                     if (v == null)
                         v = new HashSet<>();
                     v.addAll(entry.getValue());
                     return v;
                 });
             for (var entry : cardTagPanel.getUntagged().entrySet())
-                tags.compute(entry.getKey().multiverseid().get(0), (k, v) -> {
+                Card.tags.compute(entry.getKey(), (k, v) -> {
                     if (v != null)
                     {
                         v.removeAll(entry.getValue());
@@ -104,7 +100,6 @@ public class CardTagPanel extends ScrollablePanel
                     }
                     return v;
                 });
-            SettingsDialog.applySettings(new SettingsBuilder(SettingsDialog.settings()).inventoryTags(tags).build());
         }
     }
 
@@ -136,12 +131,11 @@ public class CardTagPanel extends ScrollablePanel
         cards = coll;
         preferredViewportHeight = 0;
 
-        setTags(SettingsDialog.settings().inventory.tags().stream().sorted().collect(Collectors.toList()));
+        setTags(Card.tags().stream().sorted().collect(Collectors.toList()));
 
-        var tags = SettingsDialog.settings().inventory.tags.entrySet().stream().collect(Collectors.toMap((e) -> MainFrame.inventory().get(e.getKey()), Map.Entry::getValue));
         for (TristateCheckBox tagBox : tagBoxes)
         {
-            long matches = cards.stream().filter((c) -> tags.get(c) != null && tags.get(c).contains(tagBox.getText())).count();
+            long matches = cards.stream().filter((c) -> Card.tags.get(c) != null && Card.tags.get(c).contains(tagBox.getText())).count();
             if (matches == 0)
                 tagBox.setState(State.UNSELECTED);
             else if (matches < cards.size())
