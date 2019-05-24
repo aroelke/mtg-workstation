@@ -82,6 +82,7 @@ import editor.collection.deck.Hand;
 import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
+import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
@@ -780,7 +781,7 @@ public class EditorFrame extends JInternalFrame
 
         // Edit card tags item
         JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
-        editTagsItem.addActionListener((e) -> SettingsDialog.editTags(parent.getSelectedCards(), parent));
+        editTagsItem.addActionListener((e) -> CardTagPanel.editTags(parent.getSelectedCards(), parent));
         tableMenu.add(editTagsItem);
 
         // Table memu popup listeners
@@ -1380,7 +1381,7 @@ public class EditorFrame extends JInternalFrame
 
         // Edit tags item
         JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
-        editTagsItem.addActionListener((e) -> SettingsDialog.editTags(parent.getSelectedCards(), parent));
+        editTagsItem.addActionListener((e) -> CardTagPanel.editTags(parent.getSelectedCards(), parent));
         tableMenu.add(editTagsItem);
 
         // Table menu popup listeners
@@ -2043,7 +2044,7 @@ public class EditorFrame extends JInternalFrame
 
         // Edit card tags item in sideboard
         JMenuItem sBeditTagsItem = new JMenuItem("Edit Tags...");
-        sBeditTagsItem.addActionListener((e) -> SettingsDialog.editTags(parent.getSelectedCards(), parent));
+        sBeditTagsItem.addActionListener((e) -> CardTagPanel.editTags(parent.getSelectedCards(), parent));
         extraMenu.add(sBeditTagsItem);
 
         return sideboardPane;

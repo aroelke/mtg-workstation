@@ -3,13 +3,11 @@ package editor.gui.settings;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,10 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,7 +31,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -46,7 +40,6 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -55,9 +48,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import editor.collection.deck.CategorySpec;
-import editor.database.card.Card;
 import editor.database.characteristics.CardAttribute;
-import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
@@ -164,64 +155,6 @@ public class SettingsDialog extends JDialog
     public static void applySettings(Settings toApply)
     {
         settings = new SettingsBuilder(settings).copy(toApply).build();
-    }
-
-    /**
-     * Show a dialog allowing editing of the tags of the given cards and adding
-     * new tags.
-     *
-     * @param cards cards whose tags should be edited
-     */
-    public static void editTags(List<Card> cards, Component parent)
-    {
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        CardTagPanel cardTagPanel = new CardTagPanel(cards);
-        contentPanel.add(new JScrollPane(cardTagPanel), BorderLayout.CENTER);
-        JPanel lowerPanel = new JPanel();
-        lowerPanel.setLayout(new BoxLayout(lowerPanel, BoxLayout.X_AXIS));
-        JTextField newTagField = new JTextField();
-        lowerPanel.add(newTagField);
-        JButton newTagButton = new JButton("Add");
-
-        ActionListener addListener = (e) -> {
-            if (!newTagField.getText().isEmpty())
-            {
-                if (cardTagPanel.addTag(newTagField.getText()))
-                {
-                    newTagField.setText("");
-                    cardTagPanel.revalidate();
-                    cardTagPanel.repaint();
-                    SwingUtilities.getWindowAncestor(cardTagPanel).pack();
-                }
-            }
-        };
-        newTagButton.addActionListener(addListener);
-        newTagField.addActionListener(addListener);
-        lowerPanel.add(newTagButton);
-        contentPanel.add(lowerPanel, BorderLayout.SOUTH);
-        if (JOptionPane.showConfirmDialog(parent, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-        {
-            var tags = new HashMap<>(settings.inventory.tags.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> new HashSet<>(e.getValue()))));
-
-            for (var entry : cardTagPanel.getTagged().entrySet())
-                tags.compute(entry.getKey().multiverseid().get(0), (k, v) -> {
-                    if (v == null)
-                        v = new HashSet<>();
-                    v.addAll(entry.getValue());
-                    return v;
-                });
-            for (var entry : cardTagPanel.getUntagged().entrySet())
-                tags.compute(entry.getKey().multiverseid().get(0), (k, v) -> {
-                    if (v != null)
-                    {
-                        v.removeAll(entry.getValue());
-                        if (v.isEmpty())
-                            v = null;
-                    }
-                    return v;
-                });
-            settings = new SettingsBuilder(settings).inventoryTags(tags).build();
-        }
     }
 
     /**

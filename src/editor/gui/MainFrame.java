@@ -1245,7 +1245,7 @@ public class MainFrame extends JFrame
         oraclePopupMenu.add(new JSeparator());
 
         JMenuItem oracleEditTagsItem = new JMenuItem("Edit Tags...");
-        oracleEditTagsItem.addActionListener((e) -> SettingsDialog.editTags(getSelectedCards(), this));
+        oracleEditTagsItem.addActionListener((e) -> CardTagPanel.editTags(getSelectedCards(), this));
         oraclePopupMenu.add(oracleEditTagsItem);
 
         // Popup listener for oracle popup menu
@@ -1341,7 +1341,7 @@ public class MainFrame extends JFrame
 
         // Edit tags item
         JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
-        editTagsItem.addActionListener((e) -> SettingsDialog.editTags(getSelectedCards(), this));
+        editTagsItem.addActionListener((e) -> CardTagPanel.editTags(getSelectedCards(), this));
         inventoryMenu.add(editTagsItem);
 
         // Inventory menu listener

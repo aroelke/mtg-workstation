@@ -2,7 +2,9 @@ package editor.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,14 +15,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import editor.database.card.Card;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TristateCheckBox;
 import editor.gui.generic.TristateCheckBox.State;
+import editor.gui.settings.SettingsBuilder;
 import editor.gui.settings.SettingsDialog;
 import editor.util.MouseListenerFactory;
 import editor.util.UnicodeSymbols;
@@ -42,6 +49,65 @@ public class CardTagPanel extends ScrollablePanel
      * Maximum amount of rows to display in a scroll pane.
      */
     private static final int MAX_PREFERRED_ROWS = 10;
+
+    /**
+     * Show a dialog allowing editing of the tags of the given cards and adding
+     * new tags.
+     *
+     * @param cards cards whose tags should be edited
+     */
+    public static void editTags(List<Card> cards, Component parent)
+    {
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        CardTagPanel cardTagPanel = new CardTagPanel(cards);
+        contentPanel.add(new JScrollPane(cardTagPanel), BorderLayout.CENTER);
+        JPanel lowerPanel = new JPanel();
+        lowerPanel.setLayout(new BoxLayout(lowerPanel, BoxLayout.X_AXIS));
+        JTextField newTagField = new JTextField();
+        lowerPanel.add(newTagField);
+        JButton newTagButton = new JButton("Add");
+
+        ActionListener addListener = (e) -> {
+            if (!newTagField.getText().isEmpty())
+            {
+                if (cardTagPanel.addTag(newTagField.getText()))
+                {
+                    newTagField.setText("");
+                    cardTagPanel.revalidate();
+                    cardTagPanel.repaint();
+                    SwingUtilities.getWindowAncestor(cardTagPanel).pack();
+                }
+            }
+        };
+        newTagButton.addActionListener(addListener);
+        newTagField.addActionListener(addListener);
+        lowerPanel.add(newTagButton);
+        contentPanel.add(lowerPanel, BorderLayout.SOUTH);
+        if (JOptionPane.showConfirmDialog(parent, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+        {
+            var tags = new HashMap<>(SettingsDialog.settings().inventory.tags.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> new HashSet<>(e.getValue()))));
+
+            for (var entry : cardTagPanel.getTagged().entrySet())
+                tags.compute(entry.getKey().multiverseid().get(0), (k, v) -> {
+                    if (v == null)
+                        v = new HashSet<>();
+                    v.addAll(entry.getValue());
+                    return v;
+                });
+            for (var entry : cardTagPanel.getUntagged().entrySet())
+                tags.compute(entry.getKey().multiverseid().get(0), (k, v) -> {
+                    if (v != null)
+                    {
+                        v.removeAll(entry.getValue());
+                        if (v.isEmpty())
+                            v = null;
+                    }
+                    return v;
+                });
+            SettingsDialog.applySettings(new SettingsBuilder(SettingsDialog.settings()).inventoryTags(tags).build());
+        }
+    }
+
     /**
      * Cards whose tags are to be modified.
      */
