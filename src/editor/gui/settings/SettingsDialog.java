@@ -68,6 +68,9 @@ import editor.util.UnicodeSymbols;
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog
 {
+    /**
+     * Settings structure containing global settings.
+     */
     private static Settings settings;
 
     /**
@@ -78,6 +81,9 @@ public class SettingsDialog extends JDialog
      * Number of cards in a playset.
      */
     public static final int PLAYSET_SIZE = 4;
+    /**
+     * File containing serialized settings.
+     */
     public static final String PROPERTIES_FILE = "settings.json";
 
     /**
@@ -192,21 +198,40 @@ public class SettingsDialog extends JDialog
         Files.writeString(Paths.get(PROPERTIES_FILE), MainFrame.SERIALIZER.toJson(settings));
     }
 
+    /**
+     * Update the recently-edited files.
+     * 
+     * @param files list of recently-edited files
+     */
     public static void setRecents(List<String> files)
     {
         settings = new SettingsBuilder(settings).recentsFiles(files).build();
     }
 
+    /**
+     * Update the directory to start the file chooser in.
+     * 
+     * @param dir starting directory for file chooser
+     */
     public static void setStartingDir(String dir)
     {
         settings = new SettingsBuilder(settings).cwd(dir).build();
     }
 
+    /**
+     * @return The global settings structure.
+     * @see Settings
+     */
     public static Settings settings()
     {
         return settings;
     }
 
+    /**
+     * Set the version of the inventory to know when it is out of date.
+     * 
+     * @param version new version of the inventory
+     */
     public static void setInventoryVersion(String version)
     {
         settings = new SettingsBuilder(settings).inventoryVersion(version).build();
