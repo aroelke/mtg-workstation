@@ -21,6 +21,12 @@ import editor.database.characteristics.CardAttribute;
 import editor.filter.FilterAttribute;
 import editor.filter.leaf.options.multi.CardTypeFilter;
 
+/**
+ * Builder for {@link Settings}, used for getting defaults, copying, and
+ * creating new settings structures.
+ * 
+ * @author Alec Roelke
+ */
 public class SettingsBuilder
 {
     private String inventorySource;
@@ -47,14 +53,29 @@ public class SettingsBuilder
     private Color handBackground;
     private String cwd;
 
+    /**
+     * Create a new SettingsBuilder with nothing set.
+     */
     public SettingsBuilder()
     {}
 
+    /**
+     * Create a new SettingsBuilder that is prepared to copy a settings
+     * structure.
+     * 
+     * @param copy Settings to copy
+     */
     public SettingsBuilder(Settings copy)
     {
         copy(copy);
     }
 
+    /**
+     * Create a {@link Settings} instance.  If some of the fields have not
+     * been set, behavior is undefined.
+     * @return a new {@link Settings} according to the values that have been
+     * given to this SettingsBuilder.
+     */
     public Settings build()
     {
         return new Settings(
@@ -84,6 +105,12 @@ public class SettingsBuilder
         );
     }
 
+    /**
+     * Copy a {@link Settings} structure.
+     * 
+     * @param original {@link Settings} to copy
+     * @return this SettingsBuilder.
+     */
     public SettingsBuilder copy(Settings original)
     {
         inventorySource = original.inventory.source;
@@ -113,6 +140,43 @@ public class SettingsBuilder
         return this;
     }
 
+    /**
+     * Set all settings to their defaults:
+     * <ul>
+     * <li>{@link Settings.InventorySettings#source}: "<a href="https://mtgjson.com/json/">"https://mtgjson.com/json/"</a>"
+     * <li>{@link Settings.InventorySettings#file}: "AllSets.json"
+     * <li>{@link Settings.InventorySettings#versionFile}: "version.json"
+     * <li>{@link Settings.InventorySettings#version}: ""
+     * <li>{@link Settings.InventorySettings#location}: "."
+     * <li>{@link Settings.InventorySettings#scans}: "images/cards"
+     * <li>{@link Settings.InventorySettings#tags}: "tags.json"
+     * <li>{@link Settings.InventorySettings#update}: true
+     * <li>{@link Settings.InventorySettings#warn}: true
+     * <li>{@link Settings.InventorySettings#columns}:
+     *     {@link CardAttribute#NAME}, {@link CardAttribute#MANA_COST},
+     *     {@link CardAttribute#TYPE_LINE}, {@link CardAttribute#EXPANSION_NAME}
+     * <li>{@link Settings.InventorySettings#background}: {@link Color#white}
+     * <li>{@link Settings.InventorySettings#stripe}: gray
+     * <li>{@link Settings.EditorSettings.RecentsSettings#count}: 4
+     * <li>{@link Settings.EditorSettings.RecentsSettings#files}: empty list
+     * <li>{@link Settings.EditorSettings.CategoriesSettings#rows}: 6
+     * <li>{@link Settings.EditorSettings.CategoriesSettings#presets}:
+     *     type filters for Artifacts, Creatures, Lands, and Instants/Sorceries
+     * <li>{@link Settings.EditorSettings.CategoriesSettings#explicits}: 3
+     * <li>{@link Settings.EditorSettings#columns}:
+     *     {@link CardAttribute#NAME}, {@link CardAttribute#COUNT},
+     *     {@link CardAttribute#MANA_COST}, {@link CardAttribute#TYPE_LINE},
+     *     {@link CardAttribute#CATEGORIES}, {@link CardAttribute#DATE_ADDED}
+     * <li>{@link Settings.EditorSettings#stripe}: gray
+     * <li>{@link Settings.EditorSettings.HandSettings#size}: 7
+     * <li>{@link Settings.EditorSettings.HandSettings#rounding}: "No rounding"
+     * <li>{@link Settings.EditorSettings.HandSettings#background}:
+     *     {@link Color#white}
+     * <li>{@link Settings#cwd}: "."
+     * </ul>
+     * 
+     * @return this SettingsBuilder
+     */
     public SettingsBuilder defaults()
     {
         inventorySource = "https://mtgjson.com/json/";
@@ -155,168 +219,370 @@ public class SettingsBuilder
         return this;
     }
 
+    /**
+     * Change the inventory source (dangerous).
+     * 
+     * @param source new inventory source
+     * @return this SettingsBuilder.
+     * @see Settings.InventorySettings#source
+     */
     public SettingsBuilder inventorySource(String source)
     {
         inventorySource = source;
         return this;
     }
 
+    /**
+     * Change the inventory file (dangerous).
+     * 
+     * @param file new file name of the inventory
+     * @return this SettingsBuilder.
+     * @see Settings.InventorySettings#file
+     */
     public SettingsBuilder inventoryFile(String file)
     {
         inventoryFile = file;
         return this;
     }
 
+    /**
+     * Change the file to look for the inventory version in (dangerous).
+     * 
+     * @param file new inventory version file
+     * @return this SettingsBuilder.
+     * @see Settings.InventorySettings#versionFile
+     */
     public SettingsBuilder inventoryVersionFile(String file)
     {
         inventoryVersionFile = file;
         return this;
     }
 
+    /**
+     * Change the inventory version.
+     * 
+     * @param version new inventory version
+     * @return this SettingsBuilder.
+     * @see Settings.InventorySettings#version
+     */
     public SettingsBuilder inventoryVersion(String version)
     {
         inventoryVersion = version;
         return this;
     }
 
+    /**
+     * Change where to store the inventory file.
+     * 
+     * @param location new location for the inventory
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#location
+     */
     public SettingsBuilder inventoryLocation(String location)
     {
         inventoryLocation = location;
         return this;
     }
 
+    /**
+     * Change where to store card images.
+     * 
+     * @param scans new location for card images
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#scans
+     */
     public SettingsBuilder inventoryScans(String scans)
     {
         inventoryScans = scans;
         return this;
     }
 
+    /**
+     * Change the file to store tags in.
+     * 
+     * @param tags new tags file
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#tags
+     */
     public SettingsBuilder inventoryTags(String tags)
     {
         inventoryTags = tags;
         return this;
     }
 
+    /**
+     * Change whether or not to automatically check for updates on startup.
+     * 
+     * @param update whether or not to check for updates
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#update
+     */
     public SettingsBuilder inventoryUpdate(boolean update)
     {
         inventoryUpdate = update;
         return this;
     }
 
+    /**
+     * Change whether or not to show warnings from loading cards.
+     * 
+     * @param warn whether or not to warn about loading errors
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#warn
+     */
     public SettingsBuilder inventoryWarn(boolean warn)
     {
         inventoryWarn = warn;
         return this;
     }
 
+    /**
+     * Change the information to show in the inventory table.
+     * 
+     * @param columns new inventory table columns
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#columns
+     */
     public SettingsBuilder inventoryColumns(List<CardAttribute> columns)
     {
         inventoryColumns = new ArrayList<>(columns);
         return this;
     }
 
+    /**
+     * Change the information to show in the inventory table.
+     * 
+     * @param columns new inventory table columns
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#columns
+     */
     public SettingsBuilder inventoryColumns(CardAttribute... columns)
     {
         inventoryColumns = Arrays.asList(columns);
         return this;
     }
 
+    /**
+     * Change the background color of the card image panel.
+     * 
+     * @param background new color behind cards
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#background
+     */
     public SettingsBuilder inventoryBackground(Color background)
     {
         inventoryBackground = background;
         return this;
     }
 
+    /**
+     * Change the inventory table stripe color.
+     * 
+     * @param color new stripe color
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#stripe
+     */
     public SettingsBuilder inventoryStripe(Color stripe)
     {
         inventoryStripe = stripe;
         return this;
     }
 
+    /**
+     * Change the number of recent files to remember.
+     * 
+     * @param count new number of recents
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.RecentsSettings#count
+     */
     public SettingsBuilder recentsCount(int count)
     {
         recentsCount = count;
         return this;
     }
 
+    /**
+     * Change the recently-edited files.
+     * 
+     * @param files files that were recently edited
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.RecentsSettings#files
+     */
     public SettingsBuilder recentsFiles(List<String> files)
     {
         recentsFiles = new ArrayList<>(files);
         return this;
     }
 
+    /**
+     * Change the recently-edited files.
+     * 
+     * @param files files that were recently edited
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.RecentsSettings#files
+     */
     public SettingsBuilder recentsFiles(String... files)
     {
         recentsFiles = Arrays.asList(files);
         return this;
     }
 
+    /**
+     * Change the number of cards to show in white- or blacklists in
+     * category editors.
+     * 
+     * @param count new number of cards to show
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.CategoriesSettings#explicits
+     */
     public SettingsBuilder explicits(int count)
     {
         explicits = count;
         return this;
     }
 
+    /**
+     * Change the preset categories.
+     * 
+     * @param categories new list of preset categories
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings.CategoriesSettings#presets
+     */
     public SettingsBuilder presetCategories(List<CategorySpec> categories)
     {
         presetCategories = categories.stream().map(CategorySpec::new).collect(Collectors.toList());
         return this;
     }
 
+    /**
+     * Change the preset categories.
+     * 
+     * @param categories new list of preset categories
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings.CategoriesSettings#presets
+     */
     public SettingsBuilder presetCategories(CategorySpec... categories)
     {
         presetCategories = Arrays.stream(categories).map(CategorySpec::new).collect(Collectors.toList());
         return this;
     }
 
+    /**
+     * Add a preset category.
+     * 
+     * @param category category to add
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.CategoriesSettings#presets
+     */
     public SettingsBuilder addPresetCategory(CategorySpec category)
     {
         presetCategories.add(new CategorySpec(category));
         return this;
     }
 
+    /**
+     * Change the number of rows of cards to display in categories.
+     * 
+     * @param rows new number of rows
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.CategoriesSettings#rows
+     */
     public SettingsBuilder categoryRows(int rows)
     {
         categoryRows = rows;
         return this;
     }
 
+    /**
+     * Change the information about cards to show in editor tables.
+     * 
+     * @param columns new columns in editor tables
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings#columns
+     */
     public SettingsBuilder editorColumns(List<CardAttribute> columns)
     {
         editorColumns = new ArrayList<>(columns);
         return this;
     }
 
+    /**
+     * Change the information about cards to show in editor tables.
+     * 
+     * @param columns new columns in editor tables
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings#columns
+     */
     public SettingsBuilder editorColumns(CardAttribute... columns)
     {
         editorColumns = Arrays.asList(columns);
         return this;
     }
 
+    /**
+     * Change the stripe color for editor tables.
+     * 
+     * @param stripe new stripe color
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings#stripe
+     */
     public SettingsBuilder editorStripe(Color stripe)
     {
         editorStripe = stripe;
         return this;
     }
 
+    /**
+     * Change the starting hand size for hand analysis.
+     * 
+     * @param size new starting hand size
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.HandSettings#size
+     */
     public SettingsBuilder handSize(int size)
     {
         handSize = size;
         return this;
     }
 
+    /**
+     * Change the rounding mode for hand statistics. The choices are:
+     * <ul>
+     * <li>No rounding: Display numbers up to two decimal places
+     * <li>Round to nearest: round to the nearest integer
+     * <li>Truncate: Round down to the nearest integer
+     * </ul>
+     * 
+     * @param rounding new rounding mode
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings.HandSettings#rounding
+     */
     public SettingsBuilder handRounding(String rounding)
     {
         handRounding = rounding;
         return this;
     }
 
+    /**
+     * Background color of sample hand.
+     * 
+     * @param background new background color
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings.HandSettings#background
+     */
     public SettingsBuilder handBackground(Color background)
     {
         handBackground = background;
         return this;
     }
 
+    /**
+     * Change the starting directory for file choosers.
+     * 
+     * @param dir new starting directory
+     * @return this SettingsBuilder
+     * @see Settings#cwd
+     */
     public SettingsBuilder cwd(String dir)
     {
         cwd = dir;

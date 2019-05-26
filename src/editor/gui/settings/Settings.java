@@ -79,7 +79,7 @@ public final class Settings
         }
 
         /**
-         * @return The full path name of the inventory file, i.e.
+         * @return the full path name of the inventory file, i.e.
          * [@{link #location}]/[{@link #file}].
          */
         public String path()
@@ -88,7 +88,7 @@ public final class Settings
         }
 
         /**
-         * @return The full URL of the latest inventory file without .zip, i.e.
+         * @return the full URL of the latest inventory file without .zip, i.e.
          * [{@link #source}]/[{@link file}].
          */
         public String url()
@@ -97,7 +97,7 @@ public final class Settings
         }
 
         /**
-         * @return The full URL of the latest inventory version, i.e.
+         * @return the full URL of the latest inventory version, i.e.
          * [{@link #source}]/[{@link #versionFile}].
          */
         public String versionSite()
