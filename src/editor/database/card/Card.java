@@ -59,8 +59,15 @@ public abstract class Card
      */
     public static final String THIS = "~";
 
+    /**
+     * User-defined card tags.
+     */
     public static final Map<Card, Set<String>> tags = new HashMap<>();
 
+    /**
+     * Set of all user-defined card tags among all cards.
+     * @see #tags
+     */
     public static Set<String> tags()
     {
         return tags.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
