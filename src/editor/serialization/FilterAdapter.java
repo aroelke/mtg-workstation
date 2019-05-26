@@ -1,4 +1,4 @@
-package editor.filter;
+package editor.serialization;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -9,6 +9,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+
+import editor.filter.Filter;
+import editor.filter.FilterAttribute;
 
 /**
  * This class serializes a {@link Filter} to and deserializes from JSON format.

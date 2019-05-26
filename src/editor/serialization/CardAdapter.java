@@ -1,4 +1,4 @@
-package editor.database.card;
+package editor.serialization;
 
 import java.lang.reflect.Type;
 
@@ -10,8 +10,17 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import editor.database.card.Card;
 import editor.gui.MainFrame;
 
+/**
+ * A JSON serializer and deserializer for {@link Card} using its
+ * {@link Card#multiverseid()}.  Since this doesn't serialize the fields of
+ * Card itself, it is intended to be used to serialize structures containing
+ * them after the database has been loaded.
+ * 
+ * @author Alec Roelke
+ */
 public class CardAdapter implements JsonSerializer<Card>, JsonDeserializer<Card>
 {
     @Override

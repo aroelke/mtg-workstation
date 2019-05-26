@@ -95,20 +95,16 @@ import com.jidesoft.plaf.LookAndFeelFactory;
 
 import editor.collection.CardList;
 import editor.collection.Inventory;
-import editor.collection.deck.CategoryAdapter;
 import editor.collection.deck.CategorySpec;
 import editor.collection.export.CardListFormat;
 import editor.collection.export.DelimitedCardListFormat;
 import editor.collection.export.TextCardListFormat;
 import editor.database.card.Card;
-import editor.database.card.CardAdapter;
-import editor.database.characteristics.AttributeAdapter;
 import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.Symbol;
 import editor.filter.Filter;
-import editor.filter.FilterAdapter;
 import editor.filter.FilterAttribute;
 import editor.filter.leaf.TextFilter;
 import editor.gui.display.CardImagePanel;
@@ -131,6 +127,10 @@ import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
 import editor.gui.settings.SettingsBuilder;
 import editor.gui.settings.SettingsDialog;
+import editor.serialization.AttributeAdapter;
+import editor.serialization.CardAdapter;
+import editor.serialization.CategoryAdapter;
+import editor.serialization.FilterAdapter;
 import editor.util.ColorAdapter;
 import editor.util.MenuListenerFactory;
 import editor.util.MouseListenerFactory;
@@ -180,13 +180,13 @@ public class MainFrame extends JFrame
          * If the cell is rendered using a JLabel, make that JLabel bold.  Otherwise, just use
          * the default renderer.
          *
-         * @param table      #JTable to render for
-         * @param value      value being rendered
+         * @param table {@link JTable} to render for
+         * @param value value being rendered
          * @param isSelected whether or not the cell is selected
-         * @param hasFocus   whether or not the table has focus
-         * @param row        row of the cell being rendered
-         * @param column     column of the cell being rendered
-         * @return The #Component responsible for rendering the table cell.
+         * @param hasFocus whether or not the table has focus
+         * @param row row of the cell being rendered
+         * @param column column of the cell being rendered
+         * @return The {@link Component} responsible for rendering the table cell.
          */
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
@@ -221,6 +221,9 @@ public class MainFrame extends JFrame
      * Maximum height that the advanced filter editor panel can attain before scrolling.
      */
     public static final int MAX_FILTER_HEIGHT = 300;
+    /**
+     * Serializer for saving and loading external information.
+     */
     public static final Gson SERIALIZER = new GsonBuilder()
         .registerTypeAdapter(CategorySpec.class, new CategoryAdapter())
         .registerTypeHierarchyAdapter(Filter.class, new FilterAdapter())

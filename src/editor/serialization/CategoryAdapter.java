@@ -1,4 +1,4 @@
-package editor.collection.deck;
+package editor.serialization;
 
 import java.awt.Color;
 import java.lang.reflect.Type;
@@ -12,9 +12,15 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import editor.collection.deck.CategorySpec;
 import editor.filter.Filter;
 import editor.gui.MainFrame;
 
+/**
+ * A JSON serializer and deserializer for {@link CategorySpec}.
+ * 
+ * @author Alec Roelke
+ */
 public class CategoryAdapter implements JsonSerializer<CategorySpec>, JsonDeserializer<CategorySpec>
 {
     @Override

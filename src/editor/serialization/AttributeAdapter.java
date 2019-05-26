@@ -1,4 +1,4 @@
-package editor.database.characteristics;
+package editor.serialization;
 
 import java.lang.reflect.Type;
 
@@ -10,6 +10,14 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import editor.database.characteristics.CardAttribute;
+
+/**
+ * A JSON serializer and deserializer for {@link CardAttribute}.  Basically
+ * just uses its {@link CardAttribute#toString()} result for readability.
+ * 
+ * @author Alec Roelke
+ */
 public class AttributeAdapter implements JsonSerializer<CardAttribute>, JsonDeserializer<CardAttribute>
 {
     @Override

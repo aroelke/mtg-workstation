@@ -11,6 +11,9 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+/**
+ * This class serializes {@link Color} using its {@link Color#getRGB()} value.
+ */
 public class ColorAdapter implements JsonSerializer<Color>, JsonDeserializer<Color>
 {
     @Override
