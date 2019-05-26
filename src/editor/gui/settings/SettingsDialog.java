@@ -525,7 +525,7 @@ public class SettingsDialog extends JDialog
         explicitsPanel.add(new JLabel("Blacklist/Whitelist rows to display:"));
         explicitsPanel.add(Box.createHorizontalStrut(5));
         explicitsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor.explicits));
+        explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor.categories.explicits));
         explicitsPanel.add(explicitsSpinner);
         explicitsPanel.setMaximumSize(explicitsPanel.getPreferredSize());
         explicitsPanel.setAlignmentX(LEFT_ALIGNMENT);

@@ -102,7 +102,7 @@ public class SettingsBuilder
         recentsFiles = original.editor.recents.files;
         presetCategories = new ArrayList<>(original.editor.categories.presets.stream().map(CategorySpec::new).collect(Collectors.toList()));
         categoryRows = original.editor.categories.rows;
-        explicits = original.editor.explicits;
+        explicits = original.editor.categories.explicits;
         editorColumns = original.editor.columns;
         editorStripe = original.editor.stripe;
         handSize = original.editor.hand.size;

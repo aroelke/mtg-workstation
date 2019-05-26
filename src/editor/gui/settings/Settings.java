@@ -10,21 +10,45 @@ import java.util.Objects;
 import editor.collection.deck.CategorySpec;
 import editor.database.characteristics.CardAttribute;
 
+/**
+ * Structure containing global settings.  This structure consists of immutable
+ * members and sub-structures and should be created using
+ * {@link SettingsBuilder}.
+ * 
+ * @author Alec Roelke
+ */
 public final class Settings
 {
+    /**
+     * Sub-structure containing global inventory and card settings.
+     * 
+     * @author Alec Roelke
+     */
     public static final class InventorySettings
     {
+        /** Site containing the inventory to download. */
         public final String source;
+        /** Actual inventory file to download (without .zip). */
         public final String file;
+        /** File name containing latest inventory version. */
         public final String versionFile;
+        /** Version of the stored inventory. */
         public final String version;
+        /** Directory to store inventory file in. */
         public final String location;
+        /** Directory to store card images in. */
         public final String scans;
+        /** File to store tags in. */
         public final String tags;
+        /** Check for inventory update on startup or don't. */
         public final boolean update;
+        /** Show warnings from loading inventory. */
         public final boolean warn;
+        /** Card attributes to show in inventory table. */
         public final List<CardAttribute> columns;
+        /** Background color of card image panel. */
         public final Color background;
+        /** Stripe color of inventory table. */
         public final Color stripe;
 
         protected InventorySettings(String source,
@@ -54,16 +78,28 @@ public final class Settings
             this.stripe = stripe;
         }
 
+        /**
+         * @return The full path name of the inventory file, i.e.
+         * [@{link #location}]/[{@link #file}].
+         */
         public String path()
         {
             return location + File.separator + file;
         }
 
+        /**
+         * @return The full URL of the latest inventory file without .zip, i.e.
+         * [{@link #source}]/[{@link file}].
+         */
         public String url()
         {
             return source + file;
         }
 
+        /**
+         * @return The full URL of the latest inventory version, i.e.
+         * [{@link #source}]/[{@link #versionFile}].
+         */
         public String versionSite()
         {
             return source + versionFile;
@@ -95,11 +131,24 @@ public final class Settings
         }
     }
 
+    /**
+     * Sub-structure containing settings for the editor frames.  It has some
+     * of its own sub-structures that are also immutable.
+     * 
+     * @author Alec Roelke
+     */
     public static final class EditorSettings
     {
+        /**
+         * Sub-structure containing information about recently-edited files.
+         * 
+         * @author Alec Roelke
+         */
         public static final class RecentsSettings
         {
+            /** Number of recent files to store. */
             public final int count;
+            /** List of recently-edited files. */
             public final List<String> files;
 
             protected RecentsSettings(int count, List<String> files)
@@ -129,15 +178,25 @@ public final class Settings
             }
         }
 
+        /**
+         * Sub-structure containing settings for category editing.
+         * 
+         * @author Alec Roelke
+         */
         public static final class CategoriesSettings
         {
+            /** Preset categories for quickly adding to decks. */
             public final List<CategorySpec> presets;
+            /** Max number of rows to display cards in category tables. */
             public final int rows;
+            /** Number of rows to show in white- or blacklists. */
+            public final int explicits;
 
-            protected CategoriesSettings(List<CategorySpec> presets, int rows)
+            protected CategoriesSettings(List<CategorySpec> presets, int rows, int explicits)
             {
                 this.presets = Collections.unmodifiableList(new ArrayList<>(presets));
                 this.rows = rows;
+                this.explicits = explicits;
             }
 
             @Override
@@ -151,20 +210,29 @@ public final class Settings
                     return false;
 
                 CategoriesSettings o = (CategoriesSettings)other;
-                return presets.equals(o.presets) && rows == o.rows;
+                return presets.equals(o.presets) && rows == o.rows && explicits == o.explicits;
             }
 
             @Override
             public int hashCode()
             {
-                return Objects.hash(presets, rows);
+                return Objects.hash(presets, rows, explicits);
             }
         }
 
+        /**
+         * Sub-structure containing settings for displaying information about
+         * opening hands.
+         * 
+         * @author Alec Roelke
+         */
         public static final class HandSettings
         {
+            /** Initial size of opening hands before mulligans. */
             public final int size;
+            /** How to round statistics (nearest, truncate, or don't). */
             public final String rounding;
+            /** Background color for sample hand images. */
             public final Color background;
 
             protected HandSettings(int size, String rounding, Color background)
@@ -195,11 +263,15 @@ public final class Settings
             }
         }
 
+        /** @see RecentsSettings */
         public final RecentsSettings recents;
-        public final int explicits;
+        /** @see CategoriesSettings */
         public final CategoriesSettings categories;
+        /** Card attributes to show in editor tables. */
         public final List<CardAttribute> columns;
+        /** Stripe color of editor tables. */
         public final Color stripe;
+        /** @see HandSettings */
         public final HandSettings hand;
 
         protected EditorSettings(int recentsCount, List<String> recentsFiles,
@@ -209,8 +281,7 @@ public final class Settings
                                  int handSize, String handRounding, Color handBackground)
         {
             this.recents = new RecentsSettings(recentsCount, recentsFiles);
-            this.explicits = explicits;
-            this.categories = new CategoriesSettings(presetCategories, categoryRows);
+            this.categories = new CategoriesSettings(presetCategories, categoryRows, explicits);
             this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
             this.stripe = stripe;
             this.hand = new HandSettings(handSize, handRounding, handBackground);
@@ -228,7 +299,6 @@ public final class Settings
             
             EditorSettings o = (EditorSettings)other;
             return recents.equals(o.recents) &&
-                   explicits == o.explicits &&
                    categories.equals(o.categories) &&
                    columns.equals(o.columns) &&
                    stripe.equals(o.stripe) &&
@@ -238,12 +308,15 @@ public final class Settings
         @Override
         public int hashCode()
         {
-            return Objects.hash(recents, explicits, categories, columns, stripe, hand);
+            return Objects.hash(recents, categories, columns, stripe, hand);
         }
     }
 
+    /** @see InventorySettings */
     public final InventorySettings inventory;
+    /** @see EditorSettings */
     public final EditorSettings editor;
+    /** Initial directory of file choosers. */
     public final String cwd;
 
     protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, String inventoryVersion, String inventoryLocation, String inventoryScans, String inventoryTags, boolean inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, String cwd)
