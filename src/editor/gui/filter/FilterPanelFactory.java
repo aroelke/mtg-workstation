@@ -109,7 +109,7 @@ public interface FilterPanelFactory
      * @return a new #FilterEditorPanel corresponding to the given type with
      * its fields filled out with default values.
      */
-    static FilterEditorPanel<?> createFilterPanel(FilterAttribute type)
+    public static FilterEditorPanel<?> createFilterPanel(FilterAttribute type)
     {
         if (type.equals(FilterAttribute.DEFAULTS))
             return new DefaultsFilterPanel();
