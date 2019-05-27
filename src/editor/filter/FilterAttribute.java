@@ -1,6 +1,7 @@
 package editor.filter;
 
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -116,7 +117,12 @@ public enum FilterAttribute
         return Arrays.stream(values()).filter((f) -> f.filter != null).toArray(FilterAttribute[]::new);
     }
 
-    public static FilterAttribute fromString(String attribute)
+    /**
+     * @param attribute string to parse
+     * @return a FilterAttribute corresponding to the given string
+     * @throws NoSuchElementException if there is no such FilterAttribute
+     */
+    public static FilterAttribute fromString(String attribute) throws NoSuchElementException
     {
         return Arrays.stream(values()).filter((a) -> a.toString().equalsIgnoreCase(attribute)).findAny().get();
     }
