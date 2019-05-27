@@ -1,16 +1,27 @@
 package editor.filter;
 
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import editor.database.card.Card;
-import editor.filter.leaf.*;
-import editor.filter.leaf.options.multi.*;
+import editor.filter.leaf.BinaryFilter;
+import editor.filter.leaf.ColorFilter;
+import editor.filter.leaf.FilterLeaf;
+import editor.filter.leaf.ManaCostFilter;
+import editor.filter.leaf.NumberFilter;
+import editor.filter.leaf.TextFilter;
+import editor.filter.leaf.TypeLineFilter;
+import editor.filter.leaf.VariableNumberFilter;
+import editor.filter.leaf.options.multi.CardTypeFilter;
+import editor.filter.leaf.options.multi.LegalityFilter;
+import editor.filter.leaf.options.multi.SubtypeFilter;
+import editor.filter.leaf.options.multi.SupertypeFilter;
+import editor.filter.leaf.options.multi.TagsFilter;
 import editor.filter.leaf.options.single.BlockFilter;
 import editor.filter.leaf.options.single.ExpansionFilter;
 import editor.filter.leaf.options.single.LayoutFilter;
 import editor.filter.leaf.options.single.RarityFilter;
-
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * This enum represents an attribute by which a card can be filtered.
@@ -81,11 +92,17 @@ public enum FilterAttribute
      * Create a new filter that filters the specified attribute.
      *
      * @param attribute attribute to filter by
-     * @return a {@link FilterLeaf} that filters by the chosen attribute
+     * @return a {@link Filter} that filters by the chosen attribute
      */
-    public static FilterLeaf<?> createFilter(FilterAttribute attribute)
+    public static Filter createFilter(FilterAttribute attribute)
     {
-        return attribute.create();
+        switch (attribute)
+        {
+        case GROUP:
+            return new FilterGroup();
+        default:
+            return attribute.create();
+        }
     }
 
     /**
@@ -97,6 +114,11 @@ public enum FilterAttribute
     public static FilterAttribute[] filterableValues()
     {
         return Arrays.stream(values()).filter((f) -> f.filter != null).toArray(FilterAttribute[]::new);
+    }
+
+    public static FilterAttribute fromString(String attribute)
+    {
+        return Arrays.stream(values()).filter((a) -> a.toString().equalsIgnoreCase(attribute)).findAny().get();
     }
 
     /**

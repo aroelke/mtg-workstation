@@ -1,7 +1,6 @@
 package editor.serialization;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -29,7 +28,7 @@ public class FilterAdapter implements JsonSerializer<Filter>, JsonDeserializer<F
     @Override
     public Filter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        Filter filter = FilterAttribute.createFilter(Arrays.stream(FilterAttribute.values()).filter((a) -> a.toString().equals(json.getAsJsonObject().get("type").getAsString())).findAny().get());
+        Filter filter = FilterAttribute.createFilter(FilterAttribute.fromString(json.getAsJsonObject().get("type").getAsString()));
         filter.fromJsonObject(json.getAsJsonObject());
         return filter;
     }
