@@ -176,6 +176,9 @@ public enum FilterAttribute
         filter = f;
     }
 
+    /**
+     * @return a new {@link FilterLeaf} that filters this attribute.
+     */
     public FilterLeaf<?> create()
     {
         return filter.apply(this);
