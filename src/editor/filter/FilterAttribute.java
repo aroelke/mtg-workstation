@@ -25,7 +25,8 @@ import editor.filter.leaf.options.single.LayoutFilter;
 import editor.filter.leaf.options.single.RarityFilter;
 
 /**
- * This enum represents an attribute by which a card can be filtered.
+ * This enum represents an attribute by which a card can be filtered.  It
+ * can be used to produce empty appropriate filters with {@link #get()}.
  *
  * @author Alec Roelke
  */
@@ -188,6 +189,7 @@ public enum FilterAttribute implements Supplier<FilterLeaf<?>>
         filter = f;
     }
 
+    @Override
     public FilterLeaf<?> get()
     {
         return filter.apply(this);
