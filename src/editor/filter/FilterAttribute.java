@@ -1,23 +1,35 @@
 package editor.filter;
 
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 import editor.database.card.Card;
-import editor.filter.leaf.*;
-import editor.filter.leaf.options.multi.*;
+import editor.filter.leaf.BinaryFilter;
+import editor.filter.leaf.ColorFilter;
+import editor.filter.leaf.FilterLeaf;
+import editor.filter.leaf.ManaCostFilter;
+import editor.filter.leaf.NumberFilter;
+import editor.filter.leaf.TextFilter;
+import editor.filter.leaf.TypeLineFilter;
+import editor.filter.leaf.VariableNumberFilter;
+import editor.filter.leaf.options.multi.CardTypeFilter;
+import editor.filter.leaf.options.multi.LegalityFilter;
+import editor.filter.leaf.options.multi.SubtypeFilter;
+import editor.filter.leaf.options.multi.SupertypeFilter;
+import editor.filter.leaf.options.multi.TagsFilter;
 import editor.filter.leaf.options.single.BlockFilter;
 import editor.filter.leaf.options.single.ExpansionFilter;
 import editor.filter.leaf.options.single.LayoutFilter;
 import editor.filter.leaf.options.single.RarityFilter;
-
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * This enum represents an attribute by which a card can be filtered.
  *
  * @author Alec Roelke
  */
-public enum FilterAttribute
+public enum FilterAttribute implements Supplier<FilterLeaf<?>>
 {
     /**
      * Filter by artist name.
@@ -141,7 +153,7 @@ public enum FilterAttribute
      */
     public static FilterLeaf<?> createFilter(FilterAttribute attribute)
     {
-        return attribute.create();
+        return attribute.get();
     }
 
     /**
@@ -176,7 +188,7 @@ public enum FilterAttribute
         filter = f;
     }
 
-    public FilterLeaf<?> create()
+    public FilterLeaf<?> get()
     {
         return filter.apply(this);
     }
