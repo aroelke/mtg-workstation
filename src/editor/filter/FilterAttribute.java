@@ -3,6 +3,7 @@ package editor.filter;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import editor.database.card.Card;
@@ -25,11 +26,12 @@ import editor.filter.leaf.options.single.LayoutFilter;
 import editor.filter.leaf.options.single.RarityFilter;
 
 /**
- * This enum represents an attribute by which a card can be filtered.
+ * This enum represents an attribute by which a card can be filtered.  It
+ * can be used to produce empty appropriate filters with {@link #get()}.
  *
  * @author Alec Roelke
  */
-public enum FilterAttribute
+public enum FilterAttribute implements Supplier<FilterLeaf<?>>
 {
     /** Filter by artist name. */
     ARTIST("Artist", (a) -> new TextFilter(a, Card::artist)),
@@ -97,13 +99,7 @@ public enum FilterAttribute
      */
     public static Filter createFilter(FilterAttribute attribute)
     {
-        switch (attribute)
-        {
-        case GROUP:
-            return new FilterGroup();
-        default:
-            return attribute.create();
-        }
+        return attribute.get();
     }
 
     /**
@@ -148,10 +144,8 @@ public enum FilterAttribute
         filter = f;
     }
 
-    /**
-     * @return a new {@link FilterLeaf} that filters this attribute.
-     */
-    public FilterLeaf<?> create()
+    @Override
+    public FilterLeaf<?> get()
     {
         return filter.apply(this);
     }
