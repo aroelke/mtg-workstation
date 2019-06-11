@@ -48,13 +48,13 @@ public interface FilterSerializer
             case PRINTED_TEXT:
             case ARTIST:
             case PRINTED_TYPES:
-                TextFilter text = (TextFilter)type.create();
+                TextFilter text = (TextFilter)type.get();
                 text.contain = (Containment)in.readObject();
                 text.regex = in.readBoolean();
                 text.text = in.readUTF();
                 return text;
             case LAYOUT:
-                LayoutFilter layout = (LayoutFilter)type.create();
+                LayoutFilter layout = (LayoutFilter)type.get();
                 layout.contain = (Containment)in.readObject();
                 n = in.readInt();
                 for (int i = 0; i < n; i++)
@@ -64,19 +64,19 @@ public interface FilterSerializer
                 }
                 return layout;
             case MANA_COST:
-                ManaCostFilter mana = (ManaCostFilter)type.create();
+                ManaCostFilter mana = (ManaCostFilter)type.get();
                 mana.contain = (Containment)in.readObject();
                 mana.cost = ManaCost.parseManaCost(in.readUTF());
                 return mana;
             case CMC:
             case CARD_NUMBER:
-                NumberFilter number = (NumberFilter)type.create();
+                NumberFilter number = (NumberFilter)type.get();
                 number.operand = in.readDouble();
                 number.operation = (Comparison)in.readObject();
                 return number;
             case COLOR:
             case COLOR_IDENTITY:
-                ColorFilter color = (ColorFilter)type.create();
+                ColorFilter color = (ColorFilter)type.get();
                 color.contain = (Containment)in.readObject();
                 n = in.readInt();
                 for (int i = 0; i < n; i++)
@@ -84,7 +84,7 @@ public interface FilterSerializer
                 color.multicolored = in.readBoolean();
                 return color;
             case TYPE_LINE:
-                TypeLineFilter line = (TypeLineFilter)type.create();
+                TypeLineFilter line = (TypeLineFilter)type.get();
                 line.contain = (Containment)in.readObject();
                 line.line = in.readUTF();
                 return line;
@@ -93,7 +93,7 @@ public interface FilterSerializer
             case SUBTYPE:
             case BLOCK:
                 @SuppressWarnings("unchecked")
-                MultiOptionsFilter<String> string = (MultiOptionsFilter<String>)type.create();
+                MultiOptionsFilter<String> string = (MultiOptionsFilter<String>)type.get();
                 string.contain = (Containment)in.readObject();
                 n = in.readInt();
                 for (int i = 0; i < n; i++)
@@ -103,7 +103,7 @@ public interface FilterSerializer
                 }
                 return string;
             case EXPANSION:
-                ExpansionFilter expansion = (ExpansionFilter)type.create();
+                ExpansionFilter expansion = (ExpansionFilter)type.get();
                 expansion.contain = (Containment)in.readObject();
                 n = in.readInt();
                 for (int i = 0; i < n; i++)
@@ -121,7 +121,7 @@ public interface FilterSerializer
                 }
                 return expansion;
             case RARITY:
-                RarityFilter rarity = (RarityFilter)type.create();
+                RarityFilter rarity = (RarityFilter)type.get();
                 rarity.contain = (Containment)in.readObject();
                 n = in.readInt();
                 for (int i = 0; i < n; i++)
