@@ -11,11 +11,14 @@ import editor.database.characteristics.Rarity;
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
 import editor.filter.FilterGroup;
+import editor.filter.leaf.BinaryFilter;
 import editor.filter.leaf.ColorFilter;
 import editor.filter.leaf.ManaCostFilter;
 import editor.filter.leaf.NumberFilter;
 import editor.filter.leaf.TextFilter;
 import editor.filter.leaf.TypeLineFilter;
+import editor.filter.leaf.VariableNumberFilter;
+import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.filter.leaf.options.multi.MultiOptionsFilter;
 import editor.filter.leaf.options.single.ExpansionFilter;
 import editor.filter.leaf.options.single.LayoutFilter;
@@ -92,6 +95,7 @@ public interface FilterSerializer
             case CARD_TYPE:
             case SUBTYPE:
             case BLOCK:
+            case TAGS:
                 @SuppressWarnings("unchecked")
                 MultiOptionsFilter<String> string = (MultiOptionsFilter<String>)type.get();
                 string.contain = (Containment)in.readObject();
@@ -133,15 +137,25 @@ public interface FilterSerializer
             case POWER:
             case TOUGHNESS:
             case LOYALTY:
-                return null;
+                VariableNumberFilter stat = (VariableNumberFilter)type.get();
+                stat.operand = in.readDouble();
+                stat.operation = (Comparison)in.readObject();
+                stat.varies = in.readBoolean();
+                return stat;
             case FORMAT_LEGALITY:
-                return null;
-            case TAGS:
-                return null;
+                LegalityFilter legality = (LegalityFilter)type.get();
+                legality.contain = (Containment)in.readObject();
+                n = in.readInt();
+                for (int i = 0; i < n; i++)
+                {
+                    in.readBoolean(); // Should be true since strings are serializable
+                    legality.selected.add((String)in.readObject());
+                }
+                legality.restricted = in.readBoolean();
+                return legality;
             case NONE:
-                return null;
             case ANY:
-                return null;
+                return new BinaryFilter(in.readBoolean());
             case DEFAULTS: // Shouldn't actually show up
             default:
                 return null;

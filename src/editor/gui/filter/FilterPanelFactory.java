@@ -114,6 +114,6 @@ public interface FilterPanelFactory
         if (type.equals(FilterAttribute.DEFAULTS))
             return new DefaultsFilterPanel();
         else
-            return createFilterPanel(type.create());
+            return createFilterPanel(type.get());
     }
 }
