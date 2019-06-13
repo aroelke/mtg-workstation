@@ -28,7 +28,7 @@ import editor.util.Containment;
 
 public interface FilterDeserializer
 {
-    public static Filter readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+    public static Filter readExternal(ObjectInput in) throws ClassNotFoundException, IOException
     {
         FilterAttribute type = FilterAttribute.fromString(in.readUTF());
         if (type == FilterAttribute.GROUP)
