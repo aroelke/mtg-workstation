@@ -1,7 +1,7 @@
 package editor.serialization.legacy;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.ObjectInput;
 
 import editor.database.card.CardLayout;
 import editor.database.characteristics.Expansion;
@@ -28,7 +28,7 @@ import editor.util.Containment;
 
 public interface FilterDeserializer
 {
-    public static Filter readExternal(ObjectInputStream in) throws IOException, ClassNotFoundException
+    public static Filter readExternal(ObjectInput in) throws IOException, ClassNotFoundException
     {
         FilterAttribute type = FilterAttribute.fromString(in.readUTF());
         if (type == FilterAttribute.GROUP)
