@@ -26,7 +26,7 @@ import editor.filter.leaf.options.single.RarityFilter;
 import editor.util.Comparison;
 import editor.util.Containment;
 
-public interface FilterSerializer
+public interface FilterDeserializer
 {
     public static Filter readExternal(ObjectInputStream in) throws IOException, ClassNotFoundException
     {
