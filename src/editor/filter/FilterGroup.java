@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 
 import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
+import editor.serialization.legacy.FilterDeserializer;
 
 /**
  * This class represents a group of filters that are ANDed or ORed together.
@@ -186,7 +187,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
             String code = in.readUTF();
             for (FilterAttribute attribute: FilterAttribute.values())
             {
-                if (code.equals(CategorySpec.CODES.get(attribute)))
+                if (code.equals(FilterDeserializer.CODES.get(attribute)))
                 {
                     if (attribute == FilterAttribute.GROUP)
                         child = new FilterGroup();
@@ -213,7 +214,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
         out.writeInt(children.size());
         for (Filter child : children)
         {
-            out.writeUTF(CategorySpec.CODES.get(child.type()));
+            out.writeUTF(FilterDeserializer.CODES.get(child.type()));
             child.writeExternal(out);
         }
     }
