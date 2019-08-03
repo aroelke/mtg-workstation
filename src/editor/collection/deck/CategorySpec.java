@@ -1,9 +1,7 @@
 package editor.collection.deck;
 
 import java.awt.Color;
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,7 +12,6 @@ import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
 import editor.filter.FilterGroup;
-import editor.gui.MainFrame;
 import editor.serialization.legacy.FilterDeserializer;
 
 /**
@@ -24,7 +21,7 @@ import editor.serialization.legacy.FilterDeserializer;
  *
  * @author Alec Roelke
  */
-public class CategorySpec implements Externalizable
+public class CategorySpec
 {
     /**
      * Name of the category.
@@ -245,39 +242,6 @@ public class CategorySpec implements Externalizable
         return (filter.test(c) || whitelist.contains(c)) && !blacklist.contains(c);
     }
 
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        int n;
-
-        blacklist.clear();
-        whitelist.clear();
-
-        name = in.readUTF();
-        color = (Color)in.readObject();
-
-        String code = in.readUTF();
-        for (FilterAttribute type: FilterAttribute.values())
-        {
-            if (code.equals(FilterDeserializer.CODES.get(type)))
-            {
-                if (type == FilterAttribute.GROUP)
-                    filter = new FilterGroup();
-                else
-                    filter = FilterAttribute.createFilter(type);
-                filter.readExternal(in);
-                break;
-            }
-        }
-
-        n = in.readInt();
-        for (int i = 0; i < n; i++)
-            blacklist.add(MainFrame.inventory().get(in.readLong()));
-        n = in.readInt();
-        for (int i = 0; i < n; i++)
-            whitelist.add(MainFrame.inventory().get(in.readLong()));
-    }
-
     /**
      * Set the Color of the category, and alert any listeners of this event.
      *
@@ -309,7 +273,6 @@ public class CategorySpec implements Externalizable
         name = n;
     }
 
-    @Override
     public void writeExternal(ObjectOutput out) throws IOException
     {
         out.writeUTF(name);

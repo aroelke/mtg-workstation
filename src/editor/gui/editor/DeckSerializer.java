@@ -35,6 +35,7 @@ import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
 import editor.gui.MainFrame;
+import editor.serialization.legacy.CategoryDeserializer;
 import editor.util.ProgressInputStream;
 
 /**
@@ -332,8 +333,7 @@ public class DeckSerializer
         n = in.readInt();
         for (int i = 0; i < n; i++)
         {
-            CategorySpec spec = new CategorySpec();
-            spec.readExternal(in);
+            CategorySpec spec = CategoryDeserializer.readExternal(in);
             d.addCategory(spec, in.readInt());
         }
         return d;
