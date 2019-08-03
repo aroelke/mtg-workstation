@@ -3,6 +3,7 @@ package editor.serialization.legacy;
 import java.io.IOException;
 import java.io.ObjectInput;
 
+import editor.collection.deck.CategorySpec;
 import editor.database.card.CardLayout;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.ManaCost;
@@ -30,7 +31,16 @@ public interface FilterDeserializer
 {
     public static Filter readExternal(ObjectInput in) throws ClassNotFoundException, IOException
     {
-        FilterAttribute type = FilterAttribute.fromString(in.readUTF());
+        FilterAttribute type = null;
+        String code = in.readUTF();
+        for (FilterAttribute attribute: FilterAttribute.values())
+        {
+            if (code.equals(CategorySpec.CODES.get(attribute)))
+            {
+                type = attribute;
+                break;
+            }
+        }
         if (type == FilterAttribute.GROUP)
         {
             FilterGroup filter = new FilterGroup();
