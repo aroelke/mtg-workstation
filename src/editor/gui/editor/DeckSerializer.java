@@ -5,15 +5,12 @@ import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.Window;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +30,6 @@ import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
 import editor.serialization.legacy.DeckDeserializer;
-import editor.util.ProgressInputStream;
 
 /**
  * This class controls the serialization and deserialization of a #Deck.  It can
@@ -57,7 +53,7 @@ public class DeckSerializer
      * 2. Switched changelog from read/writeObject to read/writeUTF
      * 3. Allow multiple sideboards
      */
-    private static final long SAVE_VERSION = 3;
+    public static final long SAVE_VERSION = 3;
 
     /**
      * This class is a worker for loading a deck.
@@ -103,41 +99,10 @@ public class DeckSerializer
         @Override
         protected Void doInBackground() throws Exception
         {
-            long version;
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
-            {
-                version = ois.readLong();
-            }
-            // Assume that high bits in the first 64 bits are used by the serialization of a Deck
-            // object and that SAVE_VERSION will never be that high.
-            if (version > SAVE_VERSION)
-                version = 0;
-
-            try (ProgressInputStream pis = new ProgressInputStream(new FileInputStream(file)))
-            {
-                pis.addPropertyChangeListener((e) -> process(Collections.singletonList(((Long)e.getNewValue()).intValue())));
-                try (ObjectInputStream ois = new ObjectInputStream(pis))
-                {
-                    if (version > 0)
-                        ois.readLong(); // Throw out first 64 bits that have already been read
-                    deck = DeckDeserializer.readExternal(ois);
-                    if (version <= 2)
-                        sideboard.put("Sideboard", DeckDeserializer.readExternal(ois));
-                    else
-                    {
-                        int boards = ois.readInt();
-                        for (int i = 0; i < boards; i++)
-                        {
-                            String name = ois.readUTF();
-                            sideboard.put(name, DeckDeserializer.readExternal(ois));
-                        }
-                    }
-                    if (version < 2)
-                        changelog = (String)ois.readObject();
-                    else
-                        changelog = ois.readUTF();
-                }
-            }
+            DeckSerializer loaded = DeckDeserializer.readFile(file);
+            deck = loaded.deck;
+            sideboard = loaded.sideboard;
+            changelog = loaded.changelog;
             return null;
         }
 
@@ -266,10 +231,9 @@ public class DeckSerializer
      * 
      * @param f File to load from
      * @param parent parent window used to display errors
-     * @throws CancellationException if loading the deck was canceled
      * @throws DeckLoadException if there is already a loaded deck
      */
-    public void load(File f, Window parent) throws CancellationException, DeckLoadException
+    public void load(File f, Window parent) throws DeckLoadException
     {
         if (!deck.isEmpty())
             throw new DeckLoadException(file, "deck already loaded");
@@ -307,6 +271,7 @@ public class DeckSerializer
             reset();
             throw new DeckLoadException(file, e);
         }
+
         file = f;
     }
 
