@@ -2,7 +2,6 @@ package editor.serialization;
 
 import java.awt.Color;
 import java.lang.reflect.Type;
-import java.util.stream.Collectors;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -13,6 +12,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.gui.MainFrame;
 
@@ -28,8 +28,8 @@ public class CategoryAdapter implements JsonSerializer<CategorySpec>, JsonDeseri
     {
         JsonObject category = new JsonObject();
         category.addProperty("name", src.getName());
-        category.add("whitelist", context.serialize(src.getWhitelist().stream().map((c) -> c.multiverseid().get(0)).collect(Collectors.toSet())));
-        category.add("blacklist", context.serialize(src.getBlacklist().stream().map((c) -> c.multiverseid().get(0)).collect(Collectors.toSet())));
+        category.add("whitelist", context.serialize(src.getWhitelist()));
+        category.add("blacklist", context.serialize(src.getBlacklist()));
         category.add("color", context.serialize(src.getColor()));
         category.add("filter", context.serialize(src.getFilter()));
 
@@ -44,9 +44,9 @@ public class CategoryAdapter implements JsonSerializer<CategorySpec>, JsonDeseri
         CategorySpec category = new CategorySpec();
         category.setName(obj.get("name").getAsString());
         for (JsonElement element : obj.get("whitelist").getAsJsonArray())
-            category.include(MainFrame.inventory().get(element.getAsLong()));
+            category.include(context.deserialize(element, Card.class));
         for (JsonElement element : obj.get("blacklist").getAsJsonArray())
-            category.exclude(MainFrame.inventory().get(element.getAsLong()));
+            category.exclude(context.deserialize(element, Card.class));
         category.setColor(context.deserialize(obj.get("color"), Color.class));
         category.setFilter(context.deserialize(obj.get("filter"), Filter.class));
 
