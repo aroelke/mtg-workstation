@@ -12,6 +12,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
 
@@ -23,6 +24,7 @@ public class DeckAdapter implements JsonSerializer<Deck>, JsonDeserializer<Deck>
     public JsonElement serialize(Deck src, Type typeOfSrc, JsonSerializationContext context)
     {
         JsonObject deck = new JsonObject();
+
         JsonArray cards = new JsonArray();
         for (Card card : src)
         {
@@ -33,6 +35,15 @@ public class DeckAdapter implements JsonSerializer<Deck>, JsonDeserializer<Deck>
             cards.add(entry);
         }
         deck.add("cards", cards);
+
+        JsonArray categories = new JsonArray();
+        for (CategorySpec spec : src.categories())
+        {
+            JsonObject category = context.serialize(spec).getAsJsonObject();
+            category.addProperty("rank", src.getCategoryRank(spec.getName()));
+            categories.add(category);
+        }
+        deck.add("categories", categories);
         return deck;
     }
 
