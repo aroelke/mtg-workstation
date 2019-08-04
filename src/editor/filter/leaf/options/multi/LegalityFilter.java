@@ -1,7 +1,6 @@
 package editor.filter.leaf.options.multi;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -76,13 +75,6 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     public int hashCode()
     {
         return Objects.hash(contain, multifunction(), selected, restricted);
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        super.readExternal(in);
-        restricted = in.readBoolean();
     }
 
     /**

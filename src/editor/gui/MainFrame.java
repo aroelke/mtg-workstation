@@ -19,10 +19,12 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -131,6 +133,7 @@ import editor.serialization.AttributeAdapter;
 import editor.serialization.CardAdapter;
 import editor.serialization.CategoryAdapter;
 import editor.serialization.FilterAdapter;
+import editor.serialization.legacy.CategoryDeserializer;
 import editor.util.ColorAdapter;
 import editor.util.MenuListenerFactory;
 import editor.util.MouseListenerFactory;
@@ -1428,6 +1431,20 @@ public class MainFrame extends JFrame
         fileChooser.setMultiSelectionEnabled(false);
         fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Deck (*." + EXTENSION + ')', EXTENSION));
         fileChooser.setAcceptAllFileFilterUsed(true);
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File("presets"))))
+        {
+            int n = ois.readInt();
+            for (int i = 0; i < n; i++)
+            {
+                CategorySpec spec = CategoryDeserializer.readExternal(ois);
+                System.out.println(SERIALIZER.toJson(spec));
+            }
+        }
+        catch (IOException | ClassNotFoundException e)
+        {
+            System.err.println(e.getMessage());
+        }
 
         // Handle what happens when the window tries to close and when it opens.
         addWindowListener(new WindowAdapter()

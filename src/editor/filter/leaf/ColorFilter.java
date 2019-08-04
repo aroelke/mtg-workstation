@@ -1,7 +1,6 @@
 package editor.filter.leaf;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.HashSet;
 import java.util.List;
@@ -89,16 +88,6 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     public int hashCode()
     {
         return Objects.hash(type(), function(), colors, contain, multicolored);
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        contain = (Containment)in.readObject();
-        int n = in.readInt();
-        for (int i = 0; i < n; i++)
-            colors.add((ManaType)in.readObject());
-        multicolored = in.readBoolean();
     }
 
     /**

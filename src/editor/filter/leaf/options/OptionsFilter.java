@@ -1,7 +1,6 @@
 package editor.filter.leaf.options;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -75,21 +74,6 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
     public int hashCode()
     {
         return Objects.hash(type(), function(), contain, selected);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        contain = (Containment)in.readObject();
-        int n = in.readInt();
-        for (int i = 0; i < n; i++)
-        {
-            if (in.readBoolean())
-                selected.add((T)in.readObject());
-            else
-                selected.add(convertFromString(in.readUTF()));
-        }
     }
 
     @Override

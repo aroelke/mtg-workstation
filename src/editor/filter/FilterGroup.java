@@ -1,7 +1,6 @@
 package editor.filter;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +17,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
 import editor.serialization.legacy.FilterDeserializer;
 
@@ -174,31 +172,6 @@ public class FilterGroup extends Filter implements Iterable<Filter>
     public Iterator<Filter> iterator()
     {
         return children.iterator();
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        mode = (Mode)in.readObject();
-        int n = in.readInt();
-        for (int i = 0; i < n; i++)
-        {
-            Filter child;
-            String code = in.readUTF();
-            for (FilterAttribute attribute: FilterAttribute.values())
-            {
-                if (code.equals(FilterDeserializer.CODES.get(attribute)))
-                {
-                    if (attribute == FilterAttribute.GROUP)
-                        child = new FilterGroup();
-                    else
-                        child = FilterAttribute.createFilter(attribute);
-                    child.readExternal(in);
-                    children.add(child);
-                    break;
-                }
-            }
-        }
     }
 
     @Override

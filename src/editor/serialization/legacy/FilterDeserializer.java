@@ -5,7 +5,6 @@ import java.io.ObjectInput;
 import java.util.AbstractMap;
 import java.util.Map;
 
-import editor.collection.deck.CategorySpec;
 import editor.database.card.CardLayout;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.ManaCost;

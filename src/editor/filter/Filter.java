@@ -1,6 +1,7 @@
 package editor.filter;
 
-import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectOutput;
 import java.util.function.Predicate;
 
 import com.google.gson.JsonElement;
@@ -20,7 +21,7 @@ import editor.database.card.Card;
  *
  * @author Alec Roelke
  */
-public abstract class Filter implements Predicate<Card>, Externalizable
+public abstract class Filter implements Predicate<Card>
 {
     /**
      * Parent of this Filter in the tree (null if this is the root Filter).
@@ -92,4 +93,6 @@ public abstract class Filter implements Predicate<Card>, Externalizable
     {
         deserializeFields(object);
     }
+
+    public abstract void writeExternal(ObjectOutput out) throws IOException;
 }

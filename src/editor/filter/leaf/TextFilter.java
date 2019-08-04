@@ -1,7 +1,6 @@
 package editor.filter.leaf;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
@@ -141,14 +140,6 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     public int hashCode()
     {
         return Objects.hash(type(), function(), contain, regex, text);
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        contain = (Containment)in.readObject();
-        regex = in.readBoolean();
-        text = in.readUTF();
     }
 
     /**

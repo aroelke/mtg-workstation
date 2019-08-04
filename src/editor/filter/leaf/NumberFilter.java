@@ -1,7 +1,6 @@
 package editor.filter.leaf;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
@@ -101,13 +100,6 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
     public int hashCode()
     {
         return Objects.hash(type(), function(), operation, operand);
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        operand = in.readDouble();
-        operation = (Comparison)in.readObject();
     }
 
     @Override

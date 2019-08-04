@@ -1,7 +1,6 @@
 package editor.filter.leaf;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
@@ -82,13 +81,6 @@ public class VariableNumberFilter extends NumberFilter
     public int hashCode()
     {
         return Objects.hash(type(), function(), varies, variable, operation, operand);
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        super.readExternal(in);
-        varies = in.readBoolean();
     }
 
     /**

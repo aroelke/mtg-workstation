@@ -1,7 +1,6 @@
 package editor.filter.leaf;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
@@ -68,13 +67,6 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     public int hashCode()
     {
         return Objects.hash(type(), function(), contain, line);
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        contain = (Containment)in.readObject();
-        line = in.readUTF();
     }
 
     /**

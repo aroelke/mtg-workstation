@@ -1,7 +1,6 @@
 package editor.filter.leaf;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Objects;
 
@@ -65,13 +64,6 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
     public int hashCode()
     {
         return Objects.hash(type(), contain, cost);
-    }
-
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        contain = (Containment)in.readObject();
-        cost = ManaCost.parseManaCost(in.readUTF());
     }
 
     /**
