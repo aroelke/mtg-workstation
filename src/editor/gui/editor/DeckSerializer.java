@@ -8,13 +8,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,8 +32,7 @@ import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
-import editor.gui.MainFrame;
-import editor.serialization.legacy.CategoryDeserializer;
+import editor.serialization.legacy.DeckDeserializer;
 import editor.util.ProgressInputStream;
 
 /**
@@ -123,16 +120,16 @@ public class DeckSerializer
                 {
                     if (version > 0)
                         ois.readLong(); // Throw out first 64 bits that have already been read
-                    deck = readDeck(ois);
+                    deck = DeckDeserializer.readExternal(ois);
                     if (version <= 2)
-                        sideboard.put("Sideboard", readDeck(ois));
+                        sideboard.put("Sideboard", DeckDeserializer.readExternal(ois));
                     else
                     {
                         int boards = ois.readInt();
                         for (int i = 0; i < boards; i++)
                         {
                             String name = ois.readUTF();
-                            sideboard.put(name, readDeck(ois));
+                            sideboard.put(name, DeckDeserializer.readExternal(ois));
                         }
                     }
                     if (version < 2)
@@ -311,32 +308,6 @@ public class DeckSerializer
             throw new DeckLoadException(file, e);
         }
         file = f;
-    }
-
-    /**
-     * Read a deck from an object stream.
-     * 
-     * @param in input stream to read from
-     * @return the Deck that was read
-     */
-    private Deck readDeck(ObjectInput in) throws IOException, ClassNotFoundException
-    {
-        Deck d = new Deck();
-        int n = in.readInt();
-        for (int i = 0; i < n; i++)
-        {
-            Card card = MainFrame.inventory().get(in.readLong());
-            int count = in.readInt();
-            LocalDate added = (LocalDate)in.readObject();
-            d.add(card, count, added);
-        }
-        n = in.readInt();
-        for (int i = 0; i < n; i++)
-        {
-            CategorySpec spec = CategoryDeserializer.readExternal(in);
-            d.addCategory(spec, in.readInt());
-        }
-        return d;
     }
 
     /**
