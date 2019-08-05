@@ -91,7 +91,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import com.google.gson.JsonParser;
-import com.jidesoft.plaf.LookAndFeelFactory;
 
 import editor.collection.CardList;
 import editor.collection.Inventory;
