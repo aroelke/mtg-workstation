@@ -2,7 +2,6 @@ package editor.serialization;
 
 import java.awt.Color;
 import java.lang.reflect.Type;
-import java.util.Set;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -11,7 +10,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.reflect.TypeToken;
 
 import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;

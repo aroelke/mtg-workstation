@@ -1,6 +1,7 @@
 package editor.serialization;
 
 import java.lang.reflect.Type;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import com.google.gson.JsonArray;
@@ -50,6 +51,19 @@ public class DeckAdapter implements JsonSerializer<Deck>, JsonDeserializer<Deck>
     @Override
     public Deck deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        return null;
+        Deck d = new Deck();
+        JsonObject obj = json.getAsJsonObject();
+        for (JsonElement element : obj.get("cards").getAsJsonArray())
+        {
+            JsonObject entry = element.getAsJsonObject();
+            d.add(
+                context.deserialize(entry.get("card"), Card.class),
+                entry.get("count").getAsInt(),
+                LocalDate.parse(entry.get("date").getAsString(), FORMATTER)
+            );
+        }
+        for (JsonElement element : obj.get("categories").getAsJsonArray())
+            d.addCategory(context.deserialize(element, CategorySpec.class), element.getAsJsonObject().get("rank").getAsInt());
+        return d;
     }
 }
