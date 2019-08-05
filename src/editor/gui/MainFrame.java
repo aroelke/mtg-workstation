@@ -272,9 +272,9 @@ public class MainFrame extends JFrame
      */
     public static void main(String[] args)
     {
-        LookAndFeelFactory.setDefaultStyle(LookAndFeelFactory.VSNET_STYLE_WITHOUT_MENU);
-        LookAndFeelFactory.installDefaultLookAndFeel();
-        LookAndFeelFactory.installJideExtension();
+//        LookAndFeelFactory.setDefaultStyle(LookAndFeelFactory.VSNET_STYLE_WITHOUT_MENU);
+//        LookAndFeelFactory.installDefaultLookAndFeel();
+//        LookAndFeelFactory.installJideExtension();
 
         try
         {
