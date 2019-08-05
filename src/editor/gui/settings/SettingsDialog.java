@@ -195,6 +195,8 @@ public class SettingsDialog extends JDialog
     {
         if (!Card.tags.isEmpty())
             Files.writeString(Paths.get(settings.inventory.tags), MainFrame.SERIALIZER.toJson(Card.tags.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey().multiverseid().get(0), Map.Entry::getValue))));
+        else
+            Files.deleteIfExists(Paths.get(settings.inventory.tags));
         Files.writeString(Paths.get(PROPERTIES_FILE), MainFrame.SERIALIZER.toJson(settings));
     }
 
