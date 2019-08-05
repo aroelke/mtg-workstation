@@ -56,16 +56,16 @@ public interface DeckDeserializer
 
             if (version > 0)
                 ois.readLong(); // Throw out first 64 bits that have already been read
-            Deck deck = DeckDeserializer.readExternal(ois);
+            Deck deck = readExternal(ois);
             if (version <= 2)
-                sideboard.put("Sideboard", DeckDeserializer.readExternal(ois));
+                sideboard.put("Sideboard", readExternal(ois));
             else
             {
                 int boards = ois.readInt();
                 for (int i = 0; i < boards; i++)
                 {
                     String name = ois.readUTF();
-                    sideboard.put(name, DeckDeserializer.readExternal(ois));
+                    sideboard.put(name, readExternal(ois));
                 }
             }
             String changelog = version < 2 ? (String)ois.readObject() : ois.readUTF();
