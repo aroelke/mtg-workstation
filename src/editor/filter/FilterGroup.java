@@ -209,7 +209,16 @@ public class FilterGroup extends Filter implements Iterable<Filter>
         mode = Arrays.stream(Mode.values()).filter((m) -> m.toString().equals(fields.get("mode").getAsString())).findAny().get();
         for (JsonElement element : fields.get("children").getAsJsonArray())
         {
-            Filter child = FilterAttribute.createFilter(FilterAttribute.fromString(element.getAsJsonObject().get("type").getAsString()));
+            FilterAttribute type = FilterAttribute.fromString(element.getAsJsonObject().get("type").getAsString());
+            Filter child;
+            if (type == FilterAttribute.GROUP)
+            {
+                child = new FilterGroup();
+            }
+            else
+            {
+                child = FilterAttribute.createFilter(type);
+            }
             child.fromJsonObject(element.getAsJsonObject());
             children.add(child);
         }

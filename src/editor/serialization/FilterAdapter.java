@@ -11,6 +11,7 @@ import com.google.gson.JsonSerializer;
 
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
+import editor.filter.FilterGroup;
 
 /**
  * This class serializes a {@link Filter} to and deserializes from JSON format.
@@ -28,7 +29,16 @@ public class FilterAdapter implements JsonSerializer<Filter>, JsonDeserializer<F
     @Override
     public Filter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        Filter filter = FilterAttribute.createFilter(FilterAttribute.fromString(json.getAsJsonObject().get("type").getAsString()));
+        FilterAttribute type = FilterAttribute.fromString(json.getAsJsonObject().get("type").getAsString());
+        Filter filter;
+        if (type == FilterAttribute.GROUP)
+        {
+            filter = new FilterGroup();
+        }
+        else
+        {
+            filter = FilterAttribute.createFilter(type);
+        }
         filter.fromJsonObject(json.getAsJsonObject());
         return filter;
     }
