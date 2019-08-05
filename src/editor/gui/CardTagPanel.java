@@ -87,14 +87,19 @@ public class CardTagPanel extends ScrollablePanel
      * Add a new tag to the list
      *
      * @param tag new tag to add
+     * @param selected state of the check box for the new panel
      * @return true if the tag was added, and false otherwise.
      */
-    public boolean addTag(String tag)
+    public boolean addTag(String tag, boolean selected)
     {
         var tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
         if (tags.add(tag))
         {
             setTags(tags.stream().sorted().collect(Collectors.toList()));
+            if (selected)
+                for (TristateCheckBox tagBox : tagBoxes)
+                    if (tagBox.getText().equals(tag))
+                        tagBox.setSelected(true);
             return true;
         }
         else

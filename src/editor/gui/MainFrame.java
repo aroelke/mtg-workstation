@@ -1619,7 +1619,7 @@ public class MainFrame extends JFrame
         ActionListener addListener = (e) -> {
             if (!newTagField.getText().isEmpty())
             {
-                if (cardTagPanel.addTag(newTagField.getText()))
+                if (cardTagPanel.addTag(newTagField.getText(), true))
                 {
                     newTagField.setText("");
                     cardTagPanel.revalidate();
