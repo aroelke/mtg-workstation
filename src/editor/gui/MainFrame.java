@@ -232,6 +232,7 @@ public class MainFrame extends JFrame
         .registerTypeHierarchyAdapter(Card.class, new CardAdapter())
         .registerTypeAdapter(CardAttribute.class, new AttributeAdapter())
         .registerTypeAdapter(Deck.class, new DeckAdapter())
+        .registerTypeAdapter(DeckSerializer.class, new DeckSerializer())
         .setPrettyPrinting()
         .create();
     /**

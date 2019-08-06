@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
@@ -25,6 +26,14 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
 import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
@@ -39,7 +48,7 @@ import editor.serialization.legacy.DeckDeserializer;
  * 
  * @author Alec Roelke
  */
-public class DeckSerializer
+public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSerializer<DeckSerializer>
 {
     /**
      * Format to display dates for changes made to a deck.
@@ -339,5 +348,27 @@ public class DeckSerializer
             spec.writeExternal(out);
             out.writeInt(deck.getCategoryRank(spec.getName()));
         }
+    }
+
+    @Override
+    public JsonElement serialize(DeckSerializer src, Type typeOfSrc, JsonSerializationContext context)
+    {
+        JsonObject json = new JsonObject();
+        json.add("main", context.serialize(src.deck));
+
+        JsonObject side = new JsonObject();
+        for (String n : src.sideboard.keySet())
+            side.add(n, context.serialize(src.sideboard.get(n)));
+        json.add("sideboards", side);
+
+        json.addProperty("changelog", src.changelog);
+
+        return json;
+    }
+
+    @Override
+    public DeckSerializer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+    {
+        return null;
     }
 }
