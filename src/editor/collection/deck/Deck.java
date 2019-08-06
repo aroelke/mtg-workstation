@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 import editor.collection.CardList;
 import editor.database.card.Card;
-import editor.gui.MainFrame;
 
 /**
  * This class represents a deck which can have cards added and removed (in quantity) and have several category
