@@ -98,6 +98,7 @@ import com.jidesoft.plaf.LookAndFeelFactory;
 import editor.collection.CardList;
 import editor.collection.Inventory;
 import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
 import editor.collection.export.DelimitedCardListFormat;
 import editor.collection.export.TextCardListFormat;
@@ -132,6 +133,7 @@ import editor.gui.settings.SettingsDialog;
 import editor.serialization.AttributeAdapter;
 import editor.serialization.CardAdapter;
 import editor.serialization.CategoryAdapter;
+import editor.serialization.DeckAdapter;
 import editor.serialization.FilterAdapter;
 import editor.serialization.legacy.CategoryDeserializer;
 import editor.util.ColorAdapter;
@@ -231,8 +233,9 @@ public class MainFrame extends JFrame
         .registerTypeAdapter(CategorySpec.class, new CategoryAdapter())
         .registerTypeHierarchyAdapter(Filter.class, new FilterAdapter())
         .registerTypeAdapter(Color.class, new ColorAdapter())
-        .registerTypeAdapter(Card.class, new CardAdapter())
+        .registerTypeHierarchyAdapter(Card.class, new CardAdapter())
         .registerTypeAdapter(CardAttribute.class, new AttributeAdapter())
+        .registerTypeAdapter(Deck.class, new DeckAdapter())
         .setPrettyPrinting()
         .create();
     /**
@@ -1431,20 +1434,6 @@ public class MainFrame extends JFrame
         fileChooser.setMultiSelectionEnabled(false);
         fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Deck (*." + EXTENSION + ')', EXTENSION));
         fileChooser.setAcceptAllFileFilterUsed(true);
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File("presets"))))
-        {
-            int n = ois.readInt();
-            for (int i = 0; i < n; i++)
-            {
-                CategorySpec spec = CategoryDeserializer.readExternal(ois);
-                System.out.println(SERIALIZER.toJson(spec));
-            }
-        }
-        catch (IOException | ClassNotFoundException e)
-        {
-            System.err.println(e.getMessage());
-        }
 
         // Handle what happens when the window tries to close and when it opens.
         addWindowListener(new WindowAdapter()
