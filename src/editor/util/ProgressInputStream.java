@@ -5,6 +5,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.BiConsumer;
 
 /**
  * This class represents an input stream that reports how many bytes it has
@@ -15,7 +16,7 @@ import java.io.InputStream;
 public class ProgressInputStream extends FilterInputStream
 {
     /**
-     * Support for property changes.  Reports hwow many bytes have been read
+     * Support for property changes.  Reports how many bytes have been read
      * whenever bytes are read.
      */
     private PropertyChangeSupport propertySupport;
@@ -28,13 +29,31 @@ public class ProgressInputStream extends FilterInputStream
      * Create a ProgressInputStream tracking the given #InputStream and reporting
      * its progress.
      *
-     * @param in
+     * @param in stream to track
      */
     public ProgressInputStream(InputStream in)
     {
         super(in);
         propertySupport = new PropertyChangeSupport(this);
         totalRead = 0;
+    }
+
+    /**
+     * Create a ProgressInputStream tracking the given #InputStream and reporting
+     * its progress using the given function.
+     * 
+     * @param in stream to track
+     * @param listener how to report progress reading data; the first argument
+     * is the amount of data read before calling and the second argument is
+     * the new amount (the difference being the number of bytes read)
+     */
+    public ProgressInputStream(InputStream in, BiConsumer<Long, Long> listener)
+    {
+        this(in);
+        addPropertyChangeListener((e) -> {
+            if (e.getPropertyName().equals("bytesRead"))
+                listener.accept((Long)e.getOldValue(), (Long)e.getNewValue());
+        });
     }
 
     /**
