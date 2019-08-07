@@ -4,10 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.Window;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CancellationException;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -86,10 +89,9 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         private JProgressBar progressBar;
 
         /**
-         * Create a new LoadWorker.
+         * Create a new LegacyWorker.
          *
          * @param f file to load the deck from
-         * @param v file to load contains save version number (only false if importing from before versions were implemented)
          * @param b progress bar showing progress
          * @param d dialog containing the progress bar
          */
@@ -135,6 +137,72 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
                     }
                 }
                 changelog = version < 2 ? (String)ois.readObject() : ois.readUTF();
+            }
+            return null;
+        }
+
+        @Override
+        protected void done()
+        {
+            dialog.dispose();
+        }
+
+        @Override
+        protected void process(List<Integer> chunks)
+        {
+            progressBar.setValue(chunks.get(chunks.size() - 1));
+        }
+    }
+
+    /**
+     * This class is a worker for loading a deck.
+     *
+     * @author Alec Roelke
+     */
+    private class LoadWorker extends SwingWorker<Void, Integer>
+    {
+        /**
+         * Dialog containing the progress bar.
+         */
+        private JDialog dialog;
+        /**
+         * File to load the deck from.
+         */
+        private File file;
+        /**
+         * Progress bar to display progress to.
+         */
+        private JProgressBar progressBar;
+
+        /**
+         * Create a new LoadWorker.
+         *
+         * @param f file to load the deck from
+         * @param b progress bar showing progress
+         * @param d dialog containing the progress bar
+         */
+        public LoadWorker(File f, JProgressBar b, JDialog d)
+        {
+            file = f;
+            progressBar = b;
+            dialog = d;
+
+            progressBar.setMaximum((int)file.length());
+        }
+
+        /**
+         * {@inheritDoc}
+         * Load the deck, updating the progress bar all the while.
+         */
+        @Override
+        protected Void doInBackground() throws Exception
+        {
+            try (var bf = new BufferedReader(new InputStreamReader(new ProgressInputStream(new FileInputStream(file), (a, b) -> publish(b.intValue())))))
+            {
+                DeckSerializer loaded = MainFrame.SERIALIZER.fromJson(bf, DeckSerializer.class);
+                deck = loaded.deck;
+                sideboard = loaded.sideboard;
+                changelog = loaded.changelog;
             }
             return null;
         }
@@ -259,14 +327,15 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
     }
 
     /**
-     * Load a deck from a native file type.  If an error occurs during loading the deck, this serializer
-     * is reset to an empty state.
+     * Import a deck from a legacy file type.  If an error occurs during importing
+     * the deck, this serializer is reset to an empty state.
      * 
      * @param f File to load from
      * @param parent parent window used to display errors
      * @throws DeckLoadException if there is already a loaded deck
+     * @throws CancellationException if importing was canceled
      */
-    public void importLegacy(File f, Window parent) throws DeckLoadException
+    public void importLegacy(File f, Window parent) throws DeckLoadException, CancellationException
     {
         if (!deck.isEmpty())
             throw new DeckLoadException(file, "deck already loaded");
@@ -274,6 +343,57 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
         JProgressBar progressBar = new JProgressBar();
         LegacyWorker worker = new LegacyWorker(f, progressBar, progressDialog);
+
+        JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
+        progressDialog.setContentPane(progressPanel);
+        progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
+        progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        progressPanel.add(progressBar, BorderLayout.CENTER);
+        JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener((e) -> worker.cancel(false));
+        cancelPanel.add(cancelButton);
+        progressPanel.add(cancelPanel, BorderLayout.SOUTH);
+        progressDialog.pack();
+        progressDialog.setLocationRelativeTo(parent);
+
+        worker.execute();
+        progressDialog.setVisible(true);
+        try
+        {
+            worker.get();
+        }
+        catch (CancellationException e)
+        {
+            reset();
+            throw e;
+        }
+        catch (Exception e)
+        {
+            reset();
+            throw new DeckLoadException(file, e);
+        }
+
+        imported = true;
+    }
+
+    /**
+     * Load a deck from a JSON deck file.  If an error occurs during loading the deck,
+     * this serializer is reset to an empty state.
+     * 
+     * @param f File to load from
+     * @param parent parent window used to display errors
+     * @throws DeckLoadException if there is already a loaded deck
+     * @throws CancellationException if loading the deck was canceled
+     */
+    public void load(File f, Window parent) throws DeckLoadException, CancellationException
+    {
+        if (!deck.isEmpty())
+            throw new DeckLoadException(file, "deck already loaded");
+
+        JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
+        JProgressBar progressBar = new JProgressBar();
+        LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
 
         JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
         progressDialog.setContentPane(progressPanel);
@@ -331,6 +451,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         try (FileWriter writer = new FileWriter(f))
         {
             writer.write(MainFrame.SERIALIZER.toJson(this));
+            file = f;
         }
     }
 

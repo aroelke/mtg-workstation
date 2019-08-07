@@ -132,6 +132,7 @@ import editor.serialization.CardAdapter;
 import editor.serialization.CategoryAdapter;
 import editor.serialization.DeckAdapter;
 import editor.serialization.FilterAdapter;
+import editor.serialization.legacy.DeckDeserializer;
 import editor.util.ColorAdapter;
 import editor.util.MenuListenerFactory;
 import editor.util.MouseListenerFactory;
@@ -214,10 +215,6 @@ public class MainFrame extends JFrame
      * Default height for displaying card images.
      */
     public static final double DEFAULT_CARD_HEIGHT = 1.0/3.0;
-    /**
-     * Extension used for saved files.
-     */
-    public static final String EXTENSION = "dek";
     /**
      * Maximum height that the advanced filter editor panel can attain before scrolling.
      */
@@ -507,7 +504,7 @@ public class MainFrame extends JFrame
         // Import and export items
         final FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
         final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
-        final FileNameExtensionFilter legacy = new FileNameExtensionFilter("Older Versions (*.dek)", "dek");
+        final FileNameExtensionFilter legacy = new FileNameExtensionFilter("Older Versions (*." + DeckDeserializer.EXTENSION + ')', DeckDeserializer.EXTENSION);
         JMenuItem importItem = new JMenuItem("Import...");
         importItem.addActionListener((e) -> {
             JFileChooser importChooser = new JFileChooser();
@@ -1448,7 +1445,7 @@ public class MainFrame extends JFrame
         // File chooser
         fileChooser = new JFileChooser(SettingsDialog.settings().cwd);
         fileChooser.setMultiSelectionEnabled(false);
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Deck (*." + EXTENSION + ')', EXTENSION));
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Deck (*.json)", "json"));
         fileChooser.setAcceptAllFileFilterUsed(true);
 
         // Handle what happens when the window tries to close and when it opens.
@@ -1798,8 +1795,7 @@ public class MainFrame extends JFrame
             DeckSerializer manager = new DeckSerializer();
             try
             {
-//                manager.load(f, this);
-                throw new DeckLoadException(f);
+                manager.load(f, this);
             }
             catch (CancellationException e)
             {
@@ -1867,8 +1863,8 @@ public class MainFrame extends JFrame
             case JFileChooser.APPROVE_OPTION:
                 File f = fileChooser.getSelectedFile();
                 String fname = f.getAbsolutePath();
-                if (!fname.endsWith('.' + EXTENSION))
-                    f = new File(fname + '.' + EXTENSION);
+                if (!fname.endsWith(".json"))
+                    f = new File(fname + ".json");
                 boolean write;
                 if (f.exists())
                 {

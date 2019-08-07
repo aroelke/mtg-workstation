@@ -11,6 +11,11 @@ import editor.gui.MainFrame;
 
 public interface DeckDeserializer
 {
+    /**
+     * Extension used for legacy saved files.
+     */
+    public static final String EXTENSION = "dek";
+
     public static Deck readExternal(ObjectInput in) throws ClassNotFoundException, IOException
     {
         Deck d = new Deck();
