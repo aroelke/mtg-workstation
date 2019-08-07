@@ -5,12 +5,10 @@ import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.Window;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
@@ -37,12 +35,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
-import editor.database.card.Card;
 import editor.gui.MainFrame;
 import editor.serialization.legacy.DeckDeserializer;
+import editor.util.ProgressInputStream;
 
 /**
  * This class controls the serialization and deserialization of a #Deck.  It can
@@ -59,21 +56,21 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
      */
     public static final SimpleDateFormat CHANGELOG_DATE = new SimpleDateFormat("MMMM d, yyyy HH:mm:ss");
     /**
-     * Latest version of save file.
+     * Latest version of legacy save file.
      * 
      * Change log:
      * 1. Added save version number
      * 2. Switched changelog from read/writeObject to read/writeUTF
      * 3. Allow multiple sideboards
      */
-    public static final long SAVE_VERSION = 3;
+    private static final long SAVE_VERSION = 3;
 
     /**
      * This class is a worker for loading a deck.
      *
      * @author Alec Roelke
      */
-    private class LoadWorker extends SwingWorker<Void, Integer>
+    private class LegacyWorker extends SwingWorker<Void, Integer>
     {
         /**
          * Dialog containing the progress bar.
@@ -96,7 +93,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
          * @param b progress bar showing progress
          * @param d dialog containing the progress bar
          */
-        public LoadWorker(File f, JProgressBar b, JDialog d)
+        public LegacyWorker(File f, JProgressBar b, JDialog d)
         {
             file = f;
             progressBar = b;
@@ -112,10 +109,33 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         @Override
         protected Void doInBackground() throws Exception
         {
-            DeckSerializer loaded = DeckDeserializer.readFile(file);
-            deck = loaded.deck;
-            sideboard = loaded.sideboard;
-            changelog = loaded.changelog;
+            long version;
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
+            {
+                version = ois.readLong();
+            }
+            // Assume that high bits in the first 64 bits are used by the serialization of a Deck
+            // object and that SAVE_VERSION will never be that high.
+            if (version > SAVE_VERSION)
+                version = 0;
+            try (ObjectInputStream ois = new ObjectInputStream(new ProgressInputStream(new FileInputStream(file), (a, b) -> publish(b.intValue()))))
+            {
+                if (version > 0)
+                    ois.readLong(); // Throw out first 64 bits that have already been read
+                deck = DeckDeserializer.readExternal(ois);
+                if (version <= 2)
+                    sideboard.put("Sideboard", DeckDeserializer.readExternal(ois));
+                else
+                {
+                    int boards = ois.readInt();
+                    for (int i = 0; i < boards; i++)
+                    {
+                        String name = ois.readUTF();
+                        sideboard.put(name, DeckDeserializer.readExternal(ois));
+                    }
+                }
+                changelog = version < 2 ? (String)ois.readObject() : ois.readUTF();
+            }
             return null;
         }
 
@@ -246,14 +266,14 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
      * @param parent parent window used to display errors
      * @throws DeckLoadException if there is already a loaded deck
      */
-    public void load(File f, Window parent) throws DeckLoadException
+    public void importLegacy(File f, Window parent) throws DeckLoadException
     {
         if (!deck.isEmpty())
             throw new DeckLoadException(file, "deck already loaded");
 
         JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
         JProgressBar progressBar = new JProgressBar();
-        LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
+        LegacyWorker worker = new LegacyWorker(f, progressBar, progressDialog);
 
         JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
         progressDialog.setContentPane(progressPanel);
@@ -308,18 +328,9 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
      */
     public void save(File f) throws IOException
     {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f, false)))
+        try (FileWriter writer = new FileWriter(f))
         {
-            oos.writeLong(SAVE_VERSION);
-            writeDeck(deck, oos);
-            oos.writeInt(sideboard.size());
-            for (Map.Entry<String, Deck> sb : sideboard.entrySet())
-            {
-                oos.writeUTF(sb.getKey());
-                writeDeck(sb.getValue(), oos);
-            }
-            oos.writeUTF(changelog);
-            file = f;
+            writer.write(MainFrame.SERIALIZER.toJson(this));
         }
     }
 
@@ -329,29 +340,6 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
     public Map<String, Deck> sideboards()
     {
         return sideboard;
-    }
-
-    /**
-     * Write a deck to an output stream.
-     * 
-     * @param deck deck to write
-     * @param out stream to write to
-     */
-    private void writeDeck(Deck deck, ObjectOutput out) throws IOException
-    {
-        out.writeInt(deck.size());
-        for (Card card : deck)
-        {
-            out.writeLong(card.multiverseid().get(0));
-            out.writeInt(deck.getEntry(card).count());
-            out.writeObject(deck.getEntry(card).dateAdded());
-        }
-        out.writeInt(deck.numCategories());
-        for (CategorySpec spec : deck.categories())
-        {
-            spec.writeExternal(out);
-            out.writeInt(deck.getCategoryRank(spec.getName()));
-        }
     }
 
     @Override
