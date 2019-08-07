@@ -5,13 +5,16 @@ import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.Window;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +41,7 @@ import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
+import editor.gui.MainFrame;
 import editor.serialization.legacy.DeckDeserializer;
 
 /**
@@ -369,6 +373,13 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
     @Override
     public DeckSerializer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        return null;
+        JsonObject obj = json.getAsJsonObject();
+        Deck deck = context.deserialize(obj.get("main"), Deck.class);
+        var sideboard = new HashMap<String, Deck>();
+        JsonObject sbobj = obj.get("sideboards").getAsJsonObject();
+        for (var entry : sbobj.entrySet())
+            sideboard.put(entry.getKey(), context.deserialize(entry.getValue(), Deck.class));
+        String changelog = obj.get("changelog").getAsString();
+        return new DeckSerializer(deck, sideboard, changelog);
     }
 }
