@@ -5,8 +5,8 @@ import java.lang.reflect.Type;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
@@ -26,16 +26,24 @@ public class CardAdapter implements JsonSerializer<Card>, JsonDeserializer<Card>
     @Override
     public Card deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        if (MainFrame.inventory().contains(json.getAsLong()))
-            return MainFrame.inventory().get(json.getAsLong());
+        JsonObject obj = json.getAsJsonObject();
+
+        long multiverseid = obj.get("multiverseid").getAsLong();
+
+        if (MainFrame.inventory().contains(multiverseid))
+            return MainFrame.inventory().get(multiverseid);
         else
-            throw new JsonParseException("no card with multiverseid " + json.getAsLong() + " exists");
+            throw new JsonParseException("no card with multiverseid " + multiverseid + " exists");
     }
 
     @Override
     public JsonElement serialize(Card src, Type typeOfSrc, JsonSerializationContext context)
     {
-        return new JsonPrimitive(src.multiverseid().get(0));
+        JsonObject card = new JsonObject();
+        card.addProperty("multiverseid", src.multiverseid().get(0));
+        card.addProperty("name", src.unifiedName());
+        card.addProperty("expansion", src.expansion().name);
+        return card;
     }
     
 }
