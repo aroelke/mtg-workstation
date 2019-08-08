@@ -15,7 +15,6 @@ import java.io.ObjectInputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -411,14 +411,15 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
     {
         JsonObject json = new JsonObject();
         json.add("main", context.serialize(src.deck));
-
-        JsonObject side = new JsonObject();
+        JsonArray side = new JsonArray();
         for (String n : src.sideboard.keySet())
-            side.add(n, context.serialize(src.sideboard.get(n)));
+        {
+            JsonObject board = context.serialize(src.sideboard.get(n)).getAsJsonObject();
+            board.addProperty("name", n);
+            side.add(board);
+        }
         json.add("sideboards", side);
-
         json.addProperty("changelog", src.changelog);
-
         return json;
     }
 
@@ -427,10 +428,9 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
     {
         JsonObject obj = json.getAsJsonObject();
         Deck deck = context.deserialize(obj.get("main"), Deck.class);
-        var sideboard = new HashMap<String, Deck>();
-        JsonObject sbobj = obj.get("sideboards").getAsJsonObject();
-        for (var entry : sbobj.entrySet())
-            sideboard.put(entry.getKey(), context.deserialize(entry.getValue(), Deck.class));
+        var sideboard = new LinkedHashMap<String, Deck>();
+        for (JsonElement entry : obj.get("sideboards").getAsJsonArray())
+            sideboard.put(entry.getAsJsonObject().get("name").getAsString(), context.deserialize(entry, Deck.class));
         String changelog = obj.get("changelog").getAsString();
         return new DeckSerializer(deck, sideboard, changelog);
     }
