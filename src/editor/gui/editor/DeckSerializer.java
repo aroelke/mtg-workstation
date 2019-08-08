@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Type;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CancellationException;
-import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -42,6 +42,7 @@ import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
 import editor.gui.MainFrame;
 import editor.serialization.legacy.DeckDeserializer;
+import editor.util.ExceptionConsumer;
 import editor.util.ProgressInputStream;
 
 /**
@@ -69,93 +70,8 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
     private static final long SAVE_VERSION = 3;
 
     /**
-     * This class is a worker for loading a deck.
-     *
-     * @author Alec Roelke
-     */
-    private class LegacyWorker extends SwingWorker<Void, Integer>
-    {
-        /**
-         * Dialog containing the progress bar.
-         */
-        private JDialog dialog;
-        /**
-         * File to load the deck from.
-         */
-        private File file;
-        /**
-         * Progress bar to display progress to.
-         */
-        private JProgressBar progressBar;
-
-        /**
-         * Create a new LegacyWorker.
-         *
-         * @param f file to load the deck from
-         * @param b progress bar showing progress
-         * @param d dialog containing the progress bar
-         */
-        public LegacyWorker(File f, JProgressBar b, JDialog d)
-        {
-            file = f;
-            progressBar = b;
-            dialog = d;
-
-            progressBar.setMaximum((int)file.length());
-        }
-
-        /**
-         * {@inheritDoc}
-         * Load the deck, updating the progress bar all the while.
-         */
-        @Override
-        protected Void doInBackground() throws Exception
-        {
-            long version;
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
-            {
-                version = ois.readLong();
-            }
-            // Assume that high bits in the first 64 bits are used by the serialization of a Deck
-            // object and that SAVE_VERSION will never be that high.
-            if (version > SAVE_VERSION)
-                version = 0;
-            try (ObjectInputStream ois = new ObjectInputStream(new ProgressInputStream(new FileInputStream(file), (a, b) -> publish(b.intValue()))))
-            {
-                if (version > 0)
-                    ois.readLong(); // Throw out first 64 bits that have already been read
-                deck = DeckDeserializer.readExternal(ois);
-                if (version <= 2)
-                    sideboard.put("Sideboard", DeckDeserializer.readExternal(ois));
-                else
-                {
-                    int boards = ois.readInt();
-                    for (int i = 0; i < boards; i++)
-                    {
-                        String name = ois.readUTF();
-                        sideboard.put(name, DeckDeserializer.readExternal(ois));
-                    }
-                }
-                changelog = version < 2 ? (String)ois.readObject() : ois.readUTF();
-            }
-            return null;
-        }
-
-        @Override
-        protected void done()
-        {
-            dialog.dispose();
-        }
-
-        @Override
-        protected void process(List<Integer> chunks)
-        {
-            progressBar.setValue(chunks.get(chunks.size() - 1));
-        }
-    }
-
-    /**
-     * This class is a worker for loading a deck.
+     * This class is a worker for loading a deck.  Comes with a dialog that can
+     * be used to show progress.
      *
      * @author Alec Roelke
      */
@@ -173,19 +89,37 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
          * Progress bar to display progress to.
          */
         private JProgressBar progressBar;
+        /**
+         * Function to perform for loading the data.
+         */
+        private ExceptionConsumer<InputStream> background;
 
         /**
          * Create a new LoadWorker.
          *
          * @param f file to load the deck from
-         * @param b progress bar showing progress
-         * @param d dialog containing the progress bar
+         * @param parent parent window of the progress dialog
+         * @param bg function to perform for loading the data
          */
-        public LoadWorker(File f, JProgressBar b, JDialog d)
+        public LoadWorker(File f, Window parent, ExceptionConsumer<InputStream> bg)
         {
             file = f;
-            progressBar = b;
-            dialog = d;
+            background = bg;
+
+            dialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
+            progressBar = new JProgressBar();
+            JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
+            dialog.setContentPane(progressPanel);
+            progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
+            progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            progressPanel.add(progressBar, BorderLayout.CENTER);
+            JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+            JButton cancelButton = new JButton("Cancel");
+            cancelButton.addActionListener((e) -> cancel(false));
+            cancelPanel.add(cancelButton);
+            progressPanel.add(cancelPanel, BorderLayout.SOUTH);
+            dialog.pack();
+            dialog.setLocationRelativeTo(parent);
 
             progressBar.setMaximum((int)file.length());
         }
@@ -197,13 +131,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         @Override
         protected Void doInBackground() throws Exception
         {
-            try (var bf = new BufferedReader(new InputStreamReader(new ProgressInputStream(new FileInputStream(file), (a, b) -> publish(b.intValue())))))
-            {
-                DeckSerializer loaded = MainFrame.SERIALIZER.fromJson(bf, DeckSerializer.class);
-                deck = loaded.deck;
-                sideboard = loaded.sideboard;
-                changelog = loaded.changelog;
-            }
+            background.accept(new ProgressInputStream(new FileInputStream(file), (a, b) -> publish(b.intValue())));
             return null;
         }
 
@@ -211,6 +139,15 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         protected void done()
         {
             dialog.dispose();
+        }
+
+        /**
+         * Execute this LoadWorker and display the progress dialog.
+         */
+        public void executeAndDisplay()
+        {
+            super.execute();
+            dialog.setVisible(true);
         }
 
         @Override
@@ -340,25 +277,40 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         if (!deck.isEmpty())
             throw new DeckLoadException(file, "deck already loaded");
 
-        JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
-        JProgressBar progressBar = new JProgressBar();
-        LegacyWorker worker = new LegacyWorker(f, progressBar, progressDialog);
-
-        JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
-        progressDialog.setContentPane(progressPanel);
-        progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
-        progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        progressPanel.add(progressBar, BorderLayout.CENTER);
-        JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener((e) -> worker.cancel(false));
-        cancelPanel.add(cancelButton);
-        progressPanel.add(cancelPanel, BorderLayout.SOUTH);
-        progressDialog.pack();
-        progressDialog.setLocationRelativeTo(parent);
-
-        worker.execute();
-        progressDialog.setVisible(true);
+        long version;
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f)))
+        {
+            version = ois.readLong();
+        }
+        catch (IOException e)
+        {
+            reset();
+            throw new DeckLoadException(f, e);
+        }
+        LoadWorker worker = new LoadWorker(f, parent, (s) -> {
+            // Assume that high bits in the first 64 bits are used by the serialization of a Deck
+            // object and that SAVE_VERSION will never be that high.
+            long v = version > SAVE_VERSION ? 0 : version;
+            try (ObjectInputStream ois = new ObjectInputStream(s))
+            {
+                if (v > 0)
+                    ois.readLong(); // Throw out first 64 bits that have already been read
+                deck = DeckDeserializer.readExternal(ois);
+                if (v <= 2)
+                    sideboard.put("Sideboard", DeckDeserializer.readExternal(ois));
+                else
+                {
+                    int boards = ois.readInt();
+                    for (int i = 0; i < boards; i++)
+                    {
+                        String name = ois.readUTF();
+                        sideboard.put(name, DeckDeserializer.readExternal(ois));
+                    }
+                }
+                changelog = v < 2 ? (String)ois.readObject() : ois.readUTF();
+            }
+        });
+        worker.executeAndDisplay();
         try
         {
             worker.get();
@@ -371,7 +323,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         catch (Exception e)
         {
             reset();
-            throw new DeckLoadException(file, e);
+            throw new DeckLoadException(f, e);
         }
 
         imported = true;
@@ -391,25 +343,16 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         if (!deck.isEmpty())
             throw new DeckLoadException(file, "deck already loaded");
 
-        JDialog progressDialog = new JDialog(null, Dialog.ModalityType.APPLICATION_MODAL);
-        JProgressBar progressBar = new JProgressBar();
-        LoadWorker worker = new LoadWorker(f, progressBar, progressDialog);
-
-        JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
-        progressDialog.setContentPane(progressPanel);
-        progressPanel.add(new JLabel("Opening " + f.getName() + "..."), BorderLayout.NORTH);
-        progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        progressPanel.add(progressBar, BorderLayout.CENTER);
-        JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener((e) -> worker.cancel(false));
-        cancelPanel.add(cancelButton);
-        progressPanel.add(cancelPanel, BorderLayout.SOUTH);
-        progressDialog.pack();
-        progressDialog.setLocationRelativeTo(parent);
-
-        worker.execute();
-        progressDialog.setVisible(true);
+        LoadWorker worker = new LoadWorker(f, parent, (s) -> {
+            try (var bf = new BufferedReader(new InputStreamReader(s)))
+            {
+                DeckSerializer loaded = MainFrame.SERIALIZER.fromJson(bf, DeckSerializer.class);
+                deck = loaded.deck;
+                sideboard = loaded.sideboard;
+                changelog = loaded.changelog;
+            }
+        });
+        worker.executeAndDisplay();
         try
         {
             worker.get();
@@ -422,7 +365,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         catch (Exception e)
         {
             reset();
-            throw new DeckLoadException(file, e);
+            throw new DeckLoadException(f, e);
         }
 
         file = f;
