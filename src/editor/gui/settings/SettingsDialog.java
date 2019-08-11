@@ -158,12 +158,6 @@ public class SettingsDialog extends JDialog
         settings = new SettingsBuilder(settings).addPresetCategory(category).build();
     }
 
-    @Deprecated
-    public static void applySettings(Settings toApply)
-    {
-        settings = new SettingsBuilder(settings).copy(toApply).build();
-    }
-
     /**
      * Load global settings from the settings file.  This does not affect card tags.
      *
@@ -744,6 +738,27 @@ public class SettingsDialog extends JDialog
         catch (ParseException e)
         {
             e.printStackTrace();
+        }
+
+        if (settings.inventory.columns.isEmpty())
+        {
+            settings = new SettingsBuilder(settings).inventoryColumns(
+                CardAttribute.NAME,
+                CardAttribute.EXPANSION_NAME,
+                CardAttribute.MANA_COST,
+                CardAttribute.TYPE_LINE
+            ).build();
+        }
+        if (settings.editor.columns.isEmpty())
+        {
+            settings = new SettingsBuilder(settings).editorColumns(
+                CardAttribute.NAME,
+                CardAttribute.COUNT,
+                CardAttribute.MANA_COST,
+                CardAttribute.TYPE_LINE,
+                CardAttribute.EXPANSION_NAME,
+                CardAttribute.RARITY
+            ).build();
         }
 
         parent.applySettings();

@@ -1510,26 +1510,8 @@ public class MainFrame extends JFrame
         }
         inventoryFile = new File(SettingsDialog.settings().inventory.path());
         recentCount = SettingsDialog.settings().editor.recents.count;
-        if (SettingsDialog.settings().inventory.columns.isEmpty())
-            SettingsDialog.applySettings(new SettingsBuilder(SettingsDialog.settings())
-                                         .inventoryColumns(
-                                             CardAttribute.NAME,
-                                             CardAttribute.EXPANSION_NAME,
-                                             CardAttribute.MANA_COST,
-                                             CardAttribute.TYPE_LINE
-                                         ).build());
         inventoryModel.setColumns(SettingsDialog.settings().inventory.columns);
         inventoryTable.setStripeColor(SettingsDialog.settings().inventory.stripe);
-        if (SettingsDialog.settings().editor.columns.isEmpty())
-            SettingsDialog.applySettings(new SettingsBuilder(SettingsDialog.settings())
-                                         .editorColumns(
-                                             CardAttribute.NAME,
-                                             CardAttribute.COUNT,
-                                             CardAttribute.MANA_COST,
-                                             CardAttribute.TYPE_LINE,
-                                             CardAttribute.EXPANSION_NAME,
-                                             CardAttribute.RARITY
-                                         ).build());
         for (EditorFrame frame : editors)
             frame.applySettings();
         presetMenu.removeAll();
