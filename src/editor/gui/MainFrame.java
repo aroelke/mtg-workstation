@@ -125,7 +125,6 @@ import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
 import editor.gui.inventory.InventoryDownloadDialog;
 import editor.gui.inventory.InventoryLoadDialog;
-import editor.gui.settings.SettingsBuilder;
 import editor.gui.settings.SettingsDialog;
 import editor.serialization.AttributeAdapter;
 import editor.serialization.CardAdapter;
