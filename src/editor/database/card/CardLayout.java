@@ -24,6 +24,8 @@ public enum CardLayout
     /**
      * Special split card where one of the "mini-cards" can only be cast from
      * the graveyard.
+     * 
+     * @see SplitCard
      */
     AFTERMATH("Aftermath", true),
     /**
@@ -59,6 +61,13 @@ public enum CardLayout
      * @see SingleCard
      */
     SAGA("Saga"),
+    /**
+     * Special split card with a "main" creature face and a special instant or
+     * sorcery "Adventure" face.
+     * 
+     * @see SplitCard
+     */
+    ADVENTURE("Adventure", true),
     /**
      * An extra-large card for use in the Planechase format.
      */
