@@ -1,5 +1,9 @@
 package editor.database.card;
 
+import static editor.database.card.CardLayout.ADVENTURE;
+import static editor.database.card.CardLayout.AFTERMATH;
+import static editor.database.card.CardLayout.SPLIT;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +42,7 @@ public class SplitCard extends MultiCard
     {
         super(f.get(0).layout(), f);
         for (Card face : f)
-            if (face.layout() != CardLayout.SPLIT && face.layout() != CardLayout.AFTERMATH)
+            if (face.layout() != SPLIT && face.layout() != AFTERMATH && face.layout() != ADVENTURE)
                 throw new IllegalArgumentException("can't create split cards out of non-split cards");
         for (Card face : f)
             if (face.layout() != f.get(0).layout())
