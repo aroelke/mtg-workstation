@@ -176,7 +176,7 @@ public class CardImagePanel extends JPanel
          */
         public void mousePressed(MouseEvent e)
         {
-            if (SwingUtilities.isLeftMouseButton(e))
+            if (SwingUtilities.isLeftMouseButton(e) && card != null)
             {
                 switch (card.layout())
                 {

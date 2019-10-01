@@ -91,7 +91,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import com.google.gson.JsonParser;
-import com.jidesoft.plaf.LookAndFeelFactory;
 
 import editor.collection.CardList;
 import editor.collection.Inventory;
@@ -250,9 +249,9 @@ public class MainFrame extends JFrame
      */
     public static void main(String[] args)
     {
-        LookAndFeelFactory.setDefaultStyle(LookAndFeelFactory.VSNET_STYLE_WITHOUT_MENU);
-        LookAndFeelFactory.installDefaultLookAndFeel();
-        LookAndFeelFactory.installJideExtension();
+//        LookAndFeelFactory.setDefaultStyle(LookAndFeelFactory.VSNET_STYLE_WITHOUT_MENU);
+//        LookAndFeelFactory.installDefaultLookAndFeel();
+//        LookAndFeelFactory.installJideExtension();
 
         try
         {
@@ -1620,7 +1619,7 @@ public class MainFrame extends JFrame
         ActionListener addListener = (e) -> {
             if (!newTagField.getText().isEmpty())
             {
-                if (cardTagPanel.addTag(newTagField.getText()))
+                if (cardTagPanel.addTag(newTagField.getText(), true))
                 {
                     newTagField.setText("");
                     cardTagPanel.revalidate();

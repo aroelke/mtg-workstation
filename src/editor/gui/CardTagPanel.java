@@ -45,6 +45,7 @@ public class CardTagPanel extends ScrollablePanel
      * Cards whose tags are to be modified.
      */
     private Collection<Card> cards;
+    private List<String> removed;
     /**
      * Preferred viewport height of this panel.
      */
@@ -66,6 +67,7 @@ public class CardTagPanel extends ScrollablePanel
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
         tagBoxes = new ArrayList<>();
+        removed = new ArrayList<>();
         cards = coll;
         preferredViewportHeight = 0;
 
@@ -87,14 +89,19 @@ public class CardTagPanel extends ScrollablePanel
      * Add a new tag to the list
      *
      * @param tag new tag to add
+     * @param selected state of the check box for the new panel
      * @return true if the tag was added, and false otherwise.
      */
-    public boolean addTag(String tag)
+    public boolean addTag(String tag, boolean selected)
     {
         var tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
         if (tags.add(tag))
         {
             setTags(tags.stream().sorted().collect(Collectors.toList()));
+            if (selected)
+                for (TristateCheckBox tagBox : tagBoxes)
+                    if (tagBox.getText().equals(tag))
+                        tagBox.setSelected(true);
             return true;
         }
         else
@@ -147,6 +154,7 @@ public class CardTagPanel extends ScrollablePanel
     {
         var untagged = new HashMap<Card, Set<String>>();
         for (Card card : cards)
+        {
             for (TristateCheckBox tagBox : tagBoxes)
                 if (tagBox.getState() == State.UNSELECTED)
                     untagged.compute(card, (k, v) -> {
@@ -155,6 +163,18 @@ public class CardTagPanel extends ScrollablePanel
                         v.add(tagBox.getText());
                         return v;
                     });
+        }
+        for (Card card : Card.tags.keySet())
+        {
+            for (String tag : Card.tags.get(card))
+                if (removed.contains(tag))
+                    untagged.compute(card, (k, v) -> {
+                        if (v == null)
+                            v = new HashSet<>();
+                        v.add(tag);
+                        return v;
+                    });
+        }
         return untagged;
     }
 
@@ -169,6 +189,7 @@ public class CardTagPanel extends ScrollablePanel
         var tags = tagBoxes.stream().map(TristateCheckBox::getText).collect(Collectors.toSet());
         if (tags.remove(tag))
         {
+            removed.add(tag);
             setTags(tags.stream().sorted().collect(Collectors.toList()));
             if (getParent() != null)
             {
