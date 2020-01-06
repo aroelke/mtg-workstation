@@ -503,7 +503,7 @@ public class MainFrame extends JFrame
         // Import and export items
         final FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
         final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
-        final FileNameExtensionFilter legacy = new FileNameExtensionFilter("Older Versions (*." + DeckDeserializer.EXTENSION + ')', DeckDeserializer.EXTENSION);
+        final FileNameExtensionFilter legacy = new FileNameExtensionFilter("Deck from v0.1 or older (*." + DeckDeserializer.EXTENSION + ')', DeckDeserializer.EXTENSION);
         JMenuItem importItem = new JMenuItem("Import...");
         importItem.addActionListener((e) -> {
             JFileChooser importChooser = new JFileChooser();
