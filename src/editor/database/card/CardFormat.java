@@ -116,40 +116,23 @@ public class CardFormat
         for (CardAttribute type : CardAttribute.values())
         {
             String replacement = '{' + type.toString().toLowerCase() + '}';
-            switch (type)
-            {
-            case MANA_COST:
-            case POWER:
-            case TOUGHNESS:
-            case LOYALTY:
-                pattern = pattern.replace(replacement, String.join(' ' + Card.FACE_SEPARATOR + ' ',
-                        ((List<?>)card.get(type)).stream().map(String::valueOf).collect(Collectors.toList())));
-                break;
-            case CMC:
-                pattern = pattern.replace(replacement, String.join(' ' + Card.FACE_SEPARATOR + ' ',
-                        CollectionUtils.convertToList(card.get(type), Double.class).stream().map((n) -> {
-                            if (n == n.intValue())
-                                return Integer.toString(n.intValue());
-                            else
-                                return n.toString();
-                        }).collect(Collectors.toList())));
-                break;
-            case COLORS:
-            case COLOR_IDENTITY:
-                pattern = pattern.replace(replacement, String.join(",",
-                        ((List<?>)card.get(type)).stream().map(String::valueOf).collect(Collectors.toList())));
-                break;
-            case CATEGORIES:
-                pattern = pattern.replace(replacement, String.join(",",
-                        CollectionUtils.convertToSet(card.get(type), CategorySpec.class).stream().map(CategorySpec::getName).sorted().collect(Collectors.toList())));
-                break;
-            case DATE_ADDED:
-                pattern = pattern.replace(replacement, Deck.DATE_FORMATTER.format((LocalDate)card.get(type)));
-                break;
-            default:
-                pattern = pattern.replace(replacement, String.valueOf(card.get(type)));
-                break;
-            }
+            pattern = pattern.replace(replacement, switch (type) {
+                case MANA_COST, POWER, TOUGHNESS, LOYALTY -> String.join(' ' + Card.FACE_SEPARATOR + ' ',
+                    ((List<?>)card.get(type)).stream().map(String::valueOf).collect(Collectors.toList()));
+                case CMC -> String.join(' ' + Card.FACE_SEPARATOR + ' ',
+                    CollectionUtils.convertToList(card.get(type), Double.class).stream().map((n) -> {
+                        if (n == n.intValue())
+                            return Integer.toString(n.intValue());
+                        else
+                            return n.toString();
+                    }).collect(Collectors.toList()));
+                case COLORS, COLOR_IDENTITY -> String.join(",",
+                    ((List<?>)card.get(type)).stream().map(String::valueOf).collect(Collectors.toList()));
+                case CATEGORIES -> String.join(",",
+                    CollectionUtils.convertToSet(card.get(type), CategorySpec.class).stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()));
+                case DATE_ADDED -> Deck.DATE_FORMATTER.format((LocalDate)card.get(type));
+                default -> String.valueOf(card.get(type));
+            });
         }
         return pattern;
     }
