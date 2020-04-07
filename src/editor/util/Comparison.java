@@ -43,23 +43,15 @@ public enum Comparison
      */
     public static Comparison valueOf(char op)
     {
-        switch (op)
-        {
-        case '=':
-            return EQ;
-        case UnicodeSymbols.NOT_EQUAL:
-            return NE;
-        case UnicodeSymbols.GREATER_OR_EQUAL:
-            return GE;
-        case UnicodeSymbols.LESS_OR_EQUAL:
-            return LE;
-        case '>':
-            return GT;
-        case '<':
-            return LT;
-        default:
-            throw new IllegalArgumentException("Illegal comparison " + op);
-        }
+        return switch (op) {
+            case '=' -> EQ;
+            case '>' -> GT;
+            case '<' -> LT;
+            case UnicodeSymbols.NOT_EQUAL        -> NE;
+            case UnicodeSymbols.GREATER_OR_EQUAL -> GE;
+            case UnicodeSymbols.LESS_OR_EQUAL    -> LE;
+            default -> throw new IllegalArgumentException("Illegal comparison " + op);
+        };
     }
 
     /**
