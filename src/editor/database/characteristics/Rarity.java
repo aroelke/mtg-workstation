@@ -1,5 +1,7 @@
 package editor.database.characteristics;
 
+import org.apache.commons.codec.binary.Base32;
+
 /**
  * This enum represents a rarity a Magic: The Gathering card can have.  Rarities
  * are basically Strings, so they implement {@link CharSequence}.  All of the
@@ -44,23 +46,15 @@ public enum Rarity implements CharSequence
      */
     public static Rarity parseRarity(char rarity)
     {
-        switch (Character.toLowerCase(rarity))
-        {
-        case 'c':
-            return COMMON;
-        case 'u':
-            return UNCOMMON;
-        case 'r':
-            return RARE;
-        case 'm':
-            return MYTHIC_RARE;
-        case 's':
-            return SPECIAL;
-        case 'b':
-            return BASIC_LAND;
-        default:
-            throw new IllegalArgumentException("Illegal rarity shorthand");
-        }
+        return switch (Character.toLowerCase(rarity)) {
+            case 'c' -> COMMON;
+            case 'u' -> UNCOMMON;
+            case 'r' -> RARE;
+            case 'm' -> MYTHIC_RARE;
+            case 's' -> SPECIAL;
+            case 'b' -> BASIC_LAND;
+            default -> throw new IllegalArgumentException("Illegal rarity shorthand");
+        };
     }
 
     /**
@@ -123,23 +117,14 @@ public enum Rarity implements CharSequence
      */
     public char shorthand()
     {
-        switch (this)
-        {
-        case COMMON:
-            return 'C';
-        case UNCOMMON:
-            return 'U';
-        case RARE:
-            return 'R';
-        case MYTHIC_RARE:
-            return 'M';
-        case SPECIAL:
-            return 'S';
-        case BASIC_LAND:
-            return 'B';
-        default:
-            return '\0';
-        }
+        return switch (this) {
+            case COMMON      -> 'C';
+            case UNCOMMON    -> 'U';
+            case RARE        -> 'R';
+            case MYTHIC_RARE -> 'M';
+            case SPECIAL     -> 'S';
+            case BASIC_LAND  -> 'B';
+        };
     }
 
     @Override
