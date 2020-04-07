@@ -73,23 +73,14 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
     @Override
     public boolean test(Card c)
     {
-        switch (contain)
-        {
-        case CONTAINS_ANY_OF:
-            return c.manaCost().stream().anyMatch((m) -> Containment.CONTAINS_ANY_OF.test(m, cost));
-        case CONTAINS_NONE_OF:
-            return c.manaCost().stream().anyMatch((m) -> Containment.CONTAINS_NONE_OF.test(m, cost));
-        case CONTAINS_ALL_OF:
-            return c.manaCost().stream().anyMatch((m) -> m.isSuperset(cost));
-        case CONTAINS_NOT_ALL_OF:
-            return c.manaCost().stream().anyMatch((m) -> !m.isSuperset(cost));
-        case CONTAINS_EXACTLY:
-            return c.manaCost().stream().anyMatch((m) -> m.equals(cost));
-        case CONTAINS_NOT_EXACTLY:
-            return c.manaCost().stream().anyMatch((m) -> !m.equals(cost));
-        default:
-            return false;
-        }
+        return c.manaCost().stream().anyMatch((m) -> switch (contain) {
+            case CONTAINS_ANY_OF -> Containment.CONTAINS_ANY_OF.test(m, cost);
+            case CONTAINS_NONE_OF -> Containment.CONTAINS_NONE_OF.test(m, cost);
+            case CONTAINS_ALL_OF -> m.isSuperset(cost);
+            case CONTAINS_NOT_ALL_OF -> !m.isSuperset(cost);
+            case CONTAINS_EXACTLY -> m.equals(cost);
+            case CONTAINS_NOT_EXACTLY -> !m.equals(cost);
+        });
     }
 
     @Override
