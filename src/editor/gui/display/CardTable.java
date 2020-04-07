@@ -84,20 +84,13 @@ public class CardTable extends JTable
         @Override
         public Comparator<?> getComparator(int column)
         {
-            CardAttribute data;
             if (model instanceof CardTableModel)
             {
-                data = ((CardTableModel)model).getColumnData(column);
                 boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
-                switch (data)
-                {
-                case MANA_COST:
-                    return Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0));
-                case CMC:
-                    return Comparator.comparingDouble((a) -> Collections.min(CollectionUtils.convertToList(a, Double.class)));
-                case COLORS:
-                case COLOR_IDENTITY:
-                    return (a, b) -> {
+                return switch (((CardTableModel)model).getColumnData(column)) {
+                    case MANA_COST -> Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0));
+                    case CMC -> Comparator.comparingDouble((a) -> Collections.min(CollectionUtils.convertToList(a, Double.class)));
+                    case COLORS, COLOR_IDENTITY -> (a, b) -> {
                         var first = CollectionUtils.convertToList(a, ManaType.class);
                         var second = CollectionUtils.convertToList(b, ManaType.class);
                         int diff = first.size() - second.size();
@@ -106,9 +99,7 @@ public class CardTable extends JTable
                                 diff += first.get(i).compareTo(second.get(i)) * Math.pow(10, first.size() - i);
                         return diff;
                     };
-                case POWER:
-                case TOUGHNESS:
-                    return (a, b) -> {
+                    case POWER, TOUGHNESS -> (a, b) -> {
                         CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
                         CombatStat second = CollectionUtils.convertToList(b, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
                         if (!first.exists() && !second.exists())
@@ -120,8 +111,7 @@ public class CardTable extends JTable
                         else
                             return first.compareTo(second);
                     };
-                case LOYALTY:
-                    return (a, b) -> {
+                    case LOYALTY -> (a, b) -> {
                         Loyalty first = CollectionUtils.convertToList(a, Loyalty.class).stream().filter(Loyalty::exists).findFirst().orElse(Loyalty.NO_LOYALTY);
                         Loyalty second = CollectionUtils.convertToList(b, Loyalty.class).stream().filter(Loyalty::exists).findFirst().orElse(Loyalty.NO_LOYALTY);
                         if (!first.exists() && !second.exists())
@@ -133,8 +123,7 @@ public class CardTable extends JTable
                         else
                             return first.compareTo(second);
                     };
-                case CATEGORIES:
-                    return (a, b) -> {
+                    case CATEGORIES -> (a, b) -> {
                         var first = new ArrayList<>(CollectionUtils.convertToSet(a, CategorySpec.class));
                         var second = new ArrayList<>(CollectionUtils.convertToSet(b, CategorySpec.class));
                         first.sort(Comparator.comparing(CategorySpec::getName));
@@ -147,9 +136,8 @@ public class CardTable extends JTable
                         }
                         return Integer.compare(first.size(), second.size());
                     };
-                default:
-                    return super.getComparator(column);
-                }
+                    default -> super.getComparator(column);
+                };
             }
             else
                 return super.getComparator(column);
