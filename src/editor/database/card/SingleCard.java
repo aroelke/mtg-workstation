@@ -231,11 +231,11 @@ public class SingleCard extends Card
             {
                 switch (sub.toLowerCase())
                 {
-                    case "plains": tempIdentity.add(ManaType.WHITE);
-                    case "island": tempIdentity.add(ManaType.BLUE);
-                    case "swamp": tempIdentity.add(ManaType.BLACK);
-                    case "mountain": tempIdentity.add(ManaType.RED);
-                    case "forest": tempIdentity.add(ManaType.GREEN);
+                    case "plains"   -> tempIdentity.add(ManaType.WHITE);
+                    case "island"   -> tempIdentity.add(ManaType.BLUE);
+                    case "swamp"    -> tempIdentity.add(ManaType.BLACK);
+                    case "mountain" -> tempIdentity.add(ManaType.RED);
+                    case "forest"   -> tempIdentity.add(ManaType.GREEN);
                 }
             }
         }
