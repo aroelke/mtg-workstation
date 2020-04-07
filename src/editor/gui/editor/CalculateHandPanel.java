@@ -53,26 +53,16 @@ public class CalculateHandPanel extends JPanel
         @Override
         public Class<?> getColumnClass(int column)
         {
-            switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
-            {
-            case DESIRED_PROBABILITY:
-                switch (column)
-                {
-                case CATEGORY:
-                    return String.class;
-                case COUNT:
-                case DESIRED:
-                    return Integer.class;
-                case RELATION:
-                    return Relation.class;
-                default:
-                    return String.class;
-                }
-            case EXPECTED_COUNT:
-                return String.class;
-            default:
-                throw new IllegalStateException("There should not be any other values of DisplayMode.");
-            }
+            return switch (modeBox.getItemAt(modeBox.getSelectedIndex())) {
+                case DESIRED_PROBABILITY -> switch (column) {
+                    case CATEGORY -> String.class;
+                    case COUNT, DESIRED -> Integer.class;
+                    case RELATION -> Relation.class;
+                    default -> String.class;
+                };
+                case EXPECTED_COUNT -> String.class;
+                default -> throw new IllegalStateException("There should not be any other values of DisplayMode.");
+            };
         }
 
         /**
@@ -86,51 +76,32 @@ public class CalculateHandPanel extends JPanel
         @Override
         public int getColumnCount()
         {
-            switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
-            {
-            case DESIRED_PROBABILITY:
-                return (int)drawsSpinner.getValue() + P_INFO_COLS;
-            case EXPECTED_COUNT:
-                return (int)drawsSpinner.getValue() + E_INFO_COLS;
-            default:
-                throw new IllegalStateException("There should not be any other values of DisplayMode.");
-            }
+            return (int)drawsSpinner.getValue() + switch (modeBox.getItemAt(modeBox.getSelectedIndex())) {
+                case DESIRED_PROBABILITY -> P_INFO_COLS;
+                case EXPECTED_COUNT -> E_INFO_COLS;
+                default -> throw new IllegalStateException("There should not be any other values of DisplayMode.");
+            };
         }
 
         @Override
         public String getColumnName(int column)
         {
-            switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
-            {
-            case DESIRED_PROBABILITY:
-                switch (column)
-                {
-                case CATEGORY:
-                    return "Kind of Card";
-                case COUNT:
-                    return "Count";
-                case DESIRED:
-                    return "Desired";
-                case RELATION:
-                    return "Relation";
-                case P_INITIAL:
-                    return "Initial Hand";
-                default:
-                    return "Draw " + (column - (P_INFO_COLS - 1));
-                }
-            case EXPECTED_COUNT:
-                switch (column)
-                {
-                case CATEGORY:
-                    return "Kind of Card";
-                case E_INITIAL:
-                    return "Initial Hand";
-                default:
-                    return "Draw " + (column - (E_INFO_COLS - 1));
-                }
-            default:
-                throw new IllegalStateException("There should not be any other values of DisplayMode.");
-            }
+            return switch (modeBox.getItemAt(modeBox.getSelectedIndex())) {
+                case DESIRED_PROBABILITY -> switch (column) {
+                    case CATEGORY  -> "Kind of Card";
+                    case COUNT     -> "Count";
+                    case DESIRED   -> "Desired";
+                    case RELATION  -> "Relation";
+                    case P_INITIAL -> "Initial Hand";
+                    default        -> "Draw " + (column - (P_INFO_COLS - 1));
+                };
+                case EXPECTED_COUNT -> switch (column) {
+                    case CATEGORY  -> "Kind of Card";
+                    case E_INITIAL -> "Initial Hand";
+                    default        -> "Draw " + (column - (E_INFO_COLS - 1));
+                };
+                default -> throw new IllegalStateException("There should not be any other values of DisplayMode.");
+            };
         }
 
         /**
@@ -147,33 +118,24 @@ public class CalculateHandPanel extends JPanel
         public Object getValueAt(int rowIndex, int columnIndex)
         {
             String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(rowIndex);
-
-            switch (modeBox.getItemAt(modeBox.getSelectedIndex()))
-            {
-            case DESIRED_PROBABILITY:
-                switch (columnIndex)
-                {
-                case CATEGORY:
-                    return category;
-                case COUNT:
-                    return deck.getCategoryList(category).total();
-                case DESIRED:
-                    return desiredBoxes.get(category).getSelectedItem();
-                case RELATION:
-                    return relationBoxes.get(category).getSelectedItem();
-                default:
-                    return String.format("%.2f%%", probabilities.get(category).get(columnIndex - (P_INFO_COLS - 1)) * 100.0);
+            return switch (modeBox.getItemAt(modeBox.getSelectedIndex())) {
+                case DESIRED_PROBABILITY -> switch (columnIndex) {
+                    case CATEGORY -> category;
+                    case COUNT -> deck.getCategoryList(category).total();
+                    case DESIRED -> desiredBoxes.get(category).getSelectedItem();
+                    case RELATION -> relationBoxes.get(category).getSelectedItem();
+                    default -> String.format("%.2f%%", probabilities.get(category).get(columnIndex - (P_INFO_COLS - 1)) * 100.0);
+                };
+                case EXPECTED_COUNT -> {
+                    if (columnIndex == CATEGORY)
+                        yield category;
+                    else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts.get(category).size())
+                        yield ROUND_MODE.get(SettingsDialog.settings().editor.hand.rounding).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
+                    else
+                        yield "";
                 }
-            case EXPECTED_COUNT:
-                if (columnIndex == CATEGORY)
-                    return category;
-                else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts.get(category).size())
-                    return ROUND_MODE.get(SettingsDialog.settings().editor.hand.rounding).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
-                else
-                    return "";
-            default:
-                throw new IllegalStateException("There should not be any other values of DisplayMode.");
-            }
+                default -> throw new IllegalStateException("There should not be any other values of DisplayMode.");
+            };
         }
     }
 
@@ -439,16 +401,11 @@ public class CalculateHandPanel extends JPanel
             public TableCellEditor getCellEditor(int row, int column)
             {
                 String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(row);
-
-                switch (column)
-                {
-                case DESIRED:
-                    return new DefaultCellEditor(desiredBoxes.get(category));
-                case RELATION:
-                    return new DefaultCellEditor(relationBoxes.get(category));
-                default:
-                    return super.getCellEditor(row, column);
-                }
+                return switch (column) {
+                    case DESIRED  -> new DefaultCellEditor(desiredBoxes.get(category));
+                    case RELATION -> new DefaultCellEditor(relationBoxes.get(category));
+                    default       -> super.getCellEditor(row, column);
+                };
             }
 
             @Override
