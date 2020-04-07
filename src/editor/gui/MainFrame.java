@@ -1133,21 +1133,15 @@ public class MainFrame extends JFrame
                 @Override
                 public String getColumnName(int index)
                 {
-                    switch (index)
-                    {
-                    case 0:
-                        return "Expansion";
-                    case 1:
-                        return "Block";
-                    case 2:
-                        return "Code";
-                    case 3:
-                        return "magiccards.info";
-                    case 4:
-                        return "Gatherer";
-                    default:
-                        return null;
-                    }
+                    // TODO: This should be static
+                    String[] columns = {
+                        "Expansion",
+                        "Block",
+                        "Code",
+                        "magiccards.info",
+                        "Gatherer"
+                    };
+                    return columns[index];
                 }
 
                 @Override
@@ -1159,21 +1153,14 @@ public class MainFrame extends JFrame
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex)
                 {
-                    switch (columnIndex)
-                    {
-                    case 0:
-                        return Expansion.expansions[rowIndex].name;
-                    case 1:
-                        return Expansion.expansions[rowIndex].block;
-                    case 2:
-                        return Expansion.expansions[rowIndex].code;
-                    case 3:
-                        return Expansion.expansions[rowIndex].magicCardsInfoCode;
-                    case 4:
-                        return Expansion.expansions[rowIndex].gathererCode;
-                    default:
-                        return null;
-                    }
+                    Object[] values = {
+                        Expansion.expansions[rowIndex].name,
+                        Expansion.expansions[rowIndex].block,
+                        Expansion.expansions[rowIndex].code,
+                        Expansion.expansions[rowIndex].magicCardsInfoCode,
+                        Expansion.expansions[rowIndex].gathererCode
+                    };
+                    return values[columnIndex];
                 }
             };
             JTable expansionTable = new JTable(expansionTableModel);
