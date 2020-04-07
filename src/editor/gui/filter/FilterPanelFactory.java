@@ -50,56 +50,27 @@ public interface FilterPanelFactory
      */
     static FilterEditorPanel<?> createFilterPanel(FilterLeaf<?> filter)
     {
-        switch (filter.type())
-        {
-        case NAME:
-        case RULES_TEXT:
-        case FLAVOR_TEXT:
-        case PRINTED_TEXT:
-        case ARTIST:
-        case PRINTED_TYPES:
-            return new TextFilterPanel((TextFilter)filter);
-        case LAYOUT:
-            return new OptionsFilterPanel<>((LayoutFilter)filter, CardLayout.values());
-        case MANA_COST:
-            return new ManaCostFilterPanel((ManaCostFilter)filter);
-        case CMC:
-        case CARD_NUMBER:
-            return new NumberFilterPanel((NumberFilter)filter);
-        case COLOR:
-        case COLOR_IDENTITY:
-            return new ColorFilterPanel((ColorFilter)filter);
-        case TYPE_LINE:
-            return new TypeLineFilterPanel((TypeLineFilter)filter);
-        case SUPERTYPE:
-            return new OptionsFilterPanel<>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
-        case CARD_TYPE:
-            return new OptionsFilterPanel<>((CardTypeFilter)filter, CardTypeFilter.typeList);
-        case SUBTYPE:
-            return new OptionsFilterPanel<>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
-        case EXPANSION:
-            return new OptionsFilterPanel<>((ExpansionFilter)filter, Expansion.expansions);
-        case BLOCK:
-            return new OptionsFilterPanel<>((BlockFilter)filter, Expansion.blocks);
-        case RARITY:
-            return new OptionsFilterPanel<>((RarityFilter)filter, Rarity.values());
-        case POWER:
-        case TOUGHNESS:
-        case LOYALTY:
-            return new VariableNumberFilterPanel((VariableNumberFilter)filter);
-        case FORMAT_LEGALITY:
-            return new LegalityFilterPanel((LegalityFilter)filter);
-        case TAGS:
-            return new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
-        case DEFAULTS:
-            return new DefaultsFilterPanel();
-        case NONE:
-            return new BinaryFilterPanel(false);
-        case ANY:
-            return new BinaryFilterPanel(true);
-        default:
-            return new BinaryFilterPanel(false);
-        }
+        return switch (filter.type()) {
+            case NAME, RULES_TEXT, FLAVOR_TEXT, PRINTED_TEXT, ARTIST, PRINTED_TYPES -> new TextFilterPanel((TextFilter)filter);
+            case POWER, TOUGHNESS, LOYALTY -> new VariableNumberFilterPanel((VariableNumberFilter)filter);
+            case CMC, CARD_NUMBER -> new NumberFilterPanel((NumberFilter)filter);
+            case COLOR, COLOR_IDENTITY -> new ColorFilterPanel((ColorFilter)filter);
+            case LAYOUT          -> new OptionsFilterPanel<>((LayoutFilter)filter, CardLayout.values());
+            case MANA_COST       -> new ManaCostFilterPanel((ManaCostFilter)filter);
+            case TYPE_LINE       -> new TypeLineFilterPanel((TypeLineFilter)filter);
+            case SUPERTYPE       -> new OptionsFilterPanel<>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
+            case CARD_TYPE       -> new OptionsFilterPanel<>((CardTypeFilter)filter, CardTypeFilter.typeList);
+            case SUBTYPE         -> new OptionsFilterPanel<>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
+            case EXPANSION       -> new OptionsFilterPanel<>((ExpansionFilter)filter, Expansion.expansions);
+            case BLOCK           -> new OptionsFilterPanel<>((BlockFilter)filter, Expansion.blocks);
+            case RARITY          -> new OptionsFilterPanel<>((RarityFilter)filter, Rarity.values());
+            case FORMAT_LEGALITY -> new LegalityFilterPanel((LegalityFilter)filter);
+            case TAGS            -> new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
+            case DEFAULTS        -> new DefaultsFilterPanel();
+            case NONE            -> new BinaryFilterPanel(false);
+            case ANY             -> new BinaryFilterPanel(true);
+            default -> throw new IllegalArgumentException("No panel exists for filters of type " + filter.toString());
+        };
     }
 
     /**
