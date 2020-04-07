@@ -178,15 +178,10 @@ public class CardImagePanel extends JPanel
         {
             if (SwingUtilities.isLeftMouseButton(e) && card != null)
             {
-                switch (card.layout())
-                {
-                case SPLIT: case AFTERMATH: case ADVENTURE:
-                    face = 0;
-                    break;
-                default:
-                    face = (face + 1)%card.faces();
-                    break;
-                }
+                face = switch (card.layout()) {
+                    case SPLIT, AFTERMATH, ADVENTURE -> 0;
+                    default -> (face + 1) % card.faces();
+                };
                 getParent().revalidate();
                 repaint();
             }
