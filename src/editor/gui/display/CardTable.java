@@ -165,15 +165,11 @@ public class CardTable extends JTable
      */
     public static TableCellEditor createCellEditor(EditorFrame frame, CardAttribute type) throws IllegalArgumentException
     {
-        switch (type)
-        {
-        case COUNT:
-            return new SpinnerCellEditor();
-        case CATEGORIES:
-            return new InclusionCellEditor(frame);
-        default:
-            throw new IllegalArgumentException("CardAttribute type " + type + " can't be edited.");
-        }
+        return switch (type) {
+            case COUNT -> new SpinnerCellEditor();
+            case CATEGORIES -> new InclusionCellEditor(frame);
+            default -> throw new IllegalArgumentException("CardAttribute type " + type + " can't be edited.");
+        };
     }
 
     /**
