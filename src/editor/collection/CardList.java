@@ -77,47 +77,27 @@ public interface CardList extends Iterable<Card>
          */
         default Object get(CardAttribute data)
         {
-            switch (data)
-            {
-            case NAME:
-                return card().unifiedName();
-            case LAYOUT:
-                return card().layout();
-            case MANA_COST:
-                return card().manaCost();
-            case CMC:
-                return card().cmc();
-            case COLORS:
-                return card().colors();
-            case COLOR_IDENTITY:
-                return card().colorIdentity();
-            case TYPE_LINE:
-                return card().unifiedTypeLine();
-            case EXPANSION_NAME:
-                return card().expansion().toString();
-            case RARITY:
-                return card().rarity();
-            case POWER:
-                return card().power();
-            case TOUGHNESS:
-                return card().toughness();
-            case LOYALTY:
-                return card().loyalty();
-            case ARTIST:
-                return card().artist().get(0);
-            case CARD_NUMBER:
-                return String.join(' ' + Card.FACE_SEPARATOR + ' ', card().number());
-            case LEGAL_IN:
-                return card().legalIn();
-            case COUNT:
-                return count();
-            case CATEGORIES:
-                return categories();
-            case DATE_ADDED:
-                return dateAdded();
-            default:
-                throw new IllegalArgumentException("Unknown data type " + data);
-            }
+            return switch (data) {
+                case NAME           -> card().unifiedName();
+                case LAYOUT         -> card().layout();
+                case MANA_COST      -> card().manaCost();
+                case CMC            -> card().cmc();
+                case COLORS         -> card().colors();
+                case COLOR_IDENTITY -> card().colorIdentity();
+                case TYPE_LINE      -> card().unifiedTypeLine();
+                case EXPANSION_NAME -> card().expansion().toString();
+                case RARITY         -> card().rarity();
+                case POWER          -> card().power();
+                case TOUGHNESS      -> card().toughness();
+                case LOYALTY        -> card().loyalty();
+                case ARTIST         -> card().artist().get(0);
+                case CARD_NUMBER    -> String.join(' ' + Card.FACE_SEPARATOR + ' ', card().number());
+                case LEGAL_IN       -> card().legalIn();
+                case COUNT          -> count();
+                case CATEGORIES     -> categories();
+                case DATE_ADDED     -> dateAdded();
+                default -> throw new IllegalArgumentException("Unknown data type " + data);
+            };
         }
     }
 
