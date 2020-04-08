@@ -1,8 +1,9 @@
 package editor.util;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * This enumeration represents a way that elements from one #Collection can be contained in another.
@@ -55,43 +56,15 @@ public enum Containment implements BiPredicate<Collection<?>, Collection<?>>
     @Override
     public boolean test(Collection<?> a, Collection<?> b)
     {
-        switch (this)
-        {
-        case CONTAINS_ANY_OF:
-            if (b.isEmpty())
-                return true;
-            for (Object o : b)
-                if (a.contains(o))
-                    return true;
-            return false;
-        case CONTAINS_NONE_OF:
-            for (Object o : b)
-                if (a.contains(o))
-                    return false;
-            return true;
-        case CONTAINS_ALL_OF:
-            return a.containsAll(b);
-        case CONTAINS_NOT_ALL_OF:
-            return CONTAINS_ANY_OF.test(a, b) && !a.containsAll(b);
-        case CONTAINS_EXACTLY:
-            var aMap = new HashMap<Object, Integer>();
-            for (Object o : a)
-                aMap.compute(o, (k, v) -> v == null ? 1 : v + 1);
-            var bMap = new HashMap<Object, Integer>();
-            for (Object o : b)
-                bMap.compute(o, (k, v) -> v == null ? 1 : v + 1);
-            return aMap.equals(bMap);
-        case CONTAINS_NOT_EXACTLY:
-            for (Object o : a)
-                if (!b.contains(o))
-                    return true;
-            for (Object o : b)
-                if (!a.contains(o))
-                    return true;
-            return false;
-        default:
-            throw new IllegalArgumentException("Illegal Containment " + this);
-        }
+        return switch (this) {
+            case CONTAINS_ANY_OF -> b.isEmpty() || b.stream().anyMatch(a::contains);
+            case CONTAINS_NONE_OF -> b.stream().noneMatch(a::contains);
+            case CONTAINS_ALL_OF -> a.containsAll(b);
+            case CONTAINS_NOT_ALL_OF -> CONTAINS_ANY_OF.test(a, b) && !a.containsAll(b);
+            case CONTAINS_EXACTLY -> a.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).equals(
+                                     b.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting())));
+            case CONTAINS_NOT_EXACTLY -> a.stream().anyMatch((o) -> !b.contains(o)) || b.stream().anyMatch((o) -> !a.contains(o));
+        };
     }
 
     /**
