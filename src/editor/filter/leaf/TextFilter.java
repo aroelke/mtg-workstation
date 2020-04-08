@@ -1,7 +1,5 @@
 package editor.filter.leaf;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -201,14 +199,6 @@ public class TextFilter extends FilterLeaf<Collection<String>>
             }
             return function().apply(c).stream().anyMatch(matcher);
         }
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeObject(contain);
-        out.writeBoolean(regex);
-        out.writeUTF(text);
     }
 
     @Override

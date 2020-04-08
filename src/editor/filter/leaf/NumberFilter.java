@@ -1,7 +1,5 @@
 package editor.filter.leaf;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
@@ -100,13 +98,6 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
     public int hashCode()
     {
         return Objects.hash(type(), function(), operation, operand);
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeDouble(operand);
-        out.writeObject(operation);
     }
 
     @Override

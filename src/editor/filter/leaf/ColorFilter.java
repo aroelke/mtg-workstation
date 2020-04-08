@@ -1,7 +1,5 @@
 package editor.filter.leaf;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -99,16 +97,6 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     {
         return contain.test(function().apply(c), colors)
                 && (!multicolored || function().apply(c).size() > 1);
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeObject(contain);
-        out.writeInt(colors.size());
-        for (ManaType type : colors)
-            out.writeObject(type);
-        out.writeBoolean(multicolored);
     }
 
     @Override

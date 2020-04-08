@@ -1,10 +1,8 @@
 package editor.database.characteristics;
 
-import org.apache.commons.codec.binary.Base32;
-
 /**
- * This enum represents a rarity a Magic: The Gathering card can have.  Rarities
- * are basically Strings, so they implement {@link CharSequence}.  All of the
+ * This enum represents a rarity a Magic: The Gathering card can have. Rarities
+ * are basically Strings, so they implement {@link CharSequence}. All of the
  * implemented methods operate on a Rarity's String representation from
  * {@link #toString()}.
  *

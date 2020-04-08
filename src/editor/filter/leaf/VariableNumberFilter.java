@@ -1,7 +1,5 @@
 package editor.filter.leaf;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
@@ -92,13 +90,6 @@ public class VariableNumberFilter extends NumberFilter
     public boolean test(Card c)
     {
         return varies ? variable.test(c) : super.test(c);
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        super.writeExternal(out);
-        out.writeBoolean(varies);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package editor.filter;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.function.Predicate;
 
 import com.google.gson.JsonElement;
@@ -93,6 +91,4 @@ public abstract class Filter implements Predicate<Card>
     {
         deserializeFields(object);
     }
-
-    public abstract void writeExternal(ObjectOutput out) throws IOException;
 }

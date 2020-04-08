@@ -1,7 +1,5 @@
 package editor.filter.leaf;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.Objects;
 
 import com.google.gson.JsonObject;
@@ -81,13 +79,6 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
             case CONTAINS_EXACTLY -> m.equals(cost);
             case CONTAINS_NOT_EXACTLY -> !m.equals(cost);
         });
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeObject(contain);
-        out.writeUTF(cost.toString());
     }
 
     @Override

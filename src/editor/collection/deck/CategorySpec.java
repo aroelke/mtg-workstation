@@ -1,8 +1,6 @@
 package editor.collection.deck;
 
 import java.awt.Color;
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
@@ -12,7 +10,6 @@ import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
 import editor.filter.FilterGroup;
-import editor.serialization.legacy.FilterDeserializer;
 
 /**
  * This class represents a set of specifications for a category.  Those specifications are its name,
@@ -271,21 +268,5 @@ public class CategorySpec
     public void setName(String n)
     {
         name = n;
-    }
-
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeUTF(name);
-        out.writeObject(color);
-
-        out.writeUTF(FilterDeserializer.CODES.get(filter.type()));
-        filter.writeExternal(out);
-
-        out.writeInt(blacklist.size());
-        for (Card card : blacklist)
-            out.writeLong(card.multiverseid().get(0));
-        out.writeInt(whitelist.size());
-        for (Card card : whitelist)
-            out.writeLong(card.multiverseid().get(0));
     }
 }

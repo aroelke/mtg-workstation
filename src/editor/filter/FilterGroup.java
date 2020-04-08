@@ -1,7 +1,5 @@
 package editor.filter;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,7 +16,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import editor.database.card.Card;
-import editor.serialization.legacy.FilterDeserializer;
 
 /**
  * This class represents a group of filters that are ANDed or ORed together.
@@ -178,18 +175,6 @@ public class FilterGroup extends Filter implements Iterable<Filter>
     public boolean test(Card c)
     {
         return mode.test(children, c);
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeObject(mode);
-        out.writeInt(children.size());
-        for (Filter child : children)
-        {
-            out.writeUTF(FilterDeserializer.CODES.get(child.type()));
-            child.writeExternal(out);
-        }
     }
 
     @Override

@@ -1,7 +1,5 @@
 package editor.filter.leaf;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.Objects;
 
 import com.google.gson.JsonObject;
@@ -68,12 +66,6 @@ public class BinaryFilter extends FilterLeaf<Void>
     public boolean test(Card c)
     {
         return all;
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeBoolean(all);
     }
 
     @Override

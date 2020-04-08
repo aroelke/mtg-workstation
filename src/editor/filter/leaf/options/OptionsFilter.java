@@ -1,8 +1,5 @@
 package editor.filter.leaf.options;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -74,21 +71,6 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
     public int hashCode()
     {
         return Objects.hash(type(), function(), contain, selected);
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeObject(contain);
-        out.writeInt(selected.size());
-        for (T item : selected)
-        {
-            out.writeBoolean(item instanceof Serializable);
-            if (item instanceof Serializable)
-                out.writeObject(item);
-            else
-                out.writeUTF(item.toString());
-        }
     }
 
     /**

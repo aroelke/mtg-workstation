@@ -1,7 +1,5 @@
 package editor.filter.leaf;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -77,13 +75,6 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     public boolean test(Card c)
     {
         return !line.isEmpty() && contain.test(c.allTypes().stream().flatMap(Set::stream).map(String::toLowerCase).collect(Collectors.toSet()), Arrays.asList(line.toLowerCase().split("\\s")));
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        out.writeObject(contain);
-        out.writeUTF(line);
     }
 
     @Override

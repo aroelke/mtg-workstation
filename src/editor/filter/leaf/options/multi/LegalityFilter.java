@@ -1,7 +1,5 @@
 package editor.filter.leaf.options.multi;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
@@ -95,13 +93,6 @@ public class LegalityFilter extends MultiOptionsFilter<String>
         }
         else
             return true;
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-        super.writeExternal(out);
-        out.writeBoolean(restricted);
     }
 
     @Override
