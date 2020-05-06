@@ -77,7 +77,7 @@ public class ColorSymbol extends ManaSymbol
     public int compareTo(ManaSymbol o)
     {
         if (o instanceof ColorSymbol)
-            return color.colorOrder(((ColorSymbol)o).color);
+            return color.compareTo(((ColorSymbol)o).color);
         else
             return super.compareTo(o);
     }
