@@ -4,7 +4,6 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -14,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import editor.database.symbol.ColorSymbol;
 import editor.database.symbol.ManaSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
@@ -258,6 +258,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
             return 1;
         else
         {
+            // Start by sorting by CMC
             int diff = (int)(2 * (cmc() - o.cmc()));
             // If the two costs have the same CMC, sort them by symbol weight
             if (diff == 0)
@@ -266,17 +267,11 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
                 var oWeightList = o.weights.values().stream().sorted().collect(Collectors.toList());
                 for (int i = 0; i < ManaType.values().length; i++)
                     diff += (weightList.get(i) - oWeightList.get(i))*Math.pow(10, i);
-                
-                // If the two costs have the same weight, sort them by color
-                if (diff == 0)
-                {
-                    // Different from colors() becaues it has to include colorless
-                    var types = weights.entrySet().stream().filter((e) -> e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
-                    var oTypes = o.weights.entrySet().stream().filter((e) -> e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
-                    for (int i = 0; i < types.size(); i++)
-                        diff += types.get(i).compareTo(oTypes.get(i))*Math.pow(10, i);
-                }
             }
+            // If the two costs have the same weight, sort them by color
+            if (diff == 0)
+                for (int i = 0; diff == 0 && i < Math.min(size(), o.size()); i++)
+                    diff = get(i).compareTo(o.get(i));
             return diff;
         }
     }
