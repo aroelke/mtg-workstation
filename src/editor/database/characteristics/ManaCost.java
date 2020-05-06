@@ -258,14 +258,14 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
         else
         {
             int diff = (int)(2 * (cmc() - o.cmc()));
+            // If the two costs have the same CMC, sort them by symbol weight
             if (diff == 0)
             {
-                var weightList = new ArrayList<>(weights.values());
-                weightList.sort(Double::compareTo);
-                var oWeightList = new ArrayList<>(o.weights.values());
-                oWeightList.sort(Double::compareTo);
+                var weightList = weights.values().stream().sorted().collect(Collectors.toList());
+                var oWeightList = o.weights.values().stream().sorted().collect(Collectors.toList());
                 for (int i = 0; i < ManaType.values().length; i++)
                     diff += (weightList.get(i) - oWeightList.get(i)) * Math.pow(10, i);
+                
             }
             return diff;
         }
