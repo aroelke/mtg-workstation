@@ -8,8 +8,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import editor.database.symbol.ManaSymbol;
 import editor.database.symbol.Symbol;
@@ -230,9 +232,10 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public boolean isSubset(ManaCost o)
     {
-        var copy = new ArrayList<Symbol>(cost);
-        for (Symbol sym : cost)
-            if (!copy.remove(sym))
+        var myCounts = cost.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        var oCounts = o.cost.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        for (Symbol sym : myCounts.keySet())
+            if (myCounts.get(sym) > oCounts.getOrDefault(sym, 0L))
                 return false;
         return true;
     }
