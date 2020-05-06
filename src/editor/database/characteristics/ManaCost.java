@@ -13,7 +13,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import editor.database.symbol.ColorSymbol;
 import editor.database.symbol.ManaSymbol;
 import editor.database.symbol.Symbol;
 import editor.gui.MainFrame;
