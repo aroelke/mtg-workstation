@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
 public enum ManaType
 {
     /**
+     * Colorless mana.  While this is not a color, it is a type.
+     */
+    COLORLESS("Colorless", 'C', null),
+    /**
      * White mana.
      */
     WHITE("White", 'W', Color.YELLOW.darker()),
@@ -33,11 +37,7 @@ public enum ManaType
     /**
      * Green mana.
      */
-    GREEN("Green", 'G', Color.GREEN.darker()),
-    /**
-     * Colorless mana.  While this is not a color, it is a type.
-     */
-    COLORLESS("Colorless", 'C', null);
+    GREEN("Green", 'G', Color.GREEN.darker());
 
     /**
      * Get the ManaTypes that represent colors, which is all of them except
