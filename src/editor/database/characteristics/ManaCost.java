@@ -101,7 +101,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
         cost = Collections.unmodifiableList(symbols);
         weights = ManaSymbol.createWeights();
         for (ManaSymbol sym : cost)
-            for (ManaType col : weights.keySet())
+            for (ManaType col : sym.colorWeights().keySet())
                 weights.compute(col, (k, v) -> sym.colorWeights().get(k) + v);
     }
 
