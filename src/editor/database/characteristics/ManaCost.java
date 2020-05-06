@@ -121,10 +121,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public double cmc()
     {
-        double cmc = 0.0;
-        for (ManaSymbol sym : cost)
-            cmc += sym.value();
-        return cmc;
+        return cost.stream().mapToDouble(ManaSymbol::value).sum();
     }
 
     /**
