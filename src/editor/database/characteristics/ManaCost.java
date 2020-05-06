@@ -113,7 +113,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public List<ManaType> colors()
     {
-        return cost.stream().flatMap((s) -> s.colorWeights().keySet().stream()).sorted().filter((m) -> m != ManaType.COLORLESS).collect(Collectors.toList());
+        return cost.stream().flatMap((s) -> s.colorWeights().entrySet().stream()).filter((e) -> e.getKey() != ManaType.COLORLESS && e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
     }
 
     /**
@@ -264,8 +264,17 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
                 var weightList = weights.values().stream().sorted().collect(Collectors.toList());
                 var oWeightList = o.weights.values().stream().sorted().collect(Collectors.toList());
                 for (int i = 0; i < ManaType.values().length; i++)
-                    diff += (weightList.get(i) - oWeightList.get(i)) * Math.pow(10, i);
+                    diff += (weightList.get(i) - oWeightList.get(i))*Math.pow(10, i);
                 
+                // If the two costs have the same weight, sort them by color
+                if (diff == 0)
+                {
+                    // Different from colors() becaues it has to include colorless
+                    var types = cost.stream().flatMap((s) -> s.colorWeights().entrySet().stream()).filter((e) -> e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
+                    var oTypes = o.cost.stream().flatMap((s) -> s.colorWeights().entrySet().stream()).filter((e) -> e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
+                    for (int i = 0; i < types.size(); i++)
+                        diff += types.get(i).compareTo(oTypes.get(i))*Math.pow(10, i);
+                }
             }
             return diff;
         }
