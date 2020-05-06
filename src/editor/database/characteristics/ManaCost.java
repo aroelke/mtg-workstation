@@ -113,12 +113,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public List<ManaType> colors()
     {
-        var colors = new ArrayList<ManaType>();
-        for (ManaSymbol sym : cost)
-            for (var weight : sym.colorWeights().entrySet())
-                if (weight.getKey() != ManaType.COLORLESS && weight.getValue() > 0 && !colors.contains(weight.getKey()))
-                    colors.add(weight.getKey());
-        return colors;
+        return cost.stream().flatMap((s) -> s.colorWeights().keySet().stream()).sorted().filter((m) -> m != ManaType.COLORLESS).collect(Collectors.toList());
     }
 
     /**
