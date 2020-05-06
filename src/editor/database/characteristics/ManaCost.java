@@ -4,6 +4,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -113,7 +114,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public List<ManaType> colors()
     {
-        return cost.stream().flatMap((s) -> s.colorWeights().entrySet().stream()).filter((e) -> e.getKey() != ManaType.COLORLESS && e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
+        return weights.entrySet().stream().filter((e) -> e.getKey() != ManaType.COLORLESS && e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
     }
 
     /**
@@ -270,8 +271,8 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
                 if (diff == 0)
                 {
                     // Different from colors() becaues it has to include colorless
-                    var types = cost.stream().flatMap((s) -> s.colorWeights().entrySet().stream()).filter((e) -> e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
-                    var oTypes = o.cost.stream().flatMap((s) -> s.colorWeights().entrySet().stream()).filter((e) -> e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
+                    var types = weights.entrySet().stream().filter((e) -> e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
+                    var oTypes = o.weights.entrySet().stream().filter((e) -> e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
                     for (int i = 0; i < types.size(); i++)
                         diff += types.get(i).compareTo(oTypes.get(i))*Math.pow(10, i);
                 }
