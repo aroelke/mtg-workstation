@@ -152,7 +152,6 @@ import editor.util.UnicodeSymbols;
  * TODO: Right-click column header = create filter for that column
  * TODO: Optionally get card images from magiccards.info rather than locally
  * TODO: File search for cards/filter match
- * TODO: Check for JIDE common layer 3.7 upload to Maven central
  * TODO: Add a capability to list needed tokens
  *
  * @author Alec Roelke
@@ -268,10 +267,6 @@ public class MainFrame extends JFrame
      */
     public static void main(String[] args)
     {
-//        LookAndFeelFactory.setDefaultStyle(LookAndFeelFactory.VSNET_STYLE_WITHOUT_MENU);
-//        LookAndFeelFactory.installDefaultLookAndFeel();
-//        LookAndFeelFactory.installJideExtension();
-
         try
         {
             Object tristateIcon = UIManager.get("TristateCheckBox.icon");
