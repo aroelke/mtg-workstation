@@ -6,10 +6,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.plaf.basic.BasicArrowButton;
+
+import editor.util.UnicodeSymbols;
 
 /**
  * TODO: Comment this
@@ -19,23 +22,38 @@ import javax.swing.plaf.basic.BasicArrowButton;
 @SuppressWarnings("serial")
 public class ButtonScrollPane extends JPanel
 {
+	private static class ArrowButton extends JButton
+	{
+		public static final int EAST = 1;
+		public static final int WEST = 3;
+
+		public ArrowButton(int direction)
+		{
+			super(String.valueOf(switch (direction) {
+				case EAST -> UnicodeSymbols.RIGHT_ARROW;
+				case WEST -> UnicodeSymbols.LEFT_ARROW;
+				default -> throw new IllegalArgumentException("Illegal direction " + direction);
+			}));
+		}
+	}
+
 	public ButtonScrollPane(Component view)
 	{
 		super(new BorderLayout());
-		
-		BasicArrowButton left = new BasicArrowButton(BasicArrowButton.WEST);
+
+		ArrowButton left = new ArrowButton(ArrowButton.WEST);
 		add(left, BorderLayout.WEST);
-		
+
 		JScrollPane pane = new JScrollPane(view);
 		pane.setBorder(null);
 		pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		add(pane, BorderLayout.CENTER);
-		
-		BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
+
+		ArrowButton right = new ArrowButton(ArrowButton.EAST);
 		add(right, BorderLayout.EAST);
-		
+
 		JScrollBar bar = pane.getHorizontalScrollBar();
-		left.addActionListener(e -> {
+		left.addActionListener((e) -> {
 			bar.getActionMap().get("negativeUnitIncrement").actionPerformed(new ActionEvent(
 			bar,
 			ActionEvent.ACTION_PERFORMED,
@@ -43,7 +61,7 @@ public class ButtonScrollPane extends JPanel
 			e.getWhen(),
 			e.getModifiers()));
 		});
-		right.addActionListener(e -> {
+		right.addActionListener((e) -> {
 			bar.getActionMap().get("positiveUnitIncrement").actionPerformed(new ActionEvent(
 			bar,
 			ActionEvent.ACTION_PERFORMED,
@@ -51,7 +69,7 @@ public class ButtonScrollPane extends JPanel
 			e.getWhen(),
 			e.getModifiers()));
 		});
-		
+
 		view.addComponentListener(new ComponentListener()
 		{
 			@Override
@@ -61,7 +79,7 @@ public class ButtonScrollPane extends JPanel
 				left.setEnabled(scrollable);
 				right.setEnabled(scrollable);
 			}
-			
+
 			@Override
 			public void componentHidden(ComponentEvent e)
 			{}
