@@ -1,23 +1,35 @@
 package editor.gui.filter.editor;
 
-import com.jidesoft.swing.SimpleScrollPane;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.plaf.basic.BasicComboPopup;
+
 import editor.filter.Filter;
 import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
+import editor.gui.generic.ButtonScrollPane;
 import editor.gui.generic.ComboBoxPanel;
 import editor.gui.generic.ScrollablePanel;
 import editor.util.Containment;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
 import editor.util.UnicodeSymbols;
-
-import javax.swing.*;
-import javax.swing.plaf.basic.BasicComboPopup;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This class represents a panel that corresponds to a filter that groups
@@ -92,8 +104,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 
         optionsPanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
         optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
-        SimpleScrollPane optionsPane = new SimpleScrollPane(optionsPanel,
-                JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        ButtonScrollPane optionsPane = new ButtonScrollPane(optionsPanel);
         optionsPane.setBorder(BorderFactory.createEmptyBorder());
         add(optionsPane, BorderLayout.CENTER);
     }
