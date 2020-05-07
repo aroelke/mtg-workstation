@@ -10,7 +10,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.plaf.basic.BasicArrowButton;
 
 import editor.util.UnicodeSymbols;
 
