@@ -2,16 +2,18 @@ package editor.gui.generic;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-
-import editor.util.UnicodeSymbols;
+import javax.swing.UIManager;
 
 /**
  * TODO: Comment this
@@ -26,13 +28,44 @@ public class ButtonScrollPane extends JPanel
 		public static final int EAST = 1;
 		public static final int WEST = 3;
 
-		public ArrowButton(int direction)
+		private int direction;
+
+		public ArrowButton(int d)
 		{
-			super(String.valueOf(switch (direction) {
-				case EAST -> UnicodeSymbols.RIGHT_ARROW;
-				case WEST -> UnicodeSymbols.LEFT_ARROW;
-				default -> throw new IllegalArgumentException("Illegal direction " + direction);
-			}));
+			super();
+			direction = d;
+			setFocusable(false);
+		}
+
+		@Override
+		public Dimension getPreferredSize()
+		{
+			Dimension original = super.getPreferredSize();
+			return new Dimension(12, original.height);
+		}
+
+		@Override
+		public void paintComponent(Graphics g)
+		{
+			super.paintComponent(g);
+
+			int h = getHeight();
+			int w = getWidth();
+			int[] x;
+			switch (direction)
+			{
+			case EAST:
+				x = new int[] {w/3, 2*w/3, w/3};
+				break;
+			case WEST:
+				x = new int[] {2*w/3, w/3, 2*w/3};
+				break;
+			default:
+				throw new IllegalArgumentException("Illegal direction " + direction);
+			};
+			int[] y = new int[] {2*h/3, h/2, h/3};
+			g.setColor(UIManager.getColor(isEnabled() ? "Button.foreground" : "Button.disabledForeground"));
+			g.fillPolygon(x, y, 3);
 		}
 	}
 
@@ -54,19 +87,21 @@ public class ButtonScrollPane extends JPanel
 		JScrollBar bar = pane.getHorizontalScrollBar();
 		left.addActionListener((e) -> {
 			bar.getActionMap().get("negativeUnitIncrement").actionPerformed(new ActionEvent(
-			bar,
-			ActionEvent.ACTION_PERFORMED,
-			"",
-			e.getWhen(),
-			e.getModifiers()));
+				bar,
+				ActionEvent.ACTION_PERFORMED,
+				"",
+				e.getWhen(),
+				e.getModifiers()
+			));
 		});
 		right.addActionListener((e) -> {
 			bar.getActionMap().get("positiveUnitIncrement").actionPerformed(new ActionEvent(
-			bar,
-			ActionEvent.ACTION_PERFORMED,
-			"",
-			e.getWhen(),
-			e.getModifiers()));
+				bar,
+				ActionEvent.ACTION_PERFORMED,
+				"",
+				e.getWhen(),
+				e.getModifiers()
+			));
 		});
 
 		view.addComponentListener(new ComponentListener()
