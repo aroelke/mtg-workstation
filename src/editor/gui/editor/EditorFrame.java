@@ -1861,6 +1861,25 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
+     * Get the cards in one of the extra lists. Using an empty string (<code>""</code>)
+     * returns the main deck.
+     *
+     * @param name name of the list to get
+     * @return a copy of the extra list.
+     */
+    public CardList getList(String name)
+    {
+        if (name.isEmpty())
+            return getDeck();
+        else
+        {
+            Deck copy = new Deck();
+            copy.addAll(extras.get(name).current);
+            return copy;
+        }
+    }
+
+    /**
      * @return a {@link CardList} containing all of the cards in extra lists.
      */
     public CardList getExtraCards()
