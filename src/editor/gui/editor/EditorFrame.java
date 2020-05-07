@@ -935,9 +935,9 @@ public class EditorFrame extends JInternalFrame
             for (Card c : hand)
             {
                 CardImagePanel panel = new CardImagePanel();
-                imagePanel.add(panel);
                 panel.setCard(c);
                 panel.setBackground(SettingsDialog.settings().editor.hand.background);
+                imagePanel.add(panel);
                 imagePanel.add(Box.createHorizontalStrut(10));
             }
             imagePanel.validate();

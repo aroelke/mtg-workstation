@@ -323,7 +323,7 @@ public class CardImagePanel extends JPanel
         else
         {
             int h = 0, w = 0;
-            if (faceImages.size() < face || faceImages.get(face) == null)
+            if (faceImages.size() <= face || faceImages.get(face) == null)
             {
                 h = height;
                 w = (int)(h*ASPECT_RATIO);
@@ -335,7 +335,7 @@ public class CardImagePanel extends JPanel
             }
             image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
             Graphics g = image.createGraphics();
-            if (faceImages.size() < face || faceImages.get(face) == null)
+            if (faceImages.size() <= face || faceImages.get(face) == null)
             {
                 int faceWidth = (int)(h*ASPECT_RATIO);
 
@@ -375,6 +375,9 @@ public class CardImagePanel extends JPanel
         if ((card = c) != null)
         {
             face = 0;
+            faceImages.clear();
+            revalidate();
+            repaint();
             downloader.downloadCard(this, card);
         }
     }
