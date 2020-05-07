@@ -51,7 +51,7 @@ public class CardMenuItems implements Iterable<JMenuItem>
         final Runnable fillPlayset = () -> monitor.get().ifPresent((f) -> name.apply(f).ifPresent((n) -> {
             f.modifyCards(n, cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
                 if (f.hasCard(n, c))
-                    return Math.max(0, SettingsDialog.PLAYSET_SIZE - f.getDeck().getEntry(c).count());
+                    return Math.max(0, SettingsDialog.PLAYSET_SIZE - f.getList(n).getEntry(c).count());
                 else
                     return SettingsDialog.PLAYSET_SIZE;
             })));
