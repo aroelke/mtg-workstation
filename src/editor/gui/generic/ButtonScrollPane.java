@@ -14,23 +14,51 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 
 /**
- * TODO: Comment this
+ * This class is a scroll pane that is controlled with buttons on the sides rather than
+ * a scroll bar on the edge. The buttons are always visible, even if the contents don't
+ * fill the pane, but are disabled until scrolling is necessary.
+ * 
  * TODO: Eventually allow this to have vertical versions as well
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class ButtonScrollPane extends JPanel
 {
+	/**
+	 * Initial delay when holding down an arrow button before auto-scrolling.
+	 */
 	private static final int INITIAL_DELAY = 750;
+	/**
+	 * Delay between scroll actions when holding down an arrow button.
+	 */
 	private static final int TICK_DELAY = 75;
 
+	/**
+	 * A button with an arrow icon pointing in the direction it will scroll the pane.
+	 * 
+	 * @author Alec Roelke
+	 */
 	private static class ArrowButton extends RepeatButton
 	{
+		/**
+		 * East-facing (right) arrow.
+		 */
 		public static final int EAST = 1;
+		/**
+		 * West-facing (left) arrow.
+		 */
 		public static final int WEST = 3;
 
+		/**
+		 * Direction the button will face.
+		 */
 		private int direction;
 
+		/**
+		 * Create a new arrow button facing the specified direction.
+		 * 
+		 * @param d direction the arrow button will face (EAST or WEST)
+		 */
 		public ArrowButton(int d)
 		{
 			super(INITIAL_DELAY, TICK_DELAY);
@@ -38,6 +66,11 @@ public class ButtonScrollPane extends JPanel
 			setFocusable(false);
 		}
 
+		/**
+		 * @inheritDoc
+		 * Arrow buttons have a constant size on one of their sides so they are
+		 * thin.
+		 */
 		@Override
 		public Dimension getPreferredSize()
 		{
@@ -70,6 +103,12 @@ public class ButtonScrollPane extends JPanel
 		}
 	}
 
+	/**
+	 * Create a new ButtonScrollPane containing the given component. Add things to that
+	 * component, not to this pane.
+	 * 
+	 * @param view component in this ButtonScrollPane's view
+	 */
 	public ButtonScrollPane(Component view)
 	{
 		super(new BorderLayout());
