@@ -5,15 +5,18 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.Timer;
 import javax.swing.UIManager;
+
+import editor.util.MouseListenerFactory;
 
 /**
  * TODO: Comment this
@@ -23,6 +26,9 @@ import javax.swing.UIManager;
 @SuppressWarnings("serial")
 public class ButtonScrollPane extends JPanel
 {
+	private static final int INITIAL_DELAY = 750;
+	private static final int TICK_DELAY = 75;
+
 	private static class ArrowButton extends JButton
 	{
 		public static final int EAST = 1;
@@ -75,34 +81,34 @@ public class ButtonScrollPane extends JPanel
 
 		ArrowButton left = new ArrowButton(ArrowButton.WEST);
 		add(left, BorderLayout.WEST);
-
 		JScrollPane pane = new JScrollPane(view);
 		pane.setBorder(null);
 		pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		add(pane, BorderLayout.CENTER);
-
 		ArrowButton right = new ArrowButton(ArrowButton.EAST);
 		add(right, BorderLayout.EAST);
 
-		JScrollBar bar = pane.getHorizontalScrollBar();
-		left.addActionListener((e) -> {
-			bar.getActionMap().get("negativeUnitIncrement").actionPerformed(new ActionEvent(
-				bar,
-				ActionEvent.ACTION_PERFORMED,
-				"",
-				e.getWhen(),
-				e.getModifiers()
-			));
-		});
-		right.addActionListener((e) -> {
-			bar.getActionMap().get("positiveUnitIncrement").actionPerformed(new ActionEvent(
-				bar,
-				ActionEvent.ACTION_PERFORMED,
-				"",
-				e.getWhen(),
-				e.getModifiers()
-			));
-		});
+		final JScrollBar bar = pane.getHorizontalScrollBar();
+
+		ActionListener moveRight = (e) -> bar.getActionMap().get("positiveUnitIncrement").actionPerformed(
+			new ActionEvent(bar, ActionEvent.ACTION_PERFORMED, "", e.getWhen(), e.getModifiers())
+		);
+		Timer rightTimer = new Timer(TICK_DELAY, moveRight);
+		rightTimer.setInitialDelay(INITIAL_DELAY);
+		right.addMouseListener(MouseListenerFactory.createHoldListener((e) -> {
+			moveRight.actionPerformed(new ActionEvent(e.getSource(), e.getID(), e.paramString(), e.getWhen(), e.getModifiersEx()));
+			rightTimer.start();
+		}, (e) -> rightTimer.stop()));
+
+		ActionListener moveLeft = (e) -> bar.getActionMap().get("negativeUnitIncrement").actionPerformed(
+			new ActionEvent(bar, ActionEvent.ACTION_PERFORMED, "", e.getWhen(), e.getModifiers())
+		);
+		Timer leftTimer = new Timer(TICK_DELAY, moveLeft);
+		leftTimer.setInitialDelay(INITIAL_DELAY);
+		left.addMouseListener(MouseListenerFactory.createHoldListener((e) -> {
+			moveLeft.actionPerformed(new ActionEvent(e.getSource(), e.getID(), e.paramString(), e.getWhen(), e.getModifiersEx()));
+			leftTimer.start();
+		}, (e) -> leftTimer.stop()));
 
 		view.addComponentListener(new ComponentListener()
 		{
