@@ -1,10 +1,10 @@
 package editor.database.symbol;
 
 import java.awt.Image;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
@@ -84,12 +84,18 @@ public abstract class Symbol
      */
     protected Symbol(String iconName, String t)
     {
-        if (Files.notExists(Paths.get("images/icons/" + iconName)))
+        ImageIcon img;
+        try
         {
-            System.err.println("Could not load file images/icons/" + iconName);
-            iconName = UNKNOWN_ICON;
+            img = new ImageIcon(ImageIO.read(getClass().getResourceAsStream("/images/icons/" + iconName)));
         }
-        icon = new ImageIcon("images/icons/" + (name = iconName));
+        catch (IOException e)
+        {
+            img = new ImageIcon();
+            e.printStackTrace();
+        }
+        icon = img;
+        name = iconName;
         text = t;
     }
 

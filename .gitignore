@@ -1,9 +1,7 @@
 *.json
-settings.txt
-presets
 .classpath
 .project
 target/
-.idea/
 .vscode/
 .settings/
+/cards/
