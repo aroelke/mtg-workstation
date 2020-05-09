@@ -269,9 +269,7 @@ public class MainFrame extends JFrame
     {
         try
         {
-            Object tristateIcon = UIManager.get("TristateCheckBox.icon");
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            UIManager.put("TristateCheckBox.icon", tristateIcon);
         }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
