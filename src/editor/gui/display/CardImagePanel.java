@@ -32,6 +32,7 @@ import javax.swing.text.StyledDocument;
 
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
+import editor.database.symbol.FunctionalSymbol;
 import editor.gui.MainFrame;
 import editor.gui.settings.SettingsDialog;
 
@@ -298,15 +299,22 @@ public class CardImagePanel extends JPanel
         {
             Graphics2D g2 = (Graphics2D)g;
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            double aspectRatio = (double)image.getWidth() / (double)image.getHeight();
-            int width = (int)(getHeight() * aspectRatio);
+            double aspectRatio = (double)image.getWidth()/(double)image.getHeight();
+            int width = (int)(getHeight()*aspectRatio);
             int height = getHeight();
             if (width > getWidth())
             {
                 width = getWidth();
-                height = (int)(width / aspectRatio);
+                height = (int)(width/aspectRatio);
             }
-            g2.drawImage(image, (getWidth() - width) / 2, (getHeight() - height) / 2, width, height, null);
+            g2.drawImage(image, (getWidth() - width)/2, (getHeight() - height)/2, width, height, null);
+
+            if (card.faces() > 1 && !List.of(CardLayout.SPLIT, CardLayout.AFTERMATH, CardLayout.ADVENTURE).contains(card.layout()))
+            {
+                final int SIZE = 15;
+                final int BORDER = 3;
+                FunctionalSymbol.SYMBOLS.get(face % 2 == 0 ? "T" : "Q").getIcon(SIZE).paintIcon(this, g2, getWidth() - SIZE - BORDER, getHeight() - SIZE - BORDER);
+            }
         }
     }
 
