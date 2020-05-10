@@ -3,6 +3,7 @@ package editor.gui.generic;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
@@ -10,6 +11,7 @@ import java.util.function.Consumer;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
@@ -58,6 +60,7 @@ public class ChangeTitleListener extends MouseAdapter
             throw new IllegalArgumentException("component must have a titled border");
 
         editTextField = new JTextField();
+        // Accept entry when enter is pressed
         editTextField.addActionListener((e) -> {
             String value = editTextField.getText();
             change.accept(value);
@@ -65,6 +68,13 @@ public class ChangeTitleListener extends MouseAdapter
             editPopup.getInvoker().revalidate();
             editPopup.getInvoker().repaint();
         });
+        // Throw away entry when ESC is pressed
+        editTextField.registerKeyboardAction(
+            (e) -> editPopup.setVisible(false),
+            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+            JComponent.WHEN_FOCUSED
+        );
+        // Implicitly throw away entry when something else is clicked
 
         editPopup = new JPopupMenu();
         editPopup.setBorder(new EmptyBorder(0, 0, 0, 0));
