@@ -196,7 +196,7 @@ public class CategoryPanel extends JPanel
     /**
      * Border showing the name of the category.
      */
-    private TitledBorder border;
+    protected TitledBorder border;
     /**
      * Button displaying and allowing editing of the category's color.
      */

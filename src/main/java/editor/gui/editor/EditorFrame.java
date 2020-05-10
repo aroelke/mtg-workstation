@@ -88,6 +88,7 @@ import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
 import editor.gui.generic.CardMenuItems;
+import editor.gui.generic.ChangeTitleListener;
 import editor.gui.generic.EditablePanel;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
@@ -1296,6 +1297,51 @@ public class EditorFrame extends JInternalFrame
                 parent.setSelectedCards(newCategory.table, deck.current.getCategoryList(newCategory.getCategoryName()));
         });
         // Add the behavior for the edit category button
+        newCategory.editButton.addActionListener((e) -> editCategory(newCategory.getCategoryName()));
+        // Add the behavior for the remove category button
+        newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory.getCategoryName()));
+        // Add the behavior for the color edit button
+        newCategory.colorButton.addActionListener((e) -> {
+            final Color newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color());
+            if (newColor != null)
+            {
+                final Color oldColor = deck.current.getCategorySpec(newCategory.getCategoryName()).getColor();
+                performAction(() -> {
+                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
+                    mod.setColor(newColor);
+                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
+                    return true;
+                }, () -> {
+                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
+                    mod.setColor(oldColor);
+                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
+                    return true;
+                });
+            }
+        });
+        // Add the behavior for double-clicking the category title
+        newCategory.addMouseListener(new ChangeTitleListener(newCategory, (title) -> {
+            final String oldName = newCategory.getCategoryName();
+            if (!title.equals(oldName))
+            {
+                performAction(() -> {
+                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
+                    mod.setName(title);
+                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
+                    newCategory.setCategoryName(title);
+                    updateCategoryPanel();
+                    return true;
+                }, () -> {
+                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
+                    mod.setName(oldName);
+                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
+                    newCategory.setCategoryName(oldName);
+                    updateCategoryPanel();
+                    return true;
+                });
+            }
+        }));
+        // Add behavior for the rank box
         newCategory.rankBox.addActionListener((e) -> {
             if (newCategory.rankBox.isPopupVisible())
             {
@@ -1316,28 +1362,6 @@ public class EditorFrame extends JInternalFrame
                         panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
                     listTabs.setSelectedIndex(CATEGORIES);
                     updateCategoryPanel();
-                    return true;
-                });
-            }
-        });
-        newCategory.editButton.addActionListener((e) -> editCategory(newCategory.getCategoryName()));
-        // Add the behavior for the remove category button
-        newCategory.removeButton.addActionListener((e) -> removeCategory(newCategory.getCategoryName()));
-        // Add the behavior for the color edit button
-        newCategory.colorButton.addActionListener((e) -> {
-            final Color newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color());
-            if (newColor != null)
-            {
-                final Color oldColor = deck.current.getCategorySpec(newCategory.getCategoryName()).getColor();
-                performAction(() -> {
-                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
-                    mod.setColor(newColor);
-                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
-                    return true;
-                }, () -> {
-                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
-                    mod.setColor(oldColor);
-                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
                     return true;
                 });
             }
