@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.SystemColor;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -15,6 +14,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -30,6 +31,7 @@ import editor.database.card.Card;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
 import editor.gui.generic.ColorButton;
+import editor.gui.generic.ComponentUtils;
 import editor.gui.settings.SettingsDialog;
 import editor.util.UnicodeSymbols;
 
@@ -264,11 +266,14 @@ public class CategoryPanel extends JPanel
         topPanel.setLayout(new BorderLayout(0, 0));
 
         // Labels showing category stats
-        JPanel statsPanel = new JPanel(new GridLayout(0, 1));
+        JPanel statsPanel = new JPanel();
+        statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.X_AXIS));
         countLabel = new JLabel("Cards: " + deck.getCategoryList(name).total());
         statsPanel.add(countLabel);
+        statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE));
         avgCMCLabel = new JLabel("Average CMC: 0");
         statsPanel.add(avgCMCLabel);
+        statsPanel.add(Box.createHorizontalGlue());
         topPanel.add(statsPanel, BorderLayout.WEST);
 
         // Panel containing edit and remove buttons
