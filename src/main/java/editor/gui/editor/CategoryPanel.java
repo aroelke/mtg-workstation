@@ -319,8 +319,7 @@ public class CategoryPanel extends JPanel
         var resizeAdapter = new MouseInputAdapter()
         {
             private boolean resizing = false;
-            private int addRow = 0;
-            private int removeRow = 0;
+            private int base = 0;
 
             @Override
             public void mousePressed(MouseEvent e)
@@ -330,8 +329,7 @@ public class CategoryPanel extends JPanel
                 if (resizing)
                 {
                     p = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), table);
-                    addRow = p.y + table.getRowHeight()/2;
-                    removeRow = p.y - table.getRowHeight()/2;
+                    base = p.y;
                 }
             }
 
@@ -339,6 +337,11 @@ public class CategoryPanel extends JPanel
             public void mouseReleased(MouseEvent e)
             {
                 resizing = false;
+                Point p = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), tablePane);
+                if (p.y >= tablePane.getHeight() - 2)
+                    setCursor(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
+                else
+                    setCursor(Cursor.getDefaultCursor());
             }
 
             @Override
@@ -346,9 +349,9 @@ public class CategoryPanel extends JPanel
             {
                 Point p = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), tablePane);
                 if (p.y >= tablePane.getHeight() - 2)
-                    setCursor(new Cursor(Cursor.S_RESIZE_CURSOR));
+                    setCursor(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
                 else
-                    setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                    setCursor(Cursor.getDefaultCursor());
             }
 
             @Override
@@ -358,21 +361,23 @@ public class CategoryPanel extends JPanel
                 {
                     Point p = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), table);
                     setCursor(new Cursor(Cursor.S_RESIZE_CURSOR));
-                    if (p.y <= removeRow && tableRows > 1)
+                    final int minRows = 1;
+                    final int maxRows = Math.max(deck.getCategoryList(name).total(), SettingsDialog.settings().editor.categories.rows);
+                    if (p.y <= base - table.getRowHeight()/2 && tableRows > minRows)
                     {
-                        tableRows--;
-                        removeRow -= table.getRowHeight();
-                        addRow -= table.getRowHeight();
+                        int n = Math.min(((base - p.y) + table.getRowHeight() - 1)/table.getRowHeight(), tableRows - minRows);
+                        tableRows -= n;
+                        base -= n*table.getRowHeight();
                         table.revalidate();
                         table.repaint();
                         revalidate();
                         repaint();
                     }
-                    if (p.y >= addRow && tableRows < deck.getCategoryList(name).total())
+                    else if (p.y >= base + table.getRowHeight()/2 && tableRows < maxRows)
                     {
-                        tableRows++;
-                        removeRow += table.getRowHeight();
-                        addRow += table.getRowHeight();
+                        int n = Math.min(((p.y - base) + table.getRowHeight() - 1)/table.getRowHeight(), maxRows - tableRows);
+                        tableRows += n;
+                        base += n*table.getRowHeight();
                         table.revalidate();
                         table.repaint();
                         revalidate();
