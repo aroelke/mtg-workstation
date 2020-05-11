@@ -40,7 +40,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
@@ -48,7 +47,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -80,7 +78,6 @@ import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
 import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.display.CardImagePanel;
@@ -990,55 +987,6 @@ public class EditorFrame extends JInternalFrame
             }
         });
         handModPanel.add(drawCardButton);
-        JButton excludeButton = new JButton("Exclude...");
-        excludeButton.addActionListener((e) -> {
-            JPanel excludePanel = new JPanel();
-            excludePanel.setLayout(new BoxLayout(excludePanel, BoxLayout.X_AXIS));
-
-            var excludeModel = new DefaultListModel<Card>();
-            var exclude = new JList<>(excludeModel);
-            excludePanel.add(new JScrollPane(exclude));
-
-            JPanel excludeButtonPanel = new JPanel();
-            excludeButtonPanel.setLayout(new BoxLayout(excludeButtonPanel, BoxLayout.Y_AXIS));
-            excludeButtonPanel.add(Box.createVerticalGlue());
-            JButton addExclusionButton = new JButton("<");
-            excludeButtonPanel.add(addExclusionButton);
-            JButton removeExclusionButton = new JButton(">");
-            excludeButtonPanel.add(removeExclusionButton);
-            excludeButtonPanel.add(Box.createVerticalGlue());
-            excludePanel.add(excludeButtonPanel);
-
-            CardTableModel excludeTableModel = new CardTableModel(deck.current, List.of(CardAttribute.NAME, CardAttribute.COUNT));
-            CardTable excludeTable = new CardTable(excludeTableModel);
-            excludeTable.setStripeColor(SettingsDialog.settings().editor.stripe);
-            excludePanel.add(new JScrollPane(excludeTable));
-
-            addExclusionButton.addActionListener((a) -> {
-                for (Card c : Arrays.stream(excludeTable.getSelectedRows()).mapToObj((r) -> deck.current.get(excludeTable.convertRowIndexToModel(r))).collect(Collectors.toList()))
-                {
-                    int n = 0;
-                    for (int i = 0; i < excludeModel.size(); i++)
-                        if (excludeModel.elementAt(i).equals(c))
-                            n++;
-                    if (n < deck.current.getEntry(c).count())
-                        excludeModel.addElement(c);
-                }
-            });
-            removeExclusionButton.addActionListener((f) -> {
-                for (Card c : Arrays.stream(exclude.getSelectedIndices()).mapToObj(excludeModel::getElementAt).collect(Collectors.toList()))
-                    excludeModel.removeElement(c);
-            });
-
-            for (Card c : hand.excluded())
-                excludeModel.addElement(c);
-            JOptionPane.showMessageDialog(this, excludePanel, "Exclude Cards", JOptionPane.PLAIN_MESSAGE);
-
-            hand.clearExclusion();
-            for (int i = 0; i < excludeModel.size(); i++)
-                hand.exclude(excludeModel.get(i));
-        });
-        handModPanel.add(excludeButton);
 
         handCalculations = new CalculateHandPanel(deck.current);
 
