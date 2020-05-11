@@ -281,17 +281,17 @@ public class EditorFrame extends JInternalFrame
         /**
          * List to make changes to
          */
-        protected DeckData source;
+        protected String name;
 
         /**
          * Create a new EditorImportHandler that imports from the given list.
          *
-         * @param s list to make changes to
+         * @param n name of the list to make changes to
          */
-        public EditorImportHandler(DeckData s)
+        public EditorImportHandler(String n)
         {
             super();
-            source = s;
+            name = n;
         }
 
         /**
@@ -320,12 +320,14 @@ public class EditorFrame extends JInternalFrame
                     @SuppressWarnings("unchecked")
                     var data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
                     return performAction(() -> {
-                        if (!source.current.addAll(data))
+                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
+                        if (!source.addAll(data))
                             throw new CardException(data.keySet(), "unable to copy cards");
                         updateTables();
                         return true;
                     }, () -> {
-                        if (!source.current.removeAll(data).equals(data))
+                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
+                        if (!source.removeAll(data).equals(data))
                             throw new CardException(data.keySet(), "unable to undo copy of cards");
                         updateTables();
                         return true;
@@ -335,12 +337,14 @@ public class EditorFrame extends JInternalFrame
                 {
                     final var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
                     return performAction(() -> {
-                        if (!source.current.addAll(data))
+                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
+                        if (!source.addAll(data))
                             throw new CardException(data, "unable to copy cards");
                         updateTables();
                         return true;
                     }, () -> {
-                        if (!source.current.removeAll(data).equals(data))
+                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
+                        if (!source.removeAll(data).equals(data))
                             throw new CardException(data, "unable to undo copy of cards");
                         updateTables();
                         return true;
@@ -369,24 +373,28 @@ public class EditorFrame extends JInternalFrame
          * Create a new EditorTableTransferHandler that handles transfers to or from
          * the main deck or extra lists.
          *
-         * @param s list to make changes to
+         * @param n name of the list to make changes to
          */
-        public EditorTableTransferHandler(DeckData s)
+        public EditorTableTransferHandler(String n)
         {
-            super(s);
+            super(n);
         }
 
         @Override
         public Transferable createTransferable(JComponent c)
         {
-            return new Deck.TransferData(source.current, parent.getSelectedCards());
+            Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
+            return new Deck.TransferData(source, parent.getSelectedCards());
         }
 
         @Override
         public void exportDone(JComponent c, Transferable t, int action)
         {
             if (action == TransferHandler.MOVE)
-                source.current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
+            {
+                Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
+                source.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
+            }
         }
 
         /**
@@ -533,6 +541,11 @@ public class EditorFrame extends JInternalFrame
      * Tab number containing the changelog.
      */
     public static final int CHANGELOG = 3;
+
+    /**
+     * Name denoting the main deck for making modifications.
+     */
+    public static final String MAIN_DECK = "";
 
     /**
      * Label showing the average CMC of nonland cards in the deck.
@@ -700,7 +713,7 @@ public class EditorFrame extends JInternalFrame
         for (int i = 0; i < deck.table.getColumnCount(); i++)
             if (deck.model.isCellEditable(0, i))
                 deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)));
-        deck.table.setTransferHandler(new EditorTableTransferHandler(deck));
+        deck.table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK));
         deck.table.setDragEnabled(true);
         deck.table.setDropMode(DropMode.ON);
 
@@ -800,43 +813,43 @@ public class EditorFrame extends JInternalFrame
 
             moveToMenu.removeAll();
             moveAllToMenu.removeAll();
-            for (final var extra : extras.entrySet())
+            for (final String name : extras.keySet())
             {
-                JMenuItem moveToItem = new JMenuItem(extra.getKey());
+                JMenuItem moveToItem = new JMenuItem(name);
                 moveToItem.addActionListener((e2) -> {
-                    final var selected = new HashSet<>(parent.getSelectedCards());
+                    final var selected = Collections.unmodifiableSet(new HashSet<>(parent.getSelectedCards()));
                     performAction(() -> {
                         if (!deck.current.removeAll(selected).equals(selected))
                             throw new CardException(selected, "error moving cards from main deck");
-                        if (!extra.getValue().current.addAll(selected))
-                            throw new CardException(selected, "could not move cards to list \"" + extra.getKey() + '"');
+                        if (!extras.get(name).current.addAll(selected))
+                            throw new CardException(selected, "could not move cards to list \"" + name + '"');
                         updateTables();
                         return true;
                     }, () -> {
                         if (!deck.current.addAll(selected))
                             throw new CardException(selected, "could not undo move from main deck");
-                        if (!extra.getValue().current.removeAll(selected).equals(selected))
-                            throw new CardException(selected, "error undoing move to list \"" + extra.getKey() + '"');
+                        if (!extras.get(name).current.removeAll(selected).equals(selected))
+                            throw new CardException(selected, "error undoing move to list \"" + name + '"');
                         updateTables();
                         return true;
                     });
                 });
                 moveToMenu.add(moveToItem);
-                JMenuItem moveAllToItem = new JMenuItem(extra.getKey());
+                JMenuItem moveAllToItem = new JMenuItem(name);
                 moveAllToItem.addActionListener((e2) -> {
                     final var moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck.current.getEntry(c).count()));
                     performAction(() -> {
                         if (!deck.current.removeAll(moves).equals(moves))
                             throw new CardException(moves.keySet(), "error moving cards from main deck");
-                        if (!extra.getValue().current.addAll(moves))
-                            throw new CardException(moves.keySet(), "could not move cards to list \"" + extra.getKey() + '"');
+                        if (!extras.get(name).current.addAll(moves))
+                            throw new CardException(moves.keySet(), "could not move cards to list \"" + name + '"');
                         updateTables();
                         return true;
                     }, () -> {
                         if (!deck.current.addAll(moves))
                             throw new CardException(moves.keySet(), "could not undo move from main deck");
-                        if (!extra.getValue().current.removeAll(moves).equals(moves))
-                            throw new CardException(moves.keySet(), "error undoing move to list \"" + extra.getKey() + '"');
+                        if (!extras.get(name).current.removeAll(moves).equals(moves))
+                            throw new CardException(moves.keySet(), "error undoing move to list \"" + name + '"');
                         updateTables();
                         return true;
                     });
@@ -1101,7 +1114,7 @@ public class EditorFrame extends JInternalFrame
 
         changelogArea.setText(manager.changelog());
 
-        setTransferHandler(new EditorImportHandler(deck));
+        setTransferHandler(new EditorImportHandler(MAIN_DECK));
 
         for (CategorySpec spec: deck.current.categories())
             categoryPanels.add(createCategoryPanel(spec));
@@ -1307,13 +1320,14 @@ public class EditorFrame extends JInternalFrame
             if (newColor != null)
             {
                 final Color oldColor = deck.current.getCategorySpec(newCategory.getCategoryName()).getColor();
+                final String name = newCategory.getCategoryName();
                 performAction(() -> {
-                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
+                    CategorySpec mod = deck.current.getCategorySpec(name);
                     mod.setColor(newColor);
                     deck.current.updateCategory(newCategory.getCategoryName(), mod);
                     return true;
                 }, () -> {
-                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
+                    CategorySpec mod = deck.current.getCategorySpec(name);
                     mod.setColor(oldColor);
                     deck.current.updateCategory(newCategory.getCategoryName(), mod);
                     return true;
@@ -1326,16 +1340,16 @@ public class EditorFrame extends JInternalFrame
             if (!title.equals(oldName))
             {
                 performAction(() -> {
-                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
+                    CategorySpec mod = deck.current.getCategorySpec(oldName);
                     mod.setName(title);
-                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
+                    deck.current.updateCategory(oldName, mod);
                     newCategory.setCategoryName(title);
                     updateCategoryPanel();
                     return true;
                 }, () -> {
-                    CategorySpec mod = deck.current.getCategorySpec(newCategory.getCategoryName());
+                    CategorySpec mod = deck.current.getCategorySpec(title);
                     mod.setName(oldName);
-                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
+                    deck.current.updateCategory(title, mod);
                     newCategory.setCategoryName(oldName);
                     updateCategoryPanel();
                     return true;
@@ -1346,10 +1360,11 @@ public class EditorFrame extends JInternalFrame
         newCategory.rankBox.addActionListener((e) -> {
             if (newCategory.rankBox.isPopupVisible())
             {
+                final String name = newCategory.getCategoryName();
                 final int old = deck.current.getCategoryRank(newCategory.getCategoryName());
                 final int target = newCategory.rankBox.getSelectedIndex();
                 performAction(() -> {
-                    deck.current.swapCategoryRanks(newCategory.getCategoryName(), target);
+                    deck.current.swapCategoryRanks(name, target);
 
                     for (CategoryPanel panel : categoryPanels)
                         panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
@@ -1357,7 +1372,7 @@ public class EditorFrame extends JInternalFrame
                     updateCategoryPanel();
                     return true;
                 }, () -> {
-                    deck.current.swapCategoryRanks(newCategory.getCategoryName(), old);
+                    deck.current.swapCategoryRanks(name, old);
 
                     for (CategoryPanel panel : categoryPanels)
                         panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
@@ -1368,7 +1383,7 @@ public class EditorFrame extends JInternalFrame
             }
         });
 
-        newCategory.table.setTransferHandler(new EditorTableTransferHandler(deck));
+        newCategory.table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK));
         newCategory.table.setDragEnabled(true);
 
         // Add the behavior for clicking on the category's table
@@ -1991,7 +2006,7 @@ public class EditorFrame extends JInternalFrame
      * @param extra data containing cards in the extra list
      * @return the pane that contains the table showing the extra list
      */
-    public JScrollPane initExtraList(String name, DeckData extra)
+    public JScrollPane initExtraList(final String name, DeckData extra)
     {
         // Extra list's models
         extra.model = new CardTableModel(this, extra.current, SettingsDialog.settings().editor.columns);
@@ -2017,7 +2032,7 @@ public class EditorFrame extends JInternalFrame
         for (int i = 0; i < extra.table.getColumnCount(); i++)
             if (extra.model.isCellEditable(0, i))
                 extra.table.getColumn(extra.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, extra.model.getColumnData(i)));
-        extra.table.setTransferHandler(new EditorTableTransferHandler(extra));
+        extra.table.setTransferHandler(new EditorTableTransferHandler(name));
         extra.table.setDragEnabled(true);
         extra.table.setDropMode(DropMode.ON);
 
@@ -2040,14 +2055,14 @@ public class EditorFrame extends JInternalFrame
         moveToMainItem.addActionListener((e) -> {
             final Set<Card> selected = new HashSet<>(parent.getSelectedCards());
             performAction(() -> {
-                if (!extra.current.removeAll(selected).equals(selected))
+                if (!extras.get(name).current.removeAll(selected).equals(selected))
                     throw new CardException(selected, "error moving cards from list \"" + name + '"');
                 if (!deck.current.addAll(selected))
                     throw new CardException(selected, "could not move cards to main deck");
                 updateTables();
                 return true;
             }, () -> {
-                if (!extra.current.addAll(selected))
+                if (!extras.get(name).current.addAll(selected))
                     throw new CardException(selected, "could not undo move from list \"" + name + '"');
                 if (!deck.current.removeAll(selected).equals(selected))
                     throw new CardException(selected, "error moving cards to main deck");
@@ -2062,7 +2077,7 @@ public class EditorFrame extends JInternalFrame
             performAction(() -> {
                 for (Map.Entry<Card, Integer> move : moves.entrySet())
                 {
-                    final int actual = extra.current.remove(move.getKey(), move.getValue());
+                    final int actual = extras.get(name).current.remove(move.getKey(), move.getValue());
                     if (actual != move.getValue())
                         throw new CardException(move.getKey(), String.format("could only remove %d/%d copies from list \"%s\"", actual, move.getValue(), name));
                     if (!deck.current.add(move.getKey(), move.getValue()))
@@ -2073,7 +2088,7 @@ public class EditorFrame extends JInternalFrame
             }, () -> {
                 for (Map.Entry<Card, Integer> move : moves.entrySet())
                 {
-                    if (!extra.current.add(move.getKey(), move.getValue()))
+                    if (!extras.get(name).current.add(move.getKey(), move.getValue()))
                         throw new CardException(move.getKey(), String.format("could undo removal of %d copies to list \"%s\"", move.getValue(), name));
                     int actual = deck.current.remove(move.getKey(), move.getValue());
                     if (actual != move.getValue())
@@ -2112,12 +2127,12 @@ public class EditorFrame extends JInternalFrame
         {
             var capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -(name.isEmpty() ? deck : extras.get(name)).current.getEntry(e.getKey()).count())));
             return performAction(() -> {
-                DeckData target = name.isEmpty() ? deck : extras.get(name);
+                Deck target = (name.isEmpty() ? deck : extras.get(name)).current;
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
-                        return target.current.remove(e.getKey(), -e.getValue()) > 0;
+                        return target.remove(e.getKey(), -e.getValue()) > 0;
                     else if (e.getValue() > 0)
-                        return target.current.add(e.getKey(), e.getValue());
+                        return target.add(e.getKey(), e.getValue());
                     else
                         return false;
                 }).reduce(false, (a, b) -> a || b);
@@ -2125,12 +2140,12 @@ public class EditorFrame extends JInternalFrame
                     updateTables();
                 return changed;
             }, () -> {
-                DeckData target = name.isEmpty() ? deck : extras.get(name);
+                Deck target = (name.isEmpty() ? deck : extras.get(name)).current;
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
-                        return target.current.add(e.getKey(), -e.getValue());
+                        return target.add(e.getKey(), -e.getValue());
                     else if (e.getValue() > 0)
-                        return target.current.remove(e.getKey(), e.getValue()) > 0;
+                        return target.remove(e.getKey(), e.getValue()) > 0;
                     else
                         return false;
                 }).reduce(false, (a, b) -> a || b);
@@ -2214,15 +2229,30 @@ public class EditorFrame extends JInternalFrame
      * Peform an action that can be undone.  Actions and their inverses should
      * return a boolean value indicating if they were successful.
      * 
+     * @param action action to perform and its inverse
+     * @return <code>true</code> if the action was successful, and <code>false</code>
+     * otherwise.
+     */
+    private boolean performAction(UndoableAction<Boolean, Boolean> action)
+    {
+        redoBuffer.clear();
+        undoBuffer.push(action);
+        return action.redo();
+    }
+
+    /**
+     * Peform an action that can be undone.  Actions and their inverses should
+     * return a boolean value indicating if they were successful.
+     * 
      * @param redo action to perform; this gets performed upon calling this method
      * and stored for later in case it needs to be redone
      * @param undo action to perform when undoing the action
      * @return <code>true</code> if the action was successful, and <code>false</code>
      * otherwise.
      */
-    public boolean performAction(Supplier<Boolean> redo, Supplier<Boolean> undo)
+    private boolean performAction(Supplier<Boolean> redo, Supplier<Boolean> undo)
     {
-        var action = new UndoableAction<>(() -> {
+        return performAction(new UndoableAction<>(() -> {
             boolean done = redo.get();
             setUnsaved();
             update();
@@ -2232,10 +2262,7 @@ public class EditorFrame extends JInternalFrame
             setUnsaved();
             update();
             return done;
-        });
-        redoBuffer.clear();
-        undoBuffer.push(action);
-        return action.redo();
+        }));
     }
 
     /**
@@ -2279,7 +2306,7 @@ public class EditorFrame extends JInternalFrame
      * @return <code>true</code> if the category was removed, and <code>false</code>
      * otherwise.
      */
-    public boolean removeCategory(String name)
+    public boolean removeCategory(final String name)
     {
         if (deck.current.containsCategory(name))
         {
