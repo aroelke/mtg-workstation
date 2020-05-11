@@ -33,7 +33,7 @@ import javax.swing.text.StyledDocument;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.symbol.FunctionalSymbol;
-import editor.gui.MainFrame;
+import editor.gui.generic.ComponentUtils;
 import editor.gui.settings.SettingsDialog;
 
 /**
@@ -351,7 +351,7 @@ public class CardImagePanel extends JPanel
                 StyledDocument document = (StyledDocument)missingCardPane.getDocument();
                 Style textStyle = document.addStyle("text", null);
                 StyleConstants.setFontFamily(textStyle, UIManager.getFont("Label.font").getFamily());
-                StyleConstants.setFontSize(textStyle, MainFrame.TEXT_SIZE);
+                StyleConstants.setFontSize(textStyle, ComponentUtils.TEXT_SIZE);
                 Style reminderStyle = document.addStyle("reminder", textStyle);
                 StyleConstants.setItalic(reminderStyle, true);
                 card.formatDocument(document, false, face);

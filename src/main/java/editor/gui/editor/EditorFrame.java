@@ -5,8 +5,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -89,6 +89,7 @@ import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
 import editor.gui.generic.CardMenuItems;
 import editor.gui.generic.ChangeTitleListener;
+import editor.gui.generic.ComponentUtils;
 import editor.gui.generic.EditablePanel;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
@@ -1040,31 +1041,32 @@ public class EditorFrame extends JInternalFrame
         hand.refresh();
 
         // Panel to show the stats of the deck
-        JPanel bottomPanel = new JPanel();
-        GridBagLayout bottomLayout = new GridBagLayout();
-        bottomLayout.columnWidths = new int[]{0, 0};
-        bottomLayout.columnWeights = new double[]{1.0, 1.0};
-        bottomLayout.rowHeights = new int[]{0};
-        bottomLayout.rowWeights = new double[]{1.0};
-        bottomPanel.setLayout(bottomLayout);
+        JPanel bottomPanel = new JPanel(new BorderLayout());
         getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
         // Labels to counts for total cards, lands, and nonlands
-        JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        JPanel statsPanel = new JPanel();
+        statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.X_AXIS));
+        statsPanel.add(Box.createHorizontalStrut(10));
         countLabel = new JLabel();
         statsPanel.add(countLabel);
+        statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE));
         landLabel = new JLabel();
         statsPanel.add(landLabel);
+        statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE));
         nonlandLabel = new JLabel();
         statsPanel.add(nonlandLabel);
+        statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE));
         avgCMCLabel = new JLabel();
         statsPanel.add(avgCMCLabel);
+        statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE));
         medCMCLabel = new JLabel();
         statsPanel.add(medCMCLabel);
+        statsPanel.add(Box.createHorizontalGlue());
         updateStats();
         GridBagConstraints statsConstraints = new GridBagConstraints();
         statsConstraints.anchor = GridBagConstraints.WEST;
-        bottomPanel.add(statsPanel, statsConstraints);
+        bottomPanel.add(statsPanel, BorderLayout.WEST);
 
         // Check legality button
         JPanel legalityPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
@@ -1077,7 +1079,7 @@ public class EditorFrame extends JInternalFrame
         legalityPanel.add(legalityButton);
         GridBagConstraints legalityConstraints = new GridBagConstraints();
         legalityConstraints.anchor = GridBagConstraints.EAST;
-        bottomPanel.add(legalityPanel, legalityConstraints);
+        bottomPanel.add(legalityPanel, BorderLayout.EAST);
 
         // Changelog
         JPanel changelogPanel = new JPanel(new BorderLayout());

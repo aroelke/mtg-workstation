@@ -206,10 +206,6 @@ public class MainFrame extends JFrame
     }
 
     /**
-     * Size of the text in oracle text and rulings tabs.
-     */
-    public static final int TEXT_SIZE = UIManager.getFont("Label.font").getSize();
-    /**
      * Default height for displaying card images.
      */
     public static final double DEFAULT_CARD_HEIGHT = 1.0/3.0;
@@ -1927,7 +1923,7 @@ public class MainFrame extends JFrame
             StyledDocument oracleDocument = (StyledDocument)oracleTextPane.getDocument();
             Style oracleTextStyle = oracleDocument.addStyle("text", null);
             StyleConstants.setFontFamily(oracleTextStyle, UIManager.getFont("Label.font").getFamily());
-            StyleConstants.setFontSize(oracleTextStyle, TEXT_SIZE);
+            StyleConstants.setFontSize(oracleTextStyle, ComponentUtils.TEXT_SIZE);
             Style reminderStyle = oracleDocument.addStyle("reminder", oracleTextStyle);
             StyleConstants.setItalic(reminderStyle, true);
             card.formatDocument(oracleDocument, false);
@@ -1937,7 +1933,7 @@ public class MainFrame extends JFrame
             StyledDocument printedDocument = (StyledDocument)printedTextPane.getDocument();
             Style printedTextStyle = printedDocument.addStyle("text", null);
             StyleConstants.setFontFamily(printedTextStyle, UIManager.getFont("Label.font").getFamily());
-            StyleConstants.setFontSize(printedTextStyle, TEXT_SIZE);
+            StyleConstants.setFontSize(printedTextStyle, ComponentUtils.TEXT_SIZE);
             reminderStyle = printedDocument.addStyle("reminder", oracleTextStyle);
             StyleConstants.setItalic(reminderStyle, true);
             card.formatDocument(printedDocument, true);
@@ -1948,7 +1944,7 @@ public class MainFrame extends JFrame
             StyledDocument rulingsDocument = (StyledDocument)rulingsPane.getDocument();
             Style rulingStyle = oracleDocument.addStyle("ruling", null);
             StyleConstants.setFontFamily(rulingStyle, UIManager.getFont("Label.font").getFamily());
-            StyleConstants.setFontSize(rulingStyle, TEXT_SIZE);
+            StyleConstants.setFontSize(rulingStyle, ComponentUtils.TEXT_SIZE);
             Style dateStyle = rulingsDocument.addStyle("date", rulingStyle);
             StyleConstants.setBold(dateStyle, true);
             if (!card.rulings().isEmpty())
@@ -1981,7 +1977,7 @@ public class MainFrame extends JFrame
                                     else
                                     {
                                         Style symbolStyle = rulingsDocument.addStyle(symbol.toString(), null);
-                                        StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
+                                        StyleConstants.setIcon(symbolStyle, symbol.getIcon(ComponentUtils.TEXT_SIZE));
                                         rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle);
                                     }
                                     start = i + 1;

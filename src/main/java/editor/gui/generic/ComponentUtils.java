@@ -2,7 +2,15 @@ package editor.gui.generic;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.UIManager;
 
 /**
  * This class contains static methods that perform useful operations on Swing components.
@@ -11,6 +19,11 @@ import java.awt.Font;
  */
 public interface ComponentUtils
 {
+    /**
+	 * Size of the text in oracle text and rulings tabs.
+	 */
+	int TEXT_SIZE = UIManager.getFont("Label.font").getSize();
+
     /**
      * Set the font of the given component, and then repeat this process for all of its
      * children if it is a container.
@@ -24,5 +37,39 @@ public interface ComponentUtils
         if (component instanceof Container)
             for (Component child : ((Container)component).getComponents())
                 changeFontRecursive(child, f);
+    }
+
+    /**
+     * Create a fixed-width component with a fixed-height vertical separator in the middle.
+     * 
+     * @param width width of the component
+     * @param height height of the separator
+     * @return the component with the separator.
+     */
+    static JComponent createHorizontalSeparator(int width, int height)
+    {
+        JPanel panel = new JPanel();
+        panel.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        JSeparator separator = new JSeparator(JSeparator.VERTICAL);
+        panel.add(Box.createHorizontalStrut((width - separator.getPreferredSize().width)/2));
+        panel.add(separator);
+        panel.add(Box.createHorizontalGlue());
+        panel.setPreferredSize(new Dimension(width, height));
+        if (height > 0)
+            panel.setMaximumSize(new Dimension(width, height));
+        return panel;
+    }
+
+    /**
+     * Create a fixed-width component with a vertical separator in the middle that
+     * allows the parent layout manager to size it.
+     * 
+     * @param width width of the component
+     * @return the component with the separator.
+     */
+    static JComponent createHorizontalSeparator(int width)
+    {
+        return createHorizontalSeparator(width, 0);
     }
 }

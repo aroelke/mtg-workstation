@@ -29,7 +29,7 @@ import editor.database.characteristics.ManaType;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.FunctionalSymbol;
 import editor.database.symbol.Symbol;
-import editor.gui.MainFrame;
+import editor.gui.generic.ComponentUtils;
 import editor.util.Lazy;
 import editor.util.UnicodeSymbols;
 
@@ -378,7 +378,7 @@ public abstract class Card
         Style textStyle = document.getStyle("text");
         Style reminderStyle = document.getStyle("reminder");
         Style chaosStyle = document.addStyle("CHAOS", null);
-        StyleConstants.setIcon(chaosStyle, FunctionalSymbol.CHAOS.getIcon(MainFrame.TEXT_SIZE));
+        StyleConstants.setIcon(chaosStyle, FunctionalSymbol.CHAOS.getIcon(ComponentUtils.TEXT_SIZE));
         try
         {
             document.insertString(document.getLength(), name().get(f) + " ", textStyle);
@@ -387,7 +387,7 @@ public abstract class Card
                 for (Symbol symbol : manaCost().get(f))
                 {
                     Style style = document.addStyle(symbol.toString(), null);
-                    StyleConstants.setIcon(style, symbol.getIcon(MainFrame.TEXT_SIZE));
+                    StyleConstants.setIcon(style, symbol.getIcon(ComponentUtils.TEXT_SIZE));
                     document.insertString(document.getLength(), symbol.toString(), style);
                 }
                 document.insertString(document.getLength(), " ", textStyle);
@@ -452,7 +452,7 @@ public abstract class Card
                         else
                         {
                             Style symbolStyle = document.addStyle(symbol.toString(), null);
-                            StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
+                            StyleConstants.setIcon(symbolStyle, symbol.getIcon(ComponentUtils.TEXT_SIZE));
                             document.insertString(document.getLength(), symbol.toString(), symbolStyle);
                         }
                         start = i + 1;
@@ -510,7 +510,7 @@ public abstract class Card
                         else
                         {
                             Style symbolStyle = document.addStyle(symbol.toString(), null);
-                            StyleConstants.setIcon(symbolStyle, symbol.getIcon(MainFrame.TEXT_SIZE));
+                            StyleConstants.setIcon(symbolStyle, symbol.getIcon(ComponentUtils.TEXT_SIZE));
                             document.insertString(document.getLength(), " ", symbolStyle);
                         }
                         start = i + 1;

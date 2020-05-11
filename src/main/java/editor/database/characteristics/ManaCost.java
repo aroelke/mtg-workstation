@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import editor.database.symbol.ManaSymbol;
 import editor.database.symbol.Symbol;
-import editor.gui.MainFrame;
+import editor.gui.generic.ComponentUtils;
 import editor.util.Containment;
 
 /**
@@ -284,7 +284,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     {
         StringBuilder str = new StringBuilder();
         for (Symbol sym : cost)
-            str.append("<img src=\"file:images/icons/").append(sym.getName()).append("\" width=\"").append(MainFrame.TEXT_SIZE).append("\" height=\"").append(MainFrame.TEXT_SIZE).append("\" />");
+            str.append("<img src=\"file:images/icons/").append(sym.getName()).append("\" width=\"").append(ComponentUtils.TEXT_SIZE).append("\" height=\"").append(ComponentUtils.TEXT_SIZE).append("\" />");
         return str.toString();
     }
 
