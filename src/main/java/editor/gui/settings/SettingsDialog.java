@@ -566,7 +566,7 @@ public class SettingsDialog extends JDialog
         JPanel rowsPanel = new JPanel();
         rowsPanel.setLayout(new BoxLayout(rowsPanel, BoxLayout.X_AXIS));
         rowsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 0));
-        rowsPanel.add(new JLabel("Maximum displayed rows in categories:"));
+        rowsPanel.add(new JLabel("Initial displayed rows in categories:"));
         rowsPanel.add(Box.createHorizontalStrut(5));
         rowsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
         rowsSpinner.getModel().setValue(settings.editor.categories.rows);

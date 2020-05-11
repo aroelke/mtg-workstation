@@ -3,9 +3,12 @@ package editor.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.SystemColor;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
@@ -23,8 +26,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.MouseInputAdapter;
 
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
@@ -231,16 +236,18 @@ public class CategoryPanel extends JPanel
      * Combo box showing the user-defined rank of the category.
      */
     protected JComboBox<Integer> rankBox;
-
     /**
      * Button to remove the category.
      */
     protected JButton removeButton;
-
     /**
      * Table to display the contents of the category.
      */
     protected CardTable table;
+    /**
+     * Number of rows to display in the table.
+     */
+    private int tableRows;
 
     /**
      * Create a new CategoryPanel.
@@ -256,6 +263,7 @@ public class CategoryPanel extends JPanel
         name = n;
         background = getBackground();
         flashTimer = new FlashTimer();
+        tableRows = SettingsDialog.settings().editor.categories.rows;
 
         // Each category is surrounded by a border with a title
         setBorder(border = BorderFactory.createTitledBorder(name));
@@ -298,9 +306,7 @@ public class CategoryPanel extends JPanel
             @Override
             public Dimension getPreferredScrollableViewportSize()
             {
-                Dimension d = getPreferredSize();
-                d.height = getRowHeight() * Math.min(SettingsDialog.settings().editor.categories.rows, deck.getCategoryList(name).size());
-                return d;
+                return new Dimension(getPreferredSize().width, tableRows*getRowHeight());
             }
         };
         table.setStripeColor(SettingsDialog.settings().editor.stripe);
@@ -308,8 +314,86 @@ public class CategoryPanel extends JPanel
             if (model.isCellEditable(0, i))
                 table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnData(i)));
         JScrollPane tablePane = new JScrollPane(table);
-        tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
         tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        tablePane.addMouseWheelListener(new PDMouseWheelListener(tablePane));
+        var resizeAdapter = new MouseInputAdapter()
+        {
+            private boolean resizing = false;
+            private int addRow = 0;
+            private int removeRow = 0;
+
+            @Override
+            public void mousePressed(MouseEvent e)
+            {
+                Point p = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), tablePane);
+                resizing = p.y >= tablePane.getHeight() - 2;
+                if (resizing)
+                {
+                    p = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), table);
+                    addRow = p.y + table.getRowHeight()/2;
+                    removeRow = p.y - table.getRowHeight()/2;
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e)
+            {
+                resizing = false;
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e)
+            {
+                Point p = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), tablePane);
+                if (p.y >= tablePane.getHeight() - 2)
+                    setCursor(new Cursor(Cursor.S_RESIZE_CURSOR));
+                else
+                    setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e)
+            {
+                if (resizing)
+                {
+                    Point p = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), table);
+                    setCursor(new Cursor(Cursor.S_RESIZE_CURSOR));
+                    if (p.y <= removeRow && tableRows > 1)
+                    {
+                        tableRows--;
+                        removeRow -= table.getRowHeight();
+                        addRow -= table.getRowHeight();
+                        table.revalidate();
+                        table.repaint();
+                        revalidate();
+                        repaint();
+                    }
+                    if (p.y >= addRow && tableRows < deck.getCategoryList(name).total())
+                    {
+                        tableRows++;
+                        removeRow += table.getRowHeight();
+                        addRow += table.getRowHeight();
+                        table.revalidate();
+                        table.repaint();
+                        revalidate();
+                        repaint();
+                    }
+                }
+            }
+        };
+        tablePane.addMouseMotionListener(resizeAdapter);
+        tablePane.addMouseListener(resizeAdapter);
+        tablePane.getViewport().addMouseMotionListener(resizeAdapter);
+        tablePane.getViewport().addMouseListener(resizeAdapter);
+        table.addMouseMotionListener(resizeAdapter);
+        table.addMouseListener(resizeAdapter);
+        tablePane.getHorizontalScrollBar().addMouseMotionListener(resizeAdapter);
+        tablePane.getHorizontalScrollBar().addMouseListener(resizeAdapter);
+        tablePane.getVerticalScrollBar().addMouseMotionListener(resizeAdapter);
+        tablePane.getVerticalScrollBar().addMouseListener(resizeAdapter);
+        addMouseMotionListener(resizeAdapter);
+        addMouseListener(resizeAdapter);
+        
         add(tablePane, BorderLayout.CENTER);
 
         update();
