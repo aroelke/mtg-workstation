@@ -987,6 +987,15 @@ public class EditorFrame extends JInternalFrame
             }
         });
         handModPanel.add(drawCardButton);
+        List.of(
+            newHandButton.getPreferredSize(),
+            mulliganButton.getPreferredSize(),
+            drawCardButton.getPreferredSize()
+        ).stream().mapToInt((d) -> d.width).max().ifPresent(w -> {
+            newHandButton.setPreferredSize(new Dimension(w, newHandButton.getPreferredSize().height));
+            mulliganButton.setPreferredSize(new Dimension(w, mulliganButton.getPreferredSize().height));
+            drawCardButton.setPreferredSize(new Dimension(w, drawCardButton.getPreferredSize().height));
+        });
 
         handCalculations = new CalculateHandPanel(deck.current);
 
