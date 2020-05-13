@@ -1090,7 +1090,7 @@ public class MainFrame extends JFrame
         // Inventory update item
         JMenuItem updateInventoryItem = new JMenuItem("Check for inventory update...");
         updateInventoryItem.addActionListener((e) -> {
-            switch (checkForUpdate())
+            switch (checkForUpdate(UpdateFrequency.DAILY))
             {
             case UPDATE_NEEDED:
                 if (updateInventory())
@@ -1444,7 +1444,7 @@ public class MainFrame extends JFrame
             @Override
             public void windowOpened(WindowEvent e)
             {
-                if (checkForUpdate() == UPDATE_NEEDED && updateInventory())
+                if (checkForUpdate(SettingsDialog.settings().inventory.update) == UPDATE_NEEDED && updateInventory())
                     SettingsDialog.setInventoryVersion(newestVersion);
                 loadInventory();
                 if (!inventory.isEmpty())
@@ -1517,12 +1517,13 @@ public class MainFrame extends JFrame
      * TODO: Add a timeout
      * TODO: Reduce repeated code
      *
+     * @param freq desired frequency for downloading updates
      * @return an integer value representing the state of the update.  It can be:
      * {@link #UPDATE_NEEDED}
      * {@link #NO_UPDATE}
      * {@link #UPDATE_CANCELLED}
      */
-    public int checkForUpdate()
+    public int checkForUpdate(UpdateFrequency freq)
     {
         if (!inventoryFile.exists())
         {
@@ -1548,7 +1549,7 @@ public class MainFrame extends JFrame
             try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
             {
                 newestVersion = new DatabaseVersion(new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString());
-                if (newestVersion.needsUpdate(SettingsDialog.settings().inventory.version, SettingsDialog.settings().inventory.update))
+                if (newestVersion.needsUpdate(SettingsDialog.settings().inventory.version, freq))
                 {
                     int wantUpdate = JOptionPane.showConfirmDialog(
                         this,
