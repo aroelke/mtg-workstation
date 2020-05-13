@@ -40,12 +40,18 @@ import editor.filter.leaf.options.single.RarityFilter;
  */
 public enum CardAttribute implements Supplier<FilterLeaf<?>>
 {
+    /** Name of a card. */
+    NAME("Name", String.class, (a) -> new TextFilter(a, Card::normalizedName)),
     /** A card's Oracle text. */
     RULES_TEXT("Rules Text", (a) -> new TextFilter(a, Card::normalizedOracle)),
     /** A card's flavor text. */
     FLAVOR_TEXT("Flavor Text", (a) -> new TextFilter(a, Card::normalizedFlavor)),
     /** The text physically printed on a card. */
     PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, Card::normalizedPrinted)),
+    /** Mana cost of a card. */
+    MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter()),
+    /** Converted mana cost of a card. */
+    CMC("CMC", List.class, (a) -> new NumberFilter(a, Card::cmc)),
     /** Colors of all faces of a card. */
     COLORS("Colors", List.class, (a) -> new ColorFilter(a, Card::colors)),
     /** Color identity of a card. */
@@ -60,18 +66,12 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
     SUBTYPE("Subtype", (a) -> new SubtypeFilter()),
     /** A card's supertypes. */
     SUPERTYPE("Supertype", (a) -> new SupertypeFilter()),
-    /** Mana cost of a card. */
-    MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter()),
-    /** Converted mana cost of a card. */
-    CMC("CMC", List.class, (a) -> new NumberFilter(a, Card::cmc)),
     /** Power of a creature card. */
     POWER("Power", List.class, (a) -> new VariableNumberFilter(a, (c) -> c.power().stream().map((p) -> p.value).collect(Collectors.toList()), Card::powerVariable)),
     /** Toughness of a creature card. */
     TOUGHNESS("Toughness", List.class, (a) -> new VariableNumberFilter(a, (c) -> c.toughness().stream().map((p) -> p.value).collect(Collectors.toList()), Card::toughnessVariable)),
     /** Loyalty of a planeswalker card. */
     LOYALTY("Loyalty", List.class, (a) -> new VariableNumberFilter(a, (Card c) -> c.loyalty().stream().map((l) -> (double)l.value).collect(Collectors.toList()), Card::loyaltyVariable)),
-    /** Name of a card. */
-    NAME("Name", String.class, (a) -> new TextFilter(a, Card::normalizedName)),
     /** {@link CardLayout} of a card. */
     LAYOUT("Layout", CardLayout.class, (a) -> new LayoutFilter()),
     /** Name of the expansion a card was released in. */
