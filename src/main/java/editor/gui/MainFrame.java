@@ -537,7 +537,7 @@ public class MainFrame extends JFrame
                         includeCheckBox.setSelected(true);
                         optionsPanel.add(includeCheckBox);
                         dataPanel.add(optionsPanel, BorderLayout.NORTH);
-                        var headersList = new JList<>(CardAttribute.values());
+                        var headersList = new JList<>(CardAttribute.displayableValues());
                         headersList.setEnabled(!includeCheckBox.isSelected());
                         JScrollPane headersPane = new JScrollPane(headersList);
                         JPanel headersPanel = new JPanel();
@@ -749,7 +749,7 @@ public class MainFrame extends JFrame
                     fieldPanel.add(formatField, BorderLayout.CENTER);
                     JPanel addDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                     addDataPanel.add(new JLabel("Add Data: "));
-                    var addDataBox = new JComboBox<>(CardAttribute.values());
+                    var addDataBox = new JComboBox<>(CardAttribute.displayableValues());
                     addDataPanel.add(addDataBox);
                     fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
                     wizardPanel.add(fieldPanel, BorderLayout.NORTH);
@@ -799,7 +799,7 @@ public class MainFrame extends JFrame
                 else if (exportChooser.getFileFilter() == delimited)
                 {
                     JPanel wizardPanel = new JPanel(new BorderLayout());
-                    var headersList = new JList<>(CardAttribute.values());
+                    var headersList = new JList<>(CardAttribute.displayableValues());
                     JScrollPane headersPane = new JScrollPane(headersList);
                     JPanel headersPanel = new JPanel();
                     headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));

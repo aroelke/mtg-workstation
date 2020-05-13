@@ -3,6 +3,8 @@ package editor.database.characteristics;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -38,6 +40,18 @@ import editor.filter.leaf.options.single.RarityFilter;
  */
 public enum CardAttribute implements Supplier<FilterLeaf<?>>
 {
+    /** A card's Oracle text. */
+    RULES_TEXT("Rules Text", (a) -> new TextFilter(a, Card::normalizedOracle)),
+    /** A card's flavor text. */
+    FLAVOR_TEXT("Flavor Text", (a) -> new TextFilter(a, Card::normalizedFlavor)),
+    /** The text physically printed on a card. */
+    PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, Card::normalizedPrinted)),
+    /** A card's types. */
+    CARD_TYPE("Card Type", (a) -> new CardTypeFilter()),
+    /** A card's subtypes. */
+    SUBTYPE("Subtype", (a) -> new SubtypeFilter()),
+    /** A card's supertypes. */
+    SUPERTYPE("Supertype", (a) -> new SupertypeFilter()),
     /** Name of a card. */
     NAME("Name", String.class, (a) -> new TextFilter(a, Card::normalizedName)),
     /** {@link CardLayout} of a card. */
@@ -52,6 +66,8 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
     COLOR_IDENTITY("Color Identity", List.class, (a) -> new ColorFilter(a, Card::colorIdentity)),
     /** Type line of a card. */
     TYPE_LINE("Type", String.class, (a) -> new TypeLineFilter()),
+    /** The type line physically printed on a card. */
+    PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, Card::printedTypes)),
     /** Name of the expansion a card was released in. */
     EXPANSION_NAME("Expansion", String.class, (a) -> new ExpansionFilter()),
     /** Name of the block containing the expansion the card was released in. */
@@ -74,34 +90,20 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
     TAGS("Tags", Set.class, (a) -> new TagsFilter()),
 
     /** Categories in a deck in which a card belongs.*/
-    CATEGORIES("Categories", Set.class, null),
+    CATEGORIES("Categories", Set.class),
     /** Number of copies of a card in a deck. */
-    COUNT("Count", Integer.class, null),
+    COUNT("Count", Integer.class),
     /** Date a card was added to a deck. */
-    DATE_ADDED("Date Added", LocalDate.class, null),
+    DATE_ADDED("Date Added", LocalDate.class),
 
-    /** A card's Oracle text. */
-    RULES_TEXT("Rules Text", null, (a) -> new TextFilter(a, Card::normalizedOracle)),
-    /** A card's flavor text. */
-    FLAVOR_TEXT("Flavor Text", null, (a) -> new TextFilter(a, Card::normalizedFlavor)),
-    /** The text physically printed on a card. */
-    PRINTED_TEXT("Printed Text", null, (a) -> new TextFilter(a, Card::normalizedPrinted)),
-    /** The type line physically printed on a card. */
-    PRINTED_TYPES("Printed Type Line", null, (a) -> new TextFilter(a, Card::printedTypes)),
-    /** A card's types. */
-    CARD_TYPE("Card Type", null, (a) -> new CardTypeFilter()),
-    /** A card's subtypes. */
-    SUBTYPE("Subtype", null, (a) -> new SubtypeFilter()),
-    /** A card's supertypes. */
-    SUPERTYPE("Supertype", null, (a) -> new SupertypeFilter()),
     /** No filter applied. */
-    ANY("<Any Card>", null, (a) -> new BinaryFilter(true)),
+    ANY("<Any Card>", (a) -> new BinaryFilter(true)),
     /** Filter all cards. */
-    NONE("<No Card>", null, (a) -> new BinaryFilter(false)),
+    NONE("<No Card>", (a) -> new BinaryFilter(false)),
     /** Filter using one of the predefined filters.  This should not be used to create a filter. */
-    DEFAULTS("Defaults", null, (a) -> null),
+    DEFAULTS("Defaults", (a) -> null),
     /** Group of filters.  This should not be used to create a filter. */
-    GROUP("Group", null, (a) -> null);
+    GROUP("Group", Optional.empty(), Optional.empty());
 
     /**
      * Parse a String for a CardAttribute.
@@ -115,7 +117,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
         for (CardAttribute c : CardAttribute.values())
             if (c.toString().equalsIgnoreCase(s))
                 return c;
-        throw new IllegalArgumentException("Illegal characteristic string \"" + s + "\"");
+        throw new IllegalArgumentException("Illegal attribute string \"" + s + "\"");
     }
 
     /**
@@ -130,14 +132,19 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
     }
 
     /**
-     * Get the attributes that can be filtered.
-     *
-     * @return an array containing the attributes that can be filtered (all of the values except for
-     * {@link #DEFAULTS} and {@link #GROUP}).
+     * @return an array containing the attributes that can be filtered.
      */
     public static CardAttribute[] filterableValues()
     {
-        return Arrays.stream(values()).filter((f) -> f.filter != null).toArray(CardAttribute[]::new);
+        return Arrays.stream(values()).filter((f) -> f.filter.isPresent()).toArray(CardAttribute[]::new);
+    }
+
+    /**
+     * @return an array containing the attributes that can be displayed in a table.
+     */
+    public static CardAttribute[] displayableValues()
+    {
+        return Arrays.stream(values()).filter((c) -> c.dataType.isPresent()).toArray(CardAttribute[]::new);
     }
 
     /**
@@ -168,40 +175,90 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
     }
 
     /**
-     * Class of the data that will appear in table columns containing data of this characteristic.
-     */
-    public final Class<?> dataType;
-    /**
      * Name of the characteristic
      */
     private final String name;
     /**
-     * Function for creating a new filter for the attribute.
+     * Class of the data that will appear in table columns containing data of this characteristic
+     * if it can be displayed.
      */
-    private final Function<CardAttribute, FilterLeaf<?>> filter;
+    private final Optional<Class<?>> dataType;
+    /**
+     * Function for creating a new filter for the attribute if it can be filtered.
+     */
+    private final Optional<Function<CardAttribute, FilterLeaf<?>>> filter;
 
     /**
-     * Create a CardCharacteristic with the specified name and column class.
+     * Create a CardCharacteristic with the specified name, column class, and filter generator.
      *
      * @param n name of the new CardAttribute
-     * @param c class of the corresponding information on a card
+     * @param c class of the corresponding information on a card, if it can be displayed in a table
+     * @param f function for generating a filter on the attribute, if it can be filtered
      */
-    CardAttribute(String n, Class<?> c, Function<CardAttribute, FilterLeaf<?>> f)
+    private CardAttribute(String n, Optional<Class<?>> c, Optional<Function<CardAttribute, FilterLeaf<?>>> f)
     {
         name = n;
         dataType = c;
         filter = f;
     }
 
-    @Override
-    public FilterLeaf<?> get()
+    /**
+     * Create a CardCharacteristic with the specified name, column class, and filter generator.
+     *
+     * @param n name of the new CardAttribute
+     * @param f function for generating a filter on the attribute
+     */
+    CardAttribute(String n, Class<?> c, Function<CardAttribute, FilterLeaf<?>> f)
     {
-        return filter.apply(this);
+        this(n, Optional.of(c), Optional.of(f));
+    }
+
+    /**
+     * Create a CardCharacteristic with the specified name and column class that shouldn't be
+     * used to create a filter.
+     *
+     * @param n name of the new CardAttribute
+     * @param c class of the corresponding information on a card, if it can be displayed in a table
+     */
+    CardAttribute(String n, Class<?> c)
+    {
+        this(n, Optional.of(c), Optional.empty());
+    }
+
+    /**
+     * Create a CardCharacteristic with the specified name and filter generator that shouldn't be
+     * displayed in a table
+     *
+     * @param n name of the new CardAttribute
+     * @param f function for generating a filter on the attribute
+     */
+    CardAttribute(String n, Function<CardAttribute, FilterLeaf<?>> f)
+    {
+        this(n, Optional.empty(), Optional.of(f));
     }
 
     @Override
     public String toString()
     {
         return name;
+    }
+
+    /**
+     * @return the data type used for displaying values of this attribute in a table column.
+     * @throws NoSuchElementException if this attribute shouldn't be displayed in a table
+     */
+    public Class<?> dataType() throws NoSuchElementException
+    {
+        return dataType.orElseThrow();
+    }
+
+    /**
+     * @return a new filter that filters by this attribute.
+     * @throws NoSuchElementException if this attribute shouldn't be used for filtering
+     */
+    @Override
+    public FilterLeaf<?> get() throws NoSuchElementException
+    {
+        return filter.orElseThrow().apply(this);
     }
 }

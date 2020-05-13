@@ -113,7 +113,7 @@ public class CardFormat
     public String format(CardList.Entry card)
     {
         String pattern = format;
-        for (CardAttribute type : CardAttribute.values())
+        for (CardAttribute type : CardAttribute.displayableValues())
         {
             String replacement = '{' + type.toString().toLowerCase() + '}';
             pattern = pattern.replace(replacement, switch (type) {

@@ -65,7 +65,7 @@ public interface FilterDeserializer
     {
         CardAttribute type = null;
         String code = in.readUTF();
-        for (CardAttribute attribute: CardAttribute.values())
+        for (CardAttribute attribute: CardAttribute.filterableValues())
         {
             if (code.equals(CODES.get(attribute)))
             {

@@ -141,7 +141,7 @@ public class DelimitedCardListFormat implements CardListFormat
             for (String header : headers)
             {
                 boolean success = false;
-                for (CardAttribute type : CardAttribute.values())
+                for (CardAttribute type : CardAttribute.displayableValues())
                 {
                     if (header.compareToIgnoreCase(type.toString()) == 0)
                     {

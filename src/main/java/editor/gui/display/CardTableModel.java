@@ -60,7 +60,7 @@ public class CardTableModel extends AbstractTableModel
     @Override
     public Class<?> getColumnClass(int column)
     {
-        return characteristics.get(column).dataType;
+        return characteristics.get(column).dataType();
     }
 
     @Override

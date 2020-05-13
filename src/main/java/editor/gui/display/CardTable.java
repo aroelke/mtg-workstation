@@ -254,8 +254,8 @@ public class CardTable extends JTable
         setShowGrid(false);
 
         TableCellRenderer renderer = new CardTableCellRenderer();
-        for (CardAttribute type : CardAttribute.values())
-            setDefaultRenderer(type.dataType, renderer);
+        for (CardAttribute type : CardAttribute.displayableValues())
+            setDefaultRenderer(type.dataType(), renderer);
         setRowSorter(new EmptyTableRowSorter(getModel()));
     }
 

@@ -579,7 +579,7 @@ public class SettingsDialog extends JDialog
         JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
         editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
         editorColumnCheckBoxes = new ArrayList<>();
-        for (CardAttribute characteristic : CardAttribute.values())
+        for (CardAttribute characteristic : CardAttribute.displayableValues())
         {
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
             editorColumnCheckBoxes.add(checkBox);
