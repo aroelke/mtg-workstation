@@ -1525,30 +1525,23 @@ public class MainFrame extends JFrame
      */
     public int checkForUpdate(UpdateFrequency freq)
     {
-        if (!inventoryFile.exists())
+        try
         {
-            JOptionPane.showMessageDialog(this, inventoryFile.getName() + " not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE);
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
+            if (!inventoryFile.exists())
             {
-                newestVersion = new DatabaseVersion(new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString());
+                JOptionPane.showMessageDialog(this, inventoryFile.getName() + " not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE);
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
+                {
+                    newestVersion = new DatabaseVersion(new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString());
+                }
+                return UPDATE_NEEDED;
             }
-            catch (IOException e)
+            else if (SettingsDialog.settings().inventory.update != UpdateFrequency.NEVER)
             {
-                JOptionPane.showMessageDialog(this, "Error connecting to server: " + e.getMessage() + ".", "Connection Error", JOptionPane.ERROR_MESSAGE);
-                return NO_UPDATE;
-            }
-            catch (ParseException e)
-            {
-                JOptionPane.showMessageDialog(this, "Could not parse version \"" + e.getMessage() + '"', "Error", JOptionPane.ERROR_MESSAGE);
-                return NO_UPDATE;
-            }
-            return UPDATE_NEEDED;
-        }
-        else if (SettingsDialog.settings().inventory.update != UpdateFrequency.NEVER)
-        {
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
-            {
-                newestVersion = new DatabaseVersion(new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString());
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
+                {
+                    newestVersion = new DatabaseVersion(new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString());
+                }
                 if (newestVersion.needsUpdate(SettingsDialog.settings().inventory.version, freq))
                 {
                     int wantUpdate = JOptionPane.showConfirmDialog(
@@ -1563,22 +1556,17 @@ public class MainFrame extends JFrame
                     );
                     return wantUpdate == JOptionPane.YES_OPTION ? UPDATE_NEEDED : UPDATE_CANCELLED;
                 }
-                else
-                    return NO_UPDATE;
-            }
-            catch (IOException e)
-            {
-                JOptionPane.showMessageDialog(this, "Error connecting to server: " + e.getMessage() + ".", "Connection Error", JOptionPane.ERROR_MESSAGE);
-                return NO_UPDATE;
-            }
-            catch (ParseException e)
-            {
-                JOptionPane.showMessageDialog(this, "Could not parse version \"" + e.getMessage() + '"', "Error", JOptionPane.ERROR_MESSAGE);
-                return NO_UPDATE;
             }
         }
-        else
-            return NO_UPDATE;
+        catch (IOException e)
+        {
+            JOptionPane.showMessageDialog(this, "Error connecting to server: " + e.getMessage() + ".", "Connection Error", JOptionPane.ERROR_MESSAGE);
+        }
+        catch (ParseException e)
+        {
+            JOptionPane.showMessageDialog(this, "Could not parse version \"" + e.getMessage() + '"', "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return NO_UPDATE;
     }
 
     /**
