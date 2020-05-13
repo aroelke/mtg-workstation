@@ -10,8 +10,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.util.Containment;
 
@@ -39,7 +39,7 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
      * @param t type of this OptionsFilter
      * @param f function for this OptionsFilter
      */
-    public OptionsFilter(FilterAttribute t, Function<Card, T> f)
+    public OptionsFilter(CardAttribute t, Function<Card, T> f)
     {
         super(t, f);
         contain = Containment.CONTAINS_ANY_OF;

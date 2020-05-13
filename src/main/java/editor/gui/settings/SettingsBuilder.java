@@ -1,15 +1,14 @@
 package editor.gui.settings;
 
-import static editor.database.characteristics.CardAttribute.CATEGORIES;
-import static editor.database.characteristics.CardAttribute.COUNT;
-import static editor.database.characteristics.CardAttribute.DATE_ADDED;
-import static editor.database.characteristics.CardAttribute.EXPANSION_NAME;
-import static editor.database.characteristics.CardAttribute.MANA_COST;
-import static editor.database.characteristics.CardAttribute.NAME;
-import static editor.database.characteristics.CardAttribute.TYPE_LINE;
+import static editor.database.attributes.CardAttribute.CATEGORIES;
+import static editor.database.attributes.CardAttribute.COUNT;
+import static editor.database.attributes.CardAttribute.DATE_ADDED;
+import static editor.database.attributes.CardAttribute.EXPANSION;
+import static editor.database.attributes.CardAttribute.MANA_COST;
+import static editor.database.attributes.CardAttribute.NAME;
+import static editor.database.attributes.CardAttribute.TYPE_LINE;
 
 import java.awt.Color;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,8 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
-import editor.database.characteristics.CardAttribute;
-import editor.filter.FilterAttribute;
+import editor.database.attributes.CardAttribute;
 import editor.filter.leaf.options.multi.CardTypeFilter;
 
 /**
@@ -154,7 +152,7 @@ public class SettingsBuilder
      * <li>{@link Settings.InventorySettings#warn}: true
      * <li>{@link Settings.InventorySettings#columns}:
      *     {@link CardAttribute#NAME}, {@link CardAttribute#MANA_COST},
-     *     {@link CardAttribute#TYPE_LINE}, {@link CardAttribute#EXPANSION_NAME}
+     *     {@link CardAttribute#TYPE_LINE}, {@link CardAttribute#EXPANSION}
      * <li>{@link Settings.InventorySettings#background}: {@link Color#white}
      * <li>{@link Settings.InventorySettings#stripe}: gray
      * <li>{@link Settings.EditorSettings.RecentsSettings#count}: 4
@@ -184,18 +182,18 @@ public class SettingsBuilder
         inventoryVersionFile = "version.json";
         inventoryVersion = "";
         inventoryLocation = ".";
-        inventoryScans = "images" + File.separatorChar +  "cards";
+        inventoryScans = "scans";
         inventoryTags = "tags.json";
         inventoryUpdate = true;
         inventoryWarn = true;
-        inventoryColumns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION_NAME);
+        inventoryColumns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION);
         inventoryBackground = Color.WHITE;
         inventoryStripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
         recentsCount = 4;
         recentsFiles = Collections.emptyList();
         categoryRows = 6;
         explicits = 3;
-        editorColumns = List.of(NAME, COUNT, MANA_COST, TYPE_LINE, EXPANSION_NAME, CATEGORIES, DATE_ADDED);
+        editorColumns = List.of(NAME, COUNT, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, DATE_ADDED);
         editorStripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
         handSize = 7;
         handRounding = "No rounding";
@@ -203,16 +201,16 @@ public class SettingsBuilder
         cwd = ".";
 
         presetCategories = new ArrayList<CategorySpec>();
-        CardTypeFilter artifacts = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
+        CardTypeFilter artifacts = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
         artifacts.selected.add("Artifact");
         presetCategories.add(new CategorySpec("Artifacts", Collections.emptySet(), Collections.emptySet(), Color.WHITE, artifacts));
-        CardTypeFilter creatures = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
+        CardTypeFilter creatures = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
         creatures.selected.add("Creature");
         presetCategories.add(new CategorySpec("Creatures", Collections.emptySet(), Collections.emptySet(), Color.WHITE, creatures));
-        CardTypeFilter lands = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
+        CardTypeFilter lands = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
         lands.selected.add("Land");
         presetCategories.add(new CategorySpec("Lands", Collections.emptySet(), Collections.emptySet(), Color.WHITE, lands));
-        CardTypeFilter spells = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
+        CardTypeFilter spells = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
         spells.selected.addAll(List.of("Instant", "Sorcery"));
         presetCategories.add(new CategorySpec("Instants/Sorceries", Collections.emptySet(), Collections.emptySet(), Color.WHITE, spells));
 

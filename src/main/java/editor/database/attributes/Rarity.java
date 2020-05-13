@@ -1,4 +1,4 @@
-package editor.database.characteristics;
+package editor.database.attributes;
 
 /**
  * This enum represents a rarity a Magic: The Gathering card can have. Rarities

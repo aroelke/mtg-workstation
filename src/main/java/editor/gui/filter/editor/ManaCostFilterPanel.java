@@ -6,7 +6,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 
-import editor.database.characteristics.ManaCost;
+import editor.database.attributes.ManaCost;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.ManaCostFilter;

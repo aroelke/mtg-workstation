@@ -1,12 +1,18 @@
 package editor.collection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.Deck;
+import editor.database.attributes.Legality;
+import editor.database.attributes.ManaType;
 import editor.database.card.Card;
-import editor.database.characteristics.Legality;
-import editor.database.characteristics.ManaType;
 import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.util.Containment;
 

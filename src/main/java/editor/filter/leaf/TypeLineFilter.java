@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 
 import com.google.gson.JsonObject;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.util.Containment;
 
 /**
@@ -34,7 +34,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
      */
     public TypeLineFilter()
     {
-        super(FilterAttribute.TYPE_LINE, Card::allTypes);
+        super(CardAttribute.TYPE_LINE, Card::allTypes);
         contain = Containment.CONTAINS_ANY_OF;
         line = "";
     }
@@ -42,7 +42,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     @Override
     public Filter copy()
     {
-        TypeLineFilter filter = (TypeLineFilter)FilterAttribute.createFilter(FilterAttribute.TYPE_LINE);
+        TypeLineFilter filter = (TypeLineFilter)CardAttribute.createFilter(CardAttribute.TYPE_LINE);
         filter.contain = contain;
         filter.line = line;
         return filter;

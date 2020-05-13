@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,8 +49,8 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
 import editor.gui.MainFrame;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
@@ -467,7 +468,10 @@ public class SettingsDialog extends JDialog
         JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
         inventoryColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
         inventoryColumnCheckBoxes = new ArrayList<>();
-        for (CardAttribute characteristic : CardAttribute.inventoryValues())
+        var inventoryAttributes = Arrays.stream(CardAttribute.inventoryValues()).sorted((a, b) -> {
+            return a.toString().compareTo(b.toString());
+        }).collect(Collectors.toList());
+        for (CardAttribute characteristic : inventoryAttributes)
         {
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
             inventoryColumnCheckBoxes.add(checkBox);
@@ -579,7 +583,10 @@ public class SettingsDialog extends JDialog
         JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
         editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
         editorColumnCheckBoxes = new ArrayList<>();
-        for (CardAttribute characteristic : CardAttribute.values())
+        var editorAttributes = Arrays.stream(CardAttribute.displayableValues()).sorted((a, b) -> {
+            return a.toString().compareTo(b.toString());
+        }).collect(Collectors.toList());
+        for (CardAttribute characteristic : editorAttributes)
         {
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
             editorColumnCheckBoxes.add(checkBox);
@@ -721,12 +728,12 @@ public class SettingsDialog extends JDialog
                 .inventoryLocation(inventoryDirField.getText())
                 .inventoryUpdate(updateCheckBox.isSelected())
                 .inventoryWarn(suppressCheckBox.isSelected())
-                .inventoryColumns(inventoryColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.parseCardData(c.getText())).collect(Collectors.toList()))
+                .inventoryColumns(inventoryColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.fromString(c.getText())).collect(Collectors.toList()))
                 .inventoryStripe(inventoryStripeColor.getColor())
                 .recentsCount((Integer)recentSpinner.getValue())
                 .explicits((Integer)explicitsSpinner.getValue())
                 .categoryRows((Integer)rowsSpinner.getValue())
-                .editorColumns(editorColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.parseCardData(c.getText())).collect(Collectors.toList()))
+                .editorColumns(editorColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.fromString(c.getText())).collect(Collectors.toList()))
                 .editorStripe(editorStripeColor.getColor())
                 .presetCategories(presets)
                 .handSize((Integer)startingSizeSpinner.getValue())
@@ -744,7 +751,7 @@ public class SettingsDialog extends JDialog
         {
             settings = new SettingsBuilder(settings).inventoryColumns(
                 CardAttribute.NAME,
-                CardAttribute.EXPANSION_NAME,
+                CardAttribute.EXPANSION,
                 CardAttribute.MANA_COST,
                 CardAttribute.TYPE_LINE
             ).build();
@@ -756,7 +763,7 @@ public class SettingsDialog extends JDialog
                 CardAttribute.COUNT,
                 CardAttribute.MANA_COST,
                 CardAttribute.TYPE_LINE,
-                CardAttribute.EXPANSION_NAME,
+                CardAttribute.EXPANSION,
                 CardAttribute.RARITY
             ).build();
         }

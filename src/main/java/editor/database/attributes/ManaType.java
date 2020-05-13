@@ -1,4 +1,4 @@
-package editor.database.characteristics;
+package editor.database.attributes;
 
 import java.awt.Color;
 import java.util.Arrays;

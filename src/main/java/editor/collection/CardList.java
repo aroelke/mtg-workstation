@@ -11,8 +11,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
 
 /**
  * This class represents a collection of cards.  Each card should be represented by a single entry
@@ -85,7 +85,7 @@ public interface CardList extends Iterable<Card>
                 case COLORS         -> card().colors();
                 case COLOR_IDENTITY -> card().colorIdentity();
                 case TYPE_LINE      -> card().unifiedTypeLine();
-                case EXPANSION_NAME -> card().expansion().toString();
+                case EXPANSION -> card().expansion().toString();
                 case RARITY         -> card().rarity();
                 case POWER          -> card().power();
                 case TOUGHNESS      -> card().toughness();

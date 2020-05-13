@@ -5,10 +5,10 @@ import java.util.HashSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import editor.database.attributes.CardAttribute;
+import editor.database.attributes.Rarity;
 import editor.database.card.Card;
-import editor.database.characteristics.Rarity;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter that groups cards by rarity.
@@ -22,13 +22,13 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
      */
     public RarityFilter()
     {
-        super(FilterAttribute.RARITY, Card::rarity);
+        super(CardAttribute.RARITY, Card::rarity);
     }
 
     @Override
     public Filter copy()
     {
-        RarityFilter filter = (RarityFilter)FilterAttribute.createFilter(FilterAttribute.RARITY);
+        RarityFilter filter = (RarityFilter)CardAttribute.createFilter(CardAttribute.RARITY);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

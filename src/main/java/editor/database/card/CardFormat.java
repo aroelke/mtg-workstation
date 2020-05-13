@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import editor.collection.CardList;
 import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
-import editor.database.characteristics.CardAttribute;
+import editor.database.attributes.CardAttribute;
 import editor.util.CollectionUtils;
 
 /**
@@ -113,7 +113,7 @@ public class CardFormat
     public String format(CardList.Entry card)
     {
         String pattern = format;
-        for (CardAttribute type : CardAttribute.values())
+        for (CardAttribute type : CardAttribute.displayableValues())
         {
             String replacement = '{' + type.toString().toLowerCase() + '}';
             pattern = pattern.replace(replacement, switch (type) {

@@ -5,9 +5,9 @@ import java.util.HashSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter that groups cards by subtype.
@@ -26,7 +26,7 @@ public class SubtypeFilter extends MultiOptionsFilter<String>
      */
     public SubtypeFilter()
     {
-        super(FilterAttribute.SUBTYPE, Card::subtypes);
+        super(CardAttribute.SUBTYPE, Card::subtypes);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class SubtypeFilter extends MultiOptionsFilter<String>
     @Override
     public Filter copy()
     {
-        SubtypeFilter filter = (SubtypeFilter)FilterAttribute.createFilter(FilterAttribute.SUBTYPE);
+        SubtypeFilter filter = (SubtypeFilter)CardAttribute.createFilter(CardAttribute.SUBTYPE);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

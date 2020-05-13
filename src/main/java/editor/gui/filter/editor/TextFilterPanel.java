@@ -1,18 +1,21 @@
 package editor.gui.filter.editor;
 
+import java.awt.Color;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import editor.database.attributes.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.TextFilter;
 import editor.gui.generic.ComboBoxPanel;
 import editor.util.Containment;
-
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import java.awt.*;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * This class represents a panel that corresponds to a filter that
@@ -39,7 +42,7 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
     /**
      * Type of filter that this TextFilterPanel edits.
      */
-    private FilterAttribute type;
+    private CardAttribute type;
 
     /**
      * Create a new TextFilterPanel.
@@ -111,7 +114,7 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
     @Override
     public Filter filter()
     {
-        TextFilter filter = (TextFilter)FilterAttribute.createFilter(type);
+        TextFilter filter = (TextFilter)CardAttribute.createFilter(type);
         filter.contain = contain.getSelectedItem();
         filter.text = text.getText();
         filter.regex = regex.isSelected();

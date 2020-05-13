@@ -1,4 +1,4 @@
-package editor.database.characteristics;
+package editor.database.attributes;
 
 /**
  * This enum represents a legality in a format.  If a card is banned, it cannot

@@ -5,7 +5,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import editor.collection.CardList;
-import editor.database.characteristics.CardAttribute;
+import editor.database.attributes.CardAttribute;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.IncludeExcludePanel;
 
@@ -60,7 +60,7 @@ public class CardTableModel extends AbstractTableModel
     @Override
     public Class<?> getColumnClass(int column)
     {
-        return characteristics.get(column).dataType;
+        return characteristics.get(column).dataType();
     }
 
     @Override

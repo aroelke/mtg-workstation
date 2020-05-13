@@ -6,9 +6,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.FilterGroup;
 
 /**
@@ -46,7 +46,7 @@ public class CategorySpec
      */
     public CategorySpec()
     {
-        this("All Cards", Color.BLACK, FilterAttribute.createFilter(FilterAttribute.ANY));
+        this("All Cards", Color.BLACK, CardAttribute.createFilter(CardAttribute.ANY));
     }
 
     /**

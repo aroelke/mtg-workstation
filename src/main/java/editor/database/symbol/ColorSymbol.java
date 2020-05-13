@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import editor.database.characteristics.ManaType;
+import editor.database.attributes.ManaType;
 
 /**
  * This class represents a symbol for a single type of mana.

@@ -2,7 +2,7 @@ package editor.database.symbol;
 
 import java.util.Objects;
 
-import editor.database.characteristics.ManaType;
+import editor.database.attributes.ManaType;
 
 /**
  * This class represents a color weighting for a Symbol.  Only mana Symbols will have nonzero weights

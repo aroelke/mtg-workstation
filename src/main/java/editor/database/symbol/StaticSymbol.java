@@ -2,7 +2,7 @@ package editor.database.symbol;
 
 import java.util.Map;
 
-import editor.database.characteristics.ManaType;
+import editor.database.attributes.ManaType;
 import editor.util.UnicodeSymbols;
 
 /**

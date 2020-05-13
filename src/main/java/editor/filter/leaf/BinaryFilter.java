@@ -4,9 +4,9 @@ import java.util.Objects;
 
 import com.google.gson.JsonObject;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter with only two options: All cards or no cards.
@@ -36,14 +36,14 @@ public class BinaryFilter extends FilterLeaf<Void>
      */
     public BinaryFilter(boolean a)
     {
-        super(a ? FilterAttribute.ANY : FilterAttribute.NONE, null);
+        super(a ? CardAttribute.ANY : CardAttribute.NONE, null);
         all = a;
     }
 
     @Override
     public Filter copy()
     {
-        return FilterAttribute.createFilter(type());
+        return CardAttribute.createFilter(type());
     }
 
     @Override

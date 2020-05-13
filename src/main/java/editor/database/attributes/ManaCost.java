@@ -1,4 +1,4 @@
-package editor.database.characteristics;
+package editor.database.attributes;
 
 import java.util.AbstractList;
 import java.util.ArrayList;

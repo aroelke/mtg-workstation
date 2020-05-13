@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import editor.database.characteristics.ManaType;
+import editor.database.attributes.ManaType;
 
 /**
  * This class represents a symbol representing a variable amount of generic mana

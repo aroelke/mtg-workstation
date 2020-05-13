@@ -1,11 +1,13 @@
 package editor.gui.filter.editor;
 
-import editor.filter.Filter;
-import editor.filter.FilterAttribute;
-import editor.filter.leaf.FilterLeaf;
+import java.awt.GridLayout;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+
+import editor.database.attributes.CardAttribute;
+import editor.filter.Filter;
+import editor.filter.leaf.FilterLeaf;
 
 /**
  * This class represents a panel that corresponds to a filter that
@@ -48,7 +50,7 @@ public class BinaryFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
     @Override
     public Filter filter()
     {
-        return FilterAttribute.createFilter(through ? FilterAttribute.ANY : FilterAttribute.NONE);
+        return CardAttribute.createFilter(through ? CardAttribute.ANY : CardAttribute.NONE);
     }
 
     /**

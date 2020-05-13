@@ -3,7 +3,7 @@ package editor.database.symbol;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import editor.database.characteristics.ManaType;
+import editor.database.attributes.ManaType;
 
 /**
  * This class represents an amount of generic mana that might appear in a mana cost.

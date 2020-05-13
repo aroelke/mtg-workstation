@@ -3,7 +3,7 @@ package editor.database.card;
 import java.util.List;
 import java.util.function.Function;
 
-import editor.database.characteristics.ManaCost;
+import editor.database.attributes.ManaCost;
 import editor.util.Lazy;
 
 /**

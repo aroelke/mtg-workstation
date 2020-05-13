@@ -90,6 +90,7 @@ import javax.swing.text.StyledDocument;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 import editor.collection.CardList;
@@ -99,13 +100,12 @@ import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
 import editor.collection.export.DelimitedCardListFormat;
 import editor.collection.export.TextCardListFormat;
+import editor.database.attributes.CardAttribute;
+import editor.database.attributes.Expansion;
+import editor.database.attributes.Rarity;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
-import editor.database.characteristics.Expansion;
-import editor.database.characteristics.Rarity;
 import editor.database.symbol.Symbol;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.TextFilter;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
@@ -397,9 +397,13 @@ public class MainFrame extends JFrame
         {
             SettingsDialog.load();
         }
-        catch (IOException e)
+        catch (IOException | JsonParseException e)
         {
-            JOptionPane.showMessageDialog(this, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
+            Throwable ex = e;
+            while (ex.getCause() != null)
+                ex = ex.getCause();
+            JOptionPane.showMessageDialog(this, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + ex.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
+            SettingsDialog.resetDefaultSettings();
         }
         try
         {
@@ -538,7 +542,7 @@ public class MainFrame extends JFrame
                         includeCheckBox.setSelected(true);
                         optionsPanel.add(includeCheckBox);
                         dataPanel.add(optionsPanel, BorderLayout.NORTH);
-                        var headersList = new JList<>(CardAttribute.values());
+                        var headersList = new JList<>(CardAttribute.displayableValues());
                         headersList.setEnabled(!includeCheckBox.isSelected());
                         JScrollPane headersPane = new JScrollPane(headersList);
                         JPanel headersPanel = new JPanel();
@@ -551,7 +555,7 @@ public class MainFrame extends JFrame
                         headersPanel.add(Box.createHorizontalStrut(5));
                         var selectedHeadersModel = new DefaultListModel<CardAttribute>();
                         selectedHeadersModel.addElement(CardAttribute.NAME);
-                        selectedHeadersModel.addElement(CardAttribute.EXPANSION_NAME);
+                        selectedHeadersModel.addElement(CardAttribute.EXPANSION);
                         selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER);
                         selectedHeadersModel.addElement(CardAttribute.COUNT);
                         selectedHeadersModel.addElement(CardAttribute.DATE_ADDED);
@@ -750,7 +754,7 @@ public class MainFrame extends JFrame
                     fieldPanel.add(formatField, BorderLayout.CENTER);
                     JPanel addDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                     addDataPanel.add(new JLabel("Add Data: "));
-                    var addDataBox = new JComboBox<>(CardAttribute.values());
+                    var addDataBox = new JComboBox<>(CardAttribute.displayableValues());
                     addDataPanel.add(addDataBox);
                     fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
                     wizardPanel.add(fieldPanel, BorderLayout.NORTH);
@@ -800,7 +804,7 @@ public class MainFrame extends JFrame
                 else if (exportChooser.getFileFilter() == delimited)
                 {
                     JPanel wizardPanel = new JPanel(new BorderLayout());
-                    var headersList = new JList<>(CardAttribute.values());
+                    var headersList = new JList<>(CardAttribute.displayableValues());
                     JScrollPane headersPane = new JScrollPane(headersList);
                     JPanel headersPanel = new JPanel();
                     headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));
@@ -810,7 +814,7 @@ public class MainFrame extends JFrame
                     headersPanel.add(Box.createHorizontalStrut(5));
                     var selectedHeadersModel = new DefaultListModel<CardAttribute>();
                     selectedHeadersModel.addElement(CardAttribute.NAME);
-                    selectedHeadersModel.addElement(CardAttribute.EXPANSION_NAME);
+                    selectedHeadersModel.addElement(CardAttribute.EXPANSION);
                     selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER);
                     selectedHeadersModel.addElement(CardAttribute.COUNT);
                     selectedHeadersModel.addElement(CardAttribute.DATE_ADDED);
@@ -1353,14 +1357,14 @@ public class MainFrame extends JFrame
         // Action to be taken when the user presses the Enter key after entering text into the quick-filter
         // bar
         nameFilterField.addActionListener((e) -> {
-            inventory.updateFilter(TextFilter.createQuickFilter(FilterAttribute.NAME, nameFilterField.getText().toLowerCase()));
+            inventory.updateFilter(TextFilter.createQuickFilter(CardAttribute.NAME, nameFilterField.getText().toLowerCase()));
             inventoryModel.fireTableDataChanged();
         });
 
         // Action to be taken when the clear button is pressed (reset the filter)
         clearButton.addActionListener((e) -> {
             nameFilterField.setText("");
-            inventory.updateFilter(FilterAttribute.createFilter(FilterAttribute.ANY));
+            inventory.updateFilter(CardAttribute.createFilter(CardAttribute.ANY));
             inventoryModel.fireTableDataChanged();
         });
 
@@ -1368,8 +1372,8 @@ public class MainFrame extends JFrame
         // dialog)
         advancedFilterButton.addActionListener((e) -> {
             FilterGroupPanel panel = new FilterGroupPanel();
-            if (inventory.getFilter().equals(FilterAttribute.createFilter(FilterAttribute.ANY)))
-                panel.setContents(FilterAttribute.createFilter(FilterAttribute.NAME));
+            if (inventory.getFilter().equals(CardAttribute.createFilter(CardAttribute.ANY)))
+                panel.setContents(CardAttribute.createFilter(CardAttribute.NAME));
             else
                 panel.setContents(inventory.getFilter());
             panel.addChangeListener((c) -> SwingUtilities.getWindowAncestor((Component)c.getSource()).pack());

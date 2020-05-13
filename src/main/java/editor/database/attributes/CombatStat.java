@@ -1,4 +1,4 @@
-package editor.database.characteristics;
+package editor.database.attributes;
 
 import editor.util.UnicodeSymbols;
 

@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 
 
@@ -28,14 +29,14 @@ public abstract class Filter implements Predicate<Card>
     /**
      * Code specifying the attribute of a card to be filtered.
      */
-    private final FilterAttribute type;
+    private final CardAttribute type;
 
     /**
      * Create a new Filter with no parent.
      *
      * @param t type of filter being created
      */
-    public Filter(FilterAttribute t)
+    public Filter(CardAttribute t)
     {
         parent = null;
         type = t;
@@ -59,7 +60,7 @@ public abstract class Filter implements Predicate<Card>
      *
      * @return the code specifying the attribute to be filtered.
      */
-    public final FilterAttribute type()
+    public final CardAttribute type()
     {
         return type;
     }

@@ -5,10 +5,10 @@ import java.util.HashSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter that groups cards by layout.
@@ -22,7 +22,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
      */
     public LayoutFilter()
     {
-        super(FilterAttribute.LAYOUT, Card::layout);
+        super(CardAttribute.LAYOUT, Card::layout);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
     @Override
     public Filter copy()
     {
-        LayoutFilter filter = (LayoutFilter)FilterAttribute.createFilter(FilterAttribute.LAYOUT);
+        LayoutFilter filter = (LayoutFilter)CardAttribute.createFilter(CardAttribute.LAYOUT);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;
