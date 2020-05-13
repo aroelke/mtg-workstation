@@ -9,7 +9,6 @@ import static editor.database.attributes.CardAttribute.NAME;
 import static editor.database.attributes.CardAttribute.TYPE_LINE;
 
 import java.awt.Color;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -183,7 +182,7 @@ public class SettingsBuilder
         inventoryVersionFile = "version.json";
         inventoryVersion = "";
         inventoryLocation = ".";
-        inventoryScans = "images" + File.separatorChar +  "cards";
+        inventoryScans = "scans";
         inventoryTags = "tags.json";
         inventoryUpdate = true;
         inventoryWarn = true;
