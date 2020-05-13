@@ -90,6 +90,7 @@ import javax.swing.text.StyledDocument;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 import editor.collection.CardList;
@@ -396,9 +397,13 @@ public class MainFrame extends JFrame
         {
             SettingsDialog.load();
         }
-        catch (IOException e)
+        catch (IOException | JsonParseException e)
         {
-            JOptionPane.showMessageDialog(this, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
+            Throwable ex = e;
+            while (ex.getCause() != null)
+                ex = ex.getCause();
+            JOptionPane.showMessageDialog(this, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + ex.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
+            SettingsDialog.resetDefaultSettings();
         }
         try
         {
