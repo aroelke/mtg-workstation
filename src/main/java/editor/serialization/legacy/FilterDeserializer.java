@@ -36,7 +36,7 @@ public interface FilterDeserializer
         new AbstractMap.SimpleImmutableEntry<>(CardAttribute.LEGAL_IN, "legal"),
         new AbstractMap.SimpleImmutableEntry<>(CardAttribute.TYPE_LINE, "type"),
         new AbstractMap.SimpleImmutableEntry<>(CardAttribute.BLOCK, "b"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.EXPANSION_NAME, "x"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.EXPANSION, "x"),
         new AbstractMap.SimpleImmutableEntry<>(CardAttribute.LAYOUT, "L"),
         new AbstractMap.SimpleImmutableEntry<>(CardAttribute.MANA_COST, "m"),
         new AbstractMap.SimpleImmutableEntry<>(CardAttribute.NAME, "n"),
@@ -148,7 +148,7 @@ public interface FilterDeserializer
                     string.selected.add((String)in.readObject());
                 }
                 return string;
-            case EXPANSION_NAME:
+            case EXPANSION:
                 ExpansionFilter expansion = (ExpansionFilter)type.get();
                 expansion.contain = (Containment)in.readObject();
                 n = in.readInt();

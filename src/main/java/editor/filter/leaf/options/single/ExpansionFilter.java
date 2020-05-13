@@ -23,7 +23,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
      */
     public ExpansionFilter()
     {
-        super(CardAttribute.EXPANSION_NAME, Card::expansion);
+        super(CardAttribute.EXPANSION, Card::expansion);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
     @Override
     public Filter copy()
     {
-        ExpansionFilter filter = (ExpansionFilter)CardAttribute.createFilter(CardAttribute.EXPANSION_NAME);
+        ExpansionFilter filter = (ExpansionFilter)CardAttribute.createFilter(CardAttribute.EXPANSION);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

@@ -69,7 +69,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
     /** The type line physically printed on a card. */
     PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, Card::printedTypes)),
     /** Name of the expansion a card was released in. */
-    EXPANSION_NAME("Expansion", String.class, (a) -> new ExpansionFilter()),
+    EXPANSION("Expansion", String.class, (a) -> new ExpansionFilter()),
     /** Name of the block containing the expansion the card was released in. */
     BLOCK("Block", String.class, (a) -> new BlockFilter()),
     /** Rarity of a card in its expansion. */
@@ -162,7 +162,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
             COLORS,
             COLOR_IDENTITY,
             TYPE_LINE,
-            EXPANSION_NAME,
+            EXPANSION,
             RARITY,
             POWER,
             TOUGHNESS,

@@ -744,7 +744,7 @@ public class SettingsDialog extends JDialog
         {
             settings = new SettingsBuilder(settings).inventoryColumns(
                 CardAttribute.NAME,
-                CardAttribute.EXPANSION_NAME,
+                CardAttribute.EXPANSION,
                 CardAttribute.MANA_COST,
                 CardAttribute.TYPE_LINE
             ).build();
@@ -756,7 +756,7 @@ public class SettingsDialog extends JDialog
                 CardAttribute.COUNT,
                 CardAttribute.MANA_COST,
                 CardAttribute.TYPE_LINE,
-                CardAttribute.EXPANSION_NAME,
+                CardAttribute.EXPANSION,
                 CardAttribute.RARITY
             ).build();
         }

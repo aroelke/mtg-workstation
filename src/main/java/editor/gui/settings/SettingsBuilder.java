@@ -3,7 +3,7 @@ package editor.gui.settings;
 import static editor.database.attributes.CardAttribute.CATEGORIES;
 import static editor.database.attributes.CardAttribute.COUNT;
 import static editor.database.attributes.CardAttribute.DATE_ADDED;
-import static editor.database.attributes.CardAttribute.EXPANSION_NAME;
+import static editor.database.attributes.CardAttribute.EXPANSION;
 import static editor.database.attributes.CardAttribute.MANA_COST;
 import static editor.database.attributes.CardAttribute.NAME;
 import static editor.database.attributes.CardAttribute.TYPE_LINE;
@@ -153,7 +153,7 @@ public class SettingsBuilder
      * <li>{@link Settings.InventorySettings#warn}: true
      * <li>{@link Settings.InventorySettings#columns}:
      *     {@link CardAttribute#NAME}, {@link CardAttribute#MANA_COST},
-     *     {@link CardAttribute#TYPE_LINE}, {@link CardAttribute#EXPANSION_NAME}
+     *     {@link CardAttribute#TYPE_LINE}, {@link CardAttribute#EXPANSION}
      * <li>{@link Settings.InventorySettings#background}: {@link Color#white}
      * <li>{@link Settings.InventorySettings#stripe}: gray
      * <li>{@link Settings.EditorSettings.RecentsSettings#count}: 4
@@ -187,14 +187,14 @@ public class SettingsBuilder
         inventoryTags = "tags.json";
         inventoryUpdate = true;
         inventoryWarn = true;
-        inventoryColumns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION_NAME);
+        inventoryColumns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION);
         inventoryBackground = Color.WHITE;
         inventoryStripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
         recentsCount = 4;
         recentsFiles = Collections.emptyList();
         categoryRows = 6;
         explicits = 3;
-        editorColumns = List.of(NAME, COUNT, MANA_COST, TYPE_LINE, EXPANSION_NAME, CATEGORIES, DATE_ADDED);
+        editorColumns = List.of(NAME, COUNT, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, DATE_ADDED);
         editorStripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
         handSize = 7;
         handRounding = "No rounding";

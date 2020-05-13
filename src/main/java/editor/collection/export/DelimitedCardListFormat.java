@@ -33,7 +33,7 @@ public class DelimitedCardListFormat implements CardListFormat
      * expansion, and copy count will be used.
      */
     public static final List<CardAttribute> DEFAULT_DATA = List.of(CardAttribute.NAME,
-                                                                   CardAttribute.EXPANSION_NAME,
+                                                                   CardAttribute.EXPANSION,
                                                                    CardAttribute.COUNT);
     /**
      * List of suggested delimiters.
@@ -160,7 +160,7 @@ public class DelimitedCardListFormat implements CardListFormat
         int nameIndex = types.indexOf(CardAttribute.NAME);
         if (nameIndex < 0)
             throw new IllegalStateException("can't parse cards without names");
-        int expansionIndex = types.indexOf(CardAttribute.EXPANSION_NAME);
+        int expansionIndex = types.indexOf(CardAttribute.EXPANSION);
         int numberIndex = types.indexOf(CardAttribute.CARD_NUMBER);
         int countIndex = types.indexOf(CardAttribute.COUNT);
         if (countIndex < 0)

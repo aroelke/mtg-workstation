@@ -550,7 +550,7 @@ public class MainFrame extends JFrame
                         headersPanel.add(Box.createHorizontalStrut(5));
                         var selectedHeadersModel = new DefaultListModel<CardAttribute>();
                         selectedHeadersModel.addElement(CardAttribute.NAME);
-                        selectedHeadersModel.addElement(CardAttribute.EXPANSION_NAME);
+                        selectedHeadersModel.addElement(CardAttribute.EXPANSION);
                         selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER);
                         selectedHeadersModel.addElement(CardAttribute.COUNT);
                         selectedHeadersModel.addElement(CardAttribute.DATE_ADDED);
@@ -809,7 +809,7 @@ public class MainFrame extends JFrame
                     headersPanel.add(Box.createHorizontalStrut(5));
                     var selectedHeadersModel = new DefaultListModel<CardAttribute>();
                     selectedHeadersModel.addElement(CardAttribute.NAME);
-                    selectedHeadersModel.addElement(CardAttribute.EXPANSION_NAME);
+                    selectedHeadersModel.addElement(CardAttribute.EXPANSION);
                     selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER);
                     selectedHeadersModel.addElement(CardAttribute.COUNT);
                     selectedHeadersModel.addElement(CardAttribute.DATE_ADDED);
