@@ -1,12 +1,12 @@
 package editor.gui.settings;
 
-import static editor.database.characteristics.CardAttribute.CATEGORIES;
-import static editor.database.characteristics.CardAttribute.COUNT;
-import static editor.database.characteristics.CardAttribute.DATE_ADDED;
-import static editor.database.characteristics.CardAttribute.EXPANSION_NAME;
-import static editor.database.characteristics.CardAttribute.MANA_COST;
-import static editor.database.characteristics.CardAttribute.NAME;
-import static editor.database.characteristics.CardAttribute.TYPE_LINE;
+import static editor.database.attributes.CardAttribute.CATEGORIES;
+import static editor.database.attributes.CardAttribute.COUNT;
+import static editor.database.attributes.CardAttribute.DATE_ADDED;
+import static editor.database.attributes.CardAttribute.EXPANSION_NAME;
+import static editor.database.attributes.CardAttribute.MANA_COST;
+import static editor.database.attributes.CardAttribute.NAME;
+import static editor.database.attributes.CardAttribute.TYPE_LINE;
 
 import java.awt.Color;
 import java.io.File;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
-import editor.database.characteristics.CardAttribute;
+import editor.database.attributes.CardAttribute;
 import editor.filter.leaf.options.multi.CardTypeFilter;
 
 /**

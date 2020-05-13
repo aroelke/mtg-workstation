@@ -19,7 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.basic.BasicComboPopup;
 
-import editor.database.characteristics.CardAttribute;
+import editor.database.attributes.CardAttribute;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;

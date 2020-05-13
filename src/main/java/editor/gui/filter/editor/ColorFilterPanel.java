@@ -8,8 +8,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 
-import editor.database.characteristics.CardAttribute;
-import editor.database.characteristics.ManaType;
+import editor.database.attributes.CardAttribute;
+import editor.database.attributes.ManaType;
 import editor.database.symbol.ColorSymbol;
 import editor.filter.Filter;
 import editor.filter.leaf.ColorFilter;

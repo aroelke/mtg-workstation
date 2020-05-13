@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 import editor.collection.deck.CategorySpec;
-import editor.database.characteristics.CardAttribute;
+import editor.database.attributes.CardAttribute;
 
 /**
  * Structure containing global settings.  This structure consists of immutable

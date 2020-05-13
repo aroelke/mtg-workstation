@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 
 import editor.collection.CardList;
 import editor.collection.deck.Deck;
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.database.card.CardFormat;
-import editor.database.characteristics.CardAttribute;
 import editor.gui.MainFrame;
 
 /**

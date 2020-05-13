@@ -5,12 +5,12 @@ import java.io.ObjectInput;
 import java.util.AbstractMap;
 import java.util.Map;
 
+import editor.database.attributes.CardAttribute;
+import editor.database.attributes.Expansion;
+import editor.database.attributes.ManaCost;
+import editor.database.attributes.ManaType;
+import editor.database.attributes.Rarity;
 import editor.database.card.CardLayout;
-import editor.database.characteristics.CardAttribute;
-import editor.database.characteristics.Expansion;
-import editor.database.characteristics.ManaCost;
-import editor.database.characteristics.ManaType;
-import editor.database.characteristics.Rarity;
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.filter.leaf.BinaryFilter;

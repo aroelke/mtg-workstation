@@ -48,8 +48,8 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
 import editor.gui.MainFrame;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;

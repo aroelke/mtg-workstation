@@ -5,9 +5,9 @@ import java.util.HashSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
-import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
 
 /**

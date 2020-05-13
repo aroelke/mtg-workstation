@@ -12,12 +12,12 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import editor.database.characteristics.CombatStat;
-import editor.database.characteristics.Legality;
-import editor.database.characteristics.Loyalty;
-import editor.database.characteristics.ManaCost;
-import editor.database.characteristics.ManaType;
-import editor.database.characteristics.Rarity;
+import editor.database.attributes.CombatStat;
+import editor.database.attributes.Legality;
+import editor.database.attributes.Loyalty;
+import editor.database.attributes.ManaCost;
+import editor.database.attributes.ManaType;
+import editor.database.attributes.Rarity;
 import editor.util.Lazy;
 
 /**

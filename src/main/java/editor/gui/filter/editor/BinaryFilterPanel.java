@@ -5,7 +5,7 @@ import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
-import editor.database.characteristics.CardAttribute;
+import editor.database.attributes.CardAttribute;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 

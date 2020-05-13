@@ -4,9 +4,9 @@ import java.util.Objects;
 
 import com.google.gson.JsonObject;
 
+import editor.database.attributes.CardAttribute;
+import editor.database.attributes.ManaCost;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
-import editor.database.characteristics.ManaCost;
 import editor.filter.Filter;
 import editor.util.Containment;
 

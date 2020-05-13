@@ -3,8 +3,8 @@ package editor.filter.leaf.options.single;
 import java.util.Collections;
 import java.util.function.Function;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
 import editor.filter.leaf.options.OptionsFilter;
 
 /**

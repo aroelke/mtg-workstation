@@ -7,7 +7,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import editor.database.characteristics.CardAttribute;
+import editor.database.attributes.CardAttribute;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.VariableNumberFilter;

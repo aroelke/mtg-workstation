@@ -1,10 +1,10 @@
 package editor.gui.filter;
 
+import editor.database.attributes.CardAttribute;
+import editor.database.attributes.Expansion;
+import editor.database.attributes.Rarity;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
-import editor.database.characteristics.CardAttribute;
-import editor.database.characteristics.Expansion;
-import editor.database.characteristics.Rarity;
 import editor.filter.leaf.ColorFilter;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.ManaCostFilter;

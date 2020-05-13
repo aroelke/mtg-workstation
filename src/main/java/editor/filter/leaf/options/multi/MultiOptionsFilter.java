@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
 

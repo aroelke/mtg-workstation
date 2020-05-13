@@ -20,12 +20,12 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.attributes.CardAttribute;
+import editor.database.attributes.CombatStat;
+import editor.database.attributes.Loyalty;
+import editor.database.attributes.ManaCost;
+import editor.database.attributes.ManaType;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
-import editor.database.characteristics.CombatStat;
-import editor.database.characteristics.Loyalty;
-import editor.database.characteristics.ManaCost;
-import editor.database.characteristics.ManaType;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.InclusionCellEditor;
 import editor.gui.generic.SpinnerCellEditor;

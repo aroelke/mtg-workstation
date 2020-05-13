@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.JCheckBox;
 
-import editor.database.characteristics.CardAttribute;
+import editor.database.attributes.CardAttribute;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;

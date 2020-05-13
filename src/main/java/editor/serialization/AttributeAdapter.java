@@ -10,7 +10,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import editor.database.characteristics.CardAttribute;
+import editor.database.attributes.CardAttribute;
 
 /**
  * A JSON serializer and deserializer for {@link CardAttribute}.  Basically

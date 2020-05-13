@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import editor.collection.CardList;
 import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
-import editor.database.characteristics.CardAttribute;
+import editor.database.attributes.CardAttribute;
 import editor.util.CollectionUtils;
 
 /**

@@ -6,7 +6,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 
-import editor.database.characteristics.ManaCost;
+import editor.database.attributes.ManaCost;
 import editor.util.Lazy;
 
 /**

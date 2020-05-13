@@ -11,8 +11,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
 
 /**
  * This class represents a collection of cards.  Each card should be represented by a single entry

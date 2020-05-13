@@ -6,8 +6,8 @@ import java.util.function.Function;
 
 import com.google.gson.JsonObject;
 
+import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
 import editor.util.Comparison;
 

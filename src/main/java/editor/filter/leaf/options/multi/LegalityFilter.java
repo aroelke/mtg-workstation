@@ -8,9 +8,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import editor.database.attributes.CardAttribute;
+import editor.database.attributes.Legality;
 import editor.database.card.Card;
-import editor.database.characteristics.CardAttribute;
-import editor.database.characteristics.Legality;
 import editor.filter.Filter;
 
 /**

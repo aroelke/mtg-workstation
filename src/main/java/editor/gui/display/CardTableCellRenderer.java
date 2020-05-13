@@ -21,11 +21,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
+import editor.database.attributes.CombatStat;
+import editor.database.attributes.Loyalty;
+import editor.database.attributes.ManaCost;
+import editor.database.attributes.ManaType;
 import editor.database.card.Card;
-import editor.database.characteristics.CombatStat;
-import editor.database.characteristics.Loyalty;
-import editor.database.characteristics.ManaCost;
-import editor.database.characteristics.ManaType;
 import editor.database.symbol.ColorSymbol;
 import editor.database.symbol.Symbol;
 import editor.util.CollectionUtils;
