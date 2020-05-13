@@ -1,6 +1,7 @@
 package editor.database.attributes;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -154,7 +155,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
      */
     public static CardAttribute[] inventoryValues()
     {
-        var displayable = Arrays.asList(displayableValues());
+        var displayable = new ArrayList<>(Arrays.asList(displayableValues()));
         displayable.removeAll(List.of(CATEGORIES, COUNT));
         return displayable.toArray(new CardAttribute[displayable.size()]);
     }
