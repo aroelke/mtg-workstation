@@ -154,24 +154,9 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
      */
     public static CardAttribute[] inventoryValues()
     {
-        return new CardAttribute[] {
-            NAME,
-            LAYOUT,
-            MANA_COST,
-            CMC,
-            COLORS,
-            COLOR_IDENTITY,
-            TYPE_LINE,
-            EXPANSION,
-            RARITY,
-            POWER,
-            TOUGHNESS,
-            LOYALTY,
-            ARTIST,
-            CARD_NUMBER,
-            LEGAL_IN,
-            DATE_ADDED
-        };
+        var displayable = Arrays.asList(displayableValues());
+        displayable.removeAll(List.of(CATEGORIES, COUNT));
+        return displayable.toArray(new CardAttribute[displayable.size()]);
     }
 
     /**
