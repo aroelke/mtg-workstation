@@ -57,7 +57,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
     /** Color identity of a card. */
     COLOR_IDENTITY("Color Identity", List.class, (a) -> new ColorFilter(a, Card::colorIdentity)),
     /** Type line of a card. */
-    TYPE_LINE("Type", String.class, (a) -> new TypeLineFilter()),
+    TYPE_LINE("Type Line", String.class, (a) -> new TypeLineFilter()),
     /** The type line physically printed on a card. */
     PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, Card::printedTypes)),
     /** A card's types. */
