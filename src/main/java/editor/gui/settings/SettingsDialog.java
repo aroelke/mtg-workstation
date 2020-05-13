@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -467,7 +468,10 @@ public class SettingsDialog extends JDialog
         JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
         inventoryColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
         inventoryColumnCheckBoxes = new ArrayList<>();
-        for (CardAttribute characteristic : CardAttribute.inventoryValues())
+        var inventoryAttributes = Arrays.stream(CardAttribute.inventoryValues()).sorted((a, b) -> {
+            return a.toString().compareTo(b.toString());
+        }).collect(Collectors.toList());
+        for (CardAttribute characteristic : inventoryAttributes)
         {
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
             inventoryColumnCheckBoxes.add(checkBox);
@@ -579,7 +583,10 @@ public class SettingsDialog extends JDialog
         JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
         editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
         editorColumnCheckBoxes = new ArrayList<>();
-        for (CardAttribute characteristic : CardAttribute.displayableValues())
+        var editorAttributes = Arrays.stream(CardAttribute.displayableValues()).sorted((a, b) -> {
+            return a.toString().compareTo(b.toString());
+        }).collect(Collectors.toList());
+        for (CardAttribute characteristic : editorAttributes)
         {
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
             editorColumnCheckBoxes.add(checkBox);
