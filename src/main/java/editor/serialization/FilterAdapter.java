@@ -29,7 +29,7 @@ public class FilterAdapter implements JsonSerializer<Filter>, JsonDeserializer<F
     @Override
     public Filter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        CardAttribute type = CardAttribute.parseCardData(json.getAsJsonObject().get("type").getAsString());
+        CardAttribute type = CardAttribute.fromString(json.getAsJsonObject().get("type").getAsString());
         Filter filter;
         if (type == CardAttribute.GROUP)
         {

@@ -25,7 +25,7 @@ public class AttributeAdapter implements JsonSerializer<CardAttribute>, JsonDese
     {
         try
         {
-            return CardAttribute.parseCardData(json.getAsString());
+            return CardAttribute.fromString(json.getAsString());
         }
         catch (IllegalArgumentException e)
         {

@@ -195,7 +195,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
         mode = Arrays.stream(Mode.values()).filter((m) -> m.toString().equals(fields.get("mode").getAsString())).findAny().get();
         for (JsonElement element : fields.get("children").getAsJsonArray())
         {
-            CardAttribute type = CardAttribute.parseCardData(element.getAsJsonObject().get("type").getAsString());
+            CardAttribute type = CardAttribute.fromString(element.getAsJsonObject().get("type").getAsString());
             Filter child = type == CardAttribute.GROUP ? new FilterGroup() : CardAttribute.createFilter(type);
             child.fromJsonObject(element.getAsJsonObject());
             children.add(child);

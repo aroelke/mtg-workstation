@@ -112,12 +112,12 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
      * @return the CardAttribute that corresponds to the given String.
      * @throws IllegalArgumentException if no such CardAttribute exists
      */
-    public static CardAttribute parseCardData(String s) throws IllegalArgumentException
+    public static CardAttribute fromString(String s) throws IllegalArgumentException
     {
         for (CardAttribute c : CardAttribute.values())
             if (c.toString().equalsIgnoreCase(s))
                 return c;
-        throw new IllegalArgumentException("Illegal attribute string \"" + s + "\"");
+        throw new IllegalArgumentException("Unknown attribute \"" + s + "\"");
     }
 
     /**
