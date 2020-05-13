@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * This class contains version information about the card database. Versions
@@ -137,6 +138,6 @@ public class DatabaseVersion implements Comparable<DatabaseVersion>
     @Override
     public String toString()
     {
-        return List.of(major, minor, revision).stream().map(String::valueOf).reduce((a, b) -> a + "." + b).get() + "+" + VERSION_DATE.format(date);
+        return List.of(major, minor, revision).stream().map(String::valueOf).collect(Collectors.joining(".")) + "+" + VERSION_DATE.format(date);
     }
 }
