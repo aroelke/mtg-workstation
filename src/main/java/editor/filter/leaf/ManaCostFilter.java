@@ -5,9 +5,9 @@ import java.util.Objects;
 import com.google.gson.JsonObject;
 
 import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.ManaCost;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.util.Containment;
 
 /**
@@ -31,7 +31,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
      */
     public ManaCostFilter()
     {
-        super(FilterAttribute.MANA_COST, null);
+        super(CardAttribute.MANA_COST, null);
         contain = Containment.CONTAINS_ANY_OF;
         cost = new ManaCost();
     }
@@ -39,7 +39,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
     @Override
     public Filter copy()
     {
-        ManaCostFilter filter = (ManaCostFilter)FilterAttribute.createFilter(FilterAttribute.MANA_COST);
+        ManaCostFilter filter = (ManaCostFilter)CardAttribute.createFilter(CardAttribute.MANA_COST);
         filter.contain = contain;
         filter.cost = cost;
         return filter;

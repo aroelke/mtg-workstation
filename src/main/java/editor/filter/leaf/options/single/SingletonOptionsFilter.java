@@ -1,11 +1,11 @@
 package editor.filter.leaf.options.single;
 
-import editor.database.card.Card;
-import editor.filter.FilterAttribute;
-import editor.filter.leaf.options.OptionsFilter;
-
 import java.util.Collections;
 import java.util.function.Function;
+
+import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
+import editor.filter.leaf.options.OptionsFilter;
 
 /**
  * This class is an {@link OptionsFilter} for which characteristics only have one
@@ -22,7 +22,7 @@ public abstract class SingletonOptionsFilter<T> extends OptionsFilter<T>
      * @param t type of the new SingletonOptionsFilter
      * @param f function for the new SingletonOptionsFilter
      */
-    public SingletonOptionsFilter(FilterAttribute t, Function<Card, T> f)
+    public SingletonOptionsFilter(CardAttribute t, Function<Card, T> f)
     {
         super(t, f);
     }

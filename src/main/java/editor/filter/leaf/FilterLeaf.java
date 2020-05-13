@@ -1,10 +1,10 @@
 package editor.filter.leaf;
 
-import editor.database.card.Card;
-import editor.filter.Filter;
-import editor.filter.FilterAttribute;
-
 import java.util.function.Function;
+
+import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
+import editor.filter.Filter;
 
 /**
  * This class represents a leaf in the filter tree, which filters a single characteristic of a Card.
@@ -25,7 +25,7 @@ public abstract class FilterLeaf<T> extends Filter
      * @param t type of the new FilterLeaf
      * @param f function of the new FilterLeaf
      */
-    public FilterLeaf(FilterAttribute t, Function<Card, T> f)
+    public FilterLeaf(CardAttribute t, Function<Card, T> f)
     {
         super(t);
         function = f;

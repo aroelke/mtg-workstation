@@ -19,8 +19,8 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.basic.BasicComboPopup;
 
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
 import editor.gui.generic.ButtonScrollPane;
@@ -69,7 +69,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
     /**
      * Type of filter this OptionsFilterPanel edits.
      */
-    private FilterAttribute type;
+    private CardAttribute type;
 
     /**
      * Create a new OptionsFilterPanel using the given filter to initialize its
@@ -90,7 +90,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
      * @param t type of the new OptionsFilterPanel
      * @param o list of options to choose from
      */
-    public OptionsFilterPanel(FilterAttribute t, T[] o)
+    public OptionsFilterPanel(CardAttribute t, T[] o)
     {
         super();
         setLayout(new BorderLayout());
@@ -175,7 +175,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
     public Filter filter()
     {
         @SuppressWarnings("unchecked")
-        var filter = (OptionsFilter<T>)FilterAttribute.createFilter(type);
+        var filter = (OptionsFilter<T>)CardAttribute.createFilter(type);
         filter.contain = contain.getSelectedItem();
         filter.selected = optionsBoxes.stream().map((b) -> b.getItemAt(b.getSelectedIndex())).collect(Collectors.toSet());
         return filter;

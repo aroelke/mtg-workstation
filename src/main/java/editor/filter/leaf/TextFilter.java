@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 import com.google.gson.JsonObject;
 
 import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.util.Containment;
 
 /**
@@ -34,11 +34,11 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * @param s string to match
      * @return the new TextFilter
      */
-    public static TextFilter createQuickFilter(FilterAttribute t, String s)
+    public static TextFilter createQuickFilter(CardAttribute t, String s)
     {
         try
         {
-            TextFilter filter = (TextFilter)FilterAttribute.createFilter(t);
+            TextFilter filter = (TextFilter)CardAttribute.createFilter(t);
             filter.text = Pattern.quote(s);
             filter.regex = true;
             return filter;
@@ -103,7 +103,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * @param t Type of the new TextFilter
      * @param f Function for the new TextFilter
      */
-    public TextFilter(FilterAttribute t, Function<Card, Collection<String>> f)
+    public TextFilter(CardAttribute t, Function<Card, Collection<String>> f)
     {
         super(t, f);
         contain = Containment.CONTAINS_ANY_OF;
@@ -114,7 +114,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     @Override
     public Filter copy()
     {
-        TextFilter filter = (TextFilter)FilterAttribute.createFilter(type());
+        TextFilter filter = (TextFilter)CardAttribute.createFilter(type());
         filter.contain = contain;
         filter.regex = regex;
         filter.text = text;

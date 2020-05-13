@@ -105,7 +105,6 @@ import editor.database.characteristics.Expansion;
 import editor.database.characteristics.Rarity;
 import editor.database.symbol.Symbol;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.TextFilter;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
@@ -1353,14 +1352,14 @@ public class MainFrame extends JFrame
         // Action to be taken when the user presses the Enter key after entering text into the quick-filter
         // bar
         nameFilterField.addActionListener((e) -> {
-            inventory.updateFilter(TextFilter.createQuickFilter(FilterAttribute.NAME, nameFilterField.getText().toLowerCase()));
+            inventory.updateFilter(TextFilter.createQuickFilter(CardAttribute.NAME, nameFilterField.getText().toLowerCase()));
             inventoryModel.fireTableDataChanged();
         });
 
         // Action to be taken when the clear button is pressed (reset the filter)
         clearButton.addActionListener((e) -> {
             nameFilterField.setText("");
-            inventory.updateFilter(FilterAttribute.createFilter(FilterAttribute.ANY));
+            inventory.updateFilter(CardAttribute.createFilter(CardAttribute.ANY));
             inventoryModel.fireTableDataChanged();
         });
 
@@ -1368,8 +1367,8 @@ public class MainFrame extends JFrame
         // dialog)
         advancedFilterButton.addActionListener((e) -> {
             FilterGroupPanel panel = new FilterGroupPanel();
-            if (inventory.getFilter().equals(FilterAttribute.createFilter(FilterAttribute.ANY)))
-                panel.setContents(FilterAttribute.createFilter(FilterAttribute.NAME));
+            if (inventory.getFilter().equals(CardAttribute.createFilter(CardAttribute.ANY)))
+                panel.setContents(CardAttribute.createFilter(CardAttribute.NAME));
             else
                 panel.setContents(inventory.getFilter());
             panel.addChangeListener((c) -> SwingUtilities.getWindowAncestor((Component)c.getSource()).pack());

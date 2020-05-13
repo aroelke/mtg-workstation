@@ -1,13 +1,13 @@
 package editor.filter.leaf.options.multi;
 
-import editor.database.card.Card;
-import editor.filter.FilterAttribute;
-import editor.filter.leaf.FilterLeaf;
-import editor.filter.leaf.options.OptionsFilter;
-
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
+
+import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
+import editor.filter.leaf.FilterLeaf;
+import editor.filter.leaf.options.OptionsFilter;
 
 /**
  * This class represents a filter that groups cards by a characteristic that
@@ -31,7 +31,7 @@ public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
      * @param t type of the new MultiOptionsFilter
      * @param f function for the new MultiOptionsFilter
      */
-    public MultiOptionsFilter(FilterAttribute t, Function<Card, Collection<T>> f)
+    public MultiOptionsFilter(CardAttribute t, Function<Card, Collection<T>> f)
     {
         super(t, null);
         function = f;

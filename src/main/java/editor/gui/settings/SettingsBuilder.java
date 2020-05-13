@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
 import editor.database.characteristics.CardAttribute;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.options.multi.CardTypeFilter;
 
 /**
@@ -203,16 +202,16 @@ public class SettingsBuilder
         cwd = ".";
 
         presetCategories = new ArrayList<CategorySpec>();
-        CardTypeFilter artifacts = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
+        CardTypeFilter artifacts = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
         artifacts.selected.add("Artifact");
         presetCategories.add(new CategorySpec("Artifacts", Collections.emptySet(), Collections.emptySet(), Color.WHITE, artifacts));
-        CardTypeFilter creatures = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
+        CardTypeFilter creatures = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
         creatures.selected.add("Creature");
         presetCategories.add(new CategorySpec("Creatures", Collections.emptySet(), Collections.emptySet(), Color.WHITE, creatures));
-        CardTypeFilter lands = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
+        CardTypeFilter lands = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
         lands.selected.add("Land");
         presetCategories.add(new CategorySpec("Lands", Collections.emptySet(), Collections.emptySet(), Color.WHITE, lands));
-        CardTypeFilter spells = (CardTypeFilter)FilterAttribute.createFilter(FilterAttribute.CARD_TYPE);
+        CardTypeFilter spells = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
         spells.selected.addAll(List.of("Instant", "Sorcery"));
         presetCategories.add(new CategorySpec("Instants/Sorceries", Collections.emptySet(), Collections.emptySet(), Color.WHITE, spells));
 

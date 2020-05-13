@@ -1,16 +1,19 @@
 package editor.gui.filter;
 
+import java.awt.CardLayout;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.filter.editor.FilterEditorPanel;
 import editor.gui.generic.ComboBoxPanel;
 import editor.util.UnicodeSymbols;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class represents a panel that presents a drop-down menu that allows the user
@@ -25,7 +28,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
      * Map of filter type onto filter editor panel.  This will contain
      * one copy of each filter editor and its respective type.
      */
-    private Map<FilterAttribute, FilterEditorPanel<?>> filterPanels;
+    private Map<CardAttribute, FilterEditorPanel<?>> filterPanels;
     /**
      * Panel containing the filters to flip through.
      */
@@ -33,7 +36,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
     /**
      * Combo box displaying the types of filters available.
      */
-    private ComboBoxPanel<FilterAttribute> filterTypes;
+    private ComboBoxPanel<CardAttribute> filterTypes;
 
     /**
      * Create a new FilterSelectorPanel which will display the first filter panel.
@@ -44,14 +47,14 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         // Filter type selector
-        filterTypes = new ComboBoxPanel<>(FilterAttribute.filterableValues());
+        filterTypes = new ComboBoxPanel<>(CardAttribute.filterableValues());
         add(filterTypes);
 
         // Panel containing each editor panel
         filterPanels = new HashMap<>();
         filtersPanel = new JPanel(new CardLayout());
         add(filtersPanel);
-        for (FilterAttribute attribute: FilterAttribute.filterableValues())
+        for (CardAttribute attribute: CardAttribute.filterableValues())
         {
             FilterEditorPanel<?> panel = FilterPanelFactory.createFilterPanel(attribute);
             filterPanels.put(attribute, panel);

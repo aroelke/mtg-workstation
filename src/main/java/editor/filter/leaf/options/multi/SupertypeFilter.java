@@ -6,8 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter that groups cards by supertype.
@@ -26,7 +26,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
      */
     public SupertypeFilter()
     {
-        super(FilterAttribute.SUPERTYPE, Card::supertypes);
+        super(CardAttribute.SUPERTYPE, Card::supertypes);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
     @Override
     public Filter copy()
     {
-        SupertypeFilter filter = (SupertypeFilter)FilterAttribute.createFilter(FilterAttribute.SUPERTYPE);
+        SupertypeFilter filter = (SupertypeFilter)CardAttribute.createFilter(CardAttribute.SUPERTYPE);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

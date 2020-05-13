@@ -8,8 +8,8 @@ import java.util.function.Predicate;
 import com.google.gson.JsonObject;
 
 import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter for a numeric card characteristic that can be variable.
@@ -43,7 +43,7 @@ public class VariableNumberFilter extends NumberFilter
      * @param f function representing the card characteristic
      * @param v function checking if the card characteristic is variable
      */
-    public VariableNumberFilter(FilterAttribute t, Function<Card, Collection<Double>> f, Predicate<Card> v)
+    public VariableNumberFilter(CardAttribute t, Function<Card, Collection<Double>> f, Predicate<Card> v)
     {
         super(t, f);
         varies = false;
@@ -53,7 +53,7 @@ public class VariableNumberFilter extends NumberFilter
     @Override
     public Filter copy()
     {
-        VariableNumberFilter filter = (VariableNumberFilter)FilterAttribute.createFilter(type());
+        VariableNumberFilter filter = (VariableNumberFilter)CardAttribute.createFilter(type());
         filter.varies = varies;
         filter.variable = variable;
         filter.operation = operation;

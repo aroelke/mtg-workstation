@@ -11,9 +11,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.ManaType;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.util.Containment;
 
 /**
@@ -51,7 +51,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
      * @param t type of the new ColorFilter
      * @param f function for the new ColorFilter
      */
-    public ColorFilter(FilterAttribute t, Function<Card, List<ManaType>> f)
+    public ColorFilter(CardAttribute t, Function<Card, List<ManaType>> f)
     {
         super(t, f);
         contain = Containment.CONTAINS_ANY_OF;
@@ -62,7 +62,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     @Override
     public Filter copy()
     {
-        ColorFilter filter = (ColorFilter)FilterAttribute.createFilter(type());
+        ColorFilter filter = (ColorFilter)CardAttribute.createFilter(type());
         filter.colors = new HashSet<>(colors);
         filter.contain = contain;
         filter.multicolored = multicolored;

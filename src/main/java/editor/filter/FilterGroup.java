@@ -16,6 +16,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
 
 /**
  * This class represents a group of filters that are ANDed or ORed together.
@@ -93,7 +94,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
      */
     public FilterGroup()
     {
-        super(FilterAttribute.GROUP);
+        super(CardAttribute.GROUP);
         children = new ArrayList<>();
         mode = Mode.AND;
     }
@@ -194,16 +195,8 @@ public class FilterGroup extends Filter implements Iterable<Filter>
         mode = Arrays.stream(Mode.values()).filter((m) -> m.toString().equals(fields.get("mode").getAsString())).findAny().get();
         for (JsonElement element : fields.get("children").getAsJsonArray())
         {
-            FilterAttribute type = FilterAttribute.fromString(element.getAsJsonObject().get("type").getAsString());
-            Filter child;
-            if (type == FilterAttribute.GROUP)
-            {
-                child = new FilterGroup();
-            }
-            else
-            {
-                child = FilterAttribute.createFilter(type);
-            }
+            CardAttribute type = CardAttribute.parseCardData(element.getAsJsonObject().get("type").getAsString());
+            Filter child = type == CardAttribute.GROUP ? new FilterGroup() : CardAttribute.createFilter(type);
             child.fromJsonObject(element.getAsJsonObject());
             children.add(child);
         }

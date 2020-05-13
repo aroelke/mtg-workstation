@@ -1,14 +1,18 @@
 package editor.gui.filter.editor;
 
+import java.awt.Dimension;
+
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.VariableNumberFilter;
 import editor.gui.generic.ComboBoxPanel;
 import editor.util.Comparison;
-
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * This class represents a panel that corresponds to a filter that groups cards
@@ -30,7 +34,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
     /**
      * Type of filter this VariableNumberFilterPanel edits.
      */
-    private FilterAttribute type;
+    private CardAttribute type;
     /**
      * Check box specifying whether the characteristic should be variable
      * or not.
@@ -66,14 +70,14 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
      */
     public VariableNumberFilterPanel(VariableNumberFilter f)
     {
-        this(f.type().equals(FilterAttribute.LOYALTY) ? "X" : "*");
+        this(f.type().equals(CardAttribute.LOYALTY) ? "X" : "*");
         setContents(f);
     }
 
     @Override
     public Filter filter()
     {
-        VariableNumberFilter filter = (VariableNumberFilter)FilterAttribute.createFilter(type);
+        VariableNumberFilter filter = (VariableNumberFilter)CardAttribute.createFilter(type);
         filter.operation = comparison.getSelectedItem();
         filter.operand = (double)spinner.getValue();
         filter.varies = variable.isSelected();

@@ -7,9 +7,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.Expansion;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter that groups cards by expansion.
@@ -23,7 +23,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
      */
     public ExpansionFilter()
     {
-        super(FilterAttribute.EXPANSION, Card::expansion);
+        super(CardAttribute.EXPANSION_NAME, Card::expansion);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
     @Override
     public Filter copy()
     {
-        ExpansionFilter filter = (ExpansionFilter)FilterAttribute.createFilter(FilterAttribute.EXPANSION);
+        ExpansionFilter filter = (ExpansionFilter)CardAttribute.createFilter(CardAttribute.EXPANSION_NAME);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

@@ -5,8 +5,8 @@ import java.util.HashSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter that groups cards by block.
@@ -20,7 +20,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
      */
     public BlockFilter()
     {
-        super(FilterAttribute.BLOCK, (c) -> c.expansion().block);
+        super(CardAttribute.BLOCK, (c) -> c.expansion().block);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
     @Override
     public Filter copy()
     {
-        BlockFilter filter = (BlockFilter)FilterAttribute.createFilter(FilterAttribute.BLOCK);
+        BlockFilter filter = (BlockFilter)CardAttribute.createFilter(CardAttribute.BLOCK);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         return filter;

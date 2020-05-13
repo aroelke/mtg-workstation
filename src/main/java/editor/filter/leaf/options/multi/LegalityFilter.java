@@ -9,9 +9,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.Legality;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 
 /**
  * This class represents a filter that groups cards by format legality.
@@ -36,7 +36,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
      */
     public LegalityFilter()
     {
-        super(FilterAttribute.FORMAT_LEGALITY, Card::legalIn);
+        super(CardAttribute.LEGAL_IN, Card::legalIn);
         restricted = false;
     }
 
@@ -49,7 +49,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     @Override
     public Filter copy()
     {
-        LegalityFilter filter = (LegalityFilter)FilterAttribute.createFilter(FilterAttribute.FORMAT_LEGALITY);
+        LegalityFilter filter = (LegalityFilter)CardAttribute.createFilter(CardAttribute.LEGAL_IN);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         filter.restricted = restricted;

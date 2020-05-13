@@ -1,18 +1,21 @@
 package editor.gui.filter.editor;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+
+import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.ManaType;
 import editor.database.symbol.ColorSymbol;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.ColorFilter;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.generic.ComboBoxPanel;
 import editor.util.Containment;
-
-import javax.swing.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * This class represents a panel corresponding to a filter that groups
@@ -38,7 +41,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
     /**
      * Type of the filter being edited.
      */
-    private FilterAttribute type;
+    private CardAttribute type;
 
     /**
      * Create a new ColorFilterPanel.
@@ -83,7 +86,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
     @Override
     public Filter filter()
     {
-        ColorFilter filter = (ColorFilter)FilterAttribute.createFilter(type);
+        ColorFilter filter = (ColorFilter)CardAttribute.createFilter(type);
         filter.contain = contain.getSelectedItem();
         filter.colors.addAll(colors.keySet().stream().filter((c) -> colors.get(c).isSelected()).collect(Collectors.toSet()));
         filter.multicolored = multiCheckBox.isSelected();

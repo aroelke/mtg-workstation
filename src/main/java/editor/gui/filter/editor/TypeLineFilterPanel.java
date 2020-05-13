@@ -1,13 +1,14 @@
 package editor.gui.filter.editor;
 
+import javax.swing.BoxLayout;
+import javax.swing.JTextField;
+
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.TypeLineFilter;
 import editor.gui.generic.ComboBoxPanel;
 import editor.util.Containment;
-
-import javax.swing.*;
 
 /**
  * This class represents a panel that corresponds to a filter that
@@ -57,7 +58,7 @@ public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
     @Override
     public Filter filter()
     {
-        TypeLineFilter filter = (TypeLineFilter) FilterAttribute.createFilter(FilterAttribute.TYPE_LINE);
+        TypeLineFilter filter = (TypeLineFilter)CardAttribute.createFilter(CardAttribute.TYPE_LINE);
         filter.contain = contain.getSelectedItem();
         filter.line = line.getText();
         return filter;

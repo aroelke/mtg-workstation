@@ -6,12 +6,12 @@ import java.util.AbstractMap;
 import java.util.Map;
 
 import editor.database.card.CardLayout;
+import editor.database.characteristics.CardAttribute;
 import editor.database.characteristics.Expansion;
 import editor.database.characteristics.ManaCost;
 import editor.database.characteristics.ManaType;
 import editor.database.characteristics.Rarity;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.FilterGroup;
 import editor.filter.leaf.BinaryFilter;
 import editor.filter.leaf.ColorFilter;
@@ -30,42 +30,42 @@ import editor.util.Containment;
 
 public interface FilterDeserializer
 {
-    public final Map<FilterAttribute, String> CODES = Map.ofEntries(
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.CARD_TYPE, "cardtype"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.ANY, "*"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.FORMAT_LEGALITY, "legal"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.TYPE_LINE, "type"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.BLOCK, "b"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.EXPANSION, "x"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.LAYOUT, "L"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.MANA_COST, "m"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.NAME, "n"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.NONE, "0"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.RARITY, "r"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.SUBTYPE, "sub"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.SUPERTYPE, "super"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.TAGS, "tag"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.LOYALTY, "l"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.ARTIST, "a"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.CARD_NUMBER, "#"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.CMC, "cmc"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.COLOR, "c"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.COLOR_IDENTITY, "ci"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.FLAVOR_TEXT, "f"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.POWER, "p"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.PRINTED_TEXT, "ptext"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.PRINTED_TYPES, "ptypes"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.RULES_TEXT, "o"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.TOUGHNESS, "t"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.GROUP, "group"),
-        new AbstractMap.SimpleImmutableEntry<>(FilterAttribute.DEFAULTS, "")
+    public final Map<CardAttribute, String> CODES = Map.ofEntries(
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.CARD_TYPE, "cardtype"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.ANY, "*"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.LEGAL_IN, "legal"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.TYPE_LINE, "type"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.BLOCK, "b"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.EXPANSION_NAME, "x"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.LAYOUT, "L"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.MANA_COST, "m"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.NAME, "n"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.NONE, "0"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.RARITY, "r"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.SUBTYPE, "sub"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.SUPERTYPE, "super"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.TAGS, "tag"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.LOYALTY, "l"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.ARTIST, "a"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.CARD_NUMBER, "#"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.CMC, "cmc"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.COLORS, "c"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.COLOR_IDENTITY, "ci"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.FLAVOR_TEXT, "f"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.POWER, "p"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.PRINTED_TEXT, "ptext"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.PRINTED_TYPES, "ptypes"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.RULES_TEXT, "o"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.TOUGHNESS, "t"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.GROUP, "group"),
+        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.DEFAULTS, "")
     );
 
     public static Filter readExternal(ObjectInput in) throws ClassNotFoundException, IOException
     {
-        FilterAttribute type = null;
+        CardAttribute type = null;
         String code = in.readUTF();
-        for (FilterAttribute attribute: FilterAttribute.values())
+        for (CardAttribute attribute: CardAttribute.values())
         {
             if (code.equals(CODES.get(attribute)))
             {
@@ -73,7 +73,7 @@ public interface FilterDeserializer
                 break;
             }
         }
-        if (type == FilterAttribute.GROUP)
+        if (type == CardAttribute.GROUP)
         {
             FilterGroup filter = new FilterGroup();
             filter.mode = (FilterGroup.Mode)in.readObject();
@@ -119,7 +119,7 @@ public interface FilterDeserializer
                 number.operand = in.readDouble();
                 number.operation = (Comparison)in.readObject();
                 return number;
-            case COLOR:
+            case COLORS:
             case COLOR_IDENTITY:
                 ColorFilter color = (ColorFilter)type.get();
                 color.contain = (Containment)in.readObject();
@@ -148,7 +148,7 @@ public interface FilterDeserializer
                     string.selected.add((String)in.readObject());
                 }
                 return string;
-            case EXPANSION:
+            case EXPANSION_NAME:
                 ExpansionFilter expansion = (ExpansionFilter)type.get();
                 expansion.contain = (Containment)in.readObject();
                 n = in.readInt();
@@ -184,7 +184,7 @@ public interface FilterDeserializer
                 stat.operation = (Comparison)in.readObject();
                 stat.varies = in.readBoolean();
                 return stat;
-            case FORMAT_LEGALITY:
+            case LEGAL_IN:
                 LegalityFilter legality = (LegalityFilter)type.get();
                 legality.contain = (Containment)in.readObject();
                 n = in.readInt();

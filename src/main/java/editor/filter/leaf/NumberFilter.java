@@ -7,8 +7,8 @@ import java.util.function.Function;
 import com.google.gson.JsonObject;
 
 import editor.database.card.Card;
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.util.Comparison;
 
 /**
@@ -34,7 +34,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      * @param t type of the new NumberFilter
      * @param f function for the new NumberFilter
      */
-    public NumberFilter(FilterAttribute t, Function<Card, Collection<Double>> f)
+    public NumberFilter(CardAttribute t, Function<Card, Collection<Double>> f)
     {
         super(t, f);
         operation = Comparison.EQ;
@@ -66,7 +66,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
     @Override
     public Filter copy()
     {
-        NumberFilter filter = (NumberFilter)FilterAttribute.createFilter(type());
+        NumberFilter filter = (NumberFilter)CardAttribute.createFilter(type());
         filter.operation = operation;
         filter.operand = operand;
         return filter;

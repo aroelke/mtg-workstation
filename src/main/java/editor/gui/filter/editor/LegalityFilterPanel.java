@@ -1,13 +1,14 @@
 package editor.gui.filter.editor;
 
+import java.awt.BorderLayout;
+
+import javax.swing.JCheckBox;
+
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.leaf.FilterLeaf;
 import editor.filter.leaf.options.OptionsFilter;
 import editor.filter.leaf.options.multi.LegalityFilter;
-
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * This class represents a panel corresponding to a filter that groups
@@ -29,7 +30,7 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
      */
     public LegalityFilterPanel()
     {
-        super(FilterAttribute.FORMAT_LEGALITY, LegalityFilter.formatList);
+        super(CardAttribute.LEGAL_IN, LegalityFilter.formatList);
         add(restrictedBox = new JCheckBox("Restricted"), BorderLayout.EAST);
     }
 
@@ -77,7 +78,7 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
     @Override
     public void setContents(OptionsFilter<String> filter) throws IllegalArgumentException
     {
-        if (filter.type() != FilterAttribute.FORMAT_LEGALITY)
+        if (filter.type() != CardAttribute.LEGAL_IN)
             throw new IllegalArgumentException("Illegal legality filter type " + filter.type());
         else
             setContents((LegalityFilter)filter);

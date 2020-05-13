@@ -9,8 +9,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import editor.database.characteristics.CardAttribute;
 import editor.filter.Filter;
-import editor.filter.FilterAttribute;
 import editor.filter.FilterGroup;
 
 /**
@@ -29,15 +29,15 @@ public class FilterAdapter implements JsonSerializer<Filter>, JsonDeserializer<F
     @Override
     public Filter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        FilterAttribute type = FilterAttribute.fromString(json.getAsJsonObject().get("type").getAsString());
+        CardAttribute type = CardAttribute.parseCardData(json.getAsJsonObject().get("type").getAsString());
         Filter filter;
-        if (type == FilterAttribute.GROUP)
+        if (type == CardAttribute.GROUP)
         {
             filter = new FilterGroup();
         }
         else
         {
-            filter = FilterAttribute.createFilter(type);
+            filter = CardAttribute.createFilter(type);
         }
         filter.fromJsonObject(json.getAsJsonObject());
         return filter;
