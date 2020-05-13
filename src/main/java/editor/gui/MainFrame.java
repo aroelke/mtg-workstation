@@ -28,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,6 +106,8 @@ import editor.database.attributes.Expansion;
 import editor.database.attributes.Rarity;
 import editor.database.card.Card;
 import editor.database.symbol.Symbol;
+import editor.database.version.DatabaseVersion;
+import editor.database.version.UpdateFrequency;
 import editor.filter.Filter;
 import editor.filter.leaf.TextFilter;
 import editor.gui.display.CardImagePanel;
@@ -131,6 +134,7 @@ import editor.serialization.CardAdapter;
 import editor.serialization.CategoryAdapter;
 import editor.serialization.DeckAdapter;
 import editor.serialization.FilterAdapter;
+import editor.serialization.VersionAdapter;
 import editor.serialization.legacy.DeckDeserializer;
 import editor.util.ColorAdapter;
 import editor.util.MenuListenerFactory;
@@ -224,6 +228,7 @@ public class MainFrame extends JFrame
         .registerTypeAdapter(CardAttribute.class, new AttributeAdapter())
         .registerTypeAdapter(Deck.class, new DeckAdapter())
         .registerTypeAdapter(DeckSerializer.class, new DeckSerializer())
+        .registerTypeAdapter(DatabaseVersion.class, new VersionAdapter())
         .setPrettyPrinting()
         .create();
     /**
@@ -343,7 +348,7 @@ public class MainFrame extends JFrame
     /**
      * Newest version number of the inventory.
      */
-    private String newestVersion;
+    private DatabaseVersion newestVersion;
     /**
      * Menu showing preset categories.
      */
@@ -1439,8 +1444,7 @@ public class MainFrame extends JFrame
             @Override
             public void windowOpened(WindowEvent e)
             {
-                if ((SettingsDialog.settings().inventory.update || !inventoryFile.exists())
-                        && (checkForUpdate() == UPDATE_NEEDED && updateInventory()))
+                if (checkForUpdate() == UPDATE_NEEDED && updateInventory())
                     SettingsDialog.setInventoryVersion(newestVersion);
                 loadInventory();
                 if (!inventory.isEmpty())
@@ -1525,26 +1529,38 @@ public class MainFrame extends JFrame
             JOptionPane.showMessageDialog(this, inventoryFile.getName() + " not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE);
             try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
             {
-                newestVersion = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString();
+                newestVersion = new DatabaseVersion(new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString());
             }
             catch (IOException e)
             {
                 JOptionPane.showMessageDialog(this, "Error connecting to server: " + e.getMessage() + ".", "Connection Error", JOptionPane.ERROR_MESSAGE);
                 return NO_UPDATE;
             }
+            catch (ParseException e)
+            {
+                JOptionPane.showMessageDialog(this, "Could not parse version \"" + e.getMessage() + '"', "Error", JOptionPane.ERROR_MESSAGE);
+                return NO_UPDATE;
+            }
             return UPDATE_NEEDED;
         }
-        else
+        else if (SettingsDialog.settings().inventory.update != UpdateFrequency.NEVER)
         {
             try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
             {
-                newestVersion = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString();
-                if (!newestVersion.equals(SettingsDialog.settings().inventory.version))
+                newestVersion = new DatabaseVersion(new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString());
+                if (newestVersion.needsUpdate(SettingsDialog.settings().inventory.version, SettingsDialog.settings().inventory.update))
                 {
-                    if (JOptionPane.showConfirmDialog(this, "Inventory is out of date.  Download update?", "Update", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-                        return UPDATE_NEEDED;
-                    else
-                        return UPDATE_CANCELLED;
+                    int wantUpdate = JOptionPane.showConfirmDialog(
+                        this,
+                        "Inventory is out of date:\n" +
+                        UnicodeSymbols.BULLET + " Current version: " + SettingsDialog.settings().inventory.version + "\n" +
+                        UnicodeSymbols.BULLET + " Latest version: " + newestVersion + "\n" +
+                        "\n" +
+                        "Download update?",
+                        "Update",
+                        JOptionPane.YES_NO_OPTION
+                    );
+                    return wantUpdate == JOptionPane.YES_OPTION ? UPDATE_NEEDED : UPDATE_CANCELLED;
                 }
                 else
                     return NO_UPDATE;
@@ -1554,7 +1570,14 @@ public class MainFrame extends JFrame
                 JOptionPane.showMessageDialog(this, "Error connecting to server: " + e.getMessage() + ".", "Connection Error", JOptionPane.ERROR_MESSAGE);
                 return NO_UPDATE;
             }
+            catch (ParseException e)
+            {
+                JOptionPane.showMessageDialog(this, "Could not parse version \"" + e.getMessage() + '"', "Error", JOptionPane.ERROR_MESSAGE);
+                return NO_UPDATE;
+            }
         }
+        else
+            return NO_UPDATE;
     }
 
     /**

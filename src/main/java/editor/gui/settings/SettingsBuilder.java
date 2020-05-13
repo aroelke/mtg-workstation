@@ -12,11 +12,14 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
 import editor.database.attributes.CardAttribute;
+import editor.database.version.DatabaseVersion;
+import editor.database.version.UpdateFrequency;
 import editor.filter.leaf.options.multi.CardTypeFilter;
 
 /**
@@ -30,11 +33,11 @@ public class SettingsBuilder
     private String inventorySource;
     private String inventoryFile;
     private String inventoryVersionFile;
-    private String inventoryVersion;
+    private DatabaseVersion inventoryVersion;
     private String inventoryLocation;
     private String inventoryScans;
     private String inventoryTags;
-    private boolean inventoryUpdate;
+    private UpdateFrequency inventoryUpdate;
     private boolean inventoryWarn;
     private List<CardAttribute> inventoryColumns;
     private Color inventoryBackground;
@@ -180,11 +183,11 @@ public class SettingsBuilder
         inventorySource = "https://mtgjson.com/json/";
         inventoryFile = "AllSets.json";
         inventoryVersionFile = "version.json";
-        inventoryVersion = "";
+        inventoryVersion = new DatabaseVersion(0, 0, 0, new Date(0));
         inventoryLocation = ".";
         inventoryScans = "scans";
         inventoryTags = "tags.json";
-        inventoryUpdate = true;
+        inventoryUpdate = UpdateFrequency.REVISION;
         inventoryWarn = true;
         inventoryColumns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION);
         inventoryBackground = Color.WHITE;
@@ -263,7 +266,7 @@ public class SettingsBuilder
      * @return this SettingsBuilder.
      * @see Settings.InventorySettings#version
      */
-    public SettingsBuilder inventoryVersion(String version)
+    public SettingsBuilder inventoryVersion(DatabaseVersion version)
     {
         inventoryVersion = version;
         return this;
@@ -309,13 +312,13 @@ public class SettingsBuilder
     }
 
     /**
-     * Change whether or not to automatically check for updates on startup.
+     * Change how often new updates should be dowloaded.
      * 
-     * @param update whether or not to check for updates
+     * @param update how often to download new updates
      * @return this SettingsBuilder
      * @see Settings.InventorySettings#update
      */
-    public SettingsBuilder inventoryUpdate(boolean update)
+    public SettingsBuilder inventoryUpdate(UpdateFrequency update)
     {
         inventoryUpdate = update;
         return this;
