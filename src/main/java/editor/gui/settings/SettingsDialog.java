@@ -29,6 +29,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -51,6 +52,8 @@ import javax.swing.tree.TreeSelectionModel;
 import editor.collection.deck.CategorySpec;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
+import editor.database.version.DatabaseVersion;
+import editor.database.version.UpdateFrequency;
 import editor.gui.MainFrame;
 import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
@@ -229,7 +232,7 @@ public class SettingsDialog extends JDialog
      * 
      * @param version new version of the inventory
      */
-    public static void setInventoryVersion(String version)
+    public static void setInventoryVersion(DatabaseVersion version)
     {
         settings = new SettingsBuilder(settings).inventoryVersion(version).build();
     }
@@ -308,9 +311,9 @@ public class SettingsDialog extends JDialog
      */
     private JCheckBox suppressCheckBox;
     /**
-     * Check box indicating whether or not to perform a check for updates on program start.
+     * Combo box indicating how often to download updates.
      */
-    private JCheckBox updateCheckBox;
+    private JComboBox<UpdateFrequency> updateBox;
 
     /**
      * Create a new SettingsDialog.
@@ -434,8 +437,12 @@ public class SettingsDialog extends JDialog
 
         // Check for update on startup
         JPanel updatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        updateCheckBox = new JCheckBox("Check for update on program start", settings.inventory.update);
-        updatePanel.add(updateCheckBox);
+        JLabel updateLabel = new JLabel("Update inventory on:");
+        updatePanel.add(updateLabel);
+        updatePanel.add(Box.createHorizontalStrut(5));
+        updateBox = new JComboBox<>(UpdateFrequency.values());
+        updateBox.setSelectedIndex(settings.inventory.update.ordinal());
+        updatePanel.add(updateBox);
         updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
         inventoryPanel.add(updatePanel);
 
@@ -726,7 +733,7 @@ public class SettingsDialog extends JDialog
                 .inventorySource(inventorySiteField.getText())
                 .inventoryFile(inventoryFileField.getText())
                 .inventoryLocation(inventoryDirField.getText())
-                .inventoryUpdate(updateCheckBox.isSelected())
+                .inventoryUpdate(updateBox.getItemAt(updateBox.getSelectedIndex()))
                 .inventoryWarn(suppressCheckBox.isSelected())
                 .inventoryColumns(inventoryColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.fromString(c.getText())).collect(Collectors.toList()))
                 .inventoryStripe(inventoryStripeColor.getColor())

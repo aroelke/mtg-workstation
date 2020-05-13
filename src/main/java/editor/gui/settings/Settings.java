@@ -9,6 +9,8 @@ import java.util.Objects;
 
 import editor.collection.deck.CategorySpec;
 import editor.database.attributes.CardAttribute;
+import editor.database.version.DatabaseVersion;
+import editor.database.version.UpdateFrequency;
 
 /**
  * Structure containing global settings.  This structure consists of immutable
@@ -33,7 +35,7 @@ public final class Settings
         /** File name containing latest inventory version. */
         public final String versionFile;
         /** Version of the stored inventory. */
-        public final String version;
+        public final DatabaseVersion version;
         /** Directory to store inventory file in. */
         public final String location;
         /** Directory to store card images in. */
@@ -41,7 +43,7 @@ public final class Settings
         /** File to store tags in. */
         public final String tags;
         /** Check for inventory update on startup or don't. */
-        public final boolean update;
+        public final UpdateFrequency update;
         /** Show warnings from loading inventory. */
         public final boolean warn;
         /** Card attributes to show in inventory table. */
@@ -54,11 +56,11 @@ public final class Settings
         protected InventorySettings(String source,
                                     String file,
                                     String versionFile,
-                                    String version,
+                                    DatabaseVersion version,
                                     String location,
                                     String scans,
                                     String tags,
-                                    boolean update,
+                                    UpdateFrequency update,
                                     boolean warn,
                                     List<CardAttribute> columns,
                                     Color background,
@@ -319,7 +321,7 @@ public final class Settings
     /** Initial directory of file choosers. */
     public final String cwd;
 
-    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, String inventoryVersion, String inventoryLocation, String inventoryScans, String inventoryTags, boolean inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, String cwd)
+    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, String cwd)
     {
         this.inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
         this.editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground);
