@@ -46,20 +46,6 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
     FLAVOR_TEXT("Flavor Text", (a) -> new TextFilter(a, Card::normalizedFlavor)),
     /** The text physically printed on a card. */
     PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, Card::normalizedPrinted)),
-    /** A card's types. */
-    CARD_TYPE("Card Type", (a) -> new CardTypeFilter()),
-    /** A card's subtypes. */
-    SUBTYPE("Subtype", (a) -> new SubtypeFilter()),
-    /** A card's supertypes. */
-    SUPERTYPE("Supertype", (a) -> new SupertypeFilter()),
-    /** Name of a card. */
-    NAME("Name", String.class, (a) -> new TextFilter(a, Card::normalizedName)),
-    /** {@link CardLayout} of a card. */
-    LAYOUT("Layout", CardLayout.class, (a) -> new LayoutFilter()),
-    /** Mana cost of a card. */
-    MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter()),
-    /** Converted mana cost of a card. */
-    CMC("CMC", List.class, (a) -> new NumberFilter(a, Card::cmc)),
     /** Colors of all faces of a card. */
     COLORS("Colors", List.class, (a) -> new ColorFilter(a, Card::colors)),
     /** Color identity of a card. */
@@ -68,18 +54,32 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>
     TYPE_LINE("Type", String.class, (a) -> new TypeLineFilter()),
     /** The type line physically printed on a card. */
     PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, Card::printedTypes)),
-    /** Name of the expansion a card was released in. */
-    EXPANSION("Expansion", String.class, (a) -> new ExpansionFilter()),
-    /** Name of the block containing the expansion the card was released in. */
-    BLOCK("Block", String.class, (a) -> new BlockFilter()),
-    /** Rarity of a card in its expansion. */
-    RARITY("Rarity", Rarity.class, (a) -> new RarityFilter()),
+    /** A card's types. */
+    CARD_TYPE("Card Type", (a) -> new CardTypeFilter()),
+    /** A card's subtypes. */
+    SUBTYPE("Subtype", (a) -> new SubtypeFilter()),
+    /** A card's supertypes. */
+    SUPERTYPE("Supertype", (a) -> new SupertypeFilter()),
+    /** Mana cost of a card. */
+    MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter()),
+    /** Converted mana cost of a card. */
+    CMC("CMC", List.class, (a) -> new NumberFilter(a, Card::cmc)),
     /** Power of a creature card. */
     POWER("Power", List.class, (a) -> new VariableNumberFilter(a, (c) -> c.power().stream().map((p) -> p.value).collect(Collectors.toList()), Card::powerVariable)),
     /** Toughness of a creature card. */
     TOUGHNESS("Toughness", List.class, (a) -> new VariableNumberFilter(a, (c) -> c.toughness().stream().map((p) -> p.value).collect(Collectors.toList()), Card::toughnessVariable)),
     /** Loyalty of a planeswalker card. */
     LOYALTY("Loyalty", List.class, (a) -> new VariableNumberFilter(a, (Card c) -> c.loyalty().stream().map((l) -> (double)l.value).collect(Collectors.toList()), Card::loyaltyVariable)),
+    /** Name of a card. */
+    NAME("Name", String.class, (a) -> new TextFilter(a, Card::normalizedName)),
+    /** {@link CardLayout} of a card. */
+    LAYOUT("Layout", CardLayout.class, (a) -> new LayoutFilter()),
+    /** Name of the expansion a card was released in. */
+    EXPANSION("Expansion", String.class, (a) -> new ExpansionFilter()),
+    /** Name of the block containing the expansion the card was released in. */
+    BLOCK("Block", String.class, (a) -> new BlockFilter()),
+    /** Rarity of a card in its expansion. */
+    RARITY("Rarity", Rarity.class, (a) -> new RarityFilter()),
     /** Artist of a card. */
     ARTIST("Artist", String.class,(a) -> new TextFilter(a, Card::artist)),
     /** Collector number of a card. */
