@@ -71,7 +71,6 @@ import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
 import editor.gui.MainFrame;
 import editor.gui.settings.SettingsDialog;
-import editor.util.UnicodeSymbols;
 
 /**
  * This class represents a dialog that shows the progress for loading the

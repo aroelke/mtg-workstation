@@ -367,6 +367,9 @@ public class SettingsDialog extends JDialog
         JPanel inventorySitePanel = new JPanel();
         inventorySitePanel.setLayout(new BoxLayout(inventorySitePanel, BoxLayout.X_AXIS));
         inventorySitePanel.add(new JLabel("Inventory Site:"));
+        JLabel siteStarPanel = new JLabel("*");
+        siteStarPanel.setForeground(Color.RED);
+        inventorySitePanel.add(siteStarPanel);
         inventorySitePanel.add(Box.createHorizontalStrut(5));
         inventorySiteField = new JTextField(15);
         inventorySiteField.setText(settings.inventory.source);
@@ -379,6 +382,9 @@ public class SettingsDialog extends JDialog
         JPanel inventoryFilePanel = new JPanel();
         inventoryFilePanel.setLayout(new BoxLayout(inventoryFilePanel, BoxLayout.X_AXIS));
         inventoryFilePanel.add(new JLabel("Inventory File:"));
+        JLabel fileStarLabel = new JLabel("*");
+        fileStarLabel.setForeground(Color.RED);
+        inventoryFilePanel.add(fileStarLabel);
         inventoryFilePanel.add(Box.createHorizontalStrut(5));
         inventoryFileField = new JTextField(10);
         inventoryFileField.setText(settings.inventory.file);
@@ -467,7 +473,7 @@ public class SettingsDialog extends JDialog
 
         // Warning panel
         JPanel pathWarningPanel = new JPanel(new BorderLayout());
-        JLabel pathWarningLabel = new JLabel("Warning:  Changing these settings may break functionality");
+        JLabel pathWarningLabel = new JLabel("*Warning:  Changing these settings may break functionality");
         pathWarningLabel.setFont(new Font(pathWarningLabel.getFont().getFontName(), Font.ITALIC, pathWarningLabel.getFont().getSize()));
         pathWarningLabel.setForeground(Color.RED);
         pathWarningPanel.add(pathWarningLabel);
