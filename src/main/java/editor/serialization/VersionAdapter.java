@@ -13,6 +13,11 @@ import com.google.gson.JsonSerializer;
 
 import editor.database.version.DatabaseVersion;
 
+/**
+ * This class serializes a {@link DatabaseVersion} to and from JSON format.
+ * 
+ * @author Alec Roelke
+ */
 public class VersionAdapter implements JsonSerializer<DatabaseVersion>, JsonDeserializer<DatabaseVersion>
 {
     @Override
