@@ -1,5 +1,6 @@
 package editor.gui.inventory;
 
+import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -489,11 +491,16 @@ public class InventoryLoadDialog extends JDialog
             if (SettingsDialog.settings().inventory.warn && !errors.isEmpty())
             {
                 SwingUtilities.invokeLater(() -> {
-                    StringJoiner join = new StringJoiner("\n" + UnicodeSymbols.BULLET + " ");
-                    join.add("Errors ocurred while loading the following card(s):");
+                    StringJoiner join = new StringJoiner("<li>", "<html>", "</ul></html>");
+                    join.add("Errors ocurred while loading the following card(s):<ul style=\"margin-top:0;margin-left:20pt\">");
                     for (String failure : errors)
                         join.add(failure);
-                    JOptionPane.showMessageDialog(null, join.toString(), "Warning", JOptionPane.WARNING_MESSAGE);
+                    JPanel warningPanel = new JPanel(new BorderLayout());
+                    JLabel warningLabel = new JLabel(join.toString());
+                    warningPanel.add(warningLabel, BorderLayout.CENTER);
+                    JCheckBox suppressBox = new JCheckBox("Don't show this warning in the future");
+                    warningPanel.add(suppressBox, BorderLayout.SOUTH);
+                    JOptionPane.showMessageDialog(null, warningPanel, "Warning", JOptionPane.WARNING_MESSAGE);
                 });
             }
         }
