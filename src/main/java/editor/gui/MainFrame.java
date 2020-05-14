@@ -150,13 +150,6 @@ import editor.util.UnicodeSymbols;
  * added to decks with a window below it that displays the Oracle text of the currently-selected card.  On
  * the right side is a pane which contains internal frames that allow the user to open, close, and edit
  * multiple decks at once.  See #EditorFrame for details on the editor frames.
- * <p>
- * TODO: Create a diff frame that shows differences between two (or more, potentially) decks
- * TODO: Add a File->Print... dialog (for the editor frame)
- * TODO: Right-click column header = create filter for that column
- * TODO: Optionally get card images from magiccards.info rather than locally
- * TODO: File search for cards/filter match
- * TODO: Add a capability to list needed tokens
  *
  * @author Alec Roelke
  */
@@ -260,9 +253,6 @@ public class MainFrame extends JFrame
     /**
      * Entry point for the program. All it does is set the look and feel to the
      * system one and create the GUI.
-     * <p>
-     * TODO: Add copy/paste mechanics
-     * TODO: Try to reduce memory footprint.
      *
      * @param args arguments to the program
      */
@@ -430,7 +420,6 @@ public class MainFrame extends JFrame
         recentCount = SettingsDialog.settings().editor.recents.count;
         newestVersion = SettingsDialog.settings().inventory.version;
 
-        // TODO: Pick a title and icon
         setTitle("MTG Deck Editor");
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -920,7 +909,6 @@ public class MainFrame extends JFrame
                     return;
                 }
 
-                // TODO: Add file extension if it's missing.
                 try
                 {
                     f.export(format, exportChooser.getSelectedFile());
@@ -1085,7 +1073,6 @@ public class MainFrame extends JFrame
         // Help menu
         JMenu helpMenu = new JMenu("Help");
         menuBar.add(helpMenu);
-        // TODO: Add a help dialog
 
         // Inventory update item
         JMenuItem updateInventoryItem = new JMenuItem("Check for inventory update...");
@@ -1122,6 +1109,14 @@ public class MainFrame extends JFrame
         showExpansionsItem.addActionListener((e) -> {
             TableModel expansionTableModel = new AbstractTableModel()
             {
+                private final String[] columns = {
+                    "Expansion",
+                    "Block",
+                    "Code",
+                    "magiccards.info",
+                    "Gatherer"
+                };
+
                 @Override
                 public int getColumnCount()
                 {
@@ -1131,14 +1126,6 @@ public class MainFrame extends JFrame
                 @Override
                 public String getColumnName(int index)
                 {
-                    // TODO: This should be static
-                    String[] columns = {
-                        "Expansion",
-                        "Block",
-                        "Code",
-                        "magiccards.info",
-                        "Gatherer"
-                    };
                     return columns[index];
                 }
 
@@ -1151,7 +1138,7 @@ public class MainFrame extends JFrame
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex)
                 {
-                    Object[] values = {
+                    final Object[] values = {
                         Expansion.expansions[rowIndex].name,
                         Expansion.expansions[rowIndex].block,
                         Expansion.expansions[rowIndex].code,
@@ -1513,9 +1500,6 @@ public class MainFrame extends JFrame
 
     /**
      * Check to see if the inventory needs to be updated.  If it does, ask the user if it should be.
-     * <p>
-     * TODO: Add a timeout
-     * TODO: Reduce repeated code
      *
      * @param freq desired frequency for downloading updates
      * @return an integer value representing the state of the update.  It can be:
