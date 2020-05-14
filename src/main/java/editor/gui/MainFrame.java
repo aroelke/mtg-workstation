@@ -305,7 +305,7 @@ public class MainFrame extends JFrame
     /**
      * File chooser for opening and saving.
      */
-    private JFileChooser fileChooser;
+    private OverwriteFileChooser fileChooser;
     /**
      * URL pointing to the site to get the latest version of the
      * inventory from.
@@ -1414,7 +1414,7 @@ public class MainFrame extends JFrame
         contentPane.add(editorSplit, BorderLayout.CENTER);
 
         // File chooser
-        fileChooser = new JFileChooser(SettingsDialog.settings().cwd);
+        fileChooser = new OverwriteFileChooser(SettingsDialog.settings().cwd);
         fileChooser.setMultiSelectionEnabled(false);
         fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Deck (*.json)", "json"));
         fileChooser.setAcceptAllFileFilterUsed(true);
@@ -1808,45 +1808,21 @@ public class MainFrame extends JFrame
      */
     public void saveAs(EditorFrame frame)
     {
-        // If the file exists, let the user choose whether or not to overwrite.  If he or she chooses not to,
-        // ask for a new file.  If he or she cancels at any point, stop asking and don't open a file.
-
-        // TODO: Make this an OverwriteFileChooser
-        boolean done = false;
-        while (!done)
+        switch (fileChooser.showSaveDialog(this))
         {
-            switch (fileChooser.showSaveDialog(this))
-            {
-            case JFileChooser.APPROVE_OPTION:
-                File f = fileChooser.getSelectedFile();
-                String fname = f.getAbsolutePath();
-                if (!fname.endsWith(".json"))
-                    f = new File(fname + ".json");
-                boolean write;
-                if (f.exists())
-                {
-                    int option = JOptionPane.showConfirmDialog(this, "File " + f.getName() + " already exists.  Overwrite?", "Warning", JOptionPane.YES_NO_CANCEL_OPTION);
-                    write = (option == JOptionPane.YES_OPTION);
-                    done = (option != JOptionPane.NO_OPTION);
-                }
-                else
-                {
-                    write = true;
-                    done = true;
-                }
-                if (write)
-                {
-                    frame.save(f);
-                    updateRecents(f);
-                }
-                break;
-            case JFileChooser.CANCEL_OPTION:
-            case JFileChooser.ERROR_OPTION:
-                done = true;
-                break;
-            default:
-                break;
-            }
+        case JFileChooser.APPROVE_OPTION:
+            File f = fileChooser.getSelectedFile();
+            String fname = f.getAbsolutePath();
+            if (!fname.endsWith(".json"))
+                f = new File(fname + ".json");
+            frame.save(f);
+            updateRecents(f);
+            break;
+        case JFileChooser.CANCEL_OPTION:
+            break;
+        case JFileChooser.ERROR_OPTION:
+            JOptionPane.showMessageDialog(this, "Could not save " + frame.deckName() + '.', "Error", JOptionPane.ERROR_MESSAGE);
+            break;
         }
         SettingsDialog.setStartingDir(fileChooser.getCurrentDirectory().getPath());
     }
