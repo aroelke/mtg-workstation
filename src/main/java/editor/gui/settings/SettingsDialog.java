@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -76,6 +78,7 @@ public class SettingsDialog extends JDialog
      * Settings structure containing global settings.
      */
     private static Settings settings;
+    private static List<String> inventoryWarnings;
 
     /**
      * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
@@ -245,6 +248,11 @@ public class SettingsDialog extends JDialog
     public static void setShowInventoryWarnings(boolean warn)
     {
         settings = new SettingsBuilder(settings).inventoryWarn(warn).build();
+    }
+
+    public static void setInventoryWarnings(List<String> warnings)
+    {
+        inventoryWarnings = new ArrayList<>(warnings);
     }
 
     /**
@@ -461,11 +469,23 @@ public class SettingsDialog extends JDialog
         updatePanel.add(updateBox);
         updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
         inventoryPanel.add(updatePanel);
+        inventoryPanel.add(Box.createVerticalStrut(5));
 
         // Show warnings from loading inventory
         JPanel suppressPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        suppressCheckBox = new JCheckBox("Show warnings from loading inventory", settings.inventory.warn);
+        suppressCheckBox = new JCheckBox("Show warnings after loading inventory", settings.inventory.warn);
         suppressPanel.add(suppressCheckBox);
+        suppressPanel.add(Box.createHorizontalStrut(5));
+        JButton viewWarningsButton = new JButton("View Warnings");
+        viewWarningsButton.setEnabled(!inventoryWarnings.isEmpty());
+        viewWarningsButton.addActionListener((e) -> {
+            StringJoiner join = new StringJoiner("<li>", "<html>", "</ul></html>");
+            join.add("Warnings from last inventory load:<ul style=\"margin-top:0;margin-left:20pt\">");
+            for (String warning : inventoryWarnings)
+                join.add(warning);
+            JOptionPane.showMessageDialog(this, join.toString(), "Inventory Warnings", JOptionPane.WARNING_MESSAGE);
+        });
+        suppressPanel.add(viewWarningsButton);
         suppressPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, suppressPanel.getPreferredSize().height));
         inventoryPanel.add(suppressPanel);
 

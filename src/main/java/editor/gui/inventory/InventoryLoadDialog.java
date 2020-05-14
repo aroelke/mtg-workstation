@@ -503,6 +503,7 @@ public class InventoryLoadDialog extends JDialog
                     SettingsDialog.setShowInventoryWarnings(!suppressBox.isSelected());
                 });
             }
+            SettingsDialog.setInventoryWarnings(errors);
         }
 
         /**
