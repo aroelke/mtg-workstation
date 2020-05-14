@@ -238,6 +238,16 @@ public class SettingsDialog extends JDialog
     }
 
     /**
+     * Set whether or not to show warnings after finishing loading the inventory.
+     * 
+     * @param warn whether or not to show warnings
+     */
+    public static void setShowInventoryWarnings(boolean warn)
+    {
+        settings = new SettingsBuilder(settings).inventoryWarn(warn).build();
+    }
+
+    /**
      * List of preset categories.
      */
     private CategoryList categoriesList;

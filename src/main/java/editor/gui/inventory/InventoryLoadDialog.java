@@ -498,9 +498,10 @@ public class InventoryLoadDialog extends JDialog
                     JPanel warningPanel = new JPanel(new BorderLayout());
                     JLabel warningLabel = new JLabel(join.toString());
                     warningPanel.add(warningLabel, BorderLayout.CENTER);
-                    JCheckBox suppressBox = new JCheckBox("Don't show this warning in the future");
+                    JCheckBox suppressBox = new JCheckBox("Don't show this warning in the future", !SettingsDialog.settings().inventory.warn);
                     warningPanel.add(suppressBox, BorderLayout.SOUTH);
                     JOptionPane.showMessageDialog(null, warningPanel, "Warning", JOptionPane.WARNING_MESSAGE);
+                    SettingsDialog.setShowInventoryWarnings(!suppressBox.isSelected());
                 });
             }
         }
