@@ -73,8 +73,21 @@ import editor.filter.leaf.options.multi.SupertypeFilter;
 import editor.gui.MainFrame;
 import editor.gui.settings.SettingsDialog;
 
+/**
+ * Worker that loads the JSON inventory file into memory and displays progress in a
+ * popup dialog.
+ * 
+ * @author Alec Roelke
+ */
 public class InventoryLoader extends SwingWorker<Inventory, String>
 {
+    /**
+     * Load the inventory into memory from disk. Display a dialog indicating showing progress
+     * and allowing cancellation.
+     * 
+     * @param owner frame for setting the location of the dialog
+     * @param file file to load the inventory from
+     */
     public static Inventory loadInventory(Frame owner, File file)
     {
         JDialog dialog = new JDialog(owner, "Loading Inventory", Dialog.ModalityType.APPLICATION_MODAL);
@@ -175,12 +188,15 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
     private List<String> errors;
     /** Action to perform on each chunk during process(). */
     private Consumer<String> consumer;
+    /** Function to perform when done loading. */
     private Runnable finished;
 
     /**
      * Create a new InventoryWorker.
      *
      * @param f #File to load
+     * @param c function to perform on each update
+     * @param d function to perform when done loading
      */
     private InventoryLoader(File f, Consumer<String> c, Runnable d)
     {
@@ -259,7 +275,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             for (var setNode : root.entrySet())
                 for (JsonElement card : setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray())
                     if (card.getAsJsonObject().has("multiverseId"))
-                        numCards += 1;
+                        numCards++;
 
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
@@ -280,14 +296,16 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 // Create the new Expansion
                 JsonObject setProperties = setNode.getValue().getAsJsonObject();
                 JsonArray setCards = setProperties.get("cards").getAsJsonArray();
-                Expansion set = new Expansion(setProperties.get("name").getAsString(),
-                        Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse("<No Block>"),
-                        setProperties.get("code").getAsString(),
-                        setProperties.get(setProperties.has("oldCode") ? "oldCode" : "code").getAsString(),
-                        setProperties.get(setProperties.has("magicCardsInfoCode") ? "magicCardsInfoCode" : "code").getAsString().toUpperCase(),
-                        setProperties.get(setProperties.has("gathererCode") ? "gathererCode" : "code").getAsString(),
-                        setCards.size(),
-                        LocalDate.parse(setProperties.get("releaseDate").getAsString(), Expansion.DATE_FORMATTER));
+                Expansion set = new Expansion(
+                    setProperties.get("name").getAsString(),
+                    Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse("<No Block>"),
+                    setProperties.get("code").getAsString(),
+                    setProperties.get(setProperties.has("oldCode") ? "oldCode" : "code").getAsString(),
+                    setProperties.get(setProperties.has("magicCardsInfoCode") ? "magicCardsInfoCode" : "code").getAsString().toUpperCase(),
+                    setProperties.get(setProperties.has("gathererCode") ? "gathererCode" : "code").getAsString(),
+                    setCards.size(),
+                    LocalDate.parse(setProperties.get("releaseDate").getAsString(), Expansion.DATE_FORMATTER)
+                );
                 expansions.add(set);
                 blockNames.add(set.block);
                 publish("Loading cards from " + set + "...");
@@ -575,6 +593,9 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         finished.run();
     }
 
+    /**
+     * @return A list of warnings that occured while loading the inventory.
+     */
     public List<String> warnings()
     {
         return errors;
