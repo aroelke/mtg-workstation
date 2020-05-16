@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.Objects;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -109,9 +110,11 @@ public class ButtonScrollPane extends JPanel
 	 * 
 	 * @param view component in this ButtonScrollPane's view
 	 */
-	public ButtonScrollPane(Component view)
+	public ButtonScrollPane(final Component view)
 	{
 		super(new BorderLayout());
+
+		Objects.requireNonNull(view);
 
 		ArrowButton left = new ArrowButton(ArrowButton.WEST);
 		add(left, BorderLayout.WEST);
@@ -135,7 +138,7 @@ public class ButtonScrollPane extends JPanel
 			@Override
 			public void componentResized(ComponentEvent e)
 			{
-				boolean scrollable = view != null && view.getPreferredSize().width > pane.getSize().width;
+				boolean scrollable = view.getPreferredSize().width > pane.getSize().width;
 				left.setEnabled(scrollable);
 				right.setEnabled(scrollable);
 			}
