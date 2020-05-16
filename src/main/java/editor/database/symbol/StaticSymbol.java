@@ -1,6 +1,7 @@
 package editor.database.symbol;
 
 import java.util.Map;
+import java.util.Optional;
 
 import editor.database.attributes.ManaType;
 import editor.util.UnicodeSymbols;
@@ -30,10 +31,7 @@ public class StaticSymbol extends ManaSymbol
      */
     public static StaticSymbol parseStaticSymbol(String s) throws IllegalArgumentException
     {
-        StaticSymbol symbol = tryParseStaticSymbol(s);
-        if (symbol == null)
-            throw new IllegalArgumentException('"' + s + "\" is not a static symbol");
-        return symbol;
+        return tryParseStaticSymbol(s).orElseThrow(() -> new IllegalArgumentException('"' + s + "\" is not a static symbol"));
     }
 
     /**
@@ -42,9 +40,9 @@ public class StaticSymbol extends ManaSymbol
      * @param s String to look up
      * @return the StaticSymbol corresponding to the given String, or null if there is none.
      */
-    public static StaticSymbol tryParseStaticSymbol(String s)
+    public static Optional<StaticSymbol> tryParseStaticSymbol(String s)
     {
-        return SYMBOLS.get(s.toUpperCase());
+        return Optional.ofNullable(SYMBOLS.get(s.toUpperCase()));
     }
 
     /**

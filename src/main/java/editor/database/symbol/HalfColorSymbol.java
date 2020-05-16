@@ -3,6 +3,7 @@ package editor.database.symbol;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,10 +31,7 @@ public class HalfColorSymbol extends ManaSymbol
      */
     public static HalfColorSymbol parseHalfColorSymbol(String col) throws IllegalArgumentException
     {
-        HalfColorSymbol symbol = tryParseHalfColorSymbol(String.valueOf(col.charAt(1)));
-        if (symbol != null)
-            return symbol;
-        throw new IllegalArgumentException('"' + col + "\" is not a half color symbol");
+        return tryParseHalfColorSymbol(String.valueOf(col.charAt(1))).orElseThrow(() -> new IllegalArgumentException('"' + col + "\" is not a half color symbol"));
     }
 
     /**
@@ -43,11 +41,11 @@ public class HalfColorSymbol extends ManaSymbol
      * @return the HalfColorSymbol corresponding to the given color string, or null if no such
      * symbol exists
      */
-    public static HalfColorSymbol tryParseHalfColorSymbol(String col)
+    public static Optional<HalfColorSymbol> tryParseHalfColorSymbol(String col)
     {
         if (col.length() == 2 && Character.toUpperCase(col.charAt(0)) == 'H')
-            return SYMBOLS.get(ManaType.tryParseManaType(col.charAt(1)));
-        return null;
+            return Optional.ofNullable(SYMBOLS.get(ManaType.tryParseManaType(col.charAt(1))));
+        return Optional.empty();
     }
 
     /**

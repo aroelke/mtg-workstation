@@ -3,6 +3,7 @@ package editor.database.symbol;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,10 +34,7 @@ public class HybridSymbol extends ManaSymbol
      */
     public static HybridSymbol parseHybridSymbol(String pair) throws IllegalArgumentException
     {
-        HybridSymbol symbol = tryParseHybridSymbol(pair);
-        if (symbol != null)
-            return symbol;
-        throw new IllegalArgumentException('"' + pair + "\" is not a hybrid symbol");
+        return tryParseHybridSymbol(pair).orElseThrow(() -> new IllegalArgumentException('"' + pair + "\" is not a hybrid symbol"));
     }
 
     /**
@@ -46,12 +44,12 @@ public class HybridSymbol extends ManaSymbol
      * @param pair the String to look up
      * @return the HybridSymbol corresponding to the given String, or null if there is none
      */
-    public static HybridSymbol tryParseHybridSymbol(String pair)
+    public static Optional<HybridSymbol> tryParseHybridSymbol(String pair)
     {
         var colors = Arrays.stream(pair.split("/")).map(ManaType::tryParseManaType).collect(Collectors.toList());
         if (colors.size() == 2 && SYMBOLS.get(colors.get(0)) != null)
-            return SYMBOLS.get(colors.get(0)).get(colors.get(1));
-        return null;
+            return Optional.ofNullable(SYMBOLS.get(colors.get(0)).get(colors.get(1)));
+        return Optional.empty();
     }
 
     /**

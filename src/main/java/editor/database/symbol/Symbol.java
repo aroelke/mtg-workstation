@@ -2,6 +2,7 @@ package editor.database.symbol;
 
 import java.awt.Image;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
@@ -40,10 +41,7 @@ public abstract class Symbol
      */
     public static Symbol parseSymbol(String s) throws IllegalArgumentException
     {
-        Symbol symbol = tryParseSymbol(s);
-        if (symbol == null)
-            throw new IllegalArgumentException('"' + s + "\" is not a symbol");
-        return symbol;
+        return tryParseSymbol(s).orElseThrow(() -> new IllegalArgumentException('"' + s + "\" is not a symbol"));
     }
 
     /**
@@ -53,15 +51,15 @@ public abstract class Symbol
      * @return a new symbol that the specified String represents, or null if there is
      * no such symbol.
      */
-    public static Symbol tryParseSymbol(String s)
+    public static Optional<? extends Symbol> tryParseSymbol(String s)
     {
-        Symbol value;
-        if ((value = ManaSymbol.tryParseManaSymbol(s)) != null)
-            return value;
-        else if ((value = FunctionalSymbol.tryParseFunctionalSymbol(s)) != null)
-            return value;
-        else
-            return null;
+        var mana = ManaSymbol.tryParseManaSymbol(s);
+        if (mana.isPresent())
+            return mana;
+        var functional = FunctionalSymbol.tryParseFunctionalSymbol(s);
+        if (functional.isPresent())
+            return functional;
+        return Optional.empty();
     }
 
     /**

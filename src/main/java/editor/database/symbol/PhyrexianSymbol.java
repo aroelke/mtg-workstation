@@ -3,6 +3,7 @@ package editor.database.symbol;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,10 +33,7 @@ public class PhyrexianSymbol extends ManaSymbol
      */
     public static PhyrexianSymbol parsePhyrexianSymbol(String col) throws IllegalArgumentException
     {
-        PhyrexianSymbol symbol = tryParsePhyrexianSymbol(col);
-        if (symbol == null)
-            throw new IllegalArgumentException('"' + col + "\" is not a Phyrexian symbol");
-        return symbol;
+        return tryParsePhyrexianSymbol(col).orElseThrow(() -> new IllegalArgumentException('"' + col + "\" is not a Phyrexian symbol"));
     }
 
     /**
@@ -45,11 +43,11 @@ public class PhyrexianSymbol extends ManaSymbol
      * @param col String to parse
      * @return the corresponding Phyrexian symbol, or null if there is none
      */
-    public static PhyrexianSymbol tryParsePhyrexianSymbol(String col)
+    public static Optional<PhyrexianSymbol> tryParsePhyrexianSymbol(String col)
     {
         if (col.length() == 3 && col.charAt(1) == '/' && Character.toUpperCase(col.charAt(2)) == 'P')
-            return SYMBOLS.get(ManaType.tryParseManaType(col.charAt(0)));
-        return null;
+            return Optional.ofNullable(SYMBOLS.get(ManaType.tryParseManaType(col.charAt(0))));
+        return Optional.empty();
     }
 
     /**

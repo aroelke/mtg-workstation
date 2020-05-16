@@ -1,6 +1,7 @@
 package editor.database.symbol;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import editor.database.attributes.ManaType;
@@ -69,15 +70,15 @@ public class GenericSymbol extends ManaSymbol
      * @param n String to get the symbol of
      * @return the GenericSymbol corresponding to the given String, or null if none exists
      */
-    public static GenericSymbol tryParseGenericSymbol(String n)
+    public static Optional<GenericSymbol> tryParseGenericSymbol(String n)
     {
         try
         {
-            return get(Integer.parseInt(n));
+            return Optional.of(get(Integer.parseInt(n)));
         }
         catch (NumberFormatException | ArrayIndexOutOfBoundsException e)
         {
-            return null;
+            return Optional.empty();
         }
     }
 

@@ -443,17 +443,17 @@ public abstract class Card
                         start = i + 1;
                         break;
                     case '}':
-                        Symbol symbol = Symbol.tryParseSymbol(abilities.substring(start, i));
-                        if (symbol == null)
+                        var symbol = Symbol.tryParseSymbol(abilities.substring(start, i));
+                        if (symbol.isEmpty())
                         {
                             System.err.println("Unexpected symbol {" + abilities.substring(start, i) + "} in oracle text for " + unifiedName() + ".");
                             document.insertString(document.getLength(), abilities.substring(start, i), textStyle);
                         }
                         else
                         {
-                            Style symbolStyle = document.addStyle(symbol.toString(), null);
-                            StyleConstants.setIcon(symbolStyle, symbol.getIcon(ComponentUtils.TEXT_SIZE));
-                            document.insertString(document.getLength(), symbol.toString(), symbolStyle);
+                            Style symbolStyle = document.addStyle(symbol.get().toString(), null);
+                            StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE));
+                            document.insertString(document.getLength(), symbol.get().toString(), symbolStyle);
                         }
                         start = i + 1;
                         break;
@@ -501,16 +501,16 @@ public abstract class Card
                         start = i + 1;
                         break;
                     case '}':
-                        Symbol symbol = Symbol.tryParseSymbol(flavor.substring(start, i));
-                        if (symbol == null)
+                        var symbol = Symbol.tryParseSymbol(flavor.substring(start, i));
+                        if (symbol.isEmpty())
                         {
                             System.err.println("Unexpected symbol {" + flavor.substring(start, i) + "} in flavor text for " + unifiedName() + ".");
                             document.insertString(document.getLength(), flavor.substring(start, i), reminderStyle);
                         }
                         else
                         {
-                            Style symbolStyle = document.addStyle(symbol.toString(), null);
-                            StyleConstants.setIcon(symbolStyle, symbol.getIcon(ComponentUtils.TEXT_SIZE));
+                            Style symbolStyle = document.addStyle(symbol.get().toString(), null);
+                            StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE));
                             document.insertString(document.getLength(), " ", symbolStyle);
                         }
                         start = i + 1;

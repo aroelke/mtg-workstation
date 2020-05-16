@@ -238,77 +238,79 @@ public class InventoryLoadDialog extends JDialog
                             continue;
                         }
 
-                        Card c = new SingleCard(layout,
-                                name,
-                                Optional.ofNullable(card.get("manaCost")).map(JsonElement::getAsString),
-                                Optional.ofNullable(card.get("colors")).map((e) -> {
-                                    var colors = new ArrayList<ManaType>();
-                                    for (JsonElement colorElement : e.getAsJsonArray())
-                                        colors.add(ManaType.parseManaType(colorElement.getAsString()));
-                                    return colors;
-                                }),
-                                Optional.ofNullable(card.get("colorIdentity")).map((e) -> {
-                                    var colorIdentity = new ArrayList<ManaType>();
-                                    for (JsonElement identityElement : e.getAsJsonArray())
-                                        colorIdentity.add(ManaType.parseManaType(identityElement.getAsString()));
-                                    return colorIdentity;
-                                }),
-                                Optional.ofNullable(card.get("supertypes")).map((e) -> {
-                                    var supertypes = new LinkedHashSet<String>();
-                                    for (JsonElement superElement : e.getAsJsonArray())
-                                        supertypes.add(superElement.getAsString());
-                                    return supertypes;
-                                }),
-                                Optional.ofNullable(card.get("types")).map((e) -> {
-                                    var types = new LinkedHashSet<String>();
-                                    for (JsonElement typeElement : e.getAsJsonArray())
-                                        types.add(typeElement.getAsString());
-                                    return types;
-                                }).get(),
-                                Optional.ofNullable(card.get("subtypes")).map((e) -> {
-                                    var subtypes = new LinkedHashSet<String>();
-                                    for (JsonElement subElement : e.getAsJsonArray())
-                                        subtypes.add(subElement.getAsString());
-                                    return subtypes;
-                                }),
-                                Optional.ofNullable(card.get("originalType")).map(JsonElement::getAsString),
-                                Rarity.parseRarity(card.get("rarity").getAsString()),
-                                set,
-                                Optional.ofNullable(card.get("text")).map(JsonElement::getAsString),
-                                Optional.ofNullable(card.get("flavorText")).map(JsonElement::getAsString),
-                                Optional.ofNullable(card.get("originalText")).map(JsonElement::getAsString),
-                                Optional.ofNullable(card.get("artist")).map(JsonElement::getAsString),
-                                multiverseid,
-                                Optional.ofNullable(card.get("number")).map(JsonElement::getAsString),
-                                Optional.ofNullable(card.get("power")).map(JsonElement::getAsString),
-                                Optional.ofNullable(card.get("toughness")).map(JsonElement::getAsString),
-                                Optional.ofNullable(card.get("loyalty")).map((e) -> e.isJsonNull() ? "X" : e.getAsString()),
-                                Optional.ofNullable(card.get("rulings")).map((e) -> {
-                                    var r = new TreeMap<Date, List<String>>();
-                                    for (JsonElement l : e.getAsJsonArray())
+                        Card c = new SingleCard(
+                            layout,
+                            name,
+                            Optional.ofNullable(card.get("manaCost")).map(JsonElement::getAsString),
+                            Optional.ofNullable(card.get("colors")).map((e) -> {
+                                var colors = new ArrayList<ManaType>();
+                                for (JsonElement colorElement : e.getAsJsonArray())
+                                    colors.add(ManaType.parseManaType(colorElement.getAsString()));
+                                return colors;
+                            }),
+                            Optional.ofNullable(card.get("colorIdentity")).map((e) -> {
+                                var colorIdentity = new ArrayList<ManaType>();
+                                for (JsonElement identityElement : e.getAsJsonArray())
+                                    colorIdentity.add(ManaType.parseManaType(identityElement.getAsString()));
+                                return colorIdentity;
+                            }),
+                            Optional.ofNullable(card.get("supertypes")).map((e) -> {
+                                var supertypes = new LinkedHashSet<String>();
+                                for (JsonElement superElement : e.getAsJsonArray())
+                                    supertypes.add(superElement.getAsString());
+                                return supertypes;
+                            }),
+                            Optional.ofNullable(card.get("types")).map((e) -> {
+                                var types = new LinkedHashSet<String>();
+                                for (JsonElement typeElement : e.getAsJsonArray())
+                                    types.add(typeElement.getAsString());
+                                return types;
+                            }).get(),
+                            Optional.ofNullable(card.get("subtypes")).map((e) -> {
+                                var subtypes = new LinkedHashSet<String>();
+                                for (JsonElement subElement : e.getAsJsonArray())
+                                    subtypes.add(subElement.getAsString());
+                                return subtypes;
+                            }),
+                            Optional.ofNullable(card.get("originalType")).map(JsonElement::getAsString),
+                            Rarity.parseRarity(card.get("rarity").getAsString()),
+                            set,
+                            Optional.ofNullable(card.get("text")).map(JsonElement::getAsString),
+                            Optional.ofNullable(card.get("flavorText")).map(JsonElement::getAsString),
+                            Optional.ofNullable(card.get("originalText")).map(JsonElement::getAsString),
+                            Optional.ofNullable(card.get("artist")).map(JsonElement::getAsString),
+                            multiverseid,
+                            Optional.ofNullable(card.get("number")).map(JsonElement::getAsString),
+                            Optional.ofNullable(card.get("power")).map(JsonElement::getAsString),
+                            Optional.ofNullable(card.get("toughness")).map(JsonElement::getAsString),
+                            Optional.ofNullable(card.get("loyalty")).map((e) -> e.isJsonNull() ? "X" : e.getAsString()),
+                            Optional.ofNullable(card.get("rulings")).map((e) -> {
+                                var r = new TreeMap<Date, List<String>>();
+                                for (JsonElement l : e.getAsJsonArray())
+                                {
+                                    JsonObject o = l.getAsJsonObject();
+                                    String ruling = o.get("text").getAsString();
+                                    try
                                     {
-                                        JsonObject o = l.getAsJsonObject();
-                                        String ruling = o.get("text").getAsString();
-                                        try
-                                        {
-                                            Date date = format.parse(o.get("date").getAsString());
-                                            if (!r.containsKey(date))
-                                                r.put(date, new ArrayList<>());
-                                            r.get(date).add(ruling);
-                                        }
-                                        catch (ParseException x)
-                                        {
-                                            errors.add(name + " (" + set + "): " + x.getMessage());
-                                        }
+                                        Date date = format.parse(o.get("date").getAsString());
+                                        if (!r.containsKey(date))
+                                            r.put(date, new ArrayList<>());
+                                        r.get(date).add(ruling);
                                     }
-                                    return r;
-                                }),
-                                Optional.ofNullable(card.get("legalities")).map((e) -> {
-                                    var l = new HashMap<String, Legality>();
-                                    for (var entry : e.getAsJsonObject().entrySet())
-                                        l.put(entry.getKey(), Legality.parseLegality(entry.getValue().getAsString()));
-                                    return l;
-                                }));
+                                    catch (ParseException x)
+                                    {
+                                        errors.add(name + " (" + set + "): " + x.getMessage());
+                                    }
+                                }
+                                return r;
+                            }),
+                            Optional.ofNullable(card.get("legalities")).map((e) -> {
+                                var l = new HashMap<String, Legality>();
+                                for (var entry : e.getAsJsonObject().entrySet())
+                                    l.put(entry.getKey(), Legality.parseLegality(entry.getValue().getAsString()));
+                                return l;
+                            })
+                        );
                         supertypeSet.addAll(c.supertypes());
                         typeSet.addAll(c.types());
                         subtypeSet.addAll(c.subtypes());

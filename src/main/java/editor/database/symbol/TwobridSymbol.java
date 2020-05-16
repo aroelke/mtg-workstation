@@ -3,6 +3,7 @@ package editor.database.symbol;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,10 +33,7 @@ public class TwobridSymbol extends ManaSymbol
      */
     public static TwobridSymbol parseTwobridSymbol(String col) throws IllegalArgumentException
     {
-        TwobridSymbol symbol = tryParseTwobridSymbol(col);
-        if (symbol == null)
-            throw new IllegalArgumentException('"' + col + "\" is not a twobrid symbol");
-        return symbol;
+        return tryParseTwobridSymbol(col).orElseThrow(() -> new IllegalArgumentException('"' + col + "\" is not a twobrid symbol"));
     }
 
     /**
@@ -45,13 +43,13 @@ public class TwobridSymbol extends ManaSymbol
      * @return The TwobridSymbol corresponding to the given String, or
      * null if no such symbol exists.
      */
-    public static TwobridSymbol tryParseTwobridSymbol(String col)
+    public static Optional<TwobridSymbol> tryParseTwobridSymbol(String col)
     {
         int index = col.indexOf('/');
         if (index > 0 && col.charAt(index - 1) == '2')
-            return SYMBOLS.get(ManaType.tryParseManaType(col.charAt(index + 1)));
+            return Optional.ofNullable(SYMBOLS.get(ManaType.tryParseManaType(col.charAt(index + 1))));
         else
-            return null;
+            return Optional.empty();
     }
 
     /**

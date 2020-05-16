@@ -1944,16 +1944,16 @@ public class MainFrame extends JFrame
                                     start = i + 1;
                                     break;
                                 case '}':
-                                    Symbol symbol = Symbol.tryParseSymbol(ruling.substring(start, i));
-                                    if (symbol == null)
+                                    var symbol = Symbol.tryParseSymbol(ruling.substring(start, i));
+                                    if (symbol.isEmpty())
                                     {
                                         System.err.println("Unexpected symbol {" + ruling.substring(start, i) + "} in ruling for " + card.unifiedName() + ".");
                                         rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i), rulingStyle);
                                     }
                                     else
                                     {
-                                        Style symbolStyle = rulingsDocument.addStyle(symbol.toString(), null);
-                                        StyleConstants.setIcon(symbolStyle, symbol.getIcon(ComponentUtils.TEXT_SIZE));
+                                        Style symbolStyle = rulingsDocument.addStyle(symbol.get().toString(), null);
+                                        StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE));
                                         rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle);
                                     }
                                     start = i + 1;

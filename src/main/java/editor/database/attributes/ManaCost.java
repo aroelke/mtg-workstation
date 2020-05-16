@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -43,10 +43,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public static ManaCost parseManaCost(String s) throws IllegalArgumentException
     {
-        ManaCost cost = tryParseManaCost(s);
-        if (cost == null)
-            throw new IllegalArgumentException('"' + s + "\" is not a mana cost");
-        return cost;
+        return tryParseManaCost(s).orElseThrow(() -> new IllegalArgumentException('"' + s + "\" is not a mana cost"));
     }
 
     /**
@@ -56,21 +53,19 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      * @param s String to parse
      * @return ManaCost represented by the String, or null if there isn't one
      */
-    public static ManaCost tryParseManaCost(String s)
+    public static Optional<ManaCost> tryParseManaCost(String s)
     {
         var symbols = new ArrayList<ManaSymbol>();
-        Matcher m = Symbol.SYMBOL_PATTERN.matcher(s);
-        while (m.find())
+        for (final var m : Symbol.SYMBOL_PATTERN.matcher(s).results().collect(Collectors.toList()))
         {
-            ManaSymbol symbol = ManaSymbol.tryParseManaSymbol(m.group(1));
-            if (symbol == null)
-                return null;
-            symbols.add(symbol);
             s = s.replaceFirst(Pattern.quote(m.group()), "");
+            var symbol = ManaSymbol.tryParseManaSymbol(m.group(1));
+            if (symbol.isEmpty())
+                return Optional.empty();
+            else
+                symbols.add(symbol.get());
         }
-        if (!s.isEmpty())
-            return null;
-        return new ManaCost(symbols);
+        return s.isEmpty() ? Optional.of(new ManaCost(symbols)) : Optional.empty();
     }
 
     /**
