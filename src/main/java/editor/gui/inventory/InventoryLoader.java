@@ -177,7 +177,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         }
         catch (InterruptedException | ExecutionException e)
         {
-            JOptionPane.showMessageDialog(null, "Error loading inventory: " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(owner, "Error loading inventory: " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
         catch (CancellationException e)

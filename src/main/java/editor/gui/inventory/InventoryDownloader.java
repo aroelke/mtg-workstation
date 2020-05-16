@@ -100,13 +100,13 @@ public abstract class InventoryDownloader
         }
         catch (InterruptedException | ExecutionException e)
         {
-            JOptionPane.showMessageDialog(null, "Error downloading " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(owner, "Error downloading " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             tmp.delete();
             return false;
         }
         catch (IOException e)
         {
-            JOptionPane.showMessageDialog(null, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(owner, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         catch (CancellationException e)
