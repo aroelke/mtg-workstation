@@ -126,7 +126,7 @@ import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
-import editor.gui.inventory.InventoryDownloadDialog;
+import editor.gui.inventory.InventoryDownloader;
 import editor.gui.inventory.InventoryLoader;
 import editor.gui.settings.SettingsDialog;
 import editor.serialization.AttributeAdapter;
@@ -2005,9 +2005,15 @@ public class MainFrame extends JFrame
      */
     public boolean updateInventory()
     {
-        InventoryDownloadDialog downloadDialog = new InventoryDownloadDialog(this);
-        downloadDialog.setLocationRelativeTo(this);
-        return downloadDialog.downloadInventory(inventorySite, inventoryFile);
+        try
+        {
+            return InventoryDownloader.downloadInventory(this, inventorySite, inventoryFile);
+        }
+        catch (IOException e)
+        {
+            JOptionPane.showMessageDialog(this, "Error connecting to inventory site: " + e.getMessage(), "Connection Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
     }
 
     /**
