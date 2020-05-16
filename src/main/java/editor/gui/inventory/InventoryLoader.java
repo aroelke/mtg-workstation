@@ -82,7 +82,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         final int BORDER = 10;
-        ArrayList<String> errors = new ArrayList<>();
 
         // Content panel
         Box contentPanel = new Box(BoxLayout.Y_AXIS);
@@ -113,7 +112,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         InventoryLoader loader = new InventoryLoader(file, (c) -> {
             progressLabel.setText(c);
             progressArea.append(c + "\n");
-        }, errors, () -> {
+        }, () -> {
             dialog.setVisible(false);
             dialog.dispose();
         });
@@ -150,12 +149,12 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         }
         catch (CancellationException e)
         {}
-        if (SettingsDialog.settings().inventory.warn && !errors.isEmpty())
+        if (SettingsDialog.settings().inventory.warn && !loader.warnings().isEmpty())
         {
             SwingUtilities.invokeLater(() -> {
                 StringJoiner join = new StringJoiner("<li>", "<html>", "</ul></html>");
                 join.add("Errors ocurred while loading the following card(s):<ul style=\"margin-top:0;margin-left:20pt\">");
-                for (String failure : errors)
+                for (String failure : loader.warnings())
                     join.add(failure);
                 JPanel warningPanel = new JPanel(new BorderLayout());
                 JLabel warningLabel = new JLabel(join.toString());
@@ -166,7 +165,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 SettingsDialog.setShowInventoryWarnings(!suppressBox.isSelected());
             });
         }
-        SettingsDialog.setInventoryWarnings(errors);
+        SettingsDialog.setInventoryWarnings(loader.warnings());
         return result;
     }
 
@@ -183,12 +182,12 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
      *
      * @param f #File to load
      */
-    private InventoryLoader(File f, Consumer<String> c, List<String> e, Runnable d)
+    private InventoryLoader(File f, Consumer<String> c, Runnable d)
     {
         super();
         file = f;
         consumer = c;
-        errors = e;
+        errors = new ArrayList<>();
         finished = d;
     }
 
@@ -574,5 +573,10 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
     protected void done()
     {
         finished.run();
+    }
+
+    public List<String> warnings()
+    {
+        return errors;
     }
 }
