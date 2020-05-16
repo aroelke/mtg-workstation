@@ -3,6 +3,7 @@ package editor.database.symbol;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,10 +31,7 @@ public class ColorSymbol extends ManaSymbol
      */
     public static ColorSymbol parseColorSymbol(String col) throws IllegalArgumentException
     {
-        ColorSymbol symbol = tryParseColorSymbol(col);
-        if (symbol == null)
-            throw new IllegalArgumentException('"' + col + "\" is not a color symbol");
-        return symbol;
+        return tryParseColorSymbol(col).orElseThrow(() -> new IllegalArgumentException('"' + col + "\" is not a color symbol"));
     }
 
     /**
@@ -42,9 +40,9 @@ public class ColorSymbol extends ManaSymbol
      * @param col String to find the symbol for
      * @return the ColorSymbol corresponding to the given String, or null if none exists
      */
-    public static ColorSymbol tryParseColorSymbol(String col)
+    public static Optional<ColorSymbol> tryParseColorSymbol(String col)
     {
-        return SYMBOLS.get(ManaType.tryParseManaType(col));
+        return Optional.ofNullable(SYMBOLS.get(ManaType.tryParseManaType(col)));
     }
 
     /**

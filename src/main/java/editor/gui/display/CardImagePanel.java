@@ -17,6 +17,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -211,7 +212,12 @@ public class CardImagePanel extends JPanel
      */
     public CardImagePanel()
     {
-        this(null);
+        super(null);
+        card = null;
+        image = null;
+        faceImages = new ArrayList<>();
+        face = 0;
+        addMouseListener(new FaceListener());
     }
 
     /**
@@ -221,12 +227,8 @@ public class CardImagePanel extends JPanel
      */
     public CardImagePanel(Card c)
     {
-        super(null);
-        image = null;
-        faceImages = new ArrayList<>();
-        face = 0;
+        this();
         setCard(c);
-        addMouseListener(new FaceListener());
     }
 
     /**
@@ -380,13 +382,11 @@ public class CardImagePanel extends JPanel
      */
     public void setCard(Card c)
     {
-        if ((card = c) != null)
-        {
-            face = 0;
-            faceImages.clear();
-            revalidate();
-            repaint();
-            downloader.downloadCard(this, card);
-        }
+        card = Objects.requireNonNull(c);
+        face = 0;
+        faceImages.clear();
+        revalidate();
+        repaint();
+        downloader.downloadCard(this, card);
     }
 }

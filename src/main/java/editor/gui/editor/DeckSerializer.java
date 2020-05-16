@@ -92,7 +92,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         /**
          * Function to perform for loading the data.
          */
-        private ExceptionConsumer<InputStream> background;
+        private ExceptionConsumer<InputStream, Exception> background;
 
         /**
          * Create a new LoadWorker.
@@ -101,7 +101,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
          * @param parent parent window of the progress dialog
          * @param bg function to perform for loading the data
          */
-        public LoadWorker(File f, Window parent, ExceptionConsumer<InputStream> bg)
+        public LoadWorker(File f, Window parent, ExceptionConsumer<InputStream, Exception> bg)
         {
             file = f;
             background = bg;

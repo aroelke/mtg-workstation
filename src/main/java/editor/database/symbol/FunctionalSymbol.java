@@ -1,6 +1,7 @@
 package editor.database.symbol;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This class represents a symbol that has a specific meaning that isn't related to mana costs.
@@ -41,10 +42,7 @@ public class FunctionalSymbol extends Symbol
      */
     public static FunctionalSymbol parseFunctionalSymbol(String s) throws IllegalArgumentException
     {
-        FunctionalSymbol symbol = tryParseFunctionalSymbol(s);
-        if (symbol == null)
-            throw new IllegalArgumentException('"' + s + "\" is not a functional symbol");
-        return symbol;
+        return tryParseFunctionalSymbol(s).orElseThrow(() -> new IllegalArgumentException('"' + s + "\" is not a functional symbol"));
     }
 
     /**
@@ -53,9 +51,9 @@ public class FunctionalSymbol extends Symbol
      * @param s String to look up
      * @return the FunctionalSymbol corresponding to the given String, or null if there is none
      */
-    public static FunctionalSymbol tryParseFunctionalSymbol(String s)
+    public static Optional<FunctionalSymbol> tryParseFunctionalSymbol(String s)
     {
-        return SYMBOLS.get(s.toUpperCase());
+        return Optional.ofNullable(SYMBOLS.get(s.toUpperCase()));
     }
 
     /**

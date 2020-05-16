@@ -126,8 +126,8 @@ import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
-import editor.gui.inventory.InventoryDownloadDialog;
-import editor.gui.inventory.InventoryLoadDialog;
+import editor.gui.inventory.InventoryDownloader;
+import editor.gui.inventory.InventoryLoader;
 import editor.gui.settings.SettingsDialog;
 import editor.serialization.AttributeAdapter;
 import editor.serialization.CardAdapter;
@@ -1061,7 +1061,7 @@ public class MainFrame extends JFrame
         deckMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
             addMenu.setEnabled(selectedFrame.isPresent() && !selectedCards.isEmpty());
             removeMenu.setEnabled(selectedFrame.isPresent() && !selectedCards.isEmpty());
-            sideboardMenu.setEnabled(selectedFrame.map((f) -> f.getSelectedExtraName() != null).orElse(false) && !selectedCards.isEmpty());
+            sideboardMenu.setEnabled(selectedFrame.map((f) -> f.getSelectedExtraName().isPresent()).orElse(false) && !selectedCards.isEmpty());
             presetMenu.setEnabled(presetMenu.getMenuComponentCount() > 0);
         }));
         // Items are enabled while hidden so their listeners can be used.
@@ -1669,10 +1669,7 @@ public class MainFrame extends JFrame
     public void loadInventory()
     {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-        InventoryLoadDialog loadDialog = new InventoryLoadDialog(this);
-        loadDialog.setLocationRelativeTo(this);
-        inventory = loadDialog.createInventory(inventoryFile);
+        inventory = InventoryLoader.loadInventory(this, inventoryFile);
         inventory.sort(Card::compareName);
         inventoryModel = new CardTableModel(inventory, SettingsDialog.settings().inventory.columns);
         inventoryTable.setModel(inventoryModel);
@@ -1944,16 +1941,16 @@ public class MainFrame extends JFrame
                                     start = i + 1;
                                     break;
                                 case '}':
-                                    Symbol symbol = Symbol.tryParseSymbol(ruling.substring(start, i));
-                                    if (symbol == null)
+                                    var symbol = Symbol.tryParseSymbol(ruling.substring(start, i));
+                                    if (symbol.isEmpty())
                                     {
                                         System.err.println("Unexpected symbol {" + ruling.substring(start, i) + "} in ruling for " + card.unifiedName() + ".");
                                         rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i), rulingStyle);
                                     }
                                     else
                                     {
-                                        Style symbolStyle = rulingsDocument.addStyle(symbol.toString(), null);
-                                        StyleConstants.setIcon(symbolStyle, symbol.getIcon(ComponentUtils.TEXT_SIZE));
+                                        Style symbolStyle = rulingsDocument.addStyle(symbol.get().toString(), null);
+                                        StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE));
                                         rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle);
                                     }
                                     start = i + 1;
@@ -2008,9 +2005,15 @@ public class MainFrame extends JFrame
      */
     public boolean updateInventory()
     {
-        InventoryDownloadDialog downloadDialog = new InventoryDownloadDialog(this);
-        downloadDialog.setLocationRelativeTo(this);
-        return downloadDialog.downloadInventory(inventorySite, inventoryFile);
+        try
+        {
+            return InventoryDownloader.downloadInventory(this, inventorySite, inventoryFile);
+        }
+        catch (IOException e)
+        {
+            JOptionPane.showMessageDialog(this, "Error connecting to inventory site: " + e.getMessage(), "Connection Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
     }
 
     /**

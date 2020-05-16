@@ -48,10 +48,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
             @Override
             public void update(DocumentEvent e)
             {
-                if (ManaCost.tryParseManaCost(cost.getText()) == null)
-                    cost.setBackground(Color.PINK);
-                else
-                    cost.setBackground(Color.WHITE);
+                cost.setBackground(ManaCost.tryParseManaCost(cost.getText()).map((c) -> Color.PINK).orElse(Color.WHITE));
             }
         });
         add(cost);
@@ -74,9 +71,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
     {
         ManaCostFilter filter = new ManaCostFilter();
         filter.contain = contain.getSelectedItem();
-        filter.cost = ManaCost.parseManaCost(cost.getText());
-        if (filter.cost == null)
-            filter.cost = new ManaCost();
+        filter.cost = ManaCost.tryParseManaCost(cost.getText()).orElse(new ManaCost());
         return filter;
     }
 

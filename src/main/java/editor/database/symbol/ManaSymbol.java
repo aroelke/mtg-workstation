@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -53,10 +54,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
      */
     public static ManaSymbol parseManaSymbol(String s) throws IllegalArgumentException
     {
-        ManaSymbol symbol = tryParseManaSymbol(s);
-        if (symbol == null)
-            throw new IllegalArgumentException('"' + s + "\" is not a mana symbol");
-        return symbol;
+        return tryParseManaSymbol(s).orElseThrow(() -> new IllegalArgumentException('"' + s + "\" is not a mana symbol"));
     }
 
     /**
@@ -65,27 +63,33 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
      * @param s String representation of the new ManaSymbol, not surrounded by {}
      * @return a new ManaSymbol that the specified String represents, or null if there is none
      */
-    public static ManaSymbol tryParseManaSymbol(String s)
+    public static Optional<? extends ManaSymbol> tryParseManaSymbol(String s)
     {
-        ManaSymbol value;
-        if ((value = ColorSymbol.tryParseColorSymbol(s)) != null)
-            return value;
-        else if ((value = GenericSymbol.tryParseGenericSymbol(s)) != null)
-            return value;
-        else if ((value = HalfColorSymbol.tryParseHalfColorSymbol(s)) != null)
-            return value;
-        else if ((value = HybridSymbol.tryParseHybridSymbol(s)) != null)
-            return value;
-        else if ((value = PhyrexianSymbol.tryParsePhyrexianSymbol(s)) != null)
-            return value;
-        else if ((value = TwobridSymbol.tryParseTwobridSymbol(s)) != null)
-            return value;
-        else if ((value = VariableSymbol.tryParseVariableSymbol(s)) != null)
-            return value;
-        else if ((value = StaticSymbol.tryParseStaticSymbol(s)) != null)
-            return value;
-        else
-            return null;
+        var color = ColorSymbol.tryParseColorSymbol(s);
+        if (color.isPresent())
+            return color;
+        var generic = GenericSymbol.tryParseGenericSymbol(s);
+        if (generic.isPresent())
+            return generic;
+        var half = HalfColorSymbol.tryParseHalfColorSymbol(s);
+        if (half.isPresent())
+            return half;
+        var hybrid = HybridSymbol.tryParseHybridSymbol(s);
+        if (hybrid.isPresent())
+            return hybrid;
+        var phyrexian = PhyrexianSymbol.tryParsePhyrexianSymbol(s);
+        if (phyrexian.isPresent())
+            return phyrexian;
+        var twobrid = TwobridSymbol.tryParseTwobridSymbol(s);
+        if (twobrid.isPresent())
+            return twobrid;
+        var variable = VariableSymbol.tryParseVariableSymbol(s);
+        if (variable.isPresent())
+            return variable;
+        var constant = StaticSymbol.tryParseStaticSymbol(s);
+        if (constant.isPresent())
+            return constant;
+        return Optional.empty();
     }
 
     /**

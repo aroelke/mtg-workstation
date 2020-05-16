@@ -2,6 +2,7 @@ package editor.database.symbol;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,10 +31,7 @@ public class VariableSymbol extends ManaSymbol
      */
     public static VariableSymbol parseVariableSymbol(String x)
     {
-        VariableSymbol symbol = tryParseVariableSymbol(x);
-        if (symbol == null)
-            throw new IllegalArgumentException('"' + x + "\" is not a variable symbol");
-        return symbol;
+        return tryParseVariableSymbol(x).orElseThrow(() -> new IllegalArgumentException('"' + x + "\" is not a variable symbol"));
     }
 
     /**
@@ -43,9 +41,9 @@ public class VariableSymbol extends ManaSymbol
      * @return the VariableSymbol corresponding to the String, or null if there
      * is no such symbol.
      */
-    public static VariableSymbol tryParseVariableSymbol(String x)
+    public static Optional<VariableSymbol> tryParseVariableSymbol(String x)
     {
-        return SYMBOLS.get(x.toUpperCase());
+        return Optional.ofNullable(SYMBOLS.get(x.toUpperCase()));
     }
 
     /**

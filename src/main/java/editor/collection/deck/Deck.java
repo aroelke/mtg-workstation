@@ -576,11 +576,8 @@ public class Deck implements CardList
      */
     public CardList addCategory(CategorySpec spec)
     {
-        Category c = createCategory(spec);
-        if (c != null)
-            return c;
-        else
-            return categories.get(spec.getName());
+        createCategory(spec);
+        return categories.get(spec.getName());
     }
 
     /**
@@ -595,9 +592,9 @@ public class Deck implements CardList
      */
     public CardList addCategory(CategorySpec spec, int rank)
     {
-        Category c = createCategory(spec);
-        if (c != null)
+        if (createCategory(spec))
         {
+            Category c = categories.get(spec.getName());
             c.rank = rank;
             return c;
         }
@@ -663,18 +660,19 @@ public class Deck implements CardList
      * Add a new Category.
      *
      * @param spec specification for the new Category
-     * @return the new Category, or null if one with that name already existed.
+     * @return <code>true</code> if the category was created, and <code>false</code>
+     * otherwise
      */
-    private Category createCategory(CategorySpec spec)
+    private boolean createCategory(CategorySpec spec)
     {
         if (!categories.containsKey(spec.getName()))
         {
             Category c = new Category(spec);
             categories.put(spec.getName(), c);
-            return c;
+            return true;
         }
         else
-            return null;
+            return false;
     }
 
     @Override
