@@ -64,34 +64,19 @@ public abstract class InventoryDownloader
         });
         if (downloader.size() >= 0)
             progressBar.setMaximum(downloader.size());
-        String bytes;
-        if (downloader.size() < 0)
-            bytes = "";
-        else if (downloader.size() <= 1024)
-            bytes = String.format("%d", downloader.size());
-        else if (downloader.size() <= 1048576)
-            bytes = String.format("%.1fk", downloader.size()/1024.0);
-        else
-            bytes = String.format("%.2fM", downloader.size()/1048576.0);
         downloader.setUpdateFunction((downloaded) -> {
-            String downloadedStr;
-            if (downloaded <= 1024)
-                downloadedStr = String.format("%d", downloaded);
-            else if (downloaded <= 1048576)
-                downloadedStr = String.format("%.1fk", downloaded / 1024.0);
-            else
-                downloadedStr = String.format("%.2fM", downloaded / 1048576.0);
-            if (bytes.isEmpty())
-            {
+            StringBuilder progress = new StringBuilder();
+            progress.append("Downloading inventory ..." + formatDownload(downloaded));
+            if (downloader.size() < 0)
                 progressBar.setVisible(false);
-                progressLabel.setText("Downloading inventory..." + downloadedStr + "B downloaded.");
-            }
             else
             {
                 progressBar.setIndeterminate(false);
                 progressBar.setValue(downloaded);
-                progressLabel.setText("Downloading inventory..." + downloadedStr + "B/" + bytes + "B downloaded.");
+                progress.append("B/" + formatDownload(downloader.size()));
             }
+            progress.append("B downloaded.");
+            progressLabel.setText(progress.toString());
         });
 
         // Cancel button
@@ -150,6 +135,18 @@ public abstract class InventoryDownloader
             zip.delete();
         }
         return true;
+    }
+
+    private static String formatDownload(int n)
+    {
+        if (n < 0)
+            return "";
+        else if (n <= 1024)
+            return String.format("%d", n);
+        else if (n <= 1048576)
+            return String.format("%.1fk", n/1024.0);
+        else
+            return String.format("%.2fM", n/1048576.0);
     }
 
     /**
