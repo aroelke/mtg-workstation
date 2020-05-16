@@ -127,7 +127,7 @@ import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
 import editor.gui.inventory.InventoryDownloadDialog;
-import editor.gui.inventory.InventoryLoadDialog;
+import editor.gui.inventory.InventoryLoader;
 import editor.gui.settings.SettingsDialog;
 import editor.serialization.AttributeAdapter;
 import editor.serialization.CardAdapter;
@@ -1669,10 +1669,7 @@ public class MainFrame extends JFrame
     public void loadInventory()
     {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-        InventoryLoadDialog loadDialog = new InventoryLoadDialog(this);
-        loadDialog.setLocationRelativeTo(this);
-        inventory = loadDialog.createInventory(inventoryFile);
+        inventory = InventoryLoader.loadInventory(this, inventoryFile);
         inventory.sort(Card::compareName);
         inventoryModel = new CardTableModel(inventory, SettingsDialog.settings().inventory.columns);
         inventoryTable.setModel(inventoryModel);
