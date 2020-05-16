@@ -1,12 +1,10 @@
 package editor.gui.inventory;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dialog;
-import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +33,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -78,51 +78,37 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
     public static Inventory loadInventory(Frame owner, File file)
     {
         JDialog dialog = new JDialog(owner, "Loading Inventory", Dialog.ModalityType.APPLICATION_MODAL);
-        dialog.setPreferredSize(new Dimension(350, 220));
         dialog.setResizable(false);
         dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
+        final int BORDER = 10;
         ArrayList<String> errors = new ArrayList<>();
 
         // Content panel
-        GridBagLayout layout = new GridBagLayout();
-        layout.columnWidths = new int[]{0};
-        layout.columnWeights = new double[]{1.0};
-        layout.rowHeights = new int[]{0, 0, 0, 0};
-        layout.rowWeights = new double[]{0.0, 0.0, 1.0, 0.0};
-        JPanel contentPanel = new JPanel(layout);
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        Box contentPanel = new Box(BoxLayout.Y_AXIS);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
         dialog.setContentPane(contentPanel);
 
         // Stage progress label
         JLabel progressLabel = new JLabel("Loading inventory...");
-        GridBagConstraints labelConstraints = new GridBagConstraints();
-        labelConstraints.anchor = GridBagConstraints.WEST;
-        labelConstraints.fill = GridBagConstraints.BOTH;
-        labelConstraints.gridx = 0;
-        labelConstraints.gridy = 0;
-        labelConstraints.insets = new Insets(0, 0, 2, 0);
-        contentPanel.add(progressLabel, labelConstraints);
+        progressLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(progressLabel);
+        contentPanel.add(Box.createVerticalStrut(2));
 
         // Overall progress bar
         JProgressBar progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
-        GridBagConstraints barConstraints = new GridBagConstraints();
-        barConstraints.fill = GridBagConstraints.BOTH;
-        barConstraints.gridx = 0;
-        barConstraints.gridy = 1;
-        barConstraints.insets = new Insets(0, 0, 2, 0);
-        contentPanel.add(progressBar, barConstraints);
+        progressBar.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(progressBar);
+        contentPanel.add(Box.createVerticalStrut(2));
 
         // History text area
-        JTextArea progressArea = new JTextArea("");
+        JTextArea progressArea = new JTextArea("", 6, 40);
         progressArea.setEditable(false);
-        GridBagConstraints areaConstraints = new GridBagConstraints();
-        areaConstraints.fill = GridBagConstraints.BOTH;
-        areaConstraints.gridx = 0;
-        areaConstraints.gridy = 2;
-        areaConstraints.insets = new Insets(0, 0, 10, 0);
-        contentPanel.add(new JScrollPane(progressArea), areaConstraints);
+        JScrollPane progressPane = new JScrollPane(progressArea);
+        progressPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(progressPane);
+        contentPanel.add(Box.createVerticalStrut(BORDER));
 
         InventoryLoader loader = new InventoryLoader(file, (c) -> {
             progressLabel.setText(c);
@@ -141,12 +127,12 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         });
 
         // Cancel button
+        JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener((e) -> loader.cancel(false));
-        GridBagConstraints cancelConstraints = new GridBagConstraints();
-        cancelConstraints.gridx = 0;
-        cancelConstraints.gridy = 3;
-        contentPanel.add(cancelButton, cancelConstraints);
+        cancelPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        cancelPanel.add(cancelButton);
+        contentPanel.add(cancelPanel);
 
         dialog.pack();
         loader.execute();
