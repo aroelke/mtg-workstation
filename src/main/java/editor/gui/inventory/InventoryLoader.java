@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -92,7 +94,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
     {
         JDialog dialog = new JDialog(owner, "Loading Inventory", Dialog.ModalityType.APPLICATION_MODAL);
         dialog.setResizable(false);
-        dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         final int BORDER = 10;
 
@@ -145,6 +147,15 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         cancelPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         cancelPanel.add(cancelButton);
         contentPanel.add(cancelPanel);
+
+        dialog.addWindowListener(new WindowAdapter()
+        {
+            public void windowClosing(WindowEvent e)
+            {
+                if (!loader.isCancelled())
+                    loader.cancel(false);
+            }
+        });
 
         dialog.pack();
         loader.execute();
