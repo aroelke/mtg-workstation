@@ -3,7 +3,6 @@ package editor.collection.export;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -129,9 +128,9 @@ public class DelimitedCardListFormat implements CardListFormat
      * @throws IllegalStateException if card name isn't a column
      */
     @Override
-    public CardList parse(String source) throws ParseException, IllegalStateException
+    public CardList parse(List<String> source) throws ParseException, IllegalStateException
     {
-        var lines = Arrays.stream(source.split(System.lineSeparator())).collect(Collectors.toList());
+        var lines = new ArrayList<>(source);
 
         int pos = 0;
         if (!include)

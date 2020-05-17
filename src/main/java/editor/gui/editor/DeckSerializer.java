@@ -253,7 +253,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
             throw new DeckLoadException(file, "deck already loaded");
         try
         {
-            deck.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
+            deck.addAll(format.parse(Files.readAllLines(file.toPath())));
             imported = true;
         }
         catch (Exception e)

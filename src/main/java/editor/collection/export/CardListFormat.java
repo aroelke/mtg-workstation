@@ -1,6 +1,7 @@
 package editor.collection.export;
 
 import java.text.ParseException;
+import java.util.List;
 
 import editor.collection.CardList;
 
@@ -39,9 +40,9 @@ public interface CardListFormat
     /**
      * Parse a string for a list of cards.
      *
-     * @param source string to parse
+     * @param source string to parse, split by lines
      * @return list of cards containing values from the parsed string
      * @throws ParseException if the string cannot be parsed
      */
-    CardList parse(String source) throws ParseException;
+    CardList parse(List<String> source) throws ParseException;
 }

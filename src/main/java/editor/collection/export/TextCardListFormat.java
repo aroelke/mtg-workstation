@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -57,12 +58,12 @@ public class TextCardListFormat implements CardListFormat
     }
 
     @Override
-    public CardList parse(String source) throws ParseException
+    public CardList parse(List<String> source) throws ParseException
     {
         Deck deck = new Deck();
         Pattern countPattern = Pattern.compile("(?:^(?:\\d+x|x\\d+|\\d+)|(?:\\d+x|x\\d+|\\d+)$)");
 
-        for (String line : source.split(System.lineSeparator()))
+        for (String line : source)
         {
             final String cleanLine = line.trim().toLowerCase();
 
