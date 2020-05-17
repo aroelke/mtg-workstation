@@ -735,7 +735,6 @@ public class MainFrame extends JFrame
             switch (exportChooser.showSaveDialog(this))
             {
             case JFileChooser.APPROVE_OPTION:
-                File file = exportChooser.getSelectedFile();
                 CardListFormat format;
                 if (exportChooser.getFileFilter() == text)
                 {
@@ -791,12 +790,7 @@ public class MainFrame extends JFrame
                     }
 
                     if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
-                    {
-                        final String fname = file.getAbsolutePath();
-                        if (!Arrays.stream(text.getExtensions()).anyMatch((ext) -> fname.endsWith("." + ext)))
-                            file = new File(fname + '.' + text.getExtensions()[0]);
                         format = new TextCardListFormat(formatField.getText());
-                    }
                     else
                         return;
                 }
@@ -899,9 +893,6 @@ public class MainFrame extends JFrame
 
                     if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
                     {
-                        final String fname = file.getAbsolutePath();
-                        if (!Arrays.stream(delimited.getExtensions()).anyMatch((ext) -> fname.endsWith("." + ext)))
-                            file = new File(fname + '.' + delimited.getExtensions()[0]);
                         var selected = new ArrayList<CardAttribute>(selectedHeadersModel.size());
                         for (int i = 0; i < selectedHeadersModel.size(); i++)
                             selected.add(selectedHeadersModel.getElementAt(i));
@@ -918,7 +909,7 @@ public class MainFrame extends JFrame
 
                 try
                 {
-                    f.export(format, file);
+                    f.export(format, exportChooser.getSelectedFile());
                 }
                 catch (UnsupportedEncodingException | FileNotFoundException x)
                 {
@@ -1815,9 +1806,6 @@ public class MainFrame extends JFrame
         {
         case JFileChooser.APPROVE_OPTION:
             File f = fileChooser.getSelectedFile();
-            String fname = f.getAbsolutePath();
-            if (!fname.endsWith(".json"))
-                f = new File(fname + ".json");
             frame.save(f);
             updateRecents(f);
             break;
