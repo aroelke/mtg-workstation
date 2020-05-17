@@ -539,8 +539,7 @@ public class MainFrame extends JFrame
                         var headersList = new JList<>(CardAttribute.displayableValues());
                         headersList.setEnabled(!includeCheckBox.isSelected());
                         JScrollPane headersPane = new JScrollPane(headersList);
-                        JPanel headersPanel = new JPanel();
-                        headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));
+                        Box headersPanel = new Box(BoxLayout.X_AXIS);
                         headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"));
                         VerticalButtonList rearrangeButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.UP_ARROW), String.valueOf(UnicodeSymbols.DOWN_ARROW));
                         for (JButton rearrange : rearrangeButtons)
@@ -800,8 +799,7 @@ public class MainFrame extends JFrame
                     JPanel wizardPanel = new JPanel(new BorderLayout());
                     var headersList = new JList<>(CardAttribute.displayableValues());
                     JScrollPane headersPane = new JScrollPane(headersList);
-                    JPanel headersPanel = new JPanel();
-                    headersPanel.setLayout(new BoxLayout(headersPanel, BoxLayout.X_AXIS));
+                    Box headersPanel = new Box(BoxLayout.X_AXIS);
                     headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"));
                     VerticalButtonList rearrangeButtons = new VerticalButtonList(String.valueOf(UnicodeSymbols.UP_ARROW), String.valueOf(UnicodeSymbols.DOWN_ARROW));
                     headersPanel.add(rearrangeButtons);
@@ -1259,8 +1257,7 @@ public class MainFrame extends JFrame
         inventoryPanel.add(tablePanel, BorderLayout.CENTER);
 
         // Panel containing the quick-filter bar
-        JPanel filterPanel = new JPanel();
-        filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.X_AXIS));
+        Box filterPanel = new Box(BoxLayout.X_AXIS);
 
         // Text field for quickly filtering by name
         JTextField nameFilterField = new JTextField();

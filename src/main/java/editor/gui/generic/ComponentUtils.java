@@ -8,7 +8,6 @@ import java.awt.Font;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.UIManager;
 
@@ -48,9 +47,8 @@ public interface ComponentUtils
      */
     static JComponent createHorizontalSeparator(int width, int height)
     {
-        JPanel panel = new JPanel();
+        Box panel = new Box(BoxLayout.X_AXIS);
         panel.setAlignmentY(JComponent.CENTER_ALIGNMENT);
-        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         JSeparator separator = new JSeparator(JSeparator.VERTICAL);
         panel.add(Box.createHorizontalStrut((width - separator.getPreferredSize().width)/2));
         panel.add(separator);

@@ -101,8 +101,7 @@ public class SettingsDialog extends JDialog
      */
     private static void createStripeChooserPreview(JColorChooser chooser)
     {
-        JPanel preview = new JPanel();
-        preview.setLayout(new BoxLayout(preview, BoxLayout.Y_AXIS));
+        Box preview = new Box(BoxLayout.Y_AXIS);
         TableModel model = new AbstractTableModel()
         {
             @Override
@@ -366,18 +365,16 @@ public class SettingsDialog extends JDialog
         add(settingsPanel, BorderLayout.CENTER);
 
         // Inventory paths
-        JPanel inventoryPanel = new JPanel();
-        inventoryPanel.setLayout(new BoxLayout(inventoryPanel, BoxLayout.Y_AXIS));
+        Box inventoryPanel = new Box(BoxLayout.Y_AXIS);
         inventoryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         settingsPanel.add(inventoryPanel, new TreePath(inventoryNode.getPath()).toString());
 
         // Inventory site
-        JPanel inventorySitePanel = new JPanel();
-        inventorySitePanel.setLayout(new BoxLayout(inventorySitePanel, BoxLayout.X_AXIS));
+        Box inventorySitePanel = new Box(BoxLayout.X_AXIS);
         inventorySitePanel.add(new JLabel("Inventory Site:"));
-        JLabel siteStarPanel = new JLabel("*");
-        siteStarPanel.setForeground(Color.RED);
-        inventorySitePanel.add(siteStarPanel);
+        JLabel siteStarLabel = new JLabel("*");
+        siteStarLabel.setForeground(Color.RED);
+        inventorySitePanel.add(siteStarLabel);
         inventorySitePanel.add(Box.createHorizontalStrut(5));
         inventorySiteField = new JTextField(15);
         inventorySiteField.setText(settings.inventory.source);
@@ -387,8 +384,7 @@ public class SettingsDialog extends JDialog
         inventoryPanel.add(Box.createVerticalStrut(5));
 
         // Inventory file name
-        JPanel inventoryFilePanel = new JPanel();
-        inventoryFilePanel.setLayout(new BoxLayout(inventoryFilePanel, BoxLayout.X_AXIS));
+        Box inventoryFilePanel = new Box(BoxLayout.X_AXIS);
         inventoryFilePanel.add(new JLabel("Inventory File:"));
         JLabel fileStarLabel = new JLabel("*");
         fileStarLabel.setForeground(Color.RED);
@@ -406,8 +402,7 @@ public class SettingsDialog extends JDialog
         inventoryPanel.add(Box.createVerticalStrut(5));
 
         // Inventory file directory
-        JPanel inventoryDirPanel = new JPanel();
-        inventoryDirPanel.setLayout(new BoxLayout(inventoryDirPanel, BoxLayout.X_AXIS));
+        Box inventoryDirPanel = new Box(BoxLayout.X_AXIS);
         inventoryDirPanel.add(new JLabel("Inventory File Location:"));
         inventoryDirPanel.add(Box.createHorizontalStrut(5));
         inventoryDirField = new JTextField(25);
@@ -433,8 +428,7 @@ public class SettingsDialog extends JDialog
         inventoryPanel.add(Box.createVerticalStrut(5));
 
         // Card scans directory
-        JPanel scansDirPanel = new JPanel();
-        scansDirPanel.setLayout(new BoxLayout(scansDirPanel, BoxLayout.X_AXIS));
+        Box scansDirPanel = new Box(BoxLayout.X_AXIS);
         scansDirPanel.add(new JLabel("Card Images Location:"));
         scansDirPanel.add(Box.createHorizontalStrut(5));
         scansDirField = new JTextField(25);
@@ -540,14 +534,12 @@ public class SettingsDialog extends JDialog
         inventoryAppearancePanel.add(scanBGPanel);
 
         // Editor
-        JPanel editorPanel = new JPanel();
-        editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.Y_AXIS));
+        Box editorPanel = new Box(BoxLayout.Y_AXIS);
         editorPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         settingsPanel.add(editorPanel, new TreePath(editorNode.getPath()).toString());
 
         // Recent count
-        JPanel recentPanel = new JPanel();
-        recentPanel.setLayout(new BoxLayout(recentPanel, BoxLayout.X_AXIS));
+        Box recentPanel = new Box(BoxLayout.X_AXIS);
         recentPanel.add(new JLabel("Recent file count:"));
         recentPanel.add(Box.createHorizontalStrut(5));
         recentSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
@@ -557,20 +549,19 @@ public class SettingsDialog extends JDialog
         JLabel recentInfoLabel = new JLabel("(Changes will not be visible until program restart)");
         recentInfoLabel.setFont(new Font(recentInfoLabel.getFont().getFontName(), Font.ITALIC, recentInfoLabel.getFont().getSize()));
         recentPanel.add(recentInfoLabel);
-        recentPanel.setMaximumSize(recentPanel.getPreferredSize());
+        recentPanel.setMaximumSize(new Dimension(recentPanel.getPreferredSize().width + 10, recentPanel.getPreferredSize().height));
         recentPanel.setAlignmentX(LEFT_ALIGNMENT);
         editorPanel.add(recentPanel);
         editorPanel.add(Box.createVerticalStrut(5));
 
         // Whitelist and blacklist rows to show
-        JPanel explicitsPanel = new JPanel();
-        explicitsPanel.setLayout(new BoxLayout(explicitsPanel, BoxLayout.X_AXIS));
+        Box explicitsPanel = new Box(BoxLayout.X_AXIS);
         explicitsPanel.add(new JLabel("Blacklist/Whitelist rows to display:"));
         explicitsPanel.add(Box.createHorizontalStrut(5));
         explicitsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
         explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor.categories.explicits));
         explicitsPanel.add(explicitsSpinner);
-        explicitsPanel.setMaximumSize(explicitsPanel.getPreferredSize());
+        explicitsPanel.setMaximumSize(new Dimension(explicitsPanel.getPreferredSize().width + 5, explicitsPanel.getPreferredSize().height));
         explicitsPanel.setAlignmentX(LEFT_ALIGNMENT);
         editorPanel.add(explicitsPanel);
         editorPanel.add(Box.createVerticalStrut(5));
@@ -605,20 +596,18 @@ public class SettingsDialog extends JDialog
         categoriesPanel.add(categoryModPanel, BorderLayout.EAST);
 
         // Editor appearance
-        JPanel editorAppearancePanel = new JPanel();
-        editorAppearancePanel.setLayout(new BoxLayout(editorAppearancePanel, BoxLayout.Y_AXIS));
+        Box editorAppearancePanel = new Box(BoxLayout.Y_AXIS);
         settingsPanel.add(editorAppearancePanel, new TreePath(editorAppearanceNode.getPath()).toString());
 
         // Editor category rows
-        JPanel rowsPanel = new JPanel();
-        rowsPanel.setLayout(new BoxLayout(rowsPanel, BoxLayout.X_AXIS));
+        Box rowsPanel = new Box(BoxLayout.X_AXIS);
         rowsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 0));
         rowsPanel.add(new JLabel("Initial displayed rows in categories:"));
         rowsPanel.add(Box.createHorizontalStrut(5));
         rowsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
         rowsSpinner.getModel().setValue(settings.editor.categories.rows);
         rowsPanel.add(rowsSpinner);
-        rowsPanel.setMaximumSize(rowsPanel.getPreferredSize());
+        rowsPanel.setMaximumSize(new Dimension(rowsPanel.getPreferredSize().width + 5, rowsPanel.getPreferredSize().height));
         rowsPanel.setAlignmentX(LEFT_ALIGNMENT);
         editorAppearancePanel.add(rowsPanel);
 
@@ -660,8 +649,7 @@ public class SettingsDialog extends JDialog
         sampleHandPanel.add(Box.createVerticalStrut(5));
 
         // Starting Size
-        JPanel startingSizePanel = new JPanel();
-        startingSizePanel.setLayout(new BoxLayout(startingSizePanel, BoxLayout.X_AXIS));
+        Box startingSizePanel = new Box(BoxLayout.X_AXIS);
         startingSizePanel.add(Box.createHorizontalStrut(5));
         startingSizePanel.add(new JLabel("Starting Size:"));
         startingSizePanel.add(Box.createHorizontalStrut(5));
@@ -669,15 +657,14 @@ public class SettingsDialog extends JDialog
         startingSizeSpinner.getModel().setValue(settings.editor.hand.size);
         startingSizePanel.add(startingSizeSpinner);
         startingSizePanel.add(Box.createHorizontalGlue());
-        startingSizePanel.setMaximumSize(startingSizePanel.getPreferredSize());
+        startingSizePanel.setMaximumSize(new Dimension(startingSizePanel.getPreferredSize().width + 5, startingSizePanel.getPreferredSize().height));
         startingSizePanel.setAlignmentX(LEFT_ALIGNMENT);
         sampleHandPanel.add(startingSizePanel);
 
         sampleHandPanel.add(Box.createVerticalStrut(5));
 
         // Expected counts round mode
-        JPanel expectedRoundPanel = new JPanel();
-        expectedRoundPanel.setLayout(new BoxLayout(expectedRoundPanel, BoxLayout.X_AXIS));
+        Box expectedRoundPanel = new Box(BoxLayout.X_AXIS);
         expectedRoundPanel.add(Box.createHorizontalStrut(5));
         expectedRoundPanel.add(new JLabel("Expected Category Count Round Mode:"));
         expectedRoundPanel.add(Box.createHorizontalStrut(5));

@@ -130,9 +130,8 @@ public class CategoryEditorPanel extends JPanel
     {
         super(new BorderLayout());
 
-        JPanel namePanel = new JPanel();
+        Box namePanel = new Box(BoxLayout.X_AXIS);
         namePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
         namePanel.add(new JLabel("Category Name: "));
         namePanel.add(nameField = new JTextField());
         namePanel.add(Box.createHorizontalStrut(5));

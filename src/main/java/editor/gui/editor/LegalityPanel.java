@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.util.StringJoiner;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JList;
@@ -24,7 +25,7 @@ import editor.util.UnicodeSymbols;
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class LegalityPanel extends JPanel
+public class LegalityPanel extends Box
 {
     /**
      * Create a new LegalityPanel showing the legality of a deck.
@@ -34,8 +35,7 @@ public class LegalityPanel extends JPanel
      */
     public LegalityPanel(LegalityChecker legality)
     {
-        super();
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        super(BoxLayout.Y_AXIS);
         setPreferredSize(new Dimension(400, 250));
 
         // Panel containing format lists

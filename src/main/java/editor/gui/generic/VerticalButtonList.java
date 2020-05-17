@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JPanel;
 
 /**
  * This class represents a panel that contains several {@link JButton}s arranged
@@ -21,7 +20,7 @@ import javax.swing.JPanel;
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class VerticalButtonList extends JPanel implements Iterable<JButton>
+public class VerticalButtonList extends Box implements Iterable<JButton>
 {
     /**
      * List of buttons.
@@ -39,8 +38,7 @@ public class VerticalButtonList extends JPanel implements Iterable<JButton>
      */
     public VerticalButtonList(Collection<String> texts)
     {
-        super();
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        super(BoxLayout.Y_AXIS);
 
         buttonsList = texts.stream().map(JButton::new).collect(Collectors.toList());
         buttonsMap = buttonsList.stream().collect(Collectors.toMap(JButton::getText, Function.identity()));

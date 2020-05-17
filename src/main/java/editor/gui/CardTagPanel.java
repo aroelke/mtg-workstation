@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -59,8 +60,7 @@ public class CardTagPanel extends ScrollablePanel
         JPanel contentPanel = new JPanel(new BorderLayout());
         CardTagPanel cardTagPanel = new CardTagPanel(cards);
         contentPanel.add(new JScrollPane(cardTagPanel), BorderLayout.CENTER);
-        JPanel lowerPanel = new JPanel();
-        lowerPanel.setLayout(new BoxLayout(lowerPanel, BoxLayout.X_AXIS));
+        Box lowerPanel = new Box(BoxLayout.X_AXIS);
         JTextField newTagField = new JTextField();
         lowerPanel.add(newTagField);
         JButton newTagButton = new JButton("Add");
@@ -107,6 +107,9 @@ public class CardTagPanel extends ScrollablePanel
      * Cards whose tags are to be modified.
      */
     private Collection<Card> cards;
+    /**
+     * Tags that are to be removed.
+     */
     private List<String> removed;
     /**
      * Preferred viewport height of this panel.
