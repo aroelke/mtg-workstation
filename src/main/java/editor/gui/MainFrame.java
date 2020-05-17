@@ -489,7 +489,7 @@ public class MainFrame extends JFrame
 
         // Import and export items
         final FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
-        final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
+        final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.csv, *.txt)", "csv", "txt");
         final FileNameExtensionFilter legacy = new FileNameExtensionFilter("Deck from v0.1 or older (*." + DeckDeserializer.EXTENSION + ')', DeckDeserializer.EXTENSION);
         JMenuItem importItem = new JMenuItem("Import...");
         importItem.addActionListener((e) -> {
@@ -1806,9 +1806,6 @@ public class MainFrame extends JFrame
         {
         case JFileChooser.APPROVE_OPTION:
             File f = fileChooser.getSelectedFile();
-            String fname = f.getAbsolutePath();
-            if (!fname.endsWith(".json"))
-                f = new File(fname + ".json");
             frame.save(f);
             updateRecents(f);
             break;
