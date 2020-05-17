@@ -17,6 +17,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.zip.ZipInputStream;
 
@@ -58,15 +59,12 @@ public abstract class InventoryDownloader
         progressBar.setIndeterminate(true);
         contentPanel.add(progressBar, BorderLayout.CENTER);
 
-        DownloadWorker downloader = new DownloadWorker(site, tmp, () -> {
-            dialog.setVisible(false);
-            dialog.dispose();
-        });
+        DownloadWorker downloader = new DownloadWorker(site, tmp);
         if (downloader.size() >= 0)
             progressBar.setMaximum(downloader.size());
         downloader.setUpdateFunction((downloaded) -> {
             StringBuilder progress = new StringBuilder();
-            progress.append("Downloading inventory ..." + formatDownload(downloaded));
+            progress.append("Downloading inventory... " + formatDownload(downloaded));
             if (downloader.size() < 0)
                 progressBar.setVisible(false);
             else
@@ -91,50 +89,71 @@ public abstract class InventoryDownloader
 
         dialog.pack();
         dialog.setLocationRelativeTo(owner);
-        downloader.execute();
+
+        var future = Executors.newSingleThreadExecutor().submit(() -> {
+            downloader.execute();
+            try
+            {
+                downloader.get();
+                Files.move(tmp.toPath(), zip.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            catch (InterruptedException | ExecutionException e)
+            {
+                JOptionPane.showMessageDialog(owner, "Error downloading " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+                tmp.delete();
+                dialog.setVisible(false);
+                return false;
+            }
+            catch (IOException e)
+            {
+                JOptionPane.showMessageDialog(owner, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+                dialog.setVisible(false);
+                return false;
+            }
+            catch (CancellationException e)
+            {
+                tmp.delete();
+                dialog.setVisible(false);
+                return false;
+            }
+
+            progressLabel.setText("Unzipping archive...");
+            unzipper.execute();
+            try
+            {
+                unzipper.get();
+            }
+            catch (InterruptedException | ExecutionException e)
+            {
+                JOptionPane.showMessageDialog(owner, "Error decompressing " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+                dialog.setVisible(false);
+                return false;
+            }
+            catch (CancellationException e)
+            {
+                dialog.setVisible(false);
+                return false;
+            }
+            finally
+            {
+                zip.delete();
+            }
+            dialog.setVisible(false);
+            return true;
+        });
         dialog.setVisible(true);
         try
         {
-            downloader.get();
-            Files.move(tmp.toPath(), zip.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            return future.get();
         }
         catch (InterruptedException | ExecutionException e)
-        {
-            JOptionPane.showMessageDialog(owner, "Error downloading " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-            tmp.delete();
-            return false;
-        }
-        catch (IOException e)
-        {
-            JOptionPane.showMessageDialog(owner, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        catch (CancellationException e)
-        {
-            tmp.delete();
-            return false;
-        }
-
-        progressLabel.setText("Unzipping archive...");
-        unzipper.execute();
-        try
-        {
-            unzipper.get();
-        }
-        catch (InterruptedException | ExecutionException e)
-        {
-            JOptionPane.showMessageDialog(null, "Error decompressing " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        catch (CancellationException e)
         {
             return false;
         }
         finally
         {
-            zip.delete();
+            dialog.dispose();
         }
-        return true;
     }
 
     private static String formatDownload(int n)
@@ -166,7 +185,6 @@ public abstract class InventoryDownloader
         private int size;
         /** Function for updating the GUI with the number of bytes downloaded. */
         private Consumer<Integer> updater;
-        private Runnable finished;
 
         /**
          * Create a new InventoryDownloadWorker.  A new one must be created each time
@@ -175,14 +193,13 @@ public abstract class InventoryDownloader
          * @param s URL to download the file from
          * @param f File to store it locally in
          */
-        public DownloadWorker(URL s, File f, Runnable d) throws IOException
+        public DownloadWorker(URL s, File f) throws IOException
         {
             super();
             file = f;
             connection = s.openConnection();
             size = connection.getContentLength();
             updater = (i) -> {};
-            finished = d;
         }
 
         public int size()
@@ -219,16 +236,6 @@ public abstract class InventoryDownloader
             finally
             {}
             return null;
-        }
-
-        /**
-         * {@inheritDoc}
-         * Close the parent dialog and return control back to its parent.
-         */
-        @Override
-        protected void done()
-        {
-            finished.run();
         }
 
         public void setUpdateFunction(Consumer<Integer> u)
