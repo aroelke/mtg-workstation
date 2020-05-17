@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -34,7 +35,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
     /**
      * Panel containing the children.
      */
-    private JPanel filtersPanel;
+    private Box filtersPanel;
     /**
      * Combo box showing the combination mode of the filter group.
      */
@@ -105,8 +106,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
         topPanel.add(editPanel);
 
         // Panel containing child filters
-        filtersPanel = new JPanel();
-        filtersPanel.setLayout(new BoxLayout(filtersPanel, BoxLayout.Y_AXIS));
+        filtersPanel = new Box(BoxLayout.Y_AXIS);
         add(filtersPanel, BorderLayout.CENTER);
 
         add(new FilterSelectorPanel());

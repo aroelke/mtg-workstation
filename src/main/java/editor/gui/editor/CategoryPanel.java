@@ -274,8 +274,7 @@ public class CategoryPanel extends JPanel
         topPanel.setLayout(new BorderLayout(0, 0));
 
         // Labels showing category stats
-        JPanel statsPanel = new JPanel();
-        statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.X_AXIS));
+        Box statsPanel = new Box(BoxLayout.X_AXIS);
         countLabel = new JLabel("Cards: " + deck.getCategoryList(name).total());
         statsPanel.add(countLabel);
         statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE));

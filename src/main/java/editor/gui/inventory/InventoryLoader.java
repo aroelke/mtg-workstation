@@ -1,12 +1,13 @@
 package editor.gui.inventory;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dialog;
-import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,8 +36,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -44,6 +48,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
@@ -73,61 +78,59 @@ import editor.filter.leaf.options.multi.SupertypeFilter;
 import editor.gui.MainFrame;
 import editor.gui.settings.SettingsDialog;
 
+/**
+ * Worker that loads the JSON inventory file into memory and displays progress in a
+ * popup dialog.
+ * 
+ * @author Alec Roelke
+ */
 public class InventoryLoader extends SwingWorker<Inventory, String>
 {
+    /**
+     * Load the inventory into memory from disk. Display a dialog indicating showing progress
+     * and allowing cancellation.
+     * 
+     * @param owner frame for setting the location of the dialog
+     * @param file file to load the inventory from
+     */
     public static Inventory loadInventory(Frame owner, File file)
     {
         JDialog dialog = new JDialog(owner, "Loading Inventory", Dialog.ModalityType.APPLICATION_MODAL);
-        dialog.setPreferredSize(new Dimension(350, 220));
         dialog.setResizable(false);
-        dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-        ArrayList<String> errors = new ArrayList<>();
+        final int BORDER = 10;
 
         // Content panel
-        GridBagLayout layout = new GridBagLayout();
-        layout.columnWidths = new int[]{0};
-        layout.columnWeights = new double[]{1.0};
-        layout.rowHeights = new int[]{0, 0, 0, 0};
-        layout.rowWeights = new double[]{0.0, 0.0, 1.0, 0.0};
-        JPanel contentPanel = new JPanel(layout);
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        Box contentPanel = new Box(BoxLayout.Y_AXIS);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
         dialog.setContentPane(contentPanel);
 
         // Stage progress label
         JLabel progressLabel = new JLabel("Loading inventory...");
-        GridBagConstraints labelConstraints = new GridBagConstraints();
-        labelConstraints.anchor = GridBagConstraints.WEST;
-        labelConstraints.fill = GridBagConstraints.BOTH;
-        labelConstraints.gridx = 0;
-        labelConstraints.gridy = 0;
-        labelConstraints.insets = new Insets(0, 0, 2, 0);
-        contentPanel.add(progressLabel, labelConstraints);
+        progressLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(progressLabel);
+        contentPanel.add(Box.createVerticalStrut(2));
 
         // Overall progress bar
         JProgressBar progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
-        GridBagConstraints barConstraints = new GridBagConstraints();
-        barConstraints.fill = GridBagConstraints.BOTH;
-        barConstraints.gridx = 0;
-        barConstraints.gridy = 1;
-        barConstraints.insets = new Insets(0, 0, 2, 0);
-        contentPanel.add(progressBar, barConstraints);
+        progressBar.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(progressBar);
+        contentPanel.add(Box.createVerticalStrut(2));
 
         // History text area
-        JTextArea progressArea = new JTextArea("");
+        JTextArea progressArea = new JTextArea("", 6, 40);
         progressArea.setEditable(false);
-        GridBagConstraints areaConstraints = new GridBagConstraints();
-        areaConstraints.fill = GridBagConstraints.BOTH;
-        areaConstraints.gridx = 0;
-        areaConstraints.gridy = 2;
-        areaConstraints.insets = new Insets(0, 0, 10, 0);
-        contentPanel.add(new JScrollPane(progressArea), areaConstraints);
+        JScrollPane progressPane = new JScrollPane(progressArea);
+        progressPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(progressPane);
+        contentPanel.add(Box.createVerticalStrut(BORDER));
 
         InventoryLoader loader = new InventoryLoader(file, (c) -> {
             progressLabel.setText(c);
             progressArea.append(c + "\n");
-        }, errors, () -> {
+        }, () -> {
             dialog.setVisible(false);
             dialog.dispose();
         });
@@ -141,12 +144,25 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         });
 
         // Cancel button
+        JPanel cancelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener((e) -> loader.cancel(false));
-        GridBagConstraints cancelConstraints = new GridBagConstraints();
-        cancelConstraints.gridx = 0;
-        cancelConstraints.gridy = 3;
-        contentPanel.add(cancelButton, cancelConstraints);
+        cancelPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        cancelPanel.add(cancelButton);
+        contentPanel.add(cancelPanel);
+
+        dialog.addWindowListener(new WindowAdapter()
+        {
+            public void windowClosing(WindowEvent e)
+            {
+                loader.cancel(false);
+            }
+        });
+        dialog.getRootPane().registerKeyboardAction((e) -> {
+            loader.cancel(false);
+            dialog.setVisible(false);
+            dialog.dispose();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         dialog.pack();
         loader.execute();
@@ -159,17 +175,17 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         }
         catch (InterruptedException | ExecutionException e)
         {
-            JOptionPane.showMessageDialog(null, "Error loading inventory: " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(owner, "Error loading inventory: " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
         catch (CancellationException e)
         {}
-        if (SettingsDialog.settings().inventory.warn && !errors.isEmpty())
+        if (SettingsDialog.settings().inventory.warn && !loader.warnings().isEmpty())
         {
             SwingUtilities.invokeLater(() -> {
                 StringJoiner join = new StringJoiner("<li>", "<html>", "</ul></html>");
                 join.add("Errors ocurred while loading the following card(s):<ul style=\"margin-top:0;margin-left:20pt\">");
-                for (String failure : errors)
+                for (String failure : loader.warnings())
                     join.add(failure);
                 JPanel warningPanel = new JPanel(new BorderLayout());
                 JLabel warningLabel = new JLabel(join.toString());
@@ -180,7 +196,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 SettingsDialog.setShowInventoryWarnings(!suppressBox.isSelected());
             });
         }
-        SettingsDialog.setInventoryWarnings(errors);
+        SettingsDialog.setInventoryWarnings(loader.warnings());
         return result;
     }
 
@@ -190,19 +206,22 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
     private List<String> errors;
     /** Action to perform on each chunk during process(). */
     private Consumer<String> consumer;
+    /** Function to perform when done loading. */
     private Runnable finished;
 
     /**
      * Create a new InventoryWorker.
      *
      * @param f #File to load
+     * @param c function to perform on each update
+     * @param d function to perform when done loading
      */
-    private InventoryLoader(File f, Consumer<String> c, List<String> e, Runnable d)
+    private InventoryLoader(File f, Consumer<String> c, Runnable d)
     {
         super();
         file = f;
         consumer = c;
-        errors = e;
+        errors = new ArrayList<>();
         finished = d;
     }
 
@@ -274,7 +293,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             for (var setNode : root.entrySet())
                 for (JsonElement card : setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray())
                     if (card.getAsJsonObject().has("multiverseId"))
-                        numCards += 1;
+                        numCards++;
 
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
@@ -295,14 +314,16 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 // Create the new Expansion
                 JsonObject setProperties = setNode.getValue().getAsJsonObject();
                 JsonArray setCards = setProperties.get("cards").getAsJsonArray();
-                Expansion set = new Expansion(setProperties.get("name").getAsString(),
-                        Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse("<No Block>"),
-                        setProperties.get("code").getAsString(),
-                        setProperties.get(setProperties.has("oldCode") ? "oldCode" : "code").getAsString(),
-                        setProperties.get(setProperties.has("magicCardsInfoCode") ? "magicCardsInfoCode" : "code").getAsString().toUpperCase(),
-                        setProperties.get(setProperties.has("gathererCode") ? "gathererCode" : "code").getAsString(),
-                        setCards.size(),
-                        LocalDate.parse(setProperties.get("releaseDate").getAsString(), Expansion.DATE_FORMATTER));
+                Expansion set = new Expansion(
+                    setProperties.get("name").getAsString(),
+                    Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse("<No Block>"),
+                    setProperties.get("code").getAsString(),
+                    setProperties.get(setProperties.has("oldCode") ? "oldCode" : "code").getAsString(),
+                    setProperties.get(setProperties.has("magicCardsInfoCode") ? "magicCardsInfoCode" : "code").getAsString().toUpperCase(),
+                    setProperties.get(setProperties.has("gathererCode") ? "gathererCode" : "code").getAsString(),
+                    setCards.size(),
+                    LocalDate.parse(setProperties.get("releaseDate").getAsString(), Expansion.DATE_FORMATTER)
+                );
                 expansions.add(set);
                 blockNames.add(set.block);
                 publish("Loading cards from " + set + "...");
@@ -588,5 +609,13 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
     protected void done()
     {
         finished.run();
+    }
+
+    /**
+     * @return A list of warnings that occured while loading the inventory.
+     */
+    public List<String> warnings()
+    {
+        return errors;
     }
 }

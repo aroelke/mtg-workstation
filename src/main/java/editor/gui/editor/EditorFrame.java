@@ -551,7 +551,7 @@ public class EditorFrame extends JInternalFrame
     /**
      * Panel containing categories.
      */
-    private JPanel categoriesContainer;
+    private Box categoriesContainer;
     /**
      * Panels showing categories in this deck (individual panels should not be operated
      * on except for GUI-related functions).
@@ -862,8 +862,7 @@ public class EditorFrame extends JInternalFrame
         listTabs.addTab("Categories", categoriesPanel);
 
         // Panel containing components above the category panel
-        JPanel categoryHeaderPanel = new JPanel();
-        categoryHeaderPanel.setLayout(new BoxLayout(categoryHeaderPanel, BoxLayout.X_AXIS));
+        Box categoryHeaderPanel = new Box(BoxLayout.X_AXIS);
         categoriesMainPanel.add(categoryHeaderPanel, BorderLayout.NORTH);
 
         // Button to add a new category
@@ -907,8 +906,7 @@ public class EditorFrame extends JInternalFrame
         // Make sure all parts of the category panel fit inside the window (this is necessary because
         // JScrollPanes do weird things with non-scroll-savvy components)
         JPanel categoriesSuperContainer = new ScrollablePanel(new BorderLayout(), ScrollablePanel.TRACK_WIDTH);
-        categoriesContainer = new JPanel();
-        categoriesContainer.setLayout(new BoxLayout(categoriesContainer, BoxLayout.Y_AXIS));
+        categoriesContainer = new Box(BoxLayout.Y_AXIS);
         categoryPanels = new ArrayList<>();
 
         // The category panel is a vertically-scrollable panel that contains all categories stacked vertically
@@ -1012,8 +1010,7 @@ public class EditorFrame extends JInternalFrame
         getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
         // Labels to counts for total cards, lands, and nonlands
-        JPanel statsPanel = new JPanel();
-        statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.X_AXIS));
+        Box statsPanel = new Box(BoxLayout.X_AXIS);
         statsPanel.add(Box.createHorizontalStrut(10));
         countLabel = new JLabel();
         statsPanel.add(countLabel);
@@ -1043,6 +1040,7 @@ public class EditorFrame extends JInternalFrame
             checker.checkLegality(deck.current);
             JOptionPane.showMessageDialog(this, new LegalityPanel(checker), "Legality of " + deckName(), JOptionPane.PLAIN_MESSAGE);
         });
+        legalityButton.setEnabled(false);
         legalityPanel.add(legalityButton);
         GridBagConstraints legalityConstraints = new GridBagConstraints();
         legalityConstraints.anchor = GridBagConstraints.EAST;

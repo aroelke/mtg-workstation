@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -17,21 +20,39 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.zip.ZipInputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 
+/**
+ * Class for downloading and decompressing the inventory, displaying progress in a
+ * popup dialog.
+ */
 public abstract class InventoryDownloader
 {
+    /**
+     * Download the inventory from the Internet and decompress it. Display a dialog showing
+     * progress and allowing cancellation.
+     *
+     * @param owner frame for setting the location of the dialog
+     * @param site web site to download the inventory from
+     * @param file file to store the inventory in
+     * @return <code>true</code> if the file was successfully downloaded and decompressed,
+     * and <code>false</code> otherwise.
+     * @throws IOException if the download worker can't connect to the inventory site.
+     */
     public static boolean downloadInventory(Frame owner, URL site, File file) throws IOException
     {
         File zip = new File(file.getPath() + ".zip");
@@ -58,40 +79,22 @@ public abstract class InventoryDownloader
         progressBar.setIndeterminate(true);
         contentPanel.add(progressBar, BorderLayout.CENTER);
 
-        DownloadWorker downloader = new DownloadWorker(site, tmp, () -> {
-            dialog.setVisible(false);
-            dialog.dispose();
-        });
+        DownloadWorker downloader = new DownloadWorker(site, tmp);
         if (downloader.size() >= 0)
             progressBar.setMaximum(downloader.size());
-        String bytes;
-        if (downloader.size() < 0)
-            bytes = "";
-        else if (downloader.size() <= 1024)
-            bytes = String.format("%d", downloader.size());
-        else if (downloader.size() <= 1048576)
-            bytes = String.format("%.1fk", downloader.size()/1024.0);
-        else
-            bytes = String.format("%.2fM", downloader.size()/1048576.0);
         downloader.setUpdateFunction((downloaded) -> {
-            String downloadedStr;
-            if (downloaded <= 1024)
-                downloadedStr = String.format("%d", downloaded);
-            else if (downloaded <= 1048576)
-                downloadedStr = String.format("%.1fk", downloaded / 1024.0);
-            else
-                downloadedStr = String.format("%.2fM", downloaded / 1048576.0);
-            if (bytes.isEmpty())
-            {
+            StringBuilder progress = new StringBuilder();
+            progress.append("Downloading inventory... " + formatDownload(downloaded));
+            if (downloader.size() < 0)
                 progressBar.setVisible(false);
-                progressLabel.setText("Downloading inventory..." + downloadedStr + "B downloaded.");
-            }
             else
             {
                 progressBar.setIndeterminate(false);
                 progressBar.setValue(downloaded);
-                progressLabel.setText("Downloading inventory..." + downloadedStr + "B/" + bytes + "B downloaded.");
+                progress.append("B/" + formatDownload(downloader.size()));
             }
+            progress.append("B downloaded.");
+            progressLabel.setText(progress.toString());
         });
 
         // Cancel button
@@ -104,52 +107,109 @@ public abstract class InventoryDownloader
         cancelPanel.add(cancelButton);
         contentPanel.add(cancelPanel, BorderLayout.SOUTH);
 
+        dialog.addWindowListener(new WindowAdapter()
+        {
+            public void windowClosing(WindowEvent e)
+            {
+                downloader.cancel(true);
+                unzipper.cancel(true);
+            }
+        });
+        dialog.getRootPane().registerKeyboardAction((e) -> {
+            downloader.cancel(true);
+            unzipper.cancel(true);
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
         dialog.pack();
         dialog.setLocationRelativeTo(owner);
-        downloader.execute();
+
+        var future = Executors.newSingleThreadExecutor().submit(() -> {
+            downloader.execute();
+            try
+            {
+                downloader.get();
+            }
+            catch (InterruptedException | ExecutionException e)
+            {
+                JOptionPane.showMessageDialog(owner, "Error downloading " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+                tmp.delete();
+                dialog.setVisible(false);
+                return false;
+            }
+            catch (CancellationException e)
+            {
+                tmp.delete();
+                dialog.setVisible(false);
+                return false;
+            }
+            try
+            {
+                Files.move(tmp.toPath(), zip.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            catch (IOException e)
+            {
+                JOptionPane.showMessageDialog(owner, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+                dialog.setVisible(false);
+                return false;
+            }
+
+            progressLabel.setText("Unzipping archive...");
+            unzipper.execute();
+            try
+            {
+                unzipper.get();
+            }
+            catch (InterruptedException | ExecutionException e)
+            {
+                JOptionPane.showMessageDialog(owner, "Error decompressing " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+                dialog.setVisible(false);
+                return false;
+            }
+            catch (CancellationException e)
+            {
+                dialog.setVisible(false);
+                file.delete();
+                return false;
+            }
+            finally
+            {
+                zip.delete();
+            }
+            dialog.setVisible(false);
+            return true;
+        });
         dialog.setVisible(true);
         try
         {
-            downloader.get();
-            Files.move(tmp.toPath(), zip.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            return future.get();
         }
         catch (InterruptedException | ExecutionException e)
-        {
-            JOptionPane.showMessageDialog(null, "Error downloading " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-            tmp.delete();
-            return false;
-        }
-        catch (IOException e)
-        {
-            JOptionPane.showMessageDialog(null, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        catch (CancellationException e)
-        {
-            tmp.delete();
-            return false;
-        }
-
-        progressLabel.setText("Unzipping archive...");
-        unzipper.execute();
-        try
-        {
-            unzipper.get();
-        }
-        catch (InterruptedException | ExecutionException e)
-        {
-            JOptionPane.showMessageDialog(null, "Error decompressing " + zip.getName() + ": " + e.getCause().getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        catch (CancellationException e)
         {
             return false;
         }
         finally
         {
-            zip.delete();
+            dialog.dispose();
         }
-        return true;
+    }
+
+    /**
+     * Format an integer into a string indicating a number of bytes, kilobytes, or
+     * megabytes.
+     *
+     * @param n integer to format
+     * @return A formatted string.
+     */
+    private static String formatDownload(int n)
+    {
+        if (n < 0)
+            return "";
+        else if (n <= 1024)
+            return String.format("%d", n);
+        else if (n <= 1048576)
+            return String.format("%.1fk", n/1024.0);
+        else
+            return String.format("%.2fM", n/1048576.0);
     }
 
     /**
@@ -169,7 +229,6 @@ public abstract class InventoryDownloader
         private int size;
         /** Function for updating the GUI with the number of bytes downloaded. */
         private Consumer<Integer> updater;
-        private Runnable finished;
 
         /**
          * Create a new InventoryDownloadWorker.  A new one must be created each time
@@ -178,16 +237,18 @@ public abstract class InventoryDownloader
          * @param s URL to download the file from
          * @param f File to store it locally in
          */
-        public DownloadWorker(URL s, File f, Runnable d) throws IOException
+        public DownloadWorker(URL s, File f) throws IOException
         {
             super();
             file = f;
             connection = s.openConnection();
             size = connection.getContentLength();
             updater = (i) -> {};
-            finished = d;
         }
 
+        /**
+         * @return The number of bytes to be downloaded.
+         */
         public int size()
         {
             return size;
@@ -210,7 +271,7 @@ public abstract class InventoryDownloader
                         byte[] data = new byte[1024];
                         int size = 0;
                         int x;
-                        while ((x = in.read(data)) > 0)
+                        while (!isCancelled() && (x = in.read(data)) > 0)
                         {
                             size += x;
                             out.write(data, 0, x);
@@ -225,15 +286,10 @@ public abstract class InventoryDownloader
         }
 
         /**
-         * {@inheritDoc}
-         * Close the parent dialog and return control back to its parent.
+         * Set the function to be used when updating the GUI about download progress.
+         * 
+         * @param u download update function
          */
-        @Override
-        protected void done()
-        {
-            finished.run();
-        }
-
         public void setUpdateFunction(Consumer<Integer> u)
         {
             updater = u;
@@ -293,7 +349,7 @@ public abstract class InventoryDownloader
                 {
                     byte[] data = new byte[1024];
                     int x;
-                    while ((x = zis.read(data)) > 0)
+                    while (!isCancelled() && (x = zis.read(data)) > 0)
                         out.write(data, 0, x);
                 }
             }
