@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -86,6 +87,7 @@ public interface CardList extends Iterable<Card>
                 case COLOR_IDENTITY -> card().colorIdentity();
                 case TYPE_LINE      -> card().unifiedTypeLine();
                 case EXPANSION      -> card().expansion().toString();
+                case BLOCK          -> card().expansion().block;
                 case RARITY         -> card().rarity();
                 case POWER          -> card().power();
                 case TOUGHNESS      -> card().toughness();
@@ -96,6 +98,13 @@ public interface CardList extends Iterable<Card>
                 case COUNT          -> count();
                 case CATEGORIES     -> categories();
                 case DATE_ADDED     -> dateAdded();
+                case TAGS           -> {
+                    var tags = Card.tags.get(card());
+                    if (tags == null)
+                        yield "[]";
+                    else
+                        yield tags.stream().sorted().collect(Collectors.joining(", ", "[", "]"));
+                }
                 default -> throw new IllegalArgumentException("Unknown data type " + data);
             };
         }
