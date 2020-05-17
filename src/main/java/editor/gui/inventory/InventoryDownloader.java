@@ -36,8 +36,23 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 
+/**
+ * Class for downloading and decompressing the inventory, displaying progress in a
+ * popup dialog.
+ */
 public abstract class InventoryDownloader
 {
+    /**
+     * Download the inventory from the Internet and decompress it. Display a dialog showing
+     * progress and allowing cancellation.
+     *
+     * @param owner frame for setting the location of the dialog
+     * @param site web site to download the inventory from
+     * @param file file to store the inventory in
+     * @return <code>true</code> if the file was successfully downloaded and decompressed,
+     * and <code>false</code> otherwise.
+     * @throws IOException if the download worker can't connect to the inventory site.
+     */
     public static boolean downloadInventory(Frame owner, URL site, File file) throws IOException
     {
         File zip = new File(file.getPath() + ".zip");
@@ -178,6 +193,13 @@ public abstract class InventoryDownloader
         }
     }
 
+    /**
+     * Format an integer into a string indicating a number of bytes, kilobytes, or
+     * megabytes.
+     *
+     * @param n integer to format
+     * @return A formatted string.
+     */
     private static String formatDownload(int n)
     {
         if (n < 0)
@@ -224,6 +246,9 @@ public abstract class InventoryDownloader
             updater = (i) -> {};
         }
 
+        /**
+         * @return The number of bytes to be downloaded.
+         */
         public int size()
         {
             return size;
@@ -260,6 +285,11 @@ public abstract class InventoryDownloader
             return null;
         }
 
+        /**
+         * Set the function to be used when updating the GUI about download progress.
+         * 
+         * @param u download update function
+         */
         public void setUpdateFunction(Consumer<Integer> u)
         {
             updater = u;
