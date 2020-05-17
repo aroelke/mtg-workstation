@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -23,11 +26,13 @@ import java.util.zip.ZipInputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 
@@ -87,6 +92,19 @@ public abstract class InventoryDownloader
         cancelPanel.add(cancelButton);
         contentPanel.add(cancelPanel, BorderLayout.SOUTH);
 
+        dialog.addWindowListener(new WindowAdapter()
+        {
+            public void windowClosing(WindowEvent e)
+            {
+                downloader.cancel(true);
+                unzipper.cancel(true);
+            }
+        });
+        dialog.getRootPane().registerKeyboardAction((e) -> {
+            downloader.cancel(true);
+            unzipper.cancel(true);
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
         dialog.pack();
         dialog.setLocationRelativeTo(owner);
 
@@ -95,7 +113,6 @@ public abstract class InventoryDownloader
             try
             {
                 downloader.get();
-                Files.move(tmp.toPath(), zip.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
             catch (InterruptedException | ExecutionException e)
             {
@@ -104,15 +121,19 @@ public abstract class InventoryDownloader
                 dialog.setVisible(false);
                 return false;
             }
-            catch (IOException e)
-            {
-                JOptionPane.showMessageDialog(owner, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
-                dialog.setVisible(false);
-                return false;
-            }
             catch (CancellationException e)
             {
                 tmp.delete();
+                dialog.setVisible(false);
+                return false;
+            }
+            try
+            {
+                Files.move(tmp.toPath(), zip.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            catch (IOException e)
+            {
+                JOptionPane.showMessageDialog(owner, "Could not replace temporary file: " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
                 dialog.setVisible(false);
                 return false;
             }
@@ -132,6 +153,7 @@ public abstract class InventoryDownloader
             catch (CancellationException e)
             {
                 dialog.setVisible(false);
+                file.delete();
                 return false;
             }
             finally
@@ -224,7 +246,7 @@ public abstract class InventoryDownloader
                         byte[] data = new byte[1024];
                         int size = 0;
                         int x;
-                        while ((x = in.read(data)) > 0)
+                        while (!isCancelled() && (x = in.read(data)) > 0)
                         {
                             size += x;
                             out.write(data, 0, x);
@@ -297,7 +319,7 @@ public abstract class InventoryDownloader
                 {
                     byte[] data = new byte[1024];
                     int x;
-                    while ((x = zis.read(data)) > 0)
+                    while (!isCancelled() && (x = zis.read(data)) > 0)
                         out.write(data, 0, x);
                 }
             }
