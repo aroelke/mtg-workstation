@@ -489,7 +489,7 @@ public class MainFrame extends JFrame
 
         // Import and export items
         final FileNameExtensionFilter text = new FileNameExtensionFilter("Text (*.txt)", "txt");
-        final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.txt, *.csv)", "txt", "csv");
+        final FileNameExtensionFilter delimited = new FileNameExtensionFilter("Delimited (*.csv, *.txt)", "csv", "txt");
         final FileNameExtensionFilter legacy = new FileNameExtensionFilter("Deck from v0.1 or older (*." + DeckDeserializer.EXTENSION + ')', DeckDeserializer.EXTENSION);
         JMenuItem importItem = new JMenuItem("Import...");
         importItem.addActionListener((e) -> {
@@ -735,6 +735,7 @@ public class MainFrame extends JFrame
             switch (exportChooser.showSaveDialog(this))
             {
             case JFileChooser.APPROVE_OPTION:
+                File file = exportChooser.getSelectedFile();
                 CardListFormat format;
                 if (exportChooser.getFileFilter() == text)
                 {
@@ -790,7 +791,12 @@ public class MainFrame extends JFrame
                     }
 
                     if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
+                    {
+                        final String fname = file.getAbsolutePath();
+                        if (!Arrays.stream(text.getExtensions()).anyMatch((ext) -> fname.endsWith("." + ext)))
+                            file = new File(fname + '.' + text.getExtensions()[0]);
                         format = new TextCardListFormat(formatField.getText());
+                    }
                     else
                         return;
                 }
@@ -893,6 +899,9 @@ public class MainFrame extends JFrame
 
                     if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
                     {
+                        final String fname = file.getAbsolutePath();
+                        if (!Arrays.stream(delimited.getExtensions()).anyMatch((ext) -> fname.endsWith("." + ext)))
+                            file = new File(fname + '.' + delimited.getExtensions()[0]);
                         var selected = new ArrayList<CardAttribute>(selectedHeadersModel.size());
                         for (int i = 0; i < selectedHeadersModel.size(); i++)
                             selected.add(selectedHeadersModel.getElementAt(i));
@@ -909,7 +918,7 @@ public class MainFrame extends JFrame
 
                 try
                 {
-                    f.export(format, exportChooser.getSelectedFile());
+                    f.export(format, file);
                 }
                 catch (UnsupportedEncodingException | FileNotFoundException x)
                 {
