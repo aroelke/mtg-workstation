@@ -1,5 +1,9 @@
 package editor.collection.export;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -29,6 +33,8 @@ public class TextCardListFormat implements CardListFormat
      */
     public static final String DEFAULT_FORMAT = "{count}x {name} ({expansion})";
 
+    public static final Pattern COUNT_PATTERN = Pattern.compile("(?:^(?:\\d+x|x\\d+|\\d+)|(?:\\d+x|x\\d+|\\d+)$)");
+
     /**
      * Format to use for formatting a card list
      */
@@ -57,35 +63,46 @@ public class TextCardListFormat implements CardListFormat
         return "";
     }
 
+    private void parseLine(Deck deck, String line) throws ParseException
+    {
+        var possibilities = MainFrame.inventory().stream().filter((c) -> line.contains(c.unifiedName().toLowerCase()) || c.name().stream().anyMatch((n) -> line.contains(n.toLowerCase()))).collect(Collectors.toList());
+        if (possibilities.isEmpty())
+            throw new ParseException("Can't parse card name from \"" + line.trim() + '"', 0);
+
+        var filtered = possibilities.stream().filter((c) -> line.contains(c.expansion().name.toLowerCase())).collect(Collectors.toList());
+        if (!filtered.isEmpty())
+            possibilities = filtered;
+        filtered = possibilities.stream().filter((c) -> !c.unifiedName().toLowerCase().equals(c.expansion().name.toLowerCase())).collect(Collectors.toList());
+        if (!filtered.isEmpty())
+            possibilities = filtered;
+
+        if (possibilities.size() > 1)
+            System.err.println("Multiple matches for \"" + line.trim() + '"');
+
+        Matcher countMatcher = COUNT_PATTERN.matcher(line);
+        LocalDate date = new Parser().parse(line).stream().flatMap((g) -> g.getDates().stream()).findFirst().orElse(new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        deck.add(possibilities.get(0), countMatcher.find() ? Integer.parseInt(countMatcher.group().replace("x", "")) : 1, date);
+    }
+
     @Override
     public CardList parse(List<String> source) throws ParseException
     {
         Deck deck = new Deck();
-        Pattern countPattern = Pattern.compile("(?:^(?:\\d+x|x\\d+|\\d+)|(?:\\d+x|x\\d+|\\d+)$)");
-
         for (String line : source)
-        {
-            final String cleanLine = line.trim().toLowerCase();
-
-            var possibilities = MainFrame.inventory().stream().filter((c) -> cleanLine.contains(c.unifiedName().toLowerCase()) || c.name().stream().anyMatch((n) -> cleanLine.contains(n.toLowerCase()))).collect(Collectors.toList());
-            if (possibilities.isEmpty())
-                throw new ParseException("Can't parse card name from \"" + line.trim() + '"', 0);
-
-            var filtered = possibilities.stream().filter((c) -> cleanLine.contains(c.expansion().name.toLowerCase())).collect(Collectors.toList());
-            if (!filtered.isEmpty())
-                possibilities = filtered;
-            filtered = possibilities.stream().filter((c) -> !c.unifiedName().toLowerCase().equals(c.expansion().name.toLowerCase())).collect(Collectors.toList());
-            if (!filtered.isEmpty())
-                possibilities = filtered;
-
-            if (possibilities.size() > 1)
-                System.err.println("Multiple matches for \"" + line.trim() + '"');
-
-            Matcher countMatcher = countPattern.matcher(cleanLine);
-            LocalDate date = new Parser().parse(line).stream().flatMap((g) -> g.getDates().stream()).findFirst().orElse(new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            deck.add(possibilities.get(0), countMatcher.find() ? Integer.parseInt(countMatcher.group().replace("x", "")) : 1, date);
-        }
+            parseLine(deck, line.trim().toLowerCase());
         return deck;
     }
 
+    @Override
+    public CardList parse(InputStream source) throws ParseException, IOException
+    {
+        Deck deck = new Deck();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(source)))
+        {
+            String line;
+            while ((line = reader.readLine()) != null)
+                parseLine(deck, line.trim().toLowerCase());
+        }
+        return null;
+    }
 }

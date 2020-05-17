@@ -1,5 +1,7 @@
 package editor.collection.export;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
 
@@ -45,4 +47,6 @@ public interface CardListFormat
      * @throws ParseException if the string cannot be parsed
      */
     CardList parse(List<String> source) throws ParseException;
+
+    CardList parse(InputStream source) throws ParseException, IOException;
 }

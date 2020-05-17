@@ -1,5 +1,9 @@
 package editor.collection.export;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -73,6 +77,7 @@ public class DelimitedCardListFormat implements CardListFormat
      * Data types to include in the table.
      */
     private List<CardAttribute> types;
+    private int pos;
 
     /**
      * Create a new way to format a card list into a table.
@@ -122,6 +127,55 @@ public class DelimitedCardListFormat implements CardListFormat
             return "";
     }
 
+    private void parseHeader(String line) throws ParseException
+    {
+        if (include)
+            throw new IllegalStateException("Headers are already defined");
+        else
+        {
+            if (!include)
+            {
+                String[] headers = line.split(delimiter);
+                types = new ArrayList<>(headers.length);
+                for (String header : headers)
+                {
+                    boolean success = false;
+                    for (CardAttribute type : CardAttribute.displayableValues())
+                    {
+                        if (header.compareToIgnoreCase(type.toString()) == 0)
+                        {
+                            types.add(type);
+                            success = true;
+                            break;
+                        }
+                    }
+                    if (!success)
+                        throw new ParseException("unknown data type " + header, pos);
+                    pos += header.length();
+                }
+            }
+        }
+    }
+
+    private void parseLine(Deck deck, String line, int nameIndex, int expansionIndex, int numberIndex, int countIndex, int dateIndex) throws ParseException
+    {
+        line = line.replace(ESCAPE + ESCAPE, ESCAPE);
+        String[] cells = split(delimiter, line);
+
+        var possibilities = MainFrame.inventory().stream().filter((c) -> c.unifiedName().equalsIgnoreCase(cells[nameIndex])).collect(Collectors.toList());
+        if (possibilities.size() > 1 && expansionIndex > -1)
+            possibilities.removeIf((c) -> !c.expansion().name.equalsIgnoreCase(cells[expansionIndex]));
+        if (possibilities.size() > 1 && numberIndex > -1)
+            possibilities.removeIf((c) -> !String.join(' ' + Card.FACE_SEPARATOR + ' ', c.number()).equals(cells[numberIndex]));
+
+        if (possibilities.size() > 1)
+            System.err.println("warning: cannot determine printing of " + possibilities.get(0).unifiedName());
+        if (possibilities.isEmpty())
+            throw new ParseException("can't find card named " + cells[nameIndex], pos);
+        deck.add(possibilities.get(0), countIndex < 0 ? 1 : Integer.parseInt(cells[countIndex]), dateIndex < 0 ? LocalDate.now() : LocalDate.parse(cells[dateIndex], Deck.DATE_FORMATTER));
+        pos += line.length();
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -132,27 +186,10 @@ public class DelimitedCardListFormat implements CardListFormat
     {
         var lines = new ArrayList<>(source);
 
-        int pos = 0;
+        pos = 0;
         if (!include)
         {
-            String[] headers = lines.get(0).split(delimiter);
-            types = new ArrayList<>(headers.length);
-            for (String header : headers)
-            {
-                boolean success = false;
-                for (CardAttribute type : CardAttribute.displayableValues())
-                {
-                    if (header.compareToIgnoreCase(type.toString()) == 0)
-                    {
-                        types.add(type);
-                        success = true;
-                        break;
-                    }
-                }
-                if (!success)
-                    throw new ParseException("unknown data type " + header, pos);
-                pos += header.length();
-            }
+            parseHeader(lines.get(0));
             lines.remove(0);
         }
 
@@ -168,25 +205,40 @@ public class DelimitedCardListFormat implements CardListFormat
 
         Deck deck = new Deck();
         for (String line : lines)
-        {
-            line = line.replace(ESCAPE + ESCAPE, ESCAPE);
-            String[] cells = split(delimiter, line);
-
-            var possibilities = MainFrame.inventory().stream().filter((c) -> c.unifiedName().equalsIgnoreCase(cells[nameIndex])).collect(Collectors.toList());
-            if (possibilities.size() > 1 && expansionIndex > -1)
-                possibilities.removeIf((c) -> !c.expansion().name.equalsIgnoreCase(cells[expansionIndex]));
-            if (possibilities.size() > 1 && numberIndex > -1)
-                possibilities.removeIf((c) -> !String.join(' ' + Card.FACE_SEPARATOR + ' ', c.number()).equals(cells[numberIndex]));
-
-            if (possibilities.size() > 1)
-                System.err.println("warning: cannot determine printing of " + possibilities.get(0).unifiedName());
-            if (possibilities.isEmpty())
-                throw new ParseException("can't find card named " + cells[nameIndex], pos);
-            deck.add(possibilities.get(0), countIndex < 0 ? 1 : Integer.parseInt(cells[countIndex]), dateIndex < 0 ? LocalDate.now() : LocalDate.parse(cells[dateIndex], Deck.DATE_FORMATTER));
-            pos += line.length();
-        }
+            parseLine(deck, line, nameIndex, expansionIndex, numberIndex, countIndex, dateIndex);
 
         return deck;
     }
 
+    @Override
+    public CardList parse(InputStream source) throws ParseException, IOException
+    {
+        Deck deck = new Deck();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(source)))
+        {
+            String line;
+            pos = 0;
+            if (!include)
+            {
+                line = reader.readLine();
+                if (line == null)
+                    throw new ParseException("Can't parse empty file", pos);
+                parseHeader(line);
+            }
+
+            int nameIndex = types.indexOf(CardAttribute.NAME);
+            if (nameIndex < 0)
+                throw new IllegalStateException("can't parse cards without names");
+            int expansionIndex = types.indexOf(CardAttribute.EXPANSION);
+            int numberIndex = types.indexOf(CardAttribute.CARD_NUMBER);
+            int countIndex = types.indexOf(CardAttribute.COUNT);
+            if (countIndex < 0)
+                System.err.println("warning: missing card count in parse; assuming one copy of each card");
+            int dateIndex = types.indexOf(CardAttribute.DATE_ADDED);
+
+            while ((line = reader.readLine()) != null)
+                parseLine(deck, line, nameIndex, expansionIndex, numberIndex, countIndex, dateIndex);
+        }
+        return deck;
+    }
 }
