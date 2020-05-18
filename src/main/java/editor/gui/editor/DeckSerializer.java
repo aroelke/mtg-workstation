@@ -246,6 +246,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
      *
      * @param format format of the file
      * @param file file to import from
+     * @param parent parent window used to display errors
      * @throws DeckLoadException if the deck could not be imported
      * @see CardListFormat
      */
@@ -281,7 +282,6 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
      * @param f File to load from
      * @param parent parent window used to display errors
      * @throws DeckLoadException if there is already a loaded deck
-     * @throws CancellationException if importing was canceled
      */
     public void importLegacy(File f, Window parent) throws DeckLoadException, CancellationException
     {
@@ -346,7 +346,6 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
      * @param f File to load from
      * @param parent parent window used to display errors
      * @throws DeckLoadException if there is already a loaded deck
-     * @throws CancellationException if loading the deck was canceled
      */
     public void load(File f, Window parent) throws DeckLoadException, CancellationException
     {

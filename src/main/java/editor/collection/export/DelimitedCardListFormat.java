@@ -62,14 +62,36 @@ public class DelimitedCardListFormat implements CardListFormat
         return cells;
     }
 
+    /**
+     * Storage structure for the column indices of important card attributes used for identifying
+     * cards in a table.  Some of the indices allow for the use of -1 to indicate that that
+     * piece of information is not present in the table.
+     * 
+     * @author Alec Roelke
+     */
     private static class Indices
     {
+        /** Column index where cards' names can be found. Must be present. */
         public final int name;
+        /** Column index where cards' expansions can be found. */
         public final int expansion;
+        /** Column index where cards' collector numbers can be found. */
         public final int number;
+        /** Column index where cards' counts can be found. */
         public final int count;
+        /** Column index where cards' dates added can be found. */
         public final int date;
 
+        /**
+         * Create a new set of indices. Throw an exception if the index for cards'
+         * names is unknown (-1) and warn if the one for cards' counts is unknown.
+         * 
+         * @param n index for names
+         * @param e index for expansions
+         * @param m index for collector numbers
+         * @param c index for counts
+         * @param d index for dates
+         */
         public Indices(int n, int e, int m, int c, int d)
         {
             name = n;
@@ -98,7 +120,13 @@ public class DelimitedCardListFormat implements CardListFormat
      * Data types to include in the table.
      */
     private List<CardAttribute> types;
+    /**
+     * Current position in the text.
+     */
     private int pos;
+    /**
+     * Indices where identifying information can be found.
+     */
     private Indices indices;
 
     /**
@@ -149,6 +177,13 @@ public class DelimitedCardListFormat implements CardListFormat
             return "";
     }
 
+    /**
+     * Parse a delimited line to find which headers in the table contain which
+     * information.
+     * 
+     * @param line line to parse
+     * @throws ParseException if the line can't be parsed
+     */
     private void parseHeader(String line) throws ParseException
     {
         if (include)
@@ -185,6 +220,13 @@ public class DelimitedCardListFormat implements CardListFormat
         }
     }
 
+    /**
+     * Attempt to identify a card from a line of delimited text.
+     * 
+     * @param deck deck to add the parsed card to
+     * @param line line to parse
+     * @throws ParseException if the line can't be parsed
+     */
     private void parseLine(Deck deck, String line) throws ParseException
     {
         line = line.replace(ESCAPE + ESCAPE, ESCAPE);
@@ -205,7 +247,7 @@ public class DelimitedCardListFormat implements CardListFormat
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @throws IllegalStateException if card name isn't a column
      */
     @Override

@@ -30,7 +30,9 @@ public class TextCardListFormat implements CardListFormat
      * Default format for exporting card lists, which is {@value #DEFAULT_FORMAT}.
      */
     public static final String DEFAULT_FORMAT = "{count}x {name} ({expansion})";
-
+    /**
+     * Pattern used to determine the number of copies of a card in a deck.
+     */
     public static final Pattern COUNT_PATTERN = Pattern.compile("(?:^(?:\\d+x|x\\d+|\\d+)|(?:\\d+x|x\\d+|\\d+)$)");
 
     /**
@@ -61,6 +63,14 @@ public class TextCardListFormat implements CardListFormat
         return "";
     }
 
+    /**
+     * Attempt to identify which card a line references, along with other information such
+     * as count and date added.
+     * 
+     * @param deck deck to add the parsed card to
+     * @param line line to parse
+     * @throws ParseException if the line can't be parsed
+     */
     private void parseLine(Deck deck, String line) throws ParseException
     {
         var possibilities = MainFrame.inventory().stream().filter((c) -> line.contains(c.unifiedName().toLowerCase()) || c.name().stream().anyMatch((n) -> line.contains(n.toLowerCase()))).collect(Collectors.toList());

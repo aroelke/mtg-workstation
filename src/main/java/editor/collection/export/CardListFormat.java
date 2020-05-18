@@ -40,7 +40,7 @@ public interface CardListFormat
     String header();
 
     /**
-     * Parse a string for a list of cards.
+     * Parse a list of string for a list of cards.
      *
      * @param source string to parse, split by lines
      * @return list of cards containing values from the parsed string
@@ -48,5 +48,13 @@ public interface CardListFormat
      */
     CardList parse(List<String> source) throws ParseException;
 
+    /**
+     * Read an input stream and parse it for a list of cards.
+     * 
+     * @param source input stream to parse
+     * @return list of cards containing values from the parsed stream
+     * @throws ParseException if the stream cannot be parsed
+     * @throws IOException if the stream cannot be read
+     */
     CardList parse(InputStream source) throws ParseException, IOException;
 }
