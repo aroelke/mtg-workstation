@@ -1,9 +1,7 @@
 package editor.collection.export;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -97,12 +95,18 @@ public class TextCardListFormat implements CardListFormat
     public CardList parse(InputStream source) throws ParseException, IOException
     {
         Deck deck = new Deck();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(source)))
+        int c;
+        StringBuilder line = new StringBuilder(128);
+        while ((c = source.read()) >= 0)
         {
-            String line;
-            while ((line = reader.readLine()) != null)
-                parseLine(deck, line.trim().toLowerCase());
+            if (c != '\r' && c != '\n')
+                line.append((char)c);
+            if (c == '\n')
+            {
+                parseLine(deck, line.toString().trim().toLowerCase());
+                line.setLength(0);
+            }
         }
-        return null;
+        return deck;
     }
 }

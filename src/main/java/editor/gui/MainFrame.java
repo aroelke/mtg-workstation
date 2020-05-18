@@ -704,7 +704,7 @@ public class MainFrame extends JFrame
                     DeckSerializer manager = new DeckSerializer();
                     try
                     {
-                        manager.importList(format, importChooser.getSelectedFile());
+                        manager.importList(format, importChooser.getSelectedFile(), this);
                     }
                     catch (DeckLoadException x)
                     {
