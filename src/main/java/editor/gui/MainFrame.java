@@ -834,7 +834,8 @@ public class MainFrame extends JFrame
                 }
                 else if (exportChooser.getFileFilter() == delimited)
                 {
-                    JPanel wizardPanel = new JPanel(new BorderLayout());
+                    var panels = new ArrayList<JPanel>();
+                    JPanel dataPanel = new JPanel(new BorderLayout());
                     var headersList = new JList<>(CardAttribute.displayableValues());
                     JScrollPane headersPane = new JScrollPane(headersList);
                     Box headersPanel = new Box(BoxLayout.X_AXIS);
@@ -862,7 +863,7 @@ public class MainFrame extends JFrame
                     headersPanel.add(moveButtons);
                     headersPanel.add(Box.createHorizontalStrut(5));
                     headersPanel.add(headersPane);
-                    wizardPanel.add(headersPanel, BorderLayout.CENTER);
+                    dataPanel.add(headersPanel, BorderLayout.CENTER);
 
                     rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((v) -> {
                         var selected = selectedHeadersList.getSelectedValuesList();
@@ -927,9 +928,45 @@ public class MainFrame extends JFrame
                     JCheckBox includeCheckBox = new JCheckBox("Include Headers");
                     includeCheckBox.setSelected(true);
                     optionsPanel.add(includeCheckBox);
-                    wizardPanel.add(optionsPanel, BorderLayout.SOUTH);
+                    dataPanel.add(optionsPanel, BorderLayout.SOUTH);
+                    panels.add(dataPanel);
 
-                    if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
+                    if (!extras.isEmpty())
+                    {
+                        JPanel extrasPanel = new JPanel(new BorderLayout());
+                        extrasPanel.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, extrasPanel.getBackground()));
+                        TristateCheckBox includeExtras = new TristateCheckBox("Include additional lists:", TristateCheckBox.State.SELECTED);
+                        extrasPanel.add(includeExtras, BorderLayout.NORTH);
+                        extrasPanel.setBackground(UIManager.getColor("List.background"));
+                        Box extrasList = new Box(BoxLayout.Y_AXIS);
+                        extrasList.setBorder(BorderFactory.createLineBorder(UIManager.getColor("List.dropLineColor")));
+                        for (String extra : extras.keySet())
+                        {
+                            JCheckBox extraBox = new JCheckBox(extra, extras.get(extra));
+                            extraBox.setBackground(extrasPanel.getBackground());
+                            extraBox.addActionListener((v) -> {
+                                extras.put(extra, extraBox.isSelected());
+                                long n = extras.values().stream().filter((b) -> b).count();
+                                if (n == 0)
+                                    includeExtras.setSelected(false);
+                                else if (n < extras.size())
+                                    includeExtras.setState(TristateCheckBox.State.INDETERMINATE);
+                                else // n == extra.size()
+                                    includeExtras.setSelected(true);
+                                SwingUtilities.invokeLater(() -> includeExtras.repaint());
+                            });
+                            includeExtras.addActionListener((v) -> {
+                                extraBox.setSelected(includeExtras.getState() == TristateCheckBox.State.SELECTED);
+                                extras.put(extra, extraBox.isSelected());
+                                SwingUtilities.invokeLater(() -> extraBox.repaint());
+                            });
+                            extrasList.add(extraBox);
+                        }
+                        extrasPanel.add(extrasList, BorderLayout.CENTER);
+                        panels.add(extrasPanel);
+                    }
+
+                    if (WizardDialog.showWizardDialog(this, "Export Wizard", panels) == WizardDialog.FINISH_OPTION)
                     {
                         var selected = new ArrayList<CardAttribute>(selectedHeadersModel.size());
                         for (int i = 0; i < selectedHeadersModel.size(); i++)
