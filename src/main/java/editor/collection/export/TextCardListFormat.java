@@ -6,6 +6,8 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -16,6 +18,7 @@ import editor.collection.CardList;
 import editor.collection.deck.Deck;
 import editor.database.card.CardFormat;
 import editor.gui.MainFrame;
+import editor.gui.editor.DeckSerializer;
 
 /**
  * This class represents a formatter that formats a card list according to a
@@ -92,9 +95,11 @@ public class TextCardListFormat implements CardListFormat
     }
 
     @Override
-    public CardList parse(InputStream source) throws ParseException, IOException
+    public DeckSerializer parse(InputStream source) throws ParseException, IOException
     {
         Deck deck = new Deck();
+        Optional<String> extra = Optional.empty();
+        var extras = new LinkedHashMap<String, Deck>();
         int c;
         StringBuilder line = new StringBuilder(128);
         while ((c = source.read()) >= 0)
@@ -103,10 +108,18 @@ public class TextCardListFormat implements CardListFormat
                 line.append((char)c);
             if (c == '\n')
             {
-                parseLine(deck, line.toString().trim().toLowerCase());
+                try
+                {
+                    parseLine(extra.map(extras::get).orElse(deck), line.toString().trim().toLowerCase());
+                }
+                catch (ParseException e)
+                {
+                    extra = Optional.of(line.toString().trim());
+                    extras.put(extra.get(), new Deck());
+                }
                 line.setLength(0);
             }
         }
-        return deck;
+        return new DeckSerializer(deck, extras, "");
     }
 }

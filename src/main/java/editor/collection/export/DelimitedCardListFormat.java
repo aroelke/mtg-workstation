@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.database.card.CardFormat;
 import editor.gui.MainFrame;
+import editor.gui.editor.DeckSerializer;
 
 /**
  * This class represents a formatter that creates a table whose columns
@@ -246,7 +248,7 @@ public class DelimitedCardListFormat implements CardListFormat
     }
 
     @Override
-    public CardList parse(InputStream source) throws ParseException, IOException
+    public DeckSerializer parse(InputStream source) throws ParseException, IOException
     {
         Deck deck = new Deck();
         pos = 0;
@@ -266,6 +268,6 @@ public class DelimitedCardListFormat implements CardListFormat
             }
             pos++;
         }
-        return deck;
+        return new DeckSerializer(deck, new HashMap<String, Deck>(), "");
     }
 }

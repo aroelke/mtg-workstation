@@ -256,7 +256,9 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
             throw new DeckLoadException(file, "deck already loaded");
 
         LoadWorker worker = new LoadWorker(file, parent, (s) -> {
-            deck.addAll(format.parse(s));
+            DeckSerializer loaded = format.parse(s);
+            deck = loaded.deck;
+            sideboard = loaded.sideboard;
             imported = true;
         });
         worker.executeAndDisplay();

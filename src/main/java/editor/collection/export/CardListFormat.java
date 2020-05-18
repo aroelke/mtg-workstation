@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 
 import editor.collection.CardList;
+import editor.gui.editor.DeckSerializer;
 
 /**
  * This is an interface for formatting a list of cards.  It can format
@@ -46,5 +47,5 @@ public interface CardListFormat
      * @throws ParseException if the stream cannot be parsed
      * @throws IOException if the stream cannot be read
      */
-    CardList parse(InputStream source) throws ParseException, IOException;
+    DeckSerializer parse(InputStream source) throws ParseException, IOException;
 }
