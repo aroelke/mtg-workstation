@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +125,7 @@ import editor.gui.generic.DocumentChangeListener;
 import editor.gui.generic.OverwriteFileChooser;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
+import editor.gui.generic.TristateCheckBox;
 import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
 import editor.gui.inventory.InventoryDownloader;
@@ -736,21 +738,57 @@ public class MainFrame extends JFrame
             {
             case JFileChooser.APPROVE_OPTION:
                 CardListFormat format;
+                Map<String, Boolean> extras = new LinkedHashMap<>();
+                for (String extra : f.getExtraNames())
+                    extras.put(extra, true);
                 if (exportChooser.getFileFilter() == text)
                 {
-                    JPanel wizardPanel = new JPanel(new BorderLayout());
-                    JPanel fieldPanel = new JPanel(new BorderLayout());
+                    Box wizardPanel = new Box(BoxLayout.Y_AXIS);
+                    Box fieldPanel = new Box(BoxLayout.Y_AXIS);
                     fieldPanel.setBorder(BorderFactory.createTitledBorder("List Format:"));
                     JTextField formatField = new JTextField(TextCardListFormat.DEFAULT_FORMAT);
                     formatField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, formatField.getFont().getSize()));
                     formatField.setColumns(50);
-                    fieldPanel.add(formatField, BorderLayout.CENTER);
+                    fieldPanel.add(formatField);
                     JPanel addDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                     addDataPanel.add(new JLabel("Add Data: "));
                     var addDataBox = new JComboBox<>(CardAttribute.displayableValues());
+                    fieldPanel.add(addDataPanel);
                     addDataPanel.add(addDataBox);
-                    fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
-                    wizardPanel.add(fieldPanel, BorderLayout.NORTH);
+                    if (!extras.isEmpty())
+                    {
+                        JPanel extrasPanel = new JPanel(new BorderLayout());
+                        TristateCheckBox includeExtras = new TristateCheckBox("Include additional lists:", TristateCheckBox.State.SELECTED);
+                        extrasPanel.add(includeExtras, BorderLayout.NORTH);
+                        extrasPanel.setBackground(UIManager.getColor("List.background"));
+                        Box extrasList = new Box(BoxLayout.Y_AXIS);
+                        extrasList.setBorder(BorderFactory.createLineBorder(UIManager.getColor("List.dropLineColor")));
+                        for (String extra : extras.keySet())
+                        {
+                            JCheckBox extraBox = new JCheckBox(extra, extras.get(extra));
+                            extraBox.setBackground(extrasPanel.getBackground());
+                            extraBox.addActionListener((v) -> {
+                                extras.put(extra, extraBox.isSelected());
+                                long n = extras.values().stream().filter((b) -> b).count();
+                                if (n == 0)
+                                    includeExtras.setSelected(false);
+                                else if (n < extras.size())
+                                    includeExtras.setState(TristateCheckBox.State.INDETERMINATE);
+                                else // n == extra.size()
+                                    includeExtras.setSelected(true);
+                                SwingUtilities.invokeLater(() -> includeExtras.repaint());
+                            });
+                            includeExtras.addActionListener((v) -> {
+                                extraBox.setSelected(includeExtras.getState() == TristateCheckBox.State.SELECTED);
+                                extras.put(extra, extraBox.isSelected());
+                                SwingUtilities.invokeLater(() -> extraBox.repaint());
+                            });
+                            extrasList.add(extraBox);
+                        }
+                        extrasPanel.add(extrasList, BorderLayout.CENTER);
+                        fieldPanel.add(extrasPanel);
+                    }
+                    wizardPanel.add(fieldPanel);
 
                     if (f.getDeck().total() > 0 || f.getExtraCards().total() > 0)
                     {
@@ -909,7 +947,7 @@ public class MainFrame extends JFrame
 
                 try
                 {
-                    f.export(format, exportChooser.getSelectedFile());
+                    f.export(format, extras.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList()), exportChooser.getSelectedFile());
                 }
                 catch (UnsupportedEncodingException | FileNotFoundException x)
                 {
