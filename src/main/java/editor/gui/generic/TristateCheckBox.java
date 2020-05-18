@@ -3,8 +3,9 @@ package editor.gui.generic;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
@@ -36,28 +37,6 @@ public class TristateCheckBox extends JCheckBox
      * Amount of the image the square should fill.
      */
     private static final double ICON_FILL = 2.0/3.0;
-
-    /**
-     * When the check box is clicked, toggle its state.  If the state is
-     * indeterminate, change it to being unselected.
-     */
-    private class ClickListener implements ActionListener
-    {
-        @Override
-        public void actionPerformed(ActionEvent e)
-        {
-            switch (state)
-            {
-            case SELECTED: case INDETERMINATE:
-                setState(State.UNSELECTED);
-                break;
-            case UNSELECTED:
-                state = State.SELECTED;
-                setState(State.SELECTED);
-                break;
-            }
-        }
-    }
 
     /**
      * Icon for a TristateCheckBox.  Draws a normal check box icon, but
@@ -110,6 +89,7 @@ public class TristateCheckBox extends JCheckBox
      * State of this TristateCheckBox.
      */
     private State state;
+    private Set<ActionListener> listeners;
 
     /**
      * Create a new TristateCheckBox with the specified text and state.
@@ -119,11 +99,19 @@ public class TristateCheckBox extends JCheckBox
      */
     public TristateCheckBox(String text, State s)
     {
-        super(text, s != State.UNSELECTED);
+        super(text, s == State.SELECTED);
         setState(s);
+        listeners = new HashSet<>();
         setIcon(new IndeterminateIcon(UIManager.getColor("CheckBox.foreground")));
         setRolloverIcon(new IndeterminateIcon(UIManager.getColor("CheckBox.foreground")));
-        addActionListener(new ClickListener());
+        super.addActionListener((e) -> {
+            setState(switch (state) {
+                case SELECTED, INDETERMINATE -> State.UNSELECTED;
+                case UNSELECTED -> State.SELECTED;
+            });
+            for (ActionListener l : listeners)
+                l.actionPerformed(e);
+        });
     }
 
     /**
@@ -184,5 +172,29 @@ public class TristateCheckBox extends JCheckBox
     {
         state = s;
         super.setSelected(state == State.SELECTED);
+    }
+
+    @Override
+    public boolean isSelected()
+    {
+        return state == State.SELECTED;
+    }
+
+    @Override
+    public void addActionListener(ActionListener l)
+    {
+        listeners.add(l);
+    }
+
+    @Override
+    public void removeActionListener(ActionListener l)
+    {
+        listeners.remove(l);
+    }
+
+    @Override
+    public ActionListener[] getActionListeners()
+    {
+        return listeners.toArray(new ActionListener[listeners.size()]);
     }
 }
