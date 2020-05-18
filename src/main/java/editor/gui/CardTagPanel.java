@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import editor.database.card.Card;
 import editor.gui.generic.ScrollablePanel;
@@ -289,11 +290,11 @@ public class CardTagPanel extends ScrollablePanel
             for (String tag : tags)
             {
                 JPanel tagPanel = new JPanel();
-                tagPanel.setBackground(Color.WHITE);
+                tagPanel.setBackground(UIManager.getColor("List.background"));
                 tagPanel.setLayout(new BorderLayout());
 
                 final TristateCheckBox tagBox = tagBoxes.stream().filter((t) -> t.getText().equals(tag)).findFirst().orElse(new TristateCheckBox(tag));
-                tagBox.setBackground(Color.WHITE);
+                tagBox.setBackground(tagPanel.getBackground());
                 tagPanel.add(tagBox, BorderLayout.WEST);
                 tagBoxes.add(tagBox);
 
