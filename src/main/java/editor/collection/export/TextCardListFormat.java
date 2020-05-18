@@ -6,7 +6,6 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -90,15 +89,6 @@ public class TextCardListFormat implements CardListFormat
         Matcher countMatcher = COUNT_PATTERN.matcher(line);
         LocalDate date = new Parser().parse(line).stream().flatMap((g) -> g.getDates().stream()).findFirst().orElse(new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         deck.add(possibilities.get(0), countMatcher.find() ? Integer.parseInt(countMatcher.group().replace("x", "")) : 1, date);
-    }
-
-    @Override
-    public CardList parse(List<String> source) throws ParseException
-    {
-        Deck deck = new Deck();
-        for (String line : source)
-            parseLine(deck, line.trim().toLowerCase());
-        return deck;
     }
 
     @Override

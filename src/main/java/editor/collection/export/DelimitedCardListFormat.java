@@ -245,34 +245,6 @@ public class DelimitedCardListFormat implements CardListFormat
         deck.add(possibilities.get(0), indices.count < 0 ? 1 : Integer.parseInt(cells[indices.count]), indices.date < 0 ? LocalDate.now() : LocalDate.parse(cells[indices.date], Deck.DATE_FORMATTER));
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @throws IllegalStateException if card name isn't a column
-     */
-    @Override
-    public CardList parse(List<String> source) throws ParseException, IllegalStateException
-    {
-        var lines = new ArrayList<>(source);
-
-        pos = 0;
-        if (!include)
-        {
-            parseHeader(lines.get(0));
-            pos += lines.get(0).length();
-            lines.remove(0);
-        }
-
-        Deck deck = new Deck();
-        for (String line : lines)
-        {
-            parseLine(deck, line);
-            pos += line.length();
-        }
-
-        return deck;
-    }
-
     @Override
     public CardList parse(InputStream source) throws ParseException, IOException
     {

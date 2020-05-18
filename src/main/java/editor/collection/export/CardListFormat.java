@@ -3,7 +3,6 @@ package editor.collection.export;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.List;
 
 import editor.collection.CardList;
 
@@ -38,15 +37,6 @@ public interface CardListFormat
      * doesn't contain headers, it should be the empty String.
      */
     String header();
-
-    /**
-     * Parse a list of string for a list of cards.
-     *
-     * @param source string to parse, split by lines
-     * @return list of cards containing values from the parsed string
-     * @throws ParseException if the string cannot be parsed
-     */
-    CardList parse(List<String> source) throws ParseException;
 
     /**
      * Read an input stream and parse it for a list of cards.
