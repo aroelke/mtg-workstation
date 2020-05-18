@@ -1794,6 +1794,14 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
+     * @return the names of all the extra lists.
+     */
+    public List<String> getExtraNames()
+    {
+        return new ArrayList<>(extras.keySet());
+    }
+
+    /**
      * @return the name of the extra list corresponding to the selected tab.
      */
     public Optional<String> getSelectedExtraName()
