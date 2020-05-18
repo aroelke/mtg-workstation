@@ -70,7 +70,7 @@ public class WizardDialog extends JDialog
      * @param panels panels representing steps of the wizard
      * @return a value indicating how the dialog was closed
      */
-    public static int showWizardDialog(Component owner, String title, List<Component> panels)
+    public static int showWizardDialog(Component owner, String title, List<? extends Component> panels)
     {
         return showWizardDialog(owner, title, panels.toArray(new Component[panels.size()]));
     }
