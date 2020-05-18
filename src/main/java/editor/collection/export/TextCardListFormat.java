@@ -102,11 +102,12 @@ public class TextCardListFormat implements CardListFormat
         var extras = new LinkedHashMap<String, Deck>();
         int c;
         StringBuilder line = new StringBuilder(128);
-        while ((c = source.read()) >= 0)
+        do
         {
-            if (c != '\r' && c != '\n')
+            c = source.read();
+            if (c >= 0 && c != '\r' && c != '\n')
                 line.append((char)c);
-            if (c == '\n')
+            if (c == '\n' || c < 0)
             {
                 try
                 {
@@ -119,7 +120,7 @@ public class TextCardListFormat implements CardListFormat
                 }
                 line.setLength(0);
             }
-        }
+        } while (c >= 0);
         return new DeckSerializer(deck, extras, "");
     }
 }

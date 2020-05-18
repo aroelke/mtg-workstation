@@ -5,8 +5,9 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -251,23 +252,40 @@ public class DelimitedCardListFormat implements CardListFormat
     public DeckSerializer parse(InputStream source) throws ParseException, IOException
     {
         Deck deck = new Deck();
+        Optional<String> extra = Optional.empty();
+        var extras = new LinkedHashMap<String, Deck>();
         pos = 0;
         int c;
         StringBuilder line = new StringBuilder(128);
-        while ((c = source.read()) >= 0)
+        boolean headed = false;
+        do
         {
-            if (c != '\r' && c != '\n')
+            c = source.read();
+            if (c >= 0 && c != '\r' && c != '\n')
                 line.append((char)c);
-            if (c == '\n')
+            if (c == '\n' || c < 0)
             {
-                if (pos == 0 && !include)
+                if (!headed && !include)
+                {
                     parseHeader(line.toString());
+                    headed = true;
+                }
                 else
-                    parseLine(deck, line.toString());
+                {
+                    try
+                    {
+                        parseLine(extra.map(extras::get).orElse(deck), line.toString());
+                    }
+                    catch (ParseException e)
+                    {
+                        extra = Optional.of(line.toString());
+                        extras.put(extra.get(), new Deck());
+                    }
+                }
                 line.setLength(0);
             }
             pos++;
-        }
-        return new DeckSerializer(deck, new HashMap<String, Deck>(), "");
+        } while (c >= 0);
+        return new DeckSerializer(deck, extras, "");
     }
 }
