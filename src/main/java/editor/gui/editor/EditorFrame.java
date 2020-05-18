@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -1752,11 +1753,13 @@ public class EditorFrame extends JInternalFrame
      * Export the deck to a different format.
      *
      * @param format formatter to use for export
-     * @param file   file to export to
+     * @param file file to export to
+     * @param extraNames names of extra lists to include in the export
      * @throws UnsupportedEncodingException
-     * @throws FileNotFoundException
+     * @throws FileNotFoundException if the file can't be opened
+     * @throws NoSuchElementException if any of the named extra lists aren't in the deck
      */
-    public void export(CardListFormat format, File file) throws UnsupportedEncodingException, FileNotFoundException
+    public void export(CardListFormat format, List<String> extraNames, File file) throws UnsupportedEncodingException, FileNotFoundException, NoSuchElementException
     {
         try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF8")))
         {
@@ -1764,11 +1767,13 @@ public class EditorFrame extends JInternalFrame
                 wr.println(format.header());
             if (!deck.current.isEmpty())
                 wr.print(format.format(deck.current));
-            for (var extra : extras.entrySet())
+            for (var extra : extraNames)
             {
+                if (!extras.containsKey(extra))
+                    throw new NoSuchElementException("No extra list named " + extra);
                 wr.println();
-                wr.println(extra.getKey());
-                wr.print(format.format(extra.getValue().current));
+                wr.println(extra);
+                wr.print(format.format(extras.get(extra).current));
             }
         }
     }
