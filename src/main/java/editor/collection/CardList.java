@@ -3,6 +3,7 @@ package editor.collection;
 import java.awt.datatransfer.DataFlavor;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -343,4 +344,11 @@ public interface CardList extends Iterable<Card>
      * @see CardList#size()
      */
     int total();
+
+    /**
+     * Sort this CardList according to a comparator that compares entries.
+     * 
+     * @param c comparator to compare entries
+     */
+    void sort(Comparator<? super Entry> c);
 }

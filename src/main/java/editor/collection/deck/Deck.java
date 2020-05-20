@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -280,6 +281,12 @@ public class Deck implements CardList
                 else
                     e.categories.remove(this);
             }
+        }
+
+        @Override
+        public void sort(Comparator<? super CardList.Entry> c)
+        {
+            throw new UnsupportedOperationException("Only the main deck can be sorted");
         }
     }
 
@@ -1055,5 +1062,13 @@ public class Deck implements CardList
         }
         else
             throw new IllegalArgumentException("No category named " + name + " found");
+    }
+
+    @Override
+    public void sort(Comparator<? super CardList.Entry> c)
+    {
+        masterList.sort(c);
+        for (Category category : categories.values())
+            category.filtrate.sort((a, b) -> c.compare(getEntry(a), getEntry(b)));
     }
 }

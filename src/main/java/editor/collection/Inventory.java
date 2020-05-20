@@ -436,9 +436,9 @@ public class Inventory implements CardList
      *
      * @param comp Comparator to use for sorting
      */
-    public void sort(Comparator<Card> comp)
+    public void sort(Comparator<? super CardList.Entry> c)
     {
-        cards.sort(comp);
+        cards.sort((a, b) -> c.compare(new InventoryEntry(a), new InventoryEntry(b)));
     }
 
     /**

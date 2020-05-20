@@ -1759,21 +1759,32 @@ public class EditorFrame extends JInternalFrame
      * @throws FileNotFoundException if the file can't be opened
      * @throws NoSuchElementException if any of the named extra lists aren't in the deck
      */
-    public void export(CardListFormat format, List<String> extraNames, File file) throws UnsupportedEncodingException, FileNotFoundException, NoSuchElementException
+    public void export(CardListFormat format, Comparator<? super CardList.Entry> comp, List<String> extraNames, File file) throws UnsupportedEncodingException, FileNotFoundException, NoSuchElementException
     {
         try (PrintWriter wr = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF8")))
         {
+            Deck copy;
+
             if (format.hasHeader())
                 wr.println(format.header());
             if (!deck.current.isEmpty())
-                wr.print(format.format(deck.current));
+            {
+                copy = new Deck(deck.current);
+                copy.sort(comp);
+                wr.print(format.format(copy));
+            }
             for (var extra : extraNames)
             {
                 if (!extras.containsKey(extra))
                     throw new NoSuchElementException("No extra list named " + extra);
-                wr.println();
-                wr.println(extra);
-                wr.print(format.format(extras.get(extra).current));
+                if (!extras.get(extra).current.isEmpty())
+                {
+                    copy = new Deck(extras.get(extra).current);
+                    copy.sort(comp);
+                    wr.println();
+                    wr.println(extra);
+                    wr.print(format.format(copy));
+                }
             }
         }
     }

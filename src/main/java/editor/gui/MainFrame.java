@@ -741,6 +741,21 @@ public class MainFrame extends JFrame
                 Map<String, Boolean> extras = new LinkedHashMap<>();
                 for (String extra : f.getExtraNames())
                     extras.put(extra, true);
+
+                // Common pieces of the wizard
+                JPanel sortPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                JCheckBox sortCheck = new JCheckBox("Sort by:", true);
+                sortPanel.add(sortCheck);
+                var sortBox = new JComboBox<>(new CardAttribute[] {
+                    CardAttribute.NAME,
+                    CardAttribute.COUNT,
+                    CardAttribute.DATE_ADDED,
+                    CardAttribute.MANA_COST
+                });
+                sortCheck.addItemListener((v) -> sortBox.setEnabled(sortCheck.isSelected()));
+                sortPanel.add(sortBox);
+
+                // File-format-specific pieces of the wizard
                 if (exportChooser.getFileFilter() == text)
                 {
                     Box wizardPanel = new Box(BoxLayout.Y_AXIS);
@@ -828,6 +843,9 @@ public class MainFrame extends JFrame
                         extrasPanel.add(extrasList, BorderLayout.CENTER);
                         wizardPanel.add(extrasPanel);
                     }
+
+                    if (f.getDeck().total() > 0 || f.getExtraCards().total() > 0)
+                        wizardPanel.add(sortPanel);
 
                     if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
                         format = new TextCardListFormat(formatField.getText());
@@ -986,7 +1004,12 @@ public class MainFrame extends JFrame
 
                 try
                 {
-                    f.export(format, extras.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList()), exportChooser.getSelectedFile());
+                    f.export(
+                        format,
+                        sortCheck.isSelected() ? sortBox.getItemAt(sortBox.getSelectedIndex()).comparingCard() : (a, b) -> 0,
+                        extras.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList()),
+                        exportChooser.getSelectedFile()
+                    );
                 }
                 catch (UnsupportedEncodingException | FileNotFoundException x)
                 {
@@ -1744,7 +1767,7 @@ public class MainFrame extends JFrame
     {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         inventory = InventoryLoader.loadInventory(this, inventoryFile);
-        inventory.sort(Card::compareName);
+        inventory.sort(CardAttribute.NAME.comparingCard());
         inventoryModel = new CardTableModel(inventory, SettingsDialog.settings().inventory.columns);
         inventoryTable.setModel(inventoryModel);
         setCursor(Cursor.getDefaultCursor());
