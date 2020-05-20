@@ -196,7 +196,7 @@ public class SettingsBuilder
         recentsFiles = Collections.emptyList();
         categoryRows = 6;
         explicits = 3;
-        editorColumns = List.of(NAME, COUNT, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, DATE_ADDED);
+        editorColumns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED);
         editorStripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
         handSize = 7;
         handRounding = "No rounding";

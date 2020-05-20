@@ -758,12 +758,12 @@ public class SettingsDialog extends JDialog
                 .inventoryLocation(inventoryDirField.getText())
                 .inventoryUpdate(updateBox.getItemAt(updateBox.getSelectedIndex()))
                 .inventoryWarn(suppressCheckBox.isSelected())
-                .inventoryColumns(inventoryColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.fromString(c.getText())).collect(Collectors.toList()))
+                .inventoryColumns(inventoryColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.fromString(c.getText())).sorted().collect(Collectors.toList()))
                 .inventoryStripe(inventoryStripeColor.getColor())
                 .recentsCount((Integer)recentSpinner.getValue())
                 .explicits((Integer)explicitsSpinner.getValue())
                 .categoryRows((Integer)rowsSpinner.getValue())
-                .editorColumns(editorColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.fromString(c.getText())).collect(Collectors.toList()))
+                .editorColumns(editorColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.fromString(c.getText())).sorted().collect(Collectors.toList()))
                 .editorStripe(editorStripeColor.getColor())
                 .presetCategories(presets)
                 .handSize((Integer)startingSizeSpinner.getValue())
@@ -778,25 +778,9 @@ public class SettingsDialog extends JDialog
         }
 
         if (settings.inventory.columns.isEmpty())
-        {
-            settings = new SettingsBuilder(settings).inventoryColumns(
-                CardAttribute.NAME,
-                CardAttribute.EXPANSION,
-                CardAttribute.MANA_COST,
-                CardAttribute.TYPE_LINE
-            ).build();
-        }
+            settings = new SettingsBuilder(settings).inventoryColumns(new SettingsBuilder().defaults().build().inventory.columns).build();
         if (settings.editor.columns.isEmpty())
-        {
-            settings = new SettingsBuilder(settings).editorColumns(
-                CardAttribute.NAME,
-                CardAttribute.COUNT,
-                CardAttribute.MANA_COST,
-                CardAttribute.TYPE_LINE,
-                CardAttribute.EXPANSION,
-                CardAttribute.RARITY
-            ).build();
-        }
+            settings = new SettingsBuilder(settings).editorColumns(new SettingsBuilder().defaults().build().editor.columns).build();
 
         parent.applySettings();
     }
