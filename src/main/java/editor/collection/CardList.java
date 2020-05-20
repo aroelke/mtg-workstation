@@ -3,7 +3,6 @@ package editor.collection;
 import java.awt.datatransfer.DataFlavor;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -226,9 +225,6 @@ public interface CardList extends Iterable<Card>
      * @return true if this CardList contains no cards, and false otherwise.
      */
     boolean isEmpty();
-
-    @Override
-    Iterator<Card> iterator();
 
     /**
      * Returns a possibly parallel Stream with this CardList as its source.
