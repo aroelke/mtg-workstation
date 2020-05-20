@@ -14,9 +14,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import editor.collection.CardList;
 import editor.collection.Inventory;
 import editor.collection.deck.CategorySpec;
-import editor.collection.deck.Deck;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.filter.Filter;
@@ -328,7 +328,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
      * <code>a</code> is smaller according to this attribute, greater than 1 means
      * <code>b</code> is smaller, and 0 means both are equal.
      */
-    public int comparingCard(Deck.Entry a, Deck.Entry b)
+    public int comparingCard(CardList.Entry a, CardList.Entry b)
     {
         return comparing.map((c) -> c.compare(a.get(this), b.get(this))).orElse(0);
     }
