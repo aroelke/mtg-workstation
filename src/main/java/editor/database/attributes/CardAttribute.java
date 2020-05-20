@@ -320,16 +320,10 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     }
 
     /**
-     * Compare two entries in a deck using this attribute.
-     * 
-     * @param a first entry for comparison
-     * @param b second entry for comparison
-     * @return An integer representing the comparison. A value less than 1 means
-     * <code>a</code> is smaller according to this attribute, greater than 1 means
-     * <code>b</code> is smaller, and 0 means both are equal.
+     * @return A comparator that compares two card list entries according to this attribute.
      */
-    public int comparingCard(CardList.Entry a, CardList.Entry b)
+    public Comparator<CardList.Entry> comparingCard()
     {
-        return comparing.map((c) -> c.compare(a.get(this), b.get(this))).orElse(0);
+        return (a, b) -> comparing.map((c) -> c.compare(a.get(this), b.get(this))).orElse(0);
     }
 }
