@@ -5,8 +5,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,12 +17,10 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import editor.collection.deck.CategorySpec;
 import editor.database.attributes.CardAttribute;
 import editor.database.attributes.CombatStat;
 import editor.database.attributes.Loyalty;
 import editor.database.attributes.ManaCost;
-import editor.database.attributes.ManaType;
 import editor.database.card.Card;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.InclusionCellEditor;
@@ -87,18 +83,9 @@ public class CardTable extends JTable
             if (model instanceof CardTableModel)
             {
                 boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
-                return switch (((CardTableModel)model).getColumnData(column)) {
-                    case MANA_COST -> Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0));
-                    case CMC -> Comparator.comparingDouble((a) -> Collections.min(CollectionUtils.convertToList(a, Double.class)));
-                    case COLORS, COLOR_IDENTITY -> (a, b) -> {
-                        var first = CollectionUtils.convertToList(a, ManaType.class);
-                        var second = CollectionUtils.convertToList(b, ManaType.class);
-                        int diff = first.size() - second.size();
-                        if (diff == 0)
-                            for (int i = 0; i < first.size(); i++)
-                                diff += first.get(i).compareTo(second.get(i)) * Math.pow(10, first.size() - i);
-                        return diff;
-                    };
+                CardAttribute attribute = ((CardTableModel)model).getColumnData(column);
+                // Have to special-case P/T/L so they are always last if missing
+                return switch (attribute) {
                     case POWER, TOUGHNESS -> (a, b) -> {
                         CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
                         CombatStat second = CollectionUtils.convertToList(b, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
@@ -123,20 +110,7 @@ public class CardTable extends JTable
                         else
                             return first.compareTo(second);
                     };
-                    case CATEGORIES -> (a, b) -> {
-                        var first = new ArrayList<>(CollectionUtils.convertToSet(a, CategorySpec.class));
-                        var second = new ArrayList<>(CollectionUtils.convertToSet(b, CategorySpec.class));
-                        first.sort(Comparator.comparing(CategorySpec::getName));
-                        second.sort(Comparator.comparing(CategorySpec::getName));
-                        for (int i = 0; i < Math.min(first.size(), second.size()); i++)
-                        {
-                            int diff = first.get(i).getName().compareTo(second.get(i).getName());
-                            if (diff != 0)
-                                return diff;
-                        }
-                        return Integer.compare(first.size(), second.size());
-                    };
-                    default -> super.getComparator(column);
+                    default -> attribute;
                 };
             }
             else
