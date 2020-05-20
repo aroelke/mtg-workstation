@@ -755,39 +755,6 @@ public class MainFrame extends JFrame
                     var addDataBox = new JComboBox<>(CardAttribute.displayableValues());
                     fieldPanel.add(addDataPanel);
                     addDataPanel.add(addDataBox);
-                    if (!extras.isEmpty())
-                    {
-                        JPanel extrasPanel = new JPanel(new BorderLayout());
-                        TristateCheckBox includeExtras = new TristateCheckBox("Include additional lists:", TristateCheckBox.State.SELECTED);
-                        extrasPanel.add(includeExtras, BorderLayout.NORTH);
-                        extrasPanel.setBackground(UIManager.getColor("List.background"));
-                        Box extrasList = new Box(BoxLayout.Y_AXIS);
-                        extrasList.setBorder(BorderFactory.createLineBorder(UIManager.getColor("List.dropLineColor")));
-                        for (String extra : extras.keySet())
-                        {
-                            JCheckBox extraBox = new JCheckBox(extra, extras.get(extra));
-                            extraBox.setBackground(extrasPanel.getBackground());
-                            extraBox.addActionListener((v) -> {
-                                extras.put(extra, extraBox.isSelected());
-                                long n = extras.values().stream().filter((b) -> b).count();
-                                if (n == 0)
-                                    includeExtras.setSelected(false);
-                                else if (n < extras.size())
-                                    includeExtras.setState(TristateCheckBox.State.INDETERMINATE);
-                                else // n == extra.size()
-                                    includeExtras.setSelected(true);
-                                SwingUtilities.invokeLater(() -> includeExtras.repaint());
-                            });
-                            includeExtras.addActionListener((v) -> {
-                                extraBox.setSelected(includeExtras.getState() == TristateCheckBox.State.SELECTED);
-                                extras.put(extra, extraBox.isSelected());
-                                SwingUtilities.invokeLater(() -> extraBox.repaint());
-                            });
-                            extrasList.add(extraBox);
-                        }
-                        extrasPanel.add(extrasList, BorderLayout.CENTER);
-                        fieldPanel.add(extrasPanel);
-                    }
                     wizardPanel.add(fieldPanel);
 
                     if (f.getDeck().total() > 0 || f.getExtraCards().total() > 0)
@@ -825,6 +792,41 @@ public class MainFrame extends JFrame
                                 previewArea.setCaretPosition(0);
                             }
                         });
+                    }
+
+                    if (!extras.isEmpty())
+                    {
+                        JPanel extrasPanel = new JPanel(new BorderLayout());
+                        extrasPanel.setBorder(BorderFactory.createMatteBorder(0, 3, 0, 3, extrasPanel.getBackground()));
+                        TristateCheckBox includeExtras = new TristateCheckBox("Include additional lists:", TristateCheckBox.State.SELECTED);
+                        extrasPanel.add(includeExtras, BorderLayout.NORTH);
+                        extrasPanel.setBackground(UIManager.getColor("List.background"));
+                        Box extrasList = new Box(BoxLayout.Y_AXIS);
+                        extrasList.setBorder(BorderFactory.createLineBorder(UIManager.getColor("List.dropLineColor")));
+                        for (String extra : extras.keySet())
+                        {
+                            JCheckBox extraBox = new JCheckBox(extra, extras.get(extra));
+                            extraBox.setBackground(extrasPanel.getBackground());
+                            extraBox.addActionListener((v) -> {
+                                extras.put(extra, extraBox.isSelected());
+                                long n = extras.values().stream().filter((b) -> b).count();
+                                if (n == 0)
+                                    includeExtras.setSelected(false);
+                                else if (n < extras.size())
+                                    includeExtras.setState(TristateCheckBox.State.INDETERMINATE);
+                                else // n == extra.size()
+                                    includeExtras.setSelected(true);
+                                SwingUtilities.invokeLater(() -> includeExtras.repaint());
+                            });
+                            includeExtras.addActionListener((v) -> {
+                                extraBox.setSelected(includeExtras.getState() == TristateCheckBox.State.SELECTED);
+                                extras.put(extra, extraBox.isSelected());
+                                SwingUtilities.invokeLater(() -> extraBox.repaint());
+                            });
+                            extrasList.add(extraBox);
+                        }
+                        extrasPanel.add(extrasList, BorderLayout.CENTER);
+                        wizardPanel.add(extrasPanel);
                     }
 
                     if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
