@@ -493,6 +493,20 @@ public class Deck implements CardList
         land = 0;
     }
 
+    /**
+     * Create a new Deck that is a copy of another Deck.
+     * 
+     * @param d Deck to copy
+     */
+    public Deck(Deck d)
+    {
+        this();
+        for (DeckEntry e : d.masterList)
+            add(e.card, e.count, e.date);
+        for (Category c : d.categories.values())
+            this.addCategory(c.spec);
+    }
+
     @Override
     public boolean add(Card card)
     {

@@ -1858,9 +1858,7 @@ public class EditorFrame extends JInternalFrame
      */
     public CardList getDeck()
     {
-        Deck copy = new Deck();
-        copy.addAll(deck.current);
-        return copy;
+        return new Deck(deck.current);
     }
 
     /**
@@ -1875,11 +1873,7 @@ public class EditorFrame extends JInternalFrame
         if (name.isEmpty())
             return getDeck();
         else
-        {
-            Deck copy = new Deck();
-            copy.addAll(extras.get(name).current);
-            return copy;
-        }
+            return new Deck(extras.get(name).current);
     }
 
     /**
