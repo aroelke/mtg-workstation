@@ -40,8 +40,9 @@ import editor.filter.leaf.options.single.RarityFilter;
 import editor.util.CollectionUtils;
 
 /**
- * This enum represents a characteristic of a Magic: The Gathering card such as name, power, toughness,
- * etc.
+ * This enum represents an attribute of a Magic: The Gathering card such as name, power, toughness,
+ * etc. It can create a {@link Filter} for values of the attribute and compare two different values
+ * of the attribute. Generally an attribute that can be compared can also be displayed in a table.
  *
  * @author Alec Roelke
  */
@@ -229,6 +230,9 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
      * Function for creating a new filter for the attribute if it can be filtered.
      */
     private final Optional<Function<CardAttribute, FilterLeaf<?>>> filter;
+    /**
+     * Function for comparing the values of two attributes.
+     */
     private final Optional<Comparator<Object>> comparing;
 
     /**
@@ -237,6 +241,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
      * @param n name of the new CardAttribute
      * @param c class of the corresponding information on a card, if it can be displayed in a table
      * @param f function for generating a filter on the attribute, if it can be filtered
+     * @param comp function for comparing attributes, if it can be compared
      */
     private CardAttribute(String n, Optional<Class<?>> c, Optional<Function<CardAttribute, FilterLeaf<?>>> f, Optional<Comparator<Object>> comp)
     {
@@ -251,6 +256,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
      *
      * @param n name of the new CardAttribute
      * @param f function for generating a filter on the attribute
+     * @param comp function for comparing attributes
      */
     CardAttribute(String n, Class<?> c, Function<CardAttribute, FilterLeaf<?>> f, Comparator<Object> comp)
     {
@@ -263,6 +269,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
      *
      * @param n name of the new CardAttribute
      * @param c class of the corresponding information on a card, if it can be displayed in a table
+     * @param comp function for comparing attributes
      */
     CardAttribute(String n, Class<?> c, Comparator<Object> comp)
     {
@@ -312,6 +319,15 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
         return comparing.map((c) -> c.compare(a, b)).orElse(0);
     }
 
+    /**
+     * Compare two entries in a deck using this attribute.
+     * 
+     * @param a first entry for comparison
+     * @param b second entry for comparison
+     * @return An integer representing the comparison. A value less than 1 means
+     * <code>a</code> is smaller according to this attribute, greater than 1 means
+     * <code>b</code> is smaller, and 0 means both are equal.
+     */
     public int comparingCard(Deck.Entry a, Deck.Entry b)
     {
         return comparing.map((c) -> c.compare(a.get(this), b.get(this))).orElse(0);

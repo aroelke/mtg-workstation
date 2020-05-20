@@ -18,9 +18,8 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import editor.database.attributes.CardAttribute;
-import editor.database.attributes.CombatStat;
-import editor.database.attributes.Loyalty;
 import editor.database.attributes.ManaCost;
+import editor.database.attributes.OptionalAttribute;
 import editor.database.card.Card;
 import editor.gui.editor.EditorFrame;
 import editor.gui.editor.InclusionCellEditor;
@@ -86,9 +85,9 @@ public class CardTable extends JTable
                 CardAttribute attribute = ((CardTableModel)model).getColumnData(column);
                 // Have to special-case P/T/L so they are always last if missing
                 return switch (attribute) {
-                    case POWER, TOUGHNESS -> (a, b) -> {
-                        CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
-                        CombatStat second = CollectionUtils.convertToList(b, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
+                    case POWER, TOUGHNESS, LOYALTY -> (a, b) -> {
+                        OptionalAttribute first = CollectionUtils.convertToList(a, OptionalAttribute.class).stream().filter(OptionalAttribute::exists).findFirst().orElse(OptionalAttribute.empty());
+                        OptionalAttribute second = CollectionUtils.convertToList(b, OptionalAttribute.class).stream().filter(OptionalAttribute::exists).findFirst().orElse(OptionalAttribute.empty());
                         if (!first.exists() && !second.exists())
                             return 0;
                         else if (!first.exists())
@@ -96,19 +95,7 @@ public class CardTable extends JTable
                         else if (!second.exists())
                             return ascending ? -1 : 1;
                         else
-                            return first.compareTo(second);
-                    };
-                    case LOYALTY -> (a, b) -> {
-                        Loyalty first = CollectionUtils.convertToList(a, Loyalty.class).stream().filter(Loyalty::exists).findFirst().orElse(Loyalty.NO_LOYALTY);
-                        Loyalty second = CollectionUtils.convertToList(b, Loyalty.class).stream().filter(Loyalty::exists).findFirst().orElse(Loyalty.NO_LOYALTY);
-                        if (!first.exists() && !second.exists())
-                            return 0;
-                        else if (!first.exists())
-                            return ascending ? 1 : -1;
-                        else if (!second.exists())
-                            return ascending ? -1 : 1;
-                        else
-                            return first.compareTo(second);
+                            return attribute.compare(a, b);
                     };
                     default -> attribute;
                 };

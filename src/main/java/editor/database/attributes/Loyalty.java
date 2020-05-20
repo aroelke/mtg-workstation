@@ -10,7 +10,7 @@ import editor.database.card.Card;
  *
  * @author Alec Roelke
  */
-public class Loyalty implements Comparable<Loyalty>
+public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
 {
     /**
      * Constant for an arbitrary card with no loyalty.
@@ -65,10 +65,7 @@ public class Loyalty implements Comparable<Loyalty>
         return other != null && (other == this || other instanceof Loyalty && value == ((Loyalty)other).value);
     }
 
-    /**
-     * @return <code>true</code> if this Loyalty exists (is nonzero),
-     * and <code>false</code> otherwise.
-     */
+    @Override
     public boolean exists()
     {
         return value != 0;

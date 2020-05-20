@@ -7,7 +7,7 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-public class CombatStat implements Comparable<CombatStat>
+public class CombatStat implements OptionalAttribute, Comparable<CombatStat>
 {
     /**
      * Representation for a combat stat that doesn't exist.
@@ -72,12 +72,7 @@ public class CombatStat implements Comparable<CombatStat>
             return (int)(2.0 * value - 2.0 * o.value);
     }
 
-    /**
-     * Not all cards have power or toughness.  For those cards, a value of
-     * {@link Double#NaN} is used.
-     *
-     * @return true if this CombatStat exists, and false otherwise.
-     */
+    @Override
     public boolean exists()
     {
         return !Double.isNaN(value);
