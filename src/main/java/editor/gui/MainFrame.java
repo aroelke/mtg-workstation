@@ -743,12 +743,8 @@ public class MainFrame extends JFrame
                 JPanel sortPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
                 JCheckBox sortCheck = new JCheckBox("Sort by:", true);
                 sortPanel.add(sortCheck);
-                var sortBox = new JComboBox<>(new CardAttribute[] {
-                    CardAttribute.NAME,
-                    CardAttribute.COUNT,
-                    CardAttribute.DATE_ADDED,
-                    CardAttribute.MANA_COST
-                });
+                var sortBox = new JComboBox<>(CardAttribute.displayableValues());
+                sortBox.setSelectedItem(CardAttribute.NAME);
                 sortCheck.addItemListener((v) -> sortBox.setEnabled(sortCheck.isSelected()));
                 sortPanel.add(sortBox);
 
