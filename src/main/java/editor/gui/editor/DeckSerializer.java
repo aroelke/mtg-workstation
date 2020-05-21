@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -131,7 +130,10 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         @Override
         protected Void doInBackground() throws Exception
         {
-            background.accept(new ProgressInputStream(new FileInputStream(file), (a, b) -> publish(b.intValue())));
+            try (var pis = new ProgressInputStream(new FileInputStream(file), (a, b) -> publish(b.intValue())))
+            {
+                background.accept(pis);
+            }
             return null;
         }
 
@@ -244,17 +246,29 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
      *
      * @param format format of the file
      * @param file file to import from
+     * @param parent parent window used to display errors
      * @throws DeckLoadException if the deck could not be imported
      * @see CardListFormat
      */
-    public void importList(CardListFormat format, File file) throws DeckLoadException
+    public void importList(CardListFormat format, File file, Window parent) throws DeckLoadException
     {
         if (!deck.isEmpty())
             throw new DeckLoadException(file, "deck already loaded");
+
+        LoadWorker worker = new LoadWorker(file, parent, (s) -> {
+            DeckSerializer loaded = format.parse(s);
+            deck = loaded.deck;
+            sideboard = loaded.sideboard;
+            imported = true;
+        });
+        worker.executeAndDisplay();
         try
         {
-            deck.addAll(format.parse(String.join(System.lineSeparator(), Files.readAllLines(file.toPath()))));
-            imported = true;
+            worker.get();
+        }
+        catch (CancellationException e)
+        {
+            reset();
         }
         catch (Exception e)
         {
@@ -270,7 +284,6 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
      * @param f File to load from
      * @param parent parent window used to display errors
      * @throws DeckLoadException if there is already a loaded deck
-     * @throws CancellationException if importing was canceled
      */
     public void importLegacy(File f, Window parent) throws DeckLoadException, CancellationException
     {
@@ -318,7 +331,6 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         catch (CancellationException e)
         {
             reset();
-            throw e;
         }
         catch (Exception e)
         {
@@ -336,7 +348,6 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
      * @param f File to load from
      * @param parent parent window used to display errors
      * @throws DeckLoadException if there is already a loaded deck
-     * @throws CancellationException if loading the deck was canceled
      */
     public void load(File f, Window parent) throws DeckLoadException, CancellationException
     {
@@ -360,7 +371,6 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         catch (CancellationException e)
         {
             reset();
-            throw e;
         }
         catch (Exception e)
         {

@@ -3,6 +3,7 @@ package editor.collection.deck;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -387,5 +388,11 @@ public class Hand implements CardList
     public int total()
     {
         return size();
+    }
+
+    @Override
+    public void sort(Comparator<? super CardList.Entry> c)
+    {
+        hand.sort((a, b) -> c.compare(deck.getEntry(a), deck.getEntry(b)));
     }
 }

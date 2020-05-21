@@ -1,8 +1,11 @@
 package editor.collection.export;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 
 import editor.collection.CardList;
+import editor.gui.editor.DeckSerializer;
 
 /**
  * This is an interface for formatting a list of cards.  It can format
@@ -37,11 +40,12 @@ public interface CardListFormat
     String header();
 
     /**
-     * Parse a string for a list of cards.
-     *
-     * @param source string to parse
-     * @return list of cards containing values from the parsed string
-     * @throws ParseException if the string cannot be parsed
+     * Read an input stream and parse it for a list of cards.
+     * 
+     * @param source input stream to parse
+     * @return list of cards containing values from the parsed stream
+     * @throws ParseException if the stream cannot be parsed
+     * @throws IOException if the stream cannot be read
      */
-    CardList parse(String source) throws ParseException;
+    DeckSerializer parse(InputStream source) throws ParseException, IOException;
 }

@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +125,7 @@ import editor.gui.generic.DocumentChangeListener;
 import editor.gui.generic.OverwriteFileChooser;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
+import editor.gui.generic.TristateCheckBox;
 import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
 import editor.gui.inventory.InventoryDownloader;
@@ -704,7 +706,7 @@ public class MainFrame extends JFrame
                     DeckSerializer manager = new DeckSerializer();
                     try
                     {
-                        manager.importList(format, importChooser.getSelectedFile());
+                        manager.importList(format, importChooser.getSelectedFile(), this);
                     }
                     catch (DeckLoadException x)
                     {
@@ -736,21 +738,66 @@ public class MainFrame extends JFrame
             {
             case JFileChooser.APPROVE_OPTION:
                 CardListFormat format;
+
+                // Common pieces of the wizard
+                JPanel sortPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                JCheckBox sortCheck = new JCheckBox("Sort by:", true);
+                sortPanel.add(sortCheck);
+                var sortBox = new JComboBox<>(CardAttribute.displayableValues());
+                sortBox.setSelectedItem(CardAttribute.NAME);
+                sortCheck.addItemListener((v) -> sortBox.setEnabled(sortCheck.isSelected()));
+                sortPanel.add(sortBox);
+
+                Map<String, Boolean> extras = new LinkedHashMap<>();
+                for (String extra : f.getExtraNames())
+                    extras.put(extra, true);
+                JPanel extrasPanel = new JPanel(new BorderLayout());
+                extrasPanel.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, extrasPanel.getBackground()));
+                TristateCheckBox includeExtras = new TristateCheckBox("Include additional lists:", TristateCheckBox.State.SELECTED);
+                extrasPanel.add(includeExtras, BorderLayout.NORTH);
+                extrasPanel.setBackground(UIManager.getColor("List.background"));
+                Box extrasList = new Box(BoxLayout.Y_AXIS);
+                extrasList.setBorder(BorderFactory.createLineBorder(UIManager.getColor("List.dropLineColor")));
+                for (String extra : extras.keySet())
+                {
+                    JCheckBox extraBox = new JCheckBox(extra, extras.get(extra));
+                    extraBox.setBackground(extrasPanel.getBackground());
+                    extraBox.addActionListener((v) -> {
+                        extras.put(extra, extraBox.isSelected());
+                        long n = extras.values().stream().filter((b) -> b).count();
+                        if (n == 0)
+                            includeExtras.setSelected(false);
+                        else if (n < extras.size())
+                            includeExtras.setState(TristateCheckBox.State.INDETERMINATE);
+                        else // n == extra.size()
+                            includeExtras.setSelected(true);
+                        SwingUtilities.invokeLater(() -> includeExtras.repaint());
+                    });
+                    includeExtras.addActionListener((v) -> {
+                        extraBox.setSelected(includeExtras.getState() == TristateCheckBox.State.SELECTED);
+                        extras.put(extra, extraBox.isSelected());
+                        SwingUtilities.invokeLater(() -> extraBox.repaint());
+                    });
+                    extrasList.add(extraBox);
+                }
+                extrasPanel.add(extrasList, BorderLayout.CENTER);
+
+                // File-format-specific pieces of the wizard
                 if (exportChooser.getFileFilter() == text)
                 {
-                    JPanel wizardPanel = new JPanel(new BorderLayout());
-                    JPanel fieldPanel = new JPanel(new BorderLayout());
+                    Box wizardPanel = new Box(BoxLayout.Y_AXIS);
+                    Box fieldPanel = new Box(BoxLayout.Y_AXIS);
                     fieldPanel.setBorder(BorderFactory.createTitledBorder("List Format:"));
                     JTextField formatField = new JTextField(TextCardListFormat.DEFAULT_FORMAT);
                     formatField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, formatField.getFont().getSize()));
                     formatField.setColumns(50);
-                    fieldPanel.add(formatField, BorderLayout.CENTER);
+                    fieldPanel.add(formatField);
                     JPanel addDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                     addDataPanel.add(new JLabel("Add Data: "));
                     var addDataBox = new JComboBox<>(CardAttribute.displayableValues());
+                    fieldPanel.add(addDataPanel);
                     addDataPanel.add(addDataBox);
-                    fieldPanel.add(addDataPanel, BorderLayout.SOUTH);
-                    wizardPanel.add(fieldPanel, BorderLayout.NORTH);
+                    wizardPanel.add(fieldPanel);
 
                     if (f.getDeck().total() > 0 || f.getExtraCards().total() > 0)
                     {
@@ -789,6 +836,12 @@ public class MainFrame extends JFrame
                         });
                     }
 
+                    if (!extras.isEmpty())
+                        wizardPanel.add(extrasPanel);
+
+                    if (f.getDeck().total() > 0 || f.getExtraCards().total() > 0)
+                        wizardPanel.add(sortPanel);
+
                     if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
                         format = new TextCardListFormat(formatField.getText());
                     else
@@ -796,7 +849,8 @@ public class MainFrame extends JFrame
                 }
                 else if (exportChooser.getFileFilter() == delimited)
                 {
-                    JPanel wizardPanel = new JPanel(new BorderLayout());
+                    var panels = new ArrayList<JComponent>();
+                    Box dataPanel = new Box(BoxLayout.Y_AXIS);
                     var headersList = new JList<>(CardAttribute.displayableValues());
                     JScrollPane headersPane = new JScrollPane(headersList);
                     Box headersPanel = new Box(BoxLayout.X_AXIS);
@@ -824,7 +878,7 @@ public class MainFrame extends JFrame
                     headersPanel.add(moveButtons);
                     headersPanel.add(Box.createHorizontalStrut(5));
                     headersPanel.add(headersPane);
-                    wizardPanel.add(headersPanel, BorderLayout.CENTER);
+                    dataPanel.add(headersPanel);
 
                     rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((v) -> {
                         var selected = selectedHeadersList.getSelectedValuesList();
@@ -889,9 +943,15 @@ public class MainFrame extends JFrame
                     JCheckBox includeCheckBox = new JCheckBox("Include Headers");
                     includeCheckBox.setSelected(true);
                     optionsPanel.add(includeCheckBox);
-                    wizardPanel.add(optionsPanel, BorderLayout.SOUTH);
+                    dataPanel.add(optionsPanel);
 
-                    if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
+                    dataPanel.add(sortPanel);
+                    panels.add(dataPanel);
+
+                    if (!extras.isEmpty())
+                        panels.add(extrasPanel);
+
+                    if (WizardDialog.showWizardDialog(this, "Export Wizard", panels) == WizardDialog.FINISH_OPTION)
                     {
                         var selected = new ArrayList<CardAttribute>(selectedHeadersModel.size());
                         for (int i = 0; i < selectedHeadersModel.size(); i++)
@@ -909,7 +969,12 @@ public class MainFrame extends JFrame
 
                 try
                 {
-                    f.export(format, exportChooser.getSelectedFile());
+                    f.export(
+                        format,
+                        sortCheck.isSelected() ? sortBox.getItemAt(sortBox.getSelectedIndex()).comparingCard() : (a, b) -> 0,
+                        extras.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList()),
+                        exportChooser.getSelectedFile()
+                    );
                 }
                 catch (UnsupportedEncodingException | FileNotFoundException x)
                 {
@@ -1667,7 +1732,7 @@ public class MainFrame extends JFrame
     {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         inventory = InventoryLoader.loadInventory(this, inventoryFile);
-        inventory.sort(Card::compareName);
+        inventory.sort(CardAttribute.NAME.comparingCard());
         inventoryModel = new CardTableModel(inventory, SettingsDialog.settings().inventory.columns);
         inventoryTable.setModel(inventoryModel);
         setCursor(Cursor.getDefaultCursor());
