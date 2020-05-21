@@ -854,8 +854,8 @@ public class MainFrame extends JFrame
                 }
                 else if (exportChooser.getFileFilter() == delimited)
                 {
-                    var panels = new ArrayList<JPanel>();
-                    JPanel dataPanel = new JPanel(new BorderLayout());
+                    var panels = new ArrayList<JComponent>();
+                    Box dataPanel = new Box(BoxLayout.Y_AXIS);
                     var headersList = new JList<>(CardAttribute.displayableValues());
                     JScrollPane headersPane = new JScrollPane(headersList);
                     Box headersPanel = new Box(BoxLayout.X_AXIS);
@@ -883,7 +883,7 @@ public class MainFrame extends JFrame
                     headersPanel.add(moveButtons);
                     headersPanel.add(Box.createHorizontalStrut(5));
                     headersPanel.add(headersPane);
-                    dataPanel.add(headersPanel, BorderLayout.CENTER);
+                    dataPanel.add(headersPanel);
 
                     rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((v) -> {
                         var selected = selectedHeadersList.getSelectedValuesList();
@@ -948,7 +948,9 @@ public class MainFrame extends JFrame
                     JCheckBox includeCheckBox = new JCheckBox("Include Headers");
                     includeCheckBox.setSelected(true);
                     optionsPanel.add(includeCheckBox);
-                    dataPanel.add(optionsPanel, BorderLayout.SOUTH);
+                    dataPanel.add(optionsPanel);
+
+                    dataPanel.add(sortPanel);
                     panels.add(dataPanel);
 
                     if (!extras.isEmpty())
