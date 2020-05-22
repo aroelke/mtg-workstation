@@ -801,8 +801,7 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, deck.table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            for (JMenuItem item : tableMenuCardItems)
-                item.setEnabled(!parent.getSelectedCards().isEmpty());
+            tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
             moveToMenu.setVisible(!extras.isEmpty());
             moveAllToMenu.setVisible(!extras.isEmpty());
             moveSeparator.setVisible(!extras.isEmpty());
@@ -1385,9 +1384,8 @@ public class EditorFrame extends JInternalFrame
                 editCategoriesItem, categoriesSeparator, newCategory.table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             removeFromCategoryItem.setText("Exclude from " + newCategory.getCategoryName());
-            for (JMenuItem item : tableMenuCardItems)
-                item.setEnabled(!parent.getSelectedCards().isEmpty());
-                editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
+            tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
+            editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
         }));
 
         

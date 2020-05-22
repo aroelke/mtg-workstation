@@ -1306,11 +1306,9 @@ public class MainFrame extends JFrame
 
         // Popup listener for oracle popup menu
         oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            for (JMenuItem item : oracleMenuCardItems)
-                item.setEnabled(selectedFrame.isPresent() && !selectedCards.isEmpty());
-            for (JMenuItem item : oracleMenuSBCardItems)
-                item.setEnabled(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
-            oracleEditTagsItem.setEnabled(!selectedCards.isEmpty());
+            oracleMenuCardItems.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
+            oracleMenuSBCardItems.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
+            oracleEditTagsItem.setVisible(!selectedCards.isEmpty());
         }));
 
         // Panel containing inventory and image of currently-selected card
@@ -1401,10 +1399,8 @@ public class MainFrame extends JFrame
 
         // Inventory menu listener
         inventoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            for (JMenuItem item : inventoryMenuCardItems)
-                item.setEnabled(selectedFrame.isPresent() && !selectedCards.isEmpty());
-            for (JMenuItem item : inventoryMenuSBItems)
-                item.setEnabled(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
+            inventoryMenuCardItems.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
+            inventoryMenuSBItems.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
             editTagsItem.setEnabled(!selectedCards.isEmpty());
         }));
 

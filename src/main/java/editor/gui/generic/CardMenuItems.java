@@ -177,4 +177,26 @@ public class CardMenuItems implements Iterable<JMenuItem>
     {
         return items[3];
     }
+
+    /**
+     * Convenience method for enabling or disabling all menu items at once.
+     * 
+     * @param en whether items should be enabled or not
+     */
+    public void setEnabled(boolean en)
+    {
+        for (JMenuItem item : items)
+            item.setEnabled(en);
+    }
+
+    /**
+     * Convenience method for controlling all items' visibilities.
+     * 
+     * @param visible whether items should be visible or not
+     */
+    public void setVisible(boolean visible)
+    {
+        for (JMenuItem item : items)
+            item.setVisible(visible);
+    }
 }
