@@ -2451,30 +2451,24 @@ public class EditorFrame extends JInternalFrame
         landLabel.setText("Lands: " + deck.current.land());
         nonlandLabel.setText("Nonlands: " + deck.current.nonland());
 
-        double avgCMC = 0.0;
-        for (Card card : deck.current)
-            if (!card.typeContains("land"))
-                avgCMC += card.minCmc() * deck.current.getEntry(card).count();
-        if (deck.current.nonland() > 0)
-            avgCMC /= deck.current.nonland();
+        var cmc = deck.current.stream()
+            .filter((c) -> !c.typeContains("land"))
+            .flatMap((c) -> Collections.nCopies(deck.current.getEntry(c).count(), c.cmc().stream().min(Double::compare).orElse(0.0)).stream())
+            .sorted()
+            .collect(Collectors.toList());
+        double avgCMC = cmc.stream().mapToDouble(Double::valueOf).average().orElse(0);
         if ((int)avgCMC == avgCMC)
             avgCMCLabel.setText("Average CMC: " + (int)avgCMC);
         else
             avgCMCLabel.setText(String.format("Average CMC: %.2f", avgCMC));
 
         double medCMC = 0.0;
-        var cmc = new ArrayList<Double>();
-        for (Card card : deck.current)
-            if (!card.typeContains("land"))
-                for (int i = 0; i < deck.current.getEntry(card).count(); i++)
-                    cmc.add(card.minCmc());
-        Collections.sort(cmc);
         if (!cmc.isEmpty())
         {
             if (cmc.size() % 2 == 0)
-                medCMC = (cmc.get(cmc.size() / 2 - 1) + cmc.get(cmc.size() / 2)) / 2;
+                medCMC = (cmc.get(cmc.size()/2 - 1) + cmc.get(cmc.size()/2))/2;
             else
-                medCMC = cmc.get(cmc.size() / 2);
+                medCMC = cmc.get(cmc.size()/2);
         }
         if ((int)medCMC == medCMC)
             medCMCLabel.setText("Median CMC: " + (int)medCMC);
