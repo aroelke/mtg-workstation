@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -85,10 +86,6 @@ public abstract class Card
      * Number of faces this Card has.
      */
     private final int faces;
-    /**
-     * Unique identifier for this Card.
-     */
-    private Lazy<String> id;
     /**
      * Whether or not to ignore the card count restriction for this Card.
      */
@@ -166,7 +163,6 @@ public abstract class Card
         this.layout = layout;
         this.faces = faces;
 
-        id = new Lazy<>(() -> expansion.code + unifiedName() + imageNames().get(0));
         unifiedName = new Lazy<>(() -> {
             StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
             for (String name : name())
@@ -540,17 +536,7 @@ public abstract class Card
     @Override
     public int hashCode()
     {
-        return id().hashCode();
-    }
-
-    /**
-     * Get this Card's unique identifier.
-     *
-     * @return this Card's UID.
-     */
-    public String id()
-    {
-        return id.get();
+        return Objects.hash(name(), multiverseid());
     }
 
     /**
