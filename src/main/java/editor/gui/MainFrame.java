@@ -1283,10 +1283,11 @@ public class MainFrame extends JFrame
 
         // Add the card to the main deck
         CardMenuItems oracleMenuCardItems = new CardMenuItems(() -> selectedFrame, () -> Arrays.asList(selectedCards.get(0)), true);
+        JSeparator[] oracleMenuCardSeparators = new JSeparator[] { new JSeparator(), new JSeparator() };
         oracleMenuCardItems.addAddItems(oraclePopupMenu);
-        oraclePopupMenu.add(new JSeparator());
+        oraclePopupMenu.add(oracleMenuCardSeparators[0]);
         oracleMenuCardItems.addRemoveItems(oraclePopupMenu);
-        oraclePopupMenu.add(new JSeparator());
+        oraclePopupMenu.add(oracleMenuCardSeparators[1]);
 
         // Add the card to the sideboard
         CardMenuItems oracleMenuSBCardItems = new CardMenuItems(() -> selectedFrame, () -> Arrays.asList(selectedCards.get(0)), false);
@@ -1298,7 +1299,8 @@ public class MainFrame extends JFrame
         oraclePopupMenu.add(oracleMenuSBCardItems.removeSingle());
         oracleMenuSBCardItems.removeAll().setText("Remove All from Sideboard");
         oraclePopupMenu.add(oracleMenuSBCardItems.removeAll());
-        oraclePopupMenu.add(new JSeparator());
+        JSeparator oracleMenuSBSeparator = new JSeparator();
+        oraclePopupMenu.add(oracleMenuSBSeparator);
 
         JMenuItem oracleEditTagsItem = new JMenuItem("Edit Tags...");
         oracleEditTagsItem.addActionListener((e) -> CardTagPanel.editTags(getSelectedCards(), this));
@@ -1307,7 +1309,10 @@ public class MainFrame extends JFrame
         // Popup listener for oracle popup menu
         oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             oracleMenuCardItems.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
+            for (JSeparator sep : oracleMenuCardSeparators)
+                sep.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
             oracleMenuSBCardItems.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
+            oracleMenuSBSeparator.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
             oracleEditTagsItem.setVisible(!selectedCards.isEmpty());
         }));
 
@@ -1375,10 +1380,11 @@ public class MainFrame extends JFrame
 
         // Add cards to the main deck
         CardMenuItems inventoryMenuCardItems = new CardMenuItems(() -> selectedFrame, this::getSelectedCards, true);
+        JSeparator[] inventoryMenuCardSeparators = new JSeparator[] { new JSeparator(), new JSeparator() };
         inventoryMenuCardItems.addAddItems(inventoryMenu);
-        inventoryMenu.add(new JSeparator());
+        inventoryMenu.add(inventoryMenuCardSeparators[0]);
         inventoryMenuCardItems.addRemoveItems(inventoryMenu);
-        inventoryMenu.add(new JSeparator());
+        inventoryMenu.add(inventoryMenuCardSeparators[1]);
 
         // Add cards to the sideboard
         CardMenuItems inventoryMenuSBItems = new CardMenuItems(() -> selectedFrame, this::getSelectedCards, false);
@@ -1390,7 +1396,8 @@ public class MainFrame extends JFrame
         inventoryMenu.add(inventoryMenuSBItems.removeSingle());
         inventoryMenuSBItems.removeAll().setText("Remove All from Sideboard");
         inventoryMenu.add(inventoryMenuSBItems.removeAll());
-        inventoryMenu.add(new JSeparator());
+        JSeparator inventoryMenuSBSeparator = new JSeparator();
+        inventoryMenu.add(inventoryMenuSBSeparator);
 
         // Edit tags item
         JMenuItem editTagsItem = new JMenuItem("Edit Tags...");
@@ -1400,7 +1407,10 @@ public class MainFrame extends JFrame
         // Inventory menu listener
         inventoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             inventoryMenuCardItems.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
+            for (JSeparator sep : inventoryMenuCardSeparators)
+                sep.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
             inventoryMenuSBItems.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
+            inventoryMenuSBSeparator.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
             editTagsItem.setEnabled(!selectedCards.isEmpty());
         }));
 
