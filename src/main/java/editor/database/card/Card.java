@@ -124,10 +124,6 @@ public abstract class Card
      */
     private Lazy<List<String>> normalizedPrinted;
     /**
-     * Name of all faces of this Card separated by {@link #FACE_SEPARATOR}.
-     */
-    private Lazy<String> unifiedName;
-    /**
      * Type lines of all faces of this Card, separated by {@link #FACE_SEPARATOR}.
      */
     private Lazy<String> unifiedTypeLine;
@@ -146,12 +142,6 @@ public abstract class Card
         this.layout = layout;
         this.faces = faces;
 
-        unifiedName = new Lazy<>(() -> {
-            StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
-            for (String name : name())
-                join.add(name);
-            return join.toString();
-        });
         normalizedName = new Lazy<>(() -> Collections.unmodifiableList(name().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         legendName = new Lazy<>(() -> {
             var legendNames = new ArrayList<String>();
@@ -853,7 +843,7 @@ public abstract class Card
      */
     public String unifiedName()
     {
-        return unifiedName.get();
+        return name().stream().collect(Collectors.joining(" " + FACE_SEPARATOR + " "));
     }
 
     /**
