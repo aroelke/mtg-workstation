@@ -1,5 +1,7 @@
 package editor.util;
 
+import java.text.Normalizer;
+
 /**
  * This class is a collection of constants for various Unicode symbols.
  *
@@ -71,4 +73,17 @@ public interface UnicodeSymbols
      * Upwards black arrow, '{@value #UP_ARROW}'.
      */
     char UP_ARROW = '\u2B06';
+
+    /**
+     * Create a string with ASCII approximations of special characters, in lower
+     * case.
+     * 
+     * @param str string to normalize
+     * @return A lower-case string with all special characters replaced with ASCII
+     * approximations, such as {@value #AE_LOWER} becomes 'ae.'
+     */
+    static String normalize(String str)
+    {
+        return Normalizer.normalize(str.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(AE_LOWER), "ae");
+    }
 }

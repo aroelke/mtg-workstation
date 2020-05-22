@@ -2,7 +2,6 @@ package editor.database.card;
 
 import java.awt.datatransfer.DataFlavor;
 import java.text.Collator;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -169,9 +168,7 @@ public abstract class Card
                 join.add(name);
             return join.toString();
         });
-        normalizedName = new Lazy<>(() -> Collections.unmodifiableList(name().stream()
-                .map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
-                .collect(Collectors.toList())));
+        normalizedName = new Lazy<>(() -> Collections.unmodifiableList(name().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         legendName = new Lazy<>(() -> {
             var legendNames = new ArrayList<String>();
             for (String fullName : normalizedName())
@@ -214,19 +211,14 @@ public abstract class Card
             var texts = new ArrayList<String>();
             for (int i = 0; i < faces; i++)
             {
-                String normal = Normalizer.normalize(oracleText().get(i).toLowerCase(), Normalizer.Form.NFD);
-                normal = normal.replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae");
+                String normal = UnicodeSymbols.normalize(oracleText().get(i).toLowerCase());
                 normal = normal.replace(legendName().get(i), Card.THIS).replace(normalizedName().get(i), Card.THIS);
                 texts.add(normal);
             }
             return Collections.unmodifiableList(texts);
         });
-        normalizedFlavor = new Lazy<>(() -> Collections.unmodifiableList(flavorText().stream()
-            .map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
-            .collect(Collectors.toList())));
-        normalizedPrinted = new Lazy<>(() -> Collections.unmodifiableList(printedText().stream()
-                .map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
-                .collect(Collectors.toList())));
+        normalizedFlavor = new Lazy<>(() -> Collections.unmodifiableList(flavorText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
+        normalizedPrinted = new Lazy<>(() -> Collections.unmodifiableList(printedText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         powerVariable = new Lazy<>(() -> power().stream().anyMatch(CombatStat::variable));
         toughnessVariable = new Lazy<>(() -> toughness().stream().anyMatch(CombatStat::variable));
         loyaltyVariable = new Lazy<>(() -> loyalty().stream().anyMatch(Loyalty::variable));
