@@ -208,7 +208,7 @@ public abstract class Card
             return join.toString();
         });
         normalizedOracle = new Lazy<>(() -> {
-            var texts = new ArrayList<String>();
+            var texts = new ArrayList<String>(faces);
             for (int i = 0; i < faces; i++)
             {
                 String normal = UnicodeSymbols.normalize(oracleText().get(i).toLowerCase());
