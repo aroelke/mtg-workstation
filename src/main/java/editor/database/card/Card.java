@@ -105,10 +105,6 @@ public abstract class Card
      */
     private Lazy<List<String>> legendName;
     /**
-     * Whether or not this Card's loyalty is variable (X)
-     */
-    private Lazy<Boolean> loyaltyVariable;
-    /**
      * List of flavor texts of the faces of this Card, converted to lower case and with special
      * characters removed.
      */
@@ -216,7 +212,6 @@ public abstract class Card
         normalizedPrinted = new Lazy<>(() -> Collections.unmodifiableList(printedText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         powerVariable = new Lazy<>(() -> power().stream().anyMatch(CombatStat::variable));
         toughnessVariable = new Lazy<>(() -> toughness().stream().anyMatch(CombatStat::variable));
-        loyaltyVariable = new Lazy<>(() -> loyalty().stream().anyMatch(Loyalty::variable));
         legalIn = new Lazy<>(() -> Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList())));
         canBeCommander = new Lazy<>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
         ignoreCountRestriction = new Lazy<>(() -> supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number")));
@@ -648,7 +643,7 @@ public abstract class Card
      */
     public boolean loyaltyVariable()
     {
-        return loyaltyVariable.get();
+        return loyalty().stream().anyMatch(Loyalty::variable);
     }
 
     /**
