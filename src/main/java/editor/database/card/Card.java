@@ -825,9 +825,9 @@ public abstract class Card
      */
     public boolean typeContains(String s)
     {
-        if (Pattern.compile("\\s").matcher(s).find())
+        if (s.matches("\\s"))
             throw new IllegalArgumentException("Types don't contain white space");
-        return types().stream().anyMatch((t) -> t.equalsIgnoreCase(s));
+        return types().stream().anyMatch(s::equalsIgnoreCase);
     }
 
     /**
@@ -841,7 +841,7 @@ public abstract class Card
     /**
      * Get this Card's card types.
      *
-     * @return a set containing the subtypes among all the faces of this Card.
+     * @return a set containing the types among all the faces of this Card.
      */
     public abstract Set<String> types();
 
