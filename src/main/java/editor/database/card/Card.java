@@ -90,7 +90,6 @@ public abstract class Card
     private Lazy<Boolean> ignoreCountRestriction;
     /**
      * Layout of this Card.
-     *
      * @see CardLayout
      */
     private final CardLayout layout;
@@ -128,8 +127,8 @@ public abstract class Card
      * the first time their values are requested.
      *
      * @param expansion expension the new Card belongs to
-     * @param layout    layout of the new Card
-     * @param faces     number of faces the new Card has
+     * @param layout layout of the new Card
+     * @param faces number of faces the new Card has
      */
     public Card(Expansion expansion, CardLayout layout, int faces)
     {
@@ -292,7 +291,7 @@ public abstract class Card
      * by a separator on its own line.
      *
      * @param document document to add text to
-     * @param printed  whether to use printed or Oracle data for a card
+     * @param printed whether to use printed or Oracle data for a card
      */
     public void formatDocument(StyledDocument document, boolean printed)
     {
@@ -317,8 +316,8 @@ public abstract class Card
      * Card's Oracle text.  The document is expected to have styles "text" and "reminder."
      *
      * @param document document to format
-     * @param printed  whether to use printed or Oracle data for a card
-     * @param f        face to add to the document
+     * @param printed whether to use printed or Oracle data for a card
+     * @param f face to add to the document
      */
     public void formatDocument(StyledDocument document, boolean printed, int f)
     {
@@ -493,8 +492,8 @@ public abstract class Card
     /**
      * Check if this Card ignores the restriction on card counts in decks.
      *
-     * @return true if there can be any number of copies of this Card in a deck, and false
-     * otherwise.
+     * @return <code>true</code> if there can be any number of copies of this Card in
+     * a deck, and <code>false</code> otherwise.
      */
     public boolean ignoreCountRestriction()
     {
