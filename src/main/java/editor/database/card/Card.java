@@ -11,7 +11,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -123,10 +122,6 @@ public abstract class Card
      * characers removed.
      */
     private Lazy<List<String>> normalizedPrinted;
-    /**
-     * Type lines of all faces of this Card, separated by {@link #FACE_SEPARATOR}.
-     */
-    private Lazy<String> unifiedTypeLine;
 
     /**
      * Create a new Card.  Most of the parameters are assigned lazily; that is, only
@@ -173,12 +168,6 @@ public abstract class Card
                 }
             }
             return Collections.unmodifiableList(legendNames);
-        });
-        unifiedTypeLine = new Lazy<>(() -> {
-            StringJoiner join = new StringJoiner(FACE_SEPARATOR);
-            for (String line : typeLine())
-                join.add(line);
-            return join.toString();
         });
         normalizedOracle = new Lazy<>(() -> {
             var texts = new ArrayList<String>(faces);
@@ -853,6 +842,6 @@ public abstract class Card
      */
     public String unifiedTypeLine()
     {
-        return unifiedTypeLine.get();
+        return String.join(FACE_SEPARATOR, typeLine());
     }
 }
