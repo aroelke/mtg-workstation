@@ -100,10 +100,4 @@ public class MeldCard extends MultiCard
     {
         return manaCost.get();
     }
-
-    @Override
-    public double minCmc()
-    {
-        return front.minCmc();
-    }
 }

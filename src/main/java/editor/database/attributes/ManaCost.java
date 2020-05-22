@@ -277,10 +277,9 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     public String
     toHTMLString()
     {
-        StringBuilder str = new StringBuilder();
-        for (Symbol sym : cost)
-            str.append("<img src=\"file:images/icons/").append(sym.getName()).append("\" width=\"").append(ComponentUtils.TEXT_SIZE).append("\" height=\"").append(ComponentUtils.TEXT_SIZE).append("\" />");
-        return str.toString();
+        return cost.stream()
+            .map((sym) -> "<img src=\"" + Symbol.class.getResource("/images/icons/" + sym.getName()) + "\" width=\"" + ComponentUtils.TEXT_SIZE + "\" height=\"" + ComponentUtils.TEXT_SIZE + "\"/>")
+            .collect(Collectors.joining());
     }
 
     /**
@@ -289,10 +288,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     @Override
     public String toString()
     {
-        StringBuilder str = new StringBuilder();
-        for (Symbol sym : cost)
-            str.append(sym.toString());
-        return str.toString();
+        return cost.stream().map(Symbol::toString).collect(Collectors.joining());
     }
 
     /**

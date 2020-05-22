@@ -70,7 +70,7 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
      */
     public VariableNumberFilterPanel(VariableNumberFilter f)
     {
-        this(f.type().equals(CardAttribute.LOYALTY) ? "X" : "*");
+        this(f.type() == CardAttribute.LOYALTY ? "X or *" : "*");
         setContents(f);
     }
 

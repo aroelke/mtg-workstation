@@ -93,7 +93,7 @@ public interface CardList extends Iterable<Card>
                 case TOUGHNESS      -> card().toughness();
                 case LOYALTY        -> card().loyalty();
                 case ARTIST         -> card().artist().get(0);
-                case CARD_NUMBER    -> String.join(' ' + Card.FACE_SEPARATOR + ' ', card().number());
+                case CARD_NUMBER    -> String.join(Card.FACE_SEPARATOR, card().number());
                 case LEGAL_IN       -> card().legalIn();
                 case COUNT          -> count();
                 case CATEGORIES     -> categories();

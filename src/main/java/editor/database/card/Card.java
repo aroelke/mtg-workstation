@@ -2,7 +2,6 @@ package editor.database.card;
 
 import java.awt.datatransfer.DataFlavor;
 import java.text.Collator;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -10,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -49,7 +48,7 @@ public abstract class Card
     /**
      * Separator string between characteristics of a multi-face card.
      */
-    public static final String FACE_SEPARATOR = "//";
+    public static final String FACE_SEPARATOR = " // ";
     /**
      * Separator for card text when displaying multiple cards in a single text box.
      */
@@ -86,16 +85,11 @@ public abstract class Card
      */
     private final int faces;
     /**
-     * Unique identifier for this Card.
-     */
-    private Lazy<String> id;
-    /**
      * Whether or not to ignore the card count restriction for this Card.
      */
     private Lazy<Boolean> ignoreCountRestriction;
     /**
      * Layout of this Card.
-     *
      * @see CardLayout
      */
     private final CardLayout layout;
@@ -108,14 +102,6 @@ public abstract class Card
      * its normalized name.
      */
     private Lazy<List<String>> legendName;
-    /**
-     * Whether or not this Card's loyalty is variable (X)
-     */
-    private Lazy<Boolean> loyaltyVariable;
-    /**
-     * Smallest converted mana cost of all faces of this Card.
-     */
-    private Lazy<Double> minCmc;
     /**
      * List of flavor texts of the faces of this Card, converted to lower case and with special
      * characters removed.
@@ -135,30 +121,14 @@ public abstract class Card
      * characers removed.
      */
     private Lazy<List<String>> normalizedPrinted;
-    /**
-     * Whether or not any of this Card's faces has variable power.
-     */
-    private Lazy<Boolean> powerVariable;
-    /**
-     * Whether or not any of this Card's faces has variable toughness.
-     */
-    private Lazy<Boolean> toughnessVariable;
-    /**
-     * Name of all faces of this Card separated by {@link #FACE_SEPARATOR}.
-     */
-    private Lazy<String> unifiedName;
-    /**
-     * Type lines of all faces of this Card, separated by {@link #FACE_SEPARATOR}.
-     */
-    private Lazy<String> unifiedTypeLine;
 
     /**
      * Create a new Card.  Most of the parameters are assigned lazily; that is, only
      * the first time their values are requested.
      *
      * @param expansion expension the new Card belongs to
-     * @param layout    layout of the new Card
-     * @param faces     number of faces the new Card has
+     * @param layout layout of the new Card
+     * @param faces number of faces the new Card has
      */
     public Card(Expansion expansion, CardLayout layout, int faces)
     {
@@ -166,16 +136,7 @@ public abstract class Card
         this.layout = layout;
         this.faces = faces;
 
-        id = new Lazy<>(() -> expansion.code + unifiedName() + imageNames().get(0));
-        unifiedName = new Lazy<>(() -> {
-            StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
-            for (String name : name())
-                join.add(name);
-            return join.toString();
-        });
-        normalizedName = new Lazy<>(() -> Collections.unmodifiableList(name().stream()
-                .map((n) -> Normalizer.normalize(n.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
-                .collect(Collectors.toList())));
+        normalizedName = new Lazy<>(() -> Collections.unmodifiableList(name().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         legendName = new Lazy<>(() -> {
             var legendNames = new ArrayList<String>();
             for (String fullName : normalizedName())
@@ -207,33 +168,18 @@ public abstract class Card
             }
             return Collections.unmodifiableList(legendNames);
         });
-        minCmc = new Lazy<>(() -> cmc().stream().reduce(Double.MAX_VALUE, Double::min));
-        unifiedTypeLine = new Lazy<>(() -> {
-            StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
-            for (String line : typeLine())
-                join.add(line);
-            return join.toString();
-        });
         normalizedOracle = new Lazy<>(() -> {
-            var texts = new ArrayList<String>();
+            var texts = new ArrayList<String>(faces);
             for (int i = 0; i < faces; i++)
             {
-                String normal = Normalizer.normalize(oracleText().get(i).toLowerCase(), Normalizer.Form.NFD);
-                normal = normal.replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae");
+                String normal = UnicodeSymbols.normalize(oracleText().get(i).toLowerCase());
                 normal = normal.replace(legendName().get(i), Card.THIS).replace(normalizedName().get(i), Card.THIS);
                 texts.add(normal);
             }
             return Collections.unmodifiableList(texts);
         });
-        normalizedFlavor = new Lazy<>(() -> Collections.unmodifiableList(flavorText().stream()
-            .map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
-            .collect(Collectors.toList())));
-        normalizedPrinted = new Lazy<>(() -> Collections.unmodifiableList(printedText().stream()
-                .map((f) -> Normalizer.normalize(f.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace(String.valueOf(UnicodeSymbols.AE_LOWER), "ae"))
-                .collect(Collectors.toList())));
-        powerVariable = new Lazy<>(() -> power().stream().anyMatch(CombatStat::variable));
-        toughnessVariable = new Lazy<>(() -> toughness().stream().anyMatch(CombatStat::variable));
-        loyaltyVariable = new Lazy<>(() -> loyalty().stream().anyMatch(Loyalty::variable));
+        normalizedFlavor = new Lazy<>(() -> Collections.unmodifiableList(flavorText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
+        normalizedPrinted = new Lazy<>(() -> Collections.unmodifiableList(printedText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         legalIn = new Lazy<>(() -> Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList())));
         canBeCommander = new Lazy<>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
         ignoreCountRestriction = new Lazy<>(() -> supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number")));
@@ -345,7 +291,7 @@ public abstract class Card
      * by a separator on its own line.
      *
      * @param document document to add text to
-     * @param printed  whether to use printed or Oracle data for a card
+     * @param printed whether to use printed or Oracle data for a card
      */
     public void formatDocument(StyledDocument document, boolean printed)
     {
@@ -370,8 +316,8 @@ public abstract class Card
      * Card's Oracle text.  The document is expected to have styles "text" and "reminder."
      *
      * @param document document to format
-     * @param printed  whether to use printed or Oracle data for a card
-     * @param f        face to add to the document
+     * @param printed whether to use printed or Oracle data for a card
+     * @param f face to add to the document
      */
     public void formatDocument(StyledDocument document, boolean printed, int f)
     {
@@ -540,24 +486,14 @@ public abstract class Card
     @Override
     public int hashCode()
     {
-        return id().hashCode();
-    }
-
-    /**
-     * Get this Card's unique identifier.
-     *
-     * @return this Card's UID.
-     */
-    public String id()
-    {
-        return id.get();
+        return Objects.hash(name(), multiverseid());
     }
 
     /**
      * Check if this Card ignores the restriction on card counts in decks.
      *
-     * @return true if there can be any number of copies of this Card in a deck, and false
-     * otherwise.
+     * @return <code>true</code> if there can be any number of copies of this Card in
+     * a deck, and <code>false</code> otherwise.
      */
     public boolean ignoreCountRestriction()
     {
@@ -675,7 +611,7 @@ public abstract class Card
      */
     public boolean loyaltyVariable()
     {
-        return loyaltyVariable.get();
+        return loyalty().stream().anyMatch(Loyalty::variable);
     }
 
     /**
@@ -684,16 +620,6 @@ public abstract class Card
      * @return a list containing the mana costs of the faces of this Card.
      */
     public abstract List<ManaCost> manaCost();
-
-    /**
-     * Get the smallest converted mana cost among faces of this card.
-     *
-     * @return this Card's minimum converted mana cost
-     */
-    public double minCmc()
-    {
-        return minCmc.get();
-    }
 
     /**
      * @return the IDs of each face of this card as they are used by
@@ -783,7 +709,7 @@ public abstract class Card
      */
     public boolean powerVariable()
     {
-        return powerVariable.get();
+        return power().stream().anyMatch(CombatStat::variable);
     }
 
     /**
@@ -865,7 +791,7 @@ public abstract class Card
      */
     public boolean toughnessVariable()
     {
-        return toughnessVariable.get();
+        return toughness().stream().anyMatch(CombatStat::variable);
     }
 
     /**
@@ -877,9 +803,9 @@ public abstract class Card
      */
     public boolean typeContains(String s)
     {
-        if (Pattern.compile("\\s").matcher(s).find())
+        if (s.matches("\\s"))
             throw new IllegalArgumentException("Types don't contain white space");
-        return types().stream().anyMatch((t) -> t.equalsIgnoreCase(s));
+        return types().stream().anyMatch(s::equalsIgnoreCase);
     }
 
     /**
@@ -893,7 +819,7 @@ public abstract class Card
     /**
      * Get this Card's card types.
      *
-     * @return a set containing the subtypes among all the faces of this Card.
+     * @return a set containing the types among all the faces of this Card.
      */
     public abstract Set<String> types();
 
@@ -905,7 +831,7 @@ public abstract class Card
      */
     public String unifiedName()
     {
-        return unifiedName.get();
+        return name().stream().collect(Collectors.joining(FACE_SEPARATOR));
     }
 
     /**
@@ -915,6 +841,6 @@ public abstract class Card
      */
     public String unifiedTypeLine()
     {
-        return unifiedTypeLine.get();
+        return String.join(FACE_SEPARATOR, typeLine());
     }
 }

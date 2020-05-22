@@ -17,6 +17,9 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
      */
     public static final Loyalty NO_LOYALTY = new Loyalty(0);
 
+    private static final int X = -1;
+    private static final int STAR = -2;
+
     /**
      * Numerical value of the starting loyalty.  Zero means there is no loyalty and
      * -1 means it's X.
@@ -24,18 +27,18 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
     public final int value;
 
     /**
-     * Create a new Loyalty with the given value.
+     * Create a new Loyalty with the given value. Loyalty creatd this way can't vary.
      *
      * @param v value of the new Loyalty
      */
     public Loyalty(int v)
     {
-        value = Math.max(-1, v);
+        value = Math.max(0, v);
     }
 
     /**
-     * Parse a String for a loyalty value.  It can either be a number or "X," and if
-     * anything else is used it is considered to not exist.
+     * Parse a String for a loyalty value.  It can either be a number, "X," or "*,"
+     * and if anything else is used it is considered to not exist.
      *
      * @param s
      */
@@ -48,7 +51,11 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
         }
         catch (NumberFormatException x)
         {
-            v = s.compareToIgnoreCase("X") == 0 ? -1 : 0;
+            v = switch (s.toUpperCase()) {
+                case "X" -> X;
+                case "*" -> STAR;
+                default  -> 0;
+            };
         }
         value = v;
     }
@@ -80,11 +87,12 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
     @Override
     public String toString()
     {
-        if (value < 0)
-            return "X";
-        else if (value == 0)
-            return "";
-        else return Integer.toString(value);
+        return switch (value) {
+            case X    -> "X";
+            case STAR -> "*";
+            case 0    -> "";
+            default   -> Integer.toString(value);
+        };
     }
 
     /**
