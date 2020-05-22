@@ -124,10 +124,6 @@ public abstract class Card
      */
     private Lazy<List<String>> normalizedPrinted;
     /**
-     * Whether or not any of this Card's faces has variable toughness.
-     */
-    private Lazy<Boolean> toughnessVariable;
-    /**
      * Name of all faces of this Card separated by {@link #FACE_SEPARATOR}.
      */
     private Lazy<String> unifiedName;
@@ -206,7 +202,6 @@ public abstract class Card
         });
         normalizedFlavor = new Lazy<>(() -> Collections.unmodifiableList(flavorText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         normalizedPrinted = new Lazy<>(() -> Collections.unmodifiableList(printedText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
-        toughnessVariable = new Lazy<>(() -> toughness().stream().anyMatch(CombatStat::variable));
         legalIn = new Lazy<>(() -> Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList())));
         canBeCommander = new Lazy<>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
         ignoreCountRestriction = new Lazy<>(() -> supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number")));
@@ -818,7 +813,7 @@ public abstract class Card
      */
     public boolean toughnessVariable()
     {
-        return toughnessVariable.get();
+        return toughness().stream().anyMatch(CombatStat::variable);
     }
 
     /**
