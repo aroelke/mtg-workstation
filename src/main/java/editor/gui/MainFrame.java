@@ -1309,7 +1309,7 @@ public class MainFrame extends JFrame
             for (JMenuItem item : oracleMenuCardItems)
                 item.setEnabled(selectedFrame.isPresent() && !selectedCards.isEmpty());
             for (JMenuItem item : oracleMenuSBCardItems)
-                item.setEnabled(selectedFrame.isPresent() && !selectedCards.isEmpty());
+                item.setEnabled(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
             oracleEditTagsItem.setEnabled(!selectedCards.isEmpty());
         }));
 
@@ -1404,7 +1404,7 @@ public class MainFrame extends JFrame
             for (JMenuItem item : inventoryMenuCardItems)
                 item.setEnabled(selectedFrame.isPresent() && !selectedCards.isEmpty());
             for (JMenuItem item : inventoryMenuSBItems)
-                item.setEnabled(selectedFrame.isPresent() && !selectedCards.isEmpty());
+                item.setEnabled(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
             editTagsItem.setEnabled(!selectedCards.isEmpty());
         }));
 
