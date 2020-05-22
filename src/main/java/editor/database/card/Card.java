@@ -124,10 +124,6 @@ public abstract class Card
      */
     private Lazy<List<String>> normalizedPrinted;
     /**
-     * Whether or not any of this Card's faces has variable power.
-     */
-    private Lazy<Boolean> powerVariable;
-    /**
      * Whether or not any of this Card's faces has variable toughness.
      */
     private Lazy<Boolean> toughnessVariable;
@@ -210,7 +206,6 @@ public abstract class Card
         });
         normalizedFlavor = new Lazy<>(() -> Collections.unmodifiableList(flavorText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         normalizedPrinted = new Lazy<>(() -> Collections.unmodifiableList(printedText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
-        powerVariable = new Lazy<>(() -> power().stream().anyMatch(CombatStat::variable));
         toughnessVariable = new Lazy<>(() -> toughness().stream().anyMatch(CombatStat::variable));
         legalIn = new Lazy<>(() -> Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList())));
         canBeCommander = new Lazy<>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
@@ -741,7 +736,7 @@ public abstract class Card
      */
     public boolean powerVariable()
     {
-        return powerVariable.get();
+        return power().stream().anyMatch(CombatStat::variable);
     }
 
     /**
