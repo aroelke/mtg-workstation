@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -469,18 +470,11 @@ public class CategoryPanel extends JPanel
     {
         countLabel.setText("Cards: " + deck.getCategoryList(name).total());
 
-        double avgCMC = 0.0;
-        int count = 0;
-        for (Card card : deck)
-        {
-            if (deck.getCategorySpec(name).includes(card))
-            {
-                avgCMC += card.minCmc() * deck.getEntry(card).count();
-                count += deck.getEntry(card).count();
-            }
-        }
-        if (count > 0)
-            avgCMC /= count;
+        var avgCMC = deck.stream()
+            .filter(deck.getCategorySpec(name)::includes)
+            .flatMap((c) -> Collections.nCopies(deck.getEntry(c).count(), c.cmc().stream().min((a, b) -> Double.compare(a, b)).orElse(0.0)).stream())
+            .mapToDouble(Double::valueOf)
+            .average().orElse(0);
         if (avgCMC == (int)avgCMC)
             avgCMCLabel.setText("Average CMC: " + (int)avgCMC);
         else
