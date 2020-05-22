@@ -77,10 +77,4 @@ public class FlipCard extends MultiCard
     {
         return manaCost.get();
     }
-
-    @Override
-    public double minCmc()
-    {
-        return top.minCmc();
-    }
 }

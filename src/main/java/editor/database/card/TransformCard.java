@@ -64,10 +64,4 @@ public class TransformCard extends MultiCard
     {
         return manaCost.get();
     }
-
-    @Override
-    public double minCmc()
-    {
-        return front.minCmc();
-    }
 }

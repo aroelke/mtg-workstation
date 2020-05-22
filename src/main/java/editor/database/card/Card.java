@@ -109,10 +109,6 @@ public abstract class Card
      */
     private Lazy<Boolean> loyaltyVariable;
     /**
-     * Smallest converted mana cost of all faces of this Card.
-     */
-    private Lazy<Double> minCmc;
-    /**
      * List of flavor texts of the faces of this Card, converted to lower case and with special
      * characters removed.
      */
@@ -200,7 +196,6 @@ public abstract class Card
             }
             return Collections.unmodifiableList(legendNames);
         });
-        minCmc = new Lazy<>(() -> cmc().stream().reduce(Double.MAX_VALUE, Double::min));
         unifiedTypeLine = new Lazy<>(() -> {
             StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
             for (String line : typeLine())
@@ -662,16 +657,6 @@ public abstract class Card
      * @return a list containing the mana costs of the faces of this Card.
      */
     public abstract List<ManaCost> manaCost();
-
-    /**
-     * Get the smallest converted mana cost among faces of this card.
-     *
-     * @return this Card's minimum converted mana cost
-     */
-    public double minCmc()
-    {
-        return minCmc.get();
-    }
 
     /**
      * @return the IDs of each face of this card as they are used by
