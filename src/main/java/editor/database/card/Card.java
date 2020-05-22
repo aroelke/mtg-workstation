@@ -49,7 +49,7 @@ public abstract class Card
     /**
      * Separator string between characteristics of a multi-face card.
      */
-    public static final String FACE_SEPARATOR = "//";
+    public static final String FACE_SEPARATOR = " // ";
     /**
      * Separator for card text when displaying multiple cards in a single text box.
      */
@@ -175,7 +175,7 @@ public abstract class Card
             return Collections.unmodifiableList(legendNames);
         });
         unifiedTypeLine = new Lazy<>(() -> {
-            StringJoiner join = new StringJoiner(" " + FACE_SEPARATOR + " ");
+            StringJoiner join = new StringJoiner(FACE_SEPARATOR);
             for (String line : typeLine())
                 join.add(line);
             return join.toString();
@@ -843,7 +843,7 @@ public abstract class Card
      */
     public String unifiedName()
     {
-        return name().stream().collect(Collectors.joining(" " + FACE_SEPARATOR + " "));
+        return name().stream().collect(Collectors.joining(FACE_SEPARATOR));
     }
 
     /**

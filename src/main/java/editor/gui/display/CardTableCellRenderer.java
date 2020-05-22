@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.StringJoiner;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -58,7 +57,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
         {
             JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
             Border border = BorderFactory.createEmptyBorder(1, 1, 1, 1);
-            StringJoiner join = new StringJoiner(" " + Card.FACE_SEPARATOR + " ");
+            StringJoiner join = new StringJoiner(Card.FACE_SEPARATOR);
             switch (((CardTableModel)table.getModel()).getColumnData(column))
             {
             case MANA_COST:
@@ -70,11 +69,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
                     if (!cost.get(i).isEmpty())
                     {
                         if (i > 0)
-                        {
-                            panel.add(Box.createHorizontalStrut(3));
                             panel.add(new JLabel(Card.FACE_SEPARATOR));
-                            panel.add(Box.createHorizontalStrut(3));
-                        }
                         for (Symbol sym : cost.get(i))
                             panel.add(new JLabel(sym.getIcon(13)));
                     }
