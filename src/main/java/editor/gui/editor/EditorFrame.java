@@ -771,7 +771,8 @@ public class EditorFrame extends JInternalFrame
         // Move cards to sideboard
         tableMenu.add(moveToMenu = new JMenu("Move to"));
         tableMenu.add(moveAllToMenu = new JMenu("Move all to"));
-        tableMenu.add(new JSeparator());
+        JSeparator moveSeparator = new JSeparator();
+        tableMenu.add(moveSeparator);
 
         // Quick edit categories
         JMenu addToCategoryMenu = new JMenu("Include in");
@@ -802,8 +803,9 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             for (JMenuItem item : tableMenuCardItems)
                 item.setEnabled(!parent.getSelectedCards().isEmpty());
-            moveToMenu.setEnabled(!extras.isEmpty());
-            moveAllToMenu.setEnabled(!extras.isEmpty());
+            moveToMenu.setVisible(!extras.isEmpty());
+            moveAllToMenu.setVisible(!extras.isEmpty());
+            moveSeparator.setVisible(!extras.isEmpty());
             addToCategoryMenu.setEnabled(!categoryPanels.isEmpty());
             removeFromCategoryMenu.setEnabled(!categoryPanels.isEmpty());
             editCategoriesItem.setEnabled(!categoryPanels.isEmpty());
@@ -1383,7 +1385,6 @@ public class EditorFrame extends JInternalFrame
                 editCategoriesItem, categoriesSeparator, newCategory.table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             removeFromCategoryItem.setText("Exclude from " + newCategory.getCategoryName());
-
             for (JMenuItem item : tableMenuCardItems)
                 item.setEnabled(!parent.getSelectedCards().isEmpty());
                 editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
