@@ -82,6 +82,7 @@ import editor.database.card.Card;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.ccp.DeckTransferData;
+import editor.gui.ccp.EditorImportHandler;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
@@ -270,72 +271,6 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * This class represents a transfer handler for transferring cards to and from
-     * a table in the editor frame.
-     *
-     * @author Alec Roelke
-     */
-    private class EditorImportHandler extends TransferHandler
-    {
-        /**
-         * Name of the list to make changes to.
-         */
-        protected String name;
-
-        /**
-         * Create a new EditorImportHandler that imports from the given list.
-         *
-         * @param n name of the list to make changes to
-         */
-        public EditorImportHandler(String n)
-        {
-            super();
-            name = n;
-        }
-
-        /**
-         * {@inheritDoc}
-         * Data can only be imported if it is of the card or entry flavors.
-         */
-        @Override
-        public boolean canImport(TransferSupport supp)
-        {
-            return supp.isDataFlavorSupported(CardList.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
-        }
-
-        /**
-         * {@inheritDoc}
-         * If the data can be imported, copy the cards from the source to the target deck.
-         */
-        @Override
-        public boolean importData(TransferSupport supp)
-        {
-            try
-            {
-                if (!canImport(supp))
-                    return false;
-                else if (supp.isDataFlavorSupported(CardList.entryFlavor))
-                {
-                    @SuppressWarnings("unchecked")
-                    var data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
-                    return modifyCards(name, data);
-                }
-                else if (supp.isDataFlavorSupported(Card.cardFlavor))
-                {
-                    var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
-                    return addCards(name, data, 1);
-                }
-                else
-                    return false;
-            }
-            catch (UnsupportedFlavorException | IOException e)
-            {
-                return false;
-            }
-        }
-    }
-
-    /**
      * This class represents a transfer handler for moving data to and from
      * a table in the editor.  It can import or export data of the card or
      * entry flavors.
@@ -352,7 +287,7 @@ public class EditorFrame extends JInternalFrame
          */
         public EditorTableTransferHandler(String n)
         {
-            super(n);
+            super(n, EditorFrame.this);
         }
 
         @Override
@@ -1056,7 +991,7 @@ public class EditorFrame extends JInternalFrame
 
         changelogArea.setText(manager.changelog());
 
-        setTransferHandler(new EditorImportHandler(MAIN_DECK));
+        setTransferHandler(new EditorImportHandler(MAIN_DECK, this));
 
         for (CategorySpec spec: deck.current.categories())
             categoryPanels.add(createCategoryPanel(spec));
