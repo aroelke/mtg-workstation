@@ -357,8 +357,10 @@ public class EditorFrame extends JInternalFrame
         @Override
         public Transferable createTransferable(JComponent c)
         {
+            System.out.println(c.getClass());
             Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-            return new Deck.TransferData(source, parent.getSelectedCards());
+            var data = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (card) -> source.getEntry(card).count()));
+            return new Deck.TransferData(source, data);
         }
 
         @Override

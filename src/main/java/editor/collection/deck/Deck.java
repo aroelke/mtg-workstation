@@ -425,17 +425,6 @@ public class Deck implements CardList
             transferData = cards;
         }
 
-        /**
-         * Create a new TransferData containing the given Deck's entries for the given card.
-         *
-         * @param d deck to get entries from
-         * @param cards cards to find entries for
-         */
-        public TransferData(Deck d, Collection<Card> cards)
-        {
-            this(d, cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> d.getEntry(c).count())));
-        }
-
         @Override
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
         {
