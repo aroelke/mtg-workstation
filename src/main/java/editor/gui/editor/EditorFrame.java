@@ -7,8 +7,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,7 +43,6 @@ import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -63,7 +60,6 @@ import javax.swing.OverlayLayout;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.InternalFrameAdapter;
@@ -81,8 +77,8 @@ import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
-import editor.gui.ccp.DeckTransferData;
 import editor.gui.ccp.EditorImportHandler;
+import editor.gui.ccp.EditorTableTransferHandler;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
@@ -267,64 +263,6 @@ public class EditorFrame extends JInternalFrame
         public DeckData()
         {
             this(new Deck());
-        }
-    }
-
-    /**
-     * This class represents a transfer handler for moving data to and from
-     * a table in the editor.  It can import or export data of the card or
-     * entry flavors.
-     *
-     * @author Alec Roelke
-     */
-    private class EditorTableTransferHandler extends EditorImportHandler
-    {
-        /**
-         * Create a new EditorTableTransferHandler that handles transfers to or from
-         * the main deck or extra lists.
-         *
-         * @param n name of the list to make changes to
-         */
-        public EditorTableTransferHandler(String n)
-        {
-            super(n, EditorFrame.this);
-        }
-
-        @Override
-        public Transferable createTransferable(JComponent c)
-        {
-            Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-            var data = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (card) -> source.getEntry(card).count()));
-            return new DeckTransferData(source, data);
-        }
-
-        @Override
-        public void exportDone(JComponent c, Transferable t, int action)
-        {
-            if (t instanceof DeckTransferData)
-            {
-                try
-                {
-                    @SuppressWarnings("unchecked")
-                    var data = (Map<Card, Integer>)((DeckTransferData)t).getTransferData(CardList.entryFlavor);
-                    if (action == TransferHandler.MOVE)
-                        modifyCards(name, data.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
-                }
-                catch (UnsupportedFlavorException e)
-                {}
-            }
-            else
-                throw new UnsupportedOperationException("Can't export data of type " + t.getClass());
-        }
-
-        /**
-         * {@inheritDoc}
-         * Only copying is supported.
-         */
-        @Override
-        public int getSourceActions(JComponent c)
-        {
-            return TransferHandler.MOVE | TransferHandler.COPY;
         }
     }
 
@@ -633,7 +571,7 @@ public class EditorFrame extends JInternalFrame
         for (int i = 0; i < deck.table.getColumnCount(); i++)
             if (deck.model.isCellEditable(0, i))
                 deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)));
-        deck.table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK));
+        deck.table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK, this));
         deck.table.setDragEnabled(true);
         deck.table.setDropMode(DropMode.ON);
 
@@ -1260,7 +1198,7 @@ public class EditorFrame extends JInternalFrame
             }
         });
 
-        newCategory.table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK));
+        newCategory.table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK, this));
         newCategory.table.setDragEnabled(true);
 
         // Add the behavior for clicking on the category's table
@@ -1921,7 +1859,7 @@ public class EditorFrame extends JInternalFrame
         for (int i = 0; i < extra.table.getColumnCount(); i++)
             if (extra.model.isCellEditable(0, i))
                 extra.table.getColumn(extra.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, extra.model.getColumnData(i)));
-        extra.table.setTransferHandler(new EditorTableTransferHandler(name));
+        extra.table.setTransferHandler(new EditorTableTransferHandler(name, this));
         extra.table.setDragEnabled(true);
         extra.table.setDropMode(DropMode.ON);
 
