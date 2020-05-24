@@ -277,7 +277,7 @@ public class EditorFrame extends JInternalFrame
     private class EditorImportHandler extends TransferHandler
     {
         /**
-         * List to make changes to
+         * Name of the list to make changes to.
          */
         protected String name;
 
@@ -317,36 +317,12 @@ public class EditorFrame extends JInternalFrame
                 {
                     @SuppressWarnings("unchecked")
                     var data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
-                    return performAction(() -> {
-                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-                        if (!source.addAll(data))
-                            throw new CardException(data.keySet(), "unable to copy cards");
-                        updateTables();
-                        return true;
-                    }, () -> {
-                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-                        if (!source.removeAll(data).equals(data))
-                            throw new CardException(data.keySet(), "unable to undo copy of cards");
-                        updateTables();
-                        return true;
-                    });
+                    return modifyCards(name, data);
                 }
                 else if (supp.isDataFlavorSupported(Card.cardFlavor))
                 {
-                    final var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
-                    return performAction(() -> {
-                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-                        if (!source.addAll(data))
-                            throw new CardException(data, "unable to copy cards");
-                        updateTables();
-                        return true;
-                    }, () -> {
-                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-                        if (!source.removeAll(data).equals(data))
-                            throw new CardException(data, "unable to undo copy of cards");
-                        updateTables();
-                        return true;
-                    });
+                    var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
+                    return addCards(name, data, 1);
                 }
                 else
                     return false;
