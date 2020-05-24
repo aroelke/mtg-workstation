@@ -389,10 +389,7 @@ public class EditorFrame extends JInternalFrame
         public void exportDone(JComponent c, Transferable t, int action)
         {
             if (action == TransferHandler.MOVE)
-            {
-                Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-                source.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
-            }
+                removeCards(name, parent.getSelectedCards(), Integer.MAX_VALUE);
         }
 
         /**
@@ -402,7 +399,7 @@ public class EditorFrame extends JInternalFrame
         @Override
         public int getSourceActions(JComponent c)
         {
-            return TransferHandler.COPY;
+            return TransferHandler.MOVE | TransferHandler.COPY;
         }
     }
 
