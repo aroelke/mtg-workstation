@@ -364,8 +364,20 @@ public class EditorFrame extends JInternalFrame
         @Override
         public void exportDone(JComponent c, Transferable t, int action)
         {
-            if (action == TransferHandler.MOVE)
-                removeCards(name, parent.getSelectedCards(), Integer.MAX_VALUE);
+            if (t instanceof Deck.TransferData)
+            {
+                try
+                {
+                    @SuppressWarnings("unchecked")
+                    var data = (Map<Card, Integer>)((Deck.TransferData)t).getTransferData(CardList.entryFlavor);
+                    if (action == TransferHandler.MOVE)
+                        modifyCards(name, data.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
+                }
+                catch (UnsupportedFlavorException e)
+                {}
+            }
+            else
+                throw new UnsupportedOperationException("Can't export data of type " + t.getClass());
         }
 
         /**

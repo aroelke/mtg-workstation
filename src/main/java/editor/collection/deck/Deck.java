@@ -420,26 +420,20 @@ public class Deck implements CardList
          */
         private Map<Card, Integer> transferData;
 
-        /**
-         * Create a new TransferData containing the given deck's entries for the given card.
-         *
-         * @param d     deck to get entries from
-         * @param cards cards to find entries for
-         */
-        public TransferData(Deck d, Card... cards)
+        public TransferData(Deck d, Map<Card, Integer> cards)
         {
-            transferData = Arrays.stream(cards).collect(Collectors.toMap(Function.identity(), (c) -> d.getEntry(c).count()));
+            transferData = cards;
         }
 
         /**
          * Create a new TransferData containing the given Deck's entries for the given card.
          *
-         * @param d     deck to get entries from
+         * @param d deck to get entries from
          * @param cards cards to find entries for
          */
         public TransferData(Deck d, Collection<Card> cards)
         {
-            this(d, cards.toArray(new Card[0]));
+            this(d, cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> d.getEntry(c).count())));
         }
 
         @Override
