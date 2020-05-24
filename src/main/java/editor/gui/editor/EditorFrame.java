@@ -81,6 +81,7 @@ import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
+import editor.gui.ccp.DeckTransferData;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
@@ -357,21 +358,20 @@ public class EditorFrame extends JInternalFrame
         @Override
         public Transferable createTransferable(JComponent c)
         {
-            System.out.println(c.getClass());
             Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
             var data = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (card) -> source.getEntry(card).count()));
-            return new Deck.TransferData(source, data);
+            return new DeckTransferData(source, data);
         }
 
         @Override
         public void exportDone(JComponent c, Transferable t, int action)
         {
-            if (t instanceof Deck.TransferData)
+            if (t instanceof DeckTransferData)
             {
                 try
                 {
                     @SuppressWarnings("unchecked")
-                    var data = (Map<Card, Integer>)((Deck.TransferData)t).getTransferData(CardList.entryFlavor);
+                    var data = (Map<Card, Integer>)((DeckTransferData)t).getTransferData(CardList.entryFlavor);
                     if (action == TransferHandler.MOVE)
                         modifyCards(name, data.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
                 }
