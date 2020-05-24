@@ -111,6 +111,7 @@ import editor.database.version.DatabaseVersion;
 import editor.database.version.UpdateFrequency;
 import editor.filter.Filter;
 import editor.filter.leaf.TextFilter;
+import editor.gui.ccp.InventoryTransferData;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableCellRenderer;
@@ -1362,7 +1363,7 @@ public class MainFrame extends JFrame
             @Override
             protected Transferable createTransferable(JComponent c)
             {
-                return new Inventory.TransferData(getSelectedCards());
+                return new InventoryTransferData(getSelectedCards());
             }
 
             @Override
