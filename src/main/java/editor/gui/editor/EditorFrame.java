@@ -36,6 +36,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -192,21 +193,97 @@ public class EditorFrame extends JInternalFrame
     private static final class DeckData
     {
         /**
+         * Name of the deck, if it isn't the main deck.
+         */
+        public Optional<String> name;
+        /**
          * Current state of the deck.
          */
-        private Deck current;
-        /**
-         * Model backing the table.
-         */
-        private CardTableModel model;
+        public final Deck current;
         /**
          * Original state of the deck just after loading it.
          */
-        private Deck original;
+        public final Deck original;
+        /**
+         * Model backing the table.
+         */
+        public CardTableModel model;
         /**
          * Table displaying the deck.
          */
-        private CardTable table;
+        public CardTable table;
+
+        /**
+         * Create a copy of a DeckData.
+         * 
+         * @param d DeckData to copy
+         */
+        public DeckData(DeckData d)
+        {
+            current = new Deck();
+            current.addAll(d.current);
+            original = new Deck();
+            original.addAll(d.original);
+            name = d.name;
+        }
+
+        /**
+         * Create a new DeckData with the given optional name. Don't use this
+         * constructor.
+         * 
+         * @param deck deck to use as backing data
+         * @param n name of the deck if it isn't the main deck
+         */
+        private DeckData(Deck deck, Optional<String> n)
+        {
+            current = deck;
+            original = new Deck();
+            original.addAll(deck);
+            name = n;
+        }
+
+        /**
+         * Create a new DeckData using the given Deck.  The original deck
+         * will be a copy of it. Do not use this constructor for the main deck.
+         * 
+         * @param deck Deck to use as backing data
+         * @param n name of the deck
+         */
+        public DeckData(Deck deck, String n)
+        {
+            this(deck, Optional.of(n));
+        }
+
+        /**
+         * Create a new DeckData for a list with the given name. Do not use this
+         * constructor for the main deck.
+         * 
+         * @param n name of the new list
+         */
+        public DeckData(String n)
+        {
+            this(new Deck(), n);
+        }
+
+        /**
+         * Create a new DeckData to represent the main deck. Do not use this constructor
+         * to create an extra list.
+         * 
+         * @param deck list of cards to put in the deck
+         */
+        public DeckData(Deck deck)
+        {
+            this(deck, Optional.empty());
+        }
+
+        /**
+         * Create a new, empty DeckData representing the main deck. Do not use this
+         * constructor to create an extra list.
+         */
+        public DeckData()
+        {
+            this(new Deck());
+        }
 
         /**
          * @return A String containing the cards that are different between the current deck
@@ -231,40 +308,6 @@ public class EditorFrame extends JInternalFrame
                     changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
             }
             return changes.toString();
-        }
-
-        /**
-         * Create a copy of a DeckData.
-         * 
-         * @Param d DeckData to copy
-         */
-        public DeckData(DeckData d)
-        {
-            current = new Deck();
-            current.addAll(d.current);
-            original = new Deck();
-            original.addAll(d.original);
-        }
-
-        /**
-         * Create a new DeckData using the given Deck.  The original deck
-         * will be a copy of it.
-         * 
-         * @param deck Deck to use as backing data
-         */
-        public DeckData(Deck deck)
-        {
-            current = deck;
-            original = new Deck();
-            original.addAll(deck);
-        }
-
-        /**
-         * Create a new, empty DeckData.
-         */
-        public DeckData()
-        {
-            this(new Deck());
         }
     }
 
@@ -488,7 +531,7 @@ public class EditorFrame extends JInternalFrame
                 {
                     Card card = parent.getSelectedCards().get(0);
 
-                    for (CategorySpec category : deck.current.categories())
+                    for (CategorySpec category : deck().current.categories())
                     {
                         if (!category.includes(card))
                         {
@@ -499,7 +542,7 @@ public class EditorFrame extends JInternalFrame
                     }
                     addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount() > 0);
 
-                    for (CategorySpec category : deck.current.categories())
+                    for (CategorySpec category : deck().current.categories())
                     {
                         if (category.includes(card))
                         {
@@ -516,7 +559,7 @@ public class EditorFrame extends JInternalFrame
                     removeFromCategoryMenu.setVisible(false);
                 }
 
-                editCategoriesItem.setVisible(!parent.getSelectedCards().isEmpty() && !deck.current.categories().isEmpty());
+                editCategoriesItem.setVisible(!parent.getSelectedCards().isEmpty() && !deck().current.categories().isEmpty());
 
                 menuSeparator.setVisible(addToCategoryMenu.isVisible() || removeFromCategoryMenu.isVisible() || editCategoriesItem.isVisible());
             }
@@ -567,17 +610,9 @@ public class EditorFrame extends JInternalFrame
      */
     private JLabel countLabel;
     /**
-     * Main deck data.
-     */
-    private DeckData deck;
-    /**
      * Panel containing components to display when there are no extra lists.
      */
     private JPanel emptyPanel;
-    /**
-     * Extra list deck data (e.g. sideboard).
-     */
-    private Map<String, DeckData> extras;
     /**
      * Panel containing extra lists.
      */
@@ -610,6 +645,13 @@ public class EditorFrame extends JInternalFrame
      * Label showing the total number of land cards in the deck.
      */
     private JLabel landLabel;
+    /**
+     * All lists in the editor. The index into this list of a card list is that card
+     * list's ID. The main deck always has ID 0, and will never be null. Other lists
+     * will have IDs starting from 1, and any empty spots will be indicated with a null
+     * value here.
+     */
+    private List<DeckData> lists;
     /**
      * Tabbed pane for choosing whether to display the entire deck or the categories.
      */
@@ -678,8 +720,8 @@ public class EditorFrame extends JInternalFrame
         setLayout(new BorderLayout(0, 0));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-        deck = new DeckData(manager.deck());
-        extras = new LinkedHashMap<>();
+        lists = new ArrayList<>(2);
+        lists.add(new DeckData(manager.deck()));
 
         parent = p;
         unsaved = false;
@@ -696,26 +738,26 @@ public class EditorFrame extends JInternalFrame
 
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        deck.model = new CardTableModel(this, deck.current, SettingsDialog.settings().editor.columns);
-        deck.table = new CardTable(deck.model);
-        deck.table.setStripeColor(SettingsDialog.settings().editor.stripe);
+        deck().model = new CardTableModel(this, deck().current, SettingsDialog.settings().editor.columns);
+        deck().table = new CardTable(deck().model);
+        deck().table.setStripeColor(SettingsDialog.settings().editor.stripe);
         // When a card is selected in the master list table, select it for adding
-        deck.table.getSelectionModel().addListSelectionListener((e) -> {
+        deck().table.getSelectionModel().addListSelectionListener((e) -> {
             if (!e.getValueIsAdjusting())
             {
                 ListSelectionModel lsm = (ListSelectionModel)e.getSource();
                 if (!lsm.isSelectionEmpty())
-                    parent.setSelectedCards(deck.table, deck.current);
+                    parent.setSelectedCards(deck().table, deck().current);
             }
         });
-        for (int i = 0; i < deck.table.getColumnCount(); i++)
-            if (deck.model.isCellEditable(0, i))
-                deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)));
-        deck.table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK));
-        deck.table.setDragEnabled(true);
-        deck.table.setDropMode(DropMode.ON);
+        for (int i = 0; i < deck().table.getColumnCount(); i++)
+            if (deck().model.isCellEditable(0, i))
+                deck().table.getColumn(deck().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck().model.getColumnData(i)));
+        deck().table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK));
+        deck().table.setDragEnabled(true);
+        deck().table.setDropMode(DropMode.ON);
 
-        JScrollPane mainDeckPane = new JScrollPane(deck.table);
+        JScrollPane mainDeckPane = new JScrollPane(deck().table);
         mainDeckPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
         JPanel mainDeckPanel = new JPanel(new BorderLayout());
         mainDeckPanel.add(mainDeckPane, BorderLayout.CENTER);
@@ -723,7 +765,7 @@ public class EditorFrame extends JInternalFrame
         VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         deckButtons.get("+").addActionListener((e) -> addCards("", parent.getSelectedCards(), 1));
         deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards("",  parent.getSelectedCards(), 1));
-        deckButtons.get("X").addActionListener((e) -> removeCards("",  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck.current.getEntry(c).count()).reduce(0, Math::max)));
+        deckButtons.get("X").addActionListener((e) -> removeCards("",  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
         mainDeckPanel.add(deckButtons, BorderLayout.WEST);
         mainPanel.add(mainDeckPanel, BorderLayout.CENTER);
 
@@ -759,7 +801,7 @@ public class EditorFrame extends JInternalFrame
 
         // Main table popup menu
         JPopupMenu tableMenu = new JPopupMenu();
-        deck.table.addMouseListener(new TableMouseAdapter(deck.table, tableMenu));
+        deck().table.addMouseListener(new TableMouseAdapter(deck().table, tableMenu));
 
         // Add/remove cards
         CardMenuItems tableMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, true);
@@ -783,7 +825,7 @@ public class EditorFrame extends JInternalFrame
         // Edit categories item
         JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
         editCategoriesItem.addActionListener((e) -> {
-            IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.current.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), parent.getSelectedCards());
+            IncludeExcludePanel iePanel = new IncludeExcludePanel(deck().current.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), parent.getSelectedCards());
             if (JOptionPane.showConfirmDialog(this, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
                 editInclusion(iePanel.getIncluded(), iePanel.getExcluded());
         });
@@ -799,12 +841,12 @@ public class EditorFrame extends JInternalFrame
 
         // Table memu popup listeners
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
-                editCategoriesItem, categoriesSeparator, deck.table));
+                editCategoriesItem, categoriesSeparator, deck().table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
-            moveToMenu.setVisible(!extras.isEmpty());
-            moveAllToMenu.setVisible(!extras.isEmpty());
-            moveSeparator.setVisible(!extras.isEmpty());
+            moveToMenu.setVisible(!extras().isEmpty());
+            moveAllToMenu.setVisible(!extras().isEmpty());
+            moveSeparator.setVisible(!extras().isEmpty());
             addToCategoryMenu.setEnabled(!categoryPanels.isEmpty());
             removeFromCategoryMenu.setEnabled(!categoryPanels.isEmpty());
             editCategoriesItem.setEnabled(!categoryPanels.isEmpty());
@@ -812,43 +854,43 @@ public class EditorFrame extends JInternalFrame
 
             moveToMenu.removeAll();
             moveAllToMenu.removeAll();
-            for (final String name : extras.keySet())
+            for (final DeckData extra : extras())
             {
-                JMenuItem moveToItem = new JMenuItem(name);
+                JMenuItem moveToItem = new JMenuItem(extra.name.get());
                 moveToItem.addActionListener((e2) -> {
                     final var selected = Collections.unmodifiableSet(new HashSet<>(parent.getSelectedCards()));
                     performAction(() -> {
-                        if (!deck.current.removeAll(selected).equals(selected))
+                        if (!deck().current.removeAll(selected).equals(selected))
                             throw new CardException(selected, "error moving cards from main deck");
-                        if (!extras.get(name).current.addAll(selected))
-                            throw new CardException(selected, "could not move cards to list \"" + name + '"');
+                        if (!extra.current.addAll(selected))
+                            throw new CardException(selected, "could not move cards to list \"" + extra.name.get() + '"');
                         updateTables();
                         return true;
                     }, () -> {
-                        if (!deck.current.addAll(selected))
+                        if (!deck().current.addAll(selected))
                             throw new CardException(selected, "could not undo move from main deck");
-                        if (!extras.get(name).current.removeAll(selected).equals(selected))
-                            throw new CardException(selected, "error undoing move to list \"" + name + '"');
+                        if (!extra.current.removeAll(selected).equals(selected))
+                            throw new CardException(selected, "error undoing move to list \"" + extra.name.get() + '"');
                         updateTables();
                         return true;
                     });
                 });
                 moveToMenu.add(moveToItem);
-                JMenuItem moveAllToItem = new JMenuItem(name);
+                JMenuItem moveAllToItem = new JMenuItem(extra.name.get());
                 moveAllToItem.addActionListener((e2) -> {
-                    final var moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck.current.getEntry(c).count()));
+                    final var moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck().current.getEntry(c).count()));
                     performAction(() -> {
-                        if (!deck.current.removeAll(moves).equals(moves))
+                        if (!deck().current.removeAll(moves).equals(moves))
                             throw new CardException(moves.keySet(), "error moving cards from main deck");
-                        if (!extras.get(name).current.addAll(moves))
-                            throw new CardException(moves.keySet(), "could not move cards to list \"" + name + '"');
+                        if (!extra.current.addAll(moves))
+                            throw new CardException(moves.keySet(), "could not move cards to list \"" + extra.name.get() + '"');
                         updateTables();
                         return true;
                     }, () -> {
-                        if (!deck.current.addAll(moves))
+                        if (!deck().current.addAll(moves))
                             throw new CardException(moves.keySet(), "could not undo move from main deck");
-                        if (!extras.get(name).current.removeAll(moves).equals(moves))
-                            throw new CardException(moves.keySet(), "error undoing move to list \"" + name + '"');
+                        if (!extra.current.removeAll(moves).equals(moves))
+                            throw new CardException(moves.keySet(), "error undoing move to list \"" + extra.name.get() + '"');
                         updateTables();
                         return true;
                     });
@@ -919,14 +961,14 @@ public class EditorFrame extends JInternalFrame
         VerticalButtonList categoryButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         categoryButtons.get("+").addActionListener((e) -> addCards("", parent.getSelectedCards(), 1));
         categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards("", parent.getSelectedCards(), 1));
-        categoryButtons.get("X").addActionListener((e) -> removeCards("", parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck.current.getEntry(c).count()).reduce(0, Math::max)));
+        categoryButtons.get("X").addActionListener((e) -> removeCards("", parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
         categoriesPanel.add(categoryButtons, BorderLayout.WEST);
 
         // Sample hands
         JPanel handPanel = new JPanel(new BorderLayout());
 
         // Table showing the cards in hand
-        hand = new Hand(deck.current);
+        hand = new Hand(deck().current);
 
         imagePanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
         imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
@@ -972,7 +1014,7 @@ public class EditorFrame extends JInternalFrame
         handModPanel.add(mulliganButton);
         JButton drawCardButton = new JButton("Draw a Card");
         drawCardButton.addActionListener((e) -> {
-            if (hand.size() < deck.current.total())
+            if (hand.size() < deck().current.total())
             {
                 hand.draw();
                 CardImagePanel panel = new CardImagePanel();
@@ -995,7 +1037,7 @@ public class EditorFrame extends JInternalFrame
             drawCardButton.setPreferredSize(new Dimension(w, drawCardButton.getPreferredSize().height));
         });
 
-        handCalculations = new CalculateHandPanel(deck.current);
+        handCalculations = new CalculateHandPanel(deck().current);
 
         JSplitPane handSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imagePane, handCalculations);
         handSplit.setOneTouchExpandable(true);
@@ -1039,7 +1081,7 @@ public class EditorFrame extends JInternalFrame
         JButton legalityButton = new JButton("Show Legality");
         legalityButton.addActionListener((e) -> {
             LegalityChecker checker = new LegalityChecker();
-            checker.checkLegality(deck.current);
+            checker.checkLegality(deck().current);
             JOptionPane.showMessageDialog(this, new LegalityPanel(checker), "Legality of " + deckName(), JOptionPane.PLAIN_MESSAGE);
         });
         legalityButton.setEnabled(false);
@@ -1071,7 +1113,7 @@ public class EditorFrame extends JInternalFrame
 
         setTransferHandler(new EditorImportHandler(MAIN_DECK));
 
-        for (CategorySpec spec: deck.current.categories())
+        for (CategorySpec spec: deck().current.categories())
             categoryPanels.add(createCategoryPanel(spec));
         updateCategoryPanel();
         handCalculations.update();
@@ -1150,12 +1192,12 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean addCategory(CategorySpec spec)
     {
-        if (deck.current.containsCategory(spec.getName()))
+        if (deck().current.containsCategory(spec.getName()))
             return false;
         else
         {
             return performAction(() -> {
-                if (deck.current.containsCategory(spec.getName()))
+                if (deck().current.containsCategory(spec.getName()))
                     throw new RuntimeException("attempting to add duplicate category " + spec.getName());
                 else
                     return do_addCategory(spec);
@@ -1170,11 +1212,11 @@ public class EditorFrame extends JInternalFrame
     {
         var columns = SettingsDialog.settings().editor.columns;
         Color stripe = SettingsDialog.settings().editor.stripe;
-        deck.model.setColumns(columns);
-        deck.table.setStripeColor(stripe);
-        for (int i = 0; i < deck.table.getColumnCount(); i++)
-            if (deck.model.isCellEditable(0, i))
-                deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)));
+        deck().model.setColumns(columns);
+        deck().table.setStripeColor(stripe);
+        for (int i = 0; i < deck().table.getColumnCount(); i++)
+            if (deck().model.isCellEditable(0, i))
+                deck().table.getColumn(deck().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck().model.getColumnData(i)));
         for (CategoryPanel category : categoryPanels)
             category.applySettings(this);
         startingHandSize = SettingsDialog.settings().editor.hand.size;
@@ -1189,11 +1231,7 @@ public class EditorFrame extends JInternalFrame
      */
     public void clearTableSelections(CardTable except)
     {
-        if (deck.table != except)
-            deck.table.clearSelection();
-        for (DeckData extra : extras.values())
-            if (extra.table != except)
-                extra.table.clearSelection();
+        lists.stream().filter((l) -> l != null && l.table != except).forEach((l) -> l.table.clearSelection());
         for (CategoryPanel c : categoryPanels)
             if (c.table != except)
                 c.table.clearSelection();
@@ -1243,10 +1281,10 @@ public class EditorFrame extends JInternalFrame
         do
         {
             (spec = CategoryEditorPanel.showCategoryEditor(this, spec)).ifPresent((s) -> {
-            if (deck.current.containsCategory(s.getName()))
+            if (deck().current.containsCategory(s.getName()))
                 JOptionPane.showMessageDialog(this, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE);
             });
-        } while (spec.isPresent() && deck.current.containsCategory(spec.get().getName()));
+        } while (spec.isPresent() && deck().current.containsCategory(spec.get().getName()));
         return spec;
     }
 
@@ -1258,12 +1296,12 @@ public class EditorFrame extends JInternalFrame
      */
     private CategoryPanel createCategoryPanel(CategorySpec spec)
     {
-        final CategoryPanel newCategory = new CategoryPanel(deck.current, spec.getName(), this);
+        final CategoryPanel newCategory = new CategoryPanel(deck().current, spec.getName(), this);
         // When a card is selected in a category, the others should deselect
         newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
             ListSelectionModel lsm = (ListSelectionModel)e.getSource();
             if (!lsm.isSelectionEmpty() && !e.getValueIsAdjusting())
-                parent.setSelectedCards(newCategory.table, deck.current.getCategoryList(newCategory.getCategoryName()));
+                parent.setSelectedCards(newCategory.table, deck().current.getCategoryList(newCategory.getCategoryName()));
         });
         // Add the behavior for the edit category button
         newCategory.editButton.addActionListener((e) -> editCategory(newCategory.getCategoryName()));
@@ -1274,17 +1312,17 @@ public class EditorFrame extends JInternalFrame
             final Color newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color());
             if (newColor != null)
             {
-                final Color oldColor = deck.current.getCategorySpec(newCategory.getCategoryName()).getColor();
+                final Color oldColor = deck().current.getCategorySpec(newCategory.getCategoryName()).getColor();
                 final String name = newCategory.getCategoryName();
                 performAction(() -> {
-                    CategorySpec mod = deck.current.getCategorySpec(name);
+                    CategorySpec mod = deck().current.getCategorySpec(name);
                     mod.setColor(newColor);
-                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
+                    deck().current.updateCategory(newCategory.getCategoryName(), mod);
                     return true;
                 }, () -> {
-                    CategorySpec mod = deck.current.getCategorySpec(name);
+                    CategorySpec mod = deck().current.getCategorySpec(name);
                     mod.setColor(oldColor);
-                    deck.current.updateCategory(newCategory.getCategoryName(), mod);
+                    deck().current.updateCategory(newCategory.getCategoryName(), mod);
                     return true;
                 });
             }
@@ -1295,16 +1333,16 @@ public class EditorFrame extends JInternalFrame
             if (!title.equals(oldName))
             {
                 performAction(() -> {
-                    CategorySpec mod = deck.current.getCategorySpec(oldName);
+                    CategorySpec mod = deck().current.getCategorySpec(oldName);
                     mod.setName(title);
-                    deck.current.updateCategory(oldName, mod);
+                    deck().current.updateCategory(oldName, mod);
                     newCategory.setCategoryName(title);
                     updateCategoryPanel();
                     return true;
                 }, () -> {
-                    CategorySpec mod = deck.current.getCategorySpec(title);
+                    CategorySpec mod = deck().current.getCategorySpec(title);
                     mod.setName(oldName);
-                    deck.current.updateCategory(title, mod);
+                    deck().current.updateCategory(title, mod);
                     newCategory.setCategoryName(oldName);
                     updateCategoryPanel();
                     return true;
@@ -1316,21 +1354,19 @@ public class EditorFrame extends JInternalFrame
             if (newCategory.rankBox.isPopupVisible())
             {
                 final String name = newCategory.getCategoryName();
-                final int old = deck.current.getCategoryRank(newCategory.getCategoryName());
+                final int old = deck().current.getCategoryRank(newCategory.getCategoryName());
                 final int target = newCategory.rankBox.getSelectedIndex();
                 performAction(() -> {
-                    deck.current.swapCategoryRanks(name, target);
-
+                    deck().current.swapCategoryRanks(name, target);
                     for (CategoryPanel panel : categoryPanels)
-                        panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
+                        panel.rankBox.setSelectedIndex(deck().current.getCategoryRank(panel.getCategoryName()));
                     listTabs.setSelectedIndex(CATEGORIES);
                     updateCategoryPanel();
                     return true;
                 }, () -> {
-                    deck.current.swapCategoryRanks(name, old);
-
+                    deck().current.swapCategoryRanks(name, old);
                     for (CategoryPanel panel : categoryPanels)
-                        panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName()));
+                        panel.rankBox.setSelectedIndex(deck().current.getCategoryRank(panel.getCategoryName()));
                     listTabs.setSelectedIndex(CATEGORIES);
                     updateCategoryPanel();
                     return true;
@@ -1358,7 +1394,7 @@ public class EditorFrame extends JInternalFrame
         JMenu addToCategoryMenu = new JMenu("Include in");
         tableMenu.add(addToCategoryMenu);
         JMenuItem removeFromCategoryItem = new JMenuItem("Exclude from " + spec.getName());
-        removeFromCategoryItem.addActionListener((e) -> modifyInclusion(Collections.<Card>emptyList(), newCategory.getSelectedCards(), deck.current.getCategorySpec(newCategory.getCategoryName())));
+        removeFromCategoryItem.addActionListener((e) -> modifyInclusion(Collections.<Card>emptyList(), newCategory.getSelectedCards(), deck().current.getCategorySpec(newCategory.getCategoryName())));
         tableMenu.add(removeFromCategoryItem);
         JMenu removeFromCategoryMenu = new JMenu("Exclude from");
         tableMenu.add(removeFromCategoryMenu);
@@ -1366,7 +1402,7 @@ public class EditorFrame extends JInternalFrame
         // Edit categories item
         JMenuItem editCategoriesItem = new JMenuItem("Edit Categories...");
         editCategoriesItem.addActionListener((e) -> {
-            IncludeExcludePanel iePanel = new IncludeExcludePanel(deck.current.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), parent.getSelectedCards());
+            IncludeExcludePanel iePanel = new IncludeExcludePanel(deck().current.categories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), parent.getSelectedCards());
             if (JOptionPane.showConfirmDialog(this, new JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
                 editInclusion(iePanel.getIncluded(), iePanel.getExcluded());
         });
@@ -1415,13 +1451,13 @@ public class EditorFrame extends JInternalFrame
 
         // Delete item
         JMenuItem deleteItem = new JMenuItem("Delete");
-        deleteItem.addActionListener((e) -> deck.current.removeCategory(newCategory.getCategoryName()));
+        deleteItem.addActionListener((e) -> deck().current.removeCategory(newCategory.getCategoryName()));
         categoryMenu.add(deleteItem);
 
         // Add to presets item
         JMenuItem addPresetItem = new JMenuItem("Add to presets");
         addPresetItem.addActionListener((e) -> {
-            CategorySpec s = deck.current.getCategorySpec(newCategory.getCategoryName());
+            CategorySpec s = deck().current.getCategorySpec(newCategory.getCategoryName());
             if (!s.getWhitelist().isEmpty() || !s.getBlacklist().isEmpty())
             {
                 if (JOptionPane.showConfirmDialog(this,
@@ -1449,14 +1485,81 @@ public class EditorFrame extends JInternalFrame
      * 
      * @param name name of the extra list, i.e. "Sideboard"; should be unique
      * @param index index of the tab to insert the new list at
-     * @return <code>true</code> if the list was successfully added, and <code>false</code>
-     * otherwise.
+     * @return The ID of the newly-created list.
+     * @throws IllegalArgumentException if a list with the given name already exists
      */
-    private boolean createExtra(String name, int index)
+    private int createExtra(String name, int index)
     {
-        if (extras.containsKey(name))
+        if (extras().stream().anyMatch((l) -> l.name.get().equals(name)))
             throw new IllegalArgumentException("sideboard \"" + name + "\" already exists");
+        else
+        {
+            DeckData newExtra = new DeckData();
+            lists.add(newExtra);
+            final int id = lists.size() - 1;
 
+            final EditablePanel panel = new EditablePanel(name, extrasPane);
+            extrasPane.insertTab(name, null, initExtraList(id, newExtra), null, index);
+            extrasPane.setTabComponentAt(index, panel);
+            extrasPane.setSelectedIndex(index);
+            extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
+
+            extrasPanel.setVisible(!extras().isEmpty());
+            emptyPanel.setVisible(extras().isEmpty());
+
+            panel.addActionListener((e) -> {
+                switch (e.getActionCommand())
+                {
+                case EditablePanel.CLOSE:
+                    final String n = panel.getTitle();
+                    final DeckData extra = new DeckData(lists.get(id));
+                    final int i = extrasPane.indexOfTab(n);
+                    performAction(() -> deleteExtra(id, i), () -> {
+                        int tmp = createExtra(n, i);
+                        assert(lists.get(id) == null);
+                        lists.set(id, lists.get(tmp));
+                        lists.remove(tmp);
+                        if (!lists.get(id).current.addAll(extra.current))
+                            tmp = -1;
+                        if (!lists.get(id).original.addAll(extra.original))
+                            tmp = -1;
+                        return tmp > 0;
+                    });
+                    break;
+                case EditablePanel.EDIT:
+                    final String current = panel.getTitle();
+                    final String old = panel.getOldTitle();
+                    if (current.isEmpty())
+                        panel.setTitle(old);
+                    else if (extras().stream().anyMatch((l) -> l.name.get().equals(name)))
+                    {
+                        panel.setTitle(old);
+                        JOptionPane.showMessageDialog(EditorFrame.this, "Sideboard \"" + current + "\" already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    else if (!current.equals(old))
+                    {
+                        final int j = extrasPane.indexOfTab(old);
+                        performAction(() -> {
+                            newExtra.name = Optional.of(current);
+                            ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(current);
+                            extrasPane.setTitleAt(j, current);
+                            return true;
+                        }, () -> {
+                            newExtra.name = Optional.of(old);
+                            ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(old);
+                            extrasPane.setTitleAt(j, old);
+                            return true;
+                        });
+                    }
+                    break;
+                case EditablePanel.CANCEL:
+                    break;
+                }
+            });
+
+            return id;
+        }
+/*
         if (extras.put(name, new DeckData()) != null)
             return false;
         else
@@ -1517,6 +1620,15 @@ public class EditorFrame extends JInternalFrame
 
             return true;
         }
+*/
+    }
+
+    /**
+     * @return The list corresponding to the main deck (ID 0).
+     */
+    private DeckData deck()
+    {
+        return lists.get(0);
     }
 
     /**
@@ -1535,33 +1647,31 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * Delete an extra list.
+     * Delete an extra list. This just sets its index in the list of card lists to null,
+     * so it can be reused later if this is undone.
      * 
-     * @param name name of the list to delete
+     * @param id ID of the list to delete
      * @param index index of the tab containing the list
      * @return <code>true</code> if the list was successfully removed, and <code>false</code>
      * otherwise.
+     * @throws IllegalArgumentException if the list with the given ID doesn't exist
      */
-    private boolean deleteExtra(String name, int index)
+    private boolean deleteExtra(int id, int index)
     {
-        if (!extras.containsKey(name))
-            throw new IllegalArgumentException("missing sideboard \"" + name + '"');
+        if (lists.get(id) == null)
+            throw new IllegalArgumentException("missing sideboard with ID " + id);
 
-        if (extras.remove(name) == null)
-            return false;
-        else
+        lists.set(id, null);
+        extrasPane.remove(index);
+        if (index > 0)
         {
-            extrasPane.remove(index);
-            if (index > 0)
-            {
-                extrasPane.setSelectedIndex(index - 1);
-                extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
-            }
-            extrasPanel.setVisible(!extras.isEmpty());
-            emptyPanel.setVisible(extras.isEmpty());
-
-            return true;
+            extrasPane.setSelectedIndex(index - 1);
+            extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
         }
+        extrasPanel.setVisible(!extras().isEmpty());
+        emptyPanel.setVisible(extras().isEmpty());
+
+        return true;
     }
 
     /**
@@ -1573,14 +1683,14 @@ public class EditorFrame extends JInternalFrame
      */
     private boolean do_addCategory(CategorySpec spec)
     {
-        deck.current.addCategory(spec);
+        deck().current.addCategory(spec);
 
         CategoryPanel category = createCategoryPanel(spec);
         categoryPanels.add(category);
 
         for (CategoryPanel c : categoryPanels)
             if (c != category)
-                c.rankBox.addItem(deck.current.categories().size() - 1);
+                c.rankBox.addItem(deck().current.categories().size() - 1);
 
         listTabs.setSelectedIndex(CATEGORIES);
         updateCategoryPanel();
@@ -1603,7 +1713,7 @@ public class EditorFrame extends JInternalFrame
      */
     private boolean do_removeCategory(CategorySpec spec)
     {
-        deck.current.removeCategory(spec);
+        deck().current.removeCategory(spec);
 
         categoryPanels.remove(getCategory(spec.getName()).get());
         for (CategoryPanel panel : categoryPanels)
@@ -1626,14 +1736,14 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean editCategory(String name)
     {
-        CategorySpec toEdit = deck.current.getCategorySpec(name);
+        CategorySpec toEdit = deck().current.getCategorySpec(name);
         if (toEdit == null)
             JOptionPane.showMessageDialog(this, "Deck " + deckName() + " has no category named " + name + ".",
                     "Error", JOptionPane.ERROR_MESSAGE);
         return CategoryEditorPanel.showCategoryEditor(this, Optional.of(toEdit)).map((s) -> {
-            final CategorySpec old = deck.current.getCategorySpec(name);
+            final CategorySpec old = deck().current.getCategorySpec(name);
             return performAction(() -> {
-                if (!deck.current.updateCategory(old.getName(), s).equals(old))
+                if (!deck().current.updateCategory(old.getName(), s).equals(old))
                     throw new RuntimeException("edited unexpected category");
                 CategoryPanel panel = getCategory(old.getName()).get();
                 panel.setCategoryName(s.getName());
@@ -1641,7 +1751,7 @@ public class EditorFrame extends JInternalFrame
                 updateCategoryPanel();
                 return true;
             }, () -> {
-                if (!deck.current.updateCategory(s.getName(), old).equals(s))
+                if (!deck().current.updateCategory(s.getName(), old).equals(s))
                     throw new RuntimeException("restored from unexpected category");
                 CategoryPanel panel = getCategory(s.getName()).get();
                 panel.setCategoryName(old.getName());
@@ -1686,9 +1796,9 @@ public class EditorFrame extends JInternalFrame
                 {
                     for (CategorySpec category : included.get(card))
                     {
-                        if (deck.current.getCategorySpec(category.getName()).includes(card))
+                        if (deck().current.getCategorySpec(category.getName()).includes(card))
                             throw new IllegalArgumentException(card + " is already in " + category.getName());
-                        mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
+                        mods.putIfAbsent(category.getName(), deck().current.getCategorySpec(category.getName()));
                         mods.get(category.getName()).include(card);
                     }
                 }
@@ -1696,14 +1806,14 @@ public class EditorFrame extends JInternalFrame
                 {
                     for (CategorySpec category : excluded.get(card))
                     {
-                        if (!deck.current.getCategorySpec(category.getName()).includes(card))
+                        if (!deck().current.getCategorySpec(category.getName()).includes(card))
                             throw new IllegalArgumentException(card + " is already not in " + category.getName());
-                        mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
+                        mods.putIfAbsent(category.getName(), deck().current.getCategorySpec(category.getName()));
                         mods.get(category.getName()).exclude(card);
                     }
                 }
                 for (var mod : mods.entrySet())
-                    deck.current.updateCategory(mod.getKey(), mod.getValue());
+                    deck().current.updateCategory(mod.getKey(), mod.getValue());
                 return true;
             }, () -> {
                 var mods = new HashMap<String, CategorySpec>();
@@ -1711,9 +1821,9 @@ public class EditorFrame extends JInternalFrame
                 {
                     for (CategorySpec category : included.get(card))
                     {
-                        if (!deck.current.getCategorySpec(category.getName()).includes(card))
+                        if (!deck().current.getCategorySpec(category.getName()).includes(card))
                             throw new IllegalArgumentException("error undoing category edit: " + card + " is already not in " + category.getName());
-                        mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
+                        mods.putIfAbsent(category.getName(), deck().current.getCategorySpec(category.getName()));
                         mods.get(category.getName()).exclude(card);
                     }
                 }
@@ -1721,14 +1831,14 @@ public class EditorFrame extends JInternalFrame
                 {
                     for (CategorySpec category : excluded.get(card))
                     {
-                        if (deck.current.getCategorySpec(category.getName()).includes(card))
+                        if (deck().current.getCategorySpec(category.getName()).includes(card))
                             throw new IllegalArgumentException("error undoing category edit: " + card + " is already in " + category.getName());
-                        mods.putIfAbsent(category.getName(), deck.current.getCategorySpec(category.getName()));
+                        mods.putIfAbsent(category.getName(), deck().current.getCategorySpec(category.getName()));
                         mods.get(category.getName()).include(card);
                     }
                 }
                 for (var mod : mods.entrySet())
-                    deck.current.updateCategory(mod.getKey(), mod.getValue());
+                    deck().current.updateCategory(mod.getKey(), mod.getValue());
                 return true;
             });
         }
@@ -1766,19 +1876,20 @@ public class EditorFrame extends JInternalFrame
 
             if (format.hasHeader())
                 wr.println(format.header());
-            if (!deck.current.isEmpty())
+            if (!deck().current.isEmpty())
             {
-                copy = new Deck(deck.current);
+                copy = new Deck(deck().current);
                 copy.sort(comp);
                 wr.print(format.format(copy));
             }
-            for (var extra : extraNames)
+            for (String extra : extraNames)
             {
-                if (!extras.containsKey(extra))
+                var list = extras().stream().filter((l) -> l.name.get().equals(extra)).findAny();
+                if (!list.isPresent())
                     throw new NoSuchElementException("No extra list named " + extra);
-                if (!extras.get(extra).current.isEmpty())
+                if (!list.get().current.isEmpty())
                 {
-                    copy = new Deck(extras.get(extra).current);
+                    copy = new Deck(list.get().current);
                     copy.sort(comp);
                     wr.println();
                     wr.println(extra);
@@ -1786,6 +1897,14 @@ public class EditorFrame extends JInternalFrame
                 }
             }
         }
+    }
+
+    /**
+     * @return The extra lists, filtered for null entries.
+     */
+    public Collection<DeckData> extras()
+    {
+        return lists.stream().skip(1).filter((l) -> l != null).collect(Collectors.toList());
     }
 
     /**
@@ -1809,11 +1928,15 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * @return the names of all the extra lists.
+     * Get the IDs of lists in the deck. ID 0 will always contain the main deck, and
+     * IDs starting from 1 will contain extra lists. IDs do not have to be sequential,
+     * but they will never be reused (unless list deletion is undone).
+     * 
+     * @return The list of IDs of card lists in the deck.
      */
-    public List<String> getExtraNames()
+    public int[] getListIDs()
     {
-        return new ArrayList<>(extras.keySet());
+        return IntStream.range(0, lists.size()).filter((i) -> lists.get(i) != null).toArray();
     }
 
     /**
@@ -1821,7 +1944,7 @@ public class EditorFrame extends JInternalFrame
      */
     public Optional<String> getSelectedExtraName()
     {
-        if (extras.isEmpty())
+        if (extras().isEmpty())
             return Optional.empty();
         else
             return Optional.of(extrasPane.getTitleAt(extrasPane.getSelectedIndex()));
@@ -1836,20 +1959,23 @@ public class EditorFrame extends JInternalFrame
      */
     public Card getCardAt(CardTable t, int index)
     {
-        if (t == deck.table)
-            return deck.current.get(deck.table.convertRowIndexToModel(index));
+        if (t == deck().table)
+            return deck().current.get(deck().table.convertRowIndexToModel(index));
         else
         {
             for (CategoryPanel panel : categoryPanels)
                 if (t == panel.table)
-                    return deck.current.getCategoryList(panel.getCategoryName()).get(panel.table.convertRowIndexToModel(index));
+                    return deck().current.getCategoryList(panel.getCategoryName()).get(panel.table.convertRowIndexToModel(index));
             throw new IllegalArgumentException("Table not in deck " + deckName());
         }
     }
 
+    /**
+     * @return The categories in the main deck.
+     */
     public Collection<CategorySpec> getCategories()
     {
-        return deck.current.categories();
+        return deck().current.categories();
     }
 
     /**
@@ -1868,22 +1994,22 @@ public class EditorFrame extends JInternalFrame
      */
     public CardList getDeck()
     {
-        return new Deck(deck.current);
+        return new Deck(deck().current);
     }
 
     /**
-     * Get the cards in one of the extra lists. Using an empty string (<code>""</code>)
-     * returns the main deck.
+     * Get the cards in one of the deck lists. ID 0 corresponds to the main deck.
      *
-     * @param name name of the list to get
-     * @return a copy of the extra list.
+     * @param id ID of the list to get
+     * @return a copy of the list.
+     * @throws ArrayIndexOutOfBoundsException if there is no list with the given ID.
      */
-    public CardList getList(String name)
+    public CardList getList(int id)
     {
-        if (name.isEmpty())
-            return getDeck();
+        if (lists.get(id) == null)
+            throw new ArrayIndexOutOfBoundsException(id);
         else
-            return new Deck(extras.get(name).current);
+            return new Deck(lists.get(id).current);
     }
 
     /**
@@ -1892,7 +2018,7 @@ public class EditorFrame extends JInternalFrame
     public CardList getExtraCards()
     {
         Deck sideboard = new Deck();
-        for (DeckData extra : extras.values())
+        for (DeckData extra : extras())
             sideboard.addAll(extra.current);
         return sideboard;
     }
@@ -1918,17 +2044,16 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * @param name name of the list to search, with the empty string specifying the main deck
+     * @param id ID of the list to search, with the empty string specifying the main deck
      * @param card card to search for
      * @return <code>true</code> if the specified list contains the specified card, and
      * <code>false</code> otherwise.
+     * @see #getListIDs()
+     * @throws ArrayIndexOutOfBoundsException if there is no list with the given ID.
      */
-    public boolean hasCard(String name, Card card)
+    public boolean hasCard(int id, Card card)
     {
-        if (name.isEmpty())
-            return deck.current.contains(card);
-        else
-            return extras.get(name).current.contains(card);
+        return getList(id).contains(card);
     }
 
     /**
@@ -1939,11 +2064,8 @@ public class EditorFrame extends JInternalFrame
     public boolean hasSelectedCards()
     {
         return parent.getSelectedTable().map((t) -> {
-            if (t == deck.table)
+            if (lists.stream().filter((l) -> l != null).anyMatch((l) -> l.table == t))
                 return true;
-            for (DeckData extra : extras.values())
-                if (t == extra.table)
-                    return true;
             for (CategoryPanel panel : categoryPanels)
                 if (t == panel.table)
                     return true;
@@ -1969,11 +2091,11 @@ public class EditorFrame extends JInternalFrame
      * Create and initialize the table, backing model, and menu items relating to a newly-created
      * extra list.
      * 
-     * @param name name of the new extra list
+     * @param id ID of the new extra list
      * @param extra data containing cards in the extra list
      * @return the pane that contains the table showing the extra list
      */
-    public JScrollPane initExtraList(final String name, DeckData extra)
+    public JScrollPane initExtraList(final int id, DeckData extra)
     {
         // Extra list's models
         extra.model = new CardTableModel(this, extra.current, SettingsDialog.settings().editor.columns);
@@ -2022,16 +2144,16 @@ public class EditorFrame extends JInternalFrame
         moveToMainItem.addActionListener((e) -> {
             final Set<Card> selected = new HashSet<>(parent.getSelectedCards());
             performAction(() -> {
-                if (!extras.get(name).current.removeAll(selected).equals(selected))
-                    throw new CardException(selected, "error moving cards from list \"" + name + '"');
-                if (!deck.current.addAll(selected))
+                if (!lists.get(id).current.removeAll(selected).equals(selected))
+                    throw new CardException(selected, "error moving cards from list ID " + id);
+                if (!deck().current.addAll(selected))
                     throw new CardException(selected, "could not move cards to main deck");
                 updateTables();
                 return true;
             }, () -> {
-                if (!extras.get(name).current.addAll(selected))
-                    throw new CardException(selected, "could not undo move from list \"" + name + '"');
-                if (!deck.current.removeAll(selected).equals(selected))
+                if (!lists.get(id).current.addAll(selected))
+                    throw new CardException(selected, "could not undo move from list ID " + id);
+                if (!deck().current.removeAll(selected).equals(selected))
                     throw new CardException(selected, "error moving cards to main deck");
                 updateTables();
                 return true;
@@ -2044,10 +2166,10 @@ public class EditorFrame extends JInternalFrame
             performAction(() -> {
                 for (Map.Entry<Card, Integer> move : moves.entrySet())
                 {
-                    final int actual = extras.get(name).current.remove(move.getKey(), move.getValue());
+                    final int actual = lists.get(id).current.remove(move.getKey(), move.getValue());
                     if (actual != move.getValue())
-                        throw new CardException(move.getKey(), String.format("could only remove %d/%d copies from list \"%s\"", actual, move.getValue(), name));
-                    if (!deck.current.add(move.getKey(), move.getValue()))
+                        throw new CardException(move.getKey(), String.format("could only remove %d/%d copies from list ID %d", actual, move.getValue(), id));
+                    if (!deck().current.add(move.getKey(), move.getValue()))
                         throw new CardException(move.getKey(), String.format("could not add %d copies to main deck", move.getValue()));
                 }
                 updateTables();
@@ -2055,9 +2177,9 @@ public class EditorFrame extends JInternalFrame
             }, () -> {
                 for (Map.Entry<Card, Integer> move : moves.entrySet())
                 {
-                    if (!extras.get(name).current.add(move.getKey(), move.getValue()))
-                        throw new CardException(move.getKey(), String.format("could undo removal of %d copies to list \"%s\"", move.getValue(), name));
-                    int actual = deck.current.remove(move.getKey(), move.getValue());
+                    if (!lists.get(id).current.add(move.getKey(), move.getValue()))
+                        throw new CardException(move.getKey(), String.format("could undo removal of %d copies to list ID %d", move.getValue(), id));
+                    int actual = deck().current.remove(move.getKey(), move.getValue());
                     if (actual != move.getValue())
                         throw new CardException(move.getKey(), String.format("could only undo addition of %d/%d copies to main deck", actual, move.getValue()));
                 }
@@ -2136,9 +2258,9 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean modifyInclusion(Collection<Card> include, Collection<Card> exclude, CategorySpec spec)
     {
-        if (!deck.current.containsCategory(spec.getName()))
+        if (!deck().current.containsCategory(spec.getName()))
             throw new IllegalArgumentException("can't include a card in a category that doesn't exist");
-        if (!deck.current.getCategorySpec(spec.getName()).equals(spec))
+        if (!deck().current.getCategorySpec(spec.getName()).equals(spec))
             throw new IllegalArgumentException("category name matches, but specification doesn't");
 
         include.removeIf(spec::includes);
@@ -2149,7 +2271,7 @@ public class EditorFrame extends JInternalFrame
         {
             final String name = spec.getName();
             return performAction(() -> {
-                CategorySpec mod = deck.current.getCategorySpec(name);
+                CategorySpec mod = deck().current.getCategorySpec(name);
                 for (Card c : include)
                 {
                     if (mod.includes(c))
@@ -2162,14 +2284,14 @@ public class EditorFrame extends JInternalFrame
                         throw new IllegalArgumentException(mod.getName() + " already doesn't include " + c);
                     mod.exclude(c);
                 }
-                deck.current.updateCategory(name, mod);
+                deck().current.updateCategory(name, mod);
                 for (CategoryPanel panel : categoryPanels)
                     if (panel.getCategoryName().equals(name))
                         ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
                 updateCategoryPanel();
                 return true;
             }, () -> {
-                CategorySpec mod = deck.current.getCategorySpec(name);
+                CategorySpec mod = deck().current.getCategorySpec(name);
                 for (Card c : include)
                 {
                     if (!mod.includes(c))
@@ -2182,7 +2304,7 @@ public class EditorFrame extends JInternalFrame
                         throw new IllegalArgumentException("error undoing exclude: " + mod.getName() + " already includes " + c);
                     mod.include(c);
                 }
-                deck.current.updateCategory(name, mod);
+                deck().current.updateCategory(name, mod);
                 for (CategoryPanel panel : categoryPanels)
                     if (panel.getCategoryName().equals(name))
                         ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
@@ -2275,11 +2397,11 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean removeCategory(final String name)
     {
-        if (deck.current.containsCategory(name))
+        if (deck().current.containsCategory(name))
         {
-            final CategorySpec spec = deck.current.getCategorySpec(name);
+            final CategorySpec spec = deck().current.getCategorySpec(name);
             return performAction(() -> do_removeCategory(spec), () -> {
-                if (deck.current.containsCategory(name))
+                if (deck().current.containsCategory(name))
                     throw new RuntimeException("duplicate category " + name + " found when attempting to undo removal");
                 else
                     return do_addCategory(spec);
@@ -2307,7 +2429,7 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean save(File f)
     {
-        String changes = deck.getChanges();
+        String changes = deck().getChanges();
         if (!changes.isEmpty())
         {
             changelogArea.append("~~~~~" + DeckSerializer.CHANGELOG_DATE.format(new Date()) + "~~~~~\n");
@@ -2317,12 +2439,12 @@ public class EditorFrame extends JInternalFrame
         var sideboards = new LinkedHashMap<String, Deck>();
         for (int i = 0; i < extrasPane.getTabCount() - 1; i++)
             sideboards.put(extrasPane.getTitleAt(i), extras.get(extrasPane.getTitleAt(i)).current);
-        DeckSerializer manager = new DeckSerializer(deck.current, sideboards, changelogArea.getText());
+        DeckSerializer manager = new DeckSerializer(deck().current, sideboards, changelogArea.getText());
         try
         {
             manager.save(f);
-            deck.original = new Deck();
-            deck.original.addAll(deck.current);
+            deck().original = new Deck();
+            deck().original.addAll(deck().current);
             unsaved = false;
             setFile(manager.file());
             return true;
@@ -2424,13 +2546,13 @@ public class EditorFrame extends JInternalFrame
         categoriesContainer.removeAll();
         switchCategoryModel.removeAllElements();
 
-        if (deck.current.categories().isEmpty())
+        if (deck().current.categories().isEmpty())
             switchCategoryBox.setEnabled(false);
         else
         {
             switchCategoryBox.setEnabled(true);
-            var categories = new ArrayList<>(deck.current.categories());
-            categories.sort((a, b) -> sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()).compare(deck.current, a, b));
+            var categories = new ArrayList<>(deck().current.categories());
+            categories.sort((a, b) -> sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()).compare(deck().current, a, b));
 
             for (CategorySpec c : categories)
                 categoriesContainer.add(getCategory(c.getName()).get());
@@ -2447,13 +2569,13 @@ public class EditorFrame extends JInternalFrame
      */
     public void updateStats()
     {
-        countLabel.setText("Total cards: " + deck.current.total());
-        landLabel.setText("Lands: " + deck.current.land());
-        nonlandLabel.setText("Nonlands: " + deck.current.nonland());
+        countLabel.setText("Total cards: " + deck().current.total());
+        landLabel.setText("Lands: " + deck().current.land());
+        nonlandLabel.setText("Nonlands: " + deck().current.nonland());
 
-        var cmc = deck.current.stream()
+        var cmc = deck().current.stream()
             .filter((c) -> !c.typeContains("land"))
-            .flatMap((c) -> Collections.nCopies(deck.current.getEntry(c).count(), c.cmc().stream().min(Double::compare).orElse(0.0)).stream())
+            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), c.cmc().stream().min(Double::compare).orElse(0.0)).stream())
             .sorted()
             .collect(Collectors.toList());
         double avgCMC = cmc.stream().mapToDouble(Double::valueOf).average().orElse(0);
@@ -2484,7 +2606,7 @@ public class EditorFrame extends JInternalFrame
     {
         updateStats();
         parent.updateCardsInDeck();
-        deck.model.fireTableDataChanged();
+        deck().model.fireTableDataChanged();
         for (CategoryPanel c : categoryPanels)
             ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
         for (DeckData data : extras.values())
