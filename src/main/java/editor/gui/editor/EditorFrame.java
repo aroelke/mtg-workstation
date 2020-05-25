@@ -2202,26 +2202,25 @@ public class EditorFrame extends JInternalFrame
      * Change the number of copies of cards in the deck, adding and removing entries as
      * needed.
      * 
-     * @param name name of the list to add to, with the empty string representing the main deck
+     * @param id ID of the list to add to
      * @param changes map of card onto integer representing the number of copies of each card to
      * add (positive number) or remove (negative number)
      * @return <code>true</code> if the list deck changed as a result, or <code>false</code>
      * otherwise
      */
-    public boolean modifyCards(final String name, final Map<Card, Integer> changes)
+    public boolean modifyCards(final int id, final Map<Card, Integer> changes)
     {
         if (changes.isEmpty() || changes.values().stream().allMatch((n) -> n == 0))
             return false;
         else
         {
-            var capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -(name.isEmpty() ? deck : extras.get(name)).current.getEntry(e.getKey()).count())));
+            var capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -lists.get(id).current.getEntry(e.getKey()).count())));
             return performAction(() -> {
-                Deck target = (name.isEmpty() ? deck : extras.get(name)).current;
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
-                        return target.remove(e.getKey(), -e.getValue()) > 0;
+                        return lists.get(id).current.remove(e.getKey(), -e.getValue()) > 0;
                     else if (e.getValue() > 0)
-                        return target.add(e.getKey(), e.getValue());
+                        return lists.get(id).current.add(e.getKey(), e.getValue());
                     else
                         return false;
                 }).reduce(false, (a, b) -> a || b);
@@ -2229,12 +2228,11 @@ public class EditorFrame extends JInternalFrame
                     updateTables();
                 return changed;
             }, () -> {
-                Deck target = (name.isEmpty() ? deck : extras.get(name)).current;
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
-                        return target.add(e.getKey(), -e.getValue());
+                        return lists.get(id).current.add(e.getKey(), -e.getValue());
                     else if (e.getValue() > 0)
-                        return target.remove(e.getKey(), e.getValue()) > 0;
+                        return lists.get(id).current.remove(e.getKey(), e.getValue()) > 0;
                     else
                         return false;
                 }).reduce(false, (a, b) -> a || b);
@@ -2377,15 +2375,15 @@ public class EditorFrame extends JInternalFrame
     /**
      * Remove some copies of each of a collection of cards from the specified list.
      * 
-     * @param name name of the list to remove cards from
+     * @param id ID of the list to remove cards from
      * @param cards cards to remove
      * @param n number of copies to remove
      * @return <code>true</code> if any copies were removed, and <code>false</code>
      * otherwise.
      */
-    public boolean removeCards(String name, Collection<Card> cards, int n)
+    public boolean removeCards(int id, Collection<Card> cards, int n)
     {
-        return modifyCards(name, cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> -n)));
+        return modifyCards(id, cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> -n)));
     }
 
     /**
@@ -2606,11 +2604,9 @@ public class EditorFrame extends JInternalFrame
     {
         updateStats();
         parent.updateCardsInDeck();
-        deck().model.fireTableDataChanged();
+        lists.stream().filter((l) -> l != null).forEach((l) -> l.model.fireTableDataChanged());
         for (CategoryPanel c : categoryPanels)
             ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-        for (DeckData data : extras.values())
-            data.model.fireTableDataChanged();
         for (Card c : parent.getSelectedCards())
         {
             parent.getSelectedList().ifPresent((l) -> {
