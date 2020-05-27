@@ -26,7 +26,9 @@ public interface UndoableAction<R, U>
     {
         return new UndoableAction<>()
         {
+            @Override
             public R redo() { return forward.get(); }
+            @Override
             public U undo() { return reverse.get(); }
         };
     }
