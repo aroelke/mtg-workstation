@@ -11,27 +11,24 @@ import java.util.function.Supplier;
  * @param <U> information to be returned by the undone action
  * @author Alec Roelke
  */
-public class UndoableAction<R, U>
+public interface UndoableAction<R, U>
 {
     /**
-     * "Forward" action that represents what was done.
-     */
-    private final Supplier<R> forward;
-    /**
-     * "Reverse" action that represents how to undo the forward action.
-     */
-    private final Supplier<U> reverse;
-
-    /**
-     * Create a new UndoableAction.
+     * Create a new undoable action from the given functions.
      * 
-     * @param f "forward" action representing what was done
-     * @param r "reverse" action representing how to undo it
+     * @param <R> return type of the forward action
+     * @param <U> return type of the reverse action
+     * @param forward forward action to perform
+     * @param reverse reverse action to perform
+     * @return The new UndoableAction.
      */
-    public UndoableAction(final Supplier<R> f, final Supplier<U> r)
+    public static <R, U> UndoableAction<R, U> createAction(Supplier<R> forward, Supplier<U> reverse)
     {
-        forward = f;
-        reverse = r;
+        return new UndoableAction<>()
+        {
+            public R redo() { return forward.get(); }
+            public U undo() { return reverse.get(); }
+        };
     }
 
     /**
@@ -40,18 +37,12 @@ public class UndoableAction<R, U>
      * @return a value containing information about the result of performing
      * the action.
      */
-    public R redo()
-    {
-        return forward.get();
-    }
+    R redo();
 
     /**
      * Undo the action.
      * 
      * @return a value containing information about the result undoing the action.
      */
-    public U undo()
-    {
-        return reverse.get();
-    }
+    U undo();
 }
