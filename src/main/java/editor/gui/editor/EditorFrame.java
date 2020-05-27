@@ -1950,6 +1950,9 @@ public class EditorFrame extends JInternalFrame
         return IntStream.range(0, lists.size()).filter((i) -> lists.get(i) != null).toArray();
     }
 
+    /**
+     * @return The ID of the extra list corresponding to the selected tab.
+     */
     public Optional<Integer> getSelectedExtraID()
     {
         for (int i = 0; i < lists.size(); i++)
