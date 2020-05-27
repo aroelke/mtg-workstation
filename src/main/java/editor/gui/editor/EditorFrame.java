@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Consumer;
@@ -203,7 +204,7 @@ public class EditorFrame extends JInternalFrame
         /**
          * Original state of the deck just after loading it.
          */
-        public final Deck original;
+        public Deck original;
         /**
          * Model backing the table.
          */
@@ -586,7 +587,7 @@ public class EditorFrame extends JInternalFrame
     /**
      * Name denoting the main deck for making modifications.
      */
-    public static final String MAIN_DECK = "";
+    public static final int MAIN_DECK = 0;
 
     /**
      * Label showing the average CMC of nonland cards in the deck.
@@ -763,9 +764,9 @@ public class EditorFrame extends JInternalFrame
         mainDeckPanel.add(mainDeckPane, BorderLayout.CENTER);
 
         VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-        deckButtons.get("+").addActionListener((e) -> addCards("", parent.getSelectedCards(), 1));
-        deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards("",  parent.getSelectedCards(), 1));
-        deckButtons.get("X").addActionListener((e) -> removeCards("",  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
+        deckButtons.get("+").addActionListener((e) -> addCards(MAIN_DECK, parent.getSelectedCards(), 1));
+        deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), 1));
+        deckButtons.get("X").addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
         mainDeckPanel.add(deckButtons, BorderLayout.WEST);
         mainPanel.add(mainDeckPanel, BorderLayout.CENTER);
 
@@ -778,12 +779,12 @@ public class EditorFrame extends JInternalFrame
         southPanel.add(extrasPanel, BorderLayout.SOUTH);
 
         VerticalButtonList extrasButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-        extrasButtons.get("+").addActionListener((e) -> getSelectedExtraName().ifPresent((x) -> addCards(x, parent.getSelectedCards(), 1)));
+        extrasButtons.get("+").addActionListener((e) -> getSelectedExtraID().ifPresent((id) -> addCards(id, parent.getSelectedCards(), 1)));
         extrasButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> {
-            getSelectedExtraName().ifPresent((x) -> removeCards(x, parent.getSelectedCards(), 1));
+            getSelectedExtraID().ifPresent((id) -> removeCards(id, parent.getSelectedCards(), 1));
         });
-        extrasButtons.get("X").addActionListener((e) -> getSelectedExtraName().ifPresent((x) -> {
-            removeCards(x, parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getEntry(c).count()).reduce(0, Math::max));
+        extrasButtons.get("X").addActionListener((e) -> getSelectedExtraID().ifPresent((id) -> {
+            removeCards(id, parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getEntry(c).count()).reduce(0, Math::max));
         }));
         extrasPanel.add(extrasButtons, BorderLayout.WEST);
 
@@ -959,9 +960,9 @@ public class EditorFrame extends JInternalFrame
         categoriesMainPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 
         VerticalButtonList categoryButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-        categoryButtons.get("+").addActionListener((e) -> addCards("", parent.getSelectedCards(), 1));
-        categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards("", parent.getSelectedCards(), 1));
-        categoryButtons.get("X").addActionListener((e) -> removeCards("", parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
+        categoryButtons.get("+").addActionListener((e) -> addCards(MAIN_DECK, parent.getSelectedCards(), 1));
+        categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards(MAIN_DECK, parent.getSelectedCards(), 1));
+        categoryButtons.get("X").addActionListener((e) -> removeCards(MAIN_DECK, parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
         categoriesPanel.add(categoryButtons, BorderLayout.WEST);
 
         // Sample hands
@@ -1122,9 +1123,9 @@ public class EditorFrame extends JInternalFrame
         extrasPane.addTab("+", null);
         for (var extra : manager.sideboards().entrySet())
         {
-            createExtra(extra.getKey(), extrasPane.getTabCount() - 1);
-            extras.get(extra.getKey()).current.addAll(extra.getValue());
-            extras.get(extra.getKey()).original.addAll(extra.getValue());
+            int id = createExtra(extra.getKey(), extrasPane.getTabCount() - 1);
+            lists.get(id).current.addAll(extra.getValue());
+            lists.get(id).original.addAll(extra.getValue());
         }
         extrasPane.setSelectedIndex(0);
         Consumer<MouseEvent> addSideboard = (e) -> {
@@ -1132,11 +1133,21 @@ public class EditorFrame extends JInternalFrame
             int last = extrasPane.getTabCount() - 1;
             if (index == last)
             {
-                int i = extrasPane.getTabCount();
-                while (extras.containsKey("Sideboard " + i))
-                    i++;
-                String name = "Sideboard " + i;
-                performAction(() -> createExtra(name, last), () -> deleteExtra(name, last));
+                String name = "Sideboard " + lists.size();
+                performAction(new UndoableAction<>() {
+                    int id;
+
+                    public Boolean redo()
+                    {
+                        id = createExtra(name, last);
+                        return true;
+                    }
+
+                    public Boolean undo()
+                    {
+                        return deleteExtra(id, last);
+                    }
+                });
             }
         };
         extrasPane.addMouseListener(MouseListenerFactory.createPressListener(addSideboard));
@@ -1173,14 +1184,14 @@ public class EditorFrame extends JInternalFrame
     /**
      * Add copies of a collection of cards to the specified list.
      * 
-     * @param name name of the list to add to.  An empty string specifies the main deck
+     * @param id ID of the list to add to
      * @param cards cards to add
      * @param n number of copies of each card to add
      * @return <code>true</code> if the cards were added, and <code>false</code> otherwise.
      */
-    public boolean addCards(String name, Collection<Card> cards, int n)
+    public boolean addCards(int id, Collection<Card> cards, int n)
     {
-        return modifyCards(name, cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
+        return modifyCards(id, cards.stream().collect(Collectors.toMap(Function.identity(), (c) -> n)));
     }
 
     /**
@@ -1628,7 +1639,7 @@ public class EditorFrame extends JInternalFrame
      */
     private DeckData deck()
     {
-        return lists.get(0);
+        return lists.get(MAIN_DECK);
     }
 
     /**
@@ -1939,6 +1950,15 @@ public class EditorFrame extends JInternalFrame
         return IntStream.range(0, lists.size()).filter((i) -> lists.get(i) != null).toArray();
     }
 
+    public Optional<Integer> getSelectedExtraID()
+    {
+        for (int i = 0; i < lists.size(); i++)
+            if (getSelectedExtraName().equals(lists.get(i).name))
+                return Optional.of(i);
+        return Optional.empty();
+
+    }
+
     /**
      * @return the name of the extra list corresponding to the selected tab.
      */
@@ -2121,7 +2141,7 @@ public class EditorFrame extends JInternalFrame
         for (int i = 0; i < extra.table.getColumnCount(); i++)
             if (extra.model.isCellEditable(0, i))
                 extra.table.getColumn(extra.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, extra.model.getColumnData(i)));
-        extra.table.setTransferHandler(new EditorTableTransferHandler(name));
+        extra.table.setTransferHandler(new EditorTableTransferHandler(id));
         extra.table.setDragEnabled(true);
         extra.table.setDropMode(DropMode.ON);
 
@@ -2339,7 +2359,7 @@ public class EditorFrame extends JInternalFrame
      */
     private boolean performAction(Supplier<Boolean> redo, Supplier<Boolean> undo)
     {
-        return performAction(new UndoableAction<>(() -> {
+        return performAction(UndoableAction.createAction(() -> {
             boolean done = redo.get();
             setUnsaved();
             update();
@@ -2434,9 +2454,7 @@ public class EditorFrame extends JInternalFrame
             changelogArea.append(changes + "\n");
         }
 
-        var sideboards = new LinkedHashMap<String, Deck>();
-        for (int i = 0; i < extrasPane.getTabCount() - 1; i++)
-            sideboards.put(extrasPane.getTitleAt(i), extras.get(extrasPane.getTitleAt(i)).current);
+        var sideboards = lists.stream().skip(1).filter((l) -> l != null).collect(Collectors.toMap((l) -> l.name.get(), (l) -> l.current));
         DeckSerializer manager = new DeckSerializer(deck().current, sideboards, changelogArea.getText());
         try
         {
@@ -2499,7 +2517,7 @@ public class EditorFrame extends JInternalFrame
      */
     private CardList sideboard()
     {
-        return extras.get(getSelectedExtraName().get()).current;
+        return getSelectedExtraID().map((id) -> lists.get(id).current).orElse(new Deck());
     }
 
     /**
