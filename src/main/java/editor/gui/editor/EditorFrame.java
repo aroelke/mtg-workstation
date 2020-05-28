@@ -1513,10 +1513,8 @@ public class EditorFrame extends JInternalFrame
                         assert(lists.get(id) == null);
                         lists.set(id, lists.get(tmp));
                         lists.remove(tmp);
-                        if (!lists.get(id).current.addAll(extra.current))
-                            tmp = -1;
-                        if (!lists.get(id).original.addAll(extra.original))
-                            tmp = -1;
+                        lists.get(id).current.addAll(extra.current);
+                        lists.get(id).original.addAll(extra.original);
                         return tmp > 0;
                     });
                     break;
