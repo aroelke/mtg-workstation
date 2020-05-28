@@ -46,9 +46,9 @@ public class CardMenuItems implements Iterable<JMenuItem>
      */
     public CardMenuItems(final Supplier<Optional<EditorFrame>> monitor, final Supplier<? extends Collection<Card>> cards, final boolean main)
     {
-        final Function<EditorFrame, Optional<String>> name = (f) -> main ? Optional.of("") : f.getSelectedExtraName();
-        final IntConsumer addN = (i) -> monitor.get().ifPresent((f) -> name.apply(f).ifPresent((n) -> f.addCards(n, cards.get(), i)));
-        final Runnable fillPlayset = () -> monitor.get().ifPresent((f) -> name.apply(f).ifPresent((n) -> {
+        final Function<EditorFrame, Optional<Integer>> id = (f) -> main ? Optional.of(EditorFrame.MAIN_DECK) : f.getSelectedExtraID();
+        final IntConsumer addN = (i) -> monitor.get().ifPresent((f) -> id.apply(f).ifPresent((n) -> f.addCards(n, cards.get(), i)));
+        final Runnable fillPlayset = () -> monitor.get().ifPresent((f) -> id.apply(f).ifPresent((n) -> {
             f.modifyCards(n, cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
                 if (f.hasCard(n, c))
                     return Math.max(0, SettingsDialog.PLAYSET_SIZE - f.getList(n).getEntry(c).count());
@@ -57,7 +57,7 @@ public class CardMenuItems implements Iterable<JMenuItem>
             })));
         }));
         final IntConsumer removeN = (i) -> {
-            monitor.get().ifPresent((f) -> name.apply(f).ifPresent((n) -> f.removeCards(n, cards.get(), i)));
+            monitor.get().ifPresent((f) -> id.apply(f).ifPresent((n) -> f.removeCards(n, cards.get(), i)));
         };
         items = new JMenuItem[6];
 

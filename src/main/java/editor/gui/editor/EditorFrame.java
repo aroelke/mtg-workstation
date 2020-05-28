@@ -25,12 +25,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Consumer;
@@ -244,29 +242,6 @@ public class EditorFrame extends JInternalFrame
         }
 
         /**
-         * Create a new DeckData using the given Deck.  The original deck
-         * will be a copy of it. Do not use this constructor for the main deck.
-         * 
-         * @param deck Deck to use as backing data
-         * @param n name of the deck
-         */
-        public DeckData(Deck deck, String n)
-        {
-            this(deck, Optional.of(n));
-        }
-
-        /**
-         * Create a new DeckData for a list with the given name. Do not use this
-         * constructor for the main deck.
-         * 
-         * @param n name of the new list
-         */
-        public DeckData(String n)
-        {
-            this(new Deck(), n);
-        }
-
-        /**
          * Create a new DeckData to represent the main deck. Do not use this constructor
          * to create an extra list.
          * 
@@ -323,17 +298,17 @@ public class EditorFrame extends JInternalFrame
         /**
          * List to make changes to
          */
-        protected String name;
+        final protected int id;
 
         /**
          * Create a new EditorImportHandler that imports from the given list.
          *
-         * @param n name of the list to make changes to
+         * @param id ID of the list to make changes to
          */
-        public EditorImportHandler(String n)
+        public EditorImportHandler(int id)
         {
             super();
-            name = n;
+            this.id = id;
         }
 
         /**
@@ -362,14 +337,12 @@ public class EditorFrame extends JInternalFrame
                     @SuppressWarnings("unchecked")
                     var data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
                     return performAction(() -> {
-                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-                        if (!source.addAll(data))
+                        if (!lists.get(id).current.addAll(data))
                             throw new CardException(data.keySet(), "unable to copy cards");
                         updateTables();
                         return true;
                     }, () -> {
-                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-                        if (!source.removeAll(data).equals(data))
+                        if (!lists.get(id).current.removeAll(data).equals(data))
                             throw new CardException(data.keySet(), "unable to undo copy of cards");
                         updateTables();
                         return true;
@@ -379,14 +352,12 @@ public class EditorFrame extends JInternalFrame
                 {
                     final var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
                     return performAction(() -> {
-                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-                        if (!source.addAll(data))
+                        if (!lists.get(id).current.addAll(data))
                             throw new CardException(data, "unable to copy cards");
                         updateTables();
                         return true;
                     }, () -> {
-                        Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-                        if (!source.removeAll(data).equals(data))
+                        if (!lists.get(id).current.removeAll(data).equals(data))
                             throw new CardException(data, "unable to undo copy of cards");
                         updateTables();
                         return true;
@@ -415,18 +386,17 @@ public class EditorFrame extends JInternalFrame
          * Create a new EditorTableTransferHandler that handles transfers to or from
          * the main deck or extra lists.
          *
-         * @param n name of the list to make changes to
+         * @param id ID of the list to make changes to
          */
-        public EditorTableTransferHandler(String n)
+        public EditorTableTransferHandler(int id)
         {
-            super(n);
+            super(id);
         }
 
         @Override
         public Transferable createTransferable(JComponent c)
         {
-            Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-            return new Deck.TransferData(source, parent.getSelectedCards());
+            return new Deck.TransferData(lists.get(id).current, parent.getSelectedCards());
         }
 
         @Override
@@ -434,8 +404,7 @@ public class EditorFrame extends JInternalFrame
         {
             if (action == TransferHandler.MOVE)
             {
-                Deck source = (name.isEmpty() ? deck : extras.get(name)).current;
-                source.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
+                lists.get(id).current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
             }
         }
 
@@ -1570,68 +1539,6 @@ public class EditorFrame extends JInternalFrame
 
             return id;
         }
-/*
-        if (extras.put(name, new DeckData()) != null)
-            return false;
-        else
-        {
-            final EditablePanel panel = new EditablePanel(name, extrasPane);
-            extrasPane.insertTab(name, null, initExtraList(name, extras.get(name)), null, index);
-            extrasPane.setTabComponentAt(index, panel);
-            extrasPane.setSelectedIndex(index);
-            extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
-
-            extrasPanel.setVisible(!extras.isEmpty());
-            emptyPanel.setVisible(extras.isEmpty());
-
-            panel.addActionListener((e) -> {
-                switch (e.getActionCommand())
-                {
-                case EditablePanel.CLOSE:
-                    final String n = panel.getTitle();
-                    final DeckData extra = new DeckData(extras.get(n));
-                    final int i = extrasPane.indexOfTab(n);
-                    performAction(() -> deleteExtra(n, i), () -> {
-                        boolean success = createExtra(n, i);
-                        success |= extras.get(n).current.addAll(extra.current);
-                        success |= extras.get(n).original.addAll(extra.original);
-                        return success;
-                    });
-                    break;
-                case EditablePanel.EDIT:
-                    final String current = panel.getTitle();
-                    final String old = panel.getOldTitle();
-                    if (current.isEmpty())
-                        panel.setTitle(old);
-                    else if (extras.containsKey(current))
-                    {
-                        panel.setTitle(old);
-                        JOptionPane.showMessageDialog(EditorFrame.this, "Sideboard \"" + current + "\" already exists.", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                    else if (!current.equals(old))
-                    {
-                        final int j = extrasPane.indexOfTab(old);
-                        performAction(() -> {
-                            extras.put(current, extras.remove(old));
-                            ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(current);
-                            extrasPane.setTitleAt(j, current);
-                            return true;
-                        }, () -> {
-                            extras.put(old, extras.remove(current));
-                            ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(old);
-                            extrasPane.setTitleAt(j, old);
-                            return true;
-                        });
-                    }
-                    break;
-                case EditablePanel.CANCEL:
-                    break;
-                }
-            });
-
-            return true;
-        }
-*/
     }
 
     /**
@@ -1913,7 +1820,7 @@ public class EditorFrame extends JInternalFrame
     /**
      * @return The extra lists, filtered for null entries.
      */
-    public Collection<DeckData> extras()
+    private Collection<DeckData> extras()
     {
         return lists.stream().skip(1).filter((l) -> l != null).collect(Collectors.toList());
     }
@@ -1926,6 +1833,14 @@ public class EditorFrame extends JInternalFrame
     public File file()
     {
         return file;
+    }
+
+    /**
+     * @return The names of the extra lists.
+     */
+    public List<String> getExtraNames()
+    {
+        return extras().stream().map((l) -> l.name.get()).collect(Collectors.toList());
     }
 
     /**
