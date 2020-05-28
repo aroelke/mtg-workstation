@@ -253,12 +253,26 @@ public class EditorFrame extends JInternalFrame
         }
 
         /**
-         * Create a new, empty DeckData representing the main deck. Do not use this
-         * constructor to create an extra list.
+         * Create a new DeckData using the given Deck.  The original deck
+         * will be a copy of it. Do not use this constructor for the main deck.
+         * 
+         * @param deck Deck to use as backing data
+         * @param n name of the deck
          */
-        public DeckData()
+        public DeckData(Deck deck, String n)
         {
-            this(new Deck());
+            this(deck, Optional.of(n));
+        }
+
+        /**
+         * Create a new DeckData for a list with the given name. Do not use this
+         * constructor for the main deck.
+         * 
+         * @param n name of the new list
+         */
+        public DeckData(String n)
+        {
+            this(new Deck(), n);
         }
 
         /**
@@ -1474,7 +1488,7 @@ public class EditorFrame extends JInternalFrame
             throw new IllegalArgumentException("sideboard \"" + name + "\" already exists");
         else
         {
-            DeckData newExtra = new DeckData();
+            DeckData newExtra = new DeckData(name);
             lists.add(newExtra);
             final int id = lists.size() - 1;
 
