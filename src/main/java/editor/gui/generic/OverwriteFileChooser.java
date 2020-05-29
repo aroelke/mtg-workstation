@@ -41,14 +41,15 @@ public class OverwriteFileChooser extends JFileChooser
     @Override
     public File getSelectedFile()
     {
-        if (getFileFilter() instanceof FileNameExtensionFilter)
+        File file = super.getSelectedFile();
+        if (file != null && getFileFilter() instanceof FileNameExtensionFilter)
         {
             FileNameExtensionFilter filter = (FileNameExtensionFilter)getFileFilter();
-            String fname = super.getSelectedFile().getAbsolutePath();
+            String fname = file.getAbsolutePath();
             if (Arrays.stream(filter.getExtensions()).noneMatch((ext) -> fname.endsWith("." + ext)))
-                return new File(fname + "." + filter.getExtensions()[0]);
+                file = new File(fname + "." + filter.getExtensions()[0]);
         }
-        return super.getSelectedFile();
+        return file;
     }
 
     /**
