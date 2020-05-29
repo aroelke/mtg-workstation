@@ -1894,7 +1894,7 @@ public class EditorFrame extends JInternalFrame
     /**
      * Get the card at the given index in the given table.
      *
-     * @param t     table to get the card from
+     * @param t table to get the card from
      * @param index index into the given table to get a card from
      * @return the card in the deck at the given index in the given table, if the table is in this EditorFrame.
      */
