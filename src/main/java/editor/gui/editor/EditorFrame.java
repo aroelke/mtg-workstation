@@ -1106,7 +1106,8 @@ public class EditorFrame extends JInternalFrame
         extrasPane.addTab("+", null);
         for (var extra : manager.sideboards().entrySet())
         {
-            int id = createExtra(extra.getKey(), extrasPane.getTabCount() - 1);
+            final int id = lists.size();
+            createExtra(extra.getKey(), id, extrasPane.getTabCount() - 1);
             lists.get(id).current.addAll(extra.getValue());
             lists.get(id).original.addAll(extra.getValue());
         }
@@ -1116,21 +1117,8 @@ public class EditorFrame extends JInternalFrame
             int last = extrasPane.getTabCount() - 1;
             if (index == last)
             {
-                String name = "Sideboard " + lists.size();
-                performAction(new UndoableAction<>() {
-                    int id;
-
-                    public Boolean redo()
-                    {
-                        id = createExtra(name, last);
-                        return true;
-                    }
-
-                    public Boolean undo()
-                    {
-                        return deleteExtra(id, last);
-                    }
-                });
+                final int id = lists.size();
+                performAction(() -> createExtra("Sideboard " + id, id, last), () -> deleteExtra(id, last));
             }
         };
         extrasPane.addMouseListener(MouseListenerFactory.createPressListener(addSideboard));
@@ -1478,19 +1466,25 @@ public class EditorFrame extends JInternalFrame
      * sideboard.
      * 
      * @param name name of the extra list, i.e. "Sideboard"; should be unique
+     * @param id ID of the extra to create
      * @param index index of the tab to insert the new list at
-     * @return The ID of the newly-created list.
+     * @return <code>true</code> if the list was created, and <code>false</code> otherwise.
      * @throws IllegalArgumentException if a list with the given name already exists
      */
-    private int createExtra(String name, int index)
+    private boolean createExtra(String name, final int id, int index)
     {
-        if (extras().stream().anyMatch((l) -> l.name.get().equals(name)))
+        if (id == 0)
+            throw new IllegalArgumentException("only the main deck can have ID 0");
+        else if (lists.size() > id && lists.get(id) != null)
+            throw new IllegalArgumentException("extra already exists at ID " + id);
+        else if (extras().stream().anyMatch((l) -> l.name.get().equals(name)))
             throw new IllegalArgumentException("sideboard \"" + name + "\" already exists");
         else
         {
             DeckData newExtra = new DeckData(name);
-            lists.add(newExtra);
-            final int id = lists.size() - 1;
+            while (lists.size() <= id)
+                lists.add(null);
+            lists.set(id, newExtra);
 
             final EditablePanel panel = new EditablePanel(name, extrasPane);
             extrasPane.insertTab(name, null, initExtraList(id, newExtra), null, index);
@@ -1509,13 +1503,10 @@ public class EditorFrame extends JInternalFrame
                     final DeckData extra = new DeckData(lists.get(id));
                     final int i = extrasPane.indexOfTab(n);
                     performAction(() -> deleteExtra(id, i), () -> {
-                        int tmp = createExtra(n, i);
-                        assert(lists.get(id) == null);
-                        lists.set(id, lists.get(tmp));
-                        lists.remove(tmp);
-                        lists.get(id).current.addAll(extra.current);
-                        lists.get(id).original.addAll(extra.original);
-                        return tmp > 0;
+                        boolean success = createExtra(n, id, i);
+                        success |= lists.get(id).current.addAll(extra.current);
+                        success |= lists.get(id).original.addAll(extra.original);
+                        return success;
                     });
                     break;
                 case EditablePanel.EDIT:
@@ -1549,7 +1540,7 @@ public class EditorFrame extends JInternalFrame
                 }
             });
 
-            return id;
+            return true;
         }
     }
 
@@ -1883,7 +1874,7 @@ public class EditorFrame extends JInternalFrame
     public Optional<Integer> getSelectedExtraID()
     {
         for (int i = 0; i < lists.size(); i++)
-            if (getSelectedExtraName().equals(lists.get(i).name))
+            if (lists.get(i) != null && getSelectedExtraName().equals(lists.get(i).name))
                 return Optional.of(i);
         return Optional.empty();
 
