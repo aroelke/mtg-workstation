@@ -1477,10 +1477,12 @@ public class EditorFrame extends JInternalFrame
             throw new IllegalArgumentException("only the main deck can have ID 0");
         else if (lists.size() > id && lists.get(id) != null)
             throw new IllegalArgumentException("extra already exists at ID " + id);
-        else if (extras().stream().anyMatch((l) -> l.name.get().equals(name)))
-            throw new IllegalArgumentException("sideboard \"" + name + "\" already exists");
         else
         {
+            var extras = extras();
+            if (extras.stream().anyMatch((l) -> l.name.get().equals(name)))
+                throw new IllegalArgumentException("sideboard \"" + name + "\" already exists");
+
             DeckData newExtra = new DeckData(name);
             while (lists.size() <= id)
                 lists.add(null);
@@ -1492,8 +1494,8 @@ public class EditorFrame extends JInternalFrame
             extrasPane.setSelectedIndex(index);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
 
-            extrasPanel.setVisible(!extras().isEmpty());
-            emptyPanel.setVisible(extras().isEmpty());
+            extrasPanel.setVisible(!extras.isEmpty());
+            emptyPanel.setVisible(extras.isEmpty());
 
             panel.addActionListener((e) -> {
                 switch (e.getActionCommand())
@@ -1994,7 +1996,10 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean hasCard(int id, Card card)
     {
-        return getList(id).contains(card);
+        if (lists.get(id) == null)
+            throw new ArrayIndexOutOfBoundsException(id);
+        else
+            return lists.get(id).current.contains(card);
     }
 
     /**
