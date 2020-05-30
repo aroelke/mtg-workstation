@@ -1479,8 +1479,7 @@ public class EditorFrame extends JInternalFrame
             throw new IllegalArgumentException("extra already exists at ID " + id);
         else
         {
-            var extras = extras();
-            if (extras.stream().anyMatch((l) -> l.name.get().equals(name)))
+            if (extras().stream().anyMatch((l) -> l.name.get().equals(name)))
                 throw new IllegalArgumentException("sideboard \"" + name + "\" already exists");
 
             DeckData newExtra = new DeckData(name);
@@ -1494,8 +1493,8 @@ public class EditorFrame extends JInternalFrame
             extrasPane.setSelectedIndex(index);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
 
-            extrasPanel.setVisible(!extras.isEmpty());
-            emptyPanel.setVisible(extras.isEmpty());
+            extrasPanel.setVisible(!extras().isEmpty());
+            emptyPanel.setVisible(extras().isEmpty());
 
             panel.addActionListener((e) -> {
                 switch (e.getActionCommand())
