@@ -1515,7 +1515,7 @@ public class EditorFrame extends JInternalFrame
                     final String old = panel.getOldTitle();
                     if (current.isEmpty())
                         panel.setTitle(old);
-                    else if (extras().stream().anyMatch((l) -> l.name.get().equals(name)))
+                    else if (extras().stream().anyMatch((l) -> l.name.get().equals(current)))
                     {
                         panel.setTitle(old);
                         JOptionPane.showMessageDialog(EditorFrame.this, "Sideboard \"" + current + "\" already exists.", "Error", JOptionPane.ERROR_MESSAGE);
