@@ -26,17 +26,17 @@ public class EditorTableTransferHandler extends EditorImportHandler
      * Create a new EditorTableTransferHandler that handles transfers to or from
      * the main deck or extra lists.
      *
-     * @param n name of the list to make changes to
+     * @param n ID of the list to make changes to
      */
-    public EditorTableTransferHandler(String n, EditorFrame e)
+    public EditorTableTransferHandler(int id, EditorFrame e)
     {
-        super(n, e);
+        super(id, e);
     }
 
     @Override
     public Transferable createTransferable(JComponent c)
     {
-        CardList source = editor.getList(name);
+        CardList source = editor.getList(id);
         var data = editor.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (card) -> source.getEntry(card).count()));
         return new DeckTransferData(source, data);
     }
@@ -51,7 +51,7 @@ public class EditorTableTransferHandler extends EditorImportHandler
                 @SuppressWarnings("unchecked")
                 var data = (Map<Card, Integer>)((DeckTransferData)t).getTransferData(CardList.entryFlavor);
                 if (action == TransferHandler.MOVE)
-                    editor.modifyCards(name, data.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
+                    editor.modifyCards(id, data.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
             }
             catch (UnsupportedFlavorException e)
             {}

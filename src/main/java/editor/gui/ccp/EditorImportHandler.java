@@ -26,20 +26,20 @@ public class EditorImportHandler extends TransferHandler
      */
     protected EditorFrame editor;
     /**
-     * Name of the list to make changes to.
+     * ID of the list to make changes to.
      */
-    protected String name;
+    final protected int id;
 
     /**
      * Create a new EditorImportHandler that imports from the given list.
      *
-     * @param n name of the list to make changes to
+     * @param n ID of the list to make changes to
      */
-    public EditorImportHandler(String n, EditorFrame e)
+    public EditorImportHandler(int id, EditorFrame e)
     {
         super();
         editor = e;
-        name = n;
+        this.id = id;
     }
 
     /**
@@ -67,12 +67,12 @@ public class EditorImportHandler extends TransferHandler
             {
                 @SuppressWarnings("unchecked")
                 var data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
-                return editor.modifyCards(name, data);
+                return editor.modifyCards(id, data);
             }
             else if (supp.isDataFlavorSupported(Card.cardFlavor))
             {
                 var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
-                return editor.addCards(name, data, 1);
+                return editor.addCards(id, data, 1);
             }
             else
                 return false;
