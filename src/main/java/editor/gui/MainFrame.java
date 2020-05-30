@@ -192,7 +192,7 @@ public class MainFrame extends JFrame
         {
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             Card card = inventory.get(table.convertRowIndexToModel(row));
-            boolean main = selectedFrame.map((f) -> f.hasCard("", card)).orElse(false);
+            boolean main = selectedFrame.map((f) -> f.hasCard(EditorFrame.MAIN_DECK, card)).orElse(false);
             boolean extra = selectedFrame.map((f) -> f.getExtraCards().contains(card)).orElse(false);
             if (main && extra)
                 ComponentUtils.changeFontRecursive(c, c.getFont().deriveFont(Font.BOLD | Font.ITALIC));
@@ -1349,7 +1349,7 @@ public class MainFrame extends JFrame
         inventoryTable.setStripeColor(SettingsDialog.settings().inventory.stripe);
         inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) -> selectedFrame.ifPresent((f) -> {
             if (e.getClickCount() % 2 == 0)
-                f.addCards("", getSelectedCards(), 1);
+                f.addCards(EditorFrame.MAIN_DECK, getSelectedCards(), 1);
         })));
         inventoryTable.setTransferHandler(new TransferHandler()
         {
