@@ -65,9 +65,19 @@ public class EditorImportHandler extends TransferHandler
                 return false;
             else if (supp.isDataFlavorSupported(CardList.entryFlavor))
             {
-                @SuppressWarnings("unchecked")
-                var data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
-                return editor.modifyCards(id, data);
+                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(CardList.entryFlavor);
+                boolean success = false;
+                switch (supp.getDropAction())
+                {
+                case TransferHandler.MOVE:
+                    success |= data.source.modifyCards(data.id, data.cards.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
+                    if (!success)
+                        break;
+                case TransferHandler.COPY:
+                    success |= editor.modifyCards(id, data.cards);
+                    break;
+                }
+                return success;
             }
             else if (supp.isDataFlavorSupported(Card.cardFlavor))
             {

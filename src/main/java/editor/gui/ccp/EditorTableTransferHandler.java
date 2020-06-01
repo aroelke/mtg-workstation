@@ -1,8 +1,6 @@
 package editor.gui.ccp;
 
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -10,7 +8,6 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import editor.collection.CardList;
-import editor.database.card.Card;
 import editor.gui.editor.EditorFrame;
 
 /**
@@ -38,32 +35,9 @@ public class EditorTableTransferHandler extends EditorImportHandler
     {
         CardList source = editor.getList(id);
         var data = editor.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (card) -> source.getEntry(card).count()));
-        return new DeckTransferData(source, data);
+        return new DeckTransferData(editor, id, data);
     }
 
-    @Override
-    public void exportDone(JComponent c, Transferable t, int action)
-    {
-        if (t instanceof DeckTransferData)
-        {
-            try
-            {
-                @SuppressWarnings("unchecked")
-                var data = (Map<Card, Integer>)((DeckTransferData)t).getTransferData(CardList.entryFlavor);
-                if (action == TransferHandler.MOVE)
-                    editor.modifyCards(id, data.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
-            }
-            catch (UnsupportedFlavorException e)
-            {}
-        }
-        else
-            throw new UnsupportedOperationException("Can't export data of type " + t.getClass());
-    }
-
-    /**
-     * {@inheritDoc}
-     * Only copying is supported.
-     */
     @Override
     public int getSourceActions(JComponent c)
     {
