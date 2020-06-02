@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -704,48 +703,18 @@ public class EditorFrame extends JInternalFrame
 
             moveToMenu.removeAll();
             moveAllToMenu.removeAll();
-            for (final DeckData extra : extras())
+            for (int i = 1; i < lists.size(); i++)
             {
-                JMenuItem moveToItem = new JMenuItem(extra.name.get());
-                moveToItem.addActionListener((e2) -> {
-                    final var selected = Collections.unmodifiableSet(new HashSet<>(parent.getSelectedCards()));
-                    performAction(() -> {
-                        if (!deck().current.removeAll(selected).equals(selected))
-                            throw new CardException(selected, "error moving cards from main deck");
-                        if (!extra.current.addAll(selected))
-                            throw new CardException(selected, "could not move cards to list \"" + extra.name.get() + '"');
-                        updateTables();
-                        return true;
-                    }, () -> {
-                        if (!deck().current.addAll(selected))
-                            throw new CardException(selected, "could not undo move from main deck");
-                        if (!extra.current.removeAll(selected).equals(selected))
-                            throw new CardException(selected, "error undoing move to list \"" + extra.name.get() + '"');
-                        updateTables();
-                        return true;
-                    });
-                });
-                moveToMenu.add(moveToItem);
-                JMenuItem moveAllToItem = new JMenuItem(extra.name.get());
-                moveAllToItem.addActionListener((e2) -> {
-                    final var moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck().current.getEntry(c).count()));
-                    performAction(() -> {
-                        if (!deck().current.removeAll(moves).equals(moves))
-                            throw new CardException(moves.keySet(), "error moving cards from main deck");
-                        if (!extra.current.addAll(moves))
-                            throw new CardException(moves.keySet(), "could not move cards to list \"" + extra.name.get() + '"');
-                        updateTables();
-                        return true;
-                    }, () -> {
-                        if (!deck().current.addAll(moves))
-                            throw new CardException(moves.keySet(), "could not undo move from main deck");
-                        if (!extra.current.removeAll(moves).equals(moves))
-                            throw new CardException(moves.keySet(), "error undoing move to list \"" + extra.name.get() + '"');
-                        updateTables();
-                        return true;
-                    });
-                });
-                moveAllToMenu.add(moveAllToItem);
+                if (lists.get(i) != null)
+                {
+                    final int id = i;
+                    JMenuItem moveToItem = new JMenuItem(lists.get(i).name.get());
+                    moveToItem.addActionListener((e2) -> moveCards(MAIN_DECK, id, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))));
+                    moveToMenu.add(moveToItem);
+                    JMenuItem moveAllToItem = new JMenuItem(lists.get(i).name.get());
+                    moveAllToItem.addActionListener((e2) -> moveCards(MAIN_DECK, id, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck().current.getEntry(c).count()))));
+                    moveAllToMenu.add(moveAllToItem);
+                }
             }
         }));
 
@@ -1354,7 +1323,7 @@ public class EditorFrame extends JInternalFrame
             lists.set(id, newExtra);
 
             final EditablePanel panel = new EditablePanel(name, extrasPane);
-            extrasPane.insertTab(name, null, initExtraList(id, newExtra), null, index);
+            extrasPane.insertTab(name, null, initExtraList(id), null, index);
             extrasPane.setTabComponentAt(index, panel);
             extrasPane.setSelectedIndex(index);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
@@ -1903,14 +1872,13 @@ public class EditorFrame extends JInternalFrame
      * extra list.
      * 
      * @param id ID of the new extra list
-     * @param extra data containing cards in the extra list
      * @return the pane that contains the table showing the extra list
      */
-    public JScrollPane initExtraList(final int id, DeckData extra)
+    public JScrollPane initExtraList(final int id)
     {
         // Extra list's models
-        extra.model = new CardTableModel(this, extra.current, SettingsDialog.settings().editor.columns);
-        extra.table = new CardTable(extra.model)
+        lists.get(id).model = new CardTableModel(this, lists.get(id).current, SettingsDialog.settings().editor.columns);
+        lists.get(id).table = new CardTable(lists.get(id).model)
         {
             @Override
             public Dimension getPreferredScrollableViewportSize()
@@ -1919,29 +1887,29 @@ public class EditorFrame extends JInternalFrame
                 return new Dimension(s.width, getRowHeight() * 5);
             }
         };
-        extra.table.setStripeColor(SettingsDialog.settings().editor.stripe);
+        lists.get(id).table.setStripeColor(SettingsDialog.settings().editor.stripe);
         // When a card is selected in a sideboard table, select it for adding
-        extra.table.getSelectionModel().addListSelectionListener((e) -> {
+        lists.get(id).table.getSelectionModel().addListSelectionListener((e) -> {
             if (!e.getValueIsAdjusting())
             {
                 ListSelectionModel lsm = (ListSelectionModel)e.getSource();
                 if (!lsm.isSelectionEmpty())
-                    parent.setSelectedCards(extra.table, extra.current);
+                    parent.setSelectedCards(lists.get(id).table, lists.get(id).current);
             }
         });
-        for (int i = 0; i < extra.table.getColumnCount(); i++)
-            if (extra.model.isCellEditable(0, i))
-                extra.table.getColumn(extra.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, extra.model.getColumnData(i)));
-        extra.table.setTransferHandler(new EditorTableTransferHandler(id, this));
-        extra.table.setDragEnabled(true);
-        extra.table.setDropMode(DropMode.ON);
+        for (int i = 0; i < lists.get(id).table.getColumnCount(); i++)
+            if (lists.get(id).model.isCellEditable(0, i))
+                lists.get(id).table.getColumn(lists.get(id).model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, lists.get(id).model.getColumnData(i)));
+        lists.get(id).table.setTransferHandler(new EditorTableTransferHandler(id, this));
+        lists.get(id).table.setDragEnabled(true);
+        lists.get(id).table.setDropMode(DropMode.ON);
 
-        JScrollPane sideboardPane = new JScrollPane(extra.table);
+        JScrollPane sideboardPane = new JScrollPane(lists.get(id).table);
         sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 
         // Extra list's table menu
         JPopupMenu extraMenu = new JPopupMenu();
-        extra.table.addMouseListener(new TableMouseAdapter(extra.table, extraMenu));
+        lists.get(id).table.addMouseListener(new TableMouseAdapter(lists.get(id).table, extraMenu));
 
         // Add/remove cards from sideboard
         CardMenuItems sideboardMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, false);
@@ -1952,52 +1920,10 @@ public class EditorFrame extends JInternalFrame
 
         // Move cards to main deck
         JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
-        moveToMainItem.addActionListener((e) -> {
-            final Set<Card> selected = new HashSet<>(parent.getSelectedCards());
-            performAction(() -> {
-                if (!lists.get(id).current.removeAll(selected).equals(selected))
-                    throw new CardException(selected, "error moving cards from list ID " + id);
-                if (!deck().current.addAll(selected))
-                    throw new CardException(selected, "could not move cards to main deck");
-                updateTables();
-                return true;
-            }, () -> {
-                if (!lists.get(id).current.addAll(selected))
-                    throw new CardException(selected, "could not undo move from list ID " + id);
-                if (!deck().current.removeAll(selected).equals(selected))
-                    throw new CardException(selected, "error moving cards to main deck");
-                updateTables();
-                return true;
-            });
-        });
+        moveToMainItem.addActionListener((e) -> moveCards(id, MAIN_DECK, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))));
         extraMenu.add(moveToMainItem);
         JMenuItem moveAllToMainItem = new JMenuItem("Move All to Main Deck");
-        moveAllToMainItem.addActionListener((e) -> {
-            final Map<Card, Integer> moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> extra.current.getEntry(c).count()));
-            performAction(() -> {
-                for (Map.Entry<Card, Integer> move : moves.entrySet())
-                {
-                    final int actual = lists.get(id).current.remove(move.getKey(), move.getValue());
-                    if (actual != move.getValue())
-                        throw new CardException(move.getKey(), String.format("could only remove %d/%d copies from list ID %d", actual, move.getValue(), id));
-                    if (!deck().current.add(move.getKey(), move.getValue()))
-                        throw new CardException(move.getKey(), String.format("could not add %d copies to main deck", move.getValue()));
-                }
-                updateTables();
-                return true;
-            }, () -> {
-                for (Map.Entry<Card, Integer> move : moves.entrySet())
-                {
-                    if (!lists.get(id).current.add(move.getKey(), move.getValue()))
-                        throw new CardException(move.getKey(), String.format("could undo removal of %d copies to list ID %d", move.getValue(), id));
-                    int actual = deck().current.remove(move.getKey(), move.getValue());
-                    if (actual != move.getValue())
-                        throw new CardException(move.getKey(), String.format("could only undo addition of %d/%d copies to main deck", actual, move.getValue()));
-                }
-                updateTables();
-                return true;
-            });
-        });
+        moveAllToMainItem.addActionListener((e) -> moveCards(id, MAIN_DECK, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> lists.get(id).current.getEntry(c).count()))));
         extraMenu.add(moveAllToMainItem);
         extraMenu.add(new JSeparator());
 
@@ -2121,6 +2047,38 @@ public class EditorFrame extends JInternalFrame
                 return true;
             });
         }
+    }
+
+    /**
+     * Move cards between lists.
+     * 
+     * @param from ID of the list to move from
+     * @param to ID of the list to move to
+     * @param moves Cards and amounts to move
+     * @return <code>true</code> if the cards were successfully moved and <code>false</code> otherwise.
+     */
+    public boolean moveCards(final int from, final int to, final Map<Card, Integer> moves)
+    {
+        if (lists.get(from) == null)
+            throw new ArrayIndexOutOfBoundsException(from);
+        if (lists.get(to) == null)
+            throw new ArrayIndexOutOfBoundsException(to);
+
+        return performAction(() -> {
+            if (!lists.get(from).current.removeAll(moves).equals(moves))
+                throw new CardException(moves.keySet(), "error moving cards from list " + from);
+            if (!lists.get(to).current.addAll(moves))
+                throw new CardException(moves.keySet(), "could not move cards to list " + to);
+            updateTables();
+            return true;
+        }, () -> {
+            if (!lists.get(from).current.addAll(moves))
+                throw new CardException(moves.keySet(), "could not undo move from list " + from);
+            if (!lists.get(to).current.removeAll(moves).equals(moves))
+                throw new CardException(moves.keySet(), "error undoing move to list " + to);
+            updateTables();
+            return true;
+        });
     }
 
     /**
