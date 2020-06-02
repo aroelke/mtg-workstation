@@ -48,15 +48,25 @@ public class EditorTableTransferHandler extends EditorImportHandler
     @Override
     public void exportDone(JComponent source, Transferable data, int action)
     {
-        if (data instanceof DeckTransferData && action == TransferHandler.MOVE)
+        if (data instanceof DeckTransferData)
         {
             DeckTransferData d = (DeckTransferData)data;
-            if (d.source == d.target)
-                d.source.moveCards(d.from, d.to, d.cards);
-            else
+            switch (action)
             {
-                d.target.modifyCards(id, d.cards);
-                d.source.modifyCards(d.from, d.cards.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
+            case TransferHandler.MOVE:
+                if (d.source == d.target)
+                {
+                    d.source.moveCards(d.from, d.to, d.cards);
+                    break;
+                }
+                else
+                    d.source.modifyCards(d.from, d.cards.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
+            case TransferHandler.COPY:
+                if (d.target != null)
+                    d.target.modifyCards(d.to, d.cards);
+                break;
+            default:
+                break;
             }
         }
     }

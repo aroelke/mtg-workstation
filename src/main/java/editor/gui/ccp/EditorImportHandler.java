@@ -52,7 +52,7 @@ public class EditorImportHandler extends TransferHandler
             try
             {
                 DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(DataFlavors.entryFlavor);
-                if (data.source == editor && data.from == id)
+                if (data.source == editor && data.from == id && supp.isDrop())
                     return false;
             }
             catch (UnsupportedFlavorException | IOException e)
@@ -72,11 +72,16 @@ public class EditorImportHandler extends TransferHandler
                 return false;
             else if (supp.isDataFlavorSupported(DataFlavors.entryFlavor))
             {
-                // Actually handle all list modification in the source handler; just tell it where the cards should go
                 DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(DataFlavors.entryFlavor);
-                data.target = editor;
-                data.to = id;
-                return true;
+                if (supp.isDrop())
+                {
+                    // Actually handle all list modification in the source handler; just tell it where the cards should go
+                    data.target = editor;
+                    data.to = id;
+                    return true;
+                }
+                else
+                    return editor.modifyCards(id, data.cards);
             }
             else if (supp.isDataFlavorSupported(DataFlavors.cardFlavor))
             {
