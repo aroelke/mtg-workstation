@@ -24,14 +24,20 @@ public class DeckTransferData implements Transferable
     public final Map<Card, Integer> cards;
     /** Frame containing the deck being transferred from. */
     public final EditorFrame source;
+    /** Frame containing the deck being transferred to. */
+    public EditorFrame target;
     /** ID of the list in the deck being transferred from. */
-    public final int id;
+    public final int from;
+    /** ID of the list int he deck being transferred to. */
+    public int to;
 
     public DeckTransferData(EditorFrame e, int id, Map<Card, Integer> cards)
     {
         this.cards = Collections.unmodifiableMap(cards);
         source = e;
-        this.id = id;
+        target = null;
+        from = id;
+        to = -1;
     }
 
     @Override

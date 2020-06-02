@@ -1,6 +1,7 @@
 package editor.gui.ccp;
 
 import java.awt.datatransfer.Transferable;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,5 +43,21 @@ public class EditorTableTransferHandler extends EditorImportHandler
     public int getSourceActions(JComponent c)
     {
         return TransferHandler.MOVE | TransferHandler.COPY;
+    }
+
+    @Override
+    public void exportDone(JComponent source, Transferable data, int action)
+    {
+        if (data instanceof DeckTransferData && action == TransferHandler.MOVE)
+        {
+            DeckTransferData d = (DeckTransferData)data;
+            if (d.source == d.target)
+                d.source.moveCards(d.from, d.to, d.cards);
+            else
+            {
+                d.target.modifyCards(id, d.cards);
+                d.source.modifyCards(d.from, d.cards.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
+            }
+        }
     }
 }

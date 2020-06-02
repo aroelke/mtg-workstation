@@ -3,7 +3,6 @@ package editor.gui.ccp;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.TransferHandler;
@@ -53,7 +52,7 @@ public class EditorImportHandler extends TransferHandler
             try
             {
                 DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(DataFlavors.entryFlavor);
-                if (data.source == editor && data.id == id)
+                if (data.source == editor && data.from == id)
                     return false;
             }
             catch (UnsupportedFlavorException | IOException e)
@@ -73,27 +72,11 @@ public class EditorImportHandler extends TransferHandler
                 return false;
             else if (supp.isDataFlavorSupported(DataFlavors.entryFlavor))
             {
+                // Actually handle all list modification in the source handler; just tell it where the cards should go
                 DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(DataFlavors.entryFlavor);
-                boolean success = false;
-                switch (supp.getDropAction())
-                {
-                case TransferHandler.MOVE:
-                    if (data.source == editor)
-                    {
-                        success = data.source.moveCards(data.id, id, data.cards);
-                        break;
-                    }
-                    else
-                    {
-                        success |= data.source.modifyCards(data.id, data.cards.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
-                        if (!success)
-                            break;
-                    }
-                case TransferHandler.COPY:
-                    success |= editor.modifyCards(id, data.cards);
-                    break;
-                }
-                return success;
+                data.target = editor;
+                data.to = id;
+                return true;
             }
             else if (supp.isDataFlavorSupported(DataFlavors.cardFlavor))
             {
