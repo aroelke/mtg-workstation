@@ -49,6 +49,19 @@ public class EditorImportHandler extends TransferHandler
     @Override
     public boolean canImport(TransferSupport supp)
     {
+        if (supp.isDataFlavorSupported(CardList.entryFlavor))
+        {
+            try
+            {
+                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(CardList.entryFlavor);
+                if (data.source == editor && data.id == id)
+                    return false;
+            }
+            catch (UnsupportedFlavorException | IOException e)
+            {
+                return false;
+            }
+        }
         return supp.isDataFlavorSupported(CardList.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
     }
 
