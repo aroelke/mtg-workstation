@@ -1379,6 +1379,13 @@ public class MainFrame extends JFrame
         JPopupMenu inventoryMenu = new JPopupMenu();
         inventoryTable.addMouseListener(new TableMouseAdapter(inventoryTable, inventoryMenu));
 
+        // Copy
+        JMenuItem inventoryCopy = new JMenuItem("Copy");
+        inventoryCopy.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(inventoryTable, ActionEvent.ACTION_PERFORMED, null)));
+        inventoryCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+        inventoryMenu.add(inventoryCopy);
+        inventoryMenu.add(new JSeparator());
+
         // Add cards to the main deck
         CardMenuItems inventoryMenuCardItems = new CardMenuItems(() -> selectedFrame, this::getSelectedCards, true);
         JSeparator[] inventoryMenuCardSeparators = new JSeparator[] { new JSeparator(), new JSeparator() };
