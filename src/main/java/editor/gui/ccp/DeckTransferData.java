@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
-import editor.collection.CardList;
 import editor.database.card.Card;
 import editor.gui.editor.EditorFrame;
 
@@ -37,9 +36,9 @@ public class DeckTransferData implements Transferable
     @Override
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
     {
-        if (flavor.equals(CardList.entryFlavor))
+        if (flavor.equals(DataFlavors.entryFlavor))
             return this;
-        else if (flavor.equals(Card.cardFlavor))
+        else if (flavor.equals(DataFlavors.cardFlavor))
             return cards.keySet().stream().sorted(Card::compareName).toArray(Card[]::new);
         else if (flavor.equals(DataFlavor.stringFlavor))
             return cards.entrySet().stream().map((e) -> e.getValue() + "x " + e.getKey().unifiedName()).reduce("", (a, b) -> a + "\n" + b);
@@ -50,7 +49,7 @@ public class DeckTransferData implements Transferable
     @Override
     public DataFlavor[] getTransferDataFlavors()
     {
-        return new DataFlavor[]{ CardList.entryFlavor, Card.cardFlavor, DataFlavor.stringFlavor };
+        return new DataFlavor[]{ DataFlavors.entryFlavor, DataFlavors.cardFlavor, DataFlavor.stringFlavor };
     }
 
     @Override

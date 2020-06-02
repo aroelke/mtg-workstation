@@ -44,7 +44,7 @@ public class InventoryTransferData implements Transferable
     @Override
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
     {
-        if (flavor.equals(Card.cardFlavor))
+        if (flavor.equals(DataFlavors.cardFlavor))
             return cards;
         else if (flavor.equals(DataFlavor.stringFlavor))
             return Arrays.stream(cards).map(Card::unifiedName).reduce("", (a, b) -> a + "\n" + b);
@@ -55,7 +55,7 @@ public class InventoryTransferData implements Transferable
     @Override
     public DataFlavor[] getTransferDataFlavors()
     {
-        return new DataFlavor[]{Card.cardFlavor, DataFlavor.stringFlavor};
+        return new DataFlavor[]{ DataFlavors.cardFlavor, DataFlavor.stringFlavor };
     }
 
     @Override

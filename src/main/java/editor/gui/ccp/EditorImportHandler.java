@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import javax.swing.TransferHandler;
 
-import editor.collection.CardList;
 import editor.database.card.Card;
 import editor.gui.editor.EditorFrame;
 
@@ -49,11 +48,11 @@ public class EditorImportHandler extends TransferHandler
     @Override
     public boolean canImport(TransferSupport supp)
     {
-        if (supp.isDataFlavorSupported(CardList.entryFlavor))
+        if (supp.isDataFlavorSupported(DataFlavors.entryFlavor))
         {
             try
             {
-                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(CardList.entryFlavor);
+                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(DataFlavors.entryFlavor);
                 if (data.source == editor && data.id == id)
                     return false;
             }
@@ -62,7 +61,7 @@ public class EditorImportHandler extends TransferHandler
                 return false;
             }
         }
-        return supp.isDataFlavorSupported(CardList.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
+        return supp.isDataFlavorSupported(DataFlavors.entryFlavor) || supp.isDataFlavorSupported(DataFlavors.cardFlavor);
     }
 
     @Override
@@ -72,9 +71,9 @@ public class EditorImportHandler extends TransferHandler
         {
             if (!canImport(supp))
                 return false;
-            else if (supp.isDataFlavorSupported(CardList.entryFlavor))
+            else if (supp.isDataFlavorSupported(DataFlavors.entryFlavor))
             {
-                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(CardList.entryFlavor);
+                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(DataFlavors.entryFlavor);
                 boolean success = false;
                 switch (supp.getDropAction())
                 {
@@ -96,9 +95,9 @@ public class EditorImportHandler extends TransferHandler
                 }
                 return success;
             }
-            else if (supp.isDataFlavorSupported(Card.cardFlavor))
+            else if (supp.isDataFlavorSupported(DataFlavors.cardFlavor))
             {
-                var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
+                var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(DataFlavors.cardFlavor)).collect(Collectors.toSet());
                 return editor.addCards(id, data, 1);
             }
             else
