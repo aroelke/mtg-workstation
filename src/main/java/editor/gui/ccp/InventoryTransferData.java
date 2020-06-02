@@ -5,6 +5,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import editor.database.card.Card;
 
@@ -47,7 +48,7 @@ public class InventoryTransferData implements Transferable
         if (flavor.equals(DataFlavors.cardFlavor))
             return cards;
         else if (flavor.equals(DataFlavor.stringFlavor))
-            return Arrays.stream(cards).map(Card::unifiedName).reduce("", (a, b) -> a + "\n" + b);
+            return Arrays.stream(cards).map(Card::unifiedName).collect(Collectors.joining("\n"));
         else
             throw new UnsupportedFlavorException(flavor);
     }

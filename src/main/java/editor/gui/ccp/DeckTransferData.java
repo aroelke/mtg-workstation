@@ -6,6 +6,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import editor.database.card.Card;
 import editor.gui.editor.EditorFrame;
@@ -41,7 +42,7 @@ public class DeckTransferData implements Transferable
         else if (flavor.equals(DataFlavors.cardFlavor))
             return cards.keySet().stream().sorted(Card::compareName).toArray(Card[]::new);
         else if (flavor.equals(DataFlavor.stringFlavor))
-            return cards.entrySet().stream().map((e) -> e.getValue() + "x " + e.getKey().unifiedName()).reduce("", (a, b) -> a + "\n" + b);
+            return cards.entrySet().stream().map((e) -> e.getValue() + "x " + e.getKey().unifiedName()).collect(Collectors.joining("\n"));
         else
             throw new UnsupportedFlavorException(flavor);
     }
