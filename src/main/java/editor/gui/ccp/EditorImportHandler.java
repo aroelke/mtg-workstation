@@ -52,10 +52,6 @@ public class EditorImportHandler extends TransferHandler
         return supp.isDataFlavorSupported(CardList.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
     }
 
-    /**
-     * {@inheritDoc}
-     * If the data can be imported, copy the cards from the source to the target deck.
-     */
     @Override
     public boolean importData(TransferSupport supp)
     {
@@ -70,9 +66,17 @@ public class EditorImportHandler extends TransferHandler
                 switch (supp.getDropAction())
                 {
                 case TransferHandler.MOVE:
-                    success |= data.source.modifyCards(data.id, data.cards.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
-                    if (!success)
+                    if (data.source == editor)
+                    {
+                        success = data.source.moveCards(data.id, id, data.cards);
                         break;
+                    }
+                    else
+                    {
+                        success |= data.source.modifyCards(data.id, data.cards.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
+                        if (!success)
+                            break;
+                    }
                 case TransferHandler.COPY:
                     success |= editor.modifyCards(id, data.cards);
                     break;
