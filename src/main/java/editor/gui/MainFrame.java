@@ -1022,6 +1022,21 @@ public class MainFrame extends JFrame
         JMenu editMenu = new JMenu("Edit");
         menuBar.add(editMenu);
 
+        // Cut, copy, paste
+        JMenuItem editCutItem = new JMenuItem("Cut");
+        editCutItem.addActionListener((e) -> getSelectedTable().ifPresent((t) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
+        editCutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        editMenu.add(editCutItem);
+        JMenuItem editCopyItem = new JMenuItem("Copy");
+        editCopyItem.addActionListener((e) -> getSelectedTable().ifPresent((t) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
+        editCopyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        editMenu.add(editCopyItem);
+        JMenuItem editPasteItem = new JMenuItem("Paste");
+        editPasteItem.addActionListener((e) -> getSelectedTable().ifPresent((t) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
+        editPasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        editMenu.add(editPasteItem);
+        editMenu.add(new JSeparator());
+
         // Undo menu item
         JMenuItem undoItem = new JMenuItem("Undo");
         undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
@@ -1282,6 +1297,13 @@ public class MainFrame extends JFrame
         printedTextPane.setComponentPopupMenu(oraclePopupMenu);
         imagePanel.setComponentPopupMenu(oraclePopupMenu);
 
+        // Copy
+        JMenuItem oracleCopy = new JMenuItem("Copy");
+        oracleCopy.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(inventoryTable, ActionEvent.ACTION_PERFORMED, null)));
+        oracleCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        oraclePopupMenu.add(oracleCopy);
+        oraclePopupMenu.add(new JSeparator());
+
         // Add the card to the main deck
         CardMenuItems oracleMenuCardItems = new CardMenuItems(() -> selectedFrame, () -> Arrays.asList(selectedCards.get(0)), true);
         JSeparator[] oracleMenuCardSeparators = new JSeparator[] { new JSeparator(), new JSeparator() };
@@ -1382,7 +1404,7 @@ public class MainFrame extends JFrame
         // Copy
         JMenuItem inventoryCopy = new JMenuItem("Copy");
         inventoryCopy.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(inventoryTable, ActionEvent.ACTION_PERFORMED, null)));
-        inventoryCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+        inventoryCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         inventoryMenu.add(inventoryCopy);
         inventoryMenu.add(new JSeparator());
 

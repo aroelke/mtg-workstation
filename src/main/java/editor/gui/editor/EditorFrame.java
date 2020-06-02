@@ -7,6 +7,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -54,11 +57,13 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.OverlayLayout;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.InternalFrameAdapter;
@@ -652,6 +657,21 @@ public class EditorFrame extends JInternalFrame
         JPopupMenu tableMenu = new JPopupMenu();
         deck().table.addMouseListener(new TableMouseAdapter(deck().table, tableMenu));
 
+        // Cut, copy, paste
+        JMenuItem cutItem = new JMenuItem("Cut");
+        cutItem.addActionListener((e) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
+        cutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        tableMenu.add(cutItem);
+        JMenuItem copyItem = new JMenuItem("Copy");
+        copyItem.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
+        copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        tableMenu.add(copyItem);
+        JMenuItem pasteItem = new JMenuItem("Paste");
+        pasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
+        pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        tableMenu.add(pasteItem);
+        tableMenu.add(new JSeparator());
+
         // Add/remove cards
         CardMenuItems tableMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, true);
         tableMenuCardItems.addAddItems(tableMenu);
@@ -1193,12 +1213,28 @@ public class EditorFrame extends JInternalFrame
 
         newCategory.table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK, this));
         newCategory.table.setDragEnabled(true);
+        newCategory.table.setDropMode(DropMode.ON);
 
         // Add the behavior for clicking on the category's table
         // Table popup menu
         JPopupMenu tableMenu = new JPopupMenu();
         newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 
+        // Cut, copy, paste
+        JMenuItem cardCutItem = new JMenuItem("Cut");
+        cardCutItem.addActionListener((e) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
+        cardCutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        tableMenu.add(cardCutItem);
+        JMenuItem cardCopyItem = new JMenuItem("Copy");
+        cardCopyItem.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
+        cardCopyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        tableMenu.add(cardCopyItem);
+        JMenuItem cardPasteItem = new JMenuItem("Paste");
+        cardPasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
+        cardPasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        tableMenu.add(cardPasteItem);
+        tableMenu.add(new JSeparator());
+        
         CardMenuItems tableMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, true);
         tableMenuCardItems.addAddItems(tableMenu);
         tableMenu.add(new JSeparator());
@@ -1247,19 +1283,19 @@ public class EditorFrame extends JInternalFrame
         newCategory.setComponentPopupMenu(categoryMenu);
 
         // Cut item
-        JMenuItem cutItem = new JMenuItem("Cut");
-        cutItem.setEnabled(false);
-        categoryMenu.add(cutItem);
+        JMenuItem categoryCutItem = new JMenuItem("Cut");
+        categoryCutItem.setEnabled(false);
+        categoryMenu.add(categoryCutItem);
 
         // Copy item
-        JMenuItem copyItem = new JMenuItem("Copy");
-        copyItem.setEnabled(false);
-        categoryMenu.add(copyItem);
+        JMenuItem categoryCopyItem = new JMenuItem("Copy");
+        categoryCopyItem.setEnabled(false);
+        categoryMenu.add(categoryCopyItem);
 
         // Paste item
-        JMenuItem pasteItem = new JMenuItem("Paste");
-        pasteItem.setEnabled(false);
-        categoryMenu.add(pasteItem);
+        JMenuItem categoryPasteItem = new JMenuItem("Paste");
+        categoryPasteItem.setEnabled(false);
+        categoryMenu.add(categoryPasteItem);
 
         // Edit item
         JMenuItem editItem = new JMenuItem("Edit...");
@@ -1910,6 +1946,21 @@ public class EditorFrame extends JInternalFrame
         // Extra list's table menu
         JPopupMenu extraMenu = new JPopupMenu();
         lists.get(id).table.addMouseListener(new TableMouseAdapter(lists.get(id).table, extraMenu));
+
+        // Cut, copy, paste
+        JMenuItem cutItem = new JMenuItem("Cut");
+        cutItem.addActionListener((e) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(lists.get(id).table, ActionEvent.ACTION_PERFORMED, null)));
+        cutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        lists.get(id).table.add(cutItem);
+        JMenuItem copyItem = new JMenuItem("Copy");
+        copyItem.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(lists.get(id).table, ActionEvent.ACTION_PERFORMED, null)));
+        copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        lists.get(id).table.add(copyItem);
+        JMenuItem pasteItem = new JMenuItem("Paste");
+        pasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(lists.get(id).table, ActionEvent.ACTION_PERFORMED, null)));
+        pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        lists.get(id).table.add(pasteItem);
+        lists.get(id).table.add(new JSeparator());
 
         // Add/remove cards from sideboard
         CardMenuItems sideboardMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, false);
