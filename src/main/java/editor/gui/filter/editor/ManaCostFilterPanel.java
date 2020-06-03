@@ -23,6 +23,11 @@ import editor.util.Containment;
 @SuppressWarnings("serial")
 public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 {
+    /** Color to display if the entered cost is valid (i.e. can be parsed according to {@link ManaCost#tryParseManaCost(String)}). */
+    public static final Color VALID = Color.WHITE;
+    /** Color to display if the entered cost is invalid (i.e. can't be parsed according to {@link ManaCost#tryParseManaCost(String)}). */
+    public static final Color INVALID = Color.PINK;
+
     /**
      * Combo box indicating containment.
      */
@@ -48,7 +53,7 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
             @Override
             public void update(DocumentEvent e)
             {
-                cost.setBackground(ManaCost.tryParseManaCost(cost.getText()).map((c) -> Color.PINK).orElse(Color.WHITE));
+                cost.setBackground(ManaCost.tryParseManaCost(cost.getText()).map((c) -> VALID).orElse(INVALID));
             }
         });
         add(cost);
