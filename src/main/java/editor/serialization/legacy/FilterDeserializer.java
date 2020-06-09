@@ -30,49 +30,40 @@ import editor.util.Containment;
 
 public interface FilterDeserializer
 {
-    public final Map<CardAttribute, String> CODES = Map.ofEntries(
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.CARD_TYPE, "cardtype"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.ANY, "*"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.LEGAL_IN, "legal"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.TYPE_LINE, "type"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.BLOCK, "b"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.EXPANSION, "x"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.LAYOUT, "L"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.MANA_COST, "m"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.NAME, "n"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.NONE, "0"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.RARITY, "r"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.SUBTYPE, "sub"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.SUPERTYPE, "super"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.TAGS, "tag"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.LOYALTY, "l"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.ARTIST, "a"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.CARD_NUMBER, "#"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.CMC, "cmc"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.COLORS, "c"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.COLOR_IDENTITY, "ci"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.FLAVOR_TEXT, "f"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.POWER, "p"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.PRINTED_TEXT, "ptext"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.PRINTED_TYPES, "ptypes"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.RULES_TEXT, "o"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.TOUGHNESS, "t"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.GROUP, "group"),
-        new AbstractMap.SimpleImmutableEntry<>(CardAttribute.DEFAULTS, "")
+    public final Map<String, CardAttribute> CODES = Map.ofEntries(
+        new AbstractMap.SimpleImmutableEntry<>("cardtype", CardAttribute.CARD_TYPE),
+        new AbstractMap.SimpleImmutableEntry<>("*", CardAttribute.ANY),
+        new AbstractMap.SimpleImmutableEntry<>("legal", CardAttribute.LEGAL_IN),
+        new AbstractMap.SimpleImmutableEntry<>("type", CardAttribute.TYPE_LINE),
+        new AbstractMap.SimpleImmutableEntry<>("b", CardAttribute.BLOCK),
+        new AbstractMap.SimpleImmutableEntry<>("x", CardAttribute.EXPANSION),
+        new AbstractMap.SimpleImmutableEntry<>("L", CardAttribute.LAYOUT),
+        new AbstractMap.SimpleImmutableEntry<>("m", CardAttribute.MANA_COST),
+        new AbstractMap.SimpleImmutableEntry<>("n", CardAttribute.NAME),
+        new AbstractMap.SimpleImmutableEntry<>("0", CardAttribute.NONE),
+        new AbstractMap.SimpleImmutableEntry<>("r", CardAttribute.RARITY),
+        new AbstractMap.SimpleImmutableEntry<>("sub", CardAttribute.SUBTYPE),
+        new AbstractMap.SimpleImmutableEntry<>("super", CardAttribute.SUPERTYPE),
+        new AbstractMap.SimpleImmutableEntry<>("tag", CardAttribute.TAGS),
+        new AbstractMap.SimpleImmutableEntry<>("l", CardAttribute.LOYALTY),
+        new AbstractMap.SimpleImmutableEntry<>("a", CardAttribute.ARTIST),
+        new AbstractMap.SimpleImmutableEntry<>("#", CardAttribute.CARD_NUMBER),
+        new AbstractMap.SimpleImmutableEntry<>("cmc", CardAttribute.CMC),
+        new AbstractMap.SimpleImmutableEntry<>("c", CardAttribute.COLORS),
+        new AbstractMap.SimpleImmutableEntry<>("ci", CardAttribute.COLOR_IDENTITY),
+        new AbstractMap.SimpleImmutableEntry<>("f", CardAttribute.FLAVOR_TEXT),
+        new AbstractMap.SimpleImmutableEntry<>("p", CardAttribute.POWER),
+        new AbstractMap.SimpleImmutableEntry<>("ptext", CardAttribute.PRINTED_TEXT),
+        new AbstractMap.SimpleImmutableEntry<>("ptypes", CardAttribute.PRINTED_TYPES),
+        new AbstractMap.SimpleImmutableEntry<>("o", CardAttribute.RULES_TEXT),
+        new AbstractMap.SimpleImmutableEntry<>("t", CardAttribute.TOUGHNESS),
+        new AbstractMap.SimpleImmutableEntry<>("group", CardAttribute.GROUP),
+        new AbstractMap.SimpleImmutableEntry<>("", CardAttribute.DEFAULTS)
     );
 
     public static Filter readExternal(ObjectInput in) throws ClassNotFoundException, IOException
     {
-        CardAttribute type = null;
-        String code = in.readUTF();
-        for (CardAttribute attribute: CardAttribute.filterableValues())
-        {
-            if (code.equals(CODES.get(attribute)))
-            {
-                type = attribute;
-                break;
-            }
-        }
+        CardAttribute type = CODES.get(in.readUTF());
         if (type == CardAttribute.GROUP)
         {
             FilterGroup filter = new FilterGroup();
