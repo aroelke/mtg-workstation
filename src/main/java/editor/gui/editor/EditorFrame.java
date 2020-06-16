@@ -58,7 +58,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
 import javax.swing.OverlayLayout;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
@@ -595,15 +594,14 @@ public class EditorFrame extends JInternalFrame
         deck().model = new CardTableModel(this, deck().current, SettingsDialog.settings().editor.columns);
         deck().table = new CardTable(deck().model);
         deck().table.setStripeColor(SettingsDialog.settings().editor.stripe);
-        // When a card is selected in the master list table, select it for adding
-        deck().table.getSelectionModel().addListSelectionListener((e) -> {
-            if (!e.getValueIsAdjusting())
-            {
-                ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-                if (!lsm.isSelectionEmpty())
-                    parent.setSelectedCards(deck().table, deck().current);
-            }
-        });
+
+        deck().table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
+            if (parent.getSelectedTable().map((t) -> t != deck().table).orElse(true))
+                parent.setSelectedComponents(deck().table, deck().current);
+            if (deck().table.rowAtPoint(e.getPoint()) < 0)
+                deck().table.clearSelection();
+            parent.findSelectedCards();
+        }));
         for (int i = 0; i < deck().table.getColumnCount(); i++)
             if (deck().model.isCellEditable(0, i))
                 deck().table.getColumn(deck().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck().model.getColumnData(i)));
@@ -1135,11 +1133,13 @@ public class EditorFrame extends JInternalFrame
     {
         final CategoryPanel newCategory = new CategoryPanel(deck().current, spec.getName(), this);
         // When a card is selected in a category, the others should deselect
-        newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
-            ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-            if (!lsm.isSelectionEmpty() && !e.getValueIsAdjusting())
-                parent.setSelectedCards(newCategory.table, deck().current.getCategoryList(newCategory.getCategoryName()));
-        });
+        newCategory.table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
+            if (parent.getSelectedTable().map((t) -> t != newCategory.table).orElse(true))
+                parent.setSelectedComponents(newCategory.table, deck().current);
+            if (newCategory.table.rowAtPoint(e.getPoint()) < 0)
+                newCategory.table.clearSelection();
+            parent.findSelectedCards();
+        }));
         // Add the behavior for the edit category button
         newCategory.editButton.addActionListener((e) -> editCategory(newCategory.getCategoryName()));
         // Add the behavior for the remove category button
@@ -1925,14 +1925,13 @@ public class EditorFrame extends JInternalFrame
         };
         lists.get(id).table.setStripeColor(SettingsDialog.settings().editor.stripe);
         // When a card is selected in a sideboard table, select it for adding
-        lists.get(id).table.getSelectionModel().addListSelectionListener((e) -> {
-            if (!e.getValueIsAdjusting())
-            {
-                ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-                if (!lsm.isSelectionEmpty())
-                    parent.setSelectedCards(lists.get(id).table, lists.get(id).current);
-            }
-        });
+        lists.get(id).table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
+            if (parent.getSelectedTable().map((t) -> t != lists.get(id).table).orElse(true))
+                parent.setSelectedComponents(lists.get(id).table, lists.get(id).current);
+            if (lists.get(id).table.rowAtPoint(e.getPoint()) < 0)
+                lists.get(id).table.clearSelection();
+            parent.findSelectedCards();
+        }));
         for (int i = 0; i < lists.get(id).table.getColumnCount(); i++)
             if (lists.get(id).model.isCellEditable(0, i))
                 lists.get(id).table.getColumn(lists.get(id).model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, lists.get(id).model.getColumnData(i)));
@@ -2425,21 +2424,20 @@ public class EditorFrame extends JInternalFrame
         lists.stream().filter((l) -> l != null).forEach((l) -> l.model.fireTableDataChanged());
         for (CategoryPanel c : categoryPanels)
             ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-        for (Card c : parent.getSelectedCards())
-        {
-            parent.getSelectedList().ifPresent((l) -> {
-                if (l.contains(c))
-                {
-                    int row = parent.getSelectedTable().get().convertRowIndexToView(l.indexOf(c));
-                    parent.getSelectedTable().get().addRowSelectionInterval(row, row);
-                }
-            });
-        }
         parent.getSelectedTable().ifPresent((t) -> {
-            if (t.isEditing())
-                t.getCellEditor().cancelCellEditing();
+            parent.getSelectedList().ifPresent((l) -> {
+                for (Card c : parent.getSelectedCards())
+                {
+                    if (l.contains(c))
+                    {
+                        int row = t.convertRowIndexToView(l.indexOf(c));
+                        t.addRowSelectionInterval(row, row);
+                    }
+                }
+                if (t.isEditing())
+                    t.getCellEditor().cancelCellEditing();
+            });
         });
-
         hand.refresh();
         handCalculations.update();
     }

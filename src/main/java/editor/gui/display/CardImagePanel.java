@@ -389,4 +389,16 @@ public class CardImagePanel extends JPanel
         repaint();
         downloader.downloadCard(this, card);
     }
+
+    /**
+     * Set the image panel to be blank and containing no card.
+     */
+    public void clearCard()
+    {
+        card = null;
+        face = 0;
+        faceImages.clear();
+        revalidate();
+        repaint();
+    }
 }

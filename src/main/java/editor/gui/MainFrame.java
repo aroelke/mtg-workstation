@@ -1492,14 +1492,13 @@ public class MainFrame extends JFrame
 
         // Action to be taken when a selection is made in the inventory table (update the relevant
         // panels)
-        inventoryTable.getSelectionModel().addListSelectionListener((e) -> {
-            if (!e.getValueIsAdjusting())
-            {
-                ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-                if (!lsm.isSelectionEmpty())
-                    setSelectedCards(inventoryTable, inventory);
-            }
-        });
+        inventoryTable.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
+            if (getSelectedTable().map((t) -> t != inventoryTable).orElse(true))
+                setSelectedComponents(inventoryTable, inventory);
+            if (inventoryTable.rowAtPoint(e.getPoint()) < 0)
+                inventoryTable.clearSelection();
+            findSelectedCards();
+        }));
 
         // Split panes dividing the panel into three sections.  They can be resized at will.
         JSplitPane inventorySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, cardPane, inventoryPanel);
@@ -1968,26 +1967,37 @@ public class MainFrame extends JFrame
             frame.setHandBackground(col);
     }
 
-    /**
-     * Set the selected cards from the given table backed by the given card list.  Make sure
-     * the list and the table represent the same set of cards!
-     *
-     * @param table table with a selection to get the selected cards from
-     * @param list list backing the given table
-     */
-    public void setSelectedCards(CardTable table, CardList list)
+    public void clearSelectedTable()
     {
-        selectedTable = Optional.of(table);
-        selectedList = Optional.of(list);
-        selectedCards = Collections.unmodifiableList(Arrays.stream(table.getSelectedRows())
-                .mapToObj((r) -> list.get(table.convertRowIndexToModel(r)))
-                .collect(Collectors.toList()));
+        selectedTable = Optional.empty();
+    }
 
+    public void setSelectedComponents(CardTable table, CardList list)
+    {
+        selectedList = Optional.of(list);
+        selectedTable = Optional.of(table);
+        if (table != inventoryTable)
+            inventoryTable.clearSelection();
+        for (EditorFrame editor : editors)
+            editor.clearTableSelections(table);
+    }
+
+    /**
+     * Set the selected cards from the currently-selected table.
+     */
+    public void findSelectedCards()
+    {
+        selectedCards = Arrays.stream(selectedTable.get().getSelectedRows())
+                .mapToObj((r) -> selectedList.get().get(selectedTable.get().convertRowIndexToModel(r)))
+                .collect(Collectors.toList());
+
+        oracleTextPane.setText("");
+        printedTextPane.setText("");
+        rulingsPane.setText("");
         if (!selectedCards.isEmpty())
         {
             final Card card = selectedCards.get(0);
 
-            oracleTextPane.setText("");
             StyledDocument oracleDocument = (StyledDocument)oracleTextPane.getDocument();
             Style oracleTextStyle = oracleDocument.addStyle("text", null);
             StyleConstants.setFontFamily(oracleTextStyle, UIManager.getFont("Label.font").getFamily());
@@ -1997,7 +2007,6 @@ public class MainFrame extends JFrame
             card.formatDocument(oracleDocument, false);
             oracleTextPane.setCaretPosition(0);
     
-            printedTextPane.setText("");
             StyledDocument printedDocument = (StyledDocument)printedTextPane.getDocument();
             Style printedTextStyle = printedDocument.addStyle("text", null);
             StyleConstants.setFontFamily(printedTextStyle, UIManager.getFont("Label.font").getFamily());
@@ -2007,7 +2016,6 @@ public class MainFrame extends JFrame
             card.formatDocument(printedDocument, true);
             printedTextPane.setCaretPosition(0);
     
-            rulingsPane.setText("");
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             StyledDocument rulingsDocument = (StyledDocument)rulingsPane.getDocument();
             Style rulingStyle = oracleDocument.addStyle("ruling", null);
@@ -2067,11 +2075,8 @@ public class MainFrame extends JFrame
             rulingsPane.setCaretPosition(0);
             imagePanel.setCard(card);
         }
-
-        if (table != inventoryTable)
-            inventoryTable.clearSelection();
-        for (EditorFrame editor : editors)
-            editor.clearTableSelections(table);
+        else
+            imagePanel.clearCard();
     }
 
     /**
