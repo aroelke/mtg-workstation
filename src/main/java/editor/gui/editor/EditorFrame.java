@@ -1950,16 +1950,16 @@ public class EditorFrame extends JInternalFrame
         JMenuItem cutItem = new JMenuItem("Cut");
         cutItem.addActionListener((e) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(lists.get(id).table, ActionEvent.ACTION_PERFORMED, null)));
         cutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        lists.get(id).table.add(cutItem);
+        extraMenu.add(cutItem);
         JMenuItem copyItem = new JMenuItem("Copy");
         copyItem.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(lists.get(id).table, ActionEvent.ACTION_PERFORMED, null)));
         copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        lists.get(id).table.add(copyItem);
+        extraMenu.add(copyItem);
         JMenuItem pasteItem = new JMenuItem("Paste");
         pasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(lists.get(id).table, ActionEvent.ACTION_PERFORMED, null)));
         pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        lists.get(id).table.add(pasteItem);
-        lists.get(id).table.add(new JSeparator());
+        extraMenu.add(pasteItem);
+        extraMenu.add(new JSeparator());
 
         // Add/remove cards from sideboard
         CardMenuItems sideboardMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, false);
