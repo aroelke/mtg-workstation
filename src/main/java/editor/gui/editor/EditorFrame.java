@@ -598,8 +598,11 @@ public class EditorFrame extends JInternalFrame
         deck().table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
             if (parent.getSelectedTable().map((t) -> t != deck().table).orElse(true))
                 parent.setSelectedComponents(deck().table, deck().current);
-            if (deck().table.rowAtPoint(e.getPoint()) < 0)
+            int row = deck().table.rowAtPoint(e.getPoint());
+            if (row < 0)
                 deck().table.clearSelection();
+            else if (e.isPopupTrigger() && deck().table.getSelectedRowCount() == 0)
+                deck().table.getSelectionModel().setSelectionInterval(row, row);
             parent.findSelectedCards();
         }));
         for (int i = 0; i < deck().table.getColumnCount(); i++)
@@ -710,6 +713,8 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, deck().table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            cutItem.setEnabled(!parent.getSelectedCards().isEmpty());
+            copyItem.setEnabled(!parent.getSelectedCards().isEmpty());
             tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
             moveToMenu.setVisible(!extras().isEmpty());
             moveAllToMenu.setVisible(!extras().isEmpty());
@@ -1136,8 +1141,11 @@ public class EditorFrame extends JInternalFrame
         newCategory.table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
             if (parent.getSelectedTable().map((t) -> t != newCategory.table).orElse(true))
                 parent.setSelectedComponents(newCategory.table, deck().current);
-            if (newCategory.table.rowAtPoint(e.getPoint()) < 0)
+            int row = newCategory.table.rowAtPoint(e.getPoint());
+            if (row < 0)
                 newCategory.table.clearSelection();
+            else if (e.isPopupTrigger() && newCategory.table.getSelectedRowCount() == 0)
+                newCategory.table.getSelectionModel().setSelectionInterval(row, row);
             parent.findSelectedCards();
         }));
         // Add the behavior for the edit category button
@@ -1928,8 +1936,11 @@ public class EditorFrame extends JInternalFrame
         lists.get(id).table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
             if (parent.getSelectedTable().map((t) -> t != lists.get(id).table).orElse(true))
                 parent.setSelectedComponents(lists.get(id).table, lists.get(id).current);
-            if (lists.get(id).table.rowAtPoint(e.getPoint()) < 0)
+            int row = lists.get(id).table.rowAtPoint(e.getPoint());
+            if (row < 0)
                 lists.get(id).table.clearSelection();
+            else if (e.isPopupTrigger() && lists.get(id).table.getSelectedRowCount() == 0)
+                lists.get(id).table.getSelectionModel().setSelectionInterval(row, row);
             parent.findSelectedCards();
         }));
         for (int i = 0; i < lists.get(id).table.getColumnCount(); i++)

@@ -1495,8 +1495,11 @@ public class MainFrame extends JFrame
         inventoryTable.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
             if (getSelectedTable().map((t) -> t != inventoryTable).orElse(true))
                 setSelectedComponents(inventoryTable, inventory);
-            if (inventoryTable.rowAtPoint(e.getPoint()) < 0)
+            int row = inventoryTable.rowAtPoint(e.getPoint());
+            if (row < 0)
                 inventoryTable.clearSelection();
+            else if (e.isPopupTrigger() && inventoryTable.getSelectedRowCount() == 0)
+                inventoryTable.getSelectionModel().setSelectionInterval(row, row);
             findSelectedCards();
         }));
 
