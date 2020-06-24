@@ -9,6 +9,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -111,6 +112,7 @@ import editor.database.version.DatabaseVersion;
 import editor.database.version.UpdateFrequency;
 import editor.filter.Filter;
 import editor.filter.leaf.TextFilter;
+import editor.gui.ccp.DataFlavors;
 import editor.gui.ccp.InventoryTransferData;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
@@ -1061,6 +1063,11 @@ public class MainFrame extends JFrame
 
         // Edit menu listener
         editMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
+            editCutItem.setEnabled(selectedTable.filter((t) -> t == inventoryTable).isEmpty() && !getSelectedCards().isEmpty());
+            editCopyItem.setEnabled(!getSelectedCards().isEmpty());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            editPasteItem.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+
             undoItem.setEnabled(selectedFrame.isPresent());
             redoItem.setEnabled(selectedFrame.isPresent());
         }));
@@ -1331,12 +1338,13 @@ public class MainFrame extends JFrame
 
         // Popup listener for oracle popup menu
         oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            oracleCopy.setEnabled(!getSelectedCards().isEmpty());
             oracleMenuCardItems.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
             for (JSeparator sep : oracleMenuCardSeparators)
                 sep.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
             oracleMenuSBCardItems.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
             oracleMenuSBSeparator.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
-            oracleEditTagsItem.setVisible(!selectedCards.isEmpty());
+            oracleEditTagsItem.setEnabled(!selectedCards.isEmpty());
         }));
 
         // Panel containing inventory and image of currently-selected card

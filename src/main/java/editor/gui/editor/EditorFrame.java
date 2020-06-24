@@ -8,6 +8,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -80,6 +81,7 @@ import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
+import editor.gui.ccp.DataFlavors;
 import editor.gui.ccp.EditorImportHandler;
 import editor.gui.ccp.EditorTableTransferHandler;
 import editor.gui.display.CardImagePanel;
@@ -715,6 +717,8 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             cutItem.setEnabled(!parent.getSelectedCards().isEmpty());
             copyItem.setEnabled(!parent.getSelectedCards().isEmpty());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            pasteItem.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
             tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
             moveToMenu.setVisible(!extras().isEmpty());
             moveAllToMenu.setVisible(!extras().isEmpty());
@@ -1280,6 +1284,11 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, newCategory.table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            cardCutItem.setEnabled(!parent.getSelectedCards().isEmpty());
+            cardCopyItem.setEnabled(!parent.getSelectedCards().isEmpty());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            cardPasteItem.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+
             removeFromCategoryItem.setText("Exclude from " + newCategory.getCategoryName());
             tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
             editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
@@ -1992,6 +2001,13 @@ public class EditorFrame extends JInternalFrame
         JMenuItem sBeditTagsItem = new JMenuItem("Edit Tags...");
         sBeditTagsItem.addActionListener((e) -> CardTagPanel.editTags(parent.getSelectedCards(), parent));
         extraMenu.add(sBeditTagsItem);
+
+        extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            cutItem.setEnabled(!parent.getSelectedCards().isEmpty());
+            copyItem.setEnabled(!parent.getSelectedCards().isEmpty());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            pasteItem.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+        }));
 
         return sideboardPane;
     }
