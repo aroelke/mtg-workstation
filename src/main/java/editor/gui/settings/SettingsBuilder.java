@@ -12,7 +12,6 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -183,7 +182,7 @@ public class SettingsBuilder
         inventorySource = "https://mtgjson.com/json/";
         inventoryFile = "AllSets.json";
         inventoryVersionFile = "version.json";
-        inventoryVersion = new DatabaseVersion(0, 0, 0, new Date(0));
+        inventoryVersion = new DatabaseVersion(0, 0, 0);
         inventoryLocation = ".";
         inventoryScans = "scans";
         inventoryTags = "tags.json";
