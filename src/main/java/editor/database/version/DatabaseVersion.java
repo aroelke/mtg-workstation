@@ -22,7 +22,7 @@ public class DatabaseVersion implements Comparable<DatabaseVersion>
     /**
      * Regular expression pattern used to match version info.
      */
-    public static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)(?:\\+|-(\\d{4}\\d{2}\\d{2}))?$");
+    public static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)(?:(?:\\+|-)(\\d{4}\\d{2}\\d{2}))?$");
     /**
      * Date formatter for parsing and formatting dates to strings.
      */
