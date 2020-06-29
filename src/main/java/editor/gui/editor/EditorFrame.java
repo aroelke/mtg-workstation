@@ -81,6 +81,7 @@ import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
+import editor.gui.TableSelectionListener;
 import editor.gui.ccp.DataFlavors;
 import editor.gui.ccp.EditorImportHandler;
 import editor.gui.ccp.EditorTableTransferHandler;
@@ -597,21 +598,9 @@ public class EditorFrame extends JInternalFrame
         deck().table = new CardTable(deck().model);
         deck().table.setStripeColor(SettingsDialog.settings().editor.stripe);
 
-        deck().table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
-            if (deck().table.rowAtPoint(e.getPoint()) < 0)
-                parent.clearSelectedTable();
-            else if (parent.getSelectedTable().map((t) -> t != deck().table).orElse(true))
-                parent.setSelectedComponents(deck().table, deck().current);
-        }));
-        deck().table.getSelectionModel().addListSelectionListener((e) -> {
-            if (!e.getValueIsAdjusting())
-            {
-                if (deck().table.getSelectedRow() >= 0)
-                    parent.setDisplayedCard(getCardAt(deck().table, deck().table.getSelectedRow()));
-                else
-                    parent.clearSelectedCard();
-            }
-        });
+        TableSelectionListener listener = new TableSelectionListener(parent, deck().table, deck().current);
+        deck().table.addMouseListener(listener);
+        deck().table.getSelectionModel().addListSelectionListener(listener);
         for (int i = 0; i < deck().table.getColumnCount(); i++)
             if (deck().model.isCellEditable(0, i))
                 deck().table.getColumn(deck().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck().model.getColumnData(i)));
@@ -1149,21 +1138,9 @@ public class EditorFrame extends JInternalFrame
     {
         final CategoryPanel newCategory = new CategoryPanel(deck().current, spec.getName(), this);
         // When a card is selected in a category, the others should deselect
-        newCategory.table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
-            if (newCategory.table.rowAtPoint(e.getPoint()) < 0)
-                parent.clearSelectedTable();
-            else if (parent.getSelectedTable().map((t) -> t != newCategory.table).orElse(true))
-                parent.setSelectedComponents(newCategory.table, deck().current);
-        }));
-        newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
-            if (!e.getValueIsAdjusting())
-            {
-                if (newCategory.table.getSelectedRow() >= 0)
-                    parent.setDisplayedCard(getCardAt(newCategory.table, newCategory.table.getSelectedRow()));
-                else
-                    parent.clearSelectedCard();
-            }
-        });
+        TableSelectionListener listener = new TableSelectionListener(parent, newCategory.table, deck().current);
+        newCategory.table.addMouseListener(listener);
+        newCategory.table.getSelectionModel().addListSelectionListener(listener);
         // Add the behavior for the edit category button
         newCategory.editButton.addActionListener((e) -> editCategory(newCategory.getCategoryName()));
         // Add the behavior for the remove category button
@@ -1954,21 +1931,9 @@ public class EditorFrame extends JInternalFrame
         };
         lists.get(id).table.setStripeColor(SettingsDialog.settings().editor.stripe);
         // When a card is selected in a sideboard table, select it for adding
-        lists.get(id).table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
-            if (lists.get(id).table.rowAtPoint(e.getPoint()) < 0)
-                parent.clearSelectedTable();
-            else if (parent.getSelectedTable().map((t) -> t != lists.get(id).table).orElse(true))
-                parent.setSelectedComponents(lists.get(id).table, lists.get(id).current);
-        }));
-        lists.get(id).table.getSelectionModel().addListSelectionListener((e) -> {
-            if (!e.getValueIsAdjusting())
-            {
-                if (lists.get(id).table.getSelectedRow() >= 0)
-                    parent.setDisplayedCard(getCardAt(lists.get(id).table, lists.get(id).table.getSelectedRow()));
-                else
-                    parent.clearSelectedCard();
-            }
-        });
+        TableSelectionListener listener = new TableSelectionListener(parent, lists.get(id).table, lists.get(id).current);
+        lists.get(id).table.addMouseListener(listener);
+        lists.get(id).table.getSelectionModel().addListSelectionListener(listener);
         for (int i = 0; i < lists.get(id).table.getColumnCount(); i++)
             if (lists.get(id).model.isCellEditable(0, i))
                 lists.get(id).table.getColumn(lists.get(id).model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, lists.get(id).model.getColumnData(i)));
@@ -2047,6 +2012,7 @@ public class EditorFrame extends JInternalFrame
         {
             var capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -lists.get(id).current.getEntry(e.getKey()).count())));
             return performAction(() -> {
+                var selected = parent.getSelectedCards();
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
                         return lists.get(id).current.remove(e.getKey(), -e.getValue()) > 0;
@@ -2056,9 +2022,10 @@ public class EditorFrame extends JInternalFrame
                         return false;
                 }).reduce(false, (a, b) -> a || b);
                 if (changed)
-                    updateTables();
+                    updateTables(selected);
                 return changed;
             }, () -> {
+                var selected = parent.getSelectedCards();
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
                         return lists.get(id).current.add(e.getKey(), -e.getValue());
@@ -2068,7 +2035,7 @@ public class EditorFrame extends JInternalFrame
                         return false;
                 }).reduce(false, (a, b) -> a || b);
                 if (changed)
-                    updateTables();
+                    updateTables(selected);
                 return changed;
             });
         }
@@ -2159,18 +2126,20 @@ public class EditorFrame extends JInternalFrame
             throw new ArrayIndexOutOfBoundsException(to);
 
         return performAction(() -> {
+            var selected = parent.getSelectedCards();
             if (!lists.get(from).current.removeAll(moves).equals(moves))
                 throw new CardException(moves.keySet(), "error moving cards from list " + from);
             if (!lists.get(to).current.addAll(moves))
                 throw new CardException(moves.keySet(), "could not move cards to list " + to);
-            updateTables();
+            updateTables(selected);
             return true;
         }, () -> {
+            var selected = parent.getSelectedCards();
             if (!lists.get(from).current.addAll(moves))
                 throw new CardException(moves.keySet(), "could not undo move from list " + from);
             if (!lists.get(to).current.removeAll(moves).equals(moves))
                 throw new CardException(moves.keySet(), "error undoing move to list " + to);
-            updateTables();
+            updateTables(selected);
             return true;
         });
     }
@@ -2461,10 +2430,8 @@ public class EditorFrame extends JInternalFrame
      * Update all of the tables and components with the contents of the cards in the
      * deck.
      */
-    private void updateTables()
+    private void updateTables(Collection<Card> selected)
     {
-        var selected = parent.getSelectedCards();
-
         updateStats();
         parent.updateCardsInDeck();
         lists.stream().filter((l) -> l != null).forEach((l) -> l.model.fireTableDataChanged());
