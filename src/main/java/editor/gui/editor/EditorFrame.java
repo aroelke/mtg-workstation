@@ -2429,6 +2429,8 @@ public class EditorFrame extends JInternalFrame
     /**
      * Update all of the tables and components with the contents of the cards in the
      * deck.
+     * 
+     * @param selected list of selected cards from <b>before</b> the change to the deck was made
      */
     private void updateTables(Collection<Card> selected)
     {

@@ -1494,23 +1494,6 @@ public class MainFrame extends JFrame
             }
         });
 
-        // Action to be taken when a selection is made in the inventory table (update the relevant
-        // panels)
-        inventoryTable.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
-            if (inventoryTable.rowAtPoint(e.getPoint()) < 0)
-                clearSelectedTable();
-            else if (selectedTable.map((t) -> t != inventoryTable).orElse(true))
-                setSelectedComponents(inventoryTable, inventory);
-        }));
-        inventoryTable.getSelectionModel().addListSelectionListener((e) -> {
-            if (!e.getValueIsAdjusting())
-            {
-                if (inventoryTable.getSelectedRow() >= 0)
-                    setDisplayedCard(inventory.get(inventoryTable.convertRowIndexToModel(inventoryTable.getSelectedRow())));
-                else
-                    clearSelectedCard();
-            }
-        });
         // Split panes dividing the panel into three sections.  They can be resized at will.
         JSplitPane inventorySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, cardPane, inventoryPanel);
         inventorySplit.setOneTouchExpandable(true);
@@ -1542,6 +1525,10 @@ public class MainFrame extends JFrame
                 if (checkForUpdate(SettingsDialog.settings().inventory.update) == UPDATE_NEEDED && updateInventory())
                     SettingsDialog.setInventoryVersion(newestVersion);
                 loadInventory();
+                TableSelectionListener listener = new TableSelectionListener(MainFrame.this, inventoryTable, inventory);
+                inventoryTable.addMouseListener(listener);
+                inventoryTable.getSelectionModel().addListSelectionListener(listener);
+
                 if (!inventory.isEmpty())
                 {
                     for (CategorySpec spec : SettingsDialog.settings().editor.categories.presets)
@@ -1979,12 +1966,22 @@ public class MainFrame extends JFrame
             frame.setHandBackground(col);
     }
 
+    /**
+     * Sets that there is no selected table, clearing the selection of the currently-
+     * selected table if there is one.
+     */
     public void clearSelectedTable()
     {
         selectedTable.ifPresent((t) -> t.clearSelection());
         selectedTable = Optional.empty();
     }
 
+    /**
+     * Set the selected table and backing list.
+     * 
+     * @param table table that contains the selection
+     * @param list list backing that table
+     */
     public void setSelectedComponents(CardTable table, CardList list)
     {
         if (table != inventoryTable)
@@ -1995,6 +1992,11 @@ public class MainFrame extends JFrame
         selectedTable = Optional.of(table);
     }
 
+    /**
+     * Set the card to display in the image panel, along with its information in the other tabs.
+     *
+     * @param card card to display
+     */
     public void setDisplayedCard(final Card card)
     {
         Objects.requireNonNull(card);
@@ -2077,6 +2079,9 @@ public class MainFrame extends JFrame
         imagePanel.setCard(card);
     }
 
+    /**
+     * Clear the card display panel.
+     */
     public void clearSelectedCard()
     {
         oracleTextPane.setText("");
