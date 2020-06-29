@@ -45,8 +45,8 @@ public class TableSelectionListener implements MouseListener, ListSelectionListe
     public void mouseReleased(MouseEvent e)
     {
         if (table.rowAtPoint(e.getPoint()) < 0)
-            frame.clearSelectedTable();
-        else if (frame.getSelectedTable().map((t) -> t != table).orElse(true))
+            frame.clearSelectedList();
+        else if (frame.getSelectedList().filter((l) -> l == list).isEmpty())
             frame.setSelectedComponents(table, list);
     }
 
@@ -57,7 +57,7 @@ public class TableSelectionListener implements MouseListener, ListSelectionListe
         {
             if (table.getSelectedRow() >= 0)
                 frame.setDisplayedCard(list.get(table.convertRowIndexToModel(table.getSelectedRow())));
-            else
+            else if (frame.getSelectedTable().filter((t) -> t == table).isPresent())
                 frame.clearSelectedCard();
         }
     }

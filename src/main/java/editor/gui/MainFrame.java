@@ -1022,15 +1022,15 @@ public class MainFrame extends JFrame
 
         // Cut, copy, paste
         JMenuItem editCutItem = new JMenuItem("Cut");
-        editCutItem.addActionListener((e) -> getSelectedTable().ifPresent((t) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
+        editCutItem.addActionListener((e) -> selectedTable.ifPresent((t) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
         editCutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         editMenu.add(editCutItem);
         JMenuItem editCopyItem = new JMenuItem("Copy");
-        editCopyItem.addActionListener((e) -> getSelectedTable().ifPresent((t) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
+        editCopyItem.addActionListener((e) -> selectedTable.ifPresent((t) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
         editCopyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         editMenu.add(editCopyItem);
         JMenuItem editPasteItem = new JMenuItem("Paste");
-        editPasteItem.addActionListener((e) -> getSelectedTable().ifPresent((t) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
+        editPasteItem.addActionListener((e) -> selectedTable.ifPresent((t) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
         editPasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         editMenu.add(editPasteItem);
         editMenu.add(new JSeparator());
@@ -1059,7 +1059,9 @@ public class MainFrame extends JFrame
 
         // Edit menu listener
         editMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
-            editCutItem.setEnabled(selectedTable.filter((t) -> t == inventoryTable).isEmpty() && !getSelectedCards().isEmpty());
+            editCutItem.setEnabled(
+                selectedList.filter((l) -> l == inventory).isEmpty() && !getSelectedCards().isEmpty()
+            );
             editCopyItem.setEnabled(!getSelectedCards().isEmpty());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             editPasteItem.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
@@ -1754,7 +1756,7 @@ public class MainFrame extends JFrame
      */
     public boolean hasSelectedCards()
     {
-        return selectedTable.filter((f) -> f == inventoryTable).isPresent();
+        return selectedList.filter((l) -> l == inventory).isPresent();
     }
 
     /**
@@ -1967,13 +1969,13 @@ public class MainFrame extends JFrame
     }
 
     /**
-     * Sets that there is no selected table, clearing the selection of the currently-
+     * Sets that there is no selected list, clearing the selection of the currently-
      * selected table if there is one.
      */
-    public void clearSelectedTable()
+    public void clearSelectedList()
     {
-        selectedTable.ifPresent((t) -> t.clearSelection());
-        selectedTable = Optional.empty();
+        selectedTable.ifPresent(CardTable::clearSelection);
+        selectedList = Optional.empty();
     }
 
     /**
@@ -1984,12 +1986,12 @@ public class MainFrame extends JFrame
      */
     public void setSelectedComponents(CardTable table, CardList list)
     {
+        selectedList = Optional.of(list);
+        selectedTable = Optional.of(table);
         if (table != inventoryTable)
             inventoryTable.clearSelection();
         for (EditorFrame editor : editors)
             editor.clearTableSelections(table);
-        selectedList = Optional.of(list);
-        selectedTable = Optional.of(table);
     }
 
     /**
