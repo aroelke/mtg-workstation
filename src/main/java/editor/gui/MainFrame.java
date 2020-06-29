@@ -1304,8 +1304,7 @@ public class MainFrame extends JFrame
 
         // Copy
         JMenuItem oracleCopy = new JMenuItem("Copy");
-        oracleCopy.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(inventoryTable, ActionEvent.ACTION_PERFORMED, null)));
-        oracleCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        oracleCopy.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(imagePanel, ActionEvent.ACTION_PERFORMED, null)));
         oraclePopupMenu.add(oracleCopy);
         oraclePopupMenu.add(new JSeparator());
 
@@ -1344,6 +1343,28 @@ public class MainFrame extends JFrame
             oracleMenuSBSeparator.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !getSelectedCards().isEmpty());
             oracleEditTagsItem.setEnabled(!getSelectedCards().isEmpty());
         }));
+
+        // Copy handler for image panel
+        imagePanel.setTransferHandler(new TransferHandler()
+        {
+            @Override
+            public boolean canImport(TransferHandler.TransferSupport support)
+            {
+                return false;
+            }
+
+            @Override
+            protected Transferable createTransferable(JComponent c)
+            {
+                return new InventoryTransferData(getSelectedCards().get(0));
+            }
+
+            @Override
+            public int getSourceActions(JComponent c)
+            {
+                return TransferHandler.COPY;
+            }
+        });
 
         // Panel containing inventory and image of currently-selected card
         JPanel inventoryPanel = new JPanel(new BorderLayout(0, 0));
