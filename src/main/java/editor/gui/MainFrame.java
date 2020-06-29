@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CancellationException;
@@ -361,10 +362,6 @@ public class MainFrame extends JFrame
      */
     private JMenu deckMenu;
     /**
-     * Currently-selected cards.  Should never be null, but can be empty.
-     */
-    private List<Card> selectedCards;
-    /**
      * Table containing the currently-selected cards.  Can be null if there is no
      * selection.
      */
@@ -382,7 +379,6 @@ public class MainFrame extends JFrame
     {
         super();
 
-        selectedCards = Collections.emptyList();
         selectedTable = Optional.empty();
         selectedList = Optional.empty();
         untitled = 0;
@@ -1145,9 +1141,9 @@ public class MainFrame extends JFrame
 
         // Deck menu listener
         deckMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
-            addMenu.setEnabled(selectedFrame.isPresent() && !selectedCards.isEmpty());
-            removeMenu.setEnabled(selectedFrame.isPresent() && !selectedCards.isEmpty());
-            sideboardMenu.setEnabled(selectedFrame.map((f) -> f.getSelectedExtraName().isPresent()).orElse(false) && !selectedCards.isEmpty());
+            addMenu.setEnabled(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
+            removeMenu.setEnabled(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
+            sideboardMenu.setEnabled(selectedFrame.map((f) -> f.getSelectedExtraName().isPresent()).orElse(false) && !getSelectedCards().isEmpty());
             presetMenu.setEnabled(presetMenu.getMenuComponentCount() > 0);
         }));
         // Items are enabled while hidden so their listeners can be used.
@@ -1312,7 +1308,7 @@ public class MainFrame extends JFrame
         oraclePopupMenu.add(new JSeparator());
 
         // Add the card to the main deck
-        CardMenuItems oracleMenuCardItems = new CardMenuItems(() -> selectedFrame, () -> Arrays.asList(selectedCards.get(0)), true);
+        CardMenuItems oracleMenuCardItems = new CardMenuItems(() -> selectedFrame, () -> Arrays.asList(getSelectedCards().get(0)), true);
         JSeparator[] oracleMenuCardSeparators = new JSeparator[] { new JSeparator(), new JSeparator() };
         oracleMenuCardItems.addAddItems(oraclePopupMenu);
         oraclePopupMenu.add(oracleMenuCardSeparators[0]);
@@ -1320,7 +1316,7 @@ public class MainFrame extends JFrame
         oraclePopupMenu.add(oracleMenuCardSeparators[1]);
 
         // Add the card to the sideboard
-        CardMenuItems oracleMenuSBCardItems = new CardMenuItems(() -> selectedFrame, () -> Arrays.asList(selectedCards.get(0)), false);
+        CardMenuItems oracleMenuSBCardItems = new CardMenuItems(() -> selectedFrame, () -> Arrays.asList(getSelectedCards().get(0)), false);
         oracleMenuSBCardItems.addSingle().setText("Add to Sideboard");
         oraclePopupMenu.add(oracleMenuSBCardItems.addSingle());
         oracleMenuSBCardItems.addN().setText("Add to Sideboard...");
@@ -1339,12 +1335,12 @@ public class MainFrame extends JFrame
         // Popup listener for oracle popup menu
         oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             oracleCopy.setEnabled(!getSelectedCards().isEmpty());
-            oracleMenuCardItems.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
+            oracleMenuCardItems.setVisible(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
             for (JSeparator sep : oracleMenuCardSeparators)
-                sep.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
-            oracleMenuSBCardItems.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
-            oracleMenuSBSeparator.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
-            oracleEditTagsItem.setEnabled(!selectedCards.isEmpty());
+                sep.setVisible(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
+            oracleMenuSBCardItems.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !getSelectedCards().isEmpty());
+            oracleMenuSBSeparator.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !getSelectedCards().isEmpty());
+            oracleEditTagsItem.setEnabled(!getSelectedCards().isEmpty());
         }));
 
         // Panel containing inventory and image of currently-selected card
@@ -1444,12 +1440,12 @@ public class MainFrame extends JFrame
 
         // Inventory menu listener
         inventoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            inventoryMenuCardItems.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
+            inventoryMenuCardItems.setVisible(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
             for (JSeparator sep : inventoryMenuCardSeparators)
-                sep.setVisible(selectedFrame.isPresent() && !selectedCards.isEmpty());
-            inventoryMenuSBItems.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
-            inventoryMenuSBSeparator.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !selectedCards.isEmpty());
-            editTagsItem.setEnabled(!selectedCards.isEmpty());
+                sep.setVisible(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
+            inventoryMenuSBItems.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !getSelectedCards().isEmpty());
+            inventoryMenuSBSeparator.setVisible(selectedFrame.map((f) -> !f.getExtraNames().isEmpty()).orElse(false) && !getSelectedCards().isEmpty());
+            editTagsItem.setEnabled(!getSelectedCards().isEmpty());
         }));
 
         // Action to be taken when the user presses the Enter key after entering text into the quick-filter
@@ -1501,16 +1497,20 @@ public class MainFrame extends JFrame
         // Action to be taken when a selection is made in the inventory table (update the relevant
         // panels)
         inventoryTable.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
-            if (getSelectedTable().map((t) -> t != inventoryTable).orElse(true))
+            if (inventoryTable.rowAtPoint(e.getPoint()) < 0)
+                clearSelectedTable();
+            else if (selectedTable.map((t) -> t != inventoryTable).orElse(true))
                 setSelectedComponents(inventoryTable, inventory);
-            int row = inventoryTable.rowAtPoint(e.getPoint());
-            if (row < 0)
-                inventoryTable.clearSelection();
-            else if (e.isPopupTrigger() && inventoryTable.getSelectedRowCount() == 0)
-                inventoryTable.getSelectionModel().setSelectionInterval(row, row);
-            findSelectedCards();
         }));
-
+        inventoryTable.getSelectionModel().addListSelectionListener((e) -> {
+            if (!e.getValueIsAdjusting())
+            {
+                if (inventoryTable.getSelectedRow() >= 0)
+                    setDisplayedCard(inventory.get(inventoryTable.convertRowIndexToModel(inventoryTable.getSelectedRow())));
+                else
+                    clearSelectedCard();
+            }
+        });
         // Split panes dividing the panel into three sections.  They can be resized at will.
         JSplitPane inventorySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, cardPane, inventoryPanel);
         inventorySplit.setOneTouchExpandable(true);
@@ -1675,7 +1675,6 @@ public class MainFrame extends JFrame
         {
             if (frame.hasSelectedCards())
             {
-                selectedCards = Collections.emptyList();
                 selectedTable = Optional.empty();
                 selectedList = Optional.empty();
             }
@@ -1736,7 +1735,9 @@ public class MainFrame extends JFrame
      */
     public List<Card> getSelectedCards()
     {
-        return selectedCards;
+        return selectedList.flatMap((l) -> selectedTable.map((t) -> Arrays.stream(t.getSelectedRows())
+            .mapToObj((r) -> l.get(t.convertRowIndexToModel(r)))
+            .collect(Collectors.toList()))).orElse(Collections.emptyList());
     }
 
     /**
@@ -1980,114 +1981,108 @@ public class MainFrame extends JFrame
 
     public void clearSelectedTable()
     {
+        selectedTable.ifPresent((t) -> t.clearSelection());
         selectedTable = Optional.empty();
     }
 
     public void setSelectedComponents(CardTable table, CardList list)
     {
-        selectedList = Optional.of(list);
-        selectedTable = Optional.of(table);
         if (table != inventoryTable)
             inventoryTable.clearSelection();
         for (EditorFrame editor : editors)
             editor.clearTableSelections(table);
+        selectedList = Optional.of(list);
+        selectedTable = Optional.of(table);
     }
 
-    /**
-     * Set the selected cards from the currently-selected table.
-     */
-    public void findSelectedCards()
+    public void setDisplayedCard(final Card card)
     {
-        selectedCards = Arrays.stream(selectedTable.get().getSelectedRows())
-                .mapToObj((r) -> selectedList.get().get(selectedTable.get().convertRowIndexToModel(r)))
-                .collect(Collectors.toList());
+        Objects.requireNonNull(card);
 
-        oracleTextPane.setText("");
-        printedTextPane.setText("");
-        rulingsPane.setText("");
-        if (!selectedCards.isEmpty())
+        StyledDocument oracleDocument = (StyledDocument)oracleTextPane.getDocument();
+        Style oracleTextStyle = oracleDocument.addStyle("text", null);
+        StyleConstants.setFontFamily(oracleTextStyle, UIManager.getFont("Label.font").getFamily());
+        StyleConstants.setFontSize(oracleTextStyle, ComponentUtils.TEXT_SIZE);
+        Style reminderStyle = oracleDocument.addStyle("reminder", oracleTextStyle);
+        StyleConstants.setItalic(reminderStyle, true);
+        card.formatDocument(oracleDocument, false);
+        oracleTextPane.setCaretPosition(0);
+
+        StyledDocument printedDocument = (StyledDocument)printedTextPane.getDocument();
+        Style printedTextStyle = printedDocument.addStyle("text", null);
+        StyleConstants.setFontFamily(printedTextStyle, UIManager.getFont("Label.font").getFamily());
+        StyleConstants.setFontSize(printedTextStyle, ComponentUtils.TEXT_SIZE);
+        reminderStyle = printedDocument.addStyle("reminder", oracleTextStyle);
+        StyleConstants.setItalic(reminderStyle, true);
+        card.formatDocument(printedDocument, true);
+        printedTextPane.setCaretPosition(0);
+
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        StyledDocument rulingsDocument = (StyledDocument)rulingsPane.getDocument();
+        Style rulingStyle = oracleDocument.addStyle("ruling", null);
+        StyleConstants.setFontFamily(rulingStyle, UIManager.getFont("Label.font").getFamily());
+        StyleConstants.setFontSize(rulingStyle, ComponentUtils.TEXT_SIZE);
+        Style dateStyle = rulingsDocument.addStyle("date", rulingStyle);
+        StyleConstants.setBold(dateStyle, true);
+        if (!card.rulings().isEmpty())
         {
-            final Card card = selectedCards.get(0);
-
-            StyledDocument oracleDocument = (StyledDocument)oracleTextPane.getDocument();
-            Style oracleTextStyle = oracleDocument.addStyle("text", null);
-            StyleConstants.setFontFamily(oracleTextStyle, UIManager.getFont("Label.font").getFamily());
-            StyleConstants.setFontSize(oracleTextStyle, ComponentUtils.TEXT_SIZE);
-            Style reminderStyle = oracleDocument.addStyle("reminder", oracleTextStyle);
-            StyleConstants.setItalic(reminderStyle, true);
-            card.formatDocument(oracleDocument, false);
-            oracleTextPane.setCaretPosition(0);
-    
-            StyledDocument printedDocument = (StyledDocument)printedTextPane.getDocument();
-            Style printedTextStyle = printedDocument.addStyle("text", null);
-            StyleConstants.setFontFamily(printedTextStyle, UIManager.getFont("Label.font").getFamily());
-            StyleConstants.setFontSize(printedTextStyle, ComponentUtils.TEXT_SIZE);
-            reminderStyle = printedDocument.addStyle("reminder", oracleTextStyle);
-            StyleConstants.setItalic(reminderStyle, true);
-            card.formatDocument(printedDocument, true);
-            printedTextPane.setCaretPosition(0);
-    
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            StyledDocument rulingsDocument = (StyledDocument)rulingsPane.getDocument();
-            Style rulingStyle = oracleDocument.addStyle("ruling", null);
-            StyleConstants.setFontFamily(rulingStyle, UIManager.getFont("Label.font").getFamily());
-            StyleConstants.setFontSize(rulingStyle, ComponentUtils.TEXT_SIZE);
-            Style dateStyle = rulingsDocument.addStyle("date", rulingStyle);
-            StyleConstants.setBold(dateStyle, true);
-            if (!card.rulings().isEmpty())
+            try
             {
-                try
+                for (Date date : card.rulings().keySet())
                 {
-                    for (Date date : card.rulings().keySet())
+                    for (String ruling : card.rulings().get(date))
                     {
-                        for (String ruling : card.rulings().get(date))
+                        rulingsDocument.insertString(rulingsDocument.getLength(), String.valueOf(UnicodeSymbols.BULLET) + " ", rulingStyle);
+                        rulingsDocument.insertString(rulingsDocument.getLength(), format.format(date), dateStyle);
+                        rulingsDocument.insertString(rulingsDocument.getLength(), ": ", rulingStyle);
+                        int start = 0;
+                        for (int i = 0; i < ruling.length(); i++)
                         {
-                            rulingsDocument.insertString(rulingsDocument.getLength(), String.valueOf(UnicodeSymbols.BULLET) + " ", rulingStyle);
-                            rulingsDocument.insertString(rulingsDocument.getLength(), format.format(date), dateStyle);
-                            rulingsDocument.insertString(rulingsDocument.getLength(), ": ", rulingStyle);
-                            int start = 0;
-                            for (int i = 0; i < ruling.length(); i++)
+                            switch (ruling.charAt(i))
                             {
-                                switch (ruling.charAt(i))
+                            case '{':
+                                rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i), rulingStyle);
+                                start = i + 1;
+                                break;
+                            case '}':
+                                var symbol = Symbol.tryParseSymbol(ruling.substring(start, i));
+                                if (symbol.isEmpty())
                                 {
-                                case '{':
+                                    System.err.println("Unexpected symbol {" + ruling.substring(start, i) + "} in ruling for " + card.unifiedName() + ".");
                                     rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i), rulingStyle);
-                                    start = i + 1;
-                                    break;
-                                case '}':
-                                    var symbol = Symbol.tryParseSymbol(ruling.substring(start, i));
-                                    if (symbol.isEmpty())
-                                    {
-                                        System.err.println("Unexpected symbol {" + ruling.substring(start, i) + "} in ruling for " + card.unifiedName() + ".");
-                                        rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i), rulingStyle);
-                                    }
-                                    else
-                                    {
-                                        Style symbolStyle = rulingsDocument.addStyle(symbol.get().toString(), null);
-                                        StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE));
-                                        rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle);
-                                    }
-                                    start = i + 1;
-                                    break;
-                                default:
-                                    break;
                                 }
-                                if (i == ruling.length() - 1 && ruling.charAt(i) != '}')
-                                    rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i + 1) + '\n', rulingStyle);
+                                else
+                                {
+                                    Style symbolStyle = rulingsDocument.addStyle(symbol.get().toString(), null);
+                                    StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE));
+                                    rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle);
+                                }
+                                start = i + 1;
+                                break;
+                            default:
+                                break;
                             }
+                            if (i == ruling.length() - 1 && ruling.charAt(i) != '}')
+                                rulingsDocument.insertString(rulingsDocument.getLength(), ruling.substring(start, i + 1) + '\n', rulingStyle);
                         }
                     }
                 }
-                catch (BadLocationException e)
-                {
-                    e.printStackTrace();
-                }
             }
-            rulingsPane.setCaretPosition(0);
-            imagePanel.setCard(card);
+            catch (BadLocationException e)
+            {
+                e.printStackTrace();
+            }
         }
-        else
-            imagePanel.clearCard();
+        rulingsPane.setCaretPosition(0);
+        imagePanel.setCard(card);
+    }
+
+    public void clearSelectedCard()
+    {
+        oracleTextPane.setText("");
+        printedTextPane.setText("");
+        rulingsPane.setText("");
+        imagePanel.clearCard();
     }
 
     /**
@@ -2105,7 +2100,7 @@ public class MainFrame extends JFrame
      */
     public void updateCardsInDeck()
     {
-        inventoryModel.fireTableDataChanged();
+        inventoryTable.repaint();
     }
 
     /**

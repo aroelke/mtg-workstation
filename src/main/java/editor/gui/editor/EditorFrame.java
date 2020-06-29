@@ -598,15 +598,20 @@ public class EditorFrame extends JInternalFrame
         deck().table.setStripeColor(SettingsDialog.settings().editor.stripe);
 
         deck().table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
-            if (parent.getSelectedTable().map((t) -> t != deck().table).orElse(true))
+            if (deck().table.rowAtPoint(e.getPoint()) < 0)
+                parent.clearSelectedTable();
+            else if (parent.getSelectedTable().map((t) -> t != deck().table).orElse(true))
                 parent.setSelectedComponents(deck().table, deck().current);
-            int row = deck().table.rowAtPoint(e.getPoint());
-            if (row < 0)
-                deck().table.clearSelection();
-            else if (e.isPopupTrigger() && deck().table.getSelectedRowCount() == 0)
-                deck().table.getSelectionModel().setSelectionInterval(row, row);
-            parent.findSelectedCards();
         }));
+        deck().table.getSelectionModel().addListSelectionListener((e) -> {
+            if (!e.getValueIsAdjusting())
+            {
+                if (deck().table.getSelectedRow() >= 0)
+                    parent.setDisplayedCard(getCardAt(deck().table, deck().table.getSelectedRow()));
+                else
+                    parent.clearSelectedCard();
+            }
+        });
         for (int i = 0; i < deck().table.getColumnCount(); i++)
             if (deck().model.isCellEditable(0, i))
                 deck().table.getColumn(deck().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck().model.getColumnData(i)));
@@ -620,7 +625,9 @@ public class EditorFrame extends JInternalFrame
         mainDeckPanel.add(mainDeckPane, BorderLayout.CENTER);
 
         VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-        deckButtons.get("+").addActionListener((e) -> addCards(MAIN_DECK, parent.getSelectedCards(), 1));
+        deckButtons.get("+").addActionListener((e) -> {
+            addCards(MAIN_DECK, parent.getSelectedCards(), 1);
+        });
         deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), 1));
         deckButtons.get("X").addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
         mainDeckPanel.add(deckButtons, BorderLayout.WEST);
@@ -1143,15 +1150,20 @@ public class EditorFrame extends JInternalFrame
         final CategoryPanel newCategory = new CategoryPanel(deck().current, spec.getName(), this);
         // When a card is selected in a category, the others should deselect
         newCategory.table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
-            if (parent.getSelectedTable().map((t) -> t != newCategory.table).orElse(true))
+            if (newCategory.table.rowAtPoint(e.getPoint()) < 0)
+                parent.clearSelectedTable();
+            else if (parent.getSelectedTable().map((t) -> t != newCategory.table).orElse(true))
                 parent.setSelectedComponents(newCategory.table, deck().current);
-            int row = newCategory.table.rowAtPoint(e.getPoint());
-            if (row < 0)
-                newCategory.table.clearSelection();
-            else if (e.isPopupTrigger() && newCategory.table.getSelectedRowCount() == 0)
-                newCategory.table.getSelectionModel().setSelectionInterval(row, row);
-            parent.findSelectedCards();
         }));
+        newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
+            if (!e.getValueIsAdjusting())
+            {
+                if (newCategory.table.getSelectedRow() >= 0)
+                    parent.setDisplayedCard(getCardAt(newCategory.table, newCategory.table.getSelectedRow()));
+                else
+                    parent.clearSelectedCard();
+            }
+        });
         // Add the behavior for the edit category button
         newCategory.editButton.addActionListener((e) -> editCategory(newCategory.getCategoryName()));
         // Add the behavior for the remove category button
@@ -1943,15 +1955,20 @@ public class EditorFrame extends JInternalFrame
         lists.get(id).table.setStripeColor(SettingsDialog.settings().editor.stripe);
         // When a card is selected in a sideboard table, select it for adding
         lists.get(id).table.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
-            if (parent.getSelectedTable().map((t) -> t != lists.get(id).table).orElse(true))
+            if (lists.get(id).table.rowAtPoint(e.getPoint()) < 0)
+                parent.clearSelectedTable();
+            else if (parent.getSelectedTable().map((t) -> t != lists.get(id).table).orElse(true))
                 parent.setSelectedComponents(lists.get(id).table, lists.get(id).current);
-            int row = lists.get(id).table.rowAtPoint(e.getPoint());
-            if (row < 0)
-                lists.get(id).table.clearSelection();
-            else if (e.isPopupTrigger() && lists.get(id).table.getSelectedRowCount() == 0)
-                lists.get(id).table.getSelectionModel().setSelectionInterval(row, row);
-            parent.findSelectedCards();
         }));
+        lists.get(id).table.getSelectionModel().addListSelectionListener((e) -> {
+            if (!e.getValueIsAdjusting())
+            {
+                if (lists.get(id).table.getSelectedRow() >= 0)
+                    parent.setDisplayedCard(getCardAt(lists.get(id).table, lists.get(id).table.getSelectedRow()));
+                else
+                    parent.clearSelectedCard();
+            }
+        });
         for (int i = 0; i < lists.get(id).table.getColumnCount(); i++)
             if (lists.get(id).model.isCellEditable(0, i))
                 lists.get(id).table.getColumn(lists.get(id).model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, lists.get(id).model.getColumnData(i)));
@@ -2444,8 +2461,10 @@ public class EditorFrame extends JInternalFrame
      * Update all of the tables and components with the contents of the cards in the
      * deck.
      */
-    public void updateTables()
+    private void updateTables()
     {
+        var selected = parent.getSelectedCards();
+
         updateStats();
         parent.updateCardsInDeck();
         lists.stream().filter((l) -> l != null).forEach((l) -> l.model.fireTableDataChanged());
@@ -2453,7 +2472,7 @@ public class EditorFrame extends JInternalFrame
             ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
         parent.getSelectedTable().ifPresent((t) -> {
             parent.getSelectedList().ifPresent((l) -> {
-                for (Card c : parent.getSelectedCards())
+                for (Card c : selected)
                 {
                     if (l.contains(c))
                     {
