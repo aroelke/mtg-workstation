@@ -22,7 +22,7 @@ public class EditorImportHandler extends TransferHandler
     /**
      * Editor containing the data to move.
      */
-    protected EditorFrame editor;
+    final protected EditorFrame editor;
     /**
      * ID of the list to make changes to.
      */

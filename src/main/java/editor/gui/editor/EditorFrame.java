@@ -779,7 +779,7 @@ public class EditorFrame extends JInternalFrame
         switchCategoryBox.addActionListener((e) -> {
             if (switchCategoryBox.isPopupVisible())
             {
-                getCategory(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex())).ifPresent((c) -> {
+                getCategoryPanel(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex())).ifPresent((c) -> {
                     c.scrollRectToVisible(new Rectangle(c.getSize()));
                     c.flash();
                 });
@@ -1514,7 +1514,7 @@ public class EditorFrame extends JInternalFrame
     {
         deck().current.removeCategory(spec);
 
-        categoryPanels.remove(getCategory(spec.getName()).get());
+        categoryPanels.remove(getCategoryPanel(spec.getName()).get());
         for (CategoryPanel panel : categoryPanels)
             panel.rankBox.removeItemAt(categoryPanels.size());
 
@@ -1544,7 +1544,7 @@ public class EditorFrame extends JInternalFrame
             return performAction(() -> {
                 if (!deck().current.updateCategory(old.getName(), s).equals(old))
                     throw new RuntimeException("edited unexpected category");
-                CategoryPanel panel = getCategory(old.getName()).get();
+                CategoryPanel panel = getCategoryPanel(old.getName()).get();
                 panel.setCategoryName(s.getName());
                 ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
                 updateCategoryPanel();
@@ -1552,7 +1552,7 @@ public class EditorFrame extends JInternalFrame
             }, () -> {
                 if (!deck().current.updateCategory(s.getName(), old).equals(s))
                     throw new RuntimeException("restored from unexpected category");
-                CategoryPanel panel = getCategory(s.getName()).get();
+                CategoryPanel panel = getCategoryPanel(s.getName()).get();
                 panel.setCategoryName(old.getName());
                 ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
                 updateCategoryPanel();
@@ -1797,13 +1797,23 @@ public class EditorFrame extends JInternalFrame
         return deck().current.categories();
     }
 
+    public boolean containsCategory(String name)
+    {
+        return deck().current.containsCategory(name);
+    }
+
+    public CategorySpec getCategory(String name) throws IllegalArgumentException
+    {
+        return deck().current.getCategorySpec(name);
+    }
+
     /**
      * Get the panel for the category with the specified name in the deck.
      *
      * @param name name of the category to search for
      * @return the panel for the category with the specified name, if there is none.
      */
-    private Optional<CategoryPanel> getCategory(String name)
+    private Optional<CategoryPanel> getCategoryPanel(String name)
     {
         return categoryPanels.stream().filter((c) -> c.getCategoryName().equals(name)).findAny();
     }
@@ -2383,7 +2393,7 @@ public class EditorFrame extends JInternalFrame
             categories.sort((a, b) -> sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()).compare(deck().current, a, b));
 
             for (CategorySpec c : categories)
-                categoriesContainer.add(getCategory(c.getName()).get());
+                categoriesContainer.add(getCategoryPanel(c.getName()).get());
             for (CategorySpec c : categories)
                 switchCategoryModel.addElement(c.getName());
         }
