@@ -2023,6 +2023,7 @@ public class MainFrame extends JFrame
     public void setDisplayedCard(final Card card)
     {
         Objects.requireNonNull(card);
+        clearSelectedCard();
 
         StyledDocument oracleDocument = (StyledDocument)oracleTextPane.getDocument();
         Style oracleTextStyle = oracleDocument.addStyle("text", null);
