@@ -1138,7 +1138,7 @@ public class EditorFrame extends JInternalFrame
     {
         final CategoryPanel newCategory = new CategoryPanel(deck().current, spec.getName(), this);
         // When a card is selected in a category, the others should deselect
-        TableSelectionListener listener = new TableSelectionListener(parent, newCategory.table, deck().current);
+        TableSelectionListener listener = new TableSelectionListener(parent, newCategory.table, deck().current.getCategoryList(newCategory.getCategoryName()));
         newCategory.table.addMouseListener(listener);
         newCategory.table.getSelectionModel().addListSelectionListener(listener);
         // Add the behavior for the edit category button
