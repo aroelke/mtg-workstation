@@ -735,7 +735,15 @@ public class EditorFrame extends JInternalFrame
                     moveToItem.addActionListener((e2) -> moveCards(MAIN_DECK, id, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))));
                     moveToMenu.add(moveToItem);
                     JMenuItem moveAllToItem = new JMenuItem(lists.get(i).name.get());
-                    moveAllToItem.addActionListener((e2) -> moveCards(MAIN_DECK, id, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck().current.getEntry(c).count()))));
+                    moveAllToItem.addActionListener((e2) -> {
+                        var selected = parent.getSelectedCards();
+                        if (moveCards(MAIN_DECK, id, selected.stream().collect(Collectors.toMap(Function.identity(), (c) -> deck().current.getEntry(c).count()))))
+                        {
+                            parent.setSelectedComponents(lists.get(id).table, lists.get(id).current);
+                            updateTables(selected);
+                            lists.get(id).table.scrollRectToVisible(lists.get(id).table.getCellRect(lists.get(id).table.getSelectedRow(), 0, true));
+                        }
+                    });
                     moveAllToMenu.add(moveAllToItem);
                 }
             }
