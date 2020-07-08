@@ -732,19 +732,10 @@ public class EditorFrame extends JInternalFrame
                 {
                     final int id = i;
                     JMenuItem moveToItem = new JMenuItem(lists.get(i).name.get());
-                    moveToItem.addActionListener((e2) -> {
-                        var selected = parent.getSelectedCards();
-                        boolean preserve = selected.stream().allMatch((c) -> deck().current.getEntry(c).count() == 1);
-                        if (moveCards(MAIN_DECK, id, selected.stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))) && preserve)
-                            preserveSelection(selected, lists.get(id));
-                    });
+                    moveToItem.addActionListener((e2) -> moveCards(MAIN_DECK, id, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))));
                     moveToMenu.add(moveToItem);
                     JMenuItem moveAllToItem = new JMenuItem(lists.get(i).name.get());
-                    moveAllToItem.addActionListener((e2) -> {
-                        var selected = parent.getSelectedCards();
-                        if (moveCards(MAIN_DECK, id, selected.stream().collect(Collectors.toMap(Function.identity(), (c) -> deck().current.getEntry(c).count()))))
-                            preserveSelection(selected, lists.get(id));
-                    });
+                    moveAllToItem.addActionListener((e2) -> moveCards(MAIN_DECK, id, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck().current.getEntry(c).count()))));
                     moveAllToMenu.add(moveAllToItem);
                 }
             }
@@ -1991,19 +1982,10 @@ public class EditorFrame extends JInternalFrame
 
         // Move cards to main deck
         JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
-        moveToMainItem.addActionListener((e) -> {
-            var selected = parent.getSelectedCards();
-            boolean preserve = selected.stream().allMatch((c) -> lists.get(id).current.getEntry(c).count() == 1);
-            if (moveCards(id, MAIN_DECK, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))) && preserve)
-                preserveSelection(selected, deck());
-        });
+        moveToMainItem.addActionListener((e) -> moveCards(id, MAIN_DECK, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))));
         extraMenu.add(moveToMainItem);
         JMenuItem moveAllToMainItem = new JMenuItem("Move All to Main Deck");
-        moveAllToMainItem.addActionListener((e) -> {
-            var selected = parent.getSelectedCards();
-            if (moveCards(id, MAIN_DECK, selected.stream().collect(Collectors.toMap(Function.identity(), (c) -> lists.get(id).current.getEntry(c).count()))))
-                preserveSelection(selected, deck());
-        });
+        moveAllToMainItem.addActionListener((e) -> moveCards(id, MAIN_DECK, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> lists.get(id).current.getEntry(c).count()))));
         extraMenu.add(moveAllToMainItem);
         extraMenu.add(new JSeparator());
 
@@ -2230,19 +2212,6 @@ public class EditorFrame extends JInternalFrame
                 throw new RuntimeException("error redoing action");
         }
         return false;
-    }
-
-    /**
-     * Set the selection in the target table.  To be used after moving cards between lists.
-     *
-     * @param selected selected cards
-     * @param target table/list to update
-     */
-    private void preserveSelection(Collection<? extends Card> selected, DeckData target)
-    {
-        parent.setSelectedComponents(target.table, target.current);
-        updateTables(selected);
-        target.table.scrollRectToVisible(target.table.getCellRect(target.table.getSelectedRow(), 0, true));
     }
 
     /**
@@ -2473,7 +2442,7 @@ public class EditorFrame extends JInternalFrame
      * 
      * @param selected list of selected cards from <b>before</b> the change to the deck was made
      */
-    private void updateTables(Collection<? extends Card> selected)
+    private void updateTables(Collection<Card> selected)
     {
         updateStats();
         parent.updateCardsInDeck();
