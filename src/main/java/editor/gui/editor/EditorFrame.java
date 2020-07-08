@@ -2137,19 +2137,31 @@ public class EditorFrame extends JInternalFrame
 
         return performAction(() -> {
             var selected = parent.getSelectedCards();
+            boolean preserve = parent.getSelectedTable().filter((t) -> t == lists.get(from).table).isPresent() &&
+                               moves.entrySet().stream().allMatch((e) -> lists.get(from).current.getEntry(e.getKey()).count() == e.getValue());
             if (!lists.get(from).current.removeAll(moves).equals(moves))
                 throw new CardException(moves.keySet(), "error moving cards from list " + from);
             if (!lists.get(to).current.addAll(moves))
                 throw new CardException(moves.keySet(), "could not move cards to list " + to);
+            if (preserve)
+                parent.setSelectedComponents(lists.get(to).table, lists.get(to).current);
             updateTables(selected);
+            if (preserve)
+                lists.get(to).table.scrollRectToVisible(lists.get(to).table.getCellRect(lists.get(to).table.getSelectedRow(), 0, true));
             return true;
         }, () -> {
             var selected = parent.getSelectedCards();
+            boolean preserve = parent.getSelectedTable().filter((t) -> t == lists.get(to).table).isPresent() &&
+                               moves.entrySet().stream().allMatch((e) -> lists.get(to).current.getEntry(e.getKey()).count() == e.getValue());
             if (!lists.get(from).current.addAll(moves))
                 throw new CardException(moves.keySet(), "could not undo move from list " + from);
             if (!lists.get(to).current.removeAll(moves).equals(moves))
                 throw new CardException(moves.keySet(), "error undoing move to list " + to);
+            if (preserve)
+                parent.setSelectedComponents(lists.get(from).table, lists.get(from).current);
             updateTables(selected);
+            if (preserve)
+                lists.get(from).table.scrollRectToVisible(lists.get(from).table.getCellRect(lists.get(from).table.getSelectedRow(), 0, true));
             return true;
         });
     }
