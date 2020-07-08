@@ -732,7 +732,16 @@ public class EditorFrame extends JInternalFrame
                 {
                     final int id = i;
                     JMenuItem moveToItem = new JMenuItem(lists.get(i).name.get());
-                    moveToItem.addActionListener((e2) -> moveCards(MAIN_DECK, id, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))));
+                    moveToItem.addActionListener((e2) -> {
+                        var selected = parent.getSelectedCards();
+                        boolean preserve = selected.stream().allMatch((c) -> deck().current.getEntry(c).count() == 1);
+                        if (moveCards(MAIN_DECK, id, selected.stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))) && preserve)
+                        {
+                            parent.setSelectedComponents(lists.get(id).table, lists.get(id).current);
+                            updateTables(selected);
+                            lists.get(id).table.scrollRectToVisible(lists.get(id).table.getCellRect(lists.get(id).table.getSelectedRow(), 0, true));
+                        }
+                    });
                     moveToMenu.add(moveToItem);
                     JMenuItem moveAllToItem = new JMenuItem(lists.get(i).name.get());
                     moveAllToItem.addActionListener((e2) -> {
@@ -1990,10 +1999,27 @@ public class EditorFrame extends JInternalFrame
 
         // Move cards to main deck
         JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
-        moveToMainItem.addActionListener((e) -> moveCards(id, MAIN_DECK, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))));
+        moveToMainItem.addActionListener((e) -> {
+            var selected = parent.getSelectedCards();
+            boolean preserve = selected.stream().allMatch((c) -> lists.get(id).current.getEntry(c).count() == 1);
+            if (moveCards(id, MAIN_DECK, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))) && preserve)
+            {
+                parent.setSelectedComponents(deck().table, deck().current);
+                updateTables(selected);
+                deck().table.scrollRectToVisible(deck().table.getCellRect(deck().table.getSelectedRow(), 0, true));
+            }
+        });
         extraMenu.add(moveToMainItem);
         JMenuItem moveAllToMainItem = new JMenuItem("Move All to Main Deck");
-        moveAllToMainItem.addActionListener((e) -> moveCards(id, MAIN_DECK, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> lists.get(id).current.getEntry(c).count()))));
+        moveAllToMainItem.addActionListener((e) -> {
+            var selected = parent.getSelectedCards();
+            if (moveCards(id, MAIN_DECK, selected.stream().collect(Collectors.toMap(Function.identity(), (c) -> lists.get(id).current.getEntry(c).count()))))
+            {
+                parent.setSelectedComponents(deck().table, deck().current);
+                updateTables(selected);
+                deck().table.scrollRectToVisible(deck().table.getCellRect(deck().table.getSelectedRow(), 0, true));
+            }
+        });
         extraMenu.add(moveAllToMainItem);
         extraMenu.add(new JSeparator());
 
