@@ -1,6 +1,10 @@
 package editor.gui.display;
 
+import java.awt.Component;
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,11 +13,17 @@ import java.util.Optional;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
+import javax.swing.TransferHandler;
 
 import editor.collection.deck.CategorySpec;
+import editor.gui.ccp.CategoryTransferHandler;
+import editor.gui.ccp.DataFlavors;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.util.MouseListenerFactory;
+import editor.util.PopupMenuListenerFactory;
 
 /**
  * This class represents an element that can display a list of {@link CategorySpec}s.
@@ -104,6 +114,52 @@ public class CategoryList extends JList<String>
                 });
             }));
         }
+
+        setTransferHandler(new CategoryTransferHandler(
+            () -> {
+                int row = getSelectedIndex();
+                if (row < 0 || row >= categories.size())
+                    return null;
+                else
+                    return categories.get(row);
+            },
+            (c) -> false, // Duplicate categories are allowed
+            (c) -> {
+                int row = getSelectedIndex();
+                if (row < 0 || row >= categories.size())
+                    addCategory(c);
+                else
+                {
+                    categories.add(row, c);
+                    model.add(row, c.getName());
+                }
+                return true;
+            },
+            (c) -> removeCategoryAt(categories.indexOf(c))
+        ));
+
+        // Popup menu for copying and pasting categories
+        JPopupMenu menu = new JPopupMenu() {
+            @Override
+            public void show(Component invoker, int x, int y) {
+                int row = locationToIndex(new Point(x, y));
+                if (row >= 0)
+                    setSelectedIndex(row);
+                else
+                    clearSelection();
+                super.show(invoker, x, y);
+            }
+        };
+        setComponentPopupMenu(menu);
+
+        JMenuItem paste = new JMenuItem("Paste");
+        paste.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null)));
+        menu.add(paste);
+
+        menu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.categoryFlavor));
+        }));
     }
 
     /**
@@ -183,7 +239,7 @@ public class CategoryList extends JList<String>
     /**
      * Remove the {@link CategorySpec} at a particular index.
      *
-     * @param index Index to remove the CategorySpec at
+     * @param index index to remove the CategorySpec at
      */
     public void removeCategoryAt(int index)
     {
@@ -195,7 +251,7 @@ public class CategoryList extends JList<String>
      * Set the {@link CategorySpec} at a particular position in the list.
      *
      * @param index index to set
-     * @param c     {@link CategorySpec} to display
+     * @param c {@link CategorySpec} to display
      */
     public void setCategoryAt(int index, CategorySpec c)
     {
