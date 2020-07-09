@@ -806,7 +806,7 @@ public class EditorFrame extends JInternalFrame
 
         // Transfer handler for the category box
         // We explicitly use null here to cause exceptions if cutting or copying, as that should never happen
-        categoriesPane.setTransferHandler(new CategoryTransferHandler(this, null));
+        categoriesPane.setTransferHandler(new CategoryTransferHandler(null, (c) -> containsCategory(c.getName()), this::addCategory, null));
 
         // Popup menu for category container
         JPopupMenu categoriesMenu = new JPopupMenu();
@@ -1313,8 +1313,12 @@ public class EditorFrame extends JInternalFrame
             editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
         }));
 
-        CategoryTransferHandler handler = new CategoryTransferHandler(this, newCategory.getCategoryName());
-        newCategory.setTransferHandler(handler);
+        newCategory.setTransferHandler(new CategoryTransferHandler(
+            () -> getCategory(newCategory.getCategoryName()),
+            (c) -> containsCategory(c.getName()),
+            this::addCategory,
+            (c) -> removeCategory(c.getName())
+        ));
 
         // Category popup menu
         JPopupMenu categoryMenu = new JPopupMenu();

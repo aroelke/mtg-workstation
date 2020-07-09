@@ -3,22 +3,29 @@ package editor.gui.ccp;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
-import editor.gui.editor.EditorFrame;
+import editor.collection.deck.CategorySpec;
 
 @SuppressWarnings("serial")
 public class CategoryTransferHandler extends TransferHandler
 {
-    final private EditorFrame editor;
-    final private String name;
+    final private Supplier<CategorySpec> supplier;
+    final private Predicate<CategorySpec> contains;
+    final private Predicate<CategorySpec> add;
+    final private Consumer<CategorySpec> remove;
 
-    public CategoryTransferHandler(EditorFrame f, String n)
+    public CategoryTransferHandler(Supplier<CategorySpec> s, Predicate<CategorySpec> c, Predicate<CategorySpec> a, Consumer<CategorySpec> r)
     {
-        editor = f;
-        name = n;
+        supplier = s;
+        contains = c;
+        add = a;
+        remove = r;
     }
 
     @Override
@@ -37,7 +44,7 @@ public class CategoryTransferHandler extends TransferHandler
             try
             {
                 CategoryTransferData data = (CategoryTransferData)supp.getTransferable().getTransferData(DataFlavors.categoryFlavor);
-                return !editor.containsCategory(data.data.getName());
+                return !contains.test(data.data);
             }
             catch (UnsupportedFlavorException | IOException e)
             {
@@ -51,7 +58,7 @@ public class CategoryTransferHandler extends TransferHandler
     @Override
     public Transferable createTransferable(JComponent c)
     {
-        return new CategoryTransferData(editor.getCategory(name));
+        return new CategoryTransferData(supplier.get());
     }
 
     @Override
@@ -59,10 +66,10 @@ public class CategoryTransferHandler extends TransferHandler
     {
         try
         {
-            if (!canImport(supp) || supp.isDrop())
+            if (!canImport(supp))
                 return false;
             else
-                return editor.addCategory(((CategoryTransferData)supp.getTransferable().getTransferData(DataFlavors.categoryFlavor)).data);
+                return add.test(((CategoryTransferData)supp.getTransferable().getTransferData(DataFlavors.categoryFlavor)).data);
         }
         catch (UnsupportedFlavorException | IOException e)
         {
@@ -74,6 +81,6 @@ public class CategoryTransferHandler extends TransferHandler
     public void exportDone(JComponent source, Transferable data, int action)
     {
         if (action == TransferHandler.MOVE)
-            editor.removeCategory(name);
+            remove.accept(((CategoryTransferData)data).data);
     }
 }
