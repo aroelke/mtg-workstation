@@ -801,7 +801,34 @@ public class EditorFrame extends JInternalFrame
         // The category panel is a vertically-scrollable panel that contains all categories stacked vertically
         // The categories should have a constant height, but fit the container horizontally
         categoriesSuperContainer.add(categoriesContainer, BorderLayout.NORTH);
-        categoriesMainPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+        JScrollPane categoriesPane = new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        categoriesMainPanel.add(categoriesPane, BorderLayout.CENTER);
+
+        // Transfer handler for the category box
+        // We explicitly use null here to cause exceptions if cutting or copying, as that should never happen
+        categoriesPane.setTransferHandler(new CategoryTransferHandler(this, null));
+
+        // Popup menu for category container
+        JPopupMenu categoriesMenu = new JPopupMenu();
+        JMenuItem categoriesPasteItem = new JMenuItem("Paste");
+        categoriesPasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(categoriesPane, ActionEvent.ACTION_PERFORMED, null)));
+        categoriesMenu.add(categoriesPasteItem);
+        categoriesMenu.add(new JSeparator());
+        JMenuItem categoriesCreateItem = new JMenuItem("Add Category...");
+        categoriesCreateItem.addActionListener((e) -> createCategory().ifPresent(this::addCategory));
+        categoriesMenu.add(categoriesCreateItem);
+        categoriesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            try
+            {
+                categoriesPasteItem.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).data.getName()));
+            }
+            catch (UnsupportedFlavorException | IOException x)
+            {
+                categoriesPasteItem.setEnabled(false);
+            }
+        }));
+        categoriesPane.setComponentPopupMenu(categoriesMenu);
 
         VerticalButtonList categoryButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         categoryButtons.get("+").addActionListener((e) -> addCards(MAIN_DECK, parent.getSelectedCards(), 1));
@@ -1307,6 +1334,7 @@ public class EditorFrame extends JInternalFrame
         JMenuItem categoryPasteItem = new JMenuItem("Paste");
         categoryPasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(newCategory, ActionEvent.ACTION_PERFORMED, null)));
         categoryMenu.add(categoryPasteItem);
+        categoryMenu.add(new JSeparator());
 
         // Edit item
         JMenuItem editItem = new JMenuItem("Edit...");
