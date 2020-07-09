@@ -32,26 +32,26 @@ public class CategoryTransferHandler extends TransferHandler
     {
         if (supp.isDrop())
             return false;
-        else if (supp.isDataFlavorSupported(DataFlavors.entryFlavor))
+        else if (supp.isDataFlavorSupported(DataFlavors.categoryFlavor))
         {
             try
             {
                 CategoryTransferData data = (CategoryTransferData)supp.getTransferable().getTransferData(DataFlavors.categoryFlavor);
-                if (data.source == editor || editor.containsCategory(data.data.getName()))
-                    return false;
+                return !editor.containsCategory(data.data.getName());
             }
             catch (UnsupportedFlavorException | IOException e)
             {
                 return false;
             }
         }
-        return supp.isDataFlavorSupported(DataFlavors.entryFlavor) || supp.isDataFlavorSupported(DataFlavors.cardFlavor);
+        else
+            return false;
     }
 
     @Override
     public Transferable createTransferable(JComponent c)
     {
-        return new CategoryTransferData(editor, editor.getCategory(name));
+        return new CategoryTransferData(editor.getCategory(name));
     }
 
     @Override

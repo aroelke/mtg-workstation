@@ -6,17 +6,14 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
 import editor.collection.deck.CategorySpec;
-import editor.gui.editor.EditorFrame;
 
 public class CategoryTransferData implements Transferable
 {
-    protected final CategorySpec data;
-    protected final EditorFrame source;
+    public final CategorySpec data;
 
-    public CategoryTransferData(EditorFrame f, CategorySpec d)
+    public CategoryTransferData(CategorySpec d)
     {
         data = d;
-        source = f;
     }
 
     @Override
@@ -36,6 +33,6 @@ public class CategoryTransferData implements Transferable
     {
         if (!isDataFlavorSupported(flavor))
             throw new UnsupportedFlavorException(flavor);
-        return data;
+        return this;
     }
 }

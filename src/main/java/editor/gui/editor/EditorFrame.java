@@ -9,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -82,6 +83,8 @@ import editor.database.card.Card;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.TableSelectionListener;
+import editor.gui.ccp.CategoryTransferData;
+import editor.gui.ccp.CategoryTransferHandler;
 import editor.gui.ccp.DataFlavors;
 import editor.gui.ccp.EditorImportHandler;
 import editor.gui.ccp.EditorTableTransferHandler;
@@ -1283,24 +1286,26 @@ public class EditorFrame extends JInternalFrame
             editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
         }));
 
-        
+        CategoryTransferHandler handler = new CategoryTransferHandler(this, newCategory.getCategoryName());
+        newCategory.setTransferHandler(handler);
+
         // Category popup menu
         JPopupMenu categoryMenu = new JPopupMenu();
         newCategory.setComponentPopupMenu(categoryMenu);
 
         // Cut item
         JMenuItem categoryCutItem = new JMenuItem("Cut");
-        categoryCutItem.setEnabled(false);
+        categoryCutItem.addActionListener((e) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(newCategory, ActionEvent.ACTION_PERFORMED, null)));
         categoryMenu.add(categoryCutItem);
 
         // Copy item
         JMenuItem categoryCopyItem = new JMenuItem("Copy");
-        categoryCopyItem.setEnabled(false);
+        categoryCopyItem.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(newCategory, ActionEvent.ACTION_PERFORMED, null)));
         categoryMenu.add(categoryCopyItem);
 
         // Paste item
         JMenuItem categoryPasteItem = new JMenuItem("Paste");
-        categoryPasteItem.setEnabled(false);
+        categoryPasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(newCategory, ActionEvent.ACTION_PERFORMED, null)));
         categoryMenu.add(categoryPasteItem);
 
         // Edit item
@@ -1332,6 +1337,18 @@ public class EditorFrame extends JInternalFrame
                 parent.addPreset(s);
         });
         categoryMenu.add(addPresetItem);
+
+        categoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            try
+            {
+                categoryPasteItem.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).data.getName()));
+            }
+            catch (UnsupportedFlavorException | IOException x)
+            {
+                categoryPasteItem.setEnabled(false);
+            }
+        }));
 
         newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 
