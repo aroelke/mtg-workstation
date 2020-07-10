@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,6 +88,11 @@ public class CategoryList extends JList<String>
      * Model for how to display categories.
      */
     private CategoryListModel model;
+    /**
+     * Whether or not the popup menu was triggered by the mouse (some keyboards
+     * have keys to open the context menu).
+     */
+    private boolean mouseTriggeredPopup;
 
     /**
      * Create a new empty CategoryList.
@@ -139,14 +145,18 @@ public class CategoryList extends JList<String>
         ));
 
         // Popup menu for copying and pasting categories
+        mouseTriggeredPopup = false;
         JPopupMenu menu = new JPopupMenu() {
             @Override
             public void show(Component invoker, int x, int y) {
-                int row = locationToIndex(new Point(x, y));
-                if (row >= 0)
-                    setSelectedIndex(row);
-                else
-                    clearSelection();
+                if (mouseTriggeredPopup)
+                {
+                    int row = locationToIndex(new Point(x, y));
+                    if (row >= 0)
+                        setSelectedIndex(row);
+                    else
+                        clearSelection();
+                }
                 super.show(invoker, x, y);
             }
         };
@@ -257,5 +267,12 @@ public class CategoryList extends JList<String>
     {
         categories.set(index, c);
         model.setElementAt(c.getName(), index);
+    }
+
+    @Override
+    public Point getPopupLocation(MouseEvent event)
+    {
+        mouseTriggeredPopup = event != null;
+        return super.getPopupLocation(event);
     }
 }
