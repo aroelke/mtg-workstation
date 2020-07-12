@@ -83,6 +83,7 @@ import editor.database.card.Card;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.TableSelectionListener;
+import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.CategoryTransferData;
 import editor.gui.ccp.CategoryTransferHandler;
 import editor.gui.ccp.DataFlavors;
@@ -660,18 +661,10 @@ public class EditorFrame extends JInternalFrame
         deck().table.addMouseListener(new TableMouseAdapter(deck().table, tableMenu));
 
         // Cut, copy, paste
-        JMenuItem cutItem = new JMenuItem("Cut");
-        cutItem.addActionListener((e) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
-        cutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        tableMenu.add(cutItem);
-        JMenuItem copyItem = new JMenuItem("Copy");
-        copyItem.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
-        copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        tableMenu.add(copyItem);
-        JMenuItem pasteItem = new JMenuItem("Paste");
-        pasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
-        pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        tableMenu.add(pasteItem);
+        CCPItems ccp = new CCPItems(deck().table, true);
+        tableMenu.add(ccp.cut);
+        tableMenu.add(ccp.copy);
+        tableMenu.add(ccp.paste);
         tableMenu.add(new JSeparator());
 
         // Add/remove cards
@@ -714,10 +707,10 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, deck().table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            cutItem.setEnabled(!parent.getSelectedCards().isEmpty());
-            copyItem.setEnabled(!parent.getSelectedCards().isEmpty());
+            ccp.cut.setEnabled(!parent.getSelectedCards().isEmpty());
+            ccp.copy.setEnabled(!parent.getSelectedCards().isEmpty());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            pasteItem.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+            ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
             tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
             moveToMenu.setVisible(!extras().isEmpty());
             moveAllToMenu.setVisible(!extras().isEmpty());
