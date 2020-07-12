@@ -11,7 +11,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -59,7 +58,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
 import javax.swing.OverlayLayout;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
@@ -1987,18 +1985,10 @@ public class EditorFrame extends JInternalFrame
         lists.get(id).table.addMouseListener(new TableMouseAdapter(lists.get(id).table, extraMenu));
 
         // Cut, copy, paste
-        JMenuItem cutItem = new JMenuItem("Cut");
-        cutItem.addActionListener((e) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(lists.get(id).table, ActionEvent.ACTION_PERFORMED, null)));
-        cutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        extraMenu.add(cutItem);
-        JMenuItem copyItem = new JMenuItem("Copy");
-        copyItem.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(lists.get(id).table, ActionEvent.ACTION_PERFORMED, null)));
-        copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        extraMenu.add(copyItem);
-        JMenuItem pasteItem = new JMenuItem("Paste");
-        pasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(lists.get(id).table, ActionEvent.ACTION_PERFORMED, null)));
-        pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        extraMenu.add(pasteItem);
+        CCPItems ccp = new CCPItems(() -> lists.get(id).table, true);
+        extraMenu.add(ccp.cut);
+        extraMenu.add(ccp.copy);
+        extraMenu.add(ccp.paste);
         extraMenu.add(new JSeparator());
 
         // Add/remove cards from sideboard
@@ -2023,10 +2013,10 @@ public class EditorFrame extends JInternalFrame
         extraMenu.add(sBeditTagsItem);
 
         extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            cutItem.setEnabled(!parent.getSelectedCards().isEmpty());
-            copyItem.setEnabled(!parent.getSelectedCards().isEmpty());
+            ccp.cut.setEnabled(!parent.getSelectedCards().isEmpty());
+            ccp.copy.setEnabled(!parent.getSelectedCards().isEmpty());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            pasteItem.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+            ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
         }));
 
         return sideboardPane;
