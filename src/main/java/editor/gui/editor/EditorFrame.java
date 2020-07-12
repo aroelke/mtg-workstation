@@ -1245,18 +1245,10 @@ public class EditorFrame extends JInternalFrame
         newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 
         // Cut, copy, paste
-        JMenuItem cardCutItem = new JMenuItem("Cut");
-        cardCutItem.addActionListener((e) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
-        cardCutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        tableMenu.add(cardCutItem);
-        JMenuItem cardCopyItem = new JMenuItem("Copy");
-        cardCopyItem.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
-        cardCopyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        tableMenu.add(cardCopyItem);
-        JMenuItem cardPasteItem = new JMenuItem("Paste");
-        cardPasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(deck().table, ActionEvent.ACTION_PERFORMED, null)));
-        cardPasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        tableMenu.add(cardPasteItem);
+        CCPItems cardCCP = new CCPItems(deck().table, true);
+        tableMenu.add(cardCCP.cut);
+        tableMenu.add(cardCCP.copy);
+        tableMenu.add(cardCCP.paste);
         tableMenu.add(new JSeparator());
         
         CardMenuItems tableMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, true);
@@ -1296,10 +1288,10 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, newCategory.table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            cardCutItem.setEnabled(!parent.getSelectedCards().isEmpty());
-            cardCopyItem.setEnabled(!parent.getSelectedCards().isEmpty());
+            cardCCP.cut.setEnabled(!parent.getSelectedCards().isEmpty());
+            cardCCP.copy.setEnabled(!parent.getSelectedCards().isEmpty());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            cardPasteItem.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+            cardCCP.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
 
             removeFromCategoryItem.setText("Exclude from " + newCategory.getCategoryName());
             tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
