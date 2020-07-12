@@ -1309,20 +1309,11 @@ public class EditorFrame extends JInternalFrame
         JPopupMenu categoryMenu = new JPopupMenu();
         newCategory.setComponentPopupMenu(categoryMenu);
 
-        // Cut item
-        JMenuItem categoryCutItem = new JMenuItem("Cut");
-        categoryCutItem.addActionListener((e) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(newCategory, ActionEvent.ACTION_PERFORMED, null)));
-        categoryMenu.add(categoryCutItem);
-
-        // Copy item
-        JMenuItem categoryCopyItem = new JMenuItem("Copy");
-        categoryCopyItem.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(newCategory, ActionEvent.ACTION_PERFORMED, null)));
-        categoryMenu.add(categoryCopyItem);
-
-        // Paste item
-        JMenuItem categoryPasteItem = new JMenuItem("Paste");
-        categoryPasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(newCategory, ActionEvent.ACTION_PERFORMED, null)));
-        categoryMenu.add(categoryPasteItem);
+        // Cut, copy, paste
+        CCPItems categoryCCP = new CCPItems(newCategory, false);
+        categoryMenu.add(categoryCCP.cut);
+        categoryMenu.add(categoryCCP.copy);
+        categoryMenu.add(categoryCCP.paste);
         categoryMenu.add(new JSeparator());
 
         // Edit item
@@ -1359,11 +1350,14 @@ public class EditorFrame extends JInternalFrame
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             try
             {
-                categoryPasteItem.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).data.getName()));
+                categoryCCP.paste.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).data.getName()));
             }
             catch (UnsupportedFlavorException | IOException x)
             {
-                categoryPasteItem.setEnabled(false);
+                // Technically using exceptions as control flow (as with unsupported flavors here) is bad
+                // programming practice, but since the exception has to be caught here anyway it reduces
+                // code size
+                categoryCCP.paste.setEnabled(false);
             }
         }));
 
