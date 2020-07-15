@@ -1294,9 +1294,8 @@ public class MainFrame extends JFrame
         imagePanel.setComponentPopupMenu(oraclePopupMenu);
 
         // Copy
-        JMenuItem oracleCopy = new JMenuItem("Copy");
-        oracleCopy.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(imagePanel, ActionEvent.ACTION_PERFORMED, null)));
-        oraclePopupMenu.add(oracleCopy);
+        CCPItems oracleCCP = new CCPItems(imagePanel, false);
+        oraclePopupMenu.add(oracleCCP.copy);
         oraclePopupMenu.add(new JSeparator());
 
         // Add the card to the main deck
@@ -1326,7 +1325,7 @@ public class MainFrame extends JFrame
 
         // Popup listener for oracle popup menu
         oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            oracleCopy.setEnabled(!getSelectedCards().isEmpty());
+            oracleCCP.copy.setEnabled(!getSelectedCards().isEmpty());
             oracleMenuCardItems.setVisible(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
             for (JSeparator sep : oracleMenuCardSeparators)
                 sep.setVisible(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
@@ -1420,10 +1419,8 @@ public class MainFrame extends JFrame
         inventoryTable.addMouseListener(new TableMouseAdapter(inventoryTable, inventoryMenu));
 
         // Copy
-        JMenuItem inventoryCopy = new JMenuItem("Copy");
-        inventoryCopy.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(inventoryTable, ActionEvent.ACTION_PERFORMED, null)));
-        inventoryCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        inventoryMenu.add(inventoryCopy);
+        CCPItems inventoryCCP = new CCPItems(inventoryTable, true);
+        inventoryMenu.add(inventoryCCP.copy);
         inventoryMenu.add(new JSeparator());
 
         // Add cards to the main deck
