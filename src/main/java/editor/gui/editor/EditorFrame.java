@@ -10,7 +10,6 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -62,7 +61,6 @@ import javax.swing.OverlayLayout;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.InternalFrameAdapter;
@@ -801,9 +799,8 @@ public class EditorFrame extends JInternalFrame
 
         // Popup menu for category container
         JPopupMenu categoriesMenu = new JPopupMenu();
-        JMenuItem categoriesPasteItem = new JMenuItem("Paste");
-        categoriesPasteItem.addActionListener((e) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(categoriesPane, ActionEvent.ACTION_PERFORMED, null)));
-        categoriesMenu.add(categoriesPasteItem);
+        CCPItems categoriesCCP = new CCPItems(categoriesPane, false);
+        categoriesMenu.add(categoriesCCP.paste);
         categoriesMenu.add(new JSeparator());
         JMenuItem categoriesCreateItem = new JMenuItem("Add Category...");
         categoriesCreateItem.addActionListener((e) -> createCategory().ifPresent(this::addCategory));
@@ -812,11 +809,11 @@ public class EditorFrame extends JInternalFrame
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             try
             {
-                categoriesPasteItem.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).data.getName()));
+                categoriesCCP.paste.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).data.getName()));
             }
             catch (UnsupportedFlavorException | IOException x)
             {
-                categoriesPasteItem.setEnabled(false);
+                categoriesCCP.paste.setEnabled(false);
             }
         }));
         categoriesPane.setComponentPopupMenu(categoriesMenu);
