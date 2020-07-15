@@ -46,7 +46,7 @@ public class TableSelectionListener implements MouseListener, ListSelectionListe
     {
         if (table.rowAtPoint(e.getPoint()) < 0)
             frame.clearSelectedList();
-        else if (frame.getSelectedList().filter((l) -> l == list).isEmpty())
+        if (frame.getSelectedList().filter((l) -> l == list).isEmpty())
             frame.setSelectedComponents(table, list);
     }
 
