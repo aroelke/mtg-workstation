@@ -113,6 +113,7 @@ import editor.database.version.DatabaseVersion;
 import editor.database.version.UpdateFrequency;
 import editor.filter.Filter;
 import editor.filter.leaf.TextFilter;
+import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.DataFlavors;
 import editor.gui.ccp.InventoryTransferData;
 import editor.gui.display.CardImagePanel;
@@ -1021,18 +1022,10 @@ public class MainFrame extends JFrame
         menuBar.add(editMenu);
 
         // Cut, copy, paste
-        JMenuItem editCutItem = new JMenuItem("Cut");
-        editCutItem.addActionListener((e) -> selectedTable.ifPresent((t) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
-        editCutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        editMenu.add(editCutItem);
-        JMenuItem editCopyItem = new JMenuItem("Copy");
-        editCopyItem.addActionListener((e) -> selectedTable.ifPresent((t) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
-        editCopyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        editMenu.add(editCopyItem);
-        JMenuItem editPasteItem = new JMenuItem("Paste");
-        editPasteItem.addActionListener((e) -> selectedTable.ifPresent((t) -> TransferHandler.getPasteAction().actionPerformed(new ActionEvent(t, ActionEvent.ACTION_PERFORMED, null))));
-        editPasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        editMenu.add(editPasteItem);
+        CCPItems editCCP = new CCPItems(() -> selectedTable.get(), true);
+        editMenu.add(editCCP.cut);
+        editMenu.add(editCCP.copy);
+        editMenu.add(editCCP.paste);
         editMenu.add(new JSeparator());
 
         // Undo menu item
@@ -1059,12 +1052,10 @@ public class MainFrame extends JFrame
 
         // Edit menu listener
         editMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
-            editCutItem.setEnabled(
-                selectedList.filter((l) -> l == inventory).isEmpty() && !getSelectedCards().isEmpty()
-            );
-            editCopyItem.setEnabled(!getSelectedCards().isEmpty());
+            editCCP.cut.setEnabled(selectedList.filter((l) -> l == inventory).isEmpty() && !getSelectedCards().isEmpty());
+            editCCP.copy.setEnabled(!getSelectedCards().isEmpty());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            editPasteItem.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+            editCCP.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
 
             undoItem.setEnabled(selectedFrame.isPresent());
             redoItem.setEnabled(selectedFrame.isPresent());
