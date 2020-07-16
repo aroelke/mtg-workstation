@@ -10,7 +10,6 @@ import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -78,7 +77,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
@@ -115,7 +113,7 @@ import editor.filter.Filter;
 import editor.filter.leaf.TextFilter;
 import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.DataFlavors;
-import editor.gui.ccp.InventoryTransferData;
+import editor.gui.ccp.handler.CardExportHandler;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableCellRenderer;
@@ -1335,26 +1333,7 @@ public class MainFrame extends JFrame
         }));
 
         // Copy handler for image panel
-        imagePanel.setTransferHandler(new TransferHandler()
-        {
-            @Override
-            public boolean canImport(TransferHandler.TransferSupport support)
-            {
-                return false;
-            }
-
-            @Override
-            protected Transferable createTransferable(JComponent c)
-            {
-                return new InventoryTransferData(getSelectedCards().get(0));
-            }
-
-            @Override
-            public int getSourceActions(JComponent c)
-            {
-                return TransferHandler.COPY;
-            }
-        });
+        imagePanel.setTransferHandler(new CardExportHandler(() -> Collections.singleton(getSelectedCards().get(0))));
 
         // Panel containing inventory and image of currently-selected card
         JPanel inventoryPanel = new JPanel(new BorderLayout(0, 0));
@@ -1391,26 +1370,7 @@ public class MainFrame extends JFrame
             if (e.getClickCount() % 2 == 0)
                 f.addCards(EditorFrame.MAIN_DECK, getSelectedCards(), 1);
         })));
-        inventoryTable.setTransferHandler(new TransferHandler()
-        {
-            @Override
-            public boolean canImport(TransferHandler.TransferSupport support)
-            {
-                return false;
-            }
-
-            @Override
-            protected Transferable createTransferable(JComponent c)
-            {
-                return new InventoryTransferData(getSelectedCards());
-            }
-
-            @Override
-            public int getSourceActions(JComponent c)
-            {
-                return TransferHandler.COPY;
-            }
-        });
+        inventoryTable.setTransferHandler(new CardExportHandler(() -> getSelectedCards()));
         inventoryTable.setDragEnabled(true);
         tablePanel.add(new JScrollPane(inventoryTable), BorderLayout.CENTER);
 
