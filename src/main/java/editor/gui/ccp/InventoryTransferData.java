@@ -37,7 +37,7 @@ public class InventoryTransferData implements Transferable
      *
      * @param cards cards to transfer
      */
-    public InventoryTransferData(Collection<Card> cards)
+    public InventoryTransferData(Collection<? extends Card> cards)
     {
         this(cards.toArray(new Card[0]));
     }
