@@ -1,13 +1,10 @@
-package editor.gui.ccp;
+package editor.gui.ccp.handler;
 
-import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
-import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import editor.collection.deck.CategorySpec;
@@ -15,25 +12,21 @@ import editor.gui.ccp.data.CategoryTransferData;
 import editor.gui.ccp.data.DataFlavors;
 
 @SuppressWarnings("serial")
-public class CategoryTransferHandler extends TransferHandler
+public class CategoryImportHandler extends TransferHandler implements ImportHandler
 {
-    final private Supplier<CategorySpec> supplier;
-    final private Predicate<CategorySpec> contains;
-    final private Predicate<CategorySpec> add;
-    final private Consumer<CategorySpec> remove;
+    private final Predicate<CategorySpec> contains;
+    private final Predicate<CategorySpec> add;
 
-    public CategoryTransferHandler(Supplier<CategorySpec> s, Predicate<CategorySpec> c, Predicate<CategorySpec> a, Consumer<CategorySpec> r)
+    public CategoryImportHandler(Predicate<CategorySpec> c, Predicate<CategorySpec> a)
     {
-        supplier = s;
         contains = c;
         add = a;
-        remove = r;
     }
 
     @Override
-    public int getSourceActions(JComponent c)
+    public DataFlavor supportedFlavor()
     {
-        return TransferHandler.MOVE | TransferHandler.COPY;
+        return DataFlavors.categoryFlavor;
     }
 
     @Override
@@ -58,12 +51,6 @@ public class CategoryTransferHandler extends TransferHandler
     }
 
     @Override
-    public Transferable createTransferable(JComponent c)
-    {
-        return new CategoryTransferData(supplier.get());
-    }
-
-    @Override
     public boolean importData(TransferSupport supp)
     {
         try
@@ -77,12 +64,5 @@ public class CategoryTransferHandler extends TransferHandler
         {
             return false;
         }
-    }
-
-    @Override
-    public void exportDone(JComponent source, Transferable data, int action)
-    {
-        if (action == TransferHandler.MOVE)
-            remove.accept(((CategoryTransferData)data).data);
     }
 }

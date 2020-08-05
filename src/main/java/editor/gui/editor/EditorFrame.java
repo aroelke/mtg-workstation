@@ -80,9 +80,9 @@ import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.TableSelectionListener;
 import editor.gui.ccp.CCPItems;
-import editor.gui.ccp.CategoryTransferHandler;
 import editor.gui.ccp.data.CategoryTransferData;
 import editor.gui.ccp.data.DataFlavors;
+import editor.gui.ccp.handler.CategoryListTransferHandler;
 import editor.gui.ccp.handler.EditorTableTransferHandler;
 import editor.gui.ccp.handler.EditorTransferHandler;
 import editor.gui.display.CardImagePanel;
@@ -795,7 +795,7 @@ public class EditorFrame extends JInternalFrame
 
         // Transfer handler for the category box
         // We explicitly use null here to cause exceptions if cutting or copying, as that should never happen
-        categoriesPane.setTransferHandler(new CategoryTransferHandler(null, (c) -> containsCategory(c.getName()), this::addCategory, null));
+        categoriesPane.setTransferHandler(new CategoryListTransferHandler(null, (c) -> containsCategory(c.getName()), this::addCategory, null));
 
         // Popup menu for category container
         JPopupMenu categoriesMenu = new JPopupMenu();
@@ -1294,7 +1294,7 @@ public class EditorFrame extends JInternalFrame
             editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
         }));
 
-        newCategory.setTransferHandler(new CategoryTransferHandler(
+        newCategory.setTransferHandler(new CategoryListTransferHandler(
             () -> getCategory(newCategory.getCategoryName()),
             (c) -> containsCategory(c.getName()),
             this::addCategory,
