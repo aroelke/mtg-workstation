@@ -11,11 +11,11 @@ import editor.database.card.Card;
 import editor.gui.ccp.InventoryTransferData;
 
 @SuppressWarnings("serial")
-public class CardExportHandler extends TransferHandler implements ExportHandler
+public class InventoryExportHandler extends TransferHandler
 {
     private final Supplier<? extends Collection<? extends Card>> cards;
 
-    public CardExportHandler(Supplier<? extends Collection<? extends Card>> c)
+    public InventoryExportHandler(Supplier<? extends Collection<? extends Card>> c)
     {
         cards = c;
     }

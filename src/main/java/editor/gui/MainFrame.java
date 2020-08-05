@@ -113,7 +113,7 @@ import editor.filter.Filter;
 import editor.filter.leaf.TextFilter;
 import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.DataFlavors;
-import editor.gui.ccp.handler.CardExportHandler;
+import editor.gui.ccp.handler.InventoryExportHandler;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableCellRenderer;
@@ -1333,7 +1333,7 @@ public class MainFrame extends JFrame
         }));
 
         // Copy handler for image panel
-        imagePanel.setTransferHandler(new CardExportHandler(() -> Collections.singleton(getSelectedCards().get(0))));
+        imagePanel.setTransferHandler(new InventoryExportHandler(() -> Collections.singleton(getSelectedCards().get(0))));
 
         // Panel containing inventory and image of currently-selected card
         JPanel inventoryPanel = new JPanel(new BorderLayout(0, 0));
@@ -1370,7 +1370,7 @@ public class MainFrame extends JFrame
             if (e.getClickCount() % 2 == 0)
                 f.addCards(EditorFrame.MAIN_DECK, getSelectedCards(), 1);
         })));
-        inventoryTable.setTransferHandler(new CardExportHandler(() -> getSelectedCards()));
+        inventoryTable.setTransferHandler(new InventoryExportHandler(() -> getSelectedCards()));
         inventoryTable.setDragEnabled(true);
         tablePanel.add(new JScrollPane(inventoryTable), BorderLayout.CENTER);
 
