@@ -1,5 +1,6 @@
 package editor.gui.ccp.handler;
 
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
@@ -22,13 +23,19 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
     }
 
     @Override
+    public DataFlavor supportedFlavor()
+    {
+        return DataFlavors.entryFlavor;
+    }
+
+    @Override
     public boolean canImport(TransferSupport supp)
     {
-        if (supp.isDataFlavorSupported(DataFlavors.entryFlavor))
+        if (supp.isDataFlavorSupported(supportedFlavor()))
         {
             try
             {
-                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(DataFlavors.entryFlavor);
+                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(supportedFlavor());
                 if (data.source == editor && data.from == id && supp.isDrop())
                     return false;
             }
@@ -37,7 +44,7 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
                 return false;
             }
         }
-        return supp.isDataFlavorSupported(DataFlavors.entryFlavor);
+        return supp.isDataFlavorSupported(supportedFlavor());
     }
 
     @Override
@@ -47,7 +54,7 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
         {
             try
             {
-                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(DataFlavors.entryFlavor);
+                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(supportedFlavor());
                 if (supp.isDrop())
                 {
                     // Actually handle all list modification in the source handler; just tell it where the cards should go

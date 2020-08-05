@@ -1,5 +1,6 @@
 package editor.gui.ccp.handler;
 
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,9 +25,15 @@ public class CardImportHandler extends TransferHandler implements ImportHandler
     }
 
     @Override
+    public DataFlavor supportedFlavor()
+    {
+        return DataFlavors.cardFlavor;
+    }
+
+    @Override
     public boolean canImport(TransferSupport supp)
     {
-        return !supp.isDrop() && supp.isDataFlavorSupported(DataFlavors.cardFlavor);
+        return supp.isDataFlavorSupported(supportedFlavor());
     }
 
     @Override
@@ -38,7 +45,7 @@ public class CardImportHandler extends TransferHandler implements ImportHandler
         {
             try
             {
-                var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(DataFlavors.cardFlavor)).collect(Collectors.toSet());
+                var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(supportedFlavor())).collect(Collectors.toSet());
                 return editor.addCards(id, data, 1);
             }
             catch (UnsupportedFlavorException | IOException e)

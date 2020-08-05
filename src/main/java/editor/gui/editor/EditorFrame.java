@@ -83,8 +83,8 @@ import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.CategoryTransferData;
 import editor.gui.ccp.CategoryTransferHandler;
 import editor.gui.ccp.DataFlavors;
-import editor.gui.ccp.EditorImportHandler;
 import editor.gui.ccp.EditorTableTransferHandler;
+import editor.gui.ccp.handler.EditorTransferHandler;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
@@ -971,7 +971,7 @@ public class EditorFrame extends JInternalFrame
 
         changelogArea.setText(manager.changelog());
 
-        setTransferHandler(new EditorImportHandler(MAIN_DECK, this));
+        setTransferHandler(new EditorTransferHandler(this, MAIN_DECK));
 
         for (CategorySpec spec: deck().current.categories())
             categoryPanels.add(createCategoryPanel(spec));
