@@ -1,30 +1,40 @@
 package editor.gui.ccp.handler;
 
-import java.util.Set;
+import java.awt.datatransfer.DataFlavor;
+import java.util.LinkedHashMap;
 
 import javax.swing.TransferHandler;
 
+import editor.gui.ccp.DataFlavors;
 import editor.gui.editor.EditorFrame;
 
 @SuppressWarnings("serial")
 public class EditorTransferHandler extends TransferHandler
 {
-    private Set<ImportHandler> importers;
+    private LinkedHashMap<DataFlavor, ImportHandler> importers;
 
     public EditorTransferHandler(EditorFrame e, int i)
     {
-        importers = Set.of(new CardImportHandler(e, i), new EntryImportHandler(e, i));
+        importers = new LinkedHashMap<>();
+        importers.put(DataFlavors.entryFlavor, new EntryImportHandler(e, i));
+        importers.put(DataFlavors.cardFlavor, new CardImportHandler(e, i));
     }
 
     @Override
     public boolean canImport(TransferSupport supp)
     {
-        return importers.stream().anyMatch(i -> i.canImport(supp));
+        for (var e : importers.entrySet())
+            if (supp.isDataFlavorSupported(e.getKey()))
+                return e.getValue().canImport(supp);
+        return false;
     }
 
     @Override
     public boolean importData(TransferSupport supp)
     {
-        return importers.stream().filter(i -> i.canImport(supp)).findAny().get().importData(supp);
+        for (var e : importers.entrySet())
+            if (supp.isDataFlavorSupported(e.getKey()))
+                return e.getValue().importData(supp);
+        return false;
     }
 }

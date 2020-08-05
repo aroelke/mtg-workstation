@@ -1,4 +1,4 @@
-package editor.gui.ccp;
+package editor.gui.ccp.handler;
 
 import java.awt.datatransfer.Transferable;
 import java.util.Map;
@@ -9,6 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import editor.collection.CardList;
+import editor.gui.ccp.DeckTransferData;
 import editor.gui.editor.EditorFrame;
 
 /**
@@ -18,17 +19,22 @@ import editor.gui.editor.EditorFrame;
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class EditorTableTransferHandler extends EditorImportHandler
+public class EditorTableTransferHandler extends EditorTransferHandler
 {
+    private final EditorFrame editor;
+    private final int id;
+
     /**
      * Create a new EditorTableTransferHandler that handles transfers to or from
      * the main deck or extra lists.
      *
      * @param n ID of the list to make changes to
      */
-    public EditorTableTransferHandler(int id, EditorFrame e)
+    public EditorTableTransferHandler(EditorFrame e, int i)
     {
-        super(id, e);
+        super(e, i);
+        editor = e;
+        id = i;
     }
 
     @Override

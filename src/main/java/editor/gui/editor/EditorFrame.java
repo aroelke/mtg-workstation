@@ -83,7 +83,7 @@ import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.CategoryTransferData;
 import editor.gui.ccp.CategoryTransferHandler;
 import editor.gui.ccp.DataFlavors;
-import editor.gui.ccp.EditorTableTransferHandler;
+import editor.gui.ccp.handler.EditorTableTransferHandler;
 import editor.gui.ccp.handler.EditorTransferHandler;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
@@ -604,7 +604,7 @@ public class EditorFrame extends JInternalFrame
         for (int i = 0; i < deck().table.getColumnCount(); i++)
             if (deck().model.isCellEditable(0, i))
                 deck().table.getColumn(deck().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck().model.getColumnData(i)));
-        deck().table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK, this));
+        deck().table.setTransferHandler(new EditorTableTransferHandler(this, MAIN_DECK));
         deck().table.setDragEnabled(true);
         deck().table.setDropMode(DropMode.ON);
 
@@ -1231,7 +1231,7 @@ public class EditorFrame extends JInternalFrame
             }
         });
 
-        newCategory.table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK, this));
+        newCategory.table.setTransferHandler(new EditorTableTransferHandler(this, MAIN_DECK));
         newCategory.table.setDragEnabled(true);
         newCategory.table.setDropMode(DropMode.ON);
 
@@ -1971,7 +1971,7 @@ public class EditorFrame extends JInternalFrame
         for (int i = 0; i < lists.get(id).table.getColumnCount(); i++)
             if (lists.get(id).model.isCellEditable(0, i))
                 lists.get(id).table.getColumn(lists.get(id).model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, lists.get(id).model.getColumnData(i)));
-        lists.get(id).table.setTransferHandler(new EditorTableTransferHandler(id, this));
+        lists.get(id).table.setTransferHandler(new EditorTableTransferHandler(this, id));
         lists.get(id).table.setDragEnabled(true);
         lists.get(id).table.setDropMode(DropMode.ON);
 
