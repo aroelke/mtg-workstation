@@ -1,4 +1,4 @@
-package editor.gui.ccp;
+package editor.gui.ccp.data;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import editor.database.card.Card;
 
 /**
- * This class represents the data that can be transferred from an inventory via
+ * This class represents the data t t can be transferred from an inventory via
  * drag and drop or cut/copy/paste.  It supports card and String flavors.
  *
  * @author Alec Roelke

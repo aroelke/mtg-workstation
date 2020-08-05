@@ -8,7 +8,7 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import editor.database.card.Card;
-import editor.gui.ccp.InventoryTransferData;
+import editor.gui.ccp.data.InventoryTransferData;
 
 @SuppressWarnings("serial")
 public class InventoryExportHandler extends TransferHandler

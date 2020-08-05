@@ -6,8 +6,8 @@ import java.io.IOException;
 
 import javax.swing.TransferHandler;
 
-import editor.gui.ccp.DataFlavors;
-import editor.gui.ccp.DeckTransferData;
+import editor.gui.ccp.data.DataFlavors;
+import editor.gui.ccp.data.DeckTransferData;
 import editor.gui.editor.EditorFrame;
 
 @SuppressWarnings("serial")

@@ -11,6 +11,8 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import editor.collection.deck.CategorySpec;
+import editor.gui.ccp.data.CategoryTransferData;
+import editor.gui.ccp.data.DataFlavors;
 
 @SuppressWarnings("serial")
 public class CategoryTransferHandler extends TransferHandler

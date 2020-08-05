@@ -19,7 +19,7 @@ import javax.swing.ListSelectionModel;
 import editor.collection.deck.CategorySpec;
 import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.CategoryTransferHandler;
-import editor.gui.ccp.DataFlavors;
+import editor.gui.ccp.data.DataFlavors;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;

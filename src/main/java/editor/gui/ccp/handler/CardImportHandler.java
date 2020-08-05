@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import javax.swing.TransferHandler;
 
 import editor.database.card.Card;
-import editor.gui.ccp.DataFlavors;
+import editor.gui.ccp.data.DataFlavors;
 import editor.gui.editor.EditorFrame;
 
 @SuppressWarnings("serial")

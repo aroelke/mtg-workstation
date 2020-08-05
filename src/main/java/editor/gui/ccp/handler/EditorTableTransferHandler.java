@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import editor.collection.CardList;
-import editor.gui.ccp.DeckTransferData;
+import editor.gui.ccp.data.DeckTransferData;
 import editor.gui.editor.EditorFrame;
 
 /**

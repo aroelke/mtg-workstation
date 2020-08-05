@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 
 import javax.swing.TransferHandler;
 
-import editor.gui.ccp.DataFlavors;
+import editor.gui.ccp.data.DataFlavors;
 import editor.gui.editor.EditorFrame;
 
 @SuppressWarnings("serial")

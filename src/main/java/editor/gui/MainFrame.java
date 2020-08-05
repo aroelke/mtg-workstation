@@ -112,7 +112,7 @@ import editor.database.version.UpdateFrequency;
 import editor.filter.Filter;
 import editor.filter.leaf.TextFilter;
 import editor.gui.ccp.CCPItems;
-import editor.gui.ccp.DataFlavors;
+import editor.gui.ccp.data.DataFlavors;
 import editor.gui.ccp.handler.InventoryExportHandler;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;

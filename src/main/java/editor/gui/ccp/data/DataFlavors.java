@@ -1,4 +1,4 @@
-package editor.gui.ccp;
+package editor.gui.ccp.data;
 
 import java.awt.datatransfer.DataFlavor;
 
