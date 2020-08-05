@@ -22,5 +22,5 @@ public interface DataFlavors
 	 * map of cards onto an integer representing the number of copies to transfer.
      * It will also have auxiliary data including the source EditorFrame and ID.
 	 */
-    DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + DeckTransferData.class.getName() + "\"", "Deck Entries");
+    DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + EntryTransferData.class.getName() + "\"", "Deck Entries");
 }

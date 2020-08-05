@@ -15,7 +15,7 @@ import editor.database.card.Card;
  *
  * @author Alec Roelke
  */
-public class InventoryTransferData implements Transferable
+public class CardTransferData implements Transferable
 {
     /**
      * Cards to be transferred.
@@ -27,7 +27,7 @@ public class InventoryTransferData implements Transferable
      *
      * @param cards cards to transfer
      */
-    public InventoryTransferData(Card... cards)
+    public CardTransferData(Card... cards)
     {
         this.cards = cards;
     }
@@ -37,7 +37,7 @@ public class InventoryTransferData implements Transferable
      *
      * @param cards cards to transfer
      */
-    public InventoryTransferData(Collection<? extends Card> cards)
+    public CardTransferData(Collection<? extends Card> cards)
     {
         this(cards.toArray(new Card[0]));
     }

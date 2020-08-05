@@ -7,7 +7,7 @@ import java.io.IOException;
 import javax.swing.TransferHandler;
 
 import editor.gui.ccp.data.DataFlavors;
-import editor.gui.ccp.data.DeckTransferData;
+import editor.gui.ccp.data.EntryTransferData;
 import editor.gui.editor.EditorFrame;
 
 @SuppressWarnings("serial")
@@ -35,7 +35,7 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
         {
             try
             {
-                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(supportedFlavor());
+                EntryTransferData data = (EntryTransferData)supp.getTransferable().getTransferData(supportedFlavor());
                 if (data.source == editor && data.from == id && supp.isDrop())
                     return false;
             }
@@ -54,7 +54,7 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
         {
             try
             {
-                DeckTransferData data = (DeckTransferData)supp.getTransferable().getTransferData(supportedFlavor());
+                EntryTransferData data = (EntryTransferData)supp.getTransferable().getTransferData(supportedFlavor());
                 if (supp.isDrop())
                 {
                     // Actually handle all list modification in the source handler; just tell it where the cards should go

@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import editor.collection.CardList;
-import editor.gui.ccp.data.DeckTransferData;
+import editor.gui.ccp.data.EntryTransferData;
 import editor.gui.editor.EditorFrame;
 
 /**
@@ -42,7 +42,7 @@ public class EditorTableTransferHandler extends EditorTransferHandler
     {
         CardList source = editor.getList(id);
         var data = editor.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (card) -> source.getEntry(card).count()));
-        return new DeckTransferData(editor, id, data);
+        return new EntryTransferData(editor, id, data);
     }
 
     @Override
@@ -54,9 +54,9 @@ public class EditorTableTransferHandler extends EditorTransferHandler
     @Override
     public void exportDone(JComponent source, Transferable data, int action)
     {
-        if (data instanceof DeckTransferData)
+        if (data instanceof EntryTransferData)
         {
-            DeckTransferData d = (DeckTransferData)data;
+            EntryTransferData d = (EntryTransferData)data;
             switch (action)
             {
             case TransferHandler.MOVE:

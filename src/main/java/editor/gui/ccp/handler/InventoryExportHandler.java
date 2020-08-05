@@ -8,7 +8,7 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import editor.database.card.Card;
-import editor.gui.ccp.data.InventoryTransferData;
+import editor.gui.ccp.data.CardTransferData;
 
 @SuppressWarnings("serial")
 public class InventoryExportHandler extends TransferHandler
@@ -29,7 +29,7 @@ public class InventoryExportHandler extends TransferHandler
     @Override
     public Transferable createTransferable(JComponent c)
     {
-        return new InventoryTransferData(cards.get());
+        return new CardTransferData(cards.get());
     }
 
     @Override
