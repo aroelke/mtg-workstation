@@ -19,7 +19,7 @@ import editor.gui.editor.EditorFrame;
 public class EntryTransferData extends CardTransferData
 {
     /** Cards being transferred. */
-    public final Map<Card, Integer> cards;
+    public final Map<Card, Integer> entries;
     /** Frame containing the deck being transferred from. */
     public final EditorFrame source;
     /** Frame containing the deck being transferred to. */
@@ -32,7 +32,7 @@ public class EntryTransferData extends CardTransferData
     public EntryTransferData(EditorFrame e, int id, Map<Card, Integer> cards)
     {
         super(cards.keySet().stream().sorted(Card::compareName).toArray(Card[]::new));
-        this.cards = Collections.unmodifiableMap(cards);
+        this.entries = Collections.unmodifiableMap(cards);
         source = e;
         target = null;
         from = id;

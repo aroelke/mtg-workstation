@@ -40,6 +40,6 @@ public class CategoryListTransferHandler extends EditorTransferHandler
     public void exportDone(JComponent source, Transferable data, int action)
     {
         if (action == TransferHandler.MOVE)
-            remove.accept(((CategoryTransferData)data).data);
+            remove.accept(((CategoryTransferData)data).spec);
     }
 }

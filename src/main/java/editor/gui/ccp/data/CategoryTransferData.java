@@ -12,12 +12,12 @@ import editor.gui.editor.EditorFrame;
 
 public class CategoryTransferData extends EntryTransferData
 {
-    public final CategorySpec data;
+    public final CategorySpec spec;
 
     public CategoryTransferData(EditorFrame e, CategorySpec d, Map<Card, Integer> cards)
     {
         super(e, 0, cards); // Only main deck can have categories
-        data = d;
+        spec = d;
     }
 
     public CategoryTransferData(CategorySpec d)

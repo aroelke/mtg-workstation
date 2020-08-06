@@ -63,7 +63,7 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
                     return true;
                 }
                 else
-                    return editor.modifyCards(id, data.cards);
+                    return editor.modifyCards(id, data.entries);
             }
             catch (UnsupportedFlavorException | IOException e)
             {

@@ -39,7 +39,7 @@ public class CategoryImportHandler extends TransferHandler implements ImportHand
             try
             {
                 CategoryTransferData data = (CategoryTransferData)supp.getTransferable().getTransferData(DataFlavors.categoryFlavor);
-                return !contains.test(data.data);
+                return !contains.test(data.spec);
             }
             catch (UnsupportedFlavorException | IOException e)
             {
@@ -58,7 +58,7 @@ public class CategoryImportHandler extends TransferHandler implements ImportHand
             if (!canImport(supp))
                 return false;
             else
-                return add.test(((CategoryTransferData)supp.getTransferable().getTransferData(DataFlavors.categoryFlavor)).data);
+                return add.test(((CategoryTransferData)supp.getTransferable().getTransferData(DataFlavors.categoryFlavor)).spec);
         }
         catch (UnsupportedFlavorException | IOException e)
         {

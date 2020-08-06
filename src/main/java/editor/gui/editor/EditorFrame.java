@@ -809,7 +809,7 @@ public class EditorFrame extends JInternalFrame
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             try
             {
-                categoriesCCP.paste.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).data.getName()));
+                categoriesCCP.paste.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).spec.getName()));
             }
             catch (UnsupportedFlavorException | IOException x)
             {
@@ -1346,7 +1346,7 @@ public class EditorFrame extends JInternalFrame
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             try
             {
-                categoryCCP.paste.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).data.getName()));
+                categoryCCP.paste.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).spec.getName()));
             }
             catch (UnsupportedFlavorException | IOException x)
             {
