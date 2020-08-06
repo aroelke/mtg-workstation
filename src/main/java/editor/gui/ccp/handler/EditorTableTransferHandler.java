@@ -19,7 +19,7 @@ import editor.gui.editor.EditorFrame;
  * @author Alec Roelke
  */
 @SuppressWarnings("serial")
-public class EditorTableTransferHandler extends EditorTransferHandler
+public class EditorTableTransferHandler extends EditorFrameTransferHandler
 {
     private final EditorFrame editor;
     private final int id;

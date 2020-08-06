@@ -31,8 +31,4 @@ public class InventoryExportHandler extends TransferHandler
     {
         return new CardTransferData(cards.get());
     }
-
-    @Override
-    public void exportDone(JComponent source, Transferable data, int action)
-    {}
 }

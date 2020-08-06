@@ -12,15 +12,14 @@ import editor.collection.deck.CategorySpec;
 import editor.gui.ccp.data.CategoryTransferData;
 
 @SuppressWarnings("serial")
-public class CategoryListTransferHandler extends TransferHandler
+public class CategoryListTransferHandler extends EditorTransferHandler
 {
-    private final ImportHandler importer;
     private final Supplier<CategorySpec> supplier;
     private final Consumer<CategorySpec> remove;
 
     public CategoryListTransferHandler(Supplier<CategorySpec> s, Predicate<CategorySpec> c, Predicate<CategorySpec> a, Consumer<CategorySpec> r)
     {
-        importer = new CategoryImportHandler(c, a);
+        super(new CategoryImportHandler(c, a));
         supplier = s;
         remove = r;
     }
@@ -32,21 +31,9 @@ public class CategoryListTransferHandler extends TransferHandler
     }
 
     @Override
-    public boolean canImport(TransferSupport supp)
-    {
-        return importer.canImport(supp);
-    }
-
-    @Override
     public Transferable createTransferable(JComponent c)
     {
         return new CategoryTransferData(supplier.get());
-    }
-
-    @Override
-    public boolean importData(TransferSupport supp)
-    {
-        return importer.importData(supp);
     }
 
     @Override
