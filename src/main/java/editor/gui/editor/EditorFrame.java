@@ -82,7 +82,7 @@ import editor.gui.TableSelectionListener;
 import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.data.CategoryTransferData;
 import editor.gui.ccp.data.DataFlavors;
-import editor.gui.ccp.handler.CategoryListTransferHandler;
+import editor.gui.ccp.handler.CategoryTransferHandler;
 import editor.gui.ccp.handler.EditorTableTransferHandler;
 import editor.gui.ccp.handler.EditorFrameTransferHandler;
 import editor.gui.display.CardImagePanel;
@@ -795,11 +795,12 @@ public class EditorFrame extends JInternalFrame
 
         // Transfer handler for the category box
         // We explicitly use null here to cause exceptions if cutting or copying, as that should never happen
-        categoriesPane.setTransferHandler(new CategoryListTransferHandler(null, (c) -> containsCategory(c.getName()), this::addCategory, null));
+        categoriesPane.setTransferHandler(new CategoryTransferHandler(null, (c) -> containsCategory(c.getName()), this::addCategory, null));
 
         // Popup menu for category container
         JPopupMenu categoriesMenu = new JPopupMenu();
         CCPItems categoriesCCP = new CCPItems(categoriesPane, false);
+        categoriesCCP.paste.setText("Paste Category");
         categoriesMenu.add(categoriesCCP.paste);
         categoriesMenu.add(new JSeparator());
         JMenuItem categoriesCreateItem = new JMenuItem("Add Category...");
@@ -1294,7 +1295,7 @@ public class EditorFrame extends JInternalFrame
             editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
         }));
 
-        newCategory.setTransferHandler(new CategoryListTransferHandler(
+        newCategory.setTransferHandler(new CategoryTransferHandler(
             () -> getCategory(newCategory.getCategoryName()),
             (c) -> containsCategory(c.getName()),
             this::addCategory,
@@ -1307,8 +1308,11 @@ public class EditorFrame extends JInternalFrame
 
         // Cut, copy, paste
         CCPItems categoryCCP = new CCPItems(newCategory, false);
+        categoryCCP.cut.setText("Cut Category");
         categoryMenu.add(categoryCCP.cut);
+        categoryCCP.copy.setText("Copy Category");
         categoryMenu.add(categoryCCP.copy);
+        categoryCCP.paste.setText("Paste Category");
         categoryMenu.add(categoryCCP.paste);
         categoryMenu.add(new JSeparator());
 

@@ -12,12 +12,12 @@ import editor.collection.deck.CategorySpec;
 import editor.gui.ccp.data.CategoryTransferData;
 
 @SuppressWarnings("serial")
-public class CategoryListTransferHandler extends EditorTransferHandler
+public class CategoryTransferHandler extends EditorTransferHandler
 {
     private final Supplier<CategorySpec> supplier;
     private final Consumer<CategorySpec> remove;
 
-    public CategoryListTransferHandler(Supplier<CategorySpec> s, Predicate<CategorySpec> c, Predicate<CategorySpec> a, Consumer<CategorySpec> r)
+    public CategoryTransferHandler(Supplier<CategorySpec> s, Predicate<CategorySpec> c, Predicate<CategorySpec> a, Consumer<CategorySpec> r)
     {
         super(new CategoryImportHandler(c, a));
         supplier = s;

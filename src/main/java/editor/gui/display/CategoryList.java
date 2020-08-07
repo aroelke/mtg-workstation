@@ -19,7 +19,7 @@ import javax.swing.ListSelectionModel;
 import editor.collection.deck.CategorySpec;
 import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.data.DataFlavors;
-import editor.gui.ccp.handler.CategoryListTransferHandler;
+import editor.gui.ccp.handler.CategoryTransferHandler;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
@@ -119,7 +119,7 @@ public class CategoryList extends JList<String>
             }));
         }
 
-        setTransferHandler(new CategoryListTransferHandler(
+        setTransferHandler(new CategoryTransferHandler(
             () -> {
                 int row = getSelectedIndex();
                 if (row < 0 || row >= categories.size())
