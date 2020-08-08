@@ -10,16 +10,35 @@ import editor.collection.deck.CategorySpec;
 import editor.database.card.Card;
 import editor.gui.editor.EditorFrame;
 
+/**
+ * This class contains the specification for a category to transfer using cut,
+ * copy, and paste.
+ */
 public class CategoryTransferData extends EntryTransferData
 {
+    /** Category specification to transfer. */
     public final CategorySpec spec;
 
+    /**
+     * Create a new category transfer data for data from a deck. This constructor
+     * is only a placeholder until how to handle the cards that may be in the
+     * categories is determined.
+     * 
+     * @param e reserved for future use
+     * @param d specification to transfer
+     * @param cards reserved for future use
+     */
     public CategoryTransferData(EditorFrame e, CategorySpec d, Map<Card, Integer> cards)
     {
         super(e, 0, cards); // Only main deck can have categories
         spec = d;
     }
 
+    /**
+     * Create a new category transfer data.
+     * 
+     * @param d specification to transfer
+     */
     public CategoryTransferData(CategorySpec d)
     {
         this(null, d, Collections.emptyMap());
