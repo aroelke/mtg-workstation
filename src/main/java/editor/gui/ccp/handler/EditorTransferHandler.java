@@ -14,6 +14,8 @@ import javax.swing.TransferHandler;
  * differnet flavors. The list indicates the priority of each supported data
  * flavor; if a flavor is supported, its handler will be used even if it can't
  * import the data.
+ * 
+ * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class EditorTransferHandler extends TransferHandler

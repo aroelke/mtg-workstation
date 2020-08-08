@@ -13,6 +13,8 @@ import editor.gui.ccp.data.CardTransferData;
 /**
  * This class is a handler for expording copied data from the inventory. It only
  * supports copying single copies of cards.
+ * 
+ * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class InventoryExportHandler extends TransferHandler
