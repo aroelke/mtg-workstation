@@ -21,7 +21,9 @@ import editor.gui.editor.EditorFrame;
 @SuppressWarnings("serial")
 public class EditorTableTransferHandler extends EditorFrameTransferHandler
 {
+    /** Editor containing the deck to import cards into. */
     private final EditorFrame editor;
+    /** ID of the list in the deck to import into. */
     private final int id;
 
     /**
