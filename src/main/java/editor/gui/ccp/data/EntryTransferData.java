@@ -29,6 +29,14 @@ public class EntryTransferData extends CardTransferData
     /** ID of the list int he deck being transferred to. */
     public int to;
 
+    /**
+     * Create a new EntryTransferData that transfers the given cards from the given
+     * list in the given frame.
+     * 
+     * @param e frame containing the deck to transfer cards from
+     * @param id ID of the list to transfer cards from
+     * @param cards cards and counts to transfer
+     */
     public EntryTransferData(EditorFrame e, int id, Map<Card, Integer> cards)
     {
         super(cards.keySet().stream().sorted(Card::compareName).toArray(Card[]::new));
