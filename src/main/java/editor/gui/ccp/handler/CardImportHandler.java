@@ -14,6 +14,8 @@ import editor.gui.editor.EditorFrame;
 
 /**
  * Import handler for importing a list of single copies of cards.
+ * 
+ * @author Alec Roelke
  */
 @SuppressWarnings("serial")
 public class CardImportHandler extends TransferHandler implements ImportHandler

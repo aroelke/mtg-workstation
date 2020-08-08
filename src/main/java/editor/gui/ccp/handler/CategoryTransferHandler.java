@@ -11,10 +11,17 @@ import javax.swing.TransferHandler;
 import editor.collection.deck.CategorySpec;
 import editor.gui.ccp.data.CategoryTransferData;
 
+/**
+ * Handler for transferring category specifications between components in the handler.
+ * 
+ * @author Alec Roelke
+ */
 @SuppressWarnings("serial")
 public class CategoryTransferHandler extends EditorTransferHandler
 {
+    /** Function supplying the category specification to transfer. */
     private final Supplier<CategorySpec> supplier;
+    /** Function specifying how to remove cut data. */
     private final Consumer<CategorySpec> remove;
 
     public CategoryTransferHandler(Supplier<CategorySpec> s, Predicate<CategorySpec> c, Predicate<CategorySpec> a, Consumer<CategorySpec> r)

@@ -13,6 +13,8 @@ import editor.gui.editor.EditorFrame;
 /**
  * This class contains the specification for a category to transfer using cut,
  * copy, and paste.
+ * 
+ * @author Alec Roelke
  */
 public class CategoryTransferData extends EntryTransferData
 {
