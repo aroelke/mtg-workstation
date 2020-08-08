@@ -13,10 +13,12 @@ import java.util.Optional;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.card.Card;
 import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.data.DataFlavors;
 import editor.gui.ccp.handler.CategoryTransferHandler;
@@ -192,8 +194,23 @@ public class CategoryList extends JList<String>
     public CategoryList(String h, List<CategorySpec> c)
     {
         this(h);
-
         categories.addAll(c);
+    }
+
+    private boolean confirmListClean(CategorySpec spec)
+    {
+        if (!spec.getWhitelist().isEmpty() || !spec.getBlacklist().isEmpty())
+        {
+            return JOptionPane.showConfirmDialog(this,
+                "Category "
+                        + spec.getName()
+                        + " contains cards in its whitelist or blacklist which will not be included in the preset category."
+                        + "  Continue?",
+                "Add to Presets",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+        }
+        else
+            return true;
     }
 
     /**
@@ -203,8 +220,16 @@ public class CategoryList extends JList<String>
      */
     public void addCategory(CategorySpec c)
     {
-        categories.add(c);
-        model.addElement(c.getName());
+        if (confirmListClean(c))
+        {
+            CategorySpec copy = new CategorySpec(c);
+            for (final Card card : copy.getBlacklist())
+                copy.include(card);
+            for (final Card card : copy.getWhitelist())
+                copy.exclude(card);
+            categories.add(copy);
+            model.addElement(copy.getName());
+        }
     }
 
     /**
@@ -264,8 +289,16 @@ public class CategoryList extends JList<String>
      */
     public void setCategoryAt(int index, CategorySpec c)
     {
-        categories.set(index, c);
-        model.setElementAt(c.getName(), index);
+        if (confirmListClean(c))
+        {
+            CategorySpec copy = new CategorySpec(c);
+            for (final Card card : copy.getBlacklist())
+                copy.include(card);
+            for (final Card card : copy.getWhitelist())
+                copy.exclude(card);;
+            categories.set(index, copy);
+            model.setElementAt(copy.getName(), index);
+        }
     }
 
     @Override

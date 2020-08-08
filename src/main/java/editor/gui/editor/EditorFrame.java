@@ -1330,19 +1330,7 @@ public class EditorFrame extends JInternalFrame
         JMenuItem addPresetItem = new JMenuItem("Add to presets");
         addPresetItem.addActionListener((e) -> {
             CategorySpec s = deck().current.getCategorySpec(newCategory.getCategoryName());
-            if (!s.getWhitelist().isEmpty() || !s.getBlacklist().isEmpty())
-            {
-                if (JOptionPane.showConfirmDialog(this,
-                        "Category "
-                                + s.getName()
-                                + " contains cards in its whitelist or blacklist which will not be included in the preset category."
-                                + "  Make this category a preset category?",
-                        "Add to Presets",
-                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-                    parent.addPreset(s);
-            }
-            else
-                parent.addPreset(s);
+            parent.addPreset(s);
         });
         categoryMenu.add(addPresetItem);
 

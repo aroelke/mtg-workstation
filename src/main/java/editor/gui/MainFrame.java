@@ -1516,15 +1516,30 @@ public class MainFrame extends JFrame
     }
 
     /**
-     * Add a new preset category to the preset categories list.
+     * Add a new preset category to the preset categories list. If the category to
+     * add has anything in its white- or blacklist, warn that it will be removed
+     * first.
      *
      * @param category new preset category to add
      */
     public void addPreset(CategorySpec category)
     {
+        if (!category.getWhitelist().isEmpty() || !category.getBlacklist().isEmpty())
+        {
+            if (JOptionPane.showConfirmDialog(this,
+                "Category "
+                        + category.getName()
+                        + " contains cards in its whitelist or blacklist which will not be included in the preset category."
+                        + "  Make this category a preset category?",
+                "Add to Presets",
+                JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION)
+            return;
+        }
         CategorySpec spec = new CategorySpec(category);
-        spec.getBlacklist().clear();
-        spec.getWhitelist().clear();
+        for (final Card c : spec.getBlacklist())
+            spec.include(c);
+        for (final Card c : spec.getWhitelist())
+            spec.exclude(c);
         SettingsDialog.addPresetCategory(spec);
         JMenuItem categoryItem = new JMenuItem(spec.getName());
         categoryItem.addActionListener((e) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));
