@@ -10,12 +10,26 @@ import editor.gui.ccp.data.DataFlavors;
 import editor.gui.ccp.data.EntryTransferData;
 import editor.gui.editor.EditorFrame;
 
+/**
+ * Importer for card "entries," allowing the import of multiple copies of cards
+ * at a time.
+ * 
+ * @author Alec Roelke
+ */
 @SuppressWarnings("serial")
 public class EntryImportHandler extends TransferHandler implements ImportHandler
 {
+    /** Editor frame containing the deck to import cards into. */
     private final EditorFrame editor;
+    /** ID of the list to import cards into. */
     private final int id;
 
+    /**
+     * Create a new entry import handler.
+     * 
+     * @param e editor frame containing the deck to import into
+     * @param i ID of the list to import cards into
+     */
     public EntryImportHandler(EditorFrame e, int i)
     {
         editor = e;
