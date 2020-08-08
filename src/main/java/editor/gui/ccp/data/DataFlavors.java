@@ -15,6 +15,9 @@ public interface DataFlavors
 	 */
 	DataFlavor cardFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Card[].class.getName() + "\"", "Card Array");
 
+	/**
+	 * Data flavor representing a category. Transfer data will appear as a {@link CategorySpec}.
+	 */
 	DataFlavor categoryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + CategorySpec.class.getName() + "\"", "Category Specification");
 
 	/**
