@@ -197,6 +197,15 @@ public class CategoryList extends JList<String>
         categories.addAll(c);
     }
 
+    /**
+     * If the category specification contains explicitly included or excluded cards,
+     * warn the user that they will be removed before being added to this list.
+     * 
+     * @param spec specification to check
+     * @return <code>true</code> if the specification has no explicitly-included or
+     * -excluded cards or if it does and the user selects to add it anyway, and
+     * <code>false</code> otherwise.
+     */
     private boolean confirmListClean(CategorySpec spec)
     {
         if (!spec.getWhitelist().isEmpty() || !spec.getBlacklist().isEmpty())
