@@ -3,7 +3,6 @@ package editor.collection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import editor.database.attributes.Legality;
 import editor.database.attributes.ManaType;
 import editor.database.card.Card;
 import editor.filter.leaf.options.multi.LegalityFilter;
-import editor.util.Containment;
 
 
 /**
@@ -51,40 +49,6 @@ public class LegalityChecker
         warnings = new HashMap<>();
         for (String format : LegalityFilter.formatList)
             warnings.put(format, new ArrayList<>());
-    }
-
-    /**
-     * Find the color to classify a Card as to make the deck as close to 20 of each color, with
-     * no Cards repeating, as possible.  If all classifications have 20 or more Cards, then remove
-     * one and reclassify it.
-     *
-     * @param c card to classify
-     * @param bins list of colors the Card can be classified as
-     * @param exclusion list of colors the Card should not be classified as
-     */
-    private void binCard(Card c, HashMap<ManaType, List<Card>> bins, List<ManaType> exclusion)
-    {
-        if (c.colors().isEmpty())
-            return;
-        else if (c.colors().size() == 1)
-            bins.get(c.colors().get(0)).add(c);
-        else
-        {
-            ManaType bin = null;
-            for (ManaType color : c.colors())
-                if (bin == null || bins.get(color).size() < bins.get(bin).size())
-                    bin = color;
-            if (bins.get(bin).size() < 20)
-                bins.get(bin).add(c);
-            else
-            {
-                Card next = bins.get(bin).stream().filter((card) -> !Containment.CONTAINS_ANY_OF.test(card.colors(), exclusion)).findFirst().orElse(null);
-                bins.get(bin).add(c);
-                exclusion.add(bin);
-                if (next != null)
-                    binCard(next, bins, exclusion);
-            }
-        }
     }
 
     /**
@@ -186,21 +150,15 @@ public class LegalityChecker
         }
 
         // Prismatic only: there are at least 20 cards of each color, and multicolored cards only count once
-        HashMap<ManaType, List<Card>> colorBins = new HashMap<>();
-        for (ManaType color : ManaType.values())
-            colorBins.put(color, new ArrayList<>());
-        for (Card c : deck.stream().sorted(Comparator.comparingInt((a) -> a.colors().size())).collect(Collectors.toList()))
-            for (int i = 0; i < deck.getEntry(c).count(); i++)
-                binCard(c, colorBins, new ArrayList<>());
-        for (ManaType bin : colorBins.keySet())
-        {
-            System.out.println(bin + ": " + colorBins.get(bin).size());
-            for (Card c : colorBins.get(bin))
-                System.out.println("\t" + c.unifiedName());
-        }
-        for (ManaType color : ManaType.values())
-            if (colorBins.get(color).size() < 20)
-                warnings.get("Prismatic").add("Deck contains fewer than 20 " + color.toString().toLowerCase() + " cards");
+        /*
+         * Pseudocode:
+         * For each card:
+         *   if the card's colors have not been tested yet:
+         *     count the number of cards in the deck that share a color with the card
+         *     if that number < 20 * number of colors the card has:
+         *       return false
+         * return true
+         */
 
         // Collate the legality lists
         List<String> illegalList = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
