@@ -24,6 +24,16 @@ public class CategoryTransferHandler extends EditorTransferHandler
     /** Function specifying how to remove cut data. */
     private final Consumer<CategorySpec> remove;
 
+    /**
+     * Create a new category transfer handler.
+     * 
+     * @param s function supplying the category specification to transfer
+     * @param c function determining if the source component contains the category,
+     * if applicable (should simply return false if not applicable)
+     * @param a function indicating how to add the category to the source component
+     * @param r function indicating how to remove the category if it is cut from the
+     * source component
+     */
     public CategoryTransferHandler(Supplier<CategorySpec> s, Predicate<CategorySpec> c, Predicate<CategorySpec> a, Consumer<CategorySpec> r)
     {
         super(new CategoryImportHandler(c, a));
