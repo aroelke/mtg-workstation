@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.Deck;
@@ -46,9 +47,7 @@ public class LegalityChecker
     {
         legal = new String[]{};
         illegal = new String[]{};
-        warnings = new HashMap<>();
-        for (String format : LegalityFilter.formatList)
-            warnings.put(format, new ArrayList<>());
+        warnings = Arrays.stream(LegalityFilter.formatList).collect(Collectors.toMap(Function.identity(), (f) -> new ArrayList<String>()));
     }
 
     /**
@@ -59,30 +58,23 @@ public class LegalityChecker
      */
     public void checkLegality(Deck deck)
     {
+        for (Card c : deck)
+        {
+            System.out.println(c.normalizedName() + ": " + c.legalIn());
+        }
+
         // Deck size
         for (String format : LegalityFilter.formatList)
         {
-            if (format.equalsIgnoreCase("prismatic"))
-            {
-                if (deck.total() < 250)
-                    warnings.get(format).add("Deck contains fewer than 250 cards");
-            }
-            else if (format.equalsIgnoreCase("commander"))
+            if (format.equals("commander"))
             {
                 if (deck.total() != 100)
                     warnings.get(format).add("Deck does not contain exactly 100 cards");
             }
-            else if (format.equalsIgnoreCase("singleton 100"))
+            else if (format.equals("brawl"))
             {
-                if (deck.total() < 100)
-                    warnings.get(format).add("Deck does not contain exactly 100 cards");
-                else if (deck.total() > 115)
-                    warnings.get(format).add("Sideboard is greater than 15 cards");
-            }
-            else if (format.equalsIgnoreCase("freeform"))
-            {
-                if (deck.total() < 40)
-                    warnings.get(format).add("Deck contains fewer than 40 cards");
+                if (deck.total() != 60)
+                    warnings.get(format).add("Deck does not contain exactly 60 cards");
             }
             else
             {
@@ -112,11 +104,11 @@ public class LegalityChecker
         {
             for (String format : LegalityFilter.formatList)
             {
-                if (!c.legalIn(format))
+                if (!c.legalityIn(format).isLegal)
                     warnings.get(format).add(c.unifiedName() + " is illegal in " + format);
                 else if (isoNameCounts.containsKey(c) && !c.ignoreCountRestriction())
                 {
-                    if (format.equalsIgnoreCase("commander") || format.equalsIgnoreCase("singleton 100"))
+                    if (format.equals("commander"))
                     {
                         if (isoNameCounts.get(c) > 1)
                             warnings.get(format).add("Deck contains more than 1 copy of " + c.unifiedName());
@@ -133,32 +125,21 @@ public class LegalityChecker
         }
 
         // Commander only: commander exists and matches deck color identity
-        List<Card> possibleCommanders = deck.stream().filter(Card::canBeCommander).collect(Collectors.toList());
+        var possibleCommanders = deck.stream().filter(Card::canBeCommander).collect(Collectors.toList());
         if (possibleCommanders.isEmpty())
-            warnings.get("Commander").add("Deck does not contain a legendary creature");
+            warnings.get("commander").add("Deck does not contain a legendary creature");
         else
         {
             List<ManaType> deckColorIdentityList = new ArrayList<>();
             for (Card c : deck)
                 deckColorIdentityList.addAll(c.colors());
-            List<ManaType> deckColorIdentity = new ArrayList<>(deckColorIdentityList);
+            var deckColorIdentity = new ArrayList<>(deckColorIdentityList);
             for (Card c : new ArrayList<>(possibleCommanders))
                 if (!c.colors().containsAll(deckColorIdentity))
                     possibleCommanders.remove(c);
             if (possibleCommanders.isEmpty())
-                warnings.get("Commander").add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
+                warnings.get("commander").add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
         }
-
-        // Prismatic only: there are at least 20 cards of each color, and multicolored cards only count once
-        /*
-         * Pseudocode:
-         * For each card:
-         *   if the card's colors have not been tested yet:
-         *     count the number of cards in the deck that share a color with the card
-         *     if that number < 20 * number of colors the card has:
-         *       return false
-         * return true
-         */
 
         // Collate the legality lists
         List<String> illegalList = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());

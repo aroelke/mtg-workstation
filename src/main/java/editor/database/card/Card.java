@@ -175,7 +175,7 @@ public abstract class Card
         });
         normalizedFlavor = new Lazy<>(() -> Collections.unmodifiableList(flavorText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         normalizedPrinted = new Lazy<>(() -> Collections.unmodifiableList(printedText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
-        legalIn = new Lazy<>(() -> Collections.unmodifiableList(legality().keySet().stream().filter(this::legalIn).collect(Collectors.toList())));
+        legalIn = new Lazy<>(() -> Collections.unmodifiableList(legality().keySet().stream().filter((l) -> legalityIn(l).isLegal).collect(Collectors.toList())));
         canBeCommander = new Lazy<>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
         ignoreCountRestriction = new Lazy<>(() -> supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number")));
     }
@@ -528,32 +528,6 @@ public abstract class Card
     }
 
     /**
-     * Check if this Card is legal in the given format
-     *
-     * @param format format to look up
-     * @return true if the given format exists and this Card is legal in it, and false
-     * otherwise.
-     */
-    public boolean legalIn(String format)
-    {
-        if (format.equalsIgnoreCase("prismatic") && legalIn("classic") && legality().get(format) != Legality.BANNED)
-            return true;
-        else if (format.equalsIgnoreCase("classic") || format.equalsIgnoreCase("freeform"))
-            return true;
-        else if (format.contains("Block"))
-        {
-            format = format.substring(0, format.indexOf("Block")).trim();
-            return expansion.block.equalsIgnoreCase(format)
-                    || format.equalsIgnoreCase("urza") && expansion.block.equalsIgnoreCase("urza's")
-                    || format.equalsIgnoreCase("lorwyn-shadowmoor") && (expansion.block.equalsIgnoreCase("lorwyn") || expansion.block.equalsIgnoreCase("shadowmoor"))
-                    || format.equalsIgnoreCase("shards of alara") && expansion.block.equalsIgnoreCase("alara")
-                    || format.equalsIgnoreCase("tarkir") && expansion.block.equalsIgnoreCase("khans of tarkir");
-        }
-        else
-            return legality().containsKey(format) && legality().get(format) != Legality.BANNED;
-    }
-
-    /**
      * Get the set of formats and this Card's legalities in each one.
      *
      * @return a map whose keys are format names and whose values are the legalities
@@ -570,14 +544,7 @@ public abstract class Card
      */
     public Legality legalityIn(String format)
     {
-        if (legalIn(format))
-        {
-            if (format.equalsIgnoreCase("prismatic"))
-                format = "classic";
-            return legality().getOrDefault(format, Legality.LEGAL);
-        }
-        else
-            return Legality.BANNED;
+        return legality().getOrDefault(format, Legality.ILLEGAL);
     }
 
     /**

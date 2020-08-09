@@ -945,7 +945,6 @@ public class EditorFrame extends JInternalFrame
             checker.checkLegality(deck().current);
             JOptionPane.showMessageDialog(this, new LegalityPanel(checker), "Legality of " + deckName(), JOptionPane.PLAIN_MESSAGE);
         });
-        legalityButton.setEnabled(false);
         legalityPanel.add(legalityButton);
         GridBagConstraints legalityConstraints = new GridBagConstraints();
         legalityConstraints.anchor = GridBagConstraints.EAST;

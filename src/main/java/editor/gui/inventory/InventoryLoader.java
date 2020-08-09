@@ -429,7 +429,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     supertypeSet.addAll(c.supertypes());
                     typeSet.addAll(c.types());
                     subtypeSet.addAll(c.subtypes());
-                    formatSet.addAll(c.legality().keySet().stream().map((e) -> e.substring(0, 1).toUpperCase() + e.substring(1)).collect(Collectors.toSet()));
+                    formatSet.addAll(c.legality().keySet());
 
                     // Collect unexpected card values
                     if (c.artist().stream().anyMatch(String::isEmpty))
