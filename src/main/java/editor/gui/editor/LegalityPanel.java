@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -21,6 +22,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,9 +31,13 @@ import javax.swing.ListSelectionModel;
 import editor.collection.CardList;
 import editor.collection.deck.Deck;
 import editor.database.attributes.Legality;
+import editor.database.attributes.ManaCost;
 import editor.database.attributes.ManaType;
 import editor.database.card.Card;
+import editor.database.symbol.ColorSymbol;
+import editor.database.symbol.ManaSymbol;
 import editor.filter.leaf.options.multi.LegalityFilter;
+import editor.gui.generic.ComponentUtils;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -145,6 +151,19 @@ public class LegalityPanel extends Box
                 super.setSelectionInterval(-1, -1);
             }
         });
+        warningsList.setCellRenderer((l, v, i, s, c) -> {
+            Matcher m = ManaCost.MANA_COST_PATTERN.matcher(v);
+            if (m.find())
+            {
+                Box cell = Box.createHorizontalBox();
+                cell.add(new JLabel(v.substring(0, m.start())));
+                for (ManaSymbol symbol : ManaCost.parseManaCost(m.group()))
+                    cell.add(new JLabel(symbol.getIcon(ComponentUtils.TEXT_SIZE)));
+                return cell;
+            }
+            else
+                return new JLabel(v);
+        });
         warningsPanel.add(new JScrollPane(warningsList), BorderLayout.CENTER);
 
         // Click on a list element to show why it is illegal
@@ -246,7 +265,11 @@ public class LegalityPanel extends Box
         {
             var possibleCommanders = commanderSearch.stream().filter(Card::canBeCommander).collect(Collectors.toList());
             if (possibleCommanders.isEmpty())
-                warnings.get("commander").add("Could not find a legendary creature");
+            {
+                final String warning = "Could not find a legendary creature";
+                warnings.get("commander").add(warning);
+                warnings.get("brawl").add(warning);
+            }
             else
             {
                 Set<ManaType> deckColorIdentity = new HashSet<>();
@@ -256,7 +279,7 @@ public class LegalityPanel extends Box
                     if (!c.colorIdentity().containsAll(deckColorIdentity))
                         possibleCommanders.remove(c);
                 if (possibleCommanders.isEmpty())
-                    warnings.get("commander").add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
+                    warnings.get("commander").add("Could not find a legendary creature whose color identity contains " + deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
             }
         }
 
