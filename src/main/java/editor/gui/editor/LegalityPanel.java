@@ -183,20 +183,20 @@ public class LegalityPanel extends Box
         // Deck size
         for (String format : LegalityFilter.formatList)
         {
-            if (format.equals("commander"))
+            switch (format)
             {
-                if (deck.total() != 100)
-                    warnings.get(format).add("Deck does not contain exactly 100 cards");
-            }
-            else if (format.equals("brawl"))
-            {
-                if (deck.total() != 60)
-                    warnings.get(format).add("Deck does not contain exactly 60 cards");
-            }
-            else
-            {
+            case "commander":
+                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != 100) || ((!commanderSearch.isEmpty() && commanderSearch != deck) && deck.total() != 99))
+                    warnings.get(format).add("Deck does not contain exactly 99 cards plus a commander");
+                break;
+            case "brawl":
+                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != 60) && ((!commanderSearch.isEmpty() && commanderSearch != deck) && deck.total() != 59))
+                    warnings.get(format).add("Deck does not contain exactly 59 cards plus a commander");
+                break;
+            default:
                 if (deck.total() < 60)
                     warnings.get(format).add("Deck contains fewer than 60 cards");
+                break;
             }
         }
 
