@@ -70,7 +70,6 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.table.AbstractTableModel;
 
 import editor.collection.CardList;
-import editor.collection.LegalityChecker;
 import editor.collection.deck.CategorySpec;
 import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
@@ -83,8 +82,8 @@ import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.data.CategoryTransferData;
 import editor.gui.ccp.data.DataFlavors;
 import editor.gui.ccp.handler.CategoryTransferHandler;
-import editor.gui.ccp.handler.EditorTableTransferHandler;
 import editor.gui.ccp.handler.EditorFrameTransferHandler;
+import editor.gui.ccp.handler.EditorTableTransferHandler;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
@@ -941,9 +940,7 @@ public class EditorFrame extends JInternalFrame
         JPanel legalityPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         JButton legalityButton = new JButton("Show Legality");
         legalityButton.addActionListener((e) -> {
-            LegalityChecker checker = new LegalityChecker();
-            checker.checkLegality(deck().current);
-            JOptionPane.showMessageDialog(this, new LegalityPanel(checker), "Legality of " + deckName(), JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(this, new LegalityPanel(this), "Legality of " + deckName(), JOptionPane.PLAIN_MESSAGE);
         });
         legalityPanel.add(legalityButton);
         GridBagConstraints legalityConstraints = new GridBagConstraints();
