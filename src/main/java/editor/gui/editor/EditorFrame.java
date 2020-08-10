@@ -1853,6 +1853,14 @@ public class EditorFrame extends JInternalFrame
             return new Deck(lists.get(id).current);
     }
 
+    public CardList getList(String name)
+    {
+        for (DeckData list : lists)
+            if (list != null && list.name.filter(name::equals).isPresent())
+                return list.current;
+        throw new ArrayIndexOutOfBoundsException(name);
+    }
+
     /**
      * @return a {@link CardList} containing all of the cards in extra lists.
      */

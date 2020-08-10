@@ -3,13 +3,15 @@ package editor.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -22,11 +24,10 @@ import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
 
 import editor.collection.CardList;
+import editor.collection.deck.Deck;
 import editor.database.attributes.Legality;
 import editor.database.attributes.ManaType;
 import editor.database.card.Card;
@@ -41,6 +42,9 @@ import editor.util.UnicodeSymbols;
 @SuppressWarnings("serial")
 public class LegalityPanel extends Box
 {
+    private static final String MAIN_DECK = "Main Deck";
+    private static final String ALL_LISTS = "All Lists";
+
     /**
      * Array containing formats the deck is illegal in.
      */
@@ -54,6 +58,9 @@ public class LegalityPanel extends Box
      * of Strings, which will be empty for legal formats.
      */
     private Map<String, List<String>> warnings;
+    private JList<String> legalList;
+    private JList<String> illegalList;
+    private JList<String> warningsList;
 
     /**
      * Create a new LegalityPanel showing the legality of a deck.
@@ -67,7 +74,6 @@ public class LegalityPanel extends Box
         setPreferredSize(new Dimension(400, 250));
 
         warnings = Arrays.stream(LegalityFilter.formatList).collect(Collectors.toMap(Function.identity(), (l) -> new ArrayList<String>()));
-        checkLegality(editor.getList(EditorFrame.MAIN_DECK));
 
         // Panel containing format lists
         JPanel listsPanel = new JPanel(new GridLayout(1, 2));
@@ -79,7 +85,7 @@ public class LegalityPanel extends Box
         listsPanel.add(legalPanel);
 
         // Legal formats list.  Selection is disabled in this list
-        JList<String> legalList = new JList<>(legal.toArray(String[]::new));
+        legalList = new JList<>();
         legalList.setSelectionModel(new DefaultListSelectionModel()
         {
             @Override
@@ -102,7 +108,7 @@ public class LegalityPanel extends Box
         listsPanel.add(illegalPanel);
 
         // Illegal formats list.  Only one element can be selected at a time.
-        JList<String> illegalList = new JList<>(illegal.toArray(String[]::new));
+        illegalList = new JList<>();
         illegalList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         illegalPanel.add(new JScrollPane(illegalList), BorderLayout.CENTER);
 
@@ -110,35 +116,57 @@ public class LegalityPanel extends Box
         Box cmdrPanel = new Box(BoxLayout.X_AXIS);
         JCheckBox cmdrCheck = new JCheckBox("Search for commander", false);
         cmdrPanel.add(cmdrCheck);
-        JComboBox<String> cmdrBox = new JComboBox<>(new String[] {"Main Deck", "All Lists"});
+        List<String> names = new ArrayList<>(List.of(MAIN_DECK, ALL_LISTS));
+        names.addAll(editor.getExtraNames());
+        JComboBox<String> cmdrBox = new JComboBox<>(names.toArray(String[]::new));
         cmdrBox.setVisible(false);
         cmdrPanel.add(cmdrBox);
         cmdrPanel.add(Box.createHorizontalGlue());
         add(cmdrPanel);
-        cmdrCheck.addActionListener((e) -> {
-            cmdrCheck.setText("Search for commander" + (cmdrCheck.isSelected() ? " in:" : ""));
-            cmdrBox.setVisible(cmdrCheck.isSelected());
-        });
 
         // Panel containing text box that shows why a deck is illegal in a format
         JPanel warningsPanel = new JPanel(new BorderLayout());
-        warningsPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Warnings"), BorderFactory.createLoweredBevelBorder()));
+        warningsPanel.setBorder(BorderFactory.createTitledBorder("Warnings"));
         add(warningsPanel);
 
         // Text box that shows reasons for illegality
-        JTextPane warningsPane = new JTextPane();
-        warningsPane.setEditable(false);
-        warningsPane.setFont(UIManager.getFont("Label.font"));
-        warningsPanel.add(new JScrollPane(warningsPane), BorderLayout.CENTER);
+        warningsList = new JList<>();
+        warningsList.setSelectionModel(new DefaultListSelectionModel()
+        {
+            @Override
+            public int getSelectionMode()
+            {
+                return ListSelectionModel.SINGLE_SELECTION;
+            }
+
+            @Override
+            public void setSelectionInterval(int index0, int index1)
+            {
+                super.setSelectionInterval(-1, -1);
+            }
+        });
+        warningsPanel.add(new JScrollPane(warningsList), BorderLayout.CENTER);
 
         // Click on a list element to show why it is illegal
         illegalList.addListSelectionListener((e) -> {
-            StringJoiner str = new StringJoiner("\n" + UnicodeSymbols.BULLET + " ", String.valueOf(UnicodeSymbols.BULLET) + " ", "");
-            for (String warning : warnings.get(illegalList.getSelectedValue()))
-                str.add(warning);
-            warningsPane.setText(str.toString());
-            warningsPane.setCaretPosition(0);
+            if (illegalList.getSelectedIndex() >= 0)
+                warningsList.setListData(warnings.get(illegalList.getSelectedValue()).stream().map((w) -> UnicodeSymbols.BULLET + " " + w).toArray(String[]::new));
+                else
+                    warningsList.setListData(new String[0]);
         });
+        ActionListener cmdrListener = (e) -> {
+            cmdrCheck.setText("Search for commander" + (cmdrCheck.isSelected() ? " in:" : ""));
+            cmdrBox.setVisible(cmdrCheck.isSelected());
+            checkLegality(editor.getList(EditorFrame.MAIN_DECK), !cmdrCheck.isSelected() ? new Deck() : switch (cmdrBox.getSelectedItem().toString()) {
+                case MAIN_DECK -> editor.getList(EditorFrame.MAIN_DECK);
+                case ALL_LISTS -> editor.getExtraCards();
+                default -> editor.getList(cmdrBox.getSelectedItem().toString());
+            });
+        };
+        cmdrCheck.addActionListener(cmdrListener);
+        cmdrBox.addActionListener(cmdrListener);
+
+        checkLegality(editor.getList(EditorFrame.MAIN_DECK), new Deck());
     }
 
     /**
@@ -147,8 +175,11 @@ public class LegalityPanel extends Box
      *
      * @param deck deck to check
      */
-    public void checkLegality(CardList deck)
+    public void checkLegality(CardList deck, CardList commanderSearch)
     {
+        for (var warning : warnings.values())
+            warning.clear();
+
         // Deck size
         for (String format : LegalityFilter.formatList)
         {
@@ -210,21 +241,23 @@ public class LegalityPanel extends Box
             }
         }
 
-        // Commander only: commander exists and matches deck color identity
-        var possibleCommanders = deck.stream().filter(Card::canBeCommander).collect(Collectors.toList());
-        if (possibleCommanders.isEmpty())
-            warnings.get("commander").add("Deck does not contain a legendary creature");
-        else
+        // Commander/Brawl only: commander exists and matches deck color identity
+        if (!commanderSearch.isEmpty())
         {
-            List<ManaType> deckColorIdentityList = new ArrayList<>();
-            for (Card c : deck)
-                deckColorIdentityList.addAll(c.colors());
-            var deckColorIdentity = new ArrayList<>(deckColorIdentityList);
-            for (Card c : new ArrayList<>(possibleCommanders))
-                if (!c.colors().containsAll(deckColorIdentity))
-                    possibleCommanders.remove(c);
+            var possibleCommanders = commanderSearch.stream().filter(Card::canBeCommander).collect(Collectors.toList());
             if (possibleCommanders.isEmpty())
-                warnings.get("commander").add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
+                warnings.get("commander").add("Could not find a legendary creature");
+            else
+            {
+                Set<ManaType> deckColorIdentity = new HashSet<>();
+                for (Card c : deck)
+                    deckColorIdentity.addAll(c.colorIdentity());
+                for (Card c : new ArrayList<>(possibleCommanders))
+                    if (!c.colorIdentity().containsAll(deckColorIdentity))
+                        possibleCommanders.remove(c);
+                if (possibleCommanders.isEmpty())
+                    warnings.get("commander").add("Deck does not contain a legendary creature whose color identity contains " + deckColorIdentity.toString());
+            }
         }
 
         // Collate the legality lists
@@ -232,5 +265,10 @@ public class LegalityPanel extends Box
         Collections.sort(illegal);
         legal = new ArrayList<>(Arrays.asList(LegalityFilter.formatList));
         legal.removeAll(illegal);
+        Collections.sort(legal);
+
+        warningsList.setListData(new String[0]);
+        legalList.setListData(legal.toArray(String[]::new));
+        illegalList.setListData(illegal.toArray(String[]::new));
     }
 }
