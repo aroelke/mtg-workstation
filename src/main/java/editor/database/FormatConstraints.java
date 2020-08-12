@@ -3,6 +3,7 @@ package editor.database;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class FormatConstraints
@@ -62,5 +63,24 @@ public class FormatConstraints
     public Object[] toArray(String name)
     {
         return new Object[] { name, deckSize, isExact, maxCopies, hasCommander };
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other == null)
+            return false;
+        if (other == this)
+            return true;
+        if (!(other instanceof FormatConstraints))
+            return false;
+        FormatConstraints o = (FormatConstraints)other;
+        return o.deckSize == deckSize && o.isExact == isExact && o.maxCopies == maxCopies && o.hasCommander == hasCommander;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(deckSize, isExact, maxCopies, hasCommander);
     }
 }
