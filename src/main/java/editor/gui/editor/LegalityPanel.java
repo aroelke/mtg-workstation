@@ -235,24 +235,17 @@ public class LegalityPanel extends Box
         }
         for (Card c : deck)
         {
-            for (String format : LegalityFilter.formatList)
+            for (String format : FormatConstraints.FORMAT_NAMES)
             {
+                final int maxCopies = FormatConstraints.CONSTRAINTS.get(format).maxCopies;
                 if (!c.legalityIn(format).isLegal)
                     warnings.get(format).add(c.unifiedName() + " is illegal in " + format);
                 else if (isoNameCounts.containsKey(c) && !c.ignoreCountRestriction())
                 {
-                    if (format.equals("commander"))
-                    {
-                        if (isoNameCounts.get(c) > 1)
-                            warnings.get(format).add("Deck contains more than 1 copy of " + c.unifiedName());
-                    }
-                    else
-                    {
-                        if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts.get(c) > 1)
-                            warnings.get(format).add(c.unifiedName() + " is restricted in " + format);
-                        else if (isoNameCounts.get(c) > 4)
-                            warnings.get(format).add("Deck contains more than 4 copies of " + c.unifiedName());
-                    }
+                    if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts.get(c) > 1)
+                        warnings.get(format).add(c.unifiedName() + " is restricted in " + format);
+                    else if (isoNameCounts.get(c) > maxCopies)
+                        warnings.get(format).add("Deck contains more than " + maxCopies + " copies of " + c.unifiedName());
                 }
             }
         }
