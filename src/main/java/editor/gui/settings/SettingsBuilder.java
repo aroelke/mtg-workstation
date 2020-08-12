@@ -51,6 +51,10 @@ public class SettingsBuilder
     private int handSize;
     private String handRounding;
     private Color handBackground;
+    private boolean searchForCommander;
+    private boolean main;
+    private boolean all;
+    private String list;
     private String cwd;
 
     /**
@@ -101,6 +105,10 @@ public class SettingsBuilder
             handSize,
             handRounding,
             handBackground,
+            searchForCommander,
+            main,
+            all,
+            list,
             cwd
         );
     }
@@ -135,6 +143,10 @@ public class SettingsBuilder
         handSize = original.editor.hand.size;
         handRounding = original.editor.hand.rounding;
         handBackground = original.editor.hand.background;
+        searchForCommander = original.editor.legality.searchForCommander;
+        main = original.editor.legality.main;
+        all = original.editor.legality.all;
+        list = original.editor.legality.list;
         cwd = original.cwd;
 
         return this;
@@ -150,8 +162,8 @@ public class SettingsBuilder
      * <li>{@link Settings.InventorySettings#location}: "."
      * <li>{@link Settings.InventorySettings#scans}: "images/cards"
      * <li>{@link Settings.InventorySettings#tags}: "tags.json"
-     * <li>{@link Settings.InventorySettings#update}: true
-     * <li>{@link Settings.InventorySettings#warn}: true
+     * <li>{@link Settings.InventorySettings#update}: <code>true</code>
+     * <li>{@link Settings.InventorySettings#warn}: <code>true</code>
      * <li>{@link Settings.InventorySettings#columns}:
      *     {@link CardAttribute#NAME}, {@link CardAttribute#MANA_COST},
      *     {@link CardAttribute#TYPE_LINE}, {@link CardAttribute#EXPANSION}
@@ -172,7 +184,12 @@ public class SettingsBuilder
      * <li>{@link Settings.EditorSettings.HandSettings#rounding}: "No rounding"
      * <li>{@link Settings.EditorSettings.HandSettings#background}:
      *     {@link Color#white}
-     * <li>{@link Settings#cwd}: "."
+     * <li>{@link Settings.EditorSettings.LegalitySettings#searchForCommander}:
+     *     <code>true</code>
+     * <li>{@link Settings.EditorSettings.LegalitySettings#main}: <code>true</code>
+     * <li>{@link Settings.EditorSettings.LegalitySettings#all}: <code>false</code>
+     * <li>{@link Settings.EditorSettings.LegalitySettings#list}: <code>""</code>
+     * <li>{@link Settings#cwd}: <code>"."</code>
      * </ul>
      * 
      * @return this SettingsBuilder
@@ -200,6 +217,10 @@ public class SettingsBuilder
         handSize = 7;
         handRounding = "No rounding";
         handBackground = Color.WHITE;
+        searchForCommander = true;
+        main = true;
+        all = false;
+        list = "";
         cwd = ".";
 
         presetCategories = new ArrayList<CategorySpec>();
@@ -573,6 +594,30 @@ public class SettingsBuilder
     public SettingsBuilder handBackground(Color background)
     {
         handBackground = background;
+        return this;
+    }
+
+    public SettingsBuilder searchForCommander(boolean search)
+    {
+        searchForCommander = search;
+        return this;
+    }
+
+    public SettingsBuilder commanderInMain(boolean main)
+    {
+        this.main = main;
+        return this;
+    }
+
+    public SettingsBuilder commanderInAll(boolean all)
+    {
+        this.all = all;
+        return this;
+    }
+
+    public SettingsBuilder commanderInList(String list)
+    {
+        this.list = list;
         return this;
     }
 

@@ -3,6 +3,7 @@ package editor.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +41,7 @@ import editor.database.symbol.ColorSymbol;
 import editor.database.symbol.ManaSymbol;
 import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.gui.generic.ComponentUtils;
+import editor.gui.settings.SettingsDialog;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -122,12 +124,22 @@ public class LegalityPanel extends Box
 
         // Panel containing check box for enabling commander search
         Box cmdrPanel = new Box(BoxLayout.X_AXIS);
-        JCheckBox cmdrCheck = new JCheckBox("Search for commander", false);
+        JCheckBox cmdrCheck = new JCheckBox("", SettingsDialog.settings().editor.legality.searchForCommander);
+        cmdrCheck.setText(cmdrCheck.isSelected() ? "Search for commander in:" : "Search for commander");
         cmdrPanel.add(cmdrCheck);
         List<String> names = new ArrayList<>(List.of(MAIN_DECK, ALL_LISTS));
         names.addAll(editor.getExtraNames());
         JComboBox<String> cmdrBox = new JComboBox<>(names.toArray(String[]::new));
-        cmdrBox.setVisible(false);
+        cmdrBox.setVisible(SettingsDialog.settings().editor.legality.searchForCommander);
+        if (SettingsDialog.settings().editor.legality.main)
+            cmdrBox.setSelectedIndex(names.indexOf(MAIN_DECK));
+        else if (SettingsDialog.settings().editor.legality.all)
+            cmdrBox.setSelectedIndex(names.indexOf(ALL_LISTS));
+        else
+        {
+            String name = SettingsDialog.settings().editor.legality.list;
+            cmdrBox.setSelectedIndex(names.contains(name) ? names.indexOf(name) : names.indexOf(MAIN_DECK));
+        }
         cmdrPanel.add(cmdrBox);
         cmdrPanel.add(Box.createHorizontalGlue());
         add(cmdrPanel);
@@ -187,7 +199,8 @@ public class LegalityPanel extends Box
         cmdrCheck.addActionListener(cmdrListener);
         cmdrBox.addActionListener(cmdrListener);
 
-        checkLegality(editor.getList(EditorFrame.MAIN_DECK), new Deck());
+        cmdrListener.actionPerformed(new ActionEvent(cmdrCheck, 0, "", ActionEvent.ACTION_PERFORMED));
+//        checkLegality(editor.getList(EditorFrame.MAIN_DECK), new Deck());
     }
 
     /**
