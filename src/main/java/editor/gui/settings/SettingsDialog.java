@@ -40,11 +40,13 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -52,6 +54,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.FormatConstraints;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.database.version.DatabaseVersion;
@@ -357,6 +360,8 @@ public class SettingsDialog extends JDialog
         editorNode.add(editorAppearanceNode);
         DefaultMutableTreeNode handAppearanceNode = new DefaultMutableTreeNode("Sample Hand");
         editorNode.add(handAppearanceNode);
+        DefaultMutableTreeNode formatsNode = new DefaultMutableTreeNode("Formats");
+        editorNode.add(formatsNode);
         root.add(editorNode);
 
         // Settings panels
@@ -693,6 +698,20 @@ public class SettingsDialog extends JDialog
         handBGColorPanel.add(handBGColor);
         handBGColorPanel.setAlignmentX(LEFT_ALIGNMENT);
         sampleHandPanel.add(handBGColorPanel);
+
+        // Format constraints
+        JPanel formatsPanel = new JPanel(new BorderLayout());
+        settingsPanel.add(formatsPanel, new TreePath(formatsNode.getPath()).toString());
+
+        // Formats table
+        JTable formatsTable = new JTable(new DefaultTableModel(FormatConstraints.FORMAT_NAMES.stream().map((f) -> FormatConstraints.CONSTRAINTS.get(f).toArray(f)).toArray(Object[][]::new), FormatConstraints.DATA_NAMES.toArray(String[]::new))
+        {
+            @Override
+            public Class<?> getColumnClass(int column) { return FormatConstraints.CLASSES.get(column); }
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) { return false; }
+        });
+        formatsPanel.add(new JScrollPane(formatsTable), BorderLayout.CENTER);
 
         // Tree panel
         JPanel treePanel = new JPanel(new BorderLayout());
