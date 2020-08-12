@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -254,12 +255,9 @@ public class LegalityPanel extends Box
         if (!commanderSearch.isEmpty())
         {
             var possibleCommanders = commanderSearch.stream().filter(Card::canBeCommander).collect(Collectors.toList());
+            Optional<String> warning = Optional.empty();
             if (possibleCommanders.isEmpty())
-            {
-                final String warning = "Could not find a legendary creature";
-                warnings.get("commander").add(warning);
-                warnings.get("brawl").add(warning);
-            }
+                warning = Optional.of("Could not find a legendary creature");
             else
             {
                 Set<ManaType> deckColorIdentity = new HashSet<>();
@@ -269,8 +267,9 @@ public class LegalityPanel extends Box
                     if (!c.colorIdentity().containsAll(deckColorIdentity))
                         possibleCommanders.remove(c);
                 if (possibleCommanders.isEmpty())
-                    warnings.get("commander").add("Could not find a legendary creature whose color identity contains " + deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
+                    warning = Optional.of("Could not find a legendary creature whose color identity contains " + deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
             }
+            warning.ifPresent((w) -> FormatConstraints.FORMAT_NAMES.stream().filter((f) -> FormatConstraints.CONSTRAINTS.get(f).hasCommander).forEach((f) -> warnings.get(f).add(w)));
         }
 
         // Collate the legality lists
