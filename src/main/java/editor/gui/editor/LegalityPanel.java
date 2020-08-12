@@ -30,6 +30,7 @@ import javax.swing.ListSelectionModel;
 
 import editor.collection.CardList;
 import editor.collection.deck.Deck;
+import editor.database.FormatConstraints;
 import editor.database.attributes.Legality;
 import editor.database.attributes.ManaCost;
 import editor.database.attributes.ManaType;
@@ -200,22 +201,18 @@ public class LegalityPanel extends Box
             warning.clear();
 
         // Deck size
-        for (String format : LegalityFilter.formatList)
+        for (String format : FormatConstraints.FORMAT_NAMES)
         {
-            switch (format)
+            final FormatConstraints constraints = FormatConstraints.CONSTRAINTS.get(format);
+            if (constraints.hasCommander)
             {
-            case "commander":
-                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != 100) || ((!commanderSearch.isEmpty() && commanderSearch != deck) && deck.total() != 99))
-                    warnings.get(format).add("Deck does not contain exactly 99 cards plus a commander");
-                break;
-            case "brawl":
-                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != 60) && ((!commanderSearch.isEmpty() && commanderSearch != deck) && deck.total() != 59))
-                    warnings.get(format).add("Deck does not contain exactly 59 cards plus a commander");
-                break;
-            default:
-                if (deck.total() < 60)
-                    warnings.get(format).add("Deck contains fewer than 60 cards");
-                break;
+                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != constraints.deckSize) || ((!commanderSearch.isEmpty() && commanderSearch != deck) && deck.total() != constraints.deckSize - 1))
+                    warnings.get(format).add("Deck does not contain exactly " + (constraints.deckSize - 1) + " cards plus a commander");
+            }
+            else
+            {
+                if (deck.total() < constraints.deckSize)
+                    warnings.get(format).add("Deck contains fewer than " + constraints.deckSize + " cards");
             }
         }
 
