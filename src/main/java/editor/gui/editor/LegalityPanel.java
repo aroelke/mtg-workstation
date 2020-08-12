@@ -52,7 +52,9 @@ import editor.util.UnicodeSymbols;
 @SuppressWarnings("serial")
 public class LegalityPanel extends Box
 {
+    /** Item to show for searching the main deck. */
     private static final String MAIN_DECK = "Main Deck";
+    /** Item to show for searching all of the lists. */
     private static final String ALL_LISTS = "All Lists";
 
     /**
@@ -68,15 +70,23 @@ public class LegalityPanel extends Box
      * of Strings, which will be empty for legal formats.
      */
     private Map<String, List<String>> warnings;
+    /**
+     * List showing which formats the deck is legal in.
+     */
     private JList<String> legalList;
+    /**
+     * List showing which formats the deck is illegal in.
+     */
     private JList<String> illegalList;
+    /**
+     * List showing reasons for why the deck is illegal in the selected format.
+     */
     private JList<String> warningsList;
 
     /**
      * Create a new LegalityPanel showing the legality of a deck.
      *
-     * @param legality legality of a deck.  Make sure to have it calculate
-     *                 the legality of a deck, or nothing will be shown.
+     * @param editor editor frame containing the deck to check
      */
     public LegalityPanel(EditorFrame editor)
     {
@@ -200,7 +210,6 @@ public class LegalityPanel extends Box
         cmdrBox.addActionListener(cmdrListener);
 
         cmdrListener.actionPerformed(new ActionEvent(cmdrCheck, 0, "", ActionEvent.ACTION_PERFORMED));
-//        checkLegality(editor.getList(EditorFrame.MAIN_DECK), new Deck());
     }
 
     /**
