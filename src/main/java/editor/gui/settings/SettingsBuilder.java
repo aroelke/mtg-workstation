@@ -597,24 +597,52 @@ public class SettingsBuilder
         return this;
     }
 
+    /**
+     * Whether or not to search for a commander.
+     * 
+     * @param search search for a commander
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings.LegalitySettings#searchForCommander
+     */
     public SettingsBuilder searchForCommander(boolean search)
     {
         searchForCommander = search;
         return this;
     }
 
+    /**
+     * Whether or not to search the main deck for a commander.
+     * 
+     * @param main search the main deck for a commander
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings.LegalitySettings#main
+     */
     public SettingsBuilder commanderInMain(boolean main)
     {
         this.main = main;
         return this;
     }
 
+    /**
+     * Whether or not to search all lists for a commander.
+     * 
+     * @param all search all lists for a commander
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings.LegalitySettings#all
+     */
     public SettingsBuilder commanderInAll(boolean all)
     {
         this.all = all;
         return this;
     }
 
+    /**
+     * Name of the list to search for a commander.
+     * 
+     * @param list list name to search
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.LegalitySettings#list
+     */
     public SettingsBuilder commanderInList(String list)
     {
         this.list = list;

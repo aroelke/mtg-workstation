@@ -265,11 +265,20 @@ public final class Settings
             }
         }
 
+        /**
+         * Sub-structure containing settings for determining the legality of a deck.
+         * 
+         * @author Alec Roelke
+         */
         public static final class LegalitySettings
         {
+            /** Whether or not to search for a commander if determine legality in applicable formats. */
             public final boolean searchForCommander;
+            /** If searching for a commander, whether or not to search just the main deck. */
             public final boolean main;
+            /** If searching for a commander, whether or not to check all lists. */
             public final boolean all;
+            /** If searching for a commander, default name of the list to search that isn't the main deck. */
             public final String list;
 
             protected LegalitySettings(boolean searchForCommander, boolean main, boolean all, String list)
