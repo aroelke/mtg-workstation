@@ -17,9 +17,9 @@ public class FormatConstraints
      * Mapping of format names onto their deckbulding constraints.
      */
     public static final Map<String, FormatConstraints> CONSTRAINTS = Map.ofEntries(
-        new SimpleImmutableEntry<>("brawl", new FormatConstraints(60, true, 1, true)),
-        new SimpleImmutableEntry<>("commander", new FormatConstraints(100, true, 1, true)),
-        new SimpleImmutableEntry<>("duel", new FormatConstraints(100, true, 1, true)),
+        new SimpleImmutableEntry<>("brawl", new FormatConstraints(60, true, 1, 0, true)),
+        new SimpleImmutableEntry<>("commander", new FormatConstraints(100, true, 1, 0, true)),
+        new SimpleImmutableEntry<>("duel", new FormatConstraints(100, true, 1, 0, true)),
         new SimpleImmutableEntry<>("future", new FormatConstraints()),
         new SimpleImmutableEntry<>("historic", new FormatConstraints()),
         new SimpleImmutableEntry<>("legacy", new FormatConstraints()),
@@ -45,6 +45,7 @@ public class FormatConstraints
         Integer.class,
         Boolean.class,
         Integer.class,
+        Integer.class,
         Boolean.class
     );
 
@@ -60,6 +61,7 @@ public class FormatConstraints
         "Deck Size",
         "Exact?",
         "Max Card Count",
+        "Sideboard size",
         "Has Commander?"
     );
 
@@ -69,6 +71,8 @@ public class FormatConstraints
     public final boolean isExact;
     /** Maximum number of copies of a card in a deck. */
     public final int maxCopies;
+    /** Maximum number of cards in a sideboard */
+    public final int sideboardSize;
     /** Whether or not the format has a commander. */
     public final boolean hasCommander;
     
@@ -79,13 +83,15 @@ public class FormatConstraints
      * @param size number of cards in a deck
      * @param exact whether or not <code>size</code> is an exact count
      * @param copies number of copies of a card
+     * @param sideboard number of copies in a sideboard
      * @param commander whether or not the format has a commander
      */
-    private FormatConstraints(int size, boolean exact, int copies, boolean commander)
+    private FormatConstraints(int size, boolean exact, int copies, int sideboard, boolean commander)
     {
         deckSize = size;
         isExact = exact;
         maxCopies = copies;
+        sideboardSize = sideboard;
         hasCommander = commander;
     }
 
@@ -95,7 +101,7 @@ public class FormatConstraints
      */
     public FormatConstraints()
     {
-        this(60, false, 4, false);
+        this(60, false, 4, 15, false);
     }
 
     /**
@@ -105,7 +111,7 @@ public class FormatConstraints
      */
     public Object[] toArray(String name)
     {
-        return new Object[] { name, deckSize, isExact, maxCopies, hasCommander };
+        return new Object[] { name, deckSize, isExact, maxCopies, sideboardSize, hasCommander };
     }
 
     @Override
@@ -118,12 +124,16 @@ public class FormatConstraints
         if (!(other instanceof FormatConstraints))
             return false;
         FormatConstraints o = (FormatConstraints)other;
-        return o.deckSize == deckSize && o.isExact == isExact && o.maxCopies == maxCopies && o.hasCommander == hasCommander;
+        return o.deckSize == deckSize &&
+               o.isExact == isExact &&
+               o.maxCopies == maxCopies &&
+               o.sideboardSize == sideboardSize &&
+               o.hasCommander == hasCommander;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(deckSize, isExact, maxCopies, hasCommander);
+        return Objects.hash(deckSize, isExact, maxCopies, sideboardSize, hasCommander);
     }
 }
