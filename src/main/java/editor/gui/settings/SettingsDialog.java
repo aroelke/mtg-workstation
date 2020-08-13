@@ -335,12 +335,37 @@ public class SettingsDialog extends JDialog
      * Combo box indicating how often to download updates.
      */
     private JComboBox<UpdateFrequency> updateBox;
+    /**
+     * Check box indicating whether or not to check for a commander by default in legality
+     * check.
+     */
     private JCheckBox cmdrCheck;
+    /**
+     * Radio button indicting to check only the main deck by default for a commander.
+     */
     private JRadioButton cmdrMainDeck;
+    /**
+     * Radio button indicating to check all lists by default for a commander.
+     */
     private JRadioButton cmdrAllLists;
+    /**
+     * Radio button indicating to check a specific list, if it exists, for a commander
+     * by default.
+     */
     private JRadioButton cmdrList;
+    /**
+     * Default name of the list to look in if checking only a single one or commander.
+     */
     private JTextField cmdrListName;
+    /**
+     * Check box indicating whether or not to check sideboard size by default in
+     * legality check.
+     */
     private JCheckBox sideCheck;
+    /**
+     * Text field specifying the default name of the list to use as sideboard if
+     * present.
+     */
     private JTextField sideField;
 
     /**
