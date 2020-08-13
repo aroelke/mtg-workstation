@@ -131,13 +131,13 @@ public class LegalityPanel extends Box
         illegalPanel.add(new JScrollPane(illegalList), BorderLayout.CENTER);
 
         // Panel containing check box for enabling commander search
-        Box cmdrPanel = new Box(BoxLayout.X_AXIS);
+        Box cmdrPanel = Box.createHorizontalBox();
         JCheckBox cmdrCheck = new JCheckBox("", SettingsDialog.settings().editor.legality.searchForCommander);
         cmdrCheck.setText(cmdrCheck.isSelected() ? "Search for commander in:" : "Search for commander");
         cmdrPanel.add(cmdrCheck);
         List<String> names = new ArrayList<>(List.of(MAIN_DECK, ALL_LISTS));
         names.addAll(editor.getExtraNames());
-        JComboBox<String> cmdrBox = new JComboBox<>(names.toArray(String[]::new));
+        var cmdrBox = new JComboBox<>(names.toArray(String[]::new));
         cmdrBox.setVisible(SettingsDialog.settings().editor.legality.searchForCommander);
         if (SettingsDialog.settings().editor.legality.main)
             cmdrBox.setSelectedIndex(names.indexOf(MAIN_DECK));
@@ -148,9 +148,28 @@ public class LegalityPanel extends Box
             String name = SettingsDialog.settings().editor.legality.list;
             cmdrBox.setSelectedIndex(names.contains(name) ? names.indexOf(name) : names.indexOf(MAIN_DECK));
         }
+        cmdrBox.setMaximumSize(cmdrBox.getPreferredSize());
         cmdrPanel.add(cmdrBox);
         cmdrPanel.add(Box.createHorizontalGlue());
         add(cmdrPanel);
+
+        // Panel containing check box for including a sideboard
+        Optional<JComboBox<String>> sideCombo;
+        if (!editor.getExtraNames().isEmpty())
+        {
+            add(Box.createVerticalStrut(2));
+            Box sideboardBox = Box.createHorizontalBox();
+            JCheckBox sideCheck = new JCheckBox("", true);
+            sideCheck.setText(sideCheck.isSelected() ? "Sideboard is:" : "Include sideboard");
+            sideboardBox.add(sideCheck);
+            sideCombo = Optional.of(new JComboBox<>(editor.getExtraNames().toArray(String[]::new)));
+            sideCombo.get().setMaximumSize(sideCombo.get().getPreferredSize());
+            sideboardBox.add(sideCombo.get());
+            sideboardBox.add(Box.createHorizontalGlue());
+            add(sideboardBox);
+        }
+        else
+            sideCombo = Optional.empty();
 
         // Panel containing text box that shows why a deck is illegal in a format
         JPanel warningsPanel = new JPanel(new BorderLayout());
@@ -202,7 +221,7 @@ public class LegalityPanel extends Box
                 case MAIN_DECK -> editor.getList(EditorFrame.MAIN_DECK);
                 case ALL_LISTS -> editor.getExtraCards();
                 default -> editor.getList(cmdrBox.getSelectedItem().toString());
-            });
+            }, sideCombo.map(s -> editor.getList(s.getItemAt(s.getSelectedIndex()))));
         };
         cmdrCheck.addActionListener(cmdrListener);
         cmdrBox.addActionListener(cmdrListener);
@@ -216,7 +235,7 @@ public class LegalityPanel extends Box
      *
      * @param deck deck to check
      */
-    public void checkLegality(CardList deck, CardList commanderSearch)
+    public void checkLegality(CardList deck, CardList commanderSearch, Optional<CardList> sideboard)
     {
         for (var warning : warnings.values())
             warning.clear();
