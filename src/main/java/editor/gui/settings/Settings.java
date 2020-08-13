@@ -1,16 +1,27 @@
 package editor.gui.settings;
 
+import static editor.database.attributes.CardAttribute.CATEGORIES;
+import static editor.database.attributes.CardAttribute.COUNT;
+import static editor.database.attributes.CardAttribute.DATE_ADDED;
+import static editor.database.attributes.CardAttribute.EXPANSION;
+import static editor.database.attributes.CardAttribute.MANA_COST;
+import static editor.database.attributes.CardAttribute.NAME;
+import static editor.database.attributes.CardAttribute.TYPE_LINE;
+
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
 import editor.database.attributes.CardAttribute;
 import editor.database.version.DatabaseVersion;
 import editor.database.version.UpdateFrequency;
+import editor.filter.leaf.options.multi.CardTypeFilter;
 
 /**
  * Structure containing global settings.  This structure consists of immutable
@@ -53,7 +64,7 @@ public final class Settings
         /** Stripe color of inventory table. */
         public final Color stripe;
 
-        protected InventorySettings(String source,
+        private InventorySettings(String source,
                                     String file,
                                     String versionFile,
                                     DatabaseVersion version,
@@ -78,6 +89,24 @@ public final class Settings
             this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
             this.background = background;
             this.stripe = stripe;
+        }
+
+        private InventorySettings()
+        {
+            this(
+                "https://mtgjson.com/json/",
+                "AllSets.json",
+                "version.json",
+                new DatabaseVersion(0, 0, 0),
+                ".",
+                "scans",
+                "tags.json",
+                UpdateFrequency.DAILY,
+                true,
+                List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION),
+                Color.WHITE,
+                new Color(0xCC, 0xCC, 0xCC, 0xFF)
+            );
         }
 
         /**
@@ -153,10 +182,15 @@ public final class Settings
             /** List of recently-edited files. */
             public final List<String> files;
 
-            protected RecentsSettings(int count, List<String> files)
+            private RecentsSettings(int count, List<String> files)
             {
                 this.count = count;
                 this.files = Collections.unmodifiableList(new ArrayList<>(files));
+            }
+
+            private RecentsSettings()
+            {
+                this(4, Collections.emptyList());
             }
 
             @Override
@@ -194,11 +228,28 @@ public final class Settings
             /** Number of rows to show in white- or blacklists. */
             public final int explicits;
 
-            protected CategoriesSettings(List<CategorySpec> presets, int rows, int explicits)
+            private CategoriesSettings(List<CategorySpec> presets, int rows, int explicits)
             {
                 this.presets = Collections.unmodifiableList(new ArrayList<>(presets));
                 this.rows = rows;
                 this.explicits = explicits;
+            }
+
+            private CategoriesSettings()
+            {
+                this(
+                    Map.of(
+                        "Artifacts", List.of("Artifact"),
+                        "Creatures", List.of("Creature"),
+                        "Lands", List.of("Land"),
+                        "Instants/Sorceries", List.of("Instant", "Sorcery")
+                    ).entrySet().stream().map((e) -> {
+                        CardTypeFilter filter = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
+                        filter.selected.addAll(e.getValue());
+                        return new CategorySpec(e.getKey(), Collections.emptySet(), Collections.emptySet(), Color.WHITE, filter);
+                    }).collect(Collectors.toList()),
+                    6, 3
+                );
             }
 
             @Override
@@ -237,11 +288,16 @@ public final class Settings
             /** Background color for sample hand images. */
             public final Color background;
 
-            protected HandSettings(int size, String rounding, Color background)
+            private HandSettings(int size, String rounding, Color background)
             {
                 this.size = size;
                 this.rounding = rounding;
                 this.background = background;
+            }
+
+            private HandSettings()
+            {
+                this(7, "No rounding", Color.WHITE);
             }
 
             @Override
@@ -280,13 +336,21 @@ public final class Settings
             public final boolean all;
             /** If searching for a commander, default name of the list to search that isn't the main deck. */
             public final String list;
+            /** Include sideboard size in legality determination. */
+            public final String sideboard;
 
-            protected LegalitySettings(boolean searchForCommander, boolean main, boolean all, String list)
+            private LegalitySettings(boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
             {
                 this.searchForCommander = searchForCommander;
                 this.main = main;
                 this.all = all;
                 this.list = list;
+                this.sideboard = sideboard;
+            }
+
+            private LegalitySettings()
+            {
+                this(true, true, false, "", "");
             }
 
             @Override
@@ -299,13 +363,17 @@ public final class Settings
                 if (!(other instanceof LegalitySettings))
                     return false;
                 LegalitySettings o = (LegalitySettings)other;
-                return searchForCommander == o.searchForCommander && main == o.main && all == o.all && list.equals(o.list);
+                return searchForCommander == o.searchForCommander &&
+                       main == o.main &&
+                       all == o.all &&
+                       list.equals(o.list) &&
+                       sideboard.equals(o.sideboard);
             }
 
             @Override
             public int hashCode()
             {
-                return Objects.hash(searchForCommander, main, all, list);
+                return Objects.hash(searchForCommander, main, all, list, sideboard);
             }
         }
 
@@ -319,21 +387,32 @@ public final class Settings
         public final Color stripe;
         /** @see HandSettings */
         public final HandSettings hand;
+        /** @see LegalitySettings */
         public final LegalitySettings legality;
 
-        protected EditorSettings(int recentsCount, List<String> recentsFiles,
+        private EditorSettings(int recentsCount, List<String> recentsFiles,
                                  int explicits,
                                  List<CategorySpec> presetCategories, int categoryRows,
                                  List<CardAttribute> columns, Color stripe,
                                  int handSize, String handRounding, Color handBackground,
-                                 boolean searchForCommander, boolean main, boolean all, String list)
+                                 boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
         {
             this.recents = new RecentsSettings(recentsCount, recentsFiles);
             this.categories = new CategoriesSettings(presetCategories, categoryRows, explicits);
             this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
             this.stripe = stripe;
             this.hand = new HandSettings(handSize, handRounding, handBackground);
-            this.legality = new LegalitySettings(searchForCommander, main, all, list);
+            this.legality = new LegalitySettings(searchForCommander, main, all, list, sideboard);
+        }
+
+        private EditorSettings()
+        {
+            recents = new RecentsSettings();
+            categories = new CategoriesSettings();
+            columns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED);
+            stripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
+            hand = new HandSettings();
+            legality = new LegalitySettings();
         }
 
         @Override
@@ -369,11 +448,18 @@ public final class Settings
     /** Initial directory of file choosers. */
     public final String cwd;
 
-    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String cwd)
+    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String cwd)
     {
         this.inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
-        this.editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list);
+        this.editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard);
         this.cwd = cwd;
+    }
+
+    protected Settings()
+    {
+        inventory = new InventorySettings();
+        editor = new EditorSettings();
+        cwd = ".";
     }
 
     @Override
