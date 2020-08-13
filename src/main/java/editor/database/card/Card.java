@@ -68,10 +68,6 @@ public abstract class Card
     }
 
     /**
-     * Whether or not this Card can be a commander.
-     */
-    private Lazy<Boolean> canBeCommander;
-    /**
      * Expansion this Card belongs to.
      */
     private final Expansion expansion;
@@ -176,7 +172,6 @@ public abstract class Card
         normalizedFlavor = new Lazy<>(() -> Collections.unmodifiableList(flavorText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         normalizedPrinted = new Lazy<>(() -> Collections.unmodifiableList(printedText().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         legalIn = new Lazy<>(() -> Collections.unmodifiableList(legality().keySet().stream().filter((l) -> legalityIn(l).isLegal).collect(Collectors.toList())));
-        canBeCommander = new Lazy<>(() -> supertypeContains("legendary") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("can be your commander")));
         ignoreCountRestriction = new Lazy<>(() -> supertypeContains("basic") || oracleText().stream().map(String::toLowerCase).anyMatch((s) -> s.contains("a deck can have any number")));
     }
 
@@ -194,16 +189,6 @@ public abstract class Card
      * @return a list containing the artist of each face of this Card.
      */
     public abstract List<String> artist();
-
-    /**
-     * Check if this Card can be commander of a commander deck.
-     *
-     * @return true if this Card can be a commander in the Commander format, and false otherwise.
-     */
-    public boolean canBeCommander()
-    {
-        return canBeCommander.get();
-    }
 
     /**
      * Get this card's converted mana cost(s).
@@ -235,6 +220,11 @@ public abstract class Card
      * @return a list containing the colors of the given face.
      */
     public abstract List<ManaType> colors(int face);
+
+    /**
+     * @return a list containing the formats this card can be commander in.
+     */
+    public abstract List<String> commandFormats();
 
     /**
      * Compare this Card's unified name lexicographically with another's.

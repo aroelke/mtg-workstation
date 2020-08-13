@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -257,7 +258,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             Optional.of(card.toughness().get(0).toString()),
             Optional.of(card.loyalty().get(0).toString()),
             Optional.of(new TreeMap<>(card.rulings())),
-            Optional.of(card.legality())
+            Optional.of(card.legality()),
+            card.commandFormats()
         );
     }
 
@@ -353,6 +355,16 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         continue;
                     }
 
+                    // Formats the card can be commander in
+                    var commandFormats = !card.has("leadershipSkills") ? Collections.<String>emptyList() :
+                        card.get("leadershipSkills").getAsJsonObject().entrySet().stream()
+                            .filter((e) -> e.getValue().getAsBoolean())
+                            .map(Map.Entry::getKey)
+                            .sorted()
+                            .collect(Collectors.toList());
+                    if (!commandFormats.isEmpty())
+                        System.out.println(name + ": " + commandFormats);
+
                     Card c = new SingleCard(
                         layout,
                         name,
@@ -424,7 +436,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                             for (var entry : e.getAsJsonObject().entrySet())
                                 l.put(entry.getKey(), Legality.parseLegality(entry.getValue().getAsString()));
                             return l;
-                        })
+                        }),
+                        commandFormats
                     );
                     supertypeSet.addAll(c.supertypes());
                     typeSet.addAll(c.types());

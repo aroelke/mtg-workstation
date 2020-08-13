@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -308,25 +307,29 @@ public class LegalityPanel extends Box
             }
         }
 
-        // Commander/Brawl only: commander exists and matches deck color identity
+        // Commander exists and matches deck color identity
         if (!commanderSearch.isEmpty())
         {
-            var possibleCommanders = commanderSearch.stream().filter(Card::canBeCommander).collect(Collectors.toList());
-            Optional<String> warning = Optional.empty();
-            if (possibleCommanders.isEmpty())
-                warning = Optional.of("Could not find a legendary creature");
-            else
+            Set<ManaType> deckColorIdentity = deck.stream().flatMap((c) -> c.colorIdentity().stream()).collect(Collectors.toSet());
+            for (String format : FormatConstraints.FORMAT_NAMES)
             {
-                Set<ManaType> deckColorIdentity = new HashSet<>();
-                for (Card c : deck)
-                    deckColorIdentity.addAll(c.colorIdentity());
-                for (Card c : new ArrayList<>(possibleCommanders))
-                    if (!c.colorIdentity().containsAll(deckColorIdentity))
-                        possibleCommanders.remove(c);
-                if (possibleCommanders.isEmpty())
-                    warning = Optional.of("Could not find a legendary creature whose color identity contains " + deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
+                if (FormatConstraints.CONSTRAINTS.get(format).hasCommander)
+                {
+                    var possibleCommanders = commanderSearch.stream().filter((c) -> c.commandFormats().contains(format)).collect(Collectors.toList());
+                    Optional<String> warning = Optional.empty();
+                    if (possibleCommanders.isEmpty())
+                        warning = Optional.of("Could not find a legendary creature");
+                    else
+                    {
+                        for (Card c : new ArrayList<>(possibleCommanders))
+                            if (!c.colorIdentity().containsAll(deckColorIdentity))
+                                possibleCommanders.remove(c);
+                        if (possibleCommanders.isEmpty())
+                            warning = Optional.of("Could not find a legendary creature whose color identity contains " + deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
+                    }
+                    warning.ifPresent(warnings.get(format)::add);
+                }
             }
-            warning.ifPresent((w) -> FormatConstraints.FORMAT_NAMES.stream().filter((f) -> FormatConstraints.CONSTRAINTS.get(f).hasCommander).forEach((f) -> warnings.get(f).add(w)));
         }
 
         // Sideboard size

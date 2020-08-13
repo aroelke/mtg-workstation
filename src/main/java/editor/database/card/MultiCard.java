@@ -48,6 +48,10 @@ public abstract class MultiCard extends Card
      */
     private Lazy<List<ManaType>> colors;
     /**
+     * List of formats this MultiCard can be commander in.
+     */
+    private Lazy<List<String>> commandFormats;
+    /**
      * List of Cards that represent faces.  They should all have exactly one face.
      */
     private List<Card> faces;
@@ -197,6 +201,7 @@ public abstract class MultiCard extends Card
         imageNames = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::imageNames)));
         multiverseid = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::multiverseid)));
         isLand = faces.get(0).isLand();
+        commandFormats = new Lazy<>(() -> collect((c) -> c.commandFormats()).stream().distinct().sorted().collect(Collectors.toList()));
     }
 
     @Override
@@ -244,6 +249,12 @@ public abstract class MultiCard extends Card
     public List<ManaType> colors(int face) throws IndexOutOfBoundsException
     {
         return faces.get(face).colors();
+    }
+
+    @Override
+    public List<String> commandFormats()
+    {
+        return commandFormats.get();
     }
 
     @Override
