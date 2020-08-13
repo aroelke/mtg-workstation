@@ -718,7 +718,7 @@ public class SettingsDialog extends JDialog
             public boolean isCellEditable(int rowIndex, int columnIndex) { return false; }
         });
         formatsTable.setFillsViewportHeight(true);
-        formatsPanel.add(new JScrollPane(formatsTable), BorderLayout.CENTER);
+        formatsPanel.add(new JScrollPane(formatsTable), BorderLayout.NORTH);
 
         // Default options for legality panel
         Box legalityDefaultsBox = Box.createHorizontalBox();
@@ -736,6 +736,15 @@ public class SettingsDialog extends JDialog
         cmdrGroup.add(cmdrList);
         legalityDefaultsBox.add(cmdrList);
         cmdrListName = new JTextField();
+        formatsPanel.add(legalityDefaultsBox, BorderLayout.CENTER);
+        Box sideboardBox = Box.createHorizontalBox();
+        sideboardBox.setBorder(BorderFactory.createEmptyBorder(0, 2, 2, 2));
+        JCheckBox sideCheck = new JCheckBox("Default sideboard name:", true);
+        sideboardBox.add(sideCheck);
+        JTextField sideField = new JTextField();
+        sideboardBox.add(sideField);
+        formatsPanel.add(sideboardBox, BorderLayout.SOUTH);
+
         if (settings.editor.legality.searchForCommander)
         {
             cmdrCheck.setText("Search for commander in:");
@@ -757,7 +766,6 @@ public class SettingsDialog extends JDialog
             cmdrListName.setVisible(false);
         }
         legalityDefaultsBox.add(cmdrListName);
-        formatsPanel.add(legalityDefaultsBox, BorderLayout.SOUTH);
 
         cmdrCheck.addActionListener((e) -> {
             cmdrCheck.setText(cmdrCheck.isSelected() ? "Search for commander in:" : "Search for commander");
