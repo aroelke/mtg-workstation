@@ -340,6 +340,8 @@ public class SettingsDialog extends JDialog
     private JRadioButton cmdrAllLists;
     private JRadioButton cmdrList;
     private JTextField cmdrListName;
+    private JCheckBox sideCheck;
+    private JTextField sideField;
 
     /**
      * Create a new SettingsDialog.
@@ -739,9 +741,12 @@ public class SettingsDialog extends JDialog
         formatsPanel.add(legalityDefaultsBox, BorderLayout.CENTER);
         Box sideboardBox = Box.createHorizontalBox();
         sideboardBox.setBorder(BorderFactory.createEmptyBorder(0, 2, 2, 2));
-        JCheckBox sideCheck = new JCheckBox("Default sideboard name:", true);
+        sideCheck = new JCheckBox("", !settings.editor.legality.sideboard.isEmpty());
+        sideCheck.setText(sideCheck.isSelected() ? "Default sideboard name:" : "Include sideboard");
         sideboardBox.add(sideCheck);
-        JTextField sideField = new JTextField();
+        sideField = new JTextField();
+        sideField.setText(settings.editor.legality.sideboard);
+        sideField.setVisible(sideCheck.isSelected());
         sideboardBox.add(sideField);
         formatsPanel.add(sideboardBox, BorderLayout.SOUTH);
 
@@ -778,6 +783,10 @@ public class SettingsDialog extends JDialog
         cmdrMainDeck.addActionListener(cmdrListener);
         cmdrAllLists.addActionListener(cmdrListener);
         cmdrList.addActionListener(cmdrListener);
+        sideCheck.addActionListener((e) -> {
+            sideCheck.setText(sideCheck.isSelected() ? "Default sideboard name:" : "Include sideboard");
+            sideField.setVisible(sideCheck.isSelected());
+        });
 
         // Tree panel
         JPanel treePanel = new JPanel(new BorderLayout());
@@ -859,6 +868,7 @@ public class SettingsDialog extends JDialog
                 .commanderInMain(cmdrMainDeck.isSelected() || (cmdrCheck.isSelected() && cmdrList.isSelected() && cmdrListName.getText().isEmpty()))
                 .commanderInAll(cmdrAllLists.isSelected())
                 .commanderInList(cmdrListName.getText())
+                .sideboardName(sideCheck.isSelected() ? sideField.getText() : "")
                 .build();
         }
         catch (ParseException e)
