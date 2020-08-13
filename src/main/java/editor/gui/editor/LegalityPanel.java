@@ -154,22 +154,51 @@ public class LegalityPanel extends Box
         add(cmdrPanel);
 
         // Panel containing check box for including a sideboard
-        Optional<JComboBox<String>> sideCombo;
+        final JCheckBox sideCheck;
+        final JComboBox<String> sideCombo;
         if (!editor.getExtraNames().isEmpty())
         {
+            String sb = SettingsDialog.settings().editor.legality.sideboard;
+
             add(Box.createVerticalStrut(2));
             Box sideboardBox = Box.createHorizontalBox();
-            JCheckBox sideCheck = new JCheckBox("", true);
-            sideCheck.setText(sideCheck.isSelected() ? "Sideboard is:" : "Include sideboard");
+            sideCheck = new JCheckBox("", !sb.isEmpty() && editor.getExtraNames().contains(sb));
             sideboardBox.add(sideCheck);
-            sideCombo = Optional.of(new JComboBox<>(editor.getExtraNames().toArray(String[]::new)));
-            sideCombo.get().setMaximumSize(sideCombo.get().getPreferredSize());
-            sideboardBox.add(sideCombo.get());
+            sideCombo = new JComboBox<>(editor.getExtraNames().toArray(String[]::new));
+            sideCombo.setSelectedIndex(Math.max(0, editor.getExtraNames().indexOf(sb)));
+            sideCombo.setMaximumSize(sideCombo.getPreferredSize());
+            sideboardBox.add(sideCombo);
             sideboardBox.add(Box.createHorizontalGlue());
             add(sideboardBox);
         }
         else
-            sideCombo = Optional.empty();
+        {
+            sideCheck = null;
+            sideCombo = null;
+        }
+
+        ActionListener listener = (e) -> {
+            if (!editor.getExtraNames().isEmpty())
+            {
+                sideCheck.setText(sideCheck.isSelected() ? "Sideboard is:" : "Include sideboard");
+                sideCombo.setVisible(sideCheck.isSelected());
+            }
+
+            cmdrCheck.setText("Search for commander" + (cmdrCheck.isSelected() ? " in:" : ""));
+            cmdrBox.setVisible(cmdrCheck.isSelected());
+            checkLegality(editor.getList(EditorFrame.MAIN_DECK), !cmdrCheck.isSelected() ? new Deck() : switch (cmdrBox.getSelectedItem().toString()) {
+                case MAIN_DECK -> editor.getList(EditorFrame.MAIN_DECK);
+                case ALL_LISTS -> editor.getExtraCards();
+                default -> editor.getList(cmdrBox.getSelectedItem().toString());
+            }, !editor.getExtraNames().isEmpty() && sideCheck.isSelected() ? Optional.of(editor.getList(sideCombo.getItemAt(sideCombo.getSelectedIndex()))) : Optional.empty());
+        };
+        if (!editor.getExtraNames().isEmpty())
+        {
+            sideCheck.addActionListener(listener);
+            sideCombo.addActionListener(listener);
+        }
+        cmdrCheck.addActionListener(listener);
+        cmdrBox.addActionListener(listener);
 
         // Panel containing text box that shows why a deck is illegal in a format
         JPanel warningsPanel = new JPanel(new BorderLayout());
@@ -214,19 +243,8 @@ public class LegalityPanel extends Box
                 else
                     warningsList.setListData(new String[0]);
         });
-        ActionListener cmdrListener = (e) -> {
-            cmdrCheck.setText("Search for commander" + (cmdrCheck.isSelected() ? " in:" : ""));
-            cmdrBox.setVisible(cmdrCheck.isSelected());
-            checkLegality(editor.getList(EditorFrame.MAIN_DECK), !cmdrCheck.isSelected() ? new Deck() : switch (cmdrBox.getSelectedItem().toString()) {
-                case MAIN_DECK -> editor.getList(EditorFrame.MAIN_DECK);
-                case ALL_LISTS -> editor.getExtraCards();
-                default -> editor.getList(cmdrBox.getSelectedItem().toString());
-            }, sideCombo.map(s -> editor.getList(s.getItemAt(s.getSelectedIndex()))));
-        };
-        cmdrCheck.addActionListener(cmdrListener);
-        cmdrBox.addActionListener(cmdrListener);
 
-        cmdrListener.actionPerformed(new ActionEvent(cmdrCheck, 0, "", ActionEvent.ACTION_PERFORMED));
+        listener.actionPerformed(new ActionEvent(cmdrCheck, 0, "", ActionEvent.ACTION_PERFORMED));
     }
 
     /**
@@ -310,6 +328,16 @@ public class LegalityPanel extends Box
             }
             warning.ifPresent((w) -> FormatConstraints.FORMAT_NAMES.stream().filter((f) -> FormatConstraints.CONSTRAINTS.get(f).hasCommander).forEach((f) -> warnings.get(f).add(w)));
         }
+
+        // Sideboard size
+        sideboard.ifPresent((sb) -> {
+            for (String format : FormatConstraints.FORMAT_NAMES)
+            {
+                int max = FormatConstraints.CONSTRAINTS.get(format).sideboardSize;
+                if (sb.total() > max)
+                    warnings.get(format).add("Sideboard contains more than " + max + " cards");
+            }
+        });
 
         // Collate the legality lists
         illegal = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
