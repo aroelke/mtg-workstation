@@ -6,7 +6,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,7 +38,6 @@ import editor.database.attributes.ManaType;
 import editor.database.card.Card;
 import editor.database.symbol.ColorSymbol;
 import editor.database.symbol.ManaSymbol;
-import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.gui.generic.ComponentUtils;
 import editor.gui.settings.SettingsDialog;
 import editor.util.UnicodeSymbols;
@@ -93,7 +91,7 @@ public class LegalityPanel extends Box
         super(BoxLayout.Y_AXIS);
         setPreferredSize(new Dimension(400, 250));
 
-        warnings = Arrays.stream(LegalityFilter.formatList).collect(Collectors.toMap(Function.identity(), (l) -> new ArrayList<String>()));
+        warnings = FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), (l) -> new ArrayList<String>()));
 
         // Panel containing format lists
         JPanel listsPanel = new JPanel(new GridLayout(1, 2));
@@ -297,7 +295,7 @@ public class LegalityPanel extends Box
         // Collate the legality lists
         illegal = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
         Collections.sort(illegal);
-        legal = new ArrayList<>(Arrays.asList(LegalityFilter.formatList));
+        legal = new ArrayList<>(FormatConstraints.FORMAT_NAMES);
         legal.removeAll(illegal);
         Collections.sort(legal);
 

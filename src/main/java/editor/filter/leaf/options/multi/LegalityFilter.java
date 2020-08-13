@@ -21,11 +21,6 @@ import editor.filter.Filter;
 public class LegalityFilter extends MultiOptionsFilter<String>
 {
     /**
-     * List of all formats cards can be played in.
-     */
-    public static String[] formatList = {};
-
-    /**
      * Whether or not the card should be restricted in the formats
      * selected.
      */

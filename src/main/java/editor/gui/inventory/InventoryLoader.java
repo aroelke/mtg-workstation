@@ -60,6 +60,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import editor.collection.Inventory;
+import editor.database.FormatConstraints;
 import editor.database.attributes.Expansion;
 import editor.database.attributes.Legality;
 import editor.database.attributes.ManaType;
@@ -72,7 +73,6 @@ import editor.database.card.SingleCard;
 import editor.database.card.SplitCard;
 import editor.database.card.TransformCard;
 import editor.filter.leaf.options.multi.CardTypeFilter;
-import editor.filter.leaf.options.multi.LegalityFilter;
 import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
 import editor.gui.MainFrame;
@@ -578,7 +578,10 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             SupertypeFilter.supertypeList = supertypeSet.stream().sorted().toArray(String[]::new);
             CardTypeFilter.typeList = typeSet.stream().sorted().toArray(String[]::new);
             SubtypeFilter.subtypeList = subtypeSet.stream().sorted().toArray(String[]::new);
-            LegalityFilter.formatList = formatSet.stream().sorted().toArray(String[]::new);
+
+            var missingFormats = formatSet.stream().filter((f) -> !FormatConstraints.FORMAT_NAMES.contains(f)).sorted().collect(Collectors.toList());
+            if (!missingFormats.isEmpty())
+                errors.add("Could not find definitions for the following formats: " + missingFormats.stream().collect(Collectors.joining(", ")));
         }
 
         Inventory inventory = new Inventory(cards);
