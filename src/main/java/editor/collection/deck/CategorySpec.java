@@ -50,7 +50,7 @@ public class CategorySpec
     }
 
     /**
-     * Copy constructor for CategorySpec, except the copy has no listeners.
+     * Copy constructor for CategorySpec.
      *
      * @param original original CategorySpec to copy
      */
@@ -66,11 +66,11 @@ public class CategorySpec
     /**
      * Create a new CategorySpec with the given specifications.
      *
-     * @param name      name of the new spec
+     * @param name name of the new spec
      * @param whitelist whitelist of the new spec
      * @param blacklist blacklist of the new spec
-     * @param color     color of the new spec
-     * @param filter    filter of the new spec
+     * @param color color of the new spec
+     * @param filter filter of the new spec
      */
     public CategorySpec(String name, Collection<Card> whitelist, Collection<Card> blacklist, Color color, Filter filter)
     {
@@ -96,12 +96,11 @@ public class CategorySpec
 
     /**
      * Copy the name, whitelist, blacklist, color, and filter from the given
-     * CategorySpec, discarding those values from this one, alerting any
-     * listeners of this event.
+     * CategorySpec, discarding those values from this one.
      *
      * @param other CategorySpec to copy
-     * @return true if any changes were made to this CategorySpec, and false
-     * otherwise.
+     * @return <code>true</code> if any changes were made to this CategorySpec, and
+     * <code>false</code> otherwise.
      */
     public boolean copy(CategorySpec other)
     {
@@ -214,8 +213,9 @@ public class CategorySpec
      * Include a card in the category, even if it doesn't pass through the filter.
      *
      * @param c card to include
-     * @return true if the Card was successfully included (either it was added to
-     * the whitelist or removed from the blacklist), and false otherwise.
+     * @return <code>true</code> if the Card was successfully included (either it
+     * was added to the whitelist or removed from the blacklist), and <code>false</code>
+     * otherwise.
      */
     public boolean include(Card c)
     {
@@ -232,7 +232,8 @@ public class CategorySpec
      * Check if this CategorySpec's filter includes a card.
      *
      * @param c card to test for inclusion
-     * @return true if this CategorySpec includes the given card, and false otherwise.
+     * @return <code>true</code> if this CategorySpec includes the given card, and
+     * <code>false</code> otherwise.
      */
     public boolean includes(Card c)
     {

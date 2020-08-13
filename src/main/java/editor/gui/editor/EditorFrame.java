@@ -7,7 +7,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
-import java.awt.datatransfer.Transferable;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -24,7 +25,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -45,7 +45,6 @@ import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -58,12 +57,10 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
 import javax.swing.OverlayLayout;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.InternalFrameAdapter;
@@ -81,6 +78,13 @@ import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
+import editor.gui.TableSelectionListener;
+import editor.gui.ccp.CCPItems;
+import editor.gui.ccp.data.CategoryTransferData;
+import editor.gui.ccp.data.DataFlavors;
+import editor.gui.ccp.handler.CategoryTransferHandler;
+import editor.gui.ccp.handler.EditorTableTransferHandler;
+import editor.gui.ccp.handler.EditorFrameTransferHandler;
 import editor.gui.display.CardImagePanel;
 import editor.gui.display.CardTable;
 import editor.gui.display.CardTableModel;
@@ -298,138 +302,6 @@ public class EditorFrame extends JInternalFrame
                     changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
             }
             return changes.toString();
-        }
-    }
-
-    /**
-     * This class represents a transfer handler for transferring cards to and from
-     * a table in the editor frame.
-     *
-     * @author Alec Roelke
-     */
-    private class EditorImportHandler extends TransferHandler
-    {
-        /**
-         * List to make changes to
-         */
-        final protected int id;
-
-        /**
-         * Create a new EditorImportHandler that imports from the given list.
-         *
-         * @param id ID of the list to make changes to
-         */
-        public EditorImportHandler(int id)
-        {
-            super();
-            this.id = id;
-        }
-
-        /**
-         * {@inheritDoc}
-         * Data can only be imported if it is of the card or entry flavors.
-         */
-        @Override
-        public boolean canImport(TransferSupport supp)
-        {
-            return supp.isDataFlavorSupported(CardList.entryFlavor) || supp.isDataFlavorSupported(Card.cardFlavor);
-        }
-
-        /**
-         * {@inheritDoc}
-         * If the data can be imported, copy the cards from the source to the target deck.
-         */
-        @Override
-        public boolean importData(TransferSupport supp)
-        {
-            try
-            {
-                if (!canImport(supp))
-                    return false;
-                else if (supp.isDataFlavorSupported(CardList.entryFlavor))
-                {
-                    @SuppressWarnings("unchecked")
-                    var data = (Map<Card, Integer>)supp.getTransferable().getTransferData(CardList.entryFlavor);
-                    return performAction(() -> {
-                        if (!lists.get(id).current.addAll(data))
-                            throw new CardException(data.keySet(), "unable to copy cards");
-                        updateTables();
-                        return true;
-                    }, () -> {
-                        if (!lists.get(id).current.removeAll(data).equals(data))
-                            throw new CardException(data.keySet(), "unable to undo copy of cards");
-                        updateTables();
-                        return true;
-                    });
-                }
-                else if (supp.isDataFlavorSupported(Card.cardFlavor))
-                {
-                    final var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(Card.cardFlavor)).collect(Collectors.toSet());
-                    return performAction(() -> {
-                        if (!lists.get(id).current.addAll(data))
-                            throw new CardException(data, "unable to copy cards");
-                        updateTables();
-                        return true;
-                    }, () -> {
-                        if (!lists.get(id).current.removeAll(data).equals(data))
-                            throw new CardException(data, "unable to undo copy of cards");
-                        updateTables();
-                        return true;
-                    });
-                }
-                else
-                    return false;
-            }
-            catch (UnsupportedFlavorException | IOException e)
-            {
-                return false;
-            }
-        }
-    }
-
-    /**
-     * This class represents a transfer handler for moving data to and from
-     * a table in the editor.  It can import or export data of the card or
-     * entry flavors.
-     *
-     * @author Alec Roelke
-     */
-    private class EditorTableTransferHandler extends EditorImportHandler
-    {
-        /**
-         * Create a new EditorTableTransferHandler that handles transfers to or from
-         * the main deck or extra lists.
-         *
-         * @param id ID of the list to make changes to
-         */
-        public EditorTableTransferHandler(int id)
-        {
-            super(id);
-        }
-
-        @Override
-        public Transferable createTransferable(JComponent c)
-        {
-            return new Deck.TransferData(lists.get(id).current, parent.getSelectedCards());
-        }
-
-        @Override
-        public void exportDone(JComponent c, Transferable t, int action)
-        {
-            if (action == TransferHandler.MOVE)
-            {
-                lists.get(id).current.removeAll(parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (k) -> Integer.MAX_VALUE)));
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         * Only copying is supported.
-         */
-        @Override
-        public int getSourceActions(JComponent c)
-        {
-            return TransferHandler.COPY;
         }
     }
 
@@ -725,19 +597,14 @@ public class EditorFrame extends JInternalFrame
         deck().model = new CardTableModel(this, deck().current, SettingsDialog.settings().editor.columns);
         deck().table = new CardTable(deck().model);
         deck().table.setStripeColor(SettingsDialog.settings().editor.stripe);
-        // When a card is selected in the master list table, select it for adding
-        deck().table.getSelectionModel().addListSelectionListener((e) -> {
-            if (!e.getValueIsAdjusting())
-            {
-                ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-                if (!lsm.isSelectionEmpty())
-                    parent.setSelectedCards(deck().table, deck().current);
-            }
-        });
+
+        TableSelectionListener listener = new TableSelectionListener(parent, deck().table, deck().current);
+        deck().table.addMouseListener(listener);
+        deck().table.getSelectionModel().addListSelectionListener(listener);
         for (int i = 0; i < deck().table.getColumnCount(); i++)
             if (deck().model.isCellEditable(0, i))
                 deck().table.getColumn(deck().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck().model.getColumnData(i)));
-        deck().table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK));
+        deck().table.setTransferHandler(new EditorTableTransferHandler(this, MAIN_DECK));
         deck().table.setDragEnabled(true);
         deck().table.setDropMode(DropMode.ON);
 
@@ -747,7 +614,9 @@ public class EditorFrame extends JInternalFrame
         mainDeckPanel.add(mainDeckPane, BorderLayout.CENTER);
 
         VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
-        deckButtons.get("+").addActionListener((e) -> addCards(MAIN_DECK, parent.getSelectedCards(), 1));
+        deckButtons.get("+").addActionListener((e) -> {
+            addCards(MAIN_DECK, parent.getSelectedCards(), 1);
+        });
         deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), 1));
         deckButtons.get("X").addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
         mainDeckPanel.add(deckButtons, BorderLayout.WEST);
@@ -786,6 +655,13 @@ public class EditorFrame extends JInternalFrame
         // Main table popup menu
         JPopupMenu tableMenu = new JPopupMenu();
         deck().table.addMouseListener(new TableMouseAdapter(deck().table, tableMenu));
+
+        // Cut, copy, paste
+        CCPItems ccp = new CCPItems(deck().table, true);
+        tableMenu.add(ccp.cut);
+        tableMenu.add(ccp.copy);
+        tableMenu.add(ccp.paste);
+        tableMenu.add(new JSeparator());
 
         // Add/remove cards
         CardMenuItems tableMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, true);
@@ -827,6 +703,10 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, deck().table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            ccp.cut.setEnabled(!parent.getSelectedCards().isEmpty());
+            ccp.copy.setEnabled(!parent.getSelectedCards().isEmpty());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
             tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
             moveToMenu.setVisible(!extras().isEmpty());
             moveAllToMenu.setVisible(!extras().isEmpty());
@@ -838,48 +718,18 @@ public class EditorFrame extends JInternalFrame
 
             moveToMenu.removeAll();
             moveAllToMenu.removeAll();
-            for (final DeckData extra : extras())
+            for (int i = 1; i < lists.size(); i++)
             {
-                JMenuItem moveToItem = new JMenuItem(extra.name.get());
-                moveToItem.addActionListener((e2) -> {
-                    final var selected = Collections.unmodifiableSet(new HashSet<>(parent.getSelectedCards()));
-                    performAction(() -> {
-                        if (!deck().current.removeAll(selected).equals(selected))
-                            throw new CardException(selected, "error moving cards from main deck");
-                        if (!extra.current.addAll(selected))
-                            throw new CardException(selected, "could not move cards to list \"" + extra.name.get() + '"');
-                        updateTables();
-                        return true;
-                    }, () -> {
-                        if (!deck().current.addAll(selected))
-                            throw new CardException(selected, "could not undo move from main deck");
-                        if (!extra.current.removeAll(selected).equals(selected))
-                            throw new CardException(selected, "error undoing move to list \"" + extra.name.get() + '"');
-                        updateTables();
-                        return true;
-                    });
-                });
-                moveToMenu.add(moveToItem);
-                JMenuItem moveAllToItem = new JMenuItem(extra.name.get());
-                moveAllToItem.addActionListener((e2) -> {
-                    final var moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck().current.getEntry(c).count()));
-                    performAction(() -> {
-                        if (!deck().current.removeAll(moves).equals(moves))
-                            throw new CardException(moves.keySet(), "error moving cards from main deck");
-                        if (!extra.current.addAll(moves))
-                            throw new CardException(moves.keySet(), "could not move cards to list \"" + extra.name.get() + '"');
-                        updateTables();
-                        return true;
-                    }, () -> {
-                        if (!deck().current.addAll(moves))
-                            throw new CardException(moves.keySet(), "could not undo move from main deck");
-                        if (!extra.current.removeAll(moves).equals(moves))
-                            throw new CardException(moves.keySet(), "error undoing move to list \"" + extra.name.get() + '"');
-                        updateTables();
-                        return true;
-                    });
-                });
-                moveAllToMenu.add(moveAllToItem);
+                if (lists.get(i) != null)
+                {
+                    final int id = i;
+                    JMenuItem moveToItem = new JMenuItem(lists.get(i).name.get());
+                    moveToItem.addActionListener((e2) -> moveCards(MAIN_DECK, id, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))));
+                    moveToMenu.add(moveToItem);
+                    JMenuItem moveAllToItem = new JMenuItem(lists.get(i).name.get());
+                    moveAllToItem.addActionListener((e2) -> moveCards(MAIN_DECK, id, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> deck().current.getEntry(c).count()))));
+                    moveAllToMenu.add(moveAllToItem);
+                }
             }
         }));
 
@@ -921,7 +771,7 @@ public class EditorFrame extends JInternalFrame
         switchCategoryBox.addActionListener((e) -> {
             if (switchCategoryBox.isPopupVisible())
             {
-                getCategory(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex())).ifPresent((c) -> {
+                getCategoryPanel(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex())).ifPresent((c) -> {
                     c.scrollRectToVisible(new Rectangle(c.getSize()));
                     c.flash();
                 });
@@ -940,7 +790,34 @@ public class EditorFrame extends JInternalFrame
         // The category panel is a vertically-scrollable panel that contains all categories stacked vertically
         // The categories should have a constant height, but fit the container horizontally
         categoriesSuperContainer.add(categoriesContainer, BorderLayout.NORTH);
-        categoriesMainPanel.add(new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+        JScrollPane categoriesPane = new JScrollPane(categoriesSuperContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        categoriesMainPanel.add(categoriesPane, BorderLayout.CENTER);
+
+        // Transfer handler for the category box
+        // We explicitly use null here to cause exceptions if cutting or copying, as that should never happen
+        categoriesPane.setTransferHandler(new CategoryTransferHandler(null, (c) -> containsCategory(c.getName()), this::addCategory, null));
+
+        // Popup menu for category container
+        JPopupMenu categoriesMenu = new JPopupMenu();
+        CCPItems categoriesCCP = new CCPItems(categoriesPane, false);
+        categoriesCCP.paste.setText("Paste Category");
+        categoriesMenu.add(categoriesCCP.paste);
+        categoriesMenu.add(new JSeparator());
+        JMenuItem categoriesCreateItem = new JMenuItem("Add Category...");
+        categoriesCreateItem.addActionListener((e) -> createCategory().ifPresent(this::addCategory));
+        categoriesMenu.add(categoriesCreateItem);
+        categoriesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            try
+            {
+                categoriesCCP.paste.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).spec.getName()));
+            }
+            catch (UnsupportedFlavorException | IOException x)
+            {
+                categoriesCCP.paste.setEnabled(false);
+            }
+        }));
+        categoriesPane.setComponentPopupMenu(categoriesMenu);
 
         VerticalButtonList categoryButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         categoryButtons.get("+").addActionListener((e) -> addCards(MAIN_DECK, parent.getSelectedCards(), 1));
@@ -1095,7 +972,7 @@ public class EditorFrame extends JInternalFrame
 
         changelogArea.setText(manager.changelog());
 
-        setTransferHandler(new EditorImportHandler(MAIN_DECK));
+        setTransferHandler(new EditorFrameTransferHandler(this, MAIN_DECK));
 
         for (CategorySpec spec: deck().current.categories())
             categoryPanels.add(createCategoryPanel(spec));
@@ -1119,6 +996,7 @@ public class EditorFrame extends JInternalFrame
             {
                 final int id = lists.size();
                 performAction(() -> createExtra("Sideboard " + id, id, last), () -> deleteExtra(id, last));
+                parent.setSelectedComponents(lists.get(id).table, lists.get(id).current);
             }
         };
         extrasPane.addMouseListener(MouseListenerFactory.createPressListener(addSideboard));
@@ -1280,11 +1158,9 @@ public class EditorFrame extends JInternalFrame
     {
         final CategoryPanel newCategory = new CategoryPanel(deck().current, spec.getName(), this);
         // When a card is selected in a category, the others should deselect
-        newCategory.table.getSelectionModel().addListSelectionListener((e) -> {
-            ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-            if (!lsm.isSelectionEmpty() && !e.getValueIsAdjusting())
-                parent.setSelectedCards(newCategory.table, deck().current.getCategoryList(newCategory.getCategoryName()));
-        });
+        TableSelectionListener listener = new TableSelectionListener(parent, newCategory.table, deck().current.getCategoryList(newCategory.getCategoryName()));
+        newCategory.table.addMouseListener(listener);
+        newCategory.table.getSelectionModel().addListSelectionListener(listener);
         // Add the behavior for the edit category button
         newCategory.editButton.addActionListener((e) -> editCategory(newCategory.getCategoryName()));
         // Add the behavior for the remove category button
@@ -1356,14 +1232,22 @@ public class EditorFrame extends JInternalFrame
             }
         });
 
-        newCategory.table.setTransferHandler(new EditorTableTransferHandler(MAIN_DECK));
+        newCategory.table.setTransferHandler(new EditorTableTransferHandler(this, MAIN_DECK));
         newCategory.table.setDragEnabled(true);
+        newCategory.table.setDropMode(DropMode.ON);
 
         // Add the behavior for clicking on the category's table
         // Table popup menu
         JPopupMenu tableMenu = new JPopupMenu();
         newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 
+        // Cut, copy, paste
+        CCPItems cardCCP = new CCPItems(deck().table, true);
+        tableMenu.add(cardCCP.cut);
+        tableMenu.add(cardCCP.copy);
+        tableMenu.add(cardCCP.paste);
+        tableMenu.add(new JSeparator());
+        
         CardMenuItems tableMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, true);
         tableMenuCardItems.addAddItems(tableMenu);
         tableMenu.add(new JSeparator());
@@ -1401,30 +1285,36 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, newCategory.table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            cardCCP.cut.setEnabled(!parent.getSelectedCards().isEmpty());
+            cardCCP.copy.setEnabled(!parent.getSelectedCards().isEmpty());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            cardCCP.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+
             removeFromCategoryItem.setText("Exclude from " + newCategory.getCategoryName());
             tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
             editTagsItem.setEnabled(!parent.getSelectedCards().isEmpty());
         }));
 
-        
+        newCategory.setTransferHandler(new CategoryTransferHandler(
+            () -> getCategory(newCategory.getCategoryName()),
+            (c) -> containsCategory(c.getName()),
+            this::addCategory,
+            (c) -> removeCategory(c.getName())
+        ));
+
         // Category popup menu
         JPopupMenu categoryMenu = new JPopupMenu();
         newCategory.setComponentPopupMenu(categoryMenu);
 
-        // Cut item
-        JMenuItem cutItem = new JMenuItem("Cut");
-        cutItem.setEnabled(false);
-        categoryMenu.add(cutItem);
-
-        // Copy item
-        JMenuItem copyItem = new JMenuItem("Copy");
-        copyItem.setEnabled(false);
-        categoryMenu.add(copyItem);
-
-        // Paste item
-        JMenuItem pasteItem = new JMenuItem("Paste");
-        pasteItem.setEnabled(false);
-        categoryMenu.add(pasteItem);
+        // Cut, copy, paste
+        CCPItems categoryCCP = new CCPItems(newCategory, false);
+        categoryCCP.cut.setText("Cut Category");
+        categoryMenu.add(categoryCCP.cut);
+        categoryCCP.copy.setText("Copy Category");
+        categoryMenu.add(categoryCCP.copy);
+        categoryCCP.paste.setText("Paste Category");
+        categoryMenu.add(categoryCCP.paste);
+        categoryMenu.add(new JSeparator());
 
         // Edit item
         JMenuItem editItem = new JMenuItem("Edit...");
@@ -1440,21 +1330,24 @@ public class EditorFrame extends JInternalFrame
         JMenuItem addPresetItem = new JMenuItem("Add to presets");
         addPresetItem.addActionListener((e) -> {
             CategorySpec s = deck().current.getCategorySpec(newCategory.getCategoryName());
-            if (!s.getWhitelist().isEmpty() || !s.getBlacklist().isEmpty())
-            {
-                if (JOptionPane.showConfirmDialog(this,
-                        "Category "
-                                + s.getName()
-                                + " contains cards in its whitelist or blacklist which will not be included in the preset category."
-                                + "  Make this category a preset category?",
-                        "Add to Presets",
-                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-                    parent.addPreset(s);
-            }
-            else
-                parent.addPreset(s);
+            parent.addPreset(s);
         });
         categoryMenu.add(addPresetItem);
+
+        categoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            try
+            {
+                categoryCCP.paste.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).spec.getName()));
+            }
+            catch (UnsupportedFlavorException | IOException x)
+            {
+                // Technically using exceptions as control flow (as with unsupported flavors here) is bad
+                // programming practice, but since the exception has to be caught here anyway it reduces
+                // code size
+                categoryCCP.paste.setEnabled(false);
+            }
+        }));
 
         newCategory.table.addMouseListener(new TableMouseAdapter(newCategory.table, tableMenu));
 
@@ -1488,7 +1381,7 @@ public class EditorFrame extends JInternalFrame
             lists.set(id, newExtra);
 
             final EditablePanel panel = new EditablePanel(name, extrasPane);
-            extrasPane.insertTab(name, null, initExtraList(id, newExtra), null, index);
+            extrasPane.insertTab(name, null, initExtraList(id), null, index);
             extrasPane.setTabComponentAt(index, panel);
             extrasPane.setSelectedIndex(index);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
@@ -1637,7 +1530,7 @@ public class EditorFrame extends JInternalFrame
     {
         deck().current.removeCategory(spec);
 
-        categoryPanels.remove(getCategory(spec.getName()).get());
+        categoryPanels.remove(getCategoryPanel(spec.getName()).get());
         for (CategoryPanel panel : categoryPanels)
             panel.rankBox.removeItemAt(categoryPanels.size());
 
@@ -1667,7 +1560,7 @@ public class EditorFrame extends JInternalFrame
             return performAction(() -> {
                 if (!deck().current.updateCategory(old.getName(), s).equals(old))
                     throw new RuntimeException("edited unexpected category");
-                CategoryPanel panel = getCategory(old.getName()).get();
+                CategoryPanel panel = getCategoryPanel(old.getName()).get();
                 panel.setCategoryName(s.getName());
                 ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
                 updateCategoryPanel();
@@ -1675,7 +1568,7 @@ public class EditorFrame extends JInternalFrame
             }, () -> {
                 if (!deck().current.updateCategory(s.getName(), old).equals(s))
                     throw new RuntimeException("restored from unexpected category");
-                CategoryPanel panel = getCategory(s.getName()).get();
+                CategoryPanel panel = getCategoryPanel(s.getName()).get();
                 panel.setCategoryName(old.getName());
                 ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
                 updateCategoryPanel();
@@ -1920,13 +1813,23 @@ public class EditorFrame extends JInternalFrame
         return deck().current.categories();
     }
 
+    public boolean containsCategory(String name)
+    {
+        return deck().current.containsCategory(name);
+    }
+
+    public CategorySpec getCategory(String name) throws IllegalArgumentException
+    {
+        return deck().current.getCategorySpec(name);
+    }
+
     /**
      * Get the panel for the category with the specified name in the deck.
      *
      * @param name name of the category to search for
      * @return the panel for the category with the specified name, if there is none.
      */
-    private Optional<CategoryPanel> getCategory(String name)
+    private Optional<CategoryPanel> getCategoryPanel(String name)
     {
         return categoryPanels.stream().filter((c) -> c.getCategoryName().equals(name)).findAny();
     }
@@ -2037,14 +1940,13 @@ public class EditorFrame extends JInternalFrame
      * extra list.
      * 
      * @param id ID of the new extra list
-     * @param extra data containing cards in the extra list
      * @return the pane that contains the table showing the extra list
      */
-    public JScrollPane initExtraList(final int id, DeckData extra)
+    public JScrollPane initExtraList(final int id)
     {
         // Extra list's models
-        extra.model = new CardTableModel(this, extra.current, SettingsDialog.settings().editor.columns);
-        extra.table = new CardTable(extra.model)
+        lists.get(id).model = new CardTableModel(this, lists.get(id).current, SettingsDialog.settings().editor.columns);
+        lists.get(id).table = new CardTable(lists.get(id).model)
         {
             @Override
             public Dimension getPreferredScrollableViewportSize()
@@ -2053,29 +1955,31 @@ public class EditorFrame extends JInternalFrame
                 return new Dimension(s.width, getRowHeight() * 5);
             }
         };
-        extra.table.setStripeColor(SettingsDialog.settings().editor.stripe);
+        lists.get(id).table.setStripeColor(SettingsDialog.settings().editor.stripe);
         // When a card is selected in a sideboard table, select it for adding
-        extra.table.getSelectionModel().addListSelectionListener((e) -> {
-            if (!e.getValueIsAdjusting())
-            {
-                ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-                if (!lsm.isSelectionEmpty())
-                    parent.setSelectedCards(extra.table, extra.current);
-            }
-        });
-        for (int i = 0; i < extra.table.getColumnCount(); i++)
-            if (extra.model.isCellEditable(0, i))
-                extra.table.getColumn(extra.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, extra.model.getColumnData(i)));
-        extra.table.setTransferHandler(new EditorTableTransferHandler(id));
-        extra.table.setDragEnabled(true);
-        extra.table.setDropMode(DropMode.ON);
+        TableSelectionListener listener = new TableSelectionListener(parent, lists.get(id).table, lists.get(id).current);
+        lists.get(id).table.addMouseListener(listener);
+        lists.get(id).table.getSelectionModel().addListSelectionListener(listener);
+        for (int i = 0; i < lists.get(id).table.getColumnCount(); i++)
+            if (lists.get(id).model.isCellEditable(0, i))
+                lists.get(id).table.getColumn(lists.get(id).model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, lists.get(id).model.getColumnData(i)));
+        lists.get(id).table.setTransferHandler(new EditorTableTransferHandler(this, id));
+        lists.get(id).table.setDragEnabled(true);
+        lists.get(id).table.setDropMode(DropMode.ON);
 
-        JScrollPane sideboardPane = new JScrollPane(extra.table);
+        JScrollPane sideboardPane = new JScrollPane(lists.get(id).table);
         sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 
         // Extra list's table menu
         JPopupMenu extraMenu = new JPopupMenu();
-        extra.table.addMouseListener(new TableMouseAdapter(extra.table, extraMenu));
+        lists.get(id).table.addMouseListener(new TableMouseAdapter(lists.get(id).table, extraMenu));
+
+        // Cut, copy, paste
+        CCPItems ccp = new CCPItems(() -> lists.get(id).table, true);
+        extraMenu.add(ccp.cut);
+        extraMenu.add(ccp.copy);
+        extraMenu.add(ccp.paste);
+        extraMenu.add(new JSeparator());
 
         // Add/remove cards from sideboard
         CardMenuItems sideboardMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, false);
@@ -2086,52 +1990,10 @@ public class EditorFrame extends JInternalFrame
 
         // Move cards to main deck
         JMenuItem moveToMainItem = new JMenuItem("Move to Main Deck");
-        moveToMainItem.addActionListener((e) -> {
-            final Set<Card> selected = new HashSet<>(parent.getSelectedCards());
-            performAction(() -> {
-                if (!lists.get(id).current.removeAll(selected).equals(selected))
-                    throw new CardException(selected, "error moving cards from list ID " + id);
-                if (!deck().current.addAll(selected))
-                    throw new CardException(selected, "could not move cards to main deck");
-                updateTables();
-                return true;
-            }, () -> {
-                if (!lists.get(id).current.addAll(selected))
-                    throw new CardException(selected, "could not undo move from list ID " + id);
-                if (!deck().current.removeAll(selected).equals(selected))
-                    throw new CardException(selected, "error moving cards to main deck");
-                updateTables();
-                return true;
-            });
-        });
+        moveToMainItem.addActionListener((e) -> moveCards(id, MAIN_DECK, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> 1))));
         extraMenu.add(moveToMainItem);
         JMenuItem moveAllToMainItem = new JMenuItem("Move All to Main Deck");
-        moveAllToMainItem.addActionListener((e) -> {
-            final Map<Card, Integer> moves = parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> extra.current.getEntry(c).count()));
-            performAction(() -> {
-                for (Map.Entry<Card, Integer> move : moves.entrySet())
-                {
-                    final int actual = lists.get(id).current.remove(move.getKey(), move.getValue());
-                    if (actual != move.getValue())
-                        throw new CardException(move.getKey(), String.format("could only remove %d/%d copies from list ID %d", actual, move.getValue(), id));
-                    if (!deck().current.add(move.getKey(), move.getValue()))
-                        throw new CardException(move.getKey(), String.format("could not add %d copies to main deck", move.getValue()));
-                }
-                updateTables();
-                return true;
-            }, () -> {
-                for (Map.Entry<Card, Integer> move : moves.entrySet())
-                {
-                    if (!lists.get(id).current.add(move.getKey(), move.getValue()))
-                        throw new CardException(move.getKey(), String.format("could undo removal of %d copies to list ID %d", move.getValue(), id));
-                    int actual = deck().current.remove(move.getKey(), move.getValue());
-                    if (actual != move.getValue())
-                        throw new CardException(move.getKey(), String.format("could only undo addition of %d/%d copies to main deck", actual, move.getValue()));
-                }
-                updateTables();
-                return true;
-            });
-        });
+        moveAllToMainItem.addActionListener((e) -> moveCards(id, MAIN_DECK, parent.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (c) -> lists.get(id).current.getEntry(c).count()))));
         extraMenu.add(moveAllToMainItem);
         extraMenu.add(new JSeparator());
 
@@ -2139,6 +2001,13 @@ public class EditorFrame extends JInternalFrame
         JMenuItem sBeditTagsItem = new JMenuItem("Edit Tags...");
         sBeditTagsItem.addActionListener((e) -> CardTagPanel.editTags(parent.getSelectedCards(), parent));
         extraMenu.add(sBeditTagsItem);
+
+        extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            ccp.cut.setEnabled(!parent.getSelectedCards().isEmpty());
+            ccp.copy.setEnabled(!parent.getSelectedCards().isEmpty());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+        }));
 
         return sideboardPane;
     }
@@ -2161,6 +2030,7 @@ public class EditorFrame extends JInternalFrame
         {
             var capped = changes.entrySet().stream().collect(Collectors.toMap(Map.Entry<Card, Integer>::getKey, (e) -> Math.max(e.getValue(), -lists.get(id).current.getEntry(e.getKey()).count())));
             return performAction(() -> {
+                var selected = parent.getSelectedCards();
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
                         return lists.get(id).current.remove(e.getKey(), -e.getValue()) > 0;
@@ -2170,9 +2040,10 @@ public class EditorFrame extends JInternalFrame
                         return false;
                 }).reduce(false, (a, b) -> a || b);
                 if (changed)
-                    updateTables();
+                    updateTables(selected);
                 return changed;
             }, () -> {
+                var selected = parent.getSelectedCards();
                 boolean changed = capped.entrySet().stream().map((e) -> {
                     if (e.getValue() < 0)
                         return lists.get(id).current.add(e.getKey(), -e.getValue());
@@ -2182,7 +2053,7 @@ public class EditorFrame extends JInternalFrame
                         return false;
                 }).reduce(false, (a, b) -> a || b);
                 if (changed)
-                    updateTables();
+                    updateTables(selected);
                 return changed;
             });
         }
@@ -2255,6 +2126,52 @@ public class EditorFrame extends JInternalFrame
                 return true;
             });
         }
+    }
+
+    /**
+     * Move cards between lists.
+     * 
+     * @param from ID of the list to move from
+     * @param to ID of the list to move to
+     * @param moves Cards and amounts to move
+     * @return <code>true</code> if the cards were successfully moved and <code>false</code> otherwise.
+     */
+    public boolean moveCards(final int from, final int to, final Map<Card, Integer> moves)
+    {
+        if (lists.get(from) == null)
+            throw new ArrayIndexOutOfBoundsException(from);
+        if (lists.get(to) == null)
+            throw new ArrayIndexOutOfBoundsException(to);
+
+        return performAction(() -> {
+            var selected = parent.getSelectedCards();
+            boolean preserve = parent.getSelectedTable().filter((t) -> t == lists.get(from).table).isPresent() &&
+                               moves.entrySet().stream().allMatch((e) -> lists.get(from).current.getEntry(e.getKey()).count() == e.getValue());
+            if (!lists.get(from).current.removeAll(moves).equals(moves))
+                throw new CardException(moves.keySet(), "error moving cards from list " + from);
+            if (!lists.get(to).current.addAll(moves))
+                throw new CardException(moves.keySet(), "could not move cards to list " + to);
+            if (preserve)
+                parent.setSelectedComponents(lists.get(to).table, lists.get(to).current);
+            updateTables(selected);
+            if (preserve)
+                lists.get(to).table.scrollRectToVisible(lists.get(to).table.getCellRect(lists.get(to).table.getSelectedRow(), 0, true));
+            return true;
+        }, () -> {
+            var selected = parent.getSelectedCards();
+            boolean preserve = parent.getSelectedTable().filter((t) -> t == lists.get(to).table).isPresent() &&
+                               moves.entrySet().stream().allMatch((e) -> lists.get(to).current.getEntry(e.getKey()).count() == e.getValue());
+            if (!lists.get(from).current.addAll(moves))
+                throw new CardException(moves.keySet(), "could not undo move from list " + from);
+            if (!lists.get(to).current.removeAll(moves).equals(moves))
+                throw new CardException(moves.keySet(), "error undoing move to list " + to);
+            if (preserve)
+                parent.setSelectedComponents(lists.get(from).table, lists.get(from).current);
+            updateTables(selected);
+            if (preserve)
+                lists.get(from).table.scrollRectToVisible(lists.get(from).table.getCellRect(lists.get(from).table.getSelectedRow(), 0, true));
+            return true;
+        });
     }
 
     /**
@@ -2496,7 +2413,7 @@ public class EditorFrame extends JInternalFrame
             categories.sort((a, b) -> sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()).compare(deck().current, a, b));
 
             for (CategorySpec c : categories)
-                categoriesContainer.add(getCategory(c.getName()).get());
+                categoriesContainer.add(getCategoryPanel(c.getName()).get());
             for (CategorySpec c : categories)
                 switchCategoryModel.addElement(c.getName());
         }
@@ -2542,29 +2459,30 @@ public class EditorFrame extends JInternalFrame
     /**
      * Update all of the tables and components with the contents of the cards in the
      * deck.
+     * 
+     * @param selected list of selected cards from <b>before</b> the change to the deck was made
      */
-    public void updateTables()
+    private void updateTables(Collection<Card> selected)
     {
         updateStats();
         parent.updateCardsInDeck();
         lists.stream().filter((l) -> l != null).forEach((l) -> l.model.fireTableDataChanged());
         for (CategoryPanel c : categoryPanels)
             ((AbstractTableModel)c.table.getModel()).fireTableDataChanged();
-        for (Card c : parent.getSelectedCards())
-        {
-            parent.getSelectedList().ifPresent((l) -> {
-                if (l.contains(c))
-                {
-                    int row = parent.getSelectedTable().get().convertRowIndexToView(l.indexOf(c));
-                    parent.getSelectedTable().get().addRowSelectionInterval(row, row);
-                }
-            });
-        }
         parent.getSelectedTable().ifPresent((t) -> {
-            if (t.isEditing())
-                t.getCellEditor().cancelCellEditing();
+            parent.getSelectedList().ifPresent((l) -> {
+                for (Card c : selected)
+                {
+                    if (l.contains(c))
+                    {
+                        int row = t.convertRowIndexToView(l.indexOf(c));
+                        t.addRowSelectionInterval(row, row);
+                    }
+                }
+                if (t.isEditing())
+                    t.getCellEditor().cancelCellEditing();
+            });
         });
-
         hand.refresh();
         handCalculations.update();
     }

@@ -1,6 +1,5 @@
 package editor.database.card;
 
-import java.awt.datatransfer.DataFlavor;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,10 +40,6 @@ import editor.util.UnicodeSymbols;
  */
 public abstract class Card
 {
-    /**
-     * DataFlavor representing cards being transferred.
-     */
-    public static final DataFlavor cardFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Card[].class.getName() + "\"", "Card Array");
     /**
      * Separator string between characteristics of a multi-face card.
      */

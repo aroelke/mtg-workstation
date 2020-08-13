@@ -1,6 +1,10 @@
 package editor.gui.display;
 
+import java.awt.Component;
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,11 +13,18 @@ import java.util.Optional;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.card.Card;
+import editor.gui.ccp.CCPItems;
+import editor.gui.ccp.data.DataFlavors;
+import editor.gui.ccp.handler.CategoryTransferHandler;
 import editor.gui.editor.CategoryEditorPanel;
 import editor.util.MouseListenerFactory;
+import editor.util.PopupMenuListenerFactory;
 
 /**
  * This class represents an element that can display a list of {@link CategorySpec}s.
@@ -77,6 +88,11 @@ public class CategoryList extends JList<String>
      * Model for how to display categories.
      */
     private CategoryListModel model;
+    /**
+     * Whether or not the popup menu was triggered by the mouse (some keyboards
+     * have keys to open the context menu).
+     */
+    private boolean mouseTriggeredPopup;
 
     /**
      * Create a new empty CategoryList.
@@ -104,6 +120,57 @@ public class CategoryList extends JList<String>
                 });
             }));
         }
+
+        setTransferHandler(new CategoryTransferHandler(
+            () -> {
+                int row = getSelectedIndex();
+                if (row < 0 || row >= categories.size())
+                    return null;
+                else
+                    return categories.get(row);
+            },
+            (c) -> false, // Duplicate categories are allowed
+            (c) -> {
+                int row = getSelectedIndex();
+                if (row < 0 || row >= categories.size())
+                    addCategory(c);
+                else
+                {
+                    categories.add(row, c);
+                    model.add(row, c.getName());
+                }
+                return true;
+            },
+            (c) -> removeCategoryAt(categories.indexOf(c))
+        ));
+
+        // Popup menu for copying and pasting categories
+        mouseTriggeredPopup = false;
+        JPopupMenu menu = new JPopupMenu() {
+            @Override
+            public void show(Component invoker, int x, int y) {
+                if (mouseTriggeredPopup)
+                {
+                    int row = locationToIndex(new Point(x, y));
+                    if (row >= 0)
+                        setSelectedIndex(row);
+                    else
+                        clearSelection();
+                }
+                super.show(invoker, x, y);
+            }
+        };
+        setComponentPopupMenu(menu);
+
+        CCPItems ccp = new CCPItems(this, true);
+        menu.add(ccp.cut);
+        menu.add(ccp.copy);
+        menu.add(ccp.paste);
+
+        menu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.categoryFlavor));
+        }));
     }
 
     /**
@@ -127,8 +194,32 @@ public class CategoryList extends JList<String>
     public CategoryList(String h, List<CategorySpec> c)
     {
         this(h);
-
         categories.addAll(c);
+    }
+
+    /**
+     * If the category specification contains explicitly included or excluded cards,
+     * warn the user that they will be removed before being added to this list.
+     * 
+     * @param spec specification to check
+     * @return <code>true</code> if the specification has no explicitly-included or
+     * -excluded cards or if it does and the user selects to add it anyway, and
+     * <code>false</code> otherwise.
+     */
+    private boolean confirmListClean(CategorySpec spec)
+    {
+        if (!spec.getWhitelist().isEmpty() || !spec.getBlacklist().isEmpty())
+        {
+            return JOptionPane.showConfirmDialog(this,
+                "Category "
+                        + spec.getName()
+                        + " contains cards in its whitelist or blacklist which will not be included in the preset category."
+                        + "  Continue?",
+                "Add to Presets",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+        }
+        else
+            return true;
     }
 
     /**
@@ -138,8 +229,16 @@ public class CategoryList extends JList<String>
      */
     public void addCategory(CategorySpec c)
     {
-        categories.add(c);
-        model.addElement(c.getName());
+        if (confirmListClean(c))
+        {
+            CategorySpec copy = new CategorySpec(c);
+            for (final Card card : copy.getBlacklist())
+                copy.include(card);
+            for (final Card card : copy.getWhitelist())
+                copy.exclude(card);
+            categories.add(copy);
+            model.addElement(copy.getName());
+        }
     }
 
     /**
@@ -183,7 +282,7 @@ public class CategoryList extends JList<String>
     /**
      * Remove the {@link CategorySpec} at a particular index.
      *
-     * @param index Index to remove the CategorySpec at
+     * @param index index to remove the CategorySpec at
      */
     public void removeCategoryAt(int index)
     {
@@ -195,11 +294,26 @@ public class CategoryList extends JList<String>
      * Set the {@link CategorySpec} at a particular position in the list.
      *
      * @param index index to set
-     * @param c     {@link CategorySpec} to display
+     * @param c {@link CategorySpec} to display
      */
     public void setCategoryAt(int index, CategorySpec c)
     {
-        categories.set(index, c);
-        model.setElementAt(c.getName(), index);
+        if (confirmListClean(c))
+        {
+            CategorySpec copy = new CategorySpec(c);
+            for (final Card card : copy.getBlacklist())
+                copy.include(card);
+            for (final Card card : copy.getWhitelist())
+                copy.exclude(card);;
+            categories.set(index, copy);
+            model.setElementAt(copy.getName(), index);
+        }
+    }
+
+    @Override
+    public Point getPopupLocation(MouseEvent event)
+    {
+        mouseTriggeredPopup = event != null;
+        return super.getPopupLocation(event);
     }
 }

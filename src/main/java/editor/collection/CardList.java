@@ -1,6 +1,5 @@
 package editor.collection;
 
-import java.awt.datatransfer.DataFlavor;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
@@ -109,12 +108,6 @@ public interface CardList extends Iterable<Card>
             };
         }
     }
-
-    /**
-     * Data flavor representing entries in a deck.  Transfer data will appear as a
-     * map of cards onto an integer representing the number of copies to transfer.
-     */
-    DataFlavor entryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Map.class.getName() + "\"", "Deck Entries");
 
     /**
      * Add one copy of a Card to this CardList (optional operation).
