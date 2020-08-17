@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -73,6 +74,7 @@ import editor.database.card.MeldCard;
 import editor.database.card.SingleCard;
 import editor.database.card.SplitCard;
 import editor.database.card.TransformCard;
+import editor.database.version.DatabaseVersion;
 import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.filter.leaf.options.multi.SubtypeFilter;
 import editor.filter.leaf.options.multi.SupertypeFilter;
@@ -87,6 +89,8 @@ import editor.gui.settings.SettingsDialog;
  */
 public class InventoryLoader extends SwingWorker<Inventory, String>
 {
+    private static final DatabaseVersion VER_5_0_0 = new DatabaseVersion(5, 0, 0);
+
     /**
      * Load the inventory into memory from disk. Display a dialog indicating showing progress
      * and allowing cancellation.
@@ -279,6 +283,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
         var cards = new ArrayList<Card>();
         var faces = new HashMap<Card, List<String>>();
+        var melds = new HashMap<Card, List<String>>();
         var expansions = new HashSet<Expansion>();
         var blockNames = new HashSet<String>();
         var supertypeSet = new HashSet<String>();
@@ -290,16 +295,33 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
         {
             publish("Parsing " + file.getName() + "...");
+
             JsonObject root = new JsonParser().parse(reader).getAsJsonObject();
+            DatabaseVersion version = root.has("meta") ?
+                new DatabaseVersion(root.get("meta").getAsJsonObject().get("version").getAsString()) :
+                new DatabaseVersion(0, 0, 0); // Anything less than 5.0.0 will do for pre-5.0.0 databases
+            System.out.println(version);
+
+            var entries = (version.compareTo(VER_5_0_0) < 0 ? root : root.get("data").getAsJsonObject()).entrySet();
             int numCards = 0;
-            for (var setNode : root.entrySet())
-                for (JsonElement card : setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray())
-                    if (card.getAsJsonObject().has("multiverseId"))
-                        numCards++;
+            if (version.compareTo(VER_5_0_0) < 0)
+            {
+                for (var setNode : entries)
+                    for (JsonElement card : setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray())
+                        if (card.getAsJsonObject().has("multiverseId"))
+                            numCards++;
+            }
+            else
+            {
+                for (var setNode : entries)
+                    for (JsonElement card : setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray())
+                        if (card.getAsJsonObject().get("identifiers").getAsJsonObject().has("multiverseId"))
+                            numCards++;
+            }
 
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
-            for (var setNode : root.entrySet())
+            for (var setNode : entries)
             {
                 if (isCancelled())
                 {
@@ -336,12 +358,12 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     JsonObject card = cardElement.getAsJsonObject();
 
                     // Card's multiverseid.  Skip cards that aren't in gatherer
-                    long multiverseid = Optional.ofNullable(card.get("multiverseId")).map(JsonElement::getAsLong).orElse(-1L);
+                    long multiverseid = Optional.ofNullable(version.compareTo(VER_5_0_0) < 0 ? card.get("multiverseId") : card.get("identifiers").getAsJsonObject().get("multiverseId")).map(JsonElement::getAsLong).orElse(-1L);
                     if (multiverseid < 0)
                         continue;
 
                     // Card's name
-                    String name = card.get("name").getAsString();
+                    String name = card.get(card.has("faceName") ? "faceName" : "name").getAsString();
 
                     // If the card is a token, skip it
                     CardLayout layout;
@@ -362,8 +384,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                             .map(Map.Entry::getKey)
                             .sorted()
                             .collect(Collectors.toList());
-                    if (!commandFormats.isEmpty())
-                        System.out.println(name + ": " + commandFormats);
 
                     Card c = new SingleCard(
                         layout,
@@ -451,10 +471,17 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     // Add to map of faces if the card has multiple faces
                     if (layout.isMultiFaced)
                     {
-                        var names = new ArrayList<String>();
-                        for (JsonElement e : card.get("names").getAsJsonArray())
-                            names.add(e.getAsString());
-                        faces.put(c, names);
+                        if (version.compareTo(VER_5_0_0) < 0)
+                        {
+                            var names = new ArrayList<String>();
+                            for (JsonElement e : card.get("names").getAsJsonArray())
+                                names.add(e.getAsString());
+                            faces.put(c, names);
+                        }
+                        else if (layout != CardLayout.MELD)
+                            faces.put(c, Arrays.asList(card.get("name").getAsString().split(Card.FACE_SEPARATOR)));
+                        else
+                            melds.put(c, Arrays.asList(card.get("name").getAsString().split(Card.FACE_SEPARATOR)));
                     }
 
                     cards.add(c);
@@ -463,22 +490,25 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             }
 
             publish("Processing multi-faced cards...");
-            List<Card> facesList = new ArrayList<>(faces.keySet());
+            var facesList = new ArrayList<>(faces.keySet());
             while (!facesList.isEmpty())
             {
                 boolean error = false;
 
                 Card face = facesList.remove(0);
-                var faceNames = faces.get(face);
                 var otherFaces = new ArrayList<Card>();
-                for (Card c : facesList)
-                    if (faceNames.contains(c.unifiedName()) && c.expansion().equals(face.expansion()))
-                        otherFaces.add(c);
-                facesList.removeAll(otherFaces);
-                otherFaces.add(face);
+                if (version.compareTo(VER_5_0_0) < 0 || face.layout() != CardLayout.MELD)
+                {
+                    var faceNames = faces.get(face);
+                    for (Card c : facesList)
+                        if (faceNames.contains(c.unifiedName()) && c.expansion().equals(face.expansion()))
+                            otherFaces.add(c);
+                    facesList.removeAll(otherFaces);
+                    otherFaces.add(face);
+                    otherFaces.sort(Comparator.comparingInt((a) -> faceNames.indexOf(a.unifiedName())));
+                }
                 cards.removeAll(otherFaces);
 
-                otherFaces.sort(Comparator.comparingInt((a) -> faceNames.indexOf(a.unifiedName())));
                 switch (face.layout())
                 {
                 case SPLIT: case AFTERMATH: case ADVENTURE:
@@ -576,6 +606,12 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 default:
                     break;
                 }
+            }
+
+            var meldsList = new ArrayList<>(faces.keySet());
+            while (!meldsList.isEmpty())
+            {
+
             }
 
             publish("Removing duplicate entries...");
