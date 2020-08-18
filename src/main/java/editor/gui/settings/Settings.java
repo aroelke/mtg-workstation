@@ -94,7 +94,7 @@ public final class Settings
         private InventorySettings()
         {
             this(
-                "https://mtgjson.com/json/",
+                "https://mtgjson.com/api/v5/",
                 "AllSets.json",
                 "version.json",
                 new DatabaseVersion(0, 0, 0),
