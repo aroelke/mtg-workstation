@@ -300,7 +300,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             DatabaseVersion version = root.has("meta") ?
                 new DatabaseVersion(root.get("meta").getAsJsonObject().get("version").getAsString()) :
                 new DatabaseVersion(0, 0, 0); // Anything less than 5.0.0 will do for pre-5.0.0 databases
-            System.out.println(version);
 
             var entries = (version.compareTo(VER_5_0_0) < 0 ? root : root.get("data").getAsJsonObject()).entrySet();
             int numCards = 0;
@@ -579,39 +578,63 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                             cards.add(convertToNormal(f));
                     break;
                 case MELD:
-                    if (otherFaces.size() < 3)
+                    if (version.compareTo(VER_5_0_0) < 0)
                     {
-                        errors.add(face.toString() + " (" + face.expansion() + "): Can't find some faces of meld card.");
-                        error = true;
-                    }
-                    else if (otherFaces.size() > 3)
-                    {
-                        errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for meld card.");
-                        error = true;
-                    }
-                    else if (otherFaces.get(0).layout() != CardLayout.MELD || otherFaces.get(1).layout() != CardLayout.MELD || otherFaces.get(2).layout() != CardLayout.MELD)
-                    {
-                        errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into meld cards.");
-                        error = true;
-                    }
-                    if (!error)
-                    {
-                        cards.add(new MeldCard(otherFaces.get(0), otherFaces.get(2), otherFaces.get(1)));
-                        cards.add(new MeldCard(otherFaces.get(2), otherFaces.get(0), otherFaces.get(1)));
+                        if (otherFaces.size() < 3)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't find some faces of meld card.");
+                            error = true;
+                        }
+                        else if (otherFaces.size() > 3)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for meld card.");
+                            error = true;
+                        }
+                        else if (otherFaces.get(0).layout() != CardLayout.MELD || otherFaces.get(1).layout() != CardLayout.MELD || otherFaces.get(2).layout() != CardLayout.MELD)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into meld cards.");
+                            error = true;
+                        }
+                        if (!error)
+                        {
+                            cards.add(new MeldCard(otherFaces.get(0), otherFaces.get(2), otherFaces.get(1)));
+                            cards.add(new MeldCard(otherFaces.get(2), otherFaces.get(0), otherFaces.get(1)));
+                        }
+                        else
+                            for (Card f : otherFaces)
+                                cards.add(convertToNormal(f));
                     }
                     else
-                        for (Card f : otherFaces)
-                            cards.add(convertToNormal(f));
+                        errors.add(face + " (" + face.expansion() + "): Wrong processing of meld card.");
                     break;
                 default:
                     break;
                 }
             }
 
-            var meldsList = new ArrayList<>(faces.keySet());
-            while (!meldsList.isEmpty())
+            if (version.compareTo(VER_5_0_0) >= 0)
             {
-
+                var meldBacks = melds.entrySet().stream().filter((e) -> e.getValue().size() == 1).map((e) -> e.getKey()).collect(Collectors.toList());
+                var meldFronts = new HashMap<>(melds.entrySet().stream().filter((e) -> e.getValue().size() > 1).collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue())));
+                for (Card back : meldBacks)
+                {
+                    var fronts = meldFronts.entrySet().stream().filter((e) -> e.getKey().expansion().equals(back.expansion()) && e.getValue().contains(back.unifiedName())).map((e) -> e.getKey()).collect(Collectors.toList());
+                    if (fronts.size() < 2)
+                        errors.add(back + " (" + back.expansion() + "): Can't find some faces of meld card.");
+                    else if (fronts.size() == 2)
+                    {
+                        cards.add(new MeldCard(fronts.get(0), fronts.get(1), back));
+                        cards.add(new MeldCard(fronts.get(1), fronts.get(0), back));
+                        cards.remove(back);
+                        cards.removeAll(fronts);
+                        for (Card front : fronts)
+                            meldFronts.remove(front);
+                    }
+                    else
+                        errors.add(back + "( " + back.expansion() + "): Too many faces for meld card.");
+                }
+                for (Card front : meldFronts.keySet())
+                    errors.add(front + "( " + front.expansion() + "): Couldn't pair with a back face.");
             }
 
             publish("Removing duplicate entries...");
