@@ -92,6 +92,7 @@ import javax.swing.text.StyledDocument;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
@@ -1605,7 +1606,8 @@ public class MainFrame extends JFrame
             {
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
                 {
-                    newestVersion = new DatabaseVersion(new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString());
+                    JsonObject data = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject();
+                    newestVersion = new DatabaseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
                 }
                 if (newestVersion.needsUpdate(SettingsDialog.settings().inventory.version, freq))
                 {
