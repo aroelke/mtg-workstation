@@ -201,7 +201,7 @@ public abstract class MultiCard extends Card
         imageNames = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::imageNames)));
         multiverseid = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::multiverseid)));
         isLand = faces.get(0).isLand();
-        commandFormats = new Lazy<>(() -> collect((c) -> c.commandFormats()).stream().distinct().sorted().collect(Collectors.toList()));
+        commandFormats = new Lazy<>(() -> faces.stream().flatMap((c) -> c.commandFormats().stream()).distinct().sorted().collect(Collectors.toList()));
     }
 
     @Override
