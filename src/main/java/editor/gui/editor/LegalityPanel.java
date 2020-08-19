@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -53,6 +55,7 @@ public class LegalityPanel extends Box
     private static final String MAIN_DECK = "Main Deck";
     /** Item to show for searching all of the lists. */
     private static final String ALL_LISTS = "All Lists";
+    private static final Pattern PARTNER_PATTERN = Pattern.compile("partner(?: with (.+) \\()?");
 
     /**
      * Array containing formats the deck is illegal in.
@@ -311,12 +314,13 @@ public class LegalityPanel extends Box
         if (!commanderSearch.isEmpty())
         {
             Set<ManaType> deckColorIdentity = deck.stream().flatMap((c) -> c.colorIdentity().stream()).collect(Collectors.toSet());
-            for (String format : FormatConstraints.FORMAT_NAMES)
+            for (final String format : FormatConstraints.FORMAT_NAMES)
             {
                 if (FormatConstraints.CONSTRAINTS.get(format).hasCommander)
                 {
-                    var possibleCommanders = commanderSearch.stream().filter((c) -> c.commandFormats().contains(format)).collect(Collectors.toList());
                     Optional<String> warning = Optional.empty();
+
+                    var possibleCommanders = commanderSearch.stream().filter((c) -> c.commandFormats().contains(format)).collect(Collectors.toList());
                     if (possibleCommanders.isEmpty())
                         warning = Optional.of("Could not find a legendary creature");
                     else
@@ -327,6 +331,13 @@ public class LegalityPanel extends Box
                         if (possibleCommanders.isEmpty())
                             warning = Optional.of("Could not find a legendary creature whose color identity contains " + deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
                     }
+
+                    var possiblePartners = commanderSearch.stream().flatMap((c) -> c.normalizedOracle().stream().map((o) -> new SimpleEntry<>(c, PARTNER_PATTERN.matcher(o)))).filter((e) -> e.getKey().commandFormats().contains(format) && e.getValue().find()).map((e) -> {
+                        return new SimpleEntry<>(e.getKey(), e.getValue().group(1) != null ? e.getValue().group(1) : "");
+                    }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    for (var p : possiblePartners.entrySet())
+                        System.out.println(p.getKey() + ": " + p.getValue());
+
                     warning.ifPresent(warnings.get(format)::add);
                 }
             }
