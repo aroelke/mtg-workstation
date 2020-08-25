@@ -56,6 +56,7 @@ public class LegalityPanel extends Box
     private static final String MAIN_DECK = "Main Deck";
     /** Item to show for searching all of the lists. */
     private static final String ALL_LISTS = "All Lists";
+    /** Regex pattern used to detect if a card can be a partner. */
     private static final Pattern PARTNER_PATTERN = Pattern.compile("partner(?: with (.+) \\()?");
 
     /**
@@ -276,16 +277,17 @@ public class LegalityPanel extends Box
         }
         Set<ManaType> deckColorIdentity = deck.stream().flatMap((c) -> c.colorIdentity().stream()).collect(Collectors.toSet());
 
-        for (String format : warnings.keySet())
+        for (final String format : warnings.keySet())
         {
             warnings.get(format).clear();
+            final FormatConstraints constraints = FormatConstraints.CONSTRAINTS.get(format);
 
             // Commander(s) exist(s) and deck matches color identity
             boolean commander = false;
             boolean partners = false;
             if (!commanderSearch.isEmpty())
             {
-                if (FormatConstraints.CONSTRAINTS.get(format).hasCommander)
+                if (constraints.hasCommander)
                 {
                     var possibleCommanders = commanderSearch.stream().filter((c) -> c.commandFormats().contains(format)).collect(Collectors.toList());
                     for (Card c : new ArrayList<>(possibleCommanders))
@@ -333,7 +335,6 @@ public class LegalityPanel extends Box
             }
 
             // Deck size
-            final FormatConstraints constraints = FormatConstraints.CONSTRAINTS.get(format);
             if (constraints.hasCommander)
             {
                 if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != constraints.deckSize) ||
@@ -351,7 +352,7 @@ public class LegalityPanel extends Box
             // Individual card legality and count
             for (Card c : deck)
             {
-                final int maxCopies = FormatConstraints.CONSTRAINTS.get(format).maxCopies;
+                final int maxCopies = constraints.maxCopies;
                 if (!c.legalityIn(format).isLegal)
                     warnings.get(format).add(c.unifiedName() + " is illegal in " + format);
                 else if (isoNameCounts.containsKey(c) && !c.ignoreCountRestriction())
@@ -365,9 +366,8 @@ public class LegalityPanel extends Box
 
             // Sideboard size
             sideboard.ifPresent((sb) -> {
-                int max = FormatConstraints.CONSTRAINTS.get(format).sideboardSize;
-                if (sb.total() > max)
-                    warnings.get(format).add("Sideboard contains more than " + max + " cards");
+                if (sb.total() > constraints.sideboardSize)
+                    warnings.get(format).add("Sideboard contains more than " + constraints.sideboardSize + " cards");
             });
         }
 
