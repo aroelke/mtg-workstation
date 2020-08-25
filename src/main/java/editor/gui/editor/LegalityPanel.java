@@ -258,26 +258,6 @@ public class LegalityPanel extends Box
      */
     public void checkLegality(CardList deck, CardList commanderSearch, Optional<CardList> sideboard)
     {
-        for (var warning : warnings.values())
-            warning.clear();
-
-        // Deck size
-        for (String format : FormatConstraints.FORMAT_NAMES)
-        {
-            final FormatConstraints constraints = FormatConstraints.CONSTRAINTS.get(format);
-            if (constraints.hasCommander)
-            {
-                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != constraints.deckSize) || ((!commanderSearch.isEmpty() && commanderSearch != deck) && deck.total() != constraints.deckSize - 1))
-                    warnings.get(format).add("Deck does not contain exactly " + (constraints.deckSize - 1) + " cards plus a commander");
-            }
-            else
-            {
-                if (deck.total() < constraints.deckSize)
-                    warnings.get(format).add("Deck contains fewer than " + constraints.deckSize + " cards");
-            }
-        }
-
-        // Individual card legality and count
         Map<Card, Integer> isoNameCounts = new HashMap<>();
         for (Card c : deck)
         {
@@ -294,9 +274,27 @@ public class LegalityPanel extends Box
             if (!counted)
                 isoNameCounts.put(c, deck.getEntry(c).count());
         }
-        for (Card c : deck)
+        Set<ManaType> deckColorIdentity = deck.stream().flatMap((c) -> c.colorIdentity().stream()).collect(Collectors.toSet());
+
+        for (String format : warnings.keySet())
         {
-            for (String format : FormatConstraints.FORMAT_NAMES)
+            warnings.get(format).clear();
+
+            // Deck size
+            final FormatConstraints constraints = FormatConstraints.CONSTRAINTS.get(format);
+            if (constraints.hasCommander)
+            {
+                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != constraints.deckSize) || ((!commanderSearch.isEmpty() && commanderSearch != deck) && deck.total() != constraints.deckSize - 1))
+                    warnings.get(format).add("Deck does not contain exactly " + (constraints.deckSize - 1) + " cards plus a commander");
+            }
+            else
+            {
+                if (deck.total() < constraints.deckSize)
+                    warnings.get(format).add("Deck contains fewer than " + constraints.deckSize + " cards");
+            }
+
+            // Individual card legality and count
+            for (Card c : deck)
             {
                 final int maxCopies = FormatConstraints.CONSTRAINTS.get(format).maxCopies;
                 if (!c.legalityIn(format).isLegal)
@@ -309,13 +307,9 @@ public class LegalityPanel extends Box
                         warnings.get(format).add("Deck contains more than " + maxCopies + " copies of " + c.unifiedName());
                 }
             }
-        }
 
-        // Commander exists and matches deck color identity
-        if (!commanderSearch.isEmpty())
-        {
-            Set<ManaType> deckColorIdentity = deck.stream().flatMap((c) -> c.colorIdentity().stream()).collect(Collectors.toSet());
-            for (final String format : FormatConstraints.FORMAT_NAMES)
+            // Commander(s) exist(s) and deck matches color identity
+            if (!commanderSearch.isEmpty())
             {
                 if (FormatConstraints.CONSTRAINTS.get(format).hasCommander)
                 {
@@ -367,17 +361,14 @@ public class LegalityPanel extends Box
                         deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
                 }
             }
-        }
 
-        // Sideboard size
-        sideboard.ifPresent((sb) -> {
-            for (String format : FormatConstraints.FORMAT_NAMES)
-            {
+            // Sideboard size
+            sideboard.ifPresent((sb) -> {
                 int max = FormatConstraints.CONSTRAINTS.get(format).sideboardSize;
                 if (sb.total() > max)
                     warnings.get(format).add("Sideboard contains more than " + max + " cards");
-            }
-        });
+            });
+        }
 
         // Collate the legality lists
         illegal = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
