@@ -9,6 +9,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -318,27 +319,52 @@ public class LegalityPanel extends Box
             {
                 if (FormatConstraints.CONSTRAINTS.get(format).hasCommander)
                 {
-                    Optional<String> warning = Optional.empty();
-
+                    boolean valid = false;
                     var possibleCommanders = commanderSearch.stream().filter((c) -> c.commandFormats().contains(format)).collect(Collectors.toList());
-                    if (possibleCommanders.isEmpty())
-                        warning = Optional.of("Could not find a legendary creature");
-                    else
+                    for (Card c : new ArrayList<>(possibleCommanders))
                     {
-                        for (Card c : new ArrayList<>(possibleCommanders))
-                            if (!c.colorIdentity().containsAll(deckColorIdentity))
-                                possibleCommanders.remove(c);
-                        if (possibleCommanders.isEmpty())
-                            warning = Optional.of("Could not find a legendary creature whose color identity contains " + deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
+                        if (c.colorIdentity().containsAll(deckColorIdentity))
+                        {
+                            valid = true;
+                            break;
+                        }
                     }
-
-                    var possiblePartners = commanderSearch.stream().flatMap((c) -> c.normalizedOracle().stream().map((o) -> new SimpleEntry<>(c, PARTNER_PATTERN.matcher(o)))).filter((e) -> e.getKey().commandFormats().contains(format) && e.getValue().find()).map((e) -> {
-                        return new SimpleEntry<>(e.getKey(), e.getValue().group(1) != null ? e.getValue().group(1) : "");
-                    }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                    for (var p : possiblePartners.entrySet())
-                        System.out.println(p.getKey() + ": " + p.getValue());
-
-                    warning.ifPresent(warnings.get(format)::add);
+                    if (!valid)
+                    {
+                        var possiblePartners = possibleCommanders.stream()
+                            .flatMap((c) -> c.normalizedOracle().stream().map((o) -> new SimpleEntry<>(c, PARTNER_PATTERN.matcher(o))))
+                            .filter((e) -> e.getKey().commandFormats().contains(format) && e.getValue().find())
+                            .map((e) -> new SimpleEntry<>(e.getKey(), e.getValue().group(1) != null ? e.getValue().group(1).toLowerCase() : ""))
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                        search: for (var p : possiblePartners.entrySet())
+                        {
+                            for (Card c : possibleCommanders)
+                            {
+                                var colorIdentity = new HashSet<ManaType>();
+                                if (p.getValue().isEmpty())
+                                {
+                                    if (c.normalizedOracle().stream().map((o) -> PARTNER_PATTERN.matcher(o)).anyMatch((m) -> m.find() && m.group(1) == null))
+                                    {
+                                        colorIdentity.addAll(p.getKey().colorIdentity());
+                                        colorIdentity.addAll(c.colorIdentity());
+                                    }
+                                }
+                                else if (p.getValue().equalsIgnoreCase(c.unifiedName()))
+                                {
+                                    colorIdentity.addAll(p.getKey().colorIdentity());
+                                    colorIdentity.addAll(c.colorIdentity());
+                                }
+                                if (colorIdentity.containsAll(deckColorIdentity))
+                                {
+                                    valid = true;
+                                    break search;
+                                }
+                            }
+                        }
+                    }
+                    if (!valid)
+                        warnings.get(format).add("Could not find a legendary creature whose color identity contains " +
+                        deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
                 }
             }
         }
