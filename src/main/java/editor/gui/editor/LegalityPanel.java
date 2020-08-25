@@ -280,12 +280,67 @@ public class LegalityPanel extends Box
         {
             warnings.get(format).clear();
 
+            // Commander(s) exist(s) and deck matches color identity
+            boolean commander = false;
+            boolean partners = false;
+            if (!commanderSearch.isEmpty())
+            {
+                if (FormatConstraints.CONSTRAINTS.get(format).hasCommander)
+                {
+                    var possibleCommanders = commanderSearch.stream().filter((c) -> c.commandFormats().contains(format)).collect(Collectors.toList());
+                    for (Card c : new ArrayList<>(possibleCommanders))
+                    {
+                        if (c.colorIdentity().containsAll(deckColorIdentity))
+                        {
+                            commander = true;
+                            break;
+                        }
+                    }
+                    var possiblePartners = possibleCommanders.stream()
+                        .flatMap((c) -> c.normalizedOracle().stream().map((o) -> new SimpleEntry<>(c, PARTNER_PATTERN.matcher(o))))
+                        .filter((e) -> e.getKey().commandFormats().contains(format) && e.getValue().find())
+                        .map((e) -> new SimpleEntry<>(e.getKey(), e.getValue().group(1) != null ? e.getValue().group(1).toLowerCase() : ""))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    search: for (var p : possiblePartners.entrySet())
+                    {
+                        for (Card c : possibleCommanders)
+                        {
+                            var colorIdentity = new HashSet<ManaType>();
+                            if (p.getValue().isEmpty())
+                            {
+                                if (c.normalizedOracle().stream().map((o) -> PARTNER_PATTERN.matcher(o)).anyMatch((m) -> m.find() && m.group(1) == null))
+                                {
+                                    colorIdentity.addAll(p.getKey().colorIdentity());
+                                    colorIdentity.addAll(c.colorIdentity());
+                                }
+                            }
+                            else if (p.getValue().equalsIgnoreCase(c.unifiedName()))
+                            {
+                                colorIdentity.addAll(p.getKey().colorIdentity());
+                                colorIdentity.addAll(c.colorIdentity());
+                            }
+                            if (colorIdentity.containsAll(deckColorIdentity))
+                            {
+                                partners = true;
+                                break search;
+                            }
+                        }
+                    }
+                    if (!(commander || partners))
+                        warnings.get(format).add("Could not find a legendary creature whose color identity contains " +
+                        deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
+                }
+            }
+
             // Deck size
             final FormatConstraints constraints = FormatConstraints.CONSTRAINTS.get(format);
             if (constraints.hasCommander)
             {
-                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != constraints.deckSize) || ((!commanderSearch.isEmpty() && commanderSearch != deck) && deck.total() != constraints.deckSize - 1))
-                    warnings.get(format).add("Deck does not contain exactly " + (constraints.deckSize - 1) + " cards plus a commander");
+                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != constraints.deckSize) ||
+                    ((!commanderSearch.isEmpty() && commanderSearch != deck) &&
+                     (commander && deck.total() != constraints.deckSize - 1) || (partners && deck.total() != constraints.deckSize - 2)))
+                    warnings.get(format).add("Deck does not contain exactly " + (constraints.deckSize - 1) + " cards plus a commander or " +
+                                                                                (constraints.deckSize - 2) + " cards plus two partner commanders");
             }
             else
             {
@@ -305,60 +360,6 @@ public class LegalityPanel extends Box
                         warnings.get(format).add(c.unifiedName() + " is restricted in " + format);
                     else if (isoNameCounts.get(c) > maxCopies)
                         warnings.get(format).add("Deck contains more than " + maxCopies + " copies of " + c.unifiedName());
-                }
-            }
-
-            // Commander(s) exist(s) and deck matches color identity
-            if (!commanderSearch.isEmpty())
-            {
-                if (FormatConstraints.CONSTRAINTS.get(format).hasCommander)
-                {
-                    boolean valid = false;
-                    var possibleCommanders = commanderSearch.stream().filter((c) -> c.commandFormats().contains(format)).collect(Collectors.toList());
-                    for (Card c : new ArrayList<>(possibleCommanders))
-                    {
-                        if (c.colorIdentity().containsAll(deckColorIdentity))
-                        {
-                            valid = true;
-                            break;
-                        }
-                    }
-                    if (!valid)
-                    {
-                        var possiblePartners = possibleCommanders.stream()
-                            .flatMap((c) -> c.normalizedOracle().stream().map((o) -> new SimpleEntry<>(c, PARTNER_PATTERN.matcher(o))))
-                            .filter((e) -> e.getKey().commandFormats().contains(format) && e.getValue().find())
-                            .map((e) -> new SimpleEntry<>(e.getKey(), e.getValue().group(1) != null ? e.getValue().group(1).toLowerCase() : ""))
-                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                        search: for (var p : possiblePartners.entrySet())
-                        {
-                            for (Card c : possibleCommanders)
-                            {
-                                var colorIdentity = new HashSet<ManaType>();
-                                if (p.getValue().isEmpty())
-                                {
-                                    if (c.normalizedOracle().stream().map((o) -> PARTNER_PATTERN.matcher(o)).anyMatch((m) -> m.find() && m.group(1) == null))
-                                    {
-                                        colorIdentity.addAll(p.getKey().colorIdentity());
-                                        colorIdentity.addAll(c.colorIdentity());
-                                    }
-                                }
-                                else if (p.getValue().equalsIgnoreCase(c.unifiedName()))
-                                {
-                                    colorIdentity.addAll(p.getKey().colorIdentity());
-                                    colorIdentity.addAll(c.colorIdentity());
-                                }
-                                if (colorIdentity.containsAll(deckColorIdentity))
-                                {
-                                    valid = true;
-                                    break search;
-                                }
-                            }
-                        }
-                    }
-                    if (!valid)
-                        warnings.get(format).add("Could not find a legendary creature whose color identity contains " +
-                        deckColorIdentity.stream().sorted().map((t) -> ColorSymbol.SYMBOLS.get(t).toString()).collect(Collectors.joining()));
                 }
             }
 
