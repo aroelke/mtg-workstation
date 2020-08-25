@@ -1,17 +1,8 @@
 package editor.gui.settings;
 
-import static editor.database.attributes.CardAttribute.CATEGORIES;
-import static editor.database.attributes.CardAttribute.COUNT;
-import static editor.database.attributes.CardAttribute.DATE_ADDED;
-import static editor.database.attributes.CardAttribute.EXPANSION;
-import static editor.database.attributes.CardAttribute.MANA_COST;
-import static editor.database.attributes.CardAttribute.NAME;
-import static editor.database.attributes.CardAttribute.TYPE_LINE;
-
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +10,6 @@ import editor.collection.deck.CategorySpec;
 import editor.database.attributes.CardAttribute;
 import editor.database.version.DatabaseVersion;
 import editor.database.version.UpdateFrequency;
-import editor.filter.leaf.options.multi.CardTypeFilter;
 
 /**
  * Builder for {@link Settings}, used for getting defaults, copying, and
@@ -51,6 +41,11 @@ public class SettingsBuilder
     private int handSize;
     private String handRounding;
     private Color handBackground;
+    private boolean searchForCommander;
+    private boolean main;
+    private boolean all;
+    private String list;
+    private String sideboard;
     private String cwd;
 
     /**
@@ -101,6 +96,11 @@ public class SettingsBuilder
             handSize,
             handRounding,
             handBackground,
+            searchForCommander,
+            main,
+            all,
+            list,
+            sideboard,
             cwd
         );
     }
@@ -135,6 +135,11 @@ public class SettingsBuilder
         handSize = original.editor.hand.size;
         handRounding = original.editor.hand.rounding;
         handBackground = original.editor.hand.background;
+        searchForCommander = original.editor.legality.searchForCommander;
+        main = original.editor.legality.main;
+        all = original.editor.legality.all;
+        list = original.editor.legality.list;
+        sideboard = original.editor.legality.sideboard;
         cwd = original.cwd;
 
         return this;
@@ -150,8 +155,8 @@ public class SettingsBuilder
      * <li>{@link Settings.InventorySettings#location}: "."
      * <li>{@link Settings.InventorySettings#scans}: "images/cards"
      * <li>{@link Settings.InventorySettings#tags}: "tags.json"
-     * <li>{@link Settings.InventorySettings#update}: true
-     * <li>{@link Settings.InventorySettings#warn}: true
+     * <li>{@link Settings.InventorySettings#update}: Daily
+     * <li>{@link Settings.InventorySettings#warn}: <code>true</code>
      * <li>{@link Settings.InventorySettings#columns}:
      *     {@link CardAttribute#NAME}, {@link CardAttribute#MANA_COST},
      *     {@link CardAttribute#TYPE_LINE}, {@link CardAttribute#EXPANSION}
@@ -172,51 +177,20 @@ public class SettingsBuilder
      * <li>{@link Settings.EditorSettings.HandSettings#rounding}: "No rounding"
      * <li>{@link Settings.EditorSettings.HandSettings#background}:
      *     {@link Color#white}
-     * <li>{@link Settings#cwd}: "."
+     * <li>{@link Settings.EditorSettings.LegalitySettings#searchForCommander}:
+     *     <code>true</code>
+     * <li>{@link Settings.EditorSettings.LegalitySettings#main}: <code>true</code>
+     * <li>{@link Settings.EditorSettings.LegalitySettings#all}: <code>false</code>
+     * <li>{@link Settings.EditorSettings.LegalitySettings#list}: <code>""</code>
+     * <li>{@link Settings.EditorSettings.LegalitySettings#sideboard}: <code>""</code>
+     * <li>{@link Settings#cwd}: <code>"."</code>
      * </ul>
      * 
      * @return this SettingsBuilder
      */
     public SettingsBuilder defaults()
     {
-        inventorySource = "https://mtgjson.com/json/";
-        inventoryFile = "AllSets.json";
-        inventoryVersionFile = "version.json";
-        inventoryVersion = new DatabaseVersion(0, 0, 0);
-        inventoryLocation = ".";
-        inventoryScans = "scans";
-        inventoryTags = "tags.json";
-        inventoryUpdate = UpdateFrequency.REVISION;
-        inventoryWarn = true;
-        inventoryColumns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION);
-        inventoryBackground = Color.WHITE;
-        inventoryStripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
-        recentsCount = 4;
-        recentsFiles = Collections.emptyList();
-        categoryRows = 6;
-        explicits = 3;
-        editorColumns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED);
-        editorStripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
-        handSize = 7;
-        handRounding = "No rounding";
-        handBackground = Color.WHITE;
-        cwd = ".";
-
-        presetCategories = new ArrayList<CategorySpec>();
-        CardTypeFilter artifacts = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
-        artifacts.selected.add("Artifact");
-        presetCategories.add(new CategorySpec("Artifacts", Collections.emptySet(), Collections.emptySet(), Color.WHITE, artifacts));
-        CardTypeFilter creatures = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
-        creatures.selected.add("Creature");
-        presetCategories.add(new CategorySpec("Creatures", Collections.emptySet(), Collections.emptySet(), Color.WHITE, creatures));
-        CardTypeFilter lands = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
-        lands.selected.add("Land");
-        presetCategories.add(new CategorySpec("Lands", Collections.emptySet(), Collections.emptySet(), Color.WHITE, lands));
-        CardTypeFilter spells = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
-        spells.selected.addAll(List.of("Instant", "Sorcery"));
-        presetCategories.add(new CategorySpec("Instants/Sorceries", Collections.emptySet(), Collections.emptySet(), Color.WHITE, spells));
-
-        return this;
+        return copy(new Settings());
     }
 
     /**
@@ -573,6 +547,71 @@ public class SettingsBuilder
     public SettingsBuilder handBackground(Color background)
     {
         handBackground = background;
+        return this;
+    }
+
+    /**
+     * Whether or not to search for a commander.
+     * 
+     * @param search search for a commander
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings.LegalitySettings#searchForCommander
+     */
+    public SettingsBuilder searchForCommander(boolean search)
+    {
+        searchForCommander = search;
+        return this;
+    }
+
+    /**
+     * Whether or not to search the main deck for a commander.
+     * 
+     * @param main search the main deck for a commander
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings.LegalitySettings#main
+     */
+    public SettingsBuilder commanderInMain(boolean main)
+    {
+        this.main = main;
+        return this;
+    }
+
+    /**
+     * Whether or not to search all lists for a commander.
+     * 
+     * @param all search all lists for a commander
+     * @return this SettingsBuilder.
+     * @see Settings.EditorSettings.LegalitySettings#all
+     */
+    public SettingsBuilder commanderInAll(boolean all)
+    {
+        this.all = all;
+        return this;
+    }
+
+    /**
+     * Name of the list to search for a commander.
+     * 
+     * @param list list name to search
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.LegalitySettings#list
+     */
+    public SettingsBuilder commanderInList(String list)
+    {
+        this.list = list;
+        return this;
+    }
+
+    /**
+     * Name of the list to use as sideboard.
+     * 
+     * @param sideboard sideboard list name
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.LegalitySettings#sideboard
+     */
+    public SettingsBuilder sideboardName(String sideboard)
+    {
+        this.sideboard = sideboard;
         return this;
     }
 

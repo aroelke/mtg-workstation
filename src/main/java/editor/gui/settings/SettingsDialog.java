@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,11 +41,13 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -52,6 +55,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import editor.collection.deck.CategorySpec;
+import editor.database.FormatConstraints;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.database.version.DatabaseVersion;
@@ -331,6 +335,38 @@ public class SettingsDialog extends JDialog
      * Combo box indicating how often to download updates.
      */
     private JComboBox<UpdateFrequency> updateBox;
+    /**
+     * Check box indicating whether or not to check for a commander by default in legality
+     * check.
+     */
+    private JCheckBox cmdrCheck;
+    /**
+     * Radio button indicting to check only the main deck by default for a commander.
+     */
+    private JRadioButton cmdrMainDeck;
+    /**
+     * Radio button indicating to check all lists by default for a commander.
+     */
+    private JRadioButton cmdrAllLists;
+    /**
+     * Radio button indicating to check a specific list, if it exists, for a commander
+     * by default.
+     */
+    private JRadioButton cmdrList;
+    /**
+     * Default name of the list to look in if checking only a single one or commander.
+     */
+    private JTextField cmdrListName;
+    /**
+     * Check box indicating whether or not to check sideboard size by default in
+     * legality check.
+     */
+    private JCheckBox sideCheck;
+    /**
+     * Text field specifying the default name of the list to use as sideboard if
+     * present.
+     */
+    private JTextField sideField;
 
     /**
      * Create a new SettingsDialog.
@@ -357,6 +393,8 @@ public class SettingsDialog extends JDialog
         editorNode.add(editorAppearanceNode);
         DefaultMutableTreeNode handAppearanceNode = new DefaultMutableTreeNode("Sample Hand");
         editorNode.add(handAppearanceNode);
+        DefaultMutableTreeNode formatsNode = new DefaultMutableTreeNode("Formats");
+        editorNode.add(formatsNode);
         root.add(editorNode);
 
         // Settings panels
@@ -694,6 +732,87 @@ public class SettingsDialog extends JDialog
         handBGColorPanel.setAlignmentX(LEFT_ALIGNMENT);
         sampleHandPanel.add(handBGColorPanel);
 
+        // Format constraints
+        JPanel formatsPanel = new JPanel(new BorderLayout());
+        settingsPanel.add(formatsPanel, new TreePath(formatsNode.getPath()).toString());
+
+        // Formats table
+        JTable formatsTable = new JTable(new DefaultTableModel(FormatConstraints.FORMAT_NAMES.stream().map((f) -> FormatConstraints.CONSTRAINTS.get(f).toArray(f)).toArray(Object[][]::new), FormatConstraints.DATA_NAMES.toArray(String[]::new))
+        {
+            @Override
+            public Class<?> getColumnClass(int column) { return FormatConstraints.CLASSES.get(column); }
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) { return false; }
+        });
+        formatsTable.setFillsViewportHeight(true);
+        formatsPanel.add(new JScrollPane(formatsTable), BorderLayout.NORTH);
+
+        // Default options for legality panel
+        Box legalityDefaultsBox = Box.createHorizontalBox();
+        legalityDefaultsBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        cmdrCheck = new JCheckBox("", settings.editor.legality.searchForCommander);
+        legalityDefaultsBox.add(cmdrCheck);
+        ButtonGroup cmdrGroup = new ButtonGroup();
+        cmdrMainDeck = new JRadioButton("Main Deck");
+        cmdrGroup.add(cmdrMainDeck);
+        legalityDefaultsBox.add(cmdrMainDeck);
+        cmdrAllLists = new JRadioButton("All Lists");
+        cmdrGroup.add(cmdrAllLists);
+        legalityDefaultsBox.add(cmdrAllLists);
+        cmdrList = new JRadioButton();
+        cmdrGroup.add(cmdrList);
+        legalityDefaultsBox.add(cmdrList);
+        cmdrListName = new JTextField();
+        formatsPanel.add(legalityDefaultsBox, BorderLayout.CENTER);
+        Box sideboardBox = Box.createHorizontalBox();
+        sideboardBox.setBorder(BorderFactory.createEmptyBorder(0, 2, 2, 2));
+        sideCheck = new JCheckBox("", !settings.editor.legality.sideboard.isEmpty());
+        sideCheck.setText(sideCheck.isSelected() ? "Default sideboard name:" : "Include sideboard");
+        sideboardBox.add(sideCheck);
+        sideField = new JTextField();
+        sideField.setText(settings.editor.legality.sideboard);
+        sideField.setVisible(sideCheck.isSelected());
+        sideboardBox.add(sideField);
+        formatsPanel.add(sideboardBox, BorderLayout.SOUTH);
+
+        if (settings.editor.legality.searchForCommander)
+        {
+            cmdrCheck.setText("Search for commander in:");
+            if (settings.editor.legality.main || (!settings.editor.legality.all && settings.editor.legality.list.isEmpty()))
+                cmdrMainDeck.setSelected(true);
+            else if (settings.editor.legality.all)
+                cmdrAllLists.setSelected(true);
+            else
+                cmdrList.setSelected(true);
+            cmdrListName.setEnabled(cmdrList.isSelected());
+            cmdrListName.setText(settings.editor.legality.list);
+        }
+        else
+        {
+            cmdrCheck.setText("Search for commander");
+            cmdrMainDeck.setVisible(false);
+            cmdrAllLists.setVisible(false);
+            cmdrList.setVisible(false);
+            cmdrListName.setVisible(false);
+        }
+        legalityDefaultsBox.add(cmdrListName);
+
+        cmdrCheck.addActionListener((e) -> {
+            cmdrCheck.setText(cmdrCheck.isSelected() ? "Search for commander in:" : "Search for commander");
+            cmdrMainDeck.setVisible(cmdrCheck.isSelected());
+            cmdrAllLists.setVisible(cmdrCheck.isSelected());
+            cmdrList.setVisible(cmdrCheck.isSelected());
+            cmdrListName.setVisible(cmdrCheck.isSelected());
+        });
+        ActionListener cmdrListener = (e) -> cmdrListName.setEnabled(cmdrList.isSelected());
+        cmdrMainDeck.addActionListener(cmdrListener);
+        cmdrAllLists.addActionListener(cmdrListener);
+        cmdrList.addActionListener(cmdrListener);
+        sideCheck.addActionListener((e) -> {
+            sideCheck.setText(sideCheck.isSelected() ? "Default sideboard name:" : "Include sideboard");
+            sideField.setVisible(sideCheck.isSelected());
+        });
+
         // Tree panel
         JPanel treePanel = new JPanel(new BorderLayout());
         JTree tree = new JTree(root);
@@ -770,6 +889,11 @@ public class SettingsDialog extends JDialog
                 .handRounding(modeButtons.stream().filter(JRadioButton::isSelected).map(JRadioButton::getText).findAny().orElse("No rounding"))
                 .inventoryScans(scansDirField.getText())
                 .inventoryBackground(scanBGChooser.getColor())
+                .searchForCommander(cmdrCheck.isSelected())
+                .commanderInMain(cmdrMainDeck.isSelected() || (cmdrCheck.isSelected() && cmdrList.isSelected() && cmdrListName.getText().isEmpty()))
+                .commanderInAll(cmdrAllLists.isSelected())
+                .commanderInList(cmdrListName.getText())
+                .sideboardName(sideCheck.isSelected() ? sideField.getText() : "")
                 .build();
         }
         catch (ParseException e)

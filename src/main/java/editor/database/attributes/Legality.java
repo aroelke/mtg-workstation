@@ -13,15 +13,20 @@ public enum Legality
     /**
      * Card is not legal in the format.
      */
-    BANNED("Banned"),
+    BANNED("Banned", false),
     /**
      * A normal number of cards is legal to have in a deck.
      */
-    LEGAL("Legal"),
+    LEGAL("Legal", true),
     /**
      * Only one copy of the card is legal in a deck.
      */
-    RESTRICTED("Restricted");
+    RESTRICTED("Restricted", true),
+    /**
+     * Catch-all for cards that aren't banned, but aren't legal either (e.g.
+     * because they've rotated or weren't legal in the first place).
+     */
+    ILLEGAL("Illegal", false);
 
     /**
      * Parse a String for a Legality.
@@ -42,15 +47,20 @@ public enum Legality
      * Type of legality a card might have in a format.
      */
     private final String legality;
+    /**
+     * Whether or not this represents a legal card in a format.
+     */
+    public final boolean isLegal;
 
     /**
      * Create a new Legality.
      *
      * @param legality Type of legality a card might have.
      */
-    Legality(final String legality)
+    Legality(final String legality, final boolean legal)
     {
         this.legality = legality;
+        isLegal = legal;
     }
 
     @Override

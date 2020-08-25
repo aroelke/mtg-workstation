@@ -2,7 +2,7 @@ package editor.serialization.legacy;
 
 import java.io.IOException;
 import java.io.ObjectInput;
-import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map;
 
 import editor.database.attributes.CardAttribute;
@@ -31,34 +31,34 @@ import editor.util.Containment;
 public interface FilterDeserializer
 {
     public final Map<String, CardAttribute> CODES = Map.ofEntries(
-        new AbstractMap.SimpleImmutableEntry<>("cardtype", CardAttribute.CARD_TYPE),
-        new AbstractMap.SimpleImmutableEntry<>("*", CardAttribute.ANY),
-        new AbstractMap.SimpleImmutableEntry<>("legal", CardAttribute.LEGAL_IN),
-        new AbstractMap.SimpleImmutableEntry<>("type", CardAttribute.TYPE_LINE),
-        new AbstractMap.SimpleImmutableEntry<>("b", CardAttribute.BLOCK),
-        new AbstractMap.SimpleImmutableEntry<>("x", CardAttribute.EXPANSION),
-        new AbstractMap.SimpleImmutableEntry<>("L", CardAttribute.LAYOUT),
-        new AbstractMap.SimpleImmutableEntry<>("m", CardAttribute.MANA_COST),
-        new AbstractMap.SimpleImmutableEntry<>("n", CardAttribute.NAME),
-        new AbstractMap.SimpleImmutableEntry<>("0", CardAttribute.NONE),
-        new AbstractMap.SimpleImmutableEntry<>("r", CardAttribute.RARITY),
-        new AbstractMap.SimpleImmutableEntry<>("sub", CardAttribute.SUBTYPE),
-        new AbstractMap.SimpleImmutableEntry<>("super", CardAttribute.SUPERTYPE),
-        new AbstractMap.SimpleImmutableEntry<>("tag", CardAttribute.TAGS),
-        new AbstractMap.SimpleImmutableEntry<>("l", CardAttribute.LOYALTY),
-        new AbstractMap.SimpleImmutableEntry<>("a", CardAttribute.ARTIST),
-        new AbstractMap.SimpleImmutableEntry<>("#", CardAttribute.CARD_NUMBER),
-        new AbstractMap.SimpleImmutableEntry<>("cmc", CardAttribute.CMC),
-        new AbstractMap.SimpleImmutableEntry<>("c", CardAttribute.COLORS),
-        new AbstractMap.SimpleImmutableEntry<>("ci", CardAttribute.COLOR_IDENTITY),
-        new AbstractMap.SimpleImmutableEntry<>("f", CardAttribute.FLAVOR_TEXT),
-        new AbstractMap.SimpleImmutableEntry<>("p", CardAttribute.POWER),
-        new AbstractMap.SimpleImmutableEntry<>("ptext", CardAttribute.PRINTED_TEXT),
-        new AbstractMap.SimpleImmutableEntry<>("ptypes", CardAttribute.PRINTED_TYPES),
-        new AbstractMap.SimpleImmutableEntry<>("o", CardAttribute.RULES_TEXT),
-        new AbstractMap.SimpleImmutableEntry<>("t", CardAttribute.TOUGHNESS),
-        new AbstractMap.SimpleImmutableEntry<>("group", CardAttribute.GROUP),
-        new AbstractMap.SimpleImmutableEntry<>("", CardAttribute.DEFAULTS)
+        new SimpleImmutableEntry<>("cardtype", CardAttribute.CARD_TYPE),
+        new SimpleImmutableEntry<>("*", CardAttribute.ANY),
+        new SimpleImmutableEntry<>("legal", CardAttribute.LEGAL_IN),
+        new SimpleImmutableEntry<>("type", CardAttribute.TYPE_LINE),
+        new SimpleImmutableEntry<>("b", CardAttribute.BLOCK),
+        new SimpleImmutableEntry<>("x", CardAttribute.EXPANSION),
+        new SimpleImmutableEntry<>("L", CardAttribute.LAYOUT),
+        new SimpleImmutableEntry<>("m", CardAttribute.MANA_COST),
+        new SimpleImmutableEntry<>("n", CardAttribute.NAME),
+        new SimpleImmutableEntry<>("0", CardAttribute.NONE),
+        new SimpleImmutableEntry<>("r", CardAttribute.RARITY),
+        new SimpleImmutableEntry<>("sub", CardAttribute.SUBTYPE),
+        new SimpleImmutableEntry<>("super", CardAttribute.SUPERTYPE),
+        new SimpleImmutableEntry<>("tag", CardAttribute.TAGS),
+        new SimpleImmutableEntry<>("l", CardAttribute.LOYALTY),
+        new SimpleImmutableEntry<>("a", CardAttribute.ARTIST),
+        new SimpleImmutableEntry<>("#", CardAttribute.CARD_NUMBER),
+        new SimpleImmutableEntry<>("cmc", CardAttribute.CMC),
+        new SimpleImmutableEntry<>("c", CardAttribute.COLORS),
+        new SimpleImmutableEntry<>("ci", CardAttribute.COLOR_IDENTITY),
+        new SimpleImmutableEntry<>("f", CardAttribute.FLAVOR_TEXT),
+        new SimpleImmutableEntry<>("p", CardAttribute.POWER),
+        new SimpleImmutableEntry<>("ptext", CardAttribute.PRINTED_TEXT),
+        new SimpleImmutableEntry<>("ptypes", CardAttribute.PRINTED_TYPES),
+        new SimpleImmutableEntry<>("o", CardAttribute.RULES_TEXT),
+        new SimpleImmutableEntry<>("t", CardAttribute.TOUGHNESS),
+        new SimpleImmutableEntry<>("group", CardAttribute.GROUP),
+        new SimpleImmutableEntry<>("", CardAttribute.DEFAULTS)
     );
 
     public static Filter readExternal(ObjectInput in) throws ClassNotFoundException, IOException

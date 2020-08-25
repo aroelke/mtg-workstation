@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.JCheckBox;
 
+import editor.database.FormatConstraints;
 import editor.database.attributes.CardAttribute;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
@@ -30,7 +31,7 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
      */
     public LegalityFilterPanel()
     {
-        super(CardAttribute.LEGAL_IN, LegalityFilter.formatList);
+        super(CardAttribute.LEGAL_IN, FormatConstraints.FORMAT_NAMES.toArray(String[]::new));
         add(restrictedBox = new JCheckBox("Restricted"), BorderLayout.EAST);
     }
 

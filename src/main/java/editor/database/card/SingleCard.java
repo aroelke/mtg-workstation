@@ -48,6 +48,10 @@ public class SingleCard extends Card
      */
     public final List<ManaType> colors;
     /**
+     * List of formats this SingleCard can be commander in.
+     */
+    public final List<String> commandFormats;
+    /**
      * This SingleCard's flavor text.
      */
     public final String flavor;
@@ -156,7 +160,8 @@ public class SingleCard extends Card
      * @param power the new Card's power
      * @param toughness the new Card's toughness
      * @param loyalty the new Card's loyalty (0 or less for nonexistent)
-     * @param legality the new Card's legality\
+     * @param legality the new Card's legality
+     * @param command the new Card's command formats
      */
     public SingleCard(CardLayout layout,
                       String name,
@@ -179,7 +184,8 @@ public class SingleCard extends Card
                       Optional<String> toughness,
                       Optional<String> loyalty,
                       Optional<TreeMap<Date, List<String>>> rulings,
-                      Optional<Map<String, Legality>> legality)
+                      Optional<Map<String, Legality>> legality,
+                      List<String> command)
     {
         super(set, layout, 1);
 
@@ -202,6 +208,7 @@ public class SingleCard extends Card
         this.rarity = rarity;
         this.rulings = rulings.orElse(new TreeMap<>());
         this.legality = Collections.unmodifiableMap(legality.orElse(new HashMap<>()));
+        this.commandFormats = Collections.unmodifiableList(command);
 
         isLand = typeContains("land");
 
@@ -292,6 +299,12 @@ public class SingleCard extends Card
         if (face != 0)
             throw new IndexOutOfBoundsException("Single-faced cards only have one face");
         return colors;
+    }
+
+    @Override
+    public List<String> commandFormats()
+    {
+        return commandFormats;
     }
 
     @Override
