@@ -2,7 +2,6 @@ package editor.database.card;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -182,7 +181,7 @@ public class SingleCard extends Card
                       Optional<String> toughness,
                       Optional<String> loyalty,
                       TreeMap<Date, List<String>> rulings,
-                      Optional<Map<String, Legality>> legality,
+                      Map<String, Legality> legality,
                       List<String> command)
     {
         super(set, layout, 1);
@@ -207,7 +206,7 @@ public class SingleCard extends Card
         this.imageName = name.toLowerCase();
         this.rarity = rarity;
         this.rulings = Collections.unmodifiableMap(rulings);
-        this.legality = Collections.unmodifiableMap(legality.orElse(new HashMap<>()));
+        this.legality = Collections.unmodifiableMap(legality);
         this.commandFormats = Collections.unmodifiableList(command);
 
         isLand = typeContains("land");

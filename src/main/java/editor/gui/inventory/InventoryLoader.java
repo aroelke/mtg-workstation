@@ -35,6 +35,7 @@ import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -263,7 +264,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             Optional.of(card.toughness().get(0).toString()),
             Optional.of(card.loyalty().get(0).toString()),
             new TreeMap<>(card.rulings()),
-            Optional.of(card.legality()),
+            card.legality(),
             card.commandFormats()
         );
     }
@@ -322,6 +323,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             var costs = new HashMap<String, ManaCost>();
             var colorLists = new HashMap<String, List<ManaType>>();
             var artists = new HashMap<String, String>(); // Map of artist name onto string reference
+            var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
             for (var setNode : entries)
@@ -441,6 +443,15 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         }
                     }
 
+                    // Format legality
+                    var legality = new HashMap<String, Legality>();
+                    for (var entry : card.get("legalities").getAsJsonObject().entrySet())
+                    {
+                        if (!formats.containsKey(entry.getKey()))
+                            formats.put(entry.getKey(), entry.getKey());
+                        legality.put(formats.get(entry.getKey()), Legality.parseLegality(entry.getValue().getAsString()));
+                    }
+
                     // Formats the card can be commander in
                     var commandFormats = !card.has("leadershipSkills") ? Collections.<String>emptyList() :
                         card.get("leadershipSkills").getAsJsonObject().entrySet().stream()
@@ -486,12 +497,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         Optional.ofNullable(card.get("toughness")).map(JsonElement::getAsString),
                         Optional.ofNullable(card.get("loyalty")).map((e) -> e.isJsonNull() ? "X" : e.getAsString()),
                         rulings,
-                        Optional.ofNullable(card.get("legalities")).map((e) -> {
-                            var l = new HashMap<String, Legality>();
-                            for (var entry : e.getAsJsonObject().entrySet())
-                                l.put(entry.getKey(), Legality.parseLegality(entry.getValue().getAsString()));
-                            return l;
-                        }),
+                        legality,
                         commandFormats
                     );
                     supertypeSet.addAll(c.supertypes());
