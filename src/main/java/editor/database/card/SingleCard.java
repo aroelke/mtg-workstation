@@ -167,7 +167,7 @@ public class SingleCard extends Card
                       List<ManaType> colorIdentity,
                       Set<String> supertype,
                       Set<String> type,
-                      Optional<Set<String>> subtype,
+                      Set<String> subtype,
                       String printedTypes,
                       Rarity rarity,
                       Expansion set,
@@ -192,7 +192,7 @@ public class SingleCard extends Card
         this.colorIdentity = Collections.unmodifiableList(colorIdentity);
         this.supertypes = Collections.unmodifiableSet(supertype);
         this.types = Collections.unmodifiableSet(type);
-        this.subtypes = Collections.unmodifiableSet(subtype.orElse(new HashSet<>()));
+        this.subtypes = Collections.unmodifiableSet(subtype);
         this.printedTypes = printedTypes;
         this.text = text.orElse("");
         this.flavor = flavor.orElse("");

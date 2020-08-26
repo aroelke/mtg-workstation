@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -251,7 +250,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             card.colorIdentity(),
             card.supertypes(),
             card.types(),
-            Optional.of(card.subtypes()),
+            card.subtypes(),
             card.printedTypes().get(0),
             card.rarity(),
             card.expansion(),
@@ -289,7 +288,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         var melds = new HashMap<Card, List<String>>();
         var expansions = new HashSet<Expansion>();
         var blockNames = new HashSet<String>();
-        var subtypeSet = new HashSet<String>();
         var formatSet = new HashSet<String>();
 
         // Read the inventory file
@@ -323,6 +321,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             var colorLists = new HashMap<String, List<ManaType>>();
             var allSupertypes = new HashMap<String, String>(); // map of supertype onto string reference
             var allTypes = new HashMap<String, String>(); // map of type onto string reference
+            var allSubtypes = new HashMap<String, String>(); // map of subtype onto string reference
             var printedTypes = new HashMap<String, String>(); // Map of type line onto string reference
             var artists = new HashMap<String, String>(); // Map of artist name onto string reference
             var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
@@ -337,7 +336,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     blockNames.clear();
                     allSupertypes.clear();
                     allTypes.clear();
-                    subtypeSet.clear();
+                    allSubtypes.clear();
                     formatSet.clear();
                     cards.clear();
                     return new Inventory();
@@ -432,6 +431,13 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                             allTypes.put(e.getAsString(), e.getAsString());
                         types.add(allTypes.get(e.getAsString()));
                     }
+                    var subtypes = new HashSet<String>();
+                    for (JsonElement e : card.get("subtypes").getAsJsonArray())
+                    {
+                        if (!allSubtypes.containsKey(e.getAsString()))
+                            allSubtypes.put(e.getAsString(), e.getAsString());
+                        subtypes.add(allSubtypes.get(e.getAsString()));
+                    }
                     String printedType = card.has("originalType") ? card.get("originalType").getAsString() : "";
                     if (printedTypes.containsKey(printedType))
                         printedType = printedTypes.get(printedType);
@@ -511,12 +517,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         identity,
                         supertypes,
                         types,
-                        Optional.ofNullable(card.get("subtypes")).map((e) -> {
-                            var subtypes = new LinkedHashSet<String>();
-                            for (JsonElement subElement : e.getAsJsonArray())
-                                subtypes.add(subElement.getAsString());
-                            return subtypes;
-                        }),
+                        subtypes,
                         printedType,
                         Rarity.parseRarity(card.get("rarity").getAsString()),
                         set,
@@ -533,7 +534,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         legality,
                         commandFormats
                     );
-                    subtypeSet.addAll(c.subtypes());
                     formatSet.addAll(c.legality().keySet());
 
                     // Collect unexpected card values
@@ -722,7 +722,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             Expansion.blocks = blockNames.stream().sorted().toArray(String[]::new);
             SupertypeFilter.supertypeList = allSupertypes.values().stream().sorted().toArray(String[]::new);
             CardTypeFilter.typeList = allTypes.values().stream().sorted().toArray(String[]::new);
-            SubtypeFilter.subtypeList = subtypeSet.stream().sorted().toArray(String[]::new);
+            SubtypeFilter.subtypeList = allSubtypes.values().stream().sorted().toArray(String[]::new);
 
             var missingFormats = formatSet.stream().filter((f) -> !FormatConstraints.FORMAT_NAMES.contains(f)).sorted().collect(Collectors.toList());
             if (!missingFormats.isEmpty())
