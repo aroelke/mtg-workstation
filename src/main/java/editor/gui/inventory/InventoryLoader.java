@@ -288,7 +288,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         var melds = new HashMap<Card, List<String>>();
         var expansions = new HashSet<Expansion>();
         var blockNames = new HashSet<String>();
-        var formatSet = new HashSet<String>();
 
         // Read the inventory file
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
@@ -337,7 +336,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     allSupertypes.clear();
                     allTypes.clear();
                     allSubtypes.clear();
-                    formatSet.clear();
+                    formats.clear();
                     cards.clear();
                     return new Inventory();
                 }
@@ -534,7 +533,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         legality,
                         commandFormats
                     );
-                    formatSet.addAll(c.legality().keySet());
 
                     // Collect unexpected card values
                     if (c.artist().stream().anyMatch(String::isEmpty))
@@ -724,7 +722,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             CardTypeFilter.typeList = allTypes.values().stream().sorted().toArray(String[]::new);
             SubtypeFilter.subtypeList = allSubtypes.values().stream().sorted().toArray(String[]::new);
 
-            var missingFormats = formatSet.stream().filter((f) -> !FormatConstraints.FORMAT_NAMES.contains(f)).sorted().collect(Collectors.toList());
+            var missingFormats = formats.values().stream().filter((f) -> !FormatConstraints.FORMAT_NAMES.contains(f)).sorted().collect(Collectors.toList());
             if (!missingFormats.isEmpty())
                 errors.add("Could not find definitions for the following formats: " + missingFormats.stream().collect(Collectors.joining(", ")));
         }
