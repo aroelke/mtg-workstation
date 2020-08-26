@@ -65,6 +65,7 @@ import editor.collection.Inventory;
 import editor.database.FormatConstraints;
 import editor.database.attributes.Expansion;
 import editor.database.attributes.Legality;
+import editor.database.attributes.ManaCost;
 import editor.database.attributes.ManaType;
 import editor.database.attributes.Rarity;
 import editor.database.card.Card;
@@ -243,7 +244,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         return new SingleCard(
             CardLayout.NORMAL,
             card.name().get(0),
-            Optional.of(card.manaCost().get(0).toString()),
+            card.manaCost().get(0),
             Optional.of(new ArrayList<>(card.colors())),
             Optional.of(new ArrayList<>(card.colorIdentity())),
             Optional.of(card.supertypes()),
@@ -318,6 +319,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                             numCards++;
             }
 
+            var costs = new HashMap<String, ManaCost>();
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
             for (var setNode : entries)
@@ -373,6 +375,16 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         continue;
                     }
 
+                    String costStr = card.has("manaCost") ? card.get("manaCost").getAsString() : "";
+                    ManaCost cost;
+                    if (costs.containsKey(costStr))
+                        cost = costs.get(costStr);
+                    else
+                    {
+                        cost = ManaCost.parseManaCost(costStr);
+                        costs.put(costStr, cost);
+                    }
+
                     // Formats the card can be commander in
                     var commandFormats = !card.has("leadershipSkills") ? Collections.<String>emptyList() :
                         card.get("leadershipSkills").getAsJsonObject().entrySet().stream()
@@ -384,7 +396,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     Card c = new SingleCard(
                         layout,
                         name,
-                        Optional.ofNullable(card.get("manaCost")).map(JsonElement::getAsString),
+                        cost,
                         Optional.ofNullable(card.get("colors")).map((e) -> {
                             var colors = new ArrayList<ManaType>();
                             for (JsonElement colorElement : e.getAsJsonArray())

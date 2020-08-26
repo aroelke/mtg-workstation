@@ -165,7 +165,7 @@ public class SingleCard extends Card
      */
     public SingleCard(CardLayout layout,
                       String name,
-                      Optional<String> mana,
+                      ManaCost mana,
                       Optional<List<ManaType>> colors,
                       Optional<List<ManaType>> colorIdentity,
                       Optional<Set<String>> supertype,
@@ -190,7 +190,7 @@ public class SingleCard extends Card
         super(set, layout, 1);
 
         this.name = name;
-        this.mana = ManaCost.parseManaCost(mana.orElse(""));
+        this.mana = mana;
         this.supertypes = Collections.unmodifiableSet(supertype.orElse(new HashSet<>()));
         this.types = Collections.unmodifiableSet(type);
         this.subtypes = Collections.unmodifiableSet(subtype.orElse(new HashSet<>()));
