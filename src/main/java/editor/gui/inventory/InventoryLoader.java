@@ -252,7 +252,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             Optional.of(card.supertypes()),
             card.types(),
             Optional.of(card.subtypes()),
-            Optional.of(card.printedTypes().get(0)),
+            card.printedTypes().get(0),
             card.rarity(),
             card.expansion(),
             Optional.of(card.oracleText().get(0)),
@@ -323,6 +323,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
             var costs = new HashMap<String, ManaCost>();
             var colorLists = new HashMap<String, List<ManaType>>();
+            var printedTypes = new HashMap<String, String>(); // Map of type line onto string reference
             var artists = new HashMap<String, String>(); // Map of artist name onto string reference
             var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
             var stats = new HashMap<String, CombatStat>();
@@ -416,6 +417,13 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         colorLists.put(identityStr, identity);
                     }
 
+                    // Typing
+                    String printedType = card.has("originalType") ? card.get("originalType").getAsString() : "";
+                    if (printedTypes.containsKey(printedType))
+                        printedType = printedTypes.get(printedType);
+                    else
+                        printedTypes.put(printedType, printedType);
+
                     // Artist
                     String artist = card.has("artist") ? card.get("artist").getAsString() : "";
                     if (artists.containsKey(artist))
@@ -505,7 +513,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                                 subtypes.add(subElement.getAsString());
                             return subtypes;
                         }),
-                        Optional.ofNullable(card.get("originalType")).map(JsonElement::getAsString),
+                        printedType,
                         Rarity.parseRarity(card.get("rarity").getAsString()),
                         set,
                         Optional.ofNullable(card.get("text")).map(JsonElement::getAsString),
