@@ -245,8 +245,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             CardLayout.NORMAL,
             card.name().get(0),
             card.manaCost().get(0),
-            Optional.of(new ArrayList<>(card.colors())),
-            Optional.of(new ArrayList<>(card.colorIdentity())),
+            card.colors(),
+            card.colorIdentity(),
             Optional.of(card.supertypes()),
             card.types(),
             Optional.of(card.subtypes()),
@@ -320,6 +320,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             }
 
             var costs = new HashMap<String, ManaCost>();
+            var colorLists = new HashMap<String, List<ManaType>>();
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
             for (var setNode : entries)
@@ -375,14 +376,37 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         continue;
                     }
 
-                    String costStr = card.has("manaCost") ? card.get("manaCost").getAsString() : "";
                     ManaCost cost;
+                    String costStr = card.has("manaCost") ? card.get("manaCost").getAsString() : "";
                     if (costs.containsKey(costStr))
                         cost = costs.get(costStr);
                     else
                     {
                         cost = ManaCost.parseManaCost(costStr);
                         costs.put(costStr, cost);
+                    }
+
+                    List<ManaType> colors = new ArrayList<>();
+                    List<ManaType> identity = new ArrayList<>();
+                    String colorsStr = card.get("colors").getAsJsonArray().toString();
+                    String identityStr = card.get("colorIdentity").getAsJsonArray().toString();
+                    if (colorLists.containsKey(colorsStr))
+                        colors = colorLists.get(colorsStr);
+                    else
+                    {
+                        for (JsonElement e : card.get("colors").getAsJsonArray())
+                            colors.add(ManaType.parseManaType(e.getAsString()));
+                        colors = Collections.unmodifiableList(colors);
+                        colorLists.put(colorsStr, colors);
+                    }
+                    if (colorLists.containsKey(identityStr))
+                        identity = colorLists.get(identityStr);
+                    else
+                    {
+                        for (JsonElement e : card.get("colorIdentity").getAsJsonArray())
+                            identity.add(ManaType.parseManaType(e.getAsString()));
+                        identity = Collections.unmodifiableList(identity);
+                        colorLists.put(identityStr, identity);
                     }
 
                     // Formats the card can be commander in
@@ -397,18 +421,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         layout,
                         name,
                         cost,
-                        Optional.ofNullable(card.get("colors")).map((e) -> {
-                            var colors = new ArrayList<ManaType>();
-                            for (JsonElement colorElement : e.getAsJsonArray())
-                                colors.add(ManaType.parseManaType(colorElement.getAsString()));
-                            return colors;
-                        }),
-                        Optional.ofNullable(card.get("colorIdentity")).map((e) -> {
-                            var colorIdentity = new ArrayList<ManaType>();
-                            for (JsonElement identityElement : e.getAsJsonArray())
-                                colorIdentity.add(ManaType.parseManaType(identityElement.getAsString()));
-                            return colorIdentity;
-                        }),
+                        colors,
+                        identity,
                         Optional.ofNullable(card.get("supertypes")).map((e) -> {
                             var supertypes = new LinkedHashSet<String>();
                             for (JsonElement superElement : e.getAsJsonArray())

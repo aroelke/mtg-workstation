@@ -1,6 +1,5 @@
 package editor.database.card;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
 
 import editor.database.attributes.CombatStat;
 import editor.database.attributes.Expansion;
@@ -166,8 +164,8 @@ public class SingleCard extends Card
     public SingleCard(CardLayout layout,
                       String name,
                       ManaCost mana,
-                      Optional<List<ManaType>> colors,
-                      Optional<List<ManaType>> colorIdentity,
+                      List<ManaType> colors,
+                      List<ManaType> colorIdentity,
                       Optional<Set<String>> supertype,
                       Set<String> type,
                       Optional<Set<String>> subtype,
@@ -191,6 +189,8 @@ public class SingleCard extends Card
 
         this.name = name;
         this.mana = mana;
+        this.colors = Collections.unmodifiableList(colors);
+        this.colorIdentity = Collections.unmodifiableList(colorIdentity);
         this.supertypes = Collections.unmodifiableSet(supertype.orElse(new HashSet<>()));
         this.types = Collections.unmodifiableSet(type);
         this.subtypes = Collections.unmodifiableSet(subtype.orElse(new HashSet<>()));
@@ -220,34 +220,6 @@ public class SingleCard extends Card
         if (subtypes.size() > 0)
             str.append(" " + UnicodeSymbols.EM_DASH + " ").append(String.join(" ", subtypes));
         typeLine = str.toString();
-
-        var tempColors = colors.orElse(new ArrayList<>());
-        ManaType.sort(tempColors);
-        this.colors = Collections.unmodifiableList(tempColors);
-        var tempIdentity = colorIdentity.orElse(new ArrayList<>());
-        if (tempIdentity.isEmpty())
-        {
-            // Try to infer the color identity if it's missing
-            tempIdentity.addAll(this.mana.colors());
-            Matcher m = ManaCost.MANA_COST_PATTERN.matcher(this.text.replaceAll("\\(.*\\)", ""));
-            while (m.find())
-                for (ManaType col : ManaCost.parseManaCost(m.group()).colors())
-                    if (col != ManaType.COLORLESS)
-                        tempIdentity.add(col);
-            for (String sub : subtypes)
-            {
-                switch (sub.toLowerCase())
-                {
-                    case "plains"   -> tempIdentity.add(ManaType.WHITE);
-                    case "island"   -> tempIdentity.add(ManaType.BLUE);
-                    case "swamp"    -> tempIdentity.add(ManaType.BLACK);
-                    case "mountain" -> tempIdentity.add(ManaType.RED);
-                    case "forest"   -> tempIdentity.add(ManaType.GREEN);
-                }
-            }
-        }
-        ManaType.sort(tempIdentity);
-        this.colorIdentity = Collections.unmodifiableList(tempIdentity);
 
         var faceTypes = new HashSet<String>();
         faceTypes.addAll(supertypes);
