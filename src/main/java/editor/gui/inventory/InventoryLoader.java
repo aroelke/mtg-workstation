@@ -262,7 +262,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             Optional.of(card.power().get(0).toString()),
             Optional.of(card.toughness().get(0).toString()),
             Optional.of(card.loyalty().get(0).toString()),
-            Optional.of(new TreeMap<>(card.rulings())),
+            new TreeMap<>(card.rulings()),
             Optional.of(card.legality()),
             card.commandFormats()
         );
@@ -376,6 +376,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         continue;
                     }
 
+                    // Mana Cost
                     ManaCost cost;
                     String costStr = card.has("manaCost") ? card.get("manaCost").getAsString() : "";
                     if (costs.containsKey(costStr))
@@ -386,6 +387,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         costs.put(costStr, cost);
                     }
 
+                    // Colors and color identity
                     List<ManaType> colors = new ArrayList<>();
                     List<ManaType> identity = new ArrayList<>();
                     String colorsStr = card.get("colors").getAsJsonArray().toString();
@@ -407,6 +409,28 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                             identity.add(ManaType.parseManaType(e.getAsString()));
                         identity = Collections.unmodifiableList(identity);
                         colorLists.put(identityStr, identity);
+                    }
+
+                    // Rulings
+                    var rulings = new TreeMap<Date, List<String>>();
+                    if (card.has("rulings"))
+                    {
+                        for (JsonElement l : card.get("rulings").getAsJsonArray())
+                        {
+                            JsonObject o = l.getAsJsonObject();
+                            String ruling = o.get("text").getAsString();
+                            try
+                            {
+                                Date date = format.parse(o.get("date").getAsString());
+                                if (!rulings.containsKey(date))
+                                    rulings.put(date, new ArrayList<>());
+                                rulings.get(date).add(ruling);
+                            }
+                            catch (ParseException x)
+                            {
+                                errors.add(name + " (" + set + "): " + x.getMessage());
+                            }
+                        }
                     }
 
                     // Formats the card can be commander in
@@ -453,26 +477,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         Optional.ofNullable(card.get("power")).map(JsonElement::getAsString),
                         Optional.ofNullable(card.get("toughness")).map(JsonElement::getAsString),
                         Optional.ofNullable(card.get("loyalty")).map((e) -> e.isJsonNull() ? "X" : e.getAsString()),
-                        Optional.ofNullable(card.get("rulings")).map((e) -> {
-                            var r = new TreeMap<Date, List<String>>();
-                            for (JsonElement l : e.getAsJsonArray())
-                            {
-                                JsonObject o = l.getAsJsonObject();
-                                String ruling = o.get("text").getAsString();
-                                try
-                                {
-                                    Date date = format.parse(o.get("date").getAsString());
-                                    if (!r.containsKey(date))
-                                        r.put(date, new ArrayList<>());
-                                    r.get(date).add(ruling);
-                                }
-                                catch (ParseException x)
-                                {
-                                    errors.add(name + " (" + set + "): " + x.getMessage());
-                                }
-                            }
-                            return r;
-                        }),
+                        rulings,
                         Optional.ofNullable(card.get("legalities")).map((e) -> {
                             var l = new HashMap<String, Legality>();
                             for (var entry : e.getAsJsonObject().entrySet())

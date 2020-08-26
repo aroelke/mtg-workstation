@@ -181,7 +181,7 @@ public class SingleCard extends Card
                       Optional<String> power,
                       Optional<String> toughness,
                       Optional<String> loyalty,
-                      Optional<TreeMap<Date, List<String>>> rulings,
+                      TreeMap<Date, List<String>> rulings,
                       Optional<Map<String, Legality>> legality,
                       List<String> command)
     {
@@ -206,7 +206,7 @@ public class SingleCard extends Card
         this.loyalty = new Loyalty(loyalty.orElse(""));
         this.imageName = name.toLowerCase();
         this.rarity = rarity;
-        this.rulings = rulings.orElse(new TreeMap<>());
+        this.rulings = Collections.unmodifiableMap(rulings);
         this.legality = Collections.unmodifiableMap(legality.orElse(new HashMap<>()));
         this.commandFormats = Collections.unmodifiableList(command);
 
