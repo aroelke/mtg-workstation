@@ -323,6 +323,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             var allTypes = new HashMap<String, String>(); // map of type onto string reference
             var typeSets = new HashMap<String, Set<String>>();
             var allSubtypes = new HashMap<String, String>(); // map of subtype onto string reference
+            var subtypeSets = new HashMap<String, Set<String>>();
             var printedTypes = new HashMap<String, String>(); // Map of type line onto string reference
             var artists = new HashMap<String, String>(); // Map of artist name onto string reference
             var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
@@ -452,12 +453,20 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     }
 
                     // Subtypes
-                    var subtypes = new HashSet<String>();
-                    for (JsonElement e : card.get("subtypes").getAsJsonArray())
+                    Set<String> subtypes;
+                    String subtypeStr = card.get("subtypes").getAsJsonArray().toString();
+                    if (subtypeSets.containsKey(subtypeStr))
+                        subtypes = subtypeSets.get(subtypeStr);
+                    else
                     {
-                        if (!allSubtypes.containsKey(e.getAsString()))
-                            allSubtypes.put(e.getAsString(), e.getAsString());
-                        subtypes.add(allSubtypes.get(e.getAsString()));
+                        subtypes = new HashSet<>();
+                        for (JsonElement e : card.get("subtypes").getAsJsonArray())
+                        {
+                            if (!allSubtypes.containsKey(e.getAsString()))
+                                allSubtypes.put(e.getAsString(), e.getAsString());
+                            subtypes.add(allSubtypes.get(e.getAsString()));
+                        }
+                        subtypeSets.put(subtypeStr, subtypes);
                     }
 
                     // Printed type line
