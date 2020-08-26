@@ -64,6 +64,7 @@ import com.google.gson.reflect.TypeToken;
 
 import editor.collection.Inventory;
 import editor.database.FormatConstraints;
+import editor.database.attributes.CombatStat;
 import editor.database.attributes.Expansion;
 import editor.database.attributes.Legality;
 import editor.database.attributes.ManaCost;
@@ -260,8 +261,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             card.artist().get(0),
             card.multiverseid().get(0),
             Optional.of(card.number().get(0)),
-            Optional.of(card.power().get(0).toString()),
-            Optional.of(card.toughness().get(0).toString()),
+            card.power().get(0),
+            card.toughness().get(0),
             Optional.of(card.loyalty().get(0).toString()),
             new TreeMap<>(card.rulings()),
             card.legality(),
@@ -324,6 +325,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             var colorLists = new HashMap<String, List<ManaType>>();
             var artists = new HashMap<String, String>(); // Map of artist name onto string reference
             var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
+            var stats = new HashMap<String, CombatStat>();
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
             for (var setNode : entries)
@@ -421,6 +423,25 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     else
                         artists.put(artist, artist);
 
+                    // Power and toughness
+                    CombatStat power, toughness;
+                    String powerStr = card.has("power") ? card.get("power").getAsString() : "";
+                    String toughStr = card.has("toughness") ? card.get("toughness").getAsString() : "";
+                    if (stats.containsKey(powerStr))
+                        power = stats.get(powerStr);
+                    else
+                    {
+                        power = new CombatStat(powerStr);
+                        stats.put(powerStr, power);
+                    }
+                    if (stats.containsKey(toughStr))
+                        toughness = stats.get(toughStr);
+                    else
+                    {
+                        toughness = new CombatStat(toughStr);
+                        stats.put(toughStr, toughness);
+                    }
+
                     // Rulings
                     var rulings = new TreeMap<Date, List<String>>();
                     if (card.has("rulings"))
@@ -493,8 +514,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         artist,
                         multiverseid,
                         Optional.ofNullable(card.get("number")).map(JsonElement::getAsString),
-                        Optional.ofNullable(card.get("power")).map(JsonElement::getAsString),
-                        Optional.ofNullable(card.get("toughness")).map(JsonElement::getAsString),
+                        power,
+                        toughness,
                         Optional.ofNullable(card.get("loyalty")).map((e) -> e.isJsonNull() ? "X" : e.getAsString()),
                         rulings,
                         legality,

@@ -177,8 +177,8 @@ public class SingleCard extends Card
                       String artist,
                       int multiverseid,
                       Optional<String> number,
-                      Optional<String> power,
-                      Optional<String> toughness,
+                      CombatStat power,
+                      CombatStat toughness,
                       Optional<String> loyalty,
                       TreeMap<Date, List<String>> rulings,
                       Map<String, Legality> legality,
@@ -200,8 +200,8 @@ public class SingleCard extends Card
         this.artist = artist;
         this.number = number.orElse("");
         this.multiverseid = multiverseid;
-        this.power = new CombatStat(power.orElse(""));
-        this.toughness = new CombatStat(toughness.orElse(""));
+        this.power = power;
+        this.toughness = toughness;
         this.loyalty = new Loyalty(loyalty.orElse(""));
         this.imageName = name.toLowerCase();
         this.rarity = rarity;
