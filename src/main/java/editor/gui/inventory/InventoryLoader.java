@@ -319,6 +319,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             var costs = new HashMap<String, ManaCost>();
             var colorLists = new HashMap<String, List<ManaType>>();
             var allSupertypes = new HashMap<String, String>(); // map of supertype onto string reference
+            var supertypeSets = new HashMap<String, Set<String>>();
             var allTypes = new HashMap<String, String>(); // map of type onto string reference
             var allSubtypes = new HashMap<String, String>(); // map of subtype onto string reference
             var printedTypes = new HashMap<String, String>(); // Map of type line onto string reference
@@ -415,14 +416,24 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         colorLists.put(identityStr, identity);
                     }
 
-                    // Typing
-                    var supertypes = new HashSet<String>();
-                    for (JsonElement e : card.get("supertypes").getAsJsonArray())
+                    // Supertypes
+                    Set<String> supertypes;
+                    var supertypeStr = card.get("supertypes").getAsJsonArray().toString();
+                    if (supertypeSets.containsKey(supertypeStr))
+                        supertypes = supertypeSets.get(supertypeStr);
+                    else
                     {
-                        if (!allSupertypes.containsKey(e.getAsString()))
-                            allSupertypes.put(e.getAsString(), e.getAsString());
-                        supertypes.add(allSupertypes.get(e.getAsString()));
+                        supertypes = new HashSet<>();
+                        for (JsonElement e : card.get("supertypes").getAsJsonArray())
+                        {
+                            if (!allSupertypes.containsKey(e.getAsString()))
+                                allSupertypes.put(e.getAsString(), e.getAsString());
+                            supertypes.add(allSupertypes.get(e.getAsString()));
+                        }
+                        supertypeSets.put(supertypeStr, supertypes);
                     }
+
+                    // Types
                     var types = new HashSet<String>();
                     for (JsonElement e : card.get("types").getAsJsonArray())
                     {
@@ -430,6 +441,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                             allTypes.put(e.getAsString(), e.getAsString());
                         types.add(allTypes.get(e.getAsString()));
                     }
+
+                    // Subtypes
                     var subtypes = new HashSet<String>();
                     for (JsonElement e : card.get("subtypes").getAsJsonArray())
                     {
@@ -437,6 +450,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                             allSubtypes.put(e.getAsString(), e.getAsString());
                         subtypes.add(allSubtypes.get(e.getAsString()));
                     }
+
+                    // Printed type line
                     String printedType = card.has("originalType") ? card.get("originalType").getAsString() : "";
                     if (printedTypes.containsKey(printedType))
                         printedType = printedTypes.get(printedType);
