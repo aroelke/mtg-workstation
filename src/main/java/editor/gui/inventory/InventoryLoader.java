@@ -354,7 +354,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     JsonObject card = cardElement.getAsJsonObject();
 
                     // Card's multiverseid.  Skip cards that aren't in gatherer
-                    long multiverseid = Optional.ofNullable(version.compareTo(VER_5_0_0) < 0 ? card.get("multiverseId") : card.get("identifiers").getAsJsonObject().get("multiverseId")).map(JsonElement::getAsLong).orElse(-1L);
+                    int multiverseid = Optional.ofNullable(version.compareTo(VER_5_0_0) < 0 ? card.get("multiverseId") : card.get("identifiers").getAsJsonObject().get("multiverseId")).map(JsonElement::getAsInt).orElse(-1);
                     if (multiverseid < 0)
                         continue;
 
@@ -635,7 +635,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             }
 
             publish("Removing duplicate entries...");
-            var unique = new HashMap<Long, Card>();
+            var unique = new HashMap<Integer, Card>();
             for (Card c : cards)
                 if (!unique.containsKey(c.multiverseid().get(0)))
                     unique.put(c.multiverseid().get(0), c);
@@ -658,9 +658,9 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         if (Files.exists(Path.of(SettingsDialog.settings().inventory.tags)))
         {
             @SuppressWarnings("unchecked")
-            var rawTags = (Map<Long, Set<String>>)MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Path.of(SettingsDialog.settings().inventory.tags))), new TypeToken<Map<Long, Set<String>>>() {}.getType());
+            var rawTags = (Map<Integer, Set<String>>)MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Path.of(SettingsDialog.settings().inventory.tags))), new TypeToken<Map<Long, Set<String>>>() {}.getType());
             Card.tags.clear();
-            Card.tags.putAll(rawTags.entrySet().stream().collect(Collectors.toMap((e) -> inventory.get(e.getKey()), Map.Entry::getValue)));
+            Card.tags.putAll(rawTags.entrySet().stream().collect(Collectors.toMap((e) -> inventory.find(e.getKey()), Map.Entry::getValue)));
         }
 
         return inventory;

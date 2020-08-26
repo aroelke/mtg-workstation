@@ -1703,9 +1703,9 @@ public class MainFrame extends JFrame
      * @param id multiverseid of the #Card to look for
      * @return the #Card with the given multiverseid.
      */
-    public Card getCard(long id)
+    public Card getCard(int id)
     {
-        return inventory.get(id);
+        return inventory.find(id);
     }
 
     /**

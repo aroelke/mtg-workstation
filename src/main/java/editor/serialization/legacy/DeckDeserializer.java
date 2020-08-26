@@ -22,7 +22,7 @@ public interface DeckDeserializer
         int n = in.readInt();
         for (int i = 0; i < n; i++)
         {
-            Card card = MainFrame.inventory().get(in.readLong());
+            Card card = MainFrame.inventory().find((int)in.readLong());
             int count = in.readInt();
             LocalDate added = (LocalDate)in.readObject();
             d.add(card, count, added);

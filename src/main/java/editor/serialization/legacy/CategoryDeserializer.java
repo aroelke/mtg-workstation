@@ -16,9 +16,9 @@ public interface CategoryDeserializer
         spec.setColor((Color)in.readObject());
         spec.setFilter(FilterDeserializer.readExternal(in));
         for (int i = in.readInt(); i > 0; i--)
-            spec.exclude(MainFrame.inventory().get(in.readLong()));
+            spec.exclude(MainFrame.inventory().find((int)in.readLong()));
         for (int i = in.readInt(); i > 0; i--)
-            spec.include(MainFrame.inventory().get(in.readLong()));
+            spec.include(MainFrame.inventory().find((int)in.readLong()));
         return spec;
     }
 }

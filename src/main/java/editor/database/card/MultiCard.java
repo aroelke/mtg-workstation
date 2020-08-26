@@ -87,7 +87,7 @@ public abstract class MultiCard extends Card
     /**
      * List containing this MultiCard's faces' multiverseids.
      */
-    private Lazy<List<Long>> multiverseid;
+    private Lazy<List<Integer>> multiverseid;
     /**
      * List containing the oracle text of each of this MultiCard's faces.
      */
@@ -294,7 +294,7 @@ public abstract class MultiCard extends Card
     }
 
     @Override
-    public List<Long> multiverseid()
+    public List<Integer> multiverseid()
     {
         return multiverseid.get();
     }
