@@ -256,7 +256,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             Optional.of(card.oracleText().get(0)),
             Optional.of(card.flavorText().get(0)),
             Optional.of(card.printedText().get(0)),
-            Optional.of(card.artist().get(0)),
+            card.artist().get(0),
             card.multiverseid().get(0),
             Optional.of(card.number().get(0)),
             Optional.of(card.power().get(0).toString()),
@@ -321,6 +321,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
             var costs = new HashMap<String, ManaCost>();
             var colorLists = new HashMap<String, List<ManaType>>();
+            var artists = new HashMap<String, String>(); // Map of artist name onto string reference
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
             for (var setNode : entries)
@@ -411,6 +412,13 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         colorLists.put(identityStr, identity);
                     }
 
+                    // Artist
+                    String artist = card.has("artist") ? card.get("artist").getAsString() : "";
+                    if (artists.containsKey(artist))
+                        artist = artists.get(artist);
+                    else
+                        artists.put(artist, artist);
+
                     // Rulings
                     var rulings = new TreeMap<Date, List<String>>();
                     if (card.has("rulings"))
@@ -471,7 +479,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         Optional.ofNullable(card.get("text")).map(JsonElement::getAsString),
                         Optional.ofNullable(card.get("flavorText")).map(JsonElement::getAsString),
                         Optional.ofNullable(card.get("originalText")).map(JsonElement::getAsString),
-                        Optional.ofNullable(card.get("artist")).map(JsonElement::getAsString),
+                        artist,
                         multiverseid,
                         Optional.ofNullable(card.get("number")).map(JsonElement::getAsString),
                         Optional.ofNullable(card.get("power")).map(JsonElement::getAsString),
