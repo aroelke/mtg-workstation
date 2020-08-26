@@ -249,7 +249,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             card.manaCost().get(0),
             card.colors(),
             card.colorIdentity(),
-            Optional.of(card.supertypes()),
+            card.supertypes(),
             card.types(),
             Optional.of(card.subtypes()),
             card.printedTypes().get(0),
@@ -289,7 +289,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         var melds = new HashMap<Card, List<String>>();
         var expansions = new HashSet<Expansion>();
         var blockNames = new HashSet<String>();
-        var supertypeSet = new HashSet<String>();
         var typeSet = new HashSet<String>();
         var subtypeSet = new HashSet<String>();
         var formatSet = new HashSet<String>();
@@ -323,6 +322,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
             var costs = new HashMap<String, ManaCost>();
             var colorLists = new HashMap<String, List<ManaType>>();
+            var allSupertypes = new HashMap<String, String>(); // map of supertype onto string reference
             var printedTypes = new HashMap<String, String>(); // Map of type line onto string reference
             var artists = new HashMap<String, String>(); // Map of artist name onto string reference
             var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
@@ -335,7 +335,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 {
                     expansions.clear();
                     blockNames.clear();
-                    supertypeSet.clear();
+                    allSupertypes.clear();
                     typeSet.clear();
                     subtypeSet.clear();
                     formatSet.clear();
@@ -418,6 +418,13 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     }
 
                     // Typing
+                    var supertypes = new HashSet<String>();
+                    for (JsonElement e : card.get("supertypes").getAsJsonArray())
+                    {
+                        if (!allSupertypes.containsKey(e.getAsString()))
+                            allSupertypes.put(e.getAsString(), e.getAsString());
+                        supertypes.add(allSupertypes.get(e.getAsString()));
+                    }
                     String printedType = card.has("originalType") ? card.get("originalType").getAsString() : "";
                     if (printedTypes.containsKey(printedType))
                         printedType = printedTypes.get(printedType);
@@ -495,12 +502,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         cost,
                         colors,
                         identity,
-                        Optional.ofNullable(card.get("supertypes")).map((e) -> {
-                            var supertypes = new LinkedHashSet<String>();
-                            for (JsonElement superElement : e.getAsJsonArray())
-                                supertypes.add(superElement.getAsString());
-                            return supertypes;
-                        }),
+                        supertypes,
                         Optional.ofNullable(card.get("types")).map((e) -> {
                             var types = new LinkedHashSet<String>();
                             for (JsonElement typeElement : e.getAsJsonArray())
@@ -529,7 +531,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         legality,
                         commandFormats
                     );
-                    supertypeSet.addAll(c.supertypes());
                     typeSet.addAll(c.types());
                     subtypeSet.addAll(c.subtypes());
                     formatSet.addAll(c.legality().keySet());
@@ -718,7 +719,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             // Store the lists of expansion and block names and types and sort them alphabetically
             Expansion.expansions = expansions.stream().sorted().toArray(Expansion[]::new);
             Expansion.blocks = blockNames.stream().sorted().toArray(String[]::new);
-            SupertypeFilter.supertypeList = supertypeSet.stream().sorted().toArray(String[]::new);
+            SupertypeFilter.supertypeList = allSupertypes.keySet().stream().sorted().toArray(String[]::new);
             CardTypeFilter.typeList = typeSet.stream().sorted().toArray(String[]::new);
             SubtypeFilter.subtypeList = subtypeSet.stream().sorted().toArray(String[]::new);
 

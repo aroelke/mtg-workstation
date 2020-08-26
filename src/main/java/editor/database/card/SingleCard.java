@@ -165,7 +165,7 @@ public class SingleCard extends Card
                       ManaCost mana,
                       List<ManaType> colors,
                       List<ManaType> colorIdentity,
-                      Optional<Set<String>> supertype,
+                      Set<String> supertype,
                       Set<String> type,
                       Optional<Set<String>> subtype,
                       String printedTypes,
@@ -190,7 +190,7 @@ public class SingleCard extends Card
         this.mana = mana;
         this.colors = Collections.unmodifiableList(colors);
         this.colorIdentity = Collections.unmodifiableList(colorIdentity);
-        this.supertypes = Collections.unmodifiableSet(supertype.orElse(new HashSet<>()));
+        this.supertypes = Collections.unmodifiableSet(supertype);
         this.types = Collections.unmodifiableSet(type);
         this.subtypes = Collections.unmodifiableSet(subtype.orElse(new HashSet<>()));
         this.printedTypes = printedTypes;
