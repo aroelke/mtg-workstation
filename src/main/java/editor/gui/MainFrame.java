@@ -1763,6 +1763,7 @@ public class MainFrame extends JFrame
         inventoryModel = new CardTableModel(inventory, SettingsDialog.settings().inventory.columns);
         inventoryTable.setModel(inventoryModel);
         setCursor(Cursor.getDefaultCursor());
+        System.gc();
     }
 
     /**
