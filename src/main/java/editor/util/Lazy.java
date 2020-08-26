@@ -44,7 +44,10 @@ public class Lazy<T> implements Supplier<T>
     public T get()
     {
         if (value == null)
+        {
             value = supplier.get();
+            supplier = null;
+        }
         return value;
     }
 }
