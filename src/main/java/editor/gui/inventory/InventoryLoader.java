@@ -341,9 +341,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     setProperties.get("name").getAsString(),
                     Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse("<No Block>"),
                     setProperties.get("code").getAsString(),
-                    setProperties.get(setProperties.has("oldCode") ? "oldCode" : "code").getAsString(),
-                    setProperties.get(setProperties.has("magicCardsInfoCode") ? "magicCardsInfoCode" : "code").getAsString().toUpperCase(),
-                    setProperties.get(setProperties.has("gathererCode") ? "gathererCode" : "code").getAsString(),
                     setCards.size(),
                     LocalDate.parse(setProperties.get("releaseDate").getAsString(), Expansion.DATE_FORMATTER)
                 );

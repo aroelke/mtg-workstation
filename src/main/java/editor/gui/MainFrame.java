@@ -84,6 +84,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -1183,18 +1185,12 @@ public class MainFrame extends JFrame
         showExpansionsItem.addActionListener((e) -> {
             TableModel expansionTableModel = new AbstractTableModel()
             {
-                private final String[] columns = {
-                    "Expansion",
-                    "Block",
-                    "Code",
-                    "magiccards.info",
-                    "Gatherer"
-                };
+                private final String[] columns = { "Expansion", "Block", "Code", "Cards" };
 
                 @Override
                 public int getColumnCount()
                 {
-                    return 5;
+                    return columns.length;
                 }
 
                 @Override
@@ -1214,19 +1210,28 @@ public class MainFrame extends JFrame
                 {
                     final Object[] values = {
                         Expansion.expansions[rowIndex].name,
-                        Expansion.expansions[rowIndex].block,
+                        Expansion.expansions[rowIndex].block.isEmpty() ? "" : Expansion.expansions[rowIndex].block,
                         Expansion.expansions[rowIndex].code,
-                        Expansion.expansions[rowIndex].magicCardsInfoCode,
-                        Expansion.expansions[rowIndex].gathererCode
+                        Expansion.expansions[rowIndex].count
                     };
                     return values[columnIndex];
                 }
             };
-            JTable expansionTable = new JTable(expansionTableModel);
+            JTable expansionTable = new JTable(expansionTableModel) {
+                @Override
+                public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+                {
+                    Component component = super.prepareRenderer(renderer, row, column);
+                    int width = component.getPreferredSize().width;
+                    TableColumn tableColumn = getColumnModel().getColumn(column);
+                    tableColumn.setPreferredWidth(Math.max(width + getIntercellSpacing().width, tableColumn.getPreferredWidth()));
+                    return component;
+                }
+            };
             expansionTable.setShowGrid(false);
             expansionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             expansionTable.setAutoCreateRowSorter(true);
-            expansionTable.setPreferredScrollableViewportSize(new Dimension(600, expansionTable.getPreferredScrollableViewportSize().height));
+            expansionTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
             JOptionPane.showMessageDialog(this, new JScrollPane(expansionTable), "Expansions", JOptionPane.PLAIN_MESSAGE);
         });

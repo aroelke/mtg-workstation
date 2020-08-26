@@ -36,22 +36,9 @@ public class Expansion implements Comparable<Expansion>
      */
     public final int count;
     /**
-     * This expansion's code on Gatherer, or null if it's the same as the
-     * set code or isn't on Gatherer.
-     */
-    public final String gathererCode;
-    /**
-     * This Expansion's code on <a href="http://magiccards.info">magiccards.info</a>.
-     */
-    public final String magicCardsInfoCode;
-    /**
      * This Expansion's name.
      */
     public final String name;
-    /**
-     * The old Gatherer code used for this Expansion.
-     */
-    public final String oldCode;
     /**
      * The date the expansion was released.
      */
@@ -60,22 +47,16 @@ public class Expansion implements Comparable<Expansion>
     /**
      * Create a new Expansion.
      *
-     * @param name           name of the new expansion
-     * @param block          name of the block the new Expansion belongs to
-     * @param code           code of the new Expansion (usually three letters)
-     * @param old            old Gatherer code for the new Expansion
-     * @param magicCardsInfo magiccards.info code of the new Expansion
-     * @param gatherer       gatherer code of the new Expansion
-     * @param count          number of cards in the new Expansion
+     * @param name name of the new expansion
+     * @param block name of the block the new Expansion belongs to
+     * @param code code of the new Expansion
+     * @param count number of cards in the new Expansion
      */
-    public Expansion(String name, String block, String code, String old, String magicCardsInfo, String gatherer, int count, LocalDate date)
+    public Expansion(String name, String block, String code, int count, LocalDate date)
     {
         this.name = name;
         this.block = block;
         this.code = code;
-        this.oldCode = old;
-        this.magicCardsInfoCode = magicCardsInfo;
-        this.gathererCode = gatherer;
         this.count = count;
         this.releaseDate = date;
     }
