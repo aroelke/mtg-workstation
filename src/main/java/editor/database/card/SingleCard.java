@@ -171,9 +171,9 @@ public class SingleCard extends Card
                       String printedTypes,
                       Rarity rarity,
                       Expansion set,
-                      Optional<String> text,
+                      String text,
                       Optional<String> flavor,
-                      Optional<String> printed,
+                      String printed,
                       String artist,
                       int multiverseid,
                       String number,
@@ -194,9 +194,9 @@ public class SingleCard extends Card
         this.types = Collections.unmodifiableSet(type);
         this.subtypes = Collections.unmodifiableSet(subtype);
         this.printedTypes = printedTypes;
-        this.text = text.orElse("");
+        this.text = text;
         this.flavor = flavor.orElse("");
-        this.printed = printed.orElse("");
+        this.printed = printed;
         this.artist = artist;
         this.number = number;
         this.multiverseid = multiverseid;
