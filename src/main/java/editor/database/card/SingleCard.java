@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -172,7 +171,7 @@ public class SingleCard extends Card
                       Rarity rarity,
                       Expansion set,
                       String text,
-                      Optional<String> flavor,
+                      String flavor,
                       String printed,
                       String artist,
                       int multiverseid,
@@ -195,7 +194,7 @@ public class SingleCard extends Card
         this.subtypes = Collections.unmodifiableSet(subtype);
         this.printedTypes = printedTypes;
         this.text = text;
-        this.flavor = flavor.orElse("");
+        this.flavor = flavor;
         this.printed = printed;
         this.artist = artist;
         this.number = number;

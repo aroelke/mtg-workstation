@@ -256,7 +256,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             card.rarity(),
             card.expansion(),
             card.oracleText().get(0),
-            Optional.of(card.flavorText().get(0)),
+            card.flavorText().get(0),
             card.printedText().get(0),
             card.artist().get(0),
             card.multiverseid().get(0),
@@ -328,7 +328,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             var allSubtypes = new HashMap<String, String>(); // map of subtype onto string reference
             var subtypeSets = new HashMap<String, Set<String>>();
             var printedTypes = new HashMap<String, String>(); // Map of type line onto string reference
-            var texts = new HashMap<String, String>(); // map of oracle text onto string reference
+            var texts = new HashMap<String, String>(); // map of text onto string reference
+            var flavors = new HashMap<String, String>(); // map of flavor text onto string reference
             var artists = new HashMap<String, String>(); // Map of artist name onto string reference
             var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
             var numbers = new HashMap<String, String>(); // Map of number (string) onto string reference
@@ -494,6 +495,13 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     else
                         texts.put(printedText, printedText);
 
+                    // Flavor text
+                    String flavor = card.has("flavorText") ? card.get("flavorText").getAsString() : "";
+                    if (flavors.containsKey(flavor))
+                        flavor = flavors.get(flavor);
+                    else
+                        flavors.put(flavor, flavor);
+
                     // Artist
                     String artist = card.has("artist") ? card.get("artist").getAsString() : "";
                     if (artists.containsKey(artist))
@@ -587,7 +595,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         Rarity.parseRarity(card.get("rarity").getAsString()),
                         set,
                         oracle,
-                        Optional.ofNullable(card.get("flavorText")).map(JsonElement::getAsString),
+                        flavor,
                         printedText,
                         artist,
                         multiverseid,
