@@ -1809,11 +1809,20 @@ public class EditorFrame extends JInternalFrame
         return deck().current.categories();
     }
 
+    /**
+     * @param name name of the category to check
+     * @return <code>true</code> if the deck has a category of that name, and <code>false</code> otherwise.
+     */
     public boolean containsCategory(String name)
     {
         return deck().current.containsCategory(name);
     }
 
+    /**
+     * @param name name of the category to get
+     * @return The specification for the chosen category
+     * @throws IllegalArgumentException if no category of that name exists
+     */
     public CategorySpec getCategory(String name) throws IllegalArgumentException
     {
         return deck().current.getCategorySpec(name);
