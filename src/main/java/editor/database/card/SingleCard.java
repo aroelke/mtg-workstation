@@ -179,7 +179,7 @@ public class SingleCard extends Card
                       String number,
                       CombatStat power,
                       CombatStat toughness,
-                      Optional<String> loyalty,
+                      Loyalty loyalty,
                       TreeMap<Date, List<String>> rulings,
                       Map<String, Legality> legality,
                       List<String> command)
@@ -202,7 +202,7 @@ public class SingleCard extends Card
         this.multiverseid = multiverseid;
         this.power = power;
         this.toughness = toughness;
-        this.loyalty = new Loyalty(loyalty.orElse(""));
+        this.loyalty = loyalty;
         this.imageName = name.toLowerCase();
         this.rarity = rarity;
         this.rulings = Collections.unmodifiableMap(rulings);

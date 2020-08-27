@@ -66,6 +66,7 @@ import editor.database.FormatConstraints;
 import editor.database.attributes.CombatStat;
 import editor.database.attributes.Expansion;
 import editor.database.attributes.Legality;
+import editor.database.attributes.Loyalty;
 import editor.database.attributes.ManaCost;
 import editor.database.attributes.ManaType;
 import editor.database.attributes.Rarity;
@@ -262,7 +263,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             card.number().get(0),
             card.power().get(0),
             card.toughness().get(0),
-            Optional.of(card.loyalty().get(0).toString()),
+            card.loyalty().get(0),
             new TreeMap<>(card.rulings()),
             card.legality(),
             card.commandFormats()
@@ -331,6 +332,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
             var numbers = new HashMap<String, String>(); // Map of number (string) onto string reference
             var stats = new HashMap<String, CombatStat>();
+            var loyalties = new HashMap<String, Loyalty>();
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
             for (var setNode : entries)
@@ -492,7 +494,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     else
                         numbers.put(number, number);
 
-                    // Power and toughness
+                    // Power, toughness, and loyalty
                     CombatStat power, toughness;
                     String powerStr = card.has("power") ? card.get("power").getAsString() : "";
                     String toughStr = card.has("toughness") ? card.get("toughness").getAsString() : "";
@@ -509,6 +511,15 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     {
                         toughness = new CombatStat(toughStr);
                         stats.put(toughStr, toughness);
+                    }
+                    Loyalty loyalty;
+                    String loyaltyStr = card.has("loyalty") ? card.get("loyalty").isJsonNull() ? "X" : card.get("loyalty").getAsString() : "";
+                    if (loyalties.containsKey(loyaltyStr))
+                        loyalty = loyalties.get(loyaltyStr);
+                    else
+                    {
+                        loyalty = new Loyalty(loyaltyStr);
+                        loyalties.put(loyaltyStr, loyalty);
                     }
 
                     // Rulings
@@ -570,7 +581,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         number,
                         power,
                         toughness,
-                        Optional.ofNullable(card.get("loyalty")).map((e) -> e.isJsonNull() ? "X" : e.getAsString()),
+                        loyalty,
                         rulings,
                         legality,
                         commandFormats
