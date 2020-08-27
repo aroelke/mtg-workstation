@@ -1668,6 +1668,7 @@ public class MainFrame extends JFrame
             }
             revalidate();
             repaint();
+            System.gc();
             return true;
         }
     }
@@ -1854,6 +1855,7 @@ public class MainFrame extends JFrame
             {
                 if (!canceled)
                     frame = newEditor(manager);
+                System.gc();
             }
         }
         if (!canceled)
