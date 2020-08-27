@@ -259,7 +259,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             Optional.of(card.printedText().get(0)),
             card.artist().get(0),
             card.multiverseid().get(0),
-            Optional.of(card.number().get(0)),
+            card.number().get(0),
             card.power().get(0),
             card.toughness().get(0),
             Optional.of(card.loyalty().get(0).toString()),
@@ -329,6 +329,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             var printedTypes = new HashMap<String, String>(); // Map of type line onto string reference
             var artists = new HashMap<String, String>(); // Map of artist name onto string reference
             var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
+            var numbers = new HashMap<String, String>(); // Map of number (string) onto string reference
             var stats = new HashMap<String, CombatStat>();
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
@@ -485,6 +486,12 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     else
                         artists.put(artist, artist);
 
+                    String number = card.get("number").getAsString();
+                    if (numbers.containsKey(number))
+                        number = numbers.get(number);
+                    else
+                        numbers.put(number, number);
+
                     // Power and toughness
                     CombatStat power, toughness;
                     String powerStr = card.has("power") ? card.get("power").getAsString() : "";
@@ -560,7 +567,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         Optional.ofNullable(card.get("originalText")).map(JsonElement::getAsString),
                         artist,
                         multiverseid,
-                        Optional.ofNullable(card.get("number")).map(JsonElement::getAsString),
+                        number,
                         power,
                         toughness,
                         Optional.ofNullable(card.get("loyalty")).map((e) -> e.isJsonNull() ? "X" : e.getAsString()),
