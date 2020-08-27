@@ -316,6 +316,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                             numCards++;
             }
 
+            // We don't use String.intern() here because the String pool that is maintained must include extra data that adds several MB
+            // to the overall memory consumption of the inventory
             var costs = new HashMap<String, ManaCost>();
             var colorLists = new HashMap<String, List<ManaType>>();
             var allSupertypes = new HashMap<String, String>(); // map of supertype onto string reference
