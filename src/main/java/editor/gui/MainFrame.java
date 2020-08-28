@@ -198,8 +198,9 @@ public class MainFrame extends JFrame
         {
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             Card card = inventory.get(table.convertRowIndexToModel(row));
-            boolean main = selectedFrame.map((f) -> f.hasCard(EditorFrame.MAIN_DECK, card)).orElse(false);
-            boolean extra = selectedFrame.map((f) -> f.getExtraCards().contains(card)).orElse(false);
+            var contained = selectedFrame.map((f) -> f.hasCard(card)).orElse(new ArrayList<>());
+            boolean main = contained.contains(EditorFrame.MAIN_DECK);
+            boolean extra = contained.stream().anyMatch((i) -> i > 0);
             if (main && extra)
                 ComponentUtils.changeFontRecursive(c, c.getFont().deriveFont(Font.BOLD | Font.ITALIC));
             else if (main)

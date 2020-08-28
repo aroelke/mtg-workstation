@@ -1918,6 +1918,17 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
+     * Determine which lists contain the specified card.
+     * 
+     * @param card card to search for
+     * @return A list of IDs corresponding to the lists that contain the given card.
+     */
+    public List<Integer> hasCard(Card card)
+    {
+        return IntStream.range(0, lists.size()).filter((i) -> lists.get(i) != null && lists.get(i).current.contains(card)).boxed().collect(Collectors.toList());
+    }
+
+    /**
      * Check whether or not this editor has the table with the current selection.
      *
      * @return true if this editor has the table with the current selection and false otherwise.

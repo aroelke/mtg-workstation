@@ -7,10 +7,14 @@ import java.awt.Graphics;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -26,7 +30,6 @@ import editor.database.attributes.ManaCost;
 import editor.database.attributes.ManaType;
 import editor.database.card.Card;
 import editor.database.symbol.ColorSymbol;
-import editor.database.symbol.Symbol;
 import editor.util.CollectionUtils;
 import editor.util.UnicodeSymbols;
 
@@ -38,6 +41,18 @@ import editor.util.UnicodeSymbols;
 @SuppressWarnings("serial")
 public class CardTableCellRenderer extends DefaultTableCellRenderer
 {
+    /** Internal cache of icon sets to speed up resizing. */
+    private Map<List<ManaCost>, Icon[][]> cache;
+
+    /**
+     * Create a new CardTableCellRenderer.
+     */
+    public CardTableCellRenderer()
+    {
+        super();
+        cache = new HashMap<>();
+    }
+
     /**
      * {@inheritDoc}
      * Several types of data get special renderings:
@@ -62,16 +77,19 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
             {
             case MANA_COST:
                 panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-                var cost = CollectionUtils.convertToList(value, ManaCost.class);
-                border = BorderFactory.createEmptyBorder(0, 1, cost.size() == 1 ? -1 : 0, 0);
-                for (int i = 0; i < cost.size(); i++)
+                var icons = cache.computeIfAbsent(
+                    CollectionUtils.convertToList(value, ManaCost.class),
+                    (cost) -> cost.stream().map((l) -> l.stream().map((s) -> s.getIcon(13)).toArray(Icon[]::new)).toArray(Icon[][]::new)
+                );
+                border = BorderFactory.createEmptyBorder(0, 1, icons.length == 1 ? -1 : 0, 0);
+                for (int i = 0; i < icons.length; i++)
                 {
-                    if (!cost.get(i).isEmpty())
+                    if (icons[i].length > 0)
                     {
                         if (i > 0)
                             panel.add(new JLabel(Card.FACE_SEPARATOR));
-                        for (Symbol sym : cost.get(i))
-                            panel.add(new JLabel(sym.getIcon(13)));
+                        for (int j = 0; j < icons[i].length; j++)
+                            panel.add(new JLabel(icons[i][j]));
                     }
                 }
                 break;
