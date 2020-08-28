@@ -20,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -36,7 +35,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -210,71 +208,6 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         return result;
     }
 
-    /**
-     * Pool containing values an attribute can have across all cards, used for reducing memory consumption by having cards that
-     * have the same value for an attribute point to the same instance of that value instead of having their own copy of it.
-     * 
-     * @param <E> type of data in the pool
-     * @author Alec Roelke
-     */
-    private class AttributePool<E>
-    {
-        /** Map containing the pool of values. The string key is for O(1) access time for finding and getting the reference. */
-        private Map<String, E> pool;
-
-        /**
-         * Create an empty attribute pool.
-         */
-        public AttributePool()
-        {
-            pool = new HashMap<>();
-        }
-
-        /**
-         * Create an attribute pool with some values already populated.
-         * 
-         * @param m initial values in the attribute pool
-         */
-        public AttributePool(Map<String, ? extends E> m)
-        {
-            pool = new HashMap<>(m);
-        }
-
-        /**
-         * Attempt to get the value associated with the given key.  If that value is missing, generate it and then return it.
-         * 
-         * @param key string corresponding to the value to help with access time
-         * @param gen if there is no value with the given key, use this to generate it
-         * @return The reference to the value corresponding to the key
-         */
-        public E get(String key, Supplier<? extends E> gen)
-        {
-            if (!pool.containsKey(key))
-                pool.put(key, gen.get());
-            return pool.get(key);
-        }
-
-        /**
-         * Convenience function for getting values when the generator uses the key to generate the value.
-         * 
-         * @param key string corresponding to the value
-         * @param gen function generating the value, if missing, from the key
-         * @return The fetched or generated value
-         */
-        public E get(String key, Function<String, ? extends E> gen)
-        {
-            return get(key, () -> gen.apply(key));
-        }
-
-        /**
-         * @return The values in the pool.
-         */
-        public Collection<E> values()
-        {
-            return pool.values();
-        }
-    }
-
     /** File to load from. */
     private File file;
     /** List of errors that occur during loading. */
@@ -386,24 +319,24 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
             // We don't use String.intern() here because the String pool that is maintained must include extra data that adds several MB
             // to the overall memory consumption of the inventory
-            var costs = new AttributePool<ManaCost>();
-            var colorLists = new AttributePool<List<ManaType>>();
-            var allSupertypes = new AttributePool<String>();
-            var supertypeSets = new AttributePool<Set<String>>();
-            var allTypes = new AttributePool<String>();
-            var typeSets = new AttributePool<Set<String>>();
-            var allSubtypes = new AttributePool<String>();
-            var subtypeSets = new AttributePool<Set<String>>();
-            var printedTypes = new AttributePool<String>();
-            var texts = new AttributePool<String>();
-            var flavors = new AttributePool<String>();
-            var artists = new AttributePool<String>();
-            var formats = new AttributePool<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
-            var numbers = new AttributePool<String>();
-            var stats = new AttributePool<CombatStat>();
-            var loyalties = new AttributePool<Loyalty>();
-            var rulingDates = new AttributePool<Date>();
-            var rulingContents = new AttributePool<String>();
+            var costs = new HashMap<String, ManaCost>();
+            var colorLists = new HashMap<String, List<ManaType>>();
+            var allSupertypes = new HashMap<String, String>();
+            var supertypeSets = new HashMap<String, Set<String>>();
+            var allTypes = new HashMap<String, String>();
+            var typeSets = new HashMap<String, Set<String>>();
+            var allSubtypes = new HashMap<String, String>();
+            var subtypeSets = new HashMap<String, Set<String>>();
+            var printedTypes = new HashMap<String, String>();
+            var texts = new HashMap<String, String>();
+            var flavors = new HashMap<String, String>();
+            var artists = new HashMap<String, String>();
+            var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
+            var numbers = new HashMap<String, String>();
+            var stats = new HashMap<String, CombatStat>();
+            var loyalties = new HashMap<String, Loyalty>();
+            var rulingDates = new HashMap<String, Date>();
+            var rulingContents = new HashMap<String, String>();
             publish("Reading cards from " + file.getName() + "...");
             setProgress(0);
             for (var setNode : entries)
@@ -462,11 +395,11 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         for (JsonElement l : card.get("rulings").getAsJsonArray())
                         {
                             JsonObject o = l.getAsJsonObject();
-                            String ruling = rulingContents.get(o.get("text").getAsString(), Function.identity());
+                            String ruling = rulingContents.computeIfAbsent(o.get("text").getAsString(), Function.identity());
                             try
                             {
                                 Date temp = format.parse(o.get("date").getAsString()); // Have to do this to catch the exception
-                                Date date = rulingDates.get(o.get("date").getAsString(), () -> temp);
+                                Date date = rulingDates.computeIfAbsent(o.get("date").getAsString(), (k) -> temp);
                                 if (!rulings.containsKey(date))
                                     rulings.put(date, new ArrayList<>());
                                 rulings.get(date).add(ruling);
@@ -481,62 +414,62 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     // Format legality
                     var legality = new HashMap<String, Legality>();
                     for (var entry : card.get("legalities").getAsJsonObject().entrySet())
-                        legality.put(formats.get(entry.getKey(), Function.identity()), Legality.parseLegality(entry.getValue().getAsString()));
+                        legality.put(formats.computeIfAbsent(entry.getKey(), Function.identity()), Legality.parseLegality(entry.getValue().getAsString()));
 
                     // Formats the card can be commander in
                     var commandFormats = !card.has("leadershipSkills") ? Collections.<String>emptyList() :
                         card.get("leadershipSkills").getAsJsonObject().entrySet().stream()
                             .filter((e) -> e.getValue().getAsBoolean())
-                            .map((e) -> formats.get(e.getKey(), Function.identity()))
+                            .map((e) -> formats.computeIfAbsent(e.getKey(), Function.identity()))
                             .sorted()
                             .collect(Collectors.toList());
 
                     Card c = new SingleCard(
                         layout,
                         name,
-                        costs.get(card.has("manaCost") ? card.get("manaCost").getAsString() : "", ManaCost::parseManaCost),
-                        colorLists.get(card.get("colors").getAsJsonArray().toString(), () -> {
+                        costs.computeIfAbsent(card.has("manaCost") ? card.get("manaCost").getAsString() : "", ManaCost::parseManaCost),
+                        colorLists.computeIfAbsent(card.get("colors").getAsJsonArray().toString(), (k) -> {
                             var col = new ArrayList<ManaType>();
                             for (JsonElement e : card.get("colors").getAsJsonArray())
                                 col.add(ManaType.parseManaType(e.getAsString()));
                             return Collections.unmodifiableList(col);
                         }),
-                        colorLists.get(card.get("colorIdentity").getAsJsonArray().toString(), () -> {
+                        colorLists.computeIfAbsent(card.get("colorIdentity").getAsJsonArray().toString(), (k) -> {
                             var col = new ArrayList<ManaType>();
                             for (JsonElement e : card.get("colorIdentity").getAsJsonArray())
                                 col.add(ManaType.parseManaType(e.getAsString()));
                             return Collections.unmodifiableList(col);
                         }),
-                        supertypeSets.get(card.get("supertypes").getAsJsonArray().toString(), () -> {
+                        supertypeSets.computeIfAbsent(card.get("supertypes").getAsJsonArray().toString(), (k) -> {
                             var s = new HashSet<String>();
                             for (JsonElement e : card.get("supertypes").getAsJsonArray())
-                                s.add(allSupertypes.get(e.getAsString(), Function.identity()));
+                                s.add(allSupertypes.computeIfAbsent(e.getAsString(), Function.identity()));
                             return s;
                         }),
-                        typeSets.get(card.get("types").getAsJsonArray().toString(), () -> {
+                        typeSets.computeIfAbsent(card.get("types").getAsJsonArray().toString(), (str) -> {
                             var s = new HashSet<String>();
                             for (JsonElement e : card.get("types").getAsJsonArray())
-                                s.add(allTypes.get(e.getAsString(), Function.identity()));
+                                s.add(allTypes.computeIfAbsent(e.getAsString(), Function.identity()));
                             return s;
                         }),
-                        subtypeSets.get(card.get("subtypes").getAsJsonArray().toString(), () -> {
+                        subtypeSets.computeIfAbsent(card.get("subtypes").getAsJsonArray().toString(), (k) -> {
                             var s = new HashSet<String>();
                             for (JsonElement e : card.get("subtypes").getAsJsonArray())
-                                s.add(allSubtypes.get(e.getAsString(), Function.identity()));
+                                s.add(allSubtypes.computeIfAbsent(e.getAsString(), Function.identity()));
                             return s;
                         }),
-                        printedTypes.get(card.has("originalType") ? card.get("originalType").getAsString() : "", Function.identity()),
+                        printedTypes.computeIfAbsent(card.has("originalType") ? card.get("originalType").getAsString() : "", Function.identity()),
                         Rarity.parseRarity(card.get("rarity").getAsString()),
                         set,
-                        texts.get(card.has("text") ? card.get("text").getAsString() : "", Function.identity()),
-                        flavors.get(card.has("flavorText") ? card.get("flavorText").getAsString() : "", Function.identity()),
-                        texts.get(card.has("originalText") ? card.get("originalText").getAsString() : "", Function.identity()),
-                        artists.get(card.has("artist") ? card.get("artist").getAsString() : "", Function.identity()),
+                        texts.computeIfAbsent(card.has("text") ? card.get("text").getAsString() : "", Function.identity()),
+                        flavors.computeIfAbsent(card.has("flavorText") ? card.get("flavorText").getAsString() : "", Function.identity()),
+                        texts.computeIfAbsent(card.has("originalText") ? card.get("originalText").getAsString() : "", Function.identity()),
+                        artists.computeIfAbsent(card.has("artist") ? card.get("artist").getAsString() : "", Function.identity()),
                         multiverseid,
-                        numbers.get(card.get("number").getAsString(), Function.identity()),
-                        stats.get(card.has("power") ? card.get("power").getAsString() : "", CombatStat::new),
-                        stats.get(card.has("toughness") ? card.get("toughness").getAsString() : "", CombatStat::new),
-                        loyalties.get(card.has("loyalty") ? card.get("loyalty").isJsonNull() ? "X" : card.get("loyalty").getAsString() : "", Loyalty::new),
+                        numbers.computeIfAbsent(card.get("number").getAsString(), Function.identity()),
+                        stats.computeIfAbsent(card.has("power") ? card.get("power").getAsString() : "", CombatStat::new),
+                        stats.computeIfAbsent(card.has("toughness") ? card.get("toughness").getAsString() : "", CombatStat::new),
+                        loyalties.computeIfAbsent(card.has("loyalty") ? card.get("loyalty").isJsonNull() ? "X" : card.get("loyalty").getAsString() : "", Loyalty::new),
                         rulings,
                         legality,
                         commandFormats
