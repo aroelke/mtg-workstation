@@ -43,6 +43,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -1045,10 +1047,20 @@ public class MainFrame extends JFrame
         editMenu.add(new JSeparator());
 
         // Preferences menu item
+        var settings = new FutureTask<>(() -> new SettingsDialog(this));
+        settings.run();
         JMenuItem preferencesItem = new JMenuItem("Preferences...");
         preferencesItem.addActionListener((e) -> {
-            SettingsDialog settings = new SettingsDialog(this);
-            settings.setVisible(true);
+            try
+            {
+                settings.get().setVisible(true);
+            }
+            catch (ExecutionException | CancellationException | InterruptedException x)
+            {
+                JOptionPane.showMessageDialog(this, "Error creating preferences dialog. Please restart the program.", "Error", JOptionPane.ERROR_MESSAGE);
+                x.printStackTrace();
+                System.exit(1);
+            }
         });
         editMenu.add(preferencesItem);
 
