@@ -719,7 +719,7 @@ public class SettingsDialog extends JDialog
         sampleHandPanel.add(handBGColorPanel);
 
         // Format constraints
-        JPanel formatsPanel = new JPanel(new BorderLayout());
+        Box formatsPanel = Box.createVerticalBox();
         settingsPanel.add(formatsPanel, new TreePath(formatsNode.getPath()).toString());
 
         // Formats table
@@ -733,7 +733,9 @@ public class SettingsDialog extends JDialog
             public boolean isCellEditable(int rowIndex, int columnIndex) { return false; }
         });
         formatsTable.setFillsViewportHeight(true);
-        formatsPanel.add(new JScrollPane(formatsTable), BorderLayout.NORTH);
+        JScrollPane formatsPane = new JScrollPane(formatsTable);
+        formatsPane.setAlignmentX(LEFT_ALIGNMENT);
+        formatsPanel.add(formatsPane);
 
         // Default options for legality panel
         Box legalityDefaultsBox = Box.createHorizontalBox();
@@ -752,14 +754,18 @@ public class SettingsDialog extends JDialog
         legalityDefaultsBox.add(cmdrList);
         cmdrListName = new JTextField();
         legalityDefaultsBox.add(cmdrListName);
-        formatsPanel.add(legalityDefaultsBox, BorderLayout.CENTER);
+        legalityDefaultsBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, legalityDefaultsBox.getPreferredSize().height));
+        legalityDefaultsBox.setAlignmentX(LEFT_ALIGNMENT);
+        formatsPanel.add(legalityDefaultsBox);
         Box sideboardBox = Box.createHorizontalBox();
         sideboardBox.setBorder(BorderFactory.createEmptyBorder(0, 2, 2, 2));
         sideCheck = new JCheckBox("");
         sideboardBox.add(sideCheck);
         sideField = new JTextField();
         sideboardBox.add(sideField);
-        formatsPanel.add(sideboardBox, BorderLayout.SOUTH);
+        sideboardBox.setAlignmentX(LEFT_ALIGNMENT);
+        formatsPanel.add(sideboardBox);
+        formatsPanel.add(Box.createVerticalGlue());
 
         cmdrCheck.addActionListener((e) -> {
             cmdrCheck.setText(cmdrCheck.isSelected() ? "Search for commander in:" : "Search for commander");
