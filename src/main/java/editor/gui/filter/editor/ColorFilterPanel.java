@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -11,10 +12,12 @@ import javax.swing.JLabel;
 import editor.database.attributes.CardAttribute;
 import editor.database.attributes.ManaType;
 import editor.database.symbol.ColorSymbol;
+import editor.database.symbol.StaticSymbol;
 import editor.filter.Filter;
 import editor.filter.leaf.ColorFilter;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.generic.ComboBoxPanel;
+import editor.gui.generic.ComponentUtils;
 import editor.util.Containment;
 
 /**
@@ -62,13 +65,17 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
             JCheckBox box = new JCheckBox();
             colors.put(color, box);
             add(box);
-            JLabel symbol = new JLabel(ColorSymbol.SYMBOLS.get(color).getIcon(13));
-            add(symbol);
+            add(new JLabel(ColorSymbol.SYMBOLS.get(color).getIcon(13)));
         }
+        add(Box.createHorizontalStrut(4));
+        add(ComponentUtils.createHorizontalSeparator(4, contain.getPreferredSize().height));
 
         // Check box for multicolored cards
-        multiCheckBox = new JCheckBox("Multicolored");
+        multiCheckBox = new JCheckBox();
         add(multiCheckBox);
+        add(new JLabel(StaticSymbol.SYMBOLS.get("M").getIcon(13)));
+
+        add(Box.createHorizontalStrut(2));
     }
 
     /**

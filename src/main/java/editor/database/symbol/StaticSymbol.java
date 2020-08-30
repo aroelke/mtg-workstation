@@ -17,10 +17,13 @@ public class StaticSymbol extends ManaSymbol
     /**
      * Map of symbol texts onto their respective symbols.
      */
-    public static final Map<String, StaticSymbol> SYMBOLS = Map.of("1/2", new StaticSymbol("half_mana.png", "1/2", 0.5),
-            String.valueOf(UnicodeSymbols.ONE_HALF), new StaticSymbol("half_mana.png", "1/2", 0.5),
-            String.valueOf(UnicodeSymbols.INFINITY), new StaticSymbol("infinity_mana.png", String.valueOf(UnicodeSymbols.INFINITY), Double.POSITIVE_INFINITY),
-            "S", new StaticSymbol("snow_mana.png", "S", 1));
+    public static final Map<String, StaticSymbol> SYMBOLS = Map.of(
+        "1/2", new StaticSymbol("half_mana.png", "1/2", 0.5),
+        String.valueOf(UnicodeSymbols.ONE_HALF), new StaticSymbol("half_mana.png", "1/2", 0.5),
+        String.valueOf(UnicodeSymbols.INFINITY), new StaticSymbol("infinity_mana.png", String.valueOf(UnicodeSymbols.INFINITY), Double.POSITIVE_INFINITY),
+        "S", new StaticSymbol("snow_mana.png", "S", 1),
+        "M", new StaticSymbol("multicolored.png", "M", 1)
+    );
 
     /**
      * Get the StaticSymbol corresponding to the given String.
