@@ -41,6 +41,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
      * Check box indicating that only multicolored cards should be matched.
      */
     private JCheckBox multiCheckBox;
+    private JCheckBox colorlessBox;
     /**
      * Type of the filter being edited.
      */
@@ -55,8 +56,10 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         // Containment options
-        contain = new ComboBoxPanel<>(Containment.values());
-        add(contain);
+        add(contain = new ComboBoxPanel<>(Containment.values()));
+
+        // Check box for filtering for colorless
+        colorlessBox = new JCheckBox();
 
         // Check boxes for selecting colors
         colors = new HashMap<>();
@@ -66,14 +69,34 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
             colors.put(color, box);
             add(box);
             add(new JLabel(ColorSymbol.SYMBOLS.get(color).getIcon(13)));
+            box.addActionListener((e) -> {
+                if (box.isSelected())
+                    colorlessBox.setSelected(false);
+            });
         }
         add(Box.createHorizontalStrut(4));
         add(ComponentUtils.createHorizontalSeparator(4, contain.getPreferredSize().height));
 
         // Check box for multicolored cards
-        multiCheckBox = new JCheckBox();
-        add(multiCheckBox);
+        add(multiCheckBox = new JCheckBox());
         add(new JLabel(StaticSymbol.SYMBOLS.get("M").getIcon(13)));
+        multiCheckBox.addActionListener((e) -> {
+            if (multiCheckBox.isSelected())
+                colorlessBox.setSelected(false);
+        });
+
+        // Actually add the colorless box here
+        colorlessBox.setSelected(true);
+        add(colorlessBox);
+        add (new JLabel(ColorSymbol.SYMBOLS.get(ManaType.COLORLESS).getIcon(13)));
+        colorlessBox.addActionListener((e) -> {
+            if (colorlessBox.isSelected())
+            {
+                for (JCheckBox box : colors.values())
+                    box.setSelected(false);
+                multiCheckBox.setSelected(false);
+            }
+        });
 
         add(Box.createHorizontalStrut(2));
     }
@@ -108,6 +131,7 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
         for (ManaType color : ManaType.colors())
             colors.get(color).setSelected(filter.colors.contains(color));
         multiCheckBox.setSelected(filter.multicolored);
+        colorlessBox.setSelected(!filter.multicolored && filter.colors.isEmpty());
     }
 
     @Override
