@@ -43,6 +43,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -84,6 +86,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -196,8 +200,9 @@ public class MainFrame extends JFrame
         {
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             Card card = inventory.get(table.convertRowIndexToModel(row));
-            boolean main = selectedFrame.map((f) -> f.hasCard(EditorFrame.MAIN_DECK, card)).orElse(false);
-            boolean extra = selectedFrame.map((f) -> f.getExtraCards().contains(card)).orElse(false);
+            var contained = selectedFrame.map((f) -> f.hasCard(card)).orElse(new ArrayList<>());
+            boolean main = contained.contains(EditorFrame.MAIN_DECK);
+            boolean extra = contained.stream().anyMatch((i) -> i > 0);
             if (main && extra)
                 ComponentUtils.changeFontRecursive(c, c.getFont().deriveFont(Font.BOLD | Font.ITALIC));
             else if (main)
@@ -1042,10 +1047,20 @@ public class MainFrame extends JFrame
         editMenu.add(new JSeparator());
 
         // Preferences menu item
+        var settings = new FutureTask<>(() -> new SettingsDialog(this));
+        settings.run();
         JMenuItem preferencesItem = new JMenuItem("Preferences...");
         preferencesItem.addActionListener((e) -> {
-            SettingsDialog settings = new SettingsDialog(this);
-            settings.setVisible(true);
+            try
+            {
+                settings.get().setVisible(true);
+            }
+            catch (ExecutionException | CancellationException | InterruptedException x)
+            {
+                JOptionPane.showMessageDialog(this, "Error creating preferences dialog. Please restart the program.", "Error", JOptionPane.ERROR_MESSAGE);
+                x.printStackTrace();
+                System.exit(1);
+            }
         });
         editMenu.add(preferencesItem);
 
@@ -1183,18 +1198,12 @@ public class MainFrame extends JFrame
         showExpansionsItem.addActionListener((e) -> {
             TableModel expansionTableModel = new AbstractTableModel()
             {
-                private final String[] columns = {
-                    "Expansion",
-                    "Block",
-                    "Code",
-                    "magiccards.info",
-                    "Gatherer"
-                };
+                private final String[] columns = { "Expansion", "Block", "Code", "Cards" };
 
                 @Override
                 public int getColumnCount()
                 {
-                    return 5;
+                    return columns.length;
                 }
 
                 @Override
@@ -1214,19 +1223,28 @@ public class MainFrame extends JFrame
                 {
                     final Object[] values = {
                         Expansion.expansions[rowIndex].name,
-                        Expansion.expansions[rowIndex].block,
+                        Expansion.expansions[rowIndex].block.isEmpty() ? "" : Expansion.expansions[rowIndex].block,
                         Expansion.expansions[rowIndex].code,
-                        Expansion.expansions[rowIndex].magicCardsInfoCode,
-                        Expansion.expansions[rowIndex].gathererCode
+                        Expansion.expansions[rowIndex].count
                     };
                     return values[columnIndex];
                 }
             };
-            JTable expansionTable = new JTable(expansionTableModel);
+            JTable expansionTable = new JTable(expansionTableModel) {
+                @Override
+                public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+                {
+                    Component component = super.prepareRenderer(renderer, row, column);
+                    int width = component.getPreferredSize().width;
+                    TableColumn tableColumn = getColumnModel().getColumn(column);
+                    tableColumn.setPreferredWidth(Math.max(width + getIntercellSpacing().width, tableColumn.getPreferredWidth()));
+                    return component;
+                }
+            };
             expansionTable.setShowGrid(false);
             expansionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             expansionTable.setAutoCreateRowSorter(true);
-            expansionTable.setPreferredScrollableViewportSize(new Dimension(600, expansionTable.getPreferredScrollableViewportSize().height));
+            expansionTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
             JOptionPane.showMessageDialog(this, new JScrollPane(expansionTable), "Expansions", JOptionPane.PLAIN_MESSAGE);
         });
@@ -1598,7 +1616,8 @@ public class MainFrame extends JFrame
                 JOptionPane.showMessageDialog(this, inventoryFile.getName() + " not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE);
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
                 {
-                    newestVersion = new DatabaseVersion(new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString());
+                    JsonObject data = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject();
+                    newestVersion = new DatabaseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
                 }
                 return UPDATE_NEEDED;
             }
@@ -1663,6 +1682,7 @@ public class MainFrame extends JFrame
             }
             revalidate();
             repaint();
+            System.gc();
             return true;
         }
     }
@@ -1698,9 +1718,9 @@ public class MainFrame extends JFrame
      * @param id multiverseid of the #Card to look for
      * @return the #Card with the given multiverseid.
      */
-    public Card getCard(long id)
+    public Card getCard(int id)
     {
-        return inventory.get(id);
+        return inventory.find(id);
     }
 
     /**
@@ -1758,6 +1778,7 @@ public class MainFrame extends JFrame
         inventoryModel = new CardTableModel(inventory, SettingsDialog.settings().inventory.columns);
         inventoryTable.setModel(inventoryModel);
         setCursor(Cursor.getDefaultCursor());
+        System.gc();
     }
 
     /**
@@ -1848,6 +1869,7 @@ public class MainFrame extends JFrame
             {
                 if (!canceled)
                     frame = newEditor(manager);
+                System.gc();
             }
         }
         if (!canceled)

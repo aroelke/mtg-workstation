@@ -12,16 +12,10 @@ import java.util.function.Supplier;
  */
 public class Lazy<T> implements Supplier<T>
 {
-
-    /**
-     * Cached value.
-     */
-    private T value;
-
-    /**
-     * Supplier for the cached value.
-     */
-    private Supplier<T> supplier;
+    /** Whether or not the value has been computed yet. */
+    private boolean flag;
+    /** Reference to either the computed value or its generator (only one is needed at a time). */
+    private Object ref;
 
     /**
      * Create a new Lazy supplier.
@@ -30,8 +24,8 @@ public class Lazy<T> implements Supplier<T>
      */
     public Lazy(Supplier<T> val)
     {
-        value = null;
-        supplier = val;
+        flag = false;
+        ref = val;
     }
 
     /**
@@ -41,10 +35,14 @@ public class Lazy<T> implements Supplier<T>
      * @return The value computed by the function
      */
     @Override
+    @SuppressWarnings("unchecked")
     public T get()
     {
-        if (value == null)
-            value = supplier.get();
-        return value;
+        if (!flag)
+        {
+            flag = true;
+            ref = ((Supplier<T>)ref).get();
+        }
+        return (T)ref;
     }
 }

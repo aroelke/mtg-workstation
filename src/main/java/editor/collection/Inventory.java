@@ -110,7 +110,7 @@ public class Inventory implements CardList
     /**
      * Map of Card multiverseids onto their cards.
      */
-    private final Map<Long, Card> ids;
+    private final Map<Integer, Card> ids;
 
     /**
      * Create an empty Inventory.  Be careful, because Inventories are immutable.
@@ -206,7 +206,7 @@ public class Inventory implements CardList
      * @return <code>true</code> if a Card with the given Gatherer ID exists in the
      * inventory, and <code>false</code> otherwise.
      */
-    public boolean contains(long multiverseid)
+    public boolean contains(int multiverseid)
     {
         return ids.keySet().contains(multiverseid);
     }
@@ -228,13 +228,13 @@ public class Inventory implements CardList
     }
 
     /**
-     * Get the card in this Inventory with the given UID.
+     * Get the card in this Inventory with the given multiverseid.
      *
      * @param id multiverseid of the Card to look for
      * @return the Card with the given multiverseid, or null if no such card exists.
      * @see Card#id
      */
-    public Card get(long id)
+    public Card find(int id)
     {
         return ids.get(id);
     }

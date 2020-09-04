@@ -26,12 +26,9 @@ public class CardAdapter implements JsonSerializer<Card>, JsonDeserializer<Card>
     @Override
     public Card deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        JsonObject obj = json.getAsJsonObject();
-
-        long multiverseid = obj.get("multiverseid").getAsLong();
-
+        int multiverseid = json.getAsJsonObject().get("multiverseid").getAsInt();
         if (MainFrame.inventory().contains(multiverseid))
-            return MainFrame.inventory().get(multiverseid);
+            return MainFrame.inventory().find(multiverseid);
         else
             throw new JsonParseException("no card with multiverseid " + multiverseid + " exists");
     }

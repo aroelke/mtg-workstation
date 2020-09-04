@@ -9,6 +9,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,6 +19,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -265,7 +268,7 @@ public class SettingsDialog extends JDialog
     /**
      * Check boxes indicating which columns to show in editor tables.
      */
-    private List<JCheckBox> editorColumnCheckBoxes;
+    private Map<CardAttribute, JCheckBox> editorColumnCheckBoxes;
     /**
      * Color chooser for the color of editor tables' alternate stripes.
      */
@@ -282,7 +285,7 @@ public class SettingsDialog extends JDialog
     /**
      * Check boxes indicating which columns to show in the inventory table.
      */
-    private List<JCheckBox> inventoryColumnCheckBoxes;
+    private Map<CardAttribute, JCheckBox> inventoryColumnCheckBoxes;
     /**
      * Text field controlling the directory to store the inventory in once it is downloaded.
      */
@@ -415,7 +418,6 @@ public class SettingsDialog extends JDialog
         inventorySitePanel.add(siteStarLabel);
         inventorySitePanel.add(Box.createHorizontalStrut(5));
         inventorySiteField = new JTextField(15);
-        inventorySiteField.setText(settings.inventory.source);
         inventorySitePanel.add(inventorySiteField);
         inventorySitePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventorySitePanel.getPreferredSize().height));
         inventoryPanel.add(inventorySitePanel);
@@ -429,10 +431,9 @@ public class SettingsDialog extends JDialog
         inventoryFilePanel.add(fileStarLabel);
         inventoryFilePanel.add(Box.createHorizontalStrut(5));
         inventoryFileField = new JTextField(10);
-        inventoryFileField.setText(settings.inventory.file);
         inventoryFilePanel.add(inventoryFileField);
         inventoryFilePanel.add(Box.createHorizontalStrut(5));
-        JLabel currentVersionLabel = new JLabel("(Current version: " + settings.inventory.version + ")");
+        JLabel currentVersionLabel = new JLabel();
         currentVersionLabel.setFont(new Font(currentVersionLabel.getFont().getFontName(), Font.ITALIC, currentVersionLabel.getFont().getSize()));
         inventoryFilePanel.add(currentVersionLabel);
         inventoryFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, inventoryFilePanel.getPreferredSize().height));
@@ -447,8 +448,6 @@ public class SettingsDialog extends JDialog
         JFileChooser inventoryChooser = new JFileChooser();
         inventoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         inventoryChooser.setAcceptAllFileFilterUsed(false);
-        inventoryDirField.setText(settings.inventory.location);
-        inventoryChooser.setCurrentDirectory(new File(inventoryDirField.getText()).getAbsoluteFile());
         inventoryDirPanel.add(inventoryDirField);
         inventoryDirPanel.add(Box.createHorizontalStrut(5));
         JButton inventoryDirButton = new JButton(String.valueOf(UnicodeSymbols.ELLIPSIS));
@@ -473,8 +472,6 @@ public class SettingsDialog extends JDialog
         JFileChooser scansChooser = new JFileChooser();
         scansChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         scansChooser.setAcceptAllFileFilterUsed(false);
-        scansDirField.setText(settings.inventory.scans);
-        scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
         scansDirPanel.add(scansDirField);
         scansDirPanel.add(Box.createHorizontalStrut(5));
         JButton scansDirButton = new JButton(String.valueOf(UnicodeSymbols.ELLIPSIS));
@@ -497,7 +494,6 @@ public class SettingsDialog extends JDialog
         updatePanel.add(updateLabel);
         updatePanel.add(Box.createHorizontalStrut(5));
         updateBox = new JComboBox<>(UpdateFrequency.values());
-        updateBox.setSelectedIndex(settings.inventory.update.ordinal());
         updatePanel.add(updateBox);
         updatePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, updatePanel.getPreferredSize().height));
         inventoryPanel.add(updatePanel);
@@ -505,11 +501,10 @@ public class SettingsDialog extends JDialog
 
         // Show warnings from loading inventory
         JPanel suppressPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        suppressCheckBox = new JCheckBox("Show warnings after loading inventory", settings.inventory.warn);
+        suppressCheckBox = new JCheckBox("Show warnings after loading inventory");
         suppressPanel.add(suppressCheckBox);
         suppressPanel.add(Box.createHorizontalStrut(5));
         JButton viewWarningsButton = new JButton("View Warnings");
-        viewWarningsButton.setEnabled(!inventoryWarnings.isEmpty());
         viewWarningsButton.addActionListener((e) -> {
             StringJoiner join = new StringJoiner("<li>", "<html>", "</ul></html>");
             join.add("Warnings from last inventory load:<ul style=\"margin-top:0;margin-left:20pt\">");
@@ -542,23 +537,22 @@ public class SettingsDialog extends JDialog
         // Columns
         JPanel inventoryColumnsPanel = new JPanel(new GridLayout(0, 5));
         inventoryColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
-        inventoryColumnCheckBoxes = new ArrayList<>();
+        inventoryColumnCheckBoxes = new HashMap<>();
         var inventoryAttributes = Arrays.stream(CardAttribute.inventoryValues()).sorted((a, b) -> {
             return a.toString().compareTo(b.toString());
         }).collect(Collectors.toList());
         for (CardAttribute characteristic : inventoryAttributes)
         {
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
-            inventoryColumnCheckBoxes.add(checkBox);
+            inventoryColumnCheckBoxes.put(characteristic, checkBox);
             inventoryColumnsPanel.add(checkBox);
-            checkBox.setSelected(settings.inventory.columns.contains(characteristic));
         }
         inventoryAppearancePanel.add(inventoryColumnsPanel);
 
         // Stripe color
         JPanel inventoryColorPanel = new JPanel(new BorderLayout());
         inventoryColorPanel.setBorder(BorderFactory.createTitledBorder("Stripe Color"));
-        inventoryStripeColor = new JColorChooser(settings.inventory.stripe);
+        inventoryStripeColor = new JColorChooser();
         createStripeChooserPreview(inventoryStripeColor);
         inventoryColorPanel.add(inventoryStripeColor);
         inventoryAppearancePanel.add(inventoryColorPanel);
@@ -566,7 +560,7 @@ public class SettingsDialog extends JDialog
         // Card image background color
         JPanel scanBGPanel = new JPanel(new BorderLayout());
         scanBGPanel.setBorder(BorderFactory.createTitledBorder("Image Background Color"));
-        scanBGChooser = new JColorChooser(settings.inventory.background);
+        scanBGChooser = new JColorChooser();
         scanBGChooser.getSelectionModel().addChangeListener((e) -> parent.setImageBackground(scanBGChooser.getColor()));
         scanBGPanel.add(scanBGChooser);
         inventoryAppearancePanel.add(scanBGPanel);
@@ -581,7 +575,6 @@ public class SettingsDialog extends JDialog
         recentPanel.add(new JLabel("Recent file count:"));
         recentPanel.add(Box.createHorizontalStrut(5));
         recentSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        recentSpinner.getModel().setValue(settings.editor.recents.count);
         recentPanel.add(recentSpinner);
         recentPanel.add(Box.createHorizontalStrut(5));
         JLabel recentInfoLabel = new JLabel("(Changes will not be visible until program restart)");
@@ -597,7 +590,6 @@ public class SettingsDialog extends JDialog
         explicitsPanel.add(new JLabel("Blacklist/Whitelist rows to display:"));
         explicitsPanel.add(Box.createHorizontalStrut(5));
         explicitsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor.categories.explicits));
         explicitsPanel.add(explicitsSpinner);
         explicitsPanel.setMaximumSize(new Dimension(explicitsPanel.getPreferredSize().width + 5, explicitsPanel.getPreferredSize().height));
         explicitsPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -612,8 +604,6 @@ public class SettingsDialog extends JDialog
         categoriesPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         settingsPanel.add(categoriesPanel, new TreePath(editorCategoriesNode.getPath()).toString());
         categoriesList = new CategoryList("<html><i>&lt;Double-click to add or edit&gt;</i></html>");
-        for (CategorySpec preset : settings.editor.categories.presets)
-            categoriesList.addCategory(new CategorySpec(preset));
         categoriesPanel.add(new JScrollPane(categoriesList), BorderLayout.CENTER);
 
         // Category modification buttons
@@ -643,7 +633,6 @@ public class SettingsDialog extends JDialog
         rowsPanel.add(new JLabel("Initial displayed rows in categories:"));
         rowsPanel.add(Box.createHorizontalStrut(5));
         rowsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        rowsSpinner.getModel().setValue(settings.editor.categories.rows);
         rowsPanel.add(rowsSpinner);
         rowsPanel.setMaximumSize(new Dimension(rowsPanel.getPreferredSize().width + 5, rowsPanel.getPreferredSize().height));
         rowsPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -652,16 +641,15 @@ public class SettingsDialog extends JDialog
         // Editor table columns
         JPanel editorColumnsPanel = new JPanel(new GridLayout(0, 5));
         editorColumnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
-        editorColumnCheckBoxes = new ArrayList<>();
+        editorColumnCheckBoxes = new HashMap<>();
         var editorAttributes = Arrays.stream(CardAttribute.displayableValues()).sorted((a, b) -> {
             return a.toString().compareTo(b.toString());
         }).collect(Collectors.toList());
         for (CardAttribute characteristic : editorAttributes)
         {
             JCheckBox checkBox = new JCheckBox(characteristic.toString());
-            editorColumnCheckBoxes.add(checkBox);
+            editorColumnCheckBoxes.put(characteristic, checkBox);
             editorColumnsPanel.add(checkBox);
-            checkBox.setSelected(settings.editor.columns.contains(characteristic));
         }
         editorColumnsPanel.setAlignmentX(LEFT_ALIGNMENT);
         editorAppearancePanel.add(editorColumnsPanel);
@@ -669,7 +657,7 @@ public class SettingsDialog extends JDialog
         // Editor table stripe color
         JPanel editorColorPanel = new JPanel(new BorderLayout());
         editorColorPanel.setBorder(BorderFactory.createTitledBorder("Stripe Color"));
-        editorStripeColor = new JColorChooser(settings.editor.stripe);
+        editorStripeColor = new JColorChooser();
         createStripeChooserPreview(editorStripeColor);
         editorColorPanel.add(editorStripeColor);
         editorColorPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -692,7 +680,6 @@ public class SettingsDialog extends JDialog
         startingSizePanel.add(new JLabel("Starting Size:"));
         startingSizePanel.add(Box.createHorizontalStrut(5));
         startingSizeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        startingSizeSpinner.getModel().setValue(settings.editor.hand.size);
         startingSizePanel.add(startingSizeSpinner);
         startingSizePanel.add(Box.createHorizontalGlue());
         startingSizePanel.setMaximumSize(new Dimension(startingSizePanel.getPreferredSize().width + 5, startingSizePanel.getPreferredSize().height));
@@ -714,7 +701,6 @@ public class SettingsDialog extends JDialog
             roundGroup.add(modeButton);
             expectedRoundPanel.add(modeButton);
             expectedRoundPanel.add(Box.createHorizontalStrut(5));
-            modeButton.setSelected(mode.equals(settings.editor.hand.rounding));
             modeButtons.add(modeButton);
         }
         expectedRoundPanel.setMaximumSize(expectedRoundPanel.getPreferredSize());
@@ -726,18 +712,20 @@ public class SettingsDialog extends JDialog
         // Sample hand background color
         JPanel handBGColorPanel = new JPanel(new BorderLayout());
         handBGColorPanel.setBorder(BorderFactory.createTitledBorder("Background Color"));
-        handBGColor = new JColorChooser(settings.editor.hand.background);
+        handBGColor = new JColorChooser();
         handBGColor.getSelectionModel().addChangeListener((e) -> parent.setHandBackground(handBGColor.getColor()));
         handBGColorPanel.add(handBGColor);
         handBGColorPanel.setAlignmentX(LEFT_ALIGNMENT);
         sampleHandPanel.add(handBGColorPanel);
 
         // Format constraints
-        JPanel formatsPanel = new JPanel(new BorderLayout());
+        Box formatsPanel = Box.createVerticalBox();
         settingsPanel.add(formatsPanel, new TreePath(formatsNode.getPath()).toString());
 
         // Formats table
-        JTable formatsTable = new JTable(new DefaultTableModel(FormatConstraints.FORMAT_NAMES.stream().map((f) -> FormatConstraints.CONSTRAINTS.get(f).toArray(f)).toArray(Object[][]::new), FormatConstraints.DATA_NAMES.toArray(String[]::new))
+        JTable formatsTable = new JTable(new DefaultTableModel(FormatConstraints.FORMAT_NAMES.stream()
+            .map((f) -> FormatConstraints.CONSTRAINTS.get(f).toArray(f))
+            .toArray(Object[][]::new), FormatConstraints.DATA_NAMES.toArray(String[]::new))
         {
             @Override
             public Class<?> getColumnClass(int column) { return FormatConstraints.CLASSES.get(column); }
@@ -745,12 +733,14 @@ public class SettingsDialog extends JDialog
             public boolean isCellEditable(int rowIndex, int columnIndex) { return false; }
         });
         formatsTable.setFillsViewportHeight(true);
-        formatsPanel.add(new JScrollPane(formatsTable), BorderLayout.NORTH);
+        JScrollPane formatsPane = new JScrollPane(formatsTable);
+        formatsPane.setAlignmentX(LEFT_ALIGNMENT);
+        formatsPanel.add(formatsPane);
 
         // Default options for legality panel
         Box legalityDefaultsBox = Box.createHorizontalBox();
         legalityDefaultsBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        cmdrCheck = new JCheckBox("", settings.editor.legality.searchForCommander);
+        cmdrCheck = new JCheckBox("");
         legalityDefaultsBox.add(cmdrCheck);
         ButtonGroup cmdrGroup = new ButtonGroup();
         cmdrMainDeck = new JRadioButton("Main Deck");
@@ -763,39 +753,19 @@ public class SettingsDialog extends JDialog
         cmdrGroup.add(cmdrList);
         legalityDefaultsBox.add(cmdrList);
         cmdrListName = new JTextField();
-        formatsPanel.add(legalityDefaultsBox, BorderLayout.CENTER);
+        legalityDefaultsBox.add(cmdrListName);
+        legalityDefaultsBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, legalityDefaultsBox.getPreferredSize().height));
+        legalityDefaultsBox.setAlignmentX(LEFT_ALIGNMENT);
+        formatsPanel.add(legalityDefaultsBox);
         Box sideboardBox = Box.createHorizontalBox();
         sideboardBox.setBorder(BorderFactory.createEmptyBorder(0, 2, 2, 2));
-        sideCheck = new JCheckBox("", !settings.editor.legality.sideboard.isEmpty());
-        sideCheck.setText(sideCheck.isSelected() ? "Default sideboard name:" : "Include sideboard");
+        sideCheck = new JCheckBox("");
         sideboardBox.add(sideCheck);
         sideField = new JTextField();
-        sideField.setText(settings.editor.legality.sideboard);
-        sideField.setVisible(sideCheck.isSelected());
         sideboardBox.add(sideField);
-        formatsPanel.add(sideboardBox, BorderLayout.SOUTH);
-
-        if (settings.editor.legality.searchForCommander)
-        {
-            cmdrCheck.setText("Search for commander in:");
-            if (settings.editor.legality.main || (!settings.editor.legality.all && settings.editor.legality.list.isEmpty()))
-                cmdrMainDeck.setSelected(true);
-            else if (settings.editor.legality.all)
-                cmdrAllLists.setSelected(true);
-            else
-                cmdrList.setSelected(true);
-            cmdrListName.setEnabled(cmdrList.isSelected());
-            cmdrListName.setText(settings.editor.legality.list);
-        }
-        else
-        {
-            cmdrCheck.setText("Search for commander");
-            cmdrMainDeck.setVisible(false);
-            cmdrAllLists.setVisible(false);
-            cmdrList.setVisible(false);
-            cmdrListName.setVisible(false);
-        }
-        legalityDefaultsBox.add(cmdrListName);
+        sideboardBox.setAlignmentX(LEFT_ALIGNMENT);
+        formatsPanel.add(sideboardBox);
+        formatsPanel.add(Box.createVerticalGlue());
 
         cmdrCheck.addActionListener((e) -> {
             cmdrCheck.setText(cmdrCheck.isSelected() ? "Search for commander in:" : "Search for commander");
@@ -834,14 +804,14 @@ public class SettingsDialog extends JDialog
         JButton okButton = new JButton("OK");
         okButton.addActionListener((e) -> {
             confirmSettings();
-            dispose();
+            setVisible(false);
         });
         buttonPanel.add(okButton);
 
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener((e) -> {
             rejectSettings();
-            dispose();
+            setVisible(false);
         });
         buttonPanel.add(cancelButton);
 
@@ -852,6 +822,64 @@ public class SettingsDialog extends JDialog
 
         pack();
         setLocationRelativeTo(owner);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e)
+            {
+                inventorySiteField.setText(settings.inventory.source);
+                inventoryFileField.setText(settings.inventory.file);
+                currentVersionLabel.setText("(Current version: " + settings.inventory.version + ")");
+                inventoryDirField.setText(settings.inventory.location);
+                inventoryChooser.setCurrentDirectory(new File(inventoryDirField.getText()).getAbsoluteFile());
+                scansDirField.setText(settings.inventory.scans);
+                scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
+                updateBox.setSelectedIndex(settings.inventory.update.ordinal());
+                suppressCheckBox.setSelected(settings.inventory.warn);
+                viewWarningsButton.setEnabled(!inventoryWarnings.isEmpty());
+                for (var n : inventoryColumnCheckBoxes.entrySet())
+                    n.getValue().setSelected(settings.inventory.columns.contains(n.getKey()));
+                inventoryStripeColor.setColor(settings.inventory.stripe);
+                scanBGChooser.setColor(settings.inventory.background);
+                recentSpinner.getModel().setValue(settings.editor.recents.count);
+                explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor.categories.explicits));
+                for (CategorySpec preset : settings.editor.categories.presets)
+                    categoriesList.addCategory(new CategorySpec(preset));
+                rowsSpinner.getModel().setValue(settings.editor.categories.rows);
+                for (var n : editorColumnCheckBoxes.entrySet())
+                    n.getValue().setSelected(settings.editor.columns.contains(n.getKey()));
+                editorStripeColor.setColor(settings.editor.stripe);
+                startingSizeSpinner.getModel().setValue(settings.editor.hand.size);
+                for (JRadioButton mode : modeButtons)
+                    mode.setSelected(mode.getText().equals(settings.editor.hand.rounding));
+                handBGColor.setColor(settings.editor.hand.background);
+                cmdrCheck.setSelected(settings.editor.legality.searchForCommander);
+                sideCheck.setSelected(!settings.editor.legality.sideboard.isEmpty());
+                sideCheck.setText(sideCheck.isSelected() ? "Default sideboard name:" : "Include sideboard");
+                sideField.setText(settings.editor.legality.sideboard);
+                sideField.setVisible(sideCheck.isSelected());
+                if (settings.editor.legality.searchForCommander)
+                {
+                    cmdrCheck.setText("Search for commander in:");
+                    if (settings.editor.legality.main || (!settings.editor.legality.all && settings.editor.legality.list.isEmpty()))
+                        cmdrMainDeck.setSelected(true);
+                    else if (settings.editor.legality.all)
+                        cmdrAllLists.setSelected(true);
+                    else
+                        cmdrList.setSelected(true);
+                    cmdrListName.setEnabled(cmdrList.isSelected());
+                    cmdrListName.setText(settings.editor.legality.list);
+                }
+                else
+                {
+                    cmdrCheck.setText("Search for commander");
+                    cmdrMainDeck.setVisible(false);
+                    cmdrAllLists.setVisible(false);
+                    cmdrList.setVisible(false);
+                    cmdrListName.setVisible(false);
+                }
+            }
+        });
     }
 
     /**
@@ -877,12 +905,12 @@ public class SettingsDialog extends JDialog
                 .inventoryLocation(inventoryDirField.getText())
                 .inventoryUpdate(updateBox.getItemAt(updateBox.getSelectedIndex()))
                 .inventoryWarn(suppressCheckBox.isSelected())
-                .inventoryColumns(inventoryColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.fromString(c.getText())).sorted().collect(Collectors.toList()))
+                .inventoryColumns(inventoryColumnCheckBoxes.entrySet().stream().filter((e) -> e.getValue().isSelected()).map(Map.Entry::getKey).sorted().collect(Collectors.toList()))
                 .inventoryStripe(inventoryStripeColor.getColor())
                 .recentsCount((Integer)recentSpinner.getValue())
                 .explicits((Integer)explicitsSpinner.getValue())
                 .categoryRows((Integer)rowsSpinner.getValue())
-                .editorColumns(editorColumnCheckBoxes.stream().filter(JCheckBox::isSelected).map((c) -> CardAttribute.fromString(c.getText())).sorted().collect(Collectors.toList()))
+                .editorColumns(editorColumnCheckBoxes.entrySet().stream().filter((e) -> e.getValue().isSelected()).map(Map.Entry::getKey).sorted().collect(Collectors.toList()))
                 .editorStripe(editorStripeColor.getColor())
                 .presetCategories(presets)
                 .handSize((Integer)startingSizeSpinner.getValue())

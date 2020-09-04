@@ -577,7 +577,7 @@ public abstract class Card
      * @return the IDs of each face of this card as they are used by
      * <a href="http://gatherer.wizards.com">Gatherer</a>.
      */
-    public abstract List<Long> multiverseid();
+    public abstract List<Integer> multiverseid();
 
     /**
      * Get the name of each of this Card's faces.

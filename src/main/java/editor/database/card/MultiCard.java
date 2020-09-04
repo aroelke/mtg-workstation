@@ -87,7 +87,7 @@ public abstract class MultiCard extends Card
     /**
      * List containing this MultiCard's faces' multiverseids.
      */
-    private Lazy<List<Long>> multiverseid;
+    private Lazy<List<Integer>> multiverseid;
     /**
      * List containing the oracle text of each of this MultiCard's faces.
      */
@@ -155,9 +155,9 @@ public abstract class MultiCard extends Card
             if (face.faces() > 1)
                 throw new IllegalArgumentException("Only normal, single-faced cards can be joined into a multi-faced card");
 
-        name = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::name)));
-        manaCost = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::manaCost)));
-        cmc = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::cmc)));
+        name = new Lazy<>(() -> collect(Card::name));
+        manaCost = new Lazy<>(() -> collect(Card::manaCost));
+        cmc = new Lazy<>(() -> collect(Card::cmc));
         colors = new Lazy<>(() -> {
             var sorted = new ArrayList<>(faces.stream().flatMap((c) -> c.colors().stream()).collect(Collectors.toSet()));
             ManaType.sort(sorted);
@@ -183,23 +183,23 @@ public abstract class MultiCard extends Card
             }
             return Collections.unmodifiableList(a);
         });
-        typeLine = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::typeLine)));
-        printedTypes = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::printedTypes)));
-        oracleText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::oracleText)));
-        flavorText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::flavorText)));
-        printedText = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::printedText)));
-        artist = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::artist)));
-        number = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::number)));
-        power = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::power)));
-        toughness = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::toughness)));
-        loyalty = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::loyalty)));
+        typeLine = new Lazy<>(() -> collect(Card::typeLine));
+        printedTypes = new Lazy<>(() -> collect(Card::printedTypes));
+        oracleText = new Lazy<>(() -> collect(Card::oracleText));
+        flavorText = new Lazy<>(() -> collect(Card::flavorText));
+        printedText = new Lazy<>(() -> collect(Card::printedText));
+        artist = new Lazy<>(() -> collect(Card::artist));
+        number = new Lazy<>(() -> collect(Card::number));
+        power = new Lazy<>(() -> collect(Card::power));
+        toughness = new Lazy<>(() -> collect(Card::toughness));
+        loyalty = new Lazy<>(() -> collect(Card::loyalty));
         rulings = new Lazy<>(() -> Collections.unmodifiableMap(faces.stream().map(Card::rulings).reduce(new TreeMap<>(), (a, b) -> {
             for (Date k : b.keySet())
                 a.getOrDefault(k, new ArrayList<>()).addAll(b.get(k));
             return a;
         })));
-        imageNames = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::imageNames)));
-        multiverseid = new Lazy<>(() -> Collections.unmodifiableList(collect(Card::multiverseid)));
+        imageNames = new Lazy<>(() -> collect(Card::imageNames));
+        multiverseid = new Lazy<>(() -> collect(Card::multiverseid));
         isLand = faces.get(0).isLand();
         commandFormats = new Lazy<>(() -> faces.stream().flatMap((c) -> c.commandFormats().stream()).distinct().sorted().collect(Collectors.toList()));
     }
@@ -294,7 +294,7 @@ public abstract class MultiCard extends Card
     }
 
     @Override
-    public List<Long> multiverseid()
+    public List<Integer> multiverseid()
     {
         return multiverseid.get();
     }

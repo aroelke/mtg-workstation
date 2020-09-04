@@ -26,12 +26,14 @@ public class FunctionalSymbol extends Symbol
     /**
      * Map of symbol texts onto their respective symbols.
      */
-    public static final Map<String, FunctionalSymbol> SYMBOLS = Map.of(CHAOS.toString(), CHAOS,
-            "P", new FunctionalSymbol("phyrexia.png", "P"),
-            "T", new FunctionalSymbol("tap.png", "T"),
-            "TAP", new FunctionalSymbol("tap.png", "T"),
-            "Q", new FunctionalSymbol("untap.png", "Q"),
-            "E", new FunctionalSymbol("energy.png", "E"));
+    public static final Map<String, FunctionalSymbol> SYMBOLS = Map.of(
+        CHAOS.toString(), CHAOS,
+        "P", new FunctionalSymbol("phyrexia.png", "P"),
+        "T", new FunctionalSymbol("tap.png", "T"),
+        "TAP", new FunctionalSymbol("tap.png", "T"),
+        "Q", new FunctionalSymbol("untap.png", "Q"),
+        "E", new FunctionalSymbol("energy.png", "E")
+    );
 
     /**
      * Get the FunctionalSymbol corresponding to the given String.

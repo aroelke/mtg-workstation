@@ -69,7 +69,7 @@ public class SplitCard extends MultiCard
     @Override
     public List<String> imageNames()
     {
-        return super.imageNames().subList(0, 1);
+        return Collections.singletonList(super.imageNames().get(0));
     }
 
     /**
@@ -77,8 +77,8 @@ public class SplitCard extends MultiCard
      * All of the faces of a SplitCard are on the front, so only one multiverseid is necessary.
      */
     @Override
-    public List<Long> multiverseid()
+    public List<Integer> multiverseid()
     {
-        return super.multiverseid().subList(0, 1);
+        return Collections.singletonList(super.multiverseid().get(0));
     }
 }

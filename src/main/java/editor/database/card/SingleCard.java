@@ -1,16 +1,12 @@
 package editor.database.card;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
 
 import editor.database.attributes.CombatStat;
 import editor.database.attributes.Expansion;
@@ -78,7 +74,7 @@ public class SingleCard extends Card
     /**
      * multiverseid of this SingleCard.
      */
-    public final long multiverseid;
+    public final int multiverseid;
     /**
      * Name of this SingleCard.
      */
@@ -165,49 +161,51 @@ public class SingleCard extends Card
      */
     public SingleCard(CardLayout layout,
                       String name,
-                      Optional<String> mana,
-                      Optional<List<ManaType>> colors,
-                      Optional<List<ManaType>> colorIdentity,
-                      Optional<Set<String>> supertype,
+                      ManaCost mana,
+                      List<ManaType> colors,
+                      List<ManaType> colorIdentity,
+                      Set<String> supertype,
                       Set<String> type,
-                      Optional<Set<String>> subtype,
-                      Optional<String> printedTypes,
+                      Set<String> subtype,
+                      String printedTypes,
                       Rarity rarity,
                       Expansion set,
-                      Optional<String> text,
-                      Optional<String> flavor,
-                      Optional<String> printed,
-                      Optional<String> artist,
-                      long multiverseid,
-                      Optional<String> number,
-                      Optional<String> power,
-                      Optional<String> toughness,
-                      Optional<String> loyalty,
-                      Optional<TreeMap<Date, List<String>>> rulings,
-                      Optional<Map<String, Legality>> legality,
+                      String text,
+                      String flavor,
+                      String printed,
+                      String artist,
+                      int multiverseid,
+                      String number,
+                      CombatStat power,
+                      CombatStat toughness,
+                      Loyalty loyalty,
+                      TreeMap<Date, List<String>> rulings,
+                      Map<String, Legality> legality,
                       List<String> command)
     {
         super(set, layout, 1);
 
         this.name = name;
-        this.mana = ManaCost.parseManaCost(mana.orElse(""));
-        this.supertypes = Collections.unmodifiableSet(supertype.orElse(new HashSet<>()));
+        this.mana = mana;
+        this.colors = Collections.unmodifiableList(colors);
+        this.colorIdentity = Collections.unmodifiableList(colorIdentity);
+        this.supertypes = Collections.unmodifiableSet(supertype);
         this.types = Collections.unmodifiableSet(type);
-        this.subtypes = Collections.unmodifiableSet(subtype.orElse(new HashSet<>()));
-        this.printedTypes = printedTypes.orElse("");
-        this.text = text.orElse("");
-        this.flavor = flavor.orElse("");
-        this.printed = printed.orElse("");
-        this.artist = artist.orElse("");
-        this.number = number.orElse("");
+        this.subtypes = Collections.unmodifiableSet(subtype);
+        this.printedTypes = printedTypes;
+        this.text = text;
+        this.flavor = flavor;
+        this.printed = printed;
+        this.artist = artist;
+        this.number = number;
         this.multiverseid = multiverseid;
-        this.power = new CombatStat(power.orElse(""));
-        this.toughness = new CombatStat(toughness.orElse(""));
-        this.loyalty = new Loyalty(loyalty.orElse(""));
+        this.power = power;
+        this.toughness = toughness;
+        this.loyalty = loyalty;
         this.imageName = name.toLowerCase();
         this.rarity = rarity;
-        this.rulings = rulings.orElse(new TreeMap<>());
-        this.legality = Collections.unmodifiableMap(legality.orElse(new HashMap<>()));
+        this.rulings = Collections.unmodifiableMap(rulings);
+        this.legality = Collections.unmodifiableMap(legality);
         this.commandFormats = Collections.unmodifiableList(command);
 
         isLand = typeContains("land");
@@ -220,34 +218,6 @@ public class SingleCard extends Card
         if (subtypes.size() > 0)
             str.append(" " + UnicodeSymbols.EM_DASH + " ").append(String.join(" ", subtypes));
         typeLine = str.toString();
-
-        var tempColors = colors.orElse(new ArrayList<>());
-        ManaType.sort(tempColors);
-        this.colors = Collections.unmodifiableList(tempColors);
-        var tempIdentity = colorIdentity.orElse(new ArrayList<>());
-        if (tempIdentity.isEmpty())
-        {
-            // Try to infer the color identity if it's missing
-            tempIdentity.addAll(this.mana.colors());
-            Matcher m = ManaCost.MANA_COST_PATTERN.matcher(this.text.replaceAll("\\(.*\\)", ""));
-            while (m.find())
-                for (ManaType col : ManaCost.parseManaCost(m.group()).colors())
-                    if (col != ManaType.COLORLESS)
-                        tempIdentity.add(col);
-            for (String sub : subtypes)
-            {
-                switch (sub.toLowerCase())
-                {
-                    case "plains"   -> tempIdentity.add(ManaType.WHITE);
-                    case "island"   -> tempIdentity.add(ManaType.BLUE);
-                    case "swamp"    -> tempIdentity.add(ManaType.BLACK);
-                    case "mountain" -> tempIdentity.add(ManaType.RED);
-                    case "forest"   -> tempIdentity.add(ManaType.GREEN);
-                }
-            }
-        }
-        ManaType.sort(tempIdentity);
-        this.colorIdentity = Collections.unmodifiableList(tempIdentity);
 
         var faceTypes = new HashSet<String>();
         faceTypes.addAll(supertypes);
@@ -356,7 +326,7 @@ public class SingleCard extends Card
     }
 
     @Override
-    public List<Long> multiverseid()
+    public List<Integer> multiverseid()
     {
         return Collections.singletonList(multiverseid);
     }
