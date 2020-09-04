@@ -1616,7 +1616,8 @@ public class MainFrame extends JFrame
                 JOptionPane.showMessageDialog(this, inventoryFile.getName() + " not found.  It will be downloaded.", "Update", JOptionPane.WARNING_MESSAGE);
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
                 {
-                    newestVersion = new DatabaseVersion(new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject().get("version").getAsString());
+                    JsonObject data = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject();
+                    newestVersion = new DatabaseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
                 }
                 return UPDATE_NEEDED;
             }
