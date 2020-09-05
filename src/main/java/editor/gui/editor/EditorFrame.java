@@ -663,6 +663,7 @@ public class EditorFrame extends JInternalFrame
         emptyLabel.setHorizontalAlignment(JLabel.CENTER);
         emptyPanel.add(emptyLabel, BorderLayout.CENTER);
         extrasPanel.add(emptyPanel, "empty");
+        extrasLayout.show(extrasPanel, "empty");
 
         listTabs.addTab("Cards", mainPanel);
 
@@ -1001,7 +1002,7 @@ public class EditorFrame extends JInternalFrame
         }
         extrasPane.setSelectedIndex(0);
         Consumer<MouseEvent> addSideboard = (e) -> {
-            int index = lists.size() > 1 ? extrasPane.indexAtLocation(e.getX(), e.getY()) : 0;
+            int index = extrasPane.getTabCount() > 1 ? extrasPane.indexAtLocation(e.getX(), e.getY()) : 0;
             int last = extrasPane.getTabCount() - 1;
             if (index == last)
             {
