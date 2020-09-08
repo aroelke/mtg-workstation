@@ -1,6 +1,7 @@
 package editor.gui.editor;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -462,8 +463,6 @@ public class EditorFrame extends JInternalFrame
      * Label showing the total number of cards in the deck.
      */
     private JLabel countLabel;
-    private JPanel emptyPanel;
-    private JPanel extrasPanel;
     /**
      * Tabs showing extra lists.
      */
@@ -536,6 +535,8 @@ public class EditorFrame extends JInternalFrame
      * Size of starting hands.
      */
     private int startingHandSize;
+    private JPanel southPanel;
+    private CardLayout southLayout;
     /**
      * Combo box showing categories to jump between them.
      */
@@ -611,12 +612,12 @@ public class EditorFrame extends JInternalFrame
         deckButtons.get("X").addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
         mainPanel.add(deckButtons, BorderLayout.WEST);
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel = new JPanel(southLayout = new CardLayout());
         mainPanel.add(southPanel, BorderLayout.SOUTH);
 
-        extrasPanel = new JPanel();
+        JPanel extrasPanel = new JPanel();
         extrasPanel.setLayout(new BorderLayout());
-        southPanel.add(extrasPanel, BorderLayout.CENTER);
+        southPanel.add(extrasPanel, "extras");
 
         VerticalButtonList extrasButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         extrasButtons.get("+").addActionListener((e) -> getSelectedExtraID().ifPresent((id) -> addCards(id, parent.getSelectedCards(), 1)));
@@ -626,16 +627,18 @@ public class EditorFrame extends JInternalFrame
         extrasButtons.get("X").addActionListener((e) -> getSelectedExtraID().ifPresent((id) -> {
             removeCards(id, parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getEntry(c).count()).reduce(0, Math::max));
         }));
-        southPanel.add(extrasButtons, BorderLayout.WEST);
+        extrasPanel.add(extrasButtons, BorderLayout.WEST);
 
         extrasPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+        extrasPanel.add(extrasPane, BorderLayout.CENTER);
 
-        emptyPanel = new JPanel(new BorderLayout());
+        JPanel emptyPanel = new JPanel(new BorderLayout());
         emptyPanel.setBorder(BorderFactory.createEtchedBorder());
         JLabel emptyLabel = new JLabel("Click to add a sideboard.");
         emptyLabel.setHorizontalAlignment(JLabel.CENTER);
         emptyPanel.add(emptyLabel, BorderLayout.CENTER);
-        extrasPanel.add(emptyPanel, BorderLayout.CENTER);
+        southPanel.add(emptyPanel, "empty");
+        southLayout.show(southPanel, "empty");
 
         listTabs.addTab("Cards", mainPanel);
 
@@ -1370,11 +1373,7 @@ public class EditorFrame extends JInternalFrame
             extrasPane.setSelectedIndex(index);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
 
-            if (extras().size() == 1)
-            {
-                extrasPanel.remove(emptyPanel);
-                extrasPanel.add(extrasPane, BorderLayout.CENTER);
-            }
+            southLayout.show(southPanel, "extras");
 
             panel.addActionListener((e) -> {
                 switch (e.getActionCommand())
@@ -1470,16 +1469,7 @@ public class EditorFrame extends JInternalFrame
             extrasPane.setSelectedIndex(index - 1);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
         }
-        if (extras().isEmpty())
-        {
-            extrasPanel.remove(extrasPane);
-            extrasPanel.add(emptyPanel, BorderLayout.CENTER);
-        }
-        else
-        {
-            extrasPanel.remove(emptyPanel);
-            extrasPanel.add(extrasPane, BorderLayout.CENTER);
-        }
+        southLayout.show(southPanel, extras().isEmpty() ? "empty" : "extras");
 
         return true;
     }
