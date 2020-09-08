@@ -535,7 +535,14 @@ public class EditorFrame extends JInternalFrame
      * Size of starting hands.
      */
     private int startingHandSize;
+    /**
+     * Panel containing extra lists.
+     */
     private JPanel southPanel;
+    /**
+     * Layout of the panel containing extra lists, allow it to switch between a set of tabs
+     * containing tables and a blank panel with instructions for adding the first extra list.
+     */
     private CardLayout southLayout;
     /**
      * Combo box showing categories to jump between them.
