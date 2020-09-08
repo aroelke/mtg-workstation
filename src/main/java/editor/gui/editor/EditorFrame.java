@@ -1,7 +1,6 @@
 package editor.gui.editor;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -465,7 +464,8 @@ public class EditorFrame extends JInternalFrame
      * Label showing the total number of cards in the deck.
      */
     private JLabel countLabel;
-    private CardLayout extrasLayout;
+    private JPanel emptyPanel;
+    private JPanel extrasPanel;
     /**
      * Tabs showing extra lists.
      */
@@ -534,7 +534,6 @@ public class EditorFrame extends JInternalFrame
      * Combo box allowing changes to be made in the order that categories are display in.
      */
     private JComboBox<CategoryOrder> sortCategoriesBox;
-    private JPanel extrasPanel;
     /**
      * Size of starting hands.
      */
@@ -586,8 +585,7 @@ public class EditorFrame extends JInternalFrame
         listTabs = new JTabbedPane(SwingConstants.TOP);
         add(listTabs, BorderLayout.CENTER);
 
-        GridBagLayout mainLayout = new GridBagLayout();
-        JPanel mainPanel = new JPanel(mainLayout);
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
         deck().model = new CardTableModel(this, deck().current, SettingsDialog.settings().editor.columns);
         deck().table = new CardTable(deck().model);
@@ -605,13 +603,7 @@ public class EditorFrame extends JInternalFrame
 
         JScrollPane mainDeckPane = new JScrollPane(deck().table);
         mainDeckPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        GridBagConstraints mainConstrs = new GridBagConstraints();
-        mainConstrs.gridx = 1;
-        mainConstrs.gridy = 0;
-        mainConstrs.weightx = 1.0;
-        mainConstrs.weighty = 1.0;
-        mainConstrs.fill = GridBagConstraints.BOTH;
-        mainPanel.add(mainDeckPane, mainConstrs);
+        mainPanel.add(mainDeckPane, BorderLayout.CENTER);
 
         VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         deckButtons.get("+").addActionListener((e) -> {
@@ -619,24 +611,14 @@ public class EditorFrame extends JInternalFrame
         });
         deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), 1));
         deckButtons.get("X").addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
-        GridBagConstraints addMainConstrs = new GridBagConstraints();
-        addMainConstrs.gridx = 0;
-        addMainConstrs.gridy = 0;
-        addMainConstrs.weightx = 0.0;
-        addMainConstrs.weighty = 1.0;
-        addMainConstrs.fill = GridBagConstraints.BOTH;
-        mainPanel.add(deckButtons, addMainConstrs);
+        mainPanel.add(deckButtons, BorderLayout.WEST);
+
+        JPanel southPanel = new JPanel(new BorderLayout());
+        mainPanel.add(southPanel, BorderLayout.SOUTH);
 
         extrasPanel = new JPanel();
-        extrasLayout = new CardLayout(0, 0);
-        extrasPanel.setLayout(extrasLayout);
-        GridBagConstraints extrasConstrs = new GridBagConstraints();
-        extrasConstrs.gridx = 1;
-        extrasConstrs.gridy = 1;
-        extrasConstrs.weightx = 1.0;
-        extrasConstrs.weighty = 0.0;
-        extrasConstrs.fill = GridBagConstraints.BOTH;
-        mainPanel.add(extrasPanel, extrasConstrs);
+        extrasPanel.setLayout(new BorderLayout());
+        southPanel.add(extrasPanel, BorderLayout.CENTER);
 
         VerticalButtonList extrasButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         extrasButtons.get("+").addActionListener((e) -> getSelectedExtraID().ifPresent((id) -> addCards(id, parent.getSelectedCards(), 1)));
@@ -646,24 +628,16 @@ public class EditorFrame extends JInternalFrame
         extrasButtons.get("X").addActionListener((e) -> getSelectedExtraID().ifPresent((id) -> {
             removeCards(id, parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getEntry(c).count()).reduce(0, Math::max));
         }));
-        GridBagConstraints addExtrasConstrs = new GridBagConstraints();
-        addExtrasConstrs.gridx = 0;
-        addExtrasConstrs.gridy = 1;
-        addExtrasConstrs.weightx = 0.0;
-        addExtrasConstrs.weighty = 0.0;
-        addExtrasConstrs.fill = GridBagConstraints.BOTH;
-        mainPanel.add(extrasButtons, addExtrasConstrs);
+        southPanel.add(extrasButtons, BorderLayout.WEST);
 
         extrasPane = new JTabbedPane();
-        extrasPanel.add(extrasPane, "extras");
 
-        JPanel emptyPanel = new JPanel(new BorderLayout());
+        emptyPanel = new JPanel(new BorderLayout());
         emptyPanel.setBorder(BorderFactory.createEtchedBorder());
         JLabel emptyLabel = new JLabel("Click to add a sideboard.");
         emptyLabel.setHorizontalAlignment(JLabel.CENTER);
         emptyPanel.add(emptyLabel, BorderLayout.CENTER);
-        extrasPanel.add(emptyPanel, "empty");
-        extrasLayout.show(extrasPanel, "empty");
+        extrasPanel.add(emptyPanel, BorderLayout.CENTER);
 
         listTabs.addTab("Cards", mainPanel);
 
@@ -1398,7 +1372,11 @@ public class EditorFrame extends JInternalFrame
             extrasPane.setSelectedIndex(index);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
 
-            extrasLayout.show(extrasPanel, extras().isEmpty() ? "empty" : "extras");
+            if (extras().size() == 1)
+            {
+                extrasPanel.remove(emptyPanel);
+                extrasPanel.add(extrasPane, BorderLayout.CENTER);
+            }
 
             panel.addActionListener((e) -> {
                 switch (e.getActionCommand())
@@ -1494,7 +1472,16 @@ public class EditorFrame extends JInternalFrame
             extrasPane.setSelectedIndex(index - 1);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
         }
-        extrasLayout.show(extrasPanel, extras().isEmpty() ? "empty" : "extras");
+        if (extras().isEmpty())
+        {
+            extrasPanel.remove(extrasPane);
+            extrasPanel.add(emptyPanel, BorderLayout.CENTER);
+        }
+        else
+        {
+            extrasPanel.remove(emptyPanel);
+            extrasPanel.add(extrasPane, BorderLayout.CENTER);
+        }
 
         return true;
     }
