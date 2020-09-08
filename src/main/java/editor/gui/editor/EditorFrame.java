@@ -990,7 +990,6 @@ public class EditorFrame extends JInternalFrame
             {
                 final int id = lists.size();
                 performAction(() -> createExtra("Sideboard " + id, id, last), () -> deleteExtra(id, last));
-                parent.setSelectedComponents(lists.get(id).table, lists.get(id).current);
             }
         };
         extrasPane.addMouseListener(MouseListenerFactory.createPressListener(addSideboard));
