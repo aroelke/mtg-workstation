@@ -7,7 +7,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -60,7 +59,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
@@ -465,7 +463,6 @@ public class EditorFrame extends JInternalFrame
      * Label showing the total number of cards in the deck.
      */
     private JLabel countLabel;
-    private CardLayout extrasLayout;
     /**
      * Tabs showing extra lists.
      */
@@ -534,11 +531,19 @@ public class EditorFrame extends JInternalFrame
      * Combo box allowing changes to be made in the order that categories are display in.
      */
     private JComboBox<CategoryOrder> sortCategoriesBox;
-    private JPanel extrasPanel;
     /**
      * Size of starting hands.
      */
     private int startingHandSize;
+    /**
+     * Panel containing extra lists.
+     */
+    private JPanel southPanel;
+    /**
+     * Layout of the panel containing extra lists, allow it to switch between a set of tabs
+     * containing tables and a blank panel with instructions for adding the first extra list.
+     */
+    private CardLayout southLayout;
     /**
      * Combo box showing categories to jump between them.
      */
@@ -583,11 +588,10 @@ public class EditorFrame extends JInternalFrame
         else
             setUnsaved();
 
-        listTabs = new JTabbedPane(SwingConstants.TOP);
+        listTabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         add(listTabs, BorderLayout.CENTER);
 
-        GridBagLayout mainLayout = new GridBagLayout();
-        JPanel mainPanel = new JPanel(mainLayout);
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
         deck().model = new CardTableModel(this, deck().current, SettingsDialog.settings().editor.columns);
         deck().table = new CardTable(deck().model);
@@ -605,13 +609,7 @@ public class EditorFrame extends JInternalFrame
 
         JScrollPane mainDeckPane = new JScrollPane(deck().table);
         mainDeckPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        GridBagConstraints mainConstrs = new GridBagConstraints();
-        mainConstrs.gridx = 1;
-        mainConstrs.gridy = 0;
-        mainConstrs.weightx = 1.0;
-        mainConstrs.weighty = 1.0;
-        mainConstrs.fill = GridBagConstraints.BOTH;
-        mainPanel.add(mainDeckPane, mainConstrs);
+        mainPanel.add(mainDeckPane, BorderLayout.CENTER);
 
         VerticalButtonList deckButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         deckButtons.get("+").addActionListener((e) -> {
@@ -619,24 +617,14 @@ public class EditorFrame extends JInternalFrame
         });
         deckButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), 1));
         deckButtons.get("X").addActionListener((e) -> removeCards(MAIN_DECK,  parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
-        GridBagConstraints addMainConstrs = new GridBagConstraints();
-        addMainConstrs.gridx = 0;
-        addMainConstrs.gridy = 0;
-        addMainConstrs.weightx = 0.0;
-        addMainConstrs.weighty = 1.0;
-        addMainConstrs.fill = GridBagConstraints.BOTH;
-        mainPanel.add(deckButtons, addMainConstrs);
+        mainPanel.add(deckButtons, BorderLayout.WEST);
 
-        extrasPanel = new JPanel();
-        extrasLayout = new CardLayout(0, 0);
-        extrasPanel.setLayout(extrasLayout);
-        GridBagConstraints extrasConstrs = new GridBagConstraints();
-        extrasConstrs.gridx = 1;
-        extrasConstrs.gridy = 1;
-        extrasConstrs.weightx = 1.0;
-        extrasConstrs.weighty = 0.0;
-        extrasConstrs.fill = GridBagConstraints.BOTH;
-        mainPanel.add(extrasPanel, extrasConstrs);
+        southPanel = new JPanel(southLayout = new CardLayout());
+        mainPanel.add(southPanel, BorderLayout.SOUTH);
+
+        JPanel extrasPanel = new JPanel();
+        extrasPanel.setLayout(new BorderLayout());
+        southPanel.add(extrasPanel, "extras");
 
         VerticalButtonList extrasButtons = new VerticalButtonList("+", String.valueOf(UnicodeSymbols.MINUS), "X");
         extrasButtons.get("+").addActionListener((e) -> getSelectedExtraID().ifPresent((id) -> addCards(id, parent.getSelectedCards(), 1)));
@@ -646,24 +634,18 @@ public class EditorFrame extends JInternalFrame
         extrasButtons.get("X").addActionListener((e) -> getSelectedExtraID().ifPresent((id) -> {
             removeCards(id, parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> sideboard().getEntry(c).count()).reduce(0, Math::max));
         }));
-        GridBagConstraints addExtrasConstrs = new GridBagConstraints();
-        addExtrasConstrs.gridx = 0;
-        addExtrasConstrs.gridy = 1;
-        addExtrasConstrs.weightx = 0.0;
-        addExtrasConstrs.weighty = 0.0;
-        addExtrasConstrs.fill = GridBagConstraints.BOTH;
-        mainPanel.add(extrasButtons, addExtrasConstrs);
+        extrasPanel.add(extrasButtons, BorderLayout.WEST);
 
-        extrasPane = new JTabbedPane();
-        extrasPanel.add(extrasPane, "extras");
+        extrasPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+        extrasPanel.add(extrasPane, BorderLayout.CENTER);
 
         JPanel emptyPanel = new JPanel(new BorderLayout());
         emptyPanel.setBorder(BorderFactory.createEtchedBorder());
         JLabel emptyLabel = new JLabel("Click to add a sideboard.");
         emptyLabel.setHorizontalAlignment(JLabel.CENTER);
         emptyPanel.add(emptyLabel, BorderLayout.CENTER);
-        extrasPanel.add(emptyPanel, "empty");
-        extrasLayout.show(extrasPanel, "empty");
+        southPanel.add(emptyPanel, "empty");
+        southLayout.show(southPanel, "empty");
 
         listTabs.addTab("Cards", mainPanel);
 
@@ -1008,7 +990,6 @@ public class EditorFrame extends JInternalFrame
             {
                 final int id = lists.size();
                 performAction(() -> createExtra("Sideboard " + id, id, last), () -> deleteExtra(id, last));
-                parent.setSelectedComponents(lists.get(id).table, lists.get(id).current);
             }
         };
         extrasPane.addMouseListener(MouseListenerFactory.createPressListener(addSideboard));
@@ -1398,7 +1379,7 @@ public class EditorFrame extends JInternalFrame
             extrasPane.setSelectedIndex(index);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
 
-            extrasLayout.show(extrasPanel, extras().isEmpty() ? "empty" : "extras");
+            southLayout.show(southPanel, "extras");
 
             panel.addActionListener((e) -> {
                 switch (e.getActionCommand())
@@ -1494,7 +1475,7 @@ public class EditorFrame extends JInternalFrame
             extrasPane.setSelectedIndex(index - 1);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
         }
-        extrasLayout.show(extrasPanel, extras().isEmpty() ? "empty" : "extras");
+        southLayout.show(southPanel, extras().isEmpty() ? "empty" : "extras");
 
         return true;
     }
@@ -1984,14 +1965,8 @@ public class EditorFrame extends JInternalFrame
     {
         // Extra list's models
         lists.get(id).model = new CardTableModel(this, lists.get(id).current, SettingsDialog.settings().editor.columns);
-        lists.get(id).table = new CardTable(lists.get(id).model) {
-            @Override
-            public Dimension getPreferredScrollableViewportSize()
-            {
-                return new Dimension(super.getPreferredScrollableViewportSize().width, 5*getRowHeight());
-            }
-        };
-//        lists.get(id).table.setPreferredScrollableViewportSize(new Dimension(lists.get(id).table.getPreferredScrollableViewportSize().width, 5*lists.get(id).table.getRowHeight()));
+        lists.get(id).table = new CardTable(lists.get(id).model);
+        lists.get(id).table.setPreferredScrollableViewportSize(new Dimension(lists.get(id).table.getPreferredScrollableViewportSize().width, 5*lists.get(id).table.getRowHeight()));
         lists.get(id).table.setStripeColor(SettingsDialog.settings().editor.stripe);
         // When a card is selected in a sideboard table, select it for adding
         TableSelectionListener listener = new TableSelectionListener(parent, lists.get(id).table, lists.get(id).current);
