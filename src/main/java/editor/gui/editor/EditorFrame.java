@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -59,7 +58,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
@@ -582,7 +580,7 @@ public class EditorFrame extends JInternalFrame
         else
             setUnsaved();
 
-        listTabs = new JTabbedPane(SwingConstants.TOP);
+        listTabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         add(listTabs, BorderLayout.CENTER);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -630,7 +628,7 @@ public class EditorFrame extends JInternalFrame
         }));
         southPanel.add(extrasButtons, BorderLayout.WEST);
 
-        extrasPane = new JTabbedPane();
+        extrasPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
 
         emptyPanel = new JPanel(new BorderLayout());
         emptyPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -1971,14 +1969,8 @@ public class EditorFrame extends JInternalFrame
     {
         // Extra list's models
         lists.get(id).model = new CardTableModel(this, lists.get(id).current, SettingsDialog.settings().editor.columns);
-        lists.get(id).table = new CardTable(lists.get(id).model) {
-            @Override
-            public Dimension getPreferredScrollableViewportSize()
-            {
-                return new Dimension(super.getPreferredScrollableViewportSize().width, 5*getRowHeight());
-            }
-        };
-//        lists.get(id).table.setPreferredScrollableViewportSize(new Dimension(lists.get(id).table.getPreferredScrollableViewportSize().width, 5*lists.get(id).table.getRowHeight()));
+        lists.get(id).table = new CardTable(lists.get(id).model);
+        lists.get(id).table.setPreferredScrollableViewportSize(new Dimension(lists.get(id).table.getPreferredScrollableViewportSize().width, 5*lists.get(id).table.getRowHeight()));
         lists.get(id).table.setStripeColor(SettingsDialog.settings().editor.stripe);
         // When a card is selected in a sideboard table, select it for adding
         TableSelectionListener listener = new TableSelectionListener(parent, lists.get(id).table, lists.get(id).current);
