@@ -85,6 +85,9 @@ public class SettingsDialog extends JDialog
      * Settings structure containing global settings.
      */
     private static Settings settings;
+    /**
+     * List of the latest warnings from the last time the inventory was loaded.
+     */
     private static List<String> inventoryWarnings;
 
     /**
