@@ -183,7 +183,7 @@ public class SettingsBuilder
      * <li>{@link Settings.EditorSettings.LegalitySettings#all}: <code>false</code>
      * <li>{@link Settings.EditorSettings.LegalitySettings#list}: <code>""</code>
      * <li>{@link Settings.EditorSettings.LegalitySettings#sideboard}: <code>""</code>
-     * <li>{@link Settings#cwd}: <code>"."</code>
+     * <li>{@link Settings#cwd}: <code>$HOME</code>
      * </ul>
      * 
      * @return this SettingsBuilder
