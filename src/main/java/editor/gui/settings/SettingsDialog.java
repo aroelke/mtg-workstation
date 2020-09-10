@@ -89,6 +89,9 @@ public class SettingsDialog extends JDialog
      */
     private static List<String> inventoryWarnings;
 
+    /**
+     * Location to store settings and default location to store other data.
+     */
     public static final Path EDITOR_HOME = Path.of(System.getProperty("user.home"), ".editor");
     /**
      * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
