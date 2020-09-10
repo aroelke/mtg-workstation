@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -388,10 +389,16 @@ public class CardImagePanel extends JPanel
             card = Objects.requireNonNull(c);
             face = 0;
             faceImages.clear();
-            if (Files.exists(Paths.get(SettingsDialog.settings().inventory.scans, card.multiverseid().get(face) + ".jpg")))
-                loadImages();
-            else
-                downloader.downloadCard(this, card);
+            try
+            {
+                Files.createDirectories(Path.of(SettingsDialog.settings().inventory.scans));
+                if (Files.exists(Path.of(SettingsDialog.settings().inventory.scans, card.multiverseid().get(face) + ".jpg")))
+                    loadImages();
+                else
+                    downloader.downloadCard(this, card);
+            }
+            catch (IOException e)
+            {}
             revalidate();
             repaint();
         }

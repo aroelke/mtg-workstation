@@ -278,6 +278,15 @@ public class MainFrame extends JFrame
             e.printStackTrace();
         }
 
+        try
+        {
+            Files.createDirectories(SettingsDialog.EDITOR_HOME);
+        }
+        catch (IOException e)
+        {
+            JOptionPane.showMessageDialog(null, "Could not create directory " + SettingsDialog.EDITOR_HOME + ": " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
         SwingUtilities.invokeLater(() -> new MainFrame(Arrays.stream(args).map(File::new).filter(File::exists).collect(Collectors.toList())).setVisible(true));
     }
 
@@ -1933,7 +1942,7 @@ public class MainFrame extends JFrame
     public void saveSettings()
     {
         SettingsDialog.setRecents(recentItems.stream().map((i) -> recents.get(i).getPath()).collect(Collectors.toList()));
-        try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE))
+        try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE.toString()))
         {
             SettingsDialog.save();
         }

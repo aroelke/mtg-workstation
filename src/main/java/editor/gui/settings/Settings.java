@@ -98,9 +98,9 @@ public final class Settings
                 "AllSets.json",
                 "version.json",
                 new DatabaseVersion(0, 0, 0),
-                ".",
-                "scans",
-                "tags.json",
+                SettingsDialog.EDITOR_HOME.toString(),
+                SettingsDialog.EDITOR_HOME.resolve("scans").toString(),
+                SettingsDialog.EDITOR_HOME.resolve("tags.json").toString(),
                 UpdateFrequency.DAILY,
                 true,
                 List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION),
@@ -459,7 +459,7 @@ public final class Settings
     {
         inventory = new InventorySettings();
         editor = new EditorSettings();
-        cwd = ".";
+        cwd = System.getProperty("user.home");
     }
 
     @Override
