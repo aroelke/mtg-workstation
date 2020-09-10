@@ -152,9 +152,9 @@ public class SettingsBuilder
      * <li>{@link Settings.InventorySettings#file}: "AllSets.json"
      * <li>{@link Settings.InventorySettings#versionFile}: "version.json"
      * <li>{@link Settings.InventorySettings#version}: ""
-     * <li>{@link Settings.InventorySettings#location}: "."
-     * <li>{@link Settings.InventorySettings#scans}: "images/cards"
-     * <li>{@link Settings.InventorySettings#tags}: "tags.json"
+     * <li>{@link Settings.InventorySettings#location}: <code>$HOME/.editor</code>
+     * <li>{@link Settings.InventorySettings#scans}: <code>$HOME/.editor/scans</code>
+     * <li>{@link Settings.InventorySettings#tags}: <code>$HOME/.editor/tags.json</code>
      * <li>{@link Settings.InventorySettings#update}: Daily
      * <li>{@link Settings.InventorySettings#warn}: <code>true</code>
      * <li>{@link Settings.InventorySettings#columns}:

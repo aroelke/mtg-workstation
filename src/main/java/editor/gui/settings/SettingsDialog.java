@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,6 +90,10 @@ public class SettingsDialog extends JDialog
     private static List<String> inventoryWarnings;
 
     /**
+     * Location to store settings and default location to store other data.
+     */
+    public static final Path EDITOR_HOME = Path.of(System.getProperty("user.home"), ".editor");
+    /**
      * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
      */
     public static final Pattern COLOR_PATTERN = Pattern.compile("^#([0-9a-fA-F]{2})?([0-9a-fA-F]{6})$");
@@ -101,7 +104,7 @@ public class SettingsDialog extends JDialog
     /**
      * File containing serialized settings.
      */
-    public static final String PROPERTIES_FILE = "settings.json";
+    public static final Path PROPERTIES_FILE = EDITOR_HOME.resolve("settings.json");
 
     /**
      * Create the preview panel for a color chooser that customizes the stripe color
@@ -181,8 +184,8 @@ public class SettingsDialog extends JDialog
      */
     public static void load() throws IOException
     {
-        if (Files.exists(Path.of(PROPERTIES_FILE)))
-            settings = MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Path.of(PROPERTIES_FILE))), Settings.class);
+        if (Files.exists(PROPERTIES_FILE))
+            settings = MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(PROPERTIES_FILE)), Settings.class);
         else
             resetDefaultSettings();
     }
@@ -204,10 +207,13 @@ public class SettingsDialog extends JDialog
     public static void save() throws IOException
     {
         if (!Card.tags.isEmpty())
-            Files.writeString(Paths.get(settings.inventory.tags), MainFrame.SERIALIZER.toJson(Card.tags.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey().multiverseid().get(0), Map.Entry::getValue))));
+        {
+            Files.createDirectories(Path.of(settings.inventory.tags).getParent());
+            Files.writeString(Path.of(settings.inventory.tags), MainFrame.SERIALIZER.toJson(Card.tags.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey().multiverseid().get(0), Map.Entry::getValue))));
+        }
         else
-            Files.deleteIfExists(Paths.get(settings.inventory.tags));
-        Files.writeString(Paths.get(PROPERTIES_FILE), MainFrame.SERIALIZER.toJson(settings));
+            Files.deleteIfExists(Path.of(settings.inventory.tags));
+        Files.writeString(PROPERTIES_FILE, MainFrame.SERIALIZER.toJson(settings));
     }
 
     /**
