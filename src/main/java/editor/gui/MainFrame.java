@@ -1062,7 +1062,9 @@ public class MainFrame extends JFrame
         preferencesItem.addActionListener((e) -> {
             try
             {
-                settings.get().setVisible(true);
+                SettingsDialog s = settings.get();
+                s.setLocationRelativeTo(this);
+                s.setVisible(true);
             }
             catch (ExecutionException | CancellationException | InterruptedException x)
             {
