@@ -46,12 +46,14 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -436,6 +438,7 @@ public class MainFrame extends JFrame
         newestVersion = SettingsDialog.settings().inventory.version;
 
         setTitle("MTG Deck Editor");
+        setIconImages(IntStream.rangeClosed(4, 8).mapToObj((i) -> new ImageIcon(MainFrame.class.getResource("/icon/" + (1 << i) + ".png")).getImage()).collect(Collectors.toList()));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
