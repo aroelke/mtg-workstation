@@ -40,7 +40,6 @@ import com.google.gson.JsonSerializer;
 import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
 import editor.gui.MainFrame;
-import editor.serialization.legacy.DeckDeserializer;
 import editor.util.ExceptionConsumer;
 import editor.util.ProgressInputStream;
 
@@ -308,16 +307,16 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
             {
                 if (v > 0)
                     ois.readLong(); // Throw out first 64 bits that have already been read
-                deck = DeckDeserializer.readExternal(ois);
+                deck = editor.serialization.legacy.DeckDeserializer.readExternal(ois);
                 if (v <= 2)
-                    sideboard.put("Sideboard", DeckDeserializer.readExternal(ois));
+                    sideboard.put("Sideboard", editor.serialization.legacy.DeckDeserializer.readExternal(ois));
                 else
                 {
                     int boards = ois.readInt();
                     for (int i = 0; i < boards; i++)
                     {
                         String name = ois.readUTF();
-                        sideboard.put(name, DeckDeserializer.readExternal(ois));
+                        sideboard.put(name, editor.serialization.legacy.DeckDeserializer.readExternal(ois));
                     }
                 }
                 changelog = v < 2 ? (String)ois.readObject() : ois.readUTF();

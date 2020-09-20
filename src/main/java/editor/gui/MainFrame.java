@@ -1729,10 +1729,10 @@ public class MainFrame extends JFrame
     }
 
     /**
-     * @param id multiverseid of the #Card to look for
+     * @param id scryfall ID of the #Card to look for
      * @return the #Card with the given multiverseid.
      */
-    public Card getCard(int id)
+    public Card getCard(String id)
     {
         return inventory.find(id);
     }
