@@ -241,7 +241,7 @@ public abstract class Card
     @Override
     public boolean equals(Object other)
     {
-        return other != null && (other == this || other instanceof Card && multiverseid().equals(((Card)other).multiverseid()));
+        return other != null && (other == this || other instanceof Card && scryfallid().equals(((Card)other).scryfallid()));
     }
 
     /**
@@ -471,7 +471,7 @@ public abstract class Card
     @Override
     public int hashCode()
     {
-        return Objects.hash(name(), multiverseid());
+        return Objects.hash(name(), scryfallid());
     }
 
     /**
