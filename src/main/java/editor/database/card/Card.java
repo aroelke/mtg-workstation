@@ -580,6 +580,12 @@ public abstract class Card
     public abstract List<Integer> multiverseid();
 
     /**
+     * @return the unique IDs of each face of this card as they are used by
+     * <a href="https://scryfall.com/">Scryfall</a> for images.
+     */
+    public abstract List<String> scryfallid();
+
+    /**
      * Get the name of each of this Card's faces.
      *
      * @return a List containing the name of each face of this Card

@@ -89,6 +89,10 @@ public abstract class MultiCard extends Card
      */
     private Lazy<List<Integer>> multiverseid;
     /**
+     * List containing this MultiCard's faces' Scryfall illustration ids.
+     */
+    private Lazy<List<String>> scryfallid;
+    /**
      * List containing the oracle text of each of this MultiCard's faces.
      */
     private Lazy<List<String>> oracleText;
@@ -200,6 +204,7 @@ public abstract class MultiCard extends Card
         })));
         imageNames = new Lazy<>(() -> collect(Card::imageNames));
         multiverseid = new Lazy<>(() -> collect(Card::multiverseid));
+        scryfallid = new Lazy<>(() -> collect(Card::scryfallid));
         isLand = faces.get(0).isLand();
         commandFormats = new Lazy<>(() -> faces.stream().flatMap((c) -> c.commandFormats().stream()).distinct().sorted().collect(Collectors.toList()));
     }
@@ -297,6 +302,12 @@ public abstract class MultiCard extends Card
     public List<Integer> multiverseid()
     {
         return multiverseid.get();
+    }
+
+    @Override
+    public List<String> scryfallid()
+    {
+        return scryfallid.get();
     }
 
     @Override

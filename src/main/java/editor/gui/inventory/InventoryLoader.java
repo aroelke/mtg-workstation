@@ -260,6 +260,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             card.printedText().get(0),
             card.artist().get(0),
             card.multiverseid().get(0),
+            card.scryfallid().get(0),
             card.number().get(0),
             card.power().get(0),
             card.toughness().get(0),
@@ -302,20 +303,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
             var entries = (version.compareTo(VER_5_0_0) < 0 ? root : root.get("data").getAsJsonObject()).entrySet();
             int numCards = 0;
-            if (version.compareTo(VER_5_0_0) < 0)
-            {
-                for (var setNode : entries)
-                    for (JsonElement card : setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray())
-                        if (card.getAsJsonObject().has("multiverseId"))
-                            numCards++;
-            }
-            else
-            {
-                for (var setNode : entries)
-                    for (JsonElement card : setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray())
-                        if (card.getAsJsonObject().get("identifiers").getAsJsonObject().has("multiverseId"))
-                            numCards++;
-            }
+            for (var setNode : entries)
+                numCards += setNode.getValue().getAsJsonObject().get("cards").getAsJsonArray().size();
 
             // We don't use String.intern() here because the String pool that is maintained must include extra data that adds several MB
             // to the overall memory consumption of the inventory
@@ -368,10 +357,9 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                     // Create the new card for the expansion
                     JsonObject card = cardElement.getAsJsonObject();
 
-                    // Card's multiverseid.  Skip cards that aren't in gatherer
+                    // Card's multiverseid and Scryfall id
+                    String scryfallid = (version.compareTo(VER_5_0_0) < 0 ? card.get("scryfallId") : card.get("identifiers").getAsJsonObject().get("scryfallId")).getAsString();
                     int multiverseid = Optional.ofNullable(version.compareTo(VER_5_0_0) < 0 ? card.get("multiverseId") : card.get("identifiers").getAsJsonObject().get("multiverseId")).map(JsonElement::getAsInt).orElse(-1);
-                    if (multiverseid < 0)
-                        continue;
 
                     // Card's name
                     String name = card.get(card.has("faceName") ? "faceName" : "name").getAsString();
@@ -466,6 +454,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         texts.computeIfAbsent(card.has("originalText") ? card.get("originalText").getAsString() : "", Function.identity()),
                         artists.computeIfAbsent(card.has("artist") ? card.get("artist").getAsString() : "", Function.identity()),
                         multiverseid,
+                        scryfallid,
                         numbers.computeIfAbsent(card.get("number").getAsString(), Function.identity()),
                         stats.computeIfAbsent(card.has("power") ? card.get("power").getAsString() : "", CombatStat::new),
                         stats.computeIfAbsent(card.has("toughness") ? card.get("toughness").getAsString() : "", CombatStat::new),

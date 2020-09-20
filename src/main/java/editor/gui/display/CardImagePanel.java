@@ -53,6 +53,8 @@ public class CardImagePanel extends JPanel
      * Aspect ratio of a Magic: The Gathering card.
      */
     public static final double ASPECT_RATIO = 63.0/88.0;
+    public static final String GATHERER_FORMAT = "https://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%d&type=card";
+    public static final String SCRYFALL_FORMAT = "https://api.scryfall.com/cards/%s?format=image";
 
     /**
      * This class represents a request by a CardImagePanel to download the image(s)
@@ -124,12 +126,12 @@ public class CardImagePanel extends JPanel
             while (true)
             {
                 DownloadRequest req = toDownload.take();
-                for (long multiverseid : req.card.multiverseid())
+                for (String id : req.card.scryfallid())
                 {
-                    File img = Paths.get(SettingsDialog.settings().inventory.scans, multiverseid + ".jpg").toFile();
+                    File img = Paths.get(SettingsDialog.settings().inventory.scans, id + ".jpg").toFile();
                     if (!img.exists())
                     {
-                        URL site = new URL(String.join("/", "https://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
+                        URL site = new URL(String.format(SCRYFALL_FORMAT, id));
 
                         img.getParentFile().mkdirs();
                         try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
@@ -144,7 +146,7 @@ public class CardImagePanel extends JPanel
                         }
                         catch (Exception e)
                         {
-                            System.err.println("Error downloading " + multiverseid + ".jpg: " + e.getMessage());
+                            System.err.println("Error downloading " + id + ".jpg: " + e.getMessage());
                         }
                     }
                 }
@@ -261,17 +263,14 @@ public class CardImagePanel extends JPanel
         if (card != null)
         {
             faceImages.clear();
-            for (long i : card.multiverseid())
+            for (String id : card.scryfallid())
             {
                 BufferedImage img = null;
                 try
                 {
-                    if (i > 0)
-                    {
-                        File imageFile = Paths.get(SettingsDialog.settings().inventory.scans, i + ".jpg").toFile();
-                        if (imageFile.exists())
-                            img = ImageIO.read(imageFile);
-                    }
+                    File imageFile = Paths.get(SettingsDialog.settings().inventory.scans, id + ".jpg").toFile();
+                    if (imageFile.exists())
+                        img = ImageIO.read(imageFile);
                 }
                 catch (IOException e)
                 {}
@@ -392,7 +391,7 @@ public class CardImagePanel extends JPanel
             try
             {
                 Files.createDirectories(Path.of(SettingsDialog.settings().inventory.scans));
-                if (Files.exists(Path.of(SettingsDialog.settings().inventory.scans, card.multiverseid().get(face) + ".jpg")))
+                if (Files.exists(Path.of(SettingsDialog.settings().inventory.scans, card.scryfallid().get(face) + ".jpg")))
                     loadImages();
                 else
                     downloader.downloadCard(this, card);
