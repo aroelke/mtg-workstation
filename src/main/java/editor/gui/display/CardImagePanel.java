@@ -55,8 +55,14 @@ public class CardImagePanel extends JPanel
      * Aspect ratio of a Magic: The Gathering card.
      */
     public static final double ASPECT_RATIO = 63.0/88.0;
+    /**
+     * String format for getting the URL of a Gatherer image.
+     */
     public static final String GATHERER_FORMAT = "https://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%d&type=card";
-    public static final String SCRYFALL_FORMAT = "https://api.scryfall.com/cards/%s?format=image";
+    /**
+     * String format for getting the URL of a Scryfall image.
+     */
+    public static final String SCRYFALL_FORMAT = "https://api.scryfall.com/cards/%s?format=image%s";
 
     /**
      * This class represents a request by a CardImagePanel to download the image(s)
@@ -135,10 +141,7 @@ public class CardImagePanel extends JPanel
                     File img = Paths.get(SettingsDialog.settings().inventory.scans, id + ";" + i + ".jpg").toFile();
                     if (!img.exists())
                     {
-                        String url = String.format(SCRYFALL_FORMAT, id);
-                        if (i == 1 && req.card.layout() != CardLayout.MELD)
-                            url += "&face=back";
-                        URL site = new URL(url);
+                        URL site = new URL(String.format(SCRYFALL_FORMAT, id, (i == 1 && req.card.layout() != CardLayout.MELD) ? "&face=back" : ""));
 
                         img.getParentFile().mkdirs();
                         try (BufferedInputStream in = new BufferedInputStream(site.openStream()))

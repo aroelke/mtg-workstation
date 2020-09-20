@@ -273,6 +273,17 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         );
     }
 
+    /**
+     * Create multi faced cards from a list of single faces.  Most of the time this will be a single card,
+     * but with meld cards two are returned.  The faces list should contain all faces of the card, including
+     * both front faces for meld cards, and should be sorted in order of appearance from front to back or left
+     * to right.
+     * 
+     * @param layout layout of the new multi faced card
+     * @param faces faces to use to create the cards
+     * @return A collection containing either the new multi faced cards or, if they could not be created,
+     * the original faces.
+     */
     private Collection<? extends Card> createMultiFacedCard(CardLayout layout, List<? extends Card> faces)
     {
         boolean error = false;
