@@ -69,6 +69,10 @@ public enum CardLayout
      */
     ADVENTURE("Adventure", true),
     /**
+     * Special double-faced card where either face can be played.
+     */
+    MODAL_DFC("Modal DFC", true),
+    /**
      * An extra-large card for use in the Planechase format.
      */
     PLANAR("Planar"),

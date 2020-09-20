@@ -74,6 +74,7 @@ import editor.database.card.Card;
 import editor.database.card.CardLayout;
 import editor.database.card.FlipCard;
 import editor.database.card.MeldCard;
+import editor.database.card.ModalCard;
 import editor.database.card.SingleCard;
 import editor.database.card.SplitCard;
 import editor.database.card.TransformCard;
@@ -287,9 +288,11 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
         var cards = new ArrayList<Card>();
         var faces = new HashMap<Card, List<String>>();
-        var melds = new HashMap<Card, List<String>>();
         var expansions = new HashSet<Expansion>();
         var blockNames = new HashSet<String>();
+        var multiUUIDs = new HashMap<String, Card>();
+        var facesNames = new HashMap<Card, List<String>>();
+        var otherFaceIds = new HashMap<Card, List<String>>();
 
         // Read the inventory file
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8")))
@@ -478,10 +481,14 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                                 names.add(e.getAsString());
                             faces.put(c, names);
                         }
-                        else if (layout != CardLayout.MELD)
-                            faces.put(c, Arrays.asList(card.get("name").getAsString().split(Card.FACE_SEPARATOR)));
                         else
-                            melds.put(c, Arrays.asList(card.get("name").getAsString().split(Card.FACE_SEPARATOR)));
+                        {
+                            multiUUIDs.put(card.get("uuid").getAsString(), c);
+                            facesNames.put(c, Arrays.asList(card.get("name").getAsString().split(Card.FACE_SEPARATOR)));
+                            otherFaceIds.put(c, new ArrayList<>());
+                            for (JsonElement id : card.get("otherFaceIds").getAsJsonArray())
+                                otherFaceIds.get(c).add(id.getAsString());
+                        }
                     }
 
                     cards.add(c);
@@ -490,97 +497,97 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             }
 
             publish("Processing multi-faced cards...");
-            var facesList = new ArrayList<>(faces.keySet());
-            while (!facesList.isEmpty())
+            if (version.compareTo(VER_5_0_0) <= 0)
             {
-                boolean error = false;
-
-                Card face = facesList.remove(0);
-                var otherFaces = new ArrayList<Card>();
-                if (version.compareTo(VER_5_0_0) < 0 || face.layout() != CardLayout.MELD)
+                var facesList = new ArrayList<>(faces.keySet());
+                while (!facesList.isEmpty())
                 {
-                    var faceNames = faces.get(face);
-                    for (Card c : facesList)
-                        if (faceNames.contains(c.unifiedName()) && c.expansion().equals(face.expansion()))
-                            otherFaces.add(c);
-                    facesList.removeAll(otherFaces);
-                    otherFaces.add(face);
-                    otherFaces.sort(Comparator.comparingInt((a) -> faceNames.indexOf(a.unifiedName())));
-                }
-                cards.removeAll(otherFaces);
+                    boolean error = false;
 
-                switch (face.layout())
-                {
-                case SPLIT: case AFTERMATH: case ADVENTURE:
-                    if (otherFaces.size() < 2)
+                    Card face = facesList.remove(0);
+                    var otherFaces = new ArrayList<Card>();
+                    if (version.compareTo(VER_5_0_0) < 0 || face.layout() != CardLayout.MELD)
                     {
-                        errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face(s) for split card.");
-                        error = true;
+                        var faceNames = faces.get(face);
+                        for (Card c : facesList)
+                            if (faceNames.contains(c.unifiedName()) && c.expansion().equals(face.expansion()))
+                                otherFaces.add(c);
+                        facesList.removeAll(otherFaces);
+                        otherFaces.add(face);
+                        otherFaces.sort(Comparator.comparingInt((a) -> faceNames.indexOf(a.unifiedName())));
                     }
-                    else
+                    cards.removeAll(otherFaces);
+
+                    switch (face.layout())
                     {
-                        for (Card f : otherFaces)
+                    case SPLIT: case AFTERMATH: case ADVENTURE:
+                        if (otherFaces.size() < 2)
                         {
-                            if (f.layout() != face.layout())
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face(s) for split card.");
+                            error = true;
+                        }
+                        else
+                        {
+                            for (Card f : otherFaces)
                             {
-                                errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-split faces into a split card.");
-                                error = true;
+                                if (f.layout() != face.layout())
+                                {
+                                    errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-split faces into a split card.");
+                                    error = true;
+                                }
                             }
                         }
-                    }
-                    if (!error)
-                        cards.add(new SplitCard(otherFaces));
-                    else
-                        for (Card f : otherFaces)
-                            cards.add(convertToNormal(f));
-                    break;
-                case FLIP:
-                    if (otherFaces.size() < 2)
-                    {
-                        errors.add(face.toString() + " (" + face.expansion() + "): Can't find other side of flip card.");
-                        error = true;
-                    }
-                    else if (otherFaces.size() > 2)
-                    {
-                        errors.add(face.toString() + " (" + face.expansion() + "): Too many sides for flip card.");
-                        error = true;
-                    }
-                    else if (otherFaces.get(0).layout() != CardLayout.FLIP || otherFaces.get(1).layout() != CardLayout.FLIP)
-                    {
-                        errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-flip faces into a flip card.");
-                        error = true;
-                    }
-                    if (!error)
-                        cards.add(new FlipCard(otherFaces.get(0), otherFaces.get(1)));
-                    else
-                        for (Card f : otherFaces)
-                            cards.add(convertToNormal(f));
-                    break;
-                case TRANSFORM:
-                    if (otherFaces.size() < 2)
-                    {
-                        errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face of double-faced card.");
-                        error = true;
-                    }
-                    else if (otherFaces.size() > 2)
-                    {
-                        errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for double-faced card.");
-                        error = true;
-                    }
-                    else if (otherFaces.get(0).layout() != CardLayout.TRANSFORM || otherFaces.get(1).layout() != CardLayout.TRANSFORM)
-                    {
-                        errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into double-faced cards.");
-                        error = true;
-                    }
-                    if (!error)
-                        cards.add(new TransformCard(otherFaces.get(0), otherFaces.get(1)));
-                    else
-                        for (Card f : otherFaces)
-                            cards.add(convertToNormal(f));
-                    break;
-                case MELD:
-                    if (version.compareTo(VER_5_0_0) < 0)
-                    {
+                        if (!error)
+                            cards.add(new SplitCard(otherFaces));
+                        else
+                            for (Card f : otherFaces)
+                                cards.add(convertToNormal(f));
+                        break;
+                    case FLIP:
+                        if (otherFaces.size() < 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't find other side of flip card.");
+                            error = true;
+                        }
+                        else if (otherFaces.size() > 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Too many sides for flip card.");
+                            error = true;
+                        }
+                        else if (otherFaces.get(0).layout() != CardLayout.FLIP || otherFaces.get(1).layout() != CardLayout.FLIP)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-flip faces into a flip card.");
+                            error = true;
+                        }
+                        if (!error)
+                            cards.add(new FlipCard(otherFaces.get(0), otherFaces.get(1)));
+                        else
+                            for (Card f : otherFaces)
+                                cards.add(convertToNormal(f));
+                        break;
+                    case TRANSFORM:
+                        if (otherFaces.size() < 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face of double-faced card.");
+                            error = true;
+                        }
+                        else if (otherFaces.size() > 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for double-faced card.");
+                            error = true;
+                        }
+                        else if (otherFaces.get(0).layout() != CardLayout.TRANSFORM || otherFaces.get(1).layout() != CardLayout.TRANSFORM)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into double-faced cards.");
+                            error = true;
+                        }
+                        if (!error)
+                            cards.add(new TransformCard(otherFaces.get(0), otherFaces.get(1)));
+                        else
+                            for (Card f : otherFaces)
+                                cards.add(convertToNormal(f));
+                        break;
+                    case MELD:
                         if (otherFaces.size() < 3)
                         {
                             errors.add(face.toString() + " (" + face.expansion() + "): Can't find some faces of meld card.");
@@ -604,45 +611,124 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                         else
                             for (Card f : otherFaces)
                                 cards.add(convertToNormal(f));
+                        break;
+                    // Modal DFCs didn't exist prior to MTGJSON version 5.0.0
+                    default:
+                        break;
                     }
-                    else
-                        errors.add(face + " (" + face.expansion() + "): Wrong processing of meld card.");
-                    break;
-                default:
-                    break;
                 }
             }
-
-            if (version.compareTo(VER_5_0_0) >= 0)
+            else
             {
-                var meldBacks = melds.entrySet().stream().filter((e) -> e.getValue().size() == 1).map((e) -> e.getKey()).collect(Collectors.toList());
-                var meldFronts = new HashMap<>(melds.entrySet().stream().filter((e) -> e.getValue().size() > 1).collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue())));
-                for (Card back : meldBacks)
+                cards.removeAll(facesNames.keySet());
+                for (var e : facesNames.entrySet())
                 {
-                    var fronts = meldFronts.entrySet().stream().filter((e) -> e.getKey().expansion().equals(back.expansion()) && e.getValue().contains(back.unifiedName())).map((e) -> e.getKey()).collect(Collectors.toList());
-                    if (fronts.size() < 2)
-                        errors.add(back + " (" + back.expansion() + "): Can't find some faces of meld card.");
-                    else if (fronts.size() == 2)
+                    Card face = e.getKey();
+                    var cardFaces = new ArrayList<>(otherFaceIds.get(face).stream().map(multiUUIDs::get).collect(Collectors.toList()));
+                    cardFaces.add(face);
+                    cardFaces.sort(Comparator.comparingInt(c -> e.getValue().indexOf(c.unifiedName())));
+
+                    boolean error = false;
+                    switch (face.layout())
                     {
-                        cards.add(new MeldCard(fronts.get(0), fronts.get(1), back));
-                        cards.add(new MeldCard(fronts.get(1), fronts.get(0), back));
-                        cards.remove(back);
-                        cards.removeAll(fronts);
-                        for (Card front : fronts)
-                            meldFronts.remove(front);
+                        case SPLIT: case AFTERMATH: case ADVENTURE:
+                        if (cardFaces.size() < 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face(s) for split card.");
+                            error = true;
+                        }
+                        else
+                        {
+                            for (Card f : cardFaces)
+                            {
+                                if (f.layout() != face.layout())
+                                {
+                                    errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-split faces into a split card.");
+                                    error = true;
+                                }
+                            }
+                        }
+                        if (!error)
+                            cards.add(new SplitCard(cardFaces));
+                        break;
+                    case FLIP:
+                        if (cardFaces.size() < 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't find other side of flip card.");
+                            error = true;
+                        }
+                        else if (cardFaces.size() > 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Too many sides for flip card.");
+                            error = true;
+                        }
+                        else if (cardFaces.get(0).layout() != CardLayout.FLIP || cardFaces.get(1).layout() != CardLayout.FLIP)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't join non-flip faces into a flip card.");
+                            error = true;
+                        }
+                        if (!error)
+                            cards.add(new FlipCard(cardFaces.get(0), cardFaces.get(1)));
+                        break;
+                    case TRANSFORM:
+                        if (cardFaces.size() < 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face of double-faced card.");
+                            error = true;
+                        }
+                        else if (cardFaces.size() > 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for double-faced card.");
+                            error = true;
+                        }
+                        else if (cardFaces.get(0).layout() != CardLayout.TRANSFORM || cardFaces.get(1).layout() != CardLayout.TRANSFORM)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into double-faced cards.");
+                            error = true;
+                        }
+                        if (!error)
+                            cards.add(new TransformCard(cardFaces.get(0), cardFaces.get(1)));
+                        break;
+                    case MODAL_DFC:
+                        if (cardFaces.size() < 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't find other face of modal double-faced card.");
+                            error = true;
+                        }
+                        else if (cardFaces.size() > 2)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Too many faces for modal double-faced card.");
+                            error = true;
+                        }
+                        else if (cardFaces.get(0).layout() != CardLayout.MODAL_DFC || cardFaces.get(1).layout() != CardLayout.MODAL_DFC)
+                        {
+                            errors.add(face.toString() + " (" + face.expansion() + "): Can't join single-faced cards into modal double-faced cards.");
+                            error = true;
+                        }
+                        if (!error)
+                            cards.add(new ModalCard(cardFaces.get(0), cardFaces.get(1)));
+                        break;
+                    case MELD:
+                        if (cardFaces.size() == 3)
+                        {
+                            cards.add(new MeldCard(cardFaces.get(0), cardFaces.get(1), cardFaces.get(2)));
+                            cards.add(new MeldCard(cardFaces.get(1), cardFaces.get(2), cardFaces.get(2)));
+                        }
+                        break;
+                    default:
+                        break;
                     }
-                    else
-                        errors.add(back + "( " + back.expansion() + "): Too many faces for meld card.");
+                    if (error)
+                        for (Card f : cardFaces)
+                            cards.add(convertToNormal(f));
                 }
-                for (Card front : meldFronts.keySet())
-                    errors.add(front + "( " + front.expansion() + "): Couldn't pair with a back face.");
             }
 
             publish("Removing duplicate entries...");
-            var unique = new HashMap<Integer, Card>();
+            var unique = new HashMap<String, Card>();
             for (Card c : cards)
-                if (!unique.containsKey(c.multiverseid().get(0)))
-                    unique.put(c.multiverseid().get(0), c);
+                if (!unique.containsKey(c.scryfallid().get(0)))
+                    unique.put(c.scryfallid().get(0), c);
             cards = new ArrayList<>(unique.values());
 
             // Store the lists of expansion and block names and types and sort them alphabetically

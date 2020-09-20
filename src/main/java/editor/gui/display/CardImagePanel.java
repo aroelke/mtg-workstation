@@ -7,6 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -126,12 +128,17 @@ public class CardImagePanel extends JPanel
             while (true)
             {
                 DownloadRequest req = toDownload.take();
-                for (String id : req.card.scryfallid())
+                int images = req.card.layout() == CardLayout.FLIP ? 1 : req.card.imageNames().size();
+                for (int i = 0; i < images; i++)
                 {
-                    File img = Paths.get(SettingsDialog.settings().inventory.scans, id + ".jpg").toFile();
+                    String id = req.card.scryfallid().get(i);
+                    File img = Paths.get(SettingsDialog.settings().inventory.scans, id + ";" + i + ".jpg").toFile();
                     if (!img.exists())
                     {
-                        URL site = new URL(String.format(SCRYFALL_FORMAT, id));
+                        String url = String.format(SCRYFALL_FORMAT, id);
+                        if (i == 1 && req.card.layout() != CardLayout.MELD)
+                            url += "&face=back";
+                        URL site = new URL(url);
 
                         img.getParentFile().mkdirs();
                         try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
@@ -147,6 +154,21 @@ public class CardImagePanel extends JPanel
                         catch (Exception e)
                         {
                             System.err.println("Error downloading " + id + ".jpg: " + e.getMessage());
+                        }
+
+                        if (req.card.layout() == CardLayout.FLIP && i == 0)
+                        {
+                            try
+                            {
+                                BufferedImage original = ImageIO.read(img);
+                                BufferedImage flipped = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
+                                AffineTransformOp op = new AffineTransformOp(AffineTransform.getRotateInstance(Math.PI, flipped.getWidth()/2, flipped.getHeight()/2), AffineTransformOp.TYPE_BILINEAR);
+                                ImageIO.write(op.filter(original, flipped), "jpg", Paths.get(SettingsDialog.settings().inventory.scans, id + ";1.jpg").toFile());
+                            }
+                            catch (Exception e)
+                            {
+                                System.out.println(e);
+                            }
                         }
                     }
                 }
@@ -184,10 +206,7 @@ public class CardImagePanel extends JPanel
         {
             if (SwingUtilities.isLeftMouseButton(e) && card != null)
             {
-                face = switch (card.layout()) {
-                    case SPLIT, AFTERMATH, ADVENTURE -> 0;
-                    default -> (face + 1) % card.faces();
-                };
+                face = (face + 1) % card.imageNames().size();
                 getParent().revalidate();
                 repaint();
             }
@@ -263,12 +282,13 @@ public class CardImagePanel extends JPanel
         if (card != null)
         {
             faceImages.clear();
-            for (String id : card.scryfallid())
+            for (int i = 0; i < card.imageNames().size(); i++)
             {
+                String id = card.scryfallid().get(i);
                 BufferedImage img = null;
                 try
                 {
-                    File imageFile = Paths.get(SettingsDialog.settings().inventory.scans, id + ".jpg").toFile();
+                    File imageFile = Paths.get(SettingsDialog.settings().inventory.scans, id + ";" + i + ".jpg").toFile();
                     if (imageFile.exists())
                         img = ImageIO.read(imageFile);
                 }
@@ -312,7 +332,7 @@ public class CardImagePanel extends JPanel
             }
             g2.drawImage(image, (getWidth() - width)/2, (getHeight() - height)/2, width, height, null);
 
-            if (card.faces() > 1 && !List.of(CardLayout.SPLIT, CardLayout.AFTERMATH, CardLayout.ADVENTURE).contains(card.layout()))
+            if (card.imageNames().size() > 1)
             {
                 final int SIZE = 15;
                 final int BORDER = 3;
@@ -367,12 +387,7 @@ public class CardImagePanel extends JPanel
                 g.drawRect(0, 0, faceWidth - 1, h - 1);
             }
             else
-            {
-                if (card.layout() == CardLayout.FLIP && face%2 == 1)
-                    g.drawImage(faceImages.get(face), faceImages.get(0).getWidth(), faceImages.get(0).getHeight(), -faceImages.get(0).getWidth(), -faceImages.get(0).getHeight(), null);
-                else
-                    g.drawImage(faceImages.get(face), 0, 0, null);
-            }
+                g.drawImage(faceImages.get(face), 0, 0, null);
         }
     }
 

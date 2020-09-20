@@ -27,7 +27,7 @@ public class TransformCard extends MultiCard
     private Lazy<List<ManaCost>> manaCost;
 
     /**
-     * Create a new DoubleFacedCard with the given Cards as faces.  Their layouts should
+     * Create a new TransformCard with the given Cards as faces.  Their layouts should
      * say that they are double-faced cards.
      *
      * @param f card representing the front face
