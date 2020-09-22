@@ -105,6 +105,10 @@ public class SettingsDialog extends JDialog
      * File containing serialized settings.
      */
     public static final Path PROPERTIES_FILE = EDITOR_HOME.resolve("settings.json");
+    /**
+     * List of possible sites to download card images from.
+     */
+    public static final List<String> IMAGE_SOURCES = List.of("Scryfall", "Gatherer");
 
     /**
      * Create the preview panel for a color chooser that customizes the stripe color
@@ -379,6 +383,10 @@ public class SettingsDialog extends JDialog
      * present.
      */
     private JTextField sideField;
+    /**
+     * Combo box showing possible sites to download cards from.
+     */
+    private JComboBox<String> imgSourceBox;
 
     /**
      * Create a new SettingsDialog.
@@ -497,10 +505,18 @@ public class SettingsDialog extends JDialog
         inventoryPanel.add(scansDirPanel);
         inventoryPanel.add(Box.createVerticalStrut(5));
 
+        // Card images source
+        JPanel imgSourcePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        imgSourcePanel.add(new JLabel("Download card images from:"));
+        imgSourcePanel.add(Box.createHorizontalStrut(5));
+        imgSourcePanel.add(imgSourceBox = new JComboBox<>(IMAGE_SOURCES.toArray(String[]::new)));
+        imgSourcePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, imgSourcePanel.getPreferredSize().height));
+        inventoryPanel.add(imgSourcePanel);
+        inventoryPanel.add(Box.createVerticalStrut(5));
+
         // Check for update on startup
         JPanel updatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        JLabel updateLabel = new JLabel("Update inventory on:");
-        updatePanel.add(updateLabel);
+        updatePanel.add(new JLabel("Update inventory on:"));
         updatePanel.add(Box.createHorizontalStrut(5));
         updateBox = new JComboBox<>(UpdateFrequency.values());
         updatePanel.add(updateBox);
@@ -843,6 +859,7 @@ public class SettingsDialog extends JDialog
                 inventoryChooser.setCurrentDirectory(new File(inventoryDirField.getText()).getAbsoluteFile());
                 scansDirField.setText(settings.inventory.scans);
                 scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
+                imgSourceBox.setSelectedIndex(Math.max(IMAGE_SOURCES.indexOf(settings.inventory.imageSource), 0));
                 updateBox.setSelectedIndex(settings.inventory.update.ordinal());
                 suppressCheckBox.setSelected(settings.inventory.warn);
                 viewWarningsButton.setEnabled(!inventoryWarnings.isEmpty());
@@ -912,6 +929,8 @@ public class SettingsDialog extends JDialog
                 .inventorySource(inventorySiteField.getText())
                 .inventoryFile(inventoryFileField.getText())
                 .inventoryLocation(inventoryDirField.getText())
+                .inventoryScans(scansDirField.getText())
+                .imageSource(imgSourceBox.getItemAt(imgSourceBox.getSelectedIndex()))
                 .inventoryUpdate(updateBox.getItemAt(updateBox.getSelectedIndex()))
                 .inventoryWarn(suppressCheckBox.isSelected())
                 .inventoryColumns(inventoryColumnCheckBoxes.entrySet().stream().filter((e) -> e.getValue().isSelected()).map(Map.Entry::getKey).sorted().collect(Collectors.toList()))
@@ -924,7 +943,6 @@ public class SettingsDialog extends JDialog
                 .presetCategories(presets)
                 .handSize((Integer)startingSizeSpinner.getValue())
                 .handRounding(modeButtons.stream().filter(JRadioButton::isSelected).map(JRadioButton::getText).findAny().orElse("No rounding"))
-                .inventoryScans(scansDirField.getText())
                 .inventoryBackground(scanBGChooser.getColor())
                 .searchForCommander(cmdrCheck.isSelected())
                 .commanderInMain(cmdrMainDeck.isSelected() || (cmdrCheck.isSelected() && cmdrList.isSelected() && cmdrListName.getText().isEmpty()))
