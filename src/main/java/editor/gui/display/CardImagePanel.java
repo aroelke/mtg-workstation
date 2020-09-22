@@ -15,15 +15,19 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -134,19 +138,16 @@ public class CardImagePanel extends JPanel
             while (true)
             {
                 DownloadRequest req = toDownload.take();
-                int images = req.card.layout() == CardLayout.FLIP ? 1 : req.card.imageNames().size();
-                for (int i = 0; i < images; i++)
+                var files = getFiles(req.card);
+                var urls = getURLs(req.card);
+                for (int i = 0; i < urls.size(); i++)
                 {
-                    String id = req.card.scryfallid().get(i);
-                    File img = Paths.get(SettingsDialog.settings().inventory.scans, id + ";" + i + ".jpg").toFile();
-                    if (!img.exists())
+                    if (!files.get(i).exists())
                     {
-                        URL site = new URL(String.format(SCRYFALL_FORMAT, id, (i == 1 && req.card.layout() != CardLayout.MELD) ? "&face=back" : ""));
-
-                        img.getParentFile().mkdirs();
-                        try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
+                        files.get(i).getParentFile().mkdirs();
+                        try (BufferedInputStream in = new BufferedInputStream(urls.get(i).openStream()))
                         {
-                            try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(img)))
+                            try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(files.get(i))))
                             {
                                 byte[] data = new byte[1024];
                                 int x;
@@ -156,23 +157,22 @@ public class CardImagePanel extends JPanel
                         }
                         catch (Exception e)
                         {
-                            System.err.println("Error downloading " + id + ".jpg: " + e.getMessage());
+                            System.err.println("Error downloading " + files.get(i) + ": " + e.getMessage());
                         }
-
-                        if (req.card.layout() == CardLayout.FLIP && i == 0)
-                        {
-                            try
-                            {
-                                BufferedImage original = ImageIO.read(img);
-                                BufferedImage flipped = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
-                                AffineTransformOp op = new AffineTransformOp(AffineTransform.getRotateInstance(Math.PI, flipped.getWidth()/2, flipped.getHeight()/2), AffineTransformOp.TYPE_BILINEAR);
-                                ImageIO.write(op.filter(original, flipped), "jpg", Paths.get(SettingsDialog.settings().inventory.scans, id + ";1.jpg").toFile());
-                            }
-                            catch (Exception e)
-                            {
-                                System.out.println(e);
-                            }
-                        }
+                    }
+                }
+                if (req.card.layout() == CardLayout.FLIP)
+                {
+                    try
+                    {
+                        BufferedImage original = ImageIO.read(files.get(0));
+                        BufferedImage flipped = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
+                        AffineTransformOp op = new AffineTransformOp(AffineTransform.getRotateInstance(Math.PI, flipped.getWidth()/2, flipped.getHeight()/2), AffineTransformOp.TYPE_BILINEAR);
+                        ImageIO.write(op.filter(original, flipped), "jpg", Paths.get(SettingsDialog.settings().inventory.scans, req.card.scryfallid().get(0) + ";1.jpg").toFile());
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println(e);
                     }
                 }
                 publish(req);
@@ -195,6 +195,44 @@ public class CardImagePanel extends JPanel
     static
     {
         downloader.execute();
+    }
+
+    /**
+     * Determine the name(s) of file(s) a card's image(s) will be stored in.
+     * 
+     * @param c card to find image(s) for
+     * @return A list of files pointing to the card's image(s).
+     */
+    private static List<File> getFiles(Card c)
+    {
+        return IntStream.range(0, c.imageNames().size()).mapToObj((i) -> Paths.get(SettingsDialog.settings().inventory.scans, c.scryfallid().get(i) + ";" + i + ".jpg").toFile()).collect(Collectors.toList());
+    }
+
+    /**
+     * Determine the URL(s) to download a card's image(s) from.
+     * 
+     * @param c card to calculate URL(s) for
+     * @return A list of URLs pointing to the card's image(s) online.
+     * @throws MalformedURLException if any of the URLs are poorly formed.
+     */
+    private static List<URL> getURLs(Card c) throws MalformedURLException
+    {
+        List<URL> urls = new ArrayList<URL>();
+        switch (c.layout())
+        {
+        case FLIP:
+            urls.add(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(0), "")));
+            break;
+        case MELD:
+            for (int i = 0; i < c.imageNames().size(); i++)
+                urls.add(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(i), "")));
+            break;
+        default:
+            for (int i = 0; i < c.imageNames().size(); i++)
+                urls.add(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(i), (i > 0 && i == c.imageNames().size() - 1) ? "&face=back" : "")));
+            break;
+        }
+        return Collections.unmodifiableList(urls);
     }
 
     /**
@@ -285,15 +323,13 @@ public class CardImagePanel extends JPanel
         if (card != null)
         {
             faceImages.clear();
-            for (int i = 0; i < card.imageNames().size(); i++)
+            for (File file : getFiles(card))
             {
-                String id = card.scryfallid().get(i);
                 BufferedImage img = null;
                 try
                 {
-                    File imageFile = Paths.get(SettingsDialog.settings().inventory.scans, id + ";" + i + ".jpg").toFile();
-                    if (imageFile.exists())
-                        img = ImageIO.read(imageFile);
+                    if (file.exists())
+                        img = ImageIO.read(file);
                 }
                 catch (IOException e)
                 {}
@@ -409,7 +445,7 @@ public class CardImagePanel extends JPanel
             try
             {
                 Files.createDirectories(Path.of(SettingsDialog.settings().inventory.scans));
-                if (Files.exists(Path.of(SettingsDialog.settings().inventory.scans, card.scryfallid().get(face) + ".jpg")))
+                if (getFiles(card).stream().map(File::toPath).allMatch(Files::exists))
                     loadImages();
                 else
                     downloader.downloadCard(this, card);
