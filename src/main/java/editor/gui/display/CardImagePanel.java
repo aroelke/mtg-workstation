@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
@@ -62,7 +63,7 @@ public class CardImagePanel extends JPanel
     /**
      * String format for getting the URL of a Gatherer image.
      */
-    public static final String GATHERER_FORMAT = "https://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%d&type=card";
+    public static final String GATHERER_FORMAT = "https://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%d&type=card%s";
     /**
      * String format for getting the URL of a Scryfall image.
      */
@@ -142,33 +143,36 @@ public class CardImagePanel extends JPanel
                 var urls = getURLs(req.card);
                 for (int i = 0; i < urls.size(); i++)
                 {
-                    if (!files.get(i).exists())
+                    final int f = i;
+                    if (!files.get(f).exists())
                     {
-                        files.get(i).getParentFile().mkdirs();
-                        try (BufferedInputStream in = new BufferedInputStream(urls.get(i).openStream()))
-                        {
-                            try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(files.get(i))))
+                        urls.get(f).ifPresent((site) -> {
+                            files.get(f).getParentFile().mkdirs();
+                            try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
                             {
-                                byte[] data = new byte[1024];
-                                int x;
-                                while ((x = in.read(data)) > 0)
-                                    out.write(data, 0, x);
+                                try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(files.get(f))))
+                                {
+                                    byte[] data = new byte[1024];
+                                    int x;
+                                    while ((x = in.read(data)) > 0)
+                                        out.write(data, 0, x);
+                                }
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            System.err.println("Error downloading " + files.get(i) + ": " + e.getMessage());
-                        }
+                            catch (Exception e)
+                            {
+                                System.err.println("Error downloading " + files.get(f) + ": " + e.getMessage());
+                            }
+                        });
                     }
                 }
-                if (req.card.layout() == CardLayout.FLIP)
+                if (req.card.layout() == CardLayout.FLIP && files.get(0).exists())
                 {
                     try
                     {
                         BufferedImage original = ImageIO.read(files.get(0));
                         BufferedImage flipped = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
                         AffineTransformOp op = new AffineTransformOp(AffineTransform.getRotateInstance(Math.PI, flipped.getWidth()/2, flipped.getHeight()/2), AffineTransformOp.TYPE_BILINEAR);
-                        ImageIO.write(op.filter(original, flipped), "jpg", Paths.get(SettingsDialog.settings().inventory.scans, req.card.scryfallid().get(0) + ";1.jpg").toFile());
+                        ImageIO.write(op.filter(original, flipped), "jpg", files.get(1));
                     }
                     catch (Exception e)
                     {
@@ -205,31 +209,70 @@ public class CardImagePanel extends JPanel
      */
     private static List<File> getFiles(Card c)
     {
-        return IntStream.range(0, c.imageNames().size()).mapToObj((i) -> Paths.get(SettingsDialog.settings().inventory.scans, c.scryfallid().get(i) + ";" + i + ".jpg").toFile()).collect(Collectors.toList());
+        switch (SettingsDialog.settings().inventory.imageSource)
+        {
+        case "Scryfall":
+            return IntStream.range(0, c.imageNames().size()).mapToObj((i) -> Paths.get(SettingsDialog.settings().inventory.scans, c.scryfallid().get(i) + ";" + i + ".jpg").toFile()).collect(Collectors.toList());
+        case "Gatherer":
+            return IntStream.range(0, c.multiverseid().size()).mapToObj((i) -> Paths.get(SettingsDialog.settings().inventory.scans, c.multiverseid().get(i) + ";" + i + ".jpg").toFile()).collect(Collectors.toList());
+        default:
+            return Collections.emptyList();
+        }
     }
 
     /**
      * Determine the URL(s) to download a card's image(s) from.
      * 
      * @param c card to calculate URL(s) for
-     * @return A list of URLs pointing to the card's image(s) online.
+     * @return A list of URLs pointing to the card's image(s) online.  If the image is known beforehand not to exist
+     * (e.g. because its multiverseid doesn't exist), then the corresponding list entry will be empty.
      * @throws MalformedURLException if any of the URLs are poorly formed.
      */
-    private static List<URL> getURLs(Card c) throws MalformedURLException
+    private static List<Optional<URL>> getURLs(Card c) throws MalformedURLException
     {
-        List<URL> urls = new ArrayList<URL>();
-        switch (c.layout())
+        List<Optional<URL>> urls = new ArrayList<>();
+        switch (SettingsDialog.settings().inventory.imageSource)
         {
-        case FLIP:
-            urls.add(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(0), "")));
+        case "Scryfall":
+            switch (c.layout())
+            {
+            case FLIP:
+                urls.add(Optional.of(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(0), ""))));
+                break;
+            case MELD:
+                for (int i = 0; i < c.imageNames().size(); i++)
+                    urls.add(Optional.of(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(i), ""))));
+                break;
+            default:
+                for (int i = 0; i < c.imageNames().size(); i++)
+                    urls.add(Optional.of(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(i), (i > 0 && i == c.imageNames().size() - 1) ? "&face=back" : ""))));
+                break;
+            }
             break;
-        case MELD:
-            for (int i = 0; i < c.imageNames().size(); i++)
-                urls.add(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(i), "")));
+        case "Gatherer":
+            switch (c.layout())
+            {
+            case FLIP:
+                for (int i = 0; i < c.multiverseid().size(); i++)
+                {
+                    if (c.multiverseid().get(i) >= 0)
+                        urls.add(Optional.of(new URL(String.format(GATHERER_FORMAT, c.multiverseid().get(i), i > 0 && i == c.multiverseid().size() - 1 ? "options=rotate180" : ""))));
+                    else
+                        urls.add(Optional.empty());
+                }
+                break;
+            default:
+                for (int id : c.multiverseid())
+                {
+                    if (id >= 0)
+                        urls.add(Optional.of(new URL(String.format(GATHERER_FORMAT, id, ""))));
+                    else
+                        urls.add(Optional.empty());
+                }
+                break;
+            }
             break;
         default:
-            for (int i = 0; i < c.imageNames().size(); i++)
-                urls.add(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(i), (i > 0 && i == c.imageNames().size() - 1) ? "&face=back" : "")));
             break;
         }
         return Collections.unmodifiableList(urls);
