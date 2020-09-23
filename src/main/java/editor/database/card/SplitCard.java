@@ -38,7 +38,7 @@ public class SplitCard extends MultiCard
      *
      * @param f list of Cards representing faces
      */
-    public SplitCard(List<Card> f)
+    public SplitCard(List<? extends Card> f)
     {
         super(f.get(0).layout(), f);
         for (Card face : f)

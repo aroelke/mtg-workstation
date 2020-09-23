@@ -25,6 +25,7 @@ public class SettingsBuilder
     private DatabaseVersion inventoryVersion;
     private String inventoryLocation;
     private String inventoryScans;
+    private String imageSource;
     private String inventoryTags;
     private UpdateFrequency inventoryUpdate;
     private boolean inventoryWarn;
@@ -80,6 +81,7 @@ public class SettingsBuilder
             inventoryVersion,
             inventoryLocation,
             inventoryScans,
+            imageSource,
             inventoryTags,
             inventoryUpdate,
             inventoryWarn,
@@ -117,8 +119,9 @@ public class SettingsBuilder
         inventoryFile = original.inventory.file;
         inventoryVersionFile = original.inventory.versionFile;
         inventoryVersion = original.inventory.version;
-        inventoryLocation = original.inventory.location.toString();
-        inventoryScans = original.inventory.scans.toString();
+        inventoryLocation = original.inventory.location;
+        inventoryScans = original.inventory.scans;
+        imageSource = original.inventory.imageSource;
         inventoryTags = original.inventory.tags;
         inventoryUpdate = original.inventory.update;
         inventoryWarn = original.inventory.warn;
@@ -154,6 +157,7 @@ public class SettingsBuilder
      * <li>{@link Settings.InventorySettings#version}: ""
      * <li>{@link Settings.InventorySettings#location}: <code>$HOME/.editor</code>
      * <li>{@link Settings.InventorySettings#scans}: <code>$HOME/.editor/scans</code>
+     * <li>{@link Settings.InventorySettings#imageSource}: Scryfall
      * <li>{@link Settings.InventorySettings#tags}: <code>$HOME/.editor/tags.json</code>
      * <li>{@link Settings.InventorySettings#update}: Daily
      * <li>{@link Settings.InventorySettings#warn}: <code>true</code>
@@ -268,6 +272,19 @@ public class SettingsBuilder
     public SettingsBuilder inventoryScans(String scans)
     {
         inventoryScans = scans;
+        return this;
+    }
+
+    /**
+     * Change where to download card images from.
+     * 
+     * @param source new site to download card images
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#imageSource
+     */
+    public SettingsBuilder imageSource(String source)
+    {
+        imageSource = source;
         return this;
     }
 

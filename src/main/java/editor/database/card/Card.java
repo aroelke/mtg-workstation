@@ -241,7 +241,7 @@ public abstract class Card
     @Override
     public boolean equals(Object other)
     {
-        return other != null && (other == this || other instanceof Card && multiverseid().equals(((Card)other).multiverseid()));
+        return other != null && (other == this || other instanceof Card && scryfallid().equals(((Card)other).scryfallid()));
     }
 
     /**
@@ -471,7 +471,7 @@ public abstract class Card
     @Override
     public int hashCode()
     {
-        return Objects.hash(name(), multiverseid());
+        return Objects.hash(name(), scryfallid());
     }
 
     /**
@@ -578,6 +578,12 @@ public abstract class Card
      * <a href="http://gatherer.wizards.com">Gatherer</a>.
      */
     public abstract List<Integer> multiverseid();
+
+    /**
+     * @return the unique IDs of each face of this card as they are used by
+     * <a href="https://scryfall.com/">Scryfall</a> for images.
+     */
+    public abstract List<String> scryfallid();
 
     /**
      * Get the name of each of this Card's faces.

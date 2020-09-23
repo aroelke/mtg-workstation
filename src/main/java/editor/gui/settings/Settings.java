@@ -51,6 +51,8 @@ public final class Settings
         public final String location;
         /** Directory to store card images in. */
         public final String scans;
+        /** Web site to download images from. */
+        public final String imageSource;
         /** File to store tags in. */
         public final String tags;
         /** Check for inventory update on startup or don't. */
@@ -70,6 +72,7 @@ public final class Settings
                                     DatabaseVersion version,
                                     String location,
                                     String scans,
+                                    String imageSource,
                                     String tags,
                                     UpdateFrequency update,
                                     boolean warn,
@@ -83,6 +86,7 @@ public final class Settings
             this.version = version;
             this.location = location;
             this.scans = scans;
+            this.imageSource = imageSource;
             this.tags = tags;
             this.update = update;
             this.warn = warn;
@@ -100,6 +104,7 @@ public final class Settings
                 new DatabaseVersion(0, 0, 0),
                 SettingsDialog.EDITOR_HOME.toString(),
                 SettingsDialog.EDITOR_HOME.resolve("scans").toString(),
+                "Scryfall",
                 SettingsDialog.EDITOR_HOME.resolve("tags.json").toString(),
                 UpdateFrequency.DAILY,
                 true,
@@ -153,6 +158,7 @@ public final class Settings
                    version.equals(o.version) &&
                    location.equals(o.location) &&
                    scans.equals(o.scans) &&
+                   imageSource.equals(o.imageSource) &&
                    tags.equals(o.tags) &&
                    update == o.update &&
                    warn == o.warn &&
@@ -448,9 +454,9 @@ public final class Settings
     /** Initial directory of file choosers. */
     public final String cwd;
 
-    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String cwd)
+    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String cwd)
     {
-        this.inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
+        this.inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
         this.editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard);
         this.cwd = cwd;
     }

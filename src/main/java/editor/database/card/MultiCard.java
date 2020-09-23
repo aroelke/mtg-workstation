@@ -54,7 +54,7 @@ public abstract class MultiCard extends Card
     /**
      * List of Cards that represent faces.  They should all have exactly one face.
      */
-    private List<Card> faces;
+    private List<? extends Card> faces;
     /**
      * List containing the flavor text of each of this MultiCard's faces.
      */
@@ -88,6 +88,10 @@ public abstract class MultiCard extends Card
      * List containing this MultiCard's faces' multiverseids.
      */
     private Lazy<List<Integer>> multiverseid;
+    /**
+     * List containing this MultiCard's faces' Scryfall illustration ids.
+     */
+    private Lazy<List<String>> scryfallid;
     /**
      * List containing the oracle text of each of this MultiCard's faces.
      */
@@ -133,7 +137,7 @@ public abstract class MultiCard extends Card
      * Create a new MultiCard out of the given cards.
      *
      * @param layout layout of the new MultiCard, which should be one that has muliple faces
-     * @param f      cards to use as faces
+     * @param f cards to use as faces
      */
     public MultiCard(CardLayout layout, Card... f)
     {
@@ -146,7 +150,7 @@ public abstract class MultiCard extends Card
      * @param layout layout of the new MultiCard, which should be one that has multiple faces
      * @param f      cards to use as faces
      */
-    public MultiCard(CardLayout layout, List<Card> f)
+    public MultiCard(CardLayout layout, List<? extends Card> f)
     {
         super(f.get(0).expansion(), layout, f.size());
 
@@ -200,6 +204,7 @@ public abstract class MultiCard extends Card
         })));
         imageNames = new Lazy<>(() -> collect(Card::imageNames));
         multiverseid = new Lazy<>(() -> collect(Card::multiverseid));
+        scryfallid = new Lazy<>(() -> collect(Card::scryfallid));
         isLand = faces.get(0).isLand();
         commandFormats = new Lazy<>(() -> faces.stream().flatMap((c) -> c.commandFormats().stream()).distinct().sorted().collect(Collectors.toList()));
     }
@@ -297,6 +302,12 @@ public abstract class MultiCard extends Card
     public List<Integer> multiverseid()
     {
         return multiverseid.get();
+    }
+
+    @Override
+    public List<String> scryfallid()
+    {
+        return scryfallid.get();
     }
 
     @Override

@@ -7,21 +7,28 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -53,6 +60,14 @@ public class CardImagePanel extends JPanel
      * Aspect ratio of a Magic: The Gathering card.
      */
     public static final double ASPECT_RATIO = 63.0/88.0;
+    /**
+     * String format for getting the URL of a Gatherer image.
+     */
+    public static final String GATHERER_FORMAT = "https://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%d&type=card%s";
+    /**
+     * String format for getting the URL of a Scryfall image.
+     */
+    public static final String SCRYFALL_FORMAT = "https://api.scryfall.com/cards/%s?format=image%s";
 
     /**
      * This class represents a request by a CardImagePanel to download the image(s)
@@ -124,28 +139,44 @@ public class CardImagePanel extends JPanel
             while (true)
             {
                 DownloadRequest req = toDownload.take();
-                for (long multiverseid : req.card.multiverseid())
+                var files = getFiles(req.card);
+                var urls = getURLs(req.card);
+                for (int i = 0; i < urls.size(); i++)
                 {
-                    File img = Paths.get(SettingsDialog.settings().inventory.scans, multiverseid + ".jpg").toFile();
-                    if (!img.exists())
+                    final int f = i;
+                    if (!files.get(f).exists())
                     {
-                        URL site = new URL(String.join("/", "https://gatherer.wizards.com", "Handlers", "Image.ashx?multiverseid=" + multiverseid + "&type=card"));
-
-                        img.getParentFile().mkdirs();
-                        try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
-                        {
-                            try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(img)))
+                        urls.get(f).ifPresent((site) -> {
+                            files.get(f).getParentFile().mkdirs();
+                            try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
                             {
-                                byte[] data = new byte[1024];
-                                int x;
-                                while ((x = in.read(data)) > 0)
-                                    out.write(data, 0, x);
+                                try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(files.get(f))))
+                                {
+                                    byte[] data = new byte[1024];
+                                    int x;
+                                    while ((x = in.read(data)) > 0)
+                                        out.write(data, 0, x);
+                                }
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            System.err.println("Error downloading " + multiverseid + ".jpg: " + e.getMessage());
-                        }
+                            catch (Exception e)
+                            {
+                                System.err.println("Error downloading " + files.get(f) + ": " + e.getMessage());
+                            }
+                        });
+                    }
+                }
+                if (req.card.layout() == CardLayout.FLIP && files.get(0).exists())
+                {
+                    try
+                    {
+                        BufferedImage original = ImageIO.read(files.get(0));
+                        BufferedImage flipped = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
+                        AffineTransformOp op = new AffineTransformOp(AffineTransform.getRotateInstance(Math.PI, flipped.getWidth()/2, flipped.getHeight()/2), AffineTransformOp.TYPE_BILINEAR);
+                        ImageIO.write(op.filter(original, flipped), "jpg", files.get(1));
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println(e);
                     }
                 }
                 publish(req);
@@ -171,6 +202,83 @@ public class CardImagePanel extends JPanel
     }
 
     /**
+     * Determine the name(s) of file(s) a card's image(s) will be stored in.
+     * 
+     * @param c card to find image(s) for
+     * @return A list of files pointing to the card's image(s).
+     */
+    private static List<File> getFiles(Card c)
+    {
+        switch (SettingsDialog.settings().inventory.imageSource)
+        {
+        case "Scryfall":
+            return IntStream.range(0, c.imageNames().size()).mapToObj((i) -> Paths.get(SettingsDialog.settings().inventory.scans, c.scryfallid().get(i) + ";" + i + ".jpg").toFile()).collect(Collectors.toList());
+        case "Gatherer":
+            return IntStream.range(0, c.multiverseid().size()).mapToObj((i) -> Paths.get(SettingsDialog.settings().inventory.scans, c.multiverseid().get(i) + ";" + i + ".jpg").toFile()).collect(Collectors.toList());
+        default:
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Determine the URL(s) to download a card's image(s) from.
+     * 
+     * @param c card to calculate URL(s) for
+     * @return A list of URLs pointing to the card's image(s) online.  If the image is known beforehand not to exist
+     * (e.g. because its multiverseid doesn't exist), then the corresponding list entry will be empty.
+     * @throws MalformedURLException if any of the URLs are poorly formed.
+     */
+    private static List<Optional<URL>> getURLs(Card c) throws MalformedURLException
+    {
+        List<Optional<URL>> urls = new ArrayList<>();
+        switch (SettingsDialog.settings().inventory.imageSource)
+        {
+        case "Scryfall":
+            switch (c.layout())
+            {
+            case FLIP:
+                urls.add(Optional.of(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(0), ""))));
+                break;
+            case MELD:
+                for (int i = 0; i < c.imageNames().size(); i++)
+                    urls.add(Optional.of(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(i), ""))));
+                break;
+            default:
+                for (int i = 0; i < c.imageNames().size(); i++)
+                    urls.add(Optional.of(new URL(String.format(SCRYFALL_FORMAT, c.scryfallid().get(i), (i > 0 && i == c.imageNames().size() - 1) ? "&face=back" : ""))));
+                break;
+            }
+            break;
+        case "Gatherer":
+            switch (c.layout())
+            {
+            case FLIP:
+                for (int i = 0; i < c.multiverseid().size(); i++)
+                {
+                    if (c.multiverseid().get(i) >= 0)
+                        urls.add(Optional.of(new URL(String.format(GATHERER_FORMAT, c.multiverseid().get(i), i > 0 && i == c.multiverseid().size() - 1 ? "options=rotate180" : ""))));
+                    else
+                        urls.add(Optional.empty());
+                }
+                break;
+            default:
+                for (int id : c.multiverseid())
+                {
+                    if (id >= 0)
+                        urls.add(Optional.of(new URL(String.format(GATHERER_FORMAT, id, ""))));
+                    else
+                        urls.add(Optional.empty());
+                }
+                break;
+            }
+            break;
+        default:
+            break;
+        }
+        return Collections.unmodifiableList(urls);
+    }
+
+    /**
      * This class represents a listener that listens for clicks on a CardImagePanel.
      */
     private class FaceListener extends MouseAdapter
@@ -182,10 +290,7 @@ public class CardImagePanel extends JPanel
         {
             if (SwingUtilities.isLeftMouseButton(e) && card != null)
             {
-                face = switch (card.layout()) {
-                    case SPLIT, AFTERMATH, ADVENTURE -> 0;
-                    default -> (face + 1) % card.faces();
-                };
+                face = (face + 1) % card.imageNames().size();
                 getParent().revalidate();
                 repaint();
             }
@@ -261,17 +366,13 @@ public class CardImagePanel extends JPanel
         if (card != null)
         {
             faceImages.clear();
-            for (long i : card.multiverseid())
+            for (File file : getFiles(card))
             {
                 BufferedImage img = null;
                 try
                 {
-                    if (i > 0)
-                    {
-                        File imageFile = Paths.get(SettingsDialog.settings().inventory.scans, i + ".jpg").toFile();
-                        if (imageFile.exists())
-                            img = ImageIO.read(imageFile);
-                    }
+                    if (file.exists())
+                        img = ImageIO.read(file);
                 }
                 catch (IOException e)
                 {}
@@ -313,7 +414,7 @@ public class CardImagePanel extends JPanel
             }
             g2.drawImage(image, (getWidth() - width)/2, (getHeight() - height)/2, width, height, null);
 
-            if (card.faces() > 1 && !List.of(CardLayout.SPLIT, CardLayout.AFTERMATH, CardLayout.ADVENTURE).contains(card.layout()))
+            if (card.imageNames().size() > 1)
             {
                 final int SIZE = 15;
                 final int BORDER = 3;
@@ -368,12 +469,7 @@ public class CardImagePanel extends JPanel
                 g.drawRect(0, 0, faceWidth - 1, h - 1);
             }
             else
-            {
-                if (card.layout() == CardLayout.FLIP && face%2 == 1)
-                    g.drawImage(faceImages.get(face), faceImages.get(0).getWidth(), faceImages.get(0).getHeight(), -faceImages.get(0).getWidth(), -faceImages.get(0).getHeight(), null);
-                else
-                    g.drawImage(faceImages.get(face), 0, 0, null);
-            }
+                g.drawImage(faceImages.get(face), 0, 0, null);
         }
     }
 
@@ -392,7 +488,7 @@ public class CardImagePanel extends JPanel
             try
             {
                 Files.createDirectories(Path.of(SettingsDialog.settings().inventory.scans));
-                if (Files.exists(Path.of(SettingsDialog.settings().inventory.scans, card.multiverseid().get(face) + ".jpg")))
+                if (getFiles(card).stream().map(File::toPath).allMatch(Files::exists))
                     loadImages();
                 else
                     downloader.downloadCard(this, card);

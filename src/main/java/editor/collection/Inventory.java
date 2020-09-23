@@ -110,7 +110,7 @@ public class Inventory implements CardList
     /**
      * Map of Card multiverseids onto their cards.
      */
-    private final Map<Integer, Card> ids;
+    private final Map<String, Card> ids;
 
     /**
      * Create an empty Inventory.  Be careful, because Inventories are immutable.
@@ -128,7 +128,7 @@ public class Inventory implements CardList
     public Inventory(Collection<Card> list)
     {
         cards = new ArrayList<>(list);
-        ids = cards.stream().collect(Collectors.toMap((c) -> c.multiverseid().get(0), Function.identity()));
+        ids = cards.stream().collect(Collectors.toMap((c) -> c.scryfallid().get(0), Function.identity()));
         filter = new BinaryFilter(true);
         filtrate = cards;
     }
@@ -200,15 +200,27 @@ public class Inventory implements CardList
     }
 
     /**
+     * Determine if there is a card with the given Scryfall ID.
+     * 
+     * @param id ID to check
+     * @return <code>true</code> if a Card with the given Scryfall ID exists in the
+     * inventory, and <code>false</code> otherwise.
+     */
+    public boolean contains(String id)
+    {
+        return ids.keySet().contains(id);
+    }
+
+     /**
      * Determine if there is a card with the given Gatherer ID.
      * 
-     * @param multiverseid ID to check
+     * @param id ID to check
      * @return <code>true</code> if a Card with the given Gatherer ID exists in the
      * inventory, and <code>false</code> otherwise.
      */
-    public boolean contains(int multiverseid)
+    public boolean contains(int id)
     {
-        return ids.keySet().contains(multiverseid);
+        return ids.values().stream().map((c) -> c.multiverseid().get(0)).anyMatch((i) -> i == id);
     }
 
     /**
@@ -228,15 +240,26 @@ public class Inventory implements CardList
     }
 
     /**
-     * Get the card in this Inventory with the given multiverseid.
+     * Get the card in this Inventory with the given Scryfall ID.
      *
+     * @param id Scryfall ID of the Card to look for
+     * @return the Card with the given scryfall ID, or null if no such card exists.
+     * @see Card#scryfallid
+     */
+    public Card find(String id)
+    {
+        return ids.get(id);
+    }
+
+    /**
+     * Get the card in this Inventory with the given multiverseid.
+     * 
      * @param id multiverseid of the Card to look for
-     * @return the Card with the given multiverseid, or null if no such card exists.
-     * @see Card#id
+     * @return the Card with the given multiverseid, or null if there isn't one.
      */
     public Card find(int id)
     {
-        return ids.get(id);
+        return ids.values().stream().filter((c) -> c.multiverseid().get(0) == id).findAny().orElse(null);
     }
 
     /**

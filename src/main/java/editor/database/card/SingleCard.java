@@ -76,6 +76,10 @@ public class SingleCard extends Card
      */
     public final int multiverseid;
     /**
+     * Scryfall illustration ID of this SingleCard.
+     */
+    public final String scryfallid;
+    /**
      * Name of this SingleCard.
      */
     public final String name;
@@ -152,6 +156,8 @@ public class SingleCard extends Card
      * @param flavor the new Card's flavor text
      * @param printed the new Card's printed text
      * @param artist the new Card's artist
+     * @param multiverseid the new Card's multiverse ID
+     * @param scryfallid the new Card's Scryfall illustration ID
      * @param number the new Card's collector's number
      * @param power the new Card's power
      * @param toughness the new Card's toughness
@@ -175,6 +181,7 @@ public class SingleCard extends Card
                       String printed,
                       String artist,
                       int multiverseid,
+                      String scryfallid,
                       String number,
                       CombatStat power,
                       CombatStat toughness,
@@ -199,6 +206,7 @@ public class SingleCard extends Card
         this.artist = artist;
         this.number = number;
         this.multiverseid = multiverseid;
+        this.scryfallid = scryfallid;
         this.power = power;
         this.toughness = toughness;
         this.loyalty = loyalty;
@@ -329,6 +337,12 @@ public class SingleCard extends Card
     public List<Integer> multiverseid()
     {
         return Collections.singletonList(multiverseid);
+    }
+
+    @Override
+    public List<String> scryfallid()
+    {
+        return Collections.singletonList(scryfallid);
     }
 
     @Override
