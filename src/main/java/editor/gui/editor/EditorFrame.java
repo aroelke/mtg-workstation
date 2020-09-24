@@ -1620,6 +1620,9 @@ public class EditorFrame extends JInternalFrame
                 }
                 for (var mod : mods.entrySet())
                     deck().current.updateCategory(mod.getKey(), mod.getValue());
+                for (CategoryPanel panel : categoryPanels)
+                    ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
+                updateCategoryPanel();
                 return true;
             }, () -> {
                 var mods = new HashMap<String, CategorySpec>();
@@ -1645,6 +1648,9 @@ public class EditorFrame extends JInternalFrame
                 }
                 for (var mod : mods.entrySet())
                     deck().current.updateCategory(mod.getKey(), mod.getValue());
+                for (CategoryPanel panel : categoryPanels)
+                    ((AbstractTableModel)panel.table.getModel()).fireTableDataChanged();
+                updateCategoryPanel();
                 return true;
             });
         }
@@ -1661,7 +1667,7 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean excludeFrom(final Card card, CategorySpec spec)
     {
-        return modifyInclusion(Collections.<Card>emptyList(), Arrays.asList(card), spec);
+        return modifyInclusion(Collections.emptyList(), Arrays.asList(card), spec);
     }
 
     /**
