@@ -1,5 +1,6 @@
 package editor.util;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -12,10 +13,10 @@ import java.util.function.Supplier;
  */
 public class Lazy<T> implements Supplier<T>
 {
-    /** Whether or not the value has been computed yet. */
-    private boolean flag;
-    /** Reference to either the computed value or its generator (only one is needed at a time). */
-    private Object ref;
+    /** Supplier of the value which will be called once when the value is first accessed. */
+    private transient Supplier<T> supplier;
+    /** The cached value of the computation. */
+    private T value;
 
     /**
      * Create a new Lazy supplier.
@@ -24,8 +25,7 @@ public class Lazy<T> implements Supplier<T>
      */
     public Lazy(Supplier<T> val)
     {
-        flag = false;
-        ref = val;
+        supplier = Objects.requireNonNull(val);
     }
 
     /**
@@ -35,14 +35,19 @@ public class Lazy<T> implements Supplier<T>
      * @return The value computed by the function
      */
     @Override
-    @SuppressWarnings("unchecked")
     public T get()
     {
-        if (!flag)
+        if (value == null)
         {
-            flag = true;
-            ref = ((Supplier<T>)ref).get();
+            synchronized (this)
+            {
+                if (value == null)
+                {
+                    value = supplier.get();
+                    supplier = null;
+                }
+            }
         }
-        return (T)ref;
+        return value;
     }
 }
