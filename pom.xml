@@ -2,7 +2,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <version>1.0.0</version>
-  <name>MTG Deck Editor</name>
+  <name>MTG Workstation</name>
   <build>
     <plugins>
       <plugin>
@@ -62,7 +62,7 @@
     </plugins>
   </build>
   <groupId>editor</groupId>
-  <artifactId>editor</artifactId>
+  <artifactId>mtg-workstation</artifactId>
   <dependencies>
     <dependency>
       <groupId>com.google.code.gson</groupId>
