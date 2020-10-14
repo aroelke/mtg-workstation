@@ -92,7 +92,7 @@ public class SettingsDialog extends JDialog
     /**
      * Location to store settings and default location to store other data.
      */
-    public static final Path EDITOR_HOME = Path.of(System.getProperty("user.home"), ".editor");
+    public static final Path EDITOR_HOME = Path.of(System.getProperty("user.home"), ".mtgworkstation");
     /**
      * Pattern to match when parsing an ARGB color from a string to a @link{java.awt.Color}
      */

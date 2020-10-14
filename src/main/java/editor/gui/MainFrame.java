@@ -437,7 +437,7 @@ public class MainFrame extends JFrame
         recentCount = SettingsDialog.settings().editor.recents.count;
         newestVersion = SettingsDialog.settings().inventory.version;
 
-        setTitle("MTG Deck Editor");
+        setTitle("MTG Workstation");
         setIconImages(IntStream.rangeClosed(4, 8).mapToObj((i) -> new ImageIcon(MainFrame.class.getResource("/icon/" + (1 << i) + ".png")).getImage()).collect(Collectors.toList()));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
