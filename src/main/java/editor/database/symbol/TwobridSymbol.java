@@ -73,9 +73,9 @@ public class TwobridSymbol extends ManaSymbol
      * This TwobridSymbols' color weight is 0.5 for its color and 0 for everything else.
      */
     @Override
-    public Map<ManaType, Double> colorWeights()
+    public Map<ManaType, Double> colorIntensity()
     {
-        return createWeights(new ColorWeight(color, 0.5));
+        return createIntensity(new ColorIntensity(color, 0.5));
     }
 
     @Override

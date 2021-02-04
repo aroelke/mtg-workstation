@@ -97,9 +97,9 @@ public class GenericSymbol extends ManaSymbol
      * Generic mana symbols have no color weights.
      */
     @Override
-    public Map<ManaType, Double> colorWeights()
+    public Map<ManaType, Double> colorIntensity()
     {
-        return createWeights();
+        return createIntensity();
     }
 
     @Override

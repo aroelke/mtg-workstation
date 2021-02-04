@@ -66,9 +66,9 @@ public class ColorSymbol extends ManaSymbol
      * This ColorSymbol's weights are 1 for its mana type and 0 for all the others.
      */
     @Override
-    public Map<ManaType, Double> colorWeights()
+    public Map<ManaType, Double> colorIntensity()
     {
-        return createWeights(new ColorWeight(color, 1.0));
+        return createIntensity(new ColorIntensity(color, 1.0));
     }
 
     @Override

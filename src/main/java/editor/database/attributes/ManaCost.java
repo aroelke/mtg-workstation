@@ -75,7 +75,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     /**
      * Total color weight of the Symbols in this ManaCost.
      */
-    private Map<ManaType, Double> weights;
+    private Map<ManaType, Double> intensity;
 
     /**
      * Create a new, empty mana cost.
@@ -94,10 +94,10 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     {
         ManaSymbol.sort(symbols);
         cost = Collections.unmodifiableList(symbols);
-        weights = ManaSymbol.createWeights();
+        intensity = ManaSymbol.createIntensity();
         for (ManaSymbol sym : cost)
-            for (var e : sym.colorWeights().entrySet())
-                weights.compute(e.getKey(), (k, v) -> e.getValue() + v);
+            for (var e : sym.colorIntensity().entrySet())
+                intensity.compute(e.getKey(), (k, v) -> e.getValue() + v);
     }
 
     /**
@@ -108,7 +108,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public List<ManaType> colors()
     {
-        return weights.entrySet().stream().filter((e) -> e.getKey() != ManaType.COLORLESS && e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
+        return intensity.entrySet().stream().filter((e) -> e.getKey() != ManaType.COLORLESS && e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
     }
 
     /**
@@ -179,11 +179,11 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     }
 
     /**
-     * @return This ManaCost's color weight Map.
+     * @return This ManaCost's color intensity Map.
      */
-    public Map<ManaType, Double> colorWeight()
+    public Map<ManaType, Double> colorIntensity()
     {
-        return weights;
+        return intensity;
     }
 
     /**
@@ -240,7 +240,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     /**
      * @param o ManaCost to compare with
      * @return A negative number if this ManaCost's converted mana cost is less than
-     * the other or if its color weight is less, 0 if they are the same, and a positive number
+     * the other or if its color intensity is less, 0 if they are the same, and a positive number
      * if they are greater.
      */
     @Override
@@ -254,18 +254,19 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
         {
             // Start by sorting by CMC
             int diff = (int)(2 * (cmc() - o.cmc()));
-            // If the two costs have the same CMC, sort them by symbol weight
+            // If the two costs have the same CMC, sort them by symbol color intensity
             if (diff == 0)
             {
-                var weightList = weights.values().stream().sorted().collect(Collectors.toList());
-                var oWeightList = o.weights.values().stream().sorted().collect(Collectors.toList());
+                var intensityList = intensity.values().stream().sorted().collect(Collectors.toList());
+                var oIntensityList = o.intensity.values().stream().sorted().collect(Collectors.toList());
                 for (int i = 0; i < ManaType.values().length; i++)
-                    diff += (weightList.get(i) - oWeightList.get(i))*Math.pow(10, i);
+                    diff += (intensityList.get(i) - oIntensityList.get(i))*Math.pow(10, i);
             }
-            // If the two costs have the same weight, sort them by color
+            // If the two costs have the same intensity, sort them by color
             if (diff == 0)
                 for (int i = 0; diff == 0 && i < Math.min(size(), o.size()); i++)
                     diff = get(i).compareTo(o.get(i));
+
             return diff;
         }
     }
@@ -274,8 +275,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      * @return A String containing this ManaCost's symbols represented by HTML
      * tags for display in an HTML-enabled panel.
      */
-    public String
-    toHTMLString()
+    public String toHTMLString()
     {
         return cost.stream()
             .map((sym) -> "<img src=\"" + Symbol.class.getResource("/images/icons/" + sym.getName()) + "\" width=\"" + ComponentUtils.TEXT_SIZE + "\" height=\"" + ComponentUtils.TEXT_SIZE + "\"/>")

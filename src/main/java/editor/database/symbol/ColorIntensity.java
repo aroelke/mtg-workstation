@@ -14,7 +14,7 @@ import editor.database.attributes.ManaType;
  *
  * @author Alec Roelke
  */
-public class ColorWeight
+public class ColorIntensity
 {
     /**
      * Color for the weight.
@@ -23,18 +23,18 @@ public class ColorWeight
     /**
      * The weight of the color.
      */
-    public final double weight;
+    public final double intensity;
 
     /**
-     * Create a new ColorWeight.
+     * Create a new ColorIntensity.
      *
-     * @param c color of the new ColorWeight
-     * @param w weight of the new ColorWeight
+     * @param c color of the new ColorIntensity
+     * @param w weight of the new ColorIntensity
      */
-    public ColorWeight(ManaType c, double w)
+    public ColorIntensity(ManaType c, double w)
     {
         color = c;
-        weight = w;
+        intensity = w;
     }
 
     @Override
@@ -46,13 +46,13 @@ public class ColorWeight
             return false;
         if (other.getClass() != getClass())
             return false;
-        ColorWeight o = (ColorWeight)other;
-        return o.color.equals(color) && o.weight == weight;
+        ColorIntensity o = (ColorIntensity)other;
+        return o.color.equals(color) && o.intensity == intensity;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(color, weight);
+        return Objects.hash(color, intensity);
     }
 }

@@ -69,9 +69,9 @@ public class HalfColorSymbol extends ManaSymbol
      * This HalfColorSymbol's weights are 0.5 for its color and 0 for all the others.
      */
     @Override
-    public Map<ManaType, Double> colorWeights()
+    public Map<ManaType, Double> colorIntensity()
     {
-        return createWeights(new ColorWeight(color, 0.5));
+        return createIntensity(new ColorIntensity(color, 0.5));
     }
 
     @Override

@@ -37,11 +37,11 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
      * @param weights initial weights to use.
      * @return the map of {@link ManaType}s onto weights.
      */
-    public static Map<ManaType, Double> createWeights(ColorWeight... weights)
+    public static Map<ManaType, Double> createIntensity(ColorIntensity... weights)
     {
         var weightsMap = new EnumMap<ManaType, Double>(Arrays.stream(ManaType.values()).collect(Collectors.toMap(Function.identity(), (m) -> 0.0)));
-        for (ColorWeight w : weights)
-            weightsMap.put(w.color, w.weight);
+        for (ColorIntensity w : weights)
+            weightsMap.put(w.color, w.intensity);
         return weightsMap;
     }
 
@@ -125,7 +125,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
      *
      * @return this ManaSymbol's color weight map
      */
-    public abstract Map<ManaType, Double> colorWeights();
+    public abstract Map<ManaType, Double> colorIntensity();
 
     @Override
     public int compareTo(ManaSymbol other)

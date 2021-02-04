@@ -68,9 +68,9 @@ public class VariableSymbol extends ManaSymbol
      * 0.
      */
     @Override
-    public Map<ManaType, Double> colorWeights()
+    public Map<ManaType, Double> colorIntensity()
     {
-        return createWeights(new ColorWeight(ManaType.COLORLESS, 0.5));
+        return createIntensity(new ColorIntensity(ManaType.COLORLESS, 0.5));
     }
 
     @Override

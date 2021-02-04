@@ -65,8 +65,8 @@ public class StaticSymbol extends ManaSymbol
      * There are no color weights for a StaticSymbol.
      */
     @Override
-    public Map<ManaType, Double> colorWeights()
+    public Map<ManaType, Double> colorIntensity()
     {
-        return createWeights();
+        return createIntensity();
     }
 }

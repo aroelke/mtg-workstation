@@ -81,10 +81,10 @@ public class HybridSymbol extends ManaSymbol
      * This HybridSymbol's weights are 0.5 for its colors and 0 for the rest.
      */
     @Override
-    public Map<ManaType, Double> colorWeights()
+    public Map<ManaType, Double> colorIntensity()
     {
-        return createWeights(new ColorWeight(color1, 0.5),
-                new ColorWeight(color2, 0.5));
+        return createIntensity(new ColorIntensity(color1, 0.5),
+                new ColorIntensity(color2, 0.5));
     }
 
     @Override
