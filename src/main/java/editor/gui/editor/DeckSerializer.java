@@ -158,29 +158,17 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         }
     }
 
-    /**
-     * Changelog of the loaded deck.
-     */
+    /** Changelog of the loaded deck. */
     private String changelog;
-
-    /**
-     * The loaded deck.
-     */
+    /** The loaded deck. */
     private Deck deck;
-
-    /**
-     * File to load the deck from or that the deck has been loaded from.
-     */
+    /** File to load the deck from or that the deck has been loaded from. */
     private File file;
-
-    /**
-     * Whether or not the deck was imported from an external file type.
-     */
+    /** Whether or not the deck was imported from an external file type. */
     private boolean imported;
-
-    /**
-     * Sideboard for the loaded deck.
-     */
+    /** User-defined notes for the deck. */
+    private String notes;
+    /** Sideboard for the loaded deck. */
     private Map<String, Deck> sideboard;
 
     /**
@@ -194,13 +182,19 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
     /**
      * Create a new DeckSerializer with the given deck, sideboard, and changelog
      * already loaded.  This cannot be used to load a deck, so use it to save one.
+     * 
+     * @param d preloaded deck
+     * @param s preloaded sideboards
+     * @param n preloaded notes
+     * @param c preloaded changelog
      */
-    public DeckSerializer(Deck d, Map<String, Deck> s, String c)
+    public DeckSerializer(Deck d, Map<String, Deck> s, String n, String c)
     {
         this();
         changelog = c;
         deck = d;
         sideboard = new LinkedHashMap<>(s);
+        notes = n;
     }
 
     /**
@@ -359,6 +353,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
                 DeckSerializer loaded = MainFrame.SERIALIZER.fromJson(bf, DeckSerializer.class);
                 deck = loaded.deck;
                 sideboard = loaded.sideboard;
+                notes = loaded.notes;
                 changelog = loaded.changelog;
             }
         });
@@ -381,6 +376,14 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
     }
 
     /**
+     * @return The deck notes.
+     */
+    public String notes()
+    {
+        return notes;
+    }
+
+    /**
      * Clear the contents of this DeckSerializer so it can be reused.
      */
     private void reset()
@@ -388,6 +391,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         changelog = "";
         deck = new Deck();
         file = null;
+        notes = "";
         sideboard = new LinkedHashMap<>();
         imported = false;
     }
@@ -428,6 +432,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
             side.add(board);
         }
         json.add("sideboards", side);
+        json.addProperty("notes", src.notes);
         json.addProperty("changelog", src.changelog);
         return json;
     }
@@ -437,10 +442,11 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
     {
         JsonObject obj = json.getAsJsonObject();
         Deck deck = context.deserialize(obj.get("main"), Deck.class);
+        String notes = obj.has("notes") ? obj.get("notes").getAsString() : "";
         var sideboard = new LinkedHashMap<String, Deck>();
         for (JsonElement entry : obj.get("sideboards").getAsJsonArray())
             sideboard.put(entry.getAsJsonObject().get("name").getAsString(), context.deserialize(entry, Deck.class));
         String changelog = obj.get("changelog").getAsString();
-        return new DeckSerializer(deck, sideboard, changelog);
+        return new DeckSerializer(deck, sideboard, notes, changelog);
     }
 }

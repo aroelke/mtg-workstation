@@ -513,6 +513,10 @@ public class EditorFrame extends JInternalFrame
      */
     private JLabel nonlandLabel;
     /**
+     * Text area containing deck notes.
+     */
+    private JTextArea notesArea;
+    /**
      * Parent {@link MainFrame}.
      */
     private MainFrame parent;
@@ -902,7 +906,7 @@ public class EditorFrame extends JInternalFrame
         hand.refresh();
 
         // Notes
-        JTextArea notesArea = new JTextArea();
+        notesArea = new JTextArea(manager.notes());
         listTabs.addTab("Notes", new JScrollPane(notesArea));
 
         // Panel to show the stats of the deck
@@ -2313,7 +2317,7 @@ public class EditorFrame extends JInternalFrame
         }
 
         var sideboards = lists.stream().skip(1).filter((l) -> l != null).collect(Collectors.toMap((l) -> l.name.get(), (l) -> l.current));
-        DeckSerializer manager = new DeckSerializer(deck().current, sideboards, changelogArea.getText());
+        DeckSerializer manager = new DeckSerializer(deck().current, sideboards, notesArea.getText(), changelogArea.getText());
         try
         {
             manager.save(f);
