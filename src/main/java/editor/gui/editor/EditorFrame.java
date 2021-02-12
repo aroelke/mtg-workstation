@@ -420,22 +420,16 @@ public class EditorFrame extends JInternalFrame
         }
     }
 
-    /**
-     * Tab number containing the main list of cards.
-     */
+    /** Tab number containing the main list of cards. */
     public static final int MAIN_TABLE = 0;
-    /**
-     * Tab number containing categories.
-     */
+    /** Tab number containing categories. */
     public static final int CATEGORIES = 1;
-    /**
-     * Tab number containing sample hands.
-     */
+    /** Tab number containing sample hands. */
     public static final int SAMPLE_HANDS = 2;
-    /**
-     * Tab number containing the changelog.
-     */
-    public static final int CHANGELOG = 3;
+    /** Tab number containing user-defined notes. */
+    public static final int NOTES = 3;
+    /** Tab number containing the changelog. */
+    public static final int CHANGELOG = 4;
 
     /**
      * Name denoting the main deck for making modifications.
@@ -906,6 +900,10 @@ public class EditorFrame extends JInternalFrame
         handPanel.add(handSplit, BorderLayout.CENTER);
         listTabs.addTab("Sample Hand", handPanel);
         hand.refresh();
+
+        // Notes
+        JTextArea notesArea = new JTextArea();
+        listTabs.addTab("Notes", new JScrollPane(notesArea));
 
         // Panel to show the stats of the deck
         JPanel bottomPanel = new JPanel(new BorderLayout());
