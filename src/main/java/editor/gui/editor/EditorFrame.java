@@ -62,6 +62,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.PopupMenuEvent;
@@ -907,6 +909,52 @@ public class EditorFrame extends JInternalFrame
 
         // Notes
         notesArea = new JTextArea(manager.notes());
+        var notes = new Stack<String>();
+        notes.push(notesArea.getText());
+        notesArea.getDocument().addDocumentListener(new DocumentListener() {
+            boolean undoing = false;
+
+            public void performNotesAction(final String text)
+            {
+                if (!undoing && !text.equals(notes.peek()))
+                {
+                    performAction(() -> {
+                        notes.push(text);
+                        if (!notesArea.getText().equals(notes.peek()))
+                        {
+                            undoing = true;
+                            notesArea.setText(text);
+                            undoing = false;
+                        }
+                        return true;
+                    }, () -> {
+                        notes.pop();
+                        undoing = true;
+                        notesArea.setText(notes.peek());
+                        undoing = false;
+                        return true;
+                    });
+                }
+            }
+
+			@Override
+			public void insertUpdate(DocumentEvent e)
+            {
+                performNotesAction(notesArea.getText());
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e)
+            {
+				performNotesAction(notesArea.getText());
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e)
+            {
+				performNotesAction(notesArea.getText());
+			}
+        });
         listTabs.addTab("Notes", new JScrollPane(notesArea));
 
         // Panel to show the stats of the deck
