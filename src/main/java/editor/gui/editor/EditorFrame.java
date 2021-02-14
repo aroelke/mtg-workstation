@@ -60,6 +60,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.DocumentEvent;
@@ -912,29 +913,42 @@ public class EditorFrame extends JInternalFrame
         var notes = new Stack<String>();
         notes.push(notesArea.getText());
         notesArea.getDocument().addDocumentListener(new DocumentListener() {
-            boolean undoing = false;
+            boolean undoing;
+            Timer timer;
+
+            {
+                undoing = false;
+                timer = new Timer(500, (e) -> {
+                    final String text = notesArea.getText();
+                    if (!undoing && !text.equals(notes.peek()))
+                    {
+                        performAction(() -> {
+                            notes.push(text);
+                            if (!notesArea.getText().equals(notes.peek()))
+                            {
+                                undoing = true;
+                                notesArea.setText(text);
+                                undoing = false;
+                            }
+                            return true;
+                        }, () -> {
+                            notes.pop();
+                            undoing = true;
+                            notesArea.setText(notes.peek());
+                            undoing = false;
+                            return true;
+                        });
+                    }
+                });
+                timer.setRepeats(false);
+            }
 
             public void performNotesAction(final String text)
             {
-                if (!undoing && !text.equals(notes.peek()))
-                {
-                    performAction(() -> {
-                        notes.push(text);
-                        if (!notesArea.getText().equals(notes.peek()))
-                        {
-                            undoing = true;
-                            notesArea.setText(text);
-                            undoing = false;
-                        }
-                        return true;
-                    }, () -> {
-                        notes.pop();
-                        undoing = true;
-                        notesArea.setText(notes.peek());
-                        undoing = false;
-                        return true;
-                    });
-                }
+                if (timer.isRunning())
+                    timer.restart();
+                else
+                    timer.start();
             }
 
 			@Override
