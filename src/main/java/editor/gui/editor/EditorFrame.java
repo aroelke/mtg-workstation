@@ -928,6 +928,7 @@ public class EditorFrame extends JInternalFrame
                             {
                                 undoing = true;
                                 notesArea.setText(text);
+                                listTabs.setSelectedIndex(NOTES);
                                 undoing = false;
                             }
                             return true;
@@ -935,6 +936,7 @@ public class EditorFrame extends JInternalFrame
                             notes.pop();
                             undoing = true;
                             notesArea.setText(notes.peek());
+                            listTabs.setSelectedIndex(NOTES);
                             undoing = false;
                             return true;
                         });
@@ -1074,6 +1076,8 @@ public class EditorFrame extends JInternalFrame
                 parent.close(EditorFrame.this);
             }
         });
+
+        listTabs.setSelectedIndex(MAIN_DECK);
     }
 
     /**
@@ -1233,11 +1237,13 @@ public class EditorFrame extends JInternalFrame
                     CategorySpec mod = deck().current.getCategorySpec(name);
                     mod.setColor(newColor);
                     deck().current.updateCategory(newCategory.getCategoryName(), mod);
+                    listTabs.setSelectedIndex(CATEGORIES);
                     return true;
                 }, () -> {
                     CategorySpec mod = deck().current.getCategorySpec(name);
                     mod.setColor(oldColor);
                     deck().current.updateCategory(newCategory.getCategoryName(), mod);
+                    listTabs.setSelectedIndex(CATEGORIES);
                     return true;
                 });
             }
@@ -1442,8 +1448,8 @@ public class EditorFrame extends JInternalFrame
             extrasPane.setTabComponentAt(index, panel);
             extrasPane.setSelectedIndex(index);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
-
             southLayout.show(southPanel, "extras");
+            listTabs.setSelectedIndex(MAIN_DECK);
 
             panel.addActionListener((e) -> {
                 switch (e.getActionCommand())
@@ -1476,11 +1482,13 @@ public class EditorFrame extends JInternalFrame
                             newExtra.name = Optional.of(current);
                             ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(current);
                             extrasPane.setTitleAt(j, current);
+                            listTabs.setSelectedIndex(MAIN_DECK);
                             return true;
                         }, () -> {
                             newExtra.name = Optional.of(old);
                             ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(old);
                             extrasPane.setTitleAt(j, old);
+                            listTabs.setSelectedIndex(MAIN_DECK);
                             return true;
                         });
                     }
@@ -1540,6 +1548,7 @@ public class EditorFrame extends JInternalFrame
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
         }
         southLayout.show(southPanel, extras().isEmpty() ? "empty" : "extras");
+        listTabs.setSelectedIndex(MAIN_DECK);
 
         return true;
     }
@@ -2502,6 +2511,8 @@ public class EditorFrame extends JInternalFrame
 
         categoriesContainer.revalidate();
         categoriesContainer.repaint();
+
+        listTabs.setSelectedIndex(CATEGORIES);
     }
 
     /**
@@ -2567,5 +2578,8 @@ public class EditorFrame extends JInternalFrame
         });
         hand.refresh();
         handCalculations.update();
+
+        if (listTabs.getSelectedIndex() > CATEGORIES)
+            listTabs.setSelectedIndex(MAIN_DECK);
     }
 }
