@@ -10,6 +10,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -971,6 +972,18 @@ public class EditorFrame extends JInternalFrame
 				performNotesAction(notesArea.getText());
 			}
         });
+        CCPItems notesCCP = new CCPItems(() -> notesArea, true);
+        JPopupMenu notesMenu = new JPopupMenu();
+        notesMenu.add(notesCCP.cut);
+        notesMenu.add(notesCCP.copy);
+        notesMenu.add(notesCCP.paste);
+        notesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            String text = notesArea.getSelectedText();
+            notesCCP.cut.setEnabled(text != null && !text.isEmpty());
+            notesCCP.copy.setEnabled(text != null && !text.isEmpty());
+            notesCCP.paste.setEnabled(Toolkit.getDefaultToolkit().getSystemClipboard().isDataFlavorAvailable(DataFlavor.stringFlavor));
+        }));
+        notesArea.setComponentPopupMenu(notesMenu);
         listTabs.addTab("Notes", new JScrollPane(notesArea));
 
         // Panel to show the stats of the deck
