@@ -10,30 +10,22 @@ package editor.database.attributes;
  */
 public enum Rarity implements CharSequence
 {
-    /**
-     * Rarity for basic lands.
-     */
+    /** Rarity for basic lands. */
     BASIC_LAND("Basic Land"),
-    /**
-     * Common rarity.
-     */
+    /** Common rarity. */
     COMMON("Common"),
-    /**
-     * Uncommon rarity.
-     */
+    /** Uncommon rarity. */
     UNCOMMON("Uncommon"),
-    /**
-     * Rare rarity.
-     */
+    /** Rare rarity. */
     RARE("Rare"),
-    /**
-     * Mythic rare rarity.
-     */
+    /** Mythic rare rarity. */
     MYTHIC_RARE("Mythic Rare"),
-    /**
-     * "Special" rarity, such as timeshifted.
-     */
-    SPECIAL("Special");
+    /** "Special" rarity, such as timeshifted. */
+    SPECIAL("Special"),
+    /** Bonus cards, such as Vintage Masters power 9. */
+    BONUS("Bonus"),
+    /** Rarity couldn't be determined. */
+    UNKNOWN("Unknown");
 
     /**
      * Create a rarity from a shorthand character.
@@ -50,6 +42,7 @@ public enum Rarity implements CharSequence
             case 'r' -> RARE;
             case 'm' -> MYTHIC_RARE;
             case 's' -> SPECIAL;
+            case 'o' -> BONUS;
             case 'b' -> BASIC_LAND;
             default -> throw new IllegalArgumentException("Illegal rarity shorthand");
         };
@@ -64,7 +57,12 @@ public enum Rarity implements CharSequence
      */
     public static Rarity parseRarity(String rarity)
     {
-        if (rarity.contains("mythic"))
+        rarity = rarity.toLowerCase();
+        if (rarity.contains("bonus"))
+            return BONUS;
+        else if (rarity.contains("special"))
+            return SPECIAL;
+        else if (rarity.contains("mythic"))
             return MYTHIC_RARE;
         else if (rarity.contains("rare"))
             return RARE;
@@ -77,7 +75,7 @@ public enum Rarity implements CharSequence
         else
         {
             System.err.println("warning: Could not determine rarity of \"" + rarity + '"');
-            return SPECIAL;
+            return UNKNOWN;
         }
     }
 
@@ -121,7 +119,9 @@ public enum Rarity implements CharSequence
             case RARE        -> 'R';
             case MYTHIC_RARE -> 'M';
             case SPECIAL     -> 'S';
+            case BONUS       -> 'O';
             case BASIC_LAND  -> 'B';
+            case UNKNOWN     -> '\0';
         };
     }
 
