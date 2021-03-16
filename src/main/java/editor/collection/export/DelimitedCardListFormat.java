@@ -286,6 +286,6 @@ public class DelimitedCardListFormat implements CardListFormat
             }
             pos++;
         } while (c >= 0);
-        return new DeckSerializer(deck, extras, "");
+        return new DeckSerializer(deck, extras, "", "");
     }
 }

@@ -121,6 +121,6 @@ public class TextCardListFormat implements CardListFormat
                 line.setLength(0);
             }
         } while (c >= 0);
-        return new DeckSerializer(deck, extras, "");
+        return new DeckSerializer(deck, extras, "", "");
     }
 }

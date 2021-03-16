@@ -10,6 +10,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -60,8 +61,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.PopupMenuEvent;
@@ -420,22 +424,16 @@ public class EditorFrame extends JInternalFrame
         }
     }
 
-    /**
-     * Tab number containing the main list of cards.
-     */
+    /** Tab number containing the main list of cards. */
     public static final int MAIN_TABLE = 0;
-    /**
-     * Tab number containing categories.
-     */
+    /** Tab number containing categories. */
     public static final int CATEGORIES = 1;
-    /**
-     * Tab number containing sample hands.
-     */
+    /** Tab number containing sample hands. */
     public static final int SAMPLE_HANDS = 2;
-    /**
-     * Tab number containing the changelog.
-     */
-    public static final int CHANGELOG = 3;
+    /** Tab number containing user-defined notes. */
+    public static final int NOTES = 3;
+    /** Tab number containing the changelog. */
+    public static final int CHANGELOG = 4;
 
     /**
      * Name denoting the main deck for making modifications.
@@ -518,6 +516,10 @@ public class EditorFrame extends JInternalFrame
      * Label showing the total number of nonland cards in the deck.
      */
     private JLabel nonlandLabel;
+    /**
+     * Text area containing deck notes.
+     */
+    private JTextArea notesArea;
     /**
      * Parent {@link MainFrame}.
      */
@@ -907,6 +909,83 @@ public class EditorFrame extends JInternalFrame
         listTabs.addTab("Sample Hand", handPanel);
         hand.refresh();
 
+        // Notes
+        notesArea = new JTextArea(manager.notes());
+        var notes = new Stack<String>();
+        notes.push(notesArea.getText());
+        notesArea.getDocument().addDocumentListener(new DocumentListener() {
+            boolean undoing;
+            Timer timer;
+
+            {
+                undoing = false;
+                timer = new Timer(500, (e) -> {
+                    final String text = notesArea.getText();
+                    if (!undoing && !text.equals(notes.peek()))
+                    {
+                        performAction(() -> {
+                            notes.push(text);
+                            if (!notesArea.getText().equals(notes.peek()))
+                            {
+                                undoing = true;
+                                notesArea.setText(text);
+                                listTabs.setSelectedIndex(NOTES);
+                                undoing = false;
+                            }
+                            return true;
+                        }, () -> {
+                            notes.pop();
+                            undoing = true;
+                            notesArea.setText(notes.peek());
+                            listTabs.setSelectedIndex(NOTES);
+                            undoing = false;
+                            return true;
+                        });
+                    }
+                });
+                timer.setRepeats(false);
+            }
+
+            public void performNotesAction(final String text)
+            {
+                if (timer.isRunning())
+                    timer.restart();
+                else
+                    timer.start();
+            }
+
+			@Override
+			public void insertUpdate(DocumentEvent e)
+            {
+                performNotesAction(notesArea.getText());
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e)
+            {
+				performNotesAction(notesArea.getText());
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e)
+            {
+				performNotesAction(notesArea.getText());
+			}
+        });
+        CCPItems notesCCP = new CCPItems(() -> notesArea, true);
+        JPopupMenu notesMenu = new JPopupMenu();
+        notesMenu.add(notesCCP.cut);
+        notesMenu.add(notesCCP.copy);
+        notesMenu.add(notesCCP.paste);
+        notesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
+            String text = notesArea.getSelectedText();
+            notesCCP.cut.setEnabled(text != null && !text.isEmpty());
+            notesCCP.copy.setEnabled(text != null && !text.isEmpty());
+            notesCCP.paste.setEnabled(Toolkit.getDefaultToolkit().getSystemClipboard().isDataFlavorAvailable(DataFlavor.stringFlavor));
+        }));
+        notesArea.setComponentPopupMenu(notesMenu);
+        listTabs.addTab("Notes", new JScrollPane(notesArea));
+
         // Panel to show the stats of the deck
         JPanel bottomPanel = new JPanel(new BorderLayout());
         getContentPane().add(bottomPanel, BorderLayout.SOUTH);
@@ -1010,6 +1089,8 @@ public class EditorFrame extends JInternalFrame
                 parent.close(EditorFrame.this);
             }
         });
+
+        listTabs.setSelectedIndex(MAIN_DECK);
     }
 
     /**
@@ -1169,11 +1250,13 @@ public class EditorFrame extends JInternalFrame
                     CategorySpec mod = deck().current.getCategorySpec(name);
                     mod.setColor(newColor);
                     deck().current.updateCategory(newCategory.getCategoryName(), mod);
+                    listTabs.setSelectedIndex(CATEGORIES);
                     return true;
                 }, () -> {
                     CategorySpec mod = deck().current.getCategorySpec(name);
                     mod.setColor(oldColor);
                     deck().current.updateCategory(newCategory.getCategoryName(), mod);
+                    listTabs.setSelectedIndex(CATEGORIES);
                     return true;
                 });
             }
@@ -1378,8 +1461,8 @@ public class EditorFrame extends JInternalFrame
             extrasPane.setTabComponentAt(index, panel);
             extrasPane.setSelectedIndex(index);
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
-
             southLayout.show(southPanel, "extras");
+            listTabs.setSelectedIndex(MAIN_DECK);
 
             panel.addActionListener((e) -> {
                 switch (e.getActionCommand())
@@ -1412,11 +1495,13 @@ public class EditorFrame extends JInternalFrame
                             newExtra.name = Optional.of(current);
                             ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(current);
                             extrasPane.setTitleAt(j, current);
+                            listTabs.setSelectedIndex(MAIN_DECK);
                             return true;
                         }, () -> {
                             newExtra.name = Optional.of(old);
                             ((EditablePanel)extrasPane.getTabComponentAt(j)).setTitle(old);
                             extrasPane.setTitleAt(j, old);
+                            listTabs.setSelectedIndex(MAIN_DECK);
                             return true;
                         });
                     }
@@ -1476,6 +1561,7 @@ public class EditorFrame extends JInternalFrame
             extrasPane.getTabComponentAt(extrasPane.getSelectedIndex()).requestFocus();
         }
         southLayout.show(southPanel, extras().isEmpty() ? "empty" : "extras");
+        listTabs.setSelectedIndex(MAIN_DECK);
 
         return true;
     }
@@ -2315,7 +2401,7 @@ public class EditorFrame extends JInternalFrame
         }
 
         var sideboards = lists.stream().skip(1).filter((l) -> l != null).collect(Collectors.toMap((l) -> l.name.get(), (l) -> l.current));
-        DeckSerializer manager = new DeckSerializer(deck().current, sideboards, changelogArea.getText());
+        DeckSerializer manager = new DeckSerializer(deck().current, sideboards, notesArea.getText(), changelogArea.getText());
         try
         {
             manager.save(f);
@@ -2438,6 +2524,8 @@ public class EditorFrame extends JInternalFrame
 
         categoriesContainer.revalidate();
         categoriesContainer.repaint();
+
+        listTabs.setSelectedIndex(CATEGORIES);
     }
 
     /**
@@ -2503,5 +2591,8 @@ public class EditorFrame extends JInternalFrame
         });
         hand.refresh();
         handCalculations.update();
+
+        if (listTabs.getSelectedIndex() > CATEGORIES)
+            listTabs.setSelectedIndex(MAIN_DECK);
     }
 }
