@@ -17,14 +17,14 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
      */
     public static final Loyalty NO_LOYALTY = new Loyalty(0);
 
-    private static final int X = -1;
-    private static final int STAR = -2;
+    private static final double X = -1;
+    private static final double STAR = -2;
 
     /**
      * Numerical value of the starting loyalty.  Zero means there is no loyalty and
      * -1 means it's X.
      */
-    public final int value;
+    public final double value;
 
     /**
      * Create a new Loyalty with the given value. Loyalty creatd this way can't vary.
@@ -44,7 +44,7 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
      */
     public Loyalty(String s)
     {
-        int v;
+        double v;
         try
         {
             v = Integer.valueOf(s);
@@ -54,7 +54,7 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
             v = switch (s.toUpperCase()) {
                 case "X" -> X;
                 case "*" -> STAR;
-                default  -> 0;
+                default  -> Double.NaN;
             };
         }
         value = v;
@@ -63,7 +63,7 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
     @Override
     public int compareTo(Loyalty other)
     {
-        return Integer.compare(value, other.value);
+        return Double.compare(value, other.value);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
     @Override
     public boolean exists()
     {
-        return value != 0;
+        return !Double.isNaN(value);
     }
 
     @Override
@@ -87,16 +87,18 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
     @Override
     public String toString()
     {
-        return switch (value) {
-            case X    -> "X";
-            case STAR -> "*";
-            case 0    -> "";
-            default   -> Integer.toString(value);
-        };
+        if (value == X)
+            return "X";
+        else if (value == STAR)
+            return "*";
+        else if (Double.isNaN(value))
+            return "";
+        else
+            return Integer.toString((int)value);
     }
 
     /**
-     * @return <code>true</code> if this Loyalty is variable (X),
+     * @return <code>true</code> if this Loyalty is variable (X, *),
      * and <code>false</code> otherwise.
      */
     public boolean variable()
