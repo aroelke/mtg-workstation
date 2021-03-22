@@ -21,7 +21,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -68,6 +70,8 @@ public class CardImagePanel extends JPanel
      * String format for getting the URL of a Scryfall image.
      */
     public static final String SCRYFALL_FORMAT = "https://api.scryfall.com/cards/%s?format=image%s";
+
+    private static final int MAX_FILES = 5;
 
     /**
      * This class represents a request by a CardImagePanel to download the image(s)
@@ -179,6 +183,14 @@ public class CardImagePanel extends JPanel
                         System.out.println(e);
                     }
                 }
+                int count = 0;
+                do
+                {
+                    var images = Paths.get(SettingsDialog.settings().inventory.scans).toFile().listFiles();
+                    count = images.length;
+                    if (count > MAX_FILES)
+                        Arrays.stream(images).min(Comparator.comparingLong(File::lastModified)).ifPresent(File::delete);
+                } while (count > MAX_FILES);
                 publish(req);
             }
         }
