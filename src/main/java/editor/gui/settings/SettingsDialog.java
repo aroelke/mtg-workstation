@@ -274,119 +274,64 @@ public class SettingsDialog extends JDialog
         inventoryWarnings = new ArrayList<>(warnings);
     }
 
-    /**
-     * List of preset categories.
-     */
+    /** List of preset categories. */
     private CategoryList categoriesList;
-    /**
-     * Check boxes indicating which columns to show in editor tables.
-     */
+    /** Check boxes indicating which columns to show in editor tables. */
     private Map<CardAttribute, JCheckBox> editorColumnCheckBoxes;
-    /**
-     * Color chooser for the color of editor tables' alternate stripes.
-     */
+    /** Color chooser for the color of editor tables' alternate stripes. */
     private JColorChooser editorStripeColor;
-    /**
-     * Spinner allowing setting the number of rows to display in whitelists/blacklists
-     * in the category editor.
-     */
+    /** Spinner allowing setting the number of rows to display in whitelists/blacklists in the category editor. */
     private JSpinner explicitsSpinner;
-    /**
-     * Color chooser for the background of card images in the hand tab.
-     */
+    /** Color chooser for the background of card images in the hand tab. */
     private JColorChooser handBGColor;
-    /**
-     * Check boxes indicating which columns to show in the inventory table.
-     */
+    /** Check boxes indicating which columns to show in the inventory table. */
     private Map<CardAttribute, JCheckBox> inventoryColumnCheckBoxes;
-    /**
-     * Text field controlling the directory to store the inventory in once it is downloaded.
-     */
+    /** Text field controlling the directory to store the inventory in once it is downloaded. */
     private JTextField inventoryDirField;
-    /**
-     * Text field controlling the name of the file to be downloaded.
-     */
+    /** Text field controlling the name of the file to be downloaded. */
     private JTextField inventoryFileField;
-    /**
-     * Text field controlling the web site that the inventory should be downloaded from.
-     */
+    /** Text field controlling the web site that the inventory should be downloaded from. */
     private JTextField inventorySiteField;
-    /**
-     * Color chooser for the color of alternate inventory table stripes.
-     */
+    /** Color chooser for the color of alternate inventory table stripes. */
     private JColorChooser inventoryStripeColor;
-    /**
-     * Button indicating the rounding mode for the expected counts tab in the editor.
-     */
+    /** Button indicating the rounding mode for the expected counts tab in the editor. */
     private List<JRadioButton> modeButtons;
-    /**
-     * MainFrame showing the dialog.
-     */
+    /** MainFrame showing the dialog. */
     private MainFrame parent;
-    /**
-     * Spinner for the number of recent files to save.
-     */
+    /** Spinner for the number of recent files to save. */
     private JSpinner recentSpinner;
-    /**
-     * Spinner allowing setting the maximum number of rows for category panels.
-     */
+    /** Spinner allowing setting the maximum number of rows for category panels. */
     private JSpinner rowsSpinner;
-    /**
-     * Color chooser for the background of the card scan tab.
-     */
+    /** Color chooser for the background of the card scan tab. */
     private JColorChooser scanBGChooser;
-    /**
-     * Text field containing the directory to look for card scans in.
-     */
+    /** Text field containing the directory to look for card scans in. */
     private JTextField scansDirField;
-    /**
-     * Number of cards to draw in the starting hand.
-     */
+    /** Number of cards to draw in the starting hand. */
     private JSpinner startingSizeSpinner;
-    /**
-     * Check box indicating whether or not warnings after loading cards should be suppressed.
-     */
+    /** Check box indicating whether or not warnings after loading cards should be suppressed. */
     private JCheckBox suppressCheckBox;
-    /**
-     * Combo box indicating how often to download updates.
-     */
+    /** Combo box indicating how often to download updates. */
     private JComboBox<UpdateFrequency> updateBox;
-    /**
-     * Check box indicating whether or not to check for a commander by default in legality
-     * check.
-     */
+    /** Check box indicating whether or not to check for a commander by default in legality check. */
     private JCheckBox cmdrCheck;
-    /**
-     * Radio button indicting to check only the main deck by default for a commander.
-     */
+    /** Radio button indicting to check only the main deck by default for a commander. */
     private JRadioButton cmdrMainDeck;
-    /**
-     * Radio button indicating to check all lists by default for a commander.
-     */
+    /** Radio button indicating to check all lists by default for a commander. */
     private JRadioButton cmdrAllLists;
-    /**
-     * Radio button indicating to check a specific list, if it exists, for a commander
-     * by default.
-     */
+    /** Radio button indicating to check a specific list, if it exists, for a commander by default. */
     private JRadioButton cmdrList;
-    /**
-     * Default name of the list to look in if checking only a single one or commander.
-     */
+    /** Default name of the list to look in if checking only a single one or commander. */
     private JTextField cmdrListName;
-    /**
-     * Check box indicating whether or not to check sideboard size by default in
-     * legality check.
-     */
+    /** Check box indicating whether or not to check sideboard size by default in legality check. */
     private JCheckBox sideCheck;
-    /**
-     * Text field specifying the default name of the list to use as sideboard if
-     * present.
-     */
+    /** Text field specifying the default name of the list to use as sideboard if present. */
     private JTextField sideField;
-    /**
-     * Combo box showing possible sites to download cards from.
-     */
+    /** Combo box showing possible sites to download cards from. */
     private JComboBox<String> imgSourceBox;
+    /** Check box indicating whether or not to limit the number of cached images to save. */
+    private JCheckBox limitImageBox;
+    /** Spinner containing the number of cached image to allow. */
+    private JSpinner limitImageSpinner;
 
     /**
      * Create a new SettingsDialog.
@@ -512,6 +457,17 @@ public class SettingsDialog extends JDialog
         imgSourcePanel.add(imgSourceBox = new JComboBox<>(IMAGE_SOURCES.toArray(String[]::new)));
         imgSourcePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, imgSourcePanel.getPreferredSize().height));
         inventoryPanel.add(imgSourcePanel);
+        inventoryPanel.add(Box.createVerticalStrut(5));
+
+        // Number of card images to keep
+        JPanel imgLimitPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        limitImageBox = new JCheckBox("Limit downloaded card images to:");
+        imgLimitPanel.add(limitImageBox);
+        limitImageSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
+        imgLimitPanel.add(limitImageSpinner);
+        limitImageBox.addActionListener((e) -> limitImageSpinner.setEnabled(limitImageBox.isSelected()));
+        imgLimitPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, imgLimitPanel.getPreferredSize().height));
+        inventoryPanel.add(imgLimitPanel);
         inventoryPanel.add(Box.createVerticalStrut(5));
 
         // Check for update on startup
@@ -860,6 +816,9 @@ public class SettingsDialog extends JDialog
                 scansDirField.setText(settings.inventory.scans);
                 scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
                 imgSourceBox.setSelectedIndex(Math.max(IMAGE_SOURCES.indexOf(settings.inventory.imageSource), 0));
+                limitImageBox.setSelected(settings.inventory.imageLimitEnable);
+                limitImageSpinner.setEnabled(settings.inventory.imageLimitEnable);
+                limitImageSpinner.setValue(settings.inventory.imageLimit);
                 updateBox.setSelectedIndex(settings.inventory.update.ordinal());
                 suppressCheckBox.setSelected(settings.inventory.warn);
                 viewWarningsButton.setEnabled(!inventoryWarnings.isEmpty());
@@ -931,6 +890,8 @@ public class SettingsDialog extends JDialog
                 .inventoryLocation(inventoryDirField.getText())
                 .inventoryScans(scansDirField.getText())
                 .imageSource(imgSourceBox.getItemAt(imgSourceBox.getSelectedIndex()))
+                .imageLimitEnable(limitImageBox.isSelected())
+                .imageLimit((Integer)limitImageSpinner.getValue())
                 .inventoryUpdate(updateBox.getItemAt(updateBox.getSelectedIndex()))
                 .inventoryWarn(suppressCheckBox.isSelected())
                 .inventoryColumns(inventoryColumnCheckBoxes.entrySet().stream().filter((e) -> e.getValue().isSelected()).map(Map.Entry::getKey).sorted().collect(Collectors.toList()))

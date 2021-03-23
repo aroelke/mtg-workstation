@@ -21,7 +21,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -178,6 +180,17 @@ public class CardImagePanel extends JPanel
                     {
                         System.out.println(e);
                     }
+                }
+                if (SettingsDialog.settings().inventory.imageLimitEnable)
+                {
+                    int count = 0;
+                    do
+                    {
+                        var images = Paths.get(SettingsDialog.settings().inventory.scans).toFile().listFiles();
+                        count = images.length;
+                        if (count > SettingsDialog.settings().inventory.imageLimit)
+                            Arrays.stream(images).min(Comparator.comparingLong(File::lastModified)).ifPresent(File::delete);
+                    } while (count > SettingsDialog.settings().inventory.imageLimit);
                 }
                 publish(req);
             }

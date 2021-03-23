@@ -26,6 +26,8 @@ public class SettingsBuilder
     private String inventoryLocation;
     private String inventoryScans;
     private String imageSource;
+    private boolean enableImageLimit;
+    private int imageLimit;
     private String inventoryTags;
     private UpdateFrequency inventoryUpdate;
     private boolean inventoryWarn;
@@ -82,6 +84,8 @@ public class SettingsBuilder
             inventoryLocation,
             inventoryScans,
             imageSource,
+            enableImageLimit,
+            imageLimit,
             inventoryTags,
             inventoryUpdate,
             inventoryWarn,
@@ -122,6 +126,8 @@ public class SettingsBuilder
         inventoryLocation = original.inventory.location;
         inventoryScans = original.inventory.scans;
         imageSource = original.inventory.imageSource;
+        enableImageLimit = original.inventory.imageLimitEnable;
+        imageLimit = original.inventory.imageLimit;
         inventoryTags = original.inventory.tags;
         inventoryUpdate = original.inventory.update;
         inventoryWarn = original.inventory.warn;
@@ -158,7 +164,9 @@ public class SettingsBuilder
      * <li>{@link Settings.InventorySettings#location}: <code>$HOME/.editor</code>
      * <li>{@link Settings.InventorySettings#scans}: <code>$HOME/.editor/scans</code>
      * <li>{@link Settings.InventorySettings#imageSource}: Scryfall
-     * <li>{@link Settings.InventorySettings#tags}: <code>$HOME/.editor/tags.json</code>
+     * <li>{@link Settings.InventorySettings#imageLimitEnable}: <code>false</code>
+     * <li>{@link Settings.InventorySettings#imageLimit}: 20
+     * <li>{@link Settings.InventorySettings#tags}: <code>$HOME/.mtgworkstation/tags.json</code>
      * <li>{@link Settings.InventorySettings#update}: Daily
      * <li>{@link Settings.InventorySettings#warn}: <code>true</code>
      * <li>{@link Settings.InventorySettings#columns}:
@@ -285,6 +293,32 @@ public class SettingsBuilder
     public SettingsBuilder imageSource(String source)
     {
         imageSource = source;
+        return this;
+    }
+
+    /**
+     * Change whether or not the number of images cached should be limited.
+     * 
+     * @param enable enable or disable cache limit
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#imageLimitEnable
+     */
+    public SettingsBuilder imageLimitEnable(boolean enable)
+    {
+        enableImageLimit = enable;
+        return this;
+    }
+
+    /**
+     * Change the number of images allowed to be cached if there is a limit.
+     * 
+     * @param limit new limit for image cache
+     * @return this SettingsBuilder
+     * @see Settings.InventorySettings#imageLimit
+     */
+    public SettingsBuilder imageLimit(int limit)
+    {
+        imageLimit = limit;
         return this;
     }
 
