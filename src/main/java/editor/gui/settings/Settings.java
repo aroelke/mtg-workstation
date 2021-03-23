@@ -53,6 +53,10 @@ public final class Settings
         public final String scans;
         /** Web site to download images from. */
         public final String imageSource;
+        /** Whether or not to limit the number of images to cache. */
+        public final boolean imageLimitEnable;
+        /** How many images should be cached at a time. */
+        public final int imageLimit;
         /** File to store tags in. */
         public final String tags;
         /** Check for inventory update on startup or don't. */
@@ -73,6 +77,8 @@ public final class Settings
                                     String location,
                                     String scans,
                                     String imageSource,
+                                    boolean imageLimitEnable,
+                                    int imageLimit,
                                     String tags,
                                     UpdateFrequency update,
                                     boolean warn,
@@ -87,6 +93,8 @@ public final class Settings
             this.location = location;
             this.scans = scans;
             this.imageSource = imageSource;
+            this.imageLimitEnable = imageLimitEnable;
+            this.imageLimit = imageLimit;
             this.tags = tags;
             this.update = update;
             this.warn = warn;
@@ -105,6 +113,8 @@ public final class Settings
                 SettingsDialog.EDITOR_HOME.toString(),
                 SettingsDialog.EDITOR_HOME.resolve("scans").toString(),
                 "Scryfall",
+                false,
+                20,
                 SettingsDialog.EDITOR_HOME.resolve("tags.json").toString(),
                 UpdateFrequency.DAILY,
                 true,
@@ -454,9 +464,9 @@ public final class Settings
     /** Initial directory of file choosers. */
     public final String cwd;
 
-    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String cwd)
+    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String cwd)
     {
-        this.inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
+        this.inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
         this.editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard);
         this.cwd = cwd;
     }

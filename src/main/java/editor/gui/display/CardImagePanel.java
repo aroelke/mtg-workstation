@@ -71,8 +71,6 @@ public class CardImagePanel extends JPanel
      */
     public static final String SCRYFALL_FORMAT = "https://api.scryfall.com/cards/%s?format=image%s";
 
-    private static final int MAX_FILES = 5;
-
     /**
      * This class represents a request by a CardImagePanel to download the image(s)
      * of a Card.
@@ -183,14 +181,17 @@ public class CardImagePanel extends JPanel
                         System.out.println(e);
                     }
                 }
-                int count = 0;
-                do
+                if (SettingsDialog.settings().inventory.imageLimitEnable)
                 {
-                    var images = Paths.get(SettingsDialog.settings().inventory.scans).toFile().listFiles();
-                    count = images.length;
-                    if (count > MAX_FILES)
-                        Arrays.stream(images).min(Comparator.comparingLong(File::lastModified)).ifPresent(File::delete);
-                } while (count > MAX_FILES);
+                    int count = 0;
+                    do
+                    {
+                        var images = Paths.get(SettingsDialog.settings().inventory.scans).toFile().listFiles();
+                        count = images.length;
+                        if (count > SettingsDialog.settings().inventory.imageLimit)
+                            Arrays.stream(images).min(Comparator.comparingLong(File::lastModified)).ifPresent(File::delete);
+                    } while (count > SettingsDialog.settings().inventory.imageLimit);
+                }
                 publish(req);
             }
         }
