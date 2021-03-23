@@ -39,10 +39,6 @@ public abstract class MultiCard extends Card
      */
     private Lazy<List<String>> artist;
     /**
-     * List of converted mana costs of the faces of this MultiCard.
-     */
-    private Lazy<List<Double>> cmc;
-    /**
      * Tuple of the color identity of this MultiCard.
      */
     private Lazy<List<ManaType>> colorIdentity;
@@ -164,7 +160,6 @@ public abstract class MultiCard extends Card
 
         name = new Lazy<>(() -> collect(Card::name));
         manaCost = new Lazy<>(() -> collect(Card::manaCost));
-        cmc = new Lazy<>(() -> collect(Card::cmc));
         colors = new Lazy<>(() -> {
             var sorted = new ArrayList<>(faces.stream().flatMap((c) -> c.colors().stream()).collect(Collectors.toSet()));
             ManaType.sort(sorted);
@@ -222,12 +217,6 @@ public abstract class MultiCard extends Card
     public List<String> artist()
     {
         return artist.get();
-    }
-
-    @Override
-    public List<Double> cmc()
-    {
-        return cmc.get();
     }
 
     /**

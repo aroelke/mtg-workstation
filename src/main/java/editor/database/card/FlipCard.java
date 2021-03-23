@@ -14,11 +14,6 @@ import editor.util.Lazy;
 public class FlipCard extends MultiCard
 {
     /**
-     * List containing the converted mana cost of each side of this FlipCard (which should just be two
-     * copies of the same value).
-     */
-    private Lazy<List<Double>> cmc;
-    /**
      * Tuple containing the mana cost of each side of this FlipCard (which should just be two copies
      * of the same value).
      */
@@ -43,7 +38,6 @@ public class FlipCard extends MultiCard
             throw new IllegalArgumentException("can't join non-flip cards into flip cards");
 
         manaCost = new Lazy<>(() -> collect(Card::manaCost));
-        cmc = new Lazy<>(() -> collect(Card::cmc));
     }
 
     /**
@@ -51,9 +45,9 @@ public class FlipCard extends MultiCard
      * Both faces of a FlipCard have the same converted mana cost.
      */
     @Override
-    public List<Double> cmc()
+    public double cmc()
     {
-        return cmc.get();
+        return top.cmc();
     }
 
     /**

@@ -94,7 +94,8 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
                 }
                 break;
             case CMC:
-                panel.add(new JLabel(CollectionUtils.join(join, CollectionUtils.convertToList(value, Double.class))));
+                double cmc = value == null ? 0 : (Double)value;
+                panel.add(new JLabel(cmc == (int)cmc ? Integer.toString((int)cmc) : Double.toString(cmc)));
                 break;
             case COLORS:
             case COLOR_IDENTITY:

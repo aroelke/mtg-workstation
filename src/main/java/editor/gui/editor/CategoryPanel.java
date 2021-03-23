@@ -472,7 +472,7 @@ public class CategoryPanel extends JPanel
 
         var avgCMC = deck.stream()
             .filter(deck.getCategorySpec(name)::includes)
-            .flatMap((c) -> Collections.nCopies(deck.getEntry(c).count(), c.cmc().stream().min((a, b) -> Double.compare(a, b)).orElse(0.0)).stream())
+            .flatMap((c) -> Collections.nCopies(deck.getEntry(c).count(), c.cmc()).stream())
             .mapToDouble(Double::valueOf)
             .average().orElse(0);
         if (avgCMC == (int)avgCMC)

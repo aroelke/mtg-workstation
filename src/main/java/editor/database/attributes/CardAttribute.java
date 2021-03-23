@@ -59,7 +59,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** Mana cost of a card. */
     MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter(), Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0))),
     /** Converted mana cost of a card. */
-    CMC("Mana Value", List.class, (a) -> new NumberFilter(a, Card::cmc), Comparator.comparingDouble((a) -> Collections.min(CollectionUtils.convertToList(a, Double.class)))),
+    CMC("Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.cmc())), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Colors of all faces of a card. */
     COLORS("Colors", List.class, (a) -> new ColorFilter(a, Card::colors), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);

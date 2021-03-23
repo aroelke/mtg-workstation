@@ -255,9 +255,9 @@ public class SingleCard extends Card
     }
 
     @Override
-    public List<Double> cmc()
+    public double cmc()
     {
-        return Collections.singletonList(mana.cmc());
+        return mana.cmc();
     }
 
     @Override
