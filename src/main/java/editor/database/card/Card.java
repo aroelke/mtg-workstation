@@ -190,6 +190,18 @@ public abstract class Card
     public abstract double manaValue();
 
     /**
+     * @return this card's smallest mana value (if it has only one face, this will be the same
+     * as its mana value).
+     */
+    public abstract double minManaValue();
+
+    /**
+     * @return this card's largest mana value (if it has only one face, this will be the same
+     * as its mana value).
+     */
+    public abstract double maxManaValue();
+
+    /**
      * Get this Card's color identity, which is comprised of its its colors and colors of any
      * mana symbols that appear in its rules text that is not reminder text, and in abilities that
      * are given it by basic land types.

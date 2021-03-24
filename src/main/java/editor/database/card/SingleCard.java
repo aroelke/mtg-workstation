@@ -261,6 +261,18 @@ public class SingleCard extends Card
     }
 
     @Override
+    public double minManaValue()
+    {
+        return manaValue();
+    }
+
+    @Override
+    public double maxManaValue()
+    {
+        return manaValue();
+    }
+
+    @Override
     public List<ManaType> colorIdentity()
     {
         return colorIdentity;

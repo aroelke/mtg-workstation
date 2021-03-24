@@ -291,6 +291,18 @@ public abstract class MultiCard extends Card
     }
 
     @Override
+    public double minManaValue()
+    {
+        return faces.stream().mapToDouble(Card::manaValue).min().orElseThrow(() -> new IllegalStateException("multi card with no faces"));
+    }
+
+    @Override
+    public double maxManaValue()
+    {
+        return faces.stream().mapToDouble(Card::manaValue).max().orElseThrow(() -> new IllegalStateException("multi card with no faces"));
+    }
+
+    @Override
     public List<Integer> multiverseid()
     {
         return multiverseid.get();
