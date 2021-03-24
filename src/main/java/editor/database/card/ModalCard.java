@@ -30,10 +30,11 @@ public class ModalCard extends MultiCard
 
     /**
      * {@inheritDoc}
-     * The mana value of a modal card is that of the front face.
+     * The mana value of a modal card is that of the front face (until you cast it or it enters the battlefield,
+     * at which point it becomes that of the side facing up).
      */
-    public double cmc()
+    public double manaValue()
     {
-        return front.cmc();
+        return front.manaValue();
     }
 }

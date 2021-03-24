@@ -2539,7 +2539,7 @@ public class EditorFrame extends JInternalFrame
 
         var cmc = deck().current.stream()
             .filter((c) -> !c.typeContains("land"))
-            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), c.cmc()).stream())
+            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), c.manaValue()).stream())
             .sorted()
             .collect(Collectors.toList());
         double avgCMC = cmc.stream().mapToDouble(Double::valueOf).average().orElse(0);

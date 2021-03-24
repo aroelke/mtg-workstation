@@ -185,11 +185,9 @@ public abstract class Card
     public abstract List<String> artist();
 
     /**
-     * Get this card's converted mana cost.
-     *
-     * @return the converted mana cost of this Card.
+     * @return this card's mana value (formerly converted mana cost).
      */
-    public abstract double cmc();
+    public abstract double manaValue();
 
     /**
      * Get this Card's color identity, which is comprised of its its colors and colors of any

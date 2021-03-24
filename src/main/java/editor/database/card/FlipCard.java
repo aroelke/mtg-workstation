@@ -42,12 +42,12 @@ public class FlipCard extends MultiCard
 
     /**
      * {@inheritDoc}
-     * Both faces of a FlipCard have the same converted mana cost.
+     * The mana value of a flip card is that of its top half.
      */
     @Override
-    public double cmc()
+    public double manaValue()
     {
-        return top.cmc();
+        return top.manaValue();
     }
 
     /**

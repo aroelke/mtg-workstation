@@ -20,7 +20,7 @@ import editor.util.Containment;
 
 /**
  * This class represents a mana cost.  It contains a list of Symbols, which may contain duplicate elements.
- * It also calculates its converted mana cost based on the number and types of Symbols it contains, and
+ * It also calculates its mana value cost based on the number and types of Symbols it contains, and
  * can determine if it is a super- or subset of another mana cost.
  *
  * @author Alec Roelke
@@ -112,7 +112,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     }
 
     /**
-     * @return Converted mana cost of this ManaCost, which is the total value of its Symbols.
+     * @return Mana value cost of this ManaCost, which is the total value of its Symbols.
      */
     public double cmc()
     {
@@ -239,7 +239,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
 
     /**
      * @param o ManaCost to compare with
-     * @return A negative number if this ManaCost's converted mana cost is less than
+     * @return A negative number if this ManaCost's mana value is less than
      * the other or if its color intensity is less, 0 if they are the same, and a positive number
      * if they are greater.
      */

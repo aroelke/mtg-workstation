@@ -48,7 +48,7 @@ public interface FilterDeserializer
         new SimpleImmutableEntry<>("l", CardAttribute.LOYALTY),
         new SimpleImmutableEntry<>("a", CardAttribute.ARTIST),
         new SimpleImmutableEntry<>("#", CardAttribute.CARD_NUMBER),
-        new SimpleImmutableEntry<>("cmc", CardAttribute.CMC),
+        new SimpleImmutableEntry<>("cmc", CardAttribute.MANA_VALUE),
         new SimpleImmutableEntry<>("c", CardAttribute.COLORS),
         new SimpleImmutableEntry<>("ci", CardAttribute.COLOR_IDENTITY),
         new SimpleImmutableEntry<>("f", CardAttribute.FLAVOR_TEXT),
@@ -104,7 +104,7 @@ public interface FilterDeserializer
                 mana.contain = (Containment)in.readObject();
                 mana.cost = ManaCost.parseManaCost(in.readUTF());
                 return mana;
-            case CMC:
+            case MANA_VALUE:
             case CARD_NUMBER:
                 NumberFilter number = (NumberFilter)type.get();
                 number.operand = in.readDouble();

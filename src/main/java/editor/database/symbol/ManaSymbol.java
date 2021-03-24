@@ -102,7 +102,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
     {}
 
     /**
-     * How much this ManaSymbols is worth for calculating converted mana costs.
+     * How much this ManaSymbols is worth for calculating mana value.
      */
     private final double value;
 

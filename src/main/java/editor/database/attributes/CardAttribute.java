@@ -58,8 +58,8 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, Card::normalizedPrinted)),
     /** Mana cost of a card. */
     MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter(), Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0))),
-    /** Converted mana cost of a card. */
-    CMC("Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.cmc())), (a, b) -> ((Double)a).compareTo((Double)b)),
+    /** Mana value cost of a card. */
+    MANA_VALUE("Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.manaValue())), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Colors of all faces of a card. */
     COLORS("Colors", List.class, (a) -> new ColorFilter(a, Card::colors), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);

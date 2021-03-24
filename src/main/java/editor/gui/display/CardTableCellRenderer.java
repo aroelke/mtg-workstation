@@ -58,7 +58,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
      * Several types of data get special renderings:
      * <ul>
      * <li>Mana costs are displayed using their symbols
-     * <li>Converted mana costs and combat stats are displayed using special delimiters
+     * <li>Mana values and combat stats are displayed using special delimiters
      * <li>Colors and color identity are displayed using the mana symbols corresponding to the colors
      * <li>Deck categories are displayed using colored squares
      * <li>Date added is displayed according to {@link Deck#DATE_FORMATTER}
@@ -93,7 +93,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
                     }
                 }
                 break;
-            case CMC:
+            case MANA_VALUE:
                 double cmc = value == null ? 0 : (Double)value;
                 panel.add(new JLabel(cmc == (int)cmc ? Integer.toString((int)cmc) : Double.toString(cmc)));
                 break;

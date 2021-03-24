@@ -255,7 +255,7 @@ public class SingleCard extends Card
     }
 
     @Override
-    public double cmc()
+    public double manaValue()
     {
         return mana.cmc();
     }

@@ -44,9 +44,9 @@ public class TransformCard extends MultiCard
      * A transform card's mana value is that of its front face.
      */
     @Override
-    public double cmc()
+    public double manaValue()
     {
-        return front.cmc();
+        return front.manaValue();
     }
 
     /**

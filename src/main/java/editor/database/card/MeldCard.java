@@ -54,13 +54,13 @@ public class MeldCard extends MultiCard
 
     /**
      * {@inheritDoc}
-     * While only the front face has a mana cost, the back face's converted mana cost
-     * is the sum of those of its two front faces.
+     * The mana value of a meld card is that of its front face (after melding it's the
+     * sum of the two faces).
      */
     @Override
-    public double cmc()
+    public double manaValue()
     {
-        return front.cmc();
+        return front.manaValue();
     }
 
     /**
@@ -87,8 +87,8 @@ public class MeldCard extends MultiCard
 
     /**
      * {@inheritDoc}
-     * The back face of a MeldCard has no mana cost (but does have a converted mana cost,
-     * see {@link MeldCard#cmc()}).
+     * The back face of a MeldCard has no mana cost (but does have a mana value,
+     * see {@link MeldCard#manaValue()}).
      */
     @Override
     public List<ManaCost> manaCost()

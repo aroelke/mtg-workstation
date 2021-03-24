@@ -53,7 +53,7 @@ public interface FilterPanelFactory
         return switch (filter.type()) {
             case NAME, RULES_TEXT, FLAVOR_TEXT, PRINTED_TEXT, ARTIST, PRINTED_TYPES -> new TextFilterPanel((TextFilter)filter);
             case POWER, TOUGHNESS, LOYALTY -> new VariableNumberFilterPanel((VariableNumberFilter)filter);
-            case CMC, CARD_NUMBER -> new NumberFilterPanel((NumberFilter)filter);
+            case MANA_VALUE, CARD_NUMBER -> new NumberFilterPanel((NumberFilter)filter);
             case COLORS, COLOR_IDENTITY -> new ColorFilterPanel((ColorFilter)filter);
             case LAYOUT          -> new OptionsFilterPanel<>((LayoutFilter)filter, CardLayout.values());
             case MANA_COST       -> new ManaCostFilterPanel((ManaCostFilter)filter);
