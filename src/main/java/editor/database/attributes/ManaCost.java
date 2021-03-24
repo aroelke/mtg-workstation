@@ -114,7 +114,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     /**
      * @return Mana value cost of this ManaCost, which is the total value of its Symbols.
      */
-    public double cmc()
+    public double manaValue()
     {
         return cost.stream().mapToDouble(ManaSymbol::value).sum();
     }
@@ -253,7 +253,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
         else
         {
             // Start by sorting by CMC
-            int diff = (int)(2 * (cmc() - o.cmc()));
+            int diff = (int)(2 * (manaValue() - o.manaValue()));
             // If the two costs have the same CMC, sort them by symbol color intensity
             if (diff == 0)
             {

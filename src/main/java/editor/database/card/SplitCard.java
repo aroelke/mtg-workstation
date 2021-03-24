@@ -20,7 +20,7 @@ public class SplitCard extends MultiCard
     /**
      * Mana value of this SplitCard.
      */
-    private Lazy<Double> cmc;
+    private Lazy<Double> manaValue;
 
     /**
      * Create a new SplitCard with the given Cards as faces.
@@ -48,7 +48,7 @@ public class SplitCard extends MultiCard
             if (face.layout() != f.get(0).layout())
                 throw new IllegalArgumentException("all faces of a split card must be of the same type");
 
-        cmc = new Lazy<>(() -> f.stream().mapToDouble((c) -> c.manaValue()).sum());
+        manaValue = new Lazy<>(() -> f.stream().mapToDouble((c) -> c.manaValue()).sum());
     }
 
     /**
@@ -58,7 +58,7 @@ public class SplitCard extends MultiCard
     @Override
     public double manaValue()
     {
-        return cmc.get();
+        return manaValue.get();
     }
 
     /**

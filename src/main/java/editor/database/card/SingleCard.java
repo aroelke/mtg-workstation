@@ -257,7 +257,7 @@ public class SingleCard extends Card
     @Override
     public double manaValue()
     {
-        return mana.cmc();
+        return mana.manaValue();
     }
 
     @Override
@@ -451,10 +451,10 @@ public class SingleCard extends Card
                 }
                 document.insertString(document.getLength(), " ", textStyle);
             }
-            if (mana.cmc() == (int)mana.cmc())
-                document.insertString(document.getLength(), "(" + (int)mana.cmc() + ")\n", textStyle);
+            if (mana.manaValue() == (int)mana.manaValue())
+                document.insertString(document.getLength(), "(" + (int)mana.manaValue() + ")\n", textStyle);
             else
-                document.insertString(document.getLength(), "(" + mana.cmc() + ")\n", textStyle);
+                document.insertString(document.getLength(), "(" + mana.manaValue() + ")\n", textStyle);
             if (!mana.colors().equals(colors))
             {
                 for (ManaType color : colors)
