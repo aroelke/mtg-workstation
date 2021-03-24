@@ -94,8 +94,8 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
                 }
                 break;
             case MANA_VALUE:
-                double cmc = value == null ? 0 : (Double)value;
-                panel.add(new JLabel(cmc == (int)cmc ? Integer.toString((int)cmc) : Double.toString(cmc)));
+                double manaValue = value == null ? 0 : (Double)value;
+                panel.add(new JLabel(manaValue == (int)manaValue ? Integer.toString((int)manaValue) : Double.toString(manaValue)));
                 break;
             case COLORS:
             case COLOR_IDENTITY:

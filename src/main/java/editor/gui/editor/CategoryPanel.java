@@ -194,9 +194,9 @@ public class CategoryPanel extends JPanel
     }
 
     /**
-     * Label showing the average CMC of cards in the category.
+     * Label showing the average manaValue of cards in the category.
      */
-    private JLabel avgCMCLabel;
+    private JLabel avgManaValueLabel;
     /**
      * Default background color of this panel.
      */
@@ -279,8 +279,8 @@ public class CategoryPanel extends JPanel
         countLabel = new JLabel("Cards: " + deck.getCategoryList(name).total());
         statsPanel.add(countLabel);
         statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE));
-        avgCMCLabel = new JLabel("Average CMC: 0");
-        statsPanel.add(avgCMCLabel);
+        avgManaValueLabel = new JLabel("Average mana value: 0");
+        statsPanel.add(avgManaValueLabel);
         statsPanel.add(Box.createHorizontalGlue());
         topPanel.add(statsPanel, BorderLayout.WEST);
 
@@ -470,15 +470,15 @@ public class CategoryPanel extends JPanel
     {
         countLabel.setText("Cards: " + deck.getCategoryList(name).total());
 
-        var avgCMC = deck.stream()
+        var avgManaValue = deck.stream()
             .filter(deck.getCategorySpec(name)::includes)
             .flatMap((c) -> Collections.nCopies(deck.getEntry(c).count(), c.manaValue()).stream())
             .mapToDouble(Double::valueOf)
             .average().orElse(0);
-        if (avgCMC == (int)avgCMC)
-            avgCMCLabel.setText("Average CMC: " + (int)avgCMC);
+        if (avgManaValue == (int)avgManaValue)
+            avgManaValueLabel.setText("Average mana value: " + (int)avgManaValue);
         else
-            avgCMCLabel.setText("Average CMC: " + String.format("%.2f", avgCMC));
+            avgManaValueLabel.setText("Average mana value: " + String.format("%.2f", avgManaValue));
 
         border.setTitle(name);
         table.revalidate();

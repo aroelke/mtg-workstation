@@ -252,9 +252,9 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
             return 1;
         else
         {
-            // Start by sorting by CMC
+            // Start by sorting by mana value
             int diff = (int)(2 * (manaValue() - o.manaValue()));
-            // If the two costs have the same CMC, sort them by symbol color intensity
+            // If the two costs have the same mana value, sort them by symbol color intensity
             if (diff == 0)
             {
                 var intensityList = intensity.values().stream().sorted().collect(Collectors.toList());
