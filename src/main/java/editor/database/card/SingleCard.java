@@ -273,6 +273,12 @@ public class SingleCard extends Card
     }
 
     @Override
+    public double avgManaValue()
+    {
+        return manaValue();
+    }
+
+    @Override
     public List<ManaType> colorIdentity()
     {
         return colorIdentity;

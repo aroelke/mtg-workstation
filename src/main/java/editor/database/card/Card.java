@@ -202,6 +202,12 @@ public abstract class Card
     public abstract double maxManaValue();
 
     /**
+     * @return the average of this card's faces' mana values (if it has only one face, this will
+     * be the same as its mana value).
+     */
+    public abstract double avgManaValue();
+
+    /**
      * Get this Card's color identity, which is comprised of its its colors and colors of any
      * mana symbols that appear in its rules text that is not reminder text, and in abilities that
      * are given it by basic land types.

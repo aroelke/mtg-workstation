@@ -1154,6 +1154,7 @@ public class EditorFrame extends JInternalFrame
         for (CategoryPanel category : categoryPanels)
             category.applySettings(this);
         startingHandSize = SettingsDialog.settings().editor.hand.size;
+        updateStats();
         update();
     }
 
@@ -2539,7 +2540,13 @@ public class EditorFrame extends JInternalFrame
 
         var manaValue = deck().current.stream()
             .filter((c) -> !c.typeContains("land"))
-            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), c.manaValue()).stream())
+            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), switch (SettingsDialog.settings().editor.manaValue) {
+                case "Minimum" -> c.minManaValue();
+                case "Maximum" -> c.maxManaValue();
+                case "Average" -> c.avgManaValue();
+                case "Real"    -> c.manaValue();
+                default -> Double.NaN;
+            }).stream())
             .sorted()
             .collect(Collectors.toList());
         double avgManaValue = manaValue.stream().mapToDouble(Double::valueOf).average().orElse(0);
