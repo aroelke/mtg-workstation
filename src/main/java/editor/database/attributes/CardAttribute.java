@@ -179,6 +179,11 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
         for (CardAttribute c : CardAttribute.values())
             if (c.toString().equalsIgnoreCase(s))
                 return c;
+        // Mana value special case for old converted mana cost terminology
+        // (since this is the only case of this so far, it's not worth creating
+        // a new field for it)
+        if (s.equalsIgnoreCase("cmc"))
+            return MANA_VALUE;
         throw new IllegalArgumentException("Unknown attribute \"" + s + "\"");
     }
 
