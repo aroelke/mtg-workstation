@@ -1724,7 +1724,8 @@ public class MainFrame extends JFrame
         if (closeAll())
         {
             saveSettings();
-            System.exit(0);
+            setVisible(false);
+            dispose();
         }
     }
 
