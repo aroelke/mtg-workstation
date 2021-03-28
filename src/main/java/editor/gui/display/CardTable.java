@@ -39,7 +39,7 @@ public class CardTable extends JTable
      * Set of CardAttribute that should not use toString to convert non-comparable data.
      */
     private static final Set<CardAttribute> NO_STRING = Set.of(CardAttribute.MANA_COST,
-                                                               CardAttribute.CMC,
+                                                               CardAttribute.MANA_VALUE,
                                                                CardAttribute.COLORS,
                                                                CardAttribute.COLOR_IDENTITY,
                                                                CardAttribute.POWER,

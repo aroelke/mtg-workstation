@@ -49,6 +49,7 @@ public class SettingsBuilder
     private boolean all;
     private String list;
     private String sideboard;
+    private String manaValue;
     private String cwd;
 
     /**
@@ -107,6 +108,7 @@ public class SettingsBuilder
             all,
             list,
             sideboard,
+            manaValue,
             cwd
         );
     }
@@ -149,6 +151,7 @@ public class SettingsBuilder
         all = original.editor.legality.all;
         list = original.editor.legality.list;
         sideboard = original.editor.legality.sideboard;
+        manaValue = original.editor.manaValue;
         cwd = original.cwd;
 
         return this;
@@ -195,6 +198,7 @@ public class SettingsBuilder
      * <li>{@link Settings.EditorSettings.LegalitySettings#all}: <code>false</code>
      * <li>{@link Settings.EditorSettings.LegalitySettings#list}: <code>""</code>
      * <li>{@link Settings.EditorSettings.LegalitySettings#sideboard}: <code>""</code>
+     * <li>{@link Settings.EditorSettings#manaValue}: <code>"Minimum"</code>
      * <li>{@link Settings#cwd}: <code>$HOME</code>
      * </ul>
      * 
@@ -663,6 +667,20 @@ public class SettingsBuilder
     public SettingsBuilder sideboardName(String sideboard)
     {
         this.sideboard = sideboard;
+        return this;
+    }
+
+    /**
+     * Set which mana value is used for analysis when a card has multiple.
+     * Options are "Minimum," "Maximum," "Average," and "Real."
+     * 
+     * @param choice which mana value to use
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings#manaValue
+     */
+    public SettingsBuilder manaValue(String choice)
+    {
+        this.manaValue = choice;
         return this;
     }
 

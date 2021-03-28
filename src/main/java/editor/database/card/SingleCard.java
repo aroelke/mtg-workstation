@@ -8,6 +8,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+
 import editor.database.attributes.CombatStat;
 import editor.database.attributes.Expansion;
 import editor.database.attributes.Legality;
@@ -15,6 +20,9 @@ import editor.database.attributes.Loyalty;
 import editor.database.attributes.ManaCost;
 import editor.database.attributes.ManaType;
 import editor.database.attributes.Rarity;
+import editor.database.symbol.FunctionalSymbol;
+import editor.database.symbol.Symbol;
+import editor.gui.generic.ComponentUtils;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -247,9 +255,27 @@ public class SingleCard extends Card
     }
 
     @Override
-    public List<Double> cmc()
+    public double manaValue()
     {
-        return Collections.singletonList(mana.cmc());
+        return mana.manaValue();
+    }
+
+    @Override
+    public double minManaValue()
+    {
+        return manaValue();
+    }
+
+    @Override
+    public double maxManaValue()
+    {
+        return manaValue();
+    }
+
+    @Override
+    public double avgManaValue()
+    {
+        return manaValue();
     }
 
     @Override
@@ -409,5 +435,175 @@ public class SingleCard extends Card
     public Set<String> types()
     {
         return types;
+    }
+
+    @Override
+    public void formatDocument(StyledDocument document, boolean printed)
+    {
+        Style textStyle = document.getStyle("text");
+        Style reminderStyle = document.getStyle("reminder");
+        Style chaosStyle = document.addStyle("CHAOS", null);
+        StyleConstants.setIcon(chaosStyle, FunctionalSymbol.CHAOS.getIcon(ComponentUtils.TEXT_SIZE));
+        try
+        {
+            document.insertString(document.getLength(), name + " ", textStyle);
+            if (!mana.isEmpty())
+            {
+                for (Symbol symbol : mana)
+                {
+                    Style style = document.addStyle(symbol.toString(), null);
+                    StyleConstants.setIcon(style, symbol.getIcon(ComponentUtils.TEXT_SIZE));
+                    document.insertString(document.getLength(), symbol.toString(), style);
+                }
+                document.insertString(document.getLength(), " ", textStyle);
+            }
+            if (mana.manaValue() == (int)mana.manaValue())
+                document.insertString(document.getLength(), "(" + (int)mana.manaValue() + ")\n", textStyle);
+            else
+                document.insertString(document.getLength(), "(" + mana.manaValue() + ")\n", textStyle);
+            if (!mana.colors().equals(colors))
+            {
+                for (ManaType color : colors)
+                {
+                    Style indicatorStyle = document.addStyle("indicator", document.getStyle("text"));
+                    StyleConstants.setForeground(indicatorStyle, color.color);
+                    document.insertString(document.getLength(), String.valueOf(UnicodeSymbols.BULLET), indicatorStyle);
+                }
+                if (!colors().isEmpty())
+                    document.insertString(document.getLength(), " ", textStyle);
+            }
+            if (printed)
+                document.insertString(document.getLength(), printedTypes + '\n', textStyle);
+            else
+                document.insertString(document.getLength(), typeLine + '\n', textStyle);
+            document.insertString(document.getLength(), expansion().name + ' ' + rarity() + '\n', textStyle);
+
+            String abilities = printed ? this.printed : text;
+            if (!abilities.isEmpty())
+            {
+                int start = 0;
+                Style style = textStyle;
+                for (int i = 0; i < abilities.length(); i++)
+                {
+                    if (i == 0 || abilities.charAt(i) == '\n')
+                    {
+                        int nextLine = abilities.substring(i + 1).indexOf('\n');
+                        int dash = (nextLine > -1 ? abilities.substring(i, nextLine + i) : abilities.substring(i)).indexOf(UnicodeSymbols.EM_DASH);
+                        if (dash > -1)
+                        {
+                            dash += i;
+                            if (i > 0)
+                                document.insertString(document.getLength(), abilities.substring(start, i), style);
+                            start = i;
+                            // Assume that the dash used for ability words is surrounded by spaces, but not
+                            // for keywords with cost parameters when the cost is nonmana cost
+                            if (abilities.charAt(dash - 1) == ' ' && abilities.charAt(dash + 1) == ' ')
+                                style = reminderStyle;
+                        }
+                    }
+                    switch (abilities.charAt(i))
+                    {
+                    case '{':
+                        document.insertString(document.getLength(), abilities.substring(start, i), style);
+                        start = i + 1;
+                        break;
+                    case '}':
+                        var symbol = Symbol.tryParseSymbol(abilities.substring(start, i));
+                        if (symbol.isEmpty())
+                        {
+                            System.err.println("Unexpected symbol {" + abilities.substring(start, i) + "} in oracle text for " + unifiedName() + ".");
+                            document.insertString(document.getLength(), abilities.substring(start, i), textStyle);
+                        }
+                        else
+                        {
+                            Style symbolStyle = document.addStyle(symbol.get().toString(), null);
+                            StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE));
+                            document.insertString(document.getLength(), symbol.get().toString(), symbolStyle);
+                        }
+                        start = i + 1;
+                        break;
+                    case '(':
+                        document.insertString(document.getLength(), abilities.substring(start, i), style);
+                        style = reminderStyle;
+                        start = i;
+                        break;
+                    case ')':
+                        document.insertString(document.getLength(), abilities.substring(start, i + 1), style);
+                        style = textStyle;
+                        start = i + 1;
+                        break;
+                    case 'C':
+                        if (i < abilities.length() - 5 && abilities.substring(i, i + 5).equals("CHAOS"))
+                        {
+                            document.insertString(document.getLength(), abilities.substring(start, i), style);
+                            document.insertString(document.getLength(), "CHAOS", chaosStyle);
+                            start = i += 5;
+                        }
+                        break;
+                    case UnicodeSymbols.EM_DASH:
+                        document.insertString(document.getLength(), abilities.substring(start, i), style);
+                        style = textStyle;
+                        start = i;
+                        break;
+                    default:
+                        break;
+                    }
+                    if (i == abilities.length() - 1 && abilities.charAt(i) != '}' && abilities.charAt(i) != ')')
+                        document.insertString(document.getLength(), abilities.substring(start, i + 1), style);
+                }
+                document.insertString(document.getLength(), "\n", textStyle);
+            }
+            if (!flavor.isEmpty())
+            {
+                int start = 0;
+                for (int i = 0; i < flavor.length(); i++)
+                {
+                    switch (flavor.charAt(i))
+                    {
+                    case '{':
+                        document.insertString(document.getLength(), flavor.substring(start, i), reminderStyle);
+                        start = i + 1;
+                        break;
+                    case '}':
+                        var symbol = Symbol.tryParseSymbol(flavor.substring(start, i));
+                        if (symbol.isEmpty())
+                        {
+                            System.err.println("Unexpected symbol {" + flavor.substring(start, i) + "} in flavor text for " + unifiedName() + ".");
+                            document.insertString(document.getLength(), flavor.substring(start, i), reminderStyle);
+                        }
+                        else
+                        {
+                            Style symbolStyle = document.addStyle(symbol.get().toString(), null);
+                            StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE));
+                            document.insertString(document.getLength(), " ", symbolStyle);
+                        }
+                        start = i + 1;
+                        break;
+                    default:
+                        break;
+                    }
+                    if (i == flavor.length() - 1 && flavor.charAt(i) != '}')
+                        document.insertString(document.getLength(), flavor.substring(start, i + 1), reminderStyle);
+                }
+                document.insertString(document.getLength(), "\n", reminderStyle);
+            }
+
+            if (power.exists() && toughness.exists())
+                document.insertString(document.getLength(), power + "/" + toughness + "\n", textStyle);
+            else if (loyalty.exists())
+                document.insertString(document.getLength(), loyalty + "\n", textStyle);
+
+            document.insertString(document.getLength(), artist + " " + number + "/" + expansion().count, textStyle);
+        }
+        catch (BadLocationException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void formatDocument(StyledDocument document, boolean printed, int face)
+    {
+        formatDocument(document, printed);
     }
 }

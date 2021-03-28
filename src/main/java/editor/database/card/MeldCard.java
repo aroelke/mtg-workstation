@@ -20,10 +20,6 @@ import editor.util.Lazy;
 public class MeldCard extends MultiCard
 {
     /**
-     * Converted mana costs of this MeldCard's faces.
-     */
-    private Lazy<List<Double>> cmc;
-    /**
      * Front face of this MeldCard.
      */
     private final Card front;
@@ -54,18 +50,17 @@ public class MeldCard extends MultiCard
             throw new IllegalArgumentException("can't join non-meld cards into meld cards");
 
         manaCost = new Lazy<>(() -> List.of(front.manaCost().get(0), new ManaCost()));
-        cmc = new Lazy<>(() -> List.of(front.cmc().get(0), front.cmc().get(0) + other.cmc().get(0)));
     }
 
     /**
      * {@inheritDoc}
-     * While only the front face has a mana cost, the back face's converted mana cost
-     * is the sum of those of its two front faces.
+     * The mana value of a meld card is that of its front face (after melding it's the
+     * sum of the two faces).
      */
     @Override
-    public List<Double> cmc()
+    public double manaValue()
     {
-        return cmc.get();
+        return front.manaValue();
     }
 
     /**
@@ -92,8 +87,8 @@ public class MeldCard extends MultiCard
 
     /**
      * {@inheritDoc}
-     * The back face of a MeldCard has no mana cost (but does have a converted mana cost,
-     * see {@link MeldCard#cmc()}).
+     * The back face of a MeldCard has no mana cost (but does have a mana value,
+     * see {@link MeldCard#manaValue()}).
      */
     @Override
     public List<ManaCost> manaCost()

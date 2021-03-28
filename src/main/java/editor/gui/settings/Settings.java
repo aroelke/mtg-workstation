@@ -405,13 +405,16 @@ public final class Settings
         public final HandSettings hand;
         /** @see LegalitySettings */
         public final LegalitySettings legality;
+        /** Which mana value of cards with multiple values to use. */
+        public final String manaValue;
 
         private EditorSettings(int recentsCount, List<String> recentsFiles,
                                  int explicits,
                                  List<CategorySpec> presetCategories, int categoryRows,
                                  List<CardAttribute> columns, Color stripe,
                                  int handSize, String handRounding, Color handBackground,
-                                 boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
+                                 boolean searchForCommander, boolean main, boolean all, String list, String sideboard,
+                                 String manaValue)
         {
             this.recents = new RecentsSettings(recentsCount, recentsFiles);
             this.categories = new CategoriesSettings(presetCategories, categoryRows, explicits);
@@ -419,6 +422,7 @@ public final class Settings
             this.stripe = stripe;
             this.hand = new HandSettings(handSize, handRounding, handBackground);
             this.legality = new LegalitySettings(searchForCommander, main, all, list, sideboard);
+            this.manaValue = manaValue;
         }
 
         private EditorSettings()
@@ -429,6 +433,7 @@ public final class Settings
             stripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
             hand = new HandSettings();
             legality = new LegalitySettings();
+            manaValue = "Minimum";
         }
 
         @Override
@@ -464,10 +469,10 @@ public final class Settings
     /** Initial directory of file choosers. */
     public final String cwd;
 
-    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String cwd)
+    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, String cwd)
     {
         this.inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
-        this.editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard);
+        this.editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard, manaValue);
         this.cwd = cwd;
     }
 

@@ -27,4 +27,14 @@ public class ModalCard extends MultiCard
         if (front.layout() != CardLayout.MODAL_DFC || b.layout() != CardLayout.MODAL_DFC)
             throw new IllegalArgumentException("can't join non-modal-double-faced cards into modal double-faced cards");
     }
+
+    /**
+     * {@inheritDoc}
+     * The mana value of a modal card is that of the front face (until you cast it or it enters the battlefield,
+     * at which point it becomes that of the side facing up).
+     */
+    public double manaValue()
+    {
+        return front.manaValue();
+    }
 }

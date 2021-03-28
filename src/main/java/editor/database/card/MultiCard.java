@@ -12,6 +12,9 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.swing.text.Style;
+import javax.swing.text.StyledDocument;
+
 import editor.database.attributes.CombatStat;
 import editor.database.attributes.Legality;
 import editor.database.attributes.Loyalty;
@@ -35,10 +38,6 @@ public abstract class MultiCard extends Card
      * List containing the artist of each of this MultiCard's faces.
      */
     private Lazy<List<String>> artist;
-    /**
-     * List of converted mana costs of the faces of this MultiCard.
-     */
-    private Lazy<List<Double>> cmc;
     /**
      * Tuple of the color identity of this MultiCard.
      */
@@ -161,7 +160,6 @@ public abstract class MultiCard extends Card
 
         name = new Lazy<>(() -> collect(Card::name));
         manaCost = new Lazy<>(() -> collect(Card::manaCost));
-        cmc = new Lazy<>(() -> collect(Card::cmc));
         colors = new Lazy<>(() -> {
             var sorted = new ArrayList<>(faces.stream().flatMap((c) -> c.colors().stream()).collect(Collectors.toSet()));
             ManaType.sort(sorted);
@@ -219,12 +217,6 @@ public abstract class MultiCard extends Card
     public List<String> artist()
     {
         return artist.get();
-    }
-
-    @Override
-    public List<Double> cmc()
-    {
-        return cmc.get();
     }
 
     /**
@@ -296,6 +288,24 @@ public abstract class MultiCard extends Card
     public List<ManaCost> manaCost()
     {
         return manaCost.get();
+    }
+
+    @Override
+    public double minManaValue()
+    {
+        return faces.stream().mapToDouble(Card::manaValue).min().orElseThrow(() -> new IllegalStateException("multi card with no faces"));
+    }
+
+    @Override
+    public double maxManaValue()
+    {
+        return faces.stream().mapToDouble(Card::manaValue).max().orElseThrow(() -> new IllegalStateException("multi card with no faces"));
+    }
+
+    @Override
+    public double avgManaValue()
+    {
+        return faces.stream().mapToDouble(Card::manaValue).average().orElseThrow(() -> new IllegalStateException("multi card with no faces"));
     }
 
     @Override
@@ -386,5 +396,30 @@ public abstract class MultiCard extends Card
     public Set<String> types()
     {
         return types.get();
+    }
+
+    @Override
+    public void formatDocument(StyledDocument document, boolean printed)
+    {
+        Style textStyle = document.getStyle("text");
+        try
+        {
+            for (int f = 0; f < faces.size(); f++)
+            {
+                formatDocument(document, printed, f);
+                if (f < faces.size() - 1)
+                    document.insertString(document.getLength(), "\n" + TEXT_SEPARATOR + "\n", textStyle);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void formatDocument(StyledDocument document, boolean printed, int f)
+    {
+        faces.get(f).formatDocument(document, printed);
     }
 }

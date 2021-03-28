@@ -14,10 +14,6 @@ import editor.util.Lazy;
 public class TransformCard extends MultiCard
 {
     /**
-     * Converted mana costs of this DoubleFacedCard's faces.
-     */
-    private Lazy<List<Double>> cmc;
-    /**
      * Card representing the front face.
      */
     private final Card front;
@@ -41,18 +37,16 @@ public class TransformCard extends MultiCard
             throw new IllegalArgumentException("can't join non-double-faced cards into double-faced cards");
 
         manaCost = new Lazy<>(() -> List.of(front.manaCost().get(0), new ManaCost()));
-        cmc = new Lazy<>(() -> List.of(front.cmc().get(0), front.cmc().get(0)));
     }
 
     /**
      * {@inheritDoc}
-     * While only the front face has a mana cost (see {@link TransformCard#manaCost()},
-     * both faces have the same converted mana cost.
+     * A transform card's mana value is that of its front face.
      */
     @Override
-    public List<Double> cmc()
+    public double manaValue()
     {
-        return cmc.get();
+        return front.manaValue();
     }
 
     /**

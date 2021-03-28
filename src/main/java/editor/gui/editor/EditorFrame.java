@@ -441,9 +441,9 @@ public class EditorFrame extends JInternalFrame
     public static final int MAIN_DECK = 0;
 
     /**
-     * Label showing the average CMC of nonland cards in the deck.
+     * Label showing the average mana value of nonland cards in the deck.
      */
-    private JLabel avgCMCLabel;
+    private JLabel avgManaValueLabel;
     /**
      * Panel containing categories.
      */
@@ -501,9 +501,9 @@ public class EditorFrame extends JInternalFrame
      */
     private JTabbedPane listTabs;
     /**
-     * Label showing the median CMC of nonland cards in the deck.
+     * Label showing the median mana value of nonland cards in the deck.
      */
-    private JLabel medCMCLabel;
+    private JLabel medManaValueLabel;
     /**
      * Menu containing sideboards to move cards from the main deck to one at a time.
      */
@@ -1002,11 +1002,11 @@ public class EditorFrame extends JInternalFrame
         nonlandLabel = new JLabel();
         statsPanel.add(nonlandLabel);
         statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE));
-        avgCMCLabel = new JLabel();
-        statsPanel.add(avgCMCLabel);
+        avgManaValueLabel = new JLabel();
+        statsPanel.add(avgManaValueLabel);
         statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE));
-        medCMCLabel = new JLabel();
-        statsPanel.add(medCMCLabel);
+        medManaValueLabel = new JLabel();
+        statsPanel.add(medManaValueLabel);
         statsPanel.add(Box.createHorizontalGlue());
         updateStats();
         GridBagConstraints statsConstraints = new GridBagConstraints();
@@ -1154,6 +1154,7 @@ public class EditorFrame extends JInternalFrame
         for (CategoryPanel category : categoryPanels)
             category.applySettings(this);
         startingHandSize = SettingsDialog.settings().editor.hand.size;
+        updateStats();
         update();
     }
 
@@ -2537,29 +2538,35 @@ public class EditorFrame extends JInternalFrame
         landLabel.setText("Lands: " + deck().current.land());
         nonlandLabel.setText("Nonlands: " + deck().current.nonland());
 
-        var cmc = deck().current.stream()
+        var manaValue = deck().current.stream()
             .filter((c) -> !c.typeContains("land"))
-            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), c.cmc().stream().min(Double::compare).orElse(0.0)).stream())
+            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), switch (SettingsDialog.settings().editor.manaValue) {
+                case "Minimum" -> c.minManaValue();
+                case "Maximum" -> c.maxManaValue();
+                case "Average" -> c.avgManaValue();
+                case "Real"    -> c.manaValue();
+                default -> Double.NaN;
+            }).stream())
             .sorted()
             .collect(Collectors.toList());
-        double avgCMC = cmc.stream().mapToDouble(Double::valueOf).average().orElse(0);
-        if ((int)avgCMC == avgCMC)
-            avgCMCLabel.setText("Average CMC: " + (int)avgCMC);
+        double avgManaValue = manaValue.stream().mapToDouble(Double::valueOf).average().orElse(0);
+        if ((int)avgManaValue == avgManaValue)
+            avgManaValueLabel.setText("Average mana value: " + (int)avgManaValue);
         else
-            avgCMCLabel.setText(String.format("Average CMC: %.2f", avgCMC));
+            avgManaValueLabel.setText(String.format("Average mana value: %.2f", avgManaValue));
 
-        double medCMC = 0.0;
-        if (!cmc.isEmpty())
+        double medManaValue = 0.0;
+        if (!manaValue.isEmpty())
         {
-            if (cmc.size() % 2 == 0)
-                medCMC = (cmc.get(cmc.size()/2 - 1) + cmc.get(cmc.size()/2))/2;
+            if (manaValue.size() % 2 == 0)
+                medManaValue = (manaValue.get(manaValue.size()/2 - 1) + manaValue.get(manaValue.size()/2))/2;
             else
-                medCMC = cmc.get(cmc.size()/2);
+                medManaValue = manaValue.get(manaValue.size()/2);
         }
-        if ((int)medCMC == medCMC)
-            medCMCLabel.setText("Median CMC: " + (int)medCMC);
+        if ((int)medManaValue == medManaValue)
+            medManaValueLabel.setText("Median mana value: " + (int)medManaValue);
         else
-            medCMCLabel.setText(String.format("Median CMC: %.1f", medCMC));
+            medManaValueLabel.setText(String.format("Median mana value: %.1f", medManaValue));
     }
 
     /**

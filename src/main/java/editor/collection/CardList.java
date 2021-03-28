@@ -81,7 +81,7 @@ public interface CardList extends Iterable<Card>
                 case NAME           -> card().unifiedName();
                 case LAYOUT         -> card().layout();
                 case MANA_COST      -> card().manaCost();
-                case CMC            -> card().cmc();
+                case MANA_VALUE            -> card().manaValue();
                 case COLORS         -> card().colors();
                 case COLOR_IDENTITY -> card().colorIdentity();
                 case TYPE_LINE      -> card().unifiedTypeLine();

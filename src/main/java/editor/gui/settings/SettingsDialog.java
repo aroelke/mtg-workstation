@@ -109,6 +109,11 @@ public class SettingsDialog extends JDialog
      * List of possible sites to download card images from.
      */
     public static final List<String> IMAGE_SOURCES = List.of("Scryfall", "Gatherer");
+    /**
+     * List of possible choices for mana value during analysis for cards that have
+     * more than one.
+     */
+    public static final List<String> MANA_VALUE_OPTIONS = List.of("Minimum", "Maximum", "Average", "Real");
 
     /**
      * Create the preview panel for a color chooser that customizes the stripe color
@@ -332,6 +337,8 @@ public class SettingsDialog extends JDialog
     private JCheckBox limitImageBox;
     /** Spinner containing the number of cached image to allow. */
     private JSpinner limitImageSpinner;
+    /** Combo box showing possible ways to analyze mana value. */
+    private JComboBox<String> manaValueBox;
 
     /**
      * Create a new SettingsDialog.
@@ -575,6 +582,17 @@ public class SettingsDialog extends JDialog
         explicitsPanel.setMaximumSize(new Dimension(explicitsPanel.getPreferredSize().width + 5, explicitsPanel.getPreferredSize().height));
         explicitsPanel.setAlignmentX(LEFT_ALIGNMENT);
         editorPanel.add(explicitsPanel);
+        editorPanel.add(Box.createVerticalStrut(5));
+
+        // Mana value choice for analysis
+        JPanel manaValuePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        manaValuePanel.add(new JLabel("Mana value to analyze:"));
+        manaValuePanel.add(Box.createHorizontalStrut(5));
+        manaValueBox = new JComboBox<>(MANA_VALUE_OPTIONS.toArray(String[]::new));
+        manaValuePanel.add(manaValueBox);
+        manaValuePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, manaValuePanel.getPreferredSize().height));
+        manaValuePanel.setAlignmentX(LEFT_ALIGNMENT);
+        editorPanel.add(manaValuePanel);
         editorPanel.add(Box.createVerticalStrut(5));
 
         editorPanel.add(Box.createVerticalGlue());
@@ -828,6 +846,7 @@ public class SettingsDialog extends JDialog
                 scanBGChooser.setColor(settings.inventory.background);
                 recentSpinner.getModel().setValue(settings.editor.recents.count);
                 explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor.categories.explicits));
+                manaValueBox.setSelectedIndex(Math.max(MANA_VALUE_OPTIONS.indexOf(settings.editor.manaValue), 0));
                 for (CategorySpec preset : settings.editor.categories.presets)
                     categoriesList.addCategory(new CategorySpec(preset));
                 rowsSpinner.getModel().setValue(settings.editor.categories.rows);
@@ -898,6 +917,7 @@ public class SettingsDialog extends JDialog
                 .inventoryStripe(inventoryStripeColor.getColor())
                 .recentsCount((Integer)recentSpinner.getValue())
                 .explicits((Integer)explicitsSpinner.getValue())
+                .manaValue(manaValueBox.getItemAt(manaValueBox.getSelectedIndex()))
                 .categoryRows((Integer)rowsSpinner.getValue())
                 .editorColumns(editorColumnCheckBoxes.entrySet().stream().filter((e) -> e.getValue().isSelected()).map(Map.Entry::getKey).sorted().collect(Collectors.toList()))
                 .editorStripe(editorStripeColor.getColor())

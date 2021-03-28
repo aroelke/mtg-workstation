@@ -53,22 +53,22 @@ public interface FilterPanelFactory
         return switch (filter.type()) {
             case NAME, RULES_TEXT, FLAVOR_TEXT, PRINTED_TEXT, ARTIST, PRINTED_TYPES -> new TextFilterPanel((TextFilter)filter);
             case POWER, TOUGHNESS, LOYALTY -> new VariableNumberFilterPanel((VariableNumberFilter)filter);
-            case CMC, CARD_NUMBER -> new NumberFilterPanel((NumberFilter)filter);
+            case MANA_VALUE, MIN_VALUE, MAX_VALUE, CARD_NUMBER -> new NumberFilterPanel((NumberFilter)filter);
             case COLORS, COLOR_IDENTITY -> new ColorFilterPanel((ColorFilter)filter);
-            case LAYOUT          -> new OptionsFilterPanel<>((LayoutFilter)filter, CardLayout.values());
-            case MANA_COST       -> new ManaCostFilterPanel((ManaCostFilter)filter);
-            case TYPE_LINE       -> new TypeLineFilterPanel((TypeLineFilter)filter);
-            case SUPERTYPE       -> new OptionsFilterPanel<>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
-            case CARD_TYPE       -> new OptionsFilterPanel<>((CardTypeFilter)filter, CardTypeFilter.typeList);
-            case SUBTYPE         -> new OptionsFilterPanel<>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
-            case EXPANSION  -> new OptionsFilterPanel<>((ExpansionFilter)filter, Expansion.expansions);
-            case BLOCK           -> new OptionsFilterPanel<>((BlockFilter)filter, Expansion.blocks);
-            case RARITY          -> new OptionsFilterPanel<>((RarityFilter)filter, Rarity.values());
-            case LEGAL_IN        -> new LegalityFilterPanel((LegalityFilter)filter);
-            case TAGS            -> new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
-            case DEFAULTS        -> new DefaultsFilterPanel();
-            case NONE            -> new BinaryFilterPanel(false);
-            case ANY             -> new BinaryFilterPanel(true);
+            case LAYOUT    -> new OptionsFilterPanel<>((LayoutFilter)filter, CardLayout.values());
+            case MANA_COST -> new ManaCostFilterPanel((ManaCostFilter)filter);
+            case TYPE_LINE -> new TypeLineFilterPanel((TypeLineFilter)filter);
+            case SUPERTYPE -> new OptionsFilterPanel<>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
+            case CARD_TYPE -> new OptionsFilterPanel<>((CardTypeFilter)filter, CardTypeFilter.typeList);
+            case SUBTYPE   -> new OptionsFilterPanel<>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
+            case EXPANSION -> new OptionsFilterPanel<>((ExpansionFilter)filter, Expansion.expansions);
+            case BLOCK     -> new OptionsFilterPanel<>((BlockFilter)filter, Expansion.blocks);
+            case RARITY    -> new OptionsFilterPanel<>((RarityFilter)filter, Rarity.values());
+            case LEGAL_IN  -> new LegalityFilterPanel((LegalityFilter)filter);
+            case TAGS      -> new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
+            case DEFAULTS  -> new DefaultsFilterPanel();
+            case NONE      -> new BinaryFilterPanel(false);
+            case ANY       -> new BinaryFilterPanel(true);
             default -> throw new IllegalArgumentException("No panel exists for filters of type " + filter.toString());
         };
     }

@@ -58,8 +58,12 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, Card::normalizedPrinted)),
     /** Mana cost of a card. */
     MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter(), Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0))),
-    /** Converted mana cost of a card. */
-    CMC("CMC", List.class, (a) -> new NumberFilter(a, Card::cmc), Comparator.comparingDouble((a) -> Collections.min(CollectionUtils.convertToList(a, Double.class)))),
+    /** Mana value of a card. */
+    MANA_VALUE("Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.manaValue())), (a, b) -> ((Double)a).compareTo((Double)b)),
+    /** Smallest mana value of a card. */
+    MIN_VALUE("Min Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.minManaValue())), (a, b) -> ((Double)a).compareTo((Double)b)),
+    /** Largest mana value of a card. */
+    MAX_VALUE("Max Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.maxManaValue())), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Colors of all faces of a card. */
     COLORS("Colors", List.class, (a) -> new ColorFilter(a, Card::colors), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);
@@ -175,6 +179,11 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
         for (CardAttribute c : CardAttribute.values())
             if (c.toString().equalsIgnoreCase(s))
                 return c;
+        // Mana value special case for old converted mana cost terminology
+        // (since this is the only case of this so far, it's not worth creating
+        // a new field for it)
+        if (s.equalsIgnoreCase("cmc"))
+            return MANA_VALUE;
         throw new IllegalArgumentException("Unknown attribute \"" + s + "\"");
     }
 

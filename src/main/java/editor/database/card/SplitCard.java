@@ -18,9 +18,9 @@ import editor.util.Lazy;
 public class SplitCard extends MultiCard
 {
     /**
-     * Converted mana costs of this SplitCard's faces.
+     * Mana value of this SplitCard.
      */
-    private Lazy<List<Double>> cmc;
+    private Lazy<Double> manaValue;
 
     /**
      * Create a new SplitCard with the given Cards as faces.
@@ -48,18 +48,17 @@ public class SplitCard extends MultiCard
             if (face.layout() != f.get(0).layout())
                 throw new IllegalArgumentException("all faces of a split card must be of the same type");
 
-        cmc = new Lazy<>(() -> Collections.unmodifiableList(Collections.nCopies(f.size(), f.stream().mapToDouble((c) -> c.cmc().get(0)).sum())));
+        manaValue = new Lazy<>(() -> f.stream().mapToDouble((c) -> c.manaValue()).sum());
     }
 
     /**
      * {@inheritDoc}
-     * The converted mana cost of a split card is the sum of the converted mana costs of all
-     * of its faces.
+     * The mana value of a split card is the sum of those of all of its faces.
      */
     @Override
-    public List<Double> cmc()
+    public double manaValue()
     {
-        return cmc.get();
+        return manaValue.get();
     }
 
     /**
