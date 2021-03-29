@@ -1192,11 +1192,15 @@ public class MainFrame extends JFrame
             }
             catch (FileNotFoundException x)
             {
-                version = "0.0.0<fnf>";
+                version = "0.0.0:fnf";
             }
             catch (IOException x)
             {
-                version = "0.0.0<io>";
+                version = "0.0.0:io";
+            }
+            catch (Exception x)
+            {
+                version = "0.0.0:x";
             }
             JOptionPane.showMessageDialog(MainFrame.this, "<html>MTG Workstation version " + version + ".<br>Created by Alec Roelke (alec.roelke@gmail.com).<br>File bug reports at https://github.com/aroelke/mtg-workstation.</html>", "About", JOptionPane.INFORMATION_MESSAGE);
         });
