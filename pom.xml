@@ -1,10 +1,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <groupId>editor</groupId>
+  <artifactId>mtg-workstation</artifactId>
   <version>1.1.1</version>
   <name>MTG Workstation</name>
+
   <build>
     <plugins>
+    <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.0.0</version>
+        <executions>
+          <execution>
+            <phase>initialize</phase>
+            <goals>
+              <goal>read-project-properties</goal>
+            </goals>
+            <configuration>
+              <files>
+                <file>src/main/resources/project.properties</file>
+              </files>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.7.0</version>
@@ -61,8 +83,6 @@
       </plugin>
     </plugins>
   </build>
-  <groupId>editor</groupId>
-  <artifactId>mtg-workstation</artifactId>
   <dependencies>
     <dependency>
       <groupId>com.google.code.gson</groupId>

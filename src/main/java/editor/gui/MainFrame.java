@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -1176,6 +1178,35 @@ public class MainFrame extends JFrame
         // Help menu
         JMenu helpMenu = new JMenu("Help");
         menuBar.add(helpMenu);
+
+        // About dialog
+        JMenuItem aboutItem = new JMenuItem("About...");
+        helpMenu.add(aboutItem);
+        aboutItem.addActionListener((e) -> {
+            String version;
+            try (InputStream is = MainFrame.class.getResourceAsStream("/project.properties"))
+            {
+                Properties p = new Properties();
+                p.load(is);
+                version = p.getProperty("version");
+            }
+            catch (FileNotFoundException x)
+            {
+                version = "0.0.0:fnf";
+            }
+            catch (IOException x)
+            {
+                version = "0.0.0:io";
+            }
+            catch (Exception x)
+            {
+                version = "0.0.0:x";
+            }
+            JOptionPane.showMessageDialog(MainFrame.this, "<html>MTG Workstation version " + version + ".<br>" +
+                                                          "Created by Alec Roelke (alec.roelke@gmail.com).<br>" +
+                                                          "File bug reports at https://github.com/aroelke/mtg-workstation.</html>", "About", JOptionPane.INFORMATION_MESSAGE);
+        });
+        helpMenu.add(new JSeparator());
 
         // Inventory update item
         JMenuItem updateInventoryItem = new JMenuItem("Check for inventory update...");
