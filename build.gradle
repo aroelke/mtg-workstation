@@ -22,4 +22,5 @@ mainClassName = 'editor.gui.MainFrame'
 group = 'editor'
 version = p['version']
 description = 'MTG Workstation'
-java.sourceCompatibility = JavaVersion.VERSION_15
+sourceCompatibility = 15
+targetCompatibility = 15
