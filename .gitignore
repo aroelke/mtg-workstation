@@ -1,8 +1,10 @@
 *.json
 .classpath
 .project
-target/
 .vscode/
 .settings/
-/scans/
+gradle/
+.gradle/
+build/
 /*.exe
+bin/
