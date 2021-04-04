@@ -37,15 +37,21 @@ jar {
 }
 
 task jpackage(type: Exec) {
-    commandLine 'jpackage',
+    def commonArgs = [
         '--input', shadowJar.destinationDirectory.asFile.get(),
         '--main-jar', shadowJar.archiveFileName.get(),
         '--name', 'MTG Workstation',
-        '--win-dir-chooser', '--win-menu', '--win-shortcut',
-        '--java-options', '-Dsun.java2d.d3d=false',
         '--icon', 'src\\main\\resources\\icon\\icon.ico',
         '--app-version', version,
         '--dest', buildDir
+    ]
+
+    def winArgs = [
+        '--win-dir-chooser', '--win-menu', '--win-shortcut',
+        '--java-options', '-Dsun.java2d.d3d=false'
+    ]
+
+    commandLine(['jpackage'] + commonArgs + winArgs)
 }
 
 jpackage.dependsOn shadowJar
