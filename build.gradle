@@ -26,6 +26,10 @@ description = 'MTG Workstation'
 sourceCompatibility = 15
 targetCompatibility = 15
 
+application {
+    applicationDefaultJvmArgs = ['-Dsun.java2d.d3d=false']
+}
+
 jar {
     manifest {
         attributes('Main-Class': mainClassName)
@@ -38,8 +42,10 @@ task jpackage(type: Exec) {
         '--main-jar', shadowJar.archiveFileName.get(),
         '--name', 'MTG Workstation',
         '--win-dir-chooser', '--win-menu', '--win-shortcut',
+        '--java-options', '-Dsun.java2d.d3d=false',
         '--icon', 'src\\main\\resources\\icon\\icon.ico',
-        '--app-version', version
+        '--app-version', version,
+        '--dest', buildDir
 }
 
 jpackage.dependsOn shadowJar
