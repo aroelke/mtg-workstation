@@ -2,6 +2,7 @@ package editor.gui.display;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -17,13 +18,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,7 +37,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -71,19 +79,18 @@ public class CardImagePanel extends JPanel
      */
     public static final String SCRYFALL_FORMAT = "https://api.scryfall.com/cards/%s?format=image%s";
 
+    private static final Collection<JProgressBar> progressBars = new HashSet<JProgressBar>();
+    private static final Collection<JLabel> progressLabels = new HashSet<JLabel>();
+
     /**
      * This class represents a request by a CardImagePanel to download the image(s)
      * of a Card.
      */
     private static class DownloadRequest
     {
-        /**
-         * CardImagePanel that needs to download a card.
-         */
+        /** CardImagePanel that needs to download a card. */
         public final CardImagePanel source;
-        /**
-         * Card that needs to be downloaded.
-         */
+        /** Card that needs to be downloaded. */
         public final Card card;
 
         /**
@@ -103,12 +110,13 @@ public class CardImagePanel extends JPanel
      * This class represents a worker that downloads a card image for its parent CardImagePanel
      * from Gatherer.
      */
-    private static class ImageDownloadWorker extends SwingWorker<Void, DownloadRequest>
+    private static class ImageDownloadWorker extends SwingWorker<Void, Integer>
     {
         /**
          * Queue of cards whose images still need to be downloaded.
          */
         private BlockingQueue<DownloadRequest> toDownload;
+        private int size;
 
         /**
          * Create a new ImageDownloadWorker.
@@ -117,6 +125,7 @@ public class CardImagePanel extends JPanel
         {
             super();
             toDownload = new LinkedBlockingQueue<>();
+            size = 0;
         }
 
         /**
@@ -150,14 +159,32 @@ public class CardImagePanel extends JPanel
                     {
                         urls.get(f).ifPresent((site) -> {
                             files.get(f).getParentFile().mkdirs();
-                            try (BufferedInputStream in = new BufferedInputStream(site.openStream()))
+                            try
                             {
-                                try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(files.get(f))))
+                                URLConnection connection = site.openConnection();
+                                size = connection.getContentLength();
+                                int downloaded = 0;
+                                SwingUtilities.invokeLater(() -> {
+                                    for (var bar : progressBars)
+                                    {
+                                        bar.setEnabled(true);
+                                        bar.setMaximum(size);
+                                    }
+                                    for (var label : progressLabels)
+                                        label.setText("Downloading image of " + req.card.unifiedName() + " ...");
+                                });
+                                try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream()))
                                 {
-                                    byte[] data = new byte[1024];
-                                    int x;
-                                    while ((x = in.read(data)) > 0)
-                                        out.write(data, 0, x);
+                                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(files.get(f))))
+                                    {
+                                        byte[] data = new byte[1024];
+                                        int x;
+                                        while ((x = in.read(data)) > 0)
+                                        {
+                                            out.write(data, 0, x);
+                                            publish(downloaded += x);
+                                        }
+                                    }
                                 }
                             }
                             catch (Exception e)
@@ -192,16 +219,28 @@ public class CardImagePanel extends JPanel
                             Arrays.stream(images).min(Comparator.comparingLong(File::lastModified)).ifPresent(File::delete);
                     } while (count > SettingsDialog.settings().inventory.imageLimit);
                 }
-                publish(req);
+                SwingUtilities.invokeLater(() -> {
+                    if (req.source.card == req.card)
+                        req.source.loadImages();
+                });
+                publish(0);
+                if (toDownload.isEmpty())
+                {
+                    SwingUtilities.invokeLater(() -> {
+                        for (var bar : progressBars)
+                            bar.setEnabled(false);
+                        for (var label : progressLabels)
+                            label.setText("");
+                    });
+                }
             }
         }
 
         @Override
-        protected void process(List<DownloadRequest> chunks)
+        protected void process(List<Integer> chunks)
         {
-            for (DownloadRequest req: chunks)
-                if (req.source.card == req.card)
-                    req.source.loadImages();
+            for (var bar : progressBars)
+                bar.setValue(chunks.get(chunks.size() - 1));
         }
     }
 
@@ -231,6 +270,29 @@ public class CardImagePanel extends JPanel
         default:
             return Collections.emptyList();
         }
+    }
+
+    /**
+     * Create a panel that contains a progress bar and a label to show updates and progress for cards
+     * whose images are being downloaded.
+     * 
+     * @return A {@link JPanel} containing a {@link JProgressBar} and a {@link JLabel} arranged
+     * horizontally.
+     */
+    public static JPanel createStatusBar()
+    {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        panel.setBorder(BorderFactory.createEtchedBorder());
+        JProgressBar bar = new JProgressBar();
+        bar.setEnabled(false);
+        panel.add(bar);
+        panel.add(Box.createHorizontalStrut(5));
+        JLabel label = new JLabel();
+        panel.add(label);
+
+        progressBars.add(bar);
+        progressLabels.add(label);
+        return panel;
     }
 
     /**

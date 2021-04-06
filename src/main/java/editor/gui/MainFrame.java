@@ -1539,6 +1539,8 @@ public class MainFrame extends JFrame
         editorSplit.setContinuousLayout(true);
         contentPane.add(editorSplit, BorderLayout.CENTER);
 
+        contentPane.add(CardImagePanel.createStatusBar(), BorderLayout.SOUTH);
+
         // File chooser
         fileChooser = new OverwriteFileChooser(SettingsDialog.settings().cwd);
         fileChooser.setMultiSelectionEnabled(false);
