@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -442,11 +443,11 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             var costs = new HashMap<String, ManaCost>();
             var colorLists = new HashMap<String, List<ManaType>>();
             var allSupertypes = new HashMap<String, String>();
-            var supertypeSets = new HashMap<String, Set<String>>();
+            var supertypeSets = new HashMap<String, LinkedHashSet<String>>();
             var allTypes = new HashMap<String, String>();
-            var typeSets = new HashMap<String, Set<String>>();
+            var typeSets = new HashMap<String, LinkedHashSet<String>>();
             var allSubtypes = new HashMap<String, String>();
-            var subtypeSets = new HashMap<String, Set<String>>();
+            var subtypeSets = new HashMap<String, LinkedHashSet<String>>();
             var printedTypes = new HashMap<String, String>();
             var texts = new HashMap<String, String>();
             var flavors = new HashMap<String, String>();
@@ -560,19 +561,19 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                             return Collections.unmodifiableList(col);
                         }),
                         supertypeSets.computeIfAbsent(card.get("supertypes").getAsJsonArray().toString(), (k) -> {
-                            var s = new HashSet<String>();
+                            var s = new LinkedHashSet<String>();
                             for (JsonElement e : card.get("supertypes").getAsJsonArray())
                                 s.add(allSupertypes.computeIfAbsent(e.getAsString(), Function.identity()));
                             return s;
                         }),
                         typeSets.computeIfAbsent(card.get("types").getAsJsonArray().toString(), (str) -> {
-                            var s = new HashSet<String>();
+                            var s = new LinkedHashSet<String>();
                             for (JsonElement e : card.get("types").getAsJsonArray())
                                 s.add(allTypes.computeIfAbsent(e.getAsString(), Function.identity()));
                             return s;
                         }),
                         subtypeSets.computeIfAbsent(card.get("subtypes").getAsJsonArray().toString(), (k) -> {
-                            var s = new HashSet<String>();
+                            var s = new LinkedHashSet<String>();
                             for (JsonElement e : card.get("subtypes").getAsJsonArray())
                                 s.add(allSubtypes.computeIfAbsent(e.getAsString(), Function.identity()));
                             return s;
