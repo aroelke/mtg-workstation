@@ -28,7 +28,6 @@ import editor.util.MouseListenerFactory;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class InclusionCellEditor extends AbstractCellEditor implements TableCellEditor
 {
     /**

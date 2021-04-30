@@ -19,7 +19,6 @@ import javax.swing.JButton;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class VerticalButtonList extends Box implements Iterable<JButton>
 {
     /**

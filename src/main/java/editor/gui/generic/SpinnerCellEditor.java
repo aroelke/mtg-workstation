@@ -18,7 +18,6 @@ import javax.swing.SpinnerNumberModel;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class SpinnerCellEditor extends DefaultCellEditor
 {
     /**

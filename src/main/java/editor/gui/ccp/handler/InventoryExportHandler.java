@@ -16,7 +16,6 @@ import editor.gui.ccp.data.CardTransferData;
  * 
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class InventoryExportHandler extends TransferHandler
 {
     /** Function for generating the list of cards to export. */

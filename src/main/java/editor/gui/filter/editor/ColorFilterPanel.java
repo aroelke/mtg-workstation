@@ -26,7 +26,6 @@ import editor.util.Containment;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 {
     /**

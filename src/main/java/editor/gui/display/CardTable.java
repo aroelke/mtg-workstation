@@ -32,7 +32,6 @@ import editor.util.CollectionUtils;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CardTable extends JTable
 {
     /**

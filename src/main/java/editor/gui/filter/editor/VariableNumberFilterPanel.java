@@ -20,7 +20,6 @@ import editor.util.Comparison;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberFilter>
 {
     /**

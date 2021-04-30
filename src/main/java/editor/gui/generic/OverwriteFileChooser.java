@@ -12,7 +12,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class OverwriteFileChooser extends JFileChooser
 {
     /**

@@ -63,7 +63,6 @@ import editor.gui.settings.SettingsDialog;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CardImagePanel extends JPanel
 {
     /**

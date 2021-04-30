@@ -77,7 +77,6 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class SettingsDialog extends JDialog
 {
     /**

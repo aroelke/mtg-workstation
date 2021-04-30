@@ -169,7 +169,6 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class MainFrame extends JFrame
 {
     /**

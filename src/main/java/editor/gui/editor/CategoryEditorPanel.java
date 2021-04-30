@@ -34,7 +34,6 @@ import editor.gui.generic.ScrollablePanel;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CategoryEditorPanel extends JPanel
 {
     /**

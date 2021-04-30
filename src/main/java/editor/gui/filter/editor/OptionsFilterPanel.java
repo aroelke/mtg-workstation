@@ -40,7 +40,6 @@ import editor.util.UnicodeSymbols;
  * @param <T> Type that the options presented have
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
 {
     /**

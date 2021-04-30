@@ -15,7 +15,6 @@ import editor.gui.editor.IncludeExcludePanel;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CardTableModel extends AbstractTableModel
 {
     /**

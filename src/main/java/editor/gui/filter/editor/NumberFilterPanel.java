@@ -19,7 +19,6 @@ import editor.util.Comparison;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 {
     /**

@@ -38,7 +38,6 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CardTableCellRenderer extends DefaultTableCellRenderer
 {
     /** Internal cache of icon sets to speed up resizing. */

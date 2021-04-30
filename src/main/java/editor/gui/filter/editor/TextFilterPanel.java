@@ -23,7 +23,6 @@ import editor.util.Containment;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 {
     /**

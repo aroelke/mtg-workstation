@@ -11,7 +11,6 @@ import javax.swing.JButton;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class ColorButton extends JButton
 {
     /**

@@ -20,7 +20,6 @@ import editor.util.Containment;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 {
     /** Color to display if the entered cost is valid (i.e. can be parsed according to {@link ManaCost#tryParseManaCost(String)}). */

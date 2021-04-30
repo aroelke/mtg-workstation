@@ -49,7 +49,6 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class LegalityPanel extends Box
 {
     /** Item to show for searching the main deck. */

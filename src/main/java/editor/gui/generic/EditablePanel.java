@@ -38,7 +38,6 @@ import editor.util.MouseListenerFactory;
  * 
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class EditablePanel extends JPanel
 {
     /**

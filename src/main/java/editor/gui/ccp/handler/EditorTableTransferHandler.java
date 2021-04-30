@@ -18,7 +18,6 @@ import editor.gui.editor.EditorFrame;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class EditorTableTransferHandler extends EditorFrameTransferHandler
 {
     /** Editor containing the deck to import cards into. */

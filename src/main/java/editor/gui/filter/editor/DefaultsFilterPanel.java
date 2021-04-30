@@ -19,7 +19,6 @@ import editor.gui.settings.SettingsDialog;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 {
     /**

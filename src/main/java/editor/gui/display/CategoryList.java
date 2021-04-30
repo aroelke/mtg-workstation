@@ -33,7 +33,6 @@ import editor.util.PopupMenuListenerFactory;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CategoryList extends JList<String>
 {
     /**

@@ -16,7 +16,6 @@ import editor.gui.settings.SettingsDialog;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CardJList extends JList<String>
 {
     /**

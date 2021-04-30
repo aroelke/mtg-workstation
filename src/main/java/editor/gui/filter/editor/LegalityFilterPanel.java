@@ -17,7 +17,6 @@ import editor.filter.leaf.options.multi.LegalityFilter;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class LegalityFilterPanel extends OptionsFilterPanel<String>
 {
     /**
