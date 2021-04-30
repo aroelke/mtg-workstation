@@ -122,13 +122,10 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
             if (options.length > 0)
             {
                 Object child = box.getAccessibleContext().getAccessibleChild(0);
-                if (child instanceof BasicComboPopup)
+                if (child instanceof BasicComboPopup popup)
                     SwingUtilities.invokeLater(() -> {
-                        BasicComboPopup popup = (BasicComboPopup)child;
                         JScrollPane scrollPane = (JScrollPane)SwingUtilities.getAncestorOfClass(JScrollPane.class, popup.getList());
-
-                        int popupWidth = popup.getList().getPreferredSize().width +
-                                (options.length > box.getMaximumRowCount() ? scrollPane.getVerticalScrollBar().getPreferredSize().width : 0);
+                        int popupWidth = popup.getList().getPreferredSize().width + (options.length > box.getMaximumRowCount() ? scrollPane.getVerticalScrollBar().getPreferredSize().width : 0);
                         scrollPane.setPreferredSize(new Dimension(Math.max(popupWidth, scrollPane.getPreferredSize().width), scrollPane.getPreferredSize().height));
                         scrollPane.setMaximumSize(scrollPane.getPreferredSize());
                         Point location = box.getLocationOnScreen();
@@ -185,7 +182,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if the given filter is not the same
-     *                                  type as this OptionsFilterPanel or isn't even an {@link OptionsFilter}
+     * type as this OptionsFilterPanel or isn't even an {@link OptionsFilter}
      */
     @SuppressWarnings("unchecked")
     @Override

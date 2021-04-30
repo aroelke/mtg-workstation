@@ -57,7 +57,7 @@ public class SpinnerCellEditor extends DefaultCellEditor
     @Override
     public boolean isCellEditable(EventObject eo)
     {
-        return eo instanceof MouseEvent && ((MouseEvent)eo).getClickCount() > 1;
+        return eo instanceof MouseEvent m && m.getClickCount() > 1;
     }
 
     @Override

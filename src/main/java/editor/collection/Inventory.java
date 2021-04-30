@@ -82,10 +82,9 @@ public class Inventory implements CardList
                 return false;
             if (other == this)
                 return true;
-            if (!(other instanceof InventoryEntry))
-                return false;
-            InventoryEntry o = (InventoryEntry)other;
-            return card.equals(o.card);
+            if (other instanceof InventoryEntry o)
+                return card.equals(o.card);
+            return false;
         }
 
         @Override

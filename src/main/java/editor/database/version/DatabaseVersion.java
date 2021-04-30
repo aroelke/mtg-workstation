@@ -160,9 +160,9 @@ public class DatabaseVersion implements Comparable<DatabaseVersion>
             return false;
         if (other == this)
             return true;
-        if (!(other instanceof DatabaseVersion))
-            return false;
-        return compareTo((DatabaseVersion)other) == 0;
+        if (other instanceof DatabaseVersion o)
+            return compareTo((DatabaseVersion)other) == 0;
+        return false;
     }
 
     @Override

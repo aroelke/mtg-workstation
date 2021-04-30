@@ -125,11 +125,9 @@ public class CategorySpec
             return false;
         if (other == this)
             return true;
-        if (!(other instanceof CategorySpec))
-            return false;
-        CategorySpec o = (CategorySpec)other;
-        return name.equals(o.name) && color.equals(o.color) && filter.equals(o.filter)
-                && blacklist.equals(o.blacklist) && whitelist.equals(o.whitelist);
+        if (other instanceof CategorySpec o)
+            return name.equals(o.name) && color.equals(o.color) && filter.equals(o.filter) && blacklist.equals(o.blacklist) && whitelist.equals(o.whitelist);
+        return false;
     }
 
     /**

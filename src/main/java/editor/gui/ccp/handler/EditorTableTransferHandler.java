@@ -56,9 +56,8 @@ public class EditorTableTransferHandler extends EditorFrameTransferHandler
     @Override
     public void exportDone(JComponent source, Transferable data, int action)
     {
-        if (data instanceof EntryTransferData)
+        if (data instanceof EntryTransferData d)
         {
-            EntryTransferData d = (EntryTransferData)data;
             switch (action)
             {
             case TransferHandler.MOVE:

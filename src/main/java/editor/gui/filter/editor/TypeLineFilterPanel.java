@@ -67,8 +67,8 @@ public class TypeLineFilterPanel extends FilterEditorPanel<TypeLineFilter>
     @Override
     public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
     {
-        if (filter instanceof TypeLineFilter)
-            setContents((TypeLineFilter)filter);
+        if (filter instanceof TypeLineFilter f)
+            setContents(f);
         else
             throw new IllegalArgumentException("Illegal type line filter " + filter.type());
     }

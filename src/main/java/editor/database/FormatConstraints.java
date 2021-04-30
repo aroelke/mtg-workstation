@@ -121,14 +121,13 @@ public class FormatConstraints
             return false;
         if (other == this)
             return true;
-        if (!(other instanceof FormatConstraints))
-            return false;
-        FormatConstraints o = (FormatConstraints)other;
-        return o.deckSize == deckSize &&
-               o.isExact == isExact &&
-               o.maxCopies == maxCopies &&
-               o.sideboardSize == sideboardSize &&
-               o.hasCommander == hasCommander;
+        if (other instanceof FormatConstraints o)
+            return o.deckSize == deckSize &&
+                   o.isExact == isExact &&
+                   o.maxCopies == maxCopies &&
+                   o.sideboardSize == sideboardSize &&
+                   o.hasCommander == hasCommander;
+        return false;
     }
 
     @Override

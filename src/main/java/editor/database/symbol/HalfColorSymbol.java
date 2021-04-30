@@ -77,8 +77,8 @@ public class HalfColorSymbol extends ManaSymbol
     @Override
     public int compareTo(ManaSymbol o)
     {
-        if (o instanceof HalfColorSymbol)
-            return color.colorOrder(((HalfColorSymbol)o).color);
+        if (o instanceof HalfColorSymbol s)
+            return color.colorOrder(s.color);
         else
             return super.compareTo(o);
     }

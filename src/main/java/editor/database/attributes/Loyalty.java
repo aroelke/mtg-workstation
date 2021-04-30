@@ -69,7 +69,7 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
     @Override
     public boolean equals(Object other)
     {
-        return other != null && (other == this || other instanceof Loyalty && value == ((Loyalty)other).value);
+        return other != null && (other == this || (other instanceof Loyalty o && value == o.value));
     }
 
     @Override

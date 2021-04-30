@@ -158,23 +158,21 @@ public final class Settings
                 return false;
             if (other == this)
                 return true;
-            if (!(other instanceof InventorySettings))
-                return false;
-
-            InventorySettings o = (InventorySettings)other;
-            return source.equals(o.source) &&
-                   file.equals(o.file) &&
-                   versionFile.equals(o.versionFile) &&
-                   version.equals(o.version) &&
-                   location.equals(o.location) &&
-                   scans.equals(o.scans) &&
-                   imageSource.equals(o.imageSource) &&
-                   tags.equals(o.tags) &&
-                   update == o.update &&
-                   warn == o.warn &&
-                   columns.equals(o.columns) &&
-                   background.equals(o.background) &&
-                   stripe.equals(o.stripe);
+            if (other instanceof InventorySettings o)
+                return source.equals(o.source) &&
+                       file.equals(o.file) &&
+                       versionFile.equals(o.versionFile) &&
+                       version.equals(o.version) &&
+                       location.equals(o.location) &&
+                       scans.equals(o.scans) &&
+                       imageSource.equals(o.imageSource) &&
+                       tags.equals(o.tags) &&
+                       update == o.update &&
+                       warn == o.warn &&
+                       columns.equals(o.columns) &&
+                       background.equals(o.background) &&
+                       stripe.equals(o.stripe);
+            return false;
         }
     }
 
@@ -216,11 +214,9 @@ public final class Settings
                     return false;
                 if (other == this)
                     return true;
-                if (!(other instanceof RecentsSettings))
-                    return false;
-
-                RecentsSettings o = (RecentsSettings)other;
-                return count == o.count && files.equals(o.files);
+                if (other instanceof RecentsSettings o)
+                    return count == o.count && files.equals(o.files);
+                return false;
             }
 
             @Override
@@ -275,11 +271,9 @@ public final class Settings
                     return false;
                 if (other == this)
                     return true;
-                if (!(other instanceof CategoriesSettings))
-                    return false;
-
-                CategoriesSettings o = (CategoriesSettings)other;
-                return presets.equals(o.presets) && rows == o.rows && explicits == o.explicits;
+                if (other instanceof CategoriesSettings o)
+                    return presets.equals(o.presets) && rows == o.rows && explicits == o.explicits;
+                return false;
             }
 
             @Override
@@ -323,11 +317,9 @@ public final class Settings
                     return false;
                 if (other == this)
                     return true;
-                if (!(other instanceof HandSettings))
-                    return false;
-                
-                HandSettings o = (HandSettings)other;
-                return size == o.size && rounding.equals(o.rounding) && background.equals(o.background);
+                if (other instanceof HandSettings o)
+                    return size == o.size && rounding.equals(o.rounding) && background.equals(o.background);
+                return false;
             }
 
             @Override
@@ -376,14 +368,13 @@ public final class Settings
                     return false;
                 if (other == this)
                     return true;
-                if (!(other instanceof LegalitySettings))
-                    return false;
-                LegalitySettings o = (LegalitySettings)other;
-                return searchForCommander == o.searchForCommander &&
-                       main == o.main &&
-                       all == o.all &&
-                       list.equals(o.list) &&
-                       sideboard.equals(o.sideboard);
+                if (other instanceof LegalitySettings o)
+                    return searchForCommander == o.searchForCommander &&
+                           main == o.main &&
+                           all == o.all &&
+                           list.equals(o.list) &&
+                           sideboard.equals(o.sideboard);
+                return false;
             }
 
             @Override
@@ -443,16 +434,14 @@ public final class Settings
                 return false;
             if (other == this)
                 return true;
-            if (!(other instanceof EditorSettings))
-                return false;
-            
-            EditorSettings o = (EditorSettings)other;
-            return recents.equals(o.recents) &&
-                   categories.equals(o.categories) &&
-                   columns.equals(o.columns) &&
-                   stripe.equals(o.stripe) &&
-                   hand.equals(o.hand) &&
-                   legality.equals(o.legality);
+            if (other instanceof EditorSettings o)
+                return recents.equals(o.recents) &&
+                       categories.equals(o.categories) &&
+                       columns.equals(o.columns) &&
+                       stripe.equals(o.stripe) &&
+                       hand.equals(o.hand) &&
+                       legality.equals(o.legality);
+            return false;
         }
 
         @Override
@@ -490,11 +479,9 @@ public final class Settings
             return false;
         if (this == other)
             return true;
-        if (!(other instanceof Settings))
-            return false;
-
-        Settings o = (Settings)other;
-        return inventory.equals(o.inventory) && editor.equals(o.editor) && cwd == o.cwd;
+        if (other instanceof Settings o)
+            return inventory.equals(o.inventory) && editor.equals(o.editor) && cwd.equals(o.cwd);
+        return false;
     }
 
     @Override

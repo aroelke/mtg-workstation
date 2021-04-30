@@ -90,8 +90,8 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
     @Override
     public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
     {
-        if (filter instanceof ManaCostFilter)
-            setContents((ManaCostFilter)filter);
+        if (filter instanceof ManaCostFilter f)
+            setContents(f);
         else
             throw new IllegalArgumentException("Illegal mana cost filter " + filter.type());
     }

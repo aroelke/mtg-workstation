@@ -372,10 +372,9 @@ public class Deck implements CardList
                 return false;
             if (other == this)
                 return true;
-            if (!(other instanceof DeckEntry))
-                return false;
-            DeckEntry o = (DeckEntry)other;
-            return card.equals(o.card) && o.count == count && o.date.equals(date);
+            if (other instanceof DeckEntry o)
+                return card.equals(o.card) && o.count == count && o.date.equals(date);
+            return false;
         }
 
         @Override
@@ -637,10 +636,9 @@ public class Deck implements CardList
             return false;
         if (other == this)
             return true;
-        if (!(other instanceof Deck))
-            return false;
-        Deck o = (Deck)other;
-        return o.masterList.equals(masterList) && o.categories().equals(categories());
+        if (other instanceof Deck o)
+            return o.masterList.equals(masterList) && o.categories().equals(categories());
+        return false;
     }
 
     /**
