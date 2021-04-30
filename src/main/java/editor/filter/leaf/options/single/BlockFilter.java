@@ -20,7 +20,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
      */
     public BlockFilter()
     {
-        super(CardAttribute.BLOCK, (c) -> c.expansion().block);
+        super(CardAttribute.BLOCK, (c) -> c.expansion().block());
     }
 
     @Override

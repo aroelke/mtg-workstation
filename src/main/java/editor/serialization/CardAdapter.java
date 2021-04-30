@@ -41,7 +41,7 @@ public class CardAdapter implements JsonSerializer<Card>, JsonDeserializer<Card>
         JsonObject card = new JsonObject();
         card.addProperty("scryfallid", src.scryfallid().get(0));
         card.addProperty("name", src.unifiedName());
-        card.addProperty("expansion", src.expansion().name);
+        card.addProperty("expansion", src.expansion().name());
         return card;
     }
     

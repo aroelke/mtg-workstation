@@ -72,7 +72,7 @@ public class Inventory implements CardList
         @Override
         public LocalDate dateAdded()
         {
-            return card.expansion().releaseDate;
+            return card.expansion().released();
         }
 
         @Override

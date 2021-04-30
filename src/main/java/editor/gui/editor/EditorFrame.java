@@ -294,14 +294,14 @@ public class EditorFrame extends JInternalFrame
                 int had = original.contains(c) ? original.getEntry(c).count() : 0;
                 int has = current.contains(c) ? current.getEntry(c).count() : 0;
                 if (has < had)
-                    changes.append("-").append(had - has).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
+                    changes.append("-").append(had - has).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name()).append(")\n");
             }
             for (Card c : current)
             {
                 int had = original.contains(c) ? original.getEntry(c).count() : 0;
                 int has = current.contains(c) ? current.getEntry(c).count() : 0;
                 if (had < has)
-                    changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name).append(")\n");
+                    changes.append("+").append(has - had).append("x ").append(c.unifiedName()).append(" (").append(c.expansion().name()).append(")\n");
             }
             return changes.toString();
         }

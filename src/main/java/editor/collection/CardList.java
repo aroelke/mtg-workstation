@@ -86,7 +86,7 @@ public interface CardList extends Iterable<Card>
                 case COLOR_IDENTITY -> card().colorIdentity();
                 case TYPE_LINE      -> card().unifiedTypeLine();
                 case EXPANSION      -> card().expansion().toString();
-                case BLOCK          -> card().expansion().block;
+                case BLOCK          -> card().expansion().block();
                 case RARITY         -> card().rarity();
                 case POWER          -> card().power();
                 case TOUGHNESS      -> card().toughness();

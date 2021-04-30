@@ -475,13 +475,13 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 JsonArray setCards = setProperties.get("cards").getAsJsonArray();
                 Expansion set = new Expansion(
                     setProperties.get("name").getAsString(),
-                    Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse("<No Block>"),
+                    Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse(Expansion.NO_BLOCK),
                     setProperties.get("code").getAsString(),
                     setCards.size(),
                     LocalDate.parse(setProperties.get("releaseDate").getAsString(), Expansion.DATE_FORMATTER)
                 );
                 expansions.add(set);
-                blockNames.add(set.block);
+                blockNames.add(set.block());
                 publish("Loading cards from " + set + "...");
 
                 for (JsonElement cardElement : setCards)

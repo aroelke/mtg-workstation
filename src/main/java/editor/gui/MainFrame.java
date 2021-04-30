@@ -31,6 +31,8 @@ import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1243,7 +1245,7 @@ public class MainFrame extends JFrame
         showExpansionsItem.addActionListener((e) -> {
             TableModel expansionTableModel = new AbstractTableModel()
             {
-                private final String[] columns = { "Expansion", "Block", "Code", "Cards" };
+                private final String[] columns = {"Expansion", "Block", "Code", "Cards", "Release Date"};
 
                 @Override
                 public int getColumnCount()
@@ -1266,13 +1268,14 @@ public class MainFrame extends JFrame
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex)
                 {
-                    final Object[] values = {
-                        Expansion.expansions[rowIndex].name,
-                        Expansion.expansions[rowIndex].block.isEmpty() ? "" : Expansion.expansions[rowIndex].block,
-                        Expansion.expansions[rowIndex].code,
-                        Expansion.expansions[rowIndex].count
+                    return switch (columnIndex) {
+                        case 0 -> Expansion.expansions[rowIndex].name();
+                        case 1 -> Expansion.expansions[rowIndex].block().equals(Expansion.NO_BLOCK) ? "" : Expansion.expansions[rowIndex].block();
+                        case 2 -> Expansion.expansions[rowIndex].code();
+                        case 3 -> Expansion.expansions[rowIndex].count();
+                        case 4 -> Expansion.expansions[rowIndex].released().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG));
+                        default -> throw new IndexOutOfBoundsException();
                     };
-                    return values[columnIndex];
                 }
             };
             JTable expansionTable = new JTable(expansionTableModel) {
