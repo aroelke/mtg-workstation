@@ -308,9 +308,9 @@ public class Deck implements CardList
         private final LocalDate date;
         /**
          * Set of categories this DeckEntry's Card belongs to.  Implemented using a
-         * LinkedHashSet, so it will maintain the ordering that categories were added.
+         * LinkedHashSet so it will maintain the ordering that categories were added.
          */
-        private Set<Category> categories;
+        private final LinkedHashSet<Category> categories;
 
         /**
          * Create a new DeckEntry.

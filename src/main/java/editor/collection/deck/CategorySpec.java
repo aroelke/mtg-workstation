@@ -9,7 +9,6 @@ import java.util.Set;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.filter.FilterGroup;
 
 /**
  * This class represents a set of specifications for a category.  Those specifications are its name,
@@ -92,30 +91,6 @@ public class CategorySpec
     public CategorySpec(String name, Color color, Filter filter)
     {
         this(name, new HashSet<>(), new HashSet<>(), color, filter);
-    }
-
-    /**
-     * Copy the name, whitelist, blacklist, color, and filter from the given
-     * CategorySpec, discarding those values from this one.
-     *
-     * @param other CategorySpec to copy
-     * @return <code>true</code> if any changes were made to this CategorySpec, and
-     * <code>false</code> otherwise.
-     */
-    public boolean copy(CategorySpec other)
-    {
-        CategorySpec old = new CategorySpec(this);
-
-        name = other.name;
-        whitelist.clear();
-        whitelist.addAll(other.whitelist);
-        blacklist.clear();
-        blacklist.addAll(other.blacklist);
-        color = other.color;
-        filter = new FilterGroup();
-        filter = other.filter.copy();
-
-        return !equals(old);
     }
 
     @Override
