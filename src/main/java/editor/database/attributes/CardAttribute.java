@@ -107,7 +107,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
         return first.compareTo(second);
     }),
     /** Loyalty of a planeswalker card. */
-    LOYALTY("Loyalty", List.class, (a) -> new VariableNumberFilter(a, (Card c) -> c.loyalty().stream().map((l) -> l.value).collect(Collectors.toList()), Card::loyaltyVariable),(a, b) -> {
+    LOYALTY("Loyalty", List.class, (a) -> new VariableNumberFilter(a, (Card c) -> c.loyalty().stream().map(Loyalty::value).collect(Collectors.toList()), Card::loyaltyVariable),(a, b) -> {
         Loyalty first = CollectionUtils.convertToList(a, Loyalty.class).stream().filter(Loyalty::exists).findFirst().orElse(Loyalty.NO_LOYALTY);
         Loyalty second = CollectionUtils.convertToList(b, Loyalty.class).stream().filter(Loyalty::exists).findFirst().orElse(Loyalty.NO_LOYALTY);
         return first.compareTo(second);
