@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,9 +14,14 @@ import java.util.stream.Collectors;
  * are expected to conform to major.minor.rev-YYYYMMDD, where the date
  * represents daily minor updates (i.e. prices) and is optional.
  * 
+ * @param major major version of the database
+ * @param minor minor version of the database
+ * @param revision revision number of the database
+ * @param date date of the latest minor update
+ * 
  * @author Alec Roelke
  */
-public class DatabaseVersion implements Comparable<DatabaseVersion>
+public record DatabaseVersion(int major, int minor, int revision, Optional<Date> date) implements Comparable<DatabaseVersion>
 {
     /**
      * Regular expression pattern used to match version info.
@@ -28,29 +32,27 @@ public class DatabaseVersion implements Comparable<DatabaseVersion>
      */
     public static final SimpleDateFormat VERSION_DATE = new SimpleDateFormat("yyyyMMdd");
 
-    /** Major version of the database. */
-    public final int major;
-    /** Minor version of the database. */
-    public final int minor;
-    /** Revision number of the database version. */
-    public final int revision;
-    /** Date of the latest minor update. */
-    public final Optional<Date> date;
-
     /**
-     * Create a new database version with a specific version number and optional date.
+     * Create a new database version from the string of the form
+     * major.minor.rev-YYYYMMDD, with the date being optional. Anything
+     * else throws an exception.
      * 
-     * @param maj major version
-     * @param min minor version
-     * @param rev revision
-     * @param d daily update date
+     * @param s string to parse
      */
-    private DatabaseVersion(int maj, int min, int rev, Optional<Date> d)
+    public static DatabaseVersion parseVersion(String s) throws ParseException
     {
-        major = maj;
-        minor = min;
-        revision = rev;
-        date = d;
+        Matcher m = VERSION_PATTERN.matcher(s);
+        if (m.matches())
+        {
+            return new DatabaseVersion(
+                Integer.parseInt(m.group(1)),
+                Integer.parseInt(m.group(2)),
+                Integer.parseInt(m.group(3)),
+                m.group(4) != null ? Optional.of(VERSION_DATE.parse(m.group(4))) : Optional.empty()
+            );
+        }
+        else
+            throw new ParseException(s, 0);
     }
 
     /**
@@ -76,27 +78,6 @@ public class DatabaseVersion implements Comparable<DatabaseVersion>
     public DatabaseVersion(int maj, int min, int rev)
     {
         this(maj, min, rev, Optional.empty());
-    }
-
-    /**
-     * Create a new database version from the string of the form
-     * major.minor.rev-YYYYMMDD, with the date being optional. Anything
-     * else throws an exception.
-     * 
-     * @param version string to parse
-     */
-    public DatabaseVersion(String version) throws ParseException
-    {
-        Matcher m = VERSION_PATTERN.matcher(version);
-        if (m.matches())
-        {
-            major = Integer.parseInt(m.group(1));
-            minor = Integer.parseInt(m.group(2));
-            revision = Integer.parseInt(m.group(3));
-            date = m.group(4) != null ? Optional.of(VERSION_DATE.parse(m.group(4))) : Optional.empty();
-        }
-        else
-            throw new ParseException(version, 0);
     }
 
     /**
@@ -151,24 +132,6 @@ public class DatabaseVersion implements Comparable<DatabaseVersion>
             else // date.isEmpty() && other.date.isEmpty()
                 return 0;
         }
-    }
-
-    @Override
-    public boolean equals(Object other)
-    {
-        if (other == null)
-            return false;
-        if (other == this)
-            return true;
-        if (other instanceof DatabaseVersion o)
-            return compareTo((DatabaseVersion)other) == 0;
-        return false;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(major, minor, revision, date);
     }
 
     @Override

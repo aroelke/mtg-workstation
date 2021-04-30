@@ -1667,7 +1667,7 @@ public class MainFrame extends JFrame
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
                 {
                     JsonObject data = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject();
-                    newestVersion = new DatabaseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
+                    newestVersion = DatabaseVersion.parseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
                 }
                 return UPDATE_NEEDED;
             }
@@ -1676,7 +1676,7 @@ public class MainFrame extends JFrame
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
                 {
                     JsonObject data = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject();
-                    newestVersion = new DatabaseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
+                    newestVersion = DatabaseVersion.parseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
                 }
                 if (newestVersion.needsUpdate(SettingsDialog.settings().inventory.version, freq))
                 {

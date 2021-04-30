@@ -430,7 +430,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
             JsonObject root = new JsonParser().parse(reader).getAsJsonObject();
             DatabaseVersion version = root.has("meta") ?
-                new DatabaseVersion(root.get("meta").getAsJsonObject().get("version").getAsString()) :
+                DatabaseVersion.parseVersion(root.get("meta").getAsJsonObject().get("version").getAsString()) :
                 new DatabaseVersion(0, 0, 0); // Anything less than 5.0.0 will do for pre-5.0.0 databases
 
             var entries = (version.compareTo(VER_5_0_0) < 0 ? root : root.get("data").getAsJsonObject()).entrySet();
