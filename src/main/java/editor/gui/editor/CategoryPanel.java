@@ -264,7 +264,7 @@ public class CategoryPanel extends JPanel
         name = n;
         background = getBackground();
         flashTimer = new FlashTimer();
-        tableRows = SettingsDialog.settings().editor.categories.rows;
+        tableRows = SettingsDialog.settings().editor.categories.rows();
 
         // Each category is surrounded by a border with a title
         setBorder(border = BorderFactory.createTitledBorder(name));
@@ -362,7 +362,7 @@ public class CategoryPanel extends JPanel
                     Point p = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), table);
                     setCursor(new Cursor(Cursor.S_RESIZE_CURSOR));
                     final int minRows = 1;
-                    final int maxRows = Math.max(deck.getCategoryList(name).total(), SettingsDialog.settings().editor.categories.rows);
+                    final int maxRows = Math.max(deck.getCategoryList(name).total(), SettingsDialog.settings().editor.categories.rows());
                     if (p.y <= base - table.getRowHeight()/2 && tableRows > minRows)
                     {
                         int n = Math.min(((base - p.y) + table.getRowHeight() - 1)/table.getRowHeight(), tableRows - minRows);

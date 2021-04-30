@@ -37,72 +37,23 @@ public final class Settings
      * 
      * @author Alec Roelke
      */
-    public static final class InventorySettings
-    {
-        /** Site containing the inventory to download. */
-        public final String source;
-        /** Actual inventory file to download (without .zip). */
-        public final String file;
-        /** File name containing latest inventory version. */
-        public final String versionFile;
-        /** Version of the stored inventory. */
-        public final DatabaseVersion version;
-        /** Directory to store inventory file in. */
-        public final String location;
-        /** Directory to store card images in. */
-        public final String scans;
-        /** Web site to download images from. */
-        public final String imageSource;
-        /** Whether or not to limit the number of images to cache. */
-        public final boolean imageLimitEnable;
-        /** How many images should be cached at a time. */
-        public final int imageLimit;
-        /** File to store tags in. */
-        public final String tags;
-        /** Check for inventory update on startup or don't. */
-        public final UpdateFrequency update;
-        /** Show warnings from loading inventory. */
-        public final boolean warn;
-        /** Card attributes to show in inventory table. */
-        public final List<CardAttribute> columns;
-        /** Background color of card image panel. */
-        public final Color background;
-        /** Stripe color of inventory table. */
-        public final Color stripe;
-
-        private InventorySettings(String source,
-                                    String file,
-                                    String versionFile,
-                                    DatabaseVersion version,
-                                    String location,
-                                    String scans,
-                                    String imageSource,
-                                    boolean imageLimitEnable,
-                                    int imageLimit,
-                                    String tags,
-                                    UpdateFrequency update,
-                                    boolean warn,
-                                    List<CardAttribute> columns,
-                                    Color background,
-                                    Color stripe)
-        {
-            this.source = source;
-            this.file = file;
-            this.versionFile = versionFile;
-            this.version = version;
-            this.location = location;
-            this.scans = scans;
-            this.imageSource = imageSource;
-            this.imageLimitEnable = imageLimitEnable;
-            this.imageLimit = imageLimit;
-            this.tags = tags;
-            this.update = update;
-            this.warn = warn;
-            this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
-            this.background = background;
-            this.stripe = stripe;
-        }
-
+    public static record InventorySettings(
+        String source,
+        String file,
+        String versionFile,
+        DatabaseVersion version,
+        String location,
+        String scans,
+        String imageSource,
+        boolean imageLimitEnable,
+        int imageLimit,
+        String tags,
+        UpdateFrequency update,
+        boolean warn,
+        List<CardAttribute> columns,
+        Color background,
+        Color stripe
+    ) {
         private InventorySettings()
         {
             this(
@@ -150,30 +101,6 @@ public final class Settings
         {
             return source + versionFile;
         }
-
-        @Override
-        public boolean equals(Object other)
-        {
-            if (other == null)
-                return false;
-            if (other == this)
-                return true;
-            if (other instanceof InventorySettings o)
-                return source.equals(o.source) &&
-                       file.equals(o.file) &&
-                       versionFile.equals(o.versionFile) &&
-                       version.equals(o.version) &&
-                       location.equals(o.location) &&
-                       scans.equals(o.scans) &&
-                       imageSource.equals(o.imageSource) &&
-                       tags.equals(o.tags) &&
-                       update == o.update &&
-                       warn == o.warn &&
-                       columns.equals(o.columns) &&
-                       background.equals(o.background) &&
-                       stripe.equals(o.stripe);
-            return false;
-        }
     }
 
     /**
@@ -189,40 +116,11 @@ public final class Settings
          * 
          * @author Alec Roelke
          */
-        public static final class RecentsSettings
+        public static record RecentsSettings(int count, List<String> files)
         {
-            /** Number of recent files to store. */
-            public final int count;
-            /** List of recently-edited files. */
-            public final List<String> files;
-
-            private RecentsSettings(int count, List<String> files)
-            {
-                this.count = count;
-                this.files = Collections.unmodifiableList(new ArrayList<>(files));
-            }
-
             private RecentsSettings()
             {
                 this(4, Collections.emptyList());
-            }
-
-            @Override
-            public boolean equals(Object other)
-            {
-                if (other == null)
-                    return false;
-                if (other == this)
-                    return true;
-                if (other instanceof RecentsSettings o)
-                    return count == o.count && files.equals(o.files);
-                return false;
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(count, files);
             }
         }
 
@@ -231,22 +129,8 @@ public final class Settings
          * 
          * @author Alec Roelke
          */
-        public static final class CategoriesSettings
+        public static record CategoriesSettings(List<CategorySpec> presets, int rows, int explicits)
         {
-            /** Preset categories for quickly adding to decks. */
-            public final List<CategorySpec> presets;
-            /** Max number of rows to display cards in category tables. */
-            public final int rows;
-            /** Number of rows to show in white- or blacklists. */
-            public final int explicits;
-
-            private CategoriesSettings(List<CategorySpec> presets, int rows, int explicits)
-            {
-                this.presets = Collections.unmodifiableList(new ArrayList<>(presets));
-                this.rows = rows;
-                this.explicits = explicits;
-            }
-
             private CategoriesSettings()
             {
                 this(
@@ -263,24 +147,6 @@ public final class Settings
                     6, 3
                 );
             }
-
-            @Override
-            public boolean equals(Object other)
-            {
-                if (other == null)
-                    return false;
-                if (other == this)
-                    return true;
-                if (other instanceof CategoriesSettings o)
-                    return presets.equals(o.presets) && rows == o.rows && explicits == o.explicits;
-                return false;
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(presets, rows, explicits);
-            }
         }
 
         /**
@@ -289,43 +155,11 @@ public final class Settings
          * 
          * @author Alec Roelke
          */
-        public static final class HandSettings
+        public static record HandSettings(int size, String rounding, Color background)
         {
-            /** Initial size of opening hands before mulligans. */
-            public final int size;
-            /** How to round statistics (nearest, truncate, or don't). */
-            public final String rounding;
-            /** Background color for sample hand images. */
-            public final Color background;
-
-            private HandSettings(int size, String rounding, Color background)
-            {
-                this.size = size;
-                this.rounding = rounding;
-                this.background = background;
-            }
-
             private HandSettings()
             {
                 this(7, "No rounding", Color.WHITE);
-            }
-
-            @Override
-            public boolean equals(Object other)
-            {
-                if (other == null)
-                    return false;
-                if (other == this)
-                    return true;
-                if (other instanceof HandSettings o)
-                    return size == o.size && rounding.equals(o.rounding) && background.equals(o.background);
-                return false;
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(size, rounding, background);
             }
         }
 
@@ -334,53 +168,11 @@ public final class Settings
          * 
          * @author Alec Roelke
          */
-        public static final class LegalitySettings
+        public static record LegalitySettings(boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
         {
-            /** Whether or not to search for a commander if determine legality in applicable formats. */
-            public final boolean searchForCommander;
-            /** If searching for a commander, whether or not to search just the main deck. */
-            public final boolean main;
-            /** If searching for a commander, whether or not to check all lists. */
-            public final boolean all;
-            /** If searching for a commander, default name of the list to search that isn't the main deck. */
-            public final String list;
-            /** Include sideboard size in legality determination. */
-            public final String sideboard;
-
-            private LegalitySettings(boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
-            {
-                this.searchForCommander = searchForCommander;
-                this.main = main;
-                this.all = all;
-                this.list = list;
-                this.sideboard = sideboard;
-            }
-
             private LegalitySettings()
             {
                 this(true, true, false, "", "");
-            }
-
-            @Override
-            public boolean equals(Object other)
-            {
-                if (other == null)
-                    return false;
-                if (other == this)
-                    return true;
-                if (other instanceof LegalitySettings o)
-                    return searchForCommander == o.searchForCommander &&
-                           main == o.main &&
-                           all == o.all &&
-                           list.equals(o.list) &&
-                           sideboard.equals(o.sideboard);
-                return false;
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(searchForCommander, main, all, list, sideboard);
             }
         }
 

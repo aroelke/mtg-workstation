@@ -130,7 +130,7 @@ public class CalculateHandPanel extends JPanel
                     if (columnIndex == CATEGORY)
                         yield category;
                     else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts.get(category).size())
-                        yield ROUND_MODE.get(SettingsDialog.settings().editor.hand.rounding).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
+                        yield ROUND_MODE.get(SettingsDialog.settings().editor.hand.rounding()).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
                     else
                         yield "";
                 }

@@ -584,7 +584,7 @@ public class EditorFrame extends JInternalFrame
         unsaved = false;
         undoBuffer = new Stack<>();
         redoBuffer = new Stack<>();
-        startingHandSize = SettingsDialog.settings().editor.hand.size;
+        startingHandSize = SettingsDialog.settings().editor.hand.size();
         if (manager.canSaveFile())
             setFile(manager.file());
         else
@@ -834,7 +834,7 @@ public class EditorFrame extends JInternalFrame
         imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
         imagePane = new JScrollPane(imagePanel);
         imagePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        setHandBackground(SettingsDialog.settings().editor.hand.background);
+        setHandBackground(SettingsDialog.settings().editor.hand.background());
 
         // Control panel for manipulating the sample hand
         JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -847,7 +847,7 @@ public class EditorFrame extends JInternalFrame
             {
                 CardImagePanel panel = new CardImagePanel();
                 panel.setCard(c);
-                panel.setBackground(SettingsDialog.settings().editor.hand.background);
+                panel.setBackground(SettingsDialog.settings().editor.hand.background());
                 imagePanel.add(panel);
                 imagePanel.add(Box.createHorizontalStrut(10));
             }
@@ -865,7 +865,7 @@ public class EditorFrame extends JInternalFrame
                 CardImagePanel panel = new CardImagePanel();
                 imagePanel.add(panel);
                 panel.setCard(c);
-                panel.setBackground(SettingsDialog.settings().editor.hand.background);
+                panel.setBackground(SettingsDialog.settings().editor.hand.background());
                 imagePanel.add(Box.createHorizontalStrut(10));
             }
             imagePanel.validate();
@@ -878,7 +878,7 @@ public class EditorFrame extends JInternalFrame
             {
                 hand.draw();
                 CardImagePanel panel = new CardImagePanel();
-                panel.setBackground(SettingsDialog.settings().editor.hand.background);
+                panel.setBackground(SettingsDialog.settings().editor.hand.background());
                 imagePanel.add(panel);
                 panel.setCard(hand.get(hand.size() - 1));
                 imagePanel.add(Box.createHorizontalStrut(10));
@@ -1153,7 +1153,7 @@ public class EditorFrame extends JInternalFrame
                 deck().table.getColumn(deck().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck().model.getColumnData(i)));
         for (CategoryPanel category : categoryPanels)
             category.applySettings(this);
-        startingHandSize = SettingsDialog.settings().editor.hand.size;
+        startingHandSize = SettingsDialog.settings().editor.hand.size();
         updateStats();
         update();
     }

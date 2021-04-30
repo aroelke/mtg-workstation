@@ -41,7 +41,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 
         categories = new HashMap<>();
 
-        var presets = SettingsDialog.settings().editor.categories.presets;
+        var presets = SettingsDialog.settings().editor.categories.presets();
         String[] names = presets.stream().map(CategorySpec::getName).toArray(String[]::new);
         for (int i = 0; i < presets.size(); i++)
             categories.put(names[i], presets.get(i));
