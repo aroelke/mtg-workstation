@@ -657,9 +657,9 @@ public class EditorFrame extends JInternalFrame
 
         // Cut, copy, paste
         CCPItems ccp = new CCPItems(deck().table, true);
-        tableMenu.add(ccp.cut);
-        tableMenu.add(ccp.copy);
-        tableMenu.add(ccp.paste);
+        tableMenu.add(ccp.cut());
+        tableMenu.add(ccp.copy());
+        tableMenu.add(ccp.paste());
         tableMenu.add(new JSeparator());
 
         // Add/remove cards
@@ -702,10 +702,10 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, deck().table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            ccp.cut.setEnabled(!parent.getSelectedCards().isEmpty());
-            ccp.copy.setEnabled(!parent.getSelectedCards().isEmpty());
+            ccp.cut().setEnabled(!parent.getSelectedCards().isEmpty());
+            ccp.copy().setEnabled(!parent.getSelectedCards().isEmpty());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+            ccp.paste().setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
             tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
             moveToMenu.setVisible(!extras().isEmpty());
             moveAllToMenu.setVisible(!extras().isEmpty());
@@ -799,8 +799,8 @@ public class EditorFrame extends JInternalFrame
         // Popup menu for category container
         JPopupMenu categoriesMenu = new JPopupMenu();
         CCPItems categoriesCCP = new CCPItems(categoriesPane, false);
-        categoriesCCP.paste.setText("Paste Category");
-        categoriesMenu.add(categoriesCCP.paste);
+        categoriesCCP.paste().setText("Paste Category");
+        categoriesMenu.add(categoriesCCP.paste());
         categoriesMenu.add(new JSeparator());
         JMenuItem categoriesCreateItem = new JMenuItem("Add Category...");
         categoriesCreateItem.addActionListener((e) -> createCategory().ifPresent(this::addCategory));
@@ -809,11 +809,11 @@ public class EditorFrame extends JInternalFrame
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             try
             {
-                categoriesCCP.paste.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).spec.getName()));
+                categoriesCCP.paste().setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).spec.getName()));
             }
             catch (UnsupportedFlavorException | IOException x)
             {
-                categoriesCCP.paste.setEnabled(false);
+                categoriesCCP.paste().setEnabled(false);
             }
         }));
         categoriesPane.setComponentPopupMenu(categoriesMenu);
@@ -974,14 +974,14 @@ public class EditorFrame extends JInternalFrame
         });
         CCPItems notesCCP = new CCPItems(() -> notesArea, true);
         JPopupMenu notesMenu = new JPopupMenu();
-        notesMenu.add(notesCCP.cut);
-        notesMenu.add(notesCCP.copy);
-        notesMenu.add(notesCCP.paste);
+        notesMenu.add(notesCCP.cut());
+        notesMenu.add(notesCCP.copy());
+        notesMenu.add(notesCCP.paste());
         notesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             String text = notesArea.getSelectedText();
-            notesCCP.cut.setEnabled(text != null && !text.isEmpty());
-            notesCCP.copy.setEnabled(text != null && !text.isEmpty());
-            notesCCP.paste.setEnabled(Toolkit.getDefaultToolkit().getSystemClipboard().isDataFlavorAvailable(DataFlavor.stringFlavor));
+            notesCCP.cut().setEnabled(text != null && !text.isEmpty());
+            notesCCP.copy().setEnabled(text != null && !text.isEmpty());
+            notesCCP.paste().setEnabled(Toolkit.getDefaultToolkit().getSystemClipboard().isDataFlavorAvailable(DataFlavor.stringFlavor));
         }));
         notesArea.setComponentPopupMenu(notesMenu);
         listTabs.addTab("Notes", new JScrollPane(notesArea));
@@ -1320,9 +1320,9 @@ public class EditorFrame extends JInternalFrame
 
         // Cut, copy, paste
         CCPItems cardCCP = new CCPItems(deck().table, true);
-        tableMenu.add(cardCCP.cut);
-        tableMenu.add(cardCCP.copy);
-        tableMenu.add(cardCCP.paste);
+        tableMenu.add(cardCCP.cut());
+        tableMenu.add(cardCCP.copy());
+        tableMenu.add(cardCCP.paste());
         tableMenu.add(new JSeparator());
         
         CardMenuItems tableMenuCardItems = new CardMenuItems(() -> Optional.of(this), parent::getSelectedCards, true);
@@ -1362,10 +1362,10 @@ public class EditorFrame extends JInternalFrame
         tableMenu.addPopupMenuListener(new TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu,
                 editCategoriesItem, categoriesSeparator, newCategory.table));
         tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            cardCCP.cut.setEnabled(!parent.getSelectedCards().isEmpty());
-            cardCCP.copy.setEnabled(!parent.getSelectedCards().isEmpty());
+            cardCCP.cut().setEnabled(!parent.getSelectedCards().isEmpty());
+            cardCCP.copy().setEnabled(!parent.getSelectedCards().isEmpty());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            cardCCP.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+            cardCCP.paste().setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
 
             removeFromCategoryItem.setText("Exclude from " + newCategory.getCategoryName());
             tableMenuCardItems.setEnabled(!parent.getSelectedCards().isEmpty());
@@ -1385,12 +1385,12 @@ public class EditorFrame extends JInternalFrame
 
         // Cut, copy, paste
         CCPItems categoryCCP = new CCPItems(newCategory, false);
-        categoryCCP.cut.setText("Cut Category");
-        categoryMenu.add(categoryCCP.cut);
-        categoryCCP.copy.setText("Copy Category");
-        categoryMenu.add(categoryCCP.copy);
-        categoryCCP.paste.setText("Paste Category");
-        categoryMenu.add(categoryCCP.paste);
+        categoryCCP.cut().setText("Cut Category");
+        categoryMenu.add(categoryCCP.cut());
+        categoryCCP.copy().setText("Copy Category");
+        categoryMenu.add(categoryCCP.copy());
+        categoryCCP.paste().setText("Paste Category");
+        categoryMenu.add(categoryCCP.paste());
         categoryMenu.add(new JSeparator());
 
         // Edit item
@@ -1415,14 +1415,14 @@ public class EditorFrame extends JInternalFrame
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             try
             {
-                categoryCCP.paste.setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).spec.getName()));
+                categoryCCP.paste().setEnabled(!containsCategory(((CategoryTransferData)clipboard.getData(DataFlavors.categoryFlavor)).spec.getName()));
             }
             catch (UnsupportedFlavorException | IOException x)
             {
                 // Technically using exceptions as control flow (as with unsupported flavors here) is bad
                 // programming practice, but since the exception has to be caught here anyway it reduces
                 // code size
-                categoryCCP.paste.setEnabled(false);
+                categoryCCP.paste().setEnabled(false);
             }
         }));
 
@@ -2081,9 +2081,9 @@ public class EditorFrame extends JInternalFrame
 
         // Cut, copy, paste
         CCPItems ccp = new CCPItems(() -> lists.get(id).table, true);
-        extraMenu.add(ccp.cut);
-        extraMenu.add(ccp.copy);
-        extraMenu.add(ccp.paste);
+        extraMenu.add(ccp.cut());
+        extraMenu.add(ccp.copy());
+        extraMenu.add(ccp.paste());
         extraMenu.add(new JSeparator());
 
         // Add/remove cards from sideboard
@@ -2108,10 +2108,10 @@ public class EditorFrame extends JInternalFrame
         extraMenu.add(sBeditTagsItem);
 
         extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            ccp.cut.setEnabled(!parent.getSelectedCards().isEmpty());
-            ccp.copy.setEnabled(!parent.getSelectedCards().isEmpty());
+            ccp.cut().setEnabled(!parent.getSelectedCards().isEmpty());
+            ccp.copy().setEnabled(!parent.getSelectedCards().isEmpty());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+            ccp.paste().setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
         }));
 
         return sideboardPane;

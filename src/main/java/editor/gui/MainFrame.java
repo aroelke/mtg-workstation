@@ -1043,9 +1043,9 @@ public class MainFrame extends JFrame
 
         // Cut, copy, paste
         CCPItems editCCP = new CCPItems(() -> selectedTable.get(), true);
-        editMenu.add(editCCP.cut);
-        editMenu.add(editCCP.copy);
-        editMenu.add(editCCP.paste);
+        editMenu.add(editCCP.cut());
+        editMenu.add(editCCP.copy());
+        editMenu.add(editCCP.paste());
         editMenu.add(new JSeparator());
 
         // Undo menu item
@@ -1084,10 +1084,10 @@ public class MainFrame extends JFrame
 
         // Edit menu listener
         editMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
-            editCCP.cut.setEnabled(selectedList.filter((l) -> l == inventory).isEmpty() && !getSelectedCards().isEmpty());
-            editCCP.copy.setEnabled(!getSelectedCards().isEmpty());
+            editCCP.cut().setEnabled(selectedList.filter((l) -> l == inventory).isEmpty() && !getSelectedCards().isEmpty());
+            editCCP.copy().setEnabled(!getSelectedCards().isEmpty());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            editCCP.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+            editCCP.paste().setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
 
             undoItem.setEnabled(selectedFrame.isPresent());
             redoItem.setEnabled(selectedFrame.isPresent());
@@ -1360,7 +1360,7 @@ public class MainFrame extends JFrame
 
         // Copy
         CCPItems oracleCCP = new CCPItems(imagePanel, false);
-        oraclePopupMenu.add(oracleCCP.copy);
+        oraclePopupMenu.add(oracleCCP.copy());
         oraclePopupMenu.add(new JSeparator());
 
         // Add the card to the main deck
@@ -1390,7 +1390,7 @@ public class MainFrame extends JFrame
 
         // Popup listener for oracle popup menu
         oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            oracleCCP.copy.setEnabled(!getSelectedCards().isEmpty());
+            oracleCCP.copy().setEnabled(!getSelectedCards().isEmpty());
             oracleMenuCardItems.setVisible(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
             for (JSeparator sep : oracleMenuCardSeparators)
                 sep.setVisible(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
@@ -1447,7 +1447,7 @@ public class MainFrame extends JFrame
 
         // Copy
         CCPItems inventoryCCP = new CCPItems(inventoryTable, true);
-        inventoryMenu.add(inventoryCCP.copy);
+        inventoryMenu.add(inventoryCCP.copy());
         inventoryMenu.add(new JSeparator());
 
         // Add cards to the main deck
