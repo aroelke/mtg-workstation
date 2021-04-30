@@ -318,24 +318,24 @@ public class EditorFrame extends JInternalFrame
         /**
          * Submenu for quickly adding cards to categories.
          */
-        private JMenu addToCategoryMenu;
+        private final JMenu addToCategoryMenu;
         /**
          * Item for editing the categories of cards.
          */
-        private JMenuItem editCategoriesItem;
+        private final JMenuItem editCategoriesItem;
         /**
          * Separator between category edit and card edit sections of the table
          * popup menu.
          */
-        private JSeparator menuSeparator;
+        private final JSeparator menuSeparator;
         /**
          * Submenu for quickly removing cards from categories.
          */
-        private JMenu removeFromCategoryMenu;
+        private final JMenu removeFromCategoryMenu;
         /**
          * Table in which the menu appears.
          */
-        private CardTable table;
+        private final CardTable table;
 
         /**
          * Create a new TablePopupListener.
