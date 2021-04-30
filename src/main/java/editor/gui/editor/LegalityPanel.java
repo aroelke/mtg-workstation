@@ -287,7 +287,7 @@ public class LegalityPanel extends Box
             boolean partners = false;
             if (!commanderSearch.isEmpty())
             {
-                if (constraints.hasCommander)
+                if (constraints.hasCommander())
                 {
                     var possibleCommanders = commanderSearch.stream().filter((c) -> c.commandFormats().contains(format)).collect(Collectors.toList());
                     for (Card c : new ArrayList<>(possibleCommanders))
@@ -335,24 +335,24 @@ public class LegalityPanel extends Box
             }
 
             // Deck size
-            if (constraints.hasCommander)
+            if (constraints.hasCommander())
             {
-                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != constraints.deckSize) ||
+                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != constraints.deckSize()) ||
                     ((!commanderSearch.isEmpty() && commanderSearch != deck) &&
-                     (commander && deck.total() != constraints.deckSize - 1) || (partners && deck.total() != constraints.deckSize - 2)))
-                    warnings.get(format).add("Deck does not contain exactly " + (constraints.deckSize - 1) + " cards plus a commander or " +
-                                                                                (constraints.deckSize - 2) + " cards plus two partner commanders");
+                     (commander && deck.total() != constraints.deckSize() - 1) || (partners && deck.total() != constraints.deckSize() - 2)))
+                    warnings.get(format).add("Deck does not contain exactly " + (constraints.deckSize() - 1) + " cards plus a commander or " +
+                                                                                (constraints.deckSize() - 2) + " cards plus two partner commanders");
             }
             else
             {
-                if (deck.total() < constraints.deckSize)
-                    warnings.get(format).add("Deck contains fewer than " + constraints.deckSize + " cards");
+                if (deck.total() < constraints.deckSize())
+                    warnings.get(format).add("Deck contains fewer than " + constraints.deckSize() + " cards");
             }
 
             // Individual card legality and count
             for (Card c : deck)
             {
-                final int maxCopies = constraints.maxCopies;
+                final int maxCopies = constraints.maxCopies();
                 if (!c.legalityIn(format).isLegal)
                     warnings.get(format).add(c.unifiedName() + " is illegal in " + format);
                 else if (isoNameCounts.containsKey(c) && !c.ignoreCountRestriction())
@@ -366,8 +366,8 @@ public class LegalityPanel extends Box
 
             // Sideboard size
             sideboard.ifPresent((sb) -> {
-                if (sb.total() > constraints.sideboardSize)
-                    warnings.get(format).add("Sideboard contains more than " + constraints.sideboardSize + " cards");
+                if (sb.total() > constraints.sideboardSize())
+                    warnings.get(format).add("Sideboard contains more than " + constraints.sideboardSize() + " cards");
             });
         }
 

@@ -3,15 +3,20 @@ package editor.database;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * This class represents the constraints on building a deck for a particular format.
  * 
+ * @param deckSize number of cards a deck should have
+ * @param isExact whether the deck size is an exact count or an upper bound
+ * @param maxCopies maximum number of copies of a single card allowed
+ * @param sideboardSize maximum number of cards allowed in a sideboard
+ * @param hasCommander whether or not a deck has a commander
+ * 
  * @author Alec Roelke
  */
-public class FormatConstraints
+public record FormatConstraints(int deckSize, boolean isExact, int maxCopies, int sideboardSize, boolean hasCommander)
 {
     /**
      * Mapping of format names onto their deckbulding constraints.
@@ -65,36 +70,6 @@ public class FormatConstraints
         "Has Commander?"
     );
 
-    /** Number of cards the deck should have. */
-    public final int deckSize;
-    /** Whether {@link #deckSize} represents an exact count or minimum. */
-    public final boolean isExact;
-    /** Maximum number of copies of a card in a deck. */
-    public final int maxCopies;
-    /** Maximum number of cards in a sideboard */
-    public final int sideboardSize;
-    /** Whether or not the format has a commander. */
-    public final boolean hasCommander;
-    
-    /**
-     * Create a new set of deckbuilding constraints.  Since this is immutable and
-     * not customizable by the user, this constructor isn't visible outside this class.
-     * 
-     * @param size number of cards in a deck
-     * @param exact whether or not <code>size</code> is an exact count
-     * @param copies number of copies of a card
-     * @param sideboard number of copies in a sideboard
-     * @param commander whether or not the format has a commander
-     */
-    private FormatConstraints(int size, boolean exact, int copies, int sideboard, boolean commander)
-    {
-        deckSize = size;
-        isExact = exact;
-        maxCopies = copies;
-        sideboardSize = sideboard;
-        hasCommander = commander;
-    }
-
     /**
      * Create a default set of deckbuilding constraints, which is for a 60-card-
      * minimum-sized deck with 4 copies of any card and no commander.
@@ -111,28 +86,6 @@ public class FormatConstraints
      */
     public Object[] toArray(String name)
     {
-        return new Object[] { name, deckSize, isExact, maxCopies, sideboardSize, hasCommander };
-    }
-
-    @Override
-    public boolean equals(Object other)
-    {
-        if (other == null)
-            return false;
-        if (other == this)
-            return true;
-        if (other instanceof FormatConstraints o)
-            return o.deckSize == deckSize &&
-                   o.isExact == isExact &&
-                   o.maxCopies == maxCopies &&
-                   o.sideboardSize == sideboardSize &&
-                   o.hasCommander == hasCommander;
-        return false;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(deckSize, isExact, maxCopies, sideboardSize, hasCommander);
+        return new Object[] {name, deckSize, isExact, maxCopies, sideboardSize, hasCommander};
     }
 }
