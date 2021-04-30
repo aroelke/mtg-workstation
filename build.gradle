@@ -27,7 +27,7 @@ sourceCompatibility = 15
 targetCompatibility = 15
 
 application {
-    applicationDefaultJvmArgs = ['-Dsun.java2d.d3d=false']
+    applicationDefaultJvmArgs = ['-Dsun.java2d.d3d=false', '-Dfile.encoding=UTF-8']
 }
 
 jar {
@@ -43,6 +43,7 @@ task jpackage(type: Exec) {
         '--name', 'MTG Workstation',
         '--win-dir-chooser', '--win-menu', '--win-shortcut',
         '--java-options', '-Dsun.java2d.d3d=false',
+        '--java-options', '-Dfile.encoding=UTF-8',
         '--icon', 'src\\main\\resources\\icon\\icon.ico',
         '--app-version', version,
         '--dest', buildDir
