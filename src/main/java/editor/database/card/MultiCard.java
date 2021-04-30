@@ -203,7 +203,7 @@ public abstract class MultiCard extends Card
         imageNames = new Lazy<>(() -> collect(Card::imageNames));
         multiverseid = new Lazy<>(() -> collect(Card::multiverseid));
         scryfallid = new Lazy<>(() -> collect(Card::scryfallid));
-        isLand = faces.get(0).isLand();
+        isLand = faces.get(0).isLand() || (layout == CardLayout.MODAL_DFC && faces.get(1).isLand());
         commandFormats = new Lazy<>(() -> faces.stream().flatMap((c) -> c.commandFormats().stream()).distinct().sorted().collect(Collectors.toList()));
     }
 
