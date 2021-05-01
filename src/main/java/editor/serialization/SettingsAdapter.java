@@ -124,38 +124,38 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
 
         JsonObject editor = new JsonObject();
         JsonObject recents = new JsonObject();
-        recents.addProperty("count", src.editor.recents.count());
+        recents.addProperty("count", src.editor.recents().count());
         JsonArray recentFiles = new JsonArray();
-        for (String file : src.editor.recents.files())
+        for (String file : src.editor.recents().files())
             recentFiles.add(file);
         recents.add("files", recentFiles);
         editor.add("recents", recents);
         JsonObject categories = new JsonObject();
         JsonArray presetCategories = new JsonArray();
-        for (CategorySpec category : src.editor.categories.presets())
+        for (CategorySpec category : src.editor.categories().presets())
             presetCategories.add(context.serialize(category));
         categories.add("presets", presetCategories);
-        categories.addProperty("rows", src.editor.categories.rows());
-        categories.addProperty("explicits", src.editor.categories.explicits());
+        categories.addProperty("rows", src.editor.categories().rows());
+        categories.addProperty("explicits", src.editor.categories().explicits());
         editor.add("categories", categories);
         JsonArray editorColumns = new JsonArray();
-        for (CardAttribute column : src.editor.columns)
+        for (CardAttribute column : src.editor.columns())
             editorColumns.add(context.serialize(column));
         editor.add("columns", editorColumns);
-        editor.add("stripe", context.serialize(src.editor.stripe));
+        editor.add("stripe", context.serialize(src.editor.stripe()));
         JsonObject hand = new JsonObject();
-        hand.addProperty("size", src.editor.hand.size());
-        hand.addProperty("rounding", src.editor.hand.rounding());
-        hand.add("background", context.serialize(src.editor.hand.background()));
+        hand.addProperty("size", src.editor.hand().size());
+        hand.addProperty("rounding", src.editor.hand().rounding());
+        hand.add("background", context.serialize(src.editor.hand().background()));
         editor.add("hand", hand);
         JsonObject legality = new JsonObject();
-        legality.addProperty("searchForCommander", src.editor.legality.searchForCommander());
-        legality.addProperty("main", src.editor.legality.main());
-        legality.addProperty("all", src.editor.legality.all());
-        legality.addProperty("list", src.editor.legality.list());
-        legality.addProperty("sideboard", src.editor.legality.sideboard());
+        legality.addProperty("searchForCommander", src.editor.legality().searchForCommander());
+        legality.addProperty("main", src.editor.legality().main());
+        legality.addProperty("all", src.editor.legality().all());
+        legality.addProperty("list", src.editor.legality().list());
+        legality.addProperty("sideboard", src.editor.legality().sideboard());
         editor.add("legality", legality);
-        editor.addProperty("manaValue", src.editor.manaValue);
+        editor.addProperty("manaValue", src.editor.manaValue());
 
         settings.add("inventory", inventory);
         settings.add("editor", editor);

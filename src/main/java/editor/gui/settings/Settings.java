@@ -107,9 +107,24 @@ public final class Settings
      * Sub-structure containing settings for the editor frames.  It has some
      * of its own sub-structures that are also immutable.
      * 
+     * @param recents {@link RecentsSettings}
+     * @param categories {@link CategoriesSettings}
+     * @param columns card attributes to show in editor tables
+     * @param stripe stripe color of editor tables
+     * @param hand {@link HandSettings}
+     * @param legality {@link LegalitySettings}
+     * @param manaValue which mana value of cards with multiple values to use
+     * 
      * @author Alec Roelke
      */
-    public static final class EditorSettings
+    public static record EditorSettings(
+        RecentsSettings recents,
+        CategoriesSettings categories,
+        List<CardAttribute> columns,
+        Color stripe,
+        HandSettings hand,
+        LegalitySettings legality,
+        String manaValue)
     {
         /**
          * Sub-structure containing information about recently-edited files.
@@ -176,70 +191,36 @@ public final class Settings
             }
         }
 
-        /** @see RecentsSettings */
-        public final RecentsSettings recents;
-        /** @see CategoriesSettings */
-        public final CategoriesSettings categories;
-        /** Card attributes to show in editor tables. */
-        public final List<CardAttribute> columns;
-        /** Stripe color of editor tables. */
-        public final Color stripe;
-        /** @see HandSettings */
-        public final HandSettings hand;
-        /** @see LegalitySettings */
-        public final LegalitySettings legality;
-        /** Which mana value of cards with multiple values to use. */
-        public final String manaValue;
-
         private EditorSettings(int recentsCount, List<String> recentsFiles,
-                                 int explicits,
-                                 List<CategorySpec> presetCategories, int categoryRows,
-                                 List<CardAttribute> columns, Color stripe,
-                                 int handSize, String handRounding, Color handBackground,
-                                 boolean searchForCommander, boolean main, boolean all, String list, String sideboard,
-                                 String manaValue)
+                               int explicits,
+                               List<CategorySpec> presetCategories, int categoryRows,
+                               List<CardAttribute> columns, Color stripe,
+                               int handSize, String handRounding, Color handBackground,
+                               boolean searchForCommander, boolean main, boolean all, String list, String sideboard,
+                               String manaValue)
         {
-            this.recents = new RecentsSettings(recentsCount, recentsFiles);
-            this.categories = new CategoriesSettings(presetCategories, categoryRows, explicits);
-            this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
-            this.stripe = stripe;
-            this.hand = new HandSettings(handSize, handRounding, handBackground);
-            this.legality = new LegalitySettings(searchForCommander, main, all, list, sideboard);
-            this.manaValue = manaValue;
+            this(
+                new RecentsSettings(recentsCount, recentsFiles),
+                new CategoriesSettings(presetCategories, categoryRows, explicits),
+                Collections.unmodifiableList(new ArrayList<>(columns)),
+                stripe,
+                new HandSettings(handSize, handRounding, handBackground),
+                new LegalitySettings(searchForCommander, main, all, list, sideboard),
+                manaValue
+            );
         }
 
         private EditorSettings()
         {
-            recents = new RecentsSettings();
-            categories = new CategoriesSettings();
-            columns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED);
-            stripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
-            hand = new HandSettings();
-            legality = new LegalitySettings();
-            manaValue = "Minimum";
-        }
-
-        @Override
-        public boolean equals(Object other)
-        {
-            if (other == null)
-                return false;
-            if (other == this)
-                return true;
-            if (other instanceof EditorSettings o)
-                return recents.equals(o.recents) &&
-                       categories.equals(o.categories) &&
-                       columns.equals(o.columns) &&
-                       stripe.equals(o.stripe) &&
-                       hand.equals(o.hand) &&
-                       legality.equals(o.legality);
-            return false;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(recents, categories, columns, stripe, hand, legality);
+            this(
+                new RecentsSettings(),
+                new CategoriesSettings(),
+                List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED),
+                new Color(0xCC, 0xCC, 0xCC, 0xFF),
+                new HandSettings(),
+                new LegalitySettings(),
+                "Minimum"
+            );
         }
     }
 

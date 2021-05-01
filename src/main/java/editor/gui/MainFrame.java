@@ -439,7 +439,7 @@ public class MainFrame extends JFrame
             JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.settings().inventory.url() + ".zip", "Warning", JOptionPane.WARNING_MESSAGE);
         }
         inventoryFile = new File(SettingsDialog.settings().inventory.path());
-        recentCount = SettingsDialog.settings().editor.recents.count();
+        recentCount = SettingsDialog.settings().editor.recents().count();
         newestVersion = SettingsDialog.settings().inventory.version();
 
         setTitle("MTG Workstation");
@@ -504,7 +504,7 @@ public class MainFrame extends JFrame
         // Recent files menu
         recentsMenu = new JMenu("Open Recent");
         recentsMenu.setEnabled(false);
-        for (String fname : SettingsDialog.settings().editor.recents.files())
+        for (String fname : SettingsDialog.settings().editor.recents().files())
             updateRecents(new File(fname));
         fileMenu.add(recentsMenu);
 
@@ -1571,7 +1571,7 @@ public class MainFrame extends JFrame
 
                 if (!inventory.isEmpty())
                 {
-                    for (CategorySpec spec : SettingsDialog.settings().editor.categories.presets())
+                    for (CategorySpec spec : SettingsDialog.settings().editor.categories().presets())
                     {
                         JMenuItem categoryItem = new JMenuItem(spec.getName());
                         categoryItem.addActionListener((v) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));
@@ -1629,20 +1629,20 @@ public class MainFrame extends JFrame
             JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.settings().inventory.url() + ".zip", "Warning", JOptionPane.WARNING_MESSAGE);
         }
         inventoryFile = new File(SettingsDialog.settings().inventory.path());
-        recentCount = SettingsDialog.settings().editor.recents.count();
+        recentCount = SettingsDialog.settings().editor.recents().count();
         inventoryModel.setColumns(SettingsDialog.settings().inventory.columns());
         inventoryTable.setStripeColor(SettingsDialog.settings().inventory.stripe());
         for (EditorFrame frame : editors)
             frame.applySettings();
         presetMenu.removeAll();
-        for (CategorySpec spec : SettingsDialog.settings().editor.categories.presets())
+        for (CategorySpec spec : SettingsDialog.settings().editor.categories().presets())
         {
             JMenuItem categoryItem = new JMenuItem(spec.getName());
             categoryItem.addActionListener((e) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));
             presetMenu.add(categoryItem);
         }
         setImageBackground(SettingsDialog.settings().inventory.background());
-        setHandBackground(SettingsDialog.settings().editor.hand.background());
+        setHandBackground(SettingsDialog.settings().editor.hand().background());
 
         revalidate();
         repaint();
