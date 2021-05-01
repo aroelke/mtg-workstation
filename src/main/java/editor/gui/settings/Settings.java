@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
@@ -28,9 +27,13 @@ import editor.filter.leaf.options.multi.CardTypeFilter;
  * members and sub-structures and should be created using
  * {@link SettingsBuilder}.
  * 
+ * @param inventory {@link InventorySettings}
+ * @param editor {@link EditorSettings}
+ * @param cwd initial directory of file choosers
+ * 
  * @author Alec Roelke
  */
-public final class Settings
+public record Settings(InventorySettings inventory, EditorSettings editor, String cwd)
 {
     /**
      * Sub-structure containing global inventory and card settings.
@@ -224,42 +227,17 @@ public final class Settings
         }
     }
 
-    /** @see InventorySettings */
-    public final InventorySettings inventory;
-    /** @see EditorSettings */
-    public final EditorSettings editor;
-    /** Initial directory of file choosers. */
-    public final String cwd;
-
     protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, String cwd)
     {
-        this.inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
-        this.editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard, manaValue);
-        this.cwd = cwd;
+        this(
+            new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe),
+            new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard, manaValue),
+            cwd
+        );
     }
 
     protected Settings()
     {
-        inventory = new InventorySettings();
-        editor = new EditorSettings();
-        cwd = System.getProperty("user.home");
-    }
-
-    @Override
-    public boolean equals(Object other)
-    {
-        if (other == null)
-            return false;
-        if (this == other)
-            return true;
-        if (other instanceof Settings o)
-            return inventory.equals(o.inventory) && editor.equals(o.editor) && cwd.equals(o.cwd);
-        return false;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(inventory, editor, cwd);
+        this(new InventorySettings(), new EditorSettings(), System.getProperty("user.home"));
     }
 }
