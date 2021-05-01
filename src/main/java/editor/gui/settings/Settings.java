@@ -40,7 +40,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
      * 
      * @author Alec Roelke
      */
-    public static record InventorySettings(
+    public record InventorySettings(
         String source,
         String file,
         String versionFile,
@@ -120,7 +120,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
      * 
      * @author Alec Roelke
      */
-    public static record EditorSettings(
+    public record EditorSettings(
         RecentsSettings recents,
         CategoriesSettings categories,
         List<CardAttribute> columns,
@@ -134,7 +134,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
          * 
          * @author Alec Roelke
          */
-        public static record RecentsSettings(int count, List<String> files)
+        public record RecentsSettings(int count, List<String> files)
         {
             private RecentsSettings()
             {
@@ -147,7 +147,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
          * 
          * @author Alec Roelke
          */
-        public static record CategoriesSettings(List<CategorySpec> presets, int rows, int explicits)
+        public record CategoriesSettings(List<CategorySpec> presets, int rows, int explicits)
         {
             private CategoriesSettings()
             {
@@ -173,7 +173,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
          * 
          * @author Alec Roelke
          */
-        public static record HandSettings(int size, String rounding, Color background)
+        public record HandSettings(int size, String rounding, Color background)
         {
             private HandSettings()
             {
@@ -186,7 +186,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
          * 
          * @author Alec Roelke
          */
-        public static record LegalitySettings(boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
+        public record LegalitySettings(boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
         {
             private LegalitySettings()
             {
