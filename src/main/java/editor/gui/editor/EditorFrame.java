@@ -78,6 +78,7 @@ import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
 import editor.collection.export.CardListFormat;
 import editor.database.card.Card;
+import editor.database.card.MultiCard;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.TableSelectionListener;
@@ -2533,7 +2534,14 @@ public class EditorFrame extends JInternalFrame
      */
     public void updateStats()
     {
-        int lands = deck().current.stream().filter(Card::isLand).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
+        int lands = deck().current.stream().filter((c) -> {
+            if (c instanceof MultiCard m)
+                return switch (m.layout()) {
+                    case MODAL_DFC -> m.faces().stream().anyMatch(Card::isLand);
+                    default -> m.faces().get(0).isLand();
+                };
+            return c.isLand();
+        }).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
         countLabel.setText("Total cards: " + deck().current.total());
         landLabel.setText("Lands: " + lands);
         nonlandLabel.setText("Nonlands: " + (deck().current.total() - lands));

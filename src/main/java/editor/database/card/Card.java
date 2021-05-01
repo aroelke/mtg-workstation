@@ -66,10 +66,6 @@ public abstract class Card
      */
     private final Expansion expansion;
     /**
-     * Number of faces this Card has.
-     */
-    private final int faces;
-    /**
      * Whether or not to ignore the card count restriction for this Card.
      */
     private Lazy<Boolean> ignoreCountRestriction;
@@ -113,13 +109,11 @@ public abstract class Card
      *
      * @param expansion expension the new Card belongs to
      * @param layout layout of the new Card
-     * @param faces number of faces the new Card has
      */
-    public Card(Expansion expansion, CardLayout layout, int faces)
+    public Card(Expansion expansion, CardLayout layout)
     {
         this.expansion = expansion;
         this.layout = layout;
-        this.faces = faces;
 
         normalizedName = new Lazy<>(() -> Collections.unmodifiableList(name().stream().map(UnicodeSymbols::normalize).collect(Collectors.toList())));
         legendName = new Lazy<>(() -> {
@@ -154,8 +148,8 @@ public abstract class Card
             return Collections.unmodifiableList(legendNames);
         });
         normalizedOracle = new Lazy<>(() -> {
-            var texts = new ArrayList<String>(faces);
-            for (int i = 0; i < faces; i++)
+            var texts = new ArrayList<String>(oracleText().size());
+            for (int i = 0; i < oracleText().size(); i++)
             {
                 String normal = UnicodeSymbols.normalize(oracleText().get(i).toLowerCase());
                 normal = normal.replace(legendName().get(i), Card.THIS).replace(normalizedName().get(i), Card.THIS);
@@ -262,16 +256,6 @@ public abstract class Card
     public Expansion expansion()
     {
         return expansion;
-    }
-
-    /**
-     * Get the number of faces this Card has.
-     *
-     * @return the number of faces
-     */
-    public int faces()
-    {
-        return faces;
     }
 
     /**

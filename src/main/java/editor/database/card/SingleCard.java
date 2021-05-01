@@ -198,7 +198,7 @@ public class SingleCard extends Card
                       Map<String, Legality> legality,
                       List<String> command)
     {
-        super(set, layout, 1);
+        super(set, layout);
 
         this.name = name;
         this.mana = mana;
