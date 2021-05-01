@@ -142,12 +142,14 @@ import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
 import editor.gui.inventory.InventoryDownloader;
 import editor.gui.inventory.InventoryLoader;
+import editor.gui.settings.Settings;
 import editor.gui.settings.SettingsDialog;
 import editor.serialization.AttributeAdapter;
 import editor.serialization.CardAdapter;
 import editor.serialization.CategoryAdapter;
 import editor.serialization.DeckAdapter;
 import editor.serialization.FilterAdapter;
+import editor.serialization.SettingsAdapter;
 import editor.serialization.VersionAdapter;
 import editor.serialization.legacy.DeckDeserializer;
 import editor.util.ColorAdapter;
@@ -229,6 +231,7 @@ public class MainFrame extends JFrame
      * Serializer for saving and loading external information.
      */
     public static final Gson SERIALIZER = new GsonBuilder()
+        .registerTypeAdapter(Settings.class, new SettingsAdapter())
         .registerTypeAdapter(CategorySpec.class, new CategoryAdapter())
         .registerTypeHierarchyAdapter(Filter.class, new FilterAdapter())
         .registerTypeAdapter(Color.class, new ColorAdapter())
