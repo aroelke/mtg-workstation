@@ -583,7 +583,7 @@ public class EditorFrame extends JInternalFrame
         unsaved = false;
         undoBuffer = new Stack<>();
         redoBuffer = new Stack<>();
-        startingHandSize = SettingsDialog.settings().editor.hand.size;
+        startingHandSize = SettingsDialog.settings().editor().hand().size();
         if (manager.canSaveFile())
             setFile(manager.file());
         else
@@ -594,9 +594,9 @@ public class EditorFrame extends JInternalFrame
 
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        deck().model = new CardTableModel(this, deck().current, SettingsDialog.settings().editor.columns);
+        deck().model = new CardTableModel(this, deck().current, SettingsDialog.settings().editor().columns());
         deck().table = new CardTable(deck().model);
-        deck().table.setStripeColor(SettingsDialog.settings().editor.stripe);
+        deck().table.setStripeColor(SettingsDialog.settings().editor().stripe());
 
         TableSelectionListener listener = new TableSelectionListener(parent, deck().table, deck().current);
         deck().table.addMouseListener(listener);
@@ -833,7 +833,7 @@ public class EditorFrame extends JInternalFrame
         imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
         imagePane = new JScrollPane(imagePanel);
         imagePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        setHandBackground(SettingsDialog.settings().editor.hand.background);
+        setHandBackground(SettingsDialog.settings().editor().hand().background());
 
         // Control panel for manipulating the sample hand
         JPanel handModPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -846,7 +846,7 @@ public class EditorFrame extends JInternalFrame
             {
                 CardImagePanel panel = new CardImagePanel();
                 panel.setCard(c);
-                panel.setBackground(SettingsDialog.settings().editor.hand.background);
+                panel.setBackground(SettingsDialog.settings().editor().hand().background());
                 imagePanel.add(panel);
                 imagePanel.add(Box.createHorizontalStrut(10));
             }
@@ -864,7 +864,7 @@ public class EditorFrame extends JInternalFrame
                 CardImagePanel panel = new CardImagePanel();
                 imagePanel.add(panel);
                 panel.setCard(c);
-                panel.setBackground(SettingsDialog.settings().editor.hand.background);
+                panel.setBackground(SettingsDialog.settings().editor().hand().background());
                 imagePanel.add(Box.createHorizontalStrut(10));
             }
             imagePanel.validate();
@@ -877,7 +877,7 @@ public class EditorFrame extends JInternalFrame
             {
                 hand.draw();
                 CardImagePanel panel = new CardImagePanel();
-                panel.setBackground(SettingsDialog.settings().editor.hand.background);
+                panel.setBackground(SettingsDialog.settings().editor().hand().background());
                 imagePanel.add(panel);
                 panel.setCard(hand.get(hand.size() - 1));
                 imagePanel.add(Box.createHorizontalStrut(10));
@@ -1143,8 +1143,8 @@ public class EditorFrame extends JInternalFrame
      */
     public void applySettings()
     {
-        var columns = SettingsDialog.settings().editor.columns;
-        Color stripe = SettingsDialog.settings().editor.stripe;
+        var columns = SettingsDialog.settings().editor().columns();
+        Color stripe = SettingsDialog.settings().editor().stripe();
         deck().model.setColumns(columns);
         deck().table.setStripeColor(stripe);
         for (int i = 0; i < deck().table.getColumnCount(); i++)
@@ -1152,7 +1152,7 @@ public class EditorFrame extends JInternalFrame
                 deck().table.getColumn(deck().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck().model.getColumnData(i)));
         for (CategoryPanel category : categoryPanels)
             category.applySettings(this);
-        startingHandSize = SettingsDialog.settings().editor.hand.size;
+        startingHandSize = SettingsDialog.settings().editor().hand().size();
         updateStats();
         update();
     }
@@ -2056,10 +2056,10 @@ public class EditorFrame extends JInternalFrame
     public JScrollPane initExtraList(final int id)
     {
         // Extra list's models
-        lists.get(id).model = new CardTableModel(this, lists.get(id).current, SettingsDialog.settings().editor.columns);
+        lists.get(id).model = new CardTableModel(this, lists.get(id).current, SettingsDialog.settings().editor().columns());
         lists.get(id).table = new CardTable(lists.get(id).model);
         lists.get(id).table.setPreferredScrollableViewportSize(new Dimension(lists.get(id).table.getPreferredScrollableViewportSize().width, 5*lists.get(id).table.getRowHeight()));
-        lists.get(id).table.setStripeColor(SettingsDialog.settings().editor.stripe);
+        lists.get(id).table.setStripeColor(SettingsDialog.settings().editor().stripe());
         // When a card is selected in a sideboard table, select it for adding
         TableSelectionListener listener = new TableSelectionListener(parent, lists.get(id).table, lists.get(id).current);
         lists.get(id).table.addMouseListener(listener);
@@ -2539,7 +2539,7 @@ public class EditorFrame extends JInternalFrame
 
         var manaValue = deck().current.stream()
             .filter((c) -> !c.typeContains("land"))
-            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), switch (SettingsDialog.settings().editor.manaValue) {
+            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), switch (SettingsDialog.settings().editor().manaValue()) {
                 case "Minimum" -> c.minManaValue();
                 case "Maximum" -> c.maxManaValue();
                 case "Average" -> c.avgManaValue();

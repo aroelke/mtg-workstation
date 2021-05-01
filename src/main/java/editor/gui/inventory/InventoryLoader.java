@@ -191,7 +191,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         }
         catch (CancellationException e)
         {}
-        if (SettingsDialog.settings().inventory.warn && !loader.warnings().isEmpty())
+        if (SettingsDialog.settings().inventory().warn() && !loader.warnings().isEmpty())
         {
             SwingUtilities.invokeLater(() -> {
                 StringJoiner join = new StringJoiner("<li>", "<html>", "</ul></html>");
@@ -201,7 +201,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 JPanel warningPanel = new JPanel(new BorderLayout());
                 JLabel warningLabel = new JLabel(join.toString());
                 warningPanel.add(warningLabel, BorderLayout.CENTER);
-                JCheckBox suppressBox = new JCheckBox("Don't show this warning in the future", !SettingsDialog.settings().inventory.warn);
+                JCheckBox suppressBox = new JCheckBox("Don't show this warning in the future", !SettingsDialog.settings().inventory().warn());
                 warningPanel.add(suppressBox, BorderLayout.SOUTH);
                 JOptionPane.showMessageDialog(null, warningPanel, "Warning", JOptionPane.WARNING_MESSAGE);
                 SettingsDialog.setShowInventoryWarnings(!suppressBox.isSelected());
@@ -686,10 +686,10 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
         Inventory inventory = new Inventory(cards);
 
-        if (Files.exists(Path.of(SettingsDialog.settings().inventory.tags)))
+        if (Files.exists(Path.of(SettingsDialog.settings().inventory().tags())))
         {
             @SuppressWarnings("unchecked")
-            var rawTags = (Map<String, Set<String>>)MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Path.of(SettingsDialog.settings().inventory.tags))), new TypeToken<Map<String, Set<String>>>() {}.getType());
+            var rawTags = (Map<String, Set<String>>)MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Path.of(SettingsDialog.settings().inventory().tags()))), new TypeToken<Map<String, Set<String>>>() {}.getType());
             Card.tags.clear();
             Card.tags.putAll(rawTags.entrySet().stream().collect(Collectors.toMap((e) -> inventory.find(e.getKey()), Map.Entry::getValue)));
         }

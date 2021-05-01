@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
@@ -28,81 +27,36 @@ import editor.filter.leaf.options.multi.CardTypeFilter;
  * members and sub-structures and should be created using
  * {@link SettingsBuilder}.
  * 
+ * @param inventory {@link InventorySettings}
+ * @param editor {@link EditorSettings}
+ * @param cwd initial directory of file choosers
+ * 
  * @author Alec Roelke
  */
-public final class Settings
+public record Settings(InventorySettings inventory, EditorSettings editor, String cwd)
 {
     /**
      * Sub-structure containing global inventory and card settings.
      * 
      * @author Alec Roelke
      */
-    public static final class InventorySettings
-    {
-        /** Site containing the inventory to download. */
-        public final String source;
-        /** Actual inventory file to download (without .zip). */
-        public final String file;
-        /** File name containing latest inventory version. */
-        public final String versionFile;
-        /** Version of the stored inventory. */
-        public final DatabaseVersion version;
-        /** Directory to store inventory file in. */
-        public final String location;
-        /** Directory to store card images in. */
-        public final String scans;
-        /** Web site to download images from. */
-        public final String imageSource;
-        /** Whether or not to limit the number of images to cache. */
-        public final boolean imageLimitEnable;
-        /** How many images should be cached at a time. */
-        public final int imageLimit;
-        /** File to store tags in. */
-        public final String tags;
-        /** Check for inventory update on startup or don't. */
-        public final UpdateFrequency update;
-        /** Show warnings from loading inventory. */
-        public final boolean warn;
-        /** Card attributes to show in inventory table. */
-        public final List<CardAttribute> columns;
-        /** Background color of card image panel. */
-        public final Color background;
-        /** Stripe color of inventory table. */
-        public final Color stripe;
-
-        private InventorySettings(String source,
-                                    String file,
-                                    String versionFile,
-                                    DatabaseVersion version,
-                                    String location,
-                                    String scans,
-                                    String imageSource,
-                                    boolean imageLimitEnable,
-                                    int imageLimit,
-                                    String tags,
-                                    UpdateFrequency update,
-                                    boolean warn,
-                                    List<CardAttribute> columns,
-                                    Color background,
-                                    Color stripe)
-        {
-            this.source = source;
-            this.file = file;
-            this.versionFile = versionFile;
-            this.version = version;
-            this.location = location;
-            this.scans = scans;
-            this.imageSource = imageSource;
-            this.imageLimitEnable = imageLimitEnable;
-            this.imageLimit = imageLimit;
-            this.tags = tags;
-            this.update = update;
-            this.warn = warn;
-            this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
-            this.background = background;
-            this.stripe = stripe;
-        }
-
+    public record InventorySettings(
+        String source,
+        String file,
+        String versionFile,
+        DatabaseVersion version,
+        String location,
+        String scans,
+        String imageSource,
+        boolean imageLimitEnable,
+        int imageLimit,
+        String tags,
+        UpdateFrequency update,
+        boolean warn,
+        List<CardAttribute> columns,
+        Color background,
+        Color stripe
+    ) {
         private InventorySettings()
         {
             this(
@@ -150,79 +104,41 @@ public final class Settings
         {
             return source + versionFile;
         }
-
-        @Override
-        public boolean equals(Object other)
-        {
-            if (other == null)
-                return false;
-            if (other == this)
-                return true;
-            if (other instanceof InventorySettings o)
-                return source.equals(o.source) &&
-                       file.equals(o.file) &&
-                       versionFile.equals(o.versionFile) &&
-                       version.equals(o.version) &&
-                       location.equals(o.location) &&
-                       scans.equals(o.scans) &&
-                       imageSource.equals(o.imageSource) &&
-                       tags.equals(o.tags) &&
-                       update == o.update &&
-                       warn == o.warn &&
-                       columns.equals(o.columns) &&
-                       background.equals(o.background) &&
-                       stripe.equals(o.stripe);
-            return false;
-        }
     }
 
     /**
      * Sub-structure containing settings for the editor frames.  It has some
      * of its own sub-structures that are also immutable.
      * 
+     * @param recents {@link RecentsSettings}
+     * @param categories {@link CategoriesSettings}
+     * @param columns card attributes to show in editor tables
+     * @param stripe stripe color of editor tables
+     * @param hand {@link HandSettings}
+     * @param legality {@link LegalitySettings}
+     * @param manaValue which mana value of cards with multiple values to use
+     * 
      * @author Alec Roelke
      */
-    public static final class EditorSettings
+    public record EditorSettings(
+        RecentsSettings recents,
+        CategoriesSettings categories,
+        List<CardAttribute> columns,
+        Color stripe,
+        HandSettings hand,
+        LegalitySettings legality,
+        String manaValue)
     {
         /**
          * Sub-structure containing information about recently-edited files.
          * 
          * @author Alec Roelke
          */
-        public static final class RecentsSettings
+        public record RecentsSettings(int count, List<String> files)
         {
-            /** Number of recent files to store. */
-            public final int count;
-            /** List of recently-edited files. */
-            public final List<String> files;
-
-            private RecentsSettings(int count, List<String> files)
-            {
-                this.count = count;
-                this.files = Collections.unmodifiableList(new ArrayList<>(files));
-            }
-
             private RecentsSettings()
             {
                 this(4, Collections.emptyList());
-            }
-
-            @Override
-            public boolean equals(Object other)
-            {
-                if (other == null)
-                    return false;
-                if (other == this)
-                    return true;
-                if (other instanceof RecentsSettings o)
-                    return count == o.count && files.equals(o.files);
-                return false;
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(count, files);
             }
         }
 
@@ -231,22 +147,8 @@ public final class Settings
          * 
          * @author Alec Roelke
          */
-        public static final class CategoriesSettings
+        public record CategoriesSettings(List<CategorySpec> presets, int rows, int explicits)
         {
-            /** Preset categories for quickly adding to decks. */
-            public final List<CategorySpec> presets;
-            /** Max number of rows to display cards in category tables. */
-            public final int rows;
-            /** Number of rows to show in white- or blacklists. */
-            public final int explicits;
-
-            private CategoriesSettings(List<CategorySpec> presets, int rows, int explicits)
-            {
-                this.presets = Collections.unmodifiableList(new ArrayList<>(presets));
-                this.rows = rows;
-                this.explicits = explicits;
-            }
-
             private CategoriesSettings()
             {
                 this(
@@ -263,24 +165,6 @@ public final class Settings
                     6, 3
                 );
             }
-
-            @Override
-            public boolean equals(Object other)
-            {
-                if (other == null)
-                    return false;
-                if (other == this)
-                    return true;
-                if (other instanceof CategoriesSettings o)
-                    return presets.equals(o.presets) && rows == o.rows && explicits == o.explicits;
-                return false;
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(presets, rows, explicits);
-            }
         }
 
         /**
@@ -289,43 +173,11 @@ public final class Settings
          * 
          * @author Alec Roelke
          */
-        public static final class HandSettings
+        public record HandSettings(int size, String rounding, Color background)
         {
-            /** Initial size of opening hands before mulligans. */
-            public final int size;
-            /** How to round statistics (nearest, truncate, or don't). */
-            public final String rounding;
-            /** Background color for sample hand images. */
-            public final Color background;
-
-            private HandSettings(int size, String rounding, Color background)
-            {
-                this.size = size;
-                this.rounding = rounding;
-                this.background = background;
-            }
-
             private HandSettings()
             {
                 this(7, "No rounding", Color.WHITE);
-            }
-
-            @Override
-            public boolean equals(Object other)
-            {
-                if (other == null)
-                    return false;
-                if (other == this)
-                    return true;
-                if (other instanceof HandSettings o)
-                    return size == o.size && rounding.equals(o.rounding) && background.equals(o.background);
-                return false;
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(size, rounding, background);
             }
         }
 
@@ -334,159 +186,58 @@ public final class Settings
          * 
          * @author Alec Roelke
          */
-        public static final class LegalitySettings
+        public record LegalitySettings(boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
         {
-            /** Whether or not to search for a commander if determine legality in applicable formats. */
-            public final boolean searchForCommander;
-            /** If searching for a commander, whether or not to search just the main deck. */
-            public final boolean main;
-            /** If searching for a commander, whether or not to check all lists. */
-            public final boolean all;
-            /** If searching for a commander, default name of the list to search that isn't the main deck. */
-            public final String list;
-            /** Include sideboard size in legality determination. */
-            public final String sideboard;
-
-            private LegalitySettings(boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
-            {
-                this.searchForCommander = searchForCommander;
-                this.main = main;
-                this.all = all;
-                this.list = list;
-                this.sideboard = sideboard;
-            }
-
             private LegalitySettings()
             {
                 this(true, true, false, "", "");
             }
-
-            @Override
-            public boolean equals(Object other)
-            {
-                if (other == null)
-                    return false;
-                if (other == this)
-                    return true;
-                if (other instanceof LegalitySettings o)
-                    return searchForCommander == o.searchForCommander &&
-                           main == o.main &&
-                           all == o.all &&
-                           list.equals(o.list) &&
-                           sideboard.equals(o.sideboard);
-                return false;
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(searchForCommander, main, all, list, sideboard);
-            }
         }
 
-        /** @see RecentsSettings */
-        public final RecentsSettings recents;
-        /** @see CategoriesSettings */
-        public final CategoriesSettings categories;
-        /** Card attributes to show in editor tables. */
-        public final List<CardAttribute> columns;
-        /** Stripe color of editor tables. */
-        public final Color stripe;
-        /** @see HandSettings */
-        public final HandSettings hand;
-        /** @see LegalitySettings */
-        public final LegalitySettings legality;
-        /** Which mana value of cards with multiple values to use. */
-        public final String manaValue;
-
         private EditorSettings(int recentsCount, List<String> recentsFiles,
-                                 int explicits,
-                                 List<CategorySpec> presetCategories, int categoryRows,
-                                 List<CardAttribute> columns, Color stripe,
-                                 int handSize, String handRounding, Color handBackground,
-                                 boolean searchForCommander, boolean main, boolean all, String list, String sideboard,
-                                 String manaValue)
+                               int explicits,
+                               List<CategorySpec> presetCategories, int categoryRows,
+                               List<CardAttribute> columns, Color stripe,
+                               int handSize, String handRounding, Color handBackground,
+                               boolean searchForCommander, boolean main, boolean all, String list, String sideboard,
+                               String manaValue)
         {
-            this.recents = new RecentsSettings(recentsCount, recentsFiles);
-            this.categories = new CategoriesSettings(presetCategories, categoryRows, explicits);
-            this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
-            this.stripe = stripe;
-            this.hand = new HandSettings(handSize, handRounding, handBackground);
-            this.legality = new LegalitySettings(searchForCommander, main, all, list, sideboard);
-            this.manaValue = manaValue;
+            this(
+                new RecentsSettings(recentsCount, recentsFiles),
+                new CategoriesSettings(presetCategories, categoryRows, explicits),
+                Collections.unmodifiableList(new ArrayList<>(columns)),
+                stripe,
+                new HandSettings(handSize, handRounding, handBackground),
+                new LegalitySettings(searchForCommander, main, all, list, sideboard),
+                manaValue
+            );
         }
 
         private EditorSettings()
         {
-            recents = new RecentsSettings();
-            categories = new CategoriesSettings();
-            columns = List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED);
-            stripe = new Color(0xCC, 0xCC, 0xCC, 0xFF);
-            hand = new HandSettings();
-            legality = new LegalitySettings();
-            manaValue = "Minimum";
-        }
-
-        @Override
-        public boolean equals(Object other)
-        {
-            if (other == null)
-                return false;
-            if (other == this)
-                return true;
-            if (other instanceof EditorSettings o)
-                return recents.equals(o.recents) &&
-                       categories.equals(o.categories) &&
-                       columns.equals(o.columns) &&
-                       stripe.equals(o.stripe) &&
-                       hand.equals(o.hand) &&
-                       legality.equals(o.legality);
-            return false;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(recents, categories, columns, stripe, hand, legality);
+            this(
+                new RecentsSettings(),
+                new CategoriesSettings(),
+                List.of(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED),
+                new Color(0xCC, 0xCC, 0xCC, 0xFF),
+                new HandSettings(),
+                new LegalitySettings(),
+                "Minimum"
+            );
         }
     }
 
-    /** @see InventorySettings */
-    public final InventorySettings inventory;
-    /** @see EditorSettings */
-    public final EditorSettings editor;
-    /** Initial directory of file choosers. */
-    public final String cwd;
-
     protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, String cwd)
     {
-        this.inventory = new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe);
-        this.editor = new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard, manaValue);
-        this.cwd = cwd;
+        this(
+            new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe),
+            new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard, manaValue),
+            cwd
+        );
     }
 
     protected Settings()
     {
-        inventory = new InventorySettings();
-        editor = new EditorSettings();
-        cwd = System.getProperty("user.home");
-    }
-
-    @Override
-    public boolean equals(Object other)
-    {
-        if (other == null)
-            return false;
-        if (this == other)
-            return true;
-        if (other instanceof Settings o)
-            return inventory.equals(o.inventory) && editor.equals(o.editor) && cwd.equals(o.cwd);
-        return false;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(inventory, editor, cwd);
+        this(new InventorySettings(), new EditorSettings(), System.getProperty("user.home"));
     }
 }

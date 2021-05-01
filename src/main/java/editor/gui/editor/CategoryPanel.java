@@ -263,7 +263,7 @@ public class CategoryPanel extends JPanel
         name = n;
         background = getBackground();
         flashTimer = new FlashTimer();
-        tableRows = SettingsDialog.settings().editor.categories.rows;
+        tableRows = SettingsDialog.settings().editor().categories().rows();
 
         // Each category is surrounded by a border with a title
         setBorder(border = BorderFactory.createTitledBorder(name));
@@ -299,7 +299,7 @@ public class CategoryPanel extends JPanel
         add(topPanel, BorderLayout.NORTH);
 
         // Table showing the cards in the category
-        model = new CardTableModel(editor, deck.getCategoryList(name), SettingsDialog.settings().editor.columns);
+        model = new CardTableModel(editor, deck.getCategoryList(name), SettingsDialog.settings().editor().columns());
         table = new CardTable(model)
         {
             @Override
@@ -308,7 +308,7 @@ public class CategoryPanel extends JPanel
                 return new Dimension(getPreferredSize().width, tableRows*getRowHeight());
             }
         };
-        table.setStripeColor(SettingsDialog.settings().editor.stripe);
+        table.setStripeColor(SettingsDialog.settings().editor().stripe());
         for (int i = 0; i < table.getColumnCount(); i++)
             if (model.isCellEditable(0, i))
                 table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnData(i)));
@@ -361,7 +361,7 @@ public class CategoryPanel extends JPanel
                     Point p = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), table);
                     setCursor(new Cursor(Cursor.S_RESIZE_CURSOR));
                     final int minRows = 1;
-                    final int maxRows = Math.max(deck.getCategoryList(name).total(), SettingsDialog.settings().editor.categories.rows);
+                    final int maxRows = Math.max(deck.getCategoryList(name).total(), SettingsDialog.settings().editor().categories().rows());
                     if (p.y <= base - table.getRowHeight()/2 && tableRows > minRows)
                     {
                         int n = Math.min(((base - p.y) + table.getRowHeight() - 1)/table.getRowHeight(), tableRows - minRows);
@@ -410,8 +410,8 @@ public class CategoryPanel extends JPanel
      */
     public void applySettings(EditorFrame editor)
     {
-        var columns = SettingsDialog.settings().editor.columns;
-        Color stripe = SettingsDialog.settings().editor.stripe;
+        var columns = SettingsDialog.settings().editor().columns();
+        Color stripe = SettingsDialog.settings().editor().stripe();
         model.setColumns(columns);
         table.setStripeColor(stripe);
         for (int i = 0; i < table.getColumnCount(); i++)

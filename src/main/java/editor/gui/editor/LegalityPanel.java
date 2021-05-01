@@ -135,20 +135,20 @@ public class LegalityPanel extends Box
 
         // Panel containing check box for enabling commander search
         Box cmdrPanel = Box.createHorizontalBox();
-        JCheckBox cmdrCheck = new JCheckBox("", SettingsDialog.settings().editor.legality.searchForCommander);
+        JCheckBox cmdrCheck = new JCheckBox("", SettingsDialog.settings().editor().legality().searchForCommander());
         cmdrCheck.setText(cmdrCheck.isSelected() ? "Search for commander in:" : "Search for commander");
         cmdrPanel.add(cmdrCheck);
         List<String> names = new ArrayList<>(List.of(MAIN_DECK, ALL_LISTS));
         names.addAll(editor.getExtraNames());
         var cmdrBox = new JComboBox<>(names.toArray(String[]::new));
-        cmdrBox.setVisible(SettingsDialog.settings().editor.legality.searchForCommander);
-        if (SettingsDialog.settings().editor.legality.main)
+        cmdrBox.setVisible(SettingsDialog.settings().editor().legality().searchForCommander());
+        if (SettingsDialog.settings().editor().legality().main())
             cmdrBox.setSelectedIndex(names.indexOf(MAIN_DECK));
-        else if (SettingsDialog.settings().editor.legality.all)
+        else if (SettingsDialog.settings().editor().legality().all())
             cmdrBox.setSelectedIndex(names.indexOf(ALL_LISTS));
         else
         {
-            String name = SettingsDialog.settings().editor.legality.list;
+            String name = SettingsDialog.settings().editor().legality().list();
             cmdrBox.setSelectedIndex(names.contains(name) ? names.indexOf(name) : names.indexOf(MAIN_DECK));
         }
         cmdrBox.setMaximumSize(cmdrBox.getPreferredSize());
@@ -161,7 +161,7 @@ public class LegalityPanel extends Box
         final JComboBox<String> sideCombo;
         if (!editor.getExtraNames().isEmpty())
         {
-            String sb = SettingsDialog.settings().editor.legality.sideboard;
+            String sb = SettingsDialog.settings().editor().legality().sideboard();
 
             add(Box.createVerticalStrut(2));
             Box sideboardBox = Box.createHorizontalBox();
