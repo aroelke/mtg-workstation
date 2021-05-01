@@ -79,10 +79,10 @@ public class TextCardListFormat implements CardListFormat
         if (possibilities.isEmpty())
             throw new ParseException("Can't parse card name from \"" + line.trim() + '"', 0);
 
-        var filtered = possibilities.stream().filter((c) -> line.contains(c.expansion().name.toLowerCase())).collect(Collectors.toList());
+        var filtered = possibilities.stream().filter((c) -> line.contains(c.expansion().name().toLowerCase())).collect(Collectors.toList());
         if (!filtered.isEmpty())
             possibilities = filtered;
-        filtered = possibilities.stream().filter((c) -> !c.unifiedName().toLowerCase().equals(c.expansion().name.toLowerCase())).collect(Collectors.toList());
+        filtered = possibilities.stream().filter((c) -> !c.unifiedName().toLowerCase().equals(c.expansion().name().toLowerCase())).collect(Collectors.toList());
         if (!filtered.isEmpty())
             possibilities = filtered;
 

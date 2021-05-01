@@ -15,7 +15,6 @@ import javax.swing.JPanel;
  * @param <E> Type of data the combo box holds
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class ComboBoxPanel<E> extends JPanel
 {
     /**

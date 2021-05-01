@@ -476,7 +476,7 @@ public class SingleCard extends Card
                 document.insertString(document.getLength(), printedTypes + '\n', textStyle);
             else
                 document.insertString(document.getLength(), typeLine + '\n', textStyle);
-            document.insertString(document.getLength(), expansion().name + ' ' + rarity() + '\n', textStyle);
+            document.insertString(document.getLength(), expansion().name() + ' ' + rarity() + '\n', textStyle);
 
             String abilities = printed ? this.printed : text;
             if (!abilities.isEmpty())
@@ -593,7 +593,7 @@ public class SingleCard extends Card
             else if (loyalty.exists())
                 document.insertString(document.getLength(), loyalty + "\n", textStyle);
 
-            document.insertString(document.getLength(), artist + " " + number + "/" + expansion().count, textStyle);
+            document.insertString(document.getLength(), artist + " " + number + "/" + expansion().count(), textStyle);
         }
         catch (BadLocationException e)
         {

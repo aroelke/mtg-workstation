@@ -5,23 +5,17 @@ import editor.util.UnicodeSymbols;
 /**
  * This class represents a power value or a toughness value.
  *
+ * @param expression string expression showing the power or toughness value (may contain *)
+ * @param value numeric value of the power or toughness for sorting
+ * 
  * @author Alec Roelke
  */
-public class CombatStat implements OptionalAttribute, Comparable<CombatStat>
+public record CombatStat(String expression, double value) implements OptionalAttribute, Comparable<CombatStat>
 {
     /**
      * Representation for a combat stat that doesn't exist.
      */
     public static final CombatStat NO_COMBAT = new CombatStat(Double.NaN);
-
-    /**
-     * String expression showing the power or toughness value (may contain *).
-     */
-    public final String expression;
-    /**
-     * Numeric value of the power or toughness for sorting.
-     */
-    public final double value;
 
     /**
      * Create a new PowerToughness from a number.
@@ -30,8 +24,7 @@ public class CombatStat implements OptionalAttribute, Comparable<CombatStat>
      */
     public CombatStat(double v)
     {
-        value = v;
-        expression = Double.isNaN(v) ? "" : String.valueOf(v);
+        this(Double.isNaN(v) ? "" : String.valueOf(v), v);
     }
 
     /**
@@ -41,22 +34,18 @@ public class CombatStat implements OptionalAttribute, Comparable<CombatStat>
      */
     public CombatStat(String e)
     {
-        if (e == null || e.isEmpty())
-        {
-            value = Double.NaN;
-            expression = "";
-        }
-        else
-        {
-            expression = e.replaceAll("\\s+", "");
-            e = e.replaceAll("[*?" + UnicodeSymbols.SUPERSCRIPT_TWO + "]+", "").replaceAll("[+-]$", "").replace(String.valueOf(UnicodeSymbols.ONE_HALF), ".5");
-            if (e.isEmpty())
-                value = 0;
-            else if (e.equals(String.valueOf(UnicodeSymbols.INFINITY)))
-                value = Double.POSITIVE_INFINITY;
-            else
-                value = Double.valueOf(e);
-        }
+        this(e.replaceAll("\\s+", ""), switch (e) {
+            case "" -> Double.NaN;
+            default -> {
+                e = e.replaceAll("[*?" + UnicodeSymbols.SUPERSCRIPT_TWO + "]+", "").replaceAll("[+-]$", "").replace(String.valueOf(UnicodeSymbols.ONE_HALF), ".5");
+                if (e.isEmpty())
+                    yield 0;
+                else if (e.equals(String.valueOf(UnicodeSymbols.INFINITY)))
+                    yield Double.POSITIVE_INFINITY;
+                else
+                    yield Double.valueOf(e);
+            }
+        });
     }
 
     @Override
@@ -69,7 +58,7 @@ public class CombatStat implements OptionalAttribute, Comparable<CombatStat>
         else if (!o.exists())
             return -1;
         else
-            return (int)(2.0 * value - 2.0 * o.value);
+            return (int)(2*value - 2*o.value);
     }
 
     @Override

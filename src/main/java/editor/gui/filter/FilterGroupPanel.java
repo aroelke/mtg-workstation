@@ -25,7 +25,6 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class FilterGroupPanel extends FilterPanel<Filter>
 {
     /**
@@ -190,12 +189,12 @@ public class FilterGroupPanel extends FilterPanel<Filter>
     {
         if (children.contains(panel))
         {
-            if (panel instanceof FilterGroupPanel)
+            if (panel instanceof FilterGroupPanel g)
             {
                 // Make this insert in place of the old group
                 filtersPanel.remove(panel);
                 children.remove(panel);
-                for (FilterPanel<?> child : ((FilterGroupPanel)panel).children)
+                for (FilterPanel<?> child : g.children)
                     add(child);
             }
             else if (children.size() > 1)
@@ -216,10 +215,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
     {
         FilterGroup group;
         clear();
-        if (filter instanceof FilterGroup)
-            group = (FilterGroup)filter;
-        else
-            group = new FilterGroup(filter);
+        group = filter instanceof FilterGroup g ? g : new FilterGroup(filter);
         modeBox.setSelectedItem(group.mode);
         for (Filter child : group)
         {

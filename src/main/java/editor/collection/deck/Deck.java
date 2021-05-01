@@ -308,9 +308,9 @@ public class Deck implements CardList
         private final LocalDate date;
         /**
          * Set of categories this DeckEntry's Card belongs to.  Implemented using a
-         * LinkedHashSet, so it will maintain the ordering that categories were added.
+         * LinkedHashSet so it will maintain the ordering that categories were added.
          */
-        private Set<Category> categories;
+        private final LinkedHashSet<Category> categories;
 
         /**
          * Create a new DeckEntry.
@@ -372,10 +372,9 @@ public class Deck implements CardList
                 return false;
             if (other == this)
                 return true;
-            if (!(other instanceof DeckEntry))
-                return false;
-            DeckEntry o = (DeckEntry)other;
-            return card.equals(o.card) && o.count == count && o.date.equals(date);
+            if (other instanceof DeckEntry o)
+                return card.equals(o.card) && o.count == count && o.date.equals(date);
+            return false;
         }
 
         @Override
@@ -637,10 +636,9 @@ public class Deck implements CardList
             return false;
         if (other == this)
             return true;
-        if (!(other instanceof Deck))
-            return false;
-        Deck o = (Deck)other;
-        return o.masterList.equals(masterList) && o.categories().equals(categories());
+        if (other instanceof Deck o)
+            return o.masterList.equals(masterList) && o.categories().equals(categories());
+        return false;
     }
 
     /**

@@ -22,7 +22,6 @@ import javax.swing.UIManager;
  * TODO: Eventually allow this to have vertical versions as well
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class ButtonScrollPane extends JPanel
 {
 	/**

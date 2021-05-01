@@ -63,7 +63,6 @@ import editor.gui.settings.SettingsDialog;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CardImagePanel extends JPanel
 {
     /**
@@ -208,16 +207,16 @@ public class CardImagePanel extends JPanel
                         System.out.println(e);
                     }
                 }
-                if (SettingsDialog.settings().inventory.imageLimitEnable)
+                if (SettingsDialog.settings().inventory().imageLimitEnable())
                 {
                     int count = 0;
                     do
                     {
-                        var images = Paths.get(SettingsDialog.settings().inventory.scans).toFile().listFiles();
+                        var images = Paths.get(SettingsDialog.settings().inventory().scans()).toFile().listFiles();
                         count = images.length;
-                        if (count > SettingsDialog.settings().inventory.imageLimit)
+                        if (count > SettingsDialog.settings().inventory().imageLimit())
                             Arrays.stream(images).min(Comparator.comparingLong(File::lastModified)).ifPresent(File::delete);
-                    } while (count > SettingsDialog.settings().inventory.imageLimit);
+                    } while (count > SettingsDialog.settings().inventory().imageLimit());
                 }
                 SwingUtilities.invokeLater(() -> {
                     if (req.source.card == req.card)
@@ -261,12 +260,12 @@ public class CardImagePanel extends JPanel
      */
     private static List<File> getFiles(Card c)
     {
-        switch (SettingsDialog.settings().inventory.imageSource)
+        switch (SettingsDialog.settings().inventory().imageSource())
         {
         case "Scryfall":
-            return IntStream.range(0, c.imageNames().size()).mapToObj((i) -> Paths.get(SettingsDialog.settings().inventory.scans, c.scryfallid().get(i) + ";" + i + ".jpg").toFile()).collect(Collectors.toList());
+            return IntStream.range(0, c.imageNames().size()).mapToObj((i) -> Paths.get(SettingsDialog.settings().inventory().scans(), c.scryfallid().get(i) + ";" + i + ".jpg").toFile()).collect(Collectors.toList());
         case "Gatherer":
-            return IntStream.range(0, c.multiverseid().size()).mapToObj((i) -> Paths.get(SettingsDialog.settings().inventory.scans, c.multiverseid().get(i) + ";" + i + ".jpg").toFile()).collect(Collectors.toList());
+            return IntStream.range(0, c.multiverseid().size()).mapToObj((i) -> Paths.get(SettingsDialog.settings().inventory().scans(), c.multiverseid().get(i) + ";" + i + ".jpg").toFile()).collect(Collectors.toList());
         default:
             return Collections.emptyList();
         }
@@ -306,7 +305,7 @@ public class CardImagePanel extends JPanel
     private static List<Optional<URL>> getURLs(Card c) throws MalformedURLException
     {
         List<Optional<URL>> urls = new ArrayList<>();
-        switch (SettingsDialog.settings().inventory.imageSource)
+        switch (SettingsDialog.settings().inventory().imageSource())
         {
         case "Scryfall":
             switch (c.layout())
@@ -562,7 +561,7 @@ public class CardImagePanel extends JPanel
             faceImages.clear();
             try
             {
-                Files.createDirectories(Path.of(SettingsDialog.settings().inventory.scans));
+                Files.createDirectories(Path.of(SettingsDialog.settings().inventory().scans()));
                 if (getFiles(card).stream().map(File::toPath).allMatch(Files::exists))
                     loadImages();
                 else

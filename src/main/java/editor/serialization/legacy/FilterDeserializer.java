@@ -149,7 +149,7 @@ public interface FilterDeserializer
                     String name = in.readUTF();
                     for (Expansion e : Expansion.expansions)
                     {
-                        if (name.equalsIgnoreCase(e.name))
+                        if (name.equalsIgnoreCase(e.name()))
                         {
                             expansion.selected.add(e);
                             break;

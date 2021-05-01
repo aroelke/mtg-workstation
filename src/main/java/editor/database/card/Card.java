@@ -251,7 +251,7 @@ public abstract class Card
     @Override
     public boolean equals(Object other)
     {
-        return other != null && (other == this || other instanceof Card && scryfallid().equals(((Card)other).scryfallid()));
+        return other != null && (other == this || (other instanceof Card o && scryfallid().equals(o.scryfallid())));
     }
 
     /**

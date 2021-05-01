@@ -20,7 +20,6 @@ import editor.util.Containment;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
 {
     /** Color to display if the entered cost is valid (i.e. can be parsed according to {@link ManaCost#tryParseManaCost(String)}). */
@@ -90,8 +89,8 @@ public class ManaCostFilterPanel extends FilterEditorPanel<ManaCostFilter>
     @Override
     public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
     {
-        if (filter instanceof ManaCostFilter)
-            setContents((ManaCostFilter)filter);
+        if (filter instanceof ManaCostFilter f)
+            setContents(f);
         else
             throw new IllegalArgumentException("Illegal mana cost filter " + filter.type());
     }

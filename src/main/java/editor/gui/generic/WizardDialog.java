@@ -25,7 +25,6 @@ import javax.swing.SwingUtilities;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class WizardDialog extends JDialog
 {
     /**

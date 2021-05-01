@@ -9,7 +9,6 @@ import editor.gui.editor.EditorFrame;
  * 
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class EditorFrameTransferHandler extends EditorTransferHandler
 {
     /**

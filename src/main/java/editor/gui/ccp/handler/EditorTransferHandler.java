@@ -17,7 +17,6 @@ import javax.swing.TransferHandler;
  * 
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class EditorTransferHandler extends TransferHandler
 {
     /** import handlers telling the handler how to import different kinds of data. */

@@ -76,8 +76,8 @@ public class VariableSymbol extends ManaSymbol
     @Override
     public int compareTo(ManaSymbol other)
     {
-        if (other instanceof VariableSymbol)
-            return var - ((VariableSymbol)other).var;
+        if (other instanceof VariableSymbol s)
+            return var - s.var;
         else
             return super.compareTo(other);
     }

@@ -20,7 +20,6 @@ import editor.util.Comparison;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberFilter>
 {
     /**
@@ -87,8 +86,8 @@ public class VariableNumberFilterPanel extends FilterEditorPanel<VariableNumberF
     @Override
     public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
     {
-        if (filter instanceof VariableNumberFilter)
-            setContents((VariableNumberFilter)filter);
+        if (filter instanceof VariableNumberFilter f)
+            setContents(f);
         else
             throw new IllegalArgumentException("Illegal variable number filter " + filter.type());
     }

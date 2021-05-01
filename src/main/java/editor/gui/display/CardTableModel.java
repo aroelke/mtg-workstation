@@ -15,7 +15,6 @@ import editor.gui.editor.IncludeExcludePanel;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CardTableModel extends AbstractTableModel
 {
     /**
@@ -133,17 +132,14 @@ public class CardTableModel extends AbstractTableModel
             switch (characteristics.get(column))
             {
             case COUNT:
-                if (value instanceof Integer)
-                    list.set(list.get(row), (Integer)value);
+                if (value instanceof Integer i)
+                    list.set(list.get(row), i);
                 else
                     throw new IllegalArgumentException("Illegal count value " + value);
                 break;
             case CATEGORIES:
-                if (value instanceof IncludeExcludePanel)
-                {
-                    IncludeExcludePanel iePanel = (IncludeExcludePanel)value;
+                if (value instanceof IncludeExcludePanel iePanel)
                     editor.editInclusion(iePanel.getIncluded(), iePanel.getExcluded());
-                }
                 else
                     throw new IllegalArgumentException("Illegal inclusion value " + value);
                 break;

@@ -20,9 +20,12 @@ public class HybridSymbol extends ManaSymbol
     /**
      * Map mapping each pair of colors to their corresponding hybrid symbols.
      */
-    public static final Map<ManaType, Map<ManaType, HybridSymbol>> SYMBOLS = Collections.unmodifiableMap(
-            Arrays.stream(ManaType.colors()).collect(Collectors.toMap(Function.identity(), (m) -> Arrays.stream(
-                    ManaType.colors()).filter((n) -> n != m).collect(Collectors.toMap(Function.identity(), (n) -> new HybridSymbol(m, n))))));
+    public static final Map<ManaType, Map<ManaType, HybridSymbol>> SYMBOLS = Collections.unmodifiableMap(Arrays.stream(ManaType.colors()).collect(
+        Collectors.toMap(
+            Function.identity(),
+            (m) -> Arrays.stream(ManaType.colors()).filter((n) -> n != m).collect(Collectors.toMap(Function.identity(), (n) -> new HybridSymbol(m, n)))
+        )
+    ));
 
     /**
      * Get the HybridSymbol corresponding to the String, which is two color characters
@@ -90,11 +93,8 @@ public class HybridSymbol extends ManaSymbol
     @Override
     public int compareTo(ManaSymbol o)
     {
-        if (o instanceof HybridSymbol)
-        {
-            HybridSymbol other = (HybridSymbol)o;
-            return color1.compareTo(other.color1) * 10 + color2.compareTo(other.color2);
-        }
+        if (o instanceof HybridSymbol s)
+            return color1.compareTo(s.color1)*10 + color2.compareTo(s.color2);
         else
             return super.compareTo(o);
     }

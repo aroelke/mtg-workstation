@@ -54,8 +54,8 @@ public class ChangeTitleListener extends MouseAdapter
         super();
 
         component = c;
-        if (component.getBorder() instanceof TitledBorder)
-            titledBorder = (TitledBorder)component.getBorder();
+        if (component.getBorder() instanceof TitledBorder b)
+            titledBorder = b;
         else
             throw new IllegalArgumentException("component must have a titled border");
 

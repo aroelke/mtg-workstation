@@ -19,7 +19,6 @@ import editor.util.Comparison;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
 {
     /**
@@ -78,8 +77,8 @@ public class NumberFilterPanel extends FilterEditorPanel<NumberFilter>
     @Override
     public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
     {
-        if (filter instanceof NumberFilter)
-            setContents((NumberFilter)filter);
+        if (filter instanceof NumberFilter f)
+            setContents(f);
         else
             throw new IllegalArgumentException("Illegal number filter " + filter.type());
     }

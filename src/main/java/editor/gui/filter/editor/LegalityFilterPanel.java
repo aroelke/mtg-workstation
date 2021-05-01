@@ -17,7 +17,6 @@ import editor.filter.leaf.options.multi.LegalityFilter;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class LegalityFilterPanel extends OptionsFilterPanel<String>
 {
     /**
@@ -58,8 +57,8 @@ public class LegalityFilterPanel extends OptionsFilterPanel<String>
     @Override
     public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
     {
-        if (filter instanceof LegalityFilter)
-            setContents((LegalityFilter)filter);
+        if (filter instanceof LegalityFilter f)
+            setContents(f);
         else
             throw new IllegalArgumentException("Illegal legality filter " + filter.type());
 

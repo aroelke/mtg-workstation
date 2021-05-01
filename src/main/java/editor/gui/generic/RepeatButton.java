@@ -16,7 +16,6 @@ import editor.util.MouseListenerFactory;
  * 
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class RepeatButton extends JButton
 {
     /**

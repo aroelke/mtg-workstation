@@ -16,7 +16,6 @@ import editor.filter.leaf.FilterLeaf;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class BinaryFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
 {
     /**

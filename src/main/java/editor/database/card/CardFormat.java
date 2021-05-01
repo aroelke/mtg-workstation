@@ -68,7 +68,7 @@ public class CardFormat
         @Override
         public LocalDate dateAdded()
         {
-            return card.expansion().releaseDate;
+            return card.expansion().released();
         }
 
     }

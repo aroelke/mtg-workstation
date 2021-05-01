@@ -33,8 +33,8 @@ public interface ComponentUtils
     static void changeFontRecursive(Component component, Font f)
     {
         component.setFont(f);
-        if (component instanceof Container)
-            for (Component child : ((Container)component).getComponents())
+        if (component instanceof Container container)
+            for (Component child : container.getComponents())
                 changeFontRecursive(child, f);
     }
 

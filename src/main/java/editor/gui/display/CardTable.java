@@ -32,7 +32,6 @@ import editor.util.CollectionUtils;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CardTable extends JTable
 {
     /**
@@ -79,10 +78,10 @@ public class CardTable extends JTable
         @Override
         public Comparator<?> getComparator(int column)
         {
-            if (model instanceof CardTableModel)
+            if (model instanceof CardTableModel m)
             {
                 boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
-                CardAttribute attribute = ((CardTableModel)model).getColumnData(column);
+                CardAttribute attribute = m.getColumnData(column);
                 // Have to special-case P/T/L so they are always last if missing
                 return switch (attribute) {
                     case POWER, TOUGHNESS, LOYALTY -> (a, b) -> {
@@ -111,8 +110,7 @@ public class CardTable extends JTable
         @Override
         protected boolean useToString(int column)
         {
-            return !(model instanceof CardTableModel &&
-                    NO_STRING.contains(((CardTableModel)model).getColumnData(column))) && super.useToString(column);
+            return !(model instanceof CardTableModel m && NO_STRING.contains(m.getColumnData(column))) && super.useToString(column);
         }
     }
 

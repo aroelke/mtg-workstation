@@ -31,6 +31,8 @@ import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -142,12 +144,14 @@ import editor.gui.generic.VerticalButtonList;
 import editor.gui.generic.WizardDialog;
 import editor.gui.inventory.InventoryDownloader;
 import editor.gui.inventory.InventoryLoader;
+import editor.gui.settings.Settings;
 import editor.gui.settings.SettingsDialog;
 import editor.serialization.AttributeAdapter;
 import editor.serialization.CardAdapter;
 import editor.serialization.CategoryAdapter;
 import editor.serialization.DeckAdapter;
 import editor.serialization.FilterAdapter;
+import editor.serialization.SettingsAdapter;
 import editor.serialization.VersionAdapter;
 import editor.serialization.legacy.DeckDeserializer;
 import editor.util.ColorAdapter;
@@ -167,7 +171,6 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class MainFrame extends JFrame
 {
     /**
@@ -229,6 +232,7 @@ public class MainFrame extends JFrame
      * Serializer for saving and loading external information.
      */
     public static final Gson SERIALIZER = new GsonBuilder()
+        .registerTypeAdapter(Settings.class, new SettingsAdapter())
         .registerTypeAdapter(CategorySpec.class, new CategoryAdapter())
         .registerTypeHierarchyAdapter(Filter.class, new FilterAdapter())
         .registerTypeAdapter(Color.class, new ColorAdapter())
@@ -421,23 +425,23 @@ public class MainFrame extends JFrame
         }
         try
         {
-            versionSite = new URL(SettingsDialog.settings().inventory.versionSite());
+            versionSite = new URL(SettingsDialog.settings().inventory().versionSite());
         }
         catch (MalformedURLException e)
         {
-            JOptionPane.showMessageDialog(this, "Bad version URL: " + SettingsDialog.settings().inventory.versionSite(), "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Bad version URL: " + SettingsDialog.settings().inventory().versionSite(), "Warning", JOptionPane.WARNING_MESSAGE);
         }
         try
         {
-            inventorySite = new URL(SettingsDialog.settings().inventory.url() + ".zip");
+            inventorySite = new URL(SettingsDialog.settings().inventory().url() + ".zip");
         }
         catch (MalformedURLException e)
         {
-            JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.settings().inventory.url() + ".zip", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.settings().inventory().url() + ".zip", "Warning", JOptionPane.WARNING_MESSAGE);
         }
-        inventoryFile = new File(SettingsDialog.settings().inventory.path());
-        recentCount = SettingsDialog.settings().editor.recents.count;
-        newestVersion = SettingsDialog.settings().inventory.version;
+        inventoryFile = new File(SettingsDialog.settings().inventory().path());
+        recentCount = SettingsDialog.settings().editor().recents().count();
+        newestVersion = SettingsDialog.settings().inventory().version();
 
         setTitle("MTG Workstation");
         setIconImages(IntStream.rangeClosed(4, 8).mapToObj((i) -> new ImageIcon(MainFrame.class.getResource("/icon/" + (1 << i) + ".png")).getImage()).collect(Collectors.toList()));
@@ -501,7 +505,7 @@ public class MainFrame extends JFrame
         // Recent files menu
         recentsMenu = new JMenu("Open Recent");
         recentsMenu.setEnabled(false);
-        for (String fname : SettingsDialog.settings().editor.recents.files)
+        for (String fname : SettingsDialog.settings().editor().recents().files())
             updateRecents(new File(fname));
         fileMenu.add(recentsMenu);
 
@@ -1041,9 +1045,9 @@ public class MainFrame extends JFrame
 
         // Cut, copy, paste
         CCPItems editCCP = new CCPItems(() -> selectedTable.get(), true);
-        editMenu.add(editCCP.cut);
-        editMenu.add(editCCP.copy);
-        editMenu.add(editCCP.paste);
+        editMenu.add(editCCP.cut());
+        editMenu.add(editCCP.copy());
+        editMenu.add(editCCP.paste());
         editMenu.add(new JSeparator());
 
         // Undo menu item
@@ -1082,10 +1086,10 @@ public class MainFrame extends JFrame
 
         // Edit menu listener
         editMenu.addMenuListener(MenuListenerFactory.createSelectedListener((e) -> {
-            editCCP.cut.setEnabled(selectedList.filter((l) -> l == inventory).isEmpty() && !getSelectedCards().isEmpty());
-            editCCP.copy.setEnabled(!getSelectedCards().isEmpty());
+            editCCP.cut().setEnabled(selectedList.filter((l) -> l == inventory).isEmpty() && !getSelectedCards().isEmpty());
+            editCCP.copy().setEnabled(!getSelectedCards().isEmpty());
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            editCCP.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
+            editCCP.paste().setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor));
 
             undoItem.setEnabled(selectedFrame.isPresent());
             redoItem.setEnabled(selectedFrame.isPresent());
@@ -1243,7 +1247,7 @@ public class MainFrame extends JFrame
         showExpansionsItem.addActionListener((e) -> {
             TableModel expansionTableModel = new AbstractTableModel()
             {
-                private final String[] columns = { "Expansion", "Block", "Code", "Cards" };
+                private final String[] columns = {"Expansion", "Block", "Code", "Cards", "Release Date"};
 
                 @Override
                 public int getColumnCount()
@@ -1266,13 +1270,14 @@ public class MainFrame extends JFrame
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex)
                 {
-                    final Object[] values = {
-                        Expansion.expansions[rowIndex].name,
-                        Expansion.expansions[rowIndex].block.isEmpty() ? "" : Expansion.expansions[rowIndex].block,
-                        Expansion.expansions[rowIndex].code,
-                        Expansion.expansions[rowIndex].count
+                    return switch (columnIndex) {
+                        case 0 -> Expansion.expansions[rowIndex].name();
+                        case 1 -> Expansion.expansions[rowIndex].block().equals(Expansion.NO_BLOCK) ? "" : Expansion.expansions[rowIndex].block();
+                        case 2 -> Expansion.expansions[rowIndex].code();
+                        case 3 -> Expansion.expansions[rowIndex].count();
+                        case 4 -> Expansion.expansions[rowIndex].released().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG));
+                        default -> throw new IndexOutOfBoundsException();
                     };
-                    return values[columnIndex];
                 }
             };
             JTable expansionTable = new JTable(expansionTableModel) {
@@ -1331,7 +1336,7 @@ public class MainFrame extends JFrame
 
         // Panel showing the image of the currently-selected card
         cardPane.addTab("Image", imagePanel = new CardImagePanel());
-        setImageBackground(SettingsDialog.settings().inventory.background);
+        setImageBackground(SettingsDialog.settings().inventory().background());
 
         // Pane displaying the Oracle text
         oracleTextPane = new JTextPane();
@@ -1357,7 +1362,7 @@ public class MainFrame extends JFrame
 
         // Copy
         CCPItems oracleCCP = new CCPItems(imagePanel, false);
-        oraclePopupMenu.add(oracleCCP.copy);
+        oraclePopupMenu.add(oracleCCP.copy());
         oraclePopupMenu.add(new JSeparator());
 
         // Add the card to the main deck
@@ -1387,7 +1392,7 @@ public class MainFrame extends JFrame
 
         // Popup listener for oracle popup menu
         oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
-            oracleCCP.copy.setEnabled(!getSelectedCards().isEmpty());
+            oracleCCP.copy().setEnabled(!getSelectedCards().isEmpty());
             oracleMenuCardItems.setVisible(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
             for (JSeparator sep : oracleMenuCardSeparators)
                 sep.setVisible(selectedFrame.isPresent() && !getSelectedCards().isEmpty());
@@ -1429,7 +1434,7 @@ public class MainFrame extends JFrame
         inventoryTable.setDefaultRenderer(Integer.class, new InventoryTableCellRenderer());
         inventoryTable.setDefaultRenderer(Rarity.class, new InventoryTableCellRenderer());
         inventoryTable.setDefaultRenderer(List.class, new InventoryTableCellRenderer());
-        inventoryTable.setStripeColor(SettingsDialog.settings().inventory.stripe);
+        inventoryTable.setStripeColor(SettingsDialog.settings().inventory().stripe());
         inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) -> selectedFrame.ifPresent((f) -> {
             if (e.getClickCount() % 2 == 0)
                 f.addCards(EditorFrame.MAIN_DECK, getSelectedCards(), 1);
@@ -1444,7 +1449,7 @@ public class MainFrame extends JFrame
 
         // Copy
         CCPItems inventoryCCP = new CCPItems(inventoryTable, true);
-        inventoryMenu.add(inventoryCCP.copy);
+        inventoryMenu.add(inventoryCCP.copy());
         inventoryMenu.add(new JSeparator());
 
         // Add cards to the main deck
@@ -1542,7 +1547,7 @@ public class MainFrame extends JFrame
         contentPane.add(CardImagePanel.createStatusBar(), BorderLayout.SOUTH);
 
         // File chooser
-        fileChooser = new OverwriteFileChooser(SettingsDialog.settings().cwd);
+        fileChooser = new OverwriteFileChooser(SettingsDialog.settings().cwd());
         fileChooser.setMultiSelectionEnabled(false);
         fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Deck (*.json)", "json"));
         fileChooser.setAcceptAllFileFilterUsed(true);
@@ -1559,7 +1564,7 @@ public class MainFrame extends JFrame
             @Override
             public void windowOpened(WindowEvent e)
             {
-                if (checkForUpdate(SettingsDialog.settings().inventory.update) == UPDATE_NEEDED && updateInventory())
+                if (checkForUpdate(SettingsDialog.settings().inventory().update()) == UPDATE_NEEDED && updateInventory())
                     SettingsDialog.setInventoryVersion(newestVersion);
                 loadInventory();
                 TableSelectionListener listener = new TableSelectionListener(MainFrame.this, inventoryTable, inventory);
@@ -1568,7 +1573,7 @@ public class MainFrame extends JFrame
 
                 if (!inventory.isEmpty())
                 {
-                    for (CategorySpec spec : SettingsDialog.settings().editor.categories.presets)
+                    for (CategorySpec spec : SettingsDialog.settings().editor().categories().presets())
                     {
                         JMenuItem categoryItem = new JMenuItem(spec.getName());
                         categoryItem.addActionListener((v) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));
@@ -1619,27 +1624,27 @@ public class MainFrame extends JFrame
     {
         try
         {
-            inventorySite = new URL(SettingsDialog.settings().inventory.url() + ".zip");
+            inventorySite = new URL(SettingsDialog.settings().inventory().url() + ".zip");
         }
         catch (MalformedURLException e)
         {
-            JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.settings().inventory.url() + ".zip", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Bad file URL: " + SettingsDialog.settings().inventory().url() + ".zip", "Warning", JOptionPane.WARNING_MESSAGE);
         }
-        inventoryFile = new File(SettingsDialog.settings().inventory.path());
-        recentCount = SettingsDialog.settings().editor.recents.count;
-        inventoryModel.setColumns(SettingsDialog.settings().inventory.columns);
-        inventoryTable.setStripeColor(SettingsDialog.settings().inventory.stripe);
+        inventoryFile = new File(SettingsDialog.settings().inventory().path());
+        recentCount = SettingsDialog.settings().editor().recents().count();
+        inventoryModel.setColumns(SettingsDialog.settings().inventory().columns());
+        inventoryTable.setStripeColor(SettingsDialog.settings().inventory().stripe());
         for (EditorFrame frame : editors)
             frame.applySettings();
         presetMenu.removeAll();
-        for (CategorySpec spec : SettingsDialog.settings().editor.categories.presets)
+        for (CategorySpec spec : SettingsDialog.settings().editor().categories().presets())
         {
             JMenuItem categoryItem = new JMenuItem(spec.getName());
             categoryItem.addActionListener((e) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));
             presetMenu.add(categoryItem);
         }
-        setImageBackground(SettingsDialog.settings().inventory.background);
-        setHandBackground(SettingsDialog.settings().editor.hand.background);
+        setImageBackground(SettingsDialog.settings().inventory().background());
+        setHandBackground(SettingsDialog.settings().editor().hand().background());
 
         revalidate();
         repaint();
@@ -1664,23 +1669,23 @@ public class MainFrame extends JFrame
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
                 {
                     JsonObject data = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject();
-                    newestVersion = new DatabaseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
+                    newestVersion = DatabaseVersion.parseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
                 }
                 return UPDATE_NEEDED;
             }
-            else if (SettingsDialog.settings().inventory.update != UpdateFrequency.NEVER)
+            else if (SettingsDialog.settings().inventory().update() != UpdateFrequency.NEVER)
             {
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(versionSite.openStream())))
                 {
                     JsonObject data = new JsonParser().parse(in.lines().collect(Collectors.joining())).getAsJsonObject();
-                    newestVersion = new DatabaseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
+                    newestVersion = DatabaseVersion.parseVersion((data.has("data") ? data.get("data").getAsJsonObject() : data).get("version").getAsString());
                 }
-                if (newestVersion.needsUpdate(SettingsDialog.settings().inventory.version, freq))
+                if (newestVersion.needsUpdate(SettingsDialog.settings().inventory().version(), freq))
                 {
                     int wantUpdate = JOptionPane.showConfirmDialog(
                         this,
                         "Inventory is out of date:\n" +
-                        UnicodeSymbols.BULLET + " Current version: " + SettingsDialog.settings().inventory.version + "\n" +
+                        UnicodeSymbols.BULLET + " Current version: " + SettingsDialog.settings().inventory().version() + "\n" +
                         UnicodeSymbols.BULLET + " Latest version: " + newestVersion + "\n" +
                         "\n" +
                         "Download update?",
@@ -1823,7 +1828,7 @@ public class MainFrame extends JFrame
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         inventory = InventoryLoader.loadInventory(this, inventoryFile);
         inventory.sort(CardAttribute.NAME.comparingCard());
-        inventoryModel = new CardTableModel(inventory, SettingsDialog.settings().inventory.columns);
+        inventoryModel = new CardTableModel(inventory, SettingsDialog.settings().inventory().columns());
         inventoryTable.setModel(inventoryModel);
         setCursor(Cursor.getDefaultCursor());
         System.gc();

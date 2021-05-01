@@ -16,7 +16,6 @@ import editor.gui.settings.SettingsDialog;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CardJList extends JList<String>
 {
     /**
@@ -67,7 +66,7 @@ public class CardJList extends JList<String>
                 return cards.size();
             }
         });
-        setVisibleRowCount(SettingsDialog.settings().editor.categories.explicits);
+        setVisibleRowCount(SettingsDialog.settings().editor().categories().explicits());
     }
 
     /**

@@ -16,7 +16,6 @@ import editor.gui.ccp.data.DataFlavors;
  * 
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CategoryImportHandler extends TransferHandler implements ImportHandler
 {
     /** Function specifying how to tell if the deck contains the category already. */

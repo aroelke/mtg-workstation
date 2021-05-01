@@ -49,7 +49,6 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class LegalityPanel extends Box
 {
     /** Item to show for searching the main deck. */
@@ -136,20 +135,20 @@ public class LegalityPanel extends Box
 
         // Panel containing check box for enabling commander search
         Box cmdrPanel = Box.createHorizontalBox();
-        JCheckBox cmdrCheck = new JCheckBox("", SettingsDialog.settings().editor.legality.searchForCommander);
+        JCheckBox cmdrCheck = new JCheckBox("", SettingsDialog.settings().editor().legality().searchForCommander());
         cmdrCheck.setText(cmdrCheck.isSelected() ? "Search for commander in:" : "Search for commander");
         cmdrPanel.add(cmdrCheck);
         List<String> names = new ArrayList<>(List.of(MAIN_DECK, ALL_LISTS));
         names.addAll(editor.getExtraNames());
         var cmdrBox = new JComboBox<>(names.toArray(String[]::new));
-        cmdrBox.setVisible(SettingsDialog.settings().editor.legality.searchForCommander);
-        if (SettingsDialog.settings().editor.legality.main)
+        cmdrBox.setVisible(SettingsDialog.settings().editor().legality().searchForCommander());
+        if (SettingsDialog.settings().editor().legality().main())
             cmdrBox.setSelectedIndex(names.indexOf(MAIN_DECK));
-        else if (SettingsDialog.settings().editor.legality.all)
+        else if (SettingsDialog.settings().editor().legality().all())
             cmdrBox.setSelectedIndex(names.indexOf(ALL_LISTS));
         else
         {
-            String name = SettingsDialog.settings().editor.legality.list;
+            String name = SettingsDialog.settings().editor().legality().list();
             cmdrBox.setSelectedIndex(names.contains(name) ? names.indexOf(name) : names.indexOf(MAIN_DECK));
         }
         cmdrBox.setMaximumSize(cmdrBox.getPreferredSize());
@@ -162,7 +161,7 @@ public class LegalityPanel extends Box
         final JComboBox<String> sideCombo;
         if (!editor.getExtraNames().isEmpty())
         {
-            String sb = SettingsDialog.settings().editor.legality.sideboard;
+            String sb = SettingsDialog.settings().editor().legality().sideboard();
 
             add(Box.createVerticalStrut(2));
             Box sideboardBox = Box.createHorizontalBox();
@@ -287,7 +286,7 @@ public class LegalityPanel extends Box
             boolean partners = false;
             if (!commanderSearch.isEmpty())
             {
-                if (constraints.hasCommander)
+                if (constraints.hasCommander())
                 {
                     var possibleCommanders = commanderSearch.stream().filter((c) -> c.commandFormats().contains(format)).collect(Collectors.toList());
                     for (Card c : new ArrayList<>(possibleCommanders))
@@ -335,24 +334,24 @@ public class LegalityPanel extends Box
             }
 
             // Deck size
-            if (constraints.hasCommander)
+            if (constraints.hasCommander())
             {
-                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != constraints.deckSize) ||
+                if (((commanderSearch.isEmpty() || commanderSearch == deck) && deck.total() != constraints.deckSize()) ||
                     ((!commanderSearch.isEmpty() && commanderSearch != deck) &&
-                     (commander && deck.total() != constraints.deckSize - 1) || (partners && deck.total() != constraints.deckSize - 2)))
-                    warnings.get(format).add("Deck does not contain exactly " + (constraints.deckSize - 1) + " cards plus a commander or " +
-                                                                                (constraints.deckSize - 2) + " cards plus two partner commanders");
+                     (commander && deck.total() != constraints.deckSize() - 1) || (partners && deck.total() != constraints.deckSize() - 2)))
+                    warnings.get(format).add("Deck does not contain exactly " + (constraints.deckSize() - 1) + " cards plus a commander or " +
+                                                                                (constraints.deckSize() - 2) + " cards plus two partner commanders");
             }
             else
             {
-                if (deck.total() < constraints.deckSize)
-                    warnings.get(format).add("Deck contains fewer than " + constraints.deckSize + " cards");
+                if (deck.total() < constraints.deckSize())
+                    warnings.get(format).add("Deck contains fewer than " + constraints.deckSize() + " cards");
             }
 
             // Individual card legality and count
             for (Card c : deck)
             {
-                final int maxCopies = constraints.maxCopies;
+                final int maxCopies = constraints.maxCopies();
                 if (!c.legalityIn(format).isLegal)
                     warnings.get(format).add(c.unifiedName() + " is illegal in " + format);
                 else if (isoNameCounts.containsKey(c) && !c.ignoreCountRestriction())
@@ -366,8 +365,8 @@ public class LegalityPanel extends Box
 
             // Sideboard size
             sideboard.ifPresent((sb) -> {
-                if (sb.total() > constraints.sideboardSize)
-                    warnings.get(format).add("Sideboard contains more than " + constraints.sideboardSize + " cards");
+                if (sb.total() > constraints.sideboardSize())
+                    warnings.get(format).add("Sideboard contains more than " + constraints.sideboardSize() + " cards");
             });
         }
 

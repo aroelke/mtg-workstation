@@ -77,7 +77,6 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class SettingsDialog extends JDialog
 {
     /**
@@ -217,11 +216,11 @@ public class SettingsDialog extends JDialog
     {
         if (!Card.tags.isEmpty())
         {
-            Files.createDirectories(Path.of(settings.inventory.tags).getParent());
-            Files.writeString(Path.of(settings.inventory.tags), MainFrame.SERIALIZER.toJson(Card.tags.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey().multiverseid().get(0), Map.Entry::getValue))));
+            Files.createDirectories(Path.of(settings.inventory().tags()).getParent());
+            Files.writeString(Path.of(settings.inventory().tags()), MainFrame.SERIALIZER.toJson(Card.tags.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey().multiverseid().get(0), Map.Entry::getValue))));
         }
         else
-            Files.deleteIfExists(Path.of(settings.inventory.tags));
+            Files.deleteIfExists(Path.of(settings.inventory().tags()));
         Files.writeString(PROPERTIES_FILE, MainFrame.SERIALIZER.toJson(settings));
     }
 
@@ -826,53 +825,53 @@ public class SettingsDialog extends JDialog
             @Override
             public void windowOpened(WindowEvent e)
             {
-                inventorySiteField.setText(settings.inventory.source);
-                inventoryFileField.setText(settings.inventory.file);
-                currentVersionLabel.setText("(Current version: " + settings.inventory.version + ")");
-                inventoryDirField.setText(settings.inventory.location);
+                inventorySiteField.setText(settings.inventory().source());
+                inventoryFileField.setText(settings.inventory().file());
+                currentVersionLabel.setText("(Current version: " + settings.inventory().version() + ")");
+                inventoryDirField.setText(settings.inventory().location());
                 inventoryChooser.setCurrentDirectory(new File(inventoryDirField.getText()).getAbsoluteFile());
-                scansDirField.setText(settings.inventory.scans);
+                scansDirField.setText(settings.inventory().scans());
                 scansChooser.setCurrentDirectory(new File(scansDirField.getText()).getAbsoluteFile());
-                imgSourceBox.setSelectedIndex(Math.max(IMAGE_SOURCES.indexOf(settings.inventory.imageSource), 0));
-                limitImageBox.setSelected(settings.inventory.imageLimitEnable);
-                limitImageSpinner.setEnabled(settings.inventory.imageLimitEnable);
-                limitImageSpinner.setValue(settings.inventory.imageLimit);
-                updateBox.setSelectedIndex(settings.inventory.update.ordinal());
-                suppressCheckBox.setSelected(settings.inventory.warn);
+                imgSourceBox.setSelectedIndex(Math.max(IMAGE_SOURCES.indexOf(settings.inventory().imageSource()), 0));
+                limitImageBox.setSelected(settings.inventory().imageLimitEnable());
+                limitImageSpinner.setEnabled(settings.inventory().imageLimitEnable());
+                limitImageSpinner.setValue(settings.inventory().imageLimit());
+                updateBox.setSelectedIndex(settings.inventory().update().ordinal());
+                suppressCheckBox.setSelected(settings.inventory().warn());
                 viewWarningsButton.setEnabled(!inventoryWarnings.isEmpty());
                 for (var n : inventoryColumnCheckBoxes.entrySet())
-                    n.getValue().setSelected(settings.inventory.columns.contains(n.getKey()));
-                inventoryStripeColor.setColor(settings.inventory.stripe);
-                scanBGChooser.setColor(settings.inventory.background);
-                recentSpinner.getModel().setValue(settings.editor.recents.count);
-                explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor.categories.explicits));
-                manaValueBox.setSelectedIndex(Math.max(MANA_VALUE_OPTIONS.indexOf(settings.editor.manaValue), 0));
-                for (CategorySpec preset : settings.editor.categories.presets)
+                    n.getValue().setSelected(settings.inventory().columns().contains(n.getKey()));
+                inventoryStripeColor.setColor(settings.inventory().stripe());
+                scanBGChooser.setColor(settings.inventory().background());
+                recentSpinner.getModel().setValue(settings.editor().recents().count());
+                explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor().categories().explicits()));
+                manaValueBox.setSelectedIndex(Math.max(MANA_VALUE_OPTIONS.indexOf(settings.editor().manaValue()), 0));
+                for (CategorySpec preset : settings.editor().categories().presets())
                     categoriesList.addCategory(new CategorySpec(preset));
-                rowsSpinner.getModel().setValue(settings.editor.categories.rows);
+                rowsSpinner.getModel().setValue(settings.editor().categories().rows());
                 for (var n : editorColumnCheckBoxes.entrySet())
-                    n.getValue().setSelected(settings.editor.columns.contains(n.getKey()));
-                editorStripeColor.setColor(settings.editor.stripe);
-                startingSizeSpinner.getModel().setValue(settings.editor.hand.size);
+                    n.getValue().setSelected(settings.editor().columns().contains(n.getKey()));
+                editorStripeColor.setColor(settings.editor().stripe());
+                startingSizeSpinner.getModel().setValue(settings.editor().hand().size());
                 for (JRadioButton mode : modeButtons)
-                    mode.setSelected(mode.getText().equals(settings.editor.hand.rounding));
-                handBGColor.setColor(settings.editor.hand.background);
-                cmdrCheck.setSelected(settings.editor.legality.searchForCommander);
-                sideCheck.setSelected(!settings.editor.legality.sideboard.isEmpty());
+                    mode.setSelected(mode.getText().equals(settings.editor().hand().rounding()));
+                handBGColor.setColor(settings.editor().hand().background());
+                cmdrCheck.setSelected(settings.editor().legality().searchForCommander());
+                sideCheck.setSelected(!settings.editor().legality().sideboard().isEmpty());
                 sideCheck.setText(sideCheck.isSelected() ? "Default sideboard name:" : "Include sideboard");
-                sideField.setText(settings.editor.legality.sideboard);
+                sideField.setText(settings.editor().legality().sideboard());
                 sideField.setVisible(sideCheck.isSelected());
-                if (settings.editor.legality.searchForCommander)
+                if (settings.editor().legality().searchForCommander())
                 {
                     cmdrCheck.setText("Search for commander in:");
-                    if (settings.editor.legality.main || (!settings.editor.legality.all && settings.editor.legality.list.isEmpty()))
+                    if (settings.editor().legality().main() || (!settings.editor().legality().all() && settings.editor().legality().list().isEmpty()))
                         cmdrMainDeck.setSelected(true);
-                    else if (settings.editor.legality.all)
+                    else if (settings.editor().legality().all())
                         cmdrAllLists.setSelected(true);
                     else
                         cmdrList.setSelected(true);
                     cmdrListName.setEnabled(cmdrList.isSelected());
-                    cmdrListName.setText(settings.editor.legality.list);
+                    cmdrListName.setText(settings.editor().legality().list());
                 }
                 else
                 {
@@ -937,10 +936,10 @@ public class SettingsDialog extends JDialog
             e.printStackTrace();
         }
 
-        if (settings.inventory.columns.isEmpty())
-            settings = new SettingsBuilder(settings).inventoryColumns(new SettingsBuilder().defaults().build().inventory.columns).build();
-        if (settings.editor.columns.isEmpty())
-            settings = new SettingsBuilder(settings).editorColumns(new SettingsBuilder().defaults().build().editor.columns).build();
+        if (settings.inventory().columns().isEmpty())
+            settings = new SettingsBuilder(settings).inventoryColumns(new SettingsBuilder().defaults().build().inventory().columns()).build();
+        if (settings.editor().columns().isEmpty())
+            settings = new SettingsBuilder(settings).editorColumns(new SettingsBuilder().defaults().build().editor().columns()).build();
 
         parent.applySettings();
     }
@@ -950,7 +949,7 @@ public class SettingsDialog extends JDialog
      */
     public void rejectSettings()
     {
-        parent.setImageBackground(settings.inventory.background);
-        parent.setHandBackground(settings.editor.hand.background);
+        parent.setImageBackground(settings.inventory().background());
+        parent.setHandBackground(settings.editor().hand().background());
     }
 }

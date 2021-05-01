@@ -28,7 +28,6 @@ import editor.util.MouseListenerFactory;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class InclusionCellEditor extends AbstractCellEditor implements TableCellEditor
 {
     /**
@@ -92,9 +91,8 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
     {
-        if (table instanceof CardTable)
+        if (table instanceof CardTable cTable)
         {
-            CardTable cTable = (CardTable)table;
             iePanel = new IncludeExcludePanel(frame.getCategories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getCardAt(cTable, row));
             included = ((Collection<?>)value).stream().filter((o) -> o instanceof CategorySpec).map((o) -> (CategorySpec)o).collect(Collectors.toList());
             if (!table.isRowSelected(row))
@@ -118,6 +116,6 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
     @Override
     public boolean isCellEditable(EventObject eo)
     {
-        return eo instanceof MouseEvent && ((MouseEvent)eo).getClickCount() > 1;
+        return eo instanceof MouseEvent m && m.getClickCount() > 1;
     }
 }

@@ -9,7 +9,6 @@ import editor.gui.filter.FilterPanel;
  * @param <F> Type of filter this panel can edit
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public abstract class FilterEditorPanel<F extends FilterLeaf<?>> extends FilterPanel<F>
 {
     /**

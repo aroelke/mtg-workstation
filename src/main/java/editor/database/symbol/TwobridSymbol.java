@@ -81,8 +81,8 @@ public class TwobridSymbol extends ManaSymbol
     @Override
     public int compareTo(ManaSymbol o)
     {
-        if (o instanceof TwobridSymbol)
-            return color.colorOrder(((TwobridSymbol)o).color);
+        if (o instanceof TwobridSymbol s)
+            return color.colorOrder(s.color);
         else
             return super.compareTo(o);
     }

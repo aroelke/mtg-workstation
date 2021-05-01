@@ -26,7 +26,6 @@ import editor.util.Containment;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
 {
     /**
@@ -137,8 +136,8 @@ public class ColorFilterPanel extends FilterEditorPanel<ColorFilter>
     @Override
     public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
     {
-        if (filter instanceof ColorFilter)
-            setContents((ColorFilter)filter);
+        if (filter instanceof ColorFilter f)
+            setContents(f);
         else
             throw new IllegalArgumentException("Illegal color filter " + filter.type());
     }

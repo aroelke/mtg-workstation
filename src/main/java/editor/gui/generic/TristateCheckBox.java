@@ -19,7 +19,6 @@ import javax.swing.UIManager;
  * 
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class TristateCheckBox extends JCheckBox
 {
     /**

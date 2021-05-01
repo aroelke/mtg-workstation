@@ -31,7 +31,7 @@ public class VersionAdapter implements JsonSerializer<DatabaseVersion>, JsonDese
     {
         try
         {
-            return new DatabaseVersion(json.getAsString());
+            return DatabaseVersion.parseVersion(json.getAsString());
         }
         catch (ParseException e)
         {

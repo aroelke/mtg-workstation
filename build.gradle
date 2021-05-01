@@ -23,8 +23,8 @@ mainClassName = 'editor.gui.MainFrame'
 group = 'editor'
 version = p['version']
 description = 'MTG Workstation'
-sourceCompatibility = 15
-targetCompatibility = 15
+sourceCompatibility = 16
+targetCompatibility = 16
 
 application {
     applicationDefaultJvmArgs = ['-Dsun.java2d.d3d=false', '-Dfile.encoding=UTF-8']

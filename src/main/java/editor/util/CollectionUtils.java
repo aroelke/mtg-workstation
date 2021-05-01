@@ -24,8 +24,8 @@ public interface CollectionUtils
      */
     static <E> List<E> convertToList(Object obj, Class<E> clazz)
     {
-        if (obj instanceof List)
-            return ((List<?>)obj).stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+        if (obj instanceof List<?> l)
+            return l.stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         else
             throw new IllegalArgumentException("expected list, got " + obj.getClass());
     }
@@ -40,8 +40,8 @@ public interface CollectionUtils
      */
     static <E> Set<E> convertToSet(Object obj, Class<E> clazz)
     {
-        if (obj instanceof Set)
-            return ((Set<?>)obj).stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toSet());
+        if (obj instanceof Set<?> s)
+            return s.stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toSet());
         else
             throw new IllegalArgumentException("expected set, got " + obj.getClass());
     }

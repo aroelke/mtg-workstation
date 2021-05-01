@@ -21,7 +21,6 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
 {
     /**

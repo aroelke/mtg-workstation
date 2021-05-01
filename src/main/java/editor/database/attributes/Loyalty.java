@@ -1,30 +1,26 @@
 package editor.database.attributes;
 
-import java.util.Objects;
-
 import editor.database.card.Card;
+import editor.util.Parsers;
 
 /**
  * This class represents the starting loyalty of a planeswalker.  All {@link Card}s have them, but they
- * are invisible for non-planeswalkers.
+ * are invisible for non-planeswalkers. A value of {@link Double#NaN} means there is no loyalty, -1 means
+ * X loyalty (set by something else such as X in mana cost), and -2 means variable loyalty (*).
  *
+ * @param value numerical value of the starting loyalty
+ * 
  * @author Alec Roelke
  */
-public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
+public record Loyalty(double value) implements OptionalAttribute, Comparable<Loyalty>
 {
     /**
      * Constant for an arbitrary card with no loyalty.
      */
-    public static final Loyalty NO_LOYALTY = new Loyalty(0);
+    public static final Loyalty NO_LOYALTY = new Loyalty(Double.NaN);
 
     private static final double X = -1;
     private static final double STAR = -2;
-
-    /**
-     * Numerical value of the starting loyalty.  Zero means there is no loyalty and
-     * -1 means it's X.
-     */
-    public final double value;
 
     /**
      * Create a new Loyalty with the given value. Loyalty creatd this way can't vary.
@@ -33,7 +29,7 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
      */
     public Loyalty(int v)
     {
-        value = Math.max(0, v);
+        this((double)Math.max(0, v));
     }
 
     /**
@@ -44,20 +40,12 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
      */
     public Loyalty(String s)
     {
-        double v;
-        try
-        {
-            v = Integer.valueOf(s);
-        }
-        catch (NumberFormatException x)
-        {
-            v = switch (s.toUpperCase()) {
-                case "X" -> X;
-                case "*" -> STAR;
-                default  -> Double.NaN;
-            };
-        }
-        value = v;
+        this (switch (s.toUpperCase()) {
+            case "X" -> X;
+            case "*" -> STAR;
+            case ""  -> Double.NaN;
+            default  -> Parsers.tryParseDouble(s).orElse(Double.NaN);
+        });
     }
 
     @Override
@@ -67,21 +55,9 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
     }
 
     @Override
-    public boolean equals(Object other)
-    {
-        return other != null && (other == this || other instanceof Loyalty && value == ((Loyalty)other).value);
-    }
-
-    @Override
     public boolean exists()
     {
         return !Double.isNaN(value);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(value);
     }
 
     @Override
@@ -98,8 +74,7 @@ public class Loyalty implements OptionalAttribute, Comparable<Loyalty>
     }
 
     /**
-     * @return <code>true</code> if this Loyalty is variable (X, *),
-     * and <code>false</code> otherwise.
+     * @return <code>true</code> if this Loyalty is variable (X, *), and <code>false</code> otherwise.
      */
     public boolean variable()
     {

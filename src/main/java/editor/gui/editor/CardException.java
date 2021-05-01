@@ -5,7 +5,6 @@ import java.util.Collections;
 
 import editor.database.card.Card;
 
-@SuppressWarnings("serial")
 public class CardException extends RuntimeException
 {
     public final Collection<Card> cards;

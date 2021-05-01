@@ -237,7 +237,7 @@ public class DelimitedCardListFormat implements CardListFormat
 
         var possibilities = MainFrame.inventory().stream().filter((c) -> c.unifiedName().equalsIgnoreCase(cells[indices.name])).collect(Collectors.toList());
         if (possibilities.size() > 1 && indices.expansion > -1)
-            possibilities.removeIf((c) -> !c.expansion().name.equalsIgnoreCase(cells[indices.expansion]));
+            possibilities.removeIf((c) -> !c.expansion().name().equalsIgnoreCase(cells[indices.expansion]));
         if (possibilities.size() > 1 && indices.number > -1)
             possibilities.removeIf((c) -> !String.join(Card.FACE_SEPARATOR, c.number()).equals(cells[indices.number]));
 

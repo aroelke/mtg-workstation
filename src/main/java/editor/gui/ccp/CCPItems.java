@@ -17,17 +17,14 @@ import javax.swing.TransferHandler;
  * optionally already installed. The menu text and keyboard accelerators are not
  * customizable.
  * 
+ * @param cut cut menu item
+ * @param copy copy menu item
+ * @param paste paste menu item
+ * 
  * @author Alec Roelke
  */
-public class CCPItems
+public record CCPItems(JMenuItem cut, JMenuItem copy, JMenuItem paste)
 {
-    /** Cut menu item. */
-    public final JMenuItem cut;
-    /** Copy menu item. */
-    public final JMenuItem copy;
-    /** Paste menu item. */
-    public final JMenuItem paste;
-    
     /**
      * Create a new set of cut, copy, and paste menu items that allow the reference to the source
      * component performing the action to change what it points to over time.
@@ -37,9 +34,7 @@ public class CCPItems
      */
     public CCPItems(Supplier<? extends Component> source, boolean accelerate)
     {
-        cut = new JMenuItem("Cut");
-        copy = new JMenuItem("Copy");
-        paste = new JMenuItem("Paste");
+        this(new JMenuItem("Cut"), new JMenuItem("Copy"), new JMenuItem("Paste"));
 
         cut.addActionListener((e) -> TransferHandler.getCutAction().actionPerformed(new ActionEvent(source.get(), ACTION_PERFORMED, null)));
         copy.addActionListener((e) -> TransferHandler.getCopyAction().actionPerformed(new ActionEvent(source.get(), ACTION_PERFORMED, null)));

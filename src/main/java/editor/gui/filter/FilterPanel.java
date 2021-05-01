@@ -16,7 +16,6 @@ import editor.filter.Filter;
  * @param <F> Type of filter being edited
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public abstract class FilterPanel<F extends Filter> extends JPanel
 {
     /**

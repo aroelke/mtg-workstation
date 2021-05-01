@@ -9,7 +9,6 @@ import java.util.Set;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.filter.Filter;
-import editor.filter.FilterGroup;
 
 /**
  * This class represents a set of specifications for a category.  Those specifications are its name,
@@ -94,30 +93,6 @@ public class CategorySpec
         this(name, new HashSet<>(), new HashSet<>(), color, filter);
     }
 
-    /**
-     * Copy the name, whitelist, blacklist, color, and filter from the given
-     * CategorySpec, discarding those values from this one.
-     *
-     * @param other CategorySpec to copy
-     * @return <code>true</code> if any changes were made to this CategorySpec, and
-     * <code>false</code> otherwise.
-     */
-    public boolean copy(CategorySpec other)
-    {
-        CategorySpec old = new CategorySpec(this);
-
-        name = other.name;
-        whitelist.clear();
-        whitelist.addAll(other.whitelist);
-        blacklist.clear();
-        blacklist.addAll(other.blacklist);
-        color = other.color;
-        filter = new FilterGroup();
-        filter = other.filter.copy();
-
-        return !equals(old);
-    }
-
     @Override
     public boolean equals(Object other)
     {
@@ -125,11 +100,9 @@ public class CategorySpec
             return false;
         if (other == this)
             return true;
-        if (!(other instanceof CategorySpec))
-            return false;
-        CategorySpec o = (CategorySpec)other;
-        return name.equals(o.name) && color.equals(o.color) && filter.equals(o.filter)
-                && blacklist.equals(o.blacklist) && whitelist.equals(o.whitelist);
+        if (other instanceof CategorySpec o)
+            return name.equals(o.name) && color.equals(o.color) && filter.equals(o.filter) && blacklist.equals(o.blacklist) && whitelist.equals(o.whitelist);
+        return false;
     }
 
     /**

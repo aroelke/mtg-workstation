@@ -191,7 +191,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         }
         catch (CancellationException e)
         {}
-        if (SettingsDialog.settings().inventory.warn && !loader.warnings().isEmpty())
+        if (SettingsDialog.settings().inventory().warn() && !loader.warnings().isEmpty())
         {
             SwingUtilities.invokeLater(() -> {
                 StringJoiner join = new StringJoiner("<li>", "<html>", "</ul></html>");
@@ -201,7 +201,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 JPanel warningPanel = new JPanel(new BorderLayout());
                 JLabel warningLabel = new JLabel(join.toString());
                 warningPanel.add(warningLabel, BorderLayout.CENTER);
-                JCheckBox suppressBox = new JCheckBox("Don't show this warning in the future", !SettingsDialog.settings().inventory.warn);
+                JCheckBox suppressBox = new JCheckBox("Don't show this warning in the future", !SettingsDialog.settings().inventory().warn());
                 warningPanel.add(suppressBox, BorderLayout.SOUTH);
                 JOptionPane.showMessageDialog(null, warningPanel, "Warning", JOptionPane.WARNING_MESSAGE);
                 SettingsDialog.setShowInventoryWarnings(!suppressBox.isSelected());
@@ -430,7 +430,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
             JsonObject root = new JsonParser().parse(reader).getAsJsonObject();
             DatabaseVersion version = root.has("meta") ?
-                new DatabaseVersion(root.get("meta").getAsJsonObject().get("version").getAsString()) :
+                DatabaseVersion.parseVersion(root.get("meta").getAsJsonObject().get("version").getAsString()) :
                 new DatabaseVersion(0, 0, 0); // Anything less than 5.0.0 will do for pre-5.0.0 databases
 
             var entries = (version.compareTo(VER_5_0_0) < 0 ? root : root.get("data").getAsJsonObject()).entrySet();
@@ -475,13 +475,13 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 JsonArray setCards = setProperties.get("cards").getAsJsonArray();
                 Expansion set = new Expansion(
                     setProperties.get("name").getAsString(),
-                    Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse("<No Block>"),
+                    Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse(Expansion.NO_BLOCK),
                     setProperties.get("code").getAsString(),
                     setCards.size(),
                     LocalDate.parse(setProperties.get("releaseDate").getAsString(), Expansion.DATE_FORMATTER)
                 );
                 expansions.add(set);
-                blockNames.add(set.block);
+                blockNames.add(set.block());
                 publish("Loading cards from " + set + "...");
 
                 for (JsonElement cardElement : setCards)
@@ -686,10 +686,10 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
 
         Inventory inventory = new Inventory(cards);
 
-        if (Files.exists(Path.of(SettingsDialog.settings().inventory.tags)))
+        if (Files.exists(Path.of(SettingsDialog.settings().inventory().tags())))
         {
             @SuppressWarnings("unchecked")
-            var rawTags = (Map<String, Set<String>>)MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Path.of(SettingsDialog.settings().inventory.tags))), new TypeToken<Map<String, Set<String>>>() {}.getType());
+            var rawTags = (Map<String, Set<String>>)MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Path.of(SettingsDialog.settings().inventory().tags()))), new TypeToken<Map<String, Set<String>>>() {}.getType());
             Card.tags.clear();
             Card.tags.putAll(rawTags.entrySet().stream().collect(Collectors.toMap((e) -> inventory.find(e.getKey()), Map.Entry::getValue)));
         }

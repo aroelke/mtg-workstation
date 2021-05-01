@@ -39,7 +39,6 @@ import editor.gui.settings.SettingsDialog;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CalculateHandPanel extends JPanel
 {
     /**
@@ -130,7 +129,7 @@ public class CalculateHandPanel extends JPanel
                     if (columnIndex == CATEGORY)
                         yield category;
                     else if (columnIndex - (E_INFO_COLS - 1) < expectedCounts.get(category).size())
-                        yield ROUND_MODE.get(SettingsDialog.settings().editor.hand.rounding).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
+                        yield ROUND_MODE.get(SettingsDialog.settings().editor().hand().rounding()).apply(expectedCounts.get(category).get(columnIndex - (E_INFO_COLS - 1)));
                     else
                         yield "";
                 }
@@ -425,7 +424,7 @@ public class CalculateHandPanel extends JPanel
             {
                 Component c = super.prepareRenderer(renderer, row, column);
                 if (!isRowSelected(row) || !getRowSelectionAllowed())
-                    c.setBackground(row % 2 == 0 ? new Color(getBackground().getRGB()) : SettingsDialog.settings().editor.stripe);
+                    c.setBackground(row % 2 == 0 ? new Color(getBackground().getRGB()) : SettingsDialog.settings().editor().stripe());
                 if (model.getValueAt(row, RELATION).equals(Relation.AT_LEAST) && model.getValueAt(row, DESIRED).equals(0))
                 {
                     c.setForeground(c.getBackground().darker());

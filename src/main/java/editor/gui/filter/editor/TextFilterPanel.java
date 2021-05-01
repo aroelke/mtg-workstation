@@ -23,7 +23,6 @@ import editor.util.Containment;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class TextFilterPanel extends FilterEditorPanel<TextFilter>
 {
     /**
@@ -124,8 +123,8 @@ public class TextFilterPanel extends FilterEditorPanel<TextFilter>
     @Override
     public void setContents(FilterLeaf<?> filter) throws IllegalArgumentException
     {
-        if (filter instanceof TextFilter)
-            setContents((TextFilter)filter);
+        if (filter instanceof TextFilter f)
+            setContents(f);
         else
             throw new IllegalArgumentException("Illegal text filter " + filter.type());
     }

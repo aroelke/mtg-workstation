@@ -5,7 +5,6 @@ import java.io.File;
 /**
  * This class represents an exception that might occur during loading a deck.
  */
-@SuppressWarnings("serial")
 public class DeckLoadException extends Exception
 {
     /**

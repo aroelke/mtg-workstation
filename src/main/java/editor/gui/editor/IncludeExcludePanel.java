@@ -27,7 +27,6 @@ import editor.gui.generic.TristateCheckBox.State;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class IncludeExcludePanel extends ScrollablePanel
 {
     /**

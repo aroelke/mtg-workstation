@@ -33,7 +33,6 @@ import editor.util.PopupMenuListenerFactory;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CategoryList extends JList<String>
 {
     /**
@@ -163,13 +162,13 @@ public class CategoryList extends JList<String>
         setComponentPopupMenu(menu);
 
         CCPItems ccp = new CCPItems(this, true);
-        menu.add(ccp.cut);
-        menu.add(ccp.copy);
-        menu.add(ccp.paste);
+        menu.add(ccp.cut());
+        menu.add(ccp.copy());
+        menu.add(ccp.paste());
 
         menu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((e) -> {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.categoryFlavor));
+            ccp.paste().setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.categoryFlavor));
         }));
     }
 

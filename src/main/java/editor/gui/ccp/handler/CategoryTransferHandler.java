@@ -16,7 +16,6 @@ import editor.gui.ccp.data.CategoryTransferData;
  * 
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CategoryTransferHandler extends EditorTransferHandler
 {
     /** Function supplying the category specification to transfer. */

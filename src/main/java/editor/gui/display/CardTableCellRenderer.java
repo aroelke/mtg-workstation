@@ -38,7 +38,6 @@ import editor.util.UnicodeSymbols;
  *
  * @author Alec Roelke
  */
-@SuppressWarnings("serial")
 public class CardTableCellRenderer extends DefaultTableCellRenderer
 {
     /** Internal cache of icon sets to speed up resizing. */
@@ -68,12 +67,12 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
     {
         Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        if (table.getModel() instanceof CardTableModel)
+        if (table.getModel() instanceof CardTableModel m)
         {
             JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
             Border border = BorderFactory.createEmptyBorder(1, 1, 1, 1);
             StringJoiner join = new StringJoiner(Card.FACE_SEPARATOR);
-            switch (((CardTableModel)table.getModel()).getColumnData(column))
+            switch (m.getColumnData(column))
             {
             case MANA_COST:
                 panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));

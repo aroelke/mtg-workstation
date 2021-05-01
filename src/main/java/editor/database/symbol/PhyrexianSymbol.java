@@ -79,8 +79,8 @@ public class PhyrexianSymbol extends ManaSymbol
     @Override
     public int compareTo(ManaSymbol o)
     {
-        if (o instanceof PhyrexianSymbol)
-            return color.colorOrder(((PhyrexianSymbol)o).color);
+        if (o instanceof PhyrexianSymbol s)
+            return color.colorOrder(s.color);
         else
             return super.compareTo(o);
     }

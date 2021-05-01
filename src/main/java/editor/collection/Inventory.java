@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,25 +27,12 @@ public class Inventory implements CardList
      * This class represents a card's entry in the Inventory.  It can only tell a Card's
      * date "added," which is the date its expansion was released.
      *
+     * @param card card to store metadata for
+     * 
      * @author Alec Roelke
      */
-    private class InventoryEntry implements Entry
+    private record InventoryEntry(Card card) implements Entry
     {
-        /**
-         * Card for this InventoryEntry.
-         */
-        private final Card card;
-
-        /**
-         * Create a new InventoryEntry.
-         *
-         * @param card card corresponding to the new entry
-         */
-        private InventoryEntry(Card card)
-        {
-            this.card = card;
-        }
-
         @Override
         public Card card()
         {
@@ -72,26 +58,7 @@ public class Inventory implements CardList
         @Override
         public LocalDate dateAdded()
         {
-            return card.expansion().releaseDate;
-        }
-
-        @Override
-        public boolean equals(Object other)
-        {
-            if (other == null)
-                return false;
-            if (other == this)
-                return true;
-            if (!(other instanceof InventoryEntry))
-                return false;
-            InventoryEntry o = (InventoryEntry)other;
-            return card.equals(o.card);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(card);
+            return card.expansion().released();
         }
     }
 
