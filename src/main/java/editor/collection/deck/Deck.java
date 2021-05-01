@@ -417,10 +417,6 @@ public class Deck implements CardList
      * Total number of cards in this Deck, accounting for multiples.
      */
     private int total;
-    /**
-     * Number of land cards in this Deck, accounting for multiples.
-     */
-    private int land;
 
     /**
      * Create a new, empty Deck with no categories.
@@ -430,7 +426,6 @@ public class Deck implements CardList
         masterList = new ArrayList<>();
         categories = new LinkedHashMap<>();
         total = 0;
-        land = 0;
     }
 
     /**
@@ -490,8 +485,6 @@ public class Deck implements CardList
         }
         entry.add(amount);
         total += amount;
-        if (card.isLand())
-            land += amount;
 
         return true;
     }
@@ -581,7 +574,6 @@ public class Deck implements CardList
         masterList.clear();
         categories.clear();
         total = 0;
-        land = 0;
     }
 
     @Override
@@ -738,26 +730,6 @@ public class Deck implements CardList
     }
 
     /**
-     * Get the number of lands in the deck.
-     *
-     * @return the number of land cards, including multiples.
-     */
-    public int land()
-    {
-        return land;
-    }
-
-    /**
-     * Get the number of nonlands in the deck.
-     *
-     * @return the number of nonland cards, including multiples.
-     */
-    public int nonland()
-    {
-        return total - land;
-    }
-
-    /**
      * Get the number of categories in the deck.
      *
      * @return the number of categories.
@@ -799,8 +771,6 @@ public class Deck implements CardList
                 masterList.remove(entry);
             }
             total -= removed;
-            if (card.isLand())
-                land -= removed;
         }
 
         return removed;
@@ -893,8 +863,6 @@ public class Deck implements CardList
         else
         {
             total += amount - e.count;
-            if (e.card.isLand())
-                land += amount - e.count;
 
             var change = new HashMap<Card, Integer>();
             change.put(card, amount - e.count);

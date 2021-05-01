@@ -2533,9 +2533,10 @@ public class EditorFrame extends JInternalFrame
      */
     public void updateStats()
     {
+        int lands = deck().current.stream().filter(Card::isLand).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
         countLabel.setText("Total cards: " + deck().current.total());
-        landLabel.setText("Lands: " + deck().current.land());
-        nonlandLabel.setText("Nonlands: " + deck().current.nonland());
+        landLabel.setText("Lands: " + lands);
+        nonlandLabel.setText("Nonlands: " + (deck().current.total() - lands));
 
         var manaValue = deck().current.stream()
             .filter((c) -> !c.typeContains("land"))
