@@ -36,75 +36,143 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
     @Override
     public Settings deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
+        SettingsBuilder builder = new SettingsBuilder().defaults();
         JsonObject obj = json.getAsJsonObject();
-        JsonObject inventory = obj.get("inventory").getAsJsonObject();
-        JsonObject editor = obj.get("editor").getAsJsonObject();
-        JsonObject recents = editor.get("recents").getAsJsonObject();
-        JsonObject categories = editor.get("categories").getAsJsonObject();
-        JsonObject hand = editor.get("hand").getAsJsonObject();
-        JsonObject legality = editor.get("legality").getAsJsonObject();
 
-        JsonArray inventoryColumnsJson = inventory.get("columns").getAsJsonArray();
-        var inventoryColumns = new ArrayList<CardAttribute>(inventoryColumnsJson.size());
-        for (var column : inventoryColumnsJson)
-            inventoryColumns.add(context.deserialize(column, CardAttribute.class));
+        if (obj.has("inventory"))
+        {
+            JsonObject inventory = obj.get("inventory").getAsJsonObject();
 
-        JsonArray recentsJson = recents.get("files").getAsJsonArray();
-        var recentsFiles = new ArrayList<String>(recentsJson.size());
-        for (var file : recentsJson)
-            recentsFiles.add(file.getAsString());
+            if (inventory.has("source"))
+                builder = builder.inventorySource(inventory.get("source").getAsString());
+            if (inventory.has("file"))
+                builder = builder.inventoryFile(inventory.get("file").getAsString());
+            if (inventory.has("versionFile"))
+                builder = builder.inventoryVersionFile(inventory.get("versionFile").getAsString());
+            if (inventory.has("version"))
+                builder = builder.inventoryVersion(context.deserialize(inventory.get("version"), DatabaseVersion.class));
+            if (inventory.has("location"))
+                builder = builder.inventoryLocation(inventory.get("location").getAsString());
+            if (inventory.has("scans"))
+                builder = builder.inventoryScans(inventory.get("scans").getAsString());
+            if (inventory.has("imageSource"))
+                builder = builder.imageSource(inventory.get("imageSource").getAsString());
+            if (inventory.has("imageLimitEnable"))
+                builder = builder.imageLimitEnable(inventory.get("imageLimitEnable").getAsBoolean());
+            if (inventory.has("imageLimit"))
+                builder = builder.imageLimit(inventory.get("imageLimit").getAsInt());
+            if (inventory.has("tags"))
+                builder = builder.inventoryTags(inventory.get("tags").getAsString());
+            if (inventory.has("update"))
+                builder = builder.inventoryUpdate(context.deserialize(inventory.get("update"), UpdateFrequency.class));
+            if (inventory.has("columns"))
+            {
+                JsonArray inventoryColumnsJson = inventory.get("columns").getAsJsonArray();
+                var inventoryColumns = new ArrayList<CardAttribute>(inventoryColumnsJson.size());
+                for (var column : inventoryColumnsJson)
+                    inventoryColumns.add(context.deserialize(column, CardAttribute.class));
+                builder = builder.inventoryColumns(inventoryColumns);
+            }
+            if (inventory.has("background"))
+                builder = builder.inventoryBackground(context.deserialize(inventory.get("background"), Color.class));
+            if (inventory.has("stripe"))
+                builder = builder.inventoryStripe(context.deserialize(inventory.get("stripe"), Color.class));
+            if (inventory.has("warn"))
+                builder = builder.inventoryWarn(inventory.get("warn").getAsBoolean());
+        }
 
-        JsonArray presetsJson = categories.get("presets").getAsJsonArray();
-        var presets = new ArrayList<CategorySpec>(presetsJson.size());
-        for (var preset : presetsJson)
-            presets.add(context.deserialize(preset, CategorySpec.class));
-        
-        JsonArray editorColumnsJson = editor.get("columns").getAsJsonArray();
-        var editorColumns = new ArrayList<CardAttribute>(editorColumnsJson.size());
-        for (var column : editorColumnsJson)
-            editorColumns.add(context.deserialize(column, CardAttribute.class));
+        if (obj.has("editor"))
+        {
+            JsonObject editor = obj.get("editor").getAsJsonObject();
 
-        JsonArray backFaceLandsJson = editor.get("backFaceLands").getAsJsonArray();
-        var backFaceLands = new HashSet<CardLayout>(backFaceLandsJson.size());
-        for (var layout : backFaceLandsJson)
-            backFaceLands.add(Arrays.stream(CardLayout.values()).filter((l) -> l.toString().equals(layout.getAsString())).findAny().get());
+            if (editor.has("recents"))
+            {
+                JsonObject recents = editor.get("recents").getAsJsonObject();
 
-        return new SettingsBuilder()
-            .defaults()
-            .inventorySource(inventory.get("source").getAsString())
-            .inventoryFile(inventory.get("file").getAsString())
-            .inventoryVersionFile(inventory.get("versionFile").getAsString())
-            .inventoryVersion(context.deserialize(inventory.get("version"), DatabaseVersion.class))
-            .inventoryLocation(inventory.get("location").getAsString())
-            .inventoryScans(inventory.get("scans").getAsString())
-            .imageSource(inventory.get("imageSource").getAsString())
-            .imageLimitEnable(inventory.get("imageLimitEnable").getAsBoolean())
-            .imageLimit(inventory.get("imageLimit").getAsInt())
-            .inventoryTags(inventory.get("tags").getAsString())
-            .inventoryUpdate(context.deserialize(inventory.get("update"), UpdateFrequency.class))
-            .inventoryColumns(inventoryColumns)
-            .inventoryBackground(context.deserialize(inventory.get("background"), Color.class))
-            .inventoryStripe(context.deserialize(inventory.get("stripe"), Color.class))
-            .inventoryWarn(inventory.get("warn").getAsBoolean())
-            .recentsCount(recents.get("count").getAsInt())
-            .recentsFiles(recentsFiles)
-            .presetCategories(presets)
-            .categoryRows(categories.get("rows").getAsInt())
-            .explicits(categories.get("explicits").getAsInt())
-            .editorColumns(editorColumns)
-            .editorStripe(context.deserialize(editor.get("stripe"), Color.class))
-            .handSize(hand.get("size").getAsInt())
-            .handRounding(hand.get("rounding").getAsString())
-            .handBackground(context.deserialize(hand.get("background"), Color.class))
-            .searchForCommander(legality.get("searchForCommander").getAsBoolean())
-            .commanderInMain(legality.get("main").getAsBoolean())
-            .commanderInAll(legality.get("all").getAsBoolean())
-            .commanderInList(legality.get("list").getAsString())
-            .sideboardName(legality.get("sideboard").getAsString())
-            .manaValue(editor.get("manaValue").getAsString())
-            .backFaceLands(backFaceLands)
-            .cwd(obj.get("cwd").getAsString())
-            .build();
+                if (recents.has("count"))
+                    builder = builder.recentsCount(recents.get("count").getAsInt());
+                if (recents.has("files"))
+                {
+                    JsonArray recentsJson = recents.get("files").getAsJsonArray();
+                    var recentsFiles = new ArrayList<String>(recentsJson.size());
+                    for (var file : recentsJson)
+                        recentsFiles.add(file.getAsString());
+                    builder = builder.recentsFiles(recentsFiles);
+                }
+            }
+
+            if (editor.has("categories"))
+            {
+                JsonObject categories = editor.get("categories").getAsJsonObject();
+
+                if (categories.has("presets"))
+                {
+                    JsonArray presetsJson = categories.get("presets").getAsJsonArray();
+                    var presets = new ArrayList<CategorySpec>(presetsJson.size());
+                    for (var preset : presetsJson)
+                        presets.add(context.deserialize(preset, CategorySpec.class));
+                    builder = builder.presetCategories(presets);
+                }
+                if (categories.has("rows"))
+                    builder = builder.categoryRows(categories.get("rows").getAsInt());
+                if (categories.has("explicits"))
+                    builder = builder.explicits(categories.get("explicits").getAsInt());
+            }
+
+            if (editor.has("hand"))
+            {
+                JsonObject hand = editor.get("hand").getAsJsonObject();
+
+                if (hand.has("size"))
+                    builder = builder.handSize(hand.get("size").getAsInt());
+                if (hand.has("rounding"))
+                    builder = builder.handRounding(hand.get("rounding").getAsString());
+                if (hand.has("background"))
+                    builder = builder.handBackground(context.deserialize(hand.get("background"), Color.class));
+            }
+
+            if (editor.has("legality"))
+            {
+                JsonObject legality = editor.get("legality").getAsJsonObject();
+
+                if (legality.has("searchForCommander"))
+                    builder = builder.searchForCommander(legality.get("searchForCommander").getAsBoolean());
+                if (legality.has("main"))
+                    builder = builder.commanderInMain(legality.get("main").getAsBoolean());
+                if (legality.has("all"))
+                    builder = builder.commanderInAll(legality.get("all").getAsBoolean());
+                if (legality.has("list"))
+                    builder = builder.commanderInList(legality.get("list").getAsString());
+                if (legality.has("sideboard"))
+                    builder = builder.sideboardName(legality.get("sideboard").getAsString());
+            }
+
+            if (editor.has("columns"))
+            {
+                JsonArray editorColumnsJson = editor.get("columns").getAsJsonArray();
+                var editorColumns = new ArrayList<CardAttribute>(editorColumnsJson.size());
+                for (var column : editorColumnsJson)
+                    editorColumns.add(context.deserialize(column, CardAttribute.class));
+                builder = builder.editorColumns(editorColumns);
+            }
+            if (editor.has("stripe"))
+                builder = builder.editorStripe(context.deserialize(editor.get("stripe"), Color.class));
+            if (editor.has("manaValue"))
+                builder = builder.manaValue(editor.get("manaValue").getAsString());
+            if (editor.has("backFaceLands"))
+            {
+                JsonArray backFaceLandsJson = editor.get("backFaceLands").getAsJsonArray();
+                var backFaceLands = new HashSet<CardLayout>(backFaceLandsJson.size());
+                for (var layout : backFaceLandsJson)
+                    backFaceLands.add(Arrays.stream(CardLayout.values()).filter((l) -> l.toString().equals(layout.getAsString())).findAny().get());
+                builder = builder.backFaceLands(backFaceLands);
+            }
+        }
+
+        if (obj.has("cwd"))
+            builder = builder.cwd(obj.get("cwd").getAsString());
+
+        return builder.build();
     }
 
     @Override
