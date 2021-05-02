@@ -4,10 +4,12 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
 import editor.database.attributes.CardAttribute;
+import editor.database.card.CardLayout;
 import editor.database.version.DatabaseVersion;
 import editor.database.version.UpdateFrequency;
 
@@ -50,13 +52,13 @@ public class SettingsBuilder
     private String list;
     private String sideboard;
     private String manaValue;
+    private Set<CardLayout> backFaceLands;
     private String cwd;
 
     /**
      * Create a new SettingsBuilder with nothing set.
      */
-    public SettingsBuilder()
-    {}
+    public SettingsBuilder() {}
 
     /**
      * Create a new SettingsBuilder that is prepared to copy a settings
@@ -109,6 +111,7 @@ public class SettingsBuilder
             list,
             sideboard,
             manaValue,
+            backFaceLands,
             cwd
         );
     }
@@ -152,6 +155,7 @@ public class SettingsBuilder
         list = original.editor().legality().list();
         sideboard = original.editor().legality().sideboard();
         manaValue = original.editor().manaValue();
+        backFaceLands = original.editor().backFaceLands();
         cwd = original.cwd();
 
         return this;
@@ -199,6 +203,7 @@ public class SettingsBuilder
      * <li>{@link Settings.EditorSettings.LegalitySettings#list}: <code>""</code>
      * <li>{@link Settings.EditorSettings.LegalitySettings#sideboard}: <code>""</code>
      * <li>{@link Settings.EditorSettings#manaValue}: <code>"Minimum"</code>
+     * <li>{@link Settings.EditorSettings#backFaceLands}: [{@link CardLayout#MODAL_DFC}]
      * <li>{@link Settings#cwd}: <code>$HOME</code>
      * </ul>
      * 
@@ -681,6 +686,20 @@ public class SettingsBuilder
     public SettingsBuilder manaValue(String choice)
     {
         this.manaValue = choice;
+        return this;
+    }
+
+    /**
+     * Set which layouts (which must be multi-faced) to count as lands if their back faces
+     * are lands
+     * 
+     * @param choices set of card layouts to count as lands
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings#backFaceLands
+     */
+    public SettingsBuilder backFaceLands(Set<CardLayout> choices)
+    {
+        this.backFaceLands = choices;
         return this;
     }
 

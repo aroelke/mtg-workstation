@@ -338,6 +338,8 @@ public class SettingsDialog extends JDialog
     private JSpinner limitImageSpinner;
     /** Combo box showing possible ways to analyze mana value. */
     private JComboBox<String> manaValueBox;
+    /** Check boxes indicating which layouts to count as lands if their back faces are lands. */
+    private List<JCheckBox> landsCheckBoxes;
 
     /**
      * Create a new SettingsDialog.
@@ -592,6 +594,17 @@ public class SettingsDialog extends JDialog
         manaValuePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, manaValuePanel.getPreferredSize().height));
         manaValuePanel.setAlignmentX(LEFT_ALIGNMENT);
         editorPanel.add(manaValuePanel);
+        editorPanel.add(Box.createVerticalStrut(5));
+
+        // Which layouts to count lands on back sides
+        JPanel landsPanel = new JPanel(new FlowLayout(0, 0, FlowLayout.LEADING));
+        landsPanel.setBorder(BorderFactory.createTitledBorder("Count lands on back sides for layouts:"));
+        landsCheckBoxes = Arrays.stream(editor.database.card.CardLayout.values()).filter((l) -> l.isMultiFaced).map((l) -> new JCheckBox(l.toString(), settings.editor().backFaceLands().contains(l))).collect(Collectors.toList());
+        for (JCheckBox box : landsCheckBoxes)
+            landsPanel.add(box);
+        landsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, landsPanel.getPreferredSize().height));
+        landsPanel.setAlignmentX(LEFT_ALIGNMENT);
+        editorPanel.add(landsPanel);
         editorPanel.add(Box.createVerticalStrut(5));
 
         editorPanel.add(Box.createVerticalGlue());
@@ -917,6 +930,7 @@ public class SettingsDialog extends JDialog
                 .recentsCount((Integer)recentSpinner.getValue())
                 .explicits((Integer)explicitsSpinner.getValue())
                 .manaValue(manaValueBox.getItemAt(manaValueBox.getSelectedIndex()))
+                .backFaceLands(landsCheckBoxes.stream().filter(JCheckBox::isSelected).map((b) -> Arrays.stream(editor.database.card.CardLayout.values()).filter((l) -> l.toString().equals(b.getText())).findAny().get()).collect(Collectors.toSet()))
                 .categoryRows((Integer)rowsSpinner.getValue())
                 .editorColumns(editorColumnCheckBoxes.entrySet().stream().filter((e) -> e.getValue().isSelected()).map(Map.Entry::getKey).sorted().collect(Collectors.toList()))
                 .editorStripe(editorStripeColor.getColor())

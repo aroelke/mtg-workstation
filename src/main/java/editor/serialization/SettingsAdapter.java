@@ -3,6 +3,8 @@ package editor.serialization;
 import java.awt.Color;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -15,6 +17,7 @@ import com.google.gson.JsonSerializer;
 
 import editor.collection.deck.CategorySpec;
 import editor.database.attributes.CardAttribute;
+import editor.database.card.CardLayout;
 import editor.database.version.DatabaseVersion;
 import editor.database.version.UpdateFrequency;
 import editor.gui.settings.Settings;
@@ -61,7 +64,13 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
         for (var column : editorColumnsJson)
             editorColumns.add(context.deserialize(column, CardAttribute.class));
 
+        JsonArray backFaceLandsJson = editor.get("backFaceLands").getAsJsonArray();
+        var backFaceLands = new HashSet<CardLayout>(backFaceLandsJson.size());
+        for (var layout : backFaceLandsJson)
+            backFaceLands.add(Arrays.stream(CardLayout.values()).filter((l) -> l.toString().equals(layout.getAsString())).findAny().get());
+
         return new SettingsBuilder()
+            .defaults()
             .inventorySource(inventory.get("source").getAsString())
             .inventoryFile(inventory.get("file").getAsString())
             .inventoryVersionFile(inventory.get("versionFile").getAsString())
@@ -93,6 +102,7 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
             .commanderInList(legality.get("list").getAsString())
             .sideboardName(legality.get("sideboard").getAsString())
             .manaValue(editor.get("manaValue").getAsString())
+            .backFaceLands(backFaceLands)
             .cwd(obj.get("cwd").getAsString())
             .build();
     }
@@ -156,6 +166,10 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
         legality.addProperty("sideboard", src.editor().legality().sideboard());
         editor.add("legality", legality);
         editor.addProperty("manaValue", src.editor().manaValue());
+        JsonArray backFaceLands = new JsonArray();
+        for (CardLayout layout : src.editor().backFaceLands())
+            backFaceLands.add(layout.toString());
+        editor.add("backFaceLands", backFaceLands);
 
         settings.add("inventory", inventory);
         settings.add("editor", editor);
