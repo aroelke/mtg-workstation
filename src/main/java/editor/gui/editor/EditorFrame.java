@@ -2536,10 +2536,14 @@ public class EditorFrame extends JInternalFrame
     {
         int lands = deck().current.stream().filter((c) -> {
             if (c instanceof MultiCard m)
-                return switch (m.layout()) {
-                    case MODAL_DFC -> m.faces().stream().anyMatch(Card::isLand);
-                    default -> m.faces().get(0).isLand();
-                };
+            {
+                if (Arrays.stream(editor.database.card.CardLayout.values())
+                        .filter((l) -> l.isMultiFaced)
+                        .anyMatch((l) -> SettingsDialog.settings().editor().backFaceLands().contains(l)))
+                    return m.faces().stream().anyMatch(Card::isLand);
+                else
+                    return m.faces().get(0).isLand();
+            }
             return c.isLand();
         }).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
         countLabel.setText("Total cards: " + deck().current.total());

@@ -119,6 +119,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
      * @param hand {@link HandSettings}
      * @param legality {@link LegalitySettings}
      * @param manaValue which mana value of cards with multiple values to use
+     * @param backFaceLands which multi-faced layouts count as lands when back faces are lands
      * 
      * @author Alec Roelke
      */
