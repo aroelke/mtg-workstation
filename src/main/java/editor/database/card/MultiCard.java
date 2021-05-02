@@ -30,107 +30,54 @@ import editor.util.Lazy;
  */
 public abstract class MultiCard extends Card
 {
-    /**
-     * List containing the set of types for each of this MultiCard's faces.
-     */
-    private Lazy<List<Set<String>>> allTypes;
-    /**
-     * List containing the artist of each of this MultiCard's faces.
-     */
-    private Lazy<List<String>> artist;
-    /**
-     * Tuple of the color identity of this MultiCard.
-     */
-    private Lazy<List<ManaType>> colorIdentity;
-    /**
-     * Tuple of all of the colors of this MultiCard.
-     */
-    private Lazy<List<ManaType>> colors;
-    /**
-     * List of formats this MultiCard can be commander in.
-     */
-    private Lazy<List<String>> commandFormats;
-    /**
-     * List of Cards that represent faces.  They should all have exactly one face.
-     */
-    private List<? extends Card> faces;
-    /**
-     * List containing the flavor text of each of this MultiCard's faces.
-     */
-    private Lazy<List<String>> flavorText;
-    /**
-     * List containing the image name of each of this MultiCard's faces.
-     */
-    private Lazy<List<String>> imageNames;
-    /**
-     * Whether or not this MultiCard is a land card, which it only is if its front
-     * (first) face is a land.
-     */
-    private boolean isLand;
-    /**
-     * Tuple containing the loyalty of each of this MultiCard's faces.
-     */
-    private Lazy<List<Loyalty>> loyalty;
-    /**
-     * List of mana costs of the faces of this MultiCard.
-     */
-    private Lazy<List<ManaCost>> manaCost;
-    /**
-     * List of the names of the faces of this MultiCard.
-     */
-    private Lazy<List<String>> name;
-    /**
-     * List containing the collector's number of each of this MultiCard's faces.
-     */
-    private Lazy<List<String>> number;
-    /**
-     * List containing this MultiCard's faces' multiverseids.
-     */
-    private Lazy<List<Integer>> multiverseid;
-    /**
-     * List containing this MultiCard's faces' Scryfall illustration ids.
-     */
-    private Lazy<List<String>> scryfallid;
-    /**
-     * List containing the oracle text of each of this MultiCard's faces.
-     */
-    private Lazy<List<String>> oracleText;
-    /**
-     * Tuple containing the power of each of this MultiCard's faces.
-     */
-    private Lazy<List<CombatStat>> power;
-    /**
-     * List containing the printed text of each of this MultiCard's faces.
-     */
-    private Lazy<List<String>> printedText;
-    /**
-     * List containing the printed type lines of each of this MultiCard's faces.
-     */
-    private Lazy<List<String>> printedTypes;
-    /**
-     * Map containing the rulings of this MultiCard and the dates they were made on.
-     */
-    private Lazy<Map<Date, List<String>>> rulings;
-    /**
-     * Set of this MultiCard's subtypes including all of its faces.
-     */
-    private Lazy<Set<String>> subtypes;
-    /**
-     * Set of this MultiCard's supertypes including all of its faces.
-     */
-    private Lazy<Set<String>> supertypes;
-    /**
-     * Tuple containing the toughness of each of this MultiCard's faces.
-     */
-    private Lazy<List<CombatStat>> toughness;
-    /**
-     * List containing the type line of each of this MultiCard's faces.
-     */
-    private Lazy<List<String>> typeLine;
-    /**
-     * Set of this MultiCard's types including all of its faces.
-     */
-    private Lazy<Set<String>> types;
+    /** List containing the set of types for each of this MultiCard's faces. */
+    private final Lazy<List<Set<String>>> allTypes;
+    /** List containing the artist of each of this MultiCard's faces. */
+    private final Lazy<List<String>> artist;
+    /** Tuple of the color identity of this MultiCard. */
+    private final Lazy<List<ManaType>> colorIdentity;
+    /** Tuple of all of the colors of this MultiCard. */
+    private final Lazy<List<ManaType>> colors;
+    /** List of formats this MultiCard can be commander in. */
+    private final Lazy<List<String>> commandFormats;
+    /** List of Cards that represent faces.  They should all be {@link SingleCard}s */
+    private final List<? extends Card> faces;
+    /** List containing the flavor text of each of this MultiCard's faces. */
+    private final Lazy<List<String>> flavorText;
+    /** List containing the image name of each of this MultiCard's faces. */
+    private final Lazy<List<String>> imageNames;
+    /** Tuple containing the loyalty of each of this MultiCard's faces. */
+    private final Lazy<List<Loyalty>> loyalty;
+    /** List of mana costs of the faces of this MultiCard. */
+    private final Lazy<List<ManaCost>> manaCost;
+    /** List of the names of the faces of this MultiCard.*/
+    private final Lazy<List<String>> name;
+    /** List containing the collector's number of each of this MultiCard's faces. */
+    private final Lazy<List<String>> number;
+    /** List containing this MultiCard's faces' multiverseids. */
+    private final Lazy<List<Integer>> multiverseid;
+    /** List containing this MultiCard's faces' Scryfall illustration ids. */
+    private final Lazy<List<String>> scryfallid;
+    /** List containing the oracle text of each of this MultiCard's faces. */
+    private final Lazy<List<String>> oracleText;
+    /** Tuple containing the power of each of this MultiCard's faces. */
+    private final Lazy<List<CombatStat>> power;
+    /** List containing the printed text of each of this MultiCard's faces. */
+    private final Lazy<List<String>> printedText;
+    /** List containing the printed type lines of each of this MultiCard's faces. */
+    private final Lazy<List<String>> printedTypes;
+    /** Map containing the rulings of this MultiCard and the dates they were made on. */
+    private final Lazy<Map<Date, List<String>>> rulings;
+    /** Set of this MultiCard's subtypes including all of its faces. */
+    private final Lazy<Set<String>> subtypes;
+    /** Set of this MultiCard's supertypes including all of its faces. */
+    private final Lazy<Set<String>> supertypes;
+    /** Tuple containing the toughness of each of this MultiCard's faces. */
+    private final Lazy<List<CombatStat>> toughness;
+    /** List containing the type line of each of this MultiCard's faces. */
+    private final Lazy<List<String>> typeLine;
+    /** Set of this MultiCard's types including all of its faces. */
+    private final Lazy<Set<String>> types;
 
     /**
      * Create a new MultiCard out of the given cards.
@@ -147,15 +94,15 @@ public abstract class MultiCard extends Card
      * Create a new MultiCard out of the given list of Cards. Each one should only have one face.
      *
      * @param layout layout of the new MultiCard, which should be one that has multiple faces
-     * @param f      cards to use as faces
+     * @param f cards to use as faces
      */
     public MultiCard(CardLayout layout, List<? extends Card> f)
     {
-        super(f.get(0).expansion(), layout, f.size());
+        super(f.get(0).expansion(), layout);
 
-        faces = f;
+        faces = Collections.unmodifiableList(f);
         for (Card face : faces)
-            if (face.faces() > 1)
+            if (face instanceof MultiCard)
                 throw new IllegalArgumentException("Only normal, single-faced cards can be joined into a multi-faced card");
 
         name = new Lazy<>(() -> collect(Card::name));
@@ -203,7 +150,6 @@ public abstract class MultiCard extends Card
         imageNames = new Lazy<>(() -> collect(Card::imageNames));
         multiverseid = new Lazy<>(() -> collect(Card::multiverseid));
         scryfallid = new Lazy<>(() -> collect(Card::scryfallid));
-        isLand = faces.get(0).isLand();
         commandFormats = new Lazy<>(() -> faces.stream().flatMap((c) -> c.commandFormats().stream()).distinct().sorted().collect(Collectors.toList()));
     }
 
@@ -269,7 +215,7 @@ public abstract class MultiCard extends Card
     @Override
     public boolean isLand()
     {
-        return isLand;
+        throw new UnsupportedOperationException("look at individual faces to determine if " + unifiedName() + " is a land");
     }
 
     @Override
@@ -421,5 +367,10 @@ public abstract class MultiCard extends Card
     public void formatDocument(StyledDocument document, boolean printed, int f)
     {
         faces.get(f).formatDocument(document, printed);
+    }
+
+    public List<? extends Card> faces()
+    {
+        return faces;
     }
 }

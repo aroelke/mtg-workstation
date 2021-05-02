@@ -14,10 +14,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import editor.collection.deck.CategorySpec;
 import editor.database.attributes.CardAttribute;
+import editor.database.card.CardLayout;
 import editor.database.version.DatabaseVersion;
 import editor.database.version.UpdateFrequency;
 import editor.filter.leaf.options.multi.CardTypeFilter;
@@ -117,6 +119,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
      * @param hand {@link HandSettings}
      * @param legality {@link LegalitySettings}
      * @param manaValue which mana value of cards with multiple values to use
+     * @param backFaceLands which multi-faced layouts count as lands when back faces are lands
      * 
      * @author Alec Roelke
      */
@@ -127,7 +130,8 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
         Color stripe,
         HandSettings hand,
         LegalitySettings legality,
-        String manaValue)
+        String manaValue,
+        Set<CardLayout> backFaceLands)
     {
         /**
          * Sub-structure containing information about recently-edited files.
@@ -200,7 +204,8 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                                List<CardAttribute> columns, Color stripe,
                                int handSize, String handRounding, Color handBackground,
                                boolean searchForCommander, boolean main, boolean all, String list, String sideboard,
-                               String manaValue)
+                               String manaValue,
+                               Set<CardLayout> backFaceLands)
         {
             this(
                 new RecentsSettings(recentsCount, recentsFiles),
@@ -209,7 +214,8 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                 stripe,
                 new HandSettings(handSize, handRounding, handBackground),
                 new LegalitySettings(searchForCommander, main, all, list, sideboard),
-                manaValue
+                manaValue,
+                backFaceLands
             );
         }
 
@@ -222,16 +228,17 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                 new Color(0xCC, 0xCC, 0xCC, 0xFF),
                 new HandSettings(),
                 new LegalitySettings(),
-                "Minimum"
+                "Minimum",
+                Set.of(CardLayout.MODAL_DFC)
             );
         }
     }
 
-    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, String cwd)
+    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, Set<CardLayout> backFaceLands, String cwd)
     {
         this(
             new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe),
-            new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard, manaValue),
+            new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard, manaValue, backFaceLands),
             cwd
         );
     }
