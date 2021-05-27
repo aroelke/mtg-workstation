@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.card.Card;
 import editor.gui.editor.EditorFrame;
 
@@ -19,7 +19,7 @@ import editor.gui.editor.EditorFrame;
 public class CategoryTransferData extends EntryTransferData
 {
     /** Category specification to transfer. */
-    public final CategorySpec spec;
+    public final Category spec;
 
     /**
      * Create a new category transfer data for data from a deck. This constructor
@@ -30,7 +30,7 @@ public class CategoryTransferData extends EntryTransferData
      * @param d specification to transfer
      * @param cards reserved for future use
      */
-    public CategoryTransferData(EditorFrame e, CategorySpec d, Map<Card, Integer> cards)
+    public CategoryTransferData(EditorFrame e, Category d, Map<Card, Integer> cards)
     {
         super(e, 0, cards); // Only main deck can have categories
         spec = d;
@@ -41,7 +41,7 @@ public class CategoryTransferData extends EntryTransferData
      * 
      * @param d specification to transfer
      */
-    public CategoryTransferData(CategorySpec d)
+    public CategoryTransferData(Category d)
     {
         this(null, d, Collections.emptyMap());
     }

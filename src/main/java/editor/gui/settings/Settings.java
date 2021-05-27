@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.CardLayout;
 import editor.database.version.DatabaseVersion;
@@ -151,7 +151,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
          * 
          * @author Alec Roelke
          */
-        public record CategoriesSettings(List<CategorySpec> presets, int rows, int explicits)
+        public record CategoriesSettings(List<Category> presets, int rows, int explicits)
         {
             private CategoriesSettings()
             {
@@ -164,7 +164,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                     ).entrySet().stream().map((e) -> {
                         CardTypeFilter filter = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
                         filter.selected.addAll(e.getValue());
-                        return new CategorySpec(e.getKey(), Collections.emptySet(), Collections.emptySet(), Color.WHITE, filter);
+                        return new Category(e.getKey(), Collections.emptySet(), Collections.emptySet(), Color.WHITE, filter);
                     }).collect(Collectors.toList()),
                     6, 3
                 );
@@ -200,7 +200,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
 
         private EditorSettings(int recentsCount, List<String> recentsFiles,
                                int explicits,
-                               List<CategorySpec> presetCategories, int categoryRows,
+                               List<Category> presetCategories, int categoryRows,
                                List<CardAttribute> columns, Color stripe,
                                int handSize, String handRounding, Color handBackground,
                                boolean searchForCommander, boolean main, boolean all, String list, String sideboard,
@@ -234,7 +234,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
         }
     }
 
-    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<CategorySpec> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, Set<CardLayout> backFaceLands, String cwd)
+    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<Category> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, Set<CardLayout> backFaceLands, String cwd)
     {
         this(
             new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe),

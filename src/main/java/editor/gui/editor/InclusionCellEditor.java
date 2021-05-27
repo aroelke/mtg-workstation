@@ -17,12 +17,12 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellEditor;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.gui.display.CardTable;
 import editor.util.MouseListenerFactory;
 
 /**
- * This class represents an editor for a table cell containing a set of {@link CategorySpec}s for a
+ * This class represents an editor for a table cell containing a set of {@link Category}s for a
  * card. It can be edited by double-clicking on it, which brings up a dialog showing the
  * available categories.
  *
@@ -45,7 +45,7 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
     /**
      * List of categories the card belongs to.
      */
-    private List<CategorySpec> included;
+    private List<Category> included;
 
     /**
      * Create a new InclusionCellEditor from the given frame.
@@ -94,7 +94,7 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
         if (table instanceof CardTable cTable)
         {
             iePanel = new IncludeExcludePanel(frame.getCategories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getCardAt(cTable, row));
-            included = ((Collection<?>)value).stream().filter((o) -> o instanceof CategorySpec).map((o) -> (CategorySpec)o).collect(Collectors.toList());
+            included = ((Collection<?>)value).stream().filter((o) -> o instanceof Category).map((o) -> (Category)o).collect(Collectors.toList());
             if (!table.isRowSelected(row))
                 editor.setBackground(cTable.getRowColor(row));
             else

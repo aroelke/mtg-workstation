@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import editor.collection.CardList;
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.collection.deck.Deck;
 import editor.database.attributes.CardAttribute;
 import editor.util.CollectionUtils;
@@ -54,7 +54,7 @@ public class CardFormat
         }
 
         @Override
-        public Set<CategorySpec> categories()
+        public Set<Category> categories()
         {
             return Collections.emptySet();
         }
@@ -129,7 +129,7 @@ public class CardFormat
                 case COLORS, COLOR_IDENTITY -> String.join(",",
                     ((List<?>)card.get(type)).stream().map(String::valueOf).collect(Collectors.toList()));
                 case CATEGORIES -> String.join(",",
-                    CollectionUtils.convertToSet(card.get(type), CategorySpec.class).stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()));
+                    CollectionUtils.convertToSet(card.get(type), Category.class).stream().map(Category::getName).sorted().collect(Collectors.toList()));
                 case DATE_ADDED -> Deck.DATE_FORMATTER.format((LocalDate)card.get(type));
                 default -> String.valueOf(card.get(type));
             });

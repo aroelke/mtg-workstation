@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 
@@ -47,11 +47,11 @@ public interface CardList extends Iterable<Card>
         /**
          * Get the categories this Entry's card belongs to.
          *
-         * @return the CategorySpecs in the parent CardList this Entry's Card matches (optional
+         * @return the Categorys in the parent CardList this Entry's Card matches (optional
          * operation)
          * @throws UnsupportedOperationException if this operation is not supported
          */
-        Set<CategorySpec> categories() throws UnsupportedOperationException;
+        Set<Category> categories() throws UnsupportedOperationException;
 
         /**
          * Get the number of copies of this Entry's card in the parent {@link CardList}.

@@ -34,12 +34,12 @@ public class Deck implements CardList
      *
      * @author Alec Roelke
      */
-    private class Category implements CardList
+    private class CategoryCache implements CardList
     {
         /**
          * Specification for the cards contained in this Category.
          */
-        private CategorySpec spec;
+        private Category spec;
         /**
          * List representing the filtered view of the master list.
          */
@@ -54,7 +54,7 @@ public class Deck implements CardList
          *
          * @param spec specifications for the new Category
          */
-        public Category(CategorySpec spec)
+        public CategoryCache(Category spec)
         {
             rank = categories.size();
             update(spec);
@@ -249,7 +249,7 @@ public class Deck implements CardList
         /**
          * {@inheritDoc}
          *
-         * @see CategorySpec#toString()
+         * @see Category#toString()
          */
         @Override
         public String toString()
@@ -266,7 +266,7 @@ public class Deck implements CardList
         /**
          * Update this category so its filtrate reflects the new filter, whitelist, and blacklist.
          */
-        public void update(CategorySpec s)
+        public void update(Category s)
         {
             spec = s;
             filtrate = masterList.stream().map((e) -> e.card).filter(spec::includes).collect(Collectors.toList());
@@ -310,7 +310,7 @@ public class Deck implements CardList
          * Set of categories this DeckEntry's Card belongs to.  Implemented using a
          * LinkedHashSet so it will maintain the ordering that categories were added.
          */
-        private final LinkedHashSet<Category> categories;
+        private final LinkedHashSet<CategoryCache> categories;
 
         /**
          * Create a new DeckEntry.
@@ -348,7 +348,7 @@ public class Deck implements CardList
         }
 
         @Override
-        public Set<CategorySpec> categories()
+        public Set<Category> categories()
         {
             return categories.stream().map((category) -> category.spec).collect(Collectors.toSet());
         }
@@ -412,7 +412,7 @@ public class Deck implements CardList
     /**
      * Categories in this Deck.
      */
-    private Map<String, Category> categories;
+    private Map<String, CategoryCache> categories;
     /**
      * Total number of cards in this Deck, accounting for multiples.
      */
@@ -438,7 +438,7 @@ public class Deck implements CardList
         this();
         for (DeckEntry e : d.masterList)
             add(e.card, e.count, e.date);
-        for (Category c : d.categories.values())
+        for (CategoryCache c : d.categories.values())
             this.addCategory(c.spec);
     }
 
@@ -474,7 +474,7 @@ public class Deck implements CardList
         if (entry.count == 0)
         {
             masterList.add(entry = new DeckEntry(card, 0, date));
-            for (Category category : categories.values())
+            for (CategoryCache category : categories.values())
             {
                 if (category.spec.includes(card))
                 {
@@ -521,7 +521,7 @@ public class Deck implements CardList
      * @param spec specification for the new Category
      * @return the new Category, or the old one if one with that name already existed.
      */
-    public CardList addCategory(CategorySpec spec)
+    public CardList addCategory(Category spec)
     {
         createCategory(spec);
         return categories.get(spec.getName());
@@ -537,11 +537,11 @@ public class Deck implements CardList
      * @throws IllegalArgumentException if there already is a category with that
      * name and the rank can't be switched.
      */
-    public CardList addCategory(CategorySpec spec, int rank)
+    public CardList addCategory(Category spec, int rank)
     {
         if (createCategory(spec))
         {
-            Category c = categories.get(spec.getName());
+            CategoryCache c = categories.get(spec.getName());
             c.rank = rank;
             return c;
         }
@@ -559,7 +559,7 @@ public class Deck implements CardList
      * @return a collection of all of the specifications of the categories in the deck,
      * in no particular order.
      */
-    public Collection<CategorySpec> categories()
+    public Collection<Category> categories()
     {
         return categories.values().stream().map((category) -> category.spec).collect(Collectors.toList());
     }
@@ -609,11 +609,11 @@ public class Deck implements CardList
      * @return <code>true</code> if the category was created, and <code>false</code>
      * otherwise
      */
-    private boolean createCategory(CategorySpec spec)
+    private boolean createCategory(Category spec)
     {
         if (!categories.containsKey(spec.getName()))
         {
-            Category c = new Category(spec);
+            CategoryCache c = new CategoryCache(spec);
             categories.put(spec.getName(), c);
             return true;
         }
@@ -682,10 +682,10 @@ public class Deck implements CardList
      * @return a copy of the specification of the category with the given name.
      * @throws IllegalArgumentException if no such category exists
      */
-    public CategorySpec getCategorySpec(String name) throws IllegalArgumentException
+    public Category getCategorySpec(String name) throws IllegalArgumentException
     {
         if (categories.containsKey(name))
-            return new CategorySpec(categories.get(name).spec);
+            return new Category(categories.get(name).spec);
         else
             throw new IllegalArgumentException("No category named " + name + " found");
     }
@@ -760,7 +760,7 @@ public class Deck implements CardList
         {
             if (entry.count == 0)
             {
-                for (Category category : categories.values())
+                for (CategoryCache category : categories.values())
                 {
                     if (category.spec.getWhitelist().contains(card))
                         category.spec.exclude(card);
@@ -783,15 +783,15 @@ public class Deck implements CardList
      * @return <code>true</code> if the deck changed as a result, and <code>false</code>
      * otherwise.
      */
-    public boolean removeCategory(CategorySpec spec)
+    public boolean removeCategory(Category spec)
     {
-        Category c = categories.get(spec.getName());
+        CategoryCache c = categories.get(spec.getName());
         if (c != null)
         {
             for (DeckEntry e : masterList)
                 e.categories.remove(c);
             var oldRanks = new HashMap<String, Integer>();
-            for (Category category : categories.values())
+            for (CategoryCache category : categories.values())
             {
                 if (category.rank > c.rank)
                 {
@@ -871,7 +871,7 @@ public class Deck implements CardList
             if (e.count == 0)
             {
                 masterList.remove(e);
-                for (Category category : categories.values())
+                for (CategoryCache category : categories.values())
                 {
                     category.filtrate.remove(e.card);
                     category.spec.getWhitelist().remove(e.card);
@@ -913,7 +913,7 @@ public class Deck implements CardList
             return false;
         else
         {
-            for (Category second : categories.values())
+            for (CategoryCache second : categories.values())
             {
                 if (second.rank == target)
                 {
@@ -950,12 +950,12 @@ public class Deck implements CardList
      * @param spec new specification for the category
      * @return the old specification for the category
      */
-    public CategorySpec updateCategory(String name, CategorySpec spec)
+    public Category updateCategory(String name, Category spec)
     {
         if (categories.containsKey(name))
         {
-            Category c = categories.remove(name);
-            CategorySpec old = new CategorySpec(c.spec);
+            CategoryCache c = categories.remove(name);
+            Category old = new Category(c.spec);
             c.update(spec);
             categories.put(spec.getName(), c);
             return old;
@@ -968,7 +968,7 @@ public class Deck implements CardList
     public void sort(Comparator<? super CardList.Entry> c)
     {
         masterList.sort(c);
-        for (Category category : categories.values())
+        for (CategoryCache category : categories.values())
             category.filtrate.sort((a, b) -> c.compare(getEntry(a), getEntry(b)));
     }
 }

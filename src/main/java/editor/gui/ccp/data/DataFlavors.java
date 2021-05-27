@@ -2,7 +2,7 @@ package editor.gui.ccp.data;
 
 import java.awt.datatransfer.DataFlavor;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.card.Card;
 
 /**
@@ -16,9 +16,9 @@ public interface DataFlavors
 	DataFlavor cardFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Card[].class.getName() + "\"", "Card Array");
 
 	/**
-	 * Data flavor representing a category. Transfer data will appear as a {@link CategorySpec}.
+	 * Data flavor representing a category. Transfer data will appear as a {@link Category}.
 	 */
-	DataFlavor categoryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + CategorySpec.class.getName() + "\"", "Category Specification");
+	DataFlavor categoryFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Category.class.getName() + "\"", "Category Specification");
 
 	/**
 	 * Data flavor representing entries in a deck.  Transfer data will appear as a

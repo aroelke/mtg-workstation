@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.card.Card;
 import editor.filter.Filter;
 import editor.filter.leaf.BinaryFilter;
@@ -40,7 +40,7 @@ public class Inventory implements CardList
         }
 
         @Override
-        public Set<CategorySpec> categories()
+        public Set<Category> categories()
         {
             throw new UnsupportedOperationException("Inventory cannot have categories.");
         }

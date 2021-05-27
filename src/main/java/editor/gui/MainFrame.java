@@ -108,7 +108,7 @@ import com.google.gson.JsonParser;
 
 import editor.collection.CardList;
 import editor.collection.Inventory;
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.collection.deck.Deck;
 import editor.collection.export.CardListFormat;
 import editor.collection.export.DelimitedCardListFormat;
@@ -233,7 +233,7 @@ public class MainFrame extends JFrame
      */
     public static final Gson SERIALIZER = new GsonBuilder()
         .registerTypeAdapter(Settings.class, new SettingsAdapter())
-        .registerTypeAdapter(CategorySpec.class, new CategoryAdapter())
+        .registerTypeAdapter(Category.class, new CategoryAdapter())
         .registerTypeHierarchyAdapter(Filter.class, new FilterAdapter())
         .registerTypeAdapter(Color.class, new ColorAdapter())
         .registerTypeHierarchyAdapter(Card.class, new CardAdapter())
@@ -1141,7 +1141,7 @@ public class MainFrame extends JFrame
         editCategoryItem.addActionListener((e) -> selectedFrame.ifPresent((f) -> {
             JPanel contentPanel = new JPanel(new BorderLayout());
             contentPanel.add(new JLabel("Choose a category to edit:"), BorderLayout.NORTH);
-            var categories = new JList<>(f.getCategories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
+            var categories = new JList<>(f.getCategories().stream().map(Category::getName).sorted().toArray(String[]::new));
             categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
             if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
@@ -1154,7 +1154,7 @@ public class MainFrame extends JFrame
         removeCategoryItem.addActionListener((e) -> selectedFrame.ifPresent((f) -> {
             JPanel contentPanel = new JPanel(new BorderLayout());
             contentPanel.add(new JLabel("Choose a category to remove:"), BorderLayout.NORTH);
-            var categories = new JList<>(f.getCategories().stream().map(CategorySpec::getName).sorted().toArray(String[]::new));
+            var categories = new JList<>(f.getCategories().stream().map(Category::getName).sorted().toArray(String[]::new));
             categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             contentPanel.add(new JScrollPane(categories), BorderLayout.CENTER);
             if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
@@ -1573,7 +1573,7 @@ public class MainFrame extends JFrame
 
                 if (!inventory.isEmpty())
                 {
-                    for (CategorySpec spec : SettingsDialog.settings().editor().categories().presets())
+                    for (Category spec : SettingsDialog.settings().editor().categories().presets())
                     {
                         JMenuItem categoryItem = new JMenuItem(spec.getName());
                         categoryItem.addActionListener((v) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));
@@ -1593,7 +1593,7 @@ public class MainFrame extends JFrame
      *
      * @param category new preset category to add
      */
-    public void addPreset(CategorySpec category)
+    public void addPreset(Category category)
     {
         if (!category.getWhitelist().isEmpty() || !category.getBlacklist().isEmpty())
         {
@@ -1606,7 +1606,7 @@ public class MainFrame extends JFrame
                 JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION)
             return;
         }
-        CategorySpec spec = new CategorySpec(category);
+        Category spec = new Category(category);
         for (final Card c : spec.getBlacklist())
             spec.include(c);
         for (final Card c : spec.getWhitelist())
@@ -1637,7 +1637,7 @@ public class MainFrame extends JFrame
         for (EditorFrame frame : editors)
             frame.applySettings();
         presetMenu.removeAll();
-        for (CategorySpec spec : SettingsDialog.settings().editor().categories().presets())
+        for (Category spec : SettingsDialog.settings().editor().categories().presets())
         {
             JMenuItem categoryItem = new JMenuItem(spec.getName());
             categoryItem.addActionListener((e) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));

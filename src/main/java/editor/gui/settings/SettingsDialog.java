@@ -56,7 +56,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.FormatConstraints;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
@@ -180,7 +180,7 @@ public class SettingsDialog extends JDialog
      *
      * @param category specification of the preset category to add
      */
-    public static void addPresetCategory(CategorySpec category)
+    public static void addPresetCategory(Category category)
     {
         settings = new SettingsBuilder(settings).addPresetCategory(category).build();
     }
@@ -859,8 +859,8 @@ public class SettingsDialog extends JDialog
                 recentSpinner.getModel().setValue(settings.editor().recents().count());
                 explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor().categories().explicits()));
                 manaValueBox.setSelectedIndex(Math.max(MANA_VALUE_OPTIONS.indexOf(settings.editor().manaValue()), 0));
-                for (CategorySpec preset : settings.editor().categories().presets())
-                    categoriesList.addCategory(new CategorySpec(preset));
+                for (Category preset : settings.editor().categories().presets())
+                    categoriesList.addCategory(new Category(preset));
                 rowsSpinner.getModel().setValue(settings.editor().categories().rows());
                 for (var n : editorColumnCheckBoxes.entrySet())
                     n.getValue().setSelected(settings.editor().columns().contains(n.getKey()));
@@ -911,7 +911,7 @@ public class SettingsDialog extends JDialog
             rowsSpinner.commitEdit();
             startingSizeSpinner.commitEdit();
 
-            var presets = new ArrayList<CategorySpec>(categoriesList.getCount());
+            var presets = new ArrayList<Category>(categoriesList.getCount());
             for (int i = 0; i < categoriesList.getCount(); i++)
                 presets.add(categoriesList.getCategoryAt(i));
 

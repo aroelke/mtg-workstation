@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.card.Card;
 import editor.gui.ccp.CCPItems;
 import editor.gui.ccp.data.DataFlavors;
@@ -27,7 +27,7 @@ import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
 
 /**
- * This class represents an element that can display a list of {@link CategorySpec}s.
+ * This class represents an element that can display a list of {@link Category}s.
  * Optionally, it can show an extra line that is not an element, which is useful
  * for a hint of how to perform an action on the list.
  *
@@ -36,17 +36,17 @@ import editor.util.PopupMenuListenerFactory;
 public class CategoryList extends JList<String>
 {
     /**
-     * This class represents a model for displaying a list of {@link CategorySpec}s.
+     * This class represents a model for displaying a list of {@link Category}s.
      *
      * @author Alec Roelke
      */
     private class CategoryListModel extends DefaultListModel<String>
     {
         /**
-         * Get the name of the {@link CategorySpec} at the specified position.
+         * Get the name of the {@link Category} at the specified position.
          *
          * @param index index into the list to look at
-         * @return the name of the {@link CategorySpec} at the index.
+         * @return the name of the {@link Category} at the index.
          */
         @Override
         public String getElementAt(int index)
@@ -62,8 +62,8 @@ public class CategoryList extends JList<String>
         /**
          * {@inheritDoc}
          * If there is a hint to show, the size is one more than the number of
-         * {@link CategorySpec}s.  Otherwise it's just the number of
-         * {@link CategorySpec}s.
+         * {@link Category}s.  Otherwise it's just the number of
+         * {@link Category}s.
          *
          * @return the number of elements to show.
          */
@@ -77,7 +77,7 @@ public class CategoryList extends JList<String>
     /**
      * Categories to show.
      */
-    private List<CategorySpec> categories;
+    private List<Category> categories;
     /**
      * Hint to show for activating the CategoryList (for example, to edit
      * or add categories).  If it's the empty string, don't show it.
@@ -173,24 +173,24 @@ public class CategoryList extends JList<String>
     }
 
     /**
-     * Create a new CategoryList with the specified {@link CategorySpec}s.
+     * Create a new CategoryList with the specified {@link Category}s.
      *
      * @param h extra line to show in italics
-     * @param c {@link CategorySpec}s to show
+     * @param c {@link Category}s to show
      */
-    public CategoryList(String h, CategorySpec... c)
+    public CategoryList(String h, Category... c)
     {
         this(h, Arrays.asList(c));
     }
 
     /**
      * Create a new CategoryList with the specified list
-     * of {@link CategorySpec}.
+     * of {@link Category}.
      *
      * @param h extra line to show in italics
-     * @param c list of {@link CategorySpec}s to show
+     * @param c list of {@link Category}s to show
      */
-    public CategoryList(String h, List<CategorySpec> c)
+    public CategoryList(String h, List<Category> c)
     {
         this(h);
         categories.addAll(c);
@@ -205,7 +205,7 @@ public class CategoryList extends JList<String>
      * -excluded cards or if it does and the user selects to add it anyway, and
      * <code>false</code> otherwise.
      */
-    private boolean confirmListClean(CategorySpec spec)
+    private boolean confirmListClean(Category spec)
     {
         if (!spec.getWhitelist().isEmpty() || !spec.getBlacklist().isEmpty())
         {
@@ -222,15 +222,15 @@ public class CategoryList extends JList<String>
     }
 
     /**
-     * Add a new {@link CategorySpec} to the list.
+     * Add a new {@link Category} to the list.
      *
-     * @param c {@link CategorySpec} to display
+     * @param c {@link Category} to display
      */
-    public void addCategory(CategorySpec c)
+    public void addCategory(Category c)
     {
         if (confirmListClean(c))
         {
-            CategorySpec copy = new CategorySpec(c);
+            Category copy = new Category(c);
             for (final Card card : copy.getBlacklist())
                 copy.include(card);
             for (final Card card : copy.getWhitelist())
@@ -241,22 +241,22 @@ public class CategoryList extends JList<String>
     }
 
     /**
-     * Get all of the {@link CategorySpec}s.
+     * Get all of the {@link Category}s.
      *
-     * @return the {@link CategorySpec} list this CategoryList displays.
+     * @return the {@link Category} list this CategoryList displays.
      */
-    public List<CategorySpec> getCategories()
+    public List<Category> getCategories()
     {
         return Collections.unmodifiableList(categories);
     }
 
     /**
-     * Get the {@link CategorySpec} at a certain position.
+     * Get the {@link Category} at a certain position.
      *
      * @param index index into the list to search
-     * @return the {@link CategorySpec} at the given index.
+     * @return the {@link Category} at the given index.
      */
-    public CategorySpec getCategoryAt(int index)
+    public Category getCategoryAt(int index)
     {
         return categories.get(index);
     }
@@ -264,7 +264,7 @@ public class CategoryList extends JList<String>
     /**
      * Get the number of items in this CategoryList.
      *
-     * @return the number of {@link CategorySpec}s in this CategoryList.
+     * @return the number of {@link Category}s in this CategoryList.
      */
     public int getCount()
     {
@@ -279,9 +279,9 @@ public class CategoryList extends JList<String>
     }
 
     /**
-     * Remove the {@link CategorySpec} at a particular index.
+     * Remove the {@link Category} at a particular index.
      *
-     * @param index index to remove the CategorySpec at
+     * @param index index to remove the Category at
      */
     public void removeCategoryAt(int index)
     {
@@ -290,16 +290,16 @@ public class CategoryList extends JList<String>
     }
 
     /**
-     * Set the {@link CategorySpec} at a particular position in the list.
+     * Set the {@link Category} at a particular position in the list.
      *
      * @param index index to set
-     * @param c {@link CategorySpec} to display
+     * @param c {@link Category} to display
      */
-    public void setCategoryAt(int index, CategorySpec c)
+    public void setCategoryAt(int index, Category c)
     {
         if (confirmListClean(c))
         {
-            CategorySpec copy = new CategorySpec(c);
+            Category copy = new Category(c);
             for (final Card card : copy.getBlacklist())
                 copy.include(card);
             for (final Card card : copy.getWhitelist())

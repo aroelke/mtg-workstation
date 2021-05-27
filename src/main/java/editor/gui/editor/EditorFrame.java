@@ -73,7 +73,7 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.table.AbstractTableModel;
 
 import editor.collection.CardList;
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
 import editor.collection.export.CardListFormat;
@@ -152,24 +152,24 @@ public class EditorFrame extends JInternalFrame
          */
         private final String name;
         /**
-         * Function comparing two {@link CategorySpec}s from a deck
+         * Function comparing two {@link Category}s from a deck
          */
-        private final Function<Deck, Comparator<CategorySpec>> order;
+        private final Function<Deck, Comparator<Category>> order;
 
         /**
          * Create a new CategoryOrder.
          *
          * @param n Name of the new CategoryOrder
-         * @param o Function comparing two CategorySpecs from a Deck
+         * @param o Function comparing two Categorys from a Deck
          */
-        CategoryOrder(String n, Function<Deck, Comparator<CategorySpec>> o)
+        CategoryOrder(String n, Function<Deck, Comparator<Category>> o)
         {
             name = n;
             order = o;
         }
 
         /**
-         * Compare the two given {@link CategorySpec}s from the given Deck.
+         * Compare the two given {@link Category}s from the given Deck.
          *
          * @param d deck containing the categories
          * @param a first category
@@ -177,7 +177,7 @@ public class EditorFrame extends JInternalFrame
          * @return a negative number if the first category comes before the second in the given deck,
          * a positive number if it comes after, and 0 if there is no relative order.
          */
-        public int compare(Deck d, CategorySpec a, CategorySpec b)
+        public int compare(Deck d, Category a, Category b)
         {
             return order.apply(d).compare(a, b);
         }
@@ -389,7 +389,7 @@ public class EditorFrame extends JInternalFrame
                 {
                     Card card = parent.getSelectedCards().get(0);
 
-                    for (CategorySpec category : deck().current.categories())
+                    for (Category category : deck().current.categories())
                     {
                         if (!category.includes(card))
                         {
@@ -400,7 +400,7 @@ public class EditorFrame extends JInternalFrame
                     }
                     addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount() > 0);
 
-                    for (CategorySpec category : deck().current.categories())
+                    for (Category category : deck().current.categories())
                     {
                         if (category.includes(card))
                         {
@@ -1047,7 +1047,7 @@ public class EditorFrame extends JInternalFrame
 
         setTransferHandler(new EditorFrameTransferHandler(this, MAIN_DECK));
 
-        for (CategorySpec spec: deck().current.categories())
+        for (Category spec: deck().current.categories())
             categoryPanels.add(createCategoryPanel(spec));
         updateCategoryPanel();
         handCalculations.update();
@@ -1124,7 +1124,7 @@ public class EditorFrame extends JInternalFrame
      * @return <code>true</code> if adding the category was successful, and <code>false</code>
      * otherwise.
      */
-    public boolean addCategory(CategorySpec spec)
+    public boolean addCategory(Category spec)
     {
         if (deck().current.containsCategory(spec.getName()))
             return false;
@@ -1207,12 +1207,12 @@ public class EditorFrame extends JInternalFrame
     /**
      * Open the dialog to create a new specification for a deck category.
      *
-     * @return the {@link CategorySpec} created by the dialog, or null if it was
+     * @return the {@link Category} created by the dialog, or null if it was
      * canceled.
      */
-    public Optional<CategorySpec> createCategory()
+    public Optional<Category> createCategory()
     {
-        Optional<CategorySpec> spec = Optional.empty();
+        Optional<Category> spec = Optional.empty();
         do
         {
             (spec = CategoryEditorPanel.showCategoryEditor(this, spec)).ifPresent((s) -> {
@@ -1229,7 +1229,7 @@ public class EditorFrame extends JInternalFrame
      * @param spec specification for the category of the new {@link CategoryPanel}
      * @return the new {@link CategoryPanel}.
      */
-    private CategoryPanel createCategoryPanel(CategorySpec spec)
+    private CategoryPanel createCategoryPanel(Category spec)
     {
         final CategoryPanel newCategory = new CategoryPanel(deck().current, spec.getName(), this);
         // When a card is selected in a category, the others should deselect
@@ -1248,13 +1248,13 @@ public class EditorFrame extends JInternalFrame
                 final Color oldColor = deck().current.getCategorySpec(newCategory.getCategoryName()).getColor();
                 final String name = newCategory.getCategoryName();
                 performAction(() -> {
-                    CategorySpec mod = deck().current.getCategorySpec(name);
+                    Category mod = deck().current.getCategorySpec(name);
                     mod.setColor(newColor);
                     deck().current.updateCategory(newCategory.getCategoryName(), mod);
                     listTabs.setSelectedIndex(CATEGORIES);
                     return true;
                 }, () -> {
-                    CategorySpec mod = deck().current.getCategorySpec(name);
+                    Category mod = deck().current.getCategorySpec(name);
                     mod.setColor(oldColor);
                     deck().current.updateCategory(newCategory.getCategoryName(), mod);
                     listTabs.setSelectedIndex(CATEGORIES);
@@ -1268,14 +1268,14 @@ public class EditorFrame extends JInternalFrame
             if (!title.equals(oldName))
             {
                 performAction(() -> {
-                    CategorySpec mod = deck().current.getCategorySpec(oldName);
+                    Category mod = deck().current.getCategorySpec(oldName);
                     mod.setName(title);
                     deck().current.updateCategory(oldName, mod);
                     newCategory.setCategoryName(title);
                     updateCategoryPanel();
                     return true;
                 }, () -> {
-                    CategorySpec mod = deck().current.getCategorySpec(title);
+                    Category mod = deck().current.getCategorySpec(title);
                     mod.setName(oldName);
                     deck().current.updateCategory(title, mod);
                     newCategory.setCategoryName(oldName);
@@ -1406,7 +1406,7 @@ public class EditorFrame extends JInternalFrame
         // Add to presets item
         JMenuItem addPresetItem = new JMenuItem("Add to presets");
         addPresetItem.addActionListener((e) -> {
-            CategorySpec s = deck().current.getCategorySpec(newCategory.getCategoryName());
+            Category s = deck().current.getCategorySpec(newCategory.getCategoryName());
             parent.addPreset(s);
         });
         categoryMenu.add(addPresetItem);
@@ -1574,7 +1574,7 @@ public class EditorFrame extends JInternalFrame
      * @return <code>true</code> if the category was successfully added, and <code>false</code>
      * otherwise
      */
-    private boolean do_addCategory(CategorySpec spec)
+    private boolean do_addCategory(Category spec)
     {
         deck().current.addCategory(spec);
 
@@ -1604,7 +1604,7 @@ public class EditorFrame extends JInternalFrame
      * @return <code>true</code> if the category was removed, and <code>false</code>
      * otherwise.
      */
-    private boolean do_removeCategory(CategorySpec spec)
+    private boolean do_removeCategory(Category spec)
     {
         deck().current.removeCategory(spec);
 
@@ -1629,12 +1629,12 @@ public class EditorFrame extends JInternalFrame
      */
     public boolean editCategory(String name)
     {
-        CategorySpec toEdit = deck().current.getCategorySpec(name);
+        Category toEdit = deck().current.getCategorySpec(name);
         if (toEdit == null)
             JOptionPane.showMessageDialog(this, "Deck " + deckName() + " has no category named " + name + ".",
                     "Error", JOptionPane.ERROR_MESSAGE);
         return CategoryEditorPanel.showCategoryEditor(this, Optional.of(toEdit)).map((s) -> {
-            final CategorySpec old = deck().current.getCategorySpec(name);
+            final Category old = deck().current.getCategorySpec(name);
             return performAction(() -> {
                 if (!deck().current.updateCategory(old.getName(), s).equals(old))
                     throw new RuntimeException("edited unexpected category");
@@ -1663,19 +1663,19 @@ public class EditorFrame extends JInternalFrame
      * @return <code>true</code> if any categories were modified, and <code>false</code>
      * otherwise.
      */
-    public boolean editInclusion(final Map<Card, Set<CategorySpec>> included, final Map<Card, Set<CategorySpec>> excluded)
+    public boolean editInclusion(final Map<Card, Set<Category>> included, final Map<Card, Set<Category>> excluded)
     {
         for (Card card : included.keySet())
         {
             included.compute(card, (k, v) -> {
-                Set<CategorySpec> s = v.stream().filter((c) -> !c.includes(k)).collect(Collectors.toSet());
+                Set<Category> s = v.stream().filter((c) -> !c.includes(k)).collect(Collectors.toSet());
                 return s.isEmpty() ? null : s;
             });
         }
         for (Card card : excluded.keySet())
         {
             excluded.compute(card, (k, v) -> {
-                Set<CategorySpec> s = v.stream().filter((c) -> c.includes(k)).collect(Collectors.toSet());
+                Set<Category> s = v.stream().filter((c) -> c.includes(k)).collect(Collectors.toSet());
                 return s.isEmpty() ? null : s;
             });
         }
@@ -1684,10 +1684,10 @@ public class EditorFrame extends JInternalFrame
         else
         {
             return performAction(() -> {
-                var mods = new HashMap<String, CategorySpec>();
+                var mods = new HashMap<String, Category>();
                 for (Card card : included.keySet())
                 {
-                    for (CategorySpec category : included.get(card))
+                    for (Category category : included.get(card))
                     {
                         if (deck().current.getCategorySpec(category.getName()).includes(card))
                             throw new IllegalArgumentException(card + " is already in " + category.getName());
@@ -1697,7 +1697,7 @@ public class EditorFrame extends JInternalFrame
                 }
                 for (Card card : excluded.keySet())
                 {
-                    for (CategorySpec category : excluded.get(card))
+                    for (Category category : excluded.get(card))
                     {
                         if (!deck().current.getCategorySpec(category.getName()).includes(card))
                             throw new IllegalArgumentException(card + " is already not in " + category.getName());
@@ -1712,10 +1712,10 @@ public class EditorFrame extends JInternalFrame
                 updateCategoryPanel();
                 return true;
             }, () -> {
-                var mods = new HashMap<String, CategorySpec>();
+                var mods = new HashMap<String, Category>();
                 for (Card card : included.keySet())
                 {
-                    for (CategorySpec category : included.get(card))
+                    for (Category category : included.get(card))
                     {
                         if (!deck().current.getCategorySpec(category.getName()).includes(card))
                             throw new IllegalArgumentException("error undoing category edit: " + card + " is already not in " + category.getName());
@@ -1725,7 +1725,7 @@ public class EditorFrame extends JInternalFrame
                 }
                 for (Card card : excluded.keySet())
                 {
-                    for (CategorySpec category : excluded.get(card))
+                    for (Category category : excluded.get(card))
                     {
                         if (deck().current.getCategorySpec(category.getName()).includes(card))
                             throw new IllegalArgumentException("error undoing category edit: " + card + " is already in " + category.getName());
@@ -1752,7 +1752,7 @@ public class EditorFrame extends JInternalFrame
      * @return <code>true</code> if the card was successfully excluded from the category, and
      * <code>false</code> otherwise (such as if the card already wasn't in the category).
      */
-    public boolean excludeFrom(final Card card, CategorySpec spec)
+    public boolean excludeFrom(final Card card, Category spec)
     {
         return modifyInclusion(Collections.emptyList(), Arrays.asList(card), spec);
     }
@@ -1892,7 +1892,7 @@ public class EditorFrame extends JInternalFrame
     /**
      * @return The categories in the main deck.
      */
-    public Collection<CategorySpec> getCategories()
+    public Collection<Category> getCategories()
     {
         return deck().current.categories();
     }
@@ -1911,7 +1911,7 @@ public class EditorFrame extends JInternalFrame
      * @return The specification for the chosen category
      * @throws IllegalArgumentException if no category of that name exists
      */
-    public CategorySpec getCategory(String name) throws IllegalArgumentException
+    public Category getCategory(String name) throws IllegalArgumentException
     {
         return deck().current.getCategorySpec(name);
     }
@@ -2042,7 +2042,7 @@ public class EditorFrame extends JInternalFrame
      * @return <code>true</code> if the card was sucessfully included in the category, and
      * <code>false</code> otherwise (such as if the card was already in the category).
      */
-    public boolean includeIn(final Card card, CategorySpec spec)
+    public boolean includeIn(final Card card, Category spec)
     {
         return modifyInclusion(Arrays.asList(card), Collections.<Card>emptyList(), spec);
     }
@@ -2175,7 +2175,7 @@ public class EditorFrame extends JInternalFrame
      * otherwise (such as if the included cards already existed in the category and the
      * excluded cards didn't).
      */
-    public boolean modifyInclusion(Collection<Card> include, Collection<Card> exclude, CategorySpec spec)
+    public boolean modifyInclusion(Collection<Card> include, Collection<Card> exclude, Category spec)
     {
         if (!deck().current.containsCategory(spec.getName()))
             throw new IllegalArgumentException("can't include a card in a category that doesn't exist");
@@ -2190,7 +2190,7 @@ public class EditorFrame extends JInternalFrame
         {
             final String name = spec.getName();
             return performAction(() -> {
-                CategorySpec mod = deck().current.getCategorySpec(name);
+                Category mod = deck().current.getCategorySpec(name);
                 for (Card c : include)
                 {
                     if (mod.includes(c))
@@ -2210,7 +2210,7 @@ public class EditorFrame extends JInternalFrame
                 updateCategoryPanel();
                 return true;
             }, () -> {
-                CategorySpec mod = deck().current.getCategorySpec(name);
+                Category mod = deck().current.getCategorySpec(name);
                 for (Card c : include)
                 {
                     if (!mod.includes(c))
@@ -2364,7 +2364,7 @@ public class EditorFrame extends JInternalFrame
     {
         if (deck().current.containsCategory(name))
         {
-            final CategorySpec spec = deck().current.getCategorySpec(name);
+            final Category spec = deck().current.getCategorySpec(name);
             return performAction(() -> do_removeCategory(spec), () -> {
                 if (deck().current.containsCategory(name))
                     throw new RuntimeException("duplicate category " + name + " found when attempting to undo removal");
@@ -2517,9 +2517,9 @@ public class EditorFrame extends JInternalFrame
             var categories = new ArrayList<>(deck().current.categories());
             categories.sort((a, b) -> sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex()).compare(deck().current, a, b));
 
-            for (CategorySpec c : categories)
+            for (Category c : categories)
                 categoriesContainer.add(getCategoryPanel(c.getName()).get());
-            for (CategorySpec c : categories)
+            for (Category c : categories)
                 switchCategoryModel.addElement(c.getName());
         }
 

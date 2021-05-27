@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.gui.ccp.data.CategoryTransferData;
 
 /**
@@ -19,9 +19,9 @@ import editor.gui.ccp.data.CategoryTransferData;
 public class CategoryTransferHandler extends EditorTransferHandler
 {
     /** Function supplying the category specification to transfer. */
-    private final Supplier<CategorySpec> supplier;
+    private final Supplier<Category> supplier;
     /** Function specifying how to remove cut data. */
-    private final Consumer<CategorySpec> remove;
+    private final Consumer<Category> remove;
 
     /**
      * Create a new category transfer handler.
@@ -33,7 +33,7 @@ public class CategoryTransferHandler extends EditorTransferHandler
      * @param r function indicating how to remove the category if it is cut from the
      * source component
      */
-    public CategoryTransferHandler(Supplier<CategorySpec> s, Predicate<CategorySpec> c, Predicate<CategorySpec> a, Consumer<CategorySpec> r)
+    public CategoryTransferHandler(Supplier<Category> s, Predicate<Category> c, Predicate<Category> a, Consumer<Category> r)
     {
         super(new CategoryImportHandler(c, a));
         supplier = s;

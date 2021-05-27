@@ -12,7 +12,7 @@ import java.util.Set;
 
 import javax.swing.BoxLayout;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.card.Card;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TristateCheckBox;
@@ -37,7 +37,7 @@ public class IncludeExcludePanel extends ScrollablePanel
     /**
      * Categories and their corresponding check boxes.
      */
-    private Map<CategorySpec, TristateCheckBox> categoryBoxes;
+    private Map<Category, TristateCheckBox> categoryBoxes;
     /**
      * List of cards to display inclusion for.
      */
@@ -54,7 +54,7 @@ public class IncludeExcludePanel extends ScrollablePanel
      * @param categories categories to display
      * @param c          cards to show inclusion for
      */
-    public IncludeExcludePanel(List<CategorySpec> categories, Collection<Card> c)
+    public IncludeExcludePanel(List<Category> categories, Collection<Card> c)
     {
         super(TRACK_WIDTH);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -63,7 +63,7 @@ public class IncludeExcludePanel extends ScrollablePanel
         cards = c;
         preferredViewportHeight = 0;
 
-        for (CategorySpec category : categories)
+        for (Category category : categories)
         {
             TristateCheckBox categoryBox = new TristateCheckBox(category.getName());
             long matches = cards.stream().filter(category::includes).count();
@@ -86,7 +86,7 @@ public class IncludeExcludePanel extends ScrollablePanel
      * @param categories categories to show inclusion for
      * @param card       card to show inclusion for
      */
-    public IncludeExcludePanel(List<CategorySpec> categories, Card card)
+    public IncludeExcludePanel(List<Category> categories, Card card)
     {
         this(categories, Collections.singletonList(card));
     }
@@ -98,11 +98,11 @@ public class IncludeExcludePanel extends ScrollablePanel
      * @return a Map containing the cards that were selected for inclusion and the new categories
      * they were included in.
      */
-    public Map<Card, Set<CategorySpec>> getIncluded()
+    public Map<Card, Set<Category>> getIncluded()
     {
-        var included = new HashMap<Card, Set<CategorySpec>>();
+        var included = new HashMap<Card, Set<Category>>();
         for (Card card : cards)
-            for (CategorySpec category : categoryBoxes.keySet())
+            for (Category category : categoryBoxes.keySet())
                 if (categoryBoxes.get(category).getState() == State.SELECTED && !category.includes(card))
                     included.compute(card, (k, v) -> {
                         if (v == null)
@@ -120,11 +120,11 @@ public class IncludeExcludePanel extends ScrollablePanel
      * @return a Map containing the cards that were deselected for exclusion and the categories
      * they should be excluded from.
      */
-    public Map<Card, Set<CategorySpec>> getExcluded()
+    public Map<Card, Set<Category>> getExcluded()
     {
-        var excluded = new HashMap<Card, Set<CategorySpec>>();
+        var excluded = new HashMap<Card, Set<Category>>();
         for (Card card : cards)
-            for (CategorySpec category : categoryBoxes.keySet())
+            for (Category category : categoryBoxes.keySet())
                 if (categoryBoxes.get(category).getState() == State.UNSELECTED && category.includes(card))
                     excluded.compute(card, (k, v) -> {
                         if (v == null)

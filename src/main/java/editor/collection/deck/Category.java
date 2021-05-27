@@ -17,7 +17,7 @@ import editor.filter.Filter;
  *
  * @author Alec Roelke
  */
-public class CategorySpec
+public class Category
 {
     /**
      * Name of the category.
@@ -41,19 +41,19 @@ public class CategorySpec
     private Filter filter;
 
     /**
-     * Create a new CategorySpec with the color black and a filter that passes all cards.
+     * Create a new Category with the color black and a filter that passes all cards.
      */
-    public CategorySpec()
+    public Category()
     {
         this("All Cards", Color.BLACK, CardAttribute.createFilter(CardAttribute.ANY));
     }
 
     /**
-     * Copy constructor for CategorySpec.
+     * Copy constructor for Category.
      *
-     * @param original original CategorySpec to copy
+     * @param original original Category to copy
      */
-    public CategorySpec(CategorySpec original)
+    public Category(Category original)
     {
         name = original.name;
         whitelist = new HashSet<>(original.whitelist);
@@ -63,7 +63,7 @@ public class CategorySpec
     }
 
     /**
-     * Create a new CategorySpec with the given specifications.
+     * Create a new Category with the given specifications.
      *
      * @param name name of the new spec
      * @param whitelist whitelist of the new spec
@@ -71,7 +71,7 @@ public class CategorySpec
      * @param color color of the new spec
      * @param filter filter of the new spec
      */
-    public CategorySpec(String name, Collection<Card> whitelist, Collection<Card> blacklist, Color color, Filter filter)
+    public Category(String name, Collection<Card> whitelist, Collection<Card> blacklist, Color color, Filter filter)
     {
         this.name = name;
         this.whitelist = new HashSet<>(whitelist);
@@ -81,14 +81,14 @@ public class CategorySpec
     }
 
     /**
-     * Create a new CategorySpec with the given specifications and an empty white- and
+     * Create a new Category with the given specifications and an empty white- and
      * blacklist.
      *
      * @param name   name of the new spec
      * @param color  color of the new spec
      * @param filter filter of the new spec
      */
-    public CategorySpec(String name, Color color, Filter filter)
+    public Category(String name, Color color, Filter filter)
     {
         this(name, new HashSet<>(), new HashSet<>(), color, filter);
     }
@@ -100,7 +100,7 @@ public class CategorySpec
             return false;
         if (other == this)
             return true;
-        if (other instanceof CategorySpec o)
+        if (other instanceof Category o)
             return name.equals(o.name) && color.equals(o.color) && filter.equals(o.filter) && blacklist.equals(o.blacklist) && whitelist.equals(o.whitelist);
         return false;
     }
@@ -156,7 +156,7 @@ public class CategorySpec
     }
 
     /**
-     * Get the name of the category this CategorySpec represents.
+     * Get the name of the category this Category represents.
      *
      * @return the name of the category.
      */
@@ -202,10 +202,10 @@ public class CategorySpec
     }
 
     /**
-     * Check if this CategorySpec's filter includes a card.
+     * Check if this Category's filter includes a card.
      *
      * @param c card to test for inclusion
-     * @return <code>true</code> if this CategorySpec includes the given card, and
+     * @return <code>true</code> if this Category includes the given card, and
      * <code>false</code> otherwise.
      */
     public boolean includes(Card c)

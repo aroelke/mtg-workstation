@@ -4,7 +4,7 @@ import java.awt.FlowLayout;
 import java.util.HashMap;
 import java.util.Map;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.generic.ComboBoxPanel;
@@ -28,7 +28,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
     /**
      * Map of category names onto their String representations.
      */
-    private Map<String, CategorySpec> categories;
+    private Map<String, Category> categories;
 
     /**
      * Create a new DefaultsFilterPanel.
@@ -41,7 +41,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
         categories = new HashMap<>();
 
         var presets = SettingsDialog.settings().editor().categories().presets();
-        String[] names = presets.stream().map(CategorySpec::getName).toArray(String[]::new);
+        String[] names = presets.stream().map(Category::getName).toArray(String[]::new);
         for (int i = 0; i < presets.size(); i++)
             categories.put(names[i], presets.get(i));
 
@@ -57,7 +57,7 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
     @Override
     public Filter filter()
     {
-        return new CategorySpec(categories.get(defaults.getSelectedItem())).getFilter();
+        return new Category(categories.get(defaults.getSelectedItem())).getFilter();
     }
 
     /**

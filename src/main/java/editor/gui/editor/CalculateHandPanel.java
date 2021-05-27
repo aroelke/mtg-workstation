@@ -29,7 +29,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.collection.deck.Deck;
 import editor.gui.settings.SettingsDialog;
 
@@ -116,7 +116,7 @@ public class CalculateHandPanel extends JPanel
         @Override
         public Object getValueAt(int rowIndex, int columnIndex)
         {
-            String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(rowIndex);
+            String category = deck.categories().stream().map(Category::getName).sorted().collect(Collectors.toList()).get(rowIndex);
             return switch (modeBox.getItemAt(modeBox.getSelectedIndex())) {
                 case DESIRED_PROBABILITY -> switch (columnIndex) {
                     case CATEGORY -> category;
@@ -399,7 +399,7 @@ public class CalculateHandPanel extends JPanel
             @Override
             public TableCellEditor getCellEditor(int row, int column)
             {
-                String category = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList()).get(row);
+                String category = deck.categories().stream().map(Category::getName).sorted().collect(Collectors.toList()).get(row);
                 return switch (column) {
                     case DESIRED  -> new DefaultCellEditor(desiredBoxes.get(category));
                     case RELATION -> new DefaultCellEditor(relationBoxes.get(category));
@@ -460,7 +460,7 @@ public class CalculateHandPanel extends JPanel
      */
     public void recalculate()
     {
-        var categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
+        var categories = deck.categories().stream().map(Category::getName).sorted().collect(Collectors.toList());
 
         probabilities.clear();
         int hand = (int)handSpinner.getValue();
@@ -502,7 +502,7 @@ public class CalculateHandPanel extends JPanel
      */
     public void update()
     {
-        var categories = deck.categories().stream().map(CategorySpec::getName).sorted().collect(Collectors.toList());
+        var categories = deck.categories().stream().map(Category::getName).sorted().collect(Collectors.toList());
 
         var oldDesired = desiredBoxes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getSelectedIndex()));
         var oldRelations = relationBoxes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getItemAt(e.getValue().getSelectedIndex())));

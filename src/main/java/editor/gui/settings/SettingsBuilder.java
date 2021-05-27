@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.CardLayout;
 import editor.database.version.DatabaseVersion;
@@ -39,7 +39,7 @@ public class SettingsBuilder
     private int recentsCount;
     private List<String> recentsFiles;
     private int explicits;
-    private List<CategorySpec> presetCategories;
+    private List<Category> presetCategories;
     private int categoryRows;
     private List<CardAttribute> editorColumns;
     private Color editorStripe;
@@ -141,7 +141,7 @@ public class SettingsBuilder
         inventoryStripe = original.inventory().stripe();
         recentsCount = original.editor().recents().count();
         recentsFiles = original.editor().recents().files();
-        presetCategories = new ArrayList<>(original.editor().categories().presets().stream().map(CategorySpec::new).collect(Collectors.toList()));
+        presetCategories = new ArrayList<>(original.editor().categories().presets().stream().map(Category::new).collect(Collectors.toList()));
         categoryRows = original.editor().categories().rows();
         explicits = original.editor().categories().explicits();
         editorColumns = original.editor().columns();
@@ -482,9 +482,9 @@ public class SettingsBuilder
      * @return this SettingsBuilder.
      * @see Settings.EditorSettings.CategoriesSettings#presets
      */
-    public SettingsBuilder presetCategories(List<CategorySpec> categories)
+    public SettingsBuilder presetCategories(List<Category> categories)
     {
-        presetCategories = categories.stream().map(CategorySpec::new).collect(Collectors.toList());
+        presetCategories = categories.stream().map(Category::new).collect(Collectors.toList());
         return this;
     }
 
@@ -495,9 +495,9 @@ public class SettingsBuilder
      * @return this SettingsBuilder.
      * @see Settings.EditorSettings.CategoriesSettings#presets
      */
-    public SettingsBuilder presetCategories(CategorySpec... categories)
+    public SettingsBuilder presetCategories(Category... categories)
     {
-        presetCategories = Arrays.stream(categories).map(CategorySpec::new).collect(Collectors.toList());
+        presetCategories = Arrays.stream(categories).map(Category::new).collect(Collectors.toList());
         return this;
     }
 
@@ -508,9 +508,9 @@ public class SettingsBuilder
      * @return this SettingsBuilder
      * @see Settings.EditorSettings.CategoriesSettings#presets
      */
-    public SettingsBuilder addPresetCategory(CategorySpec category)
+    public SettingsBuilder addPresetCategory(Category category)
     {
-        presetCategories.add(new CategorySpec(category));
+        presetCategories.add(new Category(category));
         return this;
     }
 

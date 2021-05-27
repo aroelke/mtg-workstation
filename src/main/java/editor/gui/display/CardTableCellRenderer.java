@@ -22,7 +22,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.collection.deck.Deck;
 import editor.database.attributes.CombatStat;
 import editor.database.attributes.Loyalty;
@@ -110,8 +110,8 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
                 panel.add(new JLabel(CollectionUtils.join(join, CollectionUtils.convertToList(value, Loyalty.class))));
                 break;
             case CATEGORIES:
-                var categories = new ArrayList<>(CollectionUtils.convertToSet(value, CategorySpec.class));
-                categories.sort(Comparator.comparing(CategorySpec::getName));
+                var categories = new ArrayList<>(CollectionUtils.convertToSet(value, Category.class));
+                categories.sort(Comparator.comparing(Category::getName));
                 panel = new JPanel()
                 {
                     @Override
@@ -134,7 +134,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
                 {
                     StringBuilder tooltip = new StringBuilder();
                     tooltip.append("<html>Categories:<br>");
-                    for (CategorySpec category : categories)
+                    for (Category category : categories)
                         tooltip.append(UnicodeSymbols.BULLET).append(" ").append(category.getName()).append("<br>");
                     tooltip.append("</html>");
                     panel.setToolTipText(tooltip.toString());

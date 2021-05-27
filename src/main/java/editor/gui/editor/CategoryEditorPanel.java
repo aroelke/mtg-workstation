@@ -19,7 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.card.Card;
 import editor.gui.display.CardJList;
 import editor.gui.filter.FilterGroupPanel;
@@ -46,10 +46,10 @@ public class CategoryEditorPanel extends JPanel
      * edited.  The panel will start off blank.
      *
      * @param parent component to be used to determine the Frame of the dialog
-     * @return the {@link CategorySpec} of the panel in the state it was last in while editing it, or null if the
+     * @return the {@link Category} of the panel in the state it was last in while editing it, or null if the
      * Cancel button was pressed or the dialog was closed.
      */
-    public static Optional<CategorySpec> showCategoryEditor(Container parent)
+    public static Optional<Category> showCategoryEditor(Container parent)
     {
         return showCategoryEditor(parent, Optional.empty());
     }
@@ -60,10 +60,10 @@ public class CategoryEditorPanel extends JPanel
      *
      * @param parent component to be used to determine the frame of the dialog
      * @param s specification for the initial contents of the editor, or {@link Optional#empty()} if it should be empty
-     * @return the {@link CategorySpec} of the panel in the state it was last in while editing it, or null if the
+     * @return the {@link Category} of the panel in the state it was last in while editing it, or null if the
      * Cancel button was pressed or the dialog was closed.
      */
-    public static Optional<CategorySpec> showCategoryEditor(Container parent, Optional<CategorySpec> s)
+    public static Optional<Category> showCategoryEditor(Container parent, Optional<Category> s)
     {
         CategoryEditorPanel editor = new CategoryEditorPanel(s);
         editor.filter.addChangeListener((e) -> SwingUtilities.getWindowAncestor((Component)e.getSource()).pack());
@@ -116,7 +116,7 @@ public class CategoryEditorPanel extends JPanel
     /**
      * The category specification being edited by this CategoryEditorPanel.
      */
-    private CategorySpec spec;
+    private Category spec;
     /**
      * List displaying the category's whitelist.
      */
@@ -154,7 +154,7 @@ public class CategoryEditorPanel extends JPanel
         listPanel.add(blacklistPanel);
         add(listPanel, BorderLayout.SOUTH);
 
-        spec = new CategorySpec(nameField.getText(), colorButton.color(), filter.filter());
+        spec = new Category(nameField.getText(), colorButton.color(), filter.filter());
     }
 
     /**
@@ -164,11 +164,11 @@ public class CategoryEditorPanel extends JPanel
      * @param s specifications for the initial state of the editor, or {@link Optional#empty()} if
      * it should be blank.
      */
-    public CategoryEditorPanel(Optional<CategorySpec> s)
+    public CategoryEditorPanel(Optional<Category> s)
     {
         this();
         s.ifPresent((x) -> {
-            spec = new CategorySpec(x);
+            spec = new Category(x);
             nameField.setText(spec.getName());
             colorButton.setColor(spec.getColor());
             filter.setContents(spec.getFilter());
@@ -178,12 +178,12 @@ public class CategoryEditorPanel extends JPanel
     }
 
     /**
-     * Get the {@link CategorySpec} as it is defined by the contents of this
+     * Get the {@link Category} as it is defined by the contents of this
      * CategoryEditorPanel.
      *
      * @return The category specification being edited by this CategoryEditorPanel.
      */
-    public CategorySpec spec()
+    public Category spec()
     {
         updateSpec();
         return spec;

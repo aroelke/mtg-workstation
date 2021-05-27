@@ -11,19 +11,19 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.card.Card;
 import editor.filter.Filter;
 
 /**
- * A JSON serializer and deserializer for {@link CategorySpec}.
+ * A JSON serializer and deserializer for {@link Category}.
  * 
  * @author Alec Roelke
  */
-public class CategoryAdapter implements JsonSerializer<CategorySpec>, JsonDeserializer<CategorySpec>
+public class CategoryAdapter implements JsonSerializer<Category>, JsonDeserializer<Category>
 {
     @Override
-    public JsonElement serialize(CategorySpec src, Type typeOfSrc, JsonSerializationContext context)
+    public JsonElement serialize(Category src, Type typeOfSrc, JsonSerializationContext context)
     {
         JsonObject category = new JsonObject();
         category.addProperty("name", src.getName());
@@ -36,11 +36,11 @@ public class CategoryAdapter implements JsonSerializer<CategorySpec>, JsonDeseri
     }
 
     @Override
-    public CategorySpec deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+    public Category deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
         JsonObject obj = json.getAsJsonObject();
 
-        CategorySpec category = new CategorySpec();
+        Category category = new Category();
         category.setName(obj.get("name").getAsString());
         category.setFilter(context.deserialize(obj.get("filter"), Filter.class));
         for (JsonElement element : obj.get("whitelist").getAsJsonArray())

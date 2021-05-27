@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.time.LocalDate;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
 import editor.gui.MainFrame;
@@ -30,7 +30,7 @@ public interface DeckDeserializer
         n = in.readInt();
         for (int i = 0; i < n; i++)
         {
-            CategorySpec spec = CategoryDeserializer.readExternal(in);
+            Category spec = CategoryDeserializer.readExternal(in);
             d.addCategory(spec, in.readInt());
         }
         return d;

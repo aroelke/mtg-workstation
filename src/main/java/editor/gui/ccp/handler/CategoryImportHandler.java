@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 
 import javax.swing.TransferHandler;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.gui.ccp.data.CategoryTransferData;
 import editor.gui.ccp.data.DataFlavors;
 
@@ -19,9 +19,9 @@ import editor.gui.ccp.data.DataFlavors;
 public class CategoryImportHandler extends TransferHandler implements ImportHandler
 {
     /** Function specifying how to tell if the deck contains the category already. */
-    private final Predicate<CategorySpec> contains;
+    private final Predicate<Category> contains;
     /** Function specifying how to add the category. */
-    private final Predicate<CategorySpec> add;
+    private final Predicate<Category> add;
 
     /**
      * Create a new category import handler.
@@ -30,7 +30,7 @@ public class CategoryImportHandler extends TransferHandler implements ImportHand
      * category, if applicable (should just return false if it's not applicable)
      * @param a function specifying how to add the category to the component
      */
-    public CategoryImportHandler(Predicate<CategorySpec> c, Predicate<CategorySpec> a)
+    public CategoryImportHandler(Predicate<Category> c, Predicate<Category> a)
     {
         contains = c;
         add = a;

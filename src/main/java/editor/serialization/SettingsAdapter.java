@@ -15,7 +15,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import editor.collection.deck.CategorySpec;
+import editor.collection.deck.Category;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.CardLayout;
 import editor.database.version.DatabaseVersion;
@@ -108,9 +108,9 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
                 if (categories.has("presets"))
                 {
                     JsonArray presetsJson = categories.get("presets").getAsJsonArray();
-                    var presets = new ArrayList<CategorySpec>(presetsJson.size());
+                    var presets = new ArrayList<Category>(presetsJson.size());
                     for (var preset : presetsJson)
-                        presets.add(context.deserialize(preset, CategorySpec.class));
+                        presets.add(context.deserialize(preset, Category.class));
                     builder = builder.presetCategories(presets);
                 }
                 if (categories.has("rows"))
@@ -210,7 +210,7 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
         editor.add("recents", recents);
         JsonObject categories = new JsonObject();
         JsonArray presetCategories = new JsonArray();
-        for (CategorySpec category : src.editor().categories().presets())
+        for (Category category : src.editor().categories().presets())
             presetCategories.add(context.serialize(category));
         categories.add("presets", presetCategories);
         categories.addProperty("rows", src.editor().categories().rows());
