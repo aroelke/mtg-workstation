@@ -593,6 +593,7 @@ public class EditorFrame extends JInternalFrame
         listTabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         add(listTabs, BorderLayout.CENTER);
 
+        /* MAIN DECK TAB */
         JPanel mainPanel = new JPanel(new BorderLayout());
 
         deck().model = new CardTableModel(this, deck().current, SettingsDialog.settings().editor().columns());
@@ -732,7 +733,7 @@ public class EditorFrame extends JInternalFrame
             }
         }));
 
-        // Panel containing categories
+        /* CATEGORIES TAB */
         JPanel categoriesPanel = new JPanel(new BorderLayout());
         JPanel categoriesMainPanel = new JPanel(new BorderLayout());
         categoriesPanel.add(categoriesMainPanel, BorderLayout.CENTER);
@@ -824,7 +825,7 @@ public class EditorFrame extends JInternalFrame
         categoryButtons.get("X").addActionListener((e) -> removeCards(MAIN_DECK, parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
         categoriesPanel.add(categoryButtons, BorderLayout.WEST);
 
-        // Sample hands
+        /* SAMPLE HAND TAB */
         JPanel handPanel = new JPanel(new BorderLayout());
 
         // Table showing the cards in hand
@@ -909,7 +910,7 @@ public class EditorFrame extends JInternalFrame
         listTabs.addTab("Sample Hand", handPanel);
         hand.refresh();
 
-        // Notes
+        /* NOTES TAB */
         notesArea = new JTextArea(manager.notes());
         var notes = new Stack<String>();
         notes.push(notesArea.getText());
@@ -1024,7 +1025,7 @@ public class EditorFrame extends JInternalFrame
         legalityConstraints.anchor = GridBagConstraints.EAST;
         bottomPanel.add(legalityPanel, BorderLayout.EAST);
 
-        // Changelog
+        /* CHANGELOG TAB */
         JPanel changelogPanel = new JPanel(new BorderLayout());
         changelogArea = new JTextArea(manager.changelog());
         changelogArea.setEditable(false);
