@@ -105,6 +105,7 @@ import editor.gui.generic.VerticalButtonList;
 import editor.gui.settings.SettingsDialog;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
+import editor.util.StringUtils;
 import editor.util.UndoableAction;
 import editor.util.UnicodeSymbols;
 
@@ -2547,7 +2548,7 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * Update the card counter to reflect the total number of cards in the deck.
+     * Update the card statistics to reflect the cards in the deck.
      */
     public void updateStats()
     {
@@ -2578,10 +2579,7 @@ public class EditorFrame extends JInternalFrame
             .sorted()
             .collect(Collectors.toList());
         double avgManaValue = manaValue.stream().mapToDouble(Double::valueOf).average().orElse(0);
-        if ((int)avgManaValue == avgManaValue)
-            avgManaValueLabel.setText("Average mana value: " + (int)avgManaValue);
-        else
-            avgManaValueLabel.setText(String.format("Average mana value: %.2f", avgManaValue));
+        avgManaValueLabel.setText("Average Mana value: " + StringUtils.formatDouble(avgManaValue, 2));
 
         double medManaValue = 0.0;
         if (!manaValue.isEmpty())
@@ -2591,10 +2589,7 @@ public class EditorFrame extends JInternalFrame
             else
                 medManaValue = manaValue.get(manaValue.size()/2);
         }
-        if ((int)medManaValue == medManaValue)
-            medManaValueLabel.setText("Median mana value: " + (int)medManaValue);
-        else
-            medManaValueLabel.setText(String.format("Median mana value: %.1f", medManaValue));
+        medManaValueLabel.setText("Median mana value: " + StringUtils.formatDouble(medManaValue, 1));
         
         manaCurve.clear();
         if (!deck().current.isEmpty())
@@ -2606,14 +2601,14 @@ public class EditorFrame extends JInternalFrame
                 while (curManaValue != mv)
                 {
                     if ((int)(curManaValue*2) % 2 == 0 || freq > 0)
-                        manaCurve.addValue(freq, "Mana Value", String.valueOf(curManaValue));
+                        manaCurve.addValue(freq, "Mana Value", StringUtils.formatDouble(curManaValue, 1));
                     freq = 0;
                     curManaValue += 0.5;
                 }
                 freq++;
             }
             if (freq > 0)
-                manaCurve.addValue(freq, "Mana Value", String.valueOf(curManaValue));
+                manaCurve.addValue(freq, "Mana Value", StringUtils.formatDouble(curManaValue, 1));
         }
     }
 
