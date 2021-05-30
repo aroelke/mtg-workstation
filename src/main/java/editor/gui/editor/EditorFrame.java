@@ -72,6 +72,10 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.AbstractTableModel;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import editor.collection.CardList;
 import editor.collection.deck.Category;
 import editor.collection.deck.Deck;
@@ -500,6 +504,7 @@ public class EditorFrame extends JInternalFrame
      * Tabbed pane for choosing whether to display the entire deck or the categories.
      */
     private JTabbedPane listTabs;
+    private DefaultCategoryDataset manaCurve;
     /**
      * Label showing the median mana value of nonland cards in the deck.
      */
@@ -824,6 +829,17 @@ public class EditorFrame extends JInternalFrame
         categoryButtons.get(String.valueOf(UnicodeSymbols.MINUS)).addActionListener((e) -> removeCards(MAIN_DECK, parent.getSelectedCards(), 1));
         categoryButtons.get("X").addActionListener((e) -> removeCards(MAIN_DECK, parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
         categoriesPanel.add(categoryButtons, BorderLayout.WEST);
+
+        /* MANA ANALYSIS TAB */
+        JPanel manaAnalysisPanel = new JPanel(new BorderLayout());
+
+        manaCurve = new DefaultCategoryDataset();
+        var manaCurveChart = ChartFactory.createBarChart("Mana Curve", "Mana Value", "Frequency", manaCurve);
+        manaCurveChart.removeLegend();
+        ChartPanel manaCurvePanel = new ChartPanel(manaCurveChart);
+        manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER);
+
+        listTabs.addTab("Mana Analysis", manaAnalysisPanel);
 
         /* SAMPLE HAND TAB */
         JPanel handPanel = new JPanel(new BorderLayout());
@@ -2579,6 +2595,26 @@ public class EditorFrame extends JInternalFrame
             medManaValueLabel.setText("Median mana value: " + (int)medManaValue);
         else
             medManaValueLabel.setText(String.format("Median mana value: %.1f", medManaValue));
+        
+        manaCurve.clear();
+        if (!deck().current.isEmpty())
+        {
+            double curManaValue = 0;
+            int freq = 0;
+            for (final double mv : manaValue)
+            {
+                while (curManaValue != mv)
+                {
+                    if ((int)(curManaValue*2) % 2 == 0 || freq > 0)
+                        manaCurve.addValue(freq, "Mana Value", String.valueOf(curManaValue));
+                    freq = 0;
+                    curManaValue += 0.5;
+                }
+                freq++;
+            }
+            if (freq > 0)
+                manaCurve.addValue(freq, "Mana Value", String.valueOf(curManaValue));
+        }
     }
 
     /**
