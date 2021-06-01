@@ -32,6 +32,7 @@ import javax.swing.table.TableCellRenderer;
 import editor.collection.deck.Category;
 import editor.collection.deck.Deck;
 import editor.gui.settings.SettingsDialog;
+import editor.util.Stats;
 
 /**
  * This class represents a panel that shows the probability of getting a certain
@@ -267,50 +268,6 @@ public class CalculateHandPanel extends JPanel
     );
 
     /**
-     * Calculate the exact value of n!, as long as it will fit into a double.
-     *
-     * @param n parameter for factorial
-     * @return the factorial of n, or n!
-     */
-    public static double factorial(int n)
-    {
-        double f = 1.0;
-        for (int i = 1; i <= n; i++)
-            f *= i;
-        return f;
-    }
-
-    /**
-     * Calculate a hypergeometric distribution for drawing the given number
-     * of cards in a hand of the given size from a deck of the given size,
-     * when the given number of cards are successes.
-     *
-     * @param n     number of desired cards
-     * @param hand  size of hand drawn
-     * @param count number of successful cards in deck
-     * @param total number of cards in the deck
-     * @return the hypergeometric distribution with parameters hand, count, and
-     * total and argument n.
-     */
-    public static double hypergeom(int n, int hand, int count, int total)
-    {
-        return nchoosek(count, n) * nchoosek(total - count, hand - n) / nchoosek(total, hand);
-    }
-
-    /**
-     * Calculate n choose k based on the {@link CalculateHandPanel#factorial(int)}
-     * function.
-     *
-     * @param n number of items to choose from
-     * @param k number of items to choose
-     * @return the number of ways to choose k out of n items.
-     */
-    public static double nchoosek(int n, int k)
-    {
-        return factorial(n) / (factorial(n - k) * factorial(k));
-    }
-
-    /**
      * Deck containing cards to draw from.
      */
     private Deck deck;
@@ -479,19 +436,19 @@ public class CalculateHandPanel extends JPanel
                 {
                 case AT_LEAST:
                     for (int k = 0; k < desiredBoxes.get(category).getSelectedIndex(); k++)
-                        p += hypergeom(k, hand + j, deck.getCategoryList(category).total(), deck.total());
+                        p += Stats.hypergeometric(k, hand + j, deck.getCategoryList(category).total(), deck.total());
                     p = 1.0 - p;
                     break;
                 case EXACTLY:
-                    p = hypergeom(desiredBoxes.get(category).getSelectedIndex(), hand + j, deck.getCategoryList(category).total(), deck.total());
+                    p = Stats.hypergeometric(desiredBoxes.get(category).getSelectedIndex(), hand + j, deck.getCategoryList(category).total(), deck.total());
                     break;
                 case AT_MOST:
                     for (int k = 0; k <= desiredBoxes.get(category).getSelectedIndex(); k++)
-                        p += hypergeom(k, hand + j, deck.getCategoryList(category).total(), deck.total());
+                        p += Stats.hypergeometric(k, hand + j, deck.getCategoryList(category).total(), deck.total());
                     break;
                 }
                 probabilities.get(category).set(j, p);
-                expectedCounts.get(category).set(j, (double)deck.getCategoryList(category).total() / deck.total() * (hand + j));
+                expectedCounts.get(category).set(j, (double)deck.getCategoryList(category).total()/deck.total()*(hand + j));
             }
         }
         model.fireTableDataChanged();
