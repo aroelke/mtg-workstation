@@ -74,11 +74,11 @@ import javax.swing.table.AbstractTableModel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
@@ -853,17 +853,14 @@ public class EditorFrame extends JInternalFrame
         ValueAxis landAxis = new NumberAxis("Land Drop Probability");
 
         CategoryPlot manaCurvePlot = new CategoryPlot();
-        manaCurvePlot.setDataset(0, landDrops);
-        manaCurvePlot.setDataset(1, manaCurve);
-        manaCurvePlot.setRenderers(new CategoryItemRenderer[] { landRenderer, manaCurveRenderer });
+        manaCurvePlot.setDataset(0, manaCurve);
+        manaCurvePlot.setDataset(1, landDrops);
+        manaCurvePlot.setRenderers(new CategoryItemRenderer[] { manaCurveRenderer, landRenderer });
         manaCurvePlot.setDomainAxis(manaValueAxis);
-        manaCurvePlot.setRangeAxes(new ValueAxis[] { landAxis, frequencyAxis });
-        manaCurvePlot.setRangeAxisLocation(0, AxisLocation.TOP_OR_RIGHT);
-        manaCurvePlot.setRangeAxisLocation(1, AxisLocation.BOTTOM_OR_LEFT);
-        manaCurvePlot.mapDatasetToDomainAxis(0, 0);
+        manaCurvePlot.setRangeAxes(new ValueAxis[] { frequencyAxis, landAxis });
         manaCurvePlot.mapDatasetToRangeAxis(0, 0);
-        manaCurvePlot.mapDatasetToDomainAxis(1, 0);
         manaCurvePlot.mapDatasetToRangeAxis(1, 1);
+        manaCurvePlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 
         var manaCurveChart = new JFreeChart("Mana Curve", JFreeChart.DEFAULT_TITLE_FONT, manaCurvePlot, true);
         ChartPanel manaCurvePanel = new ChartPanel(manaCurveChart);
@@ -2622,34 +2619,28 @@ public class EditorFrame extends JInternalFrame
         medManaValueLabel.setText("Median mana value: " + StringUtils.formatDouble(medManaValue, 1));
         
         manaCurve.clear();
-        if (!deck().current.isEmpty())
-        {
-            double curManaValue = 0;
-            int freq = 0;
-            for (final double mv : manaValue)
-            {
-                while (curManaValue != mv)
-                {
-                    if ((int)(curManaValue*2) % 2 == 0 || freq > 0)
-                        manaCurve.addValue(freq, "Mana Value", StringUtils.formatDouble(curManaValue, 1));
-                    freq = 0;
-                    curManaValue += 0.5;
-                }
-                freq++;
-            }
-            if (freq > 0)
-                manaCurve.addValue(freq, "Mana Value", StringUtils.formatDouble(curManaValue, 1));
-        }
-
         landDrops.clear();
         if (!deck().current.isEmpty())
         {
-            for (int i = (int)manaValue[0]; i <= manaValue[manaValue.length - 1]; i++)
+            int curManaValue = 0;
+            int freq = 0;
+            for (int i = 0; i <= manaValue.length; i++)
             {
-                double q = 0;
-                for (int j = 0; j < i; j++)
-                    q += Stats.hypergeometric(j, 7 + i - 1, lands, deck().current.size());
-                landDrops.addValue(1 - q, "Land Drop Probability", Integer.toString(i));
+                final int effectiveMV = i < manaValue.length ? (int)(manaValue[i] + 0.5) : curManaValue + 1;
+
+                while (curManaValue != effectiveMV)
+                {
+                    manaCurve.addValue(freq, "Mana Value", Integer.toString(curManaValue));
+
+                    double q = 0;
+                    for (int j = 0; j < (int)curManaValue; j++)
+                        q += Stats.hypergeometric(j, 7 + curManaValue - 1, lands, deck().current.size());
+                    landDrops.addValue(1 - q, "Land Drop Probability", Integer.toString(curManaValue));
+
+                    freq = 0;
+                    curManaValue++;
+                }
+                freq++;
             }
         }
     }
