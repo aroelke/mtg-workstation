@@ -72,8 +72,16 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.AbstractTableModel;
 
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisLocation;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import editor.collection.CardList;
@@ -105,6 +113,7 @@ import editor.gui.generic.VerticalButtonList;
 import editor.gui.settings.SettingsDialog;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
+import editor.util.Stats;
 import editor.util.StringUtils;
 import editor.util.UndoableAction;
 import editor.util.UnicodeSymbols;
@@ -490,6 +499,7 @@ public class EditorFrame extends JInternalFrame
      * Panel containing images for the sample hand.
      */
     private ScrollablePanel imagePanel;
+    private DefaultCategoryDataset landDrops;
     /**
      * Label showing the total number of land cards in the deck.
      */
@@ -835,8 +845,27 @@ public class EditorFrame extends JInternalFrame
         JPanel manaAnalysisPanel = new JPanel(new BorderLayout());
 
         manaCurve = new DefaultCategoryDataset();
-        var manaCurveChart = ChartFactory.createBarChart("Mana Curve", "Mana Value", "Frequency", manaCurve);
-        manaCurveChart.removeLegend();
+        landDrops = new DefaultCategoryDataset();
+        BarRenderer manaCurveRenderer = new BarRenderer();
+        LineAndShapeRenderer landRenderer = new LineAndShapeRenderer();
+        CategoryAxis manaValueAxis = new CategoryAxis("Mana Value/Turn");
+        ValueAxis frequencyAxis = new NumberAxis("Mana Value Frequency");
+        ValueAxis landAxis = new NumberAxis("Land Drop Probability");
+
+        CategoryPlot manaCurvePlot = new CategoryPlot();
+        manaCurvePlot.setDataset(0, landDrops);
+        manaCurvePlot.setDataset(1, manaCurve);
+        manaCurvePlot.setRenderers(new CategoryItemRenderer[] { landRenderer, manaCurveRenderer });
+        manaCurvePlot.setDomainAxis(manaValueAxis);
+        manaCurvePlot.setRangeAxes(new ValueAxis[] { landAxis, frequencyAxis });
+        manaCurvePlot.setRangeAxisLocation(0, AxisLocation.TOP_OR_RIGHT);
+        manaCurvePlot.setRangeAxisLocation(1, AxisLocation.BOTTOM_OR_LEFT);
+        manaCurvePlot.mapDatasetToDomainAxis(0, 0);
+        manaCurvePlot.mapDatasetToRangeAxis(0, 0);
+        manaCurvePlot.mapDatasetToDomainAxis(1, 0);
+        manaCurvePlot.mapDatasetToRangeAxis(1, 1);
+
+        var manaCurveChart = new JFreeChart("Mana Curve", JFreeChart.DEFAULT_TITLE_FONT, manaCurvePlot, true);
         ChartPanel manaCurvePanel = new ChartPanel(manaCurveChart);
         manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER);
 
@@ -2567,7 +2596,7 @@ public class EditorFrame extends JInternalFrame
         landLabel.setText("Lands: " + lands);
         nonlandLabel.setText("Nonlands: " + (deck().current.total() - lands));
 
-        var manaValue = deck().current.stream()
+        final var manaValue = deck().current.stream()
             .filter((c) -> !c.typeContains("land"))
             .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), switch (SettingsDialog.settings().editor().manaValue()) {
                 case "Minimum" -> c.minManaValue();
@@ -2577,17 +2606,18 @@ public class EditorFrame extends JInternalFrame
                 default -> Double.NaN;
             }).stream())
             .sorted()
-            .collect(Collectors.toList());
-        double avgManaValue = manaValue.stream().mapToDouble(Double::valueOf).average().orElse(0);
+            .mapToDouble(Double::doubleValue)
+            .toArray();
+        double avgManaValue = Arrays.stream(manaValue).average().orElse(0);
         avgManaValueLabel.setText("Average Mana value: " + StringUtils.formatDouble(avgManaValue, 2));
 
         double medManaValue = 0.0;
-        if (!manaValue.isEmpty())
+        if (manaValue.length > 0)
         {
-            if (manaValue.size() % 2 == 0)
-                medManaValue = (manaValue.get(manaValue.size()/2 - 1) + manaValue.get(manaValue.size()/2))/2;
+            if (manaValue.length % 2 == 0)
+                medManaValue = (manaValue[manaValue.length/2 - 1] + manaValue[manaValue.length/2])/2;
             else
-                medManaValue = manaValue.get(manaValue.size()/2);
+                medManaValue = manaValue[manaValue.length/2];
         }
         medManaValueLabel.setText("Median mana value: " + StringUtils.formatDouble(medManaValue, 1));
         
@@ -2609,6 +2639,18 @@ public class EditorFrame extends JInternalFrame
             }
             if (freq > 0)
                 manaCurve.addValue(freq, "Mana Value", StringUtils.formatDouble(curManaValue, 1));
+        }
+
+        landDrops.clear();
+        if (!deck().current.isEmpty())
+        {
+            for (int i = (int)manaValue[0]; i <= manaValue[manaValue.length - 1]; i++)
+            {
+                double q = 0;
+                for (int j = 0; j < i; j++)
+                    q += Stats.hypergeometric(j, 7 + i - 1, lands, deck().current.size());
+                landDrops.addValue(1 - q, "Land Drop Probability", Integer.toString(i));
+            }
         }
     }
 
