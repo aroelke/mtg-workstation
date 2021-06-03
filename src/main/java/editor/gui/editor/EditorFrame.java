@@ -954,7 +954,7 @@ public class EditorFrame extends JInternalFrame
             drawCardButton.setPreferredSize(new Dimension(w, drawCardButton.getPreferredSize().height));
         });
 
-        handCalculations = new CalculateHandPanel(deck().current);
+        handCalculations = new CalculateHandPanel(deck().current, (e) -> updateStats());
 
         JSplitPane handSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imagePane, handCalculations);
         handSplit.setOneTouchExpandable(true);
@@ -2706,7 +2706,7 @@ public class EditorFrame extends JInternalFrame
         {
             double q = 0;
             for (int j = 0; j < i; j++)
-                q += Stats.hypergeometric(j, 7 + i - 1, lands, deck().current.size());
+                q += Stats.hypergeometric(j, handCalculations.handSize() + i - 1, lands, deck().current.size());
             landDrops.addValue(1 - q, "Land Drop Probability", Integer.toString(i));
         }
     }
