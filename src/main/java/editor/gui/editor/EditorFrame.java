@@ -45,6 +45,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DropMode;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JInternalFrame;
@@ -454,6 +455,7 @@ public class EditorFrame extends JInternalFrame
      */
     public static final int MAIN_DECK = 0;
 
+    private JCheckBox analyzeMainBox;
     /**
      * Label showing the average mana value of nonland cards in the deck.
      */
@@ -462,6 +464,8 @@ public class EditorFrame extends JInternalFrame
      * Panel containing categories.
      */
     private Box categoriesContainer;
+    private List<JCheckBox> categoryAnalysisBoxes;
+    private JPanel categoryAnalysisPanel;
     /**
      * Panels showing categories in this deck (individual panels should not be operated
      * on except for GUI-related functions).
@@ -865,6 +869,15 @@ public class EditorFrame extends JInternalFrame
         var manaCurveChart = new JFreeChart("Mana Curve", JFreeChart.DEFAULT_TITLE_FONT, manaCurvePlot, true);
         ChartPanel manaCurvePanel = new ChartPanel(manaCurveChart);
         manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER);
+
+        categoryAnalysisPanel = new JPanel(new FlowLayout());
+        categoryAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Categories to display:"));
+        analyzeMainBox = new JCheckBox("Main Deck", true);
+        analyzeMainBox.addActionListener((e) -> updateStats());
+        categoryAnalysisBoxes = new ArrayList<>();
+        categoryAnalysisPanel.add(analyzeMainBox);
+
+        manaAnalysisPanel.add(categoryAnalysisPanel, BorderLayout.SOUTH);
 
         listTabs.addTab("Mana Analysis", manaAnalysisPanel);
 
@@ -2567,6 +2580,18 @@ public class EditorFrame extends JInternalFrame
                 switchCategoryModel.addElement(c.getName());
         }
 
+        categoryAnalysisPanel.removeAll();
+        categoryAnalysisPanel.add(analyzeMainBox);
+        categoryAnalysisBoxes = deck().current.categories().stream().sorted(Comparator.comparing(Category::getName)).map((c) -> new JCheckBox(
+            c.getName(),
+            categoryAnalysisBoxes.stream().anyMatch((b) -> b.isSelected() && b.getText().equals(c.getName()))
+        )).collect(Collectors.toList());
+        for (var box : categoryAnalysisBoxes)
+        {
+            categoryAnalysisPanel.add(box);
+            box.addActionListener((e) -> updateStats());
+        }
+
         categoriesContainer.revalidate();
         categoriesContainer.repaint();
 
@@ -2619,29 +2644,70 @@ public class EditorFrame extends JInternalFrame
         medManaValueLabel.setText("Median mana value: " + StringUtils.formatDouble(medManaValue, 1));
         
         manaCurve.clear();
-        landDrops.clear();
-        if (!deck().current.isEmpty())
+        int minMV = 0, maxMV = 0;
+        if (!deck().current.isEmpty() && analyzeMainBox.isSelected())
         {
+            minMV = (int)Math.ceil(manaValue[0]);
+            maxMV = (int)Math.ceil(manaValue[manaValue.length - 1]);
             int curManaValue = 0;
             int freq = 0;
             for (int i = 0; i <= manaValue.length; i++)
             {
-                final int effectiveMV = i < manaValue.length ? (int)(manaValue[i] + 0.5) : curManaValue + 1;
+                final int effectiveMV = i < manaValue.length ? (int)Math.ceil(manaValue[i]) : curManaValue + 1;
 
                 while (curManaValue != effectiveMV)
                 {
-                    manaCurve.addValue(freq, "Mana Value", Integer.toString(curManaValue));
-
-                    double q = 0;
-                    for (int j = 0; j < (int)curManaValue; j++)
-                        q += Stats.hypergeometric(j, 7 + curManaValue - 1, lands, deck().current.size());
-                    landDrops.addValue(1 - q, "Land Drop Probability", Integer.toString(curManaValue));
-
+                    manaCurve.addValue(freq, "Main Deck", Integer.toString(curManaValue));
                     freq = 0;
                     curManaValue++;
                 }
                 freq++;
             }
+        }
+
+        for (var box : categoryAnalysisBoxes)
+        {
+            if (box.isSelected())
+            {
+                final var categoryManaValue = deck().current.getCategoryList(box.getText()).stream()
+                    .filter((c) -> !c.typeContains("land"))
+                    .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), switch (SettingsDialog.settings().editor().manaValue()) {
+                        case "Minimum" -> c.minManaValue();
+                        case "Maximum" -> c.maxManaValue();
+                        case "Average" -> c.avgManaValue();
+                        case "Real"    -> c.manaValue();
+                        default -> Double.NaN;
+                    }).stream())
+                    .sorted()
+                    .mapToDouble(Double::doubleValue)
+                    .toArray();
+                
+                int curManaValue = 0;
+                int freq = 0;
+                minMV = Math.min(minMV, (int)Math.ceil(categoryManaValue[0]));
+                maxMV = Math.max(maxMV, (int)Math.ceil(categoryManaValue[categoryManaValue.length - 1]));
+                for (int i = 0; i <= categoryManaValue.length; i++)
+                {
+                    final int effectiveMV = i < categoryManaValue.length ? (int)Math.ceil(categoryManaValue[i]) : curManaValue + 1;
+
+                    while (curManaValue != effectiveMV)
+                    {
+                        manaCurve.addValue(freq, box.getText(), Integer.toString(curManaValue));
+                        freq = 0;
+                        curManaValue++;
+                    }
+                    freq++;
+                }
+            }
+        }
+
+        landDrops.clear();
+        for (int i = minMV; i <= maxMV; i++)
+        {
+            double q = 0;
+            for (int j = 0; j < i; j++)
+                q += Stats.hypergeometric(j, 7 + i - 1, lands, deck().current.size());
+            landDrops.addValue(1 - q, "Land Drop Probability", Integer.toString(i));
         }
     }
 
