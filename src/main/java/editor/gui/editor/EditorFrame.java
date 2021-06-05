@@ -78,6 +78,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.renderer.category.BarRenderer;
@@ -852,9 +853,11 @@ public class EditorFrame extends JInternalFrame
         landDrops = new DefaultCategoryDataset();
         BarRenderer manaCurveRenderer = new BarRenderer();
         LineAndShapeRenderer landRenderer = new LineAndShapeRenderer();
+        landRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+        landRenderer.setDefaultItemLabelsVisible(true);
         CategoryAxis manaValueAxis = new CategoryAxis("Mana Value/Turn");
         ValueAxis frequencyAxis = new NumberAxis("Mana Value Frequency");
-        ValueAxis landAxis = new NumberAxis("Land Drop Probability");
+        ValueAxis landAxis = new NumberAxis("Expected Land Plays");
 
         CategoryPlot manaCurvePlot = new CategoryPlot();
         manaCurvePlot.setDataset(0, manaCurve);
@@ -865,6 +868,7 @@ public class EditorFrame extends JInternalFrame
         manaCurvePlot.mapDatasetToRangeAxis(0, 0);
         manaCurvePlot.mapDatasetToRangeAxis(1, 1);
         manaCurvePlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+        manaCurvePlot.setRangeGridlinesVisible(false);
 
         var manaCurveChart = new JFreeChart("Mana Curve", JFreeChart.DEFAULT_TITLE_FONT, manaCurvePlot, true);
         ChartPanel manaCurvePanel = new ChartPanel(manaCurveChart);
@@ -2704,10 +2708,15 @@ public class EditorFrame extends JInternalFrame
         landDrops.clear();
         for (int i = minMV; i <= maxMV; i++)
         {
-            double q = 0;
-            for (int j = 0; j < i; j++)
-                q += Stats.hypergeometric(j, handCalculations.handSize() + i - 1, lands, deck().current.size());
-            landDrops.addValue(1 - q, "Land Drop Probability", Integer.toString(i));
+            double e = 0, q = 0;
+            for (int j = 1; j < i; j++)
+            {
+                double p = Stats.hypergeometric(j, handCalculations.handSize() + i - 1, lands, deck().current.size());
+                q += p;
+                e += j*p;
+            }
+            e += i*(1 - q);
+            landDrops.addValue(e, "Expected Land Plays", Integer.toString(i));
         }
     }
 
