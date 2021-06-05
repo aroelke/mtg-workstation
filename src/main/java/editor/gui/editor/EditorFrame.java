@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -874,7 +875,7 @@ public class EditorFrame extends JInternalFrame
         ChartPanel manaCurvePanel = new ChartPanel(manaCurveChart);
         manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER);
 
-        categoryAnalysisPanel = new JPanel(new FlowLayout());
+        categoryAnalysisPanel = new JPanel(new GridLayout(0, 5));
         categoryAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Categories to display:"));
         analyzeMainBox = new JCheckBox("Main Deck", true);
         analyzeMainBox.addActionListener((e) -> updateStats());
@@ -2653,7 +2654,7 @@ public class EditorFrame extends JInternalFrame
         {
             minMV = (int)Math.ceil(manaValue[0]);
             maxMV = (int)Math.ceil(manaValue[manaValue.length - 1]);
-            int curManaValue = 0;
+            int curManaValue = minMV;
             int freq = 0;
             for (int i = 0; i <= manaValue.length; i++)
             {
@@ -2709,7 +2710,7 @@ public class EditorFrame extends JInternalFrame
         for (int i = minMV; i <= maxMV; i++)
         {
             double e = 0, q = 0;
-            for (int j = 1; j < i; j++)
+            for (int j = 0; j < i; j++)
             {
                 double p = Stats.hypergeometric(j, handCalculations.handSize() + i - 1, lands, deck().current.size());
                 q += p;
