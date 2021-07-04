@@ -55,12 +55,19 @@ public enum CardLayout
      */
     LEVELER("Leveler"),
     /**
-     * Single-faced card with a special frame that indicates three "chapters"
+     * Single-faced card with a special frame that indicates several "chapters"
      * of a story.
      * 
      * @see SingleCard
      */
     SAGA("Saga"),
+    /**
+     * Single-faced card witha special frame that indicates several "levels"
+     * of cumulative abilities.
+     * 
+     * @see SingleCard
+     */
+    CLASS("Class"),
     /**
      * Special split card with a "main" creature face and a special instant or
      * sorcery "Adventure" face.
