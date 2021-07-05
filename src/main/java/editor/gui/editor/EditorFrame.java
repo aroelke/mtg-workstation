@@ -873,6 +873,7 @@ public class EditorFrame extends JInternalFrame
 
         var manaCurveChart = new JFreeChart("Mana Curve", JFreeChart.DEFAULT_TITLE_FONT, manaCurvePlot, true);
         ChartPanel manaCurvePanel = new ChartPanel(manaCurveChart);
+        manaCurvePanel.setPopupMenu(null);
         manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER);
 
         categoryAnalysisPanel = new JPanel(new GridLayout(0, 5));
