@@ -856,6 +856,7 @@ public class EditorFrame extends JInternalFrame
         LineAndShapeRenderer landRenderer = new LineAndShapeRenderer();
         landRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
         landRenderer.setDefaultItemLabelsVisible(true);
+        landRenderer.setSeriesPaint(0, Color.BLACK);
         CategoryAxis manaValueAxis = new CategoryAxis("Mana Value/Turn");
         ValueAxis frequencyAxis = new NumberAxis("Mana Value Frequency");
         ValueAxis landAxis = new NumberAxis("Expected Land Plays");
