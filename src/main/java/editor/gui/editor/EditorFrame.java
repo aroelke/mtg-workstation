@@ -85,6 +85,7 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import editor.collection.CardList;
@@ -853,6 +854,9 @@ public class EditorFrame extends JInternalFrame
         manaCurve = new DefaultCategoryDataset();
         landDrops = new DefaultCategoryDataset();
         BarRenderer manaCurveRenderer = new BarRenderer();
+        manaCurveRenderer.setBarPainter(new StandardBarPainter());
+        manaCurveRenderer.setDrawBarOutline(true);
+        manaCurveRenderer.setShadowVisible(false);
         LineAndShapeRenderer landRenderer = new LineAndShapeRenderer();
         landRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
         landRenderer.setDefaultItemLabelsVisible(true);
