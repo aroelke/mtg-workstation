@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -45,6 +46,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DropMode;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JInternalFrame;
@@ -71,6 +73,20 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.AbstractTableModel;
+
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 import editor.collection.CardList;
 import editor.collection.deck.Category;
@@ -101,6 +117,8 @@ import editor.gui.generic.VerticalButtonList;
 import editor.gui.settings.SettingsDialog;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
+import editor.util.Stats;
+import editor.util.StringUtils;
 import editor.util.UndoableAction;
 import editor.util.UnicodeSymbols;
 
@@ -440,6 +458,7 @@ public class EditorFrame extends JInternalFrame
      */
     public static final int MAIN_DECK = 0;
 
+    private JCheckBox analyzeMainBox;
     /**
      * Label showing the average mana value of nonland cards in the deck.
      */
@@ -448,6 +467,8 @@ public class EditorFrame extends JInternalFrame
      * Panel containing categories.
      */
     private Box categoriesContainer;
+    private List<JCheckBox> categoryAnalysisBoxes;
+    private JPanel categoryAnalysisPanel;
     /**
      * Panels showing categories in this deck (individual panels should not be operated
      * on except for GUI-related functions).
@@ -485,6 +506,7 @@ public class EditorFrame extends JInternalFrame
      * Panel containing images for the sample hand.
      */
     private ScrollablePanel imagePanel;
+    private DefaultCategoryDataset landDrops;
     /**
      * Label showing the total number of land cards in the deck.
      */
@@ -500,6 +522,7 @@ public class EditorFrame extends JInternalFrame
      * Tabbed pane for choosing whether to display the entire deck or the categories.
      */
     private JTabbedPane listTabs;
+    private DefaultCategoryDataset manaCurve;
     /**
      * Label showing the median mana value of nonland cards in the deck.
      */
@@ -593,6 +616,7 @@ public class EditorFrame extends JInternalFrame
         listTabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         add(listTabs, BorderLayout.CENTER);
 
+        /* MAIN DECK TAB */
         JPanel mainPanel = new JPanel(new BorderLayout());
 
         deck().model = new CardTableModel(this, deck().current, SettingsDialog.settings().editor().columns());
@@ -732,7 +756,7 @@ public class EditorFrame extends JInternalFrame
             }
         }));
 
-        // Panel containing categories
+        /* CATEGORIES TAB */
         JPanel categoriesPanel = new JPanel(new BorderLayout());
         JPanel categoriesMainPanel = new JPanel(new BorderLayout());
         categoriesPanel.add(categoriesMainPanel, BorderLayout.CENTER);
@@ -824,7 +848,51 @@ public class EditorFrame extends JInternalFrame
         categoryButtons.get("X").addActionListener((e) -> removeCards(MAIN_DECK, parent.getSelectedCards(), parent.getSelectedCards().stream().mapToInt((c) -> deck().current.getEntry(c).count()).reduce(0, Math::max)));
         categoriesPanel.add(categoryButtons, BorderLayout.WEST);
 
-        // Sample hands
+        /* MANA ANALYSIS TAB */
+        JPanel manaAnalysisPanel = new JPanel(new BorderLayout());
+
+        manaCurve = new DefaultCategoryDataset();
+        landDrops = new DefaultCategoryDataset();
+        BarRenderer manaCurveRenderer = new BarRenderer();
+        manaCurveRenderer.setBarPainter(new StandardBarPainter());
+        manaCurveRenderer.setDrawBarOutline(true);
+        manaCurveRenderer.setShadowVisible(false);
+        LineAndShapeRenderer landRenderer = new LineAndShapeRenderer();
+        landRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+        landRenderer.setDefaultItemLabelsVisible(true);
+        landRenderer.setSeriesPaint(0, Color.BLACK);
+        CategoryAxis manaValueAxis = new CategoryAxis("Mana Value/Turn");
+        ValueAxis frequencyAxis = new NumberAxis("Mana Value Frequency");
+        ValueAxis landAxis = new NumberAxis("Expected Land Plays");
+
+        CategoryPlot manaCurvePlot = new CategoryPlot();
+        manaCurvePlot.setDataset(0, manaCurve);
+        manaCurvePlot.setDataset(1, landDrops);
+        manaCurvePlot.setRenderers(new CategoryItemRenderer[] { manaCurveRenderer, landRenderer });
+        manaCurvePlot.setDomainAxis(manaValueAxis);
+        manaCurvePlot.setRangeAxes(new ValueAxis[] { frequencyAxis, landAxis });
+        manaCurvePlot.mapDatasetToRangeAxis(0, 0);
+        manaCurvePlot.mapDatasetToRangeAxis(1, 1);
+        manaCurvePlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+        manaCurvePlot.setRangeGridlinesVisible(false);
+
+        var manaCurveChart = new JFreeChart("Mana Curve", JFreeChart.DEFAULT_TITLE_FONT, manaCurvePlot, true);
+        ChartPanel manaCurvePanel = new ChartPanel(manaCurveChart);
+        manaCurvePanel.setPopupMenu(null);
+        manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER);
+
+        categoryAnalysisPanel = new JPanel(new GridLayout(0, 5));
+        categoryAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Categories to display:"));
+        analyzeMainBox = new JCheckBox("Main Deck", true);
+        analyzeMainBox.addActionListener((e) -> updateStats());
+        categoryAnalysisBoxes = new ArrayList<>();
+        categoryAnalysisPanel.add(analyzeMainBox);
+
+        manaAnalysisPanel.add(categoryAnalysisPanel, BorderLayout.SOUTH);
+
+        listTabs.addTab("Mana Analysis", manaAnalysisPanel);
+
+        /* SAMPLE HAND TAB */
         JPanel handPanel = new JPanel(new BorderLayout());
 
         // Table showing the cards in hand
@@ -897,7 +965,7 @@ public class EditorFrame extends JInternalFrame
             drawCardButton.setPreferredSize(new Dimension(w, drawCardButton.getPreferredSize().height));
         });
 
-        handCalculations = new CalculateHandPanel(deck().current);
+        handCalculations = new CalculateHandPanel(deck().current, (e) -> updateStats());
 
         JSplitPane handSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imagePane, handCalculations);
         handSplit.setOneTouchExpandable(true);
@@ -909,7 +977,7 @@ public class EditorFrame extends JInternalFrame
         listTabs.addTab("Sample Hand", handPanel);
         hand.refresh();
 
-        // Notes
+        /* NOTES TAB */
         notesArea = new JTextArea(manager.notes());
         var notes = new Stack<String>();
         notes.push(notesArea.getText());
@@ -1024,7 +1092,7 @@ public class EditorFrame extends JInternalFrame
         legalityConstraints.anchor = GridBagConstraints.EAST;
         bottomPanel.add(legalityPanel, BorderLayout.EAST);
 
-        // Changelog
+        /* CHANGELOG TAB */
         JPanel changelogPanel = new JPanel(new BorderLayout());
         changelogArea = new JTextArea(manager.changelog());
         changelogArea.setEditable(false);
@@ -2523,6 +2591,18 @@ public class EditorFrame extends JInternalFrame
                 switchCategoryModel.addElement(c.getName());
         }
 
+        categoryAnalysisPanel.removeAll();
+        categoryAnalysisPanel.add(analyzeMainBox);
+        categoryAnalysisBoxes = deck().current.categories().stream().sorted(Comparator.comparing(Category::getName)).map((c) -> new JCheckBox(
+            c.getName(),
+            categoryAnalysisBoxes.stream().anyMatch((b) -> b.isSelected() && b.getText().equals(c.getName()))
+        )).collect(Collectors.toList());
+        for (var box : categoryAnalysisBoxes)
+        {
+            categoryAnalysisPanel.add(box);
+            box.addActionListener((e) -> updateStats());
+        }
+
         categoriesContainer.revalidate();
         categoriesContainer.repaint();
 
@@ -2530,7 +2610,7 @@ public class EditorFrame extends JInternalFrame
     }
 
     /**
-     * Update the card counter to reflect the total number of cards in the deck.
+     * Update the card statistics to reflect the cards in the deck.
      */
     public void updateStats()
     {
@@ -2549,7 +2629,7 @@ public class EditorFrame extends JInternalFrame
         landLabel.setText("Lands: " + lands);
         nonlandLabel.setText("Nonlands: " + (deck().current.total() - lands));
 
-        var manaValue = deck().current.stream()
+        final var manaValue = deck().current.stream()
             .filter((c) -> !c.typeContains("land"))
             .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), switch (SettingsDialog.settings().editor().manaValue()) {
                 case "Minimum" -> c.minManaValue();
@@ -2559,25 +2639,92 @@ public class EditorFrame extends JInternalFrame
                 default -> Double.NaN;
             }).stream())
             .sorted()
-            .collect(Collectors.toList());
-        double avgManaValue = manaValue.stream().mapToDouble(Double::valueOf).average().orElse(0);
-        if ((int)avgManaValue == avgManaValue)
-            avgManaValueLabel.setText("Average mana value: " + (int)avgManaValue);
-        else
-            avgManaValueLabel.setText(String.format("Average mana value: %.2f", avgManaValue));
+            .mapToDouble(Double::doubleValue)
+            .toArray();
+        double avgManaValue = Arrays.stream(manaValue).average().orElse(0);
+        avgManaValueLabel.setText("Average Mana value: " + StringUtils.formatDouble(avgManaValue, 2));
 
         double medManaValue = 0.0;
-        if (!manaValue.isEmpty())
+        if (manaValue.length > 0)
         {
-            if (manaValue.size() % 2 == 0)
-                medManaValue = (manaValue.get(manaValue.size()/2 - 1) + manaValue.get(manaValue.size()/2))/2;
+            if (manaValue.length % 2 == 0)
+                medManaValue = (manaValue[manaValue.length/2 - 1] + manaValue[manaValue.length/2])/2;
             else
-                medManaValue = manaValue.get(manaValue.size()/2);
+                medManaValue = manaValue[manaValue.length/2];
         }
-        if ((int)medManaValue == medManaValue)
-            medManaValueLabel.setText("Median mana value: " + (int)medManaValue);
-        else
-            medManaValueLabel.setText(String.format("Median mana value: %.1f", medManaValue));
+        medManaValueLabel.setText("Median mana value: " + StringUtils.formatDouble(medManaValue, 1));
+        
+        manaCurve.clear();
+        int minMV = 0, maxMV = 0;
+        if (!deck().current.isEmpty() && analyzeMainBox.isSelected())
+        {
+            minMV = (int)Math.ceil(manaValue[0]);
+            maxMV = (int)Math.ceil(manaValue[manaValue.length - 1]);
+            int curManaValue = minMV;
+            int freq = 0;
+            for (int i = 0; i <= manaValue.length; i++)
+            {
+                final int effectiveMV = i < manaValue.length ? (int)Math.ceil(manaValue[i]) : curManaValue + 1;
+
+                while (curManaValue != effectiveMV)
+                {
+                    manaCurve.addValue(freq, "Main Deck", Integer.toString(curManaValue));
+                    freq = 0;
+                    curManaValue++;
+                }
+                freq++;
+            }
+        }
+
+        for (var box : categoryAnalysisBoxes)
+        {
+            if (box.isSelected())
+            {
+                final var categoryManaValue = deck().current.getCategoryList(box.getText()).stream()
+                    .filter((c) -> !c.typeContains("land"))
+                    .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), switch (SettingsDialog.settings().editor().manaValue()) {
+                        case "Minimum" -> c.minManaValue();
+                        case "Maximum" -> c.maxManaValue();
+                        case "Average" -> c.avgManaValue();
+                        case "Real"    -> c.manaValue();
+                        default -> Double.NaN;
+                    }).stream())
+                    .sorted()
+                    .mapToDouble(Double::doubleValue)
+                    .toArray();
+                
+                int curManaValue = 0;
+                int freq = 0;
+                minMV = Math.min(minMV, (int)Math.ceil(categoryManaValue[0]));
+                maxMV = Math.max(maxMV, (int)Math.ceil(categoryManaValue[categoryManaValue.length - 1]));
+                for (int i = 0; i <= categoryManaValue.length; i++)
+                {
+                    final int effectiveMV = i < categoryManaValue.length ? (int)Math.ceil(categoryManaValue[i]) : curManaValue + 1;
+
+                    while (curManaValue != effectiveMV)
+                    {
+                        manaCurve.addValue(freq, box.getText(), Integer.toString(curManaValue));
+                        freq = 0;
+                        curManaValue++;
+                    }
+                    freq++;
+                }
+            }
+        }
+
+        landDrops.clear();
+        for (int i = minMV; i <= maxMV; i++)
+        {
+            double e = 0, q = 0;
+            for (int j = 0; j < i; j++)
+            {
+                double p = Stats.hypergeometric(j, handCalculations.handSize() + i - 1, lands, deck().current.size());
+                q += p;
+                e += j*p;
+            }
+            e += i*(1 - q);
+            landDrops.addValue(e, "Expected Land Plays", Integer.toString(i));
+        }
     }
 
     /**

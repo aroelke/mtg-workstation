@@ -39,6 +39,7 @@ import editor.gui.display.CardTableModel;
 import editor.gui.generic.ColorButton;
 import editor.gui.generic.ComponentUtils;
 import editor.gui.settings.SettingsDialog;
+import editor.util.StringUtils;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -474,10 +475,7 @@ public class CategoryPanel extends JPanel
             .flatMap((c) -> Collections.nCopies(deck.getEntry(c).count(), c.manaValue()).stream())
             .mapToDouble(Double::valueOf)
             .average().orElse(0);
-        if (avgManaValue == (int)avgManaValue)
-            avgManaValueLabel.setText("Average mana value: " + (int)avgManaValue);
-        else
-            avgManaValueLabel.setText("Average mana value: " + String.format("%.2f", avgManaValue));
+        avgManaValueLabel.setText("Average mana value: " + StringUtils.formatDouble(avgManaValue, 2));
 
         border.setTitle(name);
         table.revalidate();
