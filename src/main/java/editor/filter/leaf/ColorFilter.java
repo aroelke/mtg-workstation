@@ -13,7 +13,6 @@ import com.google.gson.JsonObject;
 import editor.database.attributes.CardAttribute;
 import editor.database.attributes.ManaType;
 import editor.database.card.Card;
-import editor.filter.Filter;
 import editor.util.Containment;
 
 /**
@@ -60,13 +59,45 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     }
 
     @Override
-    public Filter copy()
+    protected FilterLeaf<List<ManaType>> copyLeaf()
     {
         ColorFilter filter = (ColorFilter)CardAttribute.createFilter(type());
         filter.colors = new HashSet<>(colors);
         filter.contain = contain;
         filter.multicolored = multicolored;
         return filter;
+    }
+
+    /**
+     * {@inheritDoc}
+     * Filter cards according to the colors in a color characteristic.
+     */
+    @Override
+    protected boolean testFace(Card c)
+    {
+        return contain.test(function().apply(c), colors)
+                && (!multicolored || function().apply(c).size() > 1);
+    }
+
+    @Override
+    protected void serializeLeaf(JsonObject fields)
+    {
+        JsonArray array = new JsonArray();
+        for (ManaType c : colors)
+            array.add(c.toString());
+
+        fields.addProperty("contains", contain.toString());
+        fields.add("colors", array);
+        fields.addProperty("multicolored", multicolored);
+    }
+
+    @Override
+    protected void deserializeLeaf(JsonObject fields)
+    {
+        contain = Containment.parseContainment(fields.get("contains").getAsString());
+        for (JsonElement element : fields.get("colors").getAsJsonArray())
+            colors.add(ManaType.parseManaType(element.getAsString()));
+        multicolored = fields.get("multicolored").getAsBoolean();
     }
 
     @Override
@@ -86,37 +117,5 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     public int hashCode()
     {
         return Objects.hash(type(), function(), colors, contain, multicolored);
-    }
-
-    /**
-     * {@inheritDoc}
-     * Filter cards according to the colors in a color characteristic.
-     */
-    @Override
-    public boolean test(Card c)
-    {
-        return contain.test(function().apply(c), colors)
-                && (!multicolored || function().apply(c).size() > 1);
-    }
-
-    @Override
-    protected void serializeFields(JsonObject fields)
-    {
-        JsonArray array = new JsonArray();
-        for (ManaType c : colors)
-            array.add(c.toString());
-
-        fields.addProperty("contains", contain.toString());
-        fields.add("colors", array);
-        fields.addProperty("multicolored", multicolored);
-    }
-
-    @Override
-    protected void deserializeFields(JsonObject fields)
-    {
-        contain = Containment.parseContainment(fields.get("contains").getAsString());
-        for (JsonElement element : fields.get("colors").getAsJsonArray())
-            colors.add(ManaType.parseManaType(element.getAsString()));
-        multicolored = fields.get("multicolored").getAsBoolean();
     }
 }

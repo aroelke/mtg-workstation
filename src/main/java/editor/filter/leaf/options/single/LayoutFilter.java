@@ -8,7 +8,7 @@ import com.google.gson.JsonPrimitive;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;
-import editor.filter.Filter;
+import editor.filter.leaf.FilterLeaf;
 
 /**
  * This class represents a filter that groups cards by layout.
@@ -32,7 +32,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
     }
 
     @Override
-    public Filter copy()
+    protected FilterLeaf<CardLayout> copyLeaf()
     {
         LayoutFilter filter = (LayoutFilter)CardAttribute.createFilter(CardAttribute.LAYOUT);
         filter.contain = contain;

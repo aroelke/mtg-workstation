@@ -49,12 +49,6 @@ public abstract class Filter implements Predicate<Card>
      */
     public abstract Filter copy();
 
-    @Override
-    public abstract boolean equals(Object other);
-
-    @Override
-    public abstract int hashCode();
-
     /**
      * Get the type of this Filter.
      *
@@ -86,10 +80,27 @@ public abstract class Filter implements Predicate<Card>
         return fields;
     }
 
+    /**
+     * Get the fields for this filter from the given {@link JsonObject}.
+     * 
+     * @param fields {@link JsonObject} to parse
+     */
     protected abstract void deserializeFields(JsonObject fields);
 
+    /**
+     * Convert this Filter from JSON.  Just sets its fields; doesn't actually
+     * create a new Filter object.
+     * 
+     * @param object {@link JsonObject} to parse.
+     */
     public final void fromJsonObject(JsonObject object)
     {
         deserializeFields(object);
     }
+
+    @Override
+    public abstract boolean equals(Object other);
+
+    @Override
+    public abstract int hashCode();
 }

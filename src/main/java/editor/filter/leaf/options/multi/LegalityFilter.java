@@ -11,7 +11,7 @@ import com.google.gson.JsonPrimitive;
 import editor.database.attributes.CardAttribute;
 import editor.database.attributes.Legality;
 import editor.database.card.Card;
-import editor.filter.Filter;
+import editor.filter.leaf.FilterLeaf;
 
 /**
  * This class represents a filter that groups cards by format legality.
@@ -42,13 +42,59 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     }
 
     @Override
-    public Filter copy()
+    protected FilterLeaf<String> copyLeaf()
     {
         LegalityFilter filter = (LegalityFilter)CardAttribute.createFilter(CardAttribute.LEGAL_IN);
         filter.contain = contain;
         filter.selected = new HashSet<>(selected);
         filter.restricted = restricted;
         return filter;
+    }
+
+    /**
+     * {@inheritDoc}
+     * Filter cards not only according to the selection of formats, but also
+     * optionally check if they are restricted in those formats.
+     */
+    @Override
+    protected boolean testFace(Card c)
+    {
+        if (!super.testFace(c))
+            return false;
+        else if (restricted)
+        {
+            var formats = new ArrayList<>(c.legalIn());
+            formats.retainAll(selected);
+            return formats.stream().noneMatch((f) -> c.legality().get(f) != Legality.RESTRICTED);
+        }
+        else
+            return true;
+    }
+
+    @Override
+    protected JsonElement convertToJson(String item)
+    {
+        return new JsonPrimitive(item);
+    }
+
+    @Override
+    protected void serializeLeaf(JsonObject fields)
+    {
+        super.serializeLeaf(fields);
+        fields.addProperty("restricted", restricted);
+    }
+
+    @Override
+    protected String convertFromJson(JsonElement item)
+    {
+        return item.getAsString();
+    }
+
+    @Override
+    protected void deserializeLeaf(JsonObject fields)
+    {
+        super.deserializeLeaf(fields);
+        restricted = fields.get("restricted").getAsBoolean();
     }
 
     @Override
@@ -68,51 +114,5 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     public int hashCode()
     {
         return Objects.hash(contain, multifunction(), selected, restricted);
-    }
-
-    /**
-     * {@inheritDoc}
-     * Filter cards not only according to the selection of formats, but also
-     * optionally check if they are restricted in those formats.
-     */
-    @Override
-    public boolean test(Card c)
-    {
-        if (!super.test(c))
-            return false;
-        else if (restricted)
-        {
-            var formats = new ArrayList<>(c.legalIn());
-            formats.retainAll(selected);
-            return formats.stream().noneMatch((f) -> c.legality().get(f) != Legality.RESTRICTED);
-        }
-        else
-            return true;
-    }
-
-    @Override
-    protected JsonElement convertToJson(String item)
-    {
-        return new JsonPrimitive(item);
-    }
-
-    @Override
-    protected void serializeFields(JsonObject fields)
-    {
-        super.serializeFields(fields);
-        fields.addProperty("restricted", restricted);
-    }
-
-    @Override
-    protected String convertFromJson(JsonElement item)
-    {
-        return item.getAsString();
-    }
-
-    @Override
-    protected void deserializeFields(JsonObject fields)
-    {
-        super.deserializeFields(fields);
-        restricted = fields.get("restricted").getAsBoolean();
     }
 }

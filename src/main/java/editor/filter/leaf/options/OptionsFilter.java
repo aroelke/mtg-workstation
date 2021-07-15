@@ -54,6 +54,41 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
      */
     protected abstract T convertFromString(String str);
 
+    /**
+     * Convert an option to JSON.
+     * 
+     * @param item item to convert
+     * @return A serialized version of the item.
+     */
+    protected abstract JsonElement convertToJson(T item);
+
+    @Override
+    protected void serializeLeaf(JsonObject fields)
+    {
+        fields.addProperty("contains", contain.toString());
+        fields.add("selected",
+                   selected.stream().collect(Collector.of(
+                       JsonArray::new, (a, i) -> a.add(convertToJson(i)),
+                       (l, r) -> { l.addAll(r); return l; }
+                   )));
+    }
+
+    /**
+     * Convert JSON to an option
+     * 
+     * @param item {@link JsonElement} to convert
+     * @return The option corresponding to the {@link JsonElement}.
+     */
+    protected abstract T convertFromJson(JsonElement item);
+
+    @Override
+    protected void deserializeLeaf(JsonObject fields)
+    {
+        contain = Containment.parseContainment(fields.get("contains").getAsString());
+        for (JsonElement element : fields.get("selected").getAsJsonArray())
+            selected.add(convertFromJson(element));
+    }
+
     @Override
     public boolean equals(Object other)
     {
@@ -71,34 +106,5 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
     public int hashCode()
     {
         return Objects.hash(type(), function(), contain, selected);
-    }
-
-    /**
-     * Convert an option to JSON.
-     * 
-     * @param item item to convert
-     * @return A serialized version of the item.
-     */
-    protected abstract JsonElement convertToJson(T item);
-
-    @Override
-    protected void serializeFields(JsonObject fields)
-    {
-        fields.addProperty("contains", contain.toString());
-        fields.add("selected",
-                   selected.stream().collect(Collector.of(
-                       JsonArray::new, (a, i) -> a.add(convertToJson(i)),
-                       (l, r) -> { l.addAll(r); return l; }
-                   )));
-    }
-
-    protected abstract T convertFromJson(JsonElement item);
-
-    @Override
-    protected void deserializeFields(JsonObject fields)
-    {
-        contain = Containment.parseContainment(fields.get("contains").getAsString());
-        for (JsonElement element : fields.get("selected").getAsJsonArray())
-            selected.add(convertFromJson(element));
     }
 }

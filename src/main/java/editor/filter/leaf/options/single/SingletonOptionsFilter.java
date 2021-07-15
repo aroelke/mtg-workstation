@@ -33,7 +33,7 @@ public abstract class SingletonOptionsFilter<T> extends OptionsFilter<T>
      * according to this SingletonOptionsFilter's selection and containment.
      */
     @Override
-    public boolean test(Card c)
+    protected boolean testFace(Card c)
     {
         return contain.test(selected, Collections.singletonList(function().apply(c)));
     }

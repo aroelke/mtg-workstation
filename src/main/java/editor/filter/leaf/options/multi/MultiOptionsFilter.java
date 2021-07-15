@@ -60,7 +60,7 @@ public abstract class MultiOptionsFilter<T> extends OptionsFilter<T>
      * according to this MultiOptionsFilter's selection and containment.
      */
     @Override
-    public boolean test(Card c)
+    protected boolean testFace(Card c)
     {
         return contain.test(function.apply(c), selected);
     }

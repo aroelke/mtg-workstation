@@ -8,7 +8,6 @@ import com.google.gson.JsonObject;
 
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.filter.Filter;
 import editor.util.Comparison;
 
 /**
@@ -55,7 +54,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      * Filter cards by a numerical value according to this NumberFilter's operation and operand.
      */
     @Override
-    public boolean test(Card c)
+    protected boolean testFace(Card c)
     {
         return function().apply(c).stream().anyMatch((v) -> !v.isNaN() && operation.test(v, operand));
     }
@@ -64,7 +63,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      * @return A new NumberFilter that is a copy of this one.
      */
     @Override
-    public Filter copy()
+    protected FilterLeaf<Collection<Double>> copyLeaf()
     {
         NumberFilter filter = (NumberFilter)CardAttribute.createFilter(type());
         filter.operation = operation;
@@ -101,14 +100,14 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
     }
 
     @Override
-    protected void serializeFields(JsonObject fields)
+    protected void serializeLeaf(JsonObject fields)
     {
         fields.addProperty("operation", operation.toString());
         fields.addProperty("operand", operand);
     }
 
     @Override
-    protected void deserializeFields(JsonObject fields)
+    protected void deserializeLeaf(JsonObject fields)
     {
         operation = Comparison.valueOf(fields.get("operation").getAsString().charAt(0));
         operand = fields.get("operand").getAsDouble();

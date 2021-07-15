@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.filter.Filter;
 
 /**
  * This class represents a filter with only two options: All cards or no cards.
@@ -41,9 +40,31 @@ public class BinaryFilter extends FilterLeaf<Void>
     }
 
     @Override
-    public Filter copy()
+    protected FilterLeaf<Void> copyLeaf()
     {
-        return CardAttribute.createFilter(type());
+        return (BinaryFilter)CardAttribute.createFilter(type());
+    }
+
+    /**
+     * {@inheritDoc}
+     * Either let all cards through or none of them.
+     */
+    @Override
+    protected boolean testFace(Card c)
+    {
+        return all;
+    }
+
+    @Override
+    protected void serializeLeaf(JsonObject fields)
+    {
+        fields.addProperty("all", all);
+    }
+
+    @Override
+    protected void deserializeLeaf(JsonObject fields)
+    {
+        all = fields.get("all").getAsBoolean();
     }
 
     @Override
@@ -56,27 +77,5 @@ public class BinaryFilter extends FilterLeaf<Void>
     public int hashCode()
     {
         return Objects.hash(type(), function(), all);
-    }
-
-    /**
-     * {@inheritDoc}
-     * Either let all cards through or none of them.
-     */
-    @Override
-    public boolean test(Card c)
-    {
-        return all;
-    }
-
-    @Override
-    protected void serializeFields(JsonObject fields)
-    {
-        fields.addProperty("all", all);
-    }
-
-    @Override
-    protected void deserializeFields(JsonObject fields)
-    {
-        all = fields.get("all").getAsBoolean();
     }
 }

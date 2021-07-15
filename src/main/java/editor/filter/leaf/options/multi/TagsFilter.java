@@ -7,7 +7,7 @@ import com.google.gson.JsonPrimitive;
 
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.filter.Filter;
+import editor.filter.leaf.FilterLeaf;
 
 /**
  * This class represents a filter that filters cards by user-controlled tags.
@@ -31,7 +31,7 @@ public class TagsFilter extends MultiOptionsFilter<String>
     }
 
     @Override
-    public Filter copy()
+    protected FilterLeaf<String> copyLeaf()
     {
         TagsFilter filter = (TagsFilter)CardAttribute.createFilter(CardAttribute.TAGS);
         filter.contain = contain;

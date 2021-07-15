@@ -8,7 +8,7 @@ import com.google.gson.JsonPrimitive;
 import editor.database.attributes.CardAttribute;
 import editor.database.attributes.Rarity;
 import editor.database.card.Card;
-import editor.filter.Filter;
+import editor.filter.leaf.FilterLeaf;
 
 /**
  * This class represents a filter that groups cards by rarity.
@@ -26,7 +26,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
     }
 
     @Override
-    public Filter copy()
+    protected FilterLeaf<Rarity> copyLeaf()
     {
         RarityFilter filter = (RarityFilter)CardAttribute.createFilter(CardAttribute.RARITY);
         filter.contain = contain;
