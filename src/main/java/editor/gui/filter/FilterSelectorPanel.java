@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import editor.database.attributes.CardAttribute;
-import editor.filter.FacesFilter;
+import editor.filter.FaceSearchOptions;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.filter.editor.FilterEditorPanel;
@@ -42,7 +42,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
     /**
      * Which face(s) to search on a card when filtering.
      */
-    private FacesFilter faces;
+    private FaceSearchOptions faces;
     /**
      * Label containing the icon displaying the value of {@link #faces}.
      */
@@ -76,14 +76,14 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
         });
 
         // Small button to choose which faces to look at when filtering
-        faces = FacesFilter.ANY;
+        faces = FaceSearchOptions.ANY;
         facesLabel = new JLabel();
         facesLabel.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
             faces = switch (faces) {
-                case ANY   -> FacesFilter.ALL;
-                case ALL   -> FacesFilter.FRONT;
-                case FRONT -> FacesFilter.BACK;
-                case BACK  -> FacesFilter.ANY;
+                case ANY   -> FaceSearchOptions.ALL;
+                case ALL   -> FaceSearchOptions.FRONT;
+                case FRONT -> FaceSearchOptions.BACK;
+                case BACK  -> FaceSearchOptions.ANY;
             };
             facesLabel.setIcon(faces.getIcon(getHeight()/2));
         }));

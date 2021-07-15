@@ -12,7 +12,7 @@ import javax.swing.ImageIcon;
  * front face only, or back face only.  When a card has more than two faces (like Who/What/When/Where/Why), it isn't
  * possible to only filter using middle faces.  This doesn't affect cards that have only one face.
  */
-public enum FacesFilter
+public enum FaceSearchOptions
 {
     /** Any face of a card can match the filter. */
     ANY,
@@ -26,7 +26,7 @@ public enum FacesFilter
     /** Icon to display on a filter line to indicate which face to search for that line. */
     private final ImageIcon icon;
 
-    private FacesFilter()
+    private FaceSearchOptions()
     {
         ImageIcon img;
         try

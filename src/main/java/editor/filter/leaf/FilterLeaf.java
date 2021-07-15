@@ -8,7 +8,7 @@ import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.database.card.MultiCard;
 import editor.database.card.SingleCard;
-import editor.filter.FacesFilter;
+import editor.filter.FaceSearchOptions;
 import editor.filter.Filter;
 
 /**
@@ -26,7 +26,7 @@ public abstract class FilterLeaf<T> extends Filter
     /**
      * Which face(s) to search on a card when filtering.
      */
-    public FacesFilter faces;
+    public FaceSearchOptions faces;
 
     /**
      * Create a new FilterLeaf.
@@ -38,7 +38,7 @@ public abstract class FilterLeaf<T> extends Filter
     {
         super(t);
         function = f;
-        faces = FacesFilter.ANY;
+        faces = FaceSearchOptions.ANY;
     }
 
     /**
@@ -113,6 +113,6 @@ public abstract class FilterLeaf<T> extends Filter
     protected final void deserializeFields(JsonObject fields)
     {
         deserializeLeaf(fields);
-        faces = fields.has("faces") ? FacesFilter.valueOf(fields.get("faces").getAsString()) : FacesFilter.ANY;
+        faces = fields.has("faces") ? FaceSearchOptions.valueOf(fields.get("faces").getAsString()) : FaceSearchOptions.ANY;
     }
 }
