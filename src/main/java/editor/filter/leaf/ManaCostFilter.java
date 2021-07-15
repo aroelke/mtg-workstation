@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import editor.database.attributes.CardAttribute;
 import editor.database.attributes.ManaCost;
 import editor.database.card.Card;
-import editor.filter.Filter;
 import editor.util.Containment;
 
 /**
@@ -37,7 +36,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
     }
 
     @Override
-    public Filter copy()
+    public FilterLeaf<ManaCost> subCopy()
     {
         ManaCostFilter filter = (ManaCostFilter)CardAttribute.createFilter(CardAttribute.MANA_COST);
         filter.contain = contain;
@@ -69,7 +68,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
      * Filter cards by their mana costs.
      */
     @Override
-    public boolean test(Card c)
+    public boolean testFace(Card c)
     {
         return c.manaCost().stream().anyMatch((m) -> switch (contain) {
             case CONTAINS_ANY_OF -> Containment.CONTAINS_ANY_OF.test(m, cost);

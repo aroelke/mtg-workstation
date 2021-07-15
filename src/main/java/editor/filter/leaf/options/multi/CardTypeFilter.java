@@ -7,7 +7,7 @@ import com.google.gson.JsonPrimitive;
 
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.filter.Filter;
+import editor.filter.leaf.FilterLeaf;
 
 /**
  * This class represents a filter that groups cards by card type.
@@ -37,7 +37,7 @@ public class CardTypeFilter extends MultiOptionsFilter<String>
     }
 
     @Override
-    public Filter copy()
+    public FilterLeaf<String> subCopy()
     {
         CardTypeFilter filter = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
         filter.contain = contain;

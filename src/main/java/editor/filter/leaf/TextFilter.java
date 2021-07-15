@@ -12,7 +12,6 @@ import com.google.gson.JsonObject;
 
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.filter.Filter;
 import editor.util.Containment;
 
 /**
@@ -112,7 +111,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     }
 
     @Override
-    public Filter copy()
+    public FilterLeaf<Collection<String>> subCopy()
     {
         TextFilter filter = (TextFilter)CardAttribute.createFilter(type());
         filter.contain = contain;
@@ -145,7 +144,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * Cards are filtered by a text attribute that matches this TextFilter's text.
      */
     @Override
-    public boolean test(Card c)
+    public boolean testFace(Card c)
     {
         // If the filter is a regex, then just match it
         if (regex)

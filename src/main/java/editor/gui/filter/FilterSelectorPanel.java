@@ -6,13 +6,16 @@ import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import editor.database.attributes.CardAttribute;
+import editor.filter.FacesFilter;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
 import editor.gui.filter.editor.FilterEditorPanel;
 import editor.gui.generic.ComboBoxPanel;
+import editor.util.MouseListenerFactory;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -36,6 +39,8 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
      * Combo box displaying the types of filters available.
      */
     private ComboBoxPanel<CardAttribute> filterTypes;
+    private FacesFilter faces;
+    private JLabel facesLabel;
 
     /**
      * Create a new FilterSelectorPanel which will display the first filter panel.
@@ -64,6 +69,20 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
             cards.show(filtersPanel, String.valueOf(filterTypes.getSelectedItem()));
         });
 
+        // Small button to choose which faces to look at when filtering
+        faces = FacesFilter.ANY;
+        facesLabel = new JLabel();
+        facesLabel.addMouseListener(MouseListenerFactory.createReleaseListener((e) -> {
+            faces = switch (faces) {
+                case ANY   -> FacesFilter.ALL;
+                case ALL   -> FacesFilter.FRONT;
+                case FRONT -> FacesFilter.BACK;
+                case BACK  -> FacesFilter.ANY;
+            };
+            facesLabel.setIcon(faces.getIcon(getHeight()/2));
+        }));
+        add(facesLabel);
+
         // Button to remove this from the form
         JButton removeButton = new JButton(String.valueOf(UnicodeSymbols.MINUS));
         removeButton.addActionListener((e) -> {
@@ -79,6 +98,8 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
             firePanelsChanged();
         });
         add(groupButton);
+
+        facesLabel.setIcon(faces.getIcon(getPreferredSize().height/2));
     }
 
     /**
@@ -89,7 +110,14 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
     @Override
     public Filter filter()
     {
-        return filterPanels.get(filterTypes.getSelectedItem()).filter();
+        Filter f = filterPanels.get(filterTypes.getSelectedItem()).filter();
+        if (f instanceof FilterLeaf<?> l)
+        {
+            l.faces = faces;
+            return l;
+        }
+        else
+            return f;
     }
 
     /**
@@ -102,6 +130,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
     {
         filterTypes.setSelectedItem(filter.type());
         filterPanels.get(filter.type()).setContents(filter);
+        facesLabel.setIcon((faces = filter.faces).getIcon(getPreferredSize().height/2));
         ((CardLayout)filtersPanel.getLayout()).show(filtersPanel, String.valueOf(filter.type()));
     }
 }

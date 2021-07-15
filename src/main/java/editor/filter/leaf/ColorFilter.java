@@ -13,7 +13,6 @@ import com.google.gson.JsonObject;
 import editor.database.attributes.CardAttribute;
 import editor.database.attributes.ManaType;
 import editor.database.card.Card;
-import editor.filter.Filter;
 import editor.util.Containment;
 
 /**
@@ -60,7 +59,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     }
 
     @Override
-    public Filter copy()
+    public FilterLeaf<List<ManaType>> subCopy()
     {
         ColorFilter filter = (ColorFilter)CardAttribute.createFilter(type());
         filter.colors = new HashSet<>(colors);
@@ -93,7 +92,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
      * Filter cards according to the colors in a color characteristic.
      */
     @Override
-    public boolean test(Card c)
+    public boolean testFace(Card c)
     {
         return contain.test(function().apply(c), colors)
                 && (!multicolored || function().apply(c).size() > 1);

@@ -9,7 +9,7 @@ import com.google.gson.JsonPrimitive;
 import editor.database.attributes.CardAttribute;
 import editor.database.attributes.Expansion;
 import editor.database.card.Card;
-import editor.filter.Filter;
+import editor.filter.leaf.FilterLeaf;
 
 /**
  * This class represents a filter that groups cards by expansion.
@@ -36,7 +36,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
     }
 
     @Override
-    public Filter copy()
+    public FilterLeaf<Expansion> subCopy()
     {
         ExpansionFilter filter = (ExpansionFilter)CardAttribute.createFilter(CardAttribute.EXPANSION);
         filter.contain = contain;

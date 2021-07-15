@@ -10,7 +10,6 @@ import com.google.gson.JsonObject;
 
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.filter.Filter;
 import editor.util.Containment;
 
 /**
@@ -40,7 +39,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     }
 
     @Override
-    public Filter copy()
+    public FilterLeaf<List<Set<String>>> subCopy()
     {
         TypeLineFilter filter = (TypeLineFilter)CardAttribute.createFilter(CardAttribute.TYPE_LINE);
         filter.contain = contain;
@@ -72,7 +71,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
      * Filter cards whose type lines match the specified values.
      */
     @Override
-    public boolean test(Card c)
+    public boolean testFace(Card c)
     {
         return !line.isEmpty() && contain.test(c.allTypes().stream().flatMap(Set::stream).map(String::toLowerCase).collect(Collectors.toSet()), Arrays.asList(line.toLowerCase().split("\\s")));
     }

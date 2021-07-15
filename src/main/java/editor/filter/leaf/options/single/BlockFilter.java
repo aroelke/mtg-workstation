@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import editor.database.attributes.CardAttribute;
-import editor.filter.Filter;
+import editor.filter.leaf.FilterLeaf;
 
 /**
  * This class represents a filter that groups cards by block.
@@ -30,7 +30,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
     }
 
     @Override
-    public Filter copy()
+    public FilterLeaf<String> subCopy()
     {
         BlockFilter filter = (BlockFilter)CardAttribute.createFilter(CardAttribute.BLOCK);
         filter.contain = contain;

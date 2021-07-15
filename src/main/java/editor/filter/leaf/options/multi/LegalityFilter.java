@@ -11,7 +11,7 @@ import com.google.gson.JsonPrimitive;
 import editor.database.attributes.CardAttribute;
 import editor.database.attributes.Legality;
 import editor.database.card.Card;
-import editor.filter.Filter;
+import editor.filter.leaf.FilterLeaf;
 
 /**
  * This class represents a filter that groups cards by format legality.
@@ -42,7 +42,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     }
 
     @Override
-    public Filter copy()
+    public FilterLeaf<String> subCopy()
     {
         LegalityFilter filter = (LegalityFilter)CardAttribute.createFilter(CardAttribute.LEGAL_IN);
         filter.contain = contain;
@@ -76,9 +76,9 @@ public class LegalityFilter extends MultiOptionsFilter<String>
      * optionally check if they are restricted in those formats.
      */
     @Override
-    public boolean test(Card c)
+    public boolean testFace(Card c)
     {
-        if (!super.test(c))
+        if (!super.testFace(c))
             return false;
         else if (restricted)
         {

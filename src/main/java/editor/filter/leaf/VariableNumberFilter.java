@@ -9,7 +9,6 @@ import com.google.gson.JsonObject;
 
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
-import editor.filter.Filter;
 
 /**
  * This class represents a filter for a numeric card characteristic that can be variable.
@@ -51,7 +50,7 @@ public class VariableNumberFilter extends NumberFilter
     }
 
     @Override
-    public Filter copy()
+    public FilterLeaf<Collection<Double>> subCopy()
     {
         VariableNumberFilter filter = (VariableNumberFilter)CardAttribute.createFilter(type());
         filter.varies = varies;
@@ -87,9 +86,9 @@ public class VariableNumberFilter extends NumberFilter
      * operation, or if it is variable and a variable value is desired.
      */
     @Override
-    public boolean test(Card c)
+    public boolean testFace(Card c)
     {
-        return varies ? variable.test(c) : super.test(c);
+        return varies ? variable.test(c) : super.testFace(c);
     }
 
     @Override
