@@ -92,16 +92,16 @@ public class VariableNumberFilter extends NumberFilter
     }
 
     @Override
-    protected void serializeFields(JsonObject fields)
+    protected void serializeLeaf(JsonObject fields)
     {
-        super.serializeFields(fields);
+        super.serializeLeaf(fields);
         fields.addProperty("varies", varies);
     }
 
     @Override
-    protected void deserializeFields(JsonObject fields)
+    protected void deserializeLeaf(JsonObject fields)
     {
-        super.deserializeFields(fields);
+        super.deserializeLeaf(fields);
         varies = fields.get("varies").getAsBoolean();
     }
 }

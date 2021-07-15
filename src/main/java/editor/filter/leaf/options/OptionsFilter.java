@@ -82,7 +82,7 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
     protected abstract JsonElement convertToJson(T item);
 
     @Override
-    protected void serializeFields(JsonObject fields)
+    protected void serializeLeaf(JsonObject fields)
     {
         fields.addProperty("contains", contain.toString());
         fields.add("selected",
@@ -95,7 +95,7 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
     protected abstract T convertFromJson(JsonElement item);
 
     @Override
-    protected void deserializeFields(JsonObject fields)
+    protected void deserializeLeaf(JsonObject fields)
     {
         contain = Containment.parseContainment(fields.get("contains").getAsString());
         for (JsonElement element : fields.get("selected").getAsJsonArray())

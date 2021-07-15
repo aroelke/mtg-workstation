@@ -81,14 +81,14 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
     }
 
     @Override
-    protected void serializeFields(JsonObject fields)
+    protected void serializeLeaf(JsonObject fields)
     {
         fields.addProperty("contains", contain.toString());
         fields.addProperty("cost", cost.toString());
     }
 
     @Override
-    protected void deserializeFields(JsonObject fields)
+    protected void deserializeLeaf(JsonObject fields)
     {
         contain = Containment.parseContainment(fields.get("contains").getAsString());
         cost = ManaCost.parseManaCost(fields.get("cost").getAsString());

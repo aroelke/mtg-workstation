@@ -2,6 +2,8 @@ package editor.filter.leaf;
 
 import java.util.function.Function;
 
+import com.google.gson.JsonObject;
+
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.database.card.MultiCard;
@@ -70,5 +72,21 @@ public abstract class FilterLeaf<T> extends Filter
     protected Function<Card, T> function()
     {
         return function;
+    }
+
+    protected abstract void serializeLeaf(JsonObject fields);
+
+    protected final void serializeFields(JsonObject fields)
+    {
+        serializeLeaf(fields);
+        fields.addProperty("faces", faces.toString());
+    }
+
+    protected abstract void deserializeLeaf(JsonObject fields);
+
+    protected final void deserializeFields(JsonObject fields)
+    {
+        deserializeLeaf(fields);
+        faces = fields.has("faces") ? FacesFilter.valueOf(fields.get("faces").getAsString()) : FacesFilter.ANY;
     }
 }

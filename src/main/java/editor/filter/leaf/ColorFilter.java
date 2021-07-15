@@ -80,7 +80,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     }
 
     @Override
-    protected void serializeFields(JsonObject fields)
+    protected void serializeLeaf(JsonObject fields)
     {
         JsonArray array = new JsonArray();
         for (ManaType c : colors)
@@ -92,7 +92,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     }
 
     @Override
-    protected void deserializeFields(JsonObject fields)
+    protected void deserializeLeaf(JsonObject fields)
     {
         contain = Containment.parseContainment(fields.get("contains").getAsString());
         for (JsonElement element : fields.get("colors").getAsJsonArray())

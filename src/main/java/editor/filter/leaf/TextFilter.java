@@ -201,7 +201,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     }
 
     @Override
-    protected void serializeFields(JsonObject fields)
+    protected void serializeLeaf(JsonObject fields)
     {
         fields.addProperty("contains", contain.toString());
         fields.addProperty("regex", regex);
@@ -209,7 +209,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     }
 
     @Override
-    protected void deserializeFields(JsonObject fields)
+    protected void deserializeLeaf(JsonObject fields)
     {
         contain = Containment.parseContainment(fields.get("contains").getAsString());
         regex = fields.get("regex").getAsBoolean();

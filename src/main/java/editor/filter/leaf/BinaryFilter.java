@@ -56,13 +56,13 @@ public class BinaryFilter extends FilterLeaf<Void>
     }
 
     @Override
-    protected void serializeFields(JsonObject fields)
+    protected void serializeLeaf(JsonObject fields)
     {
         fields.addProperty("all", all);
     }
 
     @Override
-    protected void deserializeFields(JsonObject fields)
+    protected void deserializeLeaf(JsonObject fields)
     {
         all = fields.get("all").getAsBoolean();
     }

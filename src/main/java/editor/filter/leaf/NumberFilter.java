@@ -100,14 +100,14 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
     }
 
     @Override
-    protected void serializeFields(JsonObject fields)
+    protected void serializeLeaf(JsonObject fields)
     {
         fields.addProperty("operation", operation.toString());
         fields.addProperty("operand", operand);
     }
 
     @Override
-    protected void deserializeFields(JsonObject fields)
+    protected void deserializeLeaf(JsonObject fields)
     {
         operation = Comparison.valueOf(fields.get("operation").getAsString().charAt(0));
         operand = fields.get("operand").getAsDouble();
