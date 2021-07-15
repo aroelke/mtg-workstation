@@ -63,7 +63,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      * @return A new NumberFilter that is a copy of this one.
      */
     @Override
-    protected FilterLeaf<Collection<Double>> subCopy()
+    protected FilterLeaf<Collection<Double>> copyLeaf()
     {
         NumberFilter filter = (NumberFilter)CardAttribute.createFilter(type());
         filter.operation = operation;

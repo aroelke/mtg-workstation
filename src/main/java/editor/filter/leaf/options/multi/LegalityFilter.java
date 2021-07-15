@@ -42,7 +42,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     }
 
     @Override
-    protected FilterLeaf<String> subCopy()
+    protected FilterLeaf<String> copyLeaf()
     {
         LegalityFilter filter = (LegalityFilter)CardAttribute.createFilter(CardAttribute.LEGAL_IN);
         filter.contain = contain;

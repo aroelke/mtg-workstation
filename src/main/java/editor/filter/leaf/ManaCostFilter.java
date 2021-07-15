@@ -36,7 +36,7 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
     }
 
     @Override
-    public FilterLeaf<ManaCost> subCopy()
+    public FilterLeaf<ManaCost> copyLeaf()
     {
         ManaCostFilter filter = (ManaCostFilter)CardAttribute.createFilter(CardAttribute.MANA_COST);
         filter.contain = contain;

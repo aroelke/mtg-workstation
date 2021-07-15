@@ -36,7 +36,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
     }
 
     @Override
-    protected FilterLeaf<Expansion> subCopy()
+    protected FilterLeaf<Expansion> copyLeaf()
     {
         ExpansionFilter filter = (ExpansionFilter)CardAttribute.createFilter(CardAttribute.EXPANSION);
         filter.contain = contain;

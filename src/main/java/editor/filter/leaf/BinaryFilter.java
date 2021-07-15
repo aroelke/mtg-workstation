@@ -40,7 +40,7 @@ public class BinaryFilter extends FilterLeaf<Void>
     }
 
     @Override
-    protected FilterLeaf<Void> subCopy()
+    protected FilterLeaf<Void> copyLeaf()
     {
         return (BinaryFilter)CardAttribute.createFilter(type());
     }

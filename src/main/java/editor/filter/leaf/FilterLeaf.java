@@ -47,12 +47,12 @@ public abstract class FilterLeaf<T> extends Filter
      * 
      * @return A copy of this FilterLeaf containing only unique fields.
      */
-    protected abstract FilterLeaf<T> subCopy();
+    protected abstract FilterLeaf<T> copyLeaf();
 
     @Override
     public final Filter copy()
     {
-        var filter = subCopy();
+        var filter = copyLeaf();
         filter.faces = faces;
         return filter;
     }

@@ -26,7 +26,7 @@ public class RarityFilter extends SingletonOptionsFilter<Rarity>
     }
 
     @Override
-    protected FilterLeaf<Rarity> subCopy()
+    protected FilterLeaf<Rarity> copyLeaf()
     {
         RarityFilter filter = (RarityFilter)CardAttribute.createFilter(CardAttribute.RARITY);
         filter.contain = contain;

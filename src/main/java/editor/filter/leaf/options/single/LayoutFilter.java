@@ -32,7 +32,7 @@ public class LayoutFilter extends SingletonOptionsFilter<CardLayout>
     }
 
     @Override
-    protected FilterLeaf<CardLayout> subCopy()
+    protected FilterLeaf<CardLayout> copyLeaf()
     {
         LayoutFilter filter = (LayoutFilter)CardAttribute.createFilter(CardAttribute.LAYOUT);
         filter.contain = contain;

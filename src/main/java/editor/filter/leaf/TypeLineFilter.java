@@ -39,7 +39,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     }
 
     @Override
-    protected FilterLeaf<List<Set<String>>> subCopy()
+    protected FilterLeaf<List<Set<String>>> copyLeaf()
     {
         TypeLineFilter filter = (TypeLineFilter)CardAttribute.createFilter(CardAttribute.TYPE_LINE);
         filter.contain = contain;

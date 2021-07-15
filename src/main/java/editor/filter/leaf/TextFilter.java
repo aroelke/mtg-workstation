@@ -111,7 +111,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     }
 
     @Override
-    protected FilterLeaf<Collection<String>> subCopy()
+    protected FilterLeaf<Collection<String>> copyLeaf()
     {
         TextFilter filter = (TextFilter)CardAttribute.createFilter(type());
         filter.contain = contain;

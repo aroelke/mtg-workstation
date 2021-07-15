@@ -59,7 +59,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     }
 
     @Override
-    protected FilterLeaf<List<ManaType>> subCopy()
+    protected FilterLeaf<List<ManaType>> copyLeaf()
     {
         ColorFilter filter = (ColorFilter)CardAttribute.createFilter(type());
         filter.colors = new HashSet<>(colors);
