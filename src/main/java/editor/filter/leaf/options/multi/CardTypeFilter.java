@@ -37,7 +37,7 @@ public class CardTypeFilter extends MultiOptionsFilter<String>
     }
 
     @Override
-    public FilterLeaf<String> subCopy()
+    protected FilterLeaf<String> subCopy()
     {
         CardTypeFilter filter = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
         filter.contain = contain;

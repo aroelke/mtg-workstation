@@ -30,7 +30,7 @@ public class BlockFilter extends SingletonOptionsFilter<String>
     }
 
     @Override
-    public FilterLeaf<String> subCopy()
+    protected FilterLeaf<String> subCopy()
     {
         BlockFilter filter = (BlockFilter)CardAttribute.createFilter(CardAttribute.BLOCK);
         filter.contain = contain;

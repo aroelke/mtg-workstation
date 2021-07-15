@@ -54,7 +54,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      * Filter cards by a numerical value according to this NumberFilter's operation and operand.
      */
     @Override
-    public boolean testFace(Card c)
+    protected boolean testFace(Card c)
     {
         return function().apply(c).stream().anyMatch((v) -> !v.isNaN() && operation.test(v, operand));
     }
@@ -63,7 +63,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      * @return A new NumberFilter that is a copy of this one.
      */
     @Override
-    public FilterLeaf<Collection<Double>> subCopy()
+    protected FilterLeaf<Collection<Double>> subCopy()
     {
         NumberFilter filter = (NumberFilter)CardAttribute.createFilter(type());
         filter.operation = operation;

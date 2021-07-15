@@ -40,21 +40,9 @@ public class BinaryFilter extends FilterLeaf<Void>
     }
 
     @Override
-    public FilterLeaf<Void> subCopy()
+    protected FilterLeaf<Void> subCopy()
     {
         return (BinaryFilter)CardAttribute.createFilter(type());
-    }
-
-    @Override
-    public boolean equals(Object other)
-    {
-        return other != null && (other == this || other.getClass() == getClass() && ((BinaryFilter)other).all == all);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(type(), function(), all);
     }
 
     /**
@@ -62,7 +50,7 @@ public class BinaryFilter extends FilterLeaf<Void>
      * Either let all cards through or none of them.
      */
     @Override
-    public boolean testFace(Card c)
+    protected boolean testFace(Card c)
     {
         return all;
     }
@@ -77,5 +65,17 @@ public class BinaryFilter extends FilterLeaf<Void>
     protected void deserializeFields(JsonObject fields)
     {
         all = fields.get("all").getAsBoolean();
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        return other != null && (other == this || other.getClass() == getClass() && ((BinaryFilter)other).all == all);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(type(), function(), all);
     }
 }

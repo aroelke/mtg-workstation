@@ -36,7 +36,7 @@ public abstract class FilterLeaf<T> extends Filter
         faces = FacesFilter.ANY;
     }
 
-    public abstract FilterLeaf<T> subCopy();
+    protected abstract FilterLeaf<T> subCopy();
 
     public final Filter copy()
     {
@@ -45,7 +45,7 @@ public abstract class FilterLeaf<T> extends Filter
         return filter;
     }
 
-    public abstract boolean testFace(Card c);
+    protected abstract boolean testFace(Card c);
 
     public final boolean test(Card c)
     {

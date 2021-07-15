@@ -31,7 +31,7 @@ public class TagsFilter extends MultiOptionsFilter<String>
     }
 
     @Override
-    public FilterLeaf<String> subCopy()
+    protected FilterLeaf<String> subCopy()
     {
         TagsFilter filter = (TagsFilter)CardAttribute.createFilter(CardAttribute.TAGS);
         filter.contain = contain;

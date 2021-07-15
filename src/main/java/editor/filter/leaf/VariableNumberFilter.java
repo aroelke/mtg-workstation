@@ -50,7 +50,7 @@ public class VariableNumberFilter extends NumberFilter
     }
 
     @Override
-    public FilterLeaf<Collection<Double>> subCopy()
+    protected FilterLeaf<Collection<Double>> subCopy()
     {
         VariableNumberFilter filter = (VariableNumberFilter)CardAttribute.createFilter(type());
         filter.varies = varies;
@@ -86,7 +86,7 @@ public class VariableNumberFilter extends NumberFilter
      * operation, or if it is variable and a variable value is desired.
      */
     @Override
-    public boolean testFace(Card c)
+    protected boolean testFace(Card c)
     {
         return varies ? variable.test(c) : super.testFace(c);
     }

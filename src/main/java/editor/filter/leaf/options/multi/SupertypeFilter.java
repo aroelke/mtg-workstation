@@ -36,7 +36,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
     }
 
     @Override
-    public FilterLeaf<String> subCopy()
+    protected FilterLeaf<String> subCopy()
     {
         SupertypeFilter filter = (SupertypeFilter)CardAttribute.createFilter(CardAttribute.SUPERTYPE);
         filter.contain = contain;

@@ -42,7 +42,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     }
 
     @Override
-    public FilterLeaf<String> subCopy()
+    protected FilterLeaf<String> subCopy()
     {
         LegalityFilter filter = (LegalityFilter)CardAttribute.createFilter(CardAttribute.LEGAL_IN);
         filter.contain = contain;
@@ -51,32 +51,13 @@ public class LegalityFilter extends MultiOptionsFilter<String>
         return filter;
     }
 
-    @Override
-    public boolean equals(Object other)
-    {
-        if (other == null)
-            return false;
-        if (other == this)
-            return true;
-        if (other.getClass() != getClass())
-            return false;
-        LegalityFilter o = (LegalityFilter)other;
-        return o.contain == contain && o.selected.equals(selected) && o.restricted == restricted;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(contain, multifunction(), selected, restricted);
-    }
-
     /**
      * {@inheritDoc}
      * Filter cards not only according to the selection of formats, but also
      * optionally check if they are restricted in those formats.
      */
     @Override
-    public boolean testFace(Card c)
+    protected boolean testFace(Card c)
     {
         if (!super.testFace(c))
             return false;
@@ -114,5 +95,24 @@ public class LegalityFilter extends MultiOptionsFilter<String>
     {
         super.deserializeFields(fields);
         restricted = fields.get("restricted").getAsBoolean();
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other == null)
+            return false;
+        if (other == this)
+            return true;
+        if (other.getClass() != getClass())
+            return false;
+        LegalityFilter o = (LegalityFilter)other;
+        return o.contain == contain && o.selected.equals(selected) && o.restricted == restricted;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(contain, multifunction(), selected, restricted);
     }
 }

@@ -39,7 +39,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     }
 
     @Override
-    public FilterLeaf<List<Set<String>>> subCopy()
+    protected FilterLeaf<List<Set<String>>> subCopy()
     {
         TypeLineFilter filter = (TypeLineFilter)CardAttribute.createFilter(CardAttribute.TYPE_LINE);
         filter.contain = contain;
@@ -71,7 +71,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
      * Filter cards whose type lines match the specified values.
      */
     @Override
-    public boolean testFace(Card c)
+    protected boolean testFace(Card c)
     {
         return !line.isEmpty() && contain.test(c.allTypes().stream().flatMap(Set::stream).map(String::toLowerCase).collect(Collectors.toSet()), Arrays.asList(line.toLowerCase().split("\\s")));
     }

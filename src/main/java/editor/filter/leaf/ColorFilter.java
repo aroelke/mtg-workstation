@@ -59,7 +59,7 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     }
 
     @Override
-    public FilterLeaf<List<ManaType>> subCopy()
+    protected FilterLeaf<List<ManaType>> subCopy()
     {
         ColorFilter filter = (ColorFilter)CardAttribute.createFilter(type());
         filter.colors = new HashSet<>(colors);
@@ -68,31 +68,12 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
         return filter;
     }
 
-    @Override
-    public boolean equals(Object other)
-    {
-        if (other == null)
-            return false;
-        if (other == this)
-            return true;
-        if (other.getClass() != getClass())
-            return false;
-        ColorFilter o = (ColorFilter)other;
-        return o.type().equals(type()) && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(type(), function(), colors, contain, multicolored);
-    }
-
     /**
      * {@inheritDoc}
      * Filter cards according to the colors in a color characteristic.
      */
     @Override
-    public boolean testFace(Card c)
+    protected boolean testFace(Card c)
     {
         return contain.test(function().apply(c), colors)
                 && (!multicolored || function().apply(c).size() > 1);
@@ -117,5 +98,24 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
         for (JsonElement element : fields.get("colors").getAsJsonArray())
             colors.add(ManaType.parseManaType(element.getAsString()));
         multicolored = fields.get("multicolored").getAsBoolean();
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other == null)
+            return false;
+        if (other == this)
+            return true;
+        if (other.getClass() != getClass())
+            return false;
+        ColorFilter o = (ColorFilter)other;
+        return o.type().equals(type()) && o.colors.equals(colors) && o.contain == contain && o.multicolored == multicolored;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(type(), function(), colors, contain, multicolored);
     }
 }
