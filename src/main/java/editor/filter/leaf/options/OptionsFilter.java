@@ -54,25 +54,6 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
      */
     protected abstract T convertFromString(String str);
 
-    @Override
-    public boolean equals(Object other)
-    {
-        if (other == null)
-            return false;
-        if (other == this)
-            return true;
-        if (other.getClass() != getClass())
-            return false;
-        var o = (OptionsFilter<?>)other;
-        return o.type().equals(type()) && o.contain == contain && o.selected.equals(selected);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(type(), function(), contain, selected);
-    }
-
     /**
      * Convert an option to JSON.
      * 
@@ -92,6 +73,12 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
                    )));
     }
 
+    /**
+     * Convert JSON to an option
+     * 
+     * @param item {@link JsonElement} to convert
+     * @return The option corresponding to the {@link JsonElement}.
+     */
     protected abstract T convertFromJson(JsonElement item);
 
     @Override
@@ -100,5 +87,24 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
         contain = Containment.parseContainment(fields.get("contains").getAsString());
         for (JsonElement element : fields.get("selected").getAsJsonArray())
             selected.add(convertFromJson(element));
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other == null)
+            return false;
+        if (other == this)
+            return true;
+        if (other.getClass() != getClass())
+            return false;
+        var o = (OptionsFilter<?>)other;
+        return o.type().equals(type()) && o.contain == contain && o.selected.equals(selected);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(type(), function(), contain, selected);
     }
 }

@@ -39,7 +39,13 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
      * Combo box displaying the types of filters available.
      */
     private ComboBoxPanel<CardAttribute> filterTypes;
+    /**
+     * Which face(s) to search on a card when filtering.
+     */
     private FacesFilter faces;
+    /**
+     * Label containing the icon displaying the value of {@link #faces}.
+     */
     private JLabel facesLabel;
 
     /**

@@ -23,6 +23,9 @@ public abstract class FilterLeaf<T> extends Filter
      * Function representing the characteristic of the cards to be filtered.
      */
     private Function<Card, T> function;
+    /**
+     * Which face(s) to search on a card when filtering.
+     */
     public FacesFilter faces;
 
     /**
@@ -38,8 +41,15 @@ public abstract class FilterLeaf<T> extends Filter
         faces = FacesFilter.ANY;
     }
 
+    /**
+     * Create a copy of this FilterLeaf to be used in {@link #copy()}, containing
+     * only fields that are unique to it.  Common fields are copied by {@link #copy()}.
+     * 
+     * @return A copy of this FilterLeaf containing only unique fields.
+     */
     protected abstract FilterLeaf<T> subCopy();
 
+    @Override
     public final Filter copy()
     {
         var filter = subCopy();
@@ -47,8 +57,17 @@ public abstract class FilterLeaf<T> extends Filter
         return filter;
     }
 
+    /**
+     * Test an individual face of a card.  Called by {@link #copy()} on each face, and
+     * then combined according to {@link #faces} to determine if the test passes.
+     * 
+     * @param c card face to test
+     * @return <code>true</code> if the card face passes the filter, and <code>false</code>
+     * otherwise.
+     */
     protected abstract boolean testFace(Card c);
 
+    @Override
     public final boolean test(Card c)
     {
         if (c instanceof SingleCard s)
@@ -74,8 +93,14 @@ public abstract class FilterLeaf<T> extends Filter
         return function;
     }
 
+    /**
+     * 
+     * 
+     * @param fields
+     */
     protected abstract void serializeLeaf(JsonObject fields);
 
+    @Override
     protected final void serializeFields(JsonObject fields)
     {
         serializeLeaf(fields);
@@ -84,6 +109,7 @@ public abstract class FilterLeaf<T> extends Filter
 
     protected abstract void deserializeLeaf(JsonObject fields);
 
+    @Override
     protected final void deserializeFields(JsonObject fields)
     {
         deserializeLeaf(fields);
