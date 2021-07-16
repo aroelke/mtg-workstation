@@ -27,7 +27,12 @@ public interface Stats
      */
     static double nchoosek(int n, int k)
     {
-        return factorial(n)/(factorial(n - k)*factorial(k));
+        if (k == 0)
+            return 1;
+        else if (n == 0)
+            return 0;
+        else
+            return factorial(n)/(factorial(n - k)*factorial(k));
     }
 
     /**
@@ -44,7 +49,10 @@ public interface Stats
      */
     static double hypergeometric(int n, int hand, int count, int total)
     {
-        return nchoosek(count, n)*nchoosek(total - count, hand - n)/nchoosek(total, hand);
+        if (hand - (total - count) > n)
+            return 0;
+        else
+            return nchoosek(count, n)*nchoosek(total - count, hand - n)/nchoosek(total, hand);
     }
     
 }
