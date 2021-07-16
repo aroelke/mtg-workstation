@@ -2655,8 +2655,8 @@ public class EditorFrame extends JInternalFrame
         medManaValueLabel.setText("Median mana value: " + StringUtils.formatDouble(medManaValue, 1));
         
         manaCurve.clear();
-        int minMV = 0, maxMV = 0;
-        if (!deck().current.isEmpty() && analyzeMainBox.isSelected())
+        int minMV = -1, maxMV = -1;
+        if (deck().current.total() - lands > 0 && analyzeMainBox.isSelected())
         {
             minMV = (int)Math.ceil(manaValue[0]);
             maxMV = (int)Math.ceil(manaValue[manaValue.length - 1]);
@@ -2713,17 +2713,22 @@ public class EditorFrame extends JInternalFrame
         }
 
         landDrops.clear();
-        for (int i = minMV; i <= maxMV; i++)
+        if (minMV >= 0)
         {
-            double e = 0, q = 0;
-            for (int j = 0; j < i; j++)
+            if (maxMV < 0)
+                throw new IllegalStateException("min mana value but no max mana value");
+            for (int i = minMV; i <= maxMV; i++)
             {
-                double p = Stats.hypergeometric(j, handCalculations.handSize() + i - 1, lands, deck().current.size());
-                q += p;
-                e += j*p;
+                double e = 0, q = 0;
+                for (int j = 0; j < i; j++)
+                {
+                    double p = Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
+                    q += p;
+                    e += j*p;
+                }
+                e += i*(1 - q);
+                landDrops.addValue(e, "Expected Land Plays", Integer.toString(i));
             }
-            e += i*(1 - q);
-            landDrops.addValue(e, "Expected Land Plays", Integer.toString(i));
         }
     }
 
