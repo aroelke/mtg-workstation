@@ -7,7 +7,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -82,9 +81,9 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DatasetRenderingOrder;
-import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.renderer.category.StackedBarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 
@@ -93,6 +92,7 @@ import editor.collection.deck.Category;
 import editor.collection.deck.Deck;
 import editor.collection.deck.Hand;
 import editor.collection.export.CardListFormat;
+import editor.database.attributes.ManaType;
 import editor.database.card.Card;
 import editor.database.card.MultiCard;
 import editor.gui.CardTagPanel;
@@ -458,7 +458,8 @@ public class EditorFrame extends JInternalFrame
      */
     public static final int MAIN_DECK = 0;
 
-    private JCheckBox analyzeMainBox;
+    private JCheckBox analyzeCategoryBox;
+    private JComboBox<String> analyzeCategoryCombo;
     /**
      * Label showing the average mana value of nonland cards in the deck.
      */
@@ -467,8 +468,6 @@ public class EditorFrame extends JInternalFrame
      * Panel containing categories.
      */
     private Box categoriesContainer;
-    private List<JCheckBox> categoryAnalysisBoxes;
-    private JPanel categoryAnalysisPanel;
     /**
      * Panels showing categories in this deck (individual panels should not be operated
      * on except for GUI-related functions).
@@ -552,6 +551,7 @@ public class EditorFrame extends JInternalFrame
      * (but not when it is redone).
      */
     private Stack<UndoableAction<Boolean, Boolean>> redoBuffer;
+    private JComboBox<String> sectionsBox;
     /**
      * Combo box allowing changes to be made in the order that categories are display in.
      */
@@ -853,7 +853,7 @@ public class EditorFrame extends JInternalFrame
 
         manaCurve = new DefaultCategoryDataset();
         landDrops = new DefaultCategoryDataset();
-        BarRenderer manaCurveRenderer = new BarRenderer();
+        StackedBarRenderer manaCurveRenderer = new StackedBarRenderer();
         manaCurveRenderer.setBarPainter(new StandardBarPainter());
         manaCurveRenderer.setDrawBarOutline(true);
         manaCurveRenderer.setShadowVisible(false);
@@ -881,12 +881,27 @@ public class EditorFrame extends JInternalFrame
         manaCurvePanel.setPopupMenu(null);
         manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER);
 
-        categoryAnalysisPanel = new JPanel(new GridLayout(0, 5));
-        categoryAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Categories to display:"));
-        analyzeMainBox = new JCheckBox("Main Deck", true);
-        analyzeMainBox.addActionListener((e) -> updateStats());
-        categoryAnalysisBoxes = new ArrayList<>();
-        categoryAnalysisPanel.add(analyzeMainBox);
+        Box categoryAnalysisPanel = new Box(BoxLayout.X_AXIS);
+        categoryAnalysisPanel.setBorder(BorderFactory.createEtchedBorder());
+        categoryAnalysisPanel.add(Box.createHorizontalGlue());
+        sectionsBox = new JComboBox<>(new String[] {"Nothing", "Color", "Card Type"});
+        sectionsBox.addActionListener((e) -> updateStats());
+        sectionsBox.setMaximumSize(sectionsBox.getPreferredSize());
+        categoryAnalysisPanel.add(new JLabel("Divide bars by:"));
+        categoryAnalysisPanel.add(Box.createHorizontalStrut(2));
+        categoryAnalysisPanel.add(sectionsBox);
+        categoryAnalysisPanel.add(Box.createHorizontalStrut(15));
+        analyzeCategoryBox = new JCheckBox("Analyze category:", false);
+        analyzeCategoryBox.addActionListener((e) -> {
+            analyzeCategoryCombo.setEnabled(analyzeCategoryBox.isSelected());
+            updateStats();
+        });
+        categoryAnalysisPanel.add(analyzeCategoryBox);
+        analyzeCategoryCombo = new JComboBox<String>();
+        analyzeCategoryCombo.setEnabled(false);
+        analyzeCategoryCombo.addActionListener((e) -> updateStats());
+        categoryAnalysisPanel.add(analyzeCategoryCombo);
+        categoryAnalysisPanel.add(Box.createHorizontalGlue());
 
         manaAnalysisPanel.add(categoryAnalysisPanel, BorderLayout.SOUTH);
 
@@ -2591,16 +2606,25 @@ public class EditorFrame extends JInternalFrame
                 switchCategoryModel.addElement(c.getName());
         }
 
-        categoryAnalysisPanel.removeAll();
-        categoryAnalysisPanel.add(analyzeMainBox);
-        categoryAnalysisBoxes = deck().current.categories().stream().sorted(Comparator.comparing(Category::getName)).map((c) -> new JCheckBox(
-            c.getName(),
-            categoryAnalysisBoxes.stream().anyMatch((b) -> b.isSelected() && b.getText().equals(c.getName()))
-        )).collect(Collectors.toList());
-        for (var box : categoryAnalysisBoxes)
+        analyzeCategoryBox.setVisible(!deck().current.categories().isEmpty());
+        analyzeCategoryCombo.setVisible(!deck().current.categories().isEmpty());
+        if (deck().current.categories().isEmpty())
+            analyzeCategoryBox.setSelected(false);
+        else
         {
-            categoryAnalysisPanel.add(box);
-            box.addActionListener((e) -> updateStats());
+            String selectedForAnalysis = analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex());
+            analyzeCategoryCombo.removeAllItems();
+            for (Category c : deck().current.categories())
+                analyzeCategoryCombo.addItem(c.getName());
+            analyzeCategoryCombo.setMaximumSize(analyzeCategoryCombo.getPreferredSize());
+            int indexForAnalysis = ((DefaultComboBoxModel<String>)analyzeCategoryCombo.getModel()).getIndexOf(selectedForAnalysis);
+            if (indexForAnalysis < 0)
+            {
+                analyzeCategoryCombo.setSelectedIndex(0);
+                analyzeCategoryBox.setSelected(false);
+            }
+            else
+                analyzeCategoryCombo.setSelectedIndex(indexForAnalysis);
         }
 
         categoriesContainer.revalidate();
@@ -2653,36 +2677,35 @@ public class EditorFrame extends JInternalFrame
                 medManaValue = manaValue[manaValue.length/2];
         }
         medManaValueLabel.setText("Median mana value: " + StringUtils.formatDouble(medManaValue, 1));
-        
+
         manaCurve.clear();
-        int minMV = -1, maxMV = -1;
-        if (deck().current.total() - lands > 0 && analyzeMainBox.isSelected())
+        landDrops.clear();
+        CardList analyte = analyzeCategoryBox.isSelected() ? deck().current.getCategoryList(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex())) : deck().current;
+        if (analyte.total() - lands > 0)
         {
-            minMV = (int)Math.ceil(manaValue[0]);
-            maxMV = (int)Math.ceil(manaValue[manaValue.length - 1]);
-            int curManaValue = minMV;
-            int freq = 0;
-            for (int i = 0; i <= manaValue.length; i++)
-            {
-                final int effectiveMV = i < manaValue.length ? (int)Math.ceil(manaValue[i]) : curManaValue + 1;
-
-                while (curManaValue != effectiveMV)
-                {
-                    manaCurve.addValue(freq, "Main Deck", Integer.toString(curManaValue));
-                    freq = 0;
-                    curManaValue++;
-                }
-                freq++;
-            }
-        }
-
-        for (var box : categoryAnalysisBoxes)
-        {
-            if (box.isSelected())
-            {
-                final var categoryManaValue = deck().current.getCategoryList(box.getText()).stream()
+            var sections = switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex())) {
+                case "Color"     -> List.of("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored");
+                case "Card Type" -> List.of("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
+                default -> List.of(analyzeCategoryBox.isSelected() ? analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex()) : "Main Deck"); // Also "Nothing"
+            };
+            var sectionManaValues = sections.stream().collect(Collectors.toMap(Function.identity(), (s) -> {
+                return analyte.stream()
                     .filter((c) -> !c.typeContains("land"))
-                    .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), switch (SettingsDialog.settings().editor().manaValue()) {
+                    .filter((c) -> switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex())) {
+                        case "Color" -> switch (s) {
+                            case "Colorless"    -> c.colors().size() == 0;
+                            case "White"        -> c.colors().size() == 1 && c.colors().get(0) == ManaType.WHITE;
+                            case "Blue"         -> c.colors().size() == 1 && c.colors().get(0) == ManaType.BLUE;
+                            case "Black"        -> c.colors().size() == 1 && c.colors().get(0) == ManaType.BLACK;
+                            case "Red"          -> c.colors().size() == 1 && c.colors().get(0) == ManaType.RED;
+                            case "Green"        -> c.colors().size() == 1 && c.colors().get(0) == ManaType.GREEN;
+                            case "Multicolored" -> c.colors().size() > 1;
+                            default -> true;
+                        };
+                        case "Card Type" -> c.typeContains(s) && !sections.subList(0, sections.indexOf(s)).stream().anyMatch((x) -> c.typeContains(x));
+                        default -> true; // Also "Nothing"
+                    })
+                    .flatMap((c) -> Collections.nCopies(analyte.getEntry(c).count(), switch (SettingsDialog.settings().editor().manaValue()) {
                         case "Minimum" -> c.minManaValue();
                         case "Maximum" -> c.maxManaValue();
                         case "Average" -> c.avgManaValue();
@@ -2690,44 +2713,37 @@ public class EditorFrame extends JInternalFrame
                         default -> Double.NaN;
                     }).stream())
                     .sorted()
-                    .mapToDouble(Double::doubleValue)
+                    .mapToDouble(Math::ceil)
                     .toArray();
-                
-                int curManaValue = 0;
-                int freq = 0;
-                minMV = Math.min(minMV, (int)Math.ceil(categoryManaValue[0]));
-                maxMV = Math.max(maxMV, (int)Math.ceil(categoryManaValue[categoryManaValue.length - 1]));
-                for (int i = 0; i <= categoryManaValue.length; i++)
-                {
-                    final int effectiveMV = i < categoryManaValue.length ? (int)Math.ceil(categoryManaValue[i]) : curManaValue + 1;
-
-                    while (curManaValue != effectiveMV)
-                    {
-                        manaCurve.addValue(freq, box.getText(), Integer.toString(curManaValue));
-                        freq = 0;
-                        curManaValue++;
-                    }
-                    freq++;
-                }
-            }
-        }
-
-        landDrops.clear();
-        if (minMV >= 0)
-        {
-            if (maxMV < 0)
-                throw new IllegalStateException("min mana value but no max mana value");
+            }));
+            int minMV = (int)Math.ceil(manaValue[0]);
+            int maxMV = (int)Math.ceil(manaValue[manaValue.length - 1]);
             for (int i = minMV; i <= maxMV; i++)
             {
-                double e = 0, q = 0;
-                for (int j = 0; j < i; j++)
+                for (String section : sections)
                 {
-                    double p = Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
-                    q += p;
-                    e += j*p;
+                    final double m = i;
+                    final long freq = Arrays.stream(sectionManaValues.get(section)).filter((x) -> x == m).count();
+                    manaCurve.addValue(freq, section, Integer.toString(i));
                 }
-                e += i*(1 - q);
-                landDrops.addValue(e, "Expected Land Plays", Integer.toString(i));
+            }
+
+            if (minMV >= 0)
+            {
+                if (maxMV < 0)
+                    throw new IllegalStateException("min mana value but no max mana value");
+                for (int i = minMV; i <= maxMV; i++)
+                {
+                    double e = 0, q = 0;
+                    for (int j = 0; j < i; j++)
+                    {
+                        double p = Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
+                        q += p;
+                        e += j*p;
+                    }
+                    e += i*(1 - q);
+                    landDrops.addValue(e, "Expected Land Plays", Integer.toString(i));
+                }
             }
         }
     }
