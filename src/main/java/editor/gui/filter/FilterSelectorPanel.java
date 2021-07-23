@@ -4,6 +4,7 @@ import java.awt.CardLayout;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -87,7 +88,9 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
             };
             facesLabel.setIcon(faces.getIcon(getHeight()/2));
         }));
+        add(Box.createHorizontalStrut(1));
         add(facesLabel);
+        add(Box.createHorizontalStrut(1));
 
         // Button to remove this from the form
         JButton removeButton = new JButton(String.valueOf(UnicodeSymbols.MINUS));
