@@ -52,10 +52,9 @@ public interface ComponentUtils
         JSeparator separator = new JSeparator(JSeparator.VERTICAL);
         panel.add(Box.createHorizontalStrut((width - separator.getPreferredSize().width)/2));
         panel.add(separator);
-        panel.add(Box.createHorizontalGlue());
-        panel.setPreferredSize(new Dimension(width, height));
-        if (height > 0)
-            panel.setMaximumSize(new Dimension(width, height));
+        panel.add(Box.createHorizontalStrut((width - separator.getPreferredSize().width)/2));
+        panel.setPreferredSize(new Dimension(panel.getPreferredSize().width, height));
+        panel.setMaximumSize(new Dimension(panel.getPreferredSize().width, height > 0 ? height : panel.getMaximumSize().height));
         return panel;
     }
 
