@@ -507,11 +507,13 @@ public class EditorFrame extends JInternalFrame
      * Panel containing images for the sample hand.
      */
     private ScrollablePanel imagePanel;
+    private ValueAxis landAxis;
     private DefaultCategoryDataset landDrops;
     /**
      * Label showing the total number of land cards in the deck.
      */
     private JLabel landLabel;
+    private JComboBox<String> landsBox;
     /**
      * All lists in the editor. The index into this list of a card list is that card
      * list's ID. The main deck always has ID 0, and will never be null. Other lists
@@ -868,7 +870,7 @@ public class EditorFrame extends JInternalFrame
         landRenderer.setSeriesPaint(0, Color.BLACK);
         CategoryAxis manaValueAxis = new CategoryAxis("Mana Value/Turn");
         ValueAxis frequencyAxis = new NumberAxis("Mana Value Frequency");
-        ValueAxis landAxis = new NumberAxis("Expected Land Plays");
+        landAxis = new NumberAxis("Expected Land Plays");
 
         CategoryPlot manaCurvePlot = new CategoryPlot();
         manaCurvePlot.setDataset(0, manaCurve);
@@ -906,6 +908,13 @@ public class EditorFrame extends JInternalFrame
         analyzeCategoryCombo.setEnabled(false);
         analyzeCategoryCombo.addActionListener((e) -> updateStats());
         categoryAnalysisPanel.add(analyzeCategoryCombo);
+        categoryAnalysisPanel.add(ComponentUtils.createHorizontalSeparator(10));
+        categoryAnalysisPanel.add(new JLabel("Show:"));
+        categoryAnalysisPanel.add(Box.createHorizontalStrut(2));
+        landsBox = new JComboBox<>(new String[] {"Expected lands played", "Expected lands drawn", "Probability of drawing lands"});
+        landsBox.setMaximumSize(landsBox.getPreferredSize());
+        landsBox.addActionListener((e) -> updateStats());
+        categoryAnalysisPanel.add(landsBox);
         categoryAnalysisPanel.add(Box.createHorizontalGlue());
 
         manaAnalysisPanel.add(categoryAnalysisPanel, BorderLayout.SOUTH);
@@ -2760,17 +2769,38 @@ public class EditorFrame extends JInternalFrame
             {
                 if (maxMV < 0)
                     throw new IllegalStateException("min mana value but no max mana value");
-                for (int i = minMV; i <= maxMV; i++)
+                switch (landsBox.getItemAt(landsBox.getSelectedIndex()))
                 {
-                    double e = 0, q = 0;
-                    for (int j = 0; j < i; j++)
+                case "Expected lands played":
+                    landAxis.setLabel("Expected Lands Played");
+                    for (int i = minMV; i <= maxMV; i++)
                     {
-                        double p = Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
-                        q += p;
-                        e += j*p;
+                        double e = 0, q = 0;
+                        for (int j = 0; j < i; j++)
+                        {
+                            double p = Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
+                            q += p;
+                            e += j*p;
+                        }
+                        e += i*(1 - q);
+                        landDrops.addValue(e, "Expected Lands Played", Integer.toString(i));
                     }
-                    e += i*(1 - q);
-                    landDrops.addValue(e, "Expected Land Plays", Integer.toString(i));
+                    break;
+                case "Expected lands drawn":
+                    landAxis.setLabel("Expected Lands Drawn");
+                    break;
+                case "Probability of drawing lands":
+                    landAxis.setLabel("Probability of Drawing Lands");
+                    for (int i = minMV; i <= maxMV; i++)
+                    {
+                        double q = 0;
+                        for (int j = 0; j < i; j++)
+                            q += Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
+                        landDrops.addValue(1 - q, "Probability of Drawing Lands", Integer.toString(i));
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown land drop choice " + landsBox.getItemAt(landsBox.getSelectedIndex()));
                 }
             }
         }
