@@ -2788,6 +2788,12 @@ public class EditorFrame extends JInternalFrame
                     break;
                 case "Expected lands drawn":
                     landAxis.setLabel("Expected Lands Drawn");
+                    for (int i = minMV; i <= maxMV; i++)
+                        landDrops.addValue(
+                            ((double)lands/(double)deck().current.total())*Math.min(handCalculations.handSize() + i - 1, deck().current.total()),
+                            "Expected lands Drawn",
+                            Integer.toString(i)
+                        );
                     break;
                 case "Probability of drawing lands":
                     landAxis.setLabel("Probability of Drawing Lands");
