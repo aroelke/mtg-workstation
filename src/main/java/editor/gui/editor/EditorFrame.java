@@ -2680,7 +2680,7 @@ public class EditorFrame extends JInternalFrame
             .mapToDouble(Double::doubleValue)
             .toArray();
         double avgManaValue = Arrays.stream(manaValue).average().orElse(0);
-        avgManaValueLabel.setText("Average Mana value: " + StringUtils.formatDouble(avgManaValue, 2));
+        avgManaValueLabel.setText("Average Mana Value: " + StringUtils.formatDouble(avgManaValue, 2));
 
         double medManaValue = 0.0;
         if (manaValue.length > 0)
@@ -2690,7 +2690,7 @@ public class EditorFrame extends JInternalFrame
             else
                 medManaValue = manaValue[manaValue.length/2];
         }
-        medManaValueLabel.setText("Median mana value: " + StringUtils.formatDouble(medManaValue, 1));
+        medManaValueLabel.setText("Median Mana Value: " + StringUtils.formatDouble(medManaValue, 1));
 
         manaCurve.clear();
         landDrops.clear();
