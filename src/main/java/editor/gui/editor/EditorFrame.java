@@ -229,6 +229,26 @@ public class EditorFrame extends JInternalFrame
         }
     }
 
+    private enum LandAnalysisChoice
+    {
+        PLAYED("Expected Lands Played"),
+        DRAWN("Expected Lands Drawn"),
+        PROBABILITY("Probability of Drawing Lands");
+
+        private final String name;
+
+        private LandAnalysisChoice(String n)
+        {
+            name = n;
+        }
+
+        @Override
+        public String toString()
+        {
+            return name;
+        }
+    }
+
     /**
      * Struct containing the current state of a deck, the original state of it as it was
      * loaded, and the table model and table for displaying the deck.
@@ -533,7 +553,7 @@ public class EditorFrame extends JInternalFrame
      * Label showing the total number of land cards in the deck.
      */
     private JLabel landLabel;
-    private JComboBox<String> landsBox;
+    private JComboBox<LandAnalysisChoice> landsBox;
     /**
      * All lists in the editor. The index into this list of a card list is that card
      * list's ID. The main deck always has ID 0, and will never be null. Other lists
@@ -938,7 +958,7 @@ public class EditorFrame extends JInternalFrame
         landAnalysisPanel.add(Box.createHorizontalGlue());
         landAnalysisPanel.add(new JLabel("Show:"));
         landAnalysisPanel.add(Box.createHorizontalStrut(2));
-        landsBox = new JComboBox<>(new String[] {"Expected lands played", "Expected lands drawn", "Probability of drawing lands"});
+        landsBox = new JComboBox<>(LandAnalysisChoice.values());
         landsBox.setMaximumSize(landsBox.getPreferredSize());
         landsBox.addActionListener((e) -> updateStats());
         landAnalysisPanel.add(landsBox);
@@ -2797,44 +2817,31 @@ public class EditorFrame extends JInternalFrame
             {
                 if (maxMV < 0)
                     throw new IllegalStateException("min mana value but no max mana value");
-                switch (landsBox.getItemAt(landsBox.getSelectedIndex()))
+                LandAnalysisChoice choice = landsBox.getItemAt(landsBox.getSelectedIndex());
+                landAxis.setLabel(choice.toString());
+                for (int i = minMV; i <= maxMV; i++)
                 {
-                case "Expected lands played":
-                    landAxis.setLabel("Expected Lands Played");
-                    for (int i = minMV; i <= maxMV; i++)
-                    {
-                        double e = 0, q = 0;
-                        for (int j = 0; j < i; j++)
-                        {
-                            double p = Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
-                            q += p;
-                            e += j*p;
+                    double v = switch (choice) {
+                        case PLAYED -> {
+                            double e = 0, q = 0;
+                            for (int j = 0; j < i; j++)
+                            {
+                                double p = Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
+                                q += p;
+                                e += j*p;
+                            }
+                            e += i*(1 - q);
+                            yield e;
                         }
-                        e += i*(1 - q);
-                        landDrops.addValue(e, "Expected Lands Played", Integer.toString(i));
-                    }
-                    break;
-                case "Expected lands drawn":
-                    landAxis.setLabel("Expected Lands Drawn");
-                    for (int i = minMV; i <= maxMV; i++)
-                        landDrops.addValue(
-                            ((double)lands/(double)deck().current.total())*Math.min(handCalculations.handSize() + i - 1, deck().current.total()),
-                            "Expected lands Drawn",
-                            Integer.toString(i)
-                        );
-                    break;
-                case "Probability of drawing lands":
-                    landAxis.setLabel("Probability of Drawing Lands");
-                    for (int i = minMV; i <= maxMV; i++)
-                    {
-                        double q = 0;
-                        for (int j = 0; j < i; j++)
-                            q += Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
-                        landDrops.addValue(1 - q, "Probability of Drawing Lands", Integer.toString(i));
-                    }
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown land drop choice " + landsBox.getItemAt(landsBox.getSelectedIndex()));
+                        case DRAWN -> ((double)lands/(double)deck().current.total())*Math.min(handCalculations.handSize() + i - 1, deck().current.total());
+                        case PROBABILITY -> {
+                            double q = 0;
+                            for (int j = 0; j < i; j++)
+                                q += Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
+                            yield 1 - q;
+                        }
+                    };
+                    landDrops.addValue(v, choice.toString(), Integer.toString(i));
                 }
             }
         }
