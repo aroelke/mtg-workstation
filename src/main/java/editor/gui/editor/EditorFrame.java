@@ -209,6 +209,26 @@ public class EditorFrame extends JInternalFrame
         }
     }
 
+    private enum ManaCurveSections
+    {
+        NOTHING("Nothing"),
+        COLOR("Color"),
+        TYPE("Card Type");
+
+        private final String name;
+
+        private ManaCurveSections(String n)
+        {
+            name = n;
+        }
+
+        @Override
+        public String toString()
+        {
+            return name;
+        }
+    }
+
     /**
      * Struct containing the current state of a deck, the original state of it as it was
      * loaded, and the table model and table for displaying the deck.
@@ -556,7 +576,7 @@ public class EditorFrame extends JInternalFrame
      * (but not when it is redone).
      */
     private Stack<UndoableAction<Boolean, Boolean>> redoBuffer;
-    private JComboBox<String> sectionsBox;
+    private JComboBox<ManaCurveSections> sectionsBox;
     /**
      * Combo box allowing changes to be made in the order that categories are display in.
      */
@@ -893,7 +913,7 @@ public class EditorFrame extends JInternalFrame
         Box categoryAnalysisPanel = new Box(BoxLayout.X_AXIS);
         categoryAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Mana Analysis"));
         categoryAnalysisPanel.add(Box.createHorizontalGlue());
-        sectionsBox = new JComboBox<>(new String[] {"Nothing", "Color", "Card Type"});
+        sectionsBox = new JComboBox<>(ManaCurveSections.values());
         sectionsBox.addActionListener((e) -> updateStats());
         sectionsBox.setMaximumSize(sectionsBox.getPreferredSize());
         categoryAnalysisPanel.add(new JLabel("Divide bars by:"));
@@ -2704,7 +2724,10 @@ public class EditorFrame extends JInternalFrame
         landDrops.clear();
         switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex()))
         {
-        case "Color":
+        case NOTHING:
+            manaCurveRenderer.setSeriesPaint(0, new Color(128, 128, 255));
+            break;
+        case COLOR:
             manaCurveRenderer.setSeriesPaint(0, new Color(203, 198, 193)); // Colorless (gray)
             manaCurveRenderer.setSeriesPaint(1, new Color(248, 246, 216)); // White
             manaCurveRenderer.setSeriesPaint(2, new Color(193, 215, 233)); // Blue
@@ -2713,7 +2736,7 @@ public class EditorFrame extends JInternalFrame
             manaCurveRenderer.setSeriesPaint(5, new Color(163, 192, 149)); // Green
             manaCurveRenderer.setSeriesPaint(6, new Color(204, 166, 82));  // Multicolored
             break;
-        case "Card Type":
+        case TYPE:
             manaCurveRenderer.setSeriesPaint(0, new Color(163, 192, 149)); // Creature (same as green)
             manaCurveRenderer.setSeriesPaint(1, new Color(203, 198, 193)); // Artifact (same as colorless)
             manaCurveRenderer.setSeriesPaint(2, new Color(248, 246, 216)); // Enchantment (same as white)
@@ -2721,23 +2744,21 @@ public class EditorFrame extends JInternalFrame
             manaCurveRenderer.setSeriesPaint(4, new Color(193, 215, 233)); // Instant (same as blue)
             manaCurveRenderer.setSeriesPaint(5, new Color(228, 153, 119)); // Sorcery (same as red)
             break;
-        default:
-            manaCurveRenderer.setSeriesPaint(0, new Color(128, 128, 255));
-            break;
         }
         CardList analyte = analyzeCategoryBox.isSelected() ? deck().current.getCategoryList(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex())) : deck().current;
         if (analyte.total() - lands > 0)
         {
             var sections = switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex())) {
-                case "Color"     -> List.of("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored");
-                case "Card Type" -> List.of("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
-                default -> List.of(analyzeCategoryBox.isSelected() ? analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex()) : "Main Deck"); // Also "Nothing"
+                case NOTHING -> List.of(analyzeCategoryBox.isSelected() ? analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex()) : "Main Deck");
+                case COLOR   -> List.of("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored");
+                case TYPE    -> List.of("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
             };
             var sectionManaValues = sections.stream().collect(Collectors.toMap(Function.identity(), (s) -> {
                 return analyte.stream()
                     .filter((c) -> !c.typeContains("land"))
                     .filter((c) -> switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex())) {
-                        case "Color" -> switch (s) {
+                        case NOTHING -> true;
+                        case COLOR -> switch (s) {
                             case "Colorless"    -> c.colors().size() == 0;
                             case "White"        -> c.colors().size() == 1 && c.colors().get(0) == ManaType.WHITE;
                             case "Blue"         -> c.colors().size() == 1 && c.colors().get(0) == ManaType.BLUE;
@@ -2747,8 +2768,7 @@ public class EditorFrame extends JInternalFrame
                             case "Multicolored" -> c.colors().size() > 1;
                             default -> true;
                         };
-                        case "Card Type" -> c.typeContains(s) && !sections.subList(0, sections.indexOf(s)).stream().anyMatch((x) -> c.typeContains(x));
-                        default -> true; // Also "Nothing"
+                        case TYPE -> c.typeContains(s) && !sections.subList(0, sections.indexOf(s)).stream().anyMatch((x) -> c.typeContains(x));
                     })
                     .flatMap((c) -> Collections.nCopies(analyte.getEntry(c).count(), switch (SettingsDialog.settings().editor().manaValue()) {
                         case "Minimum" -> c.minManaValue();
