@@ -888,8 +888,10 @@ public class EditorFrame extends JInternalFrame
         manaCurvePanel.setPopupMenu(null);
         manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER);
 
+        JPanel analysisConfigPanel = new JPanel(new BorderLayout());
+
         Box categoryAnalysisPanel = new Box(BoxLayout.X_AXIS);
-        categoryAnalysisPanel.setBorder(BorderFactory.createEtchedBorder());
+        categoryAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Mana Analysis"));
         categoryAnalysisPanel.add(Box.createHorizontalGlue());
         sectionsBox = new JComboBox<>(new String[] {"Nothing", "Color", "Card Type"});
         sectionsBox.addActionListener((e) -> updateStats());
@@ -908,16 +910,22 @@ public class EditorFrame extends JInternalFrame
         analyzeCategoryCombo.setEnabled(false);
         analyzeCategoryCombo.addActionListener((e) -> updateStats());
         categoryAnalysisPanel.add(analyzeCategoryCombo);
-        categoryAnalysisPanel.add(ComponentUtils.createHorizontalSeparator(10));
-        categoryAnalysisPanel.add(new JLabel("Show:"));
-        categoryAnalysisPanel.add(Box.createHorizontalStrut(2));
+        categoryAnalysisPanel.add(Box.createHorizontalGlue());
+        analysisConfigPanel.add(categoryAnalysisPanel, BorderLayout.NORTH);
+
+        Box landAnalysisPanel = new Box(BoxLayout.X_AXIS);
+        landAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Land Analysis"));
+        landAnalysisPanel.add(Box.createHorizontalGlue());
+        landAnalysisPanel.add(new JLabel("Show:"));
+        landAnalysisPanel.add(Box.createHorizontalStrut(2));
         landsBox = new JComboBox<>(new String[] {"Expected lands played", "Expected lands drawn", "Probability of drawing lands"});
         landsBox.setMaximumSize(landsBox.getPreferredSize());
         landsBox.addActionListener((e) -> updateStats());
-        categoryAnalysisPanel.add(landsBox);
-        categoryAnalysisPanel.add(Box.createHorizontalGlue());
+        landAnalysisPanel.add(landsBox);
+        landAnalysisPanel.add(Box.createHorizontalGlue());
+        analysisConfigPanel.add(landAnalysisPanel, BorderLayout.SOUTH);
 
-        manaAnalysisPanel.add(categoryAnalysisPanel, BorderLayout.SOUTH);
+        manaAnalysisPanel.add(analysisConfigPanel, BorderLayout.SOUTH);
 
         listTabs.addTab("Mana Analysis", manaAnalysisPanel);
 
