@@ -209,14 +209,26 @@ public class EditorFrame extends JInternalFrame
         }
     }
 
+    /**
+     * Enum containing ways to divide the mana curve histogram bars.
+     */
     private enum ManaCurveSections
     {
+        /** Don't divide them. */
         NOTHING("Nothing"),
+        /** Divide them by color. */
         COLOR("Color"),
+        /** Divide them by card type. */
         TYPE("Card Type");
 
+        /** String to show in the combo box for choosing the option. */
         private final String name;
 
+        /**
+         * Create a new mana curve division option.
+         * 
+         * @param n name of the option
+         */
         private ManaCurveSections(String n)
         {
             name = n;
@@ -229,14 +241,26 @@ public class EditorFrame extends JInternalFrame
         }
     }
 
+    /**
+     * Enum containing ways that land count can be analyzed.
+     */
     private enum LandAnalysisChoice
     {
+        /** Show the expected number of lands played by a given turn. */
         PLAYED("Expected Lands Played"),
+        /** Show the expected number of lands drawn by a given turn. */
         DRAWN("Expected Lands Drawn"),
+        /** Show the probability of drawing a given number of lands by that turn. */
         PROBABILITY("Probability of Drawing Lands");
 
+        /** String to show in the combo box and right Y-axis of the chart for the option. */
         private final String name;
 
+        /**
+         * Create a new land analysis option.
+         * 
+         * @param n name of the option
+         */
         private LandAnalysisChoice(String n)
         {
             name = n;
@@ -500,7 +524,13 @@ public class EditorFrame extends JInternalFrame
      */
     public static final int MAIN_DECK = 0;
 
+    /**
+     * Check box indicating whether the mana curve is for the whole deck (unselected) or just a category (selected).
+     */
     private JCheckBox analyzeCategoryBox;
+    /**
+     * Combo box choosing which category to analyze if {@link analyzeCategoryBox} is selected.
+     */
     private JComboBox<String> analyzeCategoryCombo;
     /**
      * Label showing the average mana value of nonland cards in the deck.
@@ -547,12 +577,21 @@ public class EditorFrame extends JInternalFrame
      * Panel containing images for the sample hand.
      */
     private ScrollablePanel imagePanel;
+    /**
+     * Vertical axis of the mana curve tab showing the land analysis.
+     */
     private ValueAxis landAxis;
+    /**
+     * Dataset containing the land analysis data.
+     */
     private DefaultCategoryDataset landDrops;
     /**
      * Label showing the total number of land cards in the deck.
      */
     private JLabel landLabel;
+    /**
+     * Combo box choosing how to analyze the land count in the deck.
+     */
     private JComboBox<LandAnalysisChoice> landsBox;
     /**
      * All lists in the editor. The index into this list of a card list is that card
@@ -565,7 +604,13 @@ public class EditorFrame extends JInternalFrame
      * Tabbed pane for choosing whether to display the entire deck or the categories.
      */
     private JTabbedPane listTabs;
+    /**
+     * Dataset containing the mana curve analysis data.
+     */
     private DefaultCategoryDataset manaCurve;
+    /**
+     * Renderer for displaying mana curve analysis.
+     */
     private StackedBarRenderer manaCurveRenderer;
     /**
      * Label showing the median mana value of nonland cards in the deck.
@@ -596,6 +641,9 @@ public class EditorFrame extends JInternalFrame
      * (but not when it is redone).
      */
     private Stack<UndoableAction<Boolean, Boolean>> redoBuffer;
+    /**
+     * Combo box showing how to divide the mana curve histogram bars, if at all.
+     */
     private JComboBox<ManaCurveSections> sectionsBox;
     /**
      * Combo box allowing changes to be made in the order that categories are display in.
@@ -896,6 +944,7 @@ public class EditorFrame extends JInternalFrame
         /* MANA ANALYSIS TAB */
         JPanel manaAnalysisPanel = new JPanel(new BorderLayout());
 
+        // Data set and axis creation
         manaCurve = new DefaultCategoryDataset();
         landDrops = new DefaultCategoryDataset();
         manaCurveRenderer = new StackedBarRenderer();
@@ -912,6 +961,7 @@ public class EditorFrame extends JInternalFrame
         ValueAxis frequencyAxis = new NumberAxis("Mana Value Frequency");
         landAxis = new NumberAxis("Expected Land Plays");
 
+        // Plot creation
         CategoryPlot manaCurvePlot = new CategoryPlot();
         manaCurvePlot.setDataset(0, manaCurve);
         manaCurvePlot.setDataset(1, landDrops);
@@ -922,12 +972,12 @@ public class EditorFrame extends JInternalFrame
         manaCurvePlot.mapDatasetToRangeAxis(1, 1);
         manaCurvePlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
         manaCurvePlot.setRangeGridlinesVisible(false);
-
         var manaCurveChart = new JFreeChart("Mana Curve", JFreeChart.DEFAULT_TITLE_FONT, manaCurvePlot, true);
         ChartPanel manaCurvePanel = new ChartPanel(manaCurveChart);
         manaCurvePanel.setPopupMenu(null);
         manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER);
 
+        // Analysis settings panel (how to divide bar graph and what land analysis to show)
         JPanel analysisConfigPanel = new JPanel(new BorderLayout());
 
         Box categoryAnalysisPanel = new Box(BoxLayout.X_AXIS);
