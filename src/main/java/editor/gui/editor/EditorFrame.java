@@ -594,6 +594,10 @@ public class EditorFrame extends JInternalFrame
      */
     private JComboBox<LandAnalysisChoice> landsBox;
     /**
+     * Renderer for showing the land analysis line.
+     */
+    private LineAndShapeRenderer landRenderer;
+    /**
      * All lists in the editor. The index into this list of a card list is that card
      * list's ID. The main deck always has ID 0, and will never be null. Other lists
      * will have IDs starting from 1, and any empty spots will be indicated with a null
@@ -953,10 +957,10 @@ public class EditorFrame extends JInternalFrame
         manaCurveRenderer.setDrawBarOutline(true);
         manaCurveRenderer.setDefaultOutlinePaint(Color.BLACK);
         manaCurveRenderer.setShadowVisible(false);
-        LineAndShapeRenderer landRenderer = new LineAndShapeRenderer();
+        landRenderer = new LineAndShapeRenderer();
         landRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
         landRenderer.setDefaultItemLabelsVisible(true);
-        landRenderer.setSeriesPaint(0, Color.BLACK);
+        landRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().line());
         CategoryAxis manaValueAxis = new CategoryAxis("Mana Value/Turn");
         ValueAxis frequencyAxis = new NumberAxis("Mana Value Frequency");
         landAxis = new NumberAxis("Expected Land Plays");
@@ -1350,6 +1354,7 @@ public class EditorFrame extends JInternalFrame
             category.applySettings(this);
         startingHandSize = SettingsDialog.settings().editor().hand().size();
         updateStats();
+        landRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().line());
         update();
     }
 
