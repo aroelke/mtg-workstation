@@ -2795,24 +2795,24 @@ public class EditorFrame extends JInternalFrame
         switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex()))
         {
         case NOTHING:
-            manaCurveRenderer.setSeriesPaint(0, new Color(128, 128, 255));
+            manaCurveRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().none());
             break;
         case COLOR:
-            manaCurveRenderer.setSeriesPaint(0, new Color(203, 198, 193)); // Colorless (gray)
-            manaCurveRenderer.setSeriesPaint(1, new Color(248, 246, 216)); // White
-            manaCurveRenderer.setSeriesPaint(2, new Color(193, 215, 233)); // Blue
-            manaCurveRenderer.setSeriesPaint(3, new Color(186, 177, 171)); // Black
-            manaCurveRenderer.setSeriesPaint(4, new Color(228, 153, 119)); // Red
-            manaCurveRenderer.setSeriesPaint(5, new Color(163, 192, 149)); // Green
-            manaCurveRenderer.setSeriesPaint(6, new Color(204, 166, 82));  // Multicolored
+            manaCurveRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().colorless());
+            manaCurveRenderer.setSeriesPaint(1, SettingsDialog.settings().editor().manaAnalysis().white());
+            manaCurveRenderer.setSeriesPaint(2, SettingsDialog.settings().editor().manaAnalysis().blue());
+            manaCurveRenderer.setSeriesPaint(3, SettingsDialog.settings().editor().manaAnalysis().black());
+            manaCurveRenderer.setSeriesPaint(4, SettingsDialog.settings().editor().manaAnalysis().red());
+            manaCurveRenderer.setSeriesPaint(5, SettingsDialog.settings().editor().manaAnalysis().green());
+            manaCurveRenderer.setSeriesPaint(6, SettingsDialog.settings().editor().manaAnalysis().multi());
             break;
         case TYPE:
-            manaCurveRenderer.setSeriesPaint(0, new Color(163, 192, 149)); // Creature (same as green)
-            manaCurveRenderer.setSeriesPaint(1, new Color(203, 198, 193)); // Artifact (same as colorless)
-            manaCurveRenderer.setSeriesPaint(2, new Color(248, 246, 216)); // Enchantment (same as white)
-            manaCurveRenderer.setSeriesPaint(3, new Color(215, 181, 215)); // Planeswalker (purple)
-            manaCurveRenderer.setSeriesPaint(4, new Color(193, 215, 233)); // Instant (same as blue)
-            manaCurveRenderer.setSeriesPaint(5, new Color(228, 153, 119)); // Sorcery (same as red)
+            manaCurveRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().creature());
+            manaCurveRenderer.setSeriesPaint(1, SettingsDialog.settings().editor().manaAnalysis().artifact());
+            manaCurveRenderer.setSeriesPaint(2, SettingsDialog.settings().editor().manaAnalysis().enchantment());
+            manaCurveRenderer.setSeriesPaint(3, SettingsDialog.settings().editor().manaAnalysis().planeswalker());
+            manaCurveRenderer.setSeriesPaint(4, SettingsDialog.settings().editor().manaAnalysis().instant());
+            manaCurveRenderer.setSeriesPaint(5, SettingsDialog.settings().editor().manaAnalysis().sorcery());
             break;
         }
         CardList analyte = analyzeCategoryBox.isSelected() ? deck().current.getCategoryList(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex())) : deck().current;

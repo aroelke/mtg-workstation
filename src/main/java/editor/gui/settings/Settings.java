@@ -131,7 +131,8 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
         HandSettings hand,
         LegalitySettings legality,
         String manaValue,
-        Set<CardLayout> backFaceLands)
+        Set<CardLayout> backFaceLands,
+        ManaAnalysisSettings manaAnalysis)
     {
         /**
          * Sub-structure containing information about recently-edited files.
@@ -198,6 +199,22 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
             }
         }
 
+        public record ManaAnalysisSettings(Color none,
+                                           Color colorless, Color white, Color blue, Color black, Color red, Color green, Color multi,
+                                           Color creature, Color artifact, Color enchantment, Color planeswalker, Color instant, Color sorcery,
+                                           Color line)
+        {
+            private ManaAnalysisSettings()
+            {
+                this(
+                    new Color(128, 128, 255),
+                    new Color(203, 198, 193), new Color(248, 246, 216), new Color(193, 215, 233), new Color(186, 177, 171), new Color(228, 153, 119), new Color(163, 192, 149), new Color(204, 166, 82),
+                    new Color(163, 192, 149), new Color(203, 198, 193), new Color(248, 246, 216), new Color(215, 181, 215), new Color(193, 215, 233), new Color(228, 153, 119),
+                    Color.BLACK
+                );
+            }
+        }
+
         private EditorSettings(int recentsCount, List<String> recentsFiles,
                                int explicits,
                                List<Category> presetCategories, int categoryRows,
@@ -205,7 +222,11 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                                int handSize, String handRounding, Color handBackground,
                                boolean searchForCommander, boolean main, boolean all, String list, String sideboard,
                                String manaValue,
-                               Set<CardLayout> backFaceLands)
+                               Set<CardLayout> backFaceLands,
+                               Color none,
+                               Color colorless, Color white, Color blue, Color black, Color red, Color green, Color multi,
+                               Color creature, Color artifact, Color enchantment, Color planeswalker, Color instant, Color sorcery,
+                               Color line)
         {
             this(
                 new RecentsSettings(recentsCount, recentsFiles),
@@ -215,7 +236,13 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                 new HandSettings(handSize, handRounding, handBackground),
                 new LegalitySettings(searchForCommander, main, all, list, sideboard),
                 manaValue,
-                backFaceLands
+                backFaceLands,
+                new ManaAnalysisSettings(
+                    none,
+                    colorless, white, blue, black, red, green, multi,
+                    creature, artifact, enchantment, planeswalker, instant, sorcery,
+                    line
+                )
             );
         }
 
@@ -229,16 +256,17 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                 new HandSettings(),
                 new LegalitySettings(),
                 "Minimum",
-                Set.of(CardLayout.MODAL_DFC)
+                Set.of(CardLayout.MODAL_DFC),
+                new ManaAnalysisSettings()
             );
         }
     }
 
-    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<Category> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, Set<CardLayout> backFaceLands, String cwd)
+    protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<Category> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, Set<CardLayout> backFaceLands, String cwd, Color none, Color colorless, Color white, Color blue, Color black, Color red, Color green, Color multi, Color creature, Color artifact, Color enchantment, Color planeswalker, Color instant, Color sorcery, Color line)
     {
         this(
             new InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe),
-            new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard, manaValue, backFaceLands),
+            new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard, manaValue, backFaceLands, none, colorless, white, blue, black, red, green, multi, creature, artifact, enchantment, planeswalker, instant, sorcery, line),
             cwd
         );
     }

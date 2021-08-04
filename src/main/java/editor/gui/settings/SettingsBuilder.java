@@ -54,6 +54,10 @@ public class SettingsBuilder
     private String manaValue;
     private Set<CardLayout> backFaceLands;
     private String cwd;
+    private Color none;
+    private Color colorless, white, blue, black, red, green, multi;
+    private Color creature, artifact, enchantment, planeswalker, instant, sorcery;
+    private Color line;
 
     /**
      * Create a new SettingsBuilder with nothing set.
@@ -112,7 +116,11 @@ public class SettingsBuilder
             sideboard,
             manaValue,
             backFaceLands,
-            cwd
+            cwd,
+            none,
+            colorless, white, blue, black, red, green, multi,
+            creature, artifact, enchantment, planeswalker, instant, sorcery,
+            line
         );
     }
 
@@ -157,6 +165,21 @@ public class SettingsBuilder
         manaValue = original.editor().manaValue();
         backFaceLands = original.editor().backFaceLands();
         cwd = original.cwd();
+        none = original.editor().manaAnalysis().none();
+        colorless = original.editor().manaAnalysis().colorless();
+        white = original.editor().manaAnalysis().white();
+        blue = original.editor().manaAnalysis().blue();
+        black = original.editor().manaAnalysis().black();
+        red = original.editor().manaAnalysis().red();
+        green = original.editor().manaAnalysis().green();
+        multi = original.editor().manaAnalysis().multi();
+        creature = original.editor().manaAnalysis().creature();
+        artifact = original.editor().manaAnalysis().artifact();
+        enchantment = original.editor().manaAnalysis().enchantment();
+        planeswalker = original.editor().manaAnalysis().planeswalker();
+        instant = original.editor().manaAnalysis().instant();
+        sorcery = original.editor().manaAnalysis().sorcery();
+        line = original.editor().manaAnalysis().line();
 
         return this;
     }
@@ -205,6 +228,21 @@ public class SettingsBuilder
      * <li>{@link Settings.EditorSettings#manaValue}: <code>"Minimum"</code>
      * <li>{@link Settings.EditorSettings#backFaceLands}: [{@link CardLayout#MODAL_DFC}]
      * <li>{@link Settings#cwd}: <code>$HOME</code>
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#none()}: <code>#8080ff</code> (light blue)
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#colorless()}: <code>#cbc6c1</code> (gray)
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#white()}: <code>#f8f6d8</code>
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#blue()}: <code>#c1d7e9</code>
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#black()}: <code>#bab1ab</code>
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#red()}: <code>#e49977</code>
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#green()}: <code>#a3bf95</code>
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#multi()}: <code>#cca552</code> (gold)
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#creature()}: <code>#a3bf95</code> (same as green)
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#artifact()}: <code>#cbc6c1</code> (same as colorless)
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#enchantment()}: <code>#f8f6d8</code> (same as white)
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#planeswalker()}: <code>#d6b4d6</code> (purple)
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#instant()}: <code>#c1d7e9</code> (same as blue)
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#sorcery()}: <code>#e49977</code> (same as red)
+     * <li>{@link Settings.EditorSettings.ManaAnalysisSettings#line()}: black
      * </ul>
      * 
      * @return this SettingsBuilder
@@ -713,6 +751,201 @@ public class SettingsBuilder
     public SettingsBuilder cwd(String dir)
     {
         cwd = dir;
+        return this;
+    }
+
+    /**
+     * Change the color to display on mana curve bars with no divisions.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#none
+     */
+    public SettingsBuilder none(Color c)
+    {
+        none = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the colorless section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#colorless
+     */
+    public SettingsBuilder colorless(Color c)
+    {
+        colorless = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the white section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#white
+     */
+    public SettingsBuilder white(Color c)
+    {
+        white = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the blue section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#blue
+     */
+    public SettingsBuilder blue(Color c)
+    {
+        blue = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the black secton of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#black
+     */
+    public SettingsBuilder black(Color c)
+    {
+        black = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the red section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#red
+     */
+    public SettingsBuilder red(Color c)
+    {
+        red = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the green section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#green
+     */
+    public SettingsBuilder green(Color c)
+    {
+        green = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the multicolored section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#multi
+     */
+    public SettingsBuilder multi(Color c)
+    {
+        multi = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the creature section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#creature
+     */
+    public SettingsBuilder creature(Color c)
+    {
+        creature = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the artifact section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#artifact
+     */
+    public SettingsBuilder artifact(Color c)
+    {
+        artifact = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the enchantment section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#enchantment
+     */
+    public SettingsBuilder enchantment(Color c)
+    {
+        enchantment = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the planeswalker section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#planeswalker
+     */
+    public SettingsBuilder planeswalker(Color c)
+    {
+        planeswalker = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the instant section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#instant
+     */
+    public SettingsBuilder instant(Color c)
+    {
+        instant = c;
+        return this;
+    }
+
+    /**
+     * Change the color to display on the sorcery section of mana curve bars.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#sorcery
+     */
+    public SettingsBuilder sorcery(Color c)
+    {
+        sorcery = c;
+        return this;
+    }
+
+    /**
+     * Change the color of the land analysis line.
+     * 
+     * @param c new color
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings#line
+     */
+    public SettingsBuilder line(Color c)
+    {
+        line = c;
         return this;
     }
 }
