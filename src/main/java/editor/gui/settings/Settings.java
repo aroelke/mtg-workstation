@@ -213,6 +213,27 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                     Color.BLACK
                 );
             }
+
+            public Color get(String key)
+            {
+                return switch (key.toLowerCase()) {
+                    case "none", "nothing" -> none;
+                    case "colorless", "c" -> colorless;
+                    case "white", "w" -> white;
+                    case "blue", "u" -> blue;
+                    case "black", "b" -> black;
+                    case "red", "r" -> red;
+                    case "green", "g" -> green;
+                    case "multicolored", "multi", "m" -> multi;
+                    case "creature" -> creature;
+                    case "artifact" -> artifact;
+                    case "enchantment" -> enchantment;
+                    case "planeswalker" -> planeswalker;
+                    case "instant" -> instant;
+                    case "sorcery" -> sorcery;
+                    default -> throw new IllegalArgumentException("unknown section " + key);
+                };
+            }
         }
 
         private EditorSettings(int recentsCount, List<String> recentsFiles,
