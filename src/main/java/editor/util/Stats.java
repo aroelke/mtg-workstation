@@ -1,38 +1,38 @@
 package editor.util;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 public interface Stats
 {
 
     /**
-     * Calculate the exact value of n!, as long as it will fit into a double.
-     *
      * @param n parameter for factorial
      * @return the factorial of n, or n!
      */
-    static double factorial(int n)
+    static BigInteger factorial(int n)
     {
-        double f = 1.0;
+        BigInteger f = BigInteger.ONE;
         for (int i = 1; i <= n; i++)
-            f *= i;
+            f = f.multiply(BigInteger.valueOf(i));
         return f;
     }
 
     /**
-     * Calculate n choose k based on the {@link factorial}
-     * function.
+     * Calculate n choose k based on the {@link factorial} function.
      *
      * @param n number of items to choose from
      * @param k number of items to choose
      * @return the number of ways to choose k out of n items.
      */
-    static double nchoosek(int n, int k)
+    static BigDecimal nchoosek(int n, int k)
     {
         if (k == 0)
-            return 1;
+            return BigDecimal.ONE;
         else if (n == 0)
-            return 0;
+            return BigDecimal.ZERO;
         else
-            return factorial(n)/(factorial(n - k)*factorial(k));
+            return new BigDecimal(factorial(n)).divide(new BigDecimal((factorial(n - k).multiply(factorial(k)))));
     }
 
     /**
@@ -52,7 +52,7 @@ public interface Stats
         if (hand - (total - count) > n)
             return 0;
         else
-            return nchoosek(count, n)*nchoosek(total - count, hand - n)/nchoosek(total, hand);
+            return nchoosek(count, n).multiply(nchoosek(total - count, hand - n)).divide(nchoosek(total, hand)).doubleValue();
     }
     
 }
