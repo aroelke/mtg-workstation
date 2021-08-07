@@ -51,7 +51,6 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -348,6 +347,8 @@ public class SettingsDialog extends JDialog
     private String[] sections;
     /** Color choosers for changing the colors of the bar sections. */
     private Map<String, JColorChooser> sectionChoosers;
+    /** Color chooser for the land analysis line. */
+    private JColorChooser landLineChooser;
 
     /**
      * Create a new SettingsDialog.
@@ -819,7 +820,7 @@ public class SettingsDialog extends JDialog
         // Land analysis line color
         JPanel landAnalysisLinePanel = new JPanel(new BorderLayout());
         landAnalysisLinePanel.setBorder(BorderFactory.createTitledBorder("Land Analysis Line"));
-        JColorChooser landLineChooser = new JColorChooser();
+        landLineChooser = new JColorChooser();
         landAnalysisLinePanel.add(landLineChooser, BorderLayout.CENTER);
         manaAnalysisPanel.add(landAnalysisLinePanel);
 
@@ -971,6 +972,7 @@ public class SettingsDialog extends JDialog
                 }
                 for (String section : sections)
                     sectionChoosers.get(section).setColor(settings().editor().manaAnalysis().get(section));
+                landLineChooser.setColor(settings().editor().manaAnalysis().line());
             }
         });
     }
@@ -1021,6 +1023,7 @@ public class SettingsDialog extends JDialog
                 .commanderInList(cmdrListName.getText())
                 .sideboardName(sideCheck.isSelected() ? sideField.getText() : "")
                 .sections(sectionChoosers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getColor())))
+                .line(landLineChooser.getColor())
                 .build();
         }
         catch (ParseException e)
