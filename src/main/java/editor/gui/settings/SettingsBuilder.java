@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -946,6 +947,66 @@ public class SettingsBuilder
     public SettingsBuilder line(Color c)
     {
         line = c;
+        return this;
+    }
+
+    /**
+     * Change the color of multiple bar sections at once.
+     * 
+     * @param c mapping of sections onto new colors
+     * @return this SettingsBuilder
+     * @see Settings.EditorSettings.ManaAnalysisSettings
+     */
+    public SettingsBuilder sections(Map<String, Color> c)
+    {
+        for (var e : c.entrySet())
+        {
+            switch (e.getKey().toLowerCase())
+            {
+            case "none", "nothing":
+                none(e.getValue());
+                break;
+            case "colorless", "c":
+                colorless(e.getValue());
+                break;
+            case "white", "w":
+                white(e.getValue());
+                break;
+            case "blue", "u":
+                blue(e.getValue());
+                break;
+            case "black", "b":
+                black(e.getValue());
+                break;
+            case "red", "r":
+                red(e.getValue());
+                break;
+            case "green", "g":
+                green(e.getValue());
+                break;
+            case "multicolored", "multi", "m":
+                multi(e.getValue());
+                break;
+            case "creature":
+                creature(e.getValue());
+                break;
+            case "artifact":
+                artifact(e.getValue());
+                break;
+            case "enchantment":
+                enchantment(e.getValue());
+                break;
+            case "planeswalker":
+                planeswalker(e.getValue());
+                break;
+            case "instant":
+                instant(e.getValue());
+                break;
+            case "sorcery":
+                sorcery(e.getValue());
+                break;
+            }
+        }
         return this;
     }
 }

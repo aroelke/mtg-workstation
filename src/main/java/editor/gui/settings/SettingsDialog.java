@@ -343,6 +343,10 @@ public class SettingsDialog extends JDialog
     private JComboBox<String> manaValueBox;
     /** Check boxes indicating which layouts to count as lands if their back faces are lands. */
     private List<JCheckBox> landsCheckBoxes;
+    /** Sections for dividing analysis bars. */
+    private String[] sections;
+    /** Color choosers for changing the colors of the bar sections. */
+    private Map<String, JColorChooser> sectionChoosers;
 
     /**
      * Create a new SettingsDialog.
@@ -761,12 +765,12 @@ public class SettingsDialog extends JDialog
         settingsPanel.add(manaAnalysisScroll, new TreePath(manaAnalysisNode.getPath()).toString());
 
         // Mana analysis section selector
-        var sections = new String[] {
+        sections = new String[] {
             "Nothing",
             "Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored",
             "Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"
         };
-        var sectionChoosers = Arrays.stream(sections).collect(Collectors.toMap(Function.identity(), (c) -> new JColorChooser()));
+        sectionChoosers = Arrays.stream(sections).collect(Collectors.toMap(Function.identity(), (c) -> new JColorChooser()));
 
         Box manaAnalysisSectionPanel = Box.createHorizontalBox();
         manaAnalysisSectionPanel.add(new JLabel("Color for plot section:"));
@@ -1005,6 +1009,7 @@ public class SettingsDialog extends JDialog
                 .commanderInAll(cmdrAllLists.isSelected())
                 .commanderInList(cmdrListName.getText())
                 .sideboardName(sideCheck.isSelected() ? sideField.getText() : "")
+                .sections(sectionChoosers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getColor())))
                 .build();
         }
         catch (ParseException e)
