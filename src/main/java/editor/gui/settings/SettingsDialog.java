@@ -51,6 +51,7 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -761,10 +762,12 @@ public class SettingsDialog extends JDialog
         ScrollablePanel manaAnalysisPanel = new ScrollablePanel(ScrollablePanel.TRACK_WIDTH);
         manaAnalysisPanel.setLayout(new BoxLayout(manaAnalysisPanel, BoxLayout.Y_AXIS));
         JScrollPane manaAnalysisScroll = new JScrollPane(manaAnalysisPanel);
-        manaAnalysisScroll.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 0));
+        manaAnalysisScroll.setBorder(BorderFactory.createEmptyBorder());
         settingsPanel.add(manaAnalysisScroll, new TreePath(manaAnalysisNode.getPath()).toString());
 
-        // Mana analysis section selector
+        // Mana analysis section color selector
+        Box manaAnalysisColorPanel = Box.createVerticalBox();
+        manaAnalysisColorPanel.setBorder(BorderFactory.createTitledBorder("Plot Sections"));
         sections = new String[] {
             "Nothing",
             "Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored",
@@ -773,7 +776,7 @@ public class SettingsDialog extends JDialog
         sectionChoosers = Arrays.stream(sections).collect(Collectors.toMap(Function.identity(), (c) -> new JColorChooser()));
 
         Box manaAnalysisSectionPanel = Box.createHorizontalBox();
-        manaAnalysisSectionPanel.add(new JLabel("Color for plot section:"));
+        manaAnalysisSectionPanel.add(new JLabel("Color for:"));
         manaAnalysisSectionPanel.add(Box.createHorizontalStrut(2));
         var sectionsBox = new JComboBox<>(sections);
         var original = sectionsBox.getRenderer();
@@ -803,14 +806,22 @@ public class SettingsDialog extends JDialog
         sectionsBox.setMaximumSize(sectionsBox.getPreferredSize());
         manaAnalysisSectionPanel.add(sectionsBox);
         manaAnalysisSectionPanel.add(Box.createHorizontalGlue());
-        manaAnalysisPanel.add(manaAnalysisSectionPanel);
+        manaAnalysisColorPanel.add(manaAnalysisSectionPanel);
 
         CardLayout chooserLayout = new CardLayout();
         JPanel sectionChooserPanel = new JPanel(chooserLayout);
         for (String section : sections)
             sectionChooserPanel.add(sectionChoosers.get(section), section);
         sectionsBox.addItemListener((e) -> chooserLayout.show(sectionChooserPanel, sectionsBox.getItemAt(sectionsBox.getSelectedIndex())));
-        manaAnalysisPanel.add(sectionChooserPanel);
+        manaAnalysisColorPanel.add(sectionChooserPanel);
+        manaAnalysisPanel.add(manaAnalysisColorPanel);
+
+        // Land analysis line color
+        JPanel landAnalysisLinePanel = new JPanel(new BorderLayout());
+        landAnalysisLinePanel.setBorder(BorderFactory.createTitledBorder("Land Analysis Line"));
+        JColorChooser landLineChooser = new JColorChooser();
+        landAnalysisLinePanel.add(landLineChooser, BorderLayout.CENTER);
+        manaAnalysisPanel.add(landAnalysisLinePanel);
 
         // Default options for legality panel
         Box legalityDefaultsBox = Box.createHorizontalBox();
