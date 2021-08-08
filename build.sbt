@@ -1,3 +1,5 @@
+name := "mtg-workstation"
+
 scalaVersion := "3.0.1"
 libraryDependencies ++= Seq(
     "com.google.code.gson" % "gson" % "2.8.5",
