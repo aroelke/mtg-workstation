@@ -31,7 +31,7 @@ public enum FaceSearchOptions
         ImageIcon img;
         try
         {
-            img = new ImageIcon(ImageIO.read(getClass().getResourceAsStream("/images/faces/" + toString() + ".png")));
+            img = new ImageIcon(ImageIO.read(getClass().getResourceAsStream("/images/faces/" + toString().toLowerCase() + ".png")));
         }
         catch (IOException e)
         {
