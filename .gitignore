@@ -5,6 +5,7 @@
 .settings/
 .bloop/
 .metals/
+.bsp/
 target/
 project/project/
 /*.exe
