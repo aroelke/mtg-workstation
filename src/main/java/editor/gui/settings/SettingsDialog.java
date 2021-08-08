@@ -64,8 +64,10 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.chart.renderer.category.StackedBarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -914,6 +916,23 @@ public class SettingsDialog extends JDialog
         landLineChooser = new JColorChooser();
         landAnalysisLinePanel.add(landLineChooser, BorderLayout.CENTER);
         manaAnalysisPanel.add(landAnalysisLinePanel);
+
+        DefaultCategoryDataset lineDataset = new DefaultCategoryDataset();
+        lineDataset.addValue(0.15, "Lands", "1");
+        lineDataset.addValue(0.95, "Lands", "2");
+        lineDataset.addValue(1.35, "Lands", "3");
+        LineAndShapeRenderer lineRenderer = new LineAndShapeRenderer();
+        lineRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+        lineRenderer.setDefaultItemLabelsVisible(true);
+        landLineChooser.getSelectionModel().addChangeListener((e) -> lineRenderer.setSeriesPaint(0, landLineChooser.getColor()));
+        CategoryAxis lineX = new CategoryAxis();
+        ValueAxis lineY = new NumberAxis();
+        CategoryPlot linePlot = new CategoryPlot(lineDataset, lineX, lineY, lineRenderer);
+        linePlot.setRangeGridlinesVisible(false);
+        var nothingChart = new JFreeChart("", JFreeChart.DEFAULT_TITLE_FONT, linePlot, true);
+        ChartPanel linePanel = new ChartPanel(nothingChart);
+        linePanel.setPreferredSize(new Dimension(landLineChooser.getPreviewPanel().getPreferredSize().width, landLineChooser.getPreviewPanel().getPreferredSize().height*5/2));
+        landLineChooser.setPreviewPanel(linePanel);
 
         // Default options for legality panel
         Box legalityDefaultsBox = Box.createHorizontalBox();
