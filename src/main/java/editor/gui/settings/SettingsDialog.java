@@ -59,6 +59,17 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StackedBarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import editor.collection.deck.Category;
 import editor.database.FormatConstraints;
 import editor.database.attributes.CardAttribute;
@@ -70,6 +81,7 @@ import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
 import editor.gui.editor.CalculateHandPanel;
 import editor.gui.editor.CategoryEditorPanel;
+import editor.gui.generic.ComponentUtils;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.VerticalButtonList;
 import editor.util.UnicodeSymbols;
@@ -775,6 +787,85 @@ public class SettingsDialog extends JDialog
             "Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"
         };
         sectionChoosers = Arrays.stream(sections).collect(Collectors.toMap(Function.identity(), (c) -> new JColorChooser()));
+        for (JColorChooser chooser : sectionChoosers.values())
+        {
+            JPanel preview = new JPanel(new GridLayout(1, 3));
+
+            DefaultCategoryDataset nothingDataset = new DefaultCategoryDataset();
+            nothingDataset.addValue(3, "Nothing", "2");
+            nothingDataset.addValue(6, "Nothing", "3");
+            nothingDataset.addValue(4, "Nothing", "4");
+            BarRenderer nothingRenderer = new BarRenderer();
+            nothingRenderer.setBarPainter(new StandardBarPainter());
+            nothingRenderer.setDrawBarOutline(true);
+            nothingRenderer.setDefaultOutlinePaint(Color.BLACK);
+            nothingRenderer.setShadowVisible(false);
+            sectionChoosers.get("Nothing").getSelectionModel().addChangeListener((e) -> nothingRenderer.setSeriesPaint(0, sectionChoosers.get("Nothing").getColor()));
+            CategoryAxis nothingX = new CategoryAxis();
+            ValueAxis nothingY = new NumberAxis();
+            CategoryPlot nothingPlot = new CategoryPlot(nothingDataset, nothingX, nothingY, nothingRenderer);
+            nothingPlot.setRangeGridlinesVisible(false);
+            var nothingChart = new JFreeChart("Nothing", JFreeChart.DEFAULT_TITLE_FONT, nothingPlot, true);
+            ChartPanel nothingPanel = new ChartPanel(nothingChart);
+            preview.add(nothingPanel);
+
+            DefaultCategoryDataset colorsDataset = new DefaultCategoryDataset();
+            colorsDataset.addValue(1, "Colorless", "2");
+            colorsDataset.addValue(2, "White", "2");
+            colorsDataset.addValue(2, "Blue", "3");
+            colorsDataset.addValue(2, "Black", "3");
+            colorsDataset.addValue(2, "Red", "3");
+            colorsDataset.addValue(3, "Green", "4");
+            colorsDataset.addValue(1, "Multicolored", "4");
+            StackedBarRenderer colorsRenderer = new StackedBarRenderer();
+            colorsRenderer.setBarPainter(new StandardBarPainter());
+            colorsRenderer.setDrawBarOutline(true);
+            colorsRenderer.setDefaultOutlinePaint(Color.BLACK);
+            colorsRenderer.setShadowVisible(false);
+            sectionChoosers.get("Colorless").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(0, sectionChoosers.get("Colorless").getColor()));
+            sectionChoosers.get("White").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(1, sectionChoosers.get("White").getColor()));
+            sectionChoosers.get("Blue").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(2, sectionChoosers.get("Blue").getColor()));
+            sectionChoosers.get("Black").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(3, sectionChoosers.get("Black").getColor()));
+            sectionChoosers.get("Red").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(4, sectionChoosers.get("Red").getColor()));
+            sectionChoosers.get("Green").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(5, sectionChoosers.get("Green").getColor()));
+            sectionChoosers.get("Multicolored").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(6, sectionChoosers.get("Multicolored").getColor()));
+            CategoryAxis colorsX = new CategoryAxis();
+            ValueAxis colorsY = new NumberAxis();
+            CategoryPlot colorsPlot = new CategoryPlot(colorsDataset, colorsX, colorsY, colorsRenderer);
+            colorsPlot.setRangeGridlinesVisible(false);
+            var colorsChart = new JFreeChart("Colors", JFreeChart.DEFAULT_TITLE_FONT, colorsPlot, true);
+            ChartPanel colorsPanel = new ChartPanel(colorsChart);
+            preview.add(colorsPanel);
+
+            DefaultCategoryDataset typesDataset = new DefaultCategoryDataset();
+            typesDataset.addValue(3, "Creature", "2");
+            typesDataset.addValue(2, "Artifact", "3");
+            typesDataset.addValue(2, "Enchantment", "3");
+            typesDataset.addValue(2, "Planeswalker", "3");
+            typesDataset.addValue(2, "Instant", "4");
+            typesDataset.addValue(2, "Sorcery", "4");
+            StackedBarRenderer typesRenderer = new StackedBarRenderer();
+            typesRenderer.setBarPainter(new StandardBarPainter());
+            typesRenderer.setDrawBarOutline(true);
+            typesRenderer.setDefaultOutlinePaint(Color.BLACK);
+            typesRenderer.setShadowVisible(false);
+            sectionChoosers.get("Creature").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(0, sectionChoosers.get("Creature").getColor()));
+            sectionChoosers.get("Artifact").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(1, sectionChoosers.get("Artifact").getColor()));
+            sectionChoosers.get("Enchantment").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(2, sectionChoosers.get("Enchantment").getColor()));
+            sectionChoosers.get("Planeswalker").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(3, sectionChoosers.get("Planeswalker").getColor()));
+            sectionChoosers.get("Instant").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(4, sectionChoosers.get("Instant").getColor()));
+            sectionChoosers.get("Sorcery").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(5, sectionChoosers.get("Sorcery").getColor()));
+            CategoryAxis typesX = new CategoryAxis();
+            ValueAxis typesY = new NumberAxis();
+            CategoryPlot typesPlot = new CategoryPlot(typesDataset, typesX, typesY, typesRenderer);
+            typesPlot.setRangeGridlinesVisible(false);
+            var typesChart = new JFreeChart("Types", JFreeChart.DEFAULT_TITLE_FONT, typesPlot, true);
+            ChartPanel typesPanel = new ChartPanel(typesChart);
+            preview.add(typesPanel);
+
+            preview.setPreferredSize(new Dimension(chooser.getPreferredSize().width - 3*ComponentUtils.TEXT_SIZE, chooser.getPreviewPanel().getPreferredSize().height*5/2));
+            chooser.setPreviewPanel(preview);
+        }
 
         Box manaAnalysisSectionPanel = Box.createHorizontalBox();
         manaAnalysisSectionPanel.add(new JLabel("Color for:"));
