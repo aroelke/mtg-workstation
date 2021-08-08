@@ -1,4 +1,14 @@
+import java.util.Properties
+
+val appProperties = settingKey[Properties]("Global application properties")
+appProperties := {
+    val prop = new Properties()
+    IO.load(prop, new File("src/main/resources/project.properties"))
+    prop
+}
+
 name := "mtg-workstation"
+version := appProperties.value.getProperty("version")
 
 scalaVersion := "3.0.1"
 libraryDependencies ++= Seq(
