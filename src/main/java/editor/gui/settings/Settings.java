@@ -19,7 +19,9 @@ import java.util.stream.Collectors;
 
 import editor.collection.deck.Category;
 import editor.database.attributes.CardAttribute;
+import editor.database.card.Card;
 import editor.database.card.CardLayout;
+import editor.database.card.MultiCard;
 import editor.database.version.DatabaseVersion;
 import editor.database.version.UpdateFrequency;
 import editor.filter.leaf.options.multi.CardTypeFilter;
@@ -280,6 +282,27 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                 Set.of(CardLayout.MODAL_DFC),
                 new ManaAnalysisSettings()
             );
+        }
+
+        /**
+         * Determine if a card counts as a land based on its faces and the #backFaceLands setting.
+         * 
+         * @param c card to examine
+         * @returns <code>true</code> if the card counts as a land, and <code>false</code>
+         * otherwise
+         * @see backFaceLands
+         */
+        public boolean isLand(Card c)
+        {
+            if (c instanceof MultiCard m)
+            {
+                if (SettingsDialog.settings().editor().backFaceLands().contains(m.layout()))
+                    return m.faces().stream().anyMatch(Card::isLand);
+                else
+                    return m.faces().get(0).isLand();
+            }
+            else
+                return c.isLand();
         }
     }
 

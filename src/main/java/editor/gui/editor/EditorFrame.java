@@ -96,7 +96,6 @@ import editor.collection.deck.Hand;
 import editor.collection.export.CardListFormat;
 import editor.database.attributes.ManaType;
 import editor.database.card.Card;
-import editor.database.card.MultiCard;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.TableSelectionListener;
@@ -2755,17 +2754,7 @@ public class EditorFrame extends JInternalFrame
      */
     public void updateStats()
     {
-        int lands = deck().current.stream().filter((c) -> {
-            if (c instanceof MultiCard m)
-            {
-                if (SettingsDialog.settings().editor().backFaceLands().contains(m.layout()))
-                    return m.faces().stream().anyMatch(Card::isLand);
-                else
-                    return m.faces().get(0).isLand();
-            }
-            else
-                return c.isLand();
-        }).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
+        int lands = deck().current.stream().filter(SettingsDialog.settings().editor()::isLand).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
         countLabel.setText("Total cards: " + deck().current.total());
         landLabel.setText("Lands: " + lands);
         nonlandLabel.setText("Nonlands: " + (deck().current.total() - lands));
@@ -2821,17 +2810,7 @@ public class EditorFrame extends JInternalFrame
             break;
         }
         CardList analyte = analyzeCategoryBox.isSelected() ? deck().current.getCategoryList(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex())) : deck().current;
-        int analyteLands = analyte.stream().filter((c) -> {
-            if (c instanceof MultiCard m)
-            {
-                if (SettingsDialog.settings().editor().backFaceLands().contains(m.layout()))
-                    return m.faces().stream().anyMatch(Card::isLand);
-                else
-                    return m.faces().get(0).isLand();
-            }
-            else
-                return c.isLand();
-        }).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
+        int analyteLands = analyte.stream().filter(SettingsDialog.settings().editor()::isLand).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
         if (analyte.total() - analyteLands > 0)
         {
             var sections = switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex())) {
@@ -2841,17 +2820,7 @@ public class EditorFrame extends JInternalFrame
             };
             var sectionManaValues = sections.stream().collect(Collectors.toMap(Function.identity(), (s) -> {
                 return analyte.stream()
-                    .filter((c) -> {
-                        if (c instanceof MultiCard m)
-                        {
-                            if (SettingsDialog.settings().editor().backFaceLands().contains(m.layout()))
-                                return !m.faces().stream().anyMatch(Card::isLand);
-                            else
-                                return !m.faces().get(0).isLand();
-                        }
-                        else
-                            return !c.isLand();
-                    })
+                    .filter((c) -> !SettingsDialog.settings().editor().isLand(c))
                     .filter((c) -> switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex())) {
                         case NOTHING -> true;
                         case COLOR -> switch (s) {
