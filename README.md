@@ -10,4 +10,4 @@ This program depends on the following:
 
 This depends on MTGJSON (http://www.mtgjson.com/) for its card list.
 
-To run this from the command line, run `gradle run`.
+To run this from the command line, run `sbt run`.
