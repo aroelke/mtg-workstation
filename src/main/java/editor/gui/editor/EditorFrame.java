@@ -2821,7 +2821,18 @@ public class EditorFrame extends JInternalFrame
             break;
         }
         CardList analyte = analyzeCategoryBox.isSelected() ? deck().current.getCategoryList(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex())) : deck().current;
-        if (analyte.total() - lands > 0)
+        int analyteLands = analyte.stream().filter((c) -> {
+            if (c instanceof MultiCard m)
+            {
+                if (SettingsDialog.settings().editor().backFaceLands().contains(m.layout()))
+                    return m.faces().stream().anyMatch(Card::isLand);
+                else
+                    return m.faces().get(0).isLand();
+            }
+            else
+                return c.isLand();
+        }).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
+        if (analyte.total() - analyteLands > 0)
         {
             var sections = switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex())) {
                 case NOTHING -> List.of(analyzeCategoryBox.isSelected() ? analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex()) : "Main Deck");
@@ -2830,7 +2841,17 @@ public class EditorFrame extends JInternalFrame
             };
             var sectionManaValues = sections.stream().collect(Collectors.toMap(Function.identity(), (s) -> {
                 return analyte.stream()
-                    .filter((c) -> !c.typeContains("land"))
+                    .filter((c) -> {
+                        if (c instanceof MultiCard m)
+                        {
+                            if (SettingsDialog.settings().editor().backFaceLands().contains(m.layout()))
+                                return !m.faces().stream().anyMatch(Card::isLand);
+                            else
+                                return !m.faces().get(0).isLand();
+                        }
+                        else
+                            return !c.isLand();
+                    })
                     .filter((c) -> switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex())) {
                         case NOTHING -> true;
                         case COLOR -> switch (s) {
