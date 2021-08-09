@@ -167,6 +167,26 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
                     backFaceLands.add(Arrays.stream(CardLayout.values()).filter((l) -> l.toString().equals(layout.getAsString())).findAny().get());
                 builder = builder.backFaceLands(backFaceLands);
             }
+            if (editor.has("manaAnalysis"))
+            {
+                JsonObject manaAnalysis = editor.get("manaAnalysis").getAsJsonObject();
+                builder = builder.none(context.deserialize(manaAnalysis.get("none"), Color.class))
+                                 .colorless(context.deserialize(manaAnalysis.get("colorless"), Color.class))
+                                 .white(context.deserialize(manaAnalysis.get("white"), Color.class))
+                                 .blue(context.deserialize(manaAnalysis.get("blue"), Color.class))
+                                 .black(context.deserialize(manaAnalysis.get("black"), Color.class))
+                                 .red(context.deserialize(manaAnalysis.get("red"), Color.class))
+                                 .green(context.deserialize(manaAnalysis.get("green"), Color.class))
+                                 .multi(context.deserialize(manaAnalysis.get("multi"), Color.class))
+                                 .creature(context.deserialize(manaAnalysis.get("creature"), Color.class))
+                                 .artifact(context.deserialize(manaAnalysis.get("artifact"), Color.class))
+                                 .enchantment(context.deserialize(manaAnalysis.get("enchantment"), Color.class))
+                                 .planeswalker(context.deserialize(manaAnalysis.get("planeswalker"), Color.class))
+                                 .instant(context.deserialize(manaAnalysis.get("instant"), Color.class))
+                                 .sorcery(context.deserialize(manaAnalysis.get("sorcery"), Color.class))
+                                 .line(context.deserialize(manaAnalysis.get("line"), Color.class));
+
+            }
         }
 
         if (obj.has("cwd"))
@@ -238,6 +258,23 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
         for (CardLayout layout : src.editor().backFaceLands())
             backFaceLands.add(layout.toString());
         editor.add("backFaceLands", backFaceLands);
+        JsonObject manaAnalysis = new JsonObject();
+        manaAnalysis.add("none", context.serialize(src.editor().manaAnalysis().none()));
+        manaAnalysis.add("colorless", context.serialize(src.editor().manaAnalysis().colorless()));
+        manaAnalysis.add("white", context.serialize(src.editor().manaAnalysis().white()));
+        manaAnalysis.add("blue", context.serialize(src.editor().manaAnalysis().blue()));
+        manaAnalysis.add("black", context.serialize(src.editor().manaAnalysis().black()));
+        manaAnalysis.add("red", context.serialize(src.editor().manaAnalysis().red()));
+        manaAnalysis.add("green", context.serialize(src.editor().manaAnalysis().green()));
+        manaAnalysis.add("multi", context.serialize(src.editor().manaAnalysis().multi()));
+        manaAnalysis.add("creature", context.serialize(src.editor().manaAnalysis().creature()));
+        manaAnalysis.add("artifact", context.serialize(src.editor().manaAnalysis().artifact()));
+        manaAnalysis.add("enchantment", context.serialize(src.editor().manaAnalysis().enchantment()));
+        manaAnalysis.add("planeswalker", context.serialize(src.editor().manaAnalysis().planeswalker()));
+        manaAnalysis.add("instant", context.serialize(src.editor().manaAnalysis().instant()));
+        manaAnalysis.add("sorcery", context.serialize(src.editor().manaAnalysis().sorcery()));
+        manaAnalysis.add("line", context.serialize(src.editor().manaAnalysis().line()));
+        editor.add("manaAnalysis", manaAnalysis);
 
         settings.add("inventory", inventory);
         settings.add("editor", editor);

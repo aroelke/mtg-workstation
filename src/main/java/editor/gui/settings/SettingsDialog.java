@@ -3,10 +3,12 @@ package editor.gui.settings;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -56,6 +59,19 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.renderer.category.StackedBarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import editor.collection.deck.Category;
 import editor.database.FormatConstraints;
 import editor.database.attributes.CardAttribute;
@@ -67,6 +83,7 @@ import editor.gui.display.CardTable;
 import editor.gui.display.CategoryList;
 import editor.gui.editor.CalculateHandPanel;
 import editor.gui.editor.CategoryEditorPanel;
+import editor.gui.generic.ComponentUtils;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.VerticalButtonList;
 import editor.util.UnicodeSymbols;
@@ -340,6 +357,12 @@ public class SettingsDialog extends JDialog
     private JComboBox<String> manaValueBox;
     /** Check boxes indicating which layouts to count as lands if their back faces are lands. */
     private List<JCheckBox> landsCheckBoxes;
+    /** Sections for dividing analysis bars. */
+    private String[] sections;
+    /** Color choosers for changing the colors of the bar sections. */
+    private Map<String, JColorChooser> sectionChoosers;
+    /** Color chooser for the land analysis line. */
+    private JColorChooser landLineChooser;
 
     /**
      * Create a new SettingsDialog.
@@ -368,6 +391,8 @@ public class SettingsDialog extends JDialog
         editorNode.add(handAppearanceNode);
         DefaultMutableTreeNode formatsNode = new DefaultMutableTreeNode("Formats");
         editorNode.add(formatsNode);
+        DefaultMutableTreeNode manaAnalysisNode = new DefaultMutableTreeNode("Mana Analysis");
+        editorNode.add(manaAnalysisNode);
         root.add(editorNode);
 
         // Settings panels
@@ -748,6 +773,167 @@ public class SettingsDialog extends JDialog
         formatsPane.setAlignmentX(LEFT_ALIGNMENT);
         formatsPanel.add(formatsPane);
 
+        // Mana analysis
+        ScrollablePanel manaAnalysisPanel = new ScrollablePanel(ScrollablePanel.TRACK_WIDTH);
+        manaAnalysisPanel.setLayout(new BoxLayout(manaAnalysisPanel, BoxLayout.Y_AXIS));
+        JScrollPane manaAnalysisScroll = new JScrollPane(manaAnalysisPanel);
+        manaAnalysisScroll.setBorder(BorderFactory.createEmptyBorder());
+        settingsPanel.add(manaAnalysisScroll, new TreePath(manaAnalysisNode.getPath()).toString());
+
+        // Mana analysis section color selector
+        Box manaAnalysisColorPanel = Box.createVerticalBox();
+        manaAnalysisColorPanel.setBorder(BorderFactory.createTitledBorder("Plot Sections"));
+        sections = new String[] {
+            "Nothing",
+            "Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored",
+            "Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"
+        };
+        sectionChoosers = Arrays.stream(sections).collect(Collectors.toMap(Function.identity(), (c) -> new JColorChooser()));
+        for (JColorChooser chooser : sectionChoosers.values())
+        {
+            JPanel preview = new JPanel(new GridLayout(1, 3));
+
+            DefaultCategoryDataset nothingDataset = new DefaultCategoryDataset();
+            nothingDataset.addValue(3, "Nothing", "2");
+            nothingDataset.addValue(6, "Nothing", "3");
+            nothingDataset.addValue(4, "Nothing", "4");
+            BarRenderer nothingRenderer = new BarRenderer();
+            nothingRenderer.setBarPainter(new StandardBarPainter());
+            nothingRenderer.setDrawBarOutline(true);
+            nothingRenderer.setDefaultOutlinePaint(Color.BLACK);
+            nothingRenderer.setShadowVisible(false);
+            sectionChoosers.get("Nothing").getSelectionModel().addChangeListener((e) -> nothingRenderer.setSeriesPaint(0, sectionChoosers.get("Nothing").getColor()));
+            CategoryAxis nothingX = new CategoryAxis();
+            ValueAxis nothingY = new NumberAxis();
+            CategoryPlot nothingPlot = new CategoryPlot(nothingDataset, nothingX, nothingY, nothingRenderer);
+            nothingPlot.setRangeGridlinesVisible(false);
+            var nothingChart = new JFreeChart("Nothing", JFreeChart.DEFAULT_TITLE_FONT, nothingPlot, true);
+            ChartPanel nothingPanel = new ChartPanel(nothingChart);
+            preview.add(nothingPanel);
+
+            DefaultCategoryDataset colorsDataset = new DefaultCategoryDataset();
+            colorsDataset.addValue(1, "Colorless", "2");
+            colorsDataset.addValue(2, "White", "2");
+            colorsDataset.addValue(2, "Blue", "3");
+            colorsDataset.addValue(2, "Black", "3");
+            colorsDataset.addValue(2, "Red", "3");
+            colorsDataset.addValue(3, "Green", "4");
+            colorsDataset.addValue(1, "Multicolored", "4");
+            StackedBarRenderer colorsRenderer = new StackedBarRenderer();
+            colorsRenderer.setBarPainter(new StandardBarPainter());
+            colorsRenderer.setDrawBarOutline(true);
+            colorsRenderer.setDefaultOutlinePaint(Color.BLACK);
+            colorsRenderer.setShadowVisible(false);
+            sectionChoosers.get("Colorless").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(0, sectionChoosers.get("Colorless").getColor()));
+            sectionChoosers.get("White").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(1, sectionChoosers.get("White").getColor()));
+            sectionChoosers.get("Blue").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(2, sectionChoosers.get("Blue").getColor()));
+            sectionChoosers.get("Black").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(3, sectionChoosers.get("Black").getColor()));
+            sectionChoosers.get("Red").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(4, sectionChoosers.get("Red").getColor()));
+            sectionChoosers.get("Green").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(5, sectionChoosers.get("Green").getColor()));
+            sectionChoosers.get("Multicolored").getSelectionModel().addChangeListener((e) -> colorsRenderer.setSeriesPaint(6, sectionChoosers.get("Multicolored").getColor()));
+            CategoryAxis colorsX = new CategoryAxis();
+            ValueAxis colorsY = new NumberAxis();
+            CategoryPlot colorsPlot = new CategoryPlot(colorsDataset, colorsX, colorsY, colorsRenderer);
+            colorsPlot.setRangeGridlinesVisible(false);
+            var colorsChart = new JFreeChart("Colors", JFreeChart.DEFAULT_TITLE_FONT, colorsPlot, true);
+            ChartPanel colorsPanel = new ChartPanel(colorsChart);
+            preview.add(colorsPanel);
+
+            DefaultCategoryDataset typesDataset = new DefaultCategoryDataset();
+            typesDataset.addValue(3, "Creature", "2");
+            typesDataset.addValue(2, "Artifact", "3");
+            typesDataset.addValue(2, "Enchantment", "3");
+            typesDataset.addValue(2, "Planeswalker", "3");
+            typesDataset.addValue(2, "Instant", "4");
+            typesDataset.addValue(2, "Sorcery", "4");
+            StackedBarRenderer typesRenderer = new StackedBarRenderer();
+            typesRenderer.setBarPainter(new StandardBarPainter());
+            typesRenderer.setDrawBarOutline(true);
+            typesRenderer.setDefaultOutlinePaint(Color.BLACK);
+            typesRenderer.setShadowVisible(false);
+            sectionChoosers.get("Creature").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(0, sectionChoosers.get("Creature").getColor()));
+            sectionChoosers.get("Artifact").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(1, sectionChoosers.get("Artifact").getColor()));
+            sectionChoosers.get("Enchantment").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(2, sectionChoosers.get("Enchantment").getColor()));
+            sectionChoosers.get("Planeswalker").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(3, sectionChoosers.get("Planeswalker").getColor()));
+            sectionChoosers.get("Instant").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(4, sectionChoosers.get("Instant").getColor()));
+            sectionChoosers.get("Sorcery").getSelectionModel().addChangeListener((e) -> typesRenderer.setSeriesPaint(5, sectionChoosers.get("Sorcery").getColor()));
+            CategoryAxis typesX = new CategoryAxis();
+            ValueAxis typesY = new NumberAxis();
+            CategoryPlot typesPlot = new CategoryPlot(typesDataset, typesX, typesY, typesRenderer);
+            typesPlot.setRangeGridlinesVisible(false);
+            var typesChart = new JFreeChart("Types", JFreeChart.DEFAULT_TITLE_FONT, typesPlot, true);
+            ChartPanel typesPanel = new ChartPanel(typesChart);
+            preview.add(typesPanel);
+
+            preview.setPreferredSize(new Dimension(chooser.getPreferredSize().width - 3*ComponentUtils.TEXT_SIZE, chooser.getPreviewPanel().getPreferredSize().height*5/2));
+            chooser.setPreviewPanel(preview);
+        }
+
+        Box manaAnalysisSectionPanel = Box.createHorizontalBox();
+        manaAnalysisSectionPanel.add(new JLabel("Color for:"));
+        manaAnalysisSectionPanel.add(Box.createHorizontalStrut(2));
+        var sectionsBox = new JComboBox<>(sections);
+        var original = sectionsBox.getRenderer();
+        sectionsBox.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
+            Component label = original.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setForeground(label.getForeground());
+            panel.setBackground(label.getBackground());
+            panel.add(label, BorderLayout.CENTER);
+            JPanel color = new JPanel() {
+                @Override
+                public void paintComponent(Graphics g)
+                {
+                    super.paintComponent(g);
+                    g.setColor(sectionChoosers.get(value).getColor());
+                    g.fillRect(1, 1, getWidth() - 3, getHeight() - 3);
+                    g.setColor(Color.BLACK);
+                    g.drawRect(1, 1, getWidth() - 3, getHeight() - 3);
+                }
+            };
+            color.setPreferredSize(new Dimension(label.getPreferredSize().height, label.getPreferredSize().height));
+            color.setForeground(label.getForeground());
+            color.setBackground(label.getBackground());
+            panel.add(color, BorderLayout.EAST);
+            return panel;
+        });
+        sectionsBox.setMaximumSize(sectionsBox.getPreferredSize());
+        manaAnalysisSectionPanel.add(sectionsBox);
+        manaAnalysisSectionPanel.add(Box.createHorizontalGlue());
+        manaAnalysisColorPanel.add(manaAnalysisSectionPanel);
+
+        CardLayout chooserLayout = new CardLayout();
+        JPanel sectionChooserPanel = new JPanel(chooserLayout);
+        for (String section : sections)
+            sectionChooserPanel.add(sectionChoosers.get(section), section);
+        sectionsBox.addItemListener((e) -> chooserLayout.show(sectionChooserPanel, sectionsBox.getItemAt(sectionsBox.getSelectedIndex())));
+        manaAnalysisColorPanel.add(sectionChooserPanel);
+        manaAnalysisPanel.add(manaAnalysisColorPanel);
+
+        // Land analysis line color
+        JPanel landAnalysisLinePanel = new JPanel(new BorderLayout());
+        landAnalysisLinePanel.setBorder(BorderFactory.createTitledBorder("Land Analysis Line"));
+        landLineChooser = new JColorChooser();
+        landAnalysisLinePanel.add(landLineChooser, BorderLayout.CENTER);
+        manaAnalysisPanel.add(landAnalysisLinePanel);
+
+        DefaultCategoryDataset lineDataset = new DefaultCategoryDataset();
+        lineDataset.addValue(0.15, "Lands", "1");
+        lineDataset.addValue(0.95, "Lands", "2");
+        lineDataset.addValue(1.35, "Lands", "3");
+        LineAndShapeRenderer lineRenderer = new LineAndShapeRenderer();
+        lineRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+        lineRenderer.setDefaultItemLabelsVisible(true);
+        landLineChooser.getSelectionModel().addChangeListener((e) -> lineRenderer.setSeriesPaint(0, landLineChooser.getColor()));
+        CategoryAxis lineX = new CategoryAxis();
+        ValueAxis lineY = new NumberAxis();
+        CategoryPlot linePlot = new CategoryPlot(lineDataset, lineX, lineY, lineRenderer);
+        linePlot.setRangeGridlinesVisible(false);
+        var nothingChart = new JFreeChart("", JFreeChart.DEFAULT_TITLE_FONT, linePlot, true);
+        ChartPanel linePanel = new ChartPanel(nothingChart);
+        linePanel.setPreferredSize(new Dimension(landLineChooser.getPreviewPanel().getPreferredSize().width, landLineChooser.getPreviewPanel().getPreferredSize().height*5/2));
+        landLineChooser.setPreviewPanel(linePanel);
+
         // Default options for legality panel
         Box legalityDefaultsBox = Box.createHorizontalBox();
         legalityDefaultsBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -894,6 +1080,9 @@ public class SettingsDialog extends JDialog
                     cmdrList.setVisible(false);
                     cmdrListName.setVisible(false);
                 }
+                for (String section : sections)
+                    sectionChoosers.get(section).setColor(settings().editor().manaAnalysis().get(section));
+                landLineChooser.setColor(settings().editor().manaAnalysis().line());
             }
         });
     }
@@ -943,6 +1132,8 @@ public class SettingsDialog extends JDialog
                 .commanderInAll(cmdrAllLists.isSelected())
                 .commanderInList(cmdrListName.getText())
                 .sideboardName(sideCheck.isSelected() ? sideField.getText() : "")
+                .sections(sectionChoosers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().getColor())))
+                .line(landLineChooser.getColor())
                 .build();
         }
         catch (ParseException e)

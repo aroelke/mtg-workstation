@@ -96,7 +96,6 @@ import editor.collection.deck.Hand;
 import editor.collection.export.CardListFormat;
 import editor.database.attributes.ManaType;
 import editor.database.card.Card;
-import editor.database.card.MultiCard;
 import editor.gui.CardTagPanel;
 import editor.gui.MainFrame;
 import editor.gui.TableSelectionListener;
@@ -200,6 +199,70 @@ public class EditorFrame extends JInternalFrame
         public int compare(Deck d, Category a, Category b)
         {
             return order.apply(d).compare(a, b);
+        }
+
+        @Override
+        public String toString()
+        {
+            return name;
+        }
+    }
+
+    /**
+     * Enum containing ways to divide the mana curve histogram bars.
+     */
+    private enum ManaCurveSections
+    {
+        /** Don't divide them. */
+        NOTHING("Nothing"),
+        /** Divide them by color. */
+        COLOR("Color"),
+        /** Divide them by card type. */
+        TYPE("Card Type");
+
+        /** String to show in the combo box for choosing the option. */
+        private final String name;
+
+        /**
+         * Create a new mana curve division option.
+         * 
+         * @param n name of the option
+         */
+        private ManaCurveSections(String n)
+        {
+            name = n;
+        }
+
+        @Override
+        public String toString()
+        {
+            return name;
+        }
+    }
+
+    /**
+     * Enum containing ways that land count can be analyzed.
+     */
+    private enum LandAnalysisChoice
+    {
+        /** Show the expected number of lands played by a given turn. */
+        PLAYED("Expected Lands Played"),
+        /** Show the expected number of lands drawn by a given turn. */
+        DRAWN("Expected Lands Drawn"),
+        /** Show the probability of drawing a given number of lands by that turn. */
+        PROBABILITY("Probability of Drawing Lands");
+
+        /** String to show in the combo box and right Y-axis of the chart for the option. */
+        private final String name;
+
+        /**
+         * Create a new land analysis option.
+         * 
+         * @param n name of the option
+         */
+        private LandAnalysisChoice(String n)
+        {
+            name = n;
         }
 
         @Override
@@ -460,7 +523,13 @@ public class EditorFrame extends JInternalFrame
      */
     public static final int MAIN_DECK = 0;
 
+    /**
+     * Check box indicating whether the mana curve is for the whole deck (unselected) or just a category (selected).
+     */
     private JCheckBox analyzeCategoryBox;
+    /**
+     * Combo box choosing which category to analyze if {@link analyzeCategoryBox} is selected.
+     */
     private JComboBox<String> analyzeCategoryCombo;
     /**
      * Label showing the average mana value of nonland cards in the deck.
@@ -507,11 +576,26 @@ public class EditorFrame extends JInternalFrame
      * Panel containing images for the sample hand.
      */
     private ScrollablePanel imagePanel;
+    /**
+     * Vertical axis of the mana curve tab showing the land analysis.
+     */
+    private ValueAxis landAxis;
+    /**
+     * Dataset containing the land analysis data.
+     */
     private DefaultCategoryDataset landDrops;
     /**
      * Label showing the total number of land cards in the deck.
      */
     private JLabel landLabel;
+    /**
+     * Combo box choosing how to analyze the land count in the deck.
+     */
+    private JComboBox<LandAnalysisChoice> landsBox;
+    /**
+     * Renderer for showing the land analysis line.
+     */
+    private LineAndShapeRenderer landRenderer;
     /**
      * All lists in the editor. The index into this list of a card list is that card
      * list's ID. The main deck always has ID 0, and will never be null. Other lists
@@ -523,7 +607,13 @@ public class EditorFrame extends JInternalFrame
      * Tabbed pane for choosing whether to display the entire deck or the categories.
      */
     private JTabbedPane listTabs;
+    /**
+     * Dataset containing the mana curve analysis data.
+     */
     private DefaultCategoryDataset manaCurve;
+    /**
+     * Renderer for displaying mana curve analysis.
+     */
     private StackedBarRenderer manaCurveRenderer;
     /**
      * Label showing the median mana value of nonland cards in the deck.
@@ -554,7 +644,10 @@ public class EditorFrame extends JInternalFrame
      * (but not when it is redone).
      */
     private Stack<UndoableAction<Boolean, Boolean>> redoBuffer;
-    private JComboBox<String> sectionsBox;
+    /**
+     * Combo box showing how to divide the mana curve histogram bars, if at all.
+     */
+    private JComboBox<ManaCurveSections> sectionsBox;
     /**
      * Combo box allowing changes to be made in the order that categories are display in.
      */
@@ -854,6 +947,7 @@ public class EditorFrame extends JInternalFrame
         /* MANA ANALYSIS TAB */
         JPanel manaAnalysisPanel = new JPanel(new BorderLayout());
 
+        // Data set and axis creation
         manaCurve = new DefaultCategoryDataset();
         landDrops = new DefaultCategoryDataset();
         manaCurveRenderer = new StackedBarRenderer();
@@ -862,14 +956,15 @@ public class EditorFrame extends JInternalFrame
         manaCurveRenderer.setDrawBarOutline(true);
         manaCurveRenderer.setDefaultOutlinePaint(Color.BLACK);
         manaCurveRenderer.setShadowVisible(false);
-        LineAndShapeRenderer landRenderer = new LineAndShapeRenderer();
+        landRenderer = new LineAndShapeRenderer();
         landRenderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
         landRenderer.setDefaultItemLabelsVisible(true);
-        landRenderer.setSeriesPaint(0, Color.BLACK);
+        landRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().line());
         CategoryAxis manaValueAxis = new CategoryAxis("Mana Value/Turn");
         ValueAxis frequencyAxis = new NumberAxis("Mana Value Frequency");
-        ValueAxis landAxis = new NumberAxis("Expected Land Plays");
+        landAxis = new NumberAxis("Expected Land Plays");
 
+        // Plot creation
         CategoryPlot manaCurvePlot = new CategoryPlot();
         manaCurvePlot.setDataset(0, manaCurve);
         manaCurvePlot.setDataset(1, landDrops);
@@ -880,16 +975,18 @@ public class EditorFrame extends JInternalFrame
         manaCurvePlot.mapDatasetToRangeAxis(1, 1);
         manaCurvePlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
         manaCurvePlot.setRangeGridlinesVisible(false);
-
         var manaCurveChart = new JFreeChart("Mana Curve", JFreeChart.DEFAULT_TITLE_FONT, manaCurvePlot, true);
         ChartPanel manaCurvePanel = new ChartPanel(manaCurveChart);
         manaCurvePanel.setPopupMenu(null);
         manaAnalysisPanel.add(manaCurvePanel, BorderLayout.CENTER);
 
+        // Analysis settings panel (how to divide bar graph and what land analysis to show)
+        JPanel analysisConfigPanel = new JPanel(new BorderLayout());
+
         Box categoryAnalysisPanel = new Box(BoxLayout.X_AXIS);
-        categoryAnalysisPanel.setBorder(BorderFactory.createEtchedBorder());
+        categoryAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Mana Analysis"));
         categoryAnalysisPanel.add(Box.createHorizontalGlue());
-        sectionsBox = new JComboBox<>(new String[] {"Nothing", "Color", "Card Type"});
+        sectionsBox = new JComboBox<>(ManaCurveSections.values());
         sectionsBox.addActionListener((e) -> updateStats());
         sectionsBox.setMaximumSize(sectionsBox.getPreferredSize());
         categoryAnalysisPanel.add(new JLabel("Divide bars by:"));
@@ -907,8 +1004,21 @@ public class EditorFrame extends JInternalFrame
         analyzeCategoryCombo.addActionListener((e) -> updateStats());
         categoryAnalysisPanel.add(analyzeCategoryCombo);
         categoryAnalysisPanel.add(Box.createHorizontalGlue());
+        analysisConfigPanel.add(categoryAnalysisPanel, BorderLayout.NORTH);
 
-        manaAnalysisPanel.add(categoryAnalysisPanel, BorderLayout.SOUTH);
+        Box landAnalysisPanel = new Box(BoxLayout.X_AXIS);
+        landAnalysisPanel.setBorder(BorderFactory.createTitledBorder("Land Analysis"));
+        landAnalysisPanel.add(Box.createHorizontalGlue());
+        landAnalysisPanel.add(new JLabel("Show:"));
+        landAnalysisPanel.add(Box.createHorizontalStrut(2));
+        landsBox = new JComboBox<>(LandAnalysisChoice.values());
+        landsBox.setMaximumSize(landsBox.getPreferredSize());
+        landsBox.addActionListener((e) -> updateStats());
+        landAnalysisPanel.add(landsBox);
+        landAnalysisPanel.add(Box.createHorizontalGlue());
+        analysisConfigPanel.add(landAnalysisPanel, BorderLayout.SOUTH);
+
+        manaAnalysisPanel.add(analysisConfigPanel, BorderLayout.SOUTH);
 
         listTabs.addTab("Mana Analysis", manaAnalysisPanel);
 
@@ -1243,6 +1353,7 @@ public class EditorFrame extends JInternalFrame
             category.applySettings(this);
         startingHandSize = SettingsDialog.settings().editor().hand().size();
         updateStats();
+        landRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().line());
         update();
     }
 
@@ -2643,35 +2754,19 @@ public class EditorFrame extends JInternalFrame
      */
     public void updateStats()
     {
-        int lands = deck().current.stream().filter((c) -> {
-            if (c instanceof MultiCard m)
-            {
-                if (SettingsDialog.settings().editor().backFaceLands().contains(m.layout()))
-                    return m.faces().stream().anyMatch(Card::isLand);
-                else
-                    return m.faces().get(0).isLand();
-            }
-            else
-                return c.isLand();
-        }).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
+        int lands = deck().current.stream().filter(SettingsDialog.settings().editor()::isLand).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
         countLabel.setText("Total cards: " + deck().current.total());
         landLabel.setText("Lands: " + lands);
         nonlandLabel.setText("Nonlands: " + (deck().current.total() - lands));
 
         final var manaValue = deck().current.stream()
             .filter((c) -> !c.typeContains("land"))
-            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), switch (SettingsDialog.settings().editor().manaValue()) {
-                case "Minimum" -> c.minManaValue();
-                case "Maximum" -> c.maxManaValue();
-                case "Average" -> c.avgManaValue();
-                case "Real"    -> c.manaValue();
-                default -> Double.NaN;
-            }).stream())
+            .flatMap((c) -> Collections.nCopies(deck().current.getEntry(c).count(), SettingsDialog.settings().editor().getManaValue(c)).stream())
             .sorted()
             .mapToDouble(Double::doubleValue)
             .toArray();
         double avgManaValue = Arrays.stream(manaValue).average().orElse(0);
-        avgManaValueLabel.setText("Average Mana value: " + StringUtils.formatDouble(avgManaValue, 2));
+        avgManaValueLabel.setText("Average Mana Value: " + StringUtils.formatDouble(avgManaValue, 2));
 
         double medManaValue = 0.0;
         if (manaValue.length > 0)
@@ -2681,46 +2776,39 @@ public class EditorFrame extends JInternalFrame
             else
                 medManaValue = manaValue[manaValue.length/2];
         }
-        medManaValueLabel.setText("Median mana value: " + StringUtils.formatDouble(medManaValue, 1));
+        medManaValueLabel.setText("Median Mana Value: " + StringUtils.formatDouble(medManaValue, 1));
 
         manaCurve.clear();
         landDrops.clear();
         switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex()))
         {
-        case "Color":
-            manaCurveRenderer.setSeriesPaint(0, new Color(203, 198, 193)); // Colorless (gray)
-            manaCurveRenderer.setSeriesPaint(1, new Color(248, 246, 216)); // White
-            manaCurveRenderer.setSeriesPaint(2, new Color(193, 215, 233)); // Blue
-            manaCurveRenderer.setSeriesPaint(3, new Color(186, 177, 171)); // Black
-            manaCurveRenderer.setSeriesPaint(4, new Color(228, 153, 119)); // Red
-            manaCurveRenderer.setSeriesPaint(5, new Color(163, 192, 149)); // Green
-            manaCurveRenderer.setSeriesPaint(6, new Color(204, 166, 82));  // Multicolored
+        case NOTHING:
+            manaCurveRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().none());
             break;
-        case "Card Type":
-            manaCurveRenderer.setSeriesPaint(0, new Color(163, 192, 149)); // Creature (same as green)
-            manaCurveRenderer.setSeriesPaint(1, new Color(203, 198, 193)); // Artifact (same as colorless)
-            manaCurveRenderer.setSeriesPaint(2, new Color(248, 246, 216)); // Enchantment (same as white)
-            manaCurveRenderer.setSeriesPaint(3, new Color(215, 181, 215)); // Planeswalker (purple)
-            manaCurveRenderer.setSeriesPaint(4, new Color(193, 215, 233)); // Instant (same as blue)
-            manaCurveRenderer.setSeriesPaint(5, new Color(228, 153, 119)); // Sorcery (same as red)
+        case COLOR:
+            for (int i = 0; i < SettingsDialog.settings().editor().manaAnalysis().colorColors().size(); i++)
+                manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings().editor().manaAnalysis().colorColors().get(i));
             break;
-        default:
-            manaCurveRenderer.setSeriesPaint(0, new Color(128, 128, 255));
+        case TYPE:
+            for (int i = 0; i < SettingsDialog.settings().editor().manaAnalysis().typeColors().size(); i++)
+                manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings().editor().manaAnalysis().typeColors().get(i));
             break;
         }
         CardList analyte = analyzeCategoryBox.isSelected() ? deck().current.getCategoryList(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex())) : deck().current;
-        if (analyte.total() - lands > 0)
+        int analyteLands = analyte.stream().filter(SettingsDialog.settings().editor()::isLand).mapToInt((c) -> deck().current.getEntry(c).count()).sum();
+        if (analyte.total() - analyteLands > 0)
         {
             var sections = switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex())) {
-                case "Color"     -> List.of("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored");
-                case "Card Type" -> List.of("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
-                default -> List.of(analyzeCategoryBox.isSelected() ? analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex()) : "Main Deck"); // Also "Nothing"
+                case NOTHING -> List.of(analyzeCategoryBox.isSelected() ? analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex()) : "Main Deck");
+                case COLOR   -> List.of("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored");
+                case TYPE    -> List.of("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
             };
             var sectionManaValues = sections.stream().collect(Collectors.toMap(Function.identity(), (s) -> {
                 return analyte.stream()
-                    .filter((c) -> !c.typeContains("land"))
+                    .filter((c) -> !SettingsDialog.settings().editor().isLand(c))
                     .filter((c) -> switch (sectionsBox.getItemAt(sectionsBox.getSelectedIndex())) {
-                        case "Color" -> switch (s) {
+                        case NOTHING -> true;
+                        case COLOR -> switch (s) {
                             case "Colorless"    -> c.colors().size() == 0;
                             case "White"        -> c.colors().size() == 1 && c.colors().get(0) == ManaType.WHITE;
                             case "Blue"         -> c.colors().size() == 1 && c.colors().get(0) == ManaType.BLUE;
@@ -2730,16 +2818,9 @@ public class EditorFrame extends JInternalFrame
                             case "Multicolored" -> c.colors().size() > 1;
                             default -> true;
                         };
-                        case "Card Type" -> c.typeContains(s) && !sections.subList(0, sections.indexOf(s)).stream().anyMatch((x) -> c.typeContains(x));
-                        default -> true; // Also "Nothing"
+                        case TYPE -> c.typeContains(s) && !sections.subList(0, sections.indexOf(s)).stream().anyMatch((x) -> c.typeContains(x));
                     })
-                    .flatMap((c) -> Collections.nCopies(analyte.getEntry(c).count(), switch (SettingsDialog.settings().editor().manaValue()) {
-                        case "Minimum" -> c.minManaValue();
-                        case "Maximum" -> c.maxManaValue();
-                        case "Average" -> c.avgManaValue();
-                        case "Real"    -> c.manaValue();
-                        default -> Double.NaN;
-                    }).stream())
+                    .flatMap((c) -> Collections.nCopies(analyte.getEntry(c).count(), SettingsDialog.settings().editor().getManaValue(c)).stream())
                     .sorted()
                     .mapToDouble(Math::ceil)
                     .toArray();
@@ -2760,17 +2841,31 @@ public class EditorFrame extends JInternalFrame
             {
                 if (maxMV < 0)
                     throw new IllegalStateException("min mana value but no max mana value");
+                LandAnalysisChoice choice = landsBox.getItemAt(landsBox.getSelectedIndex());
+                landAxis.setLabel(choice.toString());
                 for (int i = minMV; i <= maxMV; i++)
                 {
-                    double e = 0, q = 0;
-                    for (int j = 0; j < i; j++)
-                    {
-                        double p = Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
-                        q += p;
-                        e += j*p;
-                    }
-                    e += i*(1 - q);
-                    landDrops.addValue(e, "Expected Land Plays", Integer.toString(i));
+                    double v = switch (choice) {
+                        case PLAYED -> {
+                            double e = 0, q = 0;
+                            for (int j = 0; j < i; j++)
+                            {
+                                double p = Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
+                                q += p;
+                                e += j*p;
+                            }
+                            e += i*(1 - q);
+                            yield e;
+                        }
+                        case DRAWN -> ((double)lands/(double)deck().current.total())*Math.min(handCalculations.handSize() + i - 1, deck().current.total());
+                        case PROBABILITY -> {
+                            double q = 0;
+                            for (int j = 0; j < i; j++)
+                                q += Stats.hypergeometric(j, Math.min(handCalculations.handSize() + i - 1, deck().current.size()), lands, deck().current.total());
+                            yield 1 - q;
+                        }
+                    };
+                    landDrops.addValue(v, choice.toString(), Integer.toString(i));
                 }
             }
         }
