@@ -3,8 +3,10 @@
 .project
 .vscode/
 .settings/
-gradle/
-.gradle/
-build/
+.bloop/
+.metals/
+.bsp/
+target/
+project/project/
 /*.exe
-bin/
+metals.sbt
