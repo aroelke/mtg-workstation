@@ -236,6 +236,22 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                     default -> throw new IllegalArgumentException("unknown section " + key);
                 };
             }
+
+            /**
+             * @return A list of colors to be used for plot sections split by color.
+             */
+            public List<Color> colorColors()
+            {
+                return List.of(colorless, white, blue, black, red, green, multi);
+            }
+
+            /**
+             * @return A list of colors to be used for plot sections split by card type.
+             */
+            public List<Color> typeColors()
+            {
+                return List.of(creature, artifact, enchantment, planeswalker, instant, sorcery);
+            }
         }
 
         private EditorSettings(int recentsCount, List<String> recentsFiles,

@@ -2792,21 +2792,12 @@ public class EditorFrame extends JInternalFrame
             manaCurveRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().none());
             break;
         case COLOR:
-            manaCurveRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().colorless());
-            manaCurveRenderer.setSeriesPaint(1, SettingsDialog.settings().editor().manaAnalysis().white());
-            manaCurveRenderer.setSeriesPaint(2, SettingsDialog.settings().editor().manaAnalysis().blue());
-            manaCurveRenderer.setSeriesPaint(3, SettingsDialog.settings().editor().manaAnalysis().black());
-            manaCurveRenderer.setSeriesPaint(4, SettingsDialog.settings().editor().manaAnalysis().red());
-            manaCurveRenderer.setSeriesPaint(5, SettingsDialog.settings().editor().manaAnalysis().green());
-            manaCurveRenderer.setSeriesPaint(6, SettingsDialog.settings().editor().manaAnalysis().multi());
+            for (int i = 0; i < SettingsDialog.settings().editor().manaAnalysis().colorColors().size(); i++)
+                manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings().editor().manaAnalysis().colorColors().get(i));
             break;
         case TYPE:
-            manaCurveRenderer.setSeriesPaint(0, SettingsDialog.settings().editor().manaAnalysis().creature());
-            manaCurveRenderer.setSeriesPaint(1, SettingsDialog.settings().editor().manaAnalysis().artifact());
-            manaCurveRenderer.setSeriesPaint(2, SettingsDialog.settings().editor().manaAnalysis().enchantment());
-            manaCurveRenderer.setSeriesPaint(3, SettingsDialog.settings().editor().manaAnalysis().planeswalker());
-            manaCurveRenderer.setSeriesPaint(4, SettingsDialog.settings().editor().manaAnalysis().instant());
-            manaCurveRenderer.setSeriesPaint(5, SettingsDialog.settings().editor().manaAnalysis().sorcery());
+            for (int i = 0; i < SettingsDialog.settings().editor().manaAnalysis().typeColors().size(); i++)
+                manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings().editor().manaAnalysis().typeColors().get(i));
             break;
         }
         CardList analyte = analyzeCategoryBox.isSelected() ? deck().current.getCategoryList(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex())) : deck().current;
