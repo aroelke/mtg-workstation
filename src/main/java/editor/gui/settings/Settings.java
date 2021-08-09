@@ -320,6 +320,26 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
             else
                 return c.isLand();
         }
+
+        /**
+         * @param c card to examine
+         * @return The mana value of the card based on the selection of #manaValue.
+         * @see manaValue
+         * @see Card#minManaValue
+         * @see Card#maxManaValue
+         * @see Card#avgManaValue
+         * @see Card#manaValue
+         */
+        public double getManaValue(Card c)
+        {
+            return switch (manaValue) {
+                case "Minimum" -> c.minManaValue();
+                case "Maximum" -> c.maxManaValue();
+                case "Average" -> c.avgManaValue();
+                case "Real"    -> c.manaValue();
+                default -> Double.NaN;
+            };
+        }
     }
 
     protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<Category> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, Set<CardLayout> backFaceLands, String cwd, Color none, Color colorless, Color white, Color blue, Color black, Color red, Color green, Color multi, Color creature, Color artifact, Color enchantment, Color planeswalker, Color instant, Color sorcery, Color line)
