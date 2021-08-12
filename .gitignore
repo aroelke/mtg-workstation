@@ -10,3 +10,4 @@ target/
 project/project/
 /*.exe
 metals.sbt
+pom.xml
