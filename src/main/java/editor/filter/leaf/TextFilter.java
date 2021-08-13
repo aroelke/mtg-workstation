@@ -1,17 +1,25 @@
 package editor.filter.leaf;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.google.gson.JsonObject;
 
 import editor.database.attributes.CardAttribute;
+import editor.database.attributes.CombatStat;
+import editor.database.attributes.Loyalty;
 import editor.database.card.Card;
+import editor.filter.leaf.options.multi.CardTypeFilter;
+import editor.filter.leaf.options.multi.SubtypeFilter;
+import editor.filter.leaf.options.multi.SupertypeFilter;
 import editor.util.Containment;
 
 /**
@@ -25,6 +33,15 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * Regex pattern for extracting words or phrases between quotes from a String.
      */
     public static final Pattern WORD_PATTERN = Pattern.compile("\"([^\"]*)\"|'([^']*)'|[^\\s]+");
+
+    public static final Map<String, Function<Card, Set<String>>> TOKENS = Map.of(
+        "\\supertype", (c) -> Set.of(SupertypeFilter.supertypeList),
+        "\\cardtype", (c) -> Set.of(CardTypeFilter.typeList),
+        "\\subtype", (c) -> Set.of(SubtypeFilter.subtypeList),
+        "\\power", (c) -> c.power().stream().map(CombatStat::toString).collect(Collectors.toSet()),
+        "\\toughness", (c) -> c.toughness().stream().map(CombatStat::toString).collect(Collectors.toSet()),
+        "\\loyalty", (c) -> c.loyalty().stream().map(Loyalty::toString).collect(Collectors.toSet())
+    );
 
     /**
      * Create a new TextFilter that filters out cards whose characteristic
@@ -48,6 +65,16 @@ public class TextFilter extends FilterLeaf<Collection<String>>
         }
     }
 
+    public static String replaceTokens(String text, Card c, String prefix, String suffix)
+    {
+        return TOKENS.keySet().stream().reduce(text, (t, token) -> t.replace(token, TOKENS.get(token).apply(c).stream().collect(Collectors.joining("|", prefix + "(?:", ")" + suffix))));
+    }
+
+    public static String replaceTokens(String text, Card c)
+    {
+        return replaceTokens(text, c, "", "");
+    }
+
     /**
      * Create a regex pattern matcher that searches a string for a set of words and quote-enclosed phrases
      * separated by spaces, where * is a wild card.
@@ -55,7 +82,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * @param pattern string pattern to create a regex matcher out of
      * @return a predicate that searches a string for the words and phrases in the given string.
      */
-    public static Predicate<String> createSimpleMatcher(String pattern)
+    public static Predicate<String> createSimpleMatcher(String pattern, Card c)
     {
         Matcher m = WORD_PATTERN.matcher(pattern);
         StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))(?=.*(?:^|$|\\W)\\Q", "^(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W)).*$");
@@ -64,13 +91,14 @@ public class TextFilter extends FilterLeaf<Collection<String>>
             String toAdd;
             if (m.group(1) != null)
                 toAdd = m.group(1);
-            else if (m.group(1) != null)
+            else if (m.group(2) != null)
                 toAdd = m.group(2);
             else
                 toAdd = m.group();
-            str.add(toAdd.replace("*", "\\E\\w*\\Q"));
+            str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), c, "\\E", "\\Q"));
         }
-        Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE|Pattern.CASE_INSENSITIVE);
+        System.out.println(str.toString().replace("\\Q\\E", ""));
+        Pattern p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
         return (s) -> p.matcher(s).find();
     }
 
@@ -149,7 +177,10 @@ public class TextFilter extends FilterLeaf<Collection<String>>
         // If the filter is a regex, then just match it
         if (regex)
         {
-            Pattern p = Pattern.compile(text, Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
+            Pattern p = Pattern.compile(
+                replaceTokens(text, c),
+                Pattern.DOTALL | Pattern.CASE_INSENSITIVE
+            );
             return function().apply(c).stream().anyMatch((s) -> p.matcher(s).find());
         }
         else
@@ -160,7 +191,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
             switch (contain)
             {
             case CONTAINS_ALL_OF:
-                matcher = createSimpleMatcher(text);
+                matcher = createSimpleMatcher(text, c);
                 break;
             case CONTAINS_ANY_OF:
             case CONTAINS_NONE_OF:
@@ -184,7 +215,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
                     matcher = (s) -> p.matcher(s).find();
                 break;
             case CONTAINS_NOT_ALL_OF:
-                matcher = createSimpleMatcher(text).negate();
+                matcher = createSimpleMatcher(text, c).negate();
                 break;
             case CONTAINS_NOT_EXACTLY:
                 matcher = (s) -> !s.equalsIgnoreCase(text);
