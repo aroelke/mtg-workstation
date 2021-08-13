@@ -97,7 +97,6 @@ public class TextFilter extends FilterLeaf<Collection<String>>
                 toAdd = m.group();
             str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), c, "\\E", "\\Q"));
         }
-        System.out.println(str.toString().replace("\\Q\\E", ""));
         Pattern p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
         return (s) -> p.matcher(s).find();
     }
@@ -202,14 +201,14 @@ public class TextFilter extends FilterLeaf<Collection<String>>
                     String toAdd;
                     if (m.group(1) != null)
                         toAdd = m.group(1);
-                    else if (m.group(1) != null)
+                    else if (m.group(2) != null)
                         toAdd = m.group(2);
                     else
                         toAdd = m.group();
-                    str.add(toAdd.replace("*", "\\E\\w*\\Q"));
+                    str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), c, "\\E", "\\Q"));
                 }
-                Pattern p = Pattern.compile(str.toString(), Pattern.MULTILINE|Pattern.CASE_INSENSITIVE);
-                if (contain.equals(Containment.CONTAINS_NONE_OF))
+                Pattern p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+                if (contain == Containment.CONTAINS_NONE_OF)
                     matcher = (s) -> !p.matcher(s).find();
                 else
                     matcher = (s) -> p.matcher(s).find();
