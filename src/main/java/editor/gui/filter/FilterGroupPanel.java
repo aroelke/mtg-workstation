@@ -13,10 +13,12 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.filter.leaf.FilterLeaf;
+import editor.gui.generic.ChangeTitleListener;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -27,18 +29,17 @@ import editor.util.UnicodeSymbols;
  */
 public class FilterGroupPanel extends FilterPanel<Filter>
 {
-    /**
-     * {@link FilterPanel}s contained by this FilterGroupPanel.
-     */
+    /** Amount of empty space before titled border line. */
+    private static final int GAP = 10;
+
+    /** {@link FilterPanel}s contained by this FilterGroupPanel. */
     private List<FilterPanel<?>> children;
-    /**
-     * Panel containing the children.
-     */
+    /** Panel containing the children. */
     private Box filtersPanel;
-    /**
-     * Combo box showing the combination mode of the filter group.
-     */
+    /** Combo box showing the combination mode of the filter group. */
     private JComboBox<FilterGroup.Mode> modeBox;
+    /** Titled border for showing the group's comment. */
+    private TitledBorder border;
 
     /**
      * Create a new FilterGroupPanel with one child.
@@ -46,7 +47,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
     public FilterGroupPanel()
     {
         super();
-        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), BorderFactory.createEtchedBorder()));
+        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP), border = BorderFactory.createTitledBorder("")));
         setLayout(new BorderLayout());
 
         children = new ArrayList<>();
@@ -109,6 +110,13 @@ public class FilterGroupPanel extends FilterPanel<Filter>
         add(filtersPanel, BorderLayout.CENTER);
 
         add(new FilterSelectorPanel());
+
+        addMouseListener(new ChangeTitleListener(this, border, (s) -> GAP, (s) -> s.isEmpty() ? 0 : GAP, (t) -> {
+            border.setTitle(t);
+            revalidate();
+            repaint();
+            firePanelsChanged();
+        }));
     }
 
     /**
@@ -134,6 +142,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
         children.clear();
         filtersPanel.removeAll();
         modeBox.setSelectedIndex(0);
+        border.setTitle("");
     }
 
     /**
@@ -146,6 +155,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
     {
         FilterGroup group = new FilterGroup();
         group.mode = modeBox.getItemAt(modeBox.getSelectedIndex());
+        group.comment = border.getTitle();
         for (FilterPanel<?> child : children)
             group.addChild(child.filter());
         return group;
@@ -217,6 +227,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
         clear();
         group = filter instanceof FilterGroup g ? g : new FilterGroup(filter);
         modeBox.setSelectedItem(group.mode);
+        border.setTitle(group.comment);
         for (Filter child : group)
         {
             if (child instanceof FilterGroup)
