@@ -218,7 +218,8 @@ public class TextFilter extends FilterLeaf<Collection<String>>
                 matcher = createSimpleMatcher(text, c).negate();
                 break;
             case CONTAINS_NOT_EXACTLY:
-                matcher = (s) -> !s.equalsIgnoreCase(text);
+                p = Pattern.compile(replaceTokens(text, c), Pattern.CASE_INSENSITIVE);
+                matcher = (s) -> !p.matcher(s).matches();
                 break;
             case CONTAINS_EXACTLY:
                 p = Pattern.compile(replaceTokens(text, c), Pattern.CASE_INSENSITIVE);
