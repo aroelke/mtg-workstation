@@ -84,10 +84,10 @@ public class FilterGroup extends Filter implements Iterable<Filter>
      */
     private List<Filter> children;
 
-    /**
-     * Combination mode of this FilterGroup.
-     */
+    /** Combination mode of this FilterGroup. */
     public Mode mode;
+    /** User-defined string associated with the group. */
+    public String comment;
 
     /**
      * Create a new FilterGroup with no children and in AND mode.
@@ -97,6 +97,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
         super(CardAttribute.GROUP);
         children = new ArrayList<>();
         mode = Mode.AND;
+        comment = "";
     }
 
     /**
@@ -137,6 +138,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
         for (Filter child : children)
             filter.addChild(child.copy());
         filter.mode = mode;
+        filter.comment = comment;
         return filter;
     }
 
@@ -182,6 +184,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
     protected void serializeFields(JsonObject fields)
     {
         fields.addProperty("mode", mode.toString());
+        fields.addProperty("comment", comment);
         fields.add("children", children.stream().collect(Collector.of(
             JsonArray::new,
             (a, i) -> a.add(i.toJsonObject()),
@@ -193,6 +196,7 @@ public class FilterGroup extends Filter implements Iterable<Filter>
     protected void deserializeFields(JsonObject fields)
     {
         mode = Arrays.stream(Mode.values()).filter((m) -> m.toString().equals(fields.get("mode").getAsString())).findAny().get();
+        comment = fields.has("comment") ? fields.get("comment").getAsString() : "";
         for (JsonElement element : fields.get("children").getAsJsonArray())
         {
             CardAttribute type = CardAttribute.fromString(element.getAsJsonObject().get("type").getAsString());

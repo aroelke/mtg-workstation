@@ -1,8 +1,11 @@
 package editor.gui.filter;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.FontMetrics;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,10 +16,14 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.filter.leaf.FilterLeaf;
+import editor.util.MouseListenerFactory;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -27,18 +34,17 @@ import editor.util.UnicodeSymbols;
  */
 public class FilterGroupPanel extends FilterPanel<Filter>
 {
-    /**
-     * {@link FilterPanel}s contained by this FilterGroupPanel.
-     */
+    /** Amount of empty space before titled border line. */
+    private static final int GAP = 10;
+
+    /** {@link FilterPanel}s contained by this FilterGroupPanel. */
     private List<FilterPanel<?>> children;
-    /**
-     * Panel containing the children.
-     */
+    /** Panel containing the children. */
     private Box filtersPanel;
-    /**
-     * Combo box showing the combination mode of the filter group.
-     */
+    /** Combo box showing the combination mode of the filter group. */
     private JComboBox<FilterGroup.Mode> modeBox;
+    /** Titled border for showing the group's comment. */
+    private TitledBorder border;
 
     /**
      * Create a new FilterGroupPanel with one child.
@@ -46,7 +52,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
     public FilterGroupPanel()
     {
         super();
-        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), BorderFactory.createEtchedBorder()));
+        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP), border = BorderFactory.createTitledBorder("")));
         setLayout(new BorderLayout());
 
         children = new ArrayList<>();
@@ -109,6 +115,31 @@ public class FilterGroupPanel extends FilterPanel<Filter>
         add(filtersPanel, BorderLayout.CENTER);
 
         add(new FilterSelectorPanel());
+
+        addMouseListener(MouseListenerFactory.createDoubleClickListener((e) -> {
+            FontMetrics metrics = getFontMetrics(border.getTitleFont());
+            int width = metrics.stringWidth(border.getTitle().isEmpty() ? "Add a comment" : border.getTitle()) + 20;
+            int gap = border.getTitle().isEmpty() ? 0 : GAP;
+            Rectangle bounds = new Rectangle(GAP, gap, width, metrics.getHeight());
+            if (bounds.contains(e.getPoint()))
+            {
+                JPopupMenu popup = new JPopupMenu();
+                popup.setBorder(BorderFactory.createEmptyBorder());
+                JTextField field = new JTextField(border.getTitle());
+                field.addActionListener((v) -> {
+                    border.setTitle(field.getText());
+                    popup.setVisible(false);
+                    revalidate();
+                    repaint();
+                    firePanelsChanged();
+                });
+                popup.add(field);
+                popup.setPreferredSize(new Dimension(width, field.getPreferredSize().height));
+                popup.show(this, GAP, gap);
+                field.selectAll();
+                field.requestFocusInWindow();
+            }
+        }));
     }
 
     /**
@@ -134,6 +165,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
         children.clear();
         filtersPanel.removeAll();
         modeBox.setSelectedIndex(0);
+        border.setTitle("");
     }
 
     /**
@@ -146,6 +178,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
     {
         FilterGroup group = new FilterGroup();
         group.mode = modeBox.getItemAt(modeBox.getSelectedIndex());
+        group.comment = border.getTitle();
         for (FilterPanel<?> child : children)
             group.addChild(child.filter());
         return group;
@@ -217,6 +250,7 @@ public class FilterGroupPanel extends FilterPanel<Filter>
         clear();
         group = filter instanceof FilterGroup g ? g : new FilterGroup(filter);
         modeBox.setSelectedItem(group.mode);
+        border.setTitle(group.comment);
         for (Filter child : group)
         {
             if (child instanceof FilterGroup)
