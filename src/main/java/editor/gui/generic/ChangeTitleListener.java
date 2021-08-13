@@ -7,12 +7,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 /**
@@ -31,15 +32,21 @@ public class ChangeTitleListener extends MouseAdapter
     /**
      * Border whose title is to be watched and edited.
      */
-    private TitledBorder titledBorder;
+    private TitledBorder border;
     /**
      * Popup containing the text field that is overlaid over the border.
      */
-    private JPopupMenu editPopup;
+    private JPopupMenu popup;
     /**
      * Text field containing the changes to the title.
      */
-    private JTextField editTextField;
+    private JTextField field;
+    /**
+     * Function to get the horizontal and vertical offsets of the title editor field
+     * based on the contents of the text (most often it will depend only on if the
+     * title is currently blank).
+     */
+    private Function<String, Integer> hgap, vgap;
 
     /**
      * Create a new ChangeTitleListener that watches for a double-click on the title
@@ -51,34 +58,65 @@ public class ChangeTitleListener extends MouseAdapter
      */
     public ChangeTitleListener(JComponent c, Consumer<String> change)
     {
+        this(c, (TitledBorder)c.getBorder(), 0, 0, change);
+    }
+
+    /**
+     * Create a new ChangeTitleListener that watches for a double-click on the title
+     * of the border of <code>c</code> and performs the given action when the title
+     * is changed this way, with the text field offset.
+     * 
+     * @param c component containing the border to watch
+     * @param b border whose titled should be changed
+     * @param h horizontal offset of the editor field
+     * @param v vertical offset of the editor field
+     * @param change action to perform when the title is changed
+     */
+    public ChangeTitleListener(JComponent c, TitledBorder b, int h, int v, Consumer<String> change)
+    {
+        this(c, b, (s) -> h, (s) -> v, change);
+    }
+
+    /**
+     * Create a new ChangeTitleListener that watches for a double-click on the title
+     * of the border of <code>c</code> and performs the given action when the title
+     * is changed this way.
+     * 
+     * @param c component containing the border to watch
+     * @param b border whose title should be changed
+     * @param h horizontal offset of the editor field based on the current title
+     * @param v vertical offset of the editor field based on the current title
+     * @param change action to perform when the title is changed
+     */
+    public ChangeTitleListener(JComponent c, TitledBorder b, Function<String, Integer> h, Function<String, Integer> v, Consumer<String> change)
+    {
         super();
 
         component = c;
-        if (component.getBorder() instanceof TitledBorder b)
-            titledBorder = b;
-        else
-            throw new IllegalArgumentException("component must have a titled border");
+        border = b;
+        hgap = h;
+        vgap = v;
 
-        editTextField = new JTextField();
+        field = new JTextField();
         // Accept entry when enter is pressed
-        editTextField.addActionListener((e) -> {
-            String value = editTextField.getText();
+        field.addActionListener((e) -> {
+            String value = field.getText();
             change.accept(value);
-            editPopup.setVisible(false);
-            editPopup.getInvoker().revalidate();
-            editPopup.getInvoker().repaint();
+            popup.setVisible(false);
+            popup.getInvoker().revalidate();
+            popup.getInvoker().repaint();
         });
         // Throw away entry when ESC is pressed
-        editTextField.registerKeyboardAction(
-            (e) -> editPopup.setVisible(false),
+        field.registerKeyboardAction(
+            (e) -> popup.setVisible(false),
             KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
             JComponent.WHEN_FOCUSED
         );
         // Implicitly throw away entry when something else is clicked
 
-        editPopup = new JPopupMenu();
-        editPopup.setBorder(new EmptyBorder(0, 0, 0, 0));
-        editPopup.add(editTextField);
+        popup = new JPopupMenu();
+        popup.setBorder(BorderFactory.createEmptyBorder());
+        popup.add(field);
     }
 
     @Override
@@ -86,17 +124,15 @@ public class ChangeTitleListener extends MouseAdapter
     {
         if (e.getClickCount() == 2)
         {
-            FontMetrics fm = component.getFontMetrics(titledBorder.getTitleFont());
-            int titleWidth = fm.stringWidth(titledBorder.getTitle()) + 20;
-            if (new Rectangle(0, 0, titleWidth, fm.getHeight()).contains(e.getPoint()))
+            FontMetrics metrics = component.getFontMetrics(border.getTitleFont());
+            int width = metrics.stringWidth(border.getTitle().isEmpty() ? "Change title" : border.getTitle()) + 20;
+            if (new Rectangle(hgap.apply(border.getTitle()), vgap.apply(border.getTitle()), width, metrics.getHeight()).contains(e.getPoint()))
             {
-                editTextField.setText(titledBorder.getTitle());
-                Dimension d = editTextField.getPreferredSize();
-                d.width = titleWidth;
-                editPopup.setPreferredSize(d);
-                editPopup.show(component, 0, 0);
-                editTextField.selectAll();
-                editTextField.requestFocusInWindow();
+                field.setText(border.getTitle());
+                popup.setPreferredSize(new Dimension(width, field.getPreferredSize().height));
+                popup.show(component, hgap.apply(border.getTitle()), vgap.apply(border.getTitle()));
+                field.selectAll();
+                field.requestFocusInWindow();
             }
         }
     }

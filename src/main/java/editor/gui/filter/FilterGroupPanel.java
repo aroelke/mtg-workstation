@@ -1,11 +1,8 @@
 package editor.gui.filter;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.FontMetrics;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,14 +13,12 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import editor.filter.Filter;
 import editor.filter.FilterGroup;
 import editor.filter.leaf.FilterLeaf;
-import editor.util.MouseListenerFactory;
+import editor.gui.generic.ChangeTitleListener;
 import editor.util.UnicodeSymbols;
 
 /**
@@ -116,29 +111,11 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 
         add(new FilterSelectorPanel());
 
-        addMouseListener(MouseListenerFactory.createDoubleClickListener((e) -> {
-            FontMetrics metrics = getFontMetrics(border.getTitleFont());
-            int width = metrics.stringWidth(border.getTitle().isEmpty() ? "Add a comment" : border.getTitle()) + 20;
-            int gap = border.getTitle().isEmpty() ? 0 : GAP;
-            Rectangle bounds = new Rectangle(GAP, gap, width, metrics.getHeight());
-            if (bounds.contains(e.getPoint()))
-            {
-                JPopupMenu popup = new JPopupMenu();
-                popup.setBorder(BorderFactory.createEmptyBorder());
-                JTextField field = new JTextField(border.getTitle());
-                field.addActionListener((v) -> {
-                    border.setTitle(field.getText());
-                    popup.setVisible(false);
-                    revalidate();
-                    repaint();
-                    firePanelsChanged();
-                });
-                popup.add(field);
-                popup.setPreferredSize(new Dimension(width, field.getPreferredSize().height));
-                popup.show(this, GAP, gap);
-                field.selectAll();
-                field.requestFocusInWindow();
-            }
+        addMouseListener(new ChangeTitleListener(this, border, (s) -> GAP, (s) -> s.isEmpty() ? 0 : GAP, (t) -> {
+            border.setTitle(t);
+            revalidate();
+            repaint();
+            firePanelsChanged();
         }));
     }
 
