@@ -187,6 +187,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
             // If the filter is a "simple" string, then the characteristic matches if it matches the
             // filter text in any order with the specified set containment
             Predicate<String> matcher;
+            Pattern p;
             switch (contain)
             {
             case CONTAINS_ALL_OF:
@@ -207,7 +208,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
                         toAdd = m.group();
                     str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), c, "\\E", "\\Q"));
                 }
-                Pattern p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+                p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
                 if (contain == Containment.CONTAINS_NONE_OF)
                     matcher = (s) -> !p.matcher(s).find();
                 else
@@ -220,7 +221,8 @@ public class TextFilter extends FilterLeaf<Collection<String>>
                 matcher = (s) -> !s.equalsIgnoreCase(text);
                 break;
             case CONTAINS_EXACTLY:
-                matcher = (s) -> s.equalsIgnoreCase(text);
+                p = Pattern.compile(replaceTokens(text, c), Pattern.CASE_INSENSITIVE);
+                matcher = (s) -> p.matcher(s).matches();
                 break;
             default:
                 matcher = (s) -> false;
