@@ -186,49 +186,38 @@ public class TextFilter extends FilterLeaf<Collection<String>>
         {
             // If the filter is a "simple" string, then the characteristic matches if it matches the
             // filter text in any order with the specified set containment
-            Predicate<String> matcher;
-            Pattern p;
-            switch (contain)
-            {
-            case CONTAINS_ALL_OF:
-                matcher = createSimpleMatcher(text, c);
-                break;
-            case CONTAINS_ANY_OF:
-            case CONTAINS_NONE_OF:
-                Matcher m = TextFilter.WORD_PATTERN.matcher(text);
-                StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
-                while (m.find())
-                {
-                    String toAdd;
-                    if (m.group(1) != null)
-                        toAdd = m.group(1);
-                    else if (m.group(2) != null)
-                        toAdd = m.group(2);
+            Predicate<String> matcher = switch (contain) {
+                case CONTAINS_ALL_OF -> createSimpleMatcher(text, c);
+                case CONTAINS_ANY_OF, CONTAINS_NONE_OF -> {
+                    Matcher m = TextFilter.WORD_PATTERN.matcher(text);
+                    StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
+                    while (m.find())
+                    {
+                        String toAdd;
+                        if (m.group(1) != null)
+                            toAdd = m.group(1);
+                        else if (m.group(2) != null)
+                            toAdd = m.group(2);
+                        else
+                            toAdd = m.group();
+                        str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), c, "\\E", "\\Q"));
+                    }
+                    Pattern p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+                    if (contain == Containment.CONTAINS_NONE_OF)
+                        yield (s) -> !p.matcher(s).find();
                     else
-                        toAdd = m.group();
-                    str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), c, "\\E", "\\Q"));
+                        yield (s) -> p.matcher(s).find();
                 }
-                p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
-                if (contain == Containment.CONTAINS_NONE_OF)
-                    matcher = (s) -> !p.matcher(s).find();
-                else
-                    matcher = (s) -> p.matcher(s).find();
-                break;
-            case CONTAINS_NOT_ALL_OF:
-                matcher = createSimpleMatcher(text, c).negate();
-                break;
-            case CONTAINS_NOT_EXACTLY:
-                p = Pattern.compile(replaceTokens(text, c), Pattern.CASE_INSENSITIVE);
-                matcher = (s) -> !p.matcher(s).matches();
-                break;
-            case CONTAINS_EXACTLY:
-                p = Pattern.compile(replaceTokens(text, c), Pattern.CASE_INSENSITIVE);
-                matcher = (s) -> p.matcher(s).matches();
-                break;
-            default:
-                matcher = (s) -> false;
-                break;
-            }
+                case CONTAINS_NOT_ALL_OF -> createSimpleMatcher(text, c).negate();
+                case CONTAINS_NOT_EXACTLY -> {
+                    Pattern p = Pattern.compile(replaceTokens(text, c), Pattern.CASE_INSENSITIVE);
+                    yield (s) -> !p.matcher(s).matches();
+                }
+                case CONTAINS_EXACTLY -> {
+                    Pattern p = Pattern.compile(replaceTokens(text, c), Pattern.CASE_INSENSITIVE);
+                    yield (s) -> p.matcher(s).matches();
+                }
+            };
             return function().apply(c).stream().anyMatch(matcher);
         }
     }
