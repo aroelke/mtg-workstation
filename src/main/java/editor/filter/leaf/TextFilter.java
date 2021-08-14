@@ -34,6 +34,11 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      */
     public static final Pattern WORD_PATTERN = Pattern.compile("\"([^\"]*)\"|'([^']*)'|[^\\s]+");
 
+    /**
+     * Mapping of tokens onto the lists of words they can match.  Each token is a backslash
+     * followed by a word describing what it is, e.g. "\supertype" to match any supertype.
+     * They should be used with care, though, because they hurt performance.
+     */
     public static final Map<String, Function<Card, Set<String>>> TOKENS = Map.of(
         "\\supertype", (c) -> Set.of(SupertypeFilter.supertypeList),
         "\\cardtype", (c) -> Set.of(CardTypeFilter.typeList),
@@ -65,11 +70,33 @@ public class TextFilter extends FilterLeaf<Collection<String>>
         }
     }
 
+    /**
+     * Replace all tokens in a string with regular expressions that look for the words they
+     * can match.
+     * 
+     * @param text text to replace
+     * @param c card to use for replacement, if the token is to be replaced with a card's value
+     * for an attribute
+     * @param prefix prefix placed just before the regular expression
+     * @param suffix suffix placed just after the regular expression
+     * @return A string computed by replacing all tokens with their lists of words
+     * @see #TOKENS
+     */
     public static String replaceTokens(String text, Card c, String prefix, String suffix)
     {
         return TOKENS.keySet().stream().reduce(text, (t, token) -> t.replace(token, TOKENS.get(token).apply(c).stream().collect(Collectors.joining("|", prefix + "(?:", ")" + suffix))));
     }
 
+    /**
+     * Replace all tokens in a string with regular expressions that look for the words they
+     * can match, with no prefix or suffix.
+     * 
+     * @param text text to replace
+     * @param c card to use for replacement, if the token is to be replaced with a card's value
+     * for a attribute
+     * @return A string computed by replacing all tokens with their lists of words
+     * @see #TOKENS
+     */
     public static String replaceTokens(String text, Card c)
     {
         return replaceTokens(text, c, "", "");
