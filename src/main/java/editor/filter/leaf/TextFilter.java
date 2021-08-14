@@ -1,12 +1,13 @@
 package editor.filter.leaf;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -14,8 +15,6 @@ import java.util.stream.Collectors;
 import com.google.gson.JsonObject;
 
 import editor.database.attributes.CardAttribute;
-import editor.database.attributes.CombatStat;
-import editor.database.attributes.Loyalty;
 import editor.database.card.Card;
 import editor.filter.leaf.options.multi.CardTypeFilter;
 import editor.filter.leaf.options.multi.SubtypeFilter;
@@ -35,18 +34,24 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     public static final Pattern WORD_PATTERN = Pattern.compile("\"([^\"]*)\"|'([^']*)'|[^\\s]+");
 
     /**
-     * Mapping of tokens onto the lists of words they can match.  Each token is a backslash
-     * followed by a word describing what it is, e.g. "\supertype" to match any supertype.
-     * They should be used with care, though, because they hurt performance.
+     * List of tokens that can be used to generically refer to different card attributes, e.g.
+     * "\cardtype" can be used to refer to any card type. This should be used with care, though,
+     * as it slows down filtering.
      */
-    public static final Map<String, Function<Card, Set<String>>> TOKENS = Map.of(
-        "\\supertype", (c) -> Set.of(SupertypeFilter.supertypeList),
-        "\\cardtype", (c) -> Set.of(CardTypeFilter.typeList),
-        "\\subtype", (c) -> Set.of(SubtypeFilter.subtypeList),
-        "\\power", (c) -> c.power().stream().map(CombatStat::toString).collect(Collectors.toSet()),
-        "\\toughness", (c) -> c.toughness().stream().map(CombatStat::toString).collect(Collectors.toSet()),
-        "\\loyalty", (c) -> c.loyalty().stream().map(Loyalty::toString).collect(Collectors.toSet())
+    public static final List<Token> TOKENS = List.of(
+        new Token(List.of("\\supertype"), () -> Arrays.asList(SupertypeFilter.supertypeList)),
+        new Token(List.of("\\cardtype"), () -> Arrays.asList(CardTypeFilter.typeList)),
+        new Token(List.of("\\subtype"), () -> Arrays.asList(SubtypeFilter.subtypeList))
     );
+
+    /**
+     * A token is a string that can match a list of options, like card types or subtypes.
+     * 
+     * @param tokens list of strings that can be replaced
+     * @param replacements generator of a list of strings to replace the token with
+     * @author Alec Roelke
+     */
+    private static record Token(List<String> tokens, Supplier<List<String>> replacements) {}
 
     /**
      * Create a new TextFilter that filters out cards whose characteristic
@@ -75,16 +80,24 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * can match.
      * 
      * @param text text to replace
-     * @param c card to use for replacement, if the token is to be replaced with a card's value
-     * for an attribute
      * @param prefix prefix placed just before the regular expression
      * @param suffix suffix placed just after the regular expression
      * @return A string computed by replacing all tokens with their lists of words
      * @see #TOKENS
      */
-    public static String replaceTokens(String text, Card c, String prefix, String suffix)
+    public static String replaceTokens(String text, String prefix, String suffix)
     {
-        return TOKENS.keySet().stream().reduce(text, (t, token) -> t.replace(token, TOKENS.get(token).apply(c).stream().collect(Collectors.joining("|", prefix + "(?:", ")" + suffix))));
+        if (!text.contains("\\"))
+            return text;
+        else
+            return TOKENS.stream().reduce(
+                text,
+                (t, token) -> token.tokens.stream().reduce(
+                    t,
+                    (s, element) -> s.replace(element, token.replacements.get().stream().collect(Collectors.joining("|", prefix + "(?:", ")" + suffix)))
+                ),
+                String::concat
+        );
     }
 
     /**
@@ -92,14 +105,12 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * can match, with no prefix or suffix.
      * 
      * @param text text to replace
-     * @param c card to use for replacement, if the token is to be replaced with a card's value
-     * for a attribute
      * @return A string computed by replacing all tokens with their lists of words
      * @see #TOKENS
      */
-    public static String replaceTokens(String text, Card c)
+    public static String replaceTokens(String text)
     {
-        return replaceTokens(text, c, "", "");
+        return replaceTokens(text, "", "");
     }
 
     /**
@@ -109,7 +120,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * @param pattern string pattern to create a regex matcher out of
      * @return a predicate that searches a string for the words and phrases in the given string.
      */
-    public static Predicate<String> createSimpleMatcher(String pattern, Card c)
+    public static Predicate<String> createSimpleMatcher(String pattern)
     {
         Matcher m = WORD_PATTERN.matcher(pattern);
         StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))(?=.*(?:^|$|\\W)\\Q", "^(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W)).*$");
@@ -122,7 +133,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
                 toAdd = m.group(2);
             else
                 toAdd = m.group();
-            str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), c, "\\E", "\\Q"));
+            str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), "\\E", "\\Q"));
         }
         Pattern p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
         return (s) -> p.matcher(s).find();
@@ -204,7 +215,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
         if (regex)
         {
             Pattern p = Pattern.compile(
-                replaceTokens(text, c),
+                replaceTokens(text),
                 Pattern.DOTALL | Pattern.CASE_INSENSITIVE
             );
             return function().apply(c).stream().anyMatch((s) -> p.matcher(s).find());
@@ -214,7 +225,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
             // If the filter is a "simple" string, then the characteristic matches if it matches the
             // filter text in any order with the specified set containment
             Predicate<String> matcher = switch (contain) {
-                case CONTAINS_ALL_OF -> createSimpleMatcher(text, c);
+                case CONTAINS_ALL_OF -> createSimpleMatcher(text);
                 case CONTAINS_ANY_OF, CONTAINS_NONE_OF -> {
                     Matcher m = TextFilter.WORD_PATTERN.matcher(text);
                     StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
@@ -227,7 +238,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
                             toAdd = m.group(2);
                         else
                             toAdd = m.group();
-                        str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), c, "\\E", "\\Q"));
+                        str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), "\\E", "\\Q"));
                     }
                     Pattern p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
                     if (contain == Containment.CONTAINS_NONE_OF)
@@ -235,13 +246,13 @@ public class TextFilter extends FilterLeaf<Collection<String>>
                     else
                         yield (s) -> p.matcher(s).find();
                 }
-                case CONTAINS_NOT_ALL_OF -> createSimpleMatcher(text, c).negate();
+                case CONTAINS_NOT_ALL_OF -> createSimpleMatcher(text).negate();
                 case CONTAINS_NOT_EXACTLY -> {
-                    Pattern p = Pattern.compile(replaceTokens(text, c), Pattern.CASE_INSENSITIVE);
+                    Pattern p = Pattern.compile(replaceTokens(text), Pattern.CASE_INSENSITIVE);
                     yield (s) -> !p.matcher(s).matches();
                 }
                 case CONTAINS_EXACTLY -> {
-                    Pattern p = Pattern.compile(replaceTokens(text, c), Pattern.CASE_INSENSITIVE);
+                    Pattern p = Pattern.compile(replaceTokens(text), Pattern.CASE_INSENSITIVE);
                     yield (s) -> p.matcher(s).matches();
                 }
             };
