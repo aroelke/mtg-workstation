@@ -139,18 +139,16 @@ public class TextFilter extends FilterLeaf<Collection<String>>
         return (s) -> p.matcher(s).find();
     }
 
-    /**
-     * Containment type for this TextFilter.
-     */
+    /** Containment type for this TextFilter. */
     public Containment contain;
-    /**
-     * Whether or not the text is a regular expression.
-     */
+    /** Whether or not the text is a regular expression. */
     public boolean regex;
-    /**
-     * Text to filter.
-     */
+    /** Text to filter. */
     public String text;
+    private Containment prevContain;
+    private Boolean prevRegex;
+    private String prevText;
+    private Predicate<String> patternCache;
 
     /**
      * Create a new TextFilter without a type or function.  Should only be used for
@@ -159,6 +157,10 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     public TextFilter()
     {
         this(null, null);
+        prevContain = null;
+        prevRegex = null;
+        prevText = null;
+        patternCache = null;
     }
 
     /**
@@ -204,6 +206,11 @@ public class TextFilter extends FilterLeaf<Collection<String>>
         return Objects.hash(type(), function(), contain, regex, text);
     }
 
+    private boolean compilePattern()
+    {
+        return (patternCache == null) || (prevContain != contain || !prevRegex.equals(regex) || !prevText.equals(text));
+    }
+
     /**
      * {@inheritDoc}
      * Cards are filtered by a text attribute that matches this TextFilter's text.
@@ -212,52 +219,55 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     protected boolean testFace(Card c)
     {
         // If the filter is a regex, then just match it
-        if (regex)
+        if (compilePattern())
         {
-            Pattern p = Pattern.compile(
-                replaceTokens(text),
-                Pattern.DOTALL | Pattern.CASE_INSENSITIVE
-            );
-            return function().apply(c).stream().anyMatch((s) -> p.matcher(s).find());
-        }
-        else
-        {
-            // If the filter is a "simple" string, then the characteristic matches if it matches the
-            // filter text in any order with the specified set containment
-            Predicate<String> matcher = switch (contain) {
-                case CONTAINS_ALL_OF -> createSimpleMatcher(text);
-                case CONTAINS_ANY_OF, CONTAINS_NONE_OF -> {
-                    Matcher m = TextFilter.WORD_PATTERN.matcher(text);
-                    StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
-                    while (m.find())
-                    {
-                        String toAdd;
-                        if (m.group(1) != null)
-                            toAdd = m.group(1);
-                        else if (m.group(2) != null)
-                            toAdd = m.group(2);
+            prevContain = contain;
+            prevRegex = regex;
+            prevText = text;
+            if (regex)
+            {
+                Pattern p = Pattern.compile(replaceTokens(text), Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+                patternCache = (s) -> p.matcher(s).find();
+            }
+            else
+            {
+                // If the filter is a "simple" string, then the characteristic matches if it matches the
+                // filter text in any order with the specified set containment
+                patternCache = switch (contain) {
+                    case CONTAINS_ALL_OF -> createSimpleMatcher(text);
+                    case CONTAINS_ANY_OF, CONTAINS_NONE_OF -> {
+                        Matcher m = TextFilter.WORD_PATTERN.matcher(text);
+                        StringJoiner str = new StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))");
+                        while (m.find())
+                        {
+                            String toAdd;
+                            if (m.group(1) != null)
+                                toAdd = m.group(1);
+                            else if (m.group(2) != null)
+                                toAdd = m.group(2);
+                            else
+                                toAdd = m.group();
+                            str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), "\\E", "\\Q"));
+                        }
+                        Pattern p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+                        if (contain == Containment.CONTAINS_NONE_OF)
+                            yield (s) -> !p.matcher(s).find();
                         else
-                            toAdd = m.group();
-                        str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), "\\E", "\\Q"));
+                            yield (s) -> p.matcher(s).find();
                     }
-                    Pattern p = Pattern.compile(str.toString().replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
-                    if (contain == Containment.CONTAINS_NONE_OF)
-                        yield (s) -> !p.matcher(s).find();
-                    else
-                        yield (s) -> p.matcher(s).find();
-                }
-                case CONTAINS_NOT_ALL_OF -> createSimpleMatcher(text).negate();
-                case CONTAINS_NOT_EXACTLY -> {
-                    Pattern p = Pattern.compile(replaceTokens(text), Pattern.CASE_INSENSITIVE);
-                    yield (s) -> !p.matcher(s).matches();
-                }
-                case CONTAINS_EXACTLY -> {
-                    Pattern p = Pattern.compile(replaceTokens(text), Pattern.CASE_INSENSITIVE);
-                    yield (s) -> p.matcher(s).matches();
-                }
-            };
-            return function().apply(c).stream().anyMatch(matcher);
+                    case CONTAINS_NOT_ALL_OF -> createSimpleMatcher(text).negate();
+                    case CONTAINS_NOT_EXACTLY -> {
+                        Pattern p = Pattern.compile(replaceTokens(text), Pattern.CASE_INSENSITIVE);
+                        yield (s) -> !p.matcher(s).matches();
+                    }
+                    case CONTAINS_EXACTLY -> {
+                        Pattern p = Pattern.compile(replaceTokens(text), Pattern.CASE_INSENSITIVE);
+                        yield (s) -> p.matcher(s).matches();
+                    }
+                };
+            }
         }
+        return function().apply(c).stream().anyMatch(patternCache);
     }
 
     @Override
