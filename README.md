@@ -7,6 +7,7 @@ This program depends on the following:
  - Java 16 JDK, which can be installed from https://www.oracle.com/java/technologies/javase-downloads.html
  - Google JSON library, GSON, which can be found at https://code.google.com/p/google-gson/
  - Natty, which can be found at http://natty.joestelmach.com/
+ - JFreeChart, which can be found at https://jfree.org/jfreechart/
 
 This depends on MTGJSON (http://www.mtgjson.com/) for its card list.
 
