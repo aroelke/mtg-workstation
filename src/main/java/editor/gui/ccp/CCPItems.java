@@ -23,8 +23,19 @@ import javax.swing.TransferHandler;
  * 
  * @author Alec Roelke
  */
-public record CCPItems(JMenuItem cut, JMenuItem copy, JMenuItem paste)
+public class CCPItems//(JMenuItem cut, JMenuItem copy, JMenuItem paste)
 {
+    private final JMenuItem cut;
+    private final JMenuItem copy;
+    private final JMenuItem paste;
+
+    public CCPItems(JMenuItem cut, JMenuItem copy, JMenuItem paste)
+    {
+        this.cut = cut;
+        this.copy = copy;
+        this.paste = paste;
+    }
+
     /**
      * Create a new set of cut, copy, and paste menu items that allow the reference to the source
      * component performing the action to change what it points to over time.
@@ -58,5 +69,20 @@ public record CCPItems(JMenuItem cut, JMenuItem copy, JMenuItem paste)
     public CCPItems(Component source, boolean accelerate)
     {
         this(() -> source, accelerate);
+    }
+
+    public JMenuItem cut()
+    {
+        return cut;
+    }
+
+    public JMenuItem copy()
+    {
+        return copy;
+    }
+
+    public JMenuItem paste()
+    {
+        return paste;
     }
 }

@@ -50,8 +50,20 @@ public class TextFilter extends FilterLeaf<Collection<String>>
      * @param tokens list of strings that can be replaced
      * @param replacements generator of a list of strings to replace the token with
      * @author Alec Roelke
+     * 
+     * ~~RECORD~~
      */
-    private static record Token(List<String> tokens, Supplier<List<String>> replacements) {}
+    private static class Token/*(List<String> tokens, Supplier<List<String>> replacements)*/
+    {
+        private final List<String> tokens;
+        private final Supplier<List<String>> replacements;
+
+        public Token(List<String> t, Supplier<List<String>> r)
+        {
+            tokens = t;
+            replacements = r;
+        }
+    }
 
     /**
      * Create a new TextFilter that filters out cards whose characteristic

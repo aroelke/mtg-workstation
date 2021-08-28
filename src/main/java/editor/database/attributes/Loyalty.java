@@ -11,8 +11,10 @@ import editor.util.Parsers;
  * @param value numerical value of the starting loyalty
  * 
  * @author Alec Roelke
+ * 
+ * ~~RECORD~~
  */
-public record Loyalty(double value) implements OptionalAttribute, Comparable<Loyalty>
+public class Loyalty/*(double value)*/ implements OptionalAttribute, Comparable<Loyalty>
 {
     /**
      * Constant for an arbitrary card with no loyalty.
@@ -21,6 +23,13 @@ public record Loyalty(double value) implements OptionalAttribute, Comparable<Loy
 
     private static final double X = -1;
     private static final double STAR = -2;
+
+    private final double value;
+
+    public Loyalty(double v)
+    {
+        value = v;
+    }
 
     /**
      * Create a new Loyalty with the given value. Loyalty creatd this way can't vary.
@@ -46,6 +55,11 @@ public record Loyalty(double value) implements OptionalAttribute, Comparable<Loy
             case ""  -> Double.NaN;
             default  -> Parsers.tryParseDouble(s).orElse(Double.NaN);
         });
+    }
+
+    public double value()
+    {
+        return value;
     }
 
     @Override

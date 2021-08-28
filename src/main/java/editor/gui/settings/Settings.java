@@ -36,15 +36,17 @@ import editor.filter.leaf.options.multi.CardTypeFilter;
  * @param cwd initial directory of file choosers
  * 
  * @author Alec Roelke
+ * 
+ * ~~RECORD~~
  */
-public record Settings(InventorySettings inventory, EditorSettings editor, String cwd)
+public class Settings//(InventorySettings inventory, EditorSettings editor, String cwd)
 {
     /**
      * Sub-structure containing global inventory and card settings.
      * 
      * @author Alec Roelke
      */
-    public record InventorySettings(
+    public static class InventorySettings/*(
         String source,
         String file,
         String versionFile,
@@ -60,7 +62,57 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
         List<CardAttribute> columns,
         Color background,
         Color stripe
-    ) {
+    )*/ {
+        private final String source;
+        private final String file;
+        private final String versionFile;
+        private final DatabaseVersion version;
+        private final String location;
+        private final String scans;
+        private final String imageSource;
+        private final boolean imageLimitEnable;
+        private final int imageLimit;
+        private final String tags;
+        private final UpdateFrequency update;
+        private final boolean warn;
+        private final List<CardAttribute> columns;
+        private final Color background;
+        private final Color stripe;
+
+        public InventorySettings(
+            String source,
+            String file,
+            String versionFile,
+            DatabaseVersion version,
+            String location,
+            String scans,
+            String imageSource,
+            boolean imageLimitEnable,
+            int imageLimit,
+            String tags,
+            UpdateFrequency update,
+            boolean warn,
+            List<CardAttribute> columns,
+            Color background,
+            Color stripe
+        ) {
+            this.source = source;
+            this.file = file;
+            this.versionFile = versionFile;
+            this.version = version;
+            this.location = location;
+            this.scans = scans;
+            this.imageSource = imageSource;
+            this.imageLimitEnable = imageLimitEnable;
+            this.imageLimit = imageLimit;
+            this.tags = tags;
+            this.update = update;
+            this.warn = warn;
+            this.columns = columns;
+            this.background = background;
+            this.stripe = stripe;
+        }
+
         private InventorySettings()
         {
             this(
@@ -80,6 +132,81 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                 Color.WHITE,
                 new Color(0xCC, 0xCC, 0xCC, 0xFF)
             );
+        }
+
+        public String source()
+        {
+            return source;
+        }
+
+        public String file()
+        {
+            return file;
+        }
+
+        public String versionFile()
+        {
+            return versionFile;
+        }
+
+        public DatabaseVersion version()
+        {
+            return version;
+        }
+
+        public String location()
+        {
+            return location;
+        }
+
+        public String scans()
+        {
+            return scans;
+        }
+
+        public String imageSource()
+        {
+            return imageSource;
+        }
+
+        public boolean imageLimitEnable()
+        {
+            return imageLimitEnable;
+        }
+
+        public int imageLimit()
+        {
+            return imageLimit;
+        }
+
+        public String tags()
+        {
+            return tags;
+        }
+
+        public UpdateFrequency update()
+        {
+            return update;
+        }
+
+        public boolean warn()
+        {
+            return warn;
+        }
+
+        public List<CardAttribute> columns()
+        {
+            return columns;
+        }
+
+        public Color background()
+        {
+            return background;
+        }
+
+        public Color stripe()
+        {
+            return stripe;
         }
 
         /**
@@ -125,7 +252,7 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
      * 
      * @author Alec Roelke
      */
-    public record EditorSettings(
+    public static class EditorSettings/*(
         RecentsSettings recents,
         CategoriesSettings categories,
         List<CardAttribute> columns,
@@ -134,18 +261,37 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
         LegalitySettings legality,
         String manaValue,
         Set<CardLayout> backFaceLands,
-        ManaAnalysisSettings manaAnalysis)
+        ManaAnalysisSettings manaAnalysis)*/
     {
         /**
          * Sub-structure containing information about recently-edited files.
          * 
          * @author Alec Roelke
          */
-        public record RecentsSettings(int count, List<String> files)
+        public static class RecentsSettings//(int count, List<String> files)
         {
+            public final int count;
+            public final List<String> files;
+
+            public RecentsSettings(int c, List<String> f)
+            {
+                count = c;
+                files =f ;
+            }
+
             private RecentsSettings()
             {
                 this(4, Collections.emptyList());
+            }
+
+            public int count()
+            {
+                return count;
+            }
+
+            public List<String> files()
+            {
+                return files;
             }
         }
 
@@ -154,8 +300,19 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
          * 
          * @author Alec Roelke
          */
-        public record CategoriesSettings(List<Category> presets, int rows, int explicits)
+        public static class CategoriesSettings//(List<Category> presets, int rows, int explicits)
         {
+            private final List<Category> presets;
+            private final int rows;
+            private final int explicits;
+
+            public CategoriesSettings(List<Category> p, int r, int e)
+            {
+                presets = p;
+                rows = r;
+                explicits = e;
+            }
+
             private CategoriesSettings()
             {
                 this(
@@ -172,6 +329,21 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                     6, 3
                 );
             }
+
+            public List<Category> presets()
+            {
+                return presets;
+            }
+
+            public int rows()
+            {
+                return rows;
+            }
+
+            public int explicits()
+            {
+                return explicits;
+            }
         }
 
         /**
@@ -180,11 +352,37 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
          * 
          * @author Alec Roelke
          */
-        public record HandSettings(int size, String rounding, Color background)
+        public static class HandSettings//(int size, String rounding, Color background)
         {
+            public final int size;
+            public final String rounding;
+            public final Color background;
+
+            public HandSettings(int s, String r, Color b)
+            {
+                size = s;
+                rounding = r;
+                background = b;
+            }
+
             private HandSettings()
             {
                 this(7, "No rounding", Color.WHITE);
+            }
+
+            public int size()
+            {
+                return size;
+            }
+
+            public String rounding()
+            {
+                return rounding;
+            }
+
+            public Color background()
+            {
+                return background;
             }
         }
 
@@ -193,19 +391,97 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
          * 
          * @author Alec Roelke
          */
-        public record LegalitySettings(boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
+        public static class LegalitySettings//(boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
         {
+            public final boolean searchForCommander;
+            public final boolean main;
+            public final boolean all;
+            public final String list;
+            public final String sideboard;
+
+            public LegalitySettings(boolean s, boolean m, boolean a, String l, String b)
+            {
+                searchForCommander = s;
+                main = m;
+                all = a;
+                list = l;
+                sideboard = b;
+            }
+
             private LegalitySettings()
             {
                 this(true, true, false, "", "");
             }
+
+            public boolean searchForCommander()
+            {
+                return searchForCommander;
+            }
+
+            public boolean main()
+            {
+                return main;
+            }
+
+            public boolean all()
+            {
+                return all;
+            }
+
+            public String list()
+            {
+                return list;
+            }
+
+            public String sideboard()
+            {
+                return sideboard;
+            }
         }
 
-        public record ManaAnalysisSettings(Color none,
+        public static class ManaAnalysisSettings/*(Color none,
                                            Color colorless, Color white, Color blue, Color black, Color red, Color green, Color multi,
                                            Color creature, Color artifact, Color enchantment, Color planeswalker, Color instant, Color sorcery,
-                                           Color line)
+                                           Color line)*/
         {
+            public final Color none;
+            public final Color colorless;
+            public final Color white;
+            public final Color blue;
+            public final Color black;
+            public final Color red;
+            public final Color green;
+            public final Color multi;
+            public final Color creature;
+            public final Color artifact;
+            public final Color enchantment;
+            public final Color planeswalker;
+            public final Color instant;
+            public final Color sorcery;
+            public final Color line;
+
+            public ManaAnalysisSettings(Color none,
+                                        Color colorless, Color white, Color blue, Color black, Color red, Color green, Color multi,
+                                        Color creature, Color artifact, Color enchantment, Color planeswalker, Color instant, Color sorcery,
+                                        Color line)
+            {
+                this.none = none;
+                this.colorless = colorless;
+                this.white = white;
+                this.blue = blue;
+                this.black = black;
+                this.red = red;
+                this.green = green;
+                this.multi = multi;
+                this.creature = creature;
+                this.artifact = artifact;
+                this.enchantment = enchantment;
+                this.planeswalker = planeswalker;
+                this.instant = instant;
+                this.sorcery = sorcery;
+                this.line = line;
+            }
+
             private ManaAnalysisSettings()
             {
                 this(
@@ -214,6 +490,80 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                     new Color(163, 192, 149), new Color(203, 198, 193), new Color(248, 246, 216), new Color(215, 181, 215), new Color(193, 215, 233), new Color(228, 153, 119),
                     Color.BLACK
                 );
+            }
+
+            public Color none()
+            {
+                return none;
+            }
+
+            public Color colorless()
+            {
+                return colorless;
+            }
+            public Color white()
+            {
+                return white;
+            }
+
+            public Color blue()
+            {
+                return blue;
+            }
+
+            public Color black()
+            {
+                return black;
+            }
+
+            public Color red()
+            {
+                return red;
+            }
+
+            public Color green()
+            {
+                return green;
+            }
+
+            public Color multi()
+            {
+                return multi;
+            }
+
+            public Color creature()
+            {
+                return creature;
+            }
+
+            public Color artifact()
+            {
+                return artifact;
+            }
+
+            public Color enchantment()
+            {
+                return enchantment;
+            }
+
+            public Color planeswalker()
+            {
+                return planeswalker;
+            }
+
+            public Color instant()
+            {
+                return instant;
+            }
+
+            public Color sorcery()
+            {
+                return sorcery;
+            }
+
+            public Color line()
+            {
+                return line;
             }
 
             public Color get(String key)
@@ -285,6 +635,37 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
             );
         }
 
+        public final RecentsSettings recents;
+        public final CategoriesSettings categories;
+        public final List<CardAttribute> columns;
+        public final Color stripe;
+        public final HandSettings hand;
+        public final LegalitySettings legality;
+        public final String manaValue;
+        public final Set<CardLayout> backFaceLands;
+        public final ManaAnalysisSettings manaAnalysis;
+
+        public EditorSettings(RecentsSettings recents,
+                              CategoriesSettings categories,
+                              List<CardAttribute> columns,
+                              Color stripe,
+                              HandSettings hand,
+                              LegalitySettings legality,
+                              String manaValue,
+                              Set<CardLayout> backFaceLands,
+                              ManaAnalysisSettings manaAnalysis)
+        {
+            this.recents = recents;
+            this.categories = categories;
+            this.columns = columns;
+            this.stripe = stripe;
+            this.hand = hand;
+            this.legality = legality;
+            this.manaValue = manaValue;
+            this.backFaceLands = backFaceLands;
+            this.manaAnalysis = manaAnalysis;
+        }
+
         private EditorSettings()
         {
             this(
@@ -298,6 +679,51 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
                 Set.of(CardLayout.MODAL_DFC),
                 new ManaAnalysisSettings()
             );
+        }
+
+        public RecentsSettings recents()
+        {
+            return recents;
+        }
+
+        public CategoriesSettings categories()
+        {
+            return categories;
+        }
+
+        public List<CardAttribute> columns()
+        {
+            return columns;
+        }
+
+        public Color stripe()
+        {
+            return stripe;
+        }
+
+        public HandSettings hand()
+        {
+            return hand;
+        }
+
+        public LegalitySettings legality()
+        {
+            return legality;
+        }
+
+        public String manaValue()
+        {
+            return manaValue;
+        }
+
+        public Set<CardLayout> backFaceLands()
+        {
+            return backFaceLands;
+        }
+
+        public ManaAnalysisSettings manaAnalysis()
+        {
+            return manaAnalysis;
         }
 
         /**
@@ -342,6 +768,17 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
         }
     }
 
+    public final InventorySettings inventory;
+    public final EditorSettings editor;
+    public final String cwd;
+
+    public Settings(InventorySettings i, EditorSettings e, String c)
+    {
+        inventory = i;
+        editor = e;
+        cwd = c;
+    }
+
     protected Settings(String inventorySource, String inventoryFile, String inventoryVersionFile, DatabaseVersion inventoryVersion, String inventoryLocation, String inventoryScans, String imageSource, boolean imageLimitEnable, int imageLimit, String inventoryTags, UpdateFrequency inventoryUpdate, boolean inventoryWarn, List<CardAttribute> inventoryColumns, Color inventoryBackground, Color inventoryStripe, int recentsCount, List<String> recentsFiles, int explicits, List<Category> presetCategories, int categoryRows, List<CardAttribute> editorColumns, Color editorStripe, int handSize, String handRounding, Color handBackground, boolean searchForCommander, boolean main, boolean all, String list, String sideboard, String manaValue, Set<CardLayout> backFaceLands, String cwd, Color none, Color colorless, Color white, Color blue, Color black, Color red, Color green, Color multi, Color creature, Color artifact, Color enchantment, Color planeswalker, Color instant, Color sorcery, Color line)
     {
         this(
@@ -354,5 +791,20 @@ public record Settings(InventorySettings inventory, EditorSettings editor, Strin
     protected Settings()
     {
         this(new InventorySettings(), new EditorSettings(), System.getProperty("user.home"));
+    }
+
+    public InventorySettings inventory()
+    {
+        return inventory;
+    }
+
+    public EditorSettings editor()
+    {
+        return editor;
+    }
+
+    public String cwd()
+    {
+        return cwd;
     }
 }

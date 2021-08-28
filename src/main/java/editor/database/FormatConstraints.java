@@ -15,8 +15,10 @@ import java.util.stream.Collectors;
  * @param hasCommander whether or not a deck has a commander
  * 
  * @author Alec Roelke
+ * 
+ * ~~RECORD~~
  */
-public record FormatConstraints(int deckSize, boolean isExact, int maxCopies, int sideboardSize, boolean hasCommander)
+public class FormatConstraints
 {
     /**
      * Mapping of format names onto their deckbulding constraints.
@@ -70,6 +72,21 @@ public record FormatConstraints(int deckSize, boolean isExact, int maxCopies, in
         "Has Commander?"
     );
 
+    private final int deckSize;
+    private final boolean isExact;
+    private final int maxCopies;
+    private final int sideboardSize;
+    private final boolean hasCommander;
+
+    public FormatConstraints(int d, boolean e, int m, int s, boolean c)
+    {
+        deckSize = d;
+        isExact = e;
+        maxCopies = m;
+        sideboardSize = s;
+        hasCommander = c;
+    }
+
     /**
      * Create a default set of deckbuilding constraints, which is for a 60-card-
      * minimum-sized deck with 4 copies of any card and no commander.
@@ -77,6 +94,31 @@ public record FormatConstraints(int deckSize, boolean isExact, int maxCopies, in
     public FormatConstraints()
     {
         this(60, false, 4, 15, false);
+    }
+
+    public int deckSize()
+    {
+        return deckSize;
+    }
+
+    public boolean isExact()
+    {
+        return isExact;
+    }
+
+    public int maxCopies()
+    {
+        return maxCopies;
+    }
+
+    public int sideboardSize()
+    {
+        return sideboardSize;
+    }
+
+    public boolean hasCommander()
+    {
+        return hasCommander;
     }
 
     /**

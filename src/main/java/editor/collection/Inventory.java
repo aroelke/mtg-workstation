@@ -30,9 +30,17 @@ public class Inventory implements CardList
      * @param card card to store metadata for
      * 
      * @author Alec Roelke
+     * ~~RECORD~~
      */
-    private record InventoryEntry(Card card) implements Entry
+    private class InventoryEntry implements Entry
     {
+        private final Card card;
+
+        public InventoryEntry(Card c)
+        {
+            card = c;
+        }
+
         @Override
         public Card card()
         {

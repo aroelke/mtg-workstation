@@ -20,8 +20,10 @@ import java.util.stream.Collectors;
  * @param date date of the latest minor update
  * 
  * @author Alec Roelke
+ * 
+ * ~~RECORD~~
  */
-public record DatabaseVersion(int major, int minor, int revision, Optional<Date> date) implements Comparable<DatabaseVersion>
+public class DatabaseVersion/*(int major, int minor, int revision, Optional<Date> date)*/ implements Comparable<DatabaseVersion>
 {
     /**
      * Regular expression pattern used to match version info.
@@ -55,6 +57,19 @@ public record DatabaseVersion(int major, int minor, int revision, Optional<Date>
             throw new ParseException(s, 0);
     }
 
+    private final int major;
+    private final int minor;
+    private final int revision;
+    private final Optional<Date> date;
+
+    public DatabaseVersion(int maj, int min, int rev, Optional<Date> d)
+    {
+        major = maj;
+        minor = min;
+        revision = rev;
+        date = d;
+    }
+
     /**
      * Create a new database version with a specific version number and date.
      * 
@@ -78,6 +93,26 @@ public record DatabaseVersion(int major, int minor, int revision, Optional<Date>
     public DatabaseVersion(int maj, int min, int rev)
     {
         this(maj, min, rev, Optional.empty());
+    }
+
+    public int major()
+    {
+        return major;
+    }
+
+    public int minor()
+    {
+        return minor;
+    }
+
+    public int revision()
+    {
+        return revision;
+    }
+
+    public Optional<Date> date()
+    {
+        return date;
     }
 
     /**

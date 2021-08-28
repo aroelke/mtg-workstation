@@ -12,4 +12,24 @@ import editor.database.attributes.ManaType;
  * 
  * @author Alec Roelke
  */
-public record ColorIntensity(ManaType color, double intensity) {}
+public class ColorIntensity//(ManaType color, double intensity)
+{
+    public final ManaType color;
+    public final double intensity;
+
+    public ColorIntensity(ManaType c, double i)
+    {
+        color = c;
+        intensity = i;
+    }
+
+    public ManaType color()
+    {
+        return color;
+    }
+
+    public double intensity()
+    {
+        return intensity;
+    }
+}

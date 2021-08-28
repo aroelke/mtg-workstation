@@ -9,13 +9,24 @@ import editor.util.UnicodeSymbols;
  * @param value numeric value of the power or toughness for sorting
  * 
  * @author Alec Roelke
+ * 
+ * ~~RECORD~~
  */
-public record CombatStat(String expression, double value) implements OptionalAttribute, Comparable<CombatStat>
+public class CombatStat/*(String expression, double value)*/ implements OptionalAttribute, Comparable<CombatStat>
 {
     /**
      * Representation for a combat stat that doesn't exist.
      */
     public static final CombatStat NO_COMBAT = new CombatStat(Double.NaN);
+
+    private final String expression;
+    private final double value;
+
+    public CombatStat(String e, double v)
+    {
+        expression = e;
+        value = v;
+    }
 
     /**
      * Create a new PowerToughness from a number.
@@ -25,6 +36,16 @@ public record CombatStat(String expression, double value) implements OptionalAtt
     public CombatStat(double v)
     {
         this(Double.isNaN(v) ? "" : String.valueOf(v), v);
+    }
+
+    public String expression()
+    {
+        return expression;
+    }
+
+    public double value()
+    {
+        return value;
     }
 
     /**

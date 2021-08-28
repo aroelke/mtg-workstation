@@ -13,8 +13,10 @@ import java.time.format.DateTimeFormatter;
  * @param released date the expansion was released
  * 
  * @author Alec Roelke
+ * 
+ * ~~RECORD~~
  */
-public record Expansion(String name, String block, String code, int count, LocalDate released) implements Comparable<Expansion>
+public class Expansion/*(String name, String block, String code, int count, LocalDate released)*/ implements Comparable<Expansion>
 {
     /**
      * Array containing all block names.
@@ -32,6 +34,46 @@ public record Expansion(String name, String block, String code, int count, Local
      * Array containing all expansion names.
      */
     public static Expansion[] expansions = {};
+
+    private final String name;
+    private final String block;
+    private final String code;
+    private final int count;
+    private final LocalDate released;
+
+    public Expansion(String n, String b, String c, int x, LocalDate r)
+    {
+        name = n;
+        block = b;
+        code = c;
+        count = x;
+        released = r;
+    }
+
+    public String name()
+    {
+        return name;
+    }
+
+    public String block()
+    {
+        return block;
+    }
+
+    public String code()
+    {
+        return code;
+    }
+
+    public int count()
+    {
+        return count;
+    }
+
+    public LocalDate released()
+    {
+        return released;
+    }
 
     @Override
     public int compareTo(Expansion other)
