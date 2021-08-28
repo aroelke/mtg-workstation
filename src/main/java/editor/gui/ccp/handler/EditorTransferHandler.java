@@ -54,7 +54,7 @@ public class EditorTransferHandler extends TransferHandler
     }
 
     @Override
-    public boolean canImport(TransferSupport supp)
+    public boolean canImport(TransferHandler.TransferSupport supp)
     {
         for (var e : handlers.entrySet())
             if (supp.isDataFlavorSupported(e.getKey()))
@@ -63,7 +63,7 @@ public class EditorTransferHandler extends TransferHandler
     }
 
     @Override
-    public boolean importData(TransferSupport supp)
+    public boolean importData(TransferHandler.TransferSupport supp)
     {
         for (var e : handlers.entrySet())
             if (supp.isDataFlavorSupported(e.getKey()))

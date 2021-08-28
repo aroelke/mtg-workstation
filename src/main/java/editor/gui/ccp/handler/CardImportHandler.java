@@ -43,13 +43,13 @@ public class CardImportHandler extends TransferHandler implements ImportHandler
     }
 
     @Override
-    public boolean canImport(TransferSupport supp)
+    public boolean canImport(TransferHandler.TransferSupport supp)
     {
         return supp.isDataFlavorSupported(supportedFlavor());
     }
 
     @Override
-    public boolean importData(TransferSupport supp)
+    public boolean importData(TransferHandler.TransferSupport supp)
     {
         if (!canImport(supp))
             return false;

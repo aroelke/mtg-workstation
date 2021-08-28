@@ -42,7 +42,7 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
     }
 
     @Override
-    public boolean canImport(TransferSupport supp)
+    public boolean canImport(TransferHandler.TransferSupport supp)
     {
         if (supp.isDataFlavorSupported(supportedFlavor()))
         {
@@ -61,7 +61,7 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
     }
 
     @Override
-    public boolean importData(TransferSupport supp)
+    public boolean importData(TransferHandler.TransferSupport supp)
     {
         if (canImport(supp))
         {

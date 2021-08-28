@@ -43,7 +43,7 @@ public class CategoryImportHandler extends TransferHandler implements ImportHand
     }
 
     @Override
-    public boolean canImport(TransferSupport supp)
+    public boolean canImport(TransferHandler.TransferSupport supp)
     {
         if (supp.isDrop())
             return false;
@@ -64,7 +64,7 @@ public class CategoryImportHandler extends TransferHandler implements ImportHand
     }
 
     @Override
-    public boolean importData(TransferSupport supp)
+    public boolean importData(TransferHandler.TransferSupport supp)
     {
         try
         {
