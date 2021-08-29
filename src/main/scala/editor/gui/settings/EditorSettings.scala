@@ -9,6 +9,7 @@ import editor.database.card.MultiCard
 
 import java.awt.Color
 import scala.jdk.CollectionConverters._
+import editor.database.attributes.Legality
 
 /**
  * Settings structure containing settings for deck editor windows.
@@ -27,15 +28,15 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 case class EditorSettings(
-  recents: RecentsSettings,
-  categories: CategoriesSettings,
-  columns: Seq[CardAttribute],
-  stripe: Color,
-  hand: HandSettings,
-  legality: LegalitySettings,
-  manaValue: String,
-  backFaceLands: Set[CardLayout],
-  manaAnalysis: ManaAnalysisSettings
+  recents: RecentsSettings = RecentsSettings(),
+  categories: CategoriesSettings = CategoriesSettings(),
+  columns: Seq[CardAttribute] = Seq(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED),
+  stripe: Color = Color(0xCC, 0xCC, 0xCC, 0xFF),
+  hand: HandSettings = HandSettings(),
+  legality: LegalitySettings = LegalitySettings(),
+  manaValue: String = "Minimum",
+  backFaceLands: Set[CardLayout] = Set(CardLayout.MODAL_DFC),
+  manaAnalysis: ManaAnalysisSettings = ManaAnalysisSettings()
 ) {
   def this() = this(
     RecentsSettings(),
