@@ -1146,7 +1146,7 @@ public class SettingsDialog extends JDialog
         if (settings.inventory().columns().isEmpty())
             settings = new SettingsBuilder(settings).inventoryColumns(CollectionConverters.asJava(new SettingsBuilder().defaults().build().inventory().columns())).build();
         if (settings.editor().columns().isEmpty())
-            settings = new SettingsBuilder(settings).editorColumns(new SettingsBuilder().defaults().build().editor().columns()).build();
+            settings = new SettingsBuilder(settings).editorColumns(CollectionConverters.asJava(new SettingsBuilder().defaults().build().editor().columns())).build();
 
         parent.applySettings();
     }

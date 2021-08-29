@@ -74,6 +74,8 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.AbstractTableModel;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -715,7 +717,7 @@ public class EditorFrame extends JInternalFrame
         /* MAIN DECK TAB */
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        deck().model = new CardTableModel(this, deck().current, SettingsDialog.settings().editor().columns());
+        deck().model = new CardTableModel(this, deck().current, CollectionConverters.asJava(SettingsDialog.settings().editor().columns()));
         deck().table = new CardTable(deck().model);
         deck().table.setStripeColor(SettingsDialog.settings().editor().stripe());
 
@@ -1342,10 +1344,8 @@ public class EditorFrame extends JInternalFrame
      */
     public void applySettings()
     {
-        var columns = SettingsDialog.settings().editor().columns();
-        Color stripe = SettingsDialog.settings().editor().stripe();
-        deck().model.setColumns(columns);
-        deck().table.setStripeColor(stripe);
+        deck().model.setColumns(CollectionConverters.asJava(SettingsDialog.settings().editor().columns()));
+        deck().table.setStripeColor(SettingsDialog.settings().editor().stripe());
         for (int i = 0; i < deck().table.getColumnCount(); i++)
             if (deck().model.isCellEditable(0, i))
                 deck().table.getColumn(deck().model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck().model.getColumnData(i)));
@@ -2256,7 +2256,7 @@ public class EditorFrame extends JInternalFrame
     public JScrollPane initExtraList(final int id)
     {
         // Extra list's models
-        lists.get(id).model = new CardTableModel(this, lists.get(id).current, SettingsDialog.settings().editor().columns());
+        lists.get(id).model = new CardTableModel(this, lists.get(id).current, CollectionConverters.asJava(SettingsDialog.settings().editor().columns()));
         lists.get(id).table = new CardTable(lists.get(id).model);
         lists.get(id).table.setPreferredScrollableViewportSize(new Dimension(lists.get(id).table.getPreferredScrollableViewportSize().width, 5*lists.get(id).table.getRowHeight()));
         lists.get(id).table.setStripeColor(SettingsDialog.settings().editor().stripe());

@@ -32,6 +32,8 @@ import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.MouseInputAdapter;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 import editor.collection.deck.Deck;
 import editor.database.card.Card;
 import editor.gui.display.CardTable;
@@ -300,7 +302,7 @@ public class CategoryPanel extends JPanel
         add(topPanel, BorderLayout.NORTH);
 
         // Table showing the cards in the category
-        model = new CardTableModel(editor, deck.getCategoryList(name), SettingsDialog.settings().editor().columns());
+        model = new CardTableModel(editor, deck.getCategoryList(name), CollectionConverters.asJava(SettingsDialog.settings().editor().columns()));
         table = new CardTable(model)
         {
             @Override
@@ -411,10 +413,8 @@ public class CategoryPanel extends JPanel
      */
     public void applySettings(EditorFrame editor)
     {
-        var columns = SettingsDialog.settings().editor().columns();
-        Color stripe = SettingsDialog.settings().editor().stripe();
-        model.setColumns(columns);
-        table.setStripeColor(stripe);
+        model.setColumns(CollectionConverters.asJava(SettingsDialog.settings().editor().columns()));
+        table.setStripeColor(SettingsDialog.settings().editor().stripe());
         for (int i = 0; i < table.getColumnCount(); i++)
             if (model.isCellEditable(0, i))
                 table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnData(i)));

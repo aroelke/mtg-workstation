@@ -4,12 +4,14 @@ import editor.database.attributes.CardAttribute
 import editor.database.attributes.CardAttribute._
 import editor.database.version.DatabaseVersion
 import editor.database.version.UpdateFrequency
+
 import java.awt.Color
 import java.io.File
 
 /**
  * Settings structure containing global inventory and card settings.
  * 
+ * @constructor create a new inventory settings structure
  * @param source link to site containing the card database
  * @param file name of the file containing the card database
  * @param versionFile name of the file containing the database version

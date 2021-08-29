@@ -155,7 +155,7 @@ public class SettingsBuilder
         presetCategories = new ArrayList<>(CollectionConverters.asJava(original.editor().categories().presets()).stream().map(Category::new).collect(Collectors.toList()));
         categoryRows = original.editor().categories().rows();
         explicits = original.editor().categories().explicits();
-        editorColumns = original.editor().columns();
+        editorColumns = CollectionConverters.asJava(original.editor().columns());
         editorStripe = original.editor().stripe();
         handSize = original.editor().hand().size();
         handRounding = original.editor().hand().rounding();
@@ -166,7 +166,7 @@ public class SettingsBuilder
         list = original.editor().legality().list();
         sideboard = original.editor().legality().sideboard();
         manaValue = original.editor().manaValue();
-        backFaceLands = original.editor().backFaceLands();
+        backFaceLands = CollectionConverters.asJava(original.editor().backFaceLands());
         cwd = original.cwd();
         none = original.editor().manaAnalysis().none();
         colorless = original.editor().manaAnalysis().colorless();

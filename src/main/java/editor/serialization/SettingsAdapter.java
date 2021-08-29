@@ -239,7 +239,7 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
         categories.addProperty("explicits", src.editor().categories().explicits());
         editor.add("categories", categories);
         JsonArray editorColumns = new JsonArray();
-        for (CardAttribute column : src.editor().columns())
+        for (CardAttribute column : CollectionConverters.asJava(src.editor().columns()))
             editorColumns.add(context.serialize(column));
         editor.add("columns", editorColumns);
         editor.add("stripe", context.serialize(src.editor().stripe()));
@@ -257,7 +257,7 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
         editor.add("legality", legality);
         editor.addProperty("manaValue", src.editor().manaValue());
         JsonArray backFaceLands = new JsonArray();
-        for (CardLayout layout : src.editor().backFaceLands())
+        for (CardLayout layout : CollectionConverters.asJava(src.editor().backFaceLands()))
             backFaceLands.add(layout.toString());
         editor.add("backFaceLands", backFaceLands);
         JsonObject manaAnalysis = new JsonObject();
