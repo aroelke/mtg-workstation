@@ -50,6 +50,12 @@ case class ManaAnalysisSettings(
     Color.BLACK
   )
 
+  /**
+   * Get the color associated with a histogram bar section by name.
+   * 
+   * @param key name of the section
+   * @return the color of the section
+   */
   def apply(key: String) = key match {
     case "none" | "nothing" => none
 
@@ -69,7 +75,9 @@ case class ManaAnalysisSettings(
     case "sorcery"      => sorcery
   }
 
-  def colorColors = Seq(colorless, white, blue, black, red, green)
+  /** @return the list of bar colors when dividing by color */
+  def colorColors = Seq(colorless, white, blue, black, red, green, multi)
   
+  /** @return the list of bar colors when dividing by card type */
   def typeColors = Seq(creature, artifact, enchantment, planeswalker, instant, sorcery)
 }
