@@ -266,46 +266,6 @@ public class Settings//(InventorySettings inventory, EditorSettings editor, Stri
         ManaAnalysisSettings manaAnalysis)*/
     {
         /**
-         * Sub-structure containing settings for displaying information about
-         * opening hands.
-         * 
-         * @author Alec Roelke
-         */
-        public static class HandSettings//(int size, String rounding, Color background)
-        {
-            public final int size;
-            public final String rounding;
-            public final Color background;
-
-            public HandSettings(int s, String r, Color b)
-            {
-                size = s;
-                rounding = r;
-                background = b;
-            }
-
-            private HandSettings()
-            {
-                this(7, "No rounding", Color.WHITE);
-            }
-
-            public int size()
-            {
-                return size;
-            }
-
-            public String rounding()
-            {
-                return rounding;
-            }
-
-            public Color background()
-            {
-                return background;
-            }
-        }
-
-        /**
          * Sub-structure containing settings for determining the legality of a deck.
          * 
          * @author Alec Roelke
