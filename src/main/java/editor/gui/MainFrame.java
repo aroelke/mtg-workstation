@@ -1634,7 +1634,7 @@ public class MainFrame extends JFrame
         }
         inventoryFile = new File(SettingsDialog.settings().inventory().path());
         recentCount = SettingsDialog.settings().editor().recents().count();
-        inventoryModel.setColumns(SettingsDialog.settings().inventory().columns());
+        inventoryModel.setColumns(CollectionConverters.asJava(SettingsDialog.settings().inventory().columns()));
         inventoryTable.setStripeColor(SettingsDialog.settings().inventory().stripe());
         for (EditorFrame frame : editors)
             frame.applySettings();
@@ -1830,7 +1830,7 @@ public class MainFrame extends JFrame
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         inventory = InventoryLoader.loadInventory(this, inventoryFile);
         inventory.sort(CardAttribute.NAME.comparingCard());
-        inventoryModel = new CardTableModel(inventory, SettingsDialog.settings().inventory().columns());
+        inventoryModel = new CardTableModel(inventory, CollectionConverters.asJava(SettingsDialog.settings().inventory().columns()));
         inventoryTable.setModel(inventoryModel);
         setCursor(Cursor.getDefaultCursor());
         System.gc();

@@ -215,7 +215,7 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
         inventory.addProperty("tags", src.inventory().tags());
         inventory.add("update", context.serialize(src.inventory().update()));
         JsonArray inventoryColumns = new JsonArray();
-        for (CardAttribute column : src.inventory().columns())
+        for (CardAttribute column : CollectionConverters.asJava(src.inventory().columns()))
             inventoryColumns.add(context.serialize(column));
         inventory.add("columns", inventoryColumns);
         inventory.add("background", context.serialize(src.inventory().background()));

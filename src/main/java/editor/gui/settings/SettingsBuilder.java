@@ -147,7 +147,7 @@ public class SettingsBuilder
         inventoryTags = original.inventory().tags();
         inventoryUpdate = original.inventory().update();
         inventoryWarn = original.inventory().warn();
-        inventoryColumns = original.inventory().columns();
+        inventoryColumns = CollectionConverters.asJava(original.inventory().columns());
         inventoryBackground = original.inventory().background();
         inventoryStripe = original.inventory().stripe();
         recentsCount = original.editor().recents().count();
