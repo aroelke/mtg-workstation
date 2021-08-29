@@ -265,58 +265,6 @@ public class Settings//(InventorySettings inventory, EditorSettings editor, Stri
         Set<CardLayout> backFaceLands,
         ManaAnalysisSettings manaAnalysis)*/
     {
-        /**
-         * Sub-structure containing settings for determining the legality of a deck.
-         * 
-         * @author Alec Roelke
-         */
-        public static class LegalitySettings//(boolean searchForCommander, boolean main, boolean all, String list, String sideboard)
-        {
-            public final boolean searchForCommander;
-            public final boolean main;
-            public final boolean all;
-            public final String list;
-            public final String sideboard;
-
-            public LegalitySettings(boolean s, boolean m, boolean a, String l, String b)
-            {
-                searchForCommander = s;
-                main = m;
-                all = a;
-                list = l;
-                sideboard = b;
-            }
-
-            private LegalitySettings()
-            {
-                this(true, true, false, "", "");
-            }
-
-            public boolean searchForCommander()
-            {
-                return searchForCommander;
-            }
-
-            public boolean main()
-            {
-                return main;
-            }
-
-            public boolean all()
-            {
-                return all;
-            }
-
-            public String list()
-            {
-                return list;
-            }
-
-            public String sideboard()
-            {
-                return sideboard;
-            }
-        }
 
         public static class ManaAnalysisSettings/*(Color none,
                                            Color colorless, Color white, Color blue, Color black, Color red, Color green, Color multi,
