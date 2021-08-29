@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -224,7 +226,7 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
         JsonObject recents = new JsonObject();
         recents.addProperty("count", src.editor().recents().count());
         JsonArray recentFiles = new JsonArray();
-        for (String file : src.editor().recents().files())
+        for (String file : CollectionConverters.asJava(src.editor().recents().files()))
             recentFiles.add(file);
         recents.add("files", recentFiles);
         editor.add("recents", recents);

@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 import editor.collection.deck.Category;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
@@ -263,38 +265,6 @@ public class Settings//(InventorySettings inventory, EditorSettings editor, Stri
         Set<CardLayout> backFaceLands,
         ManaAnalysisSettings manaAnalysis)*/
     {
-        /**
-         * Sub-structure containing information about recently-edited files.
-         * 
-         * @author Alec Roelke
-         */
-        public static class RecentsSettings//(int count, List<String> files)
-        {
-            public final int count;
-            public final List<String> files;
-
-            public RecentsSettings(int c, List<String> f)
-            {
-                count = c;
-                files =f ;
-            }
-
-            private RecentsSettings()
-            {
-                this(4, Collections.emptyList());
-            }
-
-            public int count()
-            {
-                return count;
-            }
-
-            public List<String> files()
-            {
-                return files;
-            }
-        }
-
         /**
          * Sub-structure containing settings for category editing.
          * 
@@ -618,7 +588,7 @@ public class Settings//(InventorySettings inventory, EditorSettings editor, Stri
                                Color line)
         {
             this(
-                new RecentsSettings(recentsCount, recentsFiles),
+                new RecentsSettings(recentsCount, CollectionConverters.asScala(recentsFiles).toSeq()),
                 new CategoriesSettings(presetCategories, categoryRows, explicits),
                 Collections.unmodifiableList(new ArrayList<>(columns)),
                 stripe,

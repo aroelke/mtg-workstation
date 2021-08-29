@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 import editor.collection.deck.Category;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.CardLayout;
@@ -149,7 +151,7 @@ public class SettingsBuilder
         inventoryBackground = original.inventory().background();
         inventoryStripe = original.inventory().stripe();
         recentsCount = original.editor().recents().count();
-        recentsFiles = original.editor().recents().files();
+        recentsFiles = CollectionConverters.asJava(original.editor().recents().files());
         presetCategories = new ArrayList<>(original.editor().categories().presets().stream().map(Category::new).collect(Collectors.toList()));
         categoryRows = original.editor().categories().rows();
         explicits = original.editor().categories().explicits();

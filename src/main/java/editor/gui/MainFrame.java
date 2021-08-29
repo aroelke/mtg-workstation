@@ -100,6 +100,8 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -505,7 +507,7 @@ public class MainFrame extends JFrame
         // Recent files menu
         recentsMenu = new JMenu("Open Recent");
         recentsMenu.setEnabled(false);
-        for (String fname : SettingsDialog.settings().editor().recents().files())
+        for (String fname : CollectionConverters.asJava(SettingsDialog.settings().editor().recents().files()))
             updateRecents(new File(fname));
         fileMenu.add(recentsMenu);
 
