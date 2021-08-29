@@ -1575,7 +1575,7 @@ public class MainFrame extends JFrame
 
                 if (!inventory.isEmpty())
                 {
-                    for (Category spec : SettingsDialog.settings().editor().categories().presets())
+                    for (Category spec : CollectionConverters.asJava(SettingsDialog.settings().editor().categories().presets()))
                     {
                         JMenuItem categoryItem = new JMenuItem(spec.getName());
                         categoryItem.addActionListener((v) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));
@@ -1639,7 +1639,7 @@ public class MainFrame extends JFrame
         for (EditorFrame frame : editors)
             frame.applySettings();
         presetMenu.removeAll();
-        for (Category spec : SettingsDialog.settings().editor().categories().presets())
+        for (Category spec : CollectionConverters.asJava(SettingsDialog.settings().editor().categories().presets()))
         {
             JMenuItem categoryItem = new JMenuItem(spec.getName());
             categoryItem.addActionListener((e) -> selectedFrame.ifPresent((f) -> f.addCategory(spec)));

@@ -232,7 +232,7 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
         editor.add("recents", recents);
         JsonObject categories = new JsonObject();
         JsonArray presetCategories = new JsonArray();
-        for (Category category : src.editor().categories().presets())
+        for (Category category : CollectionConverters.asJava(src.editor().categories().presets()))
             presetCategories.add(context.serialize(category));
         categories.add("presets", presetCategories);
         categories.addProperty("rows", src.editor().categories().rows());

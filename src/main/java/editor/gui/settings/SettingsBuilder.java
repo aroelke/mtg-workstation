@@ -152,7 +152,7 @@ public class SettingsBuilder
         inventoryStripe = original.inventory().stripe();
         recentsCount = original.editor().recents().count();
         recentsFiles = CollectionConverters.asJava(original.editor().recents().files());
-        presetCategories = new ArrayList<>(original.editor().categories().presets().stream().map(Category::new).collect(Collectors.toList()));
+        presetCategories = new ArrayList<>(CollectionConverters.asJava(original.editor().categories().presets()).stream().map(Category::new).collect(Collectors.toList()));
         categoryRows = original.editor().categories().rows();
         explicits = original.editor().categories().explicits();
         editorColumns = original.editor().columns();

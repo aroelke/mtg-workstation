@@ -266,57 +266,6 @@ public class Settings//(InventorySettings inventory, EditorSettings editor, Stri
         ManaAnalysisSettings manaAnalysis)*/
     {
         /**
-         * Sub-structure containing settings for category editing.
-         * 
-         * @author Alec Roelke
-         */
-        public static class CategoriesSettings//(List<Category> presets, int rows, int explicits)
-        {
-            private final List<Category> presets;
-            private final int rows;
-            private final int explicits;
-
-            public CategoriesSettings(List<Category> p, int r, int e)
-            {
-                presets = p;
-                rows = r;
-                explicits = e;
-            }
-
-            private CategoriesSettings()
-            {
-                this(
-                    Map.of(
-                        "Artifacts", List.of("Artifact"),
-                        "Creatures", List.of("Creature"),
-                        "Lands", List.of("Land"),
-                        "Instants/Sorceries", List.of("Instant", "Sorcery")
-                    ).entrySet().stream().map((e) -> {
-                        CardTypeFilter filter = (CardTypeFilter)CardAttribute.createFilter(CardAttribute.CARD_TYPE);
-                        filter.selected.addAll(e.getValue());
-                        return new Category(e.getKey(), Collections.emptySet(), Collections.emptySet(), Color.WHITE, filter);
-                    }).collect(Collectors.toList()),
-                    6, 3
-                );
-            }
-
-            public List<Category> presets()
-            {
-                return presets;
-            }
-
-            public int rows()
-            {
-                return rows;
-            }
-
-            public int explicits()
-            {
-                return explicits;
-            }
-        }
-
-        /**
          * Sub-structure containing settings for displaying information about
          * opening hands.
          * 
@@ -589,7 +538,7 @@ public class Settings//(InventorySettings inventory, EditorSettings editor, Stri
         {
             this(
                 new RecentsSettings(recentsCount, CollectionConverters.asScala(recentsFiles).toSeq()),
-                new CategoriesSettings(presetCategories, categoryRows, explicits),
+                new CategoriesSettings(CollectionConverters.asScala(presetCategories).toSeq(), categoryRows, explicits),
                 Collections.unmodifiableList(new ArrayList<>(columns)),
                 stripe,
                 new HandSettings(handSize, handRounding, handBackground),

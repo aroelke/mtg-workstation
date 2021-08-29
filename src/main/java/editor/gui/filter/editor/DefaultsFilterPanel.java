@@ -4,6 +4,8 @@ import java.awt.FlowLayout;
 import java.util.HashMap;
 import java.util.Map;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 import editor.collection.deck.Category;
 import editor.filter.Filter;
 import editor.filter.leaf.FilterLeaf;
@@ -41,9 +43,9 @@ public class DefaultsFilterPanel extends FilterEditorPanel<FilterLeaf<?>>
         categories = new HashMap<>();
 
         var presets = SettingsDialog.settings().editor().categories().presets();
-        String[] names = presets.stream().map(Category::getName).toArray(String[]::new);
+        String[] names = CollectionConverters.asJava(presets).stream().map(Category::getName).toArray(String[]::new);
         for (int i = 0; i < presets.size(); i++)
-            categories.put(names[i], presets.get(i));
+            categories.put(names[i], presets.apply(i));
 
         defaults = new ComboBoxPanel<>(names);
         add(defaults);

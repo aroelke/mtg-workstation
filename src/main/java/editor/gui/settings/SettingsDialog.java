@@ -59,6 +59,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -1045,7 +1047,7 @@ public class SettingsDialog extends JDialog
                 recentSpinner.getModel().setValue(settings.editor().recents().count());
                 explicitsSpinner.getModel().setValue(Integer.valueOf(settings.editor().categories().explicits()));
                 manaValueBox.setSelectedIndex(Math.max(MANA_VALUE_OPTIONS.indexOf(settings.editor().manaValue()), 0));
-                for (Category preset : settings.editor().categories().presets())
+                for (Category preset : CollectionConverters.asJava(settings.editor().categories().presets()))
                     categoriesList.addCategory(new Category(preset));
                 rowsSpinner.getModel().setValue(settings.editor().categories().rows());
                 for (var n : editorColumnCheckBoxes.entrySet())
