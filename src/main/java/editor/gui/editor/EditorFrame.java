@@ -2787,11 +2787,11 @@ public class EditorFrame extends JInternalFrame
             break;
         case COLOR:
             for (int i = 0; i < SettingsDialog.settings().editor().manaAnalysis().colorColors().size(); i++)
-                manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings().editor().manaAnalysis().colorColors().get(i));
+                manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings().editor().manaAnalysis().colorColors().apply(i));
             break;
         case TYPE:
             for (int i = 0; i < SettingsDialog.settings().editor().manaAnalysis().typeColors().size(); i++)
-                manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings().editor().manaAnalysis().typeColors().get(i));
+                manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings().editor().manaAnalysis().typeColors().apply(i));
             break;
         }
         CardList analyte = analyzeCategoryBox.isSelected() ? deck().current.getCategoryList(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex())) : deck().current;

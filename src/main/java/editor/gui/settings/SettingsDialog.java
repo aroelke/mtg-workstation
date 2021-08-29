@@ -1083,7 +1083,7 @@ public class SettingsDialog extends JDialog
                     cmdrListName.setVisible(false);
                 }
                 for (String section : sections)
-                    sectionChoosers.get(section).setColor(settings().editor().manaAnalysis().get(section));
+                    sectionChoosers.get(section).setColor(settings().editor().manaAnalysis().apply(section));
                 landLineChooser.setColor(settings().editor().manaAnalysis().line());
             }
         });
