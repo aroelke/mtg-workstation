@@ -96,14 +96,14 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     SUPERTYPE("Supertype", (a) -> new SupertypeFilter()),
     /** Power of a creature card. */
     POWER("Power", List.class, (a) -> new VariableNumberFilter(a, (c) -> c.power().stream().map(CombatStat::value).collect(Collectors.toList()), Card::powerVariable), (a, b) -> {
-        CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
-        CombatStat second = CollectionUtils.convertToList(b, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
+        CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT());
+        CombatStat second = CollectionUtils.convertToList(b, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT());
         return first.compareTo(second);
     }),
     /** Toughness of a creature card. */
     TOUGHNESS("Toughness", List.class, (a) -> new VariableNumberFilter(a, (c) -> c.toughness().stream().map(CombatStat::value).collect(Collectors.toList()), Card::toughnessVariable), (a, b) -> {
-        CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
-        CombatStat second = CollectionUtils.convertToList(b, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT);
+        CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT());
+        CombatStat second = CollectionUtils.convertToList(b, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT());
         return first.compareTo(second);
     }),
     /** Loyalty of a planeswalker card. */
