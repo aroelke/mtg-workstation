@@ -57,6 +57,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -452,7 +454,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             var texts = new HashMap<String, String>();
             var flavors = new HashMap<String, String>();
             var artists = new HashMap<String, String>();
-            var formats = new HashMap<>(FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
+            var formats = new HashMap<>(CollectionConverters.asJava(FormatConstraints.FORMAT_NAMES()).stream().collect(Collectors.toMap(Function.identity(), Function.identity())));
             var numbers = new HashMap<String, String>();
             var stats = new HashMap<String, CombatStat>();
             var loyalties = new HashMap<String, Loyalty>();
@@ -679,7 +681,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             CardTypeFilter.typeList = allTypes.values().stream().sorted().toArray(String[]::new);
             SubtypeFilter.subtypeList = allSubtypes.values().stream().sorted().toArray(String[]::new);
 
-            var missingFormats = formats.values().stream().filter((f) -> !FormatConstraints.FORMAT_NAMES.contains(f)).sorted().collect(Collectors.toList());
+            var missingFormats = formats.values().stream().filter((f) -> !CollectionConverters.asJava(FormatConstraints.FORMAT_NAMES()).contains(f)).sorted().collect(Collectors.toList());
             if (!missingFormats.isEmpty())
                 errors.add("Could not find definitions for the following formats: " + missingFormats.stream().collect(Collectors.joining(", ")));
         }

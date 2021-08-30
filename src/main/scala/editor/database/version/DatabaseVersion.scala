@@ -1,10 +1,11 @@
 package editor.database.version
 
-import java.time.LocalDate
-import java.util.regex.Pattern
-import java.text.SimpleDateFormat
 import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Date
+import java.util.regex.Pattern
+
 import UpdateFrequency._
 
 /**

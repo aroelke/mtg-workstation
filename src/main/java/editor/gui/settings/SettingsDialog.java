@@ -761,12 +761,12 @@ public class SettingsDialog extends JDialog
         settingsPanel.add(formatsPanel, new TreePath(formatsNode.getPath()).toString());
 
         // Formats table
-        JTable formatsTable = new JTable(new DefaultTableModel(FormatConstraints.FORMAT_NAMES.stream()
-            .map((f) -> FormatConstraints.CONSTRAINTS.get(f).toArray(f))
-            .toArray(Object[][]::new), FormatConstraints.DATA_NAMES.toArray(String[]::new))
+        JTable formatsTable = new JTable(new DefaultTableModel(CollectionConverters.asJava(FormatConstraints.FORMAT_NAMES()).stream()
+            .map((f) -> FormatConstraints.CONSTRAINTS().apply(f).toArray(f))
+            .toArray(Object[][]::new), CollectionConverters.asJava(FormatConstraints.DATA_NAMES()).toArray(String[]::new))
         {
             @Override
-            public Class<?> getColumnClass(int column) { return FormatConstraints.CLASSES.get(column); }
+            public Class<?> getColumnClass(int column) { return FormatConstraints.CLASSES().apply(column); }
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) { return false; }
         });

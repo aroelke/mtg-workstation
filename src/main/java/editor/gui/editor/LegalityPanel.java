@@ -31,6 +31,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 import editor.collection.CardList;
 import editor.collection.deck.Deck;
 import editor.database.FormatConstraints;
@@ -94,7 +96,7 @@ public class LegalityPanel extends Box
         super(BoxLayout.Y_AXIS);
         setPreferredSize(new Dimension(400, 250));
 
-        warnings = FormatConstraints.FORMAT_NAMES.stream().collect(Collectors.toMap(Function.identity(), (l) -> new ArrayList<String>()));
+        warnings = CollectionConverters.asJava(FormatConstraints.FORMAT_NAMES()).stream().collect(Collectors.toMap(Function.identity(), (l) -> new ArrayList<String>()));
 
         // Panel containing format lists
         JPanel listsPanel = new JPanel(new GridLayout(1, 2));
@@ -279,7 +281,7 @@ public class LegalityPanel extends Box
         for (final String format : warnings.keySet())
         {
             warnings.get(format).clear();
-            final FormatConstraints constraints = FormatConstraints.CONSTRAINTS.get(format);
+            final FormatConstraints constraints = FormatConstraints.CONSTRAINTS().apply(format);
 
             // Commander(s) exist(s) and deck matches color identity
             boolean commander = false;
@@ -373,7 +375,7 @@ public class LegalityPanel extends Box
         // Collate the legality lists
         illegal = warnings.keySet().stream().filter((s) -> !warnings.get(s).isEmpty()).collect(Collectors.toList());
         Collections.sort(illegal);
-        legal = new ArrayList<>(FormatConstraints.FORMAT_NAMES);
+        legal = new ArrayList<>(CollectionConverters.asJava(FormatConstraints.FORMAT_NAMES()));
         legal.removeAll(illegal);
         Collections.sort(legal);
 
