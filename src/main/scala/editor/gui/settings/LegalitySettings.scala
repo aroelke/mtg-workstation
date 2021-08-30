@@ -13,5 +13,5 @@ package editor.gui.settings
  * @author Alec Roelke
  */
 case class LegalitySettings(searchForCommander: Boolean = true, main: Boolean = true, all: Boolean = false, list: String = "", sideboard: String = "") {
-  def this() = this(true, true, false, "", "")
+  @deprecated def this() = this(true, true, false, "", "")
 }

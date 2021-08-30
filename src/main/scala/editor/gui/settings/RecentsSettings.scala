@@ -10,5 +10,5 @@ package editor.gui.settings
  * @author Alec Roelke
  */
 case class RecentsSettings(count: Int = 4, files: Seq[String] = Nil) {
-  def this() = this(4, Nil)
+  @deprecated def this() = this(4, Nil)
 }

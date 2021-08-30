@@ -13,5 +13,5 @@ import java.awt.Color
  * @author Alec Roelke
  */
 case class HandSettings(size: Int = 7, rounding: String = "No Rounding", background: Color = Color.WHITE) {
-  def this() = this(7, "No Rounding", Color.WHITE)
+  @deprecated def this() = this(7, "No Rounding", Color.WHITE)
 }

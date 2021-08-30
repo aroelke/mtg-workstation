@@ -18,7 +18,7 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 case class CategoriesSettings(presets: Seq[Category] = Nil, rows: Int = 6, explicits: Int = 3) {
-  def this() = this(
+  @deprecated def this() = this(
     Map(
       "Artifacts" -> Seq("Artifact"),
       "Creatures" -> Seq("Creature"),

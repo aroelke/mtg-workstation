@@ -43,7 +43,7 @@ case class ManaAnalysisSettings(
 
   line: Color = Color.BLACK
 ) {
-  def this() = this(
+  @deprecated def this() = this(
     Color(128, 128, 255),
     Color(203, 198, 193), Color(248, 246, 216), Color(193, 215, 233), Color(186, 177, 171), Color(228, 153, 119), Color(163, 192, 149), Color(204, 166, 82),
     Color(163, 192, 149), Color(203, 198, 193), Color(248, 246, 216), Color(215, 181, 215), Color(193, 215, 233), Color(228, 153, 119),

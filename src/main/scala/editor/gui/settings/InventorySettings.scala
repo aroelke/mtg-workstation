@@ -49,7 +49,7 @@ case class InventorySettings(
   background: Color = Color.WHITE,
   stripe: Color = Color(0xCC, 0xCC, 0xCC, 0xFF)
 ) {
-  def this() = this(
+  @deprecated def this() = this(
     "https://mtgjson.com/api/v5/",
     "AllSets.json",
     "version.json",

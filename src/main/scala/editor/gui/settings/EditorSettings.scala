@@ -38,7 +38,7 @@ case class EditorSettings(
   backFaceLands: Set[CardLayout] = Set(CardLayout.MODAL_DFC),
   manaAnalysis: ManaAnalysisSettings = ManaAnalysisSettings()
 ) {
-  def this() = this(
+  @deprecated def this() = this(
     RecentsSettings(),
     CategoriesSettings(),
     Seq(NAME, MANA_COST, TYPE_LINE, EXPANSION, CATEGORIES, COUNT, DATE_ADDED),
@@ -50,7 +50,7 @@ case class EditorSettings(
     ManaAnalysisSettings()
   );
 
-  def this(recentsCount: Int, recentsFiles: Seq[String],
+  @deprecated def this(recentsCount: Int, recentsFiles: Seq[String],
     explicits: Int,
     presetCategories: Seq[Category], categoryRows: Int,
     columns: Seq[CardAttribute], stripe: Color,
