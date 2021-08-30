@@ -143,13 +143,13 @@ public class Deck implements CardList
         }
 
         @Override
-        public Entry getEntry(Card card) throws IllegalArgumentException
+        public CardList.Entry getEntry(Card card) throws IllegalArgumentException
         {
             return spec.includes(card) ? Deck.this.getEntry(card) : null;
         }
 
         @Override
-        public Entry getEntry(int index) throws IndexOutOfBoundsException
+        public CardList.Entry getEntry(int index) throws IndexOutOfBoundsException
         {
             return getEntry(get(index));
         }
@@ -292,7 +292,7 @@ public class Deck implements CardList
      *
      * @author Alec Roelke
      */
-    private class DeckEntry implements Entry
+    private class DeckEntry implements CardList.Entry
     {
         /**
          * Card in this DeckEntry.
@@ -691,7 +691,7 @@ public class Deck implements CardList
     }
 
     @Override
-    public Entry getEntry(Card card)
+    public CardList.Entry getEntry(Card card)
     {
         for (DeckEntry e : masterList)
             if (e.card.equals(card))
@@ -700,7 +700,7 @@ public class Deck implements CardList
     }
 
     @Override
-    public Entry getEntry(int index)
+    public CardList.Entry getEntry(int index)
     {
         return masterList.get(index);
     }

@@ -205,7 +205,7 @@ public class Hand implements CardList
      * The deck's metadata is used.
      */
     @Override
-    public Entry getEntry(Card card)
+    public CardList.Entry getEntry(Card card)
     {
         return deck.getEntry(card);
     }
@@ -215,7 +215,7 @@ public class Hand implements CardList
      * The Deck's metadata is used.
      */
     @Override
-    public Entry getEntry(int index) throws IndexOutOfBoundsException
+    public CardList.Entry getEntry(int index) throws IndexOutOfBoundsException
     {
         return deck.getEntry(get(index));
     }
