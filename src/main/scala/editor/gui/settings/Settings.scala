@@ -30,7 +30,17 @@ case class Settings(inventory: InventorySettings = InventorySettings(), editor: 
   @deprecated def this(inventorySource: String, inventoryFile: String, inventoryVersionFile: String, inventoryVersion: DatabaseVersion, inventoryLocation: String, inventoryScans: String, imageSource: String, imageLimitEnable: Boolean, imageLimit: Int, inventoryTags: String, inventoryUpdate: UpdateFrequency, inventoryWarn: Boolean, inventoryColumns: Seq[CardAttribute], inventoryBackground: Color, inventoryStripe: Color, recentsCount: Int, recentsFiles: Seq[String], explicits: Int, presetCategories: Seq[Category], categoryRows: Int, editorColumns: Seq[CardAttribute], editorStripe: Color, handSize: Int, handRounding: String, handBackground: Color, searchForCommander: Boolean, main: Boolean, all: Boolean, list: String, sideboard: String, manaValue: String, backFaceLands: Set[CardLayout], cwd: String, none: Color, colorless: Color, white: Color, blue: Color, black: Color, red: Color, green: Color, multi: Color, creature: Color, artifact: Color, enchantment: Color, planeswalker: Color, instant: Color, sorcery: Color, line: Color)
     = this(
       InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe),
-      new EditorSettings(recentsCount, recentsFiles, explicits, presetCategories, categoryRows, editorColumns, editorStripe, handSize, handRounding, handBackground, searchForCommander, main, all, list, sideboard, manaValue, backFaceLands, none, colorless, white, blue, black, red, green, multi, creature, artifact, enchantment, planeswalker, instant, sorcery, line),
+      EditorSettings(
+        RecentsSettings(recentsCount, recentsFiles),
+        CategoriesSettings(presetCategories, categoryRows, explicits),
+        editorColumns,
+        editorStripe,
+        HandSettings(handSize, handRounding, handBackground),
+        LegalitySettings(searchForCommander, main, all, list, sideboard),
+        manaValue,
+        backFaceLands,
+        ManaAnalysisSettings(none, colorless, white, blue, black, red, green, multi, creature, artifact, enchantment, planeswalker, instant, sorcery, line)
+      ),
       cwd
     )
 }
@@ -113,34 +123,6 @@ case class EditorSettings(
   backFaceLands: Set[CardLayout] = Set(CardLayout.MODAL_DFC),
   manaAnalysis: ManaAnalysisSettings = ManaAnalysisSettings()
 ) {
-  @deprecated def this(recentsCount: Int, recentsFiles: Seq[String],
-    explicits: Int,
-    presetCategories: Seq[Category], categoryRows: Int,
-    columns: Seq[CardAttribute], stripe: Color,
-    handSize: Int, handRounding: String, handBackground: Color,
-    searchForCommander: Boolean, main: Boolean, all: Boolean, list: String, sideboard: String,
-    manaValue: String,
-    backFaceLands: Set[CardLayout],
-    none: Color,
-    colorless: Color, white: Color, blue: Color, black:  Color, red:  Color, green:  Color, multi:  Color,
-    creature:  Color, artifact:  Color, enchantment:  Color, planeswalker:  Color, instant:  Color, sorcery:  Color,
-    line: Color) = this(
-      RecentsSettings(recentsCount, recentsFiles),
-      CategoriesSettings(presetCategories, categoryRows, explicits),
-      columns,
-      stripe,
-      HandSettings(handSize, handRounding, handBackground),
-      LegalitySettings(searchForCommander, main, all, list, sideboard),
-      manaValue,
-      backFaceLands,
-      ManaAnalysisSettings(
-          none,
-          colorless, white, blue, black, red, green, multi,
-          creature, artifact, enchantment, planeswalker, instant, sorcery,
-          line
-      )
-    )
-  
   /**
    * Determine if a card counts as a land based on its faces and the [[backFaceLands]] setting.
    * 
