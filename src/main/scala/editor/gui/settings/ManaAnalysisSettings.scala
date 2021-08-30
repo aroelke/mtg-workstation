@@ -56,7 +56,7 @@ case class ManaAnalysisSettings(
    * @param key name of the section
    * @return the color of the section
    */
-  def apply(key: String) = key match {
+  def apply(key: String) = key.toLowerCase match {
     case "none" | "nothing" => none
 
     case "colorless" | "c" => colorless
