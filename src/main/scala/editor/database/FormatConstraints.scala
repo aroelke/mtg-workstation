@@ -1,5 +1,7 @@
 package editor.database
 
+import javax.xml.crypto.Data
+
 /**
  * Deck building constraints for a particular format.
  * 
@@ -25,7 +27,7 @@ case class FormatConstraints(deckSize: Int = 60, isExact: Boolean = false, maxCo
 
 object FormatConstraints {
   /** Mapping of format names onto their deckbulding constraints. */
-  def CONSTRAINTS() = Map(
+  val Constraints = Map(
     "brawl" -> FormatConstraints(60, true, 1, 0, true),
     "commander" -> FormatConstraints(100, true, 1, 0, true),
     "duel" -> FormatConstraints(100, true, 1, 0, true),
@@ -40,13 +42,17 @@ object FormatConstraints {
     "standard" -> FormatConstraints(),
     "vintage" -> FormatConstraints()
   )
+  @deprecated def CONSTRAINTS() = Constraints
 
   /** List of supported format names, in alphabetical order. */
-  def FORMAT_NAMES() = CONSTRAINTS().map{ case (name, _) => name }.toSeq.sorted
+  val FormatNames = Constraints.map{ case (name, _) => name }.toSeq.sorted
+  @deprecated def FORMAT_NAMES() = FormatNames
 
   /** List of types of each of the deckbuilding constraints. */
-  def CLASSES() = Seq(classOf[String], classOf[Integer], classOf[java.lang.Boolean], classOf[Integer], classOf[Integer], classOf[java.lang.Boolean])
+  val Classes = Seq(classOf[String], classOf[Integer], classOf[java.lang.Boolean], classOf[Integer], classOf[Integer], classOf[java.lang.Boolean])
+  @deprecated def CLASSES() = Classes
 
   /** The name of each type of deckbuilding constraint. */
-  def DATA_NAMES() = Seq("Name", "Deck Size", "Exact?", "Max Card Count", "Sideboard size", "Has Commander?")
+  val DataNames = Seq("Name", "Deck Size", "Exact?", "Max Card Count", "Sideboard size", "Has Commander?")
+  @deprecated def DATA_NAMES() = DataNames
 }

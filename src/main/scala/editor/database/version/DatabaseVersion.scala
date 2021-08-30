@@ -60,15 +60,15 @@ case class DatabaseVersion(major: Int = 0, minor: Int = 0, revision: Int = 0, da
     }
   }
 
-  override def toString = Seq(major, minor, revision).mkString(".") + date.map(d => s"-${DatabaseVersion.VERSION_DATE.format(d)}").getOrElse("")
+  override def toString = Seq(major, minor, revision).mkString(".") + date.map(d => s"-${DatabaseVersion.VersionDate.format(d)}").getOrElse("")
 }
 
 object DatabaseVersion {
   /** Regular expression pattern used to match version info. */
-  lazy val VERSION_PATTERN = Pattern.compile("""^(\d+)\.(\d+)\.(\d+)(?:(?:\+|-)(\d{4}\d{2}\d{2}))?$""")
+  lazy val VersionPattern = Pattern.compile("""^(\d+)\.(\d+)\.(\d+)(?:(?:\+|-)(\d{4}\d{2}\d{2}))?$""")
 
   /** Date formatter for parsing and formatting dates to strings. */
-  lazy val VERSION_DATE = new SimpleDateFormat("yyyyMMdd")
+  lazy val VersionDate = new SimpleDateFormat("yyyyMMdd")
 
   /** @return a [[DatabaseVersion]] with the given version info and date. */
   def apply(major: Int, minor: Int, revision: Int, date: Date) = new DatabaseVersion(major, minor, revision, Some(date))
@@ -82,9 +82,9 @@ object DatabaseVersion {
     */
   @throws[ParseException]("if the version isn't major.minor.rev[-YYYYMMDD]")
   def parseVersion(s: String) = {
-    val m = VERSION_PATTERN.matcher(s)
+    val m = VersionPattern.matcher(s)
     if (m.matches)
-      DatabaseVersion(m.group(1).toInt, m.group(2).toInt, m.group(3).toInt, Option.unless(m.group(4) == null)(VERSION_DATE.parse(m.group(4))))
+      DatabaseVersion(m.group(1).toInt, m.group(2).toInt, m.group(3).toInt, Option.unless(m.group(4) == null)(VersionDate.parse(m.group(4))))
     else
       throw new ParseException(s, 0)
   }
