@@ -1266,18 +1266,18 @@ public class MainFrame extends JFrame
                 @Override
                 public int getRowCount()
                 {
-                    return Expansion.expansions.length;
+                    return Expansion.expansions().length;
                 }
 
                 @Override
                 public Object getValueAt(int rowIndex, int columnIndex)
                 {
                     return switch (columnIndex) {
-                        case 0 -> Expansion.expansions[rowIndex].name();
-                        case 1 -> Expansion.expansions[rowIndex].block().equals(Expansion.NO_BLOCK) ? "" : Expansion.expansions[rowIndex].block();
-                        case 2 -> Expansion.expansions[rowIndex].code();
-                        case 3 -> Expansion.expansions[rowIndex].count();
-                        case 4 -> Expansion.expansions[rowIndex].released().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG));
+                        case 0 -> Expansion.expansions()[rowIndex].name();
+                        case 1 -> Expansion.expansions()[rowIndex].block().equals(Expansion.NO_BLOCK()) ? "" : Expansion.expansions()[rowIndex].block();
+                        case 2 -> Expansion.expansions()[rowIndex].code();
+                        case 3 -> Expansion.expansions()[rowIndex].count();
+                        case 4 -> Expansion.expansions()[rowIndex].released().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG));
                         default -> throw new IndexOutOfBoundsException();
                     };
                 }

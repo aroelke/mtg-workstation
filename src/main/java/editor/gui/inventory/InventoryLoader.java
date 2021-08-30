@@ -477,10 +477,10 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 JsonArray setCards = setProperties.get("cards").getAsJsonArray();
                 Expansion set = new Expansion(
                     setProperties.get("name").getAsString(),
-                    Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse(Expansion.NO_BLOCK),
+                    Optional.ofNullable(setProperties.get("block")).map(JsonElement::getAsString).orElse(Expansion.NO_BLOCK()),
                     setProperties.get("code").getAsString(),
                     setCards.size(),
-                    LocalDate.parse(setProperties.get("releaseDate").getAsString(), Expansion.DATE_FORMATTER)
+                    LocalDate.parse(setProperties.get("releaseDate").getAsString(), Expansion.DATE_FORMATTER())
                 );
                 expansions.add(set);
                 blockNames.add(set.block());
@@ -675,8 +675,8 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
             cards = new ArrayList<>(unique.values());
 
             // Store the lists of expansion and block names and types and sort them alphabetically
-            Expansion.expansions = expansions.stream().sorted().toArray(Expansion[]::new);
-            Expansion.blocks = blockNames.stream().sorted().toArray(String[]::new);
+            Expansion.set_expansions(expansions.stream().sorted().toArray(Expansion[]::new));
+            Expansion.set_blocks(blockNames.stream().sorted().toArray(String[]::new));
             SupertypeFilter.supertypeList = allSupertypes.values().stream().sorted().toArray(String[]::new);
             CardTypeFilter.typeList = allTypes.values().stream().sorted().toArray(String[]::new);
             SubtypeFilter.subtypeList = allSubtypes.values().stream().sorted().toArray(String[]::new);

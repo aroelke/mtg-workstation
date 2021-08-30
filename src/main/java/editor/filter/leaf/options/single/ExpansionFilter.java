@@ -29,7 +29,7 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
     @Override
     protected Expansion convertFromString(String str)
     {
-        for (Expansion expansion : Expansion.expansions)
+        for (Expansion expansion : Expansion.expansions())
             if (str.equalsIgnoreCase(expansion.name()))
                 return expansion;
         throw new IllegalArgumentException("Unknown expansion name \"" + str + "\"");
@@ -53,6 +53,6 @@ public class ExpansionFilter extends SingletonOptionsFilter<Expansion>
     @Override
     protected Expansion convertFromJson(JsonElement item)
     {
-        return Arrays.stream(Expansion.expansions).filter((e) -> e.name().equalsIgnoreCase(item.getAsString())).findAny().get();
+        return Arrays.stream(Expansion.expansions()).filter((e) -> e.name().equalsIgnoreCase(item.getAsString())).findAny().get();
     }
 }

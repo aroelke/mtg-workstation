@@ -147,7 +147,7 @@ public interface FilterDeserializer
                 {
                     in.readBoolean(); // Should be false since Expansions are not serializable
                     String name = in.readUTF();
-                    for (Expansion e : Expansion.expansions)
+                    for (Expansion e : Expansion.expansions())
                     {
                         if (name.equalsIgnoreCase(e.name()))
                         {

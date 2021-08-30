@@ -61,8 +61,8 @@ public interface FilterPanelFactory
             case SUPERTYPE -> new OptionsFilterPanel<>((SupertypeFilter)filter, SupertypeFilter.supertypeList);
             case CARD_TYPE -> new OptionsFilterPanel<>((CardTypeFilter)filter, CardTypeFilter.typeList);
             case SUBTYPE   -> new OptionsFilterPanel<>((SubtypeFilter)filter, SubtypeFilter.subtypeList);
-            case EXPANSION -> new OptionsFilterPanel<>((ExpansionFilter)filter, Expansion.expansions);
-            case BLOCK     -> new OptionsFilterPanel<>((BlockFilter)filter, Expansion.blocks);
+            case EXPANSION -> new OptionsFilterPanel<>((ExpansionFilter)filter, Expansion.expansions());
+            case BLOCK     -> new OptionsFilterPanel<>((BlockFilter)filter, Expansion.blocks());
             case RARITY    -> new OptionsFilterPanel<>((RarityFilter)filter, Rarity.values());
             case LEGAL_IN  -> new LegalityFilterPanel((LegalityFilter)filter);
             case TAGS      -> new OptionsFilterPanel<>((TagsFilter)filter, Card.tags().stream().sorted().toArray(String[]::new));
