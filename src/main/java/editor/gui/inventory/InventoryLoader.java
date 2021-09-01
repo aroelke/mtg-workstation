@@ -209,7 +209,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
                 SettingsDialog.setShowInventoryWarnings(!suppressBox.isSelected());
             });
         }
-        SettingsDialog.setInventoryWarnings(loader.warnings());
+        SettingsDialog.setInventoryWarnings(CollectionConverters.asScala(loader.warnings()).toSeq());
         return result;
     }
 

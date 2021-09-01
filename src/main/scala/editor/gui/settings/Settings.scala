@@ -74,12 +74,12 @@ case class InventorySettings(
   file: String = "AllSets.json",
   versionFile: String = "version.json",
   version: DatabaseVersion = DatabaseVersion(0, 0, 0),
-  location: String = SettingsDialog.EDITOR_HOME.toString,
-  scans: String = SettingsDialog.EDITOR_HOME.resolve("scans").toString,
+  location: String = SettingsDialog.EditorHome.toString,
+  scans: String = SettingsDialog.EditorHome.resolve("scans").toString,
   imageSource: String = "Scryfall",
   imageLimitEnable: Boolean = false,
   imageLimit: Int = 20,
-  tags: String = SettingsDialog.EDITOR_HOME.resolve("tags.json").toString(),
+  tags: String = SettingsDialog.EditorHome.resolve("tags.json").toString(),
   update: UpdateFrequency = UpdateFrequency.DAILY,
   warn: Boolean = true,
   columns: Seq[CardAttribute] = Seq(NAME, MANA_COST, TYPE_LINE, EXPANSION),
@@ -131,7 +131,7 @@ case class EditorSettings(
    */ 
   def isLand(c: Card) = c match {
     case m: MultiCard =>
-      if (SettingsDialog.settings.editor.backFaceLands.contains(m.layout))
+      if (SettingsDialog.settings().editor.backFaceLands.contains(m.layout))
         m.faces.asScala.exists(_.isLand)
       else
         m.faces.get(0).isLand

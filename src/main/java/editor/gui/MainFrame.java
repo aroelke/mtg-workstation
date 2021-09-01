@@ -290,11 +290,11 @@ public class MainFrame extends JFrame
 
         try
         {
-            Files.createDirectories(SettingsDialog.EDITOR_HOME);
+            Files.createDirectories(SettingsDialog.EDITOR_HOME());
         }
         catch (IOException e)
         {
-            JOptionPane.showMessageDialog(null, "Could not create directory " + SettingsDialog.EDITOR_HOME + ": " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Could not create directory " + SettingsDialog.EDITOR_HOME() + ": " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
 
         SwingUtilities.invokeLater(() -> new MainFrame(Arrays.stream(args).map(File::new).filter(File::exists).collect(Collectors.toList())).setVisible(true));
@@ -422,7 +422,7 @@ public class MainFrame extends JFrame
             Throwable ex = e;
             while (ex.getCause() != null)
                 ex = ex.getCause();
-            JOptionPane.showMessageDialog(this, "Error opening " + SettingsDialog.PROPERTIES_FILE + ": " + ex.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error opening " + SettingsDialog.PROPERTIES_FILE() + ": " + ex.getMessage() + ".", "Warning", JOptionPane.WARNING_MESSAGE);
             SettingsDialog.resetDefaultSettings();
         }
         try
@@ -1987,14 +1987,14 @@ public class MainFrame extends JFrame
      */
     public void saveSettings()
     {
-        SettingsDialog.setRecents(recentItems.stream().map((i) -> recents.get(i).getPath()).collect(Collectors.toList()));
-        try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE.toString()))
+        SettingsDialog.setRecents(CollectionConverters.asScala(recentItems.stream().map((i) -> recents.get(i).getPath()).collect(Collectors.toList())).toSeq());
+        try (FileOutputStream out = new FileOutputStream(SettingsDialog.PROPERTIES_FILE().toString()))
         {
             SettingsDialog.save();
         }
         catch (IOException e)
         {
-            JOptionPane.showMessageDialog(this, "Error writing " + SettingsDialog.PROPERTIES_FILE + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error writing " + SettingsDialog.PROPERTIES_FILE() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
