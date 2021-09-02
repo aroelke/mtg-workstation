@@ -23,7 +23,13 @@ import editor.database.card.CardLayout;
 import editor.database.version.DatabaseVersion;
 import editor.database.version.UpdateFrequency;
 import editor.gui.settings.Settings;
-import editor.gui.settings.SettingsBuilder;
+import editor.gui.settings.InventorySettings;
+import editor.gui.settings.EditorSettings;
+import editor.gui.settings.RecentsSettings;
+import editor.gui.settings.CategoriesSettings;
+import editor.gui.settings.HandSettings;
+import editor.gui.settings.LegalitySettings;
+import editor.gui.settings.ManaAnalysisSettings;
 
 /**
  * Type adapter for serializing and deserializing the {@link Settings} structure to and from JSON format, since Gson isn't compatible with
@@ -38,163 +44,193 @@ public class SettingsAdapter implements JsonSerializer<Settings>, JsonDeserializ
     @Override
     public Settings deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        SettingsBuilder builder = new SettingsBuilder().defaults();
+        Settings defaults = new Settings();
         JsonObject obj = json.getAsJsonObject();
 
+        InventorySettings inventorySettings = defaults.inventory();
         if (obj.has("inventory"))
         {
             JsonObject inventory = obj.get("inventory").getAsJsonObject();
 
-            if (inventory.has("source"))
-                builder = builder.inventorySource(inventory.get("source").getAsString());
-            if (inventory.has("file"))
-                builder = builder.inventoryFile(inventory.get("file").getAsString());
-            if (inventory.has("versionFile"))
-                builder = builder.inventoryVersionFile(inventory.get("versionFile").getAsString());
-            if (inventory.has("version"))
-                builder = builder.inventoryVersion(context.deserialize(inventory.get("version"), DatabaseVersion.class));
-            if (inventory.has("location"))
-                builder = builder.inventoryLocation(inventory.get("location").getAsString());
-            if (inventory.has("scans"))
-                builder = builder.inventoryScans(inventory.get("scans").getAsString());
-            if (inventory.has("imageSource"))
-                builder = builder.imageSource(inventory.get("imageSource").getAsString());
-            if (inventory.has("imageLimitEnable"))
-                builder = builder.imageLimitEnable(inventory.get("imageLimitEnable").getAsBoolean());
-            if (inventory.has("imageLimit"))
-                builder = builder.imageLimit(inventory.get("imageLimit").getAsInt());
-            if (inventory.has("tags"))
-                builder = builder.inventoryTags(inventory.get("tags").getAsString());
-            if (inventory.has("update"))
-                builder = builder.inventoryUpdate(context.deserialize(inventory.get("update"), UpdateFrequency.class));
+            String source = inventory.has("source") ? inventory.get("source").getAsString() : defaults.inventory().source();
+            String file = inventory.has("file") ? inventory.get("file").getAsString() : defaults.inventory().file();
+            String versionFile = inventory.has("versionFile") ? inventory.get("versionFile").getAsString() : defaults.inventory().versionFile();
+            DatabaseVersion version = inventory.has("version") ? context.deserialize(inventory.get("version"), DatabaseVersion.class) : defaults.inventory().version();
+            String location = inventory.has("location") ? inventory.get("location").getAsString() : defaults.inventory().location();
+            String scans = inventory.has("scans") ? inventory.get("scans").getAsString() : defaults.inventory().scans();
+            String imageSource = inventory.has("imageSource") ? inventory.get("imageSource").getAsString() : defaults.inventory().imageSource();
+            boolean imageLimitEnable = inventory.has("imageLimitEnable") ? inventory.get("imageLimitEnable").getAsBoolean() : defaults.inventory().imageLimitEnable();
+            int imageLimit = inventory.has("imageLimit") ? inventory.get("imageLimit").getAsInt() : defaults.inventory().imageLimit();
+            String tags = inventory.has("tags") ? inventory.get("tags").getAsString() : defaults.inventory().tags();
+            UpdateFrequency update = inventory.has("update") ? context.deserialize(inventory.get("update"), UpdateFrequency.class) : defaults.inventory().update();
+            ArrayList<CardAttribute> columns = new ArrayList<>();
             if (inventory.has("columns"))
             {
                 JsonArray inventoryColumnsJson = inventory.get("columns").getAsJsonArray();
-                var inventoryColumns = new ArrayList<CardAttribute>(inventoryColumnsJson.size());
                 for (var column : inventoryColumnsJson)
-                    inventoryColumns.add(context.deserialize(column, CardAttribute.class));
-                builder = builder.inventoryColumns(inventoryColumns);
+                    columns.add(context.deserialize(column, CardAttribute.class));
             }
-            if (inventory.has("background"))
-                builder = builder.inventoryBackground(context.deserialize(inventory.get("background"), Color.class));
-            if (inventory.has("stripe"))
-                builder = builder.inventoryStripe(context.deserialize(inventory.get("stripe"), Color.class));
-            if (inventory.has("warn"))
-                builder = builder.inventoryWarn(inventory.get("warn").getAsBoolean());
+            else
+                columns.addAll(CollectionConverters.asJava(defaults.inventory().columns()));
+            Color background = inventory.has("background") ? context.deserialize(inventory.get("background"), Color.class) : defaults.inventory().background();
+            Color stripe = inventory.has("stripe") ? context.deserialize(inventory.get("stripe"), Color.class) : defaults.inventory().stripe();
+            boolean warn = inventory.has("warn") ? inventory.get("warn").getAsBoolean() : defaults.inventory().warn();
+
+            inventorySettings = new InventorySettings(
+                source,
+                file,
+                versionFile,
+                version,
+                location,
+                scans,
+                imageSource,
+                imageLimitEnable,
+                imageLimit,
+                tags,
+                (UpdateFrequency)update,
+                warn,
+                CollectionConverters.asScala(columns).toSeq(),
+                background,
+                stripe
+            );
         }
 
+        EditorSettings editorSettings = defaults.editor();
         if (obj.has("editor"))
         {
             JsonObject editor = obj.get("editor").getAsJsonObject();
 
+            RecentsSettings recentsSettings = defaults.editor().recents();
             if (editor.has("recents"))
             {
                 JsonObject recents = editor.get("recents").getAsJsonObject();
 
-                if (recents.has("count"))
-                    builder = builder.recentsCount(recents.get("count").getAsInt());
+                int count = recents.has("count") ? recents.get("count").getAsInt() : defaults.editor().recents().count();
+                ArrayList<String> recentsFiles = new ArrayList<>();
                 if (recents.has("files"))
                 {
                     JsonArray recentsJson = recents.get("files").getAsJsonArray();
-                    var recentsFiles = new ArrayList<String>(recentsJson.size());
                     for (var file : recentsJson)
                         recentsFiles.add(file.getAsString());
-                    builder = builder.recentsFiles(recentsFiles);
                 }
+                else
+                    recentsFiles.addAll(CollectionConverters.asJava(defaults.editor().recents().files()));
+
+                recentsSettings = new RecentsSettings(count, CollectionConverters.asScala(recentsFiles).toSeq());
             }
 
+            CategoriesSettings categoriesSettings = defaults.editor().categories();
             if (editor.has("categories"))
             {
                 JsonObject categories = editor.get("categories").getAsJsonObject();
 
+                ArrayList<Category> presets = new ArrayList<Category>();
                 if (categories.has("presets"))
                 {
                     JsonArray presetsJson = categories.get("presets").getAsJsonArray();
-                    var presets = new ArrayList<Category>(presetsJson.size());
                     for (var preset : presetsJson)
                         presets.add(context.deserialize(preset, Category.class));
-                    builder = builder.presetCategories(presets);
                 }
-                if (categories.has("rows"))
-                    builder = builder.categoryRows(categories.get("rows").getAsInt());
-                if (categories.has("explicits"))
-                    builder = builder.explicits(categories.get("explicits").getAsInt());
+                else
+                    presets.addAll(CollectionConverters.asJava(defaults.editor().categories().presets()));
+                int rows = categories.has("rows") ? categories.get("rows").getAsInt() : defaults.editor().categories().rows();
+                int explicits = categories.has("explicits") ? categories.get("explicits").getAsInt() : defaults.editor().categories().explicits();
+
+                categoriesSettings = new CategoriesSettings(CollectionConverters.asScala(presets).toSeq(), rows, explicits);
             }
 
+            HandSettings handSettings = defaults.editor().hand();
             if (editor.has("hand"))
             {
                 JsonObject hand = editor.get("hand").getAsJsonObject();
 
-                if (hand.has("size"))
-                    builder = builder.handSize(hand.get("size").getAsInt());
-                if (hand.has("rounding"))
-                    builder = builder.handRounding(hand.get("rounding").getAsString());
-                if (hand.has("background"))
-                    builder = builder.handBackground(context.deserialize(hand.get("background"), Color.class));
+                int size = hand.has("size") ? hand.get("size").getAsInt() : defaults.editor().hand().size();
+                String rounding = hand.has("rounding") ? hand.get("rounding").getAsString() : defaults.editor().hand().rounding();
+                Color bg = hand.has("background") ? context.deserialize(hand.get("background"), Color.class) : defaults.editor().hand().background();
+
+                handSettings = new HandSettings(size, rounding, bg);
             }
 
+            LegalitySettings legalitySettings = defaults.editor().legality();
             if (editor.has("legality"))
             {
                 JsonObject legality = editor.get("legality").getAsJsonObject();
 
-                if (legality.has("searchForCommander"))
-                    builder = builder.searchForCommander(legality.get("searchForCommander").getAsBoolean());
-                if (legality.has("main"))
-                    builder = builder.commanderInMain(legality.get("main").getAsBoolean());
-                if (legality.has("all"))
-                    builder = builder.commanderInAll(legality.get("all").getAsBoolean());
-                if (legality.has("list"))
-                    builder = builder.commanderInList(legality.get("list").getAsString());
-                if (legality.has("sideboard"))
-                    builder = builder.sideboardName(legality.get("sideboard").getAsString());
+                boolean search = legality.has("searchForCommander") ? legality.get("searchForCommander").getAsBoolean() : defaults.editor().legality().searchForCommander();
+                boolean main = legality.has("main") ? legality.get("main").getAsBoolean() : defaults.editor().legality().main();
+                boolean all = legality.has("all") ? legality.get("all").getAsBoolean() : defaults.editor().legality().all();
+                String list = legality.has("list") ? legality.get("list").getAsString() : defaults.editor().legality().list();
+                String sideboard = legality.has("sideboard") ? legality.get("sideboard").getAsString() : defaults.editor().legality().sideboard();
+
+                legalitySettings = new LegalitySettings(search, main, all, list, sideboard);
             }
 
+            ArrayList<CardAttribute> columns = new ArrayList<>();
             if (editor.has("columns"))
             {
                 JsonArray editorColumnsJson = editor.get("columns").getAsJsonArray();
-                var editorColumns = new ArrayList<CardAttribute>(editorColumnsJson.size());
                 for (var column : editorColumnsJson)
-                    editorColumns.add(context.deserialize(column, CardAttribute.class));
-                builder = builder.editorColumns(editorColumns);
+                    columns.add(context.deserialize(column, CardAttribute.class));
             }
-            if (editor.has("stripe"))
-                builder = builder.editorStripe(context.deserialize(editor.get("stripe"), Color.class));
-            if (editor.has("manaValue"))
-                builder = builder.manaValue(editor.get("manaValue").getAsString());
+            else
+                columns.addAll(CollectionConverters.asJava(defaults.editor().columns()));
+            Color stripe = editor.has("stripe") ? context.deserialize(editor.get("stripe"), Color.class) : defaults.editor().stripe();
+            String mv = editor.has("manaValue") ? editor.get("manaValue").getAsString() : defaults.editor().manaValue();
+            HashSet<CardLayout> backFaceLands = new HashSet<>();
             if (editor.has("backFaceLands"))
             {
                 JsonArray backFaceLandsJson = editor.get("backFaceLands").getAsJsonArray();
-                var backFaceLands = new HashSet<CardLayout>(backFaceLandsJson.size());
                 for (var layout : backFaceLandsJson)
                     backFaceLands.add(Arrays.stream(CardLayout.values()).filter((l) -> l.toString().equals(layout.getAsString())).findAny().get());
-                builder = builder.backFaceLands(backFaceLands);
             }
+            else
+                backFaceLands.addAll(CollectionConverters.asJava(defaults.editor().backFaceLands()));
+
+            ManaAnalysisSettings manaAnalysisSettings = defaults.editor().manaAnalysis();
             if (editor.has("manaAnalysis"))
             {
                 JsonObject manaAnalysis = editor.get("manaAnalysis").getAsJsonObject();
-                builder = builder.none(context.deserialize(manaAnalysis.get("none"), Color.class))
-                                 .colorless(context.deserialize(manaAnalysis.get("colorless"), Color.class))
-                                 .white(context.deserialize(manaAnalysis.get("white"), Color.class))
-                                 .blue(context.deserialize(manaAnalysis.get("blue"), Color.class))
-                                 .black(context.deserialize(manaAnalysis.get("black"), Color.class))
-                                 .red(context.deserialize(manaAnalysis.get("red"), Color.class))
-                                 .green(context.deserialize(manaAnalysis.get("green"), Color.class))
-                                 .multi(context.deserialize(manaAnalysis.get("multi"), Color.class))
-                                 .creature(context.deserialize(manaAnalysis.get("creature"), Color.class))
-                                 .artifact(context.deserialize(manaAnalysis.get("artifact"), Color.class))
-                                 .enchantment(context.deserialize(manaAnalysis.get("enchantment"), Color.class))
-                                 .planeswalker(context.deserialize(manaAnalysis.get("planeswalker"), Color.class))
-                                 .instant(context.deserialize(manaAnalysis.get("instant"), Color.class))
-                                 .sorcery(context.deserialize(manaAnalysis.get("sorcery"), Color.class))
-                                 .line(context.deserialize(manaAnalysis.get("line"), Color.class));
+                
+                Color none = manaAnalysis.has("none") ? context.deserialize(manaAnalysis.get("none"), Color.class) : defaults.editor().manaAnalysis().none();
+                Color colorless = manaAnalysis.has("colorless") ? context.deserialize(manaAnalysis.get("colorless"), Color.class) : defaults.editor().manaAnalysis().colorless();
+                Color white = manaAnalysis.has("white") ? context.deserialize(manaAnalysis.get("white"), Color.class) : defaults.editor().manaAnalysis().white();
+                Color blue = manaAnalysis.has("blue") ? context.deserialize(manaAnalysis.get("blue"), Color.class) : defaults.editor().manaAnalysis().blue();
+                Color black = manaAnalysis.has("black") ? context.deserialize(manaAnalysis.get("black"), Color.class) : defaults.editor().manaAnalysis().black();
+                Color red = manaAnalysis.has("red") ? context.deserialize(manaAnalysis.get("red"), Color.class) : defaults.editor().manaAnalysis().red();
+                Color green = manaAnalysis.has("green") ? context.deserialize(manaAnalysis.get("green"), Color.class) : defaults.editor().manaAnalysis().green();
+                Color multi = manaAnalysis.has("multi") ? context.deserialize(manaAnalysis.get("multi"), Color.class) : defaults.editor().manaAnalysis().multi();
+                Color creature = manaAnalysis.has("creature") ? context.deserialize(manaAnalysis.get("creature"), Color.class) : defaults.editor().manaAnalysis().creature();
+                Color artifact = manaAnalysis.has("artifact") ? context.deserialize(manaAnalysis.get("artifact"), Color.class) : defaults.editor().manaAnalysis().artifact();
+                Color enchantment = manaAnalysis.has("enchantment") ? context.deserialize(manaAnalysis.get("enchantment"), Color.class) : defaults.editor().manaAnalysis().enchantment();
+                Color planeswalker = manaAnalysis.has("planeswalker") ? context.deserialize(manaAnalysis.get("planeswalker"), Color.class) : defaults.editor().manaAnalysis().planeswalker();
+                Color instant = manaAnalysis.has("instant") ? context.deserialize(manaAnalysis.get("instant"), Color.class) : defaults.editor().manaAnalysis().instant();
+                Color sorcery = manaAnalysis.has("sorcery") ? context.deserialize(manaAnalysis.get("sorcery"), Color.class) : defaults.editor().manaAnalysis().sorcery();
+                Color line = manaAnalysis.has("line") ? context.deserialize(manaAnalysis.get("line"), Color.class) : defaults.editor().manaAnalysis().line();
 
+                manaAnalysisSettings = new ManaAnalysisSettings(
+                    none,
+                    colorless, white, blue, black, red, green, multi,
+                    creature, artifact, enchantment, planeswalker, instant, sorcery,
+                    line
+                );
             }
+
+            editorSettings = new EditorSettings(
+                recentsSettings,
+                categoriesSettings,
+                CollectionConverters.asScala(columns).toSeq(),
+                stripe,
+                handSettings,
+                legalitySettings,
+                mv,
+                CollectionConverters.asScala(backFaceLands).toSet(),
+                manaAnalysisSettings
+            );
         }
 
-        if (obj.has("cwd"))
-            builder = builder.cwd(obj.get("cwd").getAsString());
+        String cwd = obj.has("cwd") ? obj.get("cwd").getAsString() : defaults.cwd();
 
-        return builder.build();
+        return new Settings(inventorySettings, editorSettings, cwd);
     }
 
     @Override

@@ -758,15 +758,15 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
       sideCheck.setText(if (sideCheck.isSelected) "Default sideboard name:" else "Include sideboard")
       sideField.setText(settings().editor.legality.sideboard)
       sideField.setVisible(sideCheck.isSelected)
-      if (settings().editor.legality.searchForCommander)
-      {
+      if (settings().editor.legality.searchForCommander) {
         cmdrCheck.setText("Search for commander in:")
-        if (settings().editor.legality.main || (!settings().editor.legality.all && settings().editor.legality.list.isEmpty))
-            cmdrMainDeck.setSelected(true)
-        else if (settings().editor.legality.all)
-            cmdrAllLists.setSelected(true)
-        else
-            cmdrList.setSelected(true)
+        if (settings().editor.legality.main || (!settings().editor.legality.all && settings().editor.legality.list.isEmpty)) {
+          cmdrMainDeck.setSelected(true)
+        } else if (settings().editor.legality.all) {
+          cmdrAllLists.setSelected(true)
+        } else {
+          cmdrList.setSelected(true)
+        }
         cmdrListName.setEnabled(cmdrList.isSelected)
         cmdrListName.setText(settings().editor.legality.list)
       } else {
@@ -783,7 +783,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
 
   /** Confirm settings made while using the settings dialog and make corresponding changes to the UI. */
   def confirmSettings(): Unit = {
-    try {
+    var newSettings = try {
       recentSpinner.commitEdit()
       explicitsSpinner.commitEdit()
       rowsSpinner.commitEdit()
@@ -792,46 +792,57 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
       var presets = new ArrayBuffer[Category](categoriesList.getCount)
       for (i <- 0 until categoriesList.getCount())
         presets += categoriesList.getCategoryAt(i)
-
-      _settings = SettingsBuilder(settings())
-          .inventorySource(inventorySiteField.getText)
-          .inventoryFile(inventoryFileField.getText)
-          .inventoryLocation(inventoryDirField.getText)
-          .inventoryScans(scansDirField.getText)
-          .imageSource(imgSourceBox.getItemAt(imgSourceBox.getSelectedIndex))
-          .imageLimitEnable(limitImageBox.isSelected)
-          .imageLimit(limitImageSpinner.getValue.asInstanceOf[Int])
-          .inventoryUpdate(updateBox.getItemAt(updateBox.getSelectedIndex))
-          .inventoryWarn(suppressCheckBox.isSelected)
-          .inventoryColumns(inventoryColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toSeq.sortBy(_.ordinal).asJava)
-          .inventoryStripe(inventoryStripeColor.getColor)
-          .recentsCount(recentSpinner.getValue.asInstanceOf[Int])
-          .explicits(explicitsSpinner.getValue.asInstanceOf[Int])
-          .manaValue(manaValueBox.getItemAt(manaValueBox.getSelectedIndex))
-          .backFaceLands(landsCheckBoxes.filter(_.isSelected).map(b => editor.database.card.CardLayout.values.find(_.toString == b.getText).get).toSet.asJava)
-          .categoryRows(rowsSpinner.getValue.asInstanceOf[Int])
-          .editorColumns(editorColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toSeq.sortBy(_.ordinal).asJava)
-          .editorStripe(editorStripeColor.getColor)
-          .presetCategories(presets.asJava)
-          .handSize(startingSizeSpinner.getValue.asInstanceOf[Int])
-          .handRounding(modeButtons.find(_.isSelected).map(_.getText).getOrElse("No Rounding"))
-          .inventoryBackground(scanBGChooser.getColor)
-          .searchForCommander(cmdrCheck.isSelected)
-          .commanderInMain(cmdrMainDeck.isSelected || (cmdrCheck.isSelected && cmdrList.isSelected && cmdrListName.getText.isEmpty))
-          .commanderInAll(cmdrAllLists.isSelected)
-          .commanderInList(cmdrListName.getText)
-          .sideboardName(if (sideCheck.isSelected) sideField.getText else "")
-          .sections(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap.asJava)
-          .line(landLineChooser.getColor)
-          .build
+      
+      _settings.copy(
+        inventory = _settings.inventory.copy(
+          source = inventorySiteField.getText,
+          file = inventoryFileField.getText,
+          location = inventoryDirField.getText,
+          scans = scansDirField.getText,
+          imageSource = imgSourceBox.getItemAt(imgSourceBox.getSelectedIndex),
+          imageLimitEnable = limitImageBox.isSelected,
+          imageLimit = limitImageSpinner.getValue.asInstanceOf[Int],
+          update = updateBox.getItemAt(updateBox.getSelectedIndex),
+          warn = suppressCheckBox.isSelected,
+          columns = inventoryColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toSeq.sortBy(_.ordinal),
+          background = scanBGChooser.getColor,
+          stripe = inventoryStripeColor.getColor
+        ),
+        editor = _settings.editor.copy(
+          recents = _settings.editor.recents.copy(count = recentSpinner.getValue.asInstanceOf[Int]),
+          categories = _settings.editor.categories.copy(
+            presets = presets.toSeq,
+            explicits = explicitsSpinner.getValue.asInstanceOf[Int]
+          ),
+          hand = _settings.editor.hand.copy(
+            size = startingSizeSpinner.getValue.asInstanceOf[Int],
+            rounding = modeButtons.find(_.isSelected).map(_.getText).getOrElse("No Rounding"),
+            background = handBGColor.getColor
+          ),
+          legality = _settings.editor.legality.copy(
+            searchForCommander = cmdrCheck.isSelected,
+            main = cmdrMainDeck.isSelected || (cmdrCheck.isSelected && cmdrList.isSelected && cmdrListName.getText.isEmpty),
+            all = cmdrAllLists.isSelected,
+            list = cmdrListName.getText,
+            sideboard = if (sideCheck.isSelected) sideField.getText else ""
+          ),
+          manaAnalysis = ManaAnalysisSettings(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap).copy(line = landLineChooser.getColor),
+          columns = editorColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toSeq.sortBy(_.ordinal),
+          stripe = editorStripeColor.getColor,
+          manaValue = manaValueBox.getItemAt(manaValueBox.getSelectedIndex),
+          backFaceLands = landsCheckBoxes.filter(_.isSelected).map(b => editor.database.card.CardLayout.values.find(_.toString == b.getText).get).toSet
+        )
+      )
     } catch {
-      case e: ParseException => e.printStackTrace
+      case e: ParseException =>
+        e.printStackTrace
+        Settings()
     }
-
-    if (settings().inventory.columns.isEmpty)
-      _settings = SettingsBuilder(settings()).inventoryColumns(SettingsBuilder().defaults.build.inventory.columns.asJava).build
-    if (settings().editor.columns.isEmpty)
-      _settings = SettingsBuilder(settings()).editorColumns(SettingsBuilder().defaults.build.editor.columns.asJava).build
+    if (newSettings.inventory.columns.isEmpty)
+      newSettings = newSettings.copy(inventory = newSettings.inventory.copy(columns = InventorySettings().columns))
+    if (newSettings.editor.columns.isEmpty)
+      newSettings = newSettings.copy(editor = newSettings.editor.copy(columns = EditorSettings().columns))
+    _settings = newSettings
 
     parent.applySettings()
   }
@@ -912,7 +923,7 @@ object SettingsDialog {
    * @param category specification for the category to add
    */
   def addPresetCategory(category: Category): Unit = {
-    _settings = SettingsBuilder(_settings).addPresetCategory(category).build
+    _settings = _settings.copy(editor = _settings.editor.copy(categories = _settings.editor.categories.copy(presets = _settings.editor.categories.presets :+ category)))
   }
 
   /** Load settings from [[PropertiesFile]]. */
@@ -936,14 +947,14 @@ object SettingsDialog {
   }
 
   /** Reset settings back to default values.  Does not update UI elements. */
-  def resetDefaultSettings(): Unit = { _settings = SettingsBuilder().defaults.build }
+  def resetDefaultSettings(): Unit = { _settings = Settings() }
 
   /**
    * Update the list of recently-opened files.
    * @param files new list of recent files
    */
   def setRecents(files: Seq[String]): Unit = {
-    _settings = SettingsBuilder(_settings).recentsFiles(files.asJava).build
+    _settings = _settings.copy(editor = _settings.editor.copy(recents = _settings.editor.recents.copy(files = files)))
   }
 
   /**
@@ -951,7 +962,7 @@ object SettingsDialog {
    * @param dir new file directory
    */
   def setStartingDir(dir: String): Unit = {
-    _settings = SettingsBuilder(_settings).cwd(dir).build
+    _settings = _settings.copy(cwd = dir)
   }
 
   /**
@@ -959,7 +970,7 @@ object SettingsDialog {
    * @param version new inventory version
    */
   def setInventoryVersion(version: DatabaseVersion): Unit = {
-    _settings = SettingsBuilder(_settings).inventoryVersion(version).build
+    _settings = _settings.copy(inventory = _settings.inventory.copy(version = version))
   }
 
   /**
@@ -967,6 +978,6 @@ object SettingsDialog {
    * @param warn new inventory warning setting
    */
   def setShowInventoryWarnings(warn: Boolean): Unit = {
-    _settings = SettingsBuilder(_settings).inventoryWarn(warn).build
+    _settings = _settings.copy(inventory = _settings.inventory.copy(warn = warn))
   }
 }

@@ -26,23 +26,6 @@ import editor.filter.leaf.options.multi.CardTypeFilter
  */
 case class Settings(inventory: InventorySettings = InventorySettings(), editor: EditorSettings = EditorSettings(), cwd: String = System.getProperty("user.home")) {
   @deprecated def this() = this(InventorySettings(), EditorSettings(), System.getProperty("user.home"))
-
-  @deprecated def this(inventorySource: String, inventoryFile: String, inventoryVersionFile: String, inventoryVersion: DatabaseVersion, inventoryLocation: String, inventoryScans: String, imageSource: String, imageLimitEnable: Boolean, imageLimit: Int, inventoryTags: String, inventoryUpdate: UpdateFrequency, inventoryWarn: Boolean, inventoryColumns: Seq[CardAttribute], inventoryBackground: Color, inventoryStripe: Color, recentsCount: Int, recentsFiles: Seq[String], explicits: Int, presetCategories: Seq[Category], categoryRows: Int, editorColumns: Seq[CardAttribute], editorStripe: Color, handSize: Int, handRounding: String, handBackground: Color, searchForCommander: Boolean, main: Boolean, all: Boolean, list: String, sideboard: String, manaValue: String, backFaceLands: Set[CardLayout], cwd: String, none: Color, colorless: Color, white: Color, blue: Color, black: Color, red: Color, green: Color, multi: Color, creature: Color, artifact: Color, enchantment: Color, planeswalker: Color, instant: Color, sorcery: Color, line: Color)
-    = this(
-      InventorySettings(inventorySource, inventoryFile, inventoryVersionFile, inventoryVersion, inventoryLocation, inventoryScans, imageSource, imageLimitEnable, imageLimit, inventoryTags, inventoryUpdate, inventoryWarn, inventoryColumns, inventoryBackground, inventoryStripe),
-      EditorSettings(
-        RecentsSettings(recentsCount, recentsFiles),
-        CategoriesSettings(presetCategories, categoryRows, explicits),
-        editorColumns,
-        editorStripe,
-        HandSettings(handSize, handRounding, handBackground),
-        LegalitySettings(searchForCommander, main, all, list, sideboard),
-        manaValue,
-        backFaceLands,
-        ManaAnalysisSettings(none, colorless, white, blue, black, red, green, multi, creature, artifact, enchantment, planeswalker, instant, sorcery, line)
-      ),
-      cwd
-    )
 }
 
 /**
@@ -289,4 +272,43 @@ case class ManaAnalysisSettings(
   
   /** List of bar colors when dividing by card type */
   val typeColors = Seq(creature, artifact, enchantment, planeswalker, instant, sorcery)
+}
+
+/**
+ * Convenience object for creating a [[ManaAnalysisSettings]] from a mapping of graph section name
+ * onto color.
+ * 
+ * @author Alec Roelke
+ */
+object ManaAnalysisSettings {
+  /**
+   * Create a new [[ManaAnalysisSettings]] from a mapping of section name onto color.  Section names should
+   * match the names of the fields of [[ManaAnalysisSettings]].  Any missing sections will be set to their defaults.
+   * 
+   * @param colors mapping of section names onto their colors
+   * @return a new [[ManaAnalysisSettings]] with the specified section colors
+   */
+  def apply(colors: Map[String, Color]): ManaAnalysisSettings = {
+    val colorsLC = colors.map{ case (s, c) => s.toLowerCase -> c }.toMap
+    val defaults = ManaAnalysisSettings()
+    def findColor(options: Seq[String], default: Color) = options.flatMap(colorsLC.get(_)).headOption.getOrElse(default)
+    defaults.copy(
+      none = findColor(Seq("nothing", "none"), defaults.none),
+
+      colorless = findColor(Seq("colorless", "c"), defaults.colorless),
+      white = findColor(Seq("white", "w"), defaults.white),
+      blue = findColor(Seq("blue", "u"), defaults.blue),
+      black = findColor(Seq("black", "b"), defaults.black),
+      red = findColor(Seq("red", "r"), defaults.red),
+      green = findColor(Seq("green", "g"), defaults.green),
+      multi = findColor(Seq("multicolored", "multi", "m"), defaults.multi),
+
+      creature = findColor(Seq("creature"), defaults.creature),
+      artifact = findColor(Seq("artifact"), defaults.artifact),
+      enchantment = findColor(Seq("enchantmen"), defaults.enchantment),
+      planeswalker = findColor(Seq("planeswalker"), defaults.planeswalker),
+      instant = findColor(Seq("instant"), defaults.instant),
+      sorcery = findColor(Seq("sorcery"), defaults.sorcery)
+    )
+  }
 }
