@@ -1573,6 +1573,8 @@ public class MainFrame extends JFrame
                 inventoryTable.addMouseListener(listener);
                 inventoryTable.getSelectionModel().addListSelectionListener(listener);
 
+                SettingsDialog.add_listener((o, n) -> { applySettings(); return scala.runtime.BoxedUnit.UNIT; });
+
                 if (!inventory.isEmpty())
                 {
                     for (Category spec : CollectionConverters.asJava(SettingsDialog.settings().editor().categories().presets()))
@@ -1636,8 +1638,6 @@ public class MainFrame extends JFrame
         recentCount = SettingsDialog.settings().editor().recents().count();
         inventoryModel.setColumns(CollectionConverters.asJava(SettingsDialog.settings().inventory().columns()));
         inventoryTable.setStripeColor(SettingsDialog.settings().inventory().stripe());
-        for (EditorFrame frame : editors)
-            frame.applySettings();
         presetMenu.removeAll();
         for (Category spec : CollectionConverters.asJava(SettingsDialog.settings().editor().categories().presets()))
         {

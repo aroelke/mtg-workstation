@@ -114,7 +114,7 @@ case class EditorSettings(
    */ 
   def isLand(c: Card) = c match {
     case m: MultiCard =>
-      if (SettingsDialog.settings().editor.backFaceLands.contains(m.layout))
+      if (SettingsDialog.settings.editor.backFaceLands.contains(m.layout))
         m.faces.asScala.exists(_.isLand)
       else
         m.faces.get(0).isLand

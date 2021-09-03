@@ -337,7 +337,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   // Which layouts to count lands on back sides
   private val landsPanel = JPanel(FlowLayout(0, 0, FlowLayout.LEADING))
   landsPanel.setBorder(BorderFactory.createTitledBorder("Count lands on back sides for layouts:"))
-  private val landsCheckBoxes = editor.database.card.CardLayout.values.filter(_.isMultiFaced).map((l) => JCheckBox(l.toString, settings().editor.backFaceLands.contains(l)))
+  private val landsCheckBoxes = editor.database.card.CardLayout.values.filter(_.isMultiFaced).map((l) => JCheckBox(l.toString, settings.editor.backFaceLands.contains(l)))
   landsCheckBoxes.foreach(landsPanel.add(_))
   landsPanel.setMaximumSize(Dimension(Int.MaxValue, landsPanel.getPreferredSize.height))
   landsPanel.setAlignmentX(Component.LEFT_ALIGNMENT)
@@ -722,53 +722,53 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
 
   addWindowListener(new WindowAdapter {
     override def windowOpened(e: WindowEvent): Unit = {
-      inventorySiteField.setText(settings().inventory.source)
-      inventoryFileField.setText(settings().inventory.file)
-      currentVersionLabel.setText("(Current version: " + settings().inventory.version + ")")
-      inventoryDirField.setText(settings().inventory.location)
+      inventorySiteField.setText(settings.inventory.source)
+      inventoryFileField.setText(settings.inventory.file)
+      currentVersionLabel.setText("(Current version: " + settings.inventory.version + ")")
+      inventoryDirField.setText(settings.inventory.location)
       inventoryChooser.setCurrentDirectory(File(inventoryDirField.getText).getAbsoluteFile)
-      scansDirField.setText(settings().inventory.scans)
+      scansDirField.setText(settings.inventory.scans)
       scansChooser.setCurrentDirectory(File(scansDirField.getText).getAbsoluteFile)
-      imgSourceBox.setSelectedIndex(Math.max(ImageSources.indexOf(settings().inventory.imageSource), 0))
-      limitImageBox.setSelected(settings().inventory.imageLimitEnable)
-      limitImageSpinner.setEnabled(settings().inventory.imageLimitEnable)
-      limitImageSpinner.setValue(settings().inventory.imageLimit)
-      updateBox.setSelectedIndex(settings().inventory.update.ordinal)
-      suppressCheckBox.setSelected(settings().inventory.warn)
+      imgSourceBox.setSelectedIndex(Math.max(ImageSources.indexOf(settings.inventory.imageSource), 0))
+      limitImageBox.setSelected(settings.inventory.imageLimitEnable)
+      limitImageSpinner.setEnabled(settings.inventory.imageLimitEnable)
+      limitImageSpinner.setValue(settings.inventory.imageLimit)
+      updateBox.setSelectedIndex(settings.inventory.update.ordinal)
+      suppressCheckBox.setSelected(settings.inventory.warn)
       viewWarningsButton.setEnabled(!inventoryWarnings.isEmpty)
       for ((a, b) <- inventoryColumnCheckBoxes)
-        b.setSelected(settings().inventory.columns.contains(a))
-      inventoryStripeColor.setColor(settings().inventory.stripe)
-      scanBGChooser.setColor(settings().inventory.background)
-      recentSpinner.getModel.setValue(settings().editor.recents.count)
-      explicitsSpinner.getModel.setValue(settings().editor.categories.explicits)
-      manaValueBox.setSelectedIndex(Math.max(ManaValueOptions.indexOf(settings().editor.manaValue), 0))
-      for (preset <- settings().editor.categories.presets)
+        b.setSelected(settings.inventory.columns.contains(a))
+      inventoryStripeColor.setColor(settings.inventory.stripe)
+      scanBGChooser.setColor(settings.inventory.background)
+      recentSpinner.getModel.setValue(settings.editor.recents.count)
+      explicitsSpinner.getModel.setValue(settings.editor.categories.explicits)
+      manaValueBox.setSelectedIndex(Math.max(ManaValueOptions.indexOf(settings.editor.manaValue), 0))
+      for (preset <- settings.editor.categories.presets)
         categoriesList.addCategory(Category(preset))
-      rowsSpinner.getModel().setValue(settings().editor.categories.rows)
+      rowsSpinner.getModel().setValue(settings.editor.categories.rows)
       for ((a, b) <- editorColumnCheckBoxes)
-        b.setSelected(settings().editor.columns.contains(a))
-      editorStripeColor.setColor(settings().editor.stripe)
-      startingSizeSpinner.getModel.setValue(settings().editor.hand.size)
+        b.setSelected(settings.editor.columns.contains(a))
+      editorStripeColor.setColor(settings.editor.stripe)
+      startingSizeSpinner.getModel.setValue(settings.editor.hand.size)
       for (mode <- modeButtons)
-        mode.setSelected(mode.getText == settings().editor.hand.rounding)
-      handBGColor.setColor(settings().editor.hand.background)
-      cmdrCheck.setSelected(settings().editor.legality.searchForCommander)
-      sideCheck.setSelected(!settings().editor.legality.sideboard.isEmpty)
+        mode.setSelected(mode.getText == settings.editor.hand.rounding)
+      handBGColor.setColor(settings.editor.hand.background)
+      cmdrCheck.setSelected(settings.editor.legality.searchForCommander)
+      sideCheck.setSelected(!settings.editor.legality.sideboard.isEmpty)
       sideCheck.setText(if (sideCheck.isSelected) "Default sideboard name:" else "Include sideboard")
-      sideField.setText(settings().editor.legality.sideboard)
+      sideField.setText(settings.editor.legality.sideboard)
       sideField.setVisible(sideCheck.isSelected)
-      if (settings().editor.legality.searchForCommander) {
+      if (settings.editor.legality.searchForCommander) {
         cmdrCheck.setText("Search for commander in:")
-        if (settings().editor.legality.main || (!settings().editor.legality.all && settings().editor.legality.list.isEmpty)) {
+        if (settings.editor.legality.main || (!settings.editor.legality.all && settings.editor.legality.list.isEmpty)) {
           cmdrMainDeck.setSelected(true)
-        } else if (settings().editor.legality.all) {
+        } else if (settings.editor.legality.all) {
           cmdrAllLists.setSelected(true)
         } else {
           cmdrList.setSelected(true)
         }
         cmdrListName.setEnabled(cmdrList.isSelected)
-        cmdrListName.setText(settings().editor.legality.list)
+        cmdrListName.setText(settings.editor.legality.list)
       } else {
         cmdrCheck.setText("Search for commander")
         cmdrMainDeck.setVisible(false)
@@ -776,8 +776,8 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
         cmdrList.setVisible(false)
         cmdrListName.setVisible(false)
       }
-      sections.foreach(s => sectionChoosers(s).setColor(settings().editor.manaAnalysis(s)))
-      landLineChooser.setColor(settings().editor.manaAnalysis.line)
+      sections.foreach(s => sectionChoosers(s).setColor(settings.editor.manaAnalysis(s)))
+      landLineChooser.setColor(settings.editor.manaAnalysis.line)
     }
   })
 
@@ -793,8 +793,8 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
       for (i <- 0 until categoriesList.getCount())
         presets += categoriesList.getCategoryAt(i)
       
-      _settings.copy(
-        inventory = _settings.inventory.copy(
+      settings.copy(
+        inventory = settings.inventory.copy(
           source = inventorySiteField.getText,
           file = inventoryFileField.getText,
           location = inventoryDirField.getText,
@@ -808,18 +808,18 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
           background = scanBGChooser.getColor,
           stripe = inventoryStripeColor.getColor
         ),
-        editor = _settings.editor.copy(
-          recents = _settings.editor.recents.copy(count = recentSpinner.getValue.asInstanceOf[Int]),
-          categories = _settings.editor.categories.copy(
+        editor = settings.editor.copy(
+          recents = settings.editor.recents.copy(count = recentSpinner.getValue.asInstanceOf[Int]),
+          categories = settings.editor.categories.copy(
             presets = presets.toSeq,
             explicits = explicitsSpinner.getValue.asInstanceOf[Int]
           ),
-          hand = _settings.editor.hand.copy(
+          hand = settings.editor.hand.copy(
             size = startingSizeSpinner.getValue.asInstanceOf[Int],
             rounding = modeButtons.find(_.isSelected).map(_.getText).getOrElse("No Rounding"),
             background = handBGColor.getColor
           ),
-          legality = _settings.editor.legality.copy(
+          legality = settings.editor.legality.copy(
             searchForCommander = cmdrCheck.isSelected,
             main = cmdrMainDeck.isSelected || (cmdrCheck.isSelected && cmdrList.isSelected && cmdrListName.getText.isEmpty),
             all = cmdrAllLists.isSelected,
@@ -842,15 +842,15 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
       newSettings = newSettings.copy(inventory = newSettings.inventory.copy(columns = InventorySettings().columns))
     if (newSettings.editor.columns.isEmpty)
       newSettings = newSettings.copy(editor = newSettings.editor.copy(columns = EditorSettings().columns))
-    _settings = newSettings
+    settings = newSettings
 
     parent.applySettings()
   }
 
   /** Reject any changes that were made while using the settings dialog. */
   def rejectSettings(): Unit = {
-    parent.setImageBackground(settings().inventory.background)
-    parent.setHandBackground(settings().editor.hand.background)
+    parent.setImageBackground(settings.inventory.background)
+    parent.setHandBackground(settings.editor.hand.background)
   }
 }
 
@@ -890,9 +890,17 @@ object SettingsDialog {
   val ManaValueOptions = Seq("Minimum", "Maximum", "Average", "Real")
   @deprecated def MANA_VALUE_OPTIONS() = ManaValueOptions.asJava
 
+  val listeners = collection.mutable.ArrayBuffer[(Settings, Settings) => Unit]()
   private var _settings = Settings()
   /** @return the global application settings. */
-  def settings() = _settings
+  def settings = _settings
+  def settings_=(s: Settings) = {
+    val old = _settings
+    _settings = s
+    listeners.foreach(_(old, s))
+  }
+  @deprecated def add_listener(l: (Settings, Settings) => Unit) = listeners += l
+  @deprecated def remove_listener(l: (Settings, Settings) => Unit) = listeners -= l
 
   /** Create a preview panel containing a striped [[javax.swing.JTable]] to show the selected color for table stripes. */
   private[settings] def createStripeChooserPreview(chooser: JColorChooser): Unit = {
@@ -923,14 +931,14 @@ object SettingsDialog {
    * @param category specification for the category to add
    */
   def addPresetCategory(category: Category): Unit = {
-    _settings = _settings.copy(editor = _settings.editor.copy(categories = _settings.editor.categories.copy(presets = _settings.editor.categories.presets :+ category)))
+    settings = settings.copy(editor = settings.editor.copy(categories = settings.editor.categories.copy(presets = settings.editor.categories.presets :+ category)))
   }
 
   /** Load settings from [[PropertiesFile]]. */
   @throws[IOException]
   def load(): Unit = {
     if (Files.exists(PropertiesFile))
-      _settings = MainFrame.SERIALIZER.fromJson(Files.readAllLines(PropertiesFile).asScala.mkString("\n"), classOf[Settings])
+      settings = MainFrame.SERIALIZER.fromJson(Files.readAllLines(PropertiesFile).asScala.mkString("\n"), classOf[Settings])
     else
       resetDefaultSettings()
   }
@@ -939,45 +947,45 @@ object SettingsDialog {
   @throws[IOException]
   def save(): Unit = {
     if (!Card.tags.isEmpty) {
-      Files.createDirectories(Path.of(_settings.inventory.tags).getParent)
-      Files.writeString(Path.of(_settings.inventory.tags), MainFrame.SERIALIZER.toJson(Card.tags.asScala.map{ case (card, tags) => card.multiverseid.get(0) -> tags }.toMap))
+      Files.createDirectories(Path.of(settings.inventory.tags).getParent)
+      Files.writeString(Path.of(settings.inventory.tags), MainFrame.SERIALIZER.toJson(Card.tags.asScala.map{ case (card, tags) => card.multiverseid.get(0) -> tags }.toMap))
     } else
-      Files.deleteIfExists(Path.of(_settings.inventory.tags))
-    Files.writeString(PropertiesFile, MainFrame.SERIALIZER.toJson(_settings))
+      Files.deleteIfExists(Path.of(settings.inventory.tags))
+    Files.writeString(PropertiesFile, MainFrame.SERIALIZER.toJson(settings))
   }
 
   /** Reset settings back to default values.  Does not update UI elements. */
-  def resetDefaultSettings(): Unit = { _settings = Settings() }
+  def resetDefaultSettings(): Unit = { settings = Settings() }
 
   /**
    * Update the list of recently-opened files.
    * @param files new list of recent files
    */
-  def setRecents(files: Seq[String]): Unit = {
-    _settings = _settings.copy(editor = _settings.editor.copy(recents = _settings.editor.recents.copy(files = files)))
+  @deprecated def setRecents(files: Seq[String]): Unit = {
+    settings = settings.copy(editor = settings.editor.copy(recents = settings.editor.recents.copy(files = files)))
   }
 
   /**
    * Set the directory to open the open-file dialog in.
    * @param dir new file directory
    */
-  def setStartingDir(dir: String): Unit = {
-    _settings = _settings.copy(cwd = dir)
+  @deprecated def setStartingDir(dir: String): Unit = {
+    settings = settings.copy(cwd = dir)
   }
 
   /**
    * Set the version of the inventory stored on disk.
    * @param version new inventory version
    */
-  def setInventoryVersion(version: DatabaseVersion): Unit = {
-    _settings = _settings.copy(inventory = _settings.inventory.copy(version = version))
+  @deprecated def setInventoryVersion(version: DatabaseVersion): Unit = {
+    settings = settings.copy(inventory = settings.inventory.copy(version = version))
   }
 
   /**
    * Set whether inventory warnings should be displayed after loading it or not.
    * @param warn new inventory warning setting
    */
-  def setShowInventoryWarnings(warn: Boolean): Unit = {
-    _settings = _settings.copy(inventory = _settings.inventory.copy(warn = warn))
+  @deprecated def setShowInventoryWarnings(warn: Boolean): Unit = {
+    settings = settings.copy(inventory = settings.inventory.copy(warn = warn))
   }
 }

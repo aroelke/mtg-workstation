@@ -34,6 +34,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -117,6 +118,7 @@ import editor.gui.generic.EditablePanel;
 import editor.gui.generic.ScrollablePanel;
 import editor.gui.generic.TableMouseAdapter;
 import editor.gui.generic.VerticalButtonList;
+import editor.gui.settings.Settings;
 import editor.gui.settings.SettingsDialog;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
@@ -1274,6 +1276,8 @@ public class EditorFrame extends JInternalFrame
         extrasPane.addMouseListener(MouseListenerFactory.createPressListener(addSideboard));
         emptyPanel.addMouseListener(MouseListenerFactory.createClickListener(addSideboard));
 
+        final scala.Function2<Settings, Settings, scala.runtime.BoxedUnit> settingsListener = (o, n) -> { applySettings(); return scala.runtime.BoxedUnit.UNIT; };
+
         // Handle various frame events, including selecting and closing
         addInternalFrameListener(new InternalFrameAdapter()
         {
@@ -1286,11 +1290,14 @@ public class EditorFrame extends JInternalFrame
             @Override
             public void internalFrameClosing(InternalFrameEvent e)
             {
+                SettingsDialog.remove_listener(settingsListener);
                 parent.close(EditorFrame.this);
             }
         });
 
         listTabs.setSelectedIndex(MAIN_DECK);
+
+        SettingsDialog.add_listener(settingsListener);
     }
 
     /**
