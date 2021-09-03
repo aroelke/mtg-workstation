@@ -272,35 +272,6 @@ public class MainFrame extends JFrame
     }
 
     /**
-     * Entry point for the program. All it does is set the look and feel to the
-     * system one and create the GUI.
-     *
-     * @param args arguments to the program
-     */
-    public static void main(String[] args)
-    {
-        try
-        {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
-        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
-        {
-            e.printStackTrace();
-        }
-
-        try
-        {
-            Files.createDirectories(SettingsDialog.EDITOR_HOME());
-        }
-        catch (IOException e)
-        {
-            JOptionPane.showMessageDialog(null, "Could not create directory " + SettingsDialog.EDITOR_HOME() + ": " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-
-        SwingUtilities.invokeLater(() -> new MainFrame(Arrays.stream(args).map(File::new).filter(File::exists).collect(Collectors.toList())).setVisible(true));
-    }
-
-    /**
      * Table displaying the inventory of all cards.
      */
     private CardTable inventoryTable;
