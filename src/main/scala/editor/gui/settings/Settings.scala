@@ -13,6 +13,8 @@ import java.awt.Color
 import java.io.File
 import scala.jdk.CollectionConverters._
 import editor.filter.leaf.options.multi.CardTypeFilter
+import java.net.URL
+import java.net.MalformedURLException
 
 /**
  * Global settings structure, modifiable only using the [[editor.gui.settings.SettingsDialog]].
@@ -52,6 +54,7 @@ case class Settings(inventory: InventorySettings = InventorySettings(), editor: 
  * 
  * @author Alec Roelke
  */
+@throws[MalformedURLException]("if the URL formed by the JSON source link and JSON file name or version file name is invalid")
 case class InventorySettings(
   source: String = "https://mtgjson.com/api/v5/",
   file: String = "AllSets.json",
@@ -71,12 +74,13 @@ case class InventorySettings(
 ) {
   /** Path to the downloaded database. */
   lazy val path = location + File.separator + file
+  lazy val inventoryFile = File(path)
 
   /** URL to the database online. */
-  lazy val url = source + file
+  val url = URL(s"$source$file.zip")
 
   /** URL to the version online. */
-  lazy val versionSite = source + versionFile
+  val versionSite = URL(source + versionFile)
 }
 
 /**

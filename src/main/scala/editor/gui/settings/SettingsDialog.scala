@@ -78,6 +78,7 @@ import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
+import java.net.MalformedURLException
 
 /**
  * Application-modal dialog that allows the user to make global changes to UI elements, including various colors,
@@ -721,7 +722,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   setLocationRelativeTo(parent)
 
   addWindowListener(new WindowAdapter {
-    override def windowOpened(e: WindowEvent): Unit = {
+    override def windowActivated(e: WindowEvent) = {
       inventorySiteField.setText(settings.inventory.source)
       inventoryFileField.setText(settings.inventory.file)
       currentVersionLabel.setText("(Current version: " + settings.inventory.version + ")")
@@ -837,6 +838,9 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
       case e: ParseException =>
         e.printStackTrace
         Settings()
+      case e: MalformedURLException =>
+        JOptionPane.showMessageDialog(this, s"Bad file URL: ${SettingsDialog.settings.inventory.url}", "Warning", JOptionPane.WARNING_MESSAGE)
+        Settings()
     }
     if (newSettings.inventory.columns.isEmpty)
       newSettings = newSettings.copy(inventory = newSettings.inventory.copy(columns = InventorySettings().columns))
@@ -935,10 +939,11 @@ object SettingsDialog {
   }
 
   /** Load settings from [[PropertiesFile]]. */
-  @throws[IOException]
+  @throws[IOException]("if an error occurred while loading the file")
+  @throws[MalformedURLException]("if the URL for the inventory source or version is invalid")
   def load(): Unit = {
     if (Files.exists(PropertiesFile))
-      settings = MainFrame.SERIALIZER.fromJson(Files.readAllLines(PropertiesFile).asScala.mkString("\n"), classOf[Settings])
+      settings = MainFrame.Serializer.fromJson(Files.readAllLines(PropertiesFile).asScala.mkString("\n"), classOf[Settings])
     else
       resetDefaultSettings()
   }
@@ -948,10 +953,10 @@ object SettingsDialog {
   def save(): Unit = {
     if (!Card.tags.isEmpty) {
       Files.createDirectories(Path.of(settings.inventory.tags).getParent)
-      Files.writeString(Path.of(settings.inventory.tags), MainFrame.SERIALIZER.toJson(Card.tags.asScala.map{ case (card, tags) => card.multiverseid.get(0) -> tags }.toMap))
+      Files.writeString(Path.of(settings.inventory.tags), MainFrame.Serializer.toJson(Card.tags.asScala.map{ case (card, tags) => card.multiverseid.get(0) -> tags }.toMap))
     } else
       Files.deleteIfExists(Path.of(settings.inventory.tags))
-    Files.writeString(PropertiesFile, MainFrame.SERIALIZER.toJson(settings))
+    Files.writeString(PropertiesFile, MainFrame.Serializer.toJson(settings))
   }
 
   /** Reset settings back to default values.  Does not update UI elements. */

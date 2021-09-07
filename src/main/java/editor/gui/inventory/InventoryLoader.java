@@ -691,7 +691,7 @@ public class InventoryLoader extends SwingWorker<Inventory, String>
         if (Files.exists(Path.of(SettingsDialog.settings().inventory().tags())))
         {
             @SuppressWarnings("unchecked")
-            var rawTags = (Map<String, Set<String>>)MainFrame.SERIALIZER.fromJson(String.join("\n", Files.readAllLines(Path.of(SettingsDialog.settings().inventory().tags()))), new TypeToken<Map<String, Set<String>>>() {}.getType());
+            var rawTags = (Map<String, Set<String>>)MainFrame.SERIALIZER().fromJson(String.join("\n", Files.readAllLines(Path.of(SettingsDialog.settings().inventory().tags()))), new TypeToken<Map<String, Set<String>>>() {}.getType());
             Card.tags.clear();
             Card.tags.putAll(rawTags.entrySet().stream().collect(Collectors.toMap((e) -> inventory.find(e.getKey()), Map.Entry::getValue)));
         }

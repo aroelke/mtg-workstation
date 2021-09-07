@@ -57,7 +57,7 @@ public class TableSelectionListener implements MouseListener, ListSelectionListe
         {
             if (table.getSelectedRow() >= 0)
                 frame.setDisplayedCard(list.get(table.convertRowIndexToModel(table.getSelectedRow())));
-            else if (frame.getSelectedTable().filter((t) -> t == table).isPresent())
+            else if (frame.getSelectedTable().filter((t) -> t == table).isDefined())
                 frame.clearSelectedCard();
         }
     }

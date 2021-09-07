@@ -350,7 +350,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
         LoadWorker worker = new LoadWorker(f, parent, (s) -> {
             try (var bf = new BufferedReader(new InputStreamReader(s)))
             {
-                DeckSerializer loaded = MainFrame.SERIALIZER.fromJson(bf, DeckSerializer.class);
+                DeckSerializer loaded = MainFrame.SERIALIZER().fromJson(bf, DeckSerializer.class);
                 deck = loaded.deck;
                 sideboard = loaded.sideboard;
                 notes = loaded.notes;
@@ -406,7 +406,7 @@ public class DeckSerializer implements JsonDeserializer<DeckSerializer>, JsonSer
     {
         try (FileWriter writer = new FileWriter(f))
         {
-            writer.write(MainFrame.SERIALIZER.toJson(this));
+            writer.write(MainFrame.SERIALIZER().toJson(this));
             file = f;
         }
     }
