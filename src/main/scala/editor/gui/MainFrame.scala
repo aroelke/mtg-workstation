@@ -260,25 +260,25 @@ class MainFrame(files: Seq[File]) extends JFrame {
   // New file menu item
   private val newItem = JMenuItem("New")
   newItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK))
-  newItem.addActionListener((_) => selectFrame(createEditor()))
+  newItem.addActionListener(_ => selectFrame(createEditor()))
   fileMenu.add(newItem)
 
   // Open file menu item
   private val openItem = JMenuItem("Open...")
   openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK))
-  openItem.addActionListener((_) => open())
+  openItem.addActionListener(_ => open())
   fileMenu.add(openItem)
 
   // Close file menu item
   private val closeItem = JMenuItem("Close")
   closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK))
-  closeItem.addActionListener((_) => selectedFrame.foreach(close(_)))
+  closeItem.addActionListener(_ => selectedFrame.foreach(close(_)))
   fileMenu.add(closeItem)
 
   // Close all files menu item
   private val closeAllItem = JMenuItem("Close All")
   closeAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK|InputEvent.SHIFT_DOWN_MASK))
-  closeAllItem.addActionListener((_) => closeAll())
+  closeAllItem.addActionListener(_ => closeAll())
   fileMenu.add(closeAllItem)
 
   fileMenu.add(JSeparator())
@@ -286,19 +286,19 @@ class MainFrame(files: Seq[File]) extends JFrame {
   // Save file menu item
   private val saveItem = JMenuItem("Save")
   saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK))
-  saveItem.addActionListener((_) => selectedFrame.foreach(save(_)))
+  saveItem.addActionListener(_ => selectedFrame.foreach(save(_)))
   fileMenu.add(saveItem)
 
   // Save file as menu item
   private val saveAsItem = JMenuItem("Save As...")
   saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0))
-  saveAsItem.addActionListener((_) => selectedFrame.foreach(saveAs(_)))
+  saveAsItem.addActionListener(_ => selectedFrame.foreach(saveAs(_)))
   fileMenu.add(saveAsItem)
 
   // Save all files menu item
   private val saveAllItem = JMenuItem("Save All")
   saveAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK|InputEvent.SHIFT_DOWN_MASK))
-  saveAllItem.addActionListener((_) => saveAll())
+  saveAllItem.addActionListener(_ => saveAll())
   fileMenu.add(saveAllItem)
 
   // Recent files menu
@@ -314,7 +314,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
   private val delimited = FileNameExtensionFilter("Delimited (*.csv, *.txt)", "csv", "txt")
   private val legacy = FileNameExtensionFilter(s"Deck from v0.1 or older (*.${DeckDeserializer.EXTENSION})", DeckDeserializer.EXTENSION)
   private val importItem = JMenuItem("Import...")
-  importItem.addActionListener((_) => {
+  importItem.addActionListener(_ => {
     val importChooser = JFileChooser()
     importChooser.setAcceptAllFileFilterUsed(false)
     importChooser.addChoosableFileFilter(text)
@@ -375,7 +375,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
             headersPanel.add(Box.createHorizontalStrut(5))
             headersPanel.add(headersPane)
             dataPanel.add(headersPanel, BorderLayout.CENTER)
-            rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((_) => {
+            rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener(_ => {
               var ignore = 0
               for (index <- selectedHeadersList.getSelectedIndices) {
                 if (index == ignore) {
@@ -392,7 +392,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
                 selectedHeadersList.addSelectionInterval(index, index)
               }
             })
-            rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener((_) => {
+            rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener(_ => {
               val indices = selectedHeadersList.getSelectedIndices.reverse
               var ignore = selectedHeadersModel.size() - 1
               for (index <- indices) {
@@ -410,14 +410,14 @@ class MainFrame(files: Seq[File]) extends JFrame {
                 selectedHeadersList.addSelectionInterval(index, index)
               }
             })
-            moveButtons.get(UnicodeSymbols.LEFT_ARROW.toString).addActionListener((_) => {
+            moveButtons.get(UnicodeSymbols.LEFT_ARROW.toString).addActionListener(_ => {
               for (selected <- headersList.getSelectedValuesList.asScala)
                 if (!selectedHeadersModel.contains(selected))
                   selectedHeadersModel.addElement(selected)
               headersList.clearSelection()
             })
-            moveButtons.get(UnicodeSymbols.RIGHT_ARROW.toString).addActionListener((_) => selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_)))
-            includeCheckBox.addActionListener((_) => {
+            moveButtons.get(UnicodeSymbols.RIGHT_ARROW.toString).addActionListener(_ => selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_)))
+            includeCheckBox.addActionListener(_ => {
               headersList.setEnabled(!includeCheckBox.isSelected)
               selectedHeadersList.setEnabled(!includeCheckBox.isSelected)
               rearrangeButtons.asScala.foreach(_.setEnabled(!includeCheckBox.isSelected))
@@ -433,7 +433,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
             previewTable.setAutoCreateRowSorter(true)
             previewPanel.add(JScrollPane(previewTable))
 
-            val updateTable: ActionListener = (_) => {
+            val updateTable: ActionListener = _ => {
               try {
                 val model = DefaultTableModel()
                 val lines = Files.readAllLines(importChooser.getSelectedFile.toPath)
@@ -482,7 +482,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
   })
   fileMenu.add(importItem)
   val exportItem = JMenuItem("Export...")
-  exportItem.addActionListener((_) => selectedFrame match {
+  exportItem.addActionListener(_ => selectedFrame match {
     case Some(f) =>
       val exportChooser = OverwriteFileChooser()
       exportChooser.setAcceptAllFileFilterUsed(false)
@@ -498,7 +498,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
           sortPanel.add(sortCheck)
           val sortBox = JComboBox(CardAttribute.displayableValues)
           sortBox.setSelectedItem(CardAttribute.NAME)
-          sortCheck.addItemListener((_) => sortBox.setEnabled(sortCheck.isSelected))
+          sortCheck.addItemListener(_ => sortBox.setEnabled(sortCheck.isSelected))
           sortPanel.add(sortBox)
 
           val extras = LinkedHashMap[String, Boolean]()
@@ -514,7 +514,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
           for ((extra, _) <- extras) {
             val extraBox = JCheckBox(extra, extras(extra))
             extraBox.setBackground(extrasPanel.getBackground())
-            extraBox.addActionListener((_) => {
+            extraBox.addActionListener(_ => {
               extras.put(extra, extraBox.isSelected)
               val n = extras.count(_._2)
               if (n == 0)
@@ -525,7 +525,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
                 includeExtras.setSelected(true)
               SwingUtilities.invokeLater(() => includeExtras.repaint())
             })
-            includeExtras.addActionListener((_) => {
+            includeExtras.addActionListener(_ => {
               extraBox.setSelected(includeExtras.getState == TristateCheckBox.State.SELECTED)
               extras.put(extra, extraBox.isSelected)
               SwingUtilities.invokeLater(() => extraBox.repaint())
@@ -562,7 +562,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
               previewPanel.add(previewPane, BorderLayout.CENTER)
               wizardPanel.add(previewPanel)
 
-              addDataBox.addActionListener((_) => {
+              addDataBox.addActionListener(_ => {
                 val pos = formatField.getCaretPosition
                 val data = s"{${addDataBox.getSelectedItem}}".toLowerCase
                 val t = formatField.getText.substring(0, pos) + data + (
@@ -621,7 +621,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
             headersPanel.add(headersPane)
             dataPanel.add(headersPanel)
 
-            rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener((_) => {
+            rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener(_ => {
               var ignore = 0
               for (index <- selectedHeadersList.getSelectedIndices) {
                 if (index == ignore) {
@@ -638,7 +638,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
                 selectedHeadersList.addSelectionInterval(index, index)
               }
             })
-            rearrangeButtons.get(UnicodeSymbols.DOWN_ARROW.toString).addActionListener((_) => {
+            rearrangeButtons.get(UnicodeSymbols.DOWN_ARROW.toString).addActionListener(_ => {
               val indices = selectedHeadersList.getSelectedIndices.reverse
               var ignore = selectedHeadersModel.size - 1
               for (index <- indices) {
@@ -656,13 +656,13 @@ class MainFrame(files: Seq[File]) extends JFrame {
                 selectedHeadersList.addSelectionInterval(index, index)
               }
             })
-            moveButtons.get(String.valueOf(UnicodeSymbols.LEFT_ARROW)).addActionListener((_) => {
+            moveButtons.get(String.valueOf(UnicodeSymbols.LEFT_ARROW)).addActionListener(_ => {
               for (selected <- headersList.getSelectedValuesList.asScala)
                 if (!selectedHeadersModel.contains(selected))
                   selectedHeadersModel.addElement(selected)
               headersList.clearSelection()
             })
-            moveButtons.get(String.valueOf(UnicodeSymbols.RIGHT_ARROW)).addActionListener((_) => {
+            moveButtons.get(String.valueOf(UnicodeSymbols.RIGHT_ARROW)).addActionListener(_ => {
               selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_))
             })
 
@@ -755,7 +755,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
   // Redo menu item
   private val redoItem = JMenuItem("Redo")
   redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK))
-  redoItem.addActionListener((_) => selectedFrame.foreach(_.redo))
+  redoItem.addActionListener(_ => selectedFrame.foreach(_.redo))
   editMenu.add(redoItem)
 
   editMenu.add(JSeparator())
@@ -763,7 +763,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
   // Preferences menu item
   private val settings = Future{ SettingsDialog(this) }(ExecutionContext.global)
   private val preferencesItem = JMenuItem("Preferences...")
-  preferencesItem.addActionListener((_) => try {
+  preferencesItem.addActionListener(_ => try {
       val s = Await.result(settings, 0.nanos)
       s.setLocationRelativeTo(this)
       s.setVisible(true)
@@ -776,7 +776,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
   editMenu.add(preferencesItem)
 
   // Edit menu listener
-  editMenu.addMenuListener(MenuListenerFactory.createSelectedListener((_) => {
+  editMenu.addMenuListener(MenuListenerFactory.createSelectedListener(_ => {
     editCCP.cut.setEnabled(selectedList.contains(inventory) && !getSelectedCards.isEmpty)
     editCCP.copy.setEnabled(!getSelectedCards.isEmpty)
     val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
@@ -786,7 +786,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
     redoItem.setEnabled(selectedFrame.isDefined)
   }))
   // Items are enabled while hidden so their listeners can be used
-  editMenu.addMenuListener(MenuListenerFactory.createDeselectedListener((_) => {
+  editMenu.addMenuListener(MenuListenerFactory.createDeselectedListener(_ => {
     undoItem.setEnabled(true)
     redoItem.setEnabled(true)
   }))
@@ -824,7 +824,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   // Add category item
   private val addCategoryItem = JMenuItem("Add...")
-  addCategoryItem.addActionListener((_) => selectedFrame.foreach((f) => f.createCategory.toScala.foreach(f.addCategory(_))))
+  addCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => f.createCategory.toScala.foreach(f.addCategory(_))))
   categoryMenu.add(addCategoryItem)
 
   // Edit category item
@@ -858,14 +858,14 @@ class MainFrame(files: Seq[File]) extends JFrame {
   categoryMenu.add(presetMenu)
 
   // Deck menu listener
-  deckMenu.addMenuListener(MenuListenerFactory.createSelectedListener((_) => {
+  deckMenu.addMenuListener(MenuListenerFactory.createSelectedListener(_ => {
     addMenu.setEnabled(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     removeMenu.setEnabled(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     sideboardMenu.setEnabled(selectedFrame.map(_.getSelectedExtraName.toScala.isDefined).getOrElse(false) && !getSelectedCards.isEmpty)
     presetMenu.setEnabled(presetMenu.getMenuComponentCount > 0)
   }))
   // Items are enabled while hidden so their listeners can be used.
-  deckMenu.addMenuListener(MenuListenerFactory.createDeselectedListener((_) => {
+  deckMenu.addMenuListener(MenuListenerFactory.createDeselectedListener(_ => {
     addMenu.setEnabled(true)
     removeMenu.setEnabled(true)
   }))
@@ -877,7 +877,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
   // About dialog
   private val aboutItem = JMenuItem("About...")
   helpMenu.add(aboutItem)
-  aboutItem.addActionListener((_) => {
+  aboutItem.addActionListener(_ => {
     val is = getClass.getResourceAsStream("/project.properties")
     val version = try {
       val p = Properties()
@@ -898,7 +898,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   // Inventory update item
   private val updateInventoryItem = JMenuItem("Check for inventory update...")
-  updateInventoryItem.addActionListener((_) => {
+  updateInventoryItem.addActionListener(_ => {
     checkForUpdate(UpdateFrequency.DAILY) match {
       case (version, UpdateNeeded) => if (updateInventory()) {
         SettingsDialog.setInventoryVersion(version)
@@ -919,7 +919,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   // Show expansions item
   private val showExpansionsItem = JMenuItem("Show Expansions...")
-  showExpansionsItem.addActionListener((_) => {
+  showExpansionsItem.addActionListener(_ => {
     val expansionTableModel = new AbstractTableModel {
       private val columns = Array("Expansion", "Block", "Code", "Cards", "Release Date")
 
@@ -1034,11 +1034,11 @@ class MainFrame(files: Seq[File]) extends JFrame {
   oraclePopupMenu.add(oracleMenuSBSeparator)
 
   private val oracleEditTagsItem = JMenuItem("Edit Tags...")
-  oracleEditTagsItem.addActionListener((_) => CardTagPanel.editTags(getSelectedCards.asJava, this))
+  oracleEditTagsItem.addActionListener(_ => CardTagPanel.editTags(getSelectedCards.asJava, this))
   oraclePopupMenu.add(oracleEditTagsItem)
 
   // Popup listener for oracle popup menu
-  oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((_) => {
+  oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
     oracleCCP.copy.setEnabled(!getSelectedCards.isEmpty)
     oracleMenuCardItems.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     oracleMenuCardSeparators.foreach(_.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty))
@@ -1123,11 +1123,11 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   // Edit tags item
   private val editTagsItem = JMenuItem("Edit Tags...")
-  editTagsItem.addActionListener((_) => CardTagPanel.editTags(getSelectedCards.asJava, this))
+  editTagsItem.addActionListener(_ => CardTagPanel.editTags(getSelectedCards.asJava, this))
   inventoryMenu.add(editTagsItem)
 
   // Inventory menu listener
-  inventoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener((_) => {
+  inventoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
     inventoryMenuCardItems.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     inventoryMenuCardSeparators.foreach(_.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty))
     inventoryMenuSBItems.setVisible(selectedFrame.fold(false)((f) => !f.getExtraNames.isEmpty) && !getSelectedCards.isEmpty)
@@ -1149,7 +1149,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
   })
 
   // Action to be taken when the advanced filter button is pressed (show the advanced filter dialog)
-  advancedFilterButton.addActionListener((_) => {
+  advancedFilterButton.addActionListener(_ => {
     val panel = FilterGroupPanel()
     if (inventory.getFilter.equals(CardAttribute.createFilter(CardAttribute.ANY)))
       panel.setContents(CardAttribute.createFilter(CardAttribute.NAME))
@@ -1212,7 +1212,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
       if (!inventory.isEmpty) {
         for (spec <- SettingsDialog.settings.editor.categories.presets) {
           val categoryItem = JMenuItem(spec.getName)
-          categoryItem.addActionListener((_) => selectedFrame.foreach(_.addCategory(spec)))
+          categoryItem.addActionListener(_ => selectedFrame.foreach(_.addCategory(spec)))
           presetMenu.add(categoryItem)
         }
         files.foreach(open(_))
@@ -1238,7 +1238,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
       spec.getWhitelist.asScala.foreach(spec.exclude(_))
       SettingsDialog.addPresetCategory(spec)
       val categoryItem = JMenuItem(spec.getName)
-      categoryItem.addActionListener((_) => selectedFrame.foreach(_.addCategory(spec)))
+      categoryItem.addActionListener(_ => selectedFrame.foreach(_.addCategory(spec)))
       presetMenu.add(categoryItem)
     }
   }
@@ -1250,7 +1250,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
     presetMenu.removeAll()
     for (spec <- SettingsDialog.settings.editor.categories.presets) {
       val categoryItem = JMenuItem(spec.getName)
-      categoryItem.addActionListener((_) => selectedFrame.foreach(_.addCategory(spec)))
+      categoryItem.addActionListener(_ => selectedFrame.foreach(_.addCategory(spec)))
       presetMenu.add(categoryItem)
     }
     setImageBackground(SettingsDialog.settings.inventory.background)
