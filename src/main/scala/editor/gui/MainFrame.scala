@@ -209,16 +209,11 @@ class MainFrame(files: Seq[File]) extends JFrame {
     override def getTableCellRendererComponent(table: JTable, value: Object, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int) = {
       val c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
       val card = inventory.get(table.convertRowIndexToModel(row))
-      val contained = selectedFrame.map((f) => f.hasCard(card).asScala).getOrElse(Seq.empty)
+      val contained = selectedFrame.map(_.hasCard(card).asScala).toSeq.flatten
       val main = contained.contains(EditorFrame.MAIN_DECK)
       val extra = contained.exists(_ > 0)
-      if (main && extra)
-        ComponentUtils.changeFontRecursive(c, c.getFont.deriveFont(Font.BOLD | Font.ITALIC))
-      else if (main)
-        ComponentUtils.changeFontRecursive(c, c.getFont.deriveFont(Font.BOLD))
-      else if (extra)
-        ComponentUtils.changeFontRecursive(c, c.getFont.deriveFont(Font.ITALIC))
-      return c
+      ComponentUtils.changeFontRecursive(c, c.getFont.deriveFont((if (main) Font.BOLD else 0) | (if (extra) Font.ITALIC else 0)))
+      c
     }
   }
 
