@@ -241,8 +241,6 @@ class MainFrame(files: Seq[File]) extends JFrame {
       SettingsDialog.resetDefaultSettings()
   }
 
-  private var newestVersion = SettingsDialog.settings.inventory.version
-
   setTitle("MTG Workstation")
   setIconImages((4 to 8).map(i => ImageIcon(getClass.getResource(s"/icon/${1 << i}.png")).getImage).asJava)
   setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE)
@@ -902,12 +900,12 @@ class MainFrame(files: Seq[File]) extends JFrame {
   private val updateInventoryItem = JMenuItem("Check for inventory update...")
   updateInventoryItem.addActionListener((_) => {
     checkForUpdate(UpdateFrequency.DAILY) match {
-      case UpdateNeeded => if (updateInventory()) {
-        SettingsDialog.setInventoryVersion(newestVersion)
+      case (version, UpdateNeeded) => if (updateInventory()) {
+        SettingsDialog.setInventoryVersion(version)
         loadInventory()
       }
-      case NoUpdate => JOptionPane.showMessageDialog(this, "Inventory is up to date.")
-      case UpdateCancelled =>
+      case (_, NoUpdate) => JOptionPane.showMessageDialog(this, "Inventory is up to date.")
+      case (_, UpdateCancelled) =>
     }
   })
   helpMenu.add(updateInventoryItem)
@@ -1200,8 +1198,10 @@ class MainFrame(files: Seq[File]) extends JFrame {
     override def windowClosing(e: WindowEvent) = exit()
 
     override def windowOpened(e: WindowEvent) = {
-      if (checkForUpdate(SettingsDialog.settings.inventory.update) == UpdateNeeded && updateInventory())
-        SettingsDialog.setInventoryVersion(newestVersion)
+      val (version, update) = checkForUpdate(SettingsDialog.settings.inventory.update)
+      if (update == UpdateNeeded && updateInventory()) {
+        SettingsDialog.setInventoryVersion(version)
+      }
       loadInventory()
       val listener = TableSelectionListener(MainFrame.this, inventoryTable, inventory)
       inventoryTable.addMouseListener(listener)
@@ -1272,33 +1272,36 @@ class MainFrame(files: Seq[File]) extends JFrame {
       val in = BufferedReader(InputStreamReader(SettingsDialog.settings.inventory.versionSite.openStream()))
       val data = (new JsonParser).parse(in.lines.collect(Collectors.joining)).getAsJsonObject
       in.close()
-      newestVersion = DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString)
-      UpdateNeeded
+      (DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString), UpdateNeeded)
     } else if (SettingsDialog.settings.inventory.update != UpdateFrequency.NEVER) {
       val in = BufferedReader(InputStreamReader(SettingsDialog.settings.inventory.versionSite.openStream()))
       val data = (new JsonParser).parse(in.lines.collect(Collectors.joining)).getAsJsonObject
       in.close()
-      newestVersion = DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString)
-      if (newestVersion.needsUpdate(SettingsDialog.settings.inventory.version, freq) && JOptionPane.showConfirmDialog(
-        this,
-        s"""|Inventory is out of date:
-            |${UnicodeSymbols.BULLET} Current version: ${SettingsDialog.settings.inventory.version}
-            |${UnicodeSymbols.BULLET} Latest version: $newestVersion
-            |
-            |Download update?""".stripMargin,
-        "Update",
-        JOptionPane.YES_NO_OPTION
-      ) == JOptionPane.YES_OPTION) UpdateNeeded else UpdateCancelled
+      val latest = DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString)
+      if (latest.needsUpdate(SettingsDialog.settings.inventory.version, freq)) {
+        if (JOptionPane.showConfirmDialog(
+          this,
+          s"""|Inventory is out of date:
+              |${UnicodeSymbols.BULLET} Current version: ${SettingsDialog.settings.inventory.version}
+              |${UnicodeSymbols.BULLET} Latest version: $latest
+              |
+              |Download update?""".stripMargin,
+          "Update",
+          JOptionPane.YES_NO_OPTION
+        ) == JOptionPane.YES_OPTION) (latest, UpdateNeeded) else (latest, UpdateCancelled)
+      } else {
+        (SettingsDialog.settings.inventory.version, NoUpdate)
+      }
     } else {
-      NoUpdate
+      (SettingsDialog.settings.inventory.version, NoUpdate)
     }
   } catch {
     case e: IOException =>
       JOptionPane.showMessageDialog(this, s"Error connecting to server: ${e.getMessage}.", "Connection Error", JOptionPane.ERROR_MESSAGE)
-      NoUpdate
+      (SettingsDialog.settings.inventory.version, NoUpdate)
     case e: ParseException =>
       JOptionPane.showMessageDialog(this, s"Could not parse version \"${e.getMessage}\"", "Error", JOptionPane.ERROR_MESSAGE)
-      NoUpdate
+      (SettingsDialog.settings.inventory.version, NoUpdate)
   }
 
   /**
