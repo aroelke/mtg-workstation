@@ -222,7 +222,6 @@ class MainFrame(files: Seq[File]) extends JFrame {
     }
   }
 
-  private var inventoryModel: CardTableModel = null
   private var selectedTable: Option[CardTable] = None
   private var selectedList: Option[CardList] = None
   private var untitled = 0
@@ -1084,6 +1083,8 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   // Create the inventory and put it in the table
   private val inventoryTable = CardTable();
+  private val inventoryModel = new CardTableModel(Inventory(), Settings().inventory.columns.asJava)
+  inventoryTable.setModel(inventoryModel)
   inventoryTable.setDefaultRenderer(classOf[String], new InventoryTableCellRenderer);
   inventoryTable.setDefaultRenderer(classOf[Int], new InventoryTableCellRenderer);
   inventoryTable.setDefaultRenderer(classOf[Rarity], new InventoryTableCellRenderer);
@@ -1376,8 +1377,8 @@ class MainFrame(files: Seq[File]) extends JFrame {
     setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     inventory = InventoryLoader.loadInventory(this, SettingsDialog.settings.inventory.inventoryFile);
     inventory.sort(CardAttribute.NAME.comparingCard);
-    inventoryModel = CardTableModel(inventory, SettingsDialog.settings.inventory.columns.asJava);
-    inventoryTable.setModel(inventoryModel);
+    inventoryModel.setList(inventory)
+    inventoryModel.setColumns(SettingsDialog.settings.inventory.columns.asJava);
     setCursor(Cursor.getDefaultCursor);
     System.gc();
   }
