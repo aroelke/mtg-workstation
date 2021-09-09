@@ -236,7 +236,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
     case e @ (_: IOException | _: JsonParseException) =>
       var ex: Throwable = e
       while (ex.getCause != null)
-          ex = ex.getCause
+        ex = ex.getCause
       JOptionPane.showMessageDialog(this, s"Error opening ${SettingsDialog.PropertiesFile}: ${ex.getMessage}.", "Warning", JOptionPane.WARNING_MESSAGE)
       SettingsDialog.resetDefaultSettings()
   }
@@ -1397,45 +1397,41 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   /**
    * Open the file chooser to select a file, and if a file was selected, parse it and initialize a [[Deck]] from it.
-   * @return the [[EditorFrame]] containing the opened deck, or null if one wasn't opened
+   * @return the [[EditorFrame]] containing the opened deck, or None if one wasn't opened
    */
-  def open(): EditorFrame = fileChooser.showOpenDialog(this) match {
+  def open(): Option[EditorFrame] = fileChooser.showOpenDialog(this) match {
     case JFileChooser.APPROVE_OPTION =>
       val frame = open(fileChooser.getSelectedFile)
-      if (frame != null)
-        updateRecents(fileChooser.getSelectedFile)
+      frame.foreach(_ => updateRecents(fileChooser.getSelectedFile))
       frame
-    case JFileChooser.CANCEL_OPTION => null
-    case JFileChooser.ERROR_OPTION => null
-    case _ => null
+    case JFileChooser.CANCEL_OPTION => None
+    case JFileChooser.ERROR_OPTION => None
+    case _ => None
   }
 
   /**
    * Open the specified file and create an editor for it.
-   * @return the EditorFrame containing the opened deck, or <code>null</code> if opening was canceled.
+   * @return the EditorFrame containing the opened deck, or None if opening was canceled.
    */
-  def open(f: File): EditorFrame = editors.find(e => e.file != null && e.file == f).getOrElse {
-    var canceled = false
+  def open(f: File) = editors.find(e => e.file != null && e.file == f).orElse {
     val frame = try {
       val manager = DeckSerializer()
       manager.load(f, this)
-      createEditor(manager)
+      Some(createEditor(manager))
     } catch {
-      case e: CancellationException =>
-        canceled = true
-        null
+      case e: CancellationException => None
       case e: DeckLoadException =>
         e.printStackTrace
         JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE)
-        createEditor()
+        Some(createEditor())
     } finally {
       System.gc()
     }
-    if (!canceled) {
-        SettingsDialog.setStartingDir(f.getParent())
-        fileChooser.setCurrentDirectory(f.getParentFile())
-        selectFrame(frame)
-    }
+    frame.foreach(e => {
+      SettingsDialog.setStartingDir(f.getParent())
+      fileChooser.setCurrentDirectory(f.getParentFile())
+      selectFrame(e)
+    })
     frame
   }
 
@@ -1637,7 +1633,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
     val mostRecent = JMenuItem(f.getPath)
     recentItems.enqueue(mostRecent)
     recents.put(mostRecent, f)
-    mostRecent.addActionListener((_) => open(f))
+    mostRecent.addActionListener(_ => open(f))
     recentsMenu.add(mostRecent)
   }
 }
