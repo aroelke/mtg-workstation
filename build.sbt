@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
 
 fork := true
 javaOptions ++= Seq("-Dsun.java2d.d3d=false", "-Dfile.encoding=UTF-8")
+semanticdbEnabled := true
 
 assembly / assemblyJarName := s"${name.value}-${version.value}.jar"
 
