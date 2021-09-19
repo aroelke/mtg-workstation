@@ -21,6 +21,8 @@ import editor.collection.deck.Category;
 import editor.gui.display.CardTable;
 import editor.util.MouseListenerFactory;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents an editor for a table cell containing a set of {@link Category}s for a
  * card. It can be edited by double-clicking on it, which brings up a dialog showing the
@@ -105,7 +107,7 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
             }
         }
         else
-            iePanel = new IncludeExcludePanel(frame.getCategories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getSelectedCards());
+            iePanel = new IncludeExcludePanel(frame.getCategories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), CollectionConverters.asJava(frame.getSelectedCards()));
         return editor;
     }
 

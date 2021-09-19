@@ -141,7 +141,7 @@ public class LegalityPanel extends Box
         cmdrCheck.setText(cmdrCheck.isSelected() ? "Search for commander in:" : "Search for commander");
         cmdrPanel.add(cmdrCheck);
         List<String> names = new ArrayList<>(List.of(MAIN_DECK, ALL_LISTS));
-        names.addAll(editor.getExtraNames());
+        names.addAll(CollectionConverters.asJava(editor.getExtraNames()));
         var cmdrBox = new JComboBox<>(names.toArray(String[]::new));
         cmdrBox.setVisible(SettingsDialog.settings().editor().legality().searchForCommander());
         if (SettingsDialog.settings().editor().legality().main())
@@ -169,7 +169,7 @@ public class LegalityPanel extends Box
             Box sideboardBox = Box.createHorizontalBox();
             sideCheck = new JCheckBox("", !sb.isEmpty() && editor.getExtraNames().contains(sb));
             sideboardBox.add(sideCheck);
-            sideCombo = new JComboBox<>(editor.getExtraNames().toArray(String[]::new));
+            sideCombo = new JComboBox<>(CollectionConverters.asJava(editor.getExtraNames()).toArray(String[]::new));
             sideCombo.setSelectedIndex(Math.max(0, editor.getExtraNames().indexOf(sb)));
             sideCombo.setMaximumSize(sideCombo.getPreferredSize());
             sideboardBox.add(sideCombo);
@@ -191,8 +191,8 @@ public class LegalityPanel extends Box
 
             cmdrCheck.setText("Search for commander" + (cmdrCheck.isSelected() ? " in:" : ""));
             cmdrBox.setVisible(cmdrCheck.isSelected());
-            checkLegality(editor.getList(EditorFrame.MAIN_DECK), !cmdrCheck.isSelected() ? new Deck() : switch (cmdrBox.getSelectedItem().toString()) {
-                case MAIN_DECK -> editor.getList(EditorFrame.MAIN_DECK);
+            checkLegality(editor.getList(EditorFrame.MainDeck()), !cmdrCheck.isSelected() ? new Deck() : switch (cmdrBox.getSelectedItem().toString()) {
+                case MAIN_DECK -> editor.getList(EditorFrame.MainDeck());
                 case ALL_LISTS -> editor.getExtraCards();
                 default -> editor.getList(cmdrBox.getSelectedItem().toString());
             }, !editor.getExtraNames().isEmpty() && sideCheck.isSelected() ? Optional.of(editor.getList(sideCombo.getItemAt(sideCombo.getSelectedIndex()))) : Optional.empty());

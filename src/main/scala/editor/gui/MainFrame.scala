@@ -209,8 +209,8 @@ class MainFrame(files: Seq[File]) extends JFrame {
     override def getTableCellRendererComponent(table: JTable, value: Object, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int) = {
       val c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
       val card = inventory.get(table.convertRowIndexToModel(row))
-      val contained = selectedFrame.map(_.hasCard(card).asScala).toSeq.flatten
-      val main = contained.contains(EditorFrame.MAIN_DECK)
+      val contained = selectedFrame.map(_.hasCard(card)).toSeq.flatten
+      val main = contained.contains(EditorFrame.MainDeck)
       val extra = contained.exists(_ > 0)
       ComponentUtils.changeFontRecursive(c, c.getFont.deriveFont((if (main) Font.BOLD else 0) | (if (extra) Font.ITALIC else 0)))
       c
@@ -502,7 +502,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
           sortPanel.add(sortBox)
 
           val extras = LinkedHashMap[String, Boolean]()
-          for (extra <- f.getExtraNames.asScala)
+          for (extra <- f.getExtraNames)
             extras.put(extra, true)
           val extrasPanel = JPanel(BorderLayout())
           extrasPanel.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, extrasPanel.getBackground))
@@ -687,14 +687,17 @@ class MainFrame(files: Seq[File]) extends JFrame {
               Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected.asJava, includeCheckBox.isSelected))
             } else None
           } else {
-            JOptionPane.showMessageDialog(this, "Could not export " + f.deckName() + '.', "Error", JOptionPane.ERROR_MESSAGE)
+            JOptionPane.showMessageDialog(this, "Could not export " + f.deckName + '.', "Error", JOptionPane.ERROR_MESSAGE)
             None
           }.foreach(format => {
             try {
-              f.`export`(
+              val sorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingCard.compare(a, b) }
+              val unsorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = 0 }
+
+              f.exportList(
                 format,
-                if (sortCheck.isSelected) sortBox.getItemAt(sortBox.getSelectedIndex).comparingCard else (a, b) => 0,
-                extras.collect{ case (e, s) if s => e }.toSeq.asJava,
+                if (sortCheck.isSelected) sorted else unsorted,
+                extras.collect{ case (e, s) if s => e }.toSeq,
                 exportChooser.getSelectedFile
               )
             } catch {
@@ -702,7 +705,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
             }
           })
         case JFileChooser.CANCEL_OPTION =>
-        case JFileChooser.ERROR_OPTION => JOptionPane.showMessageDialog(this, "Could not export " + f.deckName() + '.', "Error", JOptionPane.ERROR_MESSAGE)
+        case JFileChooser.ERROR_OPTION => JOptionPane.showMessageDialog(this, s"Could not export ${f.deckName}.", "Error", JOptionPane.ERROR_MESSAGE)
       }
     case None =>
   })
@@ -720,9 +723,9 @@ class MainFrame(files: Seq[File]) extends JFrame {
   fileMenu.addMenuListener(MenuListenerFactory.createSelectedListener((_) -> {
     closeItem.setEnabled(selectedFrame.isDefined)
     closeAllItem.setEnabled(!editors.isEmpty)
-    saveItem.setEnabled(selectedFrame.map(_.getUnsaved).getOrElse(false))
+    saveItem.setEnabled(selectedFrame.map(_.unsaved).getOrElse(false))
     saveAsItem.setEnabled(selectedFrame.isDefined)
-    saveAllItem.setEnabled(editors.map(_.getUnsaved).fold(false)((a, b) => a || b))
+    saveAllItem.setEnabled(editors.map(_.unsaved).fold(false)((a, b) => a || b))
     exportItem.setEnabled(selectedFrame.isDefined)
   }))
   // Items are enabled while hidden so their listeners can be used
@@ -749,13 +752,13 @@ class MainFrame(files: Seq[File]) extends JFrame {
   // Undo menu item
   private val undoItem = JMenuItem("Undo")
   undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK))
-  undoItem.addActionListener((_) -> selectedFrame.foreach(_.undo))
+  undoItem.addActionListener((_) -> selectedFrame.foreach(_.undo()))
   editMenu.add(undoItem)
 
   // Redo menu item
   private val redoItem = JMenuItem("Redo")
   redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK))
-  redoItem.addActionListener(_ => selectedFrame.foreach(_.redo))
+  redoItem.addActionListener(_ => selectedFrame.foreach(_.redo()))
   editMenu.add(redoItem)
 
   editMenu.add(JSeparator())
@@ -824,7 +827,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   // Add category item
   private val addCategoryItem = JMenuItem("Add...")
-  addCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => f.createCategory.toScala.foreach(f.addCategory(_))))
+  addCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => f.createCategory.foreach(f.addCategory(_))))
   categoryMenu.add(addCategoryItem)
 
   // Edit category item
@@ -861,7 +864,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
   deckMenu.addMenuListener(MenuListenerFactory.createSelectedListener(_ => {
     addMenu.setEnabled(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     removeMenu.setEnabled(selectedFrame.isDefined && !getSelectedCards.isEmpty)
-    sideboardMenu.setEnabled(selectedFrame.map(_.getSelectedExtraName.toScala.isDefined).getOrElse(false) && !getSelectedCards.isEmpty)
+    sideboardMenu.setEnabled(selectedFrame.map(_.getSelectedExtraName.isDefined).getOrElse(false) && !getSelectedCards.isEmpty)
     presetMenu.setEnabled(presetMenu.getMenuComponentCount > 0)
   }))
   // Items are enabled while hidden so their listeners can be used.
@@ -1085,7 +1088,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
   inventoryTable.setStripeColor(SettingsDialog.settings.inventory.stripe)
   inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) => selectedFrame.foreach((f) => {
     if (e.getClickCount % 2 == 0)
-      f.addCards(EditorFrame.MAIN_DECK, getSelectedCards.asJava, 1)
+      f.addCards(EditorFrame.MainDeck, getSelectedCards, 1)
   })))
   inventoryTable.setTransferHandler(InventoryExportHandler(() => getSelectedCards.asJava))
   inventoryTable.setDragEnabled(true)

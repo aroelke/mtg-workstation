@@ -18,9 +18,13 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import editor.collection.deck.Deck;
 import editor.database.card.Card;
 import editor.gui.editor.EditorFrame;
 import editor.gui.settings.SettingsDialog;
+
+import scala.jdk.javaapi.CollectionConverters;
+import scala.jdk.javaapi.OptionConverters;
 
 /**
  * This class represents a list of menu items for manipulating cards in a deck. There are six:
@@ -46,8 +50,8 @@ public class CardMenuItems implements Iterable<JMenuItem>
      */
     public CardMenuItems(final Supplier<Optional<EditorFrame>> monitor, final Supplier<? extends Collection<Card>> cards, final boolean main)
     {
-        final Function<EditorFrame, Optional<Integer>> id = (f) -> main ? Optional.of(EditorFrame.MAIN_DECK) : f.getSelectedExtraID();
-        final IntConsumer addN = (i) -> monitor.get().ifPresent((f) -> id.apply(f).ifPresent((n) -> f.addCards(n, cards.get(), i)));
+        final Function<EditorFrame, Optional<Integer>> id = (f) -> main ? Optional.of(EditorFrame.MainDeck()) : OptionConverters.toJava(f.getSelectedExtraID()).map((o) -> (Integer)o);
+        final IntConsumer addN = (i) -> monitor.get().ifPresent((f) -> id.apply(f).ifPresent((n) -> f.addCards(n, CollectionConverters.asScala(cards.get()).toSeq(), i)));
         final Runnable fillPlayset = () -> monitor.get().ifPresent((f) -> id.apply(f).ifPresent((n) -> {
             f.modifyCards(n, cards.get().stream().collect(Collectors.toMap(Function.identity(), (c) -> {
                 if (f.hasCard(n, c))
@@ -57,7 +61,7 @@ public class CardMenuItems implements Iterable<JMenuItem>
             })));
         }));
         final IntConsumer removeN = (i) -> {
-            monitor.get().ifPresent((f) -> id.apply(f).ifPresent((n) -> f.removeCards(n, cards.get(), i)));
+            monitor.get().ifPresent((f) -> id.apply(f).ifPresent((n) -> f.removeCards(n, CollectionConverters.asScala(cards.get()), i)));
         };
         items = new JMenuItem[6];
 

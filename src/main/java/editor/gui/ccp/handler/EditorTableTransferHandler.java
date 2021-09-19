@@ -12,6 +12,8 @@ import editor.collection.CardList;
 import editor.gui.ccp.data.EntryTransferData;
 import editor.gui.editor.EditorFrame;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents a transfer handler for moving data to and from a table
  * in the editor. It can import or export data of the card or entry flavors.
@@ -42,7 +44,7 @@ public class EditorTableTransferHandler extends EditorFrameTransferHandler
     public Transferable createTransferable(JComponent c)
     {
         CardList source = editor.getList(id);
-        var data = editor.getSelectedCards().stream().collect(Collectors.toMap(Function.identity(), (card) -> source.getEntry(card).count()));
+        var data = CollectionConverters.asJava(editor.getSelectedCards()).stream().collect(Collectors.toMap(Function.identity(), (card) -> source.getEntry(card).count()));
         return new EntryTransferData(editor, id, data);
     }
 

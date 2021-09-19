@@ -12,6 +12,8 @@ import editor.database.card.Card;
 import editor.gui.ccp.data.DataFlavors;
 import editor.gui.editor.EditorFrame;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * Import handler for importing a list of single copies of cards.
  * 
@@ -58,7 +60,7 @@ public class CardImportHandler extends TransferHandler implements ImportHandler
             try
             {
                 var data = Arrays.stream((Card[])supp.getTransferable().getTransferData(supportedFlavor())).collect(Collectors.toSet());
-                return editor.addCards(id, data, 1);
+                return editor.addCards(id, CollectionConverters.asScala(data), 1);
             }
             catch (UnsupportedFlavorException | IOException e)
             {
