@@ -143,6 +143,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
+import _root_.editor.gui.settings.SettingsObserver
 
 /** Possible result of checking for an inventory update. */
 sealed trait UpdateStatus
@@ -196,7 +197,7 @@ object MainFrame {
  * 
  * @author Alec Roelke
  */
-class MainFrame(files: Seq[File]) extends JFrame {
+class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   import MainFrame._
 
   /**
@@ -1210,8 +1211,6 @@ class MainFrame(files: Seq[File]) extends JFrame {
       inventoryTable.addMouseListener(listener)
       inventoryTable.getSelectionModel.addListSelectionListener(listener)
 
-      SettingsDialog.add_listener((o, n) => applySettings())
-
       if (!inventory.isEmpty) {
         for (spec <- SettingsDialog.settings.editor.categories.presets) {
           val categoryItem = JMenuItem(spec.getName)
@@ -1222,6 +1221,8 @@ class MainFrame(files: Seq[File]) extends JFrame {
       }
     }
   })
+
+  startObserving()
 
   /**
    * Add a new preset category to the preset categories list. If the category to add has anything in its white- or blacklist, warn that it will be removed
@@ -1246,19 +1247,19 @@ class MainFrame(files: Seq[File]) extends JFrame {
     }
   }
 
-  /** Apply the global settings. */
-  def applySettings() = {
-    inventoryModel.setColumns(SettingsDialog.settings.inventory.columns.asJava)
-    inventoryTable.setStripeColor(SettingsDialog.settings.inventory.stripe)
-    presetMenu.removeAll()
-    for (spec <- SettingsDialog.settings.editor.categories.presets) {
-      val categoryItem = JMenuItem(spec.getName)
-      categoryItem.addActionListener(_ => selectedFrame.foreach(_.addCategory(spec)))
-      presetMenu.add(categoryItem)
-    }
-    setImageBackground(SettingsDialog.settings.inventory.background)
-    setHandBackground(SettingsDialog.settings.editor.hand.background)
-
+  override def applySettings(oldSettings: Settings, newSettings: Settings) = {
+    applyChanges(oldSettings, newSettings)(_.inventory.columns)(columns => inventoryModel.setColumns(columns.asJava))
+                                          (_.inventory.stripe)(inventoryTable.setStripeColor(_))
+                                          (_.editor.categories.presets){ presets =>
+                                            presetMenu.removeAll()
+                                            for (spec <- presets) {
+                                              val categoryItem = JMenuItem(spec.getName)
+                                              categoryItem.addActionListener(_ => selectedFrame.foreach(_.addCategory(spec)))
+                                              presetMenu.add(categoryItem)
+                                            }
+                                          }
+                                          (_.inventory.background)(setImageBackground(_))
+                                          (_.editor.hand.background)(setHandBackground(_))
     revalidate()
     repaint()
   }

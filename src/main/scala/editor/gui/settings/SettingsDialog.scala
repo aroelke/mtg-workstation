@@ -847,8 +847,6 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     if (newSettings.editor.columns.isEmpty)
       newSettings = newSettings.copy(editor = newSettings.editor.copy(columns = EditorSettings().columns))
     settings = newSettings
-
-    parent.applySettings()
   }
 
   /** Reject any changes that were made while using the settings dialog. */
@@ -894,17 +892,21 @@ object SettingsDialog {
   val ManaValueOptions = Seq("Minimum", "Maximum", "Average", "Real")
   @deprecated def MANA_VALUE_OPTIONS() = ManaValueOptions.asJava
 
-  val listeners = collection.mutable.ArrayBuffer[(Settings, Settings) => Unit]()
+  private[settings] val observers = collection.mutable.ArrayBuffer[SettingsObserver]()
   private var _settings = Settings()
+
   /** @return the global application settings. */
   def settings = _settings
+
+  /**
+   * Update settings, notifying any observers of the change.
+   * @param s new settings
+   */
   def settings_=(s: Settings) = {
     val old = _settings
     _settings = s
-    listeners.foreach(_(old, s))
+    observers.foreach(_.applySettings(old, s))
   }
-  @deprecated def add_listener(l: (Settings, Settings) => Unit) = listeners += l
-  @deprecated def remove_listener(l: (Settings, Settings) => Unit) = listeners -= l
 
   /** Create a preview panel containing a striped [[javax.swing.JTable]] to show the selected color for table stripes. */
   private[settings] def createStripeChooserPreview(chooser: JColorChooser): Unit = {

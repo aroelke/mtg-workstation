@@ -107,6 +107,7 @@ import javax.swing.event.PopupMenuListener
 import javax.swing.table.AbstractTableModel
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
+import editor.gui.settings.SettingsObserver
 
 private object DeckData {
   def apply(name: Option[String] = None, deck: Deck = Deck()): DeckData = {
@@ -150,7 +151,9 @@ object EditorFrame {
   val Changelog = 4
 }
 
-class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSerializer()) extends JInternalFrame(if (manager.canSaveFile) manager.file.getName else s"Untitled $u", true, true, true, true) {
+class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSerializer()) extends JInternalFrame(if (manager.canSaveFile) manager.file.getName else s"Untitled $u", true, true, true, true)
+  with SettingsObserver
+{
   import EditorFrame._
 
   private case class TableCategoriesPopupListener(addToCategoryMenu: JMenu, removeFromCategoryMenu: JMenu, editCategoriesItem: JMenuItem, menuSeparator: JSeparator, table: CardTable) extends PopupMenuListener {
@@ -765,20 +768,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   extrasPane.addMouseListener(MouseListenerFactory.createPressListener((e) => addSideboard(e)))
   emptyPanel.addMouseListener(MouseListenerFactory.createClickListener((e) => addSideboard(e)))
 
-  val settingsListener = (o: Settings, n: Settings) => applySettings()
-
   // Handle various frame events, including selecting and closing
   addInternalFrameListener(new InternalFrameAdapter {
     override def internalFrameActivated(e: InternalFrameEvent) = parent.selectFrame(EditorFrame.this)
     override def internalFrameClosing(e: InternalFrameEvent) = {
-      SettingsDialog.remove_listener(settingsListener)
+      stopObserving()
       parent.close(EditorFrame.this)
     }
   })
 
   listTabs.setSelectedIndex(MainDeck)
 
-  SettingsDialog.add_listener(settingsListener)
+  startObserving()
 
   /**
    * Add copies of a collection of cards to the specified list.
@@ -806,19 +807,17 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }, () => do_removeCategory(spec))
   }
 
-  /**
-   * Set the settings of this EditorFrame
-   */
-  def applySettings() =  {
-    deck.model.setColumns(SettingsDialog.settings.editor.columns.asJava)
-    deck.table.setStripeColor(SettingsDialog.settings.editor.stripe)
+  override def applySettings(oldSettings: Settings, newSettings: Settings) = {
+    applyChanges(oldSettings, newSettings)(_.editor.columns)(columns => deck.model.setColumns(columns.asJava))
+                                          (_.editor.stripe)(deck.table.setStripeColor(_))
+                                          (_.editor.hand.size)(startingHandSize = _)
+                                          (_.editor.manaAnalysis.line)(landRenderer.setSeriesPaint(0, _))
+
     for (i <- 0 until deck.table.getColumnCount)
       if (deck.model.isCellEditable(0, i))
         deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)))
     categoryPanels.foreach(_.applySettings(this))
-    startingHandSize = SettingsDialog.settings.editor.hand.size
     updateStats()
-    landRenderer.setSeriesPaint(0, SettingsDialog.settings.editor.manaAnalysis.line)
     update()
   }
 
