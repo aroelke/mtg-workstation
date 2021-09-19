@@ -715,12 +715,12 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   // Exit menu item
   private val exitItem = JMenuItem("Exit")
-  exitItem.addActionListener((_) -> exit())
+  exitItem.addActionListener(_ => exit())
   exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK))
   fileMenu.add(exitItem)
 
   // File menu listener
-  fileMenu.addMenuListener(MenuListenerFactory.createSelectedListener((_) -> {
+  fileMenu.addMenuListener(MenuListenerFactory.createSelectedListener(_ => {
     closeItem.setEnabled(selectedFrame.isDefined)
     closeAllItem.setEnabled(!editors.isEmpty)
     saveItem.setEnabled(selectedFrame.map(_.unsaved).getOrElse(false))
@@ -729,7 +729,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
     exportItem.setEnabled(selectedFrame.isDefined)
   }))
   // Items are enabled while hidden so their listeners can be used
-  fileMenu.addMenuListener(MenuListenerFactory.createDeselectedListener((_) -> {
+  fileMenu.addMenuListener(MenuListenerFactory.createDeselectedListener(_ => {
     closeItem.setEnabled(true)
     closeAllItem.setEnabled(true)
     saveItem.setEnabled(true)
@@ -752,7 +752,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
   // Undo menu item
   private val undoItem = JMenuItem("Undo")
   undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK))
-  undoItem.addActionListener((_) -> selectedFrame.foreach(_.undo()))
+  undoItem.addActionListener(_ => selectedFrame.foreach(_.undo()))
   editMenu.add(undoItem)
 
   // Redo menu item
@@ -832,7 +832,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   // Edit category item
   private val editCategoryItem = new JMenuItem("Edit...")
-  editCategoryItem.addActionListener((_) -> selectedFrame.foreach((f) => {
+  editCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => {
     val contentPanel = JPanel(BorderLayout())
     contentPanel.add(JLabel("Choose a category to edit:"), BorderLayout.NORTH)
     val categories = JList(f.getCategories.asScala.map(_.getName).toArray.sorted)
@@ -845,7 +845,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   // Remove category item
   private val removeCategoryItem = JMenuItem("Remove...")
-  removeCategoryItem.addActionListener((_) -> selectedFrame.foreach((f) => {
+  removeCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => {
     val contentPanel = JPanel(BorderLayout())
     contentPanel.add(JLabel("Choose a category to remove:"), BorderLayout.NORTH)
     val categories = JList(f.getCategories.asScala.map(_.getName).toArray.sorted)
@@ -915,7 +915,7 @@ class MainFrame(files: Seq[File]) extends JFrame {
 
   // Reload inventory item
   private val reloadInventoryItem = JMenuItem("Reload inventory...")
-  reloadInventoryItem.addActionListener((_) -> loadInventory())
+  reloadInventoryItem.addActionListener(_ => loadInventory())
   helpMenu.add(reloadInventoryItem)
 
   helpMenu.add(JSeparator())
@@ -1139,13 +1139,13 @@ class MainFrame(files: Seq[File]) extends JFrame {
   }))
 
   // Action to be taken when the user presses the Enter key after entering text into the quick-filter bar
-  nameFilterField.addActionListener((_) -> {
+  nameFilterField.addActionListener(_ => {
     inventory.updateFilter(TextFilter.createQuickFilter(CardAttribute.NAME, nameFilterField.getText.toLowerCase))
     inventoryModel.fireTableDataChanged()
   })
 
   // Action to be taken when the clear button is pressed (reset the filter)
-  clearButton.addActionListener((_) -> {
+  clearButton.addActionListener(_ => {
     nameFilterField.setText("")
     inventory.updateFilter(CardAttribute.createFilter(CardAttribute.ANY))
     inventoryModel.fireTableDataChanged()
