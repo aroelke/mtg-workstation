@@ -195,9 +195,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  private enum CategoryOrder(name: String, order: (Deck) => Ordering[Category]) {
+  private enum CategoryOrder(override val toString: String, order: (Deck) => Ordering[Category]) {
     def apply(d: Deck) = order(d)
-    override def toString = name
 
     case AtoZ       extends CategoryOrder("A-Z", (d) => (a, b) => a.getName.compare(b.getName))
     case ZtoA       extends CategoryOrder("Z-A", (d) => (a, b) => -a.getName.compare(b.getName))
@@ -208,20 +207,16 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
   import CategoryOrder._
 
-  private enum ManaCurveSection(name: String) {
-    override def toString = name
-
+  private enum ManaCurveSection(override val toString: String) {
     case ByNothing extends ManaCurveSection("Nothing")
     case ByColor   extends ManaCurveSection("Color")
     case ByType    extends ManaCurveSection("Card Type")    
   }
   import ManaCurveSection._
 
-  private enum LandAnalysisChoice(name: String) {
-    override def toString = name
-
-    case Played extends LandAnalysisChoice("Expected Lands Played")
-    case Drawn extends LandAnalysisChoice("Expected Lands Drawn")
+  private enum LandAnalysisChoice(override val toString: String) {
+    case Played      extends LandAnalysisChoice("Expected Lands Played")
+    case Drawn       extends LandAnalysisChoice("Expected Lands Drawn")
     case Probability extends LandAnalysisChoice("Probability of Drawing Lands")
   }
   import LandAnalysisChoice._
