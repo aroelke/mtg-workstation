@@ -249,6 +249,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
 
   private var _unsaved = false
+
+  /** @return true if there are unsaved changes and false otherwise */
+  def unsaved = _unsaved
+
+  /**
+   * Set whether or not there are unsaved changes. If there are, add an asterisk after the frame title.
+   * @param u whether or not there are unsaved changes
+   */
+  private def unsaved_=(u: Boolean) = {
+    if (u && !unsaved)
+      setTitle(s"$getTitle *")
+    _unsaved = u
+  }
+
   private val undoBuffer = collection.mutable.Stack[UndoableAction[Boolean, Boolean]]()
   private val redoBuffer = collection.mutable.Stack[UndoableAction[Boolean, Boolean]]()
   private var startingHandSize = SettingsDialog.settings.editor.hand.size
@@ -1499,16 +1513,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     val sideboard = Deck()
     extras.foreach(e => sideboard.addAll(e.current))
     sideboard
-  }
-
-  def unsaved = _unsaved
-  /**
-   * Change the frame title to reflect an unsaved state.
-   */
-  private def unsaved_=(u: Boolean) = {
-    if (u && !unsaved)
-      setTitle(s"$getTitle *")
-    _unsaved = u
   }
 
   /**
