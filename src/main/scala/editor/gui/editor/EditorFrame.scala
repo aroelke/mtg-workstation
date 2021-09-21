@@ -199,23 +199,23 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     def apply(d: Deck) = order(d)
     override def toString = name
 
-    case AtoZ extends CategoryOrder("A-Z", (d) => (a, b) => a.getName.compare(b.getName))
-    case ZtoA extends CategoryOrder("Z-A", (d) => (a, b) => -a.getName.compare(b.getName))
-    case Ascending extends CategoryOrder("Ascending Size", (d) => (a, b) => d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
+    case AtoZ       extends CategoryOrder("A-Z", (d) => (a, b) => a.getName.compare(b.getName))
+    case ZtoA       extends CategoryOrder("Z-A", (d) => (a, b) => -a.getName.compare(b.getName))
+    case Ascending  extends CategoryOrder("Ascending Size", (d) => (a, b) => d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
     case Descending extends CategoryOrder("Descending Size", (d) => (a, b) => -d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
-    case Priority extends CategoryOrder("Increasing Rank", (d) => (a, b) => d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
-    case Reverse extends CategoryOrder("Decreasing Rank", (d) => (a, b) => -d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
+    case Priority   extends CategoryOrder("Increasing Rank", (d) => (a, b) => d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
+    case Reverse    extends CategoryOrder("Decreasing Rank", (d) => (a, b) => -d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
   }
   import CategoryOrder._
 
-  private sealed abstract class ManaCurveSection(name: String) { override def toString = name }
-  private case object ByNothing extends ManaCurveSection("Nothing")
-  private case object ByColor extends ManaCurveSection("Color")
-  private case object ByType extends ManaCurveSection("Card Type")
-  private object ManaCurveSection extends Ordering[ManaCurveSection] {
-    val values = Array(ByNothing, ByColor, ByType)
-    override def compare(a: ManaCurveSection, b: ManaCurveSection) = values.indexOf(a).compare(values.indexOf(b))
+  private enum ManaCurveSection(name: String) {
+    override def toString = name
+
+    case ByNothing extends ManaCurveSection("Nothing")
+    case ByColor   extends ManaCurveSection("Color")
+    case ByType    extends ManaCurveSection("Card Type")    
   }
+  import ManaCurveSection._
 
   private sealed abstract class LandAnalysisChoice(name: String) { override def toString = name }
   private case object Played extends LandAnalysisChoice("Expected Lands Played")
