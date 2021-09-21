@@ -138,17 +138,6 @@ private case class DeckData(var name: Option[String], current: Deck, var origina
 
 object EditorFrame {
   val MainDeck = 0
-
-  /** Tab number containing the main list of cards. */
-//  val MainTable = 0
-  /** Tab number containing categories. */
-//  val Categories = 1
-  /** Tab number containing sample hands. */
-//  val SampleHands = 2
-  /** Tab number containing user-defined notes. */
-//  val Notes = 3
-  /** Tab number containing the changelog. */
-//  val Changelog = 4
 }
 
 class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSerializer()) extends JInternalFrame(if (manager.canSaveFile) manager.file.getName else s"Untitled $u", true, true, true, true)
@@ -240,7 +229,25 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private def deck = lists.head
   private def extras = lists.tail.filter(_ != null).toSeq
 
-  private var _file: File = null
+  private var _file: File = null // null because it will never be missing after first assignment
+
+  /** @return the [[File]] to save the deck to */
+  def file = _file
+
+  /**
+   * Change the file to save to. There must not be unsaved changes. Also updates the frame's title to reflect the
+   * new file name.
+   *
+   * @param f new file to save to
+   */
+  @throws[RuntimeException]("if there are unsaved changes to the existing file")
+  def file_=(f: File) = {
+    if (unsaved)
+      throw RuntimeException("Can't change the file of an unsaved deck")
+    _file = f
+    setTitle(f.getName)
+  }
+
   private var _unsaved = false
   private val undoBuffer = collection.mutable.Stack[UndoableAction[Boolean, Boolean]]()
   private val redoBuffer = collection.mutable.Stack[UndoableAction[Boolean, Boolean]]()
@@ -1395,22 +1402,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     finally {
       wr.close()
     }
-  }
-
-  def file = _file
-
-  /**
-   * Change the file this EditorFrame is associated with.  If the file has
-   * not been saved, an error will be thrown instead.
-   *
-   * @param f file to associate with
-   */
-  @throws[RuntimeException]
-  def file_=(f: File) = {
-    if (unsaved)
-      throw RuntimeException("Can't change the file of an unsaved deck")
-    _file = f
-    setTitle(f.getName)
   }
 
   /**
