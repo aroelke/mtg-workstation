@@ -28,6 +28,7 @@ import editor.gui.generic.TableMouseAdapter
 import editor.gui.generic.VerticalButtonList
 import editor.gui.settings.Settings
 import editor.gui.settings.SettingsDialog
+import editor.gui.settings.SettingsObserver
 import editor.util.MouseListenerFactory
 import editor.util.PopupMenuListenerFactory
 import editor.util.Stats
@@ -107,7 +108,6 @@ import javax.swing.event.PopupMenuListener
 import javax.swing.table.AbstractTableModel
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
-import editor.gui.settings.SettingsObserver
 
 private object DeckData {
   def apply(name: Option[String] = None, deck: Deck = Deck()): DeckData = {
@@ -119,20 +119,20 @@ private object DeckData {
 
 private case class DeckData(var name: Option[String], current: Deck, var original: Deck, var model: CardTableModel, var table: CardTable) {
   def getChanges = {
-    val changes: StringBuilder = new StringBuilder
+    val changes: StringBuilder = StringBuilder()
     original.stream.forEach((c) => {
       val had = if (original.contains(c)) original.getEntry(c).count else 0
       val has = if (current.contains(c)) current.getEntry(c).count else 0
       if (has < had)
-        changes.append("-").append(had - has).append("x ").append(c.unifiedName).append(" (").append(c.expansion.name).append(")\n")
+        changes ++= s"-${had - has}x ${c.unifiedName} (${c.expansion.name})\n"
     })
     current.stream.forEach((c) => {
       val had = if (original.contains(c)) original.getEntry(c).count else 0
       val has = if (current.contains(c)) current.getEntry(c).count else 0
       if (had < has)
-        changes.append("+").append(has - had).append("x ").append(c.unifiedName).append(" (").append(c.expansion.name).append(")\n")
+        changes ++= s"+${has - had}x ${c.unifiedName} (${c.expansion.name})\n"
     })
-    changes.toString
+    changes.result
   }
 }
 
