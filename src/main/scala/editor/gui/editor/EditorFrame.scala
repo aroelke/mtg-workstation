@@ -156,7 +156,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 {
   import EditorFrame._
 
-  private case class TableCategoriesPopupListener(addToCategoryMenu: JMenu, removeFromCategoryMenu: JMenu, editCategoriesItem: JMenuItem, menuSeparator: JSeparator, table: CardTable) extends PopupMenuListener {
+  private class TableCategoriesPopupListener(addToCategoryMenu: JMenu, removeFromCategoryMenu: JMenu, editCategoriesItem: JMenuItem, menuSeparator: JSeparator, table: CardTable) extends PopupMenuListener {
     override def popupMenuCanceled(e: PopupMenuEvent) = ()
     override def popupMenuWillBecomeInvisible(e: PopupMenuEvent) = {
       addToCategoryMenu.removeAll()
@@ -164,34 +164,33 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
     override def popupMenuWillBecomeVisible(e: PopupMenuEvent) = {
       if (parent.getSelectedTable.exists(_ == table)) {
-          if (parent.getSelectedCards.size == 1) {
-            val card = parent.getSelectedCards(0)
+        if (parent.getSelectedCards.size == 1) {
+          val card = parent.getSelectedCards(0)
 
-            for (category <- deck.current.categories.asScala) {
-              if (!category.includes(card)) {
-                val categoryItem = JMenuItem(category.getName)
-                categoryItem.addActionListener(_ => includeIn(card, category))
-                addToCategoryMenu.add(categoryItem)
-              }
+          for (category <- deck.current.categories.asScala) {
+            if (!category.includes(card)) {
+              val categoryItem = JMenuItem(category.getName)
+              categoryItem.addActionListener(_ => includeIn(card, category))
+              addToCategoryMenu.add(categoryItem)
             }
-            addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount > 0)
-
-            for (category <- deck.current.categories.asScala) {
-              if (category.includes(card)) {
-                val categoryItem = JMenuItem(category.getName)
-                categoryItem.addActionListener(_ => excludeFrom(card, category))
-                removeFromCategoryMenu.add(categoryItem)
-              }
-            }
-            removeFromCategoryMenu.setVisible(removeFromCategoryMenu.getItemCount > 0)
-          } else {
-            addToCategoryMenu.setVisible(false)
-            removeFromCategoryMenu.setVisible(false)
           }
+          addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount > 0)
 
-          editCategoriesItem.setVisible(!parent.getSelectedCards.isEmpty && !deck.current.categories.isEmpty)
+          for (category <- deck.current.categories.asScala) {
+            if (category.includes(card)) {
+              val categoryItem = JMenuItem(category.getName)
+              categoryItem.addActionListener(_ => excludeFrom(card, category))
+              removeFromCategoryMenu.add(categoryItem)
+            }
+          }
+          removeFromCategoryMenu.setVisible(removeFromCategoryMenu.getItemCount > 0)
+        } else {
+          addToCategoryMenu.setVisible(false)
+          removeFromCategoryMenu.setVisible(false)
+        }
 
-          menuSeparator.setVisible(addToCategoryMenu.isVisible || removeFromCategoryMenu.isVisible || editCategoriesItem.isVisible)
+        editCategoriesItem.setVisible(!parent.getSelectedCards.isEmpty && !deck.current.categories.isEmpty)
+        menuSeparator.setVisible(addToCategoryMenu.isVisible || removeFromCategoryMenu.isVisible || editCategoriesItem.isVisible)
       }
     }
   }
