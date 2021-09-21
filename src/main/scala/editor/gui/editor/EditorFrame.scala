@@ -140,15 +140,15 @@ object EditorFrame {
   val MainDeck = 0
 
   /** Tab number containing the main list of cards. */
-  val MainTable = 0
+//  val MainTable = 0
   /** Tab number containing categories. */
-  val Categories = 1
+//  val Categories = 1
   /** Tab number containing sample hands. */
-  val SampleHands = 2
+//  val SampleHands = 2
   /** Tab number containing user-defined notes. */
-  val Notes = 3
+//  val Notes = 3
   /** Tab number containing the changelog. */
-  val Changelog = 4
+//  val Changelog = 4
 }
 
 class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSerializer()) extends JInternalFrame(if (manager.canSaveFile) manager.file.getName else s"Untitled $u", true, true, true, true)
@@ -220,6 +220,16 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     case Probability extends LandAnalysisChoice("Probability of Drawing Lands")
   }
   import LandAnalysisChoice._
+
+  private enum EditorTab(val title: String) {
+    case MainTable    extends EditorTab("Cards")
+    case Categories   extends EditorTab("Categories")
+    case ManaAnalysis extends EditorTab("Mana Analysis")
+    case SampleHand   extends EditorTab("Sample Hand")
+    case Notes        extends EditorTab("Notes")
+    case Changelog    extends EditorTab("Change Log")
+  }
+  import EditorTab._
 
   setBounds(((u - 1) % 5)*30, ((u - 1) % 5)*30, 600, 600)
   setLayout(BorderLayout(0, 0))
@@ -297,7 +307,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   southPanel.add(emptyPanel, "empty")
   southLayout.show(southPanel, "empty")
 
-  listTabs.addTab("Cards", mainPanel)
+  listTabs.addTab(MainTable.title, mainPanel)
 
   // Main table popup menu
   private val tableMenu = JPopupMenu()
@@ -386,7 +396,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private val categoriesPanel = JPanel(BorderLayout())
   private val categoriesMainPanel = JPanel(BorderLayout())
   categoriesPanel.add(categoriesMainPanel, BorderLayout.CENTER)
-  listTabs.addTab("Categories", categoriesPanel)
+  listTabs.addTab(Categories.title, categoriesPanel)
 
   // Panel containing components above the category panel
   private val categoryHeaderPanel = Box(BoxLayout.X_AXIS)
@@ -544,7 +554,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   manaAnalysisPanel.add(analysisConfigPanel, BorderLayout.SOUTH)
 
-  listTabs.addTab("Mana Analysis", manaAnalysisPanel)
+  listTabs.addTab(ManaAnalysis.title, manaAnalysisPanel)
 
   /* SAMPLE HAND TAB */
   private val handPanel = JPanel(BorderLayout())
@@ -620,7 +630,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   handSplit.setResizeWeight(0.5)
   handPanel.add(handModPanel, BorderLayout.NORTH)
   handPanel.add(handSplit, BorderLayout.CENTER)
-  listTabs.addTab("Sample Hand", handPanel)
+  listTabs.addTab(SampleHand.title, handPanel)
   hand.refresh()
 
   /* NOTES TAB */
@@ -637,7 +647,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           if (notesArea.getText != notes.top) {
             undoing = true
             notesArea.setText(text)
-            listTabs.setSelectedIndex(Notes)
+            listTabs.setSelectedIndex(Notes.ordinal)
             undoing = false
           }
           true
@@ -645,7 +655,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           notes.pop
           undoing = true
           notesArea.setText(notes.top)
-          listTabs.setSelectedIndex(Notes)
+          listTabs.setSelectedIndex(Notes.ordinal)
           undoing = false
           true
         })
@@ -676,7 +686,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     notesCCP.paste.setEnabled(Toolkit.getDefaultToolkit.getSystemClipboard.isDataFlavorAvailable(DataFlavor.stringFlavor))
   }))
   notesArea.setComponentPopupMenu(notesMenu)
-  listTabs.addTab("Notes", JScrollPane(notesArea))
+  listTabs.addTab(Notes.title, JScrollPane(notesArea))
 
   // Panel to show the stats of the deck
   private val bottomPanel = JPanel(BorderLayout())
@@ -729,7 +739,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   })
   clearLogPanel.add(clearLogButton)
   changelogPanel.add(clearLogPanel, BorderLayout.SOUTH)
-  listTabs.addTab("Change Log", changelogPanel)
+  listTabs.addTab(Changelog.title, changelogPanel)
 
   changelogArea.setText(manager.changelog)
 
@@ -772,6 +782,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   listTabs.setSelectedIndex(MainDeck)
 
   startObserving()
+
+  require(EditorTab.values.forall(t => listTabs.getTitleAt(t.ordinal) == t.title))
 
   /**
    * Add copies of a collection of cards to the specified list.
@@ -892,13 +904,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           val mod = deck.current.getCategorySpec(name)
           mod.setColor(newColor)
           deck.current.updateCategory(newCategory.getCategoryName, mod)
-          listTabs.setSelectedIndex(Categories)
+          listTabs.setSelectedIndex(Categories.ordinal)
           true
         }, () => {
           val mod = deck.current.getCategorySpec(name)
           mod.setColor(oldColor)
           deck.current.updateCategory(newCategory.getCategoryName, mod)
-          listTabs.setSelectedIndex(Categories)
+          listTabs.setSelectedIndex(Categories.ordinal)
           true
         })
       }
@@ -934,14 +946,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           deck.current.swapCategoryRanks(name, target)
           for (panel <- categoryPanels)
             panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName))
-          listTabs.setSelectedIndex(Categories)
+          listTabs.setSelectedIndex(Categories.ordinal)
           updateCategoryPanel()
           true
         }, () => {
           deck.current.swapCategoryRanks(name, old)
           for (panel <- categoryPanels)
             panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName))
-          listTabs.setSelectedIndex(Categories)
+          listTabs.setSelectedIndex(Categories.ordinal)
           updateCategoryPanel()
           true
         })
@@ -1190,7 +1202,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       if (c != category)
         c.rankBox.addItem(deck.current.categories.size - 1)
 
-    listTabs.setSelectedIndex(Categories)
+    listTabs.setSelectedIndex(Categories.ordinal)
     updateCategoryPanel()
     SwingUtilities.invokeLater(() => {
       switchCategoryBox.setSelectedItem(category.getCategoryName)
@@ -1216,7 +1228,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     for (panel <- categoryPanels)
       panel.rankBox.removeItemAt(categoryPanels.size)
 
-    listTabs.setSelectedIndex(Categories)
+    listTabs.setSelectedIndex(Categories.ordinal)
     updateCategoryPanel()
     handCalculations.update()
 
@@ -1984,7 +1996,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     categoriesContainer.revalidate()
     categoriesContainer.repaint()
 
-    listTabs.setSelectedIndex(Categories)
+    listTabs.setSelectedIndex(Categories.ordinal)
   }
 
   /**
@@ -2118,7 +2130,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     hand.refresh()
     handCalculations.update()
 
-    if (listTabs.getSelectedIndex > Categories)
+    if (listTabs.getSelectedIndex > Categories.ordinal)
       listTabs.setSelectedIndex(MainDeck)
   }
 }
