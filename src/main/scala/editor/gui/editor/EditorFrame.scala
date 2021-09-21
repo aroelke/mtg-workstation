@@ -195,20 +195,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  private sealed abstract class CategoryOrder(name: String, order: (Deck) => Ordering[Category]) {
+  private enum CategoryOrder(name: String, order: (Deck) => Ordering[Category]) {
     def apply(d: Deck) = order(d)
     override def toString = name
+
+    case AtoZ extends CategoryOrder("A-Z", (d) => (a, b) => a.getName.compare(b.getName))
+    case ZtoA extends CategoryOrder("Z-A", (d) => (a, b) => -a.getName.compare(b.getName))
+    case Ascending extends CategoryOrder("Ascending Size", (d) => (a, b) => d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
+    case Descending extends CategoryOrder("Descending Size", (d) => (a, b) => -d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
+    case Priority extends CategoryOrder("Increasing Rank", (d) => (a, b) => d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
+    case Reverse extends CategoryOrder("Decreasing Rank", (d) => (a, b) => -d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
   }
-  private case object AtoZ extends CategoryOrder("A-Z", (d) => (a, b) => a.getName.compare(b.getName))
-  private case object ZtoA extends CategoryOrder("Z-A", (d) => (a, b) => -a.getName.compare(b.getName))
-  private case object Ascending extends CategoryOrder("Ascending Size", (d) => (a, b) => d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
-  private case object Descending extends CategoryOrder("Descending Size", (d) => (a, b) => -d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
-  private case object Priority extends CategoryOrder("Increasing Rank", (d) => (a, b) => d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
-  private case object Reverse extends CategoryOrder("Decreasing Rank", (d) => (a, b) => -d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
-  private object CategoryOrder extends Ordering[CategoryOrder] {
-    val values = Array(AtoZ, ZtoA, Ascending, Descending, Priority, Reverse)
-    override def compare(a: CategoryOrder, b: CategoryOrder) = values.indexOf(a).compare(values.indexOf(b))
-  }
+  import CategoryOrder._
 
   private sealed abstract class ManaCurveSection(name: String) { override def toString = name }
   private case object ByNothing extends ManaCurveSection("Nothing")
