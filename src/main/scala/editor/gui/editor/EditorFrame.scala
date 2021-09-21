@@ -217,14 +217,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
   import ManaCurveSection._
 
-  private sealed abstract class LandAnalysisChoice(name: String) { override def toString = name }
-  private case object Played extends LandAnalysisChoice("Expected Lands Played")
-  private case object Drawn extends LandAnalysisChoice("Expected Lands Drawn")
-  private case object Probability extends LandAnalysisChoice("Probability of Drawing Lands")
-  private object LandAnalysisChoice extends Ordering[LandAnalysisChoice] {
-    val values = Array(Played, Drawn, Probability)
-    override def compare(a: LandAnalysisChoice, b: LandAnalysisChoice) = values.indexOf(a).compare(values.indexOf(b))
+  private enum LandAnalysisChoice(name: String) {
+    override def toString = name
+
+    case Played extends LandAnalysisChoice("Expected Lands Played")
+    case Drawn extends LandAnalysisChoice("Expected Lands Drawn")
+    case Probability extends LandAnalysisChoice("Probability of Drawing Lands")
   }
+  import LandAnalysisChoice._
 
   setBounds(((u - 1) % 5)*30, ((u - 1) % 5)*30, 600, 600)
   setLayout(BorderLayout(0, 0))
