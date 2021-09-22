@@ -1221,16 +1221,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  /**
-   * Get the file name of the deck.
-   *
-   * @return the name of the deck being edited (its file name).
-   */
-  def deckName = if (unsaved) getTitle.substring(0, getTitle.length - 2) else getTitle
+  /** @return the name of the deck being edited (which is also its file name) */
+  def deckName = if (unsaved) getTitle.slice(0, getTitle.length - 2) else getTitle
 
-  /**
-   * @return The names of the extra lists.
-   */
+  /** @return The names of the extra lists */
   def getExtraNames = extras.flatMap(_.name)
 
   /**
@@ -1261,12 +1255,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * Helper method for adding a category.
    * 
    * @param spec specification of the new category
-   * @return <code>true</code> if the category was successfully added, and <code>false</code>
-   * otherwise
+   * @return true if the category was successfully added, and false otherwise
    */
-  private def do_addCategory(spec: Category): Boolean = {
-    deck.current.addCategory(spec)
-
+  private def do_addCategory(spec: Category): Boolean = Option(deck.current.addCategory(spec)).map(_ => {
     val category = createCategoryPanel(spec)
     categoryPanels += category
 
@@ -1282,29 +1273,24 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       category.flash()
     })
     handCalculations.update()
-
-    true
-  }
+  }).isDefined
 
   /**
    * Helper method for removing a category.
    * 
    * @param spec specification of the category to remove
-   * @return <code>true</code> if the category was removed, and <code>false</code>
-   * otherwise.
+   * @return true if the category was removed, and false otherwise.
    */
   private def do_removeCategory(spec: Category) = {
-    deck.current.removeCategory(spec)
-
-    categoryPanels -= getCategoryPanel(spec.getName).get
-    for (panel <- categoryPanels)
-      panel.rankBox.removeItemAt(categoryPanels.size)
-
-    listTabs.setSelectedIndex(Categories.ordinal)
-    updateCategoryPanel()
-    handCalculations.update()
-
-    true
+    val success = deck.current.removeCategory(spec)
+    if (success) {
+      categoryPanels -= getCategoryPanel(spec.getName).get
+      categoryPanels.foreach(_.rankBox.removeItemAt(categoryPanels.size))
+      listTabs.setSelectedIndex(Categories.ordinal)
+      updateCategoryPanel()
+      handCalculations.update()
+    }
+    success
   }
 
   /**
