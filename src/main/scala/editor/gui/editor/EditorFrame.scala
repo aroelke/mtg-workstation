@@ -1297,7 +1297,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * Open the category dialog to edit the category with the given name, if there is one, and then update the undo buffer.
    *
    * @param name name of the category to edit
-   * @return true if the category was edited, and false otherwise.
+   * @return true if the category was edited, and false otherwise
    */
   @throws[RuntimeException]("if an unexpected category was edited")
   def editCategory(name: String) = Option(deck.current.getCategorySpec(name)).map(toEdit => {
@@ -1328,8 +1328,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    *
    * @param included map of cards onto the set of categories they should become included in
    * @param excluded map of cards onto the set of categories they should become excluded from
-   * @return <code>true</code> if any categories were modified, and <code>false</code>
-   * otherwise.
+   * @return true if any categories were modified, and false otherwise
    */
   def editInclusion(included: Map[Card, Set[Category]], excluded: Map[Card, Set[Category]]): Boolean = {
     val include = included.map{ case (card, in) => card -> in.filter(!_.includes(card)) }.filter{ case (_, in) => !in.isEmpty }
@@ -1355,10 +1354,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
             mods(category.getName).exclude(card)
           }
         }
-        for ((card, mod) <- mods)
-          deck.current.updateCategory(card, mod)
-        for (panel <- categoryPanels)
-          panel.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
+        mods.foreach(deck.current.updateCategory(_, _))
+        categoryPanels.foreach(_.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged())
         updateCategoryPanel()
         true
       }, () => {
@@ -1381,10 +1378,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
             mods(category.getName).include(card)
           }
         }
-        for ((card, mod) <- mods)
-          deck.current.updateCategory(card, mod)
-        for (panel <- categoryPanels)
-          panel.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
+        mods.foreach(deck.current.updateCategory(_, _))
+        categoryPanels.foreach(_.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged())
         updateCategoryPanel()
         true
       })
