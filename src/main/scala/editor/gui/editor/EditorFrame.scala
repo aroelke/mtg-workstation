@@ -1294,17 +1294,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
 
   /**
-   * Open the category dialog to edit the category with the given
-   * name, if there is one, and then update the undo buffer.
+   * Open the category dialog to edit the category with the given name, if there is one, and then update the undo buffer.
    *
    * @param name name of the category to edit
-   * @return <code>true</code> if the category was edited, and <code>false</code>
-   * otherwise.
+   * @return true if the category was edited, and false otherwise.
    */
-  def editCategory(name: String) = {
-    val toEdit = deck.current.getCategorySpec(name)
-    if (toEdit == null)
-      JOptionPane.showMessageDialog(this, s"Deck $deckName has no category named $name.", "Error", JOptionPane.ERROR_MESSAGE)
+  @throws[RuntimeException]("if an unexpected category was edited")
+  def editCategory(name: String) = Option(deck.current.getCategorySpec(name)).map(toEdit => {
     CategoryEditorPanel.showCategoryEditor(this, Some(toEdit).toJava).map((s) => {
       val old = deck.current.getCategorySpec(name)
       performAction(() => {
@@ -1325,7 +1321,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         true
       })
     }).toScala.getOrElse(false)
-  }
+  }).getOrElse{ JOptionPane.showMessageDialog(this, s"Deck $deckName has no category named $name.", "Error", JOptionPane.ERROR_MESSAGE); false }
 
   /**
    * Change inclusion of cards in categories according to the given maps.
