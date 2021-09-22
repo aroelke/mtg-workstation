@@ -503,13 +503,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private val switchCategoryModel = DefaultComboBoxModel[String]()
   private val switchCategoryBox = JComboBox(switchCategoryModel)
   switchCategoryBox.setEnabled(false)
-  switchCategoryBox.addActionListener(_ => {
-    if (switchCategoryBox.isPopupVisible) {
-      getCategoryPanel(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex)).foreach((c) => {
-        c.scrollRectToVisible(Rectangle(c.getSize()))
-        c.flash()
-      })
-    }
+  switchCategoryBox.addActionListener(_ => if (switchCategoryBox.isPopupVisible) {
+    getCategoryPanel(switchCategoryBox.getItemAt(switchCategoryBox.getSelectedIndex)).foreach((c) => {
+      c.scrollRectToVisible(Rectangle(c.getSize()))
+      c.flash()
+    })
   })
   switchCategoryPanel.add(JLabel("Go to category:"))
   switchCategoryPanel.add(switchCategoryBox)
@@ -543,7 +541,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoriesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
     val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
     try {
-        categoriesCCP.paste.setEnabled(!containsCategory((clipboard.getData(DataFlavors.categoryFlavor)).asInstanceOf[CategoryTransferData].spec.getName))
+      categoriesCCP.paste.setEnabled(!containsCategory((clipboard.getData(DataFlavors.categoryFlavor)).asInstanceOf[CategoryTransferData].spec.getName))
     } catch {
       case _ @ (_: UnsupportedFlavorException | _: IOException) => categoriesCCP.paste.setEnabled(false)
     }
@@ -758,9 +756,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   notesMenu.add(notesCCP.copy)
   notesMenu.add(notesCCP.paste)
   notesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
-    val text = notesArea.getSelectedText
-    notesCCP.cut.setEnabled(text != null && !text.isEmpty)
-    notesCCP.copy.setEnabled(text != null && !text.isEmpty)
+    val text = Option(notesArea.getSelectedText)
+    notesCCP.cut.setEnabled(text.map(!_.isEmpty).getOrElse(false))
+    notesCCP.copy.setEnabled(text.map(!_.isEmpty).getOrElse(false))
     notesCCP.paste.setEnabled(Toolkit.getDefaultToolkit.getSystemClipboard.isDataFlavorAvailable(DataFlavor.stringFlavor))
   }))
   notesArea.setComponentPopupMenu(notesMenu)
@@ -810,7 +808,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private val clearLogPanel = JPanel(FlowLayout(FlowLayout.CENTER))
   private val clearLogButton = JButton("Clear Change Log")
   clearLogButton.addActionListener(_ => {
-    if (!changelogArea.getText.isEmpty && JOptionPane.showConfirmDialog(EditorFrame.this, "This change is permanent.  Clear change log?", "Clear Change Log?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+    if (!changelogArea.getText.isEmpty && JOptionPane.showConfirmDialog(this, "This change is permanent.  Clear change log?", "Clear Change Log?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
       changelogArea.setText("")
       unsaved = true
     }
@@ -1185,7 +1183,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       southLayout.show(southPanel, "extras")
       listTabs.setSelectedIndex(MainDeck)
 
-      panel.addActionListener((e) => e.getActionCommand() match {
+      panel.addActionListener((e) => e.getActionCommand match {
         case EditablePanel.CLOSE =>
           // lists(id) is expected to exist here, so using .get is fine
           val n = panel.getTitle
@@ -1199,7 +1197,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
             panel.setTitle(old)
           else if (extras.exists(_.name.get == current)) {
             panel.setTitle(old)
-            JOptionPane.showMessageDialog(EditorFrame.this, s"""Sideboard "$current" already exists.""", "Error", JOptionPane.ERROR_MESSAGE)
+            JOptionPane.showMessageDialog(this, s"""Sideboard "$current" already exists.""", "Error", JOptionPane.ERROR_MESSAGE)
           } else if (!current.equals(old)) {
             val j = extrasPane.indexOfTab(old)
             performAction(() => {
