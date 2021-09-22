@@ -323,7 +323,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     } else throw RuntimeException("error undoing action")
   } else false
 
-  private var startingHandSize = SettingsDialog.settings.editor.hand.size
   if (manager.canSaveFile)
     file = manager.file
   else
@@ -651,7 +650,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private val handModPanel = JPanel(FlowLayout(FlowLayout.CENTER, 5, 5))
   private val newHandButton = JButton("New Hand")
   newHandButton.addActionListener(_ => {
-    hand.newHand(startingHandSize)
+    hand.newHand(SettingsDialog.settings.editor.hand.size)
 
     imagePanel.removeAll()
     hand.stream.forEach(c => {
@@ -894,7 +893,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   override def applySettings(oldSettings: Settings, newSettings: Settings) = {
     applyChanges(oldSettings, newSettings)(_.editor.columns)(columns => deck.model.setColumns(columns.asJava))
                                           (_.editor.stripe)(deck.table.setStripeColor(_))
-                                          (_.editor.hand.size)(startingHandSize = _)
                                           (_.editor.manaAnalysis.line)(landRenderer.setSeriesPaint(0, _))
 
     for (i <- 0 until deck.table.getColumnCount)
