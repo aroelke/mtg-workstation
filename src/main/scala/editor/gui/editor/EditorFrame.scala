@@ -1437,14 +1437,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     })
   }
 
-  /**
-   * @return a copy of the extra list corresponding to the selected tab.
-   */
-  def getSelectedExtra = {
-    val copy = Deck()
-    copy.addAll(sideboard)
-    copy
-  }
+  /** @return a copy of the extra list corresponding to the selected tab */
+  @deprecated def getSelectedExtra = Deck(sideboard)
 
   /**
    * Get the IDs of lists in the deck. ID 0 will always contain the main deck, and IDs starting from 1 will contain extra lists.
