@@ -119,13 +119,13 @@ public class CardFormat
             pattern = pattern.replace(replacement, switch (type) {
                 case MANA_COST, POWER, TOUGHNESS, LOYALTY -> String.join(Card.FACE_SEPARATOR,
                     ((List<?>)card.get(type)).stream().map(String::valueOf).collect(Collectors.toList()));
-                case MANA_VALUE -> String.join(Card.FACE_SEPARATOR,
-                    CollectionUtils.convertToList(card.get(type), Double.class).stream().map((n) -> {
-                        if (n == n.intValue())
-                            return Integer.toString(n.intValue());
-                        else
-                            return n.toString();
-                    }).collect(Collectors.toList()));
+                case MANA_VALUE -> {
+                    Double mv = (Double)card.get(type);
+                    if (mv == mv.intValue())
+                        yield Integer.toString(mv.intValue());
+                    else
+                        yield mv.toString();
+                }
                 case COLORS, COLOR_IDENTITY -> String.join(",",
                     ((List<?>)card.get(type)).stream().map(String::valueOf).collect(Collectors.toList()));
                 case CATEGORIES -> String.join(",",
