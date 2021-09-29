@@ -690,13 +690,14 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           } else {
             JOptionPane.showMessageDialog(this, "Could not export " + f.deckName + '.', "Error", JOptionPane.ERROR_MESSAGE)
             None
-          }.foreach(format => {
+          }
+          format.foreach((fmt) => {
             try {
               val sorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingCard.compare(a, b) }
               val unsorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = 0 }
 
               f.exportList(
-                format,
+                fmt,
                 if (sortCheck.isSelected) sorted else unsorted,
                 extras.collect{ case (e, s) if s => e }.toSeq,
                 exportChooser.getSelectedFile
