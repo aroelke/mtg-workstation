@@ -71,6 +71,7 @@ import java.io.UnsupportedEncodingException
 import java.text.DecimalFormat
 import java.util.Comparator
 import java.util.Date
+import java.util.NoSuchElementException
 import java.util.stream.Collectors
 import javax.swing.BorderFactory
 import javax.swing.Box
@@ -108,6 +109,7 @@ import javax.swing.event.PopupMenuListener
 import javax.swing.table.AbstractTableModel
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
+import scala.util.Using
 
 private object DeckData {
   def apply(name: Option[String] = None, deck: Deck = Deck()): DeckData = {
@@ -1407,40 +1409,32 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * Export the deck to a different format.
    *
    * @param format formatter to use for export
-   * @param file file to export to
+   * @param comp sort ordering of cards in the exported list
    * @param extraNames names of extra lists to include in the export
+   * @param file file to export to
+   * @return a [[Try]] containing an exception if the file couldn't be written or any of the named extra lists
+   * doesn't exist, or nothing if the file was written successfully
    */
-  @throws[UnsupportedEncodingException]
-  @throws[FileNotFoundException]("if the file can't be opened")
-  @throws[NoSuchElementException]("if any of the named extra lists don't exist")
   def exportList(format: CardListFormat, comp: Ordering[? >: CardList.Entry], extraNames: Seq[String], file: File) = {
-    val wr = PrintWriter(OutputStreamWriter(FileOutputStream(file, false), "UTF8"))
-    try {
-      var copy: Deck = null
+    Using(PrintWriter(OutputStreamWriter(FileOutputStream(file, false), "UTF8")))(wr => {
+      def write(d: Deck, n: Option[String] = None) = {
+        val copy = Deck(d)
+        copy.sort(comp)
+        n.foreach(wr.print(_))
+        wr.print(format.format(copy))
+      }
 
       if (format.hasHeader)
         wr.println(format.header)
-      if (!deck.current.isEmpty) {
-        copy = Deck(deck.current)
-        copy.sort(comp)
-        wr.print(format.format(copy))
-      }
-      for (extra <- extraNames) {
-        val list = extras.find(_.name.get == extra)
-        if (!list.isDefined)
-          throw new NoSuchElementException(s"No extra list named $extra")
-        if (!list.get.current.isEmpty) {
-          copy = Deck(list.get.current)
-          copy.sort(comp)
+      if (!deck.current.isEmpty)
+        write(deck.current)
+      extraNames.foreach((name) => {
+        extras.find(_.name.exists(_ == name)).map((list) => if (!list.current.isEmpty) {
           wr.println()
-          wr.println(extra)
-          wr.print(format.format(copy))
-        }
-      }
-    }
-    finally {
-      wr.close()
-    }
+          write(list.current, Some(name))
+        }).getOrElse(throw NoSuchElementException(s"No extra list named $name"))
+      })
+    })
   }
 
   /**

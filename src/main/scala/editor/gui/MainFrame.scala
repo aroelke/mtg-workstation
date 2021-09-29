@@ -39,6 +39,7 @@ import _root_.editor.gui.inventory.InventoryDownloader
 import _root_.editor.gui.inventory.InventoryLoader
 import _root_.editor.gui.settings.Settings
 import _root_.editor.gui.settings.SettingsDialog
+import _root_.editor.gui.settings.SettingsObserver
 import _root_.editor.serialization.AttributeAdapter
 import _root_.editor.serialization.CardAdapter
 import _root_.editor.serialization.CategoryAdapter
@@ -143,7 +144,8 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
-import _root_.editor.gui.settings.SettingsObserver
+import scala.util.Failure
+import scala.util.Success
 
 /** Possible result of checking for an inventory update. */
 sealed trait UpdateStatus
@@ -692,18 +694,11 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             None
           }
           format.foreach((fmt) => {
-            try {
-              val sorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingCard.compare(a, b) }
-              val unsorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = 0 }
-
-              f.exportList(
-                fmt,
-                if (sortCheck.isSelected) sorted else unsorted,
-                extras.collect{ case (e, s) if s => e }.toSeq,
-                exportChooser.getSelectedFile
-              )
-            } catch {
-              case x @ (_: UnsupportedEncodingException | _: FileNotFoundException) => JOptionPane.showMessageDialog(this, s"Could not export ${f.deckName}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
+            val sorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingCard.compare(a, b) }
+            val unsorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = 0 }
+            f.exportList(fmt, if (sortCheck.isSelected) sorted else unsorted, extras.collect{ case (e, s) if s => e }.toSeq, exportChooser.getSelectedFile) match {
+              case Success(_) =>
+              case Failure(x) => JOptionPane.showMessageDialog(this, s"Could not export ${f.deckName}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
             }
           })
         case JFileChooser.CANCEL_OPTION =>
