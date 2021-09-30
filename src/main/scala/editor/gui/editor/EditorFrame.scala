@@ -1448,13 +1448,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    */
   def getListIDs = lists.zipWithIndex.collect{ case (l, i) if l.isDefined => i }.toSeq
 
-  /** @return the ID of the extra list corresponding to the selected tab. */
+  /** @return the ID of the extra list corresponding to the selected tab */
   def getSelectedExtraID = lists.zipWithIndex.find{ case (l, _) => l.exists(_.name == getSelectedExtraName) }.map(_._2)
 
-  /**
-   * @return the name of the extra list corresponding to the selected tab.
-   */
-  def getSelectedExtraName = if (extras.isEmpty) None else Some(extrasPane.getTitleAt(extrasPane.getSelectedIndex))
+  /** @return the name of the extra list corresponding to the selected tab */
+  def getSelectedExtraName = Option.unless(extras.isEmpty)(extrasPane.getTitleAt(extrasPane.getSelectedIndex))
 
   /**
    * Get the card at the given index in the given table.
