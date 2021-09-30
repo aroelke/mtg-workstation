@@ -1449,7 +1449,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   def getListIDs = lists.zipWithIndex.collect{ case (l, i) if l.isDefined => i }.toSeq
 
   /** @return the ID of the extra list corresponding to the selected tab. */
-  def getSelectedExtraID = lists.zipWithIndex.find{ case (l, _) => l.isDefined && l.get.name == getSelectedExtraName }.map(_._2)
+  def getSelectedExtraID = lists.zipWithIndex.find{ case (l, _) => l.exists(_.name == getSelectedExtraName) }.map(_._2)
 
   /**
    * @return the name of the extra list corresponding to the selected tab.
