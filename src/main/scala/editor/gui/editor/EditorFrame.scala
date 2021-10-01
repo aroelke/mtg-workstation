@@ -1701,32 +1701,25 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       val name = spec.getName
       performAction(() => {
         val mod = deck.current.getCategorySpec(name)
-        for (c <- include) {
-          if (mod.includes(c))
-            throw IllegalArgumentException(s"${mod.getName} already includes $c")
-          mod.include(c)
+        val changed = include.map(mod.include(_)).fold(false)(_ || _) || exclude.map(mod.exclude(_)).fold(false)(_ || _)
+        if (changed) {
+          deck.current.updateCategory(name, mod)
+          for (panel <- categoryPanels)
+            if (panel.getCategoryName == name)
+              panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+          updateCategoryPanel()
         }
-        for (c <- exclude) {
-          if (!mod.includes(c))
-            throw IllegalArgumentException(s"${mod.getName} already doesn't include $c")
-          mod.exclude(c)
-        }
-        deck.current.updateCategory(name, mod)
-        for (panel <- categoryPanels)
-          if (panel.getCategoryName == name)
-            panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
-        updateCategoryPanel()
-        true
+        changed
       }, () => {
         val mod = deck.current.getCategorySpec(name)
         for (c <- include) {
           if (!mod.includes(c))
-            throw IllegalArgumentException(s"error undoing include: ${mod.getName} already doesn't include $c")
+            throw IllegalStateException(s"error undoing include: ${mod.getName} already doesn't include $c")
           mod.exclude(c)
         }
         for (c <- exclude) {
           if (mod.includes(c))
-            throw IllegalArgumentException(s"error undoing exclude: ${mod.getName} already includes $c")
+            throw IllegalStateException(s"error undoing exclude: ${mod.getName} already includes $c")
           mod.include(c)
         }
         deck.current.updateCategory(name, mod)
