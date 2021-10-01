@@ -1687,10 +1687,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * 
    * @param include cards to include in the category
    * @param exclude cards to exclude from the category
-   * @param spec specification for the category to modify card inclusion for; must be part of
-   * the deck
-   * @return <code>true</code> if the category was modified, and <code>false</code>
-   * otherwise (such as if the included cards already existed in the category and the
+   * @param spec specification for the category to modify card inclusion for; must be part of the deck
+   * @return true if the category was modified, and false otherwise (such as if the included cards already existed in the category and the
    * excluded cards didn't).
    */
   @throws[IllegalArgumentException]
@@ -1700,8 +1698,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     if (deck.current.getCategorySpec(spec.getName) != spec)
       throw IllegalArgumentException("category name matches, but specification doesn't")
 
-    val in = include.filter(spec.includes(_))
-    val ex = exclude.filter(!spec.includes(_))
+    val in = include.filter(!spec.includes(_))
+    val ex = exclude.filter(spec.includes(_))
     if (in.isEmpty && ex.isEmpty) false else {
       val name = spec.getName
       performAction(() => {
