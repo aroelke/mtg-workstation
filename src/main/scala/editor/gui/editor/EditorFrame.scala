@@ -1864,9 +1864,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     categoryPanels.foreach(_.update())
   }
 
-  /**
-   * Update the categories combo box with all of the current categories.
-   */
+  /** Update the categories combo box with all of the current categories. */
   def updateCategoryPanel() = {
     categoriesContainer.removeAll()
     switchCategoryModel.removeAllElements()
@@ -1875,10 +1873,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       switchCategoryBox.setEnabled(false)
     else {
       switchCategoryBox.setEnabled(true)
-      val categories = deck.current.categories.asScala.toSeq.sorted(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex)(deck.current))
-
-      categories.foreach((c) => categoriesContainer.add(getCategoryPanel(c.getName).get))
-      categories.foreach((c) => switchCategoryModel.addElement(c.getName))
+      deck.current.categories.asScala.toSeq.sorted(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex)(deck.current)).foreach((c) => {
+        categoriesContainer.add(getCategoryPanel(c.getName).get)
+        switchCategoryModel.addElement(c.getName)
+      })
     }
 
     analyzeCategoryBox.setVisible(!deck.current.categories.isEmpty)
