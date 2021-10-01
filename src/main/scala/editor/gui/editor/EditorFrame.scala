@@ -1901,10 +1901,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     listTabs.setSelectedIndex(Categories.ordinal)
   }
 
-  /**
-   * Update the card statistics to reflect the cards in the deck.
-   */
-  @throws[IllegalStateException]
+  /** Update the card statistics to reflect the cards in the deck. */
+  @throws[IllegalStateException]("if there are cards but no upper bound on mana values")
   def updateStats() = {
     val lands = deck.current.stream.filter(SettingsDialog.settings.editor.isLand(_)).mapToInt((c) => deck.current.getEntry(c).count).sum
     countLabel.setText(s"Total cards: ${deck.current.total}")
@@ -1928,15 +1926,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     manaCurve.clear()
     landDrops.clear()
-    sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
-      case ByNothing => manaCurveRenderer.setSeriesPaint(0, SettingsDialog.settings.editor.manaAnalysis.none)
-      case ByColor =>
-        for (i <- 0 until SettingsDialog.settings.editor.manaAnalysis.colorColors.size)
-          manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings.editor.manaAnalysis.colorColors(i))
-      case ByType =>
-        for (i <- 0 until SettingsDialog.settings.editor.manaAnalysis.typeColors.size)
-          manaCurveRenderer.setSeriesPaint(i, SettingsDialog.settings.editor.manaAnalysis.typeColors(i))
-    }
+    (sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
+      case ByNothing => Seq(SettingsDialog.settings.editor.manaAnalysis.none)
+      case ByColor   => SettingsDialog.settings.editor.manaAnalysis.colorColors
+      case ByType    => SettingsDialog.settings.editor.manaAnalysis.typeColors
+    }).zipWithIndex.foreach{ case (color, i) => manaCurveRenderer.setSeriesPaint(i, color) }
     val analyte = if (analyzeCategoryBox.isSelected) deck.current.getCategoryList(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)) else deck.current
     val analyteLands = analyte.asScala.filter(SettingsDialog.settings.editor.isLand(_)).map((c) => deck.current.getEntry(c).count).sum
     if (analyte.total - analyteLands > 0) {
@@ -1945,10 +1939,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         case ByColor   => Seq("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored")
         case ByType    => Seq("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
       }
-      var sectionManaValues = sections.map((s) => s -> {
-        analyte.asScala
+      var sectionManaValues = sections.map((s) => s -> analyte.asScala
           .filter((c) => !SettingsDialog.settings.editor.isLand(c))
-          .filter((c) =>sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
+          .filter((c) => sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
             case ByNothing => true
             case ByColor => s match {
               case "Colorless"    => c.colors.size == 0
@@ -1965,19 +1958,16 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           .flatMap((c) => Seq.tabulate(analyte.getEntry(c).count)(_ => SettingsDialog.settings.editor.getManaValue(c)))
           .toSeq.sorted
           .map(Math.ceil(_))
-      }).toMap
+      ).toMap
       val minMV = Math.ceil(manaValue.head).toInt
       val maxMV = Math.ceil(manaValue.last).toInt
       for (i <- minMV to maxMV) {
-        for (section <- sections) {
-          val freq = sectionManaValues(section).count(_ == i)
-          manaCurve.addValue(freq, section, i.toString)
-        }
+        sections.foreach((s) => manaCurve.addValue(sectionManaValues(s).count(_ == i), s, i.toString))
       }
 
       if (minMV >= 0) {
         if (maxMV < 0)
-          throw new IllegalStateException("min mana value but no max mana value")
+          throw IllegalStateException("min mana value but no max mana value")
         val choice = landsBox.getItemAt(landsBox.getSelectedIndex)
         landAxis.setLabel(choice.toString)
         for (i <- minMV to maxMV) {
@@ -1990,13 +1980,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
                 q += p
                 e += j*p
               }
-              e += i*(1 - q)
-              e
+              e + i*(1 - q)
             case Drawn => (lands.toDouble/deck.current.total.toDouble)*Math.min(handCalculations.handSize + i - 1, deck.current.total)
             case Probability =>
               var q = 0.0
               for (j <- 0 until i)
-                q = q + Stats.hypergeometric(j, Math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
+                q += Stats.hypergeometric(j, Math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
               1 - q
           }
           landDrops.addValue(v, choice.toString, i.toString)
