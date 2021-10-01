@@ -1413,7 +1413,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    * Open the specified file and create an editor for it.
    * @return the EditorFrame containing the opened deck, or None if opening was canceled.
    */
-  def open(f: File) = editors.find(e => e.file != null && e.file == f).orElse {
+  def open(f: File) = editors.find(_.file.contains(f)).orElse {
     val frame = try {
       val manager = DeckSerializer()
       manager.load(f, this)

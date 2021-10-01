@@ -231,24 +231,26 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private def deck = lists.head.get
   private def extras = lists.tail.flatten.toSeq
 
-  private var _file: File = null // null because it will never be missing after first assignment
+  private var _file: Option[File] = None
 
   /** @return the [[File]] to save the deck to */
   def file = _file
 
   /**
-   * Change the file to save to. There must not be unsaved changes. Also updates the frame's title to reflect the
-   * new file name.
-   *
+   * Change the file to save to. There must not be unsaved changes. Also updates the frame's title to reflect the new file name.
    * @param f new file to save to
    */
   @throws[RuntimeException]("if there are unsaved changes to the existing file")
-  def file_=(f: File) = {
+  def file_=(f: Option[File]): Unit = {
+    if (!f.isDefined)
+      throw IllegalArgumentException("can't unset the file of a deck")
     if (unsaved)
-      throw RuntimeException("Can't change the file of an unsaved deck")
+      throw RuntimeException("can't change the file of an unsaved deck")
     _file = f
-    setTitle(f.getName)
+    setTitle(f.get.getName)
   }
+
+  def file_=(f: File): Unit = { file = Some(f) }
 
   private var _unsaved = false
 
@@ -1784,8 +1786,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @param id ID of the list to remove cards from
    * @param cards cards to remove
    * @param n number of copies to remove
-   * @return <code>true</code> if any copies were removed, and <code>false</code>
-   * otherwise.
+   * @return true if any copies were removed, and false otherwise
    */
   def removeCards(id: Int, cards: Iterable[Card], n: Int) = modifyCards(id, cards.map((c) => c -> -n).toMap)
 
@@ -1793,8 +1794,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * Remove a category from the deck.
    * 
    * @param name name of the category to remove
-   * @return <code>true</code> if the category was removed, and <code>false</code>
-   * otherwise.
+   * @return true if the category was removed, and false otherwise
    */
   def removeCategory(name: String) = if (deck.current.containsCategory(name)) {
     val spec = deck.current.getCategorySpec(name)
@@ -1810,7 +1810,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * Save the deck to the current file.
    * @return true if the file was successfully saved, and false otherwise
    */
-  def save(): Boolean = file != null && save(file)
+  def save(): Boolean = file.map(save(_)).getOrElse(false)
 
   /**
    * Save the deck to the given file (like Save As).
@@ -1821,11 +1821,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   def save(f: File): Boolean = {
     val changes = deck.getChanges
     if (!changes.isEmpty) {
-      changelogArea.append(s"~~~~~${DeckSerializer.CHANGELOG_DATE.format(Date())}~~~~~\n")
-      changelogArea.append(s"$changes\n")
+      changelogArea.append(s"""|~~~~~${DeckSerializer.CHANGELOG_DATE.format(Date())}~~~~~)
+                               |$changes
+                               |""".stripMargin)
     }
 
-    val sideboards = lists.tail.collect{ case l if l.isDefined => l.get.name.get -> l.get.current }.toMap
+    val sideboards = extras.map((l) => l.name.get -> l.current).toMap
     val manager = DeckSerializer(deck.current, sideboards.asJava, notesArea.getText, changelogArea.getText)
     try {
       manager.save(f)
@@ -1835,11 +1836,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       file = manager.file
       true
     }
-    catch {
-      case e: IOException =>
-        JOptionPane.showMessageDialog(parent, s"Error saving ${f.getName}: ${e.getMessage}.", "Error", JOptionPane.ERROR_MESSAGE)
-        false
-    }
+    catch case e: IOException =>
+      JOptionPane.showMessageDialog(parent, s"Error saving ${f.getName}: ${e.getMessage}.", "Error", JOptionPane.ERROR_MESSAGE)
+      false
   }
 
   /**
