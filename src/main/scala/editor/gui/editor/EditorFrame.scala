@@ -2004,8 +2004,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     updateStats()
     parent.updateCardsInDeck()
     lists.flatten.foreach(_.model.fireTableDataChanged())
-    for (c <- categoryPanels)
-      c.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
+    categoryPanels.foreach(_.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged())
     parent.getSelectedTable.foreach((t) => {
       parent.getSelectedList.foreach((l) => {
         for (c <- selected) {
