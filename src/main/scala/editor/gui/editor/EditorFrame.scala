@@ -1459,7 +1459,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    *
    * @param t table to get the card from
    * @param index index into the given table to get a card from
-   * @return the card in the deck at the given index in the given table, if the table is in this EditorFrame.
+   * @return the card in the deck at the given index in the given table, if the table is in this EditorFrame
    */
   @throws[IllegalArgumentException]
   def getCardAt(t: CardTable, index: Int) = {
@@ -1473,9 +1473,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  /**
-   * @return The categories in the main deck.
-   */
+  /** @return The categories in the main deck */
   def getCategories = deck.current.categories
 
   /**
@@ -1487,22 +1485,19 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   /**
    * @param name name of the category to get
    * @return The specification for the chosen category
-   * @throws IllegalArgumentException if no category of that name exists
    */
-  @throws[IllegalArgumentException]
+  @throws[IllegalArgumentException]("if no category with that name exists")
   def getCategory(name: String) = deck.current.getCategorySpec(name)
 
   /**
    * Get the panel for the category with the specified name in the deck.
    *
    * @param name name of the category to search for
-   * @return the panel for the category with the specified name, if there is none.
+   * @return the panel for the category with the specified name, if there is one, or None otherwise
    */
   private def getCategoryPanel(name: String) = categoryPanels.find(_.getCategoryName == name)
 
-  /**
-   * @return a copy of the main deck.
-   */
+  /** @return a copy of the main deck. */
   def getDeck = Deck(deck.current)
 
   /**
@@ -1520,23 +1515,17 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @param name name of the list to get
    * @return a copy of the list
    */
-  @throws[ArrayIndexOutOfBoundsException]
+  @throws[ArrayIndexOutOfBoundsException]("if there is no list with the given name")
   def getList(name: String) = lists.flatten.find(_.name.exists(_ == name)).map(l => Deck(l.current)).getOrElse(throw ArrayIndexOutOfBoundsException(name))
 
-  /**
-   * @return a {@link CardList} containing all of the cards in extra lists.
-   */
+  /** @return a {@link CardList} containing all of the cards in extra lists */
   def getExtraCards = {
     val sideboard = Deck()
     extras.foreach(e => sideboard.addAll(e.current))
     sideboard
   }
 
-  /**
-   * Get the selected cards from the currently-selected list (even if it isn't this editor).
-   *
-   * @return a list of cards representing the current table selection
-   */
+  /** @return a list of cards representing the current table selection */
   def getSelectedCards = parent.getSelectedCards
 
   /**
@@ -1553,24 +1542,19 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * Determine which lists contain the specified card.
    * 
    * @param card card to search for
-   * @return a list of IDs corresponding to the lists that contain the given card.
+   * @return a list of IDs corresponding to the lists that contain the given card
    */
   def hasCard(card: Card) = lists.zipWithIndex.collect{ case (l, i) if l.isDefined && l.get.current.contains(card) => i }.toSeq
 
-  /**
-   * Check whether or not this editor has the table with the current selection.
-   * @return true if this editor has the table with the current selection and false otherwise
-   */
+  /** @return true if this editor has the table with the current selection and false otherwise */
   def hasSelectedCards = parent.getSelectedTable.exists((t) => lists.exists((l) => l.isDefined && l.get.table == t) || categoryPanels.exists(_.table == t))
 
   /**
    * Include a card in a category.
    * 
    * @param card card to include
-   * @param spec specification for the category to include the card in; must be a category in
-   * the deck
-   * @return <code>true</code> if the card was sucessfully included in the category, and
-   * <code>false</code> otherwise (such as if the card was already in the category).
+   * @param spec specification for the category to include the card in; must be a category in the deck
+   * @return true if the card was sucessfully included in the category, and false otherwise (such as if the card was already in the category)
    */
   def includeIn(card: Card, spec: Category) = modifyInclusion(Seq(card), Seq.empty, spec)
 
