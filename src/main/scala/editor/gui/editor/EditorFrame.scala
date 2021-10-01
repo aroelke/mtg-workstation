@@ -1439,6 +1439,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     })
   }
 
+  /** @return the Deck corresponding to the tab that's currently active in the sideboards panel. */
+  private def sideboard = getSelectedExtraID.flatMap(lists(_).map(_.current)).getOrElse(Deck())
+
   /** @return a copy of the extra list corresponding to the selected tab */
   @deprecated def getSelectedExtra = Deck(sideboard)
 
@@ -1850,9 +1853,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     imagePanel.getComponents.foreach(_.setBackground(col))
     imagePane.getViewport.setBackground(col)
   }
-
-  /** @return the Deck corresponding to the tab that's currently active in the sideboards panel. */
-  private def sideboard = getSelectedExtraID.flatMap(lists(_).map(_.current)).getOrElse(Deck())
 
   /**
    * Update the GUI to show the latest state of the deck.
