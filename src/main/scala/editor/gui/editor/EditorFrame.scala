@@ -1843,13 +1843,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   /**
    * Set the background color for the sample hand panel.
-   *
-   * @param col new background color for the sample hand panel.
+   * @param col new background color for the sample hand panel
    */
   def setHandBackground(col: Color) = {
     imagePanel.setBackground(col)
-    for (c <- imagePanel.getComponents)
-      c.setBackground(col)
+    imagePanel.getComponents.foreach(_.setBackground(col))
     imagePane.getViewport.setBackground(col)
   }
 
