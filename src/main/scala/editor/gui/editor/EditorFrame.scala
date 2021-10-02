@@ -227,6 +227,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       }).getOrElse(throw NoSuchElementException(id.toString)))
     }
 
+    def +=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %= cards.map(_ -> n).toMap }
+
     def getChanges = {
       val changes: StringBuilder = StringBuilder()
       original.stream.forEach((c) => {
@@ -245,23 +247,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  @throws[NoSuchElementException]("if the list with the given id doesn't exist")
-  @deprecated
-  def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = lists(id).map(_ %= changes).getOrElse(throw NoSuchElementException(id.toString))
-
-  @deprecated
-  def modifyCards(id: Int, changes: java.util.Map[Card, Integer]): Boolean = modifyCards(id, changes.asScala.toMap.map{ case (c, n) => c -> n.toInt })
-
-  /**
-   * Add copies of a collection of cards to the specified list.
-   * 
-   * @param id ID of the list to add to
-   * @param cards cards to add
-   * @param n number of copies of each card to add
-   * @return <code>true</code> if the cards were added, and <code>false</code> otherwise.
-   */
-  @throws[NoSuchElementException]("if the list with the given ID doesn't exist")
-  def addCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ %= cards.map(_ -> n).toMap).getOrElse(throw NoSuchElementException(id.toString))
+  @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = lists(id).map(_ %= changes).getOrElse(throw NoSuchElementException(id.toString))
+  @deprecated def modifyCards(id: Int, changes: java.util.Map[Card, Integer]): Boolean = modifyCards(id, changes.asScala.toMap.map{ case (c, n) => c -> n.toInt })
+  @deprecated def addCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ += cards -> n).getOrElse(throw NoSuchElementException(id.toString))
 
   /**
    * Remove some copies of each of a collection of cards from the specified list.
@@ -470,7 +458,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   mainPanel.add(mainDeckPane, BorderLayout.CENTER)
 
   private val deckButtons = VerticalButtonList("+", UnicodeSymbols.MINUS.toString, "X")
-  deckButtons.get("+").addActionListener(_ => addCards(MainDeck, parent.getSelectedCards, 1))
+  deckButtons.get("+").addActionListener(_ => deck += parent.getSelectedCards -> 1)
   deckButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => removeCards(MainDeck,  parent.getSelectedCards, 1))
   deckButtons.get("X").addActionListener(_ => removeCards(MainDeck, parent.getSelectedCards, parent.getSelectedCards.map(deck.current.getEntry(_).count).max))
   mainPanel.add(deckButtons, BorderLayout.WEST)
@@ -484,7 +472,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   southPanel.add(extrasPanel, "extras")
 
   private val extrasButtons = VerticalButtonList("+", UnicodeSymbols.MINUS.toString, "X")
-  extrasButtons.get("+").addActionListener(_ => getSelectedExtraID.foreach(addCards(_, parent.getSelectedCards, 1)))
+  extrasButtons.get("+").addActionListener(_ => getSelectedExtraID.foreach(id => lists(id).map(_ += parent.getSelectedCards -> 1).getOrElse(throw NoSuchElementException(id.toString))))
   extrasButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => getSelectedExtraID.foreach(removeCards(_, parent.getSelectedCards, 1)))
   extrasButtons.get("X").addActionListener(_ => {
     getSelectedExtraID.foreach(removeCards(_, parent.getSelectedCards, parent.getSelectedCards.map(sideboard.getEntry(_).count).max))
@@ -666,7 +654,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoriesPane.setComponentPopupMenu(categoriesMenu)
 
   private val categoryButtons = VerticalButtonList("+", UnicodeSymbols.MINUS.toString, "X")
-  categoryButtons.get("+").addActionListener(_ => addCards(MainDeck, parent.getSelectedCards, 1))
+  categoryButtons.get("+").addActionListener(_ => deck += parent.getSelectedCards -> 1)
   categoryButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => removeCards(MainDeck, parent.getSelectedCards, 1))
   categoryButtons.get("X").addActionListener(_ => removeCards(MainDeck, parent.getSelectedCards, parent.getSelectedCards.map(deck.current.getEntry(_).count).max))
   categoriesPanel.add(categoryButtons, BorderLayout.WEST)
