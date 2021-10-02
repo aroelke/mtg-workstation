@@ -195,7 +195,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  private case class DeckData(var name: Option[String], current: Deck, original: Deck, var model: CardTableModel, var table: CardTable) {
+  private case class DeckData(name: Option[String], current: Deck, original: Deck, var model: CardTableModel, var table: CardTable) {
     def getChanges = {
       val changes: StringBuilder = StringBuilder()
       original.stream.forEach((c) => {
@@ -1196,11 +1196,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
       panel.addActionListener((e) => e.getActionCommand match {
         case EditablePanel.CLOSE =>
-          // lists(id) is expected to exist here, so using .get is fine
           val n = panel.getTitle
-          val extra = lists(id).get.copy()
+          val extra = lists(id).map(_.copy()).getOrElse(throw NoSuchElementException(id.toString))
           val i = extrasPane.indexOfTab(n)
-          performAction(() => deleteExtra(id, i), () => createExtra(n, id, i) | lists(id).get.current.addAll(extra.current) | lists(id).get.original.addAll(extra.original))
+          performAction(() => deleteExtra(id, i), () => createExtra(n, id, i) || lists(id).get.current.addAll(extra.current) || lists(id).get.original.addAll(extra.original))
         case EditablePanel.EDIT =>
           val current = panel.getTitle
           val old = panel.getOldTitle
@@ -1212,13 +1211,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           } else if (!current.equals(old)) {
             val j = extrasPane.indexOfTab(old)
             performAction(() => {
-              newExtra.name = Some(current)
+              lists(id) = Some(newExtra.copy(name = Some(current)))
               extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(current)
               extrasPane.setTitleAt(j, current)
               listTabs.setSelectedIndex(MainDeck)
               true
             }, () => {
-              newExtra.name = Some(old)
+              lists(id) = Some(newExtra.copy(name = Some(old)))
               extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(old)
               extrasPane.setTitleAt(j, old)
               listTabs.setSelectedIndex(MainDeck)
@@ -1248,7 +1247,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   @throws[IllegalArgumentException]("if the list with the given ID doesn't exist")
   private def deleteExtra(id: Int, index: Int) = {
     if (lists(id).isEmpty)
-      throw new IllegalArgumentException(s"missing sideboard with ID $id")
+      throw IllegalArgumentException(s"missing sideboard with ID $id")
 
     lists(id) = None
     extrasPane.remove(index)
@@ -1650,41 +1649,37 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @param changes map of card onto integer representing the number of copies of each card to add (positive number) or remove (negative number)
    * @return true if the list deck changed as a result, or false otherwise
    */
-  @throws[ArrayIndexOutOfBoundsException]("if the list with the given id doesn't exist")
-  def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = lists(id).map(l => {
-    if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 })
-      false
-    else {
-      val capped = changes.map{ case (card, n) => card -> Math.max(n, -l.current.getEntry(card).count) }
-      performAction(() => {
-        val selected = parent.getSelectedCards
-        val changed = capped.map{ case (card, n) =>
-          if (n < 0)
-            l.current.remove(card, -n) > 0
-          else if (n > 0)
-            l.current.add(card, n)
-          else
-            false
-        }.fold(false)(_ || _)
-        if (changed)
-          updateTables(selected)
-        changed
-      }, () => {
-        val selected = parent.getSelectedCards
-        val changed = capped.map{ case (card, n) =>
-          if (n < 0)
-            l.current.add(card, -n)
-          else if (n > 0)
-            l.current.remove(card, n) > 0
-          else
-            false
-        }.fold(false)(_ || _)
-        if (changed)
-          updateTables(selected)
-        changed
-      })
-    }
-  }).getOrElse(throw ArrayIndexOutOfBoundsException(id))
+  @throws[NoSuchElementException]("if the list with the given id doesn't exist")
+  def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
+    val capped = lists(id).map(l => changes.map{ case (card, n) => card -> Math.max(n, -l.current.getEntry(card).count) }).getOrElse(throw NoSuchElementException(id.toString))
+    performAction(() => lists(id).map(l => {
+      val selected = parent.getSelectedCards
+      val changed = capped.map{ case (card, n) =>
+        if (n < 0)
+          l.current.remove(card, -n) > 0
+        else if (n > 0)
+          l.current.add(card, n)
+        else
+          false
+      }.fold(false)(_ || _)
+      if (changed)
+        updateTables(selected)
+      changed
+    }).getOrElse(throw NoSuchElementException(id.toString)), () => lists(id).map((l) => {
+      val selected = parent.getSelectedCards
+      val changed = capped.map{ case (card, n) =>
+        if (n < 0)
+          l.current.add(card, -n)
+        else if (n > 0)
+          l.current.remove(card, n) > 0
+        else
+          false
+      }.fold(false)(_ || _)
+      if (changed)
+        updateTables(selected)
+      changed
+    }).getOrElse(throw NoSuchElementException(id.toString)))
+  }
 
   @deprecated
   def modifyCards(id: Int, changes: java.util.Map[Card, Integer]): Boolean = modifyCards(id, changes.asScala.toMap.map{ case (c, n) => c -> n.toInt })
