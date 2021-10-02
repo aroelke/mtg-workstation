@@ -111,33 +111,6 @@ import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 import scala.util.Using
 
-private object DeckData {
-  def apply(name: Option[String] = None, deck: Deck = Deck()): DeckData = {
-    val original = Deck()
-    original.addAll(deck)
-    DeckData(name, deck, original, null, null)
-  }
-}
-
-private case class DeckData(var name: Option[String], current: Deck, var original: Deck, var model: CardTableModel, var table: CardTable) {
-  def getChanges = {
-    val changes: StringBuilder = StringBuilder()
-    original.stream.forEach((c) => {
-      val had = if (original.contains(c)) original.getEntry(c).count else 0
-      val has = if (current.contains(c)) current.getEntry(c).count else 0
-      if (has < had)
-        changes ++= s"-${had - has}x ${c.unifiedName} (${c.expansion.name})\n"
-    })
-    current.stream.forEach((c) => {
-      val had = if (original.contains(c)) original.getEntry(c).count else 0
-      val has = if (current.contains(c)) current.getEntry(c).count else 0
-      if (had < has)
-        changes ++= s"+${has - had}x ${c.unifiedName} (${c.expansion.name})\n"
-    })
-    changes.result
-  }
-}
-
 object EditorFrame {
   val MainDeck = 0
 }
@@ -211,6 +184,36 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     } else throw RuntimeException("error undoing action")
   } else false
 
+  /****************************
+   * DECK MANIPULATION MONITOR
+   ****************************/
+  private object DeckData {
+    def apply(name: Option[String] = None, deck: Deck = Deck()): DeckData = {
+      val original = Deck()
+      original.addAll(deck)
+      DeckData(name, deck, original, null, null)
+    }
+  }
+
+  private case class DeckData(var name: Option[String], current: Deck, original: Deck, var model: CardTableModel, var table: CardTable) {
+    def getChanges = {
+      val changes: StringBuilder = StringBuilder()
+      original.stream.forEach((c) => {
+        val had = if (original.contains(c)) original.getEntry(c).count else 0
+        val has = if (current.contains(c)) current.getEntry(c).count else 0
+        if (has < had)
+          changes ++= s"-${had - has}x ${c.unifiedName} (${c.expansion.name})\n"
+      })
+      current.stream.forEach((c) => {
+        val had = if (original.contains(c)) original.getEntry(c).count else 0
+        val has = if (current.contains(c)) current.getEntry(c).count else 0
+        if (had < has)
+          changes ++= s"+${has - had}x ${c.unifiedName} (${c.expansion.name})\n"
+      })
+      changes.result
+    }
+  }
+  
   private class TableCategoriesPopupListener(addToCategoryMenu: JMenu, removeFromCategoryMenu: JMenu, editCategoriesItem: JMenuItem, menuSeparator: JSeparator, table: CardTable) extends PopupMenuListener {
     override def popupMenuCanceled(e: PopupMenuEvent) = ()
     override def popupMenuWillBecomeInvisible(e: PopupMenuEvent) = {
@@ -1835,7 +1838,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     val manager = DeckSerializer(deck.current, sideboards.asJava, notesArea.getText, changelogArea.getText)
     try {
       manager.save(f)
-      deck.original = Deck()
+      deck.original.clear()
       deck.original.addAll(deck.current)
       unsaved = false
       file = manager.file
