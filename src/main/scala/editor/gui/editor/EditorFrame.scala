@@ -147,6 +147,70 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 {
   import EditorFrame._
 
+  /****************************
+   * PERFORM/UNDO/REDO ACTIONS
+   ****************************/
+
+  private val undoBuffer = collection.mutable.Stack[UndoableAction[Boolean, Boolean]]()
+  private val redoBuffer = collection.mutable.Stack[UndoableAction[Boolean, Boolean]]()
+
+  /**
+   * Peform an action that can be undone.
+   * 
+   * @param action action to perform and its inverse
+   * @return true if the action was successful, and false otherwise
+   */
+  private def performAction(action: UndoableAction[Boolean, Boolean]): Boolean = {
+    redoBuffer.clear()
+    undoBuffer.push(action)
+    action.redo()
+  }
+
+  /**
+   * Peform an action that can be undone.
+   * 
+   * @param redo action to perform; this gets performed upon calling this method and stored for later in case it needs to be redone
+   * @param undo action to perform to undo the original
+   * @return true if the action was successful, and false otherwise
+   */
+  private def performAction(redo: () => Boolean, undo: () => Boolean): Boolean = performAction(UndoableAction.createAction(() => {
+    val done = redo()
+    unsaved = true
+    update()
+    done
+  }, () => {
+    val done = undo()
+    unsaved = true
+    update()
+    done
+  }))
+
+  /**
+   * Redo the last action that was undone, assuming nothing was done between then and now.
+   * @return true if an action was redone, and false otherwise
+   */
+  @throws[RuntimeException]("if the redone action failed")
+  def redo() = if (!redoBuffer.isEmpty) {
+    val action = redoBuffer.pop()
+    if (action.redo()) {
+      undoBuffer.push(action)
+      true
+    } else throw RuntimeException("error redoing action")
+  } else false
+
+  /**
+   * Undo the last action that was performed on the deck.
+   * @return true if an action was undone, and false otherwise
+   */
+  @throws[RuntimeException]("if the undone action failed")
+  def undo() = if (!undoBuffer.isEmpty) {
+    var action = undoBuffer.pop()
+    if (action.undo()) {
+      redoBuffer.push(action)
+      true
+    } else throw RuntimeException("error undoing action")
+  } else false
+
   private class TableCategoriesPopupListener(addToCategoryMenu: JMenu, removeFromCategoryMenu: JMenu, editCategoriesItem: JMenuItem, menuSeparator: JSeparator, table: CardTable) extends PopupMenuListener {
     override def popupMenuCanceled(e: PopupMenuEvent) = ()
     override def popupMenuWillBecomeInvisible(e: PopupMenuEvent) = {
@@ -266,66 +330,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       setTitle(s"$getTitle *")
     _unsaved = u
   }
-
-  private val undoBuffer = collection.mutable.Stack[UndoableAction[Boolean, Boolean]]()
-  private val redoBuffer = collection.mutable.Stack[UndoableAction[Boolean, Boolean]]()
-
-  /**
-   * Peform an action that can be undone.
-   * 
-   * @param action action to perform and its inverse
-   * @return true if the action was successful, and false otherwise
-   */
-  private def performAction(action: UndoableAction[Boolean, Boolean]): Boolean = {
-    redoBuffer.clear()
-    undoBuffer.push(action)
-    action.redo()
-  }
-
-  /**
-   * Peform an action that can be undone.
-   * 
-   * @param redo action to perform; this gets performed upon calling this method and stored for later in case it needs to be redone
-   * @param undo action to perform to undo the original
-   * @return true if the action was successful, and false otherwise
-   */
-  private def performAction(redo: () => Boolean, undo: () => Boolean): Boolean = performAction(UndoableAction.createAction(() => {
-    val done = redo()
-    unsaved = true
-    update()
-    done
-  }, () => {
-    val done = undo()
-    unsaved = true
-    update()
-    done
-  }))
-
-  /**
-   * Redo the last action that was undone, assuming nothing was done between then and now.
-   * @return true if an action was redone, and false otherwise
-   */
-  @throws[RuntimeException]("if the redone action failed")
-  def redo() = if (!redoBuffer.isEmpty) {
-    val action = redoBuffer.pop()
-    if (action.redo()) {
-      undoBuffer.push(action)
-      true
-    } else throw RuntimeException("error redoing action")
-  } else false
-
-  /**
-   * Undo the last action that was performed on the deck.
-   * @return true if an action was undone, and false otherwise
-   */
-  @throws[RuntimeException]("if the undone action failed")
-  def undo() = if (!undoBuffer.isEmpty) {
-    var action = undoBuffer.pop()
-    if (action.undo()) {
-      redoBuffer.push(action)
-      true
-    } else throw RuntimeException("error undoing action")
-  } else false
 
   if (manager.canSaveFile)
     file = manager.file
