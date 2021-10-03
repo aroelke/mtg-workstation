@@ -303,6 +303,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   @deprecated
   def moveCards(from: Int, to: Int, moves: java.util.Map[Card, Integer]): Boolean = moveCards(from, to, moves.asScala.map{ case (c, n) => c -> n.toInt }.toMap)
+
+  // Actual lists of DeckData
+  private val lists = collection.mutable.ArrayBuffer[Option[DeckData]]()
+  lists += Some(DeckData(id = MainDeck, deck = manager.deck))
+  private def deck = lists.head.get
+  private def extras = lists.tail.flatten.toSeq
   
   private class TableCategoriesPopupListener(addToCategoryMenu: JMenu, removeFromCategoryMenu: JMenu, editCategoriesItem: JMenuItem, menuSeparator: JSeparator, table: CardTable) extends PopupMenuListener {
     override def popupMenuCanceled(e: PopupMenuEvent) = ()
@@ -382,11 +388,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   setBounds(((u - 1) % 5)*30, ((u - 1) % 5)*30, 600, 600)
   setLayout(BorderLayout(0, 0))
   setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE)
-
-  private val lists = collection.mutable.ArrayBuffer[Option[DeckData]]()
-  lists += Some(DeckData(id = MainDeck, deck = manager.deck))
-  private def deck = lists.head.get
-  private def extras = lists.tail.flatten.toSeq
 
   private var _file: Option[File] = None
 
