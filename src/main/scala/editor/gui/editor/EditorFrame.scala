@@ -120,6 +120,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 {
   import EditorFrame._
 
+  setBounds(((u - 1) % 5)*30, ((u - 1) % 5)*30, 600, 600)
+  setLayout(BorderLayout(0, 0))
+  setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE)
+
   /****************************
    * PERFORM/UNDO/REDO ACTIONS
    ****************************/
@@ -384,10 +388,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     case Changelog    extends EditorTab("Change Log")
   }
   import EditorTab._
-
-  setBounds(((u - 1) % 5)*30, ((u - 1) % 5)*30, 600, 600)
-  setLayout(BorderLayout(0, 0))
-  setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE)
 
   private var _file: Option[File] = None
 
