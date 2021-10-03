@@ -196,7 +196,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
 
   private case class DeckData(id: Int, name: Option[String], current: Deck, original: Deck, var model: CardTableModel, var table: CardTable) {
-    def %=(changes: Map[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
+    def %%=(changes: Map[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
       val capped = changes.map{ case (card, n) => card -> Math.max(n, -current.getEntry(card).count) }
       performAction(() => lists(id).map(l => { // can't use this here because after redoing, reference is different
         val selected = parent.getSelectedCards
@@ -227,7 +227,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       }).getOrElse(throw NoSuchElementException(id.toString)))
     }
 
-    def +=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %= cards.map(_ -> n).toMap }
+    def ++=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %%= cards.map(_ -> n).toMap }
 
     def getChanges = {
       val changes: StringBuilder = StringBuilder()
@@ -247,9 +247,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = lists(id).map(_ %= changes).getOrElse(throw NoSuchElementException(id.toString))
+  @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = lists(id).map(_ %%= changes).getOrElse(throw NoSuchElementException(id.toString))
   @deprecated def modifyCards(id: Int, changes: java.util.Map[Card, Integer]): Boolean = modifyCards(id, changes.asScala.toMap.map{ case (c, n) => c -> n.toInt })
-  @deprecated def addCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ += cards -> n).getOrElse(throw NoSuchElementException(id.toString))
+  @deprecated def addCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ ++= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
 
   /**
    * Remove some copies of each of a collection of cards from the specified list.
@@ -260,7 +260,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @return true if any copies were removed, and false otherwise
    */
   @throws[NoSuchElementException]("if the list with the given ID doesn't exist")
-  def removeCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ %= cards.map((c) => c -> -n).toMap).getOrElse(throw NoSuchElementException(id.toString))
+  def removeCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ %%= cards.map((c) => c -> -n).toMap).getOrElse(throw NoSuchElementException(id.toString))
 
   /**
    * Move cards between lists.
@@ -458,7 +458,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   mainPanel.add(mainDeckPane, BorderLayout.CENTER)
 
   private val deckButtons = VerticalButtonList("+", UnicodeSymbols.MINUS.toString, "X")
-  deckButtons.get("+").addActionListener(_ => deck += parent.getSelectedCards -> 1)
+  deckButtons.get("+").addActionListener(_ => deck ++= parent.getSelectedCards -> 1)
   deckButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => removeCards(MainDeck,  parent.getSelectedCards, 1))
   deckButtons.get("X").addActionListener(_ => removeCards(MainDeck, parent.getSelectedCards, parent.getSelectedCards.map(deck.current.getEntry(_).count).max))
   mainPanel.add(deckButtons, BorderLayout.WEST)
@@ -472,7 +472,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   southPanel.add(extrasPanel, "extras")
 
   private val extrasButtons = VerticalButtonList("+", UnicodeSymbols.MINUS.toString, "X")
-  extrasButtons.get("+").addActionListener(_ => getSelectedExtraID.foreach(id => lists(id).map(_ += parent.getSelectedCards -> 1).getOrElse(throw NoSuchElementException(id.toString))))
+  extrasButtons.get("+").addActionListener(_ => getSelectedExtraID.foreach(id => lists(id).map(_ ++= parent.getSelectedCards -> 1).getOrElse(throw NoSuchElementException(id.toString))))
   extrasButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => getSelectedExtraID.foreach(removeCards(_, parent.getSelectedCards, 1)))
   extrasButtons.get("X").addActionListener(_ => {
     getSelectedExtraID.foreach(removeCards(_, parent.getSelectedCards, parent.getSelectedCards.map(sideboard.getEntry(_).count).max))
@@ -654,7 +654,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoriesPane.setComponentPopupMenu(categoriesMenu)
 
   private val categoryButtons = VerticalButtonList("+", UnicodeSymbols.MINUS.toString, "X")
-  categoryButtons.get("+").addActionListener(_ => deck += parent.getSelectedCards -> 1)
+  categoryButtons.get("+").addActionListener(_ => deck ++= parent.getSelectedCards -> 1)
   categoryButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => removeCards(MainDeck, parent.getSelectedCards, 1))
   categoryButtons.get("X").addActionListener(_ => removeCards(MainDeck, parent.getSelectedCards, parent.getSelectedCards.map(deck.current.getEntry(_).count).max))
   categoriesPanel.add(categoryButtons, BorderLayout.WEST)
