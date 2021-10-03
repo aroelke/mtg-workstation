@@ -188,9 +188,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     } else throw RuntimeException("error undoing action")
   } else false
 
-  /****************************
-   * DECK MANIPULATION MONITOR
-   ****************************/
+  /********************
+   * DECK MANIPULATION
+   ********************/
   private object DeckData {
     def apply(id: Int, name: Option[String] = None, deck: Deck = Deck()): DeckData = {
       val original = Deck()
