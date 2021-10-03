@@ -1283,7 +1283,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           val n = panel.getTitle
           val extra = lists(id).map(_.copy()).getOrElse(throw NoSuchElementException(id.toString))
           val i = extrasPane.indexOfTab(n)
-          performAction(() => deleteExtra(id, i), () => createExtra(n, id, i) || lists(id).get.current.addAll(extra.current) || lists(id).get.original.addAll(extra.original))
+          performAction(() => deleteExtra(id, i), () => {
+            val created = createExtra(n, id, i)
+            val currented = lists(id).get.current.addAll(extra.current)
+            val originaled = lists(id).get.original.addAll(extra.original)
+            created || currented || originaled
+          })
         case EditablePanel.EDIT =>
           val current = panel.getTitle
           val old = panel.getOldTitle
