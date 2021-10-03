@@ -1267,7 +1267,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         throw IllegalArgumentException(s"""sideboard "$name" already exists""")
 
       val newExtra = DeckData(id = id, name = Some(name))
-      while { lists.size <= id } do lists += null
+      if (id >= lists.size)
+        lists ++= Seq.fill(id - lists.size + 1)(None)
       lists(id) = Some(newExtra)
 
       val panel = EditablePanel(name, extrasPane)
