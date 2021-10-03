@@ -231,6 +231,45 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     def --=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %%= cards.map((c) => c -> -n).toMap }
 
+    def move(moves: Map[Card, Int])(target: DeckData) = {
+      val t = target.id
+      performAction(() => (lists(id), lists(t)) match {
+        case (Some(from), Some(to)) =>
+          val selected = parent.getSelectedCards
+          val preserve = parent.getSelectedTable.contains(table) && moves.forall{ case (card, n) => from.current.getEntry(card).count == n }
+          if (from.current.removeAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava).asScala.toMap != moves)
+            throw CardException(moves.keySet.asJava, s"error moving cards from list $id")
+          if (!to.current.addAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava))
+            throw CardException(moves.keySet.asJava, s"could not move cards to list $t}")
+          if (preserve)
+            parent.setSelectedComponents(to.table, to.current)
+          updateTables(selected)
+          if (preserve)
+            to.table.scrollRectToVisible(to.table.getCellRect(to.table.getSelectedRow, 0, true))
+          true
+        case (Some(_), None) => throw NoSuchElementException(target.toString)
+        case (None, Some(_)) => throw NoSuchElementException(id.toString)
+        case (None, None) => throw NoSuchElementException(s"$id,$target")
+      }, () => (lists(id), lists(t)) match {
+        case (Some(from), Some(to)) =>
+          val selected = parent.getSelectedCards
+          val preserve = parent.getSelectedTable.contains(to.table) && moves.forall{ case (card, n) => to.current.getEntry(card).count == n }
+          if (!from.current.addAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava))
+            throw CardException(moves.keySet.asJava, s"could not undo move from list $id")
+          if (to.current.removeAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava).asScala.toMap != moves)
+            throw CardException(moves.keySet.asJava, s"error undoing move to list $t")
+          if (preserve)
+            parent.setSelectedComponents(table, from.current)
+          updateTables(selected)
+          if (preserve)
+            table.scrollRectToVisible(table.getCellRect(table.getSelectedRow, 0, true))
+          true
+        case (Some(_), None) => throw NoSuchElementException(target.toString)
+        case (None, Some(_)) => throw NoSuchElementException(id.toString)
+        case (None, None) => throw NoSuchElementException(s"$id,$target")
+      })
+    }
+
     def getChanges = {
       val changes: StringBuilder = StringBuilder()
       original.stream.forEach((c) => {
@@ -254,44 +293,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   @deprecated def addCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ ++= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
   @deprecated def removeCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ --= cards -> -n).getOrElse(throw NoSuchElementException(id.toString))
 
-  /**
-   * Move cards between lists.
-   * 
-   * @param from ID of the list to move from
-   * @param to ID of the list to move to
-   * @param moves Cards and amounts to move
-   * @return true if the cards were successfully moved and false otherwise
-   */
-  @throws[ArrayIndexOutOfBoundsException]
+  @deprecated
   def moveCards(from: Int, to: Int, moves: Map[Card, Int]): Boolean = (lists(from), lists(to)) match {
-    case (Some(moveFrom), Some(moveTo)) =>
-      performAction(() => {
-        val selected = parent.getSelectedCards
-        val preserve = parent.getSelectedTable.contains(moveFrom.table) && moves.forall{ case (card, n) => moveFrom.current.getEntry(card).count == n }
-        if (moveFrom.current.removeAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava).asScala.toMap != moves)
-          throw CardException(moves.keySet.asJava, s"error moving cards from list $from")
-        if (!moveTo.current.addAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava))
-          throw CardException(moves.keySet.asJava, s"could not move cards to list $to")
-        if (preserve)
-          parent.setSelectedComponents(moveTo.table, moveTo.current)
-        updateTables(selected)
-        if (preserve)
-          moveTo.table.scrollRectToVisible(moveTo.table.getCellRect(moveTo.table.getSelectedRow, 0, true))
-        true
-      }, () => {
-        val selected = parent.getSelectedCards
-        val preserve = parent.getSelectedTable.contains(moveTo.table) && moves.forall{ case (card, n) => moveTo.current.getEntry(card).count == n }
-        if (!moveFrom.current.addAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava))
-          throw CardException(moves.keySet.asJava, s"could not undo move from list $from")
-        if (moveTo.current.removeAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava).asScala.toMap != moves)
-          throw CardException(moves.keySet.asJava, s"error undoing move to list $to")
-        if (preserve)
-          parent.setSelectedComponents(moveFrom.table, moveFrom.current)
-        updateTables(selected)
-        if (preserve)
-          moveFrom.table.scrollRectToVisible(moveFrom.table.getCellRect(moveFrom.table.getSelectedRow, 0, true))
-        true
-      })
+    case (Some(moveFrom), Some(moveTo)) => moveFrom.move(moves)(moveTo)
     case (Some(_), None) => throw ArrayIndexOutOfBoundsException(to)
     case (None, Some(_)) => throw ArrayIndexOutOfBoundsException(from)
     case (None, None) => throw ArrayIndexOutOfBoundsException(from)
@@ -558,10 +562,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       lists(i).foreach((l) => {
         val id = i
         val moveToItem = JMenuItem(l.name.get)
-        moveToItem.addActionListener(_ => moveCards(MainDeck, id, parent.getSelectedCards.map((_ -> 1)).toMap))
+        moveToItem.addActionListener(_ => lists(id).map(deck.move(parent.getSelectedCards.map((_ -> 1)).toMap)(_)).getOrElse(throw NoSuchElementException(id.toString)))
         moveToMenu.add(moveToItem)
         val moveAllToItem = JMenuItem(l.name.get)
-        moveAllToItem.addActionListener(_ => moveCards(MainDeck, id, parent.getSelectedCards.map(c => (c -> deck.current.getEntry(c).count)).toMap))
+        moveAllToItem.addActionListener(_ => lists(id).map(deck.move(parent.getSelectedCards.map(c => (c -> deck.current.getEntry(c).count)).toMap)(_)).getOrElse(throw NoSuchElementException(id.toString)))
         moveAllToMenu.add(moveAllToItem)
       })
     }
@@ -1698,14 +1702,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     // Move cards to main deck
     val moveToMainItem = JMenuItem("Move to Main Deck")
-    moveToMainItem.addActionListener(_ => moveCards(id, MainDeck, parent.getSelectedCards.map(_ -> 1).toMap))
+    moveToMainItem.addActionListener(_ => lists(id).map(_.move(parent.getSelectedCards.map(_ -> 1).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
     extraMenu.add(moveToMainItem)
     val moveAllToMainItem = JMenuItem("Move All to Main Deck")
-    moveAllToMainItem.addActionListener(_ -> moveCards(
-      id,
-      MainDeck,
-      parent.getSelectedCards.map((c) => c -> l.current.getEntry(c).count).toMap
-    ))
+    moveAllToMainItem.addActionListener(_ => lists(id).map(_.move(parent.getSelectedCards.map((c) => c -> l.current.getEntry(c).count).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
     extraMenu.add(moveAllToMainItem)
     extraMenu.add(JSeparator())
 
