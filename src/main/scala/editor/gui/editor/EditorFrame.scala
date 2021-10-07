@@ -195,11 +195,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     def apply(id: Int, name: Option[String] = None, deck: Deck = Deck()): DeckData = {
       val original = Deck()
       original.addAll(deck)
-      DeckData(id, name, deck, original, null, null)
+      DeckData(id, name, deck, original)
     }
   }
 
-  private case class DeckData(id: Int, name: Option[String], current: Deck, original: Deck, var model: CardTableModel, var table: CardTable) {
+  private case class DeckData(id: Int, name: Option[String], current: Deck, original: Deck) {
+    lazy val model = CardTableModel(EditorFrame.this, current, SettingsDialog.settings.editor.columns.asJava)
+    lazy val table = CardTable(model)
+
     def %%=(changes: Map[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
       val capped = changes.map{ case (card, n) => card -> Math.max(n, -current.getEntry(card).count) }
       performAction(() => lists(id).map(l => { // can't use this here because after redoing, reference is different
@@ -295,7 +298,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = lists(id).map(_ %%= changes).getOrElse(throw NoSuchElementException(id.toString))
   @deprecated def modifyCards(id: Int, changes: java.util.Map[Card, Integer]): Boolean = modifyCards(id, changes.asScala.toMap.map{ case (c, n) => c -> n.toInt })
   @deprecated def addCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ ++= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
-  @deprecated def removeCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ --= cards -> -n).getOrElse(throw NoSuchElementException(id.toString))
+  @deprecated def removeCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ --= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
 
   @deprecated
   def moveCards(from: Int, to: Int, moves: Map[Card, Int]): Boolean = (lists(from), lists(to)) match {
@@ -436,8 +439,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   /* MAIN DECK TAB */
   private val mainPanel = JPanel(BorderLayout())
 
-  deck.model = CardTableModel(this, deck.current, SettingsDialog.settings.editor.columns.asJava)
-  deck.table = CardTable(deck.model)
   deck.table.setStripeColor(SettingsDialog.settings.editor.stripe)
 
   private val listener = TableSelectionListener(parent, deck.table, deck.current)
@@ -1665,8 +1666,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   @throws[ArrayIndexOutOfBoundsException]("if the list with the given ID doesn't exist")
   def initExtraList(id: Int) = lists(id).map((l) => {
     // Extra list's models
-    l.model = CardTableModel(this, l.current, SettingsDialog.settings.editor.columns.asJava)
-    l.table = CardTable(l.model)
     l.table.setPreferredScrollableViewportSize(Dimension(l.table.getPreferredScrollableViewportSize.width, 5*l.table.getRowHeight))
     l.table.setStripeColor(SettingsDialog.settings.editor.stripe)
     // When a card is selected in a sideboard table, select it for adding
