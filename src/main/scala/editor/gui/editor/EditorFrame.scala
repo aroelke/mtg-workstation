@@ -201,7 +201,24 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   private case class DeckData(id: Int, name: Option[String], current: Deck, original: Deck) {
     lazy val model = CardTableModel(EditorFrame.this, current, SettingsDialog.settings.editor.columns.asJava)
-    lazy val table = CardTable(model)
+    lazy val table = {
+      val table = CardTable(model)
+      table.setStripeColor(SettingsDialog.settings.editor.stripe)
+      // When a card is selected in a table, mark it for adding
+      val listener = TableSelectionListener(parent, table, current)
+      table.addMouseListener(listener)
+      table.getSelectionModel.addListSelectionListener(listener)
+      // Create cell editors for applicable table columns
+      for (i <- 0 until table.getColumnCount)
+        if (model.isCellEditable(0, i))
+          table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(EditorFrame.this, model.getColumnData(i)))
+      // Set up drag-and-drop for the table
+      table.setTransferHandler(EditorTableTransferHandler(EditorFrame.this, id))
+      table.setDragEnabled(true)
+      table.setDropMode(DropMode.ON)
+
+      table
+    }
 
     def %%=(changes: Map[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
       val capped = changes.map{ case (card, n) => card -> Math.max(n, -current.getEntry(card).count) }
@@ -438,18 +455,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   /* MAIN DECK TAB */
   private val mainPanel = JPanel(BorderLayout())
-
-  deck.table.setStripeColor(SettingsDialog.settings.editor.stripe)
-
-  private val listener = TableSelectionListener(parent, deck.table, deck.current)
-  deck.table.addMouseListener(listener)
-  deck.table.getSelectionModel().addListSelectionListener(listener)
-  for (i <- 0 until deck.table.getColumnCount)
-    if (deck.model.isCellEditable(0, i))
-      deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)))
-  deck.table.setTransferHandler(EditorTableTransferHandler(this, MainDeck))
-  deck.table.setDragEnabled(true)
-  deck.table.setDropMode(DropMode.ON)
 
   private val mainDeckPane = JScrollPane(deck.table)
   mainDeckPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
@@ -1667,17 +1672,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   def initExtraList(id: Int) = lists(id).map((l) => {
     // Extra list's models
     l.table.setPreferredScrollableViewportSize(Dimension(l.table.getPreferredScrollableViewportSize.width, 5*l.table.getRowHeight))
-    l.table.setStripeColor(SettingsDialog.settings.editor.stripe)
-    // When a card is selected in a sideboard table, select it for adding
-    val listener = TableSelectionListener(parent, l.table, l.current)
-    l.table.addMouseListener(listener)
-    l.table.getSelectionModel.addListSelectionListener(listener)
-    for (i <- 0 until l.table.getColumnCount)
-      if (l.model.isCellEditable(0, i))
-        l.table.getColumn(l.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, l.model.getColumnData(i)))
-    l.table.setTransferHandler(EditorTableTransferHandler(this, id))
-    l.table.setDragEnabled(true)
-    l.table.setDropMode(DropMode.ON)
 
     val sideboardPane = JScrollPane(l.table)
     sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
