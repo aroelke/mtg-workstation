@@ -326,6 +326,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       cards.setEnabled(!parent.getSelectedCards.isEmpty)
       editTags.setEnabled(!parent.getSelectedCards.isEmpty)
     }
+    private[EditorFrame] lazy val popup = {
+      val menu = JPopupMenu()
+      table.addMouseListener(TableMouseAdapter(table, menu))
+      menu.add(ccp.cut)
+      menu.add(ccp.copy)
+      menu.add(ccp.paste)
+      menu.add(JSeparator())
+      cards.addAddItems(menu)
+      menu.add(JSeparator())
+      cards.addRemoveItems(menu)
+      menu.add(JSeparator())
+      menu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => setMenuEnables))
+      menu
+    }
   }
 
   @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = lists(id).map(_ %%= changes).getOrElse(throw NoSuchElementException(id.toString))
@@ -511,35 +525,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   listTabs.addTab(MainTable.title, mainPanel)
 
-  // Main table popup menu
-  private val tableMenu = JPopupMenu()
-  deck.table.addMouseListener(TableMouseAdapter(deck.table, tableMenu))
-
-  // Cut, copy, paste
-  tableMenu.add(deck.ccp.cut)
-  tableMenu.add(deck.ccp.copy)
-  tableMenu.add(deck.ccp.paste)
-  tableMenu.add(JSeparator())
-
-  // Add/remove cards
-  deck.cards.addAddItems(tableMenu)
-  tableMenu.add(JSeparator())
-  deck.cards.addRemoveItems(tableMenu)
-  tableMenu.add(JSeparator())
-
+  /* Main table popup menu */
   // Move cards to sideboard
   private val moveToMenu = JMenu("Move to")
-  tableMenu.add(moveToMenu)
+  deck.popup.add(moveToMenu)
   private val moveAllToMenu = JMenu("Move all to")
-  tableMenu.add(moveAllToMenu)
+  deck.popup.add(moveAllToMenu)
   private val moveSeparator = JSeparator()
-  tableMenu.add(moveSeparator)
+  deck.popup.add(moveSeparator)
 
   // Quick edit categories
   private val addToCategoryMenu = JMenu("Include in")
-  tableMenu.add(addToCategoryMenu)
+  deck.popup.add(addToCategoryMenu)
   private val removeFromCategoryMenu = JMenu("Exclude from")
-  tableMenu.add(removeFromCategoryMenu)
+  deck.popup.add(removeFromCategoryMenu)
 
   // Edit categories item
   private val editCategoriesItem = JMenuItem("Edit Categories...")
@@ -551,17 +550,17 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
       editInclusion(iePanel.getIncluded.asScala.map(_ -> _.asScala.toSet).toMap, iePanel.getExcluded.asScala.map(_ -> _.asScala.toSet).toMap)
   })
-  tableMenu.add(editCategoriesItem)
+  deck.popup.add(editCategoriesItem)
 
   private val categoriesSeparator = JSeparator()
-  tableMenu.add(categoriesSeparator)
+  deck.popup.add(categoriesSeparator)
 
   // Edit card tags item
-  tableMenu.add(deck.editTags)
+  deck.popup.add(deck.editTags)
 
   // Table memu popup listeners
-  tableMenu.addPopupMenuListener(TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu, editCategoriesItem, categoriesSeparator, deck.table))
-  tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+  deck.popup.addPopupMenuListener(TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu, editCategoriesItem, categoriesSeparator, deck.table))
+  deck.popup.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
     deck.setMenuEnables
     moveToMenu.setVisible(!extras.isEmpty)
     moveAllToMenu.setVisible(!extras.isEmpty)
@@ -1687,36 +1686,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     val sideboardPane = JScrollPane(l.table)
     sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
 
-    // Extra list's table menu
-    val extraMenu = JPopupMenu()
-    l.table.addMouseListener(TableMouseAdapter(l.table, extraMenu))
-
-    // Cut, copy, paste
-    extraMenu.add(l.ccp.cut)
-    extraMenu.add(l.ccp.copy)
-    extraMenu.add(l.ccp.paste)
-    extraMenu.add(JSeparator())
-
-    // Add/remove cards from sideboard
-    l.cards.addAddItems(extraMenu)
-    extraMenu.add(JSeparator())
-    l.cards.addRemoveItems(extraMenu)
-    extraMenu.add(JSeparator())
-
     // Move cards to main deck
     val moveToMainItem = JMenuItem("Move to Main Deck")
     moveToMainItem.addActionListener(_ => lists(id).map(_.move(parent.getSelectedCards.map(_ -> 1).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
-    extraMenu.add(moveToMainItem)
+    l.popup.add(moveToMainItem)
     val moveAllToMainItem = JMenuItem("Move All to Main Deck")
     moveAllToMainItem.addActionListener(_ => lists(id).map(_.move(parent.getSelectedCards.map((c) => c -> l.current.getEntry(c).count).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
-    extraMenu.add(moveAllToMainItem)
-    extraMenu.add(JSeparator())
+    l.popup.add(moveAllToMainItem)
+    l.popup.add(JSeparator())
 
     // Edit card tags item in sideboard
-    extraMenu.add(l.editTags)
+    l.popup.add(l.editTags)
 
-    extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
-      l.setMenuEnables
+    // Item enables as menu becomes visible
+    l.popup.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
       moveToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
       moveAllToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
     }))
