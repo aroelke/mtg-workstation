@@ -219,13 +219,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
       table
     }
-    private[EditorFrame] lazy val ccp = CCPItems(table, true)
-    private[EditorFrame] def ccpSetEnables = {
-      ccp.cut.setEnabled(!parent.getSelectedCards.isEmpty)
-      ccp.copy.setEnabled(!parent.getSelectedCards.isEmpty)
-      val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
-      ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor))
-    }
 
     def %%=(changes: Map[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
       val capped = changes.map{ case (card, n) => card -> Math.max(n, -current.getEntry(card).count) }
@@ -301,7 +294,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       })
     }
 
-    def getChanges = {
+    def changes = {
       val changes: StringBuilder = StringBuilder()
       original.stream.forEach((c) => {
         val had = if (original.contains(c)) original.getEntry(c).count else 0
@@ -316,6 +309,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           changes ++= s"+${has - had}x ${c.unifiedName} (${c.expansion.name})\n"
       })
       changes.result
+    }
+
+    private[EditorFrame] lazy val ccp = CCPItems(table, true)
+    private[EditorFrame] lazy val editTags = {
+      val item = JMenuItem("Edit Tags...")
+      item.addActionListener(_ => CardTagPanel.editTags(parent.getSelectedCards.asJava, parent))
+      item
+    }
+    private[EditorFrame] def setMenuEnables = {
+      ccp.cut.setEnabled(!parent.getSelectedCards.isEmpty)
+      ccp.copy.setEnabled(!parent.getSelectedCards.isEmpty)
+      val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
+      ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor))
+      editTags.setEnabled(!parent.getSelectedCards.isEmpty)
     }
   }
 
@@ -549,14 +556,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   tableMenu.add(categoriesSeparator)
 
   // Edit card tags item
-  private val editTagsItem = JMenuItem("Edit Tags...")
-  editTagsItem.addActionListener(_ => CardTagPanel.editTags(parent.getSelectedCards.asJava, parent))
-  tableMenu.add(editTagsItem)
+  tableMenu.add(deck.editTags)
 
   // Table memu popup listeners
   tableMenu.addPopupMenuListener(TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu, editCategoriesItem, categoriesSeparator, deck.table))
   tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
-    deck.ccpSetEnables
+    deck.setMenuEnables
     tableMenuCardItems.setEnabled(!parent.getSelectedCards.isEmpty)
     moveToMenu.setVisible(!extras.isEmpty)
     moveAllToMenu.setVisible(!extras.isEmpty)
@@ -564,7 +569,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     addToCategoryMenu.setEnabled(!categoryPanels.isEmpty)
     removeFromCategoryMenu.setEnabled(!categoryPanels.isEmpty)
     editCategoriesItem.setEnabled(!categoryPanels.isEmpty)
-    editTagsItem.setEnabled(!parent.getSelectedCards.isEmpty)
 
     moveToMenu.removeAll()
     moveAllToMenu.removeAll()
@@ -1706,11 +1710,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     extraMenu.add(JSeparator())
 
     // Edit card tags item in sideboard
-    val sBeditTagsItem = JMenuItem("Edit Tags...")
-    sBeditTagsItem.addActionListener(_ => CardTagPanel.editTags(parent.getSelectedCards.asJava, parent))
-    extraMenu.add(sBeditTagsItem)
+    extraMenu.add(l.editTags)
 
-    extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => l.ccpSetEnables))
+    extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => l.setMenuEnables))
 
     sideboardPane
   }).getOrElse(throw ArrayIndexOutOfBoundsException(id))
@@ -1797,7 +1799,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @return true if the file was successfully saved, and false otherwise.
    */
   def save(f: File): Boolean = {
-    val changes = deck.getChanges
+    val changes = deck.changes
     if (!changes.isEmpty) {
       changelogArea.append(s"""|~~~~~${DeckSerializer.CHANGELOG_DATE.format(Date())}~~~~~)
                                |$changes
