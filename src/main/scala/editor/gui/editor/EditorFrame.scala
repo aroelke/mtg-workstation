@@ -577,12 +577,16 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         val id = i
         val moveToItem = JMenuItem(l.name.get)
         moveToItem.addActionListener(_ => lists(id).map(deck.move(parent.getSelectedCards.map((_ -> 1)).toMap)(_)).getOrElse(throw NoSuchElementException(id.toString)))
+        moveToItem.setEnabled(!parent.getSelectedCards.isEmpty)
         moveToMenu.add(moveToItem)
         val moveAllToItem = JMenuItem(l.name.get)
         moveAllToItem.addActionListener(_ => lists(id).map(deck.move(parent.getSelectedCards.map(c => (c -> deck.current.getEntry(c).count)).toMap)(_)).getOrElse(throw NoSuchElementException(id.toString)))
+        moveAllToItem.setEnabled(!parent.getSelectedCards.isEmpty)
         moveAllToMenu.add(moveAllToItem)
       })
     }
+    moveToMenu.setEnabled(!parent.getSelectedCards.isEmpty)
+    moveAllToMenu.setEnabled(!parent.getSelectedCards.isEmpty)
   }))
 
   /* CATEGORIES TAB */
@@ -1711,7 +1715,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     // Edit card tags item in sideboard
     extraMenu.add(l.editTags)
 
-    extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => l.setMenuEnables))
+    extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+      l.setMenuEnables
+      moveToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
+      moveAllToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
+    }))
 
     sideboardPane
   }).getOrElse(throw ArrayIndexOutOfBoundsException(id))
