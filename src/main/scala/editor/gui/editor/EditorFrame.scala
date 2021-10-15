@@ -219,6 +219,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
       table
     }
+    private[EditorFrame] lazy val ccp = CCPItems(table, true)
+    private[EditorFrame] def ccpSetEnables = {
+      ccp.cut.setEnabled(!parent.getSelectedCards.isEmpty)
+      ccp.copy.setEnabled(!parent.getSelectedCards.isEmpty)
+      val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
+      ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor))
+    }
 
     def %%=(changes: Map[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
       val capped = changes.map{ case (card, n) => card -> Math.max(n, -current.getEntry(card).count) }
@@ -500,10 +507,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   deck.table.addMouseListener(TableMouseAdapter(deck.table, tableMenu))
 
   // Cut, copy, paste
-  private val ccp = CCPItems(deck.table, true)
-  tableMenu.add(ccp.cut)
-  tableMenu.add(ccp.copy)
-  tableMenu.add(ccp.paste)
+  tableMenu.add(deck.ccp.cut)
+  tableMenu.add(deck.ccp.copy)
+  tableMenu.add(deck.ccp.paste)
   tableMenu.add(JSeparator())
 
   // Add/remove cards
@@ -550,10 +556,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   // Table memu popup listeners
   tableMenu.addPopupMenuListener(TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu, editCategoriesItem, categoriesSeparator, deck.table))
   tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
-    ccp.cut.setEnabled(!parent.getSelectedCards.isEmpty)
-    ccp.copy.setEnabled(!parent.getSelectedCards.isEmpty)
-    val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
-    ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor))
+    deck.ccpSetEnables
     tableMenuCardItems.setEnabled(!parent.getSelectedCards.isEmpty)
     moveToMenu.setVisible(!extras.isEmpty)
     moveAllToMenu.setVisible(!extras.isEmpty)
@@ -1681,10 +1684,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     l.table.addMouseListener(TableMouseAdapter(l.table, extraMenu))
 
     // Cut, copy, paste
-    val ccp = CCPItems(() => l.table, true)
-    extraMenu.add(ccp.cut)
-    extraMenu.add(ccp.copy)
-    extraMenu.add(ccp.paste)
+    extraMenu.add(l.ccp.cut)
+    extraMenu.add(l.ccp.copy)
+    extraMenu.add(l.ccp.paste)
     extraMenu.add(JSeparator())
 
     // Add/remove cards from sideboard
@@ -1708,12 +1710,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     sBeditTagsItem.addActionListener(_ => CardTagPanel.editTags(parent.getSelectedCards.asJava, parent))
     extraMenu.add(sBeditTagsItem)
 
-    extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
-      ccp.cut.setEnabled(!parent.getSelectedCards.isEmpty)
-      ccp.copy.setEnabled(!parent.getSelectedCards.isEmpty)
-      val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
-      ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor))
-    }))
+    extraMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => l.ccpSetEnables))
 
     sideboardPane
   }).getOrElse(throw ArrayIndexOutOfBoundsException(id))
