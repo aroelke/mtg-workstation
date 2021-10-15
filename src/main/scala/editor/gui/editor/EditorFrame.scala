@@ -312,6 +312,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
 
     private[EditorFrame] lazy val ccp = CCPItems(table, true)
+    private[EditorFrame] lazy val cards = CardMenuItems(() => Some(EditorFrame.this).toJava, () => parent.getSelectedCards.asJava, id == MainDeck)
     private[EditorFrame] lazy val editTags = {
       val item = JMenuItem("Edit Tags...")
       item.addActionListener(_ => CardTagPanel.editTags(parent.getSelectedCards.asJava, parent))
@@ -322,6 +323,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       ccp.copy.setEnabled(!parent.getSelectedCards.isEmpty)
       val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
       ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor))
+      cards.setEnabled(!parent.getSelectedCards.isEmpty)
       editTags.setEnabled(!parent.getSelectedCards.isEmpty)
     }
   }
@@ -520,10 +522,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   tableMenu.add(JSeparator())
 
   // Add/remove cards
-  private val tableMenuCardItems = CardMenuItems(() => Some(this).toJava, () => parent.getSelectedCards.asJava, true)
-  tableMenuCardItems.addAddItems(tableMenu)
+  deck.cards.addAddItems(tableMenu)
   tableMenu.add(JSeparator())
-  tableMenuCardItems.addRemoveItems(tableMenu)
+  deck.cards.addRemoveItems(tableMenu)
   tableMenu.add(JSeparator())
 
   // Move cards to sideboard
@@ -562,7 +563,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   tableMenu.addPopupMenuListener(TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu, editCategoriesItem, categoriesSeparator, deck.table))
   tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
     deck.setMenuEnables
-    tableMenuCardItems.setEnabled(!parent.getSelectedCards.isEmpty)
     moveToMenu.setVisible(!extras.isEmpty)
     moveAllToMenu.setVisible(!extras.isEmpty)
     moveSeparator.setVisible(!extras.isEmpty)
@@ -1694,10 +1694,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     extraMenu.add(JSeparator())
 
     // Add/remove cards from sideboard
-    val sideboardMenuCardItems = CardMenuItems(() => Some(this).toJava, () => parent.getSelectedCards.asJava, false)
-    sideboardMenuCardItems.addAddItems(extraMenu)
+    l.cards.addAddItems(extraMenu)
     extraMenu.add(JSeparator())
-    sideboardMenuCardItems.addRemoveItems(extraMenu)
+    l.cards.addRemoveItems(extraMenu)
     extraMenu.add(JSeparator())
 
     // Move cards to main deck
