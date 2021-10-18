@@ -973,14 +973,6 @@ object SettingsDialog {
   }
 
   /**
-   * Set the directory to open the open-file dialog in.
-   * @param dir new file directory
-   */
-  @deprecated def setStartingDir(dir: String): Unit = {
-    settings = settings.copy(cwd = dir)
-  }
-
-  /**
    * Set whether inventory warnings should be displayed after loading it or not.
    * @param warn new inventory warning setting
    */

@@ -1429,7 +1429,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       System.gc()
     }
     frame.foreach(e => {
-      SettingsDialog.setStartingDir(f.getParent())
+      SettingsDialog.settings = SettingsDialog.settings.copy(cwd = f.getParent)
       fileChooser.setCurrentDirectory(f.getParentFile())
       selectFrame(e)
     })
@@ -1463,7 +1463,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       case JFileChooser.ERROR_OPTION =>
         JOptionPane.showMessageDialog(this, s"Could not save ${frame.deckName}.", "Error", JOptionPane.ERROR_MESSAGE)
     }
-    SettingsDialog.setStartingDir(fileChooser.getCurrentDirectory.getPath)
+    SettingsDialog.settings = SettingsDialog.settings.copy(cwd = fileChooser.getCurrentDirectory.getPath)
   }
 
   /** Write the latest values of the settings to the settings file. */
