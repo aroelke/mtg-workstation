@@ -1466,8 +1466,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   }
 
   /** Write the latest values of the settings to the settings file. */
-  def saveSettings() =  {
-    SettingsDialog.setRecents(recentItems.map(recents(_).getPath).toSeq)
+  def saveSettings() = {
+    SettingsDialog.settings = SettingsDialog.settings.copy(editor = SettingsDialog.settings.editor.copy(recents = SettingsDialog.settings.editor.recents.copy(files = recentItems.map(recents(_).getPath).toSeq)))
     val out = FileOutputStream(SettingsDialog.PropertiesFile.toString)
     try {
       SettingsDialog.save()

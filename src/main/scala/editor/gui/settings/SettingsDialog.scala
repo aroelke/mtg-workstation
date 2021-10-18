@@ -967,15 +967,7 @@ object SettingsDialog {
   }
 
   /** Reset settings back to default values.  Does not update UI elements. */
-  def resetDefaultSettings(): Unit = { settings = Settings() }
-
-  /**
-   * Update the list of recently-opened files.
-   * @param files new list of recent files
-   */
-  @deprecated def setRecents(files: Seq[String]): Unit = {
-    settings = settings.copy(editor = settings.editor.copy(recents = settings.editor.recents.copy(files = files)))
-  }
+  @deprecated def resetDefaultSettings(): Unit = { settings = Settings() }
 
   /**
    * Set whether inventory warnings should be displayed after loading it or not.
