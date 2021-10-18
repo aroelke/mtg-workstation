@@ -235,13 +235,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   } catch {
     case e: MalformedURLException =>
       JOptionPane.showMessageDialog(this, s"Bad file URL: ${SettingsDialog.settings.inventory.url}", "Warning", JOptionPane.WARNING_MESSAGE)
-      SettingsDialog.resetDefaultSettings()
+      SettingsDialog.settings = Settings()
     case e @ (_: IOException | _: JsonParseException) =>
       var ex: Throwable = e
       while (ex.getCause != null)
         ex = ex.getCause
       JOptionPane.showMessageDialog(this, s"Error opening ${SettingsDialog.PropertiesFile}: ${ex.getMessage}.", "Warning", JOptionPane.WARNING_MESSAGE)
-      SettingsDialog.resetDefaultSettings()
+      SettingsDialog.settings = Settings()
   }
 
   setTitle("MTG Workstation")

@@ -952,7 +952,7 @@ object SettingsDialog {
     if (Files.exists(PropertiesFile))
       settings = MainFrame.Serializer.fromJson(Files.readAllLines(PropertiesFile).asScala.mkString("\n"), classOf[Settings])
     else
-      resetDefaultSettings()
+      settings = Settings()
   }
 
   /** Save settings in JSON format to [[PropertiesFile]]. */
@@ -965,9 +965,6 @@ object SettingsDialog {
       Files.deleteIfExists(Path.of(settings.inventory.tags))
     Files.writeString(PropertiesFile, MainFrame.Serializer.toJson(settings))
   }
-
-  /** Reset settings back to default values.  Does not update UI elements. */
-  @deprecated def resetDefaultSettings(): Unit = { settings = Settings() }
 
   /**
    * Set whether inventory warnings should be displayed after loading it or not.
