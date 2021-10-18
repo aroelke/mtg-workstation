@@ -32,17 +32,12 @@ case class DatabaseVersion(major: Int = 0, minor: Int = 0, revision: Int = 0, da
    * @param freq frequency of desired update
    * @return true if an update is needed, and false otherwise.
    */
-  def needsUpdate(other: DatabaseVersion, freq: UpdateFrequency) = if (freq == NEVER) false else {
-    if (freq == DAILY && other.date != date)
-      true
-    else if (freq == REVISION && other.revision != revision)
-      true
-    else if (freq == MINOR && other.minor != minor)
-      true
-    else if (freq == MAJOR && other.major != major)
-      true
-    else
-      false
+  def needsUpdate(other: DatabaseVersion, freq: UpdateFrequency) = freq match {
+    case NEVER => false
+    case DAILY    => this != other
+    case REVISION => major != other.major || minor != other.minor || revision != other.revision
+    case MINOR    => major != other.major || minor != other.minor
+    case MAJOR    => major != other.major
   }
 
   override def compare(that: DatabaseVersion) = {

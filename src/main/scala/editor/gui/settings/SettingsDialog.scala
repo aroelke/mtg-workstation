@@ -981,14 +981,6 @@ object SettingsDialog {
   }
 
   /**
-   * Set the version of the inventory stored on disk.
-   * @param version new inventory version
-   */
-  @deprecated def setInventoryVersion(version: DatabaseVersion): Unit = {
-    settings = settings.copy(inventory = settings.inventory.copy(version = version))
-  }
-
-  /**
    * Set whether inventory warnings should be displayed after loading it or not.
    * @param warn new inventory warning setting
    */

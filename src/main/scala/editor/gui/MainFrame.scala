@@ -901,7 +901,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   updateInventoryItem.addActionListener(_ => {
     checkForUpdate(UpdateFrequency.DAILY) match {
       case (version, UpdateNeeded) => if (updateInventory()) {
-        SettingsDialog.setInventoryVersion(version)
+        SettingsDialog.settings = SettingsDialog.settings.copy(inventory = SettingsDialog.settings.inventory.copy(version = version))
         loadInventory()
       }
       case (_, NoUpdate) => JOptionPane.showMessageDialog(this, "Inventory is up to date.")
@@ -1200,7 +1200,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     override def windowOpened(e: WindowEvent) = {
       val (version, update) = checkForUpdate(SettingsDialog.settings.inventory.update)
       if (update == UpdateNeeded && updateInventory()) {
-        SettingsDialog.setInventoryVersion(version)
+        SettingsDialog.settings = SettingsDialog.settings.copy(inventory = SettingsDialog.settings.inventory.copy(version = version))
       }
       loadInventory()
       val listener = TableSelectionListener(MainFrame.this, inventoryTable, inventory)
@@ -1278,6 +1278,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       val data = (new JsonParser).parse(in.lines.collect(Collectors.joining)).getAsJsonObject
       in.close()
       val latest = DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString)
+      println(s"$latest - ${SettingsDialog.settings.inventory.version} @ $freq : ${latest.needsUpdate(SettingsDialog.settings.inventory.version, freq)}")
       if (latest.needsUpdate(SettingsDialog.settings.inventory.version, freq)) {
         if (JOptionPane.showConfirmDialog(
           this,
