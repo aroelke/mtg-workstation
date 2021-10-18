@@ -290,6 +290,15 @@ public class CategoryList extends JList<String>
     }
 
     /**
+     * Remove all categories.
+     */
+    public void clear()
+    {
+        categories.clear();
+        model.clear();
+    }
+
+    /**
      * Set the {@link Category} at a particular position in the list.
      *
      * @param index index to set

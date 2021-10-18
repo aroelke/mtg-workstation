@@ -1278,7 +1278,6 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       val data = (new JsonParser).parse(in.lines.collect(Collectors.joining)).getAsJsonObject
       in.close()
       val latest = DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString)
-      println(s"$latest - ${SettingsDialog.settings.inventory.version} @ $freq : ${latest.needsUpdate(SettingsDialog.settings.inventory.version, freq)}")
       if (latest.needsUpdate(SettingsDialog.settings.inventory.version, freq)) {
         if (JOptionPane.showConfirmDialog(
           this,

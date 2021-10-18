@@ -352,7 +352,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   categoriesPanel.setLayout(BorderLayout(5, 0))
   categoriesPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5))
   settingsPanel.add(categoriesPanel, TreePath(editorCategoriesNode.getPath.map(_.asInstanceOf[Object])).toString)
-  private val categoriesList = CategoryList("<html><i>&ltDouble-click to add or edit&gt</i></html>")
+  private val categoriesList = CategoryList("<html><i>&lt;Double-click to add or edit&gt;</i></html>")
   categoriesPanel.add(JScrollPane(categoriesList), BorderLayout.CENTER)
 
   // Category modification buttons
@@ -744,6 +744,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
       recentSpinner.getModel.setValue(settings.editor.recents.count)
       explicitsSpinner.getModel.setValue(settings.editor.categories.explicits)
       manaValueBox.setSelectedIndex(Math.max(ManaValueOptions.indexOf(settings.editor.manaValue), 0))
+      categoriesList.clear()
       for (preset <- settings.editor.categories.presets)
         categoriesList.addCategory(Category(preset))
       rowsSpinner.getModel().setValue(settings.editor.categories.rows)
@@ -790,9 +791,12 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
       rowsSpinner.commitEdit()
       startingSizeSpinner.commitEdit()
 
-      var presets = new ArrayBuffer[Category](categoriesList.getCount)
-      for (i <- 0 until categoriesList.getCount())
+      val presets = new ArrayBuffer[Category](categoriesList.getCount)
+      println(categoriesList.getCount)
+      println(settings.editor.categories.presets.size)
+      for (i <- 0 until categoriesList.getCount)
         presets += categoriesList.getCategoryAt(i)
+      println(presets.size)
       
       settings.copy(
         inventory = settings.inventory.copy(
@@ -842,6 +846,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
         JOptionPane.showMessageDialog(this, s"Bad file URL: ${SettingsDialog.settings.inventory.url}", "Warning", JOptionPane.WARNING_MESSAGE)
         Settings()
     }
+    println(newSettings.editor.categories.presets.size)
     if (newSettings.inventory.columns.isEmpty)
       newSettings = newSettings.copy(inventory = newSettings.inventory.copy(columns = InventorySettings().columns))
     if (newSettings.editor.columns.isEmpty)
