@@ -1284,8 +1284,30 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         lists ++= Seq.fill(id - lists.size + 1)(None)
       lists(id) = Some(newExtra)
 
+      newExtra.table.setPreferredScrollableViewportSize(Dimension(newExtra.table.getPreferredScrollableViewportSize.width, 5*newExtra.table.getRowHeight))
       val panel = EditablePanel(name, extrasPane)
-      extrasPane.insertTab(name, null, initExtraList(id), null, index)
+      val sideboardPane = JScrollPane(newExtra.table)
+      sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
+
+      // Move cards to main deck
+      val moveToMainItem = JMenuItem("Move to Main Deck")
+      moveToMainItem.addActionListener(_ => lists(id).map(_.move(parent.getSelectedCards.map(_ -> 1).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
+      newExtra.popup.add(moveToMainItem)
+      val moveAllToMainItem = JMenuItem("Move All to Main Deck")
+      moveAllToMainItem.addActionListener(_ => lists(id).map(_.move(parent.getSelectedCards.map((c) => c -> newExtra.current.getEntry(c).count).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
+      newExtra.popup.add(moveAllToMainItem)
+      newExtra.popup.add(JSeparator())
+
+      // Edit card tags item in sideboard
+      newExtra.popup.add(newExtra.editTags)
+
+      // Item enables as menu becomes visible
+      newExtra.popup.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+        moveToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
+        moveAllToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
+      }))
+
+      extrasPane.insertTab(name, null, sideboardPane, null, index)
       extrasPane.setTabComponentAt(index, panel)
       extrasPane.setSelectedIndex(index)
       extrasPane.getTabComponentAt(extrasPane.getSelectedIndex).requestFocus()
@@ -1671,41 +1693,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @return true if the card was sucessfully included in the category, and false otherwise (such as if the card was already in the category)
    */
   def includeIn(card: Card, spec: Category) = modifyInclusion(Seq(card), Seq.empty, spec)
-
-  /**
-   * Create and initialize the table, backing model, and menu items relating to a newly-created extra list.
-   * 
-   * @param id ID of the new extra list
-   * @return the pane that contains the table showing the extra list
-   */
-  @throws[ArrayIndexOutOfBoundsException]("if the list with the given ID doesn't exist")
-  def initExtraList(id: Int) = lists(id).map((l) => {
-    // Extra list's models
-    l.table.setPreferredScrollableViewportSize(Dimension(l.table.getPreferredScrollableViewportSize.width, 5*l.table.getRowHeight))
-
-    val sideboardPane = JScrollPane(l.table)
-    sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
-
-    // Move cards to main deck
-    val moveToMainItem = JMenuItem("Move to Main Deck")
-    moveToMainItem.addActionListener(_ => lists(id).map(_.move(parent.getSelectedCards.map(_ -> 1).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
-    l.popup.add(moveToMainItem)
-    val moveAllToMainItem = JMenuItem("Move All to Main Deck")
-    moveAllToMainItem.addActionListener(_ => lists(id).map(_.move(parent.getSelectedCards.map((c) => c -> l.current.getEntry(c).count).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
-    l.popup.add(moveAllToMainItem)
-    l.popup.add(JSeparator())
-
-    // Edit card tags item in sideboard
-    l.popup.add(l.editTags)
-
-    // Item enables as menu becomes visible
-    l.popup.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
-      moveToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
-      moveAllToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
-    }))
-
-    sideboardPane
-  }).getOrElse(throw ArrayIndexOutOfBoundsException(id))
 
   /**
    * Modify the inclusion of cards in a category.
