@@ -199,7 +199,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  private case class DeckData(id: Int, name: Option[String], current: Deck, original: Deck) {
+  case class DeckData private[EditorFrame](id: Int, name: Option[String], current: Deck, original: Deck) {
     lazy val model = CardTableModel(EditorFrame.this, current, SettingsDialog.settings.editor.columns.asJava)
     lazy val table = {
       val table = CardTable(model)
@@ -361,8 +361,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   // Actual lists of DeckData
   private val lists = collection.mutable.ArrayBuffer[Option[DeckData]]()
   lists += Some(DeckData(id = MainDeck, deck = manager.deck))
-  private def deck = lists.head.get
-  private def extras = lists.tail.flatten.toSeq
+  
+  /** @return the main deck data */
+  def deck = lists.head.get
+
+  /** @return the extra lists */
+  def extras = lists.tail.flatten.toSeq
   
   private class TableCategoriesPopupListener(addToCategoryMenu: JMenu, removeFromCategoryMenu: JMenu, editCategoriesItem: JMenuItem, menuSeparator: JSeparator, table: CardTable) extends PopupMenuListener {
     override def popupMenuCanceled(e: PopupMenuEvent) = ()

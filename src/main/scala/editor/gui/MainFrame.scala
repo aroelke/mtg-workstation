@@ -1085,7 +1085,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   inventoryTable.setStripeColor(SettingsDialog.settings.inventory.stripe)
   inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) => selectedFrame.foreach((f) => {
     if (e.getClickCount % 2 == 0)
-      f.addCards(EditorFrame.MainDeck, getSelectedCards, 1)
+      f.deck ++= getSelectedCards -> 1
   })))
   inventoryTable.setTransferHandler(InventoryExportHandler(() => getSelectedCards.asJava))
   inventoryTable.setDragEnabled(true)
