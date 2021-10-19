@@ -690,7 +690,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected.asJava, includeCheckBox.isSelected))
             } else None
           } else {
-            JOptionPane.showMessageDialog(this, "Could not export " + f.deckName + '.', "Error", JOptionPane.ERROR_MESSAGE)
+            JOptionPane.showMessageDialog(this, s"Could not export ${f.deck.name}.", "Error", JOptionPane.ERROR_MESSAGE)
             None
           }
           format.foreach((fmt) => {
@@ -698,11 +698,11 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             val unsorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = 0 }
             f.exportList(fmt, if (sortCheck.isSelected) sorted else unsorted, extras.collect{ case (e, s) if s => e }.toSeq, exportChooser.getSelectedFile) match {
               case Success(_) =>
-              case Failure(x) => JOptionPane.showMessageDialog(this, s"Could not export ${f.deckName}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
+              case Failure(x) => JOptionPane.showMessageDialog(this, s"Could not export ${f.deck.name}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
             }
           })
         case JFileChooser.CANCEL_OPTION =>
-        case JFileChooser.ERROR_OPTION => JOptionPane.showMessageDialog(this, s"Could not export ${f.deckName}.", "Error", JOptionPane.ERROR_MESSAGE)
+        case JFileChooser.ERROR_OPTION => JOptionPane.showMessageDialog(this, s"Could not export ${f.deck.name}.", "Error", JOptionPane.ERROR_MESSAGE)
       }
     case None =>
   })
@@ -1460,7 +1460,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
         updateRecents(f)
       case JFileChooser.CANCEL_OPTION =>
       case JFileChooser.ERROR_OPTION =>
-        JOptionPane.showMessageDialog(this, s"Could not save ${frame.deckName}.", "Error", JOptionPane.ERROR_MESSAGE)
+        JOptionPane.showMessageDialog(this, s"Could not save ${frame.deck.name}.", "Error", JOptionPane.ERROR_MESSAGE)
     }
     SettingsDialog.settings = SettingsDialog.settings.copy(cwd = fileChooser.getCurrentDirectory.getPath)
   }

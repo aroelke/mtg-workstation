@@ -192,33 +192,21 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * DECK MANIPULATION
    ********************/
   private object DeckData {
-    def apply(id: Int, name: Option[String] = None, deck: Deck = Deck()): DeckData = {
+    def apply(id: Int, name: String, deck: Deck = Deck()): DeckData = {
       val original = Deck()
       original.addAll(deck)
       DeckData(id, name, deck, original)
     }
   }
 
-  case class DeckData private[EditorFrame](id: Int, name: Option[String], current: Deck, original: Deck) {
-    lazy val model = CardTableModel(EditorFrame.this, current, SettingsDialog.settings.editor.columns.asJava)
-    lazy val table = {
-      val table = CardTable(model)
-      table.setStripeColor(SettingsDialog.settings.editor.stripe)
-      // When a card is selected in a table, mark it for adding
-      val listener = TableSelectionListener(parent, table, current)
-      table.addMouseListener(listener)
-      table.getSelectionModel.addListSelectionListener(listener)
-      // Create cell editors for applicable table columns
-      for (i <- 0 until table.getColumnCount)
-        if (model.isCellEditable(0, i))
-          table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(EditorFrame.this, model.getColumnData(i)))
-      // Set up drag-and-drop for the table
-      table.setTransferHandler(EditorTableTransferHandler(EditorFrame.this, id))
-      table.setDragEnabled(true)
-      table.setDropMode(DropMode.ON)
-
-      table
-    }
+  case class DeckData private[EditorFrame](
+    private[EditorFrame] val id: Int,
+    private var _name: String,
+    private[EditorFrame] val current: Deck,
+    private[EditorFrame] val original: Deck
+  ) {
+    def name = _name
+    private[EditorFrame] def name_=(n: String) = _name = n
 
     def %%=(changes: Map[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
       val capped = changes.map{ case (card, n) => card -> Math.max(n, -current.getEntry(card).count) }
@@ -311,6 +299,26 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       changes.result
     }
 
+    private[EditorFrame] lazy val model = CardTableModel(EditorFrame.this, current, SettingsDialog.settings.editor.columns.asJava)
+    private[EditorFrame] lazy val table = {
+      val table = CardTable(model)
+      table.setStripeColor(SettingsDialog.settings.editor.stripe)
+      // When a card is selected in a table, mark it for adding
+      val listener = TableSelectionListener(parent, table, current)
+      table.addMouseListener(listener)
+      table.getSelectionModel.addListSelectionListener(listener)
+      // Create cell editors for applicable table columns
+      for (i <- 0 until table.getColumnCount)
+        if (model.isCellEditable(0, i))
+          table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(EditorFrame.this, model.getColumnData(i)))
+      // Set up drag-and-drop for the table
+      table.setTransferHandler(EditorTableTransferHandler(EditorFrame.this, id))
+      table.setDragEnabled(true)
+      table.setDropMode(DropMode.ON)
+
+      table
+    }
+
     private[EditorFrame] lazy val ccp = CCPItems(table, true)
     private[EditorFrame] lazy val cards = CardMenuItems(() => Some(EditorFrame.this).toJava, () => parent.getSelectedCards.asJava, id == MainDeck)
     private[EditorFrame] lazy val editTags = {
@@ -360,10 +368,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   // Actual lists of DeckData
   private val lists = collection.mutable.ArrayBuffer[Option[DeckData]]()
-  lists += Some(DeckData(id = MainDeck, deck = manager.deck))
+  lists += Some(DeckData(id = MainDeck, name = getTitle, deck = manager.deck))
   
   /** @return the main deck data */
   def deck = lists.head.get
+  private def deck_=(d: DeckData) = lists(MainDeck) = Some(d)
 
   /** @return the extra lists */
   def extras = lists.tail.flatten.toSeq
@@ -459,7 +468,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     if (unsaved)
       throw RuntimeException("can't change the file of an unsaved deck")
     _file = f
-    setTitle(f.get.getName)
+    deck.name = f.get.getName
+    setTitle(deck.name)
   }
 
   def file_=(f: File): Unit = { file = Some(f) }
@@ -475,7 +485,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    */
   private def unsaved_=(u: Boolean) = {
     if (u && !unsaved)
-      setTitle(s"$getTitle *")
+      setTitle(s"${deck.name} *")
     _unsaved = u
   }
 
@@ -578,11 +588,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     for (i <- 1 until lists.size) {
       lists(i).foreach((l) => {
         val id = i
-        val moveToItem = JMenuItem(l.name.get)
+        val moveToItem = JMenuItem(l.name)
         moveToItem.addActionListener(_ => lists(id).map(deck.move(parent.getSelectedCards.map((_ -> 1)).toMap)(_)).getOrElse(throw NoSuchElementException(id.toString)))
         moveToItem.setEnabled(!parent.getSelectedCards.isEmpty)
         moveToMenu.add(moveToItem)
-        val moveAllToItem = JMenuItem(l.name.get)
+        val moveAllToItem = JMenuItem(l.name)
         moveAllToItem.addActionListener(_ => lists(id).map(deck.move(parent.getSelectedCards.map(c => (c -> deck.current.getEntry(c).count)).toMap)(_)).getOrElse(throw NoSuchElementException(id.toString)))
         moveAllToItem.setEnabled(!parent.getSelectedCards.isEmpty)
         moveAllToMenu.add(moveAllToItem)
@@ -916,7 +926,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   // Check legality button
   private val legalityPanel = JPanel(FlowLayout(FlowLayout.RIGHT, 10, 5))
   private val legalityButton = JButton("Show Legality")
-  legalityButton.addActionListener(_ => JOptionPane.showMessageDialog(this, LegalityPanel(this), s"Legality of $deckName", JOptionPane.PLAIN_MESSAGE))
+  legalityButton.addActionListener(_ => JOptionPane.showMessageDialog(this, LegalityPanel(this), s"Legality of ${deck.name}", JOptionPane.PLAIN_MESSAGE))
   legalityPanel.add(legalityButton)
   private val legalityConstraints = GridBagConstraints()
   legalityConstraints.anchor = GridBagConstraints.EAST
@@ -1280,10 +1290,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     else if (lists.size > id && lists(id).isDefined)
       throw IllegalArgumentException(s"extra already exists at ID $id")
     else {
-      if (extras.exists(_.name.get == name))
+      if (extras.exists(_.name == name))
         throw IllegalArgumentException(s"""sideboard "$name" already exists""")
 
-      val newExtra = DeckData(id = id, name = Some(name))
+      val newExtra = DeckData(id = id, name = name)
       if (id >= lists.size)
         lists ++= Seq.fill(id - lists.size + 1)(None)
       lists(id) = Some(newExtra)
@@ -1334,19 +1344,19 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           val old = panel.getOldTitle
           if (current.isEmpty)
             panel.setTitle(old)
-          else if (extras.exists(_.name.get == current)) {
+          else if (extras.exists(_.name == current)) {
             panel.setTitle(old)
             JOptionPane.showMessageDialog(this, s"""Sideboard "$current" already exists.""", "Error", JOptionPane.ERROR_MESSAGE)
           } else if (!current.equals(old)) {
             val j = extrasPane.indexOfTab(old)
             performAction(() => {
-              lists(id) = Some(newExtra.copy(name = Some(current)))
+              lists(id).get.name = current
               extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(current)
               extrasPane.setTitleAt(j, current)
               listTabs.setSelectedIndex(MainDeck)
               true
             }, () => {
-              lists(id) = Some(newExtra.copy(name = Some(old)))
+              lists(id).get.name = old
               extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(old)
               extrasPane.setTitleAt(j, old)
               listTabs.setSelectedIndex(MainDeck)
@@ -1360,11 +1370,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  /** @return the name of the deck being edited (which is also its file name) */
-  def deckName = if (unsaved) getTitle.slice(0, getTitle.length - 2) else getTitle
-
   /** @return The names of the extra lists */
-  def getExtraNames = extras.flatMap(_.name)
+  @deprecated def getExtraNames = extras.map(_.name)
 
   /**
    * Delete an extra list. This just sets its index in the list of card lists to None, so it can be reused later if this is undone.
@@ -1460,7 +1467,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         true
       })
     }).toScala.getOrElse(false)
-  }).getOrElse{ JOptionPane.showMessageDialog(this, s"Deck $deckName has no category named $name.", "Error", JOptionPane.ERROR_MESSAGE); false }
+  }).getOrElse{ JOptionPane.showMessageDialog(this, s"Deck ${deck.name} has no category named $name.", "Error", JOptionPane.ERROR_MESSAGE); false }
 
   /**
    * Change inclusion of cards in categories according to the given maps.
@@ -1566,7 +1573,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       if (!deck.current.isEmpty)
         write(deck.current)
       extraNames.foreach((name) => {
-        extras.find(_.name.exists(_ == name)).map((list) => if (!list.current.isEmpty) {
+        extras.find(_.name == name).map((list) => if (!list.current.isEmpty) {
           wr.println()
           write(list.current, Some(name))
         }).getOrElse(throw NoSuchElementException(s"No extra list named $name"))
@@ -1589,7 +1596,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   def getListIDs = lists.zipWithIndex.collect{ case (l, i) if l.isDefined => i }.toSeq
 
   /** @return the ID of the extra list corresponding to the selected tab */
-  def getSelectedExtraID = lists.zipWithIndex.find{ case (l, _) => l.exists(_.name == getSelectedExtraName) }.map(_._2)
+  def getSelectedExtraID = lists.zipWithIndex.find{ case (l, _) => l.exists((l) => getSelectedExtraName.exists(l.name == _)) }.map(_._2)
 
   /** @return the name of the extra list corresponding to the selected tab */
   def getSelectedExtraName = Option.unless(extras.isEmpty)(extrasPane.getTitleAt(extrasPane.getSelectedIndex))
@@ -1608,7 +1615,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     else {
       categoryPanels.find(_.table == t) match {
         case Some(panel) => deck.current.getCategoryList(panel.getCategoryName).get(panel.table.convertRowIndexToModel(index))
-        case None => throw IllegalArgumentException(s"Table not in deck $deckName")
+        case None => throw IllegalArgumentException(s"Table not in deck ${deck.name}")
       }
     }
   }
@@ -1656,7 +1663,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @return a copy of the list
    */
   @throws[ArrayIndexOutOfBoundsException]("if there is no list with the given name")
-  def getList(name: String) = lists.flatten.find(_.name.exists(_ == name)).map(l => Deck(l.current)).getOrElse(throw ArrayIndexOutOfBoundsException(name))
+  def getList(name: String) = lists.flatten.find(_.name == name).map(l => Deck(l.current)).getOrElse(throw ArrayIndexOutOfBoundsException(name))
 
   /** @return a {@link CardList} containing all of the cards in extra lists */
   def getExtraCards = {
@@ -1787,7 +1794,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
                                |""".stripMargin)
     }
 
-    val sideboards = extras.map((l) => l.name.get -> l.current).toMap
+    val sideboards = extras.map((l) => l.name -> l.current).toMap
     val manager = DeckSerializer(deck.current, sideboards.asJava, notesArea.getText, changelogArea.getText)
     try {
       manager.save(f)
