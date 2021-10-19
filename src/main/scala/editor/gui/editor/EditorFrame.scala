@@ -1506,6 +1506,79 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }).getOrElse{ JOptionPane.showMessageDialog(this, s"Deck ${deck.name} has no category named $name.", "Error", JOptionPane.ERROR_MESSAGE); false }
 
   /**
+   * Modify the inclusion of cards in a category.
+   * 
+   * @param include cards to include in the category
+   * @param exclude cards to exclude from the category
+   * @param spec specification for the category to modify card inclusion for; must be part of the deck
+   * @return true if the category was modified, and false otherwise (such as if the included cards already existed in the category and the
+   * excluded cards didn't).
+   */
+  @throws[IllegalArgumentException]
+  def modifyInclusion(include: Iterable[Card], exclude: Iterable[Card], spec: Category) = {
+    if (!deck.current.containsCategory(spec.getName))
+      throw IllegalArgumentException("can't include a card in a category that doesn't exist")
+    if (deck.current.getCategorySpec(spec.getName) != spec)
+      throw IllegalArgumentException("category name matches, but specification doesn't")
+
+    val in = include.filter(!spec.includes(_))
+    val ex = exclude.filter(spec.includes(_))
+    if (in.isEmpty && ex.isEmpty) false else {
+      val name = spec.getName
+      performAction(() => {
+        val mod = deck.current.getCategorySpec(name)
+        val changed = include.map(mod.include(_)).fold(false)(_ || _) || exclude.map(mod.exclude(_)).fold(false)(_ || _)
+        if (changed) {
+          deck.current.updateCategory(name, mod)
+          for (panel <- categoryPanels)
+            if (panel.getCategoryName == name)
+              panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+          updateCategoryPanel()
+        }
+        changed
+      }, () => {
+        val mod = deck.current.getCategorySpec(name)
+        for (c <- include) {
+          if (!mod.includes(c))
+            throw IllegalStateException(s"error undoing include: ${mod.getName} already doesn't include $c")
+          mod.exclude(c)
+        }
+        for (c <- exclude) {
+          if (mod.includes(c))
+            throw IllegalStateException(s"error undoing exclude: ${mod.getName} already includes $c")
+          mod.include(c)
+        }
+        deck.current.updateCategory(name, mod)
+        for (panel <- categoryPanels)
+          if (panel.getCategoryName.equals(name))
+            panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+        updateCategoryPanel()
+        true
+      })
+    }
+  }
+
+  /**
+   * Include a card in a category.
+   * 
+   * @param card card to include
+   * @param spec specification for the category to include the card in; must be a category in the deck
+   * @return true if the card was sucessfully included in the category, and false otherwise (such as if the card was already in the category)
+   */
+  def includeIn(card: Card, spec: Category) = modifyInclusion(Seq(card), Seq.empty, spec)
+
+  /**
+   * Exclude a card from a category.
+   * 
+   * @param card card to exclude
+   * @param spec specification for the category to exclude it from; must be a category in the
+   * main deck
+   * @return <code>true</code> if the card was successfully excluded from the category, and
+   * <code>false</code> otherwise (such as if the card already wasn't in the category).
+   */
+  def excludeFrom(card: Card, spec: Category) = modifyInclusion(Seq.empty, Array(card), spec)
+
+  /**
    * Change inclusion of cards in categories according to the given maps.
    *
    * @param included map of cards onto the set of categories they should become included in
@@ -1573,17 +1646,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     included.asScala.map{ case (card, categories) => card -> categories.asScala.toSet }.toMap,
     excluded.asScala.map{ case (card, categories) => card -> categories.asScala.toSet }.toMap
   )
-
-  /**
-   * Exclude a card from a category.
-   * 
-   * @param card card to exclude
-   * @param spec specification for the category to exclude it from; must be a category in the
-   * main deck
-   * @return <code>true</code> if the card was successfully excluded from the category, and
-   * <code>false</code> otherwise (such as if the card already wasn't in the category).
-   */
-  def excludeFrom(card: Card, spec: Category) = modifyInclusion(Seq.empty, Array(card), spec)
 
   /**
    * Export the deck to a different format.
@@ -1701,68 +1763,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   /** @return true if this editor has the table with the current selection and false otherwise */
   def hasSelectedCards = parent.getSelectedTable.exists((t) => lists.exists((l) => l.isDefined && l.get.table == t) || categoryPanels.exists(_.table == t))
-
-  /**
-   * Include a card in a category.
-   * 
-   * @param card card to include
-   * @param spec specification for the category to include the card in; must be a category in the deck
-   * @return true if the card was sucessfully included in the category, and false otherwise (such as if the card was already in the category)
-   */
-  def includeIn(card: Card, spec: Category) = modifyInclusion(Seq(card), Seq.empty, spec)
-
-  /**
-   * Modify the inclusion of cards in a category.
-   * 
-   * @param include cards to include in the category
-   * @param exclude cards to exclude from the category
-   * @param spec specification for the category to modify card inclusion for; must be part of the deck
-   * @return true if the category was modified, and false otherwise (such as if the included cards already existed in the category and the
-   * excluded cards didn't).
-   */
-  @throws[IllegalArgumentException]
-  def modifyInclusion(include: Iterable[Card], exclude: Iterable[Card], spec: Category) = {
-    if (!deck.current.containsCategory(spec.getName))
-      throw IllegalArgumentException("can't include a card in a category that doesn't exist")
-    if (deck.current.getCategorySpec(spec.getName) != spec)
-      throw IllegalArgumentException("category name matches, but specification doesn't")
-
-    val in = include.filter(!spec.includes(_))
-    val ex = exclude.filter(spec.includes(_))
-    if (in.isEmpty && ex.isEmpty) false else {
-      val name = spec.getName
-      performAction(() => {
-        val mod = deck.current.getCategorySpec(name)
-        val changed = include.map(mod.include(_)).fold(false)(_ || _) || exclude.map(mod.exclude(_)).fold(false)(_ || _)
-        if (changed) {
-          deck.current.updateCategory(name, mod)
-          for (panel <- categoryPanels)
-            if (panel.getCategoryName == name)
-              panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
-          updateCategoryPanel()
-        }
-        changed
-      }, () => {
-        val mod = deck.current.getCategorySpec(name)
-        for (c <- include) {
-          if (!mod.includes(c))
-            throw IllegalStateException(s"error undoing include: ${mod.getName} already doesn't include $c")
-          mod.exclude(c)
-        }
-        for (c <- exclude) {
-          if (mod.includes(c))
-            throw IllegalStateException(s"error undoing exclude: ${mod.getName} already includes $c")
-          mod.include(c)
-        }
-        deck.current.updateCategory(name, mod)
-        for (panel <- categoryPanels)
-          if (panel.getCategoryName.equals(name))
-            panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
-        updateCategoryPanel()
-        true
-      })
-    }
-  }
 
   /**
    * Remove a category from the deck.
