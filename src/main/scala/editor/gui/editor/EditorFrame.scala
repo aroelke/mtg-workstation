@@ -461,42 +461,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  private enum CategoryOrder(override val toString: String, order: (Deck) => Ordering[Category]) {
-    def apply(d: Deck) = order(d)
-
-    case AtoZ       extends CategoryOrder("A-Z", (d) => (a, b) => a.getName.compare(b.getName))
-    case ZtoA       extends CategoryOrder("Z-A", (d) => (a, b) => -a.getName.compare(b.getName))
-    case Ascending  extends CategoryOrder("Ascending Size", (d) => (a, b) => d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
-    case Descending extends CategoryOrder("Descending Size", (d) => (a, b) => -d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
-    case Priority   extends CategoryOrder("Increasing Rank", (d) => (a, b) => d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
-    case Reverse    extends CategoryOrder("Decreasing Rank", (d) => (a, b) => -d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
-  }
-  import CategoryOrder._
-
-  private enum ManaCurveSection(override val toString: String) {
-    case ByNothing extends ManaCurveSection("Nothing")
-    case ByColor   extends ManaCurveSection("Color")
-    case ByType    extends ManaCurveSection("Card Type")    
-  }
-  import ManaCurveSection._
-
-  private enum LandAnalysisChoice(override val toString: String) {
-    case Played      extends LandAnalysisChoice("Expected Lands Played")
-    case Drawn       extends LandAnalysisChoice("Expected Lands Drawn")
-    case Probability extends LandAnalysisChoice("Probability of Drawing Lands")
-  }
-  import LandAnalysisChoice._
-
-  private enum EditorTab(val title: String) {
-    case MainTable    extends EditorTab("Cards")
-    case Categories   extends EditorTab("Categories")
-    case ManaAnalysis extends EditorTab("Mana Analysis")
-    case SampleHand   extends EditorTab("Sample Hand")
-    case Notes        extends EditorTab("Notes")
-    case Changelog    extends EditorTab("Change Log")
-  }
-  import EditorTab._
-
   private var _file: Option[File] = None
 
   /** @return the [[File]] to save the deck to */
@@ -539,6 +503,15 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   else
     unsaved = true
 
+  private enum EditorTab(val title: String) {
+    case MainTable    extends EditorTab("Cards")
+    case Categories   extends EditorTab("Categories")
+    case ManaAnalysis extends EditorTab("Mana Analysis")
+    case SampleHand   extends EditorTab("Sample Hand")
+    case Notes        extends EditorTab("Notes")
+    case Changelog    extends EditorTab("Change Log")
+  }
+  import EditorTab._
   private val listTabs = JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT)
   add(listTabs, BorderLayout.CENTER)
 
@@ -663,6 +636,16 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoryHeaderPanel.add(addCategoryPanel)
 
   // Combo box to change category sort order
+  private enum CategoryOrder(override val toString: String, order: (Deck) => Ordering[Category]) {
+    def apply(d: Deck) = order(d)
+
+    case AtoZ       extends CategoryOrder("A-Z", (d) => (a, b) => a.getName.compare(b.getName))
+    case ZtoA       extends CategoryOrder("Z-A", (d) => (a, b) => -a.getName.compare(b.getName))
+    case Ascending  extends CategoryOrder("Ascending Size", (d) => (a, b) => d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
+    case Descending extends CategoryOrder("Descending Size", (d) => (a, b) => -d.getCategoryList(a.getName).total.compare(d.getCategoryList(b.getName).total))
+    case Priority   extends CategoryOrder("Increasing Rank", (d) => (a, b) => d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
+    case Reverse    extends CategoryOrder("Decreasing Rank", (d) => (a, b) => -d.getCategoryRank(a.getName).compare(d.getCategoryRank(b.getName)))
+  }
   private val sortCategoriesPanel = JPanel(FlowLayout(FlowLayout.CENTER))
   sortCategoriesPanel.add(JLabel("Display order:"))
   private val sortCategoriesBox = JComboBox(CategoryOrder.values)
@@ -730,6 +713,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoriesPanel.add(categoryButtons, BorderLayout.WEST)
 
   /* MANA ANALYSIS TAB */
+  private enum ManaCurveSection(override val toString: String) {
+    case ByNothing extends ManaCurveSection("Nothing")
+    case ByColor   extends ManaCurveSection("Color")
+    case ByType    extends ManaCurveSection("Card Type")    
+  }
+  private enum LandAnalysisChoice(override val toString: String) {
+    case Played      extends LandAnalysisChoice("Expected Lands Played")
+    case Drawn       extends LandAnalysisChoice("Expected Lands Drawn")
+    case Probability extends LandAnalysisChoice("Probability of Drawing Lands")
+  }
+  import ManaCurveSection._
+  import LandAnalysisChoice._
   private val manaAnalysisPanel = JPanel(BorderLayout())
 
   // Data set and axis creation
