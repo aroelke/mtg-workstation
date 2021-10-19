@@ -376,6 +376,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   /** @return the extra lists */
   def extras = lists.tail.flatten.toSeq
+
+  private var _sideboard: Option[DeckData] = None
+  /** @return the extra list currently displayed by the bottom pane, or an empty list if there isn't one */
+  def sideboard = _sideboard.getOrElse(DeckData(-1, ""))
+  private def sideboard_=(d: Option[DeckData]) = _sideboard = d
+  @deprecated def getSelectedExtraID = Option.when(sideboard.id >= 0)(sideboard.id)
+  @deprecated def getExtraNames = extras.map(_.name)
   
   private class TableCategoriesPopupListener(addToCategoryMenu: JMenu, removeFromCategoryMenu: JMenu, editCategoriesItem: JMenuItem, menuSeparator: JSeparator, table: CardTable) extends PopupMenuListener {
     override def popupMenuCanceled(e: PopupMenuEvent) = ()
@@ -519,11 +526,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   southPanel.add(extrasPanel, "extras")
 
   private val extrasButtons = VerticalButtonList("+", UnicodeSymbols.MINUS.toString, "X")
-  extrasButtons.get("+").addActionListener(_ => getSelectedExtraID.foreach(id => lists(id).map(_ ++= parent.getSelectedCards -> 1).getOrElse(throw NoSuchElementException(id.toString))))
-  extrasButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => getSelectedExtraID.foreach(id => lists(id).map(_ --= parent.getSelectedCards -> 1).getOrElse(throw NoSuchElementException(id.toString))))
-  extrasButtons.get("X").addActionListener(_ => {
-    getSelectedExtraID.foreach(id => lists(id).map(_ --= parent.getSelectedCards -> parent.getSelectedCards.map(sideboard.getEntry(_).count).max).getOrElse(throw NoSuchElementException(id.toString)))
-  })
+  extrasButtons.get("+").addActionListener(_ => sideboard ++= parent.getSelectedCards -> 1)
+  extrasButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => sideboard --= parent.getSelectedCards -> 1)
+  extrasButtons.get("X").addActionListener(_ => sideboard --= parent.getSelectedCards -> parent.getSelectedCards.map(sideboard.current.getEntry(_).count).max)
   extrasPanel.add(extrasButtons, BorderLayout.WEST)
 
   private val extrasPane = JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT)
@@ -977,6 +982,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
   extrasPane.addMouseListener(MouseListenerFactory.createPressListener((e) => addSideboard(e)))
+  extrasPane.addChangeListener(_ => sideboard = extras.find(_.name == extrasPane.getTitleAt(extrasPane.getSelectedIndex)))
   emptyPanel.addMouseListener(MouseListenerFactory.createClickListener((e) => addSideboard(e)))
 
   // Handle various frame events, including selecting and closing
@@ -1370,9 +1376,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  /** @return The names of the extra lists */
-  @deprecated def getExtraNames = extras.map(_.name)
-
   /**
    * Delete an extra list. This just sets its index in the list of card lists to None, so it can be reused later if this is undone.
    * 
@@ -1581,12 +1584,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     })
   }
 
-  /** @return the Deck corresponding to the tab that's currently active in the sideboards panel. */
-  private def sideboard = getSelectedExtraID.flatMap(lists(_).map(_.current)).getOrElse(Deck())
-
-  /** @return a copy of the extra list corresponding to the selected tab */
-  @deprecated def getSelectedExtra = Deck(sideboard)
-
   /**
    * Get the IDs of lists in the deck. ID 0 will always contain the main deck, and IDs starting from 1 will contain extra lists.
    * IDs do not have to be sequential, but they will never be reused (unless list deletion is undone).
@@ -1594,12 +1591,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @return the list of IDs of card lists in the deck.
    */
   def getListIDs = lists.zipWithIndex.collect{ case (l, i) if l.isDefined => i }.toSeq
-
-  /** @return the ID of the extra list corresponding to the selected tab */
-  def getSelectedExtraID = lists.zipWithIndex.find{ case (l, _) => l.exists((l) => getSelectedExtraName.exists(l.name == _)) }.map(_._2)
-
-  /** @return the name of the extra list corresponding to the selected tab */
-  def getSelectedExtraName = Option.unless(extras.isEmpty)(extrasPane.getTitleAt(extrasPane.getSelectedIndex))
 
   /**
    * Get the card at the given index in the given table.

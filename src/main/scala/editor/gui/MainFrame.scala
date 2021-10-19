@@ -504,9 +504,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           sortCheck.addItemListener(_ => sortBox.setEnabled(sortCheck.isSelected))
           sortPanel.add(sortBox)
 
-          val extras = LinkedHashMap[String, Boolean]()
-          for (extra <- f.getExtraNames)
-            extras.put(extra, true)
+          val extras = collection.mutable.LinkedHashMap(f.extras.map(_.name -> true):_*)
           val extrasPanel = JPanel(BorderLayout())
           extrasPanel.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, extrasPanel.getBackground))
           val includeExtras = TristateCheckBox("Include additional lists:", TristateCheckBox.State.SELECTED)
@@ -518,7 +516,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             val extraBox = JCheckBox(extra, extras(extra))
             extraBox.setBackground(extrasPanel.getBackground())
             extraBox.addActionListener(_ => {
-              extras.put(extra, extraBox.isSelected)
+              extras(extra) = extraBox.isSelected
               val n = extras.count(_._2)
               if (n == 0)
                 includeExtras.setSelected(false)
@@ -530,7 +528,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             })
             includeExtras.addActionListener(_ => {
               extraBox.setSelected(includeExtras.getState == TristateCheckBox.State.SELECTED)
-              extras.put(extra, extraBox.isSelected)
+              extras(extra) = extraBox.isSelected
               SwingUtilities.invokeLater(() => extraBox.repaint())
             })
             extrasList.add(extraBox)
@@ -861,7 +859,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   deckMenu.addMenuListener(MenuListenerFactory.createSelectedListener(_ => {
     addMenu.setEnabled(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     removeMenu.setEnabled(selectedFrame.isDefined && !getSelectedCards.isEmpty)
-    sideboardMenu.setEnabled(selectedFrame.map(_.getSelectedExtraName.isDefined).getOrElse(false) && !getSelectedCards.isEmpty)
+    sideboardMenu.setEnabled(selectedFrame.map(!_.sideboard.name.isEmpty).getOrElse(false) && !getSelectedCards.isEmpty)
     presetMenu.setEnabled(presetMenu.getMenuComponentCount > 0)
   }))
   // Items are enabled while hidden so their listeners can be used.
@@ -1042,8 +1040,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     oracleCCP.copy.setEnabled(!getSelectedCards.isEmpty)
     oracleMenuCardItems.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     oracleMenuCardSeparators.foreach(_.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty))
-    oracleMenuSBCardItems.setVisible(selectedFrame.fold(false)((f) => !f.getExtraNames.isEmpty) && !getSelectedCards.isEmpty)
-    oracleMenuSBSeparator.setVisible(selectedFrame.fold(false)((f) => !f.getExtraNames.isEmpty) && !getSelectedCards.isEmpty)
+    oracleMenuSBCardItems.setVisible(selectedFrame.fold(false)((f) => !f.extras.isEmpty) && !getSelectedCards.isEmpty)
+    oracleMenuSBSeparator.setVisible(selectedFrame.fold(false)((f) => !f.extras.isEmpty) && !getSelectedCards.isEmpty)
     oracleEditTagsItem.setEnabled(!getSelectedCards.isEmpty)
   }))
 
@@ -1130,8 +1128,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   inventoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
     inventoryMenuCardItems.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     inventoryMenuCardSeparators.foreach(_.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty))
-    inventoryMenuSBItems.setVisible(selectedFrame.fold(false)((f) => !f.getExtraNames.isEmpty) && !getSelectedCards.isEmpty)
-    inventoryMenuSBSeparator.setVisible(selectedFrame.fold(false)((f) => !f.getExtraNames.isEmpty) && !getSelectedCards.isEmpty)
+    inventoryMenuSBItems.setVisible(selectedFrame.fold(false)((f) => !f.extras.isEmpty) && !getSelectedCards.isEmpty)
+    inventoryMenuSBSeparator.setVisible(selectedFrame.fold(false)((f) => !f.extras.isEmpty) && !getSelectedCards.isEmpty)
     editTagsItem.setEnabled(!getSelectedCards.isEmpty)
   }))
 
