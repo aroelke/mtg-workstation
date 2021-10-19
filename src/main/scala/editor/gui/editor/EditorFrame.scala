@@ -199,15 +199,26 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
+  /**
+   * Auxiliary class for controlling the contents of a [[Deck]] and storing related information.
+   * @author Alec Roelke
+   */
   case class DeckData private[EditorFrame](
     private[EditorFrame] val id: Int,
     private var _name: String,
     private[EditorFrame] val current: Deck,
     private[EditorFrame] val original: Deck
   ) {
+    /** @return the name of the list */
     def name = _name
     private[EditorFrame] def name_=(n: String) = _name = n
 
+    /**
+     * Modify the cards and number of copies of cards in the deck.
+     * 
+     * @param changes mapping of card onto the number of copies to change (positive numbers add cards, negative numbers remove cards)
+     * @return true if the deck was modified, and false otherwise
+     */
     def %%=(changes: Map[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
       val capped = changes.map{ case (card, n) => card -> Math.max(n, -current.getEntry(card).count) }
       performAction(() => lists(id).map(l => { // can't use this here because after redoing, reference is different
@@ -239,10 +250,29 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       }).getOrElse(throw NoSuchElementException(id.toString)))
     }
 
+    /**
+     * Add copies of cards to the deck.
+     * 
+     * @param changes cards to add and number of copies of each one to add (the same number of copies of all cards are added)
+     * @return true if the deck was modified, and false otherwise
+     */
     def ++=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %%= cards.map(_ -> n).toMap }
 
+    /**
+     * Remove copies of cards from the deck.
+     * 
+     * @param changes cards to remove and number of copies of each one to remove (the same number of copies of all cards are removed)
+     * @return true if the deck was modified, and false otherwise
+     */
     def --=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %%= cards.map((c) => c -> -n).toMap }
 
+    /**
+     * Move cards from this list to another in the same editor.
+     * 
+     * @param moves mapping of cards onto counts of cards to move to the other list
+     * @param target list to move to
+     * @return true if the lists changed as a result, and false otherwise
+     */
     def move(moves: Map[Card, Int])(target: DeckData) = {
       val t = target.id
       performAction(() => (lists(id), lists(t)) match {
@@ -282,6 +312,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       })
     }
 
+    /** @return a String detailing the numbers of copies of cards that have been added or removed since the last time the deck was saved */
     def changes = {
       val changes: StringBuilder = StringBuilder()
       original.stream.forEach((c) => {
