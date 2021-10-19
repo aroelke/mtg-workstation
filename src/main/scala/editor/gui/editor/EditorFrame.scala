@@ -312,6 +312,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       })
     }
 
+    /**
+     * @param c card to look for
+     * @return true if the list contains the card, and false otherwise
+     */
+    def contains(c: Card) = current.contains(c)
+
     /** @return a String detailing the numbers of copies of cards that have been added or removed since the last time the deck was saved */
     def changes = {
       val changes: StringBuilder = StringBuilder()
@@ -385,6 +391,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   @deprecated def modifyCards(id: Int, changes: java.util.Map[Card, Integer]): Boolean = modifyCards(id, changes.asScala.toMap.map{ case (c, n) => c -> n.toInt })
   @deprecated def addCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ ++= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
   @deprecated def removeCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ --= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
+  @deprecated def hasCard(id: Int, card: Card) = lists(id).map(_.current.contains(card)).getOrElse(throw ArrayIndexOutOfBoundsException(id))
 
   @deprecated
   def moveCards(from: Int, to: Int, moves: Map[Card, Int]): Boolean = (lists(from), lists(to)) match {
@@ -1696,24 +1703,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   /** @return a list of cards representing the current table selection */
   def getSelectedCards = parent.getSelectedCards
-
-  /**
-   * Determine if a specific list has a card.
-   * 
-   * @param id ID of the list to search
-   * @param card card to search for
-   * @return true if the specified list contains the specified card, and false otherwise
-   */
-  @throws[ArrayIndexOutOfBoundsException]("if there is no list with the given ID")
-  def hasCard(id: Int, card: Card) = lists(id).map(_.current.contains(card)).getOrElse(throw ArrayIndexOutOfBoundsException(id))
-
-  /**
-   * Determine which lists contain the specified card.
-   * 
-   * @param card card to search for
-   * @return a list of IDs corresponding to the lists that contain the given card
-   */
-  def hasCard(card: Card) = lists.zipWithIndex.collect{ case (l, i) if l.isDefined && l.get.current.contains(card) => i }.toSeq
 
   /** @return true if this editor has the table with the current selection and false otherwise */
   def hasSelectedCards = parent.getSelectedTable.exists((t) => lists.exists((l) => l.isDefined && l.get.table == t) || categoryPanels.exists(_.table == t))

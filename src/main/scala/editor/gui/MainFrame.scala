@@ -212,9 +212,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     override def getTableCellRendererComponent(table: JTable, value: Object, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int) = {
       val c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
       val card = inventory.get(table.convertRowIndexToModel(row))
-      val contained = selectedFrame.map(_.hasCard(card)).toSeq.flatten
-      val main = contained.contains(EditorFrame.MainDeck)
-      val extra = contained.exists(_ > 0)
+      val main = selectedFrame.exists(_.deck.contains(card))
+      val extra = selectedFrame.exists(_.extras.exists(_.contains(card)))
       ComponentUtils.changeFontRecursive(c, c.getFont.deriveFont((if (main) Font.BOLD else 0) | (if (extra) Font.ITALIC else 0)))
       c
     }
