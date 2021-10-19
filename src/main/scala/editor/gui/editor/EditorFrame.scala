@@ -1680,14 +1680,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
 
   /**
-   * Get the IDs of lists in the deck. ID 0 will always contain the main deck, and IDs starting from 1 will contain extra lists.
-   * IDs do not have to be sequential, but they will never be reused (unless list deletion is undone).
-   * 
-   * @return the list of IDs of card lists in the deck.
-   */
-  def getListIDs = lists.zipWithIndex.collect{ case (l, i) if l.isDefined => i }.toSeq
-
-  /**
    * Get the card at the given index in the given table.
    *
    * @param t table to get the card from
