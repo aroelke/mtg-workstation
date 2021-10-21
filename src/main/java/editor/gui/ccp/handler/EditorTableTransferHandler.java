@@ -43,7 +43,7 @@ public class EditorTableTransferHandler extends EditorFrameTransferHandler
     @Override
     public Transferable createTransferable(JComponent c)
     {
-        CardList source = editor.getList(id);
+        CardList source = editor.lists().apply(id);
         var data = CollectionConverters.asJava(editor.getSelectedCards()).stream().collect(Collectors.toMap(Function.identity(), (card) -> source.getEntry(card).count()));
         return new EntryTransferData(editor, id, data);
     }

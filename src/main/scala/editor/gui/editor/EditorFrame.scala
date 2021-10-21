@@ -221,7 +221,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      */
     def %%=(changes: Map[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
       val capped = changes.map{ case (card, n) => card -> Math.max(n, -current.getEntry(card).count) }
-      performAction(() => lists(id).map(l => { // can't use this here because after redoing, reference is different
+      performAction(() => _lists(id).map(l => { // can't use this here because after redoing, reference is different
         val selected = parent.getSelectedCards
         val changed = capped.map{ case (card, n) =>
           if (n < 0)
@@ -234,7 +234,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         if (changed)
           updateTables(selected)
         changed
-      }).getOrElse(throw NoSuchElementException(id.toString)), () => lists(id).map((l) => { // see above
+      }).getOrElse(throw NoSuchElementException(id.toString)), () => _lists(id).map((l) => { // see above
         val selected = parent.getSelectedCards
         val changed = capped.map{ case (card, n) =>
           if (n < 0)
@@ -275,7 +275,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      */
     def move(moves: Map[Card, Int])(target: DeckData) = {
       val t = target.id
-      performAction(() => (lists(id), lists(t)) match {
+      performAction(() => (_lists(id), _lists(t)) match {
         case (Some(from), Some(to)) =>
           val selected = parent.getSelectedCards
           val preserve = parent.getSelectedTable.contains(table) && moves.forall{ case (card, n) => from.current.getEntry(card).count == n }
@@ -292,7 +292,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         case (Some(_), None) => throw NoSuchElementException(target.toString)
         case (None, Some(_)) => throw NoSuchElementException(id.toString)
         case (None, None) => throw NoSuchElementException(s"$id,$target")
-      }, () => (lists(id), lists(t)) match {
+      }, () => (_lists(id), _lists(t)) match {
         case (Some(from), Some(to)) =>
           val selected = parent.getSelectedCards
           val preserve = parent.getSelectedTable.contains(to.table) && moves.forall{ case (card, n) => to.current.getEntry(card).count == n }
@@ -408,14 +408,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     override def sort(c: java.util.Comparator[? >: CardList.Entry]) = throw UnsupportedOperationException()
   }
 
-  @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = lists(id).map(_ %%= changes).getOrElse(throw NoSuchElementException(id.toString))
+  @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = _lists(id).map(_ %%= changes).getOrElse(throw NoSuchElementException(id.toString))
   @deprecated def modifyCards(id: Int, changes: java.util.Map[Card, Integer]): Boolean = modifyCards(id, changes.asScala.toMap.map{ case (c, n) => c -> n.toInt })
-  @deprecated def addCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ ++= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
-  @deprecated def removeCards(id: Int, cards: Iterable[Card], n: Int) = lists(id).map(_ --= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
-  @deprecated def hasCard(id: Int, card: Card) = lists(id).map(_.current.contains(card)).getOrElse(throw ArrayIndexOutOfBoundsException(id))
+  @deprecated def addCards(id: Int, cards: Iterable[Card], n: Int) = _lists(id).map(_ ++= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
+  @deprecated def removeCards(id: Int, cards: Iterable[Card], n: Int) = _lists(id).map(_ --= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
+  @deprecated def hasCard(id: Int, card: Card) = _lists(id).map(_.current.contains(card)).getOrElse(throw ArrayIndexOutOfBoundsException(id))
 
   @deprecated
-  def moveCards(from: Int, to: Int, moves: Map[Card, Int]): Boolean = (lists(from), lists(to)) match {
+  def moveCards(from: Int, to: Int, moves: Map[Card, Int]): Boolean = (_lists(from), _lists(to)) match {
     case (Some(moveFrom), Some(moveTo)) => moveFrom.move(moves)(moveTo)
     case (Some(_), None) => throw ArrayIndexOutOfBoundsException(to)
     case (None, Some(_)) => throw ArrayIndexOutOfBoundsException(from)
@@ -425,16 +425,19 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   @deprecated
   def moveCards(from: Int, to: Int, moves: java.util.Map[Card, Integer]): Boolean = moveCards(from, to, moves.asScala.map{ case (c, n) => c -> n.toInt }.toMap)
 
-  // Actual lists of DeckData
-  private val lists = collection.mutable.ArrayBuffer[Option[DeckData]]()
-  lists += Some(DeckData(id = MainDeck, name = getTitle, deck = manager.deck))
+  // Actual lists of DeckData. Index 0 will always be defined and will contain the main deck
+  private val _lists = collection.mutable.ArrayBuffer[Option[DeckData]]()
+  _lists += Some(DeckData(id = MainDeck, name = getTitle, deck = manager.deck))
+
+  /** @return a mapping of list IDs onto lists in the deck */
+  def lists = _lists.zipWithIndex.collect{ case (Some(l), i) => i -> l }.toMap
   
   /** @return the main deck data */
-  def deck = lists.head.get
-  private def deck_=(d: DeckData) = lists(MainDeck) = Some(d)
+  def deck = _lists.head.get
+  private def deck_=(d: DeckData) = _lists(MainDeck) = Some(d)
 
   /** @return the extra lists */
-  def extras = lists.tail.flatten.toSeq
+  def extras = _lists.tail.flatten.toSeq
 
   private var _sideboard: Option[DeckData] = None
   /** @return the extra list currently displayed by the bottom pane, or an empty list if there isn't one */
@@ -622,15 +625,15 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     moveToMenu.removeAll()
     moveAllToMenu.removeAll()
-    for (i <- 1 until lists.size) {
-      lists(i).foreach((l) => {
+    for (i <- 1 until _lists.size) {
+      _lists(i).foreach((l) => {
         val id = i
         val moveToItem = JMenuItem(l.name)
-        moveToItem.addActionListener(_ => lists(id).map(deck.move(parent.getSelectedCards.map((_ -> 1)).toMap)(_)).getOrElse(throw NoSuchElementException(id.toString)))
+        moveToItem.addActionListener(_ => _lists(id).map(deck.move(parent.getSelectedCards.map((_ -> 1)).toMap)(_)).getOrElse(throw NoSuchElementException(id.toString)))
         moveToItem.setEnabled(!parent.getSelectedCards.isEmpty)
         moveToMenu.add(moveToItem)
         val moveAllToItem = JMenuItem(l.name)
-        moveAllToItem.addActionListener(_ => lists(id).map(deck.move(parent.getSelectedCards.map(c => (c -> deck.current.getEntry(c).count)).toMap)(_)).getOrElse(throw NoSuchElementException(id.toString)))
+        moveAllToItem.addActionListener(_ => _lists(id).map(deck.move(parent.getSelectedCards.map(c => (c -> deck.current.getEntry(c).count)).toMap)(_)).getOrElse(throw NoSuchElementException(id.toString)))
         moveAllToItem.setEnabled(!parent.getSelectedCards.isEmpty)
         moveAllToMenu.add(moveAllToItem)
       })
@@ -1020,18 +1023,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   // Initialize extra lists
   extrasPane.addTab("+", null)
   for ((name, list) <- manager.sideboards.asScala) {
-    val id = lists.size
+    val id = _lists.size
     createExtra(name, id, extrasPane.getTabCount - 1)
     // Intentionally throw exception here if missing, as it shouldn't be missing
-    lists(id).get.current.addAll(list)
-    lists(id).get.original.addAll(list)
+    _lists(id).get.current.addAll(list)
+    _lists(id).get.original.addAll(list)
   }
   extrasPane.setSelectedIndex(0)
   private val addSideboard = (e: MouseEvent) => {
     val index = if (extrasPane.getTabCount > 1) extrasPane.indexAtLocation(e.getX, e.getY) else 0
     val last = extrasPane.getTabCount - 1
     if (index == last) {
-      val id = lists.size
+      val id = _lists.size
       performAction(() => createExtra(s"Sideboard $id", id, last), () => deleteExtra(id, last))
     }
   }
@@ -1088,7 +1091,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @param except table to not clear
    */
   def clearTableSelections(except: CardTable) = {
-    lists.flatten.filter(_.table != except).foreach(_.table.clearSelection())
+    _lists.flatten.filter(_.table != except).foreach(_.table.clearSelection())
     for (c <- categoryPanels)
       if (c.table != except)
         c.table.clearSelection()
@@ -1347,16 +1350,16 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private def createExtra(name: String, id: Int, index: Int): Boolean = {
     if (id == MainDeck)
       throw IllegalArgumentException(s"only the main deck can have ID $MainDeck")
-    else if (lists.size > id && lists(id).isDefined)
+    else if (_lists.size > id && _lists(id).isDefined)
       throw IllegalArgumentException(s"extra already exists at ID $id")
     else {
       if (extras.exists(_.name == name))
         throw IllegalArgumentException(s"""sideboard "$name" already exists""")
 
       val newExtra = DeckData(id = id, name = name)
-      if (id >= lists.size)
-        lists ++= Seq.fill(id - lists.size + 1)(None)
-      lists(id) = Some(newExtra)
+      if (id >= _lists.size)
+        _lists ++= Seq.fill(id - _lists.size + 1)(None)
+      _lists(id) = Some(newExtra)
 
       newExtra.table.setPreferredScrollableViewportSize(Dimension(newExtra.table.getPreferredScrollableViewportSize.width, 5*newExtra.table.getRowHeight))
       val panel = EditablePanel(name, extrasPane)
@@ -1365,10 +1368,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
       // Move cards to main deck
       val moveToMainItem = JMenuItem("Move to Main Deck")
-      moveToMainItem.addActionListener(_ => lists(id).map(_.move(parent.getSelectedCards.map(_ -> 1).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
+      moveToMainItem.addActionListener(_ => _lists(id).map(_.move(parent.getSelectedCards.map(_ -> 1).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
       newExtra.popup.add(moveToMainItem)
       val moveAllToMainItem = JMenuItem("Move All to Main Deck")
-      moveAllToMainItem.addActionListener(_ => lists(id).map(_.move(parent.getSelectedCards.map((c) => c -> newExtra.current.getEntry(c).count).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
+      moveAllToMainItem.addActionListener(_ => _lists(id).map(_.move(parent.getSelectedCards.map((c) => c -> newExtra.current.getEntry(c).count).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
       newExtra.popup.add(moveAllToMainItem)
       newExtra.popup.add(JSeparator())
 
@@ -1391,12 +1394,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       panel.addActionListener((e) => e.getActionCommand match {
         case EditablePanel.CLOSE =>
           val n = panel.getTitle
-          val extra = lists(id).map(_.copy()).getOrElse(throw NoSuchElementException(id.toString))
+          val extra = _lists(id).map(_.copy()).getOrElse(throw NoSuchElementException(id.toString))
           val i = extrasPane.indexOfTab(n)
           performAction(() => deleteExtra(id, i), () => {
             val created = createExtra(n, id, i)
-            val currented = lists(id).get.current.addAll(extra.current)
-            val originaled = lists(id).get.original.addAll(extra.original)
+            val currented = _lists(id).get.current.addAll(extra.current)
+            val originaled = _lists(id).get.original.addAll(extra.original)
             created || currented || originaled
           })
         case EditablePanel.EDIT =>
@@ -1410,13 +1413,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           } else if (!current.equals(old)) {
             val j = extrasPane.indexOfTab(old)
             performAction(() => {
-              lists(id).get.name = current
+              _lists(id).get.name = current
               extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(current)
               extrasPane.setTitleAt(j, current)
               listTabs.setSelectedIndex(MainDeck)
               true
             }, () => {
-              lists(id).get.name = old
+              _lists(id).get.name = old
               extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(old)
               extrasPane.setTitleAt(j, old)
               listTabs.setSelectedIndex(MainDeck)
@@ -1439,10 +1442,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    */
   @throws[IllegalArgumentException]("if the list with the given ID doesn't exist")
   private def deleteExtra(id: Int, index: Int) = {
-    if (lists(id).isEmpty)
+    if (_lists(id).isEmpty)
       throw IllegalArgumentException(s"missing sideboard with ID $id")
 
-    lists(id) = None
+    _lists(id) = None
     extrasPane.remove(index)
     if (index > 0) {
       extrasPane.setSelectedIndex(index - 1)
@@ -1707,10 +1710,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @param index index into the given table to get a card from
    * @return the card in the deck at the given index in the given table, if the table is in this EditorFrame
    */
-  @throws[IllegalArgumentException]
+  @throws[IllegalArgumentException]("if the desired table isn't in this deck")
   def getCardAt(t: CardTable, index: Int) = {
     if (t == deck.table)
-      deck.current.get(deck.table.convertRowIndexToModel(index))
+      deck.get(deck.table.convertRowIndexToModel(index))
     else {
       categoryPanels.find(_.table == t) match {
         case Some(panel) => deck.current.getCategoryList(panel.getCategoryName).get(panel.table.convertRowIndexToModel(index))
@@ -1744,22 +1747,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private def getCategoryPanel(name: String) = categoryPanels.find(_.getCategoryName == name)
 
   /**
-   * Get the cards in one of the deck lists by ID. ID 0 corresponds to the main deck.
-   *
-   * @param id ID of the list to get
-   * @return a copy of the list
-   */
-  @throws[ArrayIndexOutOfBoundsException]("if there is no list with the given ID")
-  def getList(id: Int) = lists(id).map(l => Deck(l.current)).getOrElse(throw ArrayIndexOutOfBoundsException(id))
-
-  /**
    * Get the cards in one of the deck lists by name. The main deck can't be retrieved this way.
    * 
    * @param name name of the list to get
    * @return a copy of the list
    */
   @throws[ArrayIndexOutOfBoundsException]("if there is no list with the given name")
-  def getList(name: String) = lists.flatten.find(_.name == name).map(l => Deck(l.current)).getOrElse(throw ArrayIndexOutOfBoundsException(name))
+  def getList(name: String) = _lists.flatten.find(_.name == name).map(l => Deck(l.current)).getOrElse(throw ArrayIndexOutOfBoundsException(name))
 
   /** @return a {@link CardList} containing all of the cards in extra lists */
   def getExtraCards = {
@@ -1772,7 +1766,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   def getSelectedCards = parent.getSelectedCards
 
   /** @return true if this editor has the table with the current selection and false otherwise */
-  def hasSelectedCards = parent.getSelectedTable.exists((t) => lists.exists((l) => l.isDefined && l.get.table == t) || categoryPanels.exists(_.table == t))
+  def hasSelectedCards = parent.getSelectedTable.exists((t) => _lists.exists((l) => l.isDefined && l.get.table == t) || categoryPanels.exists(_.table == t))
 
   /**
    * Remove a category from the deck.
@@ -1984,7 +1978,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private def updateTables(selected: Iterable[Card]) =  {
     updateStats()
     parent.updateCardsInDeck()
-    lists.flatten.foreach(_.model.fireTableDataChanged())
+    _lists.flatten.foreach(_.model.fireTableDataChanged())
     categoryPanels.foreach(_.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged())
     parent.getSelectedTable.foreach((t) => {
       parent.getSelectedList.foreach((l) => {
