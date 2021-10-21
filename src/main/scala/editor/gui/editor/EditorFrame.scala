@@ -431,6 +431,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   /** @return a mapping of list IDs onto lists in the deck */
   def lists = _lists.zipWithIndex.collect{ case (Some(l), i) => i -> l }.toMap
+
+  /**
+   * @param name name of the list to get
+   * @return the list with the given name
+   * @note this method is meant to resemble an apply(String) method added to the mapping of Int -> CardList to search by name rather than index
+   */
+  @throws[NoSuchElementException]("if there is no list with the given name")
+  def lists(name: String) = _lists.flatten.find(_.name == name).getOrElse(throw NoSuchElementException(name))
   
   /** @return the main deck data */
   def deck = _lists.head.get
@@ -1745,15 +1753,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @return the panel for the category with the specified name, if there is one, or None otherwise
    */
   private def getCategoryPanel(name: String) = categoryPanels.find(_.getCategoryName == name)
-
-  /**
-   * Get the cards in one of the deck lists by name. The main deck can't be retrieved this way.
-   * 
-   * @param name name of the list to get
-   * @return a copy of the list
-   */
-  @throws[ArrayIndexOutOfBoundsException]("if there is no list with the given name")
-  def getList(name: String) = _lists.flatten.find(_.name == name).map(l => Deck(l.current)).getOrElse(throw ArrayIndexOutOfBoundsException(name))
 
   /** @return a {@link CardList} containing all of the cards in extra lists */
   def getExtraCards = {
