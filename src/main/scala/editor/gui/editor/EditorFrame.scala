@@ -453,6 +453,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private def sideboard_=(d: Option[DeckData]) = _sideboard = d
   @deprecated def getSelectedExtraID = Option.when(sideboard.id >= 0)(sideboard.id)
   @deprecated def getExtraNames = extras.map(_.name)
+
+  /** @return a [[CardList]] containing all of the cards in extra lists */
+  def allExtras = {
+    val sideboard = Deck()
+    extras.foreach(e => sideboard.addAll(e.current))
+    sideboard
+  }
   
   private class TableCategoriesPopupListener(addToCategoryMenu: JMenu, removeFromCategoryMenu: JMenu, editCategoriesItem: JMenuItem, menuSeparator: JSeparator, table: CardTable) extends PopupMenuListener {
     override def popupMenuCanceled(e: PopupMenuEvent) = ()
@@ -1753,13 +1760,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @return the panel for the category with the specified name, if there is one, or None otherwise
    */
   private def getCategoryPanel(name: String) = categoryPanels.find(_.getCategoryName == name)
-
-  /** @return a {@link CardList} containing all of the cards in extra lists */
-  def getExtraCards = {
-    val sideboard = Deck()
-    extras.foreach(e => sideboard.addAll(e.current))
-    sideboard
-  }
 
   /** @return a list of cards representing the current table selection */
   def getSelectedCards = parent.getSelectedCards

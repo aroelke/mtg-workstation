@@ -193,7 +193,7 @@ public class LegalityPanel extends Box
             cmdrBox.setVisible(cmdrCheck.isSelected());
             checkLegality(editor.lists().apply(EditorFrame.MainDeck()), !cmdrCheck.isSelected() ? new Deck() : switch (cmdrBox.getSelectedItem().toString()) {
                 case MAIN_DECK -> editor.lists().apply(EditorFrame.MainDeck());
-                case ALL_LISTS -> editor.getExtraCards();
+                case ALL_LISTS -> editor.allExtras();
                 default -> editor.lists(cmdrBox.getSelectedItem().toString());
             }, !editor.getExtraNames().isEmpty() && sideCheck.isSelected() ? Optional.of(editor.lists(sideCombo.getItemAt(sideCombo.getSelectedIndex()))) : Optional.empty());
         };

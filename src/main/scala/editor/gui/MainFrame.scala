@@ -550,12 +550,12 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             addDataPanel.add(addDataBox)
             wizardPanel.add(fieldPanel)
 
-            if (f.deck.total > 0 || f.getExtraCards.total > 0) {
+            if (f.deck.total > 0 || f.allExtras.total > 0) {
               val previewPanel = JPanel(BorderLayout())
               previewPanel.setBorder(BorderFactory.createTitledBorder("Preview:"))
               val previewArea = JTextArea()
               val previewPane = JScrollPane(previewArea)
-              previewArea.setText(new TextCardListFormat(formatField.getText()).format(if (f.deck.total > 0) f.deck else f.getExtraCards))
+              previewArea.setText(new TextCardListFormat(formatField.getText()).format(if (f.deck.total > 0) f.deck else f.allExtras))
               previewArea.setRows(1)
               previewArea.setCaretPosition(0)
               previewPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
@@ -578,7 +578,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
               formatField.getDocument().addDocumentListener(new DocumentChangeListener {
                 override def update(e: DocumentEvent) = {
-                  previewArea.setText(new TextCardListFormat(formatField.getText()).format(if (f.deck.total > 0) f.deck else f.getExtraCards))
+                  previewArea.setText(new TextCardListFormat(formatField.getText()).format(if (f.deck.total > 0) f.deck else f.allExtras))
                   previewArea.setCaretPosition(0)
                 }
               })
@@ -587,7 +587,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             if (!extras.isEmpty)
               wizardPanel.add(extrasPanel)
 
-            if (f.deck.total > 0 || f.getExtraCards.total > 0)
+            if (f.deck.total > 0 || f.allExtras.total > 0)
               wizardPanel.add(sortPanel)
 
             if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
