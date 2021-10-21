@@ -208,7 +208,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     private var _name: String,
     private[EditorFrame] val current: Deck,
     private[EditorFrame] val original: Deck
-  ) {
+  ) extends CardList {
     /** @return the name of the list */
     def name = _name
     private[EditorFrame] def name_=(n: String) = _name = n
@@ -312,12 +312,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       })
     }
 
-    /**
-     * @param c card to look for
-     * @return true if the list contains the card, and false otherwise
-     */
-    def contains(c: Card) = current.contains(c)
-
     /** @return a String detailing the numbers of copies of cards that have been added or removed since the last time the deck was saved */
     def changes = {
       val changes: StringBuilder = StringBuilder()
@@ -335,6 +329,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       })
       changes.result
     }
+
+    override def contains(c: Card) = current.contains(c)
+    @deprecated override def containsAll(cards: java.util.Collection[? <: Card]) = cards.asScala.forall(contains(_))
+    @deprecated override def get(index: Int) = current.get(index)
+    override def getEntry(index: Int) = current.getEntry(index)
+    override def getEntry(card: Card) = current.getEntry(card)
+    override def indexOf(card: Card) = current.indexOf(card)
+    override def isEmpty = current.isEmpty
+    override def size = current.size
+    override def total = current.total
+    override def iterator = current.iterator
+    override def toArray = current.toArray
 
     private[EditorFrame] lazy val model = CardTableModel(EditorFrame.this, current, SettingsDialog.settings.editor.columns.asJava)
     private[EditorFrame] lazy val table = {
@@ -385,6 +391,21 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       menu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => setMenuEnables))
       menu
     }
+
+    @deprecated override def add(card: Card): Boolean = throw UnsupportedOperationException()
+    @deprecated override def add(card: Card, amount: Int): Boolean = throw UnsupportedOperationException()
+    @deprecated override def addAll(cards: CardList): Boolean = throw UnsupportedOperationException()
+    @deprecated override def addAll(amounts: java.util.Map[? <: Card, ? <: Integer]): Boolean = throw UnsupportedOperationException()
+    @deprecated override def addAll(cards: java.util.Set[? <: Card]): Boolean = throw UnsupportedOperationException()
+    @deprecated override def remove(card: Card): Boolean = throw UnsupportedOperationException()
+    @deprecated override def remove(card: Card, amount: Int): Int = throw UnsupportedOperationException()
+    @deprecated override def removeAll(cards: CardList): java.util.Map[Card, Integer] = throw UnsupportedOperationException()
+    @deprecated override def removeAll(cards: java.util.Map[? <: Card, ? <: Integer]): java.util.Map[Card, Integer] = throw UnsupportedOperationException()
+    @deprecated override def removeAll(cards: java.util.Set[? <: Card]): java.util.Set[Card] = throw UnsupportedOperationException()
+    @deprecated override def set(card: Card, amount: Int): Boolean = throw UnsupportedOperationException()
+    @deprecated override def set(index: Int, amount: Int): Boolean = throw UnsupportedOperationException()
+    override def clear() = throw UnsupportedOperationException()
+    override def sort(c: java.util.Comparator[? >: CardList.Entry]) = throw UnsupportedOperationException()
   }
 
   @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = lists(id).map(_ %%= changes).getOrElse(throw NoSuchElementException(id.toString))
@@ -1721,9 +1742,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @return the panel for the category with the specified name, if there is one, or None otherwise
    */
   private def getCategoryPanel(name: String) = categoryPanels.find(_.getCategoryName == name)
-
-  /** @return a copy of the main deck. */
-  def getDeck = Deck(deck.current)
 
   /**
    * Get the cards in one of the deck lists by ID. ID 0 corresponds to the main deck.
