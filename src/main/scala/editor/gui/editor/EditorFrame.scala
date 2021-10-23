@@ -480,9 +480,27 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           do_addCategory(spec)
       }, () => do_removeCategory(spec))
     }
+
+    /**
+     * Remove a category from the deck.
+     * 
+     * @param name name of the category to remove
+     * @return an [[Option]] containing the category that was removed, or None if nothing was removed
+     */
+    def -=(name: String) = Option.when(deck.current.containsCategory(name)){
+      val spec = deck.current.getCategorySpec(name)
+      performAction(() => do_removeCategory(spec), () => {
+        if (deck.current.containsCategory(name))
+          throw RuntimeException(s"duplicate category $name found when attempting to undo removal")
+        else
+          do_addCategory(spec)
+      })
+      spec
+    }
   }
 
   @deprecated def addCategory(spec: Category) = categories += spec
+  @deprecated def removeCategory(name: String) = (categories -= name).isDefined
 
   /*****************
    * GUI DEFINITION
@@ -1178,7 +1196,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     // Add the behavior for the edit category button
     newCategory.editButton.addActionListener(_ => editCategory(newCategory.getCategoryName))
     // Add the behavior for the remove category button
-    newCategory.removeButton.addActionListener(_ => removeCategory(newCategory.getCategoryName))
+    newCategory.removeButton.addActionListener(_ => categories -= newCategory.getCategoryName)
     // Add the behavior for the color edit button
     newCategory.colorButton.addActionListener(_ => {
       val newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color)
@@ -1314,7 +1332,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       () => getCategory(newCategory.getCategoryName),
       (c) => containsCategory(c.getName),
       categories += _,
-      (c) => removeCategory(c.getName)
+      (c) => categories -= c.getName
     ))
 
     // Category popup menu
@@ -1777,22 +1795,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   /** @return true if this editor has the table with the current selection and false otherwise */
   def hasSelectedCards = parent.getSelectedTable.exists((t) => _lists.exists((l) => l.isDefined && l.get.table == t) || categoryPanels.exists(_.table == t))
-
-  /**
-   * Remove a category from the deck.
-   * 
-   * @param name name of the category to remove
-   * @return true if the category was removed, and false otherwise
-   */
-  def removeCategory(name: String) = if (deck.current.containsCategory(name)) {
-    val spec = deck.current.getCategorySpec(name)
-    performAction(() => do_removeCategory(spec), () => {
-      if (deck.current.containsCategory(name))
-        throw RuntimeException(s"duplicate category $name found when attempting to undo removal")
-      else
-        do_addCategory(spec)
-    })
-  } else false
 
   /**
    * Save the deck to the current file.

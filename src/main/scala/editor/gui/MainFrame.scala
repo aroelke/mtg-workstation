@@ -846,7 +846,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     contentPanel.add(JScrollPane(categories), BorderLayout.CENTER)
     if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-      f.removeCategory(categories.getSelectedValue)
+      f.categories -= categories.getSelectedValue
   }))
   categoryMenu.add(removeCategoryItem)
 
