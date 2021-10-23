@@ -465,7 +465,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * Auxiliary object for controlling the categories of the deck.
    * @author Alec Roelke
    */
-  object categories {
+  object categories extends Iterable[Category] {
     /**
      * Add a new category to the main deck.
      * 
@@ -503,10 +503,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      * @return true if the deck contains a category with the given name, and false otherwise
      */
     def contains(name: String) = deck.current.containsCategory(name)
+
+    def iterator = deck.current.categories.iterator.asScala
   }
 
-    /** @return The categories in the main deck */
-  @deprecated def getCategories = deck.current.categories
+  @deprecated def getCategories = categories.toSeq.asJava
   
   /**
    * @param name name of the category to get

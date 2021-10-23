@@ -829,7 +829,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   editCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => {
     val contentPanel = JPanel(BorderLayout())
     contentPanel.add(JLabel("Choose a category to edit:"), BorderLayout.NORTH)
-    val categories = JList(f.getCategories.asScala.map(_.getName).toArray.sorted)
+    val categories = JList(f.categories.map(_.getName).toArray.sorted)
     categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     contentPanel.add(JScrollPane(categories), BorderLayout.CENTER)
     if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
@@ -842,7 +842,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   removeCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => {
     val contentPanel = JPanel(BorderLayout())
     contentPanel.add(JLabel("Choose a category to remove:"), BorderLayout.NORTH)
-    val categories = JList(f.getCategories.asScala.map(_.getName).toArray.sorted)
+    val categories = JList(f.categories.map(_.getName).toArray.sorted)
     categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     contentPanel.add(JScrollPane(categories), BorderLayout.CENTER)
     if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
