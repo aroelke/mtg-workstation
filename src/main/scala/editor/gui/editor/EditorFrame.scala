@@ -499,6 +499,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
 
     /**
+     * @param name name of the category to get
+     * @return the specification for the chosen category
+     */
+    @throws[IllegalArgumentException]("if no category with that name exists")
+    def apply(name: String) = deck.current.getCategorySpec(name)
+
+    /**
      * @param name name of the category to check
      * @return true if the deck contains a category with the given name, and false otherwise
      */
@@ -508,13 +515,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
 
   @deprecated def getCategories = categories.toSeq.asJava
-  
-  /**
-   * @param name name of the category to get
-   * @return The specification for the chosen category
-   */
-  @throws[IllegalArgumentException]("if no category with that name exists")
-  @deprecated def getCategory(name: String) = deck.current.getCategorySpec(name)
 
   /*****************
    * GUI DEFINITION
@@ -1343,7 +1343,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }))
 
     newCategory.setTransferHandler(CategoryTransferHandler(
-      () => getCategory(newCategory.getCategoryName),
+      () => categories(newCategory.getCategoryName),
       (c) => categories.contains(c.getName),
       categories += _,
       (c) => categories -= c.getName
