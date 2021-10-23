@@ -200,7 +200,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
 
   /**
-   * Auxiliary class for controlling the contents of a [[Deck]] and storing related information.
+   * Auxiliary class for controlling the cards in a [[Deck]] and storing related information.
    * @author Alec Roelke
    */
   case class DeckData private[EditorFrame](
@@ -460,7 +460,34 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     extras.foreach(e => sideboard.addAll(e.current))
     sideboard
   }
-  
+
+  /**
+   * Auxiliary object for controlling the categories of the deck.
+   * @author Alec Roelke
+   */
+  object categories {
+    /**
+     * Add a new category to the main deck.
+     * 
+     * @param spec specification for the new category
+     * @return true if adding the category was successful, and false otherwise
+     */
+    def +=(spec: Category) = if (deck.current.containsCategory(spec.getName)) false else {
+      performAction(() => {
+        if (deck.current.containsCategory(spec.getName))
+          throw RuntimeException(s"attempting to add duplicate category ${spec.getName}")
+        else
+          do_addCategory(spec)
+      }, () => do_removeCategory(spec))
+    }
+  }
+
+  @deprecated def addCategory(spec: Category) = categories += spec
+
+  /*****************
+   * GUI DEFINITION
+   *****************/
+
   private class TableCategoriesPopupListener(addToCategoryMenu: JMenu, removeFromCategoryMenu: JMenu, editCategoriesItem: JMenuItem, menuSeparator: JSeparator, table: CardTable) extends PopupMenuListener {
     override def popupMenuCanceled(e: PopupMenuEvent) = ()
     override def popupMenuWillBecomeInvisible(e: PopupMenuEvent) = {
@@ -670,7 +697,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   // Button to add a new category
   private val addCategoryPanel = JPanel(FlowLayout(FlowLayout.LEFT))
   private val addCategoryButton = JButton("Add")
-  addCategoryButton.addActionListener(_ => createCategory.foreach(addCategory(_)))
+  addCategoryButton.addActionListener(_ => createCategory.foreach(categories += _))
   addCategoryPanel.add(addCategoryButton)
   categoryHeaderPanel.add(addCategoryPanel)
 
@@ -724,7 +751,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   // Transfer handler for the category box
   // We explicitly use null here to cause exceptions if cutting or copying, as that should never happen
-  categoriesPane.setTransferHandler(CategoryTransferHandler(null, (c) => containsCategory(c.getName), addCategory(_), null))
+  categoriesPane.setTransferHandler(CategoryTransferHandler(null, (c) => containsCategory(c.getName), categories += _, null))
 
   // Popup menu for category container
   private val categoriesMenu = JPopupMenu()
@@ -733,7 +760,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoriesMenu.add(categoriesCCP.paste)
   categoriesMenu.add(JSeparator())
   private val categoriesCreateItem = JMenuItem("Add Category...")
-  categoriesCreateItem.addActionListener(_ => createCategory.foreach(addCategory(_)))
+  categoriesCreateItem.addActionListener(_ => createCategory.foreach(categories += _))
   categoriesMenu.add(categoriesCreateItem)
   categoriesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
     val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
@@ -1072,22 +1099,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   require(EditorTab.values.forall(t => listTabs.getTitleAt(t.ordinal) == t.title))
 
-  /**
-   * Add a new category to the main deck.
-   * 
-   * @param spec specification for the new category
-   * @return <code>true</code> if adding the category was successful, and <code>false</code>
-   * otherwise.
-   */
-  def addCategory(spec: Category) = if (deck.current.containsCategory(spec.getName)) false else {
-    performAction(() => {
-      if (deck.current.containsCategory(spec.getName))
-        throw RuntimeException(s"attempting to add duplicate category ${spec.getName}")
-      else
-        do_addCategory(spec)
-    }, () => do_removeCategory(spec))
-  }
-
   override def applySettings(oldSettings: Settings, newSettings: Settings) = {
     applyChanges(oldSettings, newSettings)(_.editor.columns)(columns => deck.model.setColumns(columns.asJava))
                                           (_.editor.stripe)(deck.table.setStripeColor(_))
@@ -1302,7 +1313,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     newCategory.setTransferHandler(CategoryTransferHandler(
       () => getCategory(newCategory.getCategoryName),
       (c) => containsCategory(c.getName),
-      addCategory(_),
+      categories += _,
       (c) => removeCategory(c.getName)
     ))
 

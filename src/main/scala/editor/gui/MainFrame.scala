@@ -821,7 +821,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
   // Add category item
   private val addCategoryItem = JMenuItem("Add...")
-  addCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => f.createCategory.foreach(f.addCategory(_))))
+  addCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => f.createCategory.foreach(f.categories += _)))
   categoryMenu.add(addCategoryItem)
 
   // Edit category item
@@ -1207,7 +1207,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       if (!inventory.isEmpty) {
         for (spec <- SettingsDialog.settings.editor.categories.presets) {
           val categoryItem = JMenuItem(spec.getName)
-          categoryItem.addActionListener(_ => selectedFrame.foreach(_.addCategory(spec)))
+          categoryItem.addActionListener(_ => selectedFrame.foreach(_.categories += spec))
           presetMenu.add(categoryItem)
         }
         files.foreach(open(_))
@@ -1235,7 +1235,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       spec.getWhitelist.asScala.foreach(spec.exclude(_))
       SettingsDialog.addPresetCategory(spec)
       val categoryItem = JMenuItem(spec.getName)
-      categoryItem.addActionListener(_ => selectedFrame.foreach(_.addCategory(spec)))
+      categoryItem.addActionListener(_ => selectedFrame.foreach(_.categories += spec))
       presetMenu.add(categoryItem)
     }
   }
@@ -1247,7 +1247,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                                             presetMenu.removeAll()
                                             for (spec <- presets) {
                                               val categoryItem = JMenuItem(spec.getName)
-                                              categoryItem.addActionListener(_ => selectedFrame.foreach(_.addCategory(spec)))
+                                              categoryItem.addActionListener(_ => selectedFrame.foreach(_.categories += spec))
                                               presetMenu.add(categoryItem)
                                             }
                                           }
