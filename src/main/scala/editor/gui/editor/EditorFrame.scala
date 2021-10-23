@@ -499,9 +499,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  @deprecated def addCategory(spec: Category) = categories += spec
-  @deprecated def removeCategory(name: String) = (categories -= name).isDefined
-
   /*****************
    * GUI DEFINITION
    *****************/
