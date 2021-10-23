@@ -472,9 +472,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      * @param spec specification for the new category
      * @return true if adding the category was successful, and false otherwise
      */
-    def +=(spec: Category) = if (deck.current.containsCategory(spec.getName)) false else {
+    def +=(spec: Category) = if (contains(spec.getName)) false else {
       performAction(() => {
-        if (deck.current.containsCategory(spec.getName))
+        if (contains(spec.getName))
           throw RuntimeException(s"attempting to add duplicate category ${spec.getName}")
         else
           do_addCategory(spec)
@@ -487,17 +487,33 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      * @param name name of the category to remove
      * @return an [[Option]] containing the category that was removed, or None if nothing was removed
      */
-    def -=(name: String) = Option.when(deck.current.containsCategory(name)){
+    def -=(name: String) = Option.when(contains(name)){
       val spec = deck.current.getCategorySpec(name)
       performAction(() => do_removeCategory(spec), () => {
-        if (deck.current.containsCategory(name))
+        if (contains(name))
           throw RuntimeException(s"duplicate category $name found when attempting to undo removal")
         else
           do_addCategory(spec)
       })
       spec
     }
+
+    /**
+     * @param name name of the category to check
+     * @return true if the deck contains a category with the given name, and false otherwise
+     */
+    def contains(name: String) = deck.current.containsCategory(name)
   }
+
+    /** @return The categories in the main deck */
+  @deprecated def getCategories = deck.current.categories
+  
+  /**
+   * @param name name of the category to get
+   * @return The specification for the chosen category
+   */
+  @throws[IllegalArgumentException]("if no category with that name exists")
+  @deprecated def getCategory(name: String) = deck.current.getCategorySpec(name)
 
   /*****************
    * GUI DEFINITION
@@ -766,7 +782,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   // Transfer handler for the category box
   // We explicitly use null here to cause exceptions if cutting or copying, as that should never happen
-  categoriesPane.setTransferHandler(CategoryTransferHandler(null, (c) => containsCategory(c.getName), categories += _, null))
+  categoriesPane.setTransferHandler(CategoryTransferHandler(null, (c) => categories.contains(c.getName), categories += _, null))
 
   // Popup menu for category container
   private val categoriesMenu = JPopupMenu()
@@ -780,7 +796,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoriesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
     val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
     try {
-      categoriesCCP.paste.setEnabled(!containsCategory((clipboard.getData(DataFlavors.categoryFlavor)).asInstanceOf[CategoryTransferData].spec.getName))
+      categoriesCCP.paste.setEnabled(!categories.contains((clipboard.getData(DataFlavors.categoryFlavor)).asInstanceOf[CategoryTransferData].spec.getName))
     } catch {
       case _ @ (_: UnsupportedFlavorException | _: IOException) => categoriesCCP.paste.setEnabled(false)
     }
@@ -1171,10 +1187,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     while {{
       spec = CategoryEditorPanel.showCategoryEditor(this, spec.toJava).toScala
       spec.foreach((s) => {
-      if (deck.current.containsCategory(s.getName))
+      if (categories.contains(s.getName))
         JOptionPane.showMessageDialog(this, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE)
       })
-    }; spec.isDefined && deck.current.containsCategory(spec.get.getName) } do ()
+    }; spec.isDefined && categories.contains(spec.get.getName) } do ()
     spec
   }
 
@@ -1327,7 +1343,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     newCategory.setTransferHandler(CategoryTransferHandler(
       () => getCategory(newCategory.getCategoryName),
-      (c) => containsCategory(c.getName),
+      (c) => categories.contains(c.getName),
       categories += _,
       (c) => categories -= c.getName
     ))
@@ -1364,7 +1380,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     categoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
       val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
       try {
-        categoryCCP.paste.setEnabled(!containsCategory(clipboard.getData(DataFlavors.categoryFlavor).asInstanceOf[CategoryTransferData].spec.getName))
+        categoryCCP.paste.setEnabled(!categories.contains(clipboard.getData(DataFlavors.categoryFlavor).asInstanceOf[CategoryTransferData].spec.getName))
       } catch {
         case _ @ (_: UnsupportedFlavorException | _: IOException) =>
           // Technically using exceptions as control flow (as with unsupported flavors here) is bad
@@ -1581,7 +1597,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    */
   @throws[IllegalArgumentException]
   def modifyInclusion(include: Iterable[Card], exclude: Iterable[Card], spec: Category) = {
-    if (!deck.current.containsCategory(spec.getName))
+    if (!categories.contains(spec.getName))
       throw IllegalArgumentException("can't include a card in a category that doesn't exist")
     if (deck.current.getCategorySpec(spec.getName) != spec)
       throw IllegalArgumentException("category name matches, but specification doesn't")
@@ -1762,22 +1778,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       }
     }
   }
-
-  /** @return The categories in the main deck */
-  def getCategories = deck.current.categories
-
-  /**
-   * @param name name of the category to check
-   * @return <code>true</code> if the deck has a category of that name, and <code>false</code> otherwise.
-   */
-  def containsCategory(name: String) = deck.current.containsCategory(name)
-  
-  /**
-   * @param name name of the category to get
-   * @return The specification for the chosen category
-   */
-  @throws[IllegalArgumentException]("if no category with that name exists")
-  def getCategory(name: String) = deck.current.getCategorySpec(name)
 
   /**
    * Get the panel for the category with the specified name in the deck.
