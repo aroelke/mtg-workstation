@@ -528,6 +528,29 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       old
     } else throw NoSuchElementException(name)
 
+    def update(specs: Map[String, Category]) = if (specs.forall{ case (name, _) => contains(name) }) {
+      val changes = specs.filter{ case (name, spec) => apply(name) != spec }
+      val old = specs.map{ case (name, _) => name -> apply(name) }
+      if (!changes.isEmpty) {
+        performAction(() => {
+          changes.foreach{ case (name, spec) => deck.current.updateCategory(name, spec) }
+          for (panel <- categoryPanels)
+            if (changes.contains(panel.getCategoryName))
+              panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+          updateCategoryPanel()
+          true
+        }, () => {
+          changes.foreach{ case (name, spec) => deck.current.updateCategory(spec.getName, old(name)) }
+          for (panel <- categoryPanels)
+            if (changes.map{ case (_, spec) => spec.getName }.toSet.contains(panel.getCategoryName))
+              panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+          updateCategoryPanel()
+          true
+        })
+      }
+      old
+    } else throw NoSuchElementException(specs.filter{ case (name, _) => !contains(name) }.mkString(","))
+
     /**
      * @param name name of the category to get
      * @return the specification for the chosen category
@@ -569,6 +592,43 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
   @deprecated def includeIn(card: Card, spec: Category) = modifyInclusion(Seq(card), Seq.empty, spec)
   @deprecated def excludeFrom(card: Card, spec: Category) = modifyInclusion(Seq.empty, Array(card), spec)
+
+  /**
+   * Change inclusion of cards in categories according to the given maps.
+   *
+   * @param included map of cards onto the set of categories they should become included in
+   * @param excluded map of cards onto the set of categories they should become excluded from
+   * @return true if any categories were modified, and false otherwise
+   */
+  @deprecated def editInclusion(included: Map[Card, Set[Category]], excluded: Map[Card, Set[Category]]): Boolean = {
+    val include = included.map{ case (card, in) => card -> in.filter(!_.includes(card)) }.filter{ case (_, in) => !in.isEmpty }
+    val exclude = excluded.map{ case (card, out) => card -> out.filter(_.includes(card)) }.filter{ case (_, out) => !out.isEmpty }
+    if (included.isEmpty && excluded.isEmpty) false else {
+      val mods = collection.mutable.HashMap[String, Category]()
+      for ((card, in) <- include) {
+        for (category <- in) {
+          if (!mods.contains(category.getName))
+            mods(category.getName) = deck.current.getCategorySpec(category.getName)
+          mods(category.getName).include(card)
+        }
+      }
+      for ((card, out) <- exclude) {
+        for (category <- out) {
+          if (!mods.contains(category.getName))
+            mods(category.getName) = deck.current.getCategorySpec(category.getName)
+          mods(category.getName).exclude(card)
+        }
+      }
+      categories.update(mods.toMap)
+      true
+    }
+  }
+
+  @deprecated
+  def editInclusion(included: java.util.Map[Card, java.util.Set[Category]], excluded: java.util.Map[Card, java.util.Set[Category]]): Boolean = editInclusion(
+    included.asScala.map{ case (card, categories) => card -> categories.asScala.toSet }.toMap,
+    excluded.asScala.map{ case (card, categories) => card -> categories.asScala.toSet }.toMap
+  )
 
   /*****************
    * GUI DEFINITION
@@ -1579,75 +1639,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   def editCategory(name: String) = categories.get(name).map((toEdit) => {
     CategoryEditorPanel.showCategoryEditor(this, Some(toEdit).toJava).toScala.map(categories(name) = _)
   }).getOrElse{ JOptionPane.showMessageDialog(this, s"Deck ${deck.name} has no category named $name.", "Error", JOptionPane.ERROR_MESSAGE); None }
-
-  /**
-   * Change inclusion of cards in categories according to the given maps.
-   *
-   * @param included map of cards onto the set of categories they should become included in
-   * @param excluded map of cards onto the set of categories they should become excluded from
-   * @return true if any categories were modified, and false otherwise
-   */
-  def editInclusion(included: Map[Card, Set[Category]], excluded: Map[Card, Set[Category]]): Boolean = {
-    val include = included.map{ case (card, in) => card -> in.filter(!_.includes(card)) }.filter{ case (_, in) => !in.isEmpty }
-    val exclude = excluded.map{ case (card, out) => card -> out.filter(_.includes(card)) }.filter{ case (_, out) => !out.isEmpty }
-    if (included.isEmpty && excluded.isEmpty) false else {
-      performAction(() => {
-        val mods = collection.mutable.HashMap[String, Category]()
-        for ((card, in) <- include) {
-          for (category <- in) {
-            if (deck.current.getCategorySpec(category.getName).includes(card))
-              throw IllegalArgumentException(s"$card is already in ${category.getName}")
-            if (!mods.contains(category.getName))
-              mods(category.getName) = deck.current.getCategorySpec(category.getName)
-            mods(category.getName).include(card)
-          }
-        }
-        for ((card, out) <- exclude) {
-          for (category <- out) {
-            if (!deck.current.getCategorySpec(category.getName).includes(card))
-              throw IllegalArgumentException(s"$card is already not in ${category.getName}")
-            if (!mods.contains(category.getName))
-              mods(category.getName) = deck.current.getCategorySpec(category.getName)
-            mods(category.getName).exclude(card)
-          }
-        }
-        mods.foreach(deck.current.updateCategory(_, _))
-        categoryPanels.foreach(_.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged())
-        updateCategoryPanel()
-        true
-      }, () => {
-        val mods = collection.mutable.HashMap[String, Category]()
-        for ((card, in) <- include) {
-          for (category <- in) {
-            if (!deck.current.getCategorySpec(category.getName).includes(card))
-              throw IllegalArgumentException(s"error undoing category edit: $card is already not in ${category.getName}")
-            if (!mods.contains(category.getName))
-              mods(category.getName) = deck.current.getCategorySpec(category.getName)
-            mods(category.getName).exclude(card)
-          }
-        }
-        for ((card, out) <- exclude) {
-          for (category <- out) {
-            if (deck.current.getCategorySpec(category.getName).includes(card))
-              throw IllegalArgumentException(s"error undoing category edit: $card is already in ${category.getName}")
-            if (!mods.contains(category.getName))
-              mods(category.getName) = deck.current.getCategorySpec(category.getName)
-            mods(category.getName).include(card)
-          }
-        }
-        mods.foreach(deck.current.updateCategory(_, _))
-        categoryPanels.foreach(_.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged())
-        updateCategoryPanel()
-        true
-      })
-    }
-  }
-
-  @deprecated
-  def editInclusion(included: java.util.Map[Card, java.util.Set[Category]], excluded: java.util.Map[Card, java.util.Set[Category]]): Boolean = editInclusion(
-    included.asScala.map{ case (card, categories) => card -> categories.asScala.toSet }.toMap,
-    excluded.asScala.map{ case (card, categories) => card -> categories.asScala.toSet }.toMap
-  )
 
   /**
    * Helper method for adding a category.

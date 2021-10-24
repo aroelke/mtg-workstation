@@ -18,6 +18,7 @@ import editor.filter.Filter;
  * @author Alec Roelke
  * 
  * TOSCALA:
+ * - rename to Categorization
  * - make immutable (mutation functions return copies)
  * - def +(Card): include card
  * - def ++(Iterable[Card]): include cards
