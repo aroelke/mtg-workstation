@@ -16,6 +16,13 @@ import editor.filter.Filter;
  * representation.
  *
  * @author Alec Roelke
+ * 
+ * TOSCALA:
+ * - make immutable (mutation functions return copies)
+ * - def +(Card): include card
+ * - def ++(Iterable[Card]): include cards
+ * - def -(Card): exclude card
+ * - def --(Iterable[Card]): exclude cards
  */
 public class Category
 {
