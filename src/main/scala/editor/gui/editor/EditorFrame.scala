@@ -536,6 +536,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     def apply(name: String) = deck.current.getCategorySpec(name)
 
     /**
+     * @param name name of the category to look for
+     * @return an [[Option]] containing the category with the given name, or None if there isn't one
+     */
+    def get(name: String) = Option(deck.current.getCategorySpec(name))
+
+    /**
      * @param name name of the category to check
      * @return true if the deck contains a category with the given name, and false otherwise
      */
@@ -1570,28 +1576,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @return true if the category was edited, and false otherwise
    */
   @throws[RuntimeException]("if an unexpected category was edited")
-  def editCategory(name: String) = Option(deck.current.getCategorySpec(name)).map(toEdit => {
-    CategoryEditorPanel.showCategoryEditor(this, Some(toEdit).toJava).map((s) => {
-      val old = deck.current.getCategorySpec(name)
-      performAction(() => {
-        if (deck.current.updateCategory(old.getName, s) != old)
-          throw RuntimeException("edited unexpected category")
-        val panel = getCategoryPanel(old.getName).get
-        panel.setCategoryName(s.getName)
-        panel.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
-        updateCategoryPanel()
-        true
-      }, () => {
-        if (deck.current.updateCategory(s.getName(), old) != s)
-          throw RuntimeException("restored from unexpected category")
-        val panel = getCategoryPanel(s.getName).get
-        panel.setCategoryName(old.getName)
-        panel.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
-        updateCategoryPanel()
-        true
-      })
-    }).toScala.getOrElse(false)
-  }).getOrElse{ JOptionPane.showMessageDialog(this, s"Deck ${deck.name} has no category named $name.", "Error", JOptionPane.ERROR_MESSAGE); false }
+  def editCategory(name: String) = categories.get(name).map((toEdit) => {
+    CategoryEditorPanel.showCategoryEditor(this, Some(toEdit).toJava).toScala.map(categories(name) = _)
+  }).getOrElse{ JOptionPane.showMessageDialog(this, s"Deck ${deck.name} has no category named $name.", "Error", JOptionPane.ERROR_MESSAGE); None }
 
   /**
    * Change inclusion of cards in categories according to the given maps.
