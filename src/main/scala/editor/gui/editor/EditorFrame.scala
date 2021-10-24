@@ -1226,6 +1226,125 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
 
   /**
+   * Create a new extra, uncategorized, untracked list, which usually will be used for a sideboard.
+   * 
+   * @param name name of the extra list, i.e. "Sideboard"; should be unique
+   * @param id ID of the extra to create
+   * @param index index of the tab to insert the new list at
+   * @return true if the list was created, and false otherwise.
+   */
+  @throws[IllegalArgumentException]("if a list with the given name or ID already exists")
+  private def createExtra(name: String, id: Int, index: Int): Boolean = {
+    if (id == MainDeck)
+      throw IllegalArgumentException(s"only the main deck can have ID $MainDeck")
+    else if (_lists.size > id && _lists(id).isDefined)
+      throw IllegalArgumentException(s"extra already exists at ID $id")
+    else {
+      if (extras.exists(_.name == name))
+        throw IllegalArgumentException(s"""sideboard "$name" already exists""")
+
+      val newExtra = DeckData(id = id, name = name)
+      if (id >= _lists.size)
+        _lists ++= Seq.fill(id - _lists.size + 1)(None)
+      _lists(id) = Some(newExtra)
+
+      newExtra.table.setPreferredScrollableViewportSize(Dimension(newExtra.table.getPreferredScrollableViewportSize.width, 5*newExtra.table.getRowHeight))
+      val panel = EditablePanel(name, extrasPane)
+      val sideboardPane = JScrollPane(newExtra.table)
+      sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
+
+      // Move cards to main deck
+      val moveToMainItem = JMenuItem("Move to Main Deck")
+      moveToMainItem.addActionListener(_ => _lists(id).map(_.move(parent.getSelectedCards.map(_ -> 1).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
+      newExtra.popup.add(moveToMainItem)
+      val moveAllToMainItem = JMenuItem("Move All to Main Deck")
+      moveAllToMainItem.addActionListener(_ => _lists(id).map(_.move(parent.getSelectedCards.map((c) => c -> newExtra.current.getEntry(c).count).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
+      newExtra.popup.add(moveAllToMainItem)
+      newExtra.popup.add(JSeparator())
+
+      // Edit card tags item in sideboard
+      newExtra.popup.add(newExtra.editTags)
+
+      // Item enables as menu becomes visible
+      newExtra.popup.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+        moveToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
+        moveAllToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
+      }))
+
+      extrasPane.insertTab(name, null, sideboardPane, null, index)
+      extrasPane.setTabComponentAt(index, panel)
+      extrasPane.setSelectedIndex(index)
+      extrasPane.getTabComponentAt(extrasPane.getSelectedIndex).requestFocus()
+      southLayout.show(southPanel, "extras")
+      listTabs.setSelectedIndex(MainDeck)
+
+      panel.addActionListener((e) => e.getActionCommand match {
+        case EditablePanel.CLOSE =>
+          val n = panel.getTitle
+          val extra = _lists(id).map(_.copy()).getOrElse(throw NoSuchElementException(id.toString))
+          val i = extrasPane.indexOfTab(n)
+          performAction(() => deleteExtra(id, i), () => {
+            val created = createExtra(n, id, i)
+            val currented = _lists(id).get.current.addAll(extra.current)
+            val originaled = _lists(id).get.original.addAll(extra.original)
+            created || currented || originaled
+          })
+        case EditablePanel.EDIT =>
+          val current = panel.getTitle
+          val old = panel.getOldTitle
+          if (current.isEmpty)
+            panel.setTitle(old)
+          else if (extras.exists(_.name == current)) {
+            panel.setTitle(old)
+            JOptionPane.showMessageDialog(this, s"""Sideboard "$current" already exists.""", "Error", JOptionPane.ERROR_MESSAGE)
+          } else if (!current.equals(old)) {
+            val j = extrasPane.indexOfTab(old)
+            performAction(() => {
+              _lists(id).get.name = current
+              extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(current)
+              extrasPane.setTitleAt(j, current)
+              listTabs.setSelectedIndex(MainDeck)
+              true
+            }, () => {
+              _lists(id).get.name = old
+              extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(old)
+              extrasPane.setTitleAt(j, old)
+              listTabs.setSelectedIndex(MainDeck)
+              true
+            })
+          }
+        case EditablePanel.CANCEL =>
+      })
+
+      true
+    }
+  }
+
+  /**
+   * Delete an extra list. This just sets its index in the list of card lists to None, so it can be reused later if this is undone.
+   * 
+   * @param id ID of the list to delete
+   * @param index index of the tab containing the list
+   * @return true if the list was successfully removed, and false otherwise
+   */
+  @throws[IllegalArgumentException]("if the list with the given ID doesn't exist")
+  private def deleteExtra(id: Int, index: Int) = {
+    if (_lists(id).isEmpty)
+      throw IllegalArgumentException(s"missing sideboard with ID $id")
+
+    _lists(id) = None
+    extrasPane.remove(index)
+    if (index > 0) {
+      extrasPane.setSelectedIndex(index - 1)
+      extrasPane.getTabComponentAt(extrasPane.getSelectedIndex).requestFocus()
+    }
+    southLayout.show(southPanel, if (extras.isEmpty) "empty" else "extras")
+    listTabs.setSelectedIndex(MainDeck)
+
+    true
+  }
+
+  /**
    * Open the dialog to create a new specification for a deck category.
    *
    * @return the {@link Category} created by the dialog, or null if it was
@@ -1445,167 +1564,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }
 
   /**
-   * Create a new extra, uncategorized, untracked list, which usually will be used for a sideboard.
-   * 
-   * @param name name of the extra list, i.e. "Sideboard"; should be unique
-   * @param id ID of the extra to create
-   * @param index index of the tab to insert the new list at
-   * @return true if the list was created, and false otherwise.
-   */
-  @throws[IllegalArgumentException]("if a list with the given name or ID already exists")
-  private def createExtra(name: String, id: Int, index: Int): Boolean = {
-    if (id == MainDeck)
-      throw IllegalArgumentException(s"only the main deck can have ID $MainDeck")
-    else if (_lists.size > id && _lists(id).isDefined)
-      throw IllegalArgumentException(s"extra already exists at ID $id")
-    else {
-      if (extras.exists(_.name == name))
-        throw IllegalArgumentException(s"""sideboard "$name" already exists""")
-
-      val newExtra = DeckData(id = id, name = name)
-      if (id >= _lists.size)
-        _lists ++= Seq.fill(id - _lists.size + 1)(None)
-      _lists(id) = Some(newExtra)
-
-      newExtra.table.setPreferredScrollableViewportSize(Dimension(newExtra.table.getPreferredScrollableViewportSize.width, 5*newExtra.table.getRowHeight))
-      val panel = EditablePanel(name, extrasPane)
-      val sideboardPane = JScrollPane(newExtra.table)
-      sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
-
-      // Move cards to main deck
-      val moveToMainItem = JMenuItem("Move to Main Deck")
-      moveToMainItem.addActionListener(_ => _lists(id).map(_.move(parent.getSelectedCards.map(_ -> 1).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
-      newExtra.popup.add(moveToMainItem)
-      val moveAllToMainItem = JMenuItem("Move All to Main Deck")
-      moveAllToMainItem.addActionListener(_ => _lists(id).map(_.move(parent.getSelectedCards.map((c) => c -> newExtra.current.getEntry(c).count).toMap)(deck)).getOrElse(throw NoSuchElementException(id.toString)))
-      newExtra.popup.add(moveAllToMainItem)
-      newExtra.popup.add(JSeparator())
-
-      // Edit card tags item in sideboard
-      newExtra.popup.add(newExtra.editTags)
-
-      // Item enables as menu becomes visible
-      newExtra.popup.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
-        moveToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
-        moveAllToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
-      }))
-
-      extrasPane.insertTab(name, null, sideboardPane, null, index)
-      extrasPane.setTabComponentAt(index, panel)
-      extrasPane.setSelectedIndex(index)
-      extrasPane.getTabComponentAt(extrasPane.getSelectedIndex).requestFocus()
-      southLayout.show(southPanel, "extras")
-      listTabs.setSelectedIndex(MainDeck)
-
-      panel.addActionListener((e) => e.getActionCommand match {
-        case EditablePanel.CLOSE =>
-          val n = panel.getTitle
-          val extra = _lists(id).map(_.copy()).getOrElse(throw NoSuchElementException(id.toString))
-          val i = extrasPane.indexOfTab(n)
-          performAction(() => deleteExtra(id, i), () => {
-            val created = createExtra(n, id, i)
-            val currented = _lists(id).get.current.addAll(extra.current)
-            val originaled = _lists(id).get.original.addAll(extra.original)
-            created || currented || originaled
-          })
-        case EditablePanel.EDIT =>
-          val current = panel.getTitle
-          val old = panel.getOldTitle
-          if (current.isEmpty)
-            panel.setTitle(old)
-          else if (extras.exists(_.name == current)) {
-            panel.setTitle(old)
-            JOptionPane.showMessageDialog(this, s"""Sideboard "$current" already exists.""", "Error", JOptionPane.ERROR_MESSAGE)
-          } else if (!current.equals(old)) {
-            val j = extrasPane.indexOfTab(old)
-            performAction(() => {
-              _lists(id).get.name = current
-              extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(current)
-              extrasPane.setTitleAt(j, current)
-              listTabs.setSelectedIndex(MainDeck)
-              true
-            }, () => {
-              _lists(id).get.name = old
-              extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(old)
-              extrasPane.setTitleAt(j, old)
-              listTabs.setSelectedIndex(MainDeck)
-              true
-            })
-          }
-        case EditablePanel.CANCEL =>
-      })
-
-      true
-    }
-  }
-
-  /**
-   * Delete an extra list. This just sets its index in the list of card lists to None, so it can be reused later if this is undone.
-   * 
-   * @param id ID of the list to delete
-   * @param index index of the tab containing the list
-   * @return true if the list was successfully removed, and false otherwise
-   */
-  @throws[IllegalArgumentException]("if the list with the given ID doesn't exist")
-  private def deleteExtra(id: Int, index: Int) = {
-    if (_lists(id).isEmpty)
-      throw IllegalArgumentException(s"missing sideboard with ID $id")
-
-    _lists(id) = None
-    extrasPane.remove(index)
-    if (index > 0) {
-      extrasPane.setSelectedIndex(index - 1)
-      extrasPane.getTabComponentAt(extrasPane.getSelectedIndex).requestFocus()
-    }
-    southLayout.show(southPanel, if (extras.isEmpty) "empty" else "extras")
-    listTabs.setSelectedIndex(MainDeck)
-
-    true
-  }
-
-  /**
-   * Helper method for adding a category.
-   * 
-   * @param spec specification of the new category
-   * @return true if the category was successfully added, and false otherwise
-   */
-  private def do_addCategory(spec: Category): Boolean = Option(deck.current.addCategory(spec)).map(_ => {
-    val category = createCategoryPanel(spec)
-    categoryPanels += category
-
-    for (c <- categoryPanels)
-      if (c != category)
-        c.rankBox.addItem(deck.current.categories.size - 1)
-
-    listTabs.setSelectedIndex(Categories.ordinal)
-    updateCategoryPanel()
-    SwingUtilities.invokeLater(() => {
-      switchCategoryBox.setSelectedItem(category.getCategoryName)
-      category.scrollRectToVisible(Rectangle(category.getSize()))
-      category.flash()
-    })
-    handCalculations.update()
-  }).isDefined
-
-  /**
-   * Helper method for removing a category.
-   * 
-   * @param spec specification of the category to remove
-   * @return true if the category was removed, and false otherwise.
-   */
-  private def do_removeCategory(spec: Category) = {
-    val success = deck.current.removeCategory(spec)
-    if (success) {
-      categoryPanels -= getCategoryPanel(spec.getName).get
-      categoryPanels.foreach(_.rankBox.removeItemAt(categoryPanels.size))
-      listTabs.setSelectedIndex(Categories.ordinal)
-      updateCategoryPanel()
-      handCalculations.update()
-    }
-    success
-  }
-
-  /**
    * Open the category dialog to edit the category with the given name, if there is one, and then update the undo buffer.
    *
    * @param name name of the category to edit
@@ -1703,6 +1661,48 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     included.asScala.map{ case (card, categories) => card -> categories.asScala.toSet }.toMap,
     excluded.asScala.map{ case (card, categories) => card -> categories.asScala.toSet }.toMap
   )
+
+  /**
+   * Helper method for adding a category.
+   * 
+   * @param spec specification of the new category
+   * @return true if the category was successfully added, and false otherwise
+   */
+  private def do_addCategory(spec: Category): Boolean = Option(deck.current.addCategory(spec)).map(_ => {
+    val category = createCategoryPanel(spec)
+    categoryPanels += category
+
+    for (c <- categoryPanels)
+      if (c != category)
+        c.rankBox.addItem(deck.current.categories.size - 1)
+
+    listTabs.setSelectedIndex(Categories.ordinal)
+    updateCategoryPanel()
+    SwingUtilities.invokeLater(() => {
+      switchCategoryBox.setSelectedItem(category.getCategoryName)
+      category.scrollRectToVisible(Rectangle(category.getSize()))
+      category.flash()
+    })
+    handCalculations.update()
+  }).isDefined
+
+  /**
+   * Helper method for removing a category.
+   * 
+   * @param spec specification of the category to remove
+   * @return true if the category was removed, and false otherwise.
+   */
+  private def do_removeCategory(spec: Category) = {
+    val success = deck.current.removeCategory(spec)
+    if (success) {
+      categoryPanels -= getCategoryPanel(spec.getName).get
+      categoryPanels.foreach(_.rankBox.removeItemAt(categoryPanels.size))
+      listTabs.setSelectedIndex(Categories.ordinal)
+      updateCategoryPanel()
+      handCalculations.update()
+    }
+    success
+  }
 
   /**
    * Export the deck to a different format.
