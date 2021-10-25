@@ -36,7 +36,21 @@ import scala.jdk.CollectionConverters._
 import java.{util => ju}
 import java.awt.Container
 
-class CategoryPanel(deck: Deck, var name: String, editor: EditorFrame) extends JPanel {
+class CategoryPanel(private val deck: Deck, private var _name: String, private val editor: EditorFrame) extends JPanel {
+
+  /** @return the name of the category corresponding to this CategoryPanel */
+  def name = _name
+
+  /**
+   * Change the category this panel should display to a new one.
+   * @param n name of the new category to display
+   */
+  @throws[NoSuchElementException]("if the deck does not have a category with that name")
+  def name_=(n: String) = {
+    if (!deck.containsCategory(n))
+      throw ju.NoSuchElementException(s"deck does not have a category named $n")
+    _name = n
+  }
   private class FlashTimer(bg: Color, end: Int = 20, flash: Color = SystemColor.textHighlight) extends Timer(end, null) {
     private var count = 0
     addActionListener(_ => {
@@ -64,6 +78,9 @@ class CategoryPanel(deck: Deck, var name: String, editor: EditorFrame) extends J
     }
   }
   private val timer = FlashTimer(getBackground)
+
+  /** Briefly flash to draw attention to this CategoryPanel. */
+  def flash() = timer.restart()
 
   private val border = BorderFactory.createTitledBorder(name)
   setBorder(border)
@@ -230,25 +247,8 @@ class CategoryPanel(deck: Deck, var name: String, editor: EditorFrame) extends J
         table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnData(i)))
   }
 
-  /** Briefly flash to draw attention to this CategoryPanel. */
-  def flash() = timer.restart()
-
-  /** @return the name of the category corresponding to this CategoryPanel */
-  def getCategoryName = name
-
   /** @return the list of cards corresponding to the selected rows in the category's table */
   def getSelectedCards = table.getSelectedRows.map(r => deck.getCategoryList(name).get(table.convertRowIndexToModel(r))).toSeq
-
-  /**
-   * Change the category this panel should display to a new one.
-   * @param n name of the new category to display
-   */
-  @throws[NoSuchElementException]("if the deck does not have a category with that name")
-  def setCategoryName(n: String) = {
-    if (!deck.containsCategory(n))
-      throw ju.NoSuchElementException(s"deck does not have a category named $n")
-    name = n
-  }
 
   /** Update the GUI to reflect changes in a category. */
   def update() = {

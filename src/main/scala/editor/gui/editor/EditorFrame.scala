@@ -523,8 +523,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         performAction(() => {
           changes.foreach{ case (name, spec) => deck.current.updateCategory(name, spec) }
           for (panel <- categoryPanels) {
-            if (changes.contains(panel.getCategoryName)) {
-              panel.setCategoryName(changes(panel.getCategoryName).getName)
+            if (changes.contains(panel.name)) {
+              panel.name = changes(panel.name).getName
               panel.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
             }
           }
@@ -533,8 +533,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         }, () => {
           changes.foreach{ case (name, spec) => deck.current.updateCategory(spec.getName, old(name)) }
           for (panel <- categoryPanels) {
-            if (changes.map{ case (_, spec) => spec.getName }.toSet.contains(panel.getCategoryName)) {
-              specs.find{ case (_, spec) => spec.getName == panel.getCategoryName }.foreach{ case (name, _) => panel.setCategoryName(name) }
+            if (changes.map{ case (_, spec) => spec.getName }.toSet.contains(panel.name)) {
+              specs.find{ case (_, spec) => spec.getName == panel.name }.foreach{ case (name, _) => panel.name = name }
               panel.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
             }
           }
@@ -1431,29 +1431,29 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private def createCategoryPanel(spec: Category) = {
     val newCategory = CategoryPanel(deck.current, spec.getName, this)
     // When a card is selected in a category, the others should deselect
-    val listener = TableSelectionListener(parent, newCategory.table, deck.current.getCategoryList(newCategory.getCategoryName))
+    val listener = TableSelectionListener(parent, newCategory.table, deck.current.getCategoryList(newCategory.name))
     newCategory.table.addMouseListener(listener)
     newCategory.table.getSelectionModel.addListSelectionListener(listener)
     // Add the behavior for the edit category button
-    newCategory.editButton.addActionListener(_ => editCategory(newCategory.getCategoryName))
+    newCategory.editButton.addActionListener(_ => editCategory(newCategory.name))
     // Add the behavior for the remove category button
-    newCategory.removeButton.addActionListener(_ => categories -= newCategory.getCategoryName)
+    newCategory.removeButton.addActionListener(_ => categories -= newCategory.name)
     // Add the behavior for the color edit button
     newCategory.colorButton.addActionListener(_ => {
       val newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color)
       if (newColor != null) {
-        val oldColor = deck.current.getCategorySpec(newCategory.getCategoryName).getColor
-        val name = newCategory.getCategoryName
+        val oldColor = deck.current.getCategorySpec(newCategory.name).getColor
+        val name = newCategory.name
         performAction(() => {
           val mod = deck.current.getCategorySpec(name)
           mod.setColor(newColor)
-          deck.current.updateCategory(newCategory.getCategoryName, mod)
+          deck.current.updateCategory(newCategory.name, mod)
           listTabs.setSelectedIndex(Categories.ordinal)
           true
         }, () => {
           val mod = deck.current.getCategorySpec(name)
           mod.setColor(oldColor)
-          deck.current.updateCategory(newCategory.getCategoryName, mod)
+          deck.current.updateCategory(newCategory.name, mod)
           listTabs.setSelectedIndex(Categories.ordinal)
           true
         })
@@ -1461,20 +1461,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     })
     // Add the behavior for double-clicking the category title
     newCategory.addMouseListener(ChangeTitleListener(newCategory, (title) => {
-      val oldName = newCategory.getCategoryName
+      val oldName = newCategory.name
       if (!title.equals(oldName)) {
         performAction(() => {
           val mod = deck.current.getCategorySpec(oldName)
           mod.setName(title)
           deck.current.updateCategory(oldName, mod)
-          newCategory.setCategoryName(title)
+          newCategory.name = title
           updateCategoryPanel()
           true
         }, () => {
           val mod = deck.current.getCategorySpec(title)
           mod.setName(oldName)
           deck.current.updateCategory(title, mod)
-          newCategory.setCategoryName(oldName)
+          newCategory.name = oldName
           updateCategoryPanel()
           true
         })
@@ -1483,20 +1483,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     // Add behavior for the rank box
     newCategory.rankBox.addActionListener(_ => {
       if (newCategory.rankBox.isPopupVisible) {
-        val name = newCategory.getCategoryName
-        val old = deck.current.getCategoryRank(newCategory.getCategoryName)
+        val name = newCategory.name
+        val old = deck.current.getCategoryRank(newCategory.name)
         val target = newCategory.rankBox.getSelectedIndex
         performAction(() => {
           deck.current.swapCategoryRanks(name, target)
           for (panel <- categoryPanels)
-            panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName))
+            panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.name))
           listTabs.setSelectedIndex(Categories.ordinal)
           updateCategoryPanel()
           true
         }, () => {
           deck.current.swapCategoryRanks(name, old)
           for (panel <- categoryPanels)
-            panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.getCategoryName))
+            panel.rankBox.setSelectedIndex(deck.current.getCategoryRank(panel.name))
           listTabs.setSelectedIndex(Categories.ordinal)
           updateCategoryPanel()
           true
@@ -1532,7 +1532,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     val addToCategoryMenu = JMenu("Include in")
     tableMenu.add(addToCategoryMenu)
     val removeFromCategoryItem = JMenuItem(s"Exclude from ${spec.getName}")
-    removeFromCategoryItem.addActionListener(_ => modifyInclusion(Seq.empty, newCategory.getSelectedCards, deck.current.getCategorySpec(newCategory.getCategoryName)))
+    removeFromCategoryItem.addActionListener(_ => modifyInclusion(Seq.empty, newCategory.getSelectedCards, deck.current.getCategorySpec(newCategory.name)))
     tableMenu.add(removeFromCategoryItem)
     val removeFromCategoryMenu = JMenu("Exclude from")
     tableMenu.add(removeFromCategoryMenu)
@@ -1564,13 +1564,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
       cardCCP.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.entryFlavor) || clipboard.isDataFlavorAvailable(DataFlavors.cardFlavor))
 
-      removeFromCategoryItem.setText(s"Exclude from ${newCategory.getCategoryName}")
+      removeFromCategoryItem.setText(s"Exclude from ${newCategory.name}")
       tableMenuCardItems.setEnabled(!parent.getSelectedCards.isEmpty)
       editTagsItem.setEnabled(!parent.getSelectedCards.isEmpty)
     }))
 
     newCategory.setTransferHandler(CategoryTransferHandler(
-      () => categories(newCategory.getCategoryName),
+      () => categories(newCategory.name),
       (c) => categories.contains(c.getName),
       categories += _,
       (c) => categories -= c.getName
@@ -1592,17 +1592,17 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     // Edit item
     val editItem = JMenuItem("Edit...")
-    editItem.addActionListener(_ => editCategory(newCategory.getCategoryName))
+    editItem.addActionListener(_ => editCategory(newCategory.name))
     categoryMenu.add(editItem)
 
     // Delete item
     val deleteItem = JMenuItem("Delete")
-    deleteItem.addActionListener(_ => deck.current.removeCategory(newCategory.getCategoryName))
+    deleteItem.addActionListener(_ => deck.current.removeCategory(newCategory.name))
     categoryMenu.add(deleteItem)
 
     // Add to presets item
     val addPresetItem = JMenuItem("Add to presets")
-    addPresetItem.addActionListener(_ => parent.addPreset(deck.current.getCategorySpec(newCategory.getCategoryName)))
+    addPresetItem.addActionListener(_ => parent.addPreset(deck.current.getCategorySpec(newCategory.name)))
     categoryMenu.add(addPresetItem)
 
     categoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
@@ -1651,7 +1651,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     listTabs.setSelectedIndex(Categories.ordinal)
     updateCategoryPanel()
     SwingUtilities.invokeLater(() => {
-      switchCategoryBox.setSelectedItem(category.getCategoryName)
+      switchCategoryBox.setSelectedItem(category.name)
       category.scrollRectToVisible(Rectangle(category.getSize()))
       category.flash()
     })
@@ -1721,7 +1721,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       deck.get(deck.table.convertRowIndexToModel(index))
     else {
       categoryPanels.find(_.table == t) match {
-        case Some(panel) => deck.current.getCategoryList(panel.getCategoryName).get(panel.table.convertRowIndexToModel(index))
+        case Some(panel) => deck.current.getCategoryList(panel.name).get(panel.table.convertRowIndexToModel(index))
         case None => throw IllegalArgumentException(s"Table not in deck ${deck.name}")
       }
     }
@@ -1733,7 +1733,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @param name name of the category to search for
    * @return the panel for the category with the specified name, if there is one, or None otherwise
    */
-  private def getCategoryPanel(name: String) = categoryPanels.find(_.getCategoryName == name)
+  private def getCategoryPanel(name: String) = categoryPanels.find(_.name == name)
 
   /** @return a list of cards representing the current table selection */
   def getSelectedCards = parent.getSelectedCards
