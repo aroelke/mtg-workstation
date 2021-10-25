@@ -36,23 +36,17 @@ import scala.jdk.CollectionConverters._
 import java.{util => ju}
 
 class CategoryPanel(deck: Deck, var name: String, editor: EditorFrame) extends JPanel {
-  private object FlashTimer {
-    private val End = 20
-    private val Flash = SystemColor.textHighlight
-  }
-  private class FlashTimer(bg: Color) extends Timer(FlashTimer.End, null) {
-    import FlashTimer._
-
+  private class FlashTimer(bg: Color, end: Int = 20, flash: Color = SystemColor.textHighlight) extends Timer(end, null) {
     private var count = 0
     addActionListener(_ => {
       count += 1
-      if (count > End) {
+      if (count > end) {
         stop()
       } else {
-        val ratio = count.toDouble/End.toDouble
-        val r = (Flash.getRed + (bg.getRed - Flash.getRed)*ratio).toInt
-        val g = (Flash.getGreen + (bg.getGreen - Flash.getGreen)*ratio).toInt
-        val b = (Flash.getBlue + (bg.getBlue - Flash.getBlue)*ratio).toInt
+        val ratio = count.toDouble/end.toDouble
+        val r = (flash.getRed + (bg.getRed - flash.getRed)*ratio).toInt
+        val g = (flash.getGreen + (bg.getGreen - flash.getGreen)*ratio).toInt
+        val b = (flash.getBlue + (bg.getBlue - flash.getBlue)*ratio).toInt
         setBackground(Color(r, g, b))
       }
     })
@@ -68,6 +62,7 @@ class CategoryPanel(deck: Deck, var name: String, editor: EditorFrame) extends J
       repaint()
     }
   }
+  private val timer = FlashTimer(getBackground)
 
   private class PDMouseWheelListener(parent: JScrollPane) extends MouseWheelListener {
     private var previous = 0
@@ -109,8 +104,6 @@ class CategoryPanel(deck: Deck, var name: String, editor: EditorFrame) extends J
       }
     }
   }
-
-  private val timer = FlashTimer(getBackground)
 
   private val border = BorderFactory.createTitledBorder(name)
   setBorder(border)
