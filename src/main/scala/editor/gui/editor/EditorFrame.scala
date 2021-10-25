@@ -511,16 +511,22 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       if (old != spec) {
         performAction(() => {
           deck.current.updateCategory(name, spec)
-          for (panel <- categoryPanels)
-            if (panel.getCategoryName == name)
+          for (panel <- categoryPanels) {
+            if (panel.getCategoryName == name) {
+              panel.setCategoryName(spec.getName)
               panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+            }
+          }
           updateCategoryPanel()
           true
         }, () => {
           deck.current.updateCategory(spec.getName, old)
-          for (panel <- categoryPanels)
-            if (panel.getCategoryName == spec.getName)
+          for (panel <- categoryPanels) {
+            if (panel.getCategoryName == spec.getName) {
+              panel.setCategoryName(name)
               panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+            }
+          }
           updateCategoryPanel()
           true
         })
@@ -534,16 +540,22 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       if (!changes.isEmpty) {
         performAction(() => {
           changes.foreach{ case (name, spec) => deck.current.updateCategory(name, spec) }
-          for (panel <- categoryPanels)
-            if (changes.contains(panel.getCategoryName))
+          for (panel <- categoryPanels) {
+            if (changes.contains(panel.getCategoryName)) {
+              panel.setCategoryName(changes(panel.getCategoryName).getName)
               panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+            }
+          }
           updateCategoryPanel()
           true
         }, () => {
           changes.foreach{ case (name, spec) => deck.current.updateCategory(spec.getName, old(name)) }
-          for (panel <- categoryPanels)
-            if (changes.map{ case (_, spec) => spec.getName }.toSet.contains(panel.getCategoryName))
+          for (panel <- categoryPanels) {
+            if (changes.map{ case (_, spec) => spec.getName }.toSet.contains(panel.getCategoryName)) {
+              old.find{ case (_, spec) => spec.getName == panel.getCategoryName }.foreach{ case (name, _) => panel.setCategoryName(name) }
               panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+            }
+          }
           updateCategoryPanel()
           true
         })
@@ -1467,7 +1479,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     })
     // Add the behavior for double-clicking the category title
     newCategory.addMouseListener(ChangeTitleListener(newCategory, (title) => {
-      val oldName = newCategory.getCategoryName()
+      val oldName = newCategory.getCategoryName
       if (!title.equals(oldName)) {
         performAction(() => {
           val mod = deck.current.getCategorySpec(oldName)
@@ -1538,7 +1550,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     val addToCategoryMenu = JMenu("Include in")
     tableMenu.add(addToCategoryMenu)
     val removeFromCategoryItem = JMenuItem(s"Exclude from ${spec.getName}")
-    removeFromCategoryItem.addActionListener(_ => modifyInclusion(Seq.empty, newCategory.getSelectedCards.asScala, deck.current.getCategorySpec(newCategory.getCategoryName)))
+    removeFromCategoryItem.addActionListener(_ => modifyInclusion(Seq.empty, newCategory.getSelectedCards, deck.current.getCategorySpec(newCategory.getCategoryName)))
     tableMenu.add(removeFromCategoryItem)
     val removeFromCategoryMenu = JMenu("Exclude from")
     tableMenu.add(removeFromCategoryMenu)
@@ -1812,6 +1824,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     else {
       switchCategoryBox.setEnabled(true)
       deck.current.categories.asScala.toSeq.sorted(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex)(deck.current)).foreach((c) => {
+        println(s"""Searching for category named ${c.getName} among panels with names [${categoryPanels.map(_.getCategoryName).mkString(",")}]""")
         categoriesContainer.add(getCategoryPanel(c.getName).get)
         switchCategoryModel.addElement(c.getName)
       })
