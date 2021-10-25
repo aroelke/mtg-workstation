@@ -151,11 +151,10 @@ class CategoryPanel(deck: Deck, var name: String, editor: EditorFrame) extends J
     private var base = 0
 
     override def mousePressed(e: MouseEvent) = {
-      var p = SwingUtilities.convertPoint(e.getSource.asInstanceOf[Component], e.getPoint, tablePane)
+      val p = SwingUtilities.convertPoint(e.getSource.asInstanceOf[Component], e.getPoint, tablePane)
       resizing = p.y >= tablePane.getHeight - 2
       if (resizing) {
-        p = SwingUtilities.convertPoint(e.getSource.asInstanceOf[Component], e.getPoint, table)
-        base = p.y
+        base = SwingUtilities.convertPoint(e.getSource.asInstanceOf[Component], e.getPoint, table).y
       }
     }
 
