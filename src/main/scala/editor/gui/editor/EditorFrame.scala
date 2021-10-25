@@ -506,35 +506,17 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      * @return the old category specification, even if no change were made
      */
     @throws[NoSuchElementException]("if no category with the given name exists")
-    def update(name: String, spec: Category) = if (contains(name)) {
-      val old = apply(name)
-      if (old != spec) {
-        performAction(() => {
-          deck.current.updateCategory(name, spec)
-          for (panel <- categoryPanels) {
-            if (panel.getCategoryName == name) {
-              panel.setCategoryName(spec.getName)
-              panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
-            }
-          }
-          updateCategoryPanel()
-          true
-        }, () => {
-          deck.current.updateCategory(spec.getName, old)
-          for (panel <- categoryPanels) {
-            if (panel.getCategoryName == spec.getName) {
-              panel.setCategoryName(name)
-              panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
-            }
-          }
-          updateCategoryPanel()
-          true
-        })
-      }
-      old
-    } else throw NoSuchElementException(name)
+    def update(name: String, spec: Category): Option[Category] = update(Map(name -> spec)).get(name)
 
-    def update(specs: Map[String, Category]) = if (specs.forall{ case (name, _) => contains(name) }) {
+    /**
+     * Change several categories in the deck at once, updating UI elements as necessary. All changes
+     * are made in the same action, so all will be undone/redone with one command.
+     * 
+     * @param specs mapping of old category names onto their new specifications (which can have new names)
+     * @return a mapping of the old category names onto their old specifications before the change
+     */
+    @throws[NoSuchElementException]("if any names don't have corresponding categories in the deck")
+    def update(specs: Map[String, Category]): Map[String, Category] = if (specs.forall{ case (name, _) => contains(name) }) {
       val changes = specs.filter{ case (name, spec) => apply(name) != spec }
       val old = specs.map{ case (name, _) => name -> apply(name) }
       if (!changes.isEmpty) {
@@ -543,7 +525,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           for (panel <- categoryPanels) {
             if (changes.contains(panel.getCategoryName)) {
               panel.setCategoryName(changes(panel.getCategoryName).getName)
-              panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+              panel.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
             }
           }
           updateCategoryPanel()
@@ -552,8 +534,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           changes.foreach{ case (name, spec) => deck.current.updateCategory(spec.getName, old(name)) }
           for (panel <- categoryPanels) {
             if (changes.map{ case (_, spec) => spec.getName }.toSet.contains(panel.getCategoryName)) {
-              old.find{ case (_, spec) => spec.getName == panel.getCategoryName }.foreach{ case (name, _) => panel.setCategoryName(name) }
-              panel.table.getModel().asInstanceOf[AbstractTableModel].fireTableDataChanged()
+              specs.find{ case (_, spec) => spec.getName == panel.getCategoryName }.foreach{ case (name, _) => panel.setCategoryName(name) }
+              panel.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
             }
           }
           updateCategoryPanel()
@@ -1824,7 +1806,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     else {
       switchCategoryBox.setEnabled(true)
       deck.current.categories.asScala.toSeq.sorted(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex)(deck.current)).foreach((c) => {
-        println(s"""Searching for category named ${c.getName} among panels with names [${categoryPanels.map(_.getCategoryName).mkString(",")}]""")
         categoriesContainer.add(getCategoryPanel(c.getName).get)
         switchCategoryModel.addElement(c.getName)
       })
