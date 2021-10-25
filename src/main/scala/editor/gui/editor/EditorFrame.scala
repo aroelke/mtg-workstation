@@ -1247,7 +1247,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     for (i <- 0 until deck.table.getColumnCount)
       if (deck.model.isCellEditable(0, i))
         deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)))
-    categoryPanels.foreach(_.applySettings(this))
+    categoryPanels.foreach(_.applySettings())
     updateStats()
     update()
   }

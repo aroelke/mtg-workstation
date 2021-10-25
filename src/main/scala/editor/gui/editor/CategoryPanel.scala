@@ -236,11 +236,8 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
 
   update()
 
-  /**
-   * Apply settings to this CategoryPanel.
-   * @param editor [[EditorFrame]] containing this CategoryPanel
-   */
-  def applySettings(editor: EditorFrame) = {
+  /** Apply settings to this CategoryPanel. */
+  def applySettings() = {
     model.setColumns(SettingsDialog.settings.editor.columns.asJava)
     table.setStripeColor(SettingsDialog.settings.editor.stripe)
     for (i <- 0 until table.getColumnCount)
