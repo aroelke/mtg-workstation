@@ -1517,7 +1517,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     val addToCategoryMenu = JMenu("Include in")
     tableMenu.add(addToCategoryMenu)
     val removeFromCategoryItem = JMenuItem(s"Exclude from ${spec.getName}")
-    removeFromCategoryItem.addActionListener(_ => modifyInclusion(Seq.empty, newCategory.getSelectedCards, deck.current.getCategorySpec(newCategory.name)))
+    removeFromCategoryItem.addActionListener(_ => modifyInclusion(Seq.empty, newCategory.selectedCards, deck.current.getCategorySpec(newCategory.name)))
     tableMenu.add(removeFromCategoryItem)
     val removeFromCategoryMenu = JMenu("Exclude from")
     tableMenu.add(removeFromCategoryMenu)

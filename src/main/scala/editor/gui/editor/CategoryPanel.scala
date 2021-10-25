@@ -249,7 +249,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   }
 
   /** @return the list of cards corresponding to the selected rows in the category's table */
-  def getSelectedCards = table.getSelectedRows.map(r => deck.getCategoryList(name).get(table.convertRowIndexToModel(r))).toSeq
+  def selectedCards = table.getSelectedRows.map(r => deck.getCategoryList(name).get(table.convertRowIndexToModel(r))).toSeq
 
   /** Update the GUI to reflect changes in a category. */
   def update() = {
