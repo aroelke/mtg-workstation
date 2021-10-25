@@ -34,6 +34,7 @@ import javax.swing.Timer
 import javax.swing.event.MouseInputAdapter
 import scala.jdk.CollectionConverters._
 import java.{util => ju}
+import java.awt.Container
 
 class CategoryPanel(deck: Deck, var name: String, editor: EditorFrame) extends JPanel {
   private class FlashTimer(bg: Color, end: Int = 20, flash: Color = SystemColor.textHighlight) extends Timer(end, null) {
@@ -63,47 +64,6 @@ class CategoryPanel(deck: Deck, var name: String, editor: EditorFrame) extends J
     }
   }
   private val timer = FlashTimer(getBackground)
-
-  private class PDMouseWheelListener(parent: JScrollPane) extends MouseWheelListener {
-    private var previous = 0
-
-    private lazy val parentScrollPane = {
-      var pane = getParent
-      while (pane != null && !pane.isInstanceOf[JScrollPane])
-        pane = pane.getParent
-      pane.asInstanceOf[JScrollPane]
-    }
-
-    private def cloneEvent(e: MouseWheelEvent) = MouseWheelEvent(
-      parentScrollPane,
-      e.getID,
-      e.getWhen,
-      e.getModifiersEx,
-      1,
-      1,
-      e.getClickCount,
-      false,
-      e.getScrollType,
-      e.getScrollAmount,
-      e.getWheelRotation
-    )
-
-    private def getMax = parent.getVerticalScrollBar.getMaximum - parent.getVerticalScrollBar.getVisibleAmount
-
-    override def mouseWheelMoved(e: MouseWheelEvent) = {
-      if (parentScrollPane != null) {
-        if (e.getWheelRotation < 0) {
-          if (parent.getVerticalScrollBar.getValue == 0 && previous == 0)
-            parent.dispatchEvent(cloneEvent(e))
-        } else if (parent.getVerticalScrollBar.getValue == getMax && previous == getMax) {
-          parent.dispatchEvent(cloneEvent(e))
-        }
-        previous = parent.getVerticalScrollBar.getValue
-      } else {
-        parent.removeMouseWheelListener(this)
-      }
-    }
-  }
 
   private val border = BorderFactory.createTitledBorder(name)
   setBorder(border)
@@ -149,7 +109,43 @@ class CategoryPanel(deck: Deck, var name: String, editor: EditorFrame) extends J
       table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnData(i)))
   private val tablePane = JScrollPane(table)
   tablePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
-  tablePane.addMouseWheelListener(PDMouseWheelListener(tablePane))
+  tablePane.addMouseWheelListener(new MouseWheelListener {
+    private lazy val parentScrollPane = {
+      var pane = getParent
+      while (pane != null && !pane.isInstanceOf[JScrollPane])
+        pane = pane.getParent
+      Option(pane.asInstanceOf[JScrollPane])
+    }
+
+    private def cloneEvent(e: MouseWheelEvent, pane: Container) = MouseWheelEvent(
+      pane,
+      e.getID,
+      e.getWhen,
+      e.getModifiersEx,
+      1,
+      1,
+      e.getClickCount,
+      false,
+      e.getScrollType,
+      e.getScrollAmount,
+      e.getWheelRotation
+    )
+
+    private def max = tablePane.getVerticalScrollBar.getMaximum - tablePane.getVerticalScrollBar.getVisibleAmount
+
+    private var previous = 0
+    override def mouseWheelMoved(e: MouseWheelEvent) = {
+      parentScrollPane.map(pane => {
+        if (e.getWheelRotation < 0) {
+          if (tablePane.getVerticalScrollBar.getValue == 0 && previous == 0)
+            pane.dispatchEvent(cloneEvent(e, pane))
+        } else if (tablePane.getVerticalScrollBar.getValue == max && previous == max) {
+          pane.dispatchEvent(cloneEvent(e, pane))
+        }
+        previous = tablePane.getVerticalScrollBar.getValue
+      }).getOrElse(tablePane.removeMouseWheelListener(this))
+    }
+  })
   var resizeAdapter = new MouseInputAdapter {
     private var resizing = false
     private var base = 0
