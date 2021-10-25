@@ -36,7 +36,7 @@ import scala.jdk.CollectionConverters._
 import java.{util => ju}
 import java.awt.Container
 
-class CategoryPanel(private val deck: Deck, private var _name: String, private val editor: EditorFrame) extends JPanel {
+class CategoryPanel(private val deck: Deck, private var _name: String, private val editor: EditorFrame, flashDuration: Int = 20, flashColor: Color = SystemColor.textHighlight) extends JPanel {
 
   /** @return the name of the category corresponding to this CategoryPanel */
   def name = _name
@@ -51,17 +51,19 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
       throw ju.NoSuchElementException(s"deck does not have a category named $n")
     _name = n
   }
-  private class FlashTimer(bg: Color, end: Int = 20, flash: Color = SystemColor.textHighlight) extends Timer(end, null) {
-    private var count = 0
+
+  private val timer = new Timer(flashDuration, null) {
+    val bg = getBackground
+    var count = 0
     addActionListener(_ => {
       count += 1
-      if (count > end) {
+      if (count > flashDuration) {
         stop()
       } else {
-        val ratio = count.toDouble/end.toDouble
-        val r = (flash.getRed + (bg.getRed - flash.getRed)*ratio).toInt
-        val g = (flash.getGreen + (bg.getGreen - flash.getGreen)*ratio).toInt
-        val b = (flash.getBlue + (bg.getBlue - flash.getBlue)*ratio).toInt
+        val ratio = count.toDouble/flashDuration.toDouble
+        val r = (flashColor.getRed + (bg.getRed - flashColor.getRed)*ratio).toInt
+        val g = (flashColor.getGreen + (bg.getGreen - flashColor.getGreen)*ratio).toInt
+        val b = (flashColor.getBlue + (bg.getBlue - flashColor.getBlue)*ratio).toInt
         setBackground(Color(r, g, b))
       }
     })
@@ -77,7 +79,6 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
       repaint()
     }
   }
-  private val timer = FlashTimer(getBackground)
 
   /** Briefly flash to draw attention to this CategoryPanel. */
   def flash() = timer.restart()
