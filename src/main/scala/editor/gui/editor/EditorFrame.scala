@@ -1460,25 +1460,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       }
     })
     // Add the behavior for double-clicking the category title
-    newCategory.addMouseListener(ChangeTitleListener(newCategory, (title) => {
-      val oldName = newCategory.name
-      if (!title.equals(oldName)) {
-        performAction(() => {
-          val mod = deck.current.getCategorySpec(oldName)
-          mod.setName(title)
-          deck.current.updateCategory(oldName, mod)
-          newCategory.name = title
-          updateCategoryPanel()
-          true
-        }, () => {
-          val mod = deck.current.getCategorySpec(title)
-          mod.setName(oldName)
-          deck.current.updateCategory(title, mod)
-          newCategory.name = oldName
-          updateCategoryPanel()
-          true
-        })
-      }
+    newCategory.addMouseListener(ChangeTitleListener(newCategory, (title) => categories(newCategory.name) = {
+      val spec = Category(categories(newCategory.name))
+      spec.setName(title)
+      spec
     }))
     // Add behavior for the rank box
     newCategory.rankBox.addActionListener(_ => {
