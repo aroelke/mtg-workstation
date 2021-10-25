@@ -267,6 +267,20 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     def --=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %%= cards.map((c) => c -> -n).toMap }
 
     /**
+     * Set the number of copies of a card in the deck to a specific amount.
+     * 
+     * @param card card to update
+     * @param count new number of copies in the deck
+     * @return the old amount of cards in the deck
+     */
+    def update(card: Card, count: Int) = {
+      val old = current.getEntry(card).count
+      if (old != count)
+        this %%= Map(card -> (count - old))
+      old
+    }
+
+    /**
      * Move cards from this list to another in the same editor.
      * 
      * @param moves mapping of cards onto counts of cards to move to the other list
@@ -333,6 +347,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     override def contains(c: Card) = current.contains(c)
     @deprecated override def containsAll(cards: java.util.Collection[? <: Card]) = cards.asScala.forall(contains(_))
     @deprecated override def get(index: Int) = current.get(index)
+    @deprecated override def set(card: Card, amount: Int): Boolean = update(card, amount) != amount
     override def getEntry(index: Int) = current.getEntry(index)
     override def getEntry(card: Card) = current.getEntry(card)
     override def indexOf(card: Card) = current.indexOf(card)
@@ -342,7 +357,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     override def iterator = current.iterator
     override def toArray = current.toArray
 
-    private[EditorFrame] lazy val model = CardTableModel(EditorFrame.this, current, SettingsDialog.settings.editor.columns.asJava)
+    private[EditorFrame] lazy val model = CardTableModel(EditorFrame.this, this, SettingsDialog.settings.editor.columns.asJava)
     private[EditorFrame] lazy val table = {
       val table = CardTable(model)
       table.setStripeColor(SettingsDialog.settings.editor.stripe)
@@ -402,7 +417,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     @deprecated override def removeAll(cards: CardList): java.util.Map[Card, Integer] = throw UnsupportedOperationException()
     @deprecated override def removeAll(cards: java.util.Map[? <: Card, ? <: Integer]): java.util.Map[Card, Integer] = throw UnsupportedOperationException()
     @deprecated override def removeAll(cards: java.util.Set[? <: Card]): java.util.Set[Card] = throw UnsupportedOperationException()
-    @deprecated override def set(card: Card, amount: Int): Boolean = throw UnsupportedOperationException()
     @deprecated override def set(index: Int, amount: Int): Boolean = throw UnsupportedOperationException()
     override def clear() = throw UnsupportedOperationException()
     override def sort(c: java.util.Comparator[? >: CardList.Entry]) = throw UnsupportedOperationException()
