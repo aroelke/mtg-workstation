@@ -11,7 +11,7 @@ appProperties := {
 name := "mtg-workstation"
 version := appProperties.value.getProperty("version")
 
-scalaVersion := "3.0.1"
+scalaVersion := "3.1.0"
 libraryDependencies ++= Seq(
   "com.google.code.gson" % "gson" % "2.8.5",
   "com.joestelmach" % "natty" % "0.12",
