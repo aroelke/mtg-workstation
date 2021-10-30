@@ -33,10 +33,59 @@ import javax.swing.SwingUtilities
 import javax.swing.Timer
 import javax.swing.event.MouseInputAdapter
 import scala.jdk.CollectionConverters._
-import java.{util => ju}
 import java.awt.Container
+import editor.collection.CardList
+import editor.database.card.Card
+import java.util.NoSuchElementException
 
 class CategoryPanel(private val deck: Deck, private var _name: String, private val editor: EditorFrame, flashDuration: Int = 20, flashColor: Color = SystemColor.textHighlight) extends JPanel {
+
+  private object list extends CardList {
+    private def categorization = deck.getCategorySpec(name)
+    private def list = deck.getCategoryList(name)
+
+    override def add(card: Card) = if (categorization.includes(card)) editor.deck ++= Seq(card) -> 1 else false
+    override def add(card: Card, amount: Int) = if (categorization.includes(card)) editor.deck ++= Seq(card) -> amount else false
+    override def addAll(cards: CardList) = editor.deck %%= editor.deck.asScala.collect{ case card if categorization.includes(card) => card -> editor.deck.getEntry(card).count }.toMap
+    @deprecated override def addAll(amounts: java.util.Map[? <: Card, ? <: Integer]) = editor.deck %%= amounts.asScala.collect{ case (card, n) if categorization.includes(card) => card -> n.toInt }.toMap
+    @deprecated override def addAll(cards: java.util.Set[? <: Card]) = editor.deck %%= cards.asScala.collect{ case (card) if categorization.includes(card) => card -> 1 }.toMap
+    override def clear() = editor.deck %%= list.asScala.collect{ case card => card -> -list.getEntry(card).count }.toMap
+    override def contains(card: Card) = categorization.includes(card) && editor.deck.contains(card)
+    @deprecated override def containsAll(cards: java.util.Collection[? <: Card]) = cards.asScala.forall(contains(_))
+    override def get(index: Int) = list.get(index)
+    override def getEntry(card: Card) = list.getEntry(card)
+    override def getEntry(index: Int) = list.getEntry(index)
+    override def indexOf(card: Card) = list.indexOf(card)
+    override def isEmpty = list.isEmpty
+    override def remove(card: Card) = if (categorization.includes(card)) editor.deck --= Seq(card) -> 1 else false
+    override def remove(card: Card, amount: Int) = if (categorization.includes(card)) {
+      val prev = Math.min(amount, editor.deck.getEntry(card).count)
+      if (editor.deck --= Seq(card) -> amount)
+        prev
+      else
+        0
+    } else 0
+    @deprecated override def removeAll(cards: CardList) = {
+      val capped = cards.asScala.collect{ case (card) if categorization.includes(card) && editor.deck.contains(card) => card -> -Math.min(cards.getEntry(card).count, editor.deck.getEntry(card).count) }.toMap
+      (if (editor.deck %%= capped)
+        capped
+      else
+        Map.empty[Card, Int]).map{ case (card, n) => card -> Integer(n) }.asJava
+    }
+    @deprecated override def removeAll(cards: java.util.Map[? <: Card, ? <: Integer]) = {
+      val temp = new Deck()
+      temp.addAll(cards)
+      removeAll(temp)
+    }
+    @deprecated override def removeAll(cards: java.util.Set[? <: Card]) = removeAll(cards.asScala.map((c) => c -> Integer(1)).toMap.asJava).keySet
+    override def set(card: Card, amount: Int) = if (categorization.includes(card)) editor.deck.set(card, amount) else false
+    override def set(index: Int, amount: Int) = if (categorization.includes(list.get(index))) editor.deck.set(list.get(index), amount) else false
+    override def size = list.size
+    override def toArray = list.toArray
+    override def total = list.total
+    @deprecated override def sort(c: java.util.Comparator[? >: CardList.Entry]) = list.sort(c)
+    override def iterator = list.iterator
+  }
 
   /** @return the name of the category corresponding to this CategoryPanel */
   def name = _name
@@ -48,7 +97,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   @throws[NoSuchElementException]("if the deck does not have a category with that name")
   def name_=(n: String) = {
     if (!deck.containsCategory(n))
-      throw ju.NoSuchElementException(s"deck does not have a category named $n")
+      throw NoSuchElementException(s"deck does not have a category named $n")
     _name = n
   }
 
@@ -92,7 +141,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
 
   // Labels showing category stats
   private val statsPanel = Box(BoxLayout.X_AXIS)
-  private val countLabel = JLabel(s"Cards: ${deck.getCategoryList(name).total}")
+  private val countLabel = JLabel(s"Cards: ${list.total}")
   statsPanel.add(countLabel)
   statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE))
   private val avgManaValueLabel = JLabel("Average mana value: 0")
@@ -117,7 +166,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
 
   // Table showing the cards in the category
   private var tableRows = SettingsDialog.settings.editor.categories.rows
-  private val model = CardTableModel(editor, deck.getCategoryList(name), SettingsDialog.settings.editor.columns.asJava)
+  private val model = CardTableModel(editor, list, SettingsDialog.settings.editor.columns.asJava)
   val table = new CardTable(model) {
     override def getPreferredScrollableViewportSize = Dimension(getPreferredSize.width, tableRows*getRowHeight)
   }
@@ -198,7 +247,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
         val p = SwingUtilities.convertPoint(e.getSource.asInstanceOf[Component], e.getPoint, table)
         setCursor(Cursor(Cursor.S_RESIZE_CURSOR))
         val minRows = 1
-        val maxRows = Math.max(deck.getCategoryList(name).total, tableRows)
+        val maxRows = Math.max(list.total, tableRows)
         if (p.y <= base - table.getRowHeight/2 && tableRows > minRows) {
           val n = Math.min(((base - p.y) + table.getRowHeight - 1)/table.getRowHeight, tableRows - minRows)
           tableRows -= n
@@ -246,11 +295,11 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   }
 
   /** @return the list of cards corresponding to the selected rows in the category's table */
-  def selectedCards = table.getSelectedRows.map(r => deck.getCategoryList(name).get(table.convertRowIndexToModel(r))).toSeq
+  def selectedCards = table.getSelectedRows.map(r => list.get(table.convertRowIndexToModel(r))).toSeq
 
   /** Update the GUI to reflect changes in a category. */
   def update() = {
-    countLabel.setText(s"Cards: ${deck.getCategoryList(name).total}")
+    countLabel.setText(s"Cards: ${list.total}")
 
     val avgManaValue = deck.stream
       .filter(deck.getCategorySpec(name).includes(_))
