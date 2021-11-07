@@ -40,6 +40,20 @@ import java.util.NoSuchElementException
 import editor.gui.settings.SettingsObserver
 import editor.gui.settings.Settings
 
+/**
+ * A panel displaying information about a deck category.  In addition to the cards contained by the category,
+ * it displays the average mana value and number of cards in it and has controls for modifying the categorization.
+ * The panel can "flash" a color to draw the user's eyes to it if changes are made.
+ * 
+ * @constructor create a new panel tracking a category
+ * @param deck [[Deck]] containing the cards to display
+ * @param _name name of the category
+ * @param editor parent [[EditorFrame]] containing the category
+ * @param flashDuration amount of time in milliseconds the "flash" should last
+ * @param flashColor color the panel changes when it "flashes"
+ * 
+ * @author Alec Roelke
+ */ 
 class CategoryPanel(private val deck: Deck, private var _name: String, private val editor: EditorFrame, flashDuration: Int = 20, flashColor: Color = SystemColor.textHighlight) extends JPanel
   with SettingsObserver
 {
@@ -64,17 +78,11 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
     override def remove(card: Card) = if (categorization.includes(card)) editor.deck --= Seq(card) -> 1 else false
     override def remove(card: Card, amount: Int) = if (categorization.includes(card)) {
       val prev = Math.min(amount, editor.deck.getEntry(card).count)
-      if (editor.deck --= Seq(card) -> amount)
-        prev
-      else
-        0
+      if (editor.deck --= Seq(card) -> amount) prev else 0
     } else 0
     @deprecated override def removeAll(cards: CardList) = {
       val capped = cards.asScala.collect{ case (card) if categorization.includes(card) && editor.deck.contains(card) => card -> -Math.min(cards.getEntry(card).count, editor.deck.getEntry(card).count) }.toMap
-      (if (editor.deck %%= capped)
-        capped
-      else
-        Map.empty[Card, Int]).map{ case (card, n) => card -> Integer(n) }.asJava
+      (if (editor.deck %%= capped) capped else Map.empty[Card, Int]).map{ case (card, n) => card -> Integer(n) }.asJava
     }
     @deprecated override def removeAll(cards: java.util.Map[? <: Card, ? <: Integer]) = {
       val temp = new Deck()

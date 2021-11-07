@@ -792,11 +792,8 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
       startingSizeSpinner.commitEdit()
 
       val presets = new ArrayBuffer[Category](categoriesList.getCount)
-      println(categoriesList.getCount)
-      println(settings.editor.categories.presets.size)
       for (i <- 0 until categoriesList.getCount)
         presets += categoriesList.getCategoryAt(i)
-      println(presets.size)
       
       settings.copy(
         inventory = settings.inventory.copy(
@@ -846,7 +843,6 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
         JOptionPane.showMessageDialog(this, s"Bad file URL: ${SettingsDialog.settings.inventory.url}", "Warning", JOptionPane.WARNING_MESSAGE)
         Settings()
     }
-    println(newSettings.editor.categories.presets.size)
     if (newSettings.inventory.columns.isEmpty)
       newSettings = newSettings.copy(inventory = newSettings.inventory.copy(columns = InventorySettings().columns))
     if (newSettings.editor.columns.isEmpty)
