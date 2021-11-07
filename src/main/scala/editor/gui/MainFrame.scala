@@ -459,7 +459,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             moveButtons.asScala.foreach(_.addActionListener(updateTable))
             updateTable.actionPerformed(null)
 
-            if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardDialog.FINISH_OPTION) {
+            if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardDialog.FinishOption) {
               val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_))
               Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected.asJava, !includeCheckBox.isSelected()))
             }
@@ -590,7 +590,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             if (f.deck.total > 0 || f.allExtras.total > 0)
               wizardPanel.add(sortPanel)
 
-            if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FINISH_OPTION)
+            if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FinishOption)
               Some(TextCardListFormat(formatField.getText))
             else
               None
@@ -682,7 +682,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             if (!extras.isEmpty)
                 panels += extrasPanel
 
-            if (WizardDialog.showWizardDialog(this, "Export Wizard", panels.asJava) == WizardDialog.FINISH_OPTION) {
+            if (WizardDialog.showWizardDialog(this, "Export Wizard", panels.toSeq:_*) == WizardDialog.FinishOption) {
               val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_))
               Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected.asJava, includeCheckBox.isSelected))
             } else None

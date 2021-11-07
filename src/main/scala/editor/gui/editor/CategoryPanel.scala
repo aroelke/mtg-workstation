@@ -1,17 +1,22 @@
 package editor.gui.editor
 
+import editor.collection.CardList
 import editor.collection.deck.Deck
+import editor.database.card.Card
 import editor.gui.display.CardTable
 import editor.gui.display.CardTableModel
 import editor.gui.generic.ColorButton
 import editor.gui.generic.ComponentUtils
+import editor.gui.settings.Settings
 import editor.gui.settings.SettingsDialog
+import editor.gui.settings.SettingsObserver
 import editor.util.StringUtils
 import editor.util.UnicodeSymbols
 
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Component
+import java.awt.Container
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.FlowLayout
@@ -20,6 +25,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import java.awt.event.MouseWheelListener
 import java.util.Collections
+import java.util.NoSuchElementException
 import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
@@ -33,12 +39,6 @@ import javax.swing.SwingUtilities
 import javax.swing.Timer
 import javax.swing.event.MouseInputAdapter
 import scala.jdk.CollectionConverters._
-import java.awt.Container
-import editor.collection.CardList
-import editor.database.card.Card
-import java.util.NoSuchElementException
-import editor.gui.settings.SettingsObserver
-import editor.gui.settings.Settings
 
 /**
  * A panel displaying information about a deck category.  In addition to the cards contained by the category,
