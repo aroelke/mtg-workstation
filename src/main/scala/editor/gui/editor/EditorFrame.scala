@@ -1261,7 +1261,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     for (i <- 0 until deck.table.getColumnCount)
       if (deck.model.isCellEditable(0, i))
         deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)))
-    categoryPanels.foreach(_.applySettings())
     updateStats()
     update()
   }
@@ -1641,6 +1640,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    */
   private def do_addCategory(spec: Category): Boolean = Option(deck.current.addCategory(spec)).map(_ => {
     val category = createCategoryPanel(spec)
+    category.startObserving()
     categoryPanels += category
 
     for (c <- categoryPanels)
@@ -1666,7 +1666,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private def do_removeCategory(spec: Category) = {
     val success = deck.current.removeCategory(spec)
     if (success) {
-      categoryPanels -= getCategoryPanel(spec.getName).get
+      val category = getCategoryPanel(spec.getName).get
+      categoryPanels -= category
+      category.stopObserving()
       categoryPanels.foreach(_.rankBox.removeItemAt(categoryPanels.size))
       listTabs.setSelectedIndex(Categories.ordinal)
       updateCategoryPanel()

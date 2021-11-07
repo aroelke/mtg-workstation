@@ -37,8 +37,12 @@ import java.awt.Container
 import editor.collection.CardList
 import editor.database.card.Card
 import java.util.NoSuchElementException
+import editor.gui.settings.SettingsObserver
+import editor.gui.settings.Settings
 
-class CategoryPanel(private val deck: Deck, private var _name: String, private val editor: EditorFrame, flashDuration: Int = 20, flashColor: Color = SystemColor.textHighlight) extends JPanel {
+class CategoryPanel(private val deck: Deck, private var _name: String, private val editor: EditorFrame, flashDuration: Int = 20, flashColor: Color = SystemColor.textHighlight) extends JPanel
+  with SettingsObserver
+{
 
   private object list extends CardList {
     private def categorization = deck.getCategorySpec(name)
@@ -213,7 +217,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
       }).getOrElse(tablePane.removeMouseWheelListener(this))
     }
   })
-  var resizeAdapter = new MouseInputAdapter {
+  private var resizeAdapter = new MouseInputAdapter {
     private var resizing = false
     private var base = 0
 
@@ -286,9 +290,9 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   update()
 
   /** Apply settings to this CategoryPanel. */
-  def applySettings() = {
-    model.setColumns(SettingsDialog.settings.editor.columns.asJava)
-    table.setStripeColor(SettingsDialog.settings.editor.stripe)
+  def applySettings(oldSettings: Settings, newSettings: Settings) = {
+    applyChanges(oldSettings, newSettings)(_.editor.columns)(columns => model.setColumns(columns.asJava))
+                                          (_.editor.stripe)(table.setStripeColor(_))
     for (i <- 0 until table.getColumnCount)
       if (model.isCellEditable(0, i))
         table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.getColumnData(i)))
