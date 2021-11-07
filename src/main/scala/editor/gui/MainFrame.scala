@@ -35,6 +35,7 @@ import _root_.editor.gui.generic.TableMouseAdapter
 import _root_.editor.gui.generic.TristateCheckBox
 import _root_.editor.gui.generic.VerticalButtonList
 import _root_.editor.gui.generic.WizardDialog
+import _root_.editor.gui.generic.WizardResult
 import _root_.editor.gui.inventory.InventoryDownloader
 import _root_.editor.gui.inventory.InventoryLoader
 import _root_.editor.gui.settings.Settings
@@ -459,7 +460,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             moveButtons.asScala.foreach(_.addActionListener(updateTable))
             updateTable.actionPerformed(null)
 
-            if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardDialog.FinishOption) {
+            if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardResult.FinishOption) {
               val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_))
               Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected.asJava, !includeCheckBox.isSelected()))
             }
@@ -590,7 +591,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             if (f.deck.total > 0 || f.allExtras.total > 0)
               wizardPanel.add(sortPanel)
 
-            if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardDialog.FinishOption)
+            if (WizardDialog.showWizardDialog(this, "Export Wizard", wizardPanel) == WizardResult.FinishOption)
               Some(TextCardListFormat(formatField.getText))
             else
               None
@@ -682,7 +683,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             if (!extras.isEmpty)
                 panels += extrasPanel
 
-            if (WizardDialog.showWizardDialog(this, "Export Wizard", panels.toSeq:_*) == WizardDialog.FinishOption) {
+            if (WizardDialog.showWizardDialog(this, "Export Wizard", panels.toSeq:_*) == WizardResult.FinishOption) {
               val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_))
               Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected.asJava, includeCheckBox.isSelected))
             } else None

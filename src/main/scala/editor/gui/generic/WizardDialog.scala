@@ -1,26 +1,26 @@
 package editor.gui.generic
 
-import javax.swing.JDialog
-import java.awt.Frame
+import java.awt.BorderLayout
+import java.awt.CardLayout
 import java.awt.Component
 import java.awt.Dialog
-import java.awt.Window
-import scala.annotation.internal.Repeated
-import java.awt.CardLayout
-import javax.swing.JButton
-import javax.swing.JPanel
-import java.awt.BorderLayout
+import java.awt.Frame
 import java.awt.GridLayout
-import javax.swing.BorderFactory
-import java.awt.event.WindowEvent
+import java.awt.Window
 import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
+import javax.swing.BorderFactory
+import javax.swing.JButton
+import javax.swing.JDialog
+import javax.swing.JPanel
 import javax.swing.SwingUtilities
+import scala.annotation.internal.Repeated
+
+enum WizardResult {
+  case CloseOption, CancelOption, FinishOption
+}
 
 object WizardDialog {
-  val CloseOption = 2
-  val CancelOption = 1
-  val FinishOption = 0
-
   def apply(owner: Dialog | Frame | Window, title: String, panels: Component*) = owner match {
     case d: Dialog => new JDialog(d, title, true) with WizardDialog(panels:_*)
     case f: Frame  => new JDialog(f, title, true) with WizardDialog(panels:_*)
@@ -40,13 +40,14 @@ object WizardDialog {
 
 trait WizardDialog private(panels: Component*) extends JDialog {
   import WizardDialog._
+  import WizardResult._
   private val ButtonBorder = 5
 
   private val layout = CardLayout()
   setLayout(layout);
   setResizable(false);
 
-  private var result = -1
+  private var result: Option[WizardResult] = None
 
   if (panels.length < 1)
     throw IllegalArgumentException("a wizard needs at least one step");
@@ -66,7 +67,7 @@ trait WizardDialog private(panels: Component*) extends JDialog {
 
     controls(i) = ControlButtons(JButton("Cancel"), Option.when(panels.length > 1)(JButton("< Previous")), JButton(if (i == panels.length - 1) "Finish" else "Next >"))
     controls(i).cancel.addActionListener(_ => {
-      result = CancelOption
+      result = Some(CancelOption)
       dispose()
     })
     buttons.add(controls(i).cancel)
@@ -75,7 +76,7 @@ trait WizardDialog private(panels: Component*) extends JDialog {
       buttons.add(b)
     })
     controls(i).next.addActionListener(if (i == panels.length - 1) _ => {
-      result = FinishOption
+      result = Some(FinishOption)
       dispose()
     } else _ => layout.next(getContentPane))
     buttons.add(controls(i).next)
@@ -83,7 +84,7 @@ trait WizardDialog private(panels: Component*) extends JDialog {
   if (panels.length > 1)
     controls(0).previous.foreach(_.setEnabled(false))
 
-  addWindowListener(new WindowAdapter { override def windowClosing(e: WindowEvent) = result = CloseOption });
+  addWindowListener(new WindowAdapter { override def windowClosing(e: WindowEvent) = result = Some(CloseOption) });
   pack();
 
   def setCancelEnabled(index: Int, enable: Boolean) = controls(index).cancel.setEnabled(enable)
@@ -94,8 +95,6 @@ trait WizardDialog private(panels: Component*) extends JDialog {
 
   def showWizard() = {
     setVisible(true)
-    if (result == -1)
-      throw IllegalStateException("wizard not currently closed")
-    result
+    result.getOrElse(throw IllegalStateException("wizard not currently closed"))
   }
 }
