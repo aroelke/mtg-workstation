@@ -86,23 +86,23 @@ trait WizardDialog(panels: Component*) extends JDialog {
   private val ButtonBorder = 5
 
   private val layout = CardLayout()
-  setLayout(layout);
-  setResizable(false);
+  setLayout(layout)
+  setResizable(false)
 
   private var result: Option[WizardResult] = None
 
   if (panels.length < 1)
-    throw IllegalArgumentException("a wizard needs at least one step");
+    throw IllegalArgumentException("a wizard needs at least one step")
 
   private case class ControlButtons(cancel: JButton, previous: Option[JButton], next: JButton)
   private val controls = panels.zipWithIndex.map{ case (panel, i) =>
-    val step = JPanel(BorderLayout());
-    step.add(panels(i), BorderLayout.CENTER);
+    val step = JPanel(BorderLayout())
+    step.add(panels(i), BorderLayout.CENTER)
 
-    val buttonPanel = JPanel(BorderLayout());
-    step.add(buttonPanel, BorderLayout.SOUTH);
-    val buttons = JPanel(GridLayout(1, 0, ButtonBorder, ButtonBorder));
-    buttons.setBorder(BorderFactory.createEmptyBorder(ButtonBorder, ButtonBorder, ButtonBorder, ButtonBorder));
+    val buttonPanel = JPanel(BorderLayout())
+    step.add(buttonPanel, BorderLayout.SOUTH)
+    val buttons = JPanel(GridLayout(1, 0, ButtonBorder, ButtonBorder))
+    buttons.setBorder(BorderFactory.createEmptyBorder(ButtonBorder, ButtonBorder, ButtonBorder, ButtonBorder))
     buttonPanel.add(buttons, BorderLayout.EAST)
     add(step, i.toString)
 
@@ -126,8 +126,8 @@ trait WizardDialog(panels: Component*) extends JDialog {
   }
   controls(0).previous.foreach(_.setEnabled(false))
 
-  addWindowListener(new WindowAdapter { override def windowClosing(e: WindowEvent) = result = Some(CloseOption) });
-  pack();
+  addWindowListener(new WindowAdapter { override def windowClosing(e: WindowEvent) = result = Some(CloseOption) })
+  pack()
 
   /**
    * Set whether or not the cancel button in a stage should be enabled.
