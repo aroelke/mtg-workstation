@@ -38,7 +38,7 @@ object WizardDialog {
   }
 }
 
-trait WizardDialog private(panels: Component*) extends JDialog {
+trait WizardDialog(panels: Component*) extends JDialog {
   import WizardDialog._
   import WizardResult._
   private val ButtonBorder = 5
@@ -51,10 +51,9 @@ trait WizardDialog private(panels: Component*) extends JDialog {
 
   if (panels.length < 1)
     throw IllegalArgumentException("a wizard needs at least one step");
-  private case class ControlButtons(cancel: JButton, previous: Option[JButton], next: JButton)
-  private val controls = new Array[ControlButtons](panels.length)
 
-  for (i <- 0 until panels.length) {
+  private case class ControlButtons(cancel: JButton, previous: Option[JButton], next: JButton)
+  private val controls = panels.zipWithIndex.map{ case (panel, i) =>
     val step = JPanel(BorderLayout());
     step.add(panels(i), BorderLayout.CENTER);
 
@@ -65,24 +64,25 @@ trait WizardDialog private(panels: Component*) extends JDialog {
     buttonPanel.add(buttons, BorderLayout.EAST)
     add(step, i.toString)
 
-    controls(i) = ControlButtons(JButton("Cancel"), Option.when(panels.length > 1)(JButton("< Previous")), JButton(if (i == panels.length - 1) "Finish" else "Next >"))
-    controls(i).cancel.addActionListener(_ => {
+    val control = ControlButtons(JButton("Cancel"), Option.when(panels.length > 1)(JButton("< Previous")), JButton(if (i == panels.length - 1) "Finish" else "Next >"))
+    control.cancel.addActionListener(_ => {
       result = Some(CancelOption)
       dispose()
     })
-    buttons.add(controls(i).cancel)
-    controls(i).previous.foreach(b => {
+    buttons.add(control.cancel)
+    control.previous.foreach(b => {
       b.addActionListener(_ => layout.previous(getContentPane))
       buttons.add(b)
     })
-    controls(i).next.addActionListener(if (i == panels.length - 1) _ => {
+    control.next.addActionListener(if (i == panels.length - 1) _ => {
       result = Some(FinishOption)
       dispose()
     } else _ => layout.next(getContentPane))
-    buttons.add(controls(i).next)
+    buttons.add(control.next)
+
+    control
   }
-  if (panels.length > 1)
-    controls(0).previous.foreach(_.setEnabled(false))
+  controls(0).previous.foreach(_.setEnabled(false))
 
   addWindowListener(new WindowAdapter { override def windowClosing(e: WindowEvent) = result = Some(CloseOption) });
   pack();
