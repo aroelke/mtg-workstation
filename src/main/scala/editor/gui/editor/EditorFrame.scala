@@ -1692,7 +1692,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       def write(d: Deck, n: Option[String] = None) = {
         val copy = Deck(d)
         copy.sort(comp)
-        n.foreach(wr.print(_))
+        n.foreach(wr.println(_))
         wr.print(format.format(copy))
       }
 
