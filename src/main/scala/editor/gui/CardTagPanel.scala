@@ -106,28 +106,19 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
     }
   }
 
-  def addTag(tag: String, selected: Boolean) = {
-    val tags = collection.mutable.Set(tagBoxes.map(_.getText).toSeq:_*)
-    if (tags.add(tag)) {
-      setTags(tags.toSeq.sorted)
-      if (selected)
-        tagBoxes.filter(_.getText == tag).foreach(_.setSelected(true))
-      true
-    } else false
+  def addTag(tag: String, selected: Boolean) = if (tagBoxes.exists(_.getText == tag)) false else {
+    setTags((tagBoxes.map(_.getText) :+ tag).toSeq.sorted)
+    if (selected)
+      tagBoxes.filter(_.getText == tag).foreach(_.setSelected(true))
+    true
   }
 
-  def removeTag(tag: String) = {
-    val tags = collection.mutable.Set(tagBoxes.map(_.getText).toSeq:_*)
-    if (tags.remove(tag)) {
-      removed += tag
-      setTags(tags.toSeq.sorted)
-      Option(getParent).foreach((p) => {
-        p.validate()
-        p.repaint()
-      })
-      Option(SwingUtilities.getWindowAncestor(this)).foreach(_.pack())
-      true
-    } else false
+  def removeTag(tag: String) = if (!tagBoxes.exists(_.getText == tag)) false else {
+    removed += tag
+    setTags((tagBoxes.collect{ case box if box.getText != tag => box.getText }).toSeq.sorted)
+    Option(getParent).foreach((p) => { p.validate(); p.repaint() })
+    Option(SwingUtilities.getWindowAncestor(this)).foreach(_.pack())
+    true
   }
 
   def getTagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.SELECTED => box.getText }.toSet
