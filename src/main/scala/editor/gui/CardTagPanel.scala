@@ -1,26 +1,27 @@
 package editor.gui
 
-import _root_.editor.gui.generic.ScrollablePanel
 import _root_.editor.database.card.Card
-import javax.swing.BoxLayout
-import java.awt.Color
+import _root_.editor.gui.generic.ScrollablePanel
 import _root_.editor.gui.generic.TristateCheckBox
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.UIManager
-import java.awt.BorderLayout
-import _root_.editor.util.UnicodeSymbols
 import _root_.editor.util.MouseListenerFactory
-import scala.jdk.CollectionConverters._
-import javax.swing.SwingUtilities
+import _root_.editor.util.UnicodeSymbols
+
+import java.awt.BorderLayout
+import java.awt.Color
 import java.awt.Component
-import javax.swing.JScrollPane
-import javax.swing.Box
-import javax.swing.JTextField
-import javax.swing.JButton
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.JButton
+import javax.swing.JLabel
 import javax.swing.JOptionPane
+import javax.swing.JPanel
+import javax.swing.JScrollPane
+import javax.swing.JTextField
+import javax.swing.SwingUtilities
+import javax.swing.UIManager
+import scala.jdk.CollectionConverters._
 
 /**
  * Companion object including convenience methods for [[CardTagPanel]].
