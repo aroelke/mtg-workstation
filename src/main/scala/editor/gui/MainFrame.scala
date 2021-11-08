@@ -1046,7 +1046,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   }))
 
   // Copy handler for image panel
-  imagePanel.setTransferHandler(InventoryExportHandler(() => Seq(getSelectedCards(0)).asJava))
+  imagePanel.setTransferHandler(InventoryExportHandler(getSelectedCards.headOption))
 
   // Panel containing inventory and image of currently-selected card
   private val inventoryPanel = JPanel(BorderLayout(0, 0))
@@ -1085,7 +1085,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     if (e.getClickCount % 2 == 0)
       f.deck ++= getSelectedCards -> 1
   })))
-  inventoryTable.setTransferHandler(InventoryExportHandler(() => getSelectedCards.asJava))
+  inventoryTable.setTransferHandler(InventoryExportHandler(getSelectedCards))
   inventoryTable.setDragEnabled(true)
   tablePanel.add(JScrollPane(inventoryTable), BorderLayout.CENTER)
 
