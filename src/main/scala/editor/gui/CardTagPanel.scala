@@ -48,26 +48,11 @@ object CardTagPanel {
       val tagged = cardTagPanel.getTagged
       val untagged = cardTagPanel.getUntagged
       cards.foreach((c) => {
-        tagged.foreach((tag) => Card.tags.compute(c, (k, v) => {
-          val set = Option(v).getOrElse(java.util.HashSet())
-          set.add(tag)
-          set
-        }))
-        untagged.foreach((tag) => Card.tags.compute(c, (k, v) => {
-          var set = v
-          if (set != null) {
-            set.remove(tag)
-            if (set.isEmpty)
-              set = null
-          }
-          set
-        }))
+        tagged.foreach((tag) => Card.tags.compute(c, (_, v) => (Option(v).getOrElse(java.util.HashSet()).asScala + tag).asJava))
+        untagged.foreach((tag) => Card.tags.compute(c, (_, v) => if (v == null || (v.size == 1 && v.contains(tag))) null else (v.asScala - tag).asJava))
       })
       val removed = cardTagPanel.getRemoved
-      Card.tags.keySet.asScala.foreach((c) => Card.tags.compute(c, (k, v) => {
-        v.removeAll(removed.asJava)
-        if (v.isEmpty) null else v
-      }))
+      Card.tags.keySet.asScala.foreach((c) => Card.tags.compute(c, (_, v) => if (v == null || v.asScala == removed) null else (v.asScala -- removed).asJava))
     }
   }
 }
