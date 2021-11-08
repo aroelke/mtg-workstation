@@ -63,6 +63,11 @@ object CardTagPanel {
           set
         }))
       })
+      val removed = cardTagPanel.getRemoved
+      Card.tags.keySet.asScala.foreach((c) => Card.tags.compute(c, (k, v) => {
+        v.removeAll(removed.asJava)
+        if (v.isEmpty) null else v
+      }))
     }
   }
 }
@@ -143,6 +148,8 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
   def getTagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.SELECTED => box.getText }.toSet
 
   def getUntagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.UNSELECTED => box.getText }.toSeq ++ removed.toSet
+
+  def getRemoved = removed.toSet
 
   override def getPreferredScrollableViewportSize = if (tagBoxes.isEmpty) getPreferredSize else {
     val size = getPreferredSize
