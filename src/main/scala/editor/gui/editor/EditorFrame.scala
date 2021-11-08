@@ -381,7 +381,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     private[EditorFrame] lazy val cards = CardMenuItems(Some(EditorFrame.this), parent.getSelectedCards, id == MainDeck)
     private[EditorFrame] lazy val editTags = {
       val item = JMenuItem("Edit Tags...")
-      item.addActionListener(_ => CardTagPanel.editTags(parent.getSelectedCards.asJava, parent))
+      item.addActionListener(_ => CardTagPanel.editTags(parent.getSelectedCards, parent))
       item
     }
     private[EditorFrame] def setMenuEnables = {
@@ -1552,7 +1552,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     // Edit tags item
     val editTagsItem = JMenuItem("Edit Tags...")
-    editTagsItem.addActionListener(_ => CardTagPanel.editTags(parent.getSelectedCards.asJava, parent))
+    editTagsItem.addActionListener(_ => CardTagPanel.editTags(parent.getSelectedCards, parent))
     tableMenu.add(editTagsItem)
 
     // Table menu popup listeners

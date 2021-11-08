@@ -1032,7 +1032,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   oraclePopupMenu.add(oracleMenuSBSeparator)
 
   private val oracleEditTagsItem = JMenuItem("Edit Tags...")
-  oracleEditTagsItem.addActionListener(_ => CardTagPanel.editTags(getSelectedCards.asJava, this))
+  oracleEditTagsItem.addActionListener(_ => CardTagPanel.editTags(getSelectedCards, this))
   oraclePopupMenu.add(oracleEditTagsItem)
 
   // Popup listener for oracle popup menu
@@ -1121,7 +1121,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
   // Edit tags item
   private val editTagsItem = JMenuItem("Edit Tags...")
-  editTagsItem.addActionListener(_ => CardTagPanel.editTags(getSelectedCards.asJava, this))
+  editTagsItem.addActionListener(_ => CardTagPanel.editTags(getSelectedCards, this))
   inventoryMenu.add(editTagsItem)
 
   // Inventory menu listener
