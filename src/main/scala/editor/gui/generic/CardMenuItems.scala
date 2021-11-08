@@ -1,17 +1,35 @@
 package editor.gui.generic
 
-import javax.swing.JMenuItem
-import editor.gui.editor.EditorFrame
 import editor.database.card.Card
+import editor.gui.editor.EditorFrame
 import editor.gui.settings.SettingsDialog
-import javax.swing.JPanel
+
 import java.awt.BorderLayout
+import java.awt.Container
+import javax.swing.JLabel
+import javax.swing.JMenuItem
+import javax.swing.JOptionPane
+import javax.swing.JPanel
 import javax.swing.JSpinner
 import javax.swing.SpinnerNumberModel
-import javax.swing.JOptionPane
-import javax.swing.JLabel
-import java.awt.Container
 
+/**
+ * Convenience class that initializes a set of menu items that control adding cards to and removing them from a deck.
+ * There are six menu items:
+ * 1. Add a single copy of a card
+ * 2. Fill out a playset of cards
+ * 3. Add a number of copies of a card specified by a spinner
+ * 4. Remove a single copy of a card
+ * 5. Remove all copies of a card
+ * 6. Remove a number of copies of a card specified by a spinner
+ * 
+ * @constructor create a new set of menu items
+ * @param monitor [[EditorFrame]] containing the deck whose cards should be modified
+ * @param cards list of cards to modify
+ * @param main whether or not the main deck or a side list should be modified
+ * 
+ * @author Alec Roelke
+ */
 class CardMenuItems(monitor: => Option[EditorFrame], cards: => Iterable[? <: Card], main: Boolean) extends Iterable[JMenuItem] {
   private val add = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) ++= (cards -> n))
   private val fill = () => monitor.foreach(f => {
@@ -20,7 +38,7 @@ class CardMenuItems(monitor: => Option[EditorFrame], cards: => Iterable[? <: Car
   })
   private val remove = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) --= (cards -> n))
 
-  val items = Seq(
+  private val items = Seq(
     JMenuItem("Add Single Copy"), JMenuItem("Fill Playset"), JMenuItem("Add Copies..."),
     JMenuItem("Remove Single Copy"), JMenuItem("Remove All Copies"), JMenuItem("Remove Copies...")
   )
@@ -49,27 +67,54 @@ class CardMenuItems(monitor: => Option[EditorFrame], cards: => Iterable[? <: Car
         remove(spinner.getValue.asInstanceOf[Int]);
   })
 
+  /** @return the menu item that adds a single copy of the selected card to the deck. */
   def addOne = items(0)
+
+  /** @return the menu item that fills out a playset of the selected card in the deck. */
   def fillPlayset = items(1)
+
+  /** @return the menu item that adds a user-specified number of copies of the selected card to the deck. */
   def addN = items(2)
+
+  /** @return the menu item that removes a single copy of the selected card to the deck. */
   def removeOne = items(3)
+
+  /** @return the menu item that removes all copies of the selected card from the deck. */
   def removeAll = items(4)
+
+  /** @return the menu item that removes a user-specified number of copies of the selected card from the deck. */
   def removeN = items(5)
 
+  /**
+   * Convenience method to add the menu items that add cards to the deck to a menu.
+   * @param menu menu to add the items to
+   */
   def addAddItems(menu: Container) = {
     menu.add(addOne)
     menu.add(fillPlayset)
     menu.add(addN)
   }
 
+  /**
+   * Convenience method to add the menu items that remove cards from the deck to a menu.
+   * @param menu menu to add the items to
+   */
   def addRemoveItems(menu: Container) = {
     menu.add(removeOne)
     menu.add(removeAll)
     menu.add(removeN)
   }
 
+  /**
+   * Enable or disable all of the menu items.
+   * @param enable whether the items should be enabled or not
+   */
   def setEnabled(enable: Boolean) = items.foreach(_.setEnabled(enable))
 
+  /**
+   * Control the visibility of all of the menu items.
+   * @param visible whether or not the items should be visible
+   */
   def setVisible(visible: Boolean) = items.foreach(_.setVisible(visible))
 
   override def iterator = items.iterator
