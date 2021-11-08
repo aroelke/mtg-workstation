@@ -22,7 +22,18 @@ import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.JOptionPane
 
+/**
+ * Companion object including convenience methods for [[CardTagPanel]].
+ * @author Alec Roelke
+ */
 object CardTagPanel {
+  /**
+   * Show a dialog including a [[CardTagPanel]] to allow the user to edit tags for a selection of cards. If the user confirms
+   * their selection, tags are added, removed, and deleted accordingly.
+   * 
+   * @param cards cards whose tags should be edited
+   * @param parent parent component of the dialog, used for positioning
+   */
   def editTags(cards: Seq[Card], parent: Component) = {
     val contentPanel = JPanel(new BorderLayout());
     val cardTagPanel = CardTagPanel(cards);
@@ -57,6 +68,17 @@ object CardTagPanel {
   }
 }
 
+/**
+ * Panel allowing the user to edit tags applied to a collection of cards, add new tags, and remove existing tags.
+ * Tags are shown as check boxes, with those where some cards in the collection have them and some don't initially
+ * shown as being in indeterminate state.  Any left in that state will remain unchanged when the tagging is finished.
+ * Note that, after tags are applied, any tags that aren't applied to any cards will be entirely deleted.
+ * 
+ * @constructor create a new panel editing tags of a given set of cards
+ * @param cards cards whose tags should be edited
+ * 
+ * @author Alec Roelke
+ */
 class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePanel.TRACK_WIDTH) {
   private val MaxPreferredRows = 10
 
@@ -106,6 +128,14 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
     }
   }
 
+  /**
+   * Add a new tag and optionally apply it to all the selected cards.
+   * 
+   * @param tag tag to add
+   * @param selected whether or not it should be applied to all the cards
+   * @return true if the tag was added, or false otherwise (because it was already there).
+   * @note If the tag is added unselected and then the choice is confirmed, it won't be added to the tag pool.
+   */
   def addTag(tag: String, selected: Boolean) = if (tagBoxes.exists(_.getText == tag)) false else {
     setTags((tagBoxes.map(_.getText) :+ tag).toSeq.sorted)
     if (selected)
@@ -113,6 +143,13 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
     true
   }
 
+  /**
+   * Remove a tag entirely from the tag pool.  This differs from simply unchecking a tag box in that
+   * it removes it from all cards and not just from the selected ones.
+   * 
+   * @param tag tag to remove
+   * @return true if the tag was removed, and false otherwise (because it wasn't there to begin with)
+   */
   def removeTag(tag: String) = if (!tagBoxes.exists(_.getText == tag)) false else {
     _removed += tag
     setTags((tagBoxes.collect{ case box if box.getText != tag => box.getText }).toSeq.sorted)
@@ -121,10 +158,13 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
     true
   }
 
+  /** @return the set of tags that are checked (to be applied to the selected cards) */
   def tagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.SELECTED => box.getText }.toSet
 
+  /** @return the set of tags that are unchecked (to be removed from the selected cards) */
   def untagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.UNSELECTED => box.getText }.toSeq ++ _removed.toSet
 
+  /** @return the set of tags that are to be removed from all cards, and hence deleted */
   def removed = _removed.toSet
 
   override def getPreferredScrollableViewportSize = if (tagBoxes.isEmpty) getPreferredSize else {
