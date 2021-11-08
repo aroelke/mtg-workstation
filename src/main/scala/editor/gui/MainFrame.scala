@@ -799,21 +799,21 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   deckMenu.add(addMenu)
   private val removeMenu = JMenu("Remove Cards")
   deckMenu.add(removeMenu)
-  private val deckMenuCardItems = CardMenuItems(() => selectedFrame.toJava, () => getSelectedCards.asJava, true)
+  private val deckMenuCardItems = CardMenuItems(selectedFrame, getSelectedCards, true)
   deckMenuCardItems.addAddItems(addMenu)
   deckMenuCardItems.addRemoveItems(removeMenu)
-  deckMenuCardItems.addSingle.setAccelerator(KeyStroke.getKeyStroke('+'))
+  deckMenuCardItems.addOne.setAccelerator(KeyStroke.getKeyStroke('+'))
   deckMenuCardItems.fillPlayset.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK))
-  deckMenuCardItems.removeSingle.setAccelerator(KeyStroke.getKeyStroke('-'))
+  deckMenuCardItems.removeOne.setAccelerator(KeyStroke.getKeyStroke('-'))
   deckMenuCardItems.removeAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK))
 
   // Sideboard menu
   private val sideboardMenu = JMenu("Sideboard")
   deckMenu.add(sideboardMenu)
-  private val sideboardMenuItems = CardMenuItems(() => selectedFrame.toJava, () => getSelectedCards.asJava, false)
-  sideboardMenu.add(sideboardMenuItems.addSingle)
+  private val sideboardMenuItems = CardMenuItems(selectedFrame, getSelectedCards, false)
+  sideboardMenu.add(sideboardMenuItems.addOne)
   sideboardMenu.add(sideboardMenuItems.addN)
-  sideboardMenu.add(sideboardMenuItems.removeSingle)
+  sideboardMenu.add(sideboardMenuItems.removeOne)
   sideboardMenu.add(sideboardMenuItems.removeAll)
 
   // Category menu
@@ -1011,7 +1011,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   oraclePopupMenu.add(JSeparator())
 
   // Add the card to the main deck
-  private val oracleMenuCardItems = CardMenuItems(() => selectedFrame.toJava, () => Seq(getSelectedCards(0)).asJava, true)
+  private val oracleMenuCardItems = CardMenuItems(selectedFrame, getSelectedCards.headOption, true)
   val oracleMenuCardSeparators = Seq(JSeparator(), JSeparator())
   oracleMenuCardItems.addAddItems(oraclePopupMenu)
   oraclePopupMenu.add(oracleMenuCardSeparators(0))
@@ -1019,15 +1019,15 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   oraclePopupMenu.add(oracleMenuCardSeparators(0))
 
   // Add the card to the sideboard
-  private val oracleMenuSBCardItems = CardMenuItems(() => selectedFrame.toJava, () => Seq(getSelectedCards(0)).asJava, false)
-  oracleMenuSBCardItems.addSingle.setText("Add to Sideboard")
-  oraclePopupMenu.add(oracleMenuSBCardItems.addSingle)
+  private val oracleMenuSBCardItems = CardMenuItems(selectedFrame, getSelectedCards.headOption, false)
+  oracleMenuSBCardItems.addOne.setText("Add to Sideboard")
+  oraclePopupMenu.add(oracleMenuSBCardItems.addOne)
   oracleMenuSBCardItems.addN.setText("Add to Sideboard...")
   oraclePopupMenu.add(oracleMenuSBCardItems.addN)
-  oracleMenuSBCardItems.removeSingle.setText("Remove from Sideboard")
-  oraclePopupMenu.add(oracleMenuSBCardItems.removeSingle)
+  oracleMenuSBCardItems.removeOne.setText("Remove from Sideboard")
+  oraclePopupMenu.add(oracleMenuSBCardItems.removeOne)
   oracleMenuSBCardItems.removeAll.setText("Remove All from Sideboard")
-  oraclePopupMenu.add(oracleMenuSBCardItems.removeAll())
+  oraclePopupMenu.add(oracleMenuSBCardItems.removeAll)
   private val oracleMenuSBSeparator = JSeparator()
   oraclePopupMenu.add(oracleMenuSBSeparator)
 
@@ -1099,7 +1099,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   inventoryMenu.add(JSeparator())
 
   // Add cards to the main deck
-  private val inventoryMenuCardItems = CardMenuItems(() => selectedFrame.toJava, () => getSelectedCards.asJava, true)
+  private val inventoryMenuCardItems = CardMenuItems(selectedFrame, getSelectedCards, true)
   private val inventoryMenuCardSeparators = Array(JSeparator(), JSeparator())
   inventoryMenuCardItems.addAddItems(inventoryMenu)
   inventoryMenu.add(inventoryMenuCardSeparators(0))
@@ -1107,13 +1107,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   inventoryMenu.add(inventoryMenuCardSeparators(1))
 
   // Add cards to the sideboard
-  private val inventoryMenuSBItems = CardMenuItems(() => selectedFrame.toJava, () => getSelectedCards.asJava, false)
-  inventoryMenuSBItems.addSingle.setText("Add to Sideboard")
-  inventoryMenu.add(inventoryMenuSBItems.addSingle)
+  private val inventoryMenuSBItems = CardMenuItems(selectedFrame, getSelectedCards, false)
+  inventoryMenuSBItems.addOne.setText("Add to Sideboard")
+  inventoryMenu.add(inventoryMenuSBItems.addOne)
   inventoryMenuSBItems.addN.setText("Add to Sideboard...")
   inventoryMenu.add(inventoryMenuSBItems.addN)
-  inventoryMenuSBItems.removeSingle.setText("Remove from Sideboard")
-  inventoryMenu.add(inventoryMenuSBItems.removeSingle)
+  inventoryMenuSBItems.removeOne.setText("Remove from Sideboard")
+  inventoryMenu.add(inventoryMenuSBItems.removeOne)
   inventoryMenuSBItems.removeAll.setText("Remove All from Sideboard")
   inventoryMenu.add(inventoryMenuSBItems.removeAll)
   private val inventoryMenuSBSeparator = JSeparator()

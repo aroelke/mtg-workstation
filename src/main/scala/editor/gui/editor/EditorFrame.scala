@@ -378,7 +378,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
 
     private[EditorFrame] lazy val ccp = CCPItems(table, true)
-    private[EditorFrame] lazy val cards = CardMenuItems(() => Some(EditorFrame.this).toJava, () => parent.getSelectedCards.asJava, id == MainDeck)
+    private[EditorFrame] lazy val cards = CardMenuItems(Some(EditorFrame.this), parent.getSelectedCards, id == MainDeck)
     private[EditorFrame] lazy val editTags = {
       val item = JMenuItem("Edit Tags...")
       item.addActionListener(_ => CardTagPanel.editTags(parent.getSelectedCards.asJava, parent))
@@ -1217,15 +1217,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   handCalculations.update()
 
   // Initialize extra lists
-  extrasPane.addTab("+", null)
-  for ((name, list) <- manager.sideboards.asScala) {
-    val id = _lists.size
-    createExtra(name, id, extrasPane.getTabCount - 1)
-    // Intentionally throw exception here if missing, as it shouldn't be missing
-    _lists(id).get.current.addAll(list)
-    _lists(id).get.original.addAll(list)
-  }
-  extrasPane.setSelectedIndex(0)
   private val addSideboard = (e: MouseEvent) => {
     val index = if (extrasPane.getTabCount > 1) extrasPane.indexAtLocation(e.getX, e.getY) else 0
     val last = extrasPane.getTabCount - 1
@@ -1237,6 +1228,16 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   extrasPane.addMouseListener(MouseListenerFactory.createPressListener((e) => addSideboard(e)))
   extrasPane.addChangeListener(_ => sideboard = extras.find(_.name == extrasPane.getTitleAt(extrasPane.getSelectedIndex)))
   emptyPanel.addMouseListener(MouseListenerFactory.createClickListener((e) => addSideboard(e)))
+
+  extrasPane.addTab("+", null)
+  for ((name, list) <- manager.sideboards.asScala) {
+    val id = _lists.size
+    createExtra(name, id, extrasPane.getTabCount - 1)
+    // Intentionally throw exception here if missing, as it shouldn't be missing
+    _lists(id).get.current.addAll(list)
+    _lists(id).get.original.addAll(list)
+  }
+  extrasPane.setSelectedIndex(0)
 
   // Handle various frame events, including selecting and closing
   addInternalFrameListener(new InternalFrameAdapter {
@@ -1518,7 +1519,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     tableMenu.add(cardCCP.paste)
     tableMenu.add(JSeparator())
 
-    val tableMenuCardItems = CardMenuItems(() => Some(this).toJava, () => parent.getSelectedCards.asJava, true)
+    val tableMenuCardItems = CardMenuItems(Some(this), parent.getSelectedCards, true)
     tableMenuCardItems.addAddItems(tableMenu)
     tableMenu.add(JSeparator())
     tableMenuCardItems.addRemoveItems(tableMenu)
