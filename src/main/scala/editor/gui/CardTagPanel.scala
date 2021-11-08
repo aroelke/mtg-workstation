@@ -45,24 +45,24 @@ object CardTagPanel {
     lowerPanel.add(newTagButton);
     contentPanel.add(lowerPanel, BorderLayout.SOUTH);
     if (JOptionPane.showConfirmDialog(parent, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
-      cardTagPanel.getTagged.foreach{ case (c, s) =>
-        Card.tags.compute(c, (k, v) => {
+      val tagged = cardTagPanel.getTagged
+      val untagged = cardTagPanel.getUntagged
+      cards.foreach((c) => {
+        tagged.foreach((tag) => Card.tags.compute(c, (k, v) => {
           val set = Option(v).getOrElse(java.util.HashSet())
-          set.addAll(s.asJava)
+          set.add(tag)
           set
-        })
-      }
-      cardTagPanel.getUntagged.foreach{ case (c, s) =>
-        Card.tags.compute(c, (k, v) => {
+        }))
+        untagged.foreach((tag) => Card.tags.compute(c, (k, v) => {
           var set = v
           if (set != null) {
-            set.removeAll(s.asJava)
+            set.remove(tag)
             if (set.isEmpty)
               set = null
           }
           set
-        })
-      }
+        }))
+      })
     }
   }
 }
@@ -140,40 +140,9 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
     } else false
   }
 
-  def getTagged = {
-    val tagged = collection.mutable.Map[Card, collection.mutable.Set[String]]()
-    cards.foreach((c) => {
-      tagBoxes.foreach((box) => {
-        if (box.getState == TristateCheckBox.State.SELECTED) {
-          if (!tagged.contains(c))
-            tagged(c) = collection.mutable.Set()
-          tagged(c) += box.getText
-        }
-      })
-    })
-    tagged.map{ case (c, s) => c -> s.toSet }.toMap
-  }
+  def getTagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.SELECTED => box.getText }.toSet
 
-  def getUntagged = {
-    val untagged = collection.mutable.Map[Card, collection.mutable.Set[String]]()
-    cards.foreach((c) => {
-      tagBoxes.foreach((box) => {
-        if (box.getState == TristateCheckBox.State.UNSELECTED) {
-          if (!untagged.contains(c))
-            untagged(c) = collection.mutable.Set()
-          untagged(c) += box.getText
-        }
-      })
-    })
-    Card.tags.asScala.foreach{ case (c, s) => s.asScala.foreach((tag) => {
-      if (removed.contains(tag)) {
-        if (!untagged.contains(c))
-          untagged(c) = collection.mutable.Set()
-        untagged(c) += tag
-      }
-    })}
-    untagged.map{ case (c, s) => c -> s.toSet }.toMap
-  }
+  def getUntagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.UNSELECTED => box.getText }.toSeq ++ removed.toSet
 
   override def getPreferredScrollableViewportSize = if (tagBoxes.isEmpty) getPreferredSize else {
     val size = getPreferredSize
