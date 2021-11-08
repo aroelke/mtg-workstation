@@ -32,10 +32,6 @@ import javax.swing.SpinnerNumberModel
  */
 class CardMenuItems(monitor: => Option[EditorFrame], cards: => Iterable[? <: Card], main: Boolean) extends Iterable[JMenuItem] {
   private val add = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) ++= (cards -> n))
-  private val fill = () => monitor.foreach(f => {
-    val l = if (main) f.deck else f.sideboard
-    l %%= cards.map((c) => c -> (if (l.contains(c)) Math.max(0, SettingsDialog.PlaysetSize - l.getEntry(c).count) else SettingsDialog.PlaysetSize)).toMap
-  })
   private val remove = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) --= (cards -> n))
 
   private val items = Seq(
@@ -44,7 +40,10 @@ class CardMenuItems(monitor: => Option[EditorFrame], cards: => Iterable[? <: Car
   )
 
   addOne.addActionListener(_ => add(1))
-  fillPlayset.addActionListener(_ => fill())
+  fillPlayset.addActionListener(_ => monitor.foreach(f => {
+    val l = if (main) f.deck else f.sideboard
+    l %%= cards.map((c) => c -> (if (l.contains(c)) Math.max(0, SettingsDialog.PlaysetSize - l.getEntry(c).count) else SettingsDialog.PlaysetSize)).toMap
+  }))
   addN.addActionListener(_ => {
     val contentPanel = JPanel(BorderLayout());
     contentPanel.add(JLabel("Copies to add:"), BorderLayout.WEST);
