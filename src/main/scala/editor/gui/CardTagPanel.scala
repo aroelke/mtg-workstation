@@ -45,13 +45,13 @@ object CardTagPanel {
     lowerPanel.add(newTagButton);
     contentPanel.add(lowerPanel, BorderLayout.SOUTH);
     if (JOptionPane.showConfirmDialog(parent, contentPanel, "Edit Card Tags", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
-      val tagged = cardTagPanel.getTagged
-      val untagged = cardTagPanel.getUntagged
+      val tagged = cardTagPanel.tagged
+      val untagged = cardTagPanel.untagged
       cards.foreach((c) => {
         tagged.foreach((tag) => Card.tags.compute(c, (_, v) => (Option(v).getOrElse(java.util.HashSet()).asScala + tag).asJava))
         untagged.foreach((tag) => Card.tags.compute(c, (_, v) => if (v == null || (v.size == 1 && v.contains(tag))) null else (v.asScala - tag).asJava))
       })
-      val removed = cardTagPanel.getRemoved
+      val removed = cardTagPanel.removed
       Card.tags.keySet.asScala.foreach((c) => Card.tags.compute(c, (_, v) => if (v == null || v.asScala == removed) null else (v.asScala -- removed).asJava))
     }
   }
@@ -64,7 +64,7 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
   setBackground(Color.WHITE)
 
   private val tagBoxes = collection.mutable.ArrayBuffer[TristateCheckBox]()
-  private val removed = collection.mutable.ArrayBuffer[String]()
+  private val _removed = collection.mutable.HashSet[String]()
   private var preferredViewportHeight = 0
 
   setTags(Card.tags().asScala.toSeq.sorted)
@@ -114,18 +114,18 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
   }
 
   def removeTag(tag: String) = if (!tagBoxes.exists(_.getText == tag)) false else {
-    removed += tag
+    _removed += tag
     setTags((tagBoxes.collect{ case box if box.getText != tag => box.getText }).toSeq.sorted)
     Option(getParent).foreach((p) => { p.validate(); p.repaint() })
     Option(SwingUtilities.getWindowAncestor(this)).foreach(_.pack())
     true
   }
 
-  def getTagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.SELECTED => box.getText }.toSet
+  def tagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.SELECTED => box.getText }.toSet
 
-  def getUntagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.UNSELECTED => box.getText }.toSeq ++ removed.toSet
+  def untagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.UNSELECTED => box.getText }.toSeq ++ _removed.toSet
 
-  def getRemoved = removed.toSet
+  def removed = _removed.toSet
 
   override def getPreferredScrollableViewportSize = if (tagBoxes.isEmpty) getPreferredSize else {
     val size = getPreferredSize
