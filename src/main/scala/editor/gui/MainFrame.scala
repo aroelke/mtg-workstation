@@ -1074,7 +1074,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
   // Create the inventory and put it in the table
   private val inventoryTable = CardTable()
-  private val inventoryModel = new CardTableModel(Inventory(), Settings().inventory.columns.asJava)
+  private val inventoryModel = CardTableModel(Inventory(), Settings().inventory.columns)
   inventoryTable.setModel(inventoryModel)
   inventoryTable.setDefaultRenderer(classOf[String], new InventoryTableCellRenderer)
   inventoryTable.setDefaultRenderer(classOf[Int], new InventoryTableCellRenderer)
@@ -1242,7 +1242,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   }
 
   override def applySettings(oldSettings: Settings, newSettings: Settings) = {
-    applyChanges(oldSettings, newSettings)(_.inventory.columns)(columns => inventoryModel.setColumns(columns.asJava))
+    applyChanges(oldSettings, newSettings)(_.inventory.columns)(inventoryModel.columns = _)
                                           (_.inventory.stripe)(inventoryTable.setStripeColor(_))
                                           (_.editor.categories.presets){ presets =>
                                             presetMenu.removeAll()
@@ -1374,7 +1374,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     inventory = InventoryLoader.loadInventory(this, SettingsDialog.settings.inventory.inventoryFile)
     inventory.sort(CardAttribute.NAME.comparingCard)
     inventoryModel.setList(inventory)
-    inventoryModel.setColumns(SettingsDialog.settings.inventory.columns.asJava)
+    inventoryModel.columns = SettingsDialog.settings.inventory.columns
     setCursor(Cursor.getDefaultCursor)
     System.gc()
   }

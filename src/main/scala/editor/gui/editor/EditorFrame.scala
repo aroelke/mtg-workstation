@@ -357,7 +357,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     override def iterator = current.iterator
     override def toArray = current.toArray
 
-    private[EditorFrame] lazy val model = CardTableModel(EditorFrame.this, this, SettingsDialog.settings.editor.columns.asJava)
+    private[EditorFrame] lazy val model = CardTableModel(this, SettingsDialog.settings.editor.columns, Some(EditorFrame.this))
     private[EditorFrame] lazy val table = {
       val table = CardTable(model)
       table.setStripeColor(SettingsDialog.settings.editor.stripe)
@@ -1255,7 +1255,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   require(EditorTab.values.forall(t => listTabs.getTitleAt(t.ordinal) == t.title))
 
   override def applySettings(oldSettings: Settings, newSettings: Settings) = {
-    applyChanges(oldSettings, newSettings)(_.editor.columns)(columns => deck.model.setColumns(columns.asJava))
+    applyChanges(oldSettings, newSettings)(_.editor.columns)(deck.model.columns = _)
                                           (_.editor.stripe)(deck.table.setStripeColor(_))
                                           (_.editor.manaAnalysis.line)(landRenderer.setSeriesPaint(0, _))
 
