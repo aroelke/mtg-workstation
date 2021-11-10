@@ -368,7 +368,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       // Create cell editors for applicable table columns
       for (i <- 0 until table.getColumnCount)
         if (model.isCellEditable(0, i))
-          table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(EditorFrame.this, model.getColumnData(i)))
+          table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(EditorFrame.this, model.columns(i)))
       // Set up drag-and-drop for the table
       table.setTransferHandler(EditorTableTransferHandler(EditorFrame.this, id))
       table.setDragEnabled(true)
@@ -1261,7 +1261,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     for (i <- 0 until deck.table.getColumnCount)
       if (deck.model.isCellEditable(0, i))
-        deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.getColumnData(i)))
+        deck.table.getColumn(deck.model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(this, deck.model.columns(i)))
     updateStats()
     update()
   }

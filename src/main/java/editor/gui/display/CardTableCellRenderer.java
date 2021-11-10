@@ -72,7 +72,7 @@ public class CardTableCellRenderer extends DefaultTableCellRenderer
             JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
             Border border = BorderFactory.createEmptyBorder(1, 1, 1, 1);
             StringJoiner join = new StringJoiner(Card.FACE_SEPARATOR);
-            switch (m.getColumnData(column))
+            switch (m.columns().apply(column))
             {
             case MANA_COST:
                 panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));

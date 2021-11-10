@@ -81,7 +81,7 @@ public class CardTable extends JTable
             if (model instanceof CardTableModel m)
             {
                 boolean ascending = getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
-                CardAttribute attribute = m.getColumnData(column);
+                CardAttribute attribute = m.columns().apply(column);
                 // Have to special-case P/T/L so they are always last if missing
                 return switch (attribute) {
                     case POWER, TOUGHNESS, LOYALTY -> (a, b) -> {
@@ -110,7 +110,7 @@ public class CardTable extends JTable
         @Override
         protected boolean useToString(int column)
         {
-            return !(model instanceof CardTableModel m && NO_STRING.contains(m.getColumnData(column))) && super.useToString(column);
+            return !(model instanceof CardTableModel m && NO_STRING.contains(m.columns().apply(column))) && super.useToString(column);
         }
     }
 
@@ -192,7 +192,7 @@ public class CardTable extends JTable
                 JComponent c = (JComponent)prepareRenderer(getCellRenderer(row, col), row, col);
                 if (c.getPreferredSize().width > bounds.width)
                 {
-                    if (((CardTableModel)getModel()).getColumnData(col) == CardAttribute.MANA_COST)
+                    if (((CardTableModel)getModel()).columns().apply(col) == CardAttribute.MANA_COST)
                         tooltip = "<html>" + String.join(Card.FACE_SEPARATOR, CollectionUtils.convertToList(getValueAt(row, col), ManaCost.class).stream().map(ManaCost::toHTMLString).collect(Collectors.toList())) + "</html>";
                     else
                         tooltip = "<html>" + String.valueOf(getValueAt(row, col)) + "</html>";

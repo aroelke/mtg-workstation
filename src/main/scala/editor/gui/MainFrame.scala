@@ -1373,7 +1373,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR))
     inventory = InventoryLoader.loadInventory(this, SettingsDialog.settings.inventory.inventoryFile)
     inventory.sort(CardAttribute.NAME.comparingCard)
-    inventoryModel.setList(inventory)
+    inventoryModel.list = inventory
     inventoryModel.columns = SettingsDialog.settings.inventory.columns
     setCursor(Cursor.getDefaultCursor)
     System.gc()
