@@ -69,6 +69,11 @@ public class CardJList extends JList<String>
         setVisibleRowCount(SettingsDialog.settings().editor().categories().explicits());
     }
 
+    public List<Card> getCards()
+    {
+        return cards;
+    }
+
     /**
      * Set the list of cards to display.
      *

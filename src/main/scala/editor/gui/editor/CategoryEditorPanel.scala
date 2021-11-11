@@ -60,7 +60,7 @@ object CategoryEditorPanel {
   }
 }
 
-class CategoryEditorPanel(s: Option[Category] = None) extends JPanel(BorderLayout()) {
+class CategoryEditorPanel(specification: Option[Category] = None) extends JPanel(BorderLayout()) {
   private val namePanel = Box(BoxLayout.X_AXIS);
   namePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
   namePanel.add(JLabel("Category Name: "));
@@ -91,21 +91,15 @@ class CategoryEditorPanel(s: Option[Category] = None) extends JPanel(BorderLayou
   listPanel.add(blacklistPanel);
   add(listPanel, BorderLayout.SOUTH);
 
-  private val specification = s.map(Category(_)).getOrElse(Category(nameField.getText, colorButton.color, filter.filter))
-  s.foreach(_ => {
-    nameField.setText(specification.getName);
-    colorButton.setColor(specification.getColor);
-    filter.setContents(specification.getFilter);
-    whitelist.setCards(specification.getWhitelist.asScala.toSeq.sortBy(_.unifiedName).asJava);
-    blacklist.setCards(specification.getBlacklist.asScala.toSeq.sortBy(_.unifiedName).asJava);
-  })
+  specification.foreach(spec = _)
 
-  def spec = {
-    updateSpec()
-    specification
-  }
+  def spec = Category(nameField.getText, whitelist.getCards, blacklist.getCards, colorButton.color, filter.filter)
 
-  def updateSpec() = {
-    
+  def spec_=(s: Category) = {
+    nameField.setText(s.getName)
+    colorButton.setColor(s.getColor)
+    filter.setContents(s.getFilter)
+    whitelist.setCards(s.getWhitelist.asScala.toSeq.sortBy(_.unifiedName).asJava)
+    blacklist.setCards(s.getBlacklist.asScala.toSeq.sortBy(_.unifiedName).asJava)
   }
 }
