@@ -294,9 +294,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           val selected = parent.getSelectedCards
           val preserve = parent.getSelectedTable.contains(table) && moves.forall{ case (card, n) => from.current.getEntry(card).count == n }
           if (from.current.removeAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava).asScala.toMap != moves)
-            throw CardException(moves.keySet.asJava, s"error moving cards from list $id")
+            throw CardException(s"error moving cards from list $id", moves.keySet.toSeq:_*)
           if (!to.current.addAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava))
-            throw CardException(moves.keySet.asJava, s"could not move cards to list $t}")
+            throw CardException(s"could not move cards to list $t}", moves.keySet.toSeq:_*)
           if (preserve)
             parent.setSelectedComponents(to.table, to.current)
           updateTables(selected)
@@ -311,9 +311,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           val selected = parent.getSelectedCards
           val preserve = parent.getSelectedTable.contains(to.table) && moves.forall{ case (card, n) => to.current.getEntry(card).count == n }
           if (!from.current.addAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava))
-            throw CardException(moves.keySet.asJava, s"could not undo move from list $id")
+            throw CardException(s"could not undo move from list $id", moves.keySet.toSeq:_*)
           if (to.current.removeAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava).asScala.toMap != moves)
-            throw CardException(moves.keySet.asJava, s"error undoing move to list $t")
+            throw CardException(s"error undoing move to list $t", moves.keySet.toSeq:_*)
           if (preserve)
             parent.setSelectedComponents(table, from.current)
           updateTables(selected)
