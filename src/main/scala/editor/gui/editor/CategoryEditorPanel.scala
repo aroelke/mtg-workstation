@@ -22,11 +22,26 @@ import java.awt.Component
 import editor.gui.generic.ScrollablePanel;
 import javax.swing.JOptionPane
 
+/**
+ * Companion object to [[CategoryEditorPanel]] containing global information about it and a convenience function
+ * for creating a dialog with one.
+ * 
+ * @author Alec Roelke
+ */
 object CategoryEditorPanel {
+  /** Maximum height the panel is allowed to have before a scroll bar appears. */
   val MaxHeight = 500
 
-  def showCategoryEditor(parent: Container, s: Option[Category] = None) = {
-    val editor = CategoryEditorPanel(s)
+  /**
+   * Show a dialog containing a [[CategoryEditorPanel]], optionally pre-populated with a categorization. If the user doesn't enter
+   * a name, the dialog will reappear until a name is entered or the operation is canceled.
+   * 
+   * @param parent container instantiating the dialog, used for positioning
+   * @param specification if defined, pre-populate the editor panel
+   * @return the new specification created in the editor dialog, or None if the process was canceled
+   */
+  def showCategoryEditor(parent: Container, specification: Option[Category] = None) = {
+    val editor = CategoryEditorPanel(specification)
     editor.filter.addChangeListener(_.getSource match {
       case c: Component => SwingUtilities.getWindowAncestor(c).pack()
       case _ =>
@@ -60,6 +75,16 @@ object CategoryEditorPanel {
   }
 }
 
+/**
+ * A panel for editing deck categories.  Allows the user to set the name and color of a category as well as customize its
+ * automatic filter using a [[FilterGroupPanel]].  It also displays the blacklist and whitelist of a category, although
+ * those lists cannot be changed from here.
+ * 
+ * @constructor create a new category editing panel and optionally populate it
+ * @param specification if defined, pre-populate the contents of the category editor
+ * 
+ * @author Alec Roelke
+ */
 class CategoryEditorPanel(specification: Option[Category] = None) extends JPanel(BorderLayout()) {
   private val namePanel = Box(BoxLayout.X_AXIS);
   namePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -93,8 +118,13 @@ class CategoryEditorPanel(specification: Option[Category] = None) extends JPanel
 
   specification.foreach(spec = _)
 
+  /** @return the categorization as currently defined by the GUI elements in the panel. */
   def spec = Category(nameField.getText, whitelist.getCards, blacklist.getCards, colorButton.color, filter.filter)
 
+  /**
+   * Set the contents of the panel based on a given categorization.
+   * @param s categorization to use to populate the panel
+   */
   def spec_=(s: Category) = {
     nameField.setText(s.getName)
     colorButton.setColor(s.getColor)
