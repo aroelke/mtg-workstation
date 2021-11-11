@@ -1427,12 +1427,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   def createCategory = {
     var spec: Option[Category] = None
     while {{
-      spec = CategoryEditorPanel.showCategoryEditor(this, spec.toJava).toScala
+      spec = CategoryEditorPanel.showCategoryEditor(this, spec)
       spec.foreach((s) => {
       if (categories.contains(s.getName))
         JOptionPane.showMessageDialog(this, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE)
       })
-    }; spec.isDefined && categories.contains(spec.get.getName) } do ()
+    }; spec.exists((s) => categories.contains(s.getName)) } do ()
     spec
   }
 
@@ -1630,7 +1630,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    */
   @throws[RuntimeException]("if an unexpected category was edited")
   def editCategory(name: String) = categories.get(name).map((toEdit) => {
-    CategoryEditorPanel.showCategoryEditor(this, Some(toEdit).toJava).toScala.map(categories(name) = _)
+    CategoryEditorPanel.showCategoryEditor(this, Some(toEdit)).map(categories(name) = _)
   }).getOrElse{ JOptionPane.showMessageDialog(this, s"Deck ${deck.name} has no category named $name.", "Error", JOptionPane.ERROR_MESSAGE); None }
 
   /**

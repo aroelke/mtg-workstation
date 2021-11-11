@@ -26,6 +26,8 @@ import editor.gui.editor.CategoryEditorPanel;
 import editor.util.MouseListenerFactory;
 import editor.util.PopupMenuListenerFactory;
 
+import scala.jdk.javaapi.OptionConverters;
+
 /**
  * This class represents an element that can display a list of {@link Category}s.
  * Optionally, it can show an extra line that is not an element, which is useful
@@ -111,7 +113,7 @@ public class CategoryList extends JList<String>
             addMouseListener(MouseListenerFactory.createDoubleClickListener((e) -> {
                 int index = locationToIndex(e.getPoint());
                 var rec = Optional.ofNullable(getCellBounds(index, index));
-                CategoryEditorPanel.showCategoryEditor(CategoryList.this, rec.filter((r) -> r.contains(e.getPoint())).map((r) -> getCategoryAt(index))).ifPresent((s) -> {
+                OptionConverters.toJava(CategoryEditorPanel.showCategoryEditor(CategoryList.this, OptionConverters.toScala(rec.filter((r) -> r.contains(e.getPoint())).map((r) -> getCategoryAt(index))))).ifPresent((s) -> {
                     if (index < 0)
                         addCategory(s);
                     else

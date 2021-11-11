@@ -357,10 +357,10 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
 
   // Category modification buttons
   private val categoryModPanel = VerticalButtonList("+", UnicodeSymbols.ELLIPSIS.toString, UnicodeSymbols.MINUS.toString)
-  categoryModPanel.get("+").addActionListener((e) => CategoryEditorPanel.showCategoryEditor(this).ifPresent(categoriesList.addCategory(_)))
+  categoryModPanel.get("+").addActionListener((e) => CategoryEditorPanel.showCategoryEditor(this).foreach(categoriesList.addCategory(_)))
   categoryModPanel.get(String.valueOf(UnicodeSymbols.ELLIPSIS)).addActionListener((e) => {
     if (categoriesList.getSelectedIndex >= 0) {
-      CategoryEditorPanel.showCategoryEditor(this, Optional.of(categoriesList.getCategoryAt(categoriesList.getSelectedIndex()))).ifPresent((s) => {
+      CategoryEditorPanel.showCategoryEditor(this, Option(categoriesList.getCategoryAt(categoriesList.getSelectedIndex()))).foreach((s) => {
         categoriesList.setCategoryAt(categoriesList.getSelectedIndex, s)
       })
     }
