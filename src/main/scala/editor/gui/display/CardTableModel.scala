@@ -29,7 +29,7 @@ class CardTableModel(private var cards: CardList, private var characteristics: S
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {
     (characteristics(column), value) match {
       case (CardAttribute.COUNT, i: Integer) => cards.set(cards.get(row), i)
-      case (CardAttribute.CATEGORIES, ie: IncludeExcludePanel) => editor.foreach(_.editInclusion(ie.getIncluded, ie.getExcluded))
+      case (CardAttribute.CATEGORIES, ie: IncludeExcludePanel) => editor.foreach(_.editInclusion(ie.included, ie.excluded))
       case _ => throw IllegalArgumentException(s"Cannot edit data type ${characteristics(column)} to $value")
     }
     fireTableDataChanged()
