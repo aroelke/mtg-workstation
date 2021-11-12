@@ -1,26 +1,27 @@
 package editor.gui.editor
 
-import javax.swing.JPanel
+import editor.collection.deck.Category
+import editor.gui.display.CardJList
+import editor.gui.filter.FilterGroupPanel
+import editor.gui.generic.ColorButton
+import editor.gui.generic.ScrollablePanel
+
 import java.awt.BorderLayout
+import java.awt.Component
+import java.awt.Container
+import java.awt.GridLayout
+import java.util.stream.Collectors
+import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
-import javax.swing.BorderFactory
-import javax.swing.JLabel
-import javax.swing.JTextField
-import editor.gui.generic.ColorButton;
-import editor.gui.filter.FilterGroupPanel
-import java.awt.GridLayout
-import javax.swing.JScrollPane
-import editor.gui.display.CardJList;
-import editor.collection.deck.Category;
 import javax.swing.JColorChooser
-import java.util.stream.Collectors
-import scala.jdk.CollectionConverters._
-import java.awt.Container
-import javax.swing.SwingUtilities
-import java.awt.Component
-import editor.gui.generic.ScrollablePanel;
+import javax.swing.JLabel
 import javax.swing.JOptionPane
+import javax.swing.JPanel
+import javax.swing.JScrollPane
+import javax.swing.JTextField
+import javax.swing.SwingUtilities
+import scala.jdk.CollectionConverters._
 
 /**
  * Companion object to [[CategoryEditorPanel]] containing global information about it and a convenience function
