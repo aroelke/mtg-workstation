@@ -12,23 +12,21 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
 
   setLayout(BoxLayout(this, BoxLayout.Y_AXIS))
   setBackground(Color.WHITE)
-  private val categoryBoxes = collection.mutable.HashMap[Category, TristateCheckBox]()
-  private var preferredViewportHeight = 0
 
-  categories.foreach((category) => {
-    val categoryBox = TristateCheckBox(category.getName)
+  private val categoryBoxes = categories.map((category) => {
     val matches = cards.count(category.includes(_))
-    if (matches == 0)
-      categoryBox.setState(TristateCheckBox.State.UNSELECTED)
-    else if (matches < cards.size)
-      categoryBox.setState(TristateCheckBox.State.INDETERMINATE)
-    else
-      categoryBox.setState(TristateCheckBox.State.SELECTED)
+    val categoryBox = TristateCheckBox(category.getName, 
+      if (matches == 0)
+        TristateCheckBox.State.UNSELECTED
+      else if (matches < cards.size)
+        TristateCheckBox.State.INDETERMINATE
+      else
+        TristateCheckBox.State.SELECTED
+    )
     categoryBox.setBackground(Color.WHITE)
-    add(categoryBox)
-    categoryBoxes.put(category, categoryBox)
-    preferredViewportHeight = Math.min(preferredViewportHeight + categoryBox.getPreferredSize.height, categoryBox.getPreferredSize.height * MaxPreferredRows)
-  })
+    category -> categoryBox
+  }).toMap
+  categories.foreach((c) => add(categoryBoxes(c)))
 
   def getIncluded = {
     val included = collection.mutable.HashMap[Card, collection.mutable.Set[Category]]()
@@ -59,12 +57,12 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
   }
 
   override def getPreferredScrollableViewportSize = {
-    if (categoryBoxes.isEmpty) {
-      getPreferredSize
-    } else {
-      val size = getPreferredSize
-      size.height = preferredViewportHeight
-      size
-    }
+    val size = getPreferredSize
+    if (!categoryBoxes.isEmpty)
+      size.height = Math.min(
+        categoryBoxes.map{ case (_, b) => b.getPreferredSize.height }.fold(0)(_ + _),
+        categoryBoxes.headOption.map{ case (_, b) => b.getPreferredSize.height*MaxPreferredRows }.getOrElse(0)
+      )
+    size
   }
 }
