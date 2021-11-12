@@ -28,33 +28,9 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
   }).toMap
   categories.foreach((c) => add(categoryBoxes(c)))
 
-  def getIncluded = {
-    val included = collection.mutable.HashMap[Card, collection.mutable.Set[Category]]()
-    cards.foreach((card) => {
-      categoryBoxes.keys.foreach((category) => {
-        if (categoryBoxes(category).getState == TristateCheckBox.State.SELECTED && !category.includes(card)) {
-          if (!included.contains(card))
-            included(card) = collection.mutable.HashSet[Category]()
-          included(card) += category
-        }
-      })
-    })
-    included.map{ case (c, s) => c -> s.toSet }.toMap
-  }
+  def included = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.getState == TristateCheckBox.State.SELECTED && !category.includes(c)) => category }.toSet).toMap
 
-  def getExcluded = {
-    val excluded = collection.mutable.HashMap[Card, collection.mutable.Set[Category]]()
-    cards.foreach((card) => {
-      categoryBoxes.keys.foreach((category) => {
-        if (categoryBoxes(category).getState == TristateCheckBox.State.UNSELECTED && category.includes(card)) {
-          if (!excluded.contains(card))
-            excluded(card) = collection.mutable.HashSet[Category]()
-          excluded(card) += category
-        }
-      })
-    })
-    excluded.map{ case (c, s) => c -> s.toSet }.toMap
-  }
+  def excluded = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.getState == TristateCheckBox.State.UNSELECTED && category.includes(c)) => category }.toSet).toMap
 
   override def getPreferredScrollableViewportSize = {
     val size = getPreferredSize

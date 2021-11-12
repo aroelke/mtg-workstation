@@ -789,7 +789,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   editCategoriesItem.addActionListener(_ => {
     val iePanel = IncludeExcludePanel(deck.current.categories.asScala.toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards)
     if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-      editInclusion(iePanel.getIncluded, iePanel.getExcluded)
+      editInclusion(iePanel.included, iePanel.excluded)
   })
   deck.popup.add(editCategoriesItem)
 
@@ -1532,7 +1532,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     editCategoriesItem.addActionListener(_ => {
       val iePanel = IncludeExcludePanel(deck.current.categories.asScala.toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards)
       if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-        editInclusion(iePanel.getIncluded, iePanel.getExcluded)
+        editInclusion(iePanel.included, iePanel.excluded)
     })
     tableMenu.add(editCategoriesItem)
 
