@@ -7,6 +7,18 @@ import editor.gui.generic.TristateCheckBox
 import javax.swing.BoxLayout
 import java.awt.Color
 
+/**
+ * Panel allowing the user to edit the category inclusion of cards.  It contains a list of check boxes whose labels
+ * are the names of categories. A checked box indicates that all cards in the list are included in the category, an
+ * unchecked box indicates none of them are, and a partially-checked (square icon) box indicates that some are. The
+ * user can only fully check or uncheck boxes.
+ * 
+ * @constructor create a new panel for editing the inclusion of a list of cards for a list of categories
+ * @param categories categories to edit
+ * @param cards cards to include or exclude
+ * 
+ * @author Alec Roelke
+ */
 class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends ScrollablePanel(ScrollablePanel.TRACK_WIDTH) {
   private val MaxPreferredRows = 10
 
@@ -28,8 +40,10 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
   }).toMap
   categories.foreach((c) => add(categoryBoxes(c)))
 
+  /** @return a mapping of cards onto the categories they should be included in */
   def included = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.getState == TristateCheckBox.State.SELECTED && !category.includes(c)) => category }.toSet).toMap
 
+  /** @return a mapping of cards onto the categories they should be excluded from */
   def excluded = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.getState == TristateCheckBox.State.UNSELECTED && category.includes(c)) => category }.toSet).toMap
 
   override def getPreferredScrollableViewportSize = {
