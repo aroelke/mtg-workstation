@@ -632,12 +632,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
   }
 
-  @deprecated
-  def editInclusion(included: java.util.Map[Card, java.util.Set[Category]], excluded: java.util.Map[Card, java.util.Set[Category]]): Boolean = editInclusion(
-    included.asScala.map{ case (card, categories) => card -> categories.asScala.toSet }.toMap,
-    excluded.asScala.map{ case (card, categories) => card -> categories.asScala.toSet }.toMap
-  )
-
   /*****************
    * GUI DEFINITION
    *****************/
@@ -793,12 +787,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   // Edit categories item
   private val editCategoriesItem = JMenuItem("Edit Categories...")
   editCategoriesItem.addActionListener(_ => {
-    val iePanel = IncludeExcludePanel(
-      deck.current.categories.stream.sorted((a, b) => a.getName.compareToIgnoreCase(b.getName)).collect(Collectors.toList),
-      parent.getSelectedCards.asJava
-    )
+    val iePanel = IncludeExcludePanel(deck.current.categories.asScala.toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards)
     if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-      editInclusion(iePanel.getIncluded.asScala.map(_ -> _.asScala.toSet).toMap, iePanel.getExcluded.asScala.map(_ -> _.asScala.toSet).toMap)
+      editInclusion(iePanel.getIncluded, iePanel.getExcluded)
   })
   deck.popup.add(editCategoriesItem)
 
@@ -1539,12 +1530,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     // Edit categories item
     val editCategoriesItem = JMenuItem("Edit Categories...")
     editCategoriesItem.addActionListener(_ => {
-      val iePanel = IncludeExcludePanel(
-        deck.current.categories.stream.sorted((a, b) => a.getName.compareToIgnoreCase(b.getName)).collect(Collectors.toList),
-        parent.getSelectedCards.asJava
-      )
+      val iePanel = IncludeExcludePanel(deck.current.categories.asScala.toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards)
       if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-        editInclusion(iePanel.getIncluded.asScala.map(_ -> _.asScala.toSet).toMap, iePanel.getExcluded.asScala.map(_ -> _.asScala.toSet).toMap)
+        editInclusion(iePanel.getIncluded, iePanel.getExcluded)
     })
     tableMenu.add(editCategoriesItem)
 

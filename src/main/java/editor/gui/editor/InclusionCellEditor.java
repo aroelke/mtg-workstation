@@ -20,7 +20,7 @@ import javax.swing.table.TableCellEditor;
 import editor.collection.deck.Category;
 import editor.gui.display.CardTable;
 import editor.util.MouseListenerFactory;
-
+import edu.emory.mathcs.backport.java.util.Collections;
 import scala.jdk.javaapi.CollectionConverters;
 
 /**
@@ -95,7 +95,10 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
     {
         if (table instanceof CardTable cTable)
         {
-            iePanel = new IncludeExcludePanel(frame.getCategories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), frame.getCardAt(cTable, row));
+            iePanel = new IncludeExcludePanel(
+                CollectionConverters.asScala(frame.getCategories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList())).toSeq(),
+                CollectionConverters.asScala(Collections.singletonList(frame.getCardAt(cTable, row))).toSeq()
+            );
             included = ((Collection<?>)value).stream().filter((o) -> o instanceof Category).map((o) -> (Category)o).collect(Collectors.toList());
             if (!table.isRowSelected(row))
                 editor.setBackground(cTable.getRowColor(row));
@@ -107,7 +110,10 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
             }
         }
         else
-            iePanel = new IncludeExcludePanel(frame.getCategories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList()), CollectionConverters.asJava(frame.getSelectedCards()));
+            iePanel = new IncludeExcludePanel(
+                CollectionConverters.asScala(frame.getCategories().stream().sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName())).collect(Collectors.toList())).toSeq(),
+                frame.getSelectedCards()
+            );
         return editor;
     }
 
