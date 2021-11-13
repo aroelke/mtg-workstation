@@ -470,14 +470,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             None
           }
           format.foreach(fmt => {
-            val manager = DeckSerializer()
-            try {
-              manager.importList(fmt, importChooser.getSelectedFile, this)
-            } catch {
-              case x: DeckLoadException => JOptionPane.showMessageDialog(this, s"Could not import ${importChooser.getSelectedFile}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
-            } finally {
-              selectFrame(createEditor(manager))
+            val manager = try {
+              DeckSerializer.importList(fmt, importChooser.getSelectedFile, this)
+            } catch case x: DeckLoadException => {
+              JOptionPane.showMessageDialog(this, s"Could not import ${importChooser.getSelectedFile}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
+              DeckSerializer()
             }
+            selectFrame(createEditor(manager))
           })
         }
       case JFileChooser.CANCEL_OPTION =>

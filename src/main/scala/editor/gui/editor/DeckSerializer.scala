@@ -52,8 +52,8 @@ object DeckSerializer {
     try {
       worker.get
     } catch {
-      case e: CancellationException => DeckSerializer()
-      case e: Exception => throw DeckLoadException(file, e)
+      case _: CancellationException => DeckSerializer()
+      case e => throw DeckLoadException(file, e)
     }
   }
 
@@ -66,8 +66,8 @@ object DeckSerializer {
       d.imported = true
       d
     } catch {
-      case e: CancellationException => DeckSerializer()
-      case e: Exception => throw DeckLoadException(file, e)
+      case _: CancellationException => DeckSerializer()
+      case e => throw DeckLoadException(file, e)
     }
   }
 
@@ -153,27 +153,6 @@ class DeckSerializer(private var d: Deck = Deck(), private var s: Map[String, De
         case e: Exception => throw DeckLoadException(file, e)
       }
       _file = Some(file)
-    }
-  }
-
-  @deprecated def importList(format: CardListFormat, file: File, parent: Component) = {
-    if (!deck.isEmpty)
-      throw DeckLoadException(file, "deck already loaded")
-    else {
-      val worker = LoadWorker(file, parent, (stream) => {
-        val loaded = format.parse(stream)
-        d = loaded.deck
-        s = loaded.sideboards
-        loaded
-      })
-      worker.executeAndDisplay()
-      try {
-        worker.get
-      } catch {
-        case e: CancellationException =>
-        case e: Exception => throw DeckLoadException(file, e)
-      }
-      imported = true
     }
   }
 
