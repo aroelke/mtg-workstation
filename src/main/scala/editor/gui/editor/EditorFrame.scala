@@ -1131,7 +1131,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     override def removeUpdate(e: DocumentEvent) = performNotesAction(notesArea.getText)
     override def changedUpdate(e: DocumentEvent) = performNotesAction(notesArea.getText)
   })
-  private val notesCCP = CCPItems(() => notesArea, true)
+  private val notesCCP = CCPItems(notesArea, true)
   private val notesMenu = JPopupMenu()
   notesMenu.add(notesCCP.cut)
   notesMenu.add(notesCCP.copy)
@@ -1601,7 +1601,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           // Technically using exceptions as control flow (as with unsupported flavors here) is bad
           // programming practice, but since the exception has to be caught here anyway it reduces
           // code size
-          categoryCCP.paste().setEnabled(false)
+          categoryCCP.paste.setEnabled(false)
       }
     }))
 

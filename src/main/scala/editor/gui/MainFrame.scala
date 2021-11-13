@@ -724,7 +724,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   myMenuBar.add(editMenu)
 
   // Cut, copy, paste
-  private val editCCP = CCPItems(() => selectedTable.get, true)
+  private val editCCP = CCPItems(selectedTable.get, true)
   editMenu.add(editCCP.cut)
   editMenu.add(editCCP.copy)
   editMenu.add(editCCP.paste)
