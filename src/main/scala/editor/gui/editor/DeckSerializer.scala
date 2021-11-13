@@ -73,39 +73,6 @@ object DeckSerializer {
     }
   }
 
-  @throws[DeckLoadException]("if the legacy file couldn't be imported (not including user cancellation)")
-  def importLegacy(file: File, parent: Component) = {
-    val version = try {
-      Using.resource(ObjectInputStream(FileInputStream(file)))(_.readLong)
-    } catch case e: IOException => throw DeckLoadException(file, e)
-    val worker = LoadWorker(file, parent, (stream) => {
-      val v = if (version > DeckSerializer.SaveVersion) 0 else version
-      Using.resource(ObjectInputStream(stream)){ ois =>
-        if (v > 0)
-          ois.readLong
-        val deck = editor.serialization.legacy.DeckDeserializer.readExternal(ois)
-        val sideboard = if (v <= 2) Map("Sideboard" -> editor.serialization.legacy.DeckDeserializer.readExternal(ois)) else {
-          val boards = ois.readInt
-          (0 until boards).map(_ => {
-            val name = ois.readUTF
-            name -> editor.serialization.legacy.DeckDeserializer.readExternal(ois)
-          }).toMap
-        }
-        val changelog = if (v < 2) ois.readObject.asInstanceOf[String] else ois.readUTF
-        DeckSerializer(deck, sideboard, changelog)
-      }
-    })
-    worker.executeAndDisplay()
-    try {
-      val d = worker.get
-      d.imported = true
-      d
-    } catch {
-      case e: CancellationException => DeckSerializer()
-      case e: Exception => throw DeckLoadException(file, e)
-    }
-  }
-
   @deprecated def apply(d: Deck = Deck(), s: Map[String, Deck] = Map.empty, n: String = "", c: String = "") = new DeckSerializer(d, s, n, c)
 }
 
@@ -133,43 +100,6 @@ class DeckSerializer(private var d: Deck = Deck(), private var s: Map[String, De
   def save(f: File) = Using.resource(FileWriter(f)){ writer =>
     writer.write(MainFrame.Serializer.toJson(this))
     _file = Some(f)
-  }
-
-  @deprecated def importLegacy(file: File, parent: Component) = {
-    if (!deck.isEmpty)
-      throw DeckLoadException(file, "deck already loaded")
-    else {
-      val version = try {
-        Using.resource(ObjectInputStream(FileInputStream(file)))(_.readLong)
-      } catch case e: IOException => throw DeckLoadException(file, e)
-      val worker = LoadWorker(file, parent, (stream) => {
-        val v = if (version > DeckSerializer.SaveVersion) 0 else version
-        Using.resource(ObjectInputStream(stream)){ ois =>
-          if (v > 0)
-            ois.readLong
-          d = editor.serialization.legacy.DeckDeserializer.readExternal(ois)
-          if (v <= 2)
-            s += ("Sideboard" -> editor.serialization.legacy.DeckDeserializer.readExternal(ois))
-          else {
-            val boards = ois.readInt
-            for (i <- 0 until boards) {
-              val name = ois.readUTF
-              s += (name -> editor.serialization.legacy.DeckDeserializer.readExternal(ois))
-            }
-          }
-          c = if (v < 2) ois.readObject.asInstanceOf[String] else ois.readUTF
-          this
-        }
-      })
-      worker.executeAndDisplay()
-      try {
-        worker.get
-      } catch {
-        case e: CancellationException =>
-        case e: Exception => throw DeckLoadException(file, e)
-      }
-      imported = true
-    }
   }
 
   override def serialize(src: DeckSerializer, typeOfSrc: Type, context: JsonSerializationContext) = {

@@ -315,170 +315,156 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   // Import and export items
   private val text = FileNameExtensionFilter("Text (*.txt)", "txt")
   private val delimited = FileNameExtensionFilter("Delimited (*.csv, *.txt)", "csv", "txt")
-  private val legacy = FileNameExtensionFilter(s"Deck from v0.1 or older (*.${DeckDeserializer.EXTENSION})", DeckDeserializer.EXTENSION)
   private val importItem = JMenuItem("Import...")
   importItem.addActionListener(_ => {
     val importChooser = JFileChooser()
     importChooser.setAcceptAllFileFilterUsed(false)
     importChooser.addChoosableFileFilter(text)
     importChooser.addChoosableFileFilter(delimited)
-    importChooser.addChoosableFileFilter(legacy)
     importChooser.setDialogTitle("Import")
     importChooser.setCurrentDirectory(fileChooser.getCurrentDirectory())
     importChooser.showOpenDialog(this) match {
       case JFileChooser.APPROVE_OPTION =>
-        if (importChooser.getFileFilter == legacy) {
-            try {
-              val manager = DeckSerializer()
-              manager.importLegacy(importChooser.getSelectedFile(), this)
-              selectFrame(createEditor(manager))
-            } catch {
-              case x: DeckLoadException =>
-                x.printStackTrace()
-                JOptionPane.showMessageDialog(this, s"Error opening ${importChooser.getSelectedFile.getName}: ${x.getMessage}.", "Error", JOptionPane.ERROR_MESSAGE)
-            }
-        } else {
-          val format = if (importChooser.getFileFilter == text) {
-            Some(TextCardListFormat(""))
-          } else if (importChooser.getFileFilter == delimited) {
-            val dataPanel = JPanel(BorderLayout())
-            val optionsPanel = JPanel(FlowLayout(FlowLayout.LEFT))
-            optionsPanel.add(JLabel("Delimiter: "))
-            val delimiterBox = JComboBox(DelimitedCardListFormat.DELIMITERS)
-            delimiterBox.setEditable(true)
-            optionsPanel.add(delimiterBox)
-            val includeCheckBox = JCheckBox("Read Headers")
-            includeCheckBox.setSelected(true)
-            optionsPanel.add(includeCheckBox)
-            dataPanel.add(optionsPanel, BorderLayout.NORTH)
-            val headersList = JList(CardAttribute.displayableValues)
-            headersList.setEnabled(!includeCheckBox.isSelected)
-            val headersPane = JScrollPane(headersList)
-            val headersPanel = Box(BoxLayout.X_AXIS)
-            headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"))
-            val rearrangeButtons = VerticalButtonList(UnicodeSymbols.UP_ARROW.toString, UnicodeSymbols.DOWN_ARROW.toString)
-            rearrangeButtons.asScala.foreach(_.setEnabled(!includeCheckBox.isSelected))
-            headersPanel.add(rearrangeButtons)
-            headersPanel.add(Box.createHorizontalStrut(5))
-            val selectedHeadersModel = DefaultListModel[CardAttribute]()
-            selectedHeadersModel.addElement(CardAttribute.NAME)
-            selectedHeadersModel.addElement(CardAttribute.EXPANSION)
-            selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER)
-            selectedHeadersModel.addElement(CardAttribute.COUNT)
-            selectedHeadersModel.addElement(CardAttribute.DATE_ADDED)
-            val selectedHeadersList = JList(selectedHeadersModel)
-            selectedHeadersList.setEnabled(!includeCheckBox.isSelected)
-            headersPanel.add(new JScrollPane(selectedHeadersList) {
-                override def getPreferredSize = headersPane.getPreferredSize
-            })
-            headersPanel.add(Box.createHorizontalStrut(5))
-            val moveButtons = VerticalButtonList(UnicodeSymbols.LEFT_ARROW.toString, UnicodeSymbols.RIGHT_ARROW.toString)
-            moveButtons.asScala.foreach(_.setEnabled(!includeCheckBox.isSelected))
-            headersPanel.add(moveButtons)
-            headersPanel.add(Box.createHorizontalStrut(5))
-            headersPanel.add(headersPane)
-            dataPanel.add(headersPanel, BorderLayout.CENTER)
-            rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener(_ => {
-              var ignore = 0
-              for (index <- selectedHeadersList.getSelectedIndices) {
-                if (index == ignore) {
-                  ignore += 1
-                } else {
-                  val temp = selectedHeadersModel.getElementAt(index - 1)
-                  selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index - 1)
-                  selectedHeadersModel.setElementAt(temp, index)
-                }
-              }
-              selectedHeadersList.clearSelection()
-              for (tipe <- selectedHeadersList.getSelectedValuesList.asScala) {
-                val index = selectedHeadersModel.indexOf(tipe)
-                selectedHeadersList.addSelectionInterval(index, index)
-              }
-            })
-            rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener(_ => {
-              val indices = selectedHeadersList.getSelectedIndices.reverse
-              var ignore = selectedHeadersModel.size() - 1
-              for (index <- indices) {
-                if (index == ignore) {
-                  ignore -= 1
-                } else {
-                  val temp = selectedHeadersModel.getElementAt(index + 1)
-                  selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index + 1)
-                  selectedHeadersModel.setElementAt(temp, index)
-                }
-              }
-              selectedHeadersList.clearSelection()
-              for (tipe <- selectedHeadersList.getSelectedValuesList.asScala) {
-                val index = selectedHeadersModel.indexOf(tipe)
-                selectedHeadersList.addSelectionInterval(index, index)
-              }
-            })
-            moveButtons.get(UnicodeSymbols.LEFT_ARROW.toString).addActionListener(_ => {
-              for (selected <- headersList.getSelectedValuesList.asScala)
-                if (!selectedHeadersModel.contains(selected))
-                  selectedHeadersModel.addElement(selected)
-              headersList.clearSelection()
-            })
-            moveButtons.get(UnicodeSymbols.RIGHT_ARROW.toString).addActionListener(_ => selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_)))
-            includeCheckBox.addActionListener(_ => {
-              headersList.setEnabled(!includeCheckBox.isSelected)
-              selectedHeadersList.setEnabled(!includeCheckBox.isSelected)
-              rearrangeButtons.asScala.foreach(_.setEnabled(!includeCheckBox.isSelected))
-              moveButtons.asScala.foreach(_.setEnabled(!includeCheckBox.isSelected))
-            })
-
-            val previewPanel = JPanel(BorderLayout())
-            previewPanel.setBorder(BorderFactory.createTitledBorder("Data to Import:"))
-            val previewTable = new JTable {
-                override def getPreferredScrollableViewportSize = Dimension(0, 0)
-                override def getScrollableTracksViewportWidth = getPreferredSize.width < getParent.getWidth
-            }
-            previewTable.setAutoCreateRowSorter(true)
-            previewPanel.add(JScrollPane(previewTable))
-
-            val updateTable: ActionListener = _ => {
-              try {
-                val model = DefaultTableModel()
-                val lines = Files.readAllLines(importChooser.getSelectedFile.toPath)
-                if (includeCheckBox.isSelected) {
-                  val columns = lines.remove(0).split(delimiterBox.getSelectedItem.toString).map(_.asInstanceOf[Object])
-                  val data = lines.asScala.map((s) => DelimitedCardListFormat.split(delimiterBox.getSelectedItem.toString, s).map(_.asInstanceOf[Object])).toArray
-                  model.setDataVector(data, columns)
-                } else {
-                  val columns = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_).asInstanceOf[Object]).toArray
-                  val data = lines.asScala.map((s) => DelimitedCardListFormat.split(delimiterBox.getSelectedItem.toString, s).map(_.asInstanceOf[Object])).toArray
-                  model.setDataVector(data, columns)
-                }
-                previewTable.setModel(model)
-              } catch {
-                case x: IOException => JOptionPane.showMessageDialog(this, s"Could not import ${importChooser.getSelectedFile()}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
-              }
-            }
-            delimiterBox.addActionListener(updateTable)
-            includeCheckBox.addActionListener(updateTable)
-            rearrangeButtons.asScala.foreach(_.addActionListener(updateTable))
-            moveButtons.asScala.foreach(_.addActionListener(updateTable))
-            updateTable.actionPerformed(null)
-
-            if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardResult.FinishOption) {
-              val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_))
-              Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected.asJava, !includeCheckBox.isSelected()))
-            }
-            else None
-          } else {
-            JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE)
-            None
-          }
-          format.foreach(fmt => {
-            val manager = try {
-              DeckSerializer.importList(fmt, importChooser.getSelectedFile, this)
-            } catch case x: DeckLoadException => {
-              JOptionPane.showMessageDialog(this, s"Could not import ${importChooser.getSelectedFile}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
-              DeckSerializer()
-            }
-            selectFrame(createEditor(manager))
+        val format = if (importChooser.getFileFilter == text) {
+          Some(TextCardListFormat(""))
+        } else if (importChooser.getFileFilter == delimited) {
+          val dataPanel = JPanel(BorderLayout())
+          val optionsPanel = JPanel(FlowLayout(FlowLayout.LEFT))
+          optionsPanel.add(JLabel("Delimiter: "))
+          val delimiterBox = JComboBox(DelimitedCardListFormat.DELIMITERS)
+          delimiterBox.setEditable(true)
+          optionsPanel.add(delimiterBox)
+          val includeCheckBox = JCheckBox("Read Headers")
+          includeCheckBox.setSelected(true)
+          optionsPanel.add(includeCheckBox)
+          dataPanel.add(optionsPanel, BorderLayout.NORTH)
+          val headersList = JList(CardAttribute.displayableValues)
+          headersList.setEnabled(!includeCheckBox.isSelected)
+          val headersPane = JScrollPane(headersList)
+          val headersPanel = Box(BoxLayout.X_AXIS)
+          headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"))
+          val rearrangeButtons = VerticalButtonList(UnicodeSymbols.UP_ARROW.toString, UnicodeSymbols.DOWN_ARROW.toString)
+          rearrangeButtons.asScala.foreach(_.setEnabled(!includeCheckBox.isSelected))
+          headersPanel.add(rearrangeButtons)
+          headersPanel.add(Box.createHorizontalStrut(5))
+          val selectedHeadersModel = DefaultListModel[CardAttribute]()
+          selectedHeadersModel.addElement(CardAttribute.NAME)
+          selectedHeadersModel.addElement(CardAttribute.EXPANSION)
+          selectedHeadersModel.addElement(CardAttribute.CARD_NUMBER)
+          selectedHeadersModel.addElement(CardAttribute.COUNT)
+          selectedHeadersModel.addElement(CardAttribute.DATE_ADDED)
+          val selectedHeadersList = JList(selectedHeadersModel)
+          selectedHeadersList.setEnabled(!includeCheckBox.isSelected)
+          headersPanel.add(new JScrollPane(selectedHeadersList) {
+              override def getPreferredSize = headersPane.getPreferredSize
           })
+          headersPanel.add(Box.createHorizontalStrut(5))
+          val moveButtons = VerticalButtonList(UnicodeSymbols.LEFT_ARROW.toString, UnicodeSymbols.RIGHT_ARROW.toString)
+          moveButtons.asScala.foreach(_.setEnabled(!includeCheckBox.isSelected))
+          headersPanel.add(moveButtons)
+          headersPanel.add(Box.createHorizontalStrut(5))
+          headersPanel.add(headersPane)
+          dataPanel.add(headersPanel, BorderLayout.CENTER)
+          rearrangeButtons.get(String.valueOf(UnicodeSymbols.UP_ARROW)).addActionListener(_ => {
+            var ignore = 0
+            for (index <- selectedHeadersList.getSelectedIndices) {
+              if (index == ignore) {
+                ignore += 1
+              } else {
+                val temp = selectedHeadersModel.getElementAt(index - 1)
+                selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index - 1)
+                selectedHeadersModel.setElementAt(temp, index)
+              }
+            }
+            selectedHeadersList.clearSelection()
+            for (tipe <- selectedHeadersList.getSelectedValuesList.asScala) {
+              val index = selectedHeadersModel.indexOf(tipe)
+              selectedHeadersList.addSelectionInterval(index, index)
+            }
+          })
+          rearrangeButtons.get(String.valueOf(UnicodeSymbols.DOWN_ARROW)).addActionListener(_ => {
+            val indices = selectedHeadersList.getSelectedIndices.reverse
+            var ignore = selectedHeadersModel.size() - 1
+            for (index <- indices) {
+              if (index == ignore) {
+                ignore -= 1
+              } else {
+                val temp = selectedHeadersModel.getElementAt(index + 1)
+                selectedHeadersModel.setElementAt(selectedHeadersModel.getElementAt(index), index + 1)
+                selectedHeadersModel.setElementAt(temp, index)
+              }
+            }
+            selectedHeadersList.clearSelection()
+            for (tipe <- selectedHeadersList.getSelectedValuesList.asScala) {
+              val index = selectedHeadersModel.indexOf(tipe)
+              selectedHeadersList.addSelectionInterval(index, index)
+            }
+          })
+          moveButtons.get(UnicodeSymbols.LEFT_ARROW.toString).addActionListener(_ => {
+            for (selected <- headersList.getSelectedValuesList.asScala)
+              if (!selectedHeadersModel.contains(selected))
+                selectedHeadersModel.addElement(selected)
+            headersList.clearSelection()
+          })
+          moveButtons.get(UnicodeSymbols.RIGHT_ARROW.toString).addActionListener(_ => selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_)))
+          includeCheckBox.addActionListener(_ => {
+            headersList.setEnabled(!includeCheckBox.isSelected)
+            selectedHeadersList.setEnabled(!includeCheckBox.isSelected)
+            rearrangeButtons.asScala.foreach(_.setEnabled(!includeCheckBox.isSelected))
+            moveButtons.asScala.foreach(_.setEnabled(!includeCheckBox.isSelected))
+          })
+
+          val previewPanel = JPanel(BorderLayout())
+          previewPanel.setBorder(BorderFactory.createTitledBorder("Data to Import:"))
+          val previewTable = new JTable {
+              override def getPreferredScrollableViewportSize = Dimension(0, 0)
+              override def getScrollableTracksViewportWidth = getPreferredSize.width < getParent.getWidth
+          }
+          previewTable.setAutoCreateRowSorter(true)
+          previewPanel.add(JScrollPane(previewTable))
+
+          val updateTable: ActionListener = _ => {
+            try {
+              val model = DefaultTableModel()
+              val lines = Files.readAllLines(importChooser.getSelectedFile.toPath)
+              if (includeCheckBox.isSelected) {
+                val columns = lines.remove(0).split(delimiterBox.getSelectedItem.toString).map(_.asInstanceOf[Object])
+                val data = lines.asScala.map((s) => DelimitedCardListFormat.split(delimiterBox.getSelectedItem.toString, s).map(_.asInstanceOf[Object])).toArray
+                model.setDataVector(data, columns)
+              } else {
+                val columns = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_).asInstanceOf[Object]).toArray
+                val data = lines.asScala.map((s) => DelimitedCardListFormat.split(delimiterBox.getSelectedItem.toString, s).map(_.asInstanceOf[Object])).toArray
+                model.setDataVector(data, columns)
+              }
+              previewTable.setModel(model)
+            } catch {
+              case x: IOException => JOptionPane.showMessageDialog(this, s"Could not import ${importChooser.getSelectedFile()}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
+            }
+          }
+          delimiterBox.addActionListener(updateTable)
+          includeCheckBox.addActionListener(updateTable)
+          rearrangeButtons.asScala.foreach(_.addActionListener(updateTable))
+          moveButtons.asScala.foreach(_.addActionListener(updateTable))
+          updateTable.actionPerformed(null)
+
+          if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardResult.FinishOption) {
+            val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_))
+            Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected.asJava, !includeCheckBox.isSelected()))
+          }
+          else None
+        } else {
+          JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE)
+          None
         }
+        format.foreach(fmt => {
+          val manager = try {
+            DeckSerializer.importList(fmt, importChooser.getSelectedFile, this)
+          } catch case x: DeckLoadException => {
+            JOptionPane.showMessageDialog(this, s"Could not import ${importChooser.getSelectedFile}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
+            DeckSerializer()
+          }
+          selectFrame(createEditor(manager))
+        })
       case JFileChooser.CANCEL_OPTION =>
       case JFileChooser.ERROR_OPTION => JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE)
     }
