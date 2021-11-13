@@ -1411,16 +1411,14 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    * Open the specified file and create an editor for it.
    * @return the EditorFrame containing the opened deck, or None if opening was canceled.
    */
-  def open(f: File) = editors.find(_.file.contains(f)).orElse {
+  def open(f: File) = editors.find(_.file.contains(f)).orElse{
     val frame = try {
-      val manager = DeckSerializer()
-      manager.load(f, this)
-      Some(createEditor(manager))
+      Some(createEditor(DeckSerializer.load(f, this)))
     } catch {
       case e: CancellationException => None
       case e: DeckLoadException =>
         e.printStackTrace
-        JOptionPane.showMessageDialog(this, "Error opening " + f.getName() + ": " + e.getMessage() + ".", "Error", JOptionPane.ERROR_MESSAGE)
+        JOptionPane.showMessageDialog(this, s"Error opening ${f.getName}: ${e.getMessage}.", "Error", JOptionPane.ERROR_MESSAGE)
         Some(createEditor())
     } finally {
       System.gc()

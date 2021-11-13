@@ -50,7 +50,9 @@ object DeckSerializer {
     val worker = LoadWorker(file, parent, (stream) => Using.resource(BufferedReader(InputStreamReader(stream)))(MainFrame.Serializer.fromJson(_, classOf[DeckSerializer])))
     worker.executeAndDisplay()
     try {
-      worker.get
+      val d = worker.get
+      d._file = Some(file)
+      d
     } catch {
       case _: CancellationException => DeckSerializer()
       case e => throw DeckLoadException(file, e)
@@ -131,29 +133,6 @@ class DeckSerializer(private var d: Deck = Deck(), private var s: Map[String, De
   def save(f: File) = Using.resource(FileWriter(f)){ writer =>
     writer.write(MainFrame.Serializer.toJson(this))
     _file = Some(f)
-  }
-
-  @deprecated def load(file: File, parent: Component) = {
-    if (!deck.isEmpty)
-      throw (DeckLoadException(file, "deck already loaded"))
-    else {
-      val worker = LoadWorker(file, parent, (stream) => Using.resource(BufferedReader(InputStreamReader(stream))){ reader =>
-        val loaded = MainFrame.Serializer.fromJson(reader, classOf[DeckSerializer])
-        d = loaded.deck
-        s = loaded.sideboards
-        n = loaded.notes
-        c = loaded.changelog
-        loaded
-      })
-      worker.executeAndDisplay()
-      try {
-        worker.get
-      } catch {
-        case e: CancellationException =>
-        case e: Exception => throw DeckLoadException(file, e)
-      }
-      _file = Some(file)
-    }
   }
 
   @deprecated def importLegacy(file: File, parent: Component) = {
