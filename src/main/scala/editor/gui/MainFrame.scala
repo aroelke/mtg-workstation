@@ -338,7 +338,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                 JOptionPane.showMessageDialog(this, s"Error opening ${importChooser.getSelectedFile.getName}: ${x.getMessage}.", "Error", JOptionPane.ERROR_MESSAGE)
             }
         } else {
-          if (importChooser.getFileFilter == text) {
+          val format = if (importChooser.getFileFilter == text) {
             Some(TextCardListFormat(""))
           } else if (importChooser.getFileFilter == delimited) {
             val dataPanel = JPanel(BorderLayout())
@@ -468,10 +468,11 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           } else {
             JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE)
             None
-          }.foreach(format => {
+          }
+          format.foreach(fmt => {
             val manager = DeckSerializer()
             try {
-              manager.importList(format, importChooser.getSelectedFile, this)
+              manager.importList(fmt, importChooser.getSelectedFile, this)
             } catch {
               case x: DeckLoadException => JOptionPane.showMessageDialog(this, s"Could not import ${importChooser.getSelectedFile}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)
             } finally {
