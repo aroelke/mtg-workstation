@@ -39,6 +39,7 @@ import java.util.concurrent.CancellationException
 import editor.collection.`export`.CardListFormat
 import java.io.ObjectInputStream
 import java.io.ObjectInput
+import java.nio.file.NoSuchFileException
 
 object DeckSerializer {
   def ChangelogDateFormat = SimpleDateFormat("MMMM d, yyyy HH:mm:ss")
@@ -50,9 +51,7 @@ object DeckSerializer {
     val worker = LoadWorker(file, parent, (stream) => Using.resource(BufferedReader(InputStreamReader(stream)))(MainFrame.Serializer.fromJson(_, classOf[DeckSerializer])))
     worker.executeAndDisplay()
     try {
-      val d = worker.get
-      d._file = Some(file)
-      d
+      worker.get.copy(file = Some(file))
     } catch {
       case _: CancellationException => DeckSerializer()
       case e => throw DeckLoadException(file, e)
@@ -64,43 +63,24 @@ object DeckSerializer {
     val worker = LoadWorker(file, parent, format.parse(_))
     worker.executeAndDisplay()
     try {
-      val d = worker.get
-      d.imported = true
-      d
+      worker.get
     } catch {
       case _: CancellationException => DeckSerializer()
       case e => throw DeckLoadException(file, e)
     }
   }
-
-  @deprecated def apply(d: Deck = Deck(), s: Map[String, Deck] = Map.empty, n: String = "", c: String = "") = new DeckSerializer(d, s, n, c)
 }
 
-class DeckSerializer(private var d: Deck = Deck(), private var s: Map[String, Deck] = Map.empty, private var n: String = "", private var c: String = "")
+case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = Map.empty, notes: String = "", changelog: String = "", file: Option[File] = None)
   extends JsonSerializer[DeckSerializer] with JsonDeserializer[DeckSerializer]
 {
   @deprecated def this(d: Deck, s: java.util.Map[String, Deck], n: String, c: String) = this(d, s.asScala.toMap, n, c)
 
-  private var imported = false
-
-  private var _file: Option[File] = None
-  def file = _file.getOrElse(throw NoSuchElementException("no file saved or loaded"))
-
-  def deck = d
-
-  def sideboards = s
-
-  def notes = n
-
-  def changelog = c
-
-  def canSaveFile = _file.isDefined && !imported
-
   @throws[IOException]("if the file could not be saved")
-  def save(f: File) = Using.resource(FileWriter(f)){ writer =>
+  @throws[NoSuchFileException]("if there is no file to save to")
+  def save() = file.map((f) => Using.resource(FileWriter(f)){ writer =>
     writer.write(MainFrame.Serializer.toJson(this))
-    _file = Some(f)
-  }
+  }).getOrElse(throw NoSuchFileException("no file to save to"))
 
   override def serialize(src: DeckSerializer, typeOfSrc: Type, context: JsonSerializationContext) = {
     val json = JsonObject()
