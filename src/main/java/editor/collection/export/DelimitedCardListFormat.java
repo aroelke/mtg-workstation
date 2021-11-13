@@ -19,6 +19,8 @@ import editor.database.card.CardFormat;
 import editor.gui.MainFrame;
 import editor.gui.editor.DeckSerializer;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents a formatter that creates a table whose columns
  * are card characteristics and whose rows contain the values of those

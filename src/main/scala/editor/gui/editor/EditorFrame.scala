@@ -1221,7 +1221,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   emptyPanel.addMouseListener(MouseListenerFactory.createClickListener((e) => addSideboard(e)))
 
   extrasPane.addTab("+", null)
-  for ((name, list) <- manager.sideboards.asScala) {
+  for ((name, list) <- manager.sideboards) {
     val id = _lists.size
     createExtra(name, id, extrasPane.getTabCount - 1)
     // Intentionally throw exception here if missing, as it shouldn't be missing
@@ -1746,13 +1746,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   def save(f: File): Boolean = {
     val changes = deck.changes
     if (!changes.isEmpty) {
-      changelogArea.append(s"""|~~~~~${DeckSerializer.CHANGELOG_DATE.format(Date())}~~~~~)
+      changelogArea.append(s"""|~~~~~${DeckSerializer.ChangelogDateFormat.format(Date())}~~~~~)
                                |$changes
                                |""".stripMargin)
     }
 
     val sideboards = extras.map((l) => l.name -> l.current).toMap
-    val manager = DeckSerializer(deck.current, sideboards.asJava, notesArea.getText, changelogArea.getText)
+    val manager = DeckSerializer(deck.current, sideboards, notesArea.getText, changelogArea.getText)
     try {
       manager.save(f)
       deck.original.clear()
