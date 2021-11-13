@@ -874,9 +874,9 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     } finally {
       is.close()
     }
-    JOptionPane.showMessageDialog(MainFrame.this, s"""|<html>MTG Workstation version $version.<br>
-                                                      |Created by Alec Roelke (alec.roelke@gmail.com).<br>
-                                                      |File bug reports at https://github.com/aroelke/mtg-workstation.</html>""".stripMargin, "About", JOptionPane.INFORMATION_MESSAGE)
+    JOptionPane.showMessageDialog(MainFrame.this, s"""|MTG Workstation version $version.
+                                                      |Created by Alec Roelke (alec.roelke@gmail.com).
+                                                      |File bug reports at https://github.com/aroelke/mtg-workstation.""".stripMargin, "About", JOptionPane.INFORMATION_MESSAGE)
   })
   helpMenu.add(JSeparator())
 
