@@ -1,14 +1,27 @@
 package editor.gui.ccp
 
-import javax.swing.JMenuItem
 import java.awt.Component
-import javax.swing.TransferHandler
 import java.awt.event.ActionEvent
-import javax.swing.KeyStroke
-import java.awt.event.KeyEvent
 import java.awt.event.InputEvent
+import java.awt.event.KeyEvent
+import javax.swing.JMenuItem
+import javax.swing.KeyStroke
+import javax.swing.TransferHandler
 
+/**
+ * Generates sets of cut, copy, and paste menu items with behaviors.
+ * @author Alec Roelke
+ */
 object CCPItems {
+  /**
+   * Create a new set of cut, copy, and paste menu items and add default associated behavior with the option to
+   * add keyboard accelerators (Ctrl + key).  Accelerators used are Ctrl+X for cut, Ctrl+C for copy, and Ctrl+V
+   * for paste.
+   * 
+   * @param source component performing the cut, copy, and/or paste actions
+   * @param accelerate whether or not to add keyboard accelerators
+   * @return a new set of cut, copy, and paste menu items with default behaviors added
+   */
   def apply(source: => Component, accelerate: Boolean): CCPItems = {
     val items = CCPItems()
 
@@ -26,6 +39,17 @@ object CCPItems {
   }
 }
 
+/**
+ * Structure defining menu items for cut, copy, and paste. By default, these don't have actions associated; use
+ * the companion object to automatically generate that.
+ * 
+ * @constructor create a new set of cut, copy, and paste menu items
+ * @param cut menu item for cut; defaults to a menu item with the text "Cut"
+ * @param copy menu item for copy; defaults to a menu item with the text "Copy"
+ * @param menu item for paste; defaults to a menu item with the text "Paste"
+ * 
+ * @author Alec Roelke
+ */
 case class CCPItems(cut: JMenuItem = JMenuItem("Cut"), copy: JMenuItem = JMenuItem("Copy"), paste: JMenuItem = JMenuItem("Paste")) {
   @deprecated def this(source: Component, accelerate: Boolean) = {
     this()
