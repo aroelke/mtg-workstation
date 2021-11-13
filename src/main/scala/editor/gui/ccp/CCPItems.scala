@@ -10,7 +10,7 @@ import java.awt.event.InputEvent
 
 object CCPItems {
   def apply(source: => Component, accelerate: Boolean): CCPItems = {
-    val items = CCPItems(JMenuItem("Cut"), JMenuItem("Copy"), JMenuItem("Paste"))
+    val items = CCPItems()
 
     items.cut.addActionListener(_ => TransferHandler.getCutAction.actionPerformed(ActionEvent(source, ActionEvent.ACTION_PERFORMED, null)));
     items.copy.addActionListener(_ => TransferHandler.getCopyAction.actionPerformed(ActionEvent(source, ActionEvent.ACTION_PERFORMED, null)));
@@ -26,9 +26,9 @@ object CCPItems {
   }
 }
 
-case class CCPItems(cut: JMenuItem, copy: JMenuItem, paste: JMenuItem) {
+case class CCPItems(cut: JMenuItem = JMenuItem("Cut"), copy: JMenuItem = JMenuItem("Copy"), paste: JMenuItem = JMenuItem("Paste")) {
   @deprecated def this(source: Component, accelerate: Boolean) = {
-    this(JMenuItem("Cut"), JMenuItem("Copy"), JMenuItem("Paste"))
+    this()
 
     cut.addActionListener(_ => TransferHandler.getCutAction.actionPerformed(ActionEvent(source, ActionEvent.ACTION_PERFORMED, null)));
     copy.addActionListener(_ => TransferHandler.getCopyAction.actionPerformed(ActionEvent(source, ActionEvent.ACTION_PERFORMED, null)));
