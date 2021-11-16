@@ -1,59 +1,71 @@
 package editor.gui.display
 
-import javax.swing.JPanel
 import editor.database.card.Card
-import java.awt.image.BufferedImage
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
+import editor.database.card.CardLayout
+import editor.database.symbol.FunctionalSymbol
+import editor.gui.generic.ComponentUtils
+import editor.gui.settings.SettingsDialog
+
+import java.awt.Color
 import java.awt.Dimension
+import java.awt.FlowLayout
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.RenderingHints
-import editor.database.symbol.FunctionalSymbol
-import java.io.File
-import javax.imageio.ImageIO
-import java.io.IOException
-import javax.swing.SwingUtilities
-import javax.swing.JTextPane
-import javax.swing.text.StyledDocument
-import javax.swing.text.StyleConstants
-import javax.swing.UIManager
-import editor.gui.generic.ComponentUtils
-import java.awt.Color
-import java.nio.file.Files
-import java.nio.file.Path
-import editor.gui.settings.SettingsDialog
-import javax.swing.SwingWorker
-import java.net.URL
-import javax.swing.JProgressBar
-import javax.swing.JLabel
-import scala.util.Using
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.awt.geom.AffineTransform
+import java.awt.image.AffineTransformOp
+import java.awt.image.BufferedImage
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
+import java.io.File
 import java.io.FileOutputStream
-import editor.database.card.CardLayout
-import java.awt.image.AffineTransformOp
-import java.awt.geom.AffineTransform
+import java.io.IOException
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
-import scala.jdk.CollectionConverters._
-import java.awt.FlowLayout
-import javax.swing.Box
+import javax.imageio.ImageIO
 import javax.swing.BorderFactory
+import javax.swing.Box
+import javax.swing.JLabel
+import javax.swing.JPanel
+import javax.swing.JProgressBar
+import javax.swing.JTextPane
+import javax.swing.SwingUtilities
+import javax.swing.SwingWorker
+import javax.swing.UIManager
+import javax.swing.text.StyleConstants
+import javax.swing.text.StyledDocument
+import scala.jdk.CollectionConverters._
+import scala.util.Using
 
+/**
+ * Structure containing information about card images and where to get them and downloads missing card images when they are
+ * set to be displayed in a [[CardImagePanel]].
+ * 
+ * @author Alec Roelke
+ */
 object CardImagePanel {
+  /** Aspect ratio of a Magic: The Gathering card. */
   val AspectRatio = 63.0/88.0
+  /** String to format for generating the link to a card's image on Scryfall. */
   val ScryfallFormat = "https://api.scryfall.com/cards/%s?format=image%s"
+  /** String to format for generating the link to a card's image on Gatherer. */
   val GathererFormat = "https://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%d&type=card%s"
 
   private val progressBars = collection.mutable.ArrayBuffer[JProgressBar]()
   private val progressLabels = collection.mutable.ArrayBuffer[JLabel]()
 
+  /** @return the list of file names that will contain the image(s) to display for a card */
   def getFiles(card: Card): Seq[File] = SettingsDialog.settings.inventory.imageSource match {
     case "Scryfall" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card.scryfallid.get(i)}$i.jpg").toFile).toSeq
     case "Gatherer" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card.multiverseid.get(i)}$i.jpg").toFile).toSeq
     case _ => Seq.empty
   }
 
+  /** @return the URLs to download a card's image(s) if they are missing */
   def getURLs(card: Card): Seq[Option[URL]] = SettingsDialog.settings.inventory.imageSource match {
     case "Scryfall" => card.layout match {
       case CardLayout.FLIP => Seq(Some(URL(ScryfallFormat.format(card.scryfallid.get(0), ""))))
@@ -71,6 +83,10 @@ object CardImagePanel {
     case _ => Seq.empty
   }
 
+  /**
+   * Create a progress bar and label indicating progress in downloading an image.
+   * @return a panel containing the progress bar and image
+   */
   def createStatusBar = {
     val panel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
     panel.setBorder(BorderFactory.createEtchedBorder())
@@ -166,6 +182,14 @@ object CardImagePanel {
   }
 }
 
+/**
+ * Panel for displaying card images.  The card image will resize itself to fit the panel, but maintain its aspect ratio.
+ * 
+ * @constructor create a new card image panel, optionally displaying a card
+ * @param card card to display, if defined
+ * 
+ * @author Alec Roelke
+ */
 class CardImagePanel(private var card: Option[Card] = None) extends JPanel {
   import CardImagePanel._
 
@@ -182,6 +206,10 @@ class CardImagePanel(private var card: Option[Card] = None) extends JPanel {
   })
   card.foreach(setCard(_))
 
+  /**
+   * Change the card to display.  If the image has not been downloaded, download it first.
+   * @param c card to display
+   */
   def setCard(c: Card) = if (!card.exists(_ == c)) {
     card = Some(c)
     face = 0
@@ -198,6 +226,7 @@ class CardImagePanel(private var card: Option[Card] = None) extends JPanel {
     repaint()
   }
 
+  /** Clear the panel so it displays nothing. */
   def clearCard() = {
     card = None
     face = 0
@@ -206,7 +235,7 @@ class CardImagePanel(private var card: Option[Card] = None) extends JPanel {
     repaint()
   }
 
-  def loadImages() = synchronized {
+  private def loadImages() = synchronized {
     card.foreach{ c =>
       faceImages = getFiles(c).map{ file => if (file.exists) {
         try {
@@ -234,7 +263,7 @@ class CardImagePanel(private var card: Option[Card] = None) extends JPanel {
       val (w: Int, h: Int) = if (faceImages.size <= face || faceImages(face).isEmpty)
         ((height*AspectRatio).toInt, height)
       else
-        faceImages(face).map{ img => (img.getWidth, img.getHeight) }.getOrElse((0, 0))
+        faceImages(face).map((img) => (img.getWidth, img.getHeight)).getOrElse((0, 0))
 
       image = Some(BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB))
       val g = image.get.createGraphics
