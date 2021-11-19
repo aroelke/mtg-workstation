@@ -120,7 +120,7 @@ class CategoryEditorPanel(specification: Option[Category] = None) extends JPanel
   specification.foreach(spec = _)
 
   /** @return the categorization as currently defined by the GUI elements in the panel. */
-  def spec = Category(nameField.getText, whitelist.getCards, blacklist.getCards, colorButton.color, filter.filter)
+  def spec = Category(nameField.getText, whitelist.cards.asJava, blacklist.cards.asJava, colorButton.color, filter.filter)
 
   /**
    * Set the contents of the panel based on a given categorization.
@@ -130,7 +130,7 @@ class CategoryEditorPanel(specification: Option[Category] = None) extends JPanel
     nameField.setText(s.getName)
     colorButton.setColor(s.getColor)
     filter.setContents(s.getFilter)
-    whitelist.setCards(s.getWhitelist.asScala.toSeq.sortBy(_.unifiedName).asJava)
-    blacklist.setCards(s.getBlacklist.asScala.toSeq.sortBy(_.unifiedName).asJava)
+    whitelist.cards = s.getWhitelist.asScala.toSeq.sortBy(_.unifiedName)
+    blacklist.cards = s.getBlacklist.asScala.toSeq.sortBy(_.unifiedName)
   }
 }
