@@ -94,7 +94,6 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 import java.util.concurrent.TimeoutException
 import java.util.stream.Collectors
-import java.{util => ju}
 import javax.swing.AbstractAction
 import javax.swing.BorderFactory
 import javax.swing.Box
@@ -1061,10 +1060,10 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   // Create the inventory and put it in the table
   private val inventoryModel = CardTableModel(Inventory(), Settings().inventory.columns)
   private val inventoryTable = CardTable(inventoryModel)
-  inventoryTable.setDefaultRenderer(classOf[String], new InventoryTableCellRenderer)
-  inventoryTable.setDefaultRenderer(classOf[Int], new InventoryTableCellRenderer)
-  inventoryTable.setDefaultRenderer(classOf[Rarity], new InventoryTableCellRenderer)
-  inventoryTable.setDefaultRenderer(classOf[ju.List[_]], new InventoryTableCellRenderer)
+  inventoryTable.setDefaultRenderer(classOf[String], InventoryTableCellRenderer())
+  inventoryTable.setDefaultRenderer(classOf[Int], InventoryTableCellRenderer())
+  inventoryTable.setDefaultRenderer(classOf[Rarity], InventoryTableCellRenderer())
+  inventoryTable.setDefaultRenderer(classOf[java.util.List[?]], InventoryTableCellRenderer())
   inventoryTable.stripe = SettingsDialog.settings.inventory.stripe
   inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) => selectedFrame.foreach((f) => {
     if (e.getClickCount % 2 == 0)
