@@ -214,7 +214,11 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       val card = inventory.get(table.convertRowIndexToModel(row))
       val main = selectedFrame.exists(_.deck.contains(card))
       val extra = selectedFrame.exists(_.extras.exists(_.contains(card)))
-      ComponentUtils.changeFontRecursive(c, c.getFont.deriveFont((if (main) Font.BOLD else 0) | (if (extra) Font.ITALIC else 0)))
+      try {
+        ComponentUtils.changeFontRecursive(c, c.getFont.deriveFont((if (main) Font.BOLD else 0) | (if (extra) Font.ITALIC else 0)))
+      } catch case e: NullPointerException => {
+        System.err.println(s"renderer component ${c.getClass} for value $value does not have a font")
+      }
       c
     }
   }
