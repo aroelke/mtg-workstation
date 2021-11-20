@@ -1,11 +1,12 @@
 package editor.gui.display
 
-import javax.swing.JList
 import editor.database.card.Card
-import javax.swing.DefaultListSelectionModel
-import javax.swing.ListSelectionModel
-import javax.swing.DefaultListModel
 import editor.gui.settings.SettingsDialog
+
+import javax.swing.DefaultListModel
+import javax.swing.DefaultListSelectionModel
+import javax.swing.JList
+import javax.swing.ListSelectionModel
 
 /**
  * UI element for displaying a list of cards.  Does not support selection.

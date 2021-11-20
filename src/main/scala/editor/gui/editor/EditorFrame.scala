@@ -360,7 +360,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     private[EditorFrame] lazy val model = CardTableModel(this, SettingsDialog.settings.editor.columns, Some(EditorFrame.this))
     private[EditorFrame] lazy val table = {
       val table = CardTable(model)
-      table.setStripeColor(SettingsDialog.settings.editor.stripe)
+      table.stripe = SettingsDialog.settings.editor.stripe
       // When a card is selected in a table, mark it for adding
       val listener = TableSelectionListener(parent, table, current)
       table.addMouseListener(listener)
@@ -1247,7 +1247,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   override def applySettings(oldSettings: Settings, newSettings: Settings) = {
     applyChanges(oldSettings, newSettings)(_.editor.columns)(deck.model.columns = _)
-                                          (_.editor.stripe)(deck.table.setStripeColor(_))
+                                          (_.editor.stripe)(deck.table.stripe = _)
                                           (_.editor.manaAnalysis.line)(landRenderer.setSeriesPaint(0, _))
 
     for (i <- 0 until deck.table.getColumnCount)

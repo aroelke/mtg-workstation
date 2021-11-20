@@ -1059,14 +1059,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   tablePanel.add(filterPanel, BorderLayout.NORTH)
 
   // Create the inventory and put it in the table
-  private val inventoryTable = CardTable()
   private val inventoryModel = CardTableModel(Inventory(), Settings().inventory.columns)
-  inventoryTable.setModel(inventoryModel)
+  private val inventoryTable = CardTable(inventoryModel)
   inventoryTable.setDefaultRenderer(classOf[String], new InventoryTableCellRenderer)
   inventoryTable.setDefaultRenderer(classOf[Int], new InventoryTableCellRenderer)
   inventoryTable.setDefaultRenderer(classOf[Rarity], new InventoryTableCellRenderer)
   inventoryTable.setDefaultRenderer(classOf[ju.List[_]], new InventoryTableCellRenderer)
-  inventoryTable.setStripeColor(SettingsDialog.settings.inventory.stripe)
+  inventoryTable.stripe = SettingsDialog.settings.inventory.stripe
   inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) => selectedFrame.foreach((f) => {
     if (e.getClickCount % 2 == 0)
       f.deck ++= getSelectedCards -> 1
@@ -1229,7 +1228,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
   override def applySettings(oldSettings: Settings, newSettings: Settings) = {
     applyChanges(oldSettings, newSettings)(_.inventory.columns)(inventoryModel.columns = _)
-                                          (_.inventory.stripe)(inventoryTable.setStripeColor(_))
+                                          (_.inventory.stripe)(inventoryTable.stripe = _)
                                           (_.editor.categories.presets){ presets =>
                                             presetMenu.removeAll()
                                             for (spec <- presets) {

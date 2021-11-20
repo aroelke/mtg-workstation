@@ -1,10 +1,11 @@
 package editor.gui.display
 
-import javax.swing.table.AbstractTableModel
 import editor.collection.CardList
 import editor.database.attributes.CardAttribute
 import editor.gui.editor.EditorFrame
 import editor.gui.editor.IncludeExcludePanel
+
+import javax.swing.table.AbstractTableModel
 
 /**
  * A model telling a [[CardTable]] how to display cards in a [[CardList]].

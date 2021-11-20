@@ -182,7 +182,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   val table = new CardTable(model) {
     override def getPreferredScrollableViewportSize = Dimension(getPreferredSize.width, tableRows*getRowHeight)
   }
-  table.setStripeColor(SettingsDialog.settings.editor.stripe)
+  table.stripe = SettingsDialog.settings.editor.stripe
   for (i <- 0 until table.getColumnCount)
     if (model.isCellEditable(0, i))
       table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.columns(i)))
@@ -300,7 +300,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   /** Apply settings to this CategoryPanel. */
   def applySettings(oldSettings: Settings, newSettings: Settings) = {
     applyChanges(oldSettings, newSettings)(_.editor.columns)(model.columns = _)
-                                          (_.editor.stripe)(table.setStripeColor(_))
+                                          (_.editor.stripe)(table.stripe = _)
     for (i <- 0 until table.getColumnCount)
       if (model.isCellEditable(0, i))
         table.getColumn(model.getColumnName(i)).setCellEditor(CardTable.createCellEditor(editor, model.columns(i)))

@@ -917,9 +917,9 @@ object SettingsDialog {
       override def getRowCount = 4
       override def getValueAt(rowIndex: Int, colIndex: Int) = "Sample Text"
     })
-    table.setStripeColor(chooser.getColor)
+    table.stripe = chooser.getColor
     preview.add(table)
-    chooser.getSelectionModel().addChangeListener((e) => table.setStripeColor(chooser.getColor()))
+    chooser.getSelectionModel().addChangeListener((e) => table.stripe = chooser.getColor)
     chooser.setPreviewPanel(preview)
   }
 
