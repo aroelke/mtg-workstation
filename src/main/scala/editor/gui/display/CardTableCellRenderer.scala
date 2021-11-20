@@ -1,35 +1,46 @@
 package editor.gui.display
 
-import javax.swing.table.DefaultTableCellRenderer
-import editor.database.attributes.ManaCost
-import javax.swing.Icon
-import javax.swing.JTable
-import javax.swing.JPanel
-import java.awt.FlowLayout
-import javax.swing.BorderFactory
-import editor.database.attributes.CardAttribute
-import javax.swing.BoxLayout
-import scala.jdk.CollectionConverters._
-import editor.database.card.Card
-import javax.swing.JLabel
-import javax.swing.UIManager
-import javax.swing.Box
-import editor.database.symbol.ColorSymbol
-import editor.database.attributes.ManaType
 import editor.collection.deck.Category
-import java.awt.Graphics
-import java.awt.Color
-import editor.util.UnicodeSymbols
-import java.time.LocalDate
 import editor.collection.deck.Deck
+import editor.database.attributes.CardAttribute
+import editor.database.attributes.ManaCost
+import editor.database.attributes.ManaType
+import editor.database.card.Card
+import editor.database.symbol.ColorSymbol
+import editor.util.UnicodeSymbols
+
+import java.awt.Color
 import java.awt.Container
-import javax.swing.border.Border
+import java.awt.FlowLayout
+import java.awt.Graphics
+import java.time.LocalDate
+import javax.swing.BorderFactory
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.Icon
 import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JPanel
+import javax.swing.JTable
+import javax.swing.UIManager
+import javax.swing.border.Border
+import javax.swing.table.DefaultTableCellRenderer
+import scala.jdk.CollectionConverters._
 
 private object CardTableCellRenderer {
   val cache = collection.mutable.Map[Seq[ManaCost], Seq[Seq[Icon]]]()
 }
 
+/**
+ * Cell renderer for a [[CardTable]] cell. Mostly just displays the contents as a string,
+ * but if it's a mana cost or set of colors, displays it as a list of mana symbols, and if it's
+ * a set of categories in a deck, displays squares corresponding to the categories' colors (and
+ * adds a tooltip for more detailed information).
+ * 
+ * @constructor create a new [[CardTable]] cell renderer
+ * 
+ * @author Alec Roelke
+ */
 class CardTableCellRenderer extends DefaultTableCellRenderer {
   import CardTableCellRenderer._
 
