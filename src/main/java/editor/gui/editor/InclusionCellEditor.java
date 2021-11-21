@@ -101,7 +101,7 @@ public class InclusionCellEditor extends AbstractCellEditor implements TableCell
             );
             included = ((Collection<?>)value).stream().filter((o) -> o instanceof Category).map((o) -> (Category)o).collect(Collectors.toList());
             if (!table.isRowSelected(row))
-                editor.setBackground(cTable.getRowColor(row));
+                editor.setBackground(cTable.rowColor(row));
             else
             {
                 editor.setBackground(table.getSelectionBackground());
