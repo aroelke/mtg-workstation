@@ -65,7 +65,7 @@ object DeckSerializer {
       worker.get.copy(file = Some(file))
     } catch {
       case _: CancellationException => DeckSerializer()
-      case e => throw DeckLoadException(file, e)
+      case e => throw DeckLoadException(file, cause = Some(e))
     }
   }
 
@@ -87,7 +87,7 @@ object DeckSerializer {
       worker.get
     } catch {
       case _: CancellationException => DeckSerializer()
-      case e => throw DeckLoadException(file, e)
+      case e => throw DeckLoadException(file, cause = Some(e))
     }
   }
 }
