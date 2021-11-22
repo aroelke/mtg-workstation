@@ -753,7 +753,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   preferencesItem.addActionListener(_ => try {
       val s = Await.result(settings, 0.nanos)
       s.setLocationRelativeTo(this)
-      s.setVisible(true)
+      s.updateAndShow()
   } catch {
     case x @ (_: TimeoutException | _: InterruptedException) =>
       JOptionPane.showMessageDialog(this, "Error creating preferences dialog. Please restart the program.", "Error", JOptionPane.ERROR_MESSAGE)

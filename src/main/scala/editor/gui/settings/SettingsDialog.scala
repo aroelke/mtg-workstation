@@ -721,68 +721,6 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   pack()
   setLocationRelativeTo(parent)
 
-  addWindowListener(new WindowAdapter {
-    override def windowActivated(e: WindowEvent) = {
-      inventorySiteField.setText(settings.inventory.source)
-      inventoryFileField.setText(settings.inventory.file)
-      currentVersionLabel.setText("(Current version: " + settings.inventory.version + ")")
-      inventoryDirField.setText(settings.inventory.location)
-      inventoryChooser.setCurrentDirectory(File(inventoryDirField.getText).getAbsoluteFile)
-      scansDirField.setText(settings.inventory.scans)
-      scansChooser.setCurrentDirectory(File(scansDirField.getText).getAbsoluteFile)
-      imgSourceBox.setSelectedIndex(Math.max(ImageSources.indexOf(settings.inventory.imageSource), 0))
-      limitImageBox.setSelected(settings.inventory.imageLimitEnable)
-      limitImageSpinner.setEnabled(settings.inventory.imageLimitEnable)
-      limitImageSpinner.setValue(settings.inventory.imageLimit)
-      updateBox.setSelectedIndex(settings.inventory.update.ordinal)
-      suppressCheckBox.setSelected(settings.inventory.warn)
-      viewWarningsButton.setEnabled(!inventoryWarnings.isEmpty)
-      for ((a, b) <- inventoryColumnCheckBoxes)
-        b.setSelected(settings.inventory.columns.contains(a))
-      inventoryStripeColor.setColor(settings.inventory.stripe)
-      scanBGChooser.setColor(settings.inventory.background)
-      recentSpinner.getModel.setValue(settings.editor.recents.count)
-      explicitsSpinner.getModel.setValue(settings.editor.categories.explicits)
-      manaValueBox.setSelectedIndex(Math.max(ManaValueOptions.indexOf(settings.editor.manaValue), 0))
-      categoriesList.clear()
-      for (preset <- settings.editor.categories.presets)
-        categoriesList.addCategory(Category(preset))
-      rowsSpinner.getModel().setValue(settings.editor.categories.rows)
-      for ((a, b) <- editorColumnCheckBoxes)
-        b.setSelected(settings.editor.columns.contains(a))
-      editorStripeColor.setColor(settings.editor.stripe)
-      startingSizeSpinner.getModel.setValue(settings.editor.hand.size)
-      for (mode <- modeButtons)
-        mode.setSelected(mode.getText == settings.editor.hand.rounding)
-      handBGColor.setColor(settings.editor.hand.background)
-      cmdrCheck.setSelected(settings.editor.legality.searchForCommander)
-      sideCheck.setSelected(!settings.editor.legality.sideboard.isEmpty)
-      sideCheck.setText(if (sideCheck.isSelected) "Default sideboard name:" else "Include sideboard")
-      sideField.setText(settings.editor.legality.sideboard)
-      sideField.setVisible(sideCheck.isSelected)
-      if (settings.editor.legality.searchForCommander) {
-        cmdrCheck.setText("Search for commander in:")
-        if (settings.editor.legality.main || (!settings.editor.legality.all && settings.editor.legality.list.isEmpty)) {
-          cmdrMainDeck.setSelected(true)
-        } else if (settings.editor.legality.all) {
-          cmdrAllLists.setSelected(true)
-        } else {
-          cmdrList.setSelected(true)
-        }
-        cmdrListName.setEnabled(cmdrList.isSelected)
-        cmdrListName.setText(settings.editor.legality.list)
-      } else {
-        cmdrCheck.setText("Search for commander")
-        cmdrMainDeck.setVisible(false)
-        cmdrAllLists.setVisible(false)
-        cmdrList.setVisible(false)
-        cmdrListName.setVisible(false)
-      }
-      sections.foreach(s => sectionChoosers(s).setColor(settings.editor.manaAnalysis(s)))
-      landLineChooser.setColor(settings.editor.manaAnalysis.line)
-    }
-  })
-
   /** Confirm settings made while using the settings dialog and make corresponding changes to the UI. */
   def confirmSettings(): Unit = {
     var newSettings = try {
@@ -854,6 +792,72 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   def rejectSettings(): Unit = {
     parent.setImageBackground(settings.inventory.background)
     parent.setHandBackground(settings.editor.hand.background)
+  }
+
+  /**
+   * Set the UI elements in the settings dialog to contain values based on the global settings, and then show
+   * the dialog.
+   */
+  def updateAndShow() = {
+    inventorySiteField.setText(settings.inventory.source)
+    inventoryFileField.setText(settings.inventory.file)
+    currentVersionLabel.setText("(Current version: " + settings.inventory.version + ")")
+    inventoryDirField.setText(settings.inventory.location)
+    inventoryChooser.setCurrentDirectory(File(inventoryDirField.getText).getAbsoluteFile)
+    scansDirField.setText(settings.inventory.scans)
+    scansChooser.setCurrentDirectory(File(scansDirField.getText).getAbsoluteFile)
+    imgSourceBox.setSelectedIndex(Math.max(ImageSources.indexOf(settings.inventory.imageSource), 0))
+    limitImageBox.setSelected(settings.inventory.imageLimitEnable)
+    limitImageSpinner.setEnabled(settings.inventory.imageLimitEnable)
+    limitImageSpinner.setValue(settings.inventory.imageLimit)
+    updateBox.setSelectedIndex(settings.inventory.update.ordinal)
+    suppressCheckBox.setSelected(settings.inventory.warn)
+    viewWarningsButton.setEnabled(!inventoryWarnings.isEmpty)
+    for ((a, b) <- inventoryColumnCheckBoxes)
+      b.setSelected(settings.inventory.columns.contains(a))
+    inventoryStripeColor.setColor(settings.inventory.stripe)
+    scanBGChooser.setColor(settings.inventory.background)
+    recentSpinner.getModel.setValue(settings.editor.recents.count)
+    explicitsSpinner.getModel.setValue(settings.editor.categories.explicits)
+    manaValueBox.setSelectedIndex(Math.max(ManaValueOptions.indexOf(settings.editor.manaValue), 0))
+    categoriesList.clear()
+    for (preset <- settings.editor.categories.presets)
+      categoriesList.addCategory(Category(preset))
+    rowsSpinner.getModel().setValue(settings.editor.categories.rows)
+    for ((a, b) <- editorColumnCheckBoxes)
+      b.setSelected(settings.editor.columns.contains(a))
+    editorStripeColor.setColor(settings.editor.stripe)
+    startingSizeSpinner.getModel.setValue(settings.editor.hand.size)
+    for (mode <- modeButtons)
+      mode.setSelected(mode.getText == settings.editor.hand.rounding)
+    handBGColor.setColor(settings.editor.hand.background)
+    cmdrCheck.setSelected(settings.editor.legality.searchForCommander)
+    sideCheck.setSelected(!settings.editor.legality.sideboard.isEmpty)
+    sideCheck.setText(if (sideCheck.isSelected) "Default sideboard name:" else "Include sideboard")
+    sideField.setText(settings.editor.legality.sideboard)
+    sideField.setVisible(sideCheck.isSelected)
+    if (settings.editor.legality.searchForCommander) {
+      cmdrCheck.setText("Search for commander in:")
+      if (settings.editor.legality.main || (!settings.editor.legality.all && settings.editor.legality.list.isEmpty)) {
+        cmdrMainDeck.setSelected(true)
+      } else if (settings.editor.legality.all) {
+        cmdrAllLists.setSelected(true)
+      } else {
+        cmdrList.setSelected(true)
+      }
+      cmdrListName.setEnabled(cmdrList.isSelected)
+      cmdrListName.setText(settings.editor.legality.list)
+    } else {
+      cmdrCheck.setText("Search for commander")
+      cmdrMainDeck.setVisible(false)
+      cmdrAllLists.setVisible(false)
+      cmdrList.setVisible(false)
+      cmdrListName.setVisible(false)
+    }
+    sections.foreach(s => sectionChoosers(s).setColor(settings.editor.manaAnalysis(s)))
+    landLineChooser.setColor(settings.editor.manaAnalysis.line)
+
+    setVisible(true)
   }
 }
 
