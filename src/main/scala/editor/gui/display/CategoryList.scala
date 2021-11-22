@@ -1,27 +1,41 @@
 package editor.gui.display
 
-import javax.swing.JList
 import editor.collection.deck.Category
-import javax.swing.ListSelectionModel
-import javax.swing.DefaultListModel
-import editor.util.MouseListenerFactory
-import editor.gui.editor.CategoryEditorPanel
+import editor.gui.ccp.CCPItems
+import editor.gui.ccp.data.DataFlavors
 import editor.gui.ccp.handler.CategoryTransferHandler
-import javax.swing.JPopupMenu
+import editor.gui.editor.CategoryEditorPanel
+import editor.util.MouseListenerFactory
+import editor.util.PopupMenuListenerFactory
+
 import java.awt.Component
 import java.awt.Point
-import editor.gui.ccp.CCPItems
-import editor.util.PopupMenuListenerFactory
 import java.awt.Toolkit
-import editor.gui.ccp.data.DataFlavors
 import java.awt.event.MouseEvent
+import javax.swing.DefaultListModel
+import javax.swing.JList
 import javax.swing.JOptionPane
+import javax.swing.JPopupMenu
+import javax.swing.ListSelectionModel
 import scala.jdk.CollectionConverters._
 
+/**
+ * UI element displaying a list of categorizations by name. Optionally, a line at the bottom can
+ * also be displayed to indicate any message in italics, such as how to edit categorizations in place.
+ * Categorizations displayed by this list must not contain entries in their white- or blacklists.
+ * 
+ * @constructor create a new list for displaying categories
+ * @param hint italicized string to display at the bottom of the list
+ * @param c initial list of categorizations to display
+ * 
+ * @author Alec Roelke
+ */
 class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[String] {
   setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
 
   private val _categories = collection.mutable.ArrayBuffer[Category](c:_*)
+
+  /** @return the categorizations being displayed */
   def categories = _categories.toSeq
 
   private object model extends DefaultListModel[String] {
@@ -48,7 +62,7 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
 
   setTransferHandler(CategoryTransferHandler(
     () => if (getSelectedIndex < 0 || getSelectedIndex >= _categories.size) null else _categories(getSelectedIndex),
-    _ => false, // duplicate categories aren't allowed
+    _ => false, // duplicate categorizations aren't allowed
     (cat) => {
       val row = getSelectedIndex
       if (row < 0 || row >= _categories.size)
@@ -97,8 +111,16 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
     } else true
   }
 
+  /** @return the number of catgories being displayed */
   def getCount = categories.size
 
+  /**
+   * Add a new categorization to the list. If the categorization has entries in its white- or
+   * blacklists, confirm with the user that they should be removed first. If not confirmed, no
+   * addition is performed.
+   * 
+   * @param spec categorization to add
+   */
   def addCategory(spec: Category) = if (confirmListClean(spec)) {
     val copy = Category(spec)
     copy.getBlacklist.asScala.foreach(copy.include(_))
@@ -107,11 +129,23 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
     model.addElement(copy.getName)
   }
 
-  def removeCategoryAt(index: Int) = {
+  /**
+   * Remove a catgorization from the list.
+   * @param index index where the categorization is displayed
+   */
+  def removeCategoryAt(index: Int): Unit = {
     _categories.remove(index)
     model.remove(index)
   }
 
+  /**
+   * Change a categorization in place. If the new categorization has entries in its white- or
+   * blacklists, confirm with the user about removing them first. If not confirmed, no change
+   * takes place.
+   * 
+   * @param index index to set to a new categorization
+   * @param spec new categorization to display there
+   */
   def setCategoryAt(index: Int, spec: Category) = if (confirmListClean(spec)) {
     val copy = Category(spec)
     copy.getBlacklist.asScala.foreach(copy.include(_))
@@ -120,6 +154,7 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
     model.setElementAt(copy.getName, index)
   }
 
+  /** Remove all categorizations from the list. */
   def clear() = {
     _categories.clear()
     model.clear()
