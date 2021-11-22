@@ -360,7 +360,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   categoryModPanel.get("+").addActionListener((e) => CategoryEditorPanel.showCategoryEditor(this).foreach(categoriesList.addCategory(_)))
   categoryModPanel.get(UnicodeSymbols.ELLIPSIS.toString).addActionListener((e) => {
     if (categoriesList.getSelectedIndex >= 0) {
-      CategoryEditorPanel.showCategoryEditor(this, Option(categoriesList.getCategoryAt(categoriesList.getSelectedIndex))).foreach((s) => {
+      CategoryEditorPanel.showCategoryEditor(this, Option(categoriesList.categories(categoriesList.getSelectedIndex))).foreach((s) => {
         categoriesList.setCategoryAt(categoriesList.getSelectedIndex, s)
       })
     }
@@ -731,7 +731,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
 
       val presets = new ArrayBuffer[Category](categoriesList.getCount)
       for (i <- 0 until categoriesList.getCount)
-        presets += categoriesList.getCategoryAt(i)
+        presets += categoriesList.categories(i)
       
       settings.copy(
         inventory = settings.inventory.copy(

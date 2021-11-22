@@ -99,8 +99,6 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
 
   def getCount = categories.size
 
-  def getCategoryAt(index: Int) = _categories(index)
-
   def addCategory(spec: Category) = if (confirmListClean(spec)) {
     val copy = Category(spec)
     copy.getBlacklist.asScala.foreach(copy.include(_))
