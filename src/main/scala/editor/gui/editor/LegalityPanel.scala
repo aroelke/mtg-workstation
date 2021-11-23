@@ -38,8 +38,6 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
   setPreferredSize(Dimension(400, 250))
 
   private val warnings = FormatConstraints.FormatNames.map(_ -> collection.mutable.ArrayBuffer[String]()).toMap
-  private var illegal = Seq.empty[String]
-  private var legal = Seq.empty[String]
 
   // Panel containing format lists
   private val listsPanel = JPanel(GridLayout(1, 2))
@@ -91,7 +89,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
   add(cmdrPanel)
 
   // Panel containing check box for including a sideboard
-  val (sideCheck, sideCombo) = if (!editor.extras.isEmpty) {
+  private val (sideCheck, sideCombo) = if (!editor.extras.isEmpty) {
     val sb = SettingsDialog.settings.editor.legality.sideboard
 
     add(Box.createVerticalStrut(2))
@@ -148,7 +146,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
   warningsPanel.add(JScrollPane(warningsList), BorderLayout.CENTER)
 
   // Click on a list element to show why it is illegal
-  illegalList.addListSelectionListener(_ -> {
+  illegalList.addListSelectionListener(_ => {
     if (illegalList.getSelectedIndex >= 0)
       warningsList.setListData(warnings(illegalList.getSelectedValue).map((s) => s"${UnicodeSymbols.BULLET} $s").toArray)
     else
@@ -177,43 +175,33 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
       val constraints = FormatConstraints.Constraints(format)
 
       // Commander(s) exist(s) and deck matches color identity
-      var commander = false
-      var partners = false
-      if (!commanderSearch.isEmpty) {
-        if (constraints.hasCommander) {
-          val possibleCommanders = commanderSearch.asScala.filter(_.commandFormats.contains(format))
-          possibleCommanders.foreach{ c => if (!commander && deckColorIdentity.forall(c.colorIdentity.contains(_))) {
-            commander = true
-          }}
+      val (commander, partners) = if (!commanderSearch.isEmpty && constraints.hasCommander) {
+        val possibleCommanders = commanderSearch.asScala.filter(_.commandFormats.contains(format))
+        val commander = possibleCommanders.exists(c => deckColorIdentity.forall(c.colorIdentity.contains(_)))
 
-          val possiblePartners = possibleCommanders
-              .flatMap((c) => c.normalizedOracle.asScala.map(c -> PartnerPattern.matcher(_)))
-              .filter{ case (c, m) => c.commandFormats.contains(format) && m.find }
-              .map{ case (c, m) => c -> (if (m.group(1) != null) m.group(1).toLowerCase else "") }
-              .toMap
-          possiblePartners.foreach{ case (card, partner) => possibleCommanders.foreach{ commander =>
-            if (!partners) {
-              val colorIdentity = collection.mutable.Set[ManaType]()
-              if (partner.isEmpty) {
-                if (commander.normalizedOracle.asScala.map(PartnerPattern.matcher(_)).exists((m) => m.find && m.group(1) == null))
-                  colorIdentity ++= card.colorIdentity.asScala ++ commander.colorIdentity.asScala
-                else if (partner.equalsIgnoreCase(commander.unifiedName))
-                  colorIdentity ++= card.colorIdentity.asScala ++ commander.colorIdentity.asScala
-                if (deckColorIdentity.forall(colorIdentity.contains(_)))
-                  partners = true
-              }
-            }
-          }}
-          if (!(commander || partners))
-            warnings(format) += s"""Could not find a legendary creature whose color identity contains ${deckColorIdentity.toSeq.sorted.map(ColorSymbol.SYMBOLS.get(_).toString).mkString(", ")}"""
-        }
-      }
+        val possiblePartners = possibleCommanders
+            .flatMap((c) => c.normalizedOracle.asScala.map(c -> PartnerPattern.matcher(_)))
+            .collect{ case (c, m) if c.commandFormats.contains(format) && m.find => c -> Option(m.group(1)).map(_.toLowerCase).getOrElse("") }
+            .toMap
+        val partners = possiblePartners.exists{ case (card, partner) => possibleCommanders.exists{ commander =>
+          val colorIdentity = if ((partner.isEmpty && commander.normalizedOracle.asScala.map(PartnerPattern.matcher(_)).exists((m) => m.find && m.group(1) == null)) ||
+                                  partner.equalsIgnoreCase(commander.unifiedName))
+            (card.colorIdentity.asScala ++ commander.colorIdentity.asScala).toSet
+          else
+            Set.empty
+
+          deckColorIdentity.forall(colorIdentity.contains(_))
+        }}
+        (commander, partners)
+      } else (false, false)
+      if (!commanderSearch.isEmpty && constraints.hasCommander && !commander && !partners)
+        warnings(format) += s"""Could not find a $format-legal legendary creature whose color identity contains ${deckColorIdentity.toSeq.sorted.map(ColorSymbol.SYMBOLS.get(_).toString).mkString}"""
 
       // Deck size
       if (constraints.hasCommander) {
         if (((commanderSearch.isEmpty || commanderSearch == deck) && deck.total != constraints.deckSize) ||
             ((!commanderSearch.isEmpty && commanderSearch != deck) &&
-              (commander && deck.total != constraints.deckSize - 1) || (partners && deck.total != constraints.deckSize - 2)))
+             (commander && deck.total != constraints.deckSize - 1) || (partners && deck.total != constraints.deckSize - 2)))
           warnings(format) += s"Deck does not contain exactly ${constraints.deckSize - 1} cards plus a commander or ${constraints.deckSize - 2} cards plus two partner commanders"
       } else if (deck.total < constraints.deckSize)
         warnings(format) += s"Deck contains fewer than ${constraints.deckSize} cards"
@@ -239,8 +227,8 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
     }
 
     // Collate the legality lists
-    illegal = warnings.collect{ case (s, w) if !w.isEmpty => s }.toSeq.sorted
-    legal = FormatConstraints.FormatNames.filterNot(illegal.contains(_)).sorted
+    val illegal = warnings.collect{ case (s, w) if !w.isEmpty => s }.toSeq.sorted
+    val legal = FormatConstraints.FormatNames.filterNot(illegal.contains(_)).sorted
 
     warningsList.setListData(Array.empty[String])
     legalList.setListData(legal.toArray)
