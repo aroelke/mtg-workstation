@@ -30,6 +30,17 @@ import editor.database.attributes.ManaType
 import editor.database.symbol.ColorSymbol
 import editor.database.attributes.Legality
 
+/**
+ * Panel for showing the format legality of the deck, optionally including a sideboard (if
+ * the format permits one). For formats with commanders, the commander is inferred from among
+ * the cards in the deck and/or the additional lists. If the deck is not legal in any formats,
+ * the reasons why can be displayed.
+ * 
+ * @constructor create a new panel for displaying format legality for a deck
+ * @param editor frame containing the deck to determine legality for
+ *
+ * @author Alec Roelke
+ */
 class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
   private val MainDeck = "Main Deck"
   private val AllLists = "All Lists"
@@ -155,6 +166,14 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
 
   listener.actionPerformed(ActionEvent(cmdrCheck, 0, "", ActionEvent.ACTION_PERFORMED))
 
+  /**
+   * Check the legality of a deck and update the panel accordingly.
+   * 
+   * @param deck deck to check
+   * @param commanderSearch list to look for the commander in; use an empty list to indicate
+   * a search in all lists in the frame
+   * @param sideboard which list to use as sideboard if applicable
+   */
   def checkLegality(deck: CardList, commanderSearch: CardList, sideboard: Option[CardList]) = {
     val isoNameCounts = collection.mutable.Map[Card, Int]()
     deck.asScala.foreach{ c =>
