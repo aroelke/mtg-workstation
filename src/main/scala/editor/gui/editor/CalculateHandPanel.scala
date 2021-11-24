@@ -1,32 +1,40 @@
 package editor.gui.editor
 
-import javax.swing.JPanel
-import javax.swing.event.ChangeListener
 import editor.collection.deck.Deck
+import editor.gui.settings.SettingsDialog
+import editor.util.Stats
+
 import java.awt.BorderLayout
-import javax.swing.JComboBox
+import java.awt.Color
 import java.awt.FlowLayout
-import javax.swing.JLabel
+import java.awt.Font
 import javax.swing.BorderFactory
 import javax.swing.Box
-import javax.swing.JSpinner
-import javax.swing.SpinnerNumberModel
-import scala.jdk.CollectionConverters._
-import javax.swing.JTable
 import javax.swing.DefaultCellEditor
-import javax.swing.table.AbstractTableModel
-import editor.gui.settings.SettingsDialog
-import javax.swing.table.TableCellRenderer
-import java.awt.Color
-import java.awt.Font
-import javax.swing.ListSelectionModel
-import javax.swing.table.DefaultTableCellRenderer
-import javax.swing.SwingConstants
+import javax.swing.JComboBox
+import javax.swing.JLabel
+import javax.swing.JPanel
 import javax.swing.JScrollPane
-import editor.util.Stats
+import javax.swing.JSpinner
+import javax.swing.JTable
+import javax.swing.ListSelectionModel
+import javax.swing.SpinnerNumberModel
+import javax.swing.SwingConstants
+import javax.swing.event.ChangeListener
+import javax.swing.table.AbstractTableModel
+import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableCellEditor
+import javax.swing.table.TableCellRenderer
+import scala.jdk.CollectionConverters._
 
+/**
+ * Companion object containing global information about hand calculation.
+ */
 object CalculateHandPanel {
+  /**
+   * Possible ways to round numbers in the [[CalculateHandPanel]].  The options are to not round
+   * (display numbers to the nearest hundredth), round to the nearest integer, and truncate.
+   */
   val RoundMode = Map(
     "No rounding" -> ((x: Double) => f"$x%.2f"),
     "Round to nearest" -> ((x: Double) => f"${math.round(x)}%d"),
@@ -34,6 +42,17 @@ object CalculateHandPanel {
   )
 }
 
+/**
+ * Panel showing a table of deck categories with their probabilities of being drawn in the opening hand
+ * and subsequent card draws. The number of desired max, min, or exact cards in each category can be specified,
+ * and the table can be reorganized to show expected counts instead.
+ * 
+ * @constructor create a new hand calculations panel for a deck
+ * @param deck deck to show calculations for
+ * @param recalculateFunction what to do when the opening hand size is changed
+ * 
+ * @author Alec Roelke
+ */
 class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extends JPanel(BorderLayout()) {
   import CalculateHandPanel._
   import RelationChoice._
@@ -133,7 +152,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
 
     override def prepareRenderer(renderer: TableCellRenderer, row: Int, column: Int) = {
       val c = super.prepareRenderer(renderer, row, column)
-      if (!isRowSelected(row) || !getRowSelectionAllowed())
+      if (!isRowSelected(row) || !getRowSelectionAllowed)
         c.setBackground(if (row % 2 == 0) Color(getBackground.getRGB) else SettingsDialog.settings.editor.stripe)
       if (model.getValueAt(row, Relation) == AtLeast && model.getValueAt(row, Desired) == 0) {
         c.setForeground(c.getBackground.darker)
@@ -164,6 +183,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
     case _ => throw IllegalStateException(s"unexpected value of type ${handSpinner.getValue.getClass}")
   }
 
+  /** Recalculate category probabilities and update the table accordingly. */
   def recalculate() = {
     val categories = deck.categories.asScala.map(_.getName).toSeq.sorted
 
@@ -189,6 +209,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
     model.fireTableDataChanged()
   }
 
+  /** Update the available categories, recalculate their probabilities,and then update the table. */
   def update() = {
     val categories = deck.categories.asScala.map(_.getName).toSeq.sorted
 
