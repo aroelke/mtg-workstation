@@ -440,7 +440,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   expectedRoundPanel.add(Box.createHorizontalStrut(5))
   private val roundGroup = ButtonGroup()
   private val modeButtons = collection.mutable.ArrayBuffer[JRadioButton]()
-  for (mode <- CalculateHandPanel.ROUND_MODE.keySet.asScala.toSeq.sorted) {
+  for (mode <- CalculateHandPanel.RoundMode.keySet.toSeq.sorted) {
     val modeButton = JRadioButton(mode)
     roundGroup.add(modeButton)
     expectedRoundPanel.add(modeButton)
