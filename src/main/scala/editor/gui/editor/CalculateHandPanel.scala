@@ -24,6 +24,7 @@ import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.SwingConstants
 import javax.swing.JScrollPane
 import editor.util.Stats
+import javax.swing.table.TableCellEditor
 
 object CalculateHandPanel {
   val RoundMode = Map(
@@ -35,17 +36,38 @@ object CalculateHandPanel {
 
 class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extends JPanel(BorderLayout()) {
   import CalculateHandPanel._
-  import DisplayMode._
   import RelationChoice._
 
-  private val Category = 0
-  private val Count = 1
-  private val Relation = 2
-  private val Desired = 3
-  private val PInitial = 4
-  private val PInfoCols = 5
-  private val EInitial = 1
-  private val EInfoCols = 2
+  private case class ColumnInfo(name: String, clazz: Class[?], value: (String) => Any, editor: Option[(String) => TableCellEditor] = None)
+
+  private enum DisplayMode(override val toString: String, cols: Seq[ColumnInfo], default: (Int, Int) => ColumnInfo) {
+    def columns = cols.size
+    def title(i: Int) = cols.applyOrElse(i, default(_, columns)).name
+    def clazz(i: Int) = cols.applyOrElse(i, default(_, columns)).clazz
+    def value(i: Int) = cols.applyOrElse(i, default(_, columns)).value
+    def editor(i: Int) = cols.applyOrElse(i, default(_, columns)).editor
+
+    case DesiredProbability extends DisplayMode("Probabilities", Seq(
+      ColumnInfo("Kind of Card", classOf[String], identity),
+      ColumnInfo("Count", classOf[Integer], deck.getCategoryList(_).total),
+      ColumnInfo("Desired", classOf[Integer], desiredBoxes(_).getSelectedItem, Some((c) => DefaultCellEditor(desiredBoxes(c)))),
+      ColumnInfo("Relation", classOf[RelationChoice], relationBoxes(_).getSelectedItem, Some((c) => DefaultCellEditor(relationBoxes(c)))),
+      ColumnInfo("Initial Hand", classOf[String], (c) => f"${probabilities(c)(0)*100}%.2f%%")
+    ), (column, columns) => ColumnInfo(s"Draw ${column - (columns - 1)}", classOf[String], (category) => f"${probabilities(category)(column - (columns - 1))*100}%.2f%%"))
+
+    case ExpectedCount extends DisplayMode("Expected Counts", Seq(
+      ColumnInfo("Kind of Card", classOf[String], identity),
+      ColumnInfo("Initial Hand", classOf[String], (c) => if (!expectedCounts(c).isEmpty) RoundMode(SettingsDialog.settings.editor.hand.rounding)(expectedCounts(c)(0)) else "")
+    ), (column, columns) => ColumnInfo(s"Draw ${column - (columns - 1)}", classOf[String], (category) => {
+      if (column - (columns - 1) < expectedCounts(category).size)
+        RoundMode(SettingsDialog.settings.editor.hand.rounding)(expectedCounts(category)(column - (columns - 1)))
+      else
+        ""
+    }))
+  }
+  import DisplayMode._
+  lazy val Relation = (0 until DesiredProbability.columns).map(DesiredProbability.title(_)).indexOf("Relation")
+  lazy val Desired = (0 until DesiredProbability.columns).map(DesiredProbability.title(_)).indexOf("Desired")
 
   private val desiredBoxes = collection.mutable.Map[String, JComboBox[Integer]]()
   private val relationBoxes = collection.mutable.Map[String, JComboBox[RelationChoice]]()
@@ -83,75 +105,31 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
   rightControlPanel.add(modeBox);
 
   private object model extends AbstractTableModel {
-    override def getColumnClass(column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex) match {
-      case DesiredProbability => column match {
-        case Category => classOf[String]
-        case Count | Desired => classOf[Integer]
-        case Relation => classOf[RelationChoice]
-        case _ => classOf[String]
-      }
-      case ExpectedCount => classOf[String]
-    }
+    override def getRowCount = deck.numCategories
 
     override def getColumnCount = drawsSpinner.getValue match {
-      case n: Int => n + (modeBox.getItemAt(modeBox.getSelectedIndex) match {
-        case DesiredProbability => PInfoCols
-        case ExpectedCount => EInfoCols
-      })
+      case n: Int => n + modeBox.getItemAt(modeBox.getSelectedIndex).columns
       case _ => throw IllegalStateException(s"unexpected value of type ${drawsSpinner.getClass}")
     }
 
-    override def getColumnName(column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex) match {
-      case DesiredProbability => column match {
-        case Category => "Kind of Card"
-        case Count    => "Count"
-        case Desired  => "Desired"
-        case Relation => "Relation"
-        case PInitial => "Initial Hand"
-        case _ => s"Draw ${column - (PInfoCols - 1)}"
-      }
-      case ExpectedCount => column match {
-        case Category => "Kind of Card"
-        case EInitial => "Initial Hand"
-        case _ => s"Draw ${column - (EInfoCols - 1)}"
-      }
-    }
+    override def getColumnName(column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex).title(column)
 
-    override def getRowCount = deck.numCategories
+    override def getColumnClass(column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex).clazz(column)
 
     override def getValueAt(row: Int, column: Int) = {
       val category = deck.categories.asScala.map(_.getName).toSeq.sorted.apply(row)
-      modeBox.getItemAt(modeBox.getSelectedIndex) match {
-        case DesiredProbability => column match {
-          case Category => category
-          case Count => deck.getCategoryList(category).total
-          case Desired => desiredBoxes(category).getSelectedItem
-          case Relation => relationBoxes(category).getSelectedItem
-          case _ => f"${probabilities(category)(column - (PInfoCols - 1))*100}%.2f%%"
-        }
-        case ExpectedCount =>
-          if (column == Category)
-            category
-          else if (column - (EInfoCols - 1) < expectedCounts(category).size)
-            RoundMode(SettingsDialog.settings.editor.hand.rounding)(expectedCounts(category)(column - (EInfoCols -1 )))
-          else
-            ""
-      }
+      modeBox.getItemAt(modeBox.getSelectedIndex).value(column)(category)
     }
   }
   private val table = new JTable(model) {
     override def getCellEditor(row: Int, column: Int) = {
       val category = deck.categories.asScala.map(_.getName).toSeq.sorted.apply(row)
-      column match {
-        case Desired  => DefaultCellEditor(desiredBoxes(category));
-        case Relation => DefaultCellEditor(relationBoxes(category));
-        case _ => super.getCellEditor(row, column);
-      };
+      modeBox.getItemAt(modeBox.getSelectedIndex).editor(column).map(_(category)).getOrElse(super.getCellEditor(row, column))
     }
 
     override def getScrollableTracksViewportWidth = getPreferredSize.width < getParent.getWidth
 
-    override def isCellEditable(row: Int, column: Int) = column == Desired || column == Relation
+    override def isCellEditable(row: Int, column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex).editor(column).isDefined
 
     override def prepareRenderer(renderer: TableCellRenderer, row: Int, column: Int) = {
       val c = super.prepareRenderer(renderer, row, column);
@@ -240,11 +218,6 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
     recalculate()
     model.fireTableStructureChanged()
   }
-}
-
-private enum DisplayMode(override val toString: String) {
-  case DesiredProbability extends DisplayMode("Probabilities")
-  case ExpectedCount      extends DisplayMode("Expected Counts")
 }
 
 private enum RelationChoice(override val toString: String) {
