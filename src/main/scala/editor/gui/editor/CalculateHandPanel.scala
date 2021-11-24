@@ -28,7 +28,7 @@ import javax.swing.table.TableCellEditor
 
 object CalculateHandPanel {
   val RoundMode = Map(
-    "No Rounding" -> ((x: Double) => f"$x%.2f"),
+    "No rounding" -> ((x: Double) => f"$x%.2f"),
     "Round to nearest" -> ((x: Double) => f"${math.round(x)}%d"),
     "Truncate" -> ((x: Double) => f"${x.toInt}%d")
   )
@@ -49,8 +49,8 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
 
     case DesiredProbability extends DisplayMode("Probabilities", Seq(
       ColumnInfo("Kind of Card", classOf[String], identity),
-      ColumnInfo("Count", classOf[Integer], deck.getCategoryList(_).total),
-      ColumnInfo("Desired", classOf[Integer], desiredBoxes(_).getSelectedItem, Some((c) => DefaultCellEditor(desiredBoxes(c)))),
+      ColumnInfo("Count", classOf[Int], deck.getCategoryList(_).total),
+      ColumnInfo("Desired", classOf[Int], desiredBoxes(_).getSelectedItem, Some((c) => DefaultCellEditor(desiredBoxes(c)))),
       ColumnInfo("Relation", classOf[RelationChoice], relationBoxes(_).getSelectedItem, Some((c) => DefaultCellEditor(relationBoxes(c)))),
       ColumnInfo("Initial Hand", classOf[String], (c) => f"${probabilities(c)(0)*100}%.2f%%")
     ), (column, columns) => ColumnInfo(s"Draw ${column - (columns - 1)}", classOf[String], (category) => f"${probabilities(category)(column - (columns - 1))*100}%.2f%%"))
@@ -69,7 +69,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
   lazy val Relation = (0 until DesiredProbability.columns).map(DesiredProbability.title(_)).indexOf("Relation")
   lazy val Desired = (0 until DesiredProbability.columns).map(DesiredProbability.title(_)).indexOf("Desired")
 
-  private val desiredBoxes = collection.mutable.Map[String, JComboBox[Integer]]()
+  private val desiredBoxes = collection.mutable.Map[String, JComboBox[Int]]()
   private val relationBoxes = collection.mutable.Map[String, JComboBox[RelationChoice]]()
   private val probabilities = collection.mutable.Map[String, Array[Double]]()
   private val expectedCounts = collection.mutable.Map[String, Array[Double]]()
@@ -148,7 +148,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
   table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
   private val intRenderer = DefaultTableCellRenderer()
   intRenderer.setHorizontalAlignment(SwingConstants.LEFT)
-  table.setDefaultRenderer(classOf[Integer], intRenderer)
+  table.setDefaultRenderer(classOf[Int], intRenderer)
   tablePanel.add(JScrollPane(table), BorderLayout.CENTER)
 
   // Actions
@@ -200,7 +200,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
     probabilities.clear()
 
     categories.foreach{ category =>
-      val desiredBox = JComboBox[Integer]()
+      val desiredBox = JComboBox[Int]()
       for (i <- 0 to deck.getCategoryList(category).total)
         desiredBox.addItem(i)
       if (oldDesired.contains(category) && oldDesired(category) < deck.getCategoryList(category).total)
