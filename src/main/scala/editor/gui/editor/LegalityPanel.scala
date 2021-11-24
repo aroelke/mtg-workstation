@@ -1,34 +1,35 @@
 package editor.gui.editor
 
+import editor.collection.CardList
+import editor.collection.deck.Deck
+import editor.database.FormatConstraints
+import editor.database.attributes.Legality
+import editor.database.attributes.ManaCost
+import editor.database.attributes.ManaType
+import editor.database.card.Card
+import editor.database.symbol.ColorSymbol
+import editor.gui.generic.ComponentUtils
+import editor.gui.settings.SettingsDialog
+import editor.util.UnicodeSymbols
+
+import java.awt.BorderLayout
+import java.awt.Dimension
+import java.awt.GridLayout
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import java.util.regex.Pattern
+import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
-import java.awt.Dimension
-import editor.database.FormatConstraints
-import javax.swing.JPanel
-import java.awt.GridLayout
-import java.awt.BorderLayout
-import javax.swing.BorderFactory
-import javax.swing.JList
 import javax.swing.DefaultListSelectionModel
-import javax.swing.ListSelectionModel
-import javax.swing.JScrollPane
 import javax.swing.JCheckBox
-import editor.gui.settings.SettingsDialog
 import javax.swing.JComboBox
-import java.awt.event.ActionListener
-import editor.collection.deck.Deck
-import scala.jdk.CollectionConverters._
-import editor.collection.CardList
-import editor.database.card.Card
-import java.awt.event.ActionEvent
 import javax.swing.JLabel
-import editor.database.attributes.ManaCost
-import editor.gui.generic.ComponentUtils
-import editor.util.UnicodeSymbols
-import java.util.regex.Pattern
-import editor.database.attributes.ManaType
-import editor.database.symbol.ColorSymbol
-import editor.database.attributes.Legality
+import javax.swing.JList
+import javax.swing.JPanel
+import javax.swing.JScrollPane
+import javax.swing.ListSelectionModel
+import scala.jdk.CollectionConverters._
 
 /**
  * Panel for showing the format legality of the deck, optionally including a sideboard (if
