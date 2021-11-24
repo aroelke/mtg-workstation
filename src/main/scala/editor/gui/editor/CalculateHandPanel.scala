@@ -151,6 +151,14 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
   table.setDefaultRenderer(classOf[Integer], intRenderer)
   tablePanel.add(JScrollPane(table), BorderLayout.CENTER)
 
+  // Actions
+  drawsSpinner.addChangeListener(_ => {
+    recalculate()
+    model.fireTableStructureChanged()
+  })
+  handSpinner.addChangeListener(_ -> recalculate())
+  handSpinner.addChangeListener(recalculateFunction)
+
   def handSize = handSpinner.getValue match {
     case n: Int => n
     case _ => throw IllegalStateException(s"unexpected value of type ${handSpinner.getValue.getClass}")
