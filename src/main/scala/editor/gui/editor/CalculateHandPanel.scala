@@ -75,34 +75,34 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
   private val expectedCounts = collection.mutable.Map[String, Array[Double]]()
 
   // Right panel containing table and settings
-  private val tablePanel = JPanel(BorderLayout());
-  add(tablePanel, BorderLayout.CENTER);
+  private val tablePanel = JPanel(BorderLayout())
+  add(tablePanel, BorderLayout.CENTER)
 
-  private val northPanel = JPanel(BorderLayout());
-  tablePanel.add(northPanel, BorderLayout.NORTH);
+  private val northPanel = JPanel(BorderLayout())
+  tablePanel.add(northPanel, BorderLayout.NORTH)
 
   // Spinners controlling draws to show and initial hand size
-  private val leftControlPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0));
-  northPanel.add(leftControlPanel, BorderLayout.WEST);
-  leftControlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
-  leftControlPanel.add(JLabel("Hand Size: "));
+  private val leftControlPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
+  northPanel.add(leftControlPanel, BorderLayout.WEST)
+  leftControlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5))
+  leftControlPanel.add(JLabel("Hand Size: "))
   private val handSpinner = JSpinner(SpinnerNumberModel(7, 0, Int.MaxValue, 1))
-  leftControlPanel.add(handSpinner);
-  leftControlPanel.add(Box.createHorizontalStrut(15));
-  leftControlPanel.add(JLabel("Show Draws: "));
+  leftControlPanel.add(handSpinner)
+  leftControlPanel.add(Box.createHorizontalStrut(15))
+  leftControlPanel.add(JLabel("Show Draws: "))
   private val drawsSpinner = JSpinner(SpinnerNumberModel(0, 0, Int.MaxValue, 1))
-  leftControlPanel.add(drawsSpinner);
+  leftControlPanel.add(drawsSpinner)
 
   // Combo box controlling what numbers to show in the table
-  private val rightControlPanel = JPanel(FlowLayout(FlowLayout.RIGHT, 0, 0));
-  rightControlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 0));
-  northPanel.add(rightControlPanel);
-  private val modeBox = JComboBox(DisplayMode.values);
+  private val rightControlPanel = JPanel(FlowLayout(FlowLayout.RIGHT, 0, 0))
+  rightControlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 0))
+  northPanel.add(rightControlPanel)
+  private val modeBox = JComboBox(DisplayMode.values)
   modeBox.addActionListener(_ => {
-    recalculate();
-    model.fireTableStructureChanged();
-  });
-  rightControlPanel.add(modeBox);
+    recalculate()
+    model.fireTableStructureChanged()
+  })
+  rightControlPanel.add(modeBox)
 
   private object model extends AbstractTableModel {
     override def getRowCount = deck.numCategories
@@ -132,24 +132,24 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
     override def isCellEditable(row: Int, column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex).editor(column).isDefined
 
     override def prepareRenderer(renderer: TableCellRenderer, row: Int, column: Int) = {
-      val c = super.prepareRenderer(renderer, row, column);
+      val c = super.prepareRenderer(renderer, row, column)
       if (!isRowSelected(row) || !getRowSelectionAllowed())
-        c.setBackground(if (row % 2 == 0) Color(getBackground.getRGB) else SettingsDialog.settings.editor.stripe);
+        c.setBackground(if (row % 2 == 0) Color(getBackground.getRGB) else SettingsDialog.settings.editor.stripe)
       if (model.getValueAt(row, Relation) == AtLeast && model.getValueAt(row, Desired) == 0) {
-        c.setForeground(c.getBackground.darker);
-        c.setFont(Font(c.getFont.getFontName, Font.ITALIC, c.getFont.getSize));
+        c.setForeground(c.getBackground.darker)
+        c.setFont(Font(c.getFont.getFontName, Font.ITALIC, c.getFont.getSize))
       } else
-          c.setForeground(Color.BLACK);
-      c;
+        c.setForeground(Color.BLACK)
+      c
     }
-  };
-  table.setFillsViewportHeight(true);
-  table.setShowGrid(false);
-  table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-  private val intRenderer = DefaultTableCellRenderer();
-  intRenderer.setHorizontalAlignment(SwingConstants.LEFT);
-  table.setDefaultRenderer(classOf[Integer], intRenderer);
-  tablePanel.add(JScrollPane(table), BorderLayout.CENTER);
+  }
+  table.setFillsViewportHeight(true)
+  table.setShowGrid(false)
+  table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+  private val intRenderer = DefaultTableCellRenderer()
+  intRenderer.setHorizontalAlignment(SwingConstants.LEFT)
+  table.setDefaultRenderer(classOf[Integer], intRenderer)
+  tablePanel.add(JScrollPane(table), BorderLayout.CENTER)
 
   def handSize = handSpinner.getValue match {
     case n: Int => n
@@ -168,19 +168,11 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
           val box = relationBoxes(category)
           val r = box.getItemAt(box.getSelectedIndex)
           for (j <- 0 to draws) {
-            var p = 0.0
-            r match {
-              case AtLeast =>
-                for (k <- 0 until desiredBoxes(category).getSelectedIndex)
-                  p += Stats.hypergeometric(k, handSize + j, deck.getCategoryList(category).total, deck.total)
-                p = 1 - p
-              case Exactly =>
-                p = Stats.hypergeometric(desiredBoxes(category).getSelectedIndex, handSize + j, deck.getCategoryList(category).total, deck.total)
-              case AtMost =>
-                for (k <- 0 to desiredBoxes(category).getSelectedIndex)
-                  p += Stats.hypergeometric(k, handSize + j, deck.getCategoryList(category).total, deck.total)
+            probabilities(category)(j) = r match {
+              case AtLeast => 1 - (0 until desiredBoxes(category).getSelectedIndex).map(Stats.hypergeometric(_, handSize + j, deck.getCategoryList(category).total, deck.total)).sum
+              case Exactly => Stats.hypergeometric(desiredBoxes(category).getSelectedIndex, handSize + j, deck.getCategoryList(category).total, deck.total)
+              case AtMost => (0 to desiredBoxes(category).getSelectedIndex).map(Stats.hypergeometric(_, handSize + j, deck.getCategoryList(category).total, deck.total)).sum
             }
-            probabilities(category)(j) = p
             expectedCounts(category)(j) = deck.getCategoryList(category).total.toDouble/deck.total.toDouble*(handSize + j).toDouble
           }
         }
