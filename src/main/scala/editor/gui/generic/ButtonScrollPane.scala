@@ -1,17 +1,25 @@
 package editor.gui.generic
 
-import javax.swing.JPanel
-import java.awt.Component
 import java.awt.BorderLayout
+import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
-import javax.swing.UIManager
-import javax.swing.JScrollPane
-import javax.swing.ScrollPaneConstants
 import java.awt.event.ActionEvent
 import java.awt.event.ComponentEvent
 import java.awt.event.ComponentListener
+import javax.swing.JPanel
+import javax.swing.JScrollPane
+import javax.swing.ScrollPaneConstants
+import javax.swing.UIManager
 
+/**
+ * Scroll pane that is controlled by arrow buttons on the ends rather than a scroll bar on the edge.
+ * 
+ * @constructor create a new scroll pane containing a component
+ * @param view component inside the scroll pane
+ * 
+ * @author Alec Roelke
+ */
 class ButtonScrollPane(view: Component) extends JPanel(BorderLayout()) {
   private val left = ArrowButton(ButtonDirection.West);
   add(left, BorderLayout.WEST);
