@@ -1445,8 +1445,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     newCategory.removeButton.addActionListener(_ => categories -= newCategory.name)
     // Add the behavior for the color edit button
     newCategory.colorButton.addActionListener(_ => {
-      val newColor = JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color)
-      if (newColor != null) {
+      Option(JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color)).foreach{ newColor =>
         val oldColor = deck.current.getCategorySpec(newCategory.name).getColor
         val name = newCategory.name
         performAction(() => {
