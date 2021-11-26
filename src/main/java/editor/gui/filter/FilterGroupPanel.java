@@ -111,12 +111,12 @@ public class FilterGroupPanel extends FilterPanel<Filter>
 
         add(new FilterSelectorPanel());
 
-        addMouseListener(new ChangeTitleListener(this, border, (s) -> GAP, (s) -> s.isEmpty() ? 0 : GAP, (t) -> {
+        addMouseListener(new ChangeTitleListener(this, border, (t) -> {
             border.setTitle(t);
             revalidate();
             repaint();
             firePanelsChanged();
-        }));
+        }, (s) -> GAP, (s) -> s.isEmpty() ? 0 : GAP));
     }
 
     /**
