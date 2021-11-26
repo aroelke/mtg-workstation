@@ -1,14 +1,29 @@
 package editor.gui.generic
 
+import java.awt.Color
+import java.awt.Graphics
 import javax.swing.JButton
 import scala.util.Random
-import java.awt.Color
 
 import RandomWithColors._
-import java.awt.Graphics
 
+/**
+ * Button showing a color instead of text or an icon.
+ * 
+ * @constructor create a new color button
+ * @param col color of the button; defaults to random if not specified
+ * @param border distance between the edge of the button and the region of color to draw
+ * 
+ * @author Alec Roelke
+ */
 class ColorButton(private var col: Color = Random.nextColor, border: Int = 5) extends JButton(" ") {
+  /** @return the current color of the button */
   def color = col
+
+  /**
+   * Change the color of the button and update the UI to reflect the change.
+   * @param c the new color of the button
+   */
   def color_=(c: Color) = {
     col = c
     repaint()
@@ -21,10 +36,20 @@ class ColorButton(private var col: Color = Random.nextColor, border: Int = 5) ex
   }
 }
 
+/**
+ * Companion that allows implicit conversion of [[Random]] to [[RandomWithColors]].
+ * @author Alec Roelke
+ */
 object RandomWithColors {
+  /** Convert a [[Random]] to [[RandomWithColors]] so a random color can be generated with Random.nextColor. */
   implicit def randomToColors(r: Random): RandomWithColors = new RandomWithColors(r)
 }
 
+/**
+ * Conversion class for [[Random]] that allows it to generate a random color.
+ * @author Alec Roelke
+ */
 class RandomWithColors(r: Random) {
+  /** @return a random color. */
   def nextColor = Color(r.nextFloat, r.nextFloat, math.sqrt(r.nextFloat).toFloat)
 }
