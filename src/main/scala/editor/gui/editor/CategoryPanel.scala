@@ -323,8 +323,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
     border.setTitle(name)
     table.revalidate()
     table.repaint()
-    colorButton.setColor(deck.getCategorySpec(name).getColor())
-    colorButton.repaint()
+    colorButton.color = deck.getCategorySpec(name).getColor
     revalidate()
     repaint()
   }
