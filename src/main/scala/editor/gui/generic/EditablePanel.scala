@@ -1,31 +1,32 @@
 package editor.gui.generic
 
-import javax.swing.JPanel
-import javax.swing.JButton
-import java.awt.Dimension
-import javax.swing.plaf.basic.BasicButtonUI
 import editor.util.MouseListenerFactory
-import javax.swing.BorderFactory
-import java.awt.event.ActionEvent
+
+import java.awt.BasicStroke
+import java.awt.BorderLayout
+import java.awt.Color
+import java.awt.Component
+import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Graphics2D
-import java.awt.Color
-import java.awt.BasicStroke
 import java.awt.RenderingHints
-import java.awt.Component
-import javax.swing.OverlayLayout
-import java.awt.BorderLayout
-import javax.swing.JLabel
-import javax.swing.Box
-import javax.swing.JTextField
-import java.awt.event.FocusEvent
-import javax.swing.JComponent
-import javax.swing.AbstractAction
-import javax.swing.SwingUtilities
-import java.awt.event.FocusListener
-import javax.swing.KeyStroke
-import java.awt.event.KeyEvent
+import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
+import java.awt.event.FocusEvent
+import java.awt.event.FocusListener
+import java.awt.event.KeyEvent
+import javax.swing.AbstractAction
+import javax.swing.BorderFactory
+import javax.swing.Box
+import javax.swing.JButton
+import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JPanel
+import javax.swing.JTextField
+import javax.swing.KeyStroke
+import javax.swing.OverlayLayout
+import javax.swing.SwingUtilities
+import javax.swing.plaf.basic.BasicButtonUI
 
 object EditablePanel {
   val Close = "close"
@@ -33,9 +34,21 @@ object EditablePanel {
   val Cancel = "cancel"
 }
 
+/**
+ * Panel containing a label and a close button.  Double-clicking the label allows the user to edit
+ * its contents, which fires an event when finished (whether it was confirmed or canceled), and clicking
+ * the close button fires another event.
+ * 
+ * @constructor create a new panel with a title belonging to another component
+ * @param t initial title for the label in the panel
+ * @param parent owner of the label to be notified of events
+ * 
+ * @author Alec Roelke
+ */
 class EditablePanel(t: String, parent: Option[Component] = None) extends JPanel {
   import EditablePanel._
 
+  /** Listeners for edit, cancel, and close events. */
   val listeners = collection.mutable.Set[ActionListener]()
 
   private class CloseButton extends JButton {
@@ -119,11 +132,15 @@ class EditablePanel(t: String, parent: Option[Component] = None) extends JPanel 
     }
   }
 
+  /** @return the current text in the label */
   def title = label.getText
+
+  /** @param t new text for the label */
   def title_=(t: String) = {
     old = Some(label.getText)
     label.setText(t)
   }
 
+  /** @return the previous text in the label from before the last change, or None if it hasn't been changed */
   def previousTitle = old
 }
