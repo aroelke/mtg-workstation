@@ -1356,28 +1356,35 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           })
         case EditablePanel.Edit =>
           val current = panel.title
-          val old = panel.previousTitle
-          if (current.isEmpty)
-            panel.title = old.get
-          else if (extras.exists(_.name == current)) {
-            panel.title = old.get
-            JOptionPane.showMessageDialog(this, s"""Sideboard "$current" already exists.""", "Error", JOptionPane.ERROR_MESSAGE)
-          } else if (!current.equals(old.get)) {
-            val j = extrasPane.indexOfTab(old.get)
-            performAction(() => {
-              _lists(id).get.name = current
-              extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].title = current
-              extrasPane.setTitleAt(j, current)
-              listTabs.setSelectedIndex(MainDeck)
-              true
-            }, () => {
-              _lists(id).get.name = old.get
-              extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].title = old.get
-              extrasPane.setTitleAt(j, old.get)
-              listTabs.setSelectedIndex(MainDeck)
-              true
-            })
-          }
+          panel.previousTitle.map{ old =>
+            if (current.isEmpty)
+              panel.title = old
+            else if (extras.exists(_.name == current)) {
+              panel.title = old
+              JOptionPane.showMessageDialog(this, s"""Sideboard "$current" already exists.""", "Error", JOptionPane.ERROR_MESSAGE)
+            } else if (!current.equals(old)) {
+              val j = extrasPane.indexOfTab(old)
+              performAction(() => {
+                _lists(id).get.name = current
+                extrasPane.getTabComponentAt(j) match {
+                  case ep: EditablePanel => ep.title = current
+                  case _ =>
+                }
+                extrasPane.setTitleAt(j, current)
+                listTabs.setSelectedIndex(MainDeck)
+                true
+              }, () => {
+                _lists(id).get.name = old
+                extrasPane.getTabComponentAt(j) match {
+                  case ep: EditablePanel => ep.title = old
+                  case _ =>
+                }
+                extrasPane.setTitleAt(j, old)
+                listTabs.setSelectedIndex(MainDeck)
+                true
+              })
+            }
+          }.getOrElse(throw NoSuchElementException("previous title"))
         case EditablePanel.Cancel =>
       })
 
