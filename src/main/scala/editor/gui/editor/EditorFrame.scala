@@ -1314,7 +1314,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       _lists(id) = Some(newExtra)
 
       newExtra.table.setPreferredScrollableViewportSize(Dimension(newExtra.table.getPreferredScrollableViewportSize.width, 5*newExtra.table.getRowHeight))
-      val panel = EditablePanel(name, extrasPane)
+      val panel = EditablePanel(name, Some(extrasPane))
       val sideboardPane = JScrollPane(newExtra.table)
       sideboardPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
 
@@ -1343,9 +1343,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       southLayout.show(southPanel, "extras")
       listTabs.setSelectedIndex(MainDeck)
 
-      panel.addActionListener((e) => e.getActionCommand match {
-        case EditablePanel.CLOSE =>
-          val n = panel.getTitle
+      panel.listeners += ((e) => e.getActionCommand match {
+        case EditablePanel.Close =>
+          val n = panel.title
           val extra = _lists(id).map(_.copy()).getOrElse(throw NoSuchElementException(id.toString))
           val i = extrasPane.indexOfTab(n)
           performAction(() => deleteExtra(id, i), () => {
@@ -1354,31 +1354,31 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
             val originaled = _lists(id).get.original.addAll(extra.original)
             created || currented || originaled
           })
-        case EditablePanel.EDIT =>
-          val current = panel.getTitle
-          val old = panel.getOldTitle
+        case EditablePanel.Edit =>
+          val current = panel.title
+          val old = panel.previousTitle
           if (current.isEmpty)
-            panel.setTitle(old)
+            panel.title = old.get
           else if (extras.exists(_.name == current)) {
-            panel.setTitle(old)
+            panel.title = old.get
             JOptionPane.showMessageDialog(this, s"""Sideboard "$current" already exists.""", "Error", JOptionPane.ERROR_MESSAGE)
-          } else if (!current.equals(old)) {
-            val j = extrasPane.indexOfTab(old)
+          } else if (!current.equals(old.get)) {
+            val j = extrasPane.indexOfTab(old.get)
             performAction(() => {
               _lists(id).get.name = current
-              extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(current)
+              extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].title = current
               extrasPane.setTitleAt(j, current)
               listTabs.setSelectedIndex(MainDeck)
               true
             }, () => {
-              _lists(id).get.name = old
-              extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].setTitle(old)
-              extrasPane.setTitleAt(j, old)
+              _lists(id).get.name = old.get
+              extrasPane.getTabComponentAt(j).asInstanceOf[EditablePanel].title = old.get
+              extrasPane.setTitleAt(j, old.get)
               listTabs.setSelectedIndex(MainDeck)
               true
             })
           }
-        case EditablePanel.CANCEL =>
+        case EditablePanel.Cancel =>
       })
 
       true
