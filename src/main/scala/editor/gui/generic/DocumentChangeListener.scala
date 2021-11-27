@@ -4,6 +4,22 @@ import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
 /**
+ * Convenience object for allowing the specification of a [[DocumentChangeListener]] using functional
+ * notation.
+ * @author Alec Roelke
+ */
+object DocumentChangeListener {
+  /**
+   * Convert a function (DocumentEvent) => Unit into a [[DocumentChangeListener]] to allow the use of
+   * that notation to specify one.
+   * 
+   * @param f function to convert
+   * @return a [[DocumentChangeListener]] that calls that function on update
+   */
+  implicit def function2listener(f: (DocumentEvent) => Unit): DocumentChangeListener = new DocumentChangeListener { def update(e: DocumentEvent) = f(e) }
+}
+
+/**
  * [[DocumentListener]] that does the same thing for any change to the document.
  * @author Alec Roelke
  */

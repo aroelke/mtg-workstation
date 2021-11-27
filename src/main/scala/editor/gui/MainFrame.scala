@@ -29,6 +29,7 @@ import _root_.editor.gui.filter.FilterGroupPanel
 import _root_.editor.gui.generic.CardMenuItems
 import _root_.editor.gui.generic.ComponentUtils
 import _root_.editor.gui.generic.DocumentChangeListener
+import _root_.editor.gui.generic.DocumentChangeListener._
 import _root_.editor.gui.generic.OverwriteFileChooser
 import _root_.editor.gui.generic.ScrollablePanel
 import _root_.editor.gui.generic.TableMouseAdapter
@@ -566,11 +567,9 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                 formatField.requestFocusInWindow()
               })
 
-              formatField.getDocument().addDocumentListener(new DocumentChangeListener {
-                override def update(e: DocumentEvent) = {
-                  previewArea.setText(new TextCardListFormat(formatField.getText()).format(if (f.deck.total > 0) f.deck else f.allExtras))
-                  previewArea.setCaretPosition(0)
-                }
+              formatField.getDocument().addDocumentListener((e: DocumentEvent) => {
+                previewArea.setText(TextCardListFormat(formatField.getText()).format(if (f.deck.total > 0) f.deck else f.allExtras))
+                previewArea.setCaretPosition(0)
               })
             }
 
