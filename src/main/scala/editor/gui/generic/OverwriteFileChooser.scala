@@ -1,10 +1,21 @@
 package editor.gui.generic
 
-import javax.swing.JFileChooser
-import javax.swing.filechooser.FileNameExtensionFilter
 import java.io.File
+import javax.swing.JFileChooser
 import javax.swing.JOptionPane
+import javax.swing.filechooser.FileNameExtensionFilter
 
+/**
+ * File chooser that asks permission to replace existing files. A "Yes" choice replaces the file,
+ * "No" returns to the chooser for renaming, and "Cancel" or quit simply exits without doing any
+ * file operations.
+ * 
+ * @constructor create a new file chooser that asks permission to overwrite files
+ * @param cwd starting directory of the file chooser, or user's default directory (as specified by
+ * [[JFileChooser]]) if not set
+ * 
+ * @author Alec Roelke
+ */
 class OverwriteFileChooser(cwd: String = JFileChooser().getCurrentDirectory.getAbsolutePath) extends JFileChooser(cwd) {
   override def getSelectedFile = {
     Option(super.getSelectedFile).map{ file => getFileFilter match {
