@@ -50,7 +50,7 @@ class ButtonScrollPane(view: Component) extends JPanel(BorderLayout()) {
 // North and South are placeholders for vertical
 private enum ButtonDirection { case North, East, South, West }
 
-private class ArrowButton(direction: ButtonDirection, initial: Int = 750, tick: Int = 75) extends RepeatButton(initial, tick) {
+private class ArrowButton(direction: ButtonDirection, initial: Int = 750, tick: Int = 75) extends RepeatButton(initial, Some(tick)) {
   setFocusable(false)
 
   override def getPreferredSize = Dimension(12, super.getPreferredSize.height)
