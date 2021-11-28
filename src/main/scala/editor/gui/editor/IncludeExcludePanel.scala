@@ -19,7 +19,7 @@ import java.awt.Color
  * 
  * @author Alec Roelke
  */
-class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends ScrollablePanel(ScrollablePanel.TRACK_WIDTH) {
+class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends ScrollablePanel(ScrollablePanel.TrackWidth) {
   private val MaxPreferredRows = 10
 
   setLayout(BoxLayout(this, BoxLayout.Y_AXIS))

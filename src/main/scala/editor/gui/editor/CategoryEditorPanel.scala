@@ -47,7 +47,7 @@ object CategoryEditorPanel {
       case c: Component => SwingUtilities.getWindowAncestor(c).pack()
       case _ =>
     })
-    val editorPanel = new ScrollablePanel(BorderLayout(), ScrollablePanel.TRACK_WIDTH) {
+    val editorPanel = new ScrollablePanel(ScrollablePanel.TrackWidth, BorderLayout()) {
       override def getPreferredScrollableViewportSize = {
         val size = editor.getPreferredSize
         size.height = Math.min(MaxHeight, size.height)

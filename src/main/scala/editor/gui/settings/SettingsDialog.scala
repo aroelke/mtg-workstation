@@ -259,7 +259,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   inventoryPanel.add(pathWarningPanel)
 
   // Inventory appearance
-  private val inventoryAppearancePanel = ScrollablePanel(ScrollablePanel.TRACK_WIDTH)
+  private val inventoryAppearancePanel = ScrollablePanel(ScrollablePanel.TrackWidth)
   inventoryAppearancePanel.setLayout(BoxLayout(inventoryAppearancePanel, BoxLayout.Y_AXIS))
   private val inventoryAppearanceScroll = JScrollPane(inventoryAppearancePanel)
   inventoryAppearanceScroll.setBorder(BorderFactory.createEmptyBorder())
@@ -411,7 +411,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   editorAppearancePanel.add(Box.createVerticalGlue)
 
   // Sample hand
-  private val sampleHandPanel = ScrollablePanel(ScrollablePanel.TRACK_WIDTH)
+  private val sampleHandPanel = ScrollablePanel(ScrollablePanel.TrackWidth)
   sampleHandPanel.setLayout(BoxLayout(sampleHandPanel, BoxLayout.Y_AXIS))
   private val sampleHandScroll = JScrollPane(sampleHandPanel)
   sampleHandScroll.setBorder(BorderFactory.createEmptyBorder())
@@ -479,7 +479,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   formatsPanel.add(formatsPane)
 
   // Mana analysis
-  private val manaAnalysisPanel = ScrollablePanel(ScrollablePanel.TRACK_WIDTH)
+  private val manaAnalysisPanel = ScrollablePanel(ScrollablePanel.TrackWidth)
   manaAnalysisPanel.setLayout(BoxLayout(manaAnalysisPanel, BoxLayout.Y_AXIS))
   private val manaAnalysisScroll = new JScrollPane(manaAnalysisPanel)
   manaAnalysisScroll.setBorder(BorderFactory.createEmptyBorder())

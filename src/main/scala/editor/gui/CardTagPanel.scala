@@ -80,7 +80,7 @@ object CardTagPanel {
  * 
  * @author Alec Roelke
  */
-class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePanel.TRACK_WIDTH) {
+class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePanel.TrackWidth) {
   private val MaxPreferredRows = 10
 
   setLayout(BoxLayout(this, BoxLayout.Y_AXIS))

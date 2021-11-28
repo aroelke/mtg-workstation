@@ -1142,7 +1142,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       panel.setContents(inventory.getFilter)
     panel.addChangeListener((c) => SwingUtilities.getWindowAncestor(c.getSource.asInstanceOf[Component]).pack())
 
-    val panelPanel = new ScrollablePanel(BorderLayout(), ScrollablePanel.TRACK_WIDTH) {
+    val panelPanel = new ScrollablePanel(ScrollablePanel.TrackWidth, BorderLayout()) {
       override def getPreferredScrollableViewportSize = {
         val size = panel.getPreferredSize
         size.height = Math.min(MaxFilterHeight, size.height)

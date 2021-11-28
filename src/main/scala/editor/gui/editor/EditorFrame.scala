@@ -884,7 +884,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   // Make sure all parts of the category panel fit inside the window (this is necessary because
   // JScrollPanes do weird things with non-scroll-savvy components)
-  private val categoriesSuperContainer = ScrollablePanel(BorderLayout(), ScrollablePanel.TRACK_WIDTH)
+  private val categoriesSuperContainer = ScrollablePanel(ScrollablePanel.TrackWidth, BorderLayout())
   private val categoriesContainer = Box(BoxLayout.Y_AXIS)
   private val categoryPanels = collection.mutable.ArrayBuffer[CategoryPanel]()
 
@@ -1019,7 +1019,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   // Table showing the cards in hand
   private val hand = Hand(deck.current)
 
-  private val imagePanel = ScrollablePanel(ScrollablePanel.TRACK_HEIGHT)
+  private val imagePanel = ScrollablePanel(ScrollablePanel.TrackHeight)
   imagePanel.setLayout(BoxLayout(imagePanel, BoxLayout.X_AXIS))
   private val imagePane = JScrollPane(imagePanel)
   imagePane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS)

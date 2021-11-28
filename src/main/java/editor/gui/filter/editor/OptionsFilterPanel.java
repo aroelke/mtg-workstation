@@ -101,7 +101,7 @@ public class OptionsFilterPanel<T> extends FilterEditorPanel<OptionsFilter<T>>
         contain = new ComboBoxPanel<>(Containment.values());
         add(contain, BorderLayout.WEST);
 
-        optionsPanel = new ScrollablePanel(ScrollablePanel.TRACK_HEIGHT);
+        optionsPanel = new ScrollablePanel(ScrollablePanel.TrackHeight());
         optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
         ButtonScrollPane optionsPane = new ButtonScrollPane(optionsPanel);
         optionsPane.setBorder(BorderFactory.createEmptyBorder());
