@@ -1,13 +1,13 @@
 package editor.gui.generic
 
-import javax.swing.DefaultCellEditor
-import javax.swing.JTextField
-import javax.swing.JSpinner
-import javax.swing.SpinnerNumberModel
-import javax.swing.JTable
-import java.util.EventObject
 import java.awt.event.MouseEvent
 import java.text.ParseException
+import java.util.EventObject
+import javax.swing.DefaultCellEditor
+import javax.swing.JSpinner
+import javax.swing.JTable
+import javax.swing.JTextField
+import javax.swing.SpinnerNumberModel
 
 /**
  * Table cell editor used for editing discrete values, like numbers, using a spinner.
