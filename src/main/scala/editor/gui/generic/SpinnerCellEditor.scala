@@ -9,6 +9,11 @@ import java.util.EventObject
 import java.awt.event.MouseEvent
 import java.text.ParseException
 
+/**
+ * Table cell editor used for editing discrete values, like numbers, using a spinner.
+ * @constructor create a new spinner cell editor
+ * @author Alec Roelke
+ */ 
 class SpinnerCellEditor extends DefaultCellEditor(JTextField()) {
   private val spinner = JSpinner(SpinnerNumberModel())
   spinner.getEditor match {
