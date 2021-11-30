@@ -93,6 +93,14 @@ public abstract class FilterLeaf<T> extends Filter
         return function;
     }
 
+    protected abstract boolean leafEquals(Object other);
+
+    @Override
+    public boolean equals(Object other)
+    {
+        return other != null && (other == this || other.getClass() == getClass() && faces == ((FilterLeaf<?>)other).faces && leafEquals(other));
+    }
+
     /**
      * 
      * 

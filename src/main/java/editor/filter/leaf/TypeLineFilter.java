@@ -48,12 +48,8 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     }
 
     @Override
-    public boolean equals(Object other)
+    public boolean leafEquals(Object other)
     {
-        if (other == null)
-            return false;
-        if (other == this)
-            return true;
         if (other.getClass() != getClass())
             return false;
         TypeLineFilter o = (TypeLineFilter)other;

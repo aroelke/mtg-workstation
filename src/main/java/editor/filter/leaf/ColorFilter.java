@@ -101,12 +101,8 @@ public class ColorFilter extends FilterLeaf<List<ManaType>>
     }
 
     @Override
-    public boolean equals(Object other)
+    public boolean leafEquals(Object other)
     {
-        if (other == null)
-            return false;
-        if (other == this)
-            return true;
         if (other.getClass() != getClass())
             return false;
         ColorFilter o = (ColorFilter)other;

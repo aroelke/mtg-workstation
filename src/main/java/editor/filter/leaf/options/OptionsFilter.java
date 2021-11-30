@@ -90,12 +90,8 @@ public abstract class OptionsFilter<T> extends FilterLeaf<T>
     }
 
     @Override
-    public boolean equals(Object other)
+    public boolean leafEquals(Object other)
     {
-        if (other == null)
-            return false;
-        if (other == this)
-            return true;
         if (other.getClass() != getClass())
             return false;
         var o = (OptionsFilter<?>)other;

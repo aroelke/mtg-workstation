@@ -77,12 +77,8 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      * comparison, and operand is the same.
      */
     @Override
-    public boolean equals(Object other)
+    public boolean leafEquals(Object other)
     {
-        if (other == null)
-            return false;
-        if (other == this)
-            return true;
         if (other.getClass() != getClass())
             return false;
         NumberFilter o = (NumberFilter)other;

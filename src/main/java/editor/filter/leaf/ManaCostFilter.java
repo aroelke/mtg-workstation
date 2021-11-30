@@ -45,12 +45,8 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
     }
 
     @Override
-    public boolean equals(Object other)
+    public boolean leafEquals(Object other)
     {
-        if (other == null)
-            return false;
-        if (other == this)
-            return true;
         if (other.getClass() != getClass())
             return false;
         ManaCostFilter o = (ManaCostFilter)other;
