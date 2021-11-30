@@ -3,6 +3,7 @@ package editor.gui
 import _root_.editor.database.card.Card
 import _root_.editor.gui.generic.ScrollablePanel
 import _root_.editor.gui.generic.TristateCheckBox
+import _root_.editor.gui.generic.TristateCheckBoxState
 import _root_.editor.util.MouseListenerFactory
 import _root_.editor.util.UnicodeSymbols
 
@@ -95,11 +96,11 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
   tagBoxes.foreach((box) => {
     val matches = cards.count((c) => Option(Card.tags.get(c)).exists(_.contains(box.getText)))
     if (matches == 0)
-      box.setState(TristateCheckBox.State.UNSELECTED)
+      box.state = TristateCheckBoxState.Unselected
     else if (matches < cards.size)
-      box.setState(TristateCheckBox.State.INDETERMINATE)
+      box.state = TristateCheckBoxState.Indeterminate
     else
-      box.setState(TristateCheckBox.State.SELECTED)
+      box.state = TristateCheckBoxState.Selected
   })
 
   private def setTags(tags: Seq[String]): Unit = {
@@ -160,10 +161,10 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
   }
 
   /** @return the set of tags that are checked (to be applied to the selected cards) */
-  def tagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.SELECTED => box.getText }.toSet
+  def tagged = tagBoxes.collect{ case box if box.state == TristateCheckBoxState.Selected => box.getText }.toSet
 
   /** @return the set of tags that are unchecked (to be removed from the selected cards) */
-  def untagged = tagBoxes.collect{ case box if box.getState == TristateCheckBox.State.UNSELECTED => box.getText }.toSeq ++ _removed.toSet
+  def untagged = tagBoxes.collect{ case box if box.state == TristateCheckBoxState.Unselected => box.getText }.toSeq ++ _removed.toSet
 
   /** @return the set of tags that are to be removed from all cards, and hence deleted */
   def removed = _removed.toSet

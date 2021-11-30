@@ -34,6 +34,7 @@ import _root_.editor.gui.generic.OverwriteFileChooser
 import _root_.editor.gui.generic.ScrollablePanel
 import _root_.editor.gui.generic.TableMouseAdapter
 import _root_.editor.gui.generic.TristateCheckBox
+import _root_.editor.gui.generic.TristateCheckBoxState
 import _root_.editor.gui.generic.VerticalButtonList
 import _root_.editor.gui.generic.WizardDialog
 import _root_.editor.gui.generic.WizardResult
@@ -497,7 +498,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           val extras = collection.mutable.LinkedHashMap(f.extras.map(_.name -> true):_*)
           val extrasPanel = JPanel(BorderLayout())
           extrasPanel.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, extrasPanel.getBackground))
-          val includeExtras = TristateCheckBox("Include additional lists:", TristateCheckBox.State.SELECTED)
+          val includeExtras = TristateCheckBox("Include additional lists:", TristateCheckBoxState.Selected)
           extrasPanel.add(includeExtras, BorderLayout.NORTH)
           extrasPanel.setBackground(UIManager.getColor("List.background"))
           val extrasList = Box(BoxLayout.Y_AXIS)
@@ -511,13 +512,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               if (n == 0)
                 includeExtras.setSelected(false)
               else if (n < extras.size)
-                includeExtras.setState(TristateCheckBox.State.INDETERMINATE)
+                includeExtras.state = TristateCheckBoxState.Indeterminate
               else // n == extra.size
                 includeExtras.setSelected(true)
               SwingUtilities.invokeLater(() => includeExtras.repaint())
             })
             includeExtras.addActionListener(_ => {
-              extraBox.setSelected(includeExtras.getState == TristateCheckBox.State.SELECTED)
+              extraBox.setSelected(includeExtras.state == TristateCheckBoxState.Selected)
               extras(extra) = extraBox.isSelected
               SwingUtilities.invokeLater(() => extraBox.repaint())
             })

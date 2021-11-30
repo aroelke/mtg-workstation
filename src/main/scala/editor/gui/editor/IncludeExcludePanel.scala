@@ -4,6 +4,7 @@ import editor.gui.generic.ScrollablePanel
 import editor.collection.deck.Category
 import editor.database.card.Card
 import editor.gui.generic.TristateCheckBox
+import editor.gui.generic.TristateCheckBoxState
 import javax.swing.BoxLayout
 import java.awt.Color
 
@@ -29,11 +30,11 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
     val matches = cards.count(category.includes(_))
     val categoryBox = TristateCheckBox(category.getName, 
       if (matches == 0)
-        TristateCheckBox.State.UNSELECTED
+        TristateCheckBoxState.Unselected
       else if (matches < cards.size)
-        TristateCheckBox.State.INDETERMINATE
+        TristateCheckBoxState.Indeterminate
       else
-        TristateCheckBox.State.SELECTED
+        TristateCheckBoxState.Selected
     )
     categoryBox.setBackground(Color.WHITE)
     category -> categoryBox
@@ -41,10 +42,10 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
   categories.foreach((c) => add(categoryBoxes(c)))
 
   /** @return a mapping of cards onto the categories they should be included in */
-  def included = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.getState == TristateCheckBox.State.SELECTED && !category.includes(c)) => category }.toSet).toMap
+  def included = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Selected && !category.includes(c)) => category }.toSet).toMap
 
   /** @return a mapping of cards onto the categories they should be excluded from */
-  def excluded = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.getState == TristateCheckBox.State.UNSELECTED && category.includes(c)) => category }.toSet).toMap
+  def excluded = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Unselected && category.includes(c)) => category }.toSet).toMap
 
   override def getPreferredScrollableViewportSize = {
     val size = getPreferredSize
