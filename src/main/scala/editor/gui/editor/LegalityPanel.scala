@@ -150,7 +150,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
     if (m.find) {
       val cell = Box.createHorizontalBox
       cell.add(JLabel(v.substring(0, m.start)))
-      ManaCost.parseManaCost(m.group).asScala.foreach((symbol) => cell.add(JLabel(symbol.getIcon(ComponentUtils.TEXT_SIZE))))
+      ManaCost.parseManaCost(m.group).asScala.foreach((symbol) => cell.add(JLabel(symbol.getIcon(ComponentUtils.TextSize))))
       cell
     }
     else JLabel(v)

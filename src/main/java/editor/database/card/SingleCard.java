@@ -443,7 +443,7 @@ public class SingleCard extends Card
         Style textStyle = document.getStyle("text");
         Style reminderStyle = document.getStyle("reminder");
         Style chaosStyle = document.addStyle("CHAOS", null);
-        StyleConstants.setIcon(chaosStyle, FunctionalSymbol.CHAOS.getIcon(ComponentUtils.TEXT_SIZE));
+        StyleConstants.setIcon(chaosStyle, FunctionalSymbol.CHAOS.getIcon(ComponentUtils.TextSize()));
         try
         {
             document.insertString(document.getLength(), name + " ", textStyle);
@@ -452,7 +452,7 @@ public class SingleCard extends Card
                 for (Symbol symbol : mana)
                 {
                     Style style = document.addStyle(symbol.toString(), null);
-                    StyleConstants.setIcon(style, symbol.getIcon(ComponentUtils.TEXT_SIZE));
+                    StyleConstants.setIcon(style, symbol.getIcon(ComponentUtils.TextSize()));
                     document.insertString(document.getLength(), symbol.toString(), style);
                 }
                 document.insertString(document.getLength(), " ", textStyle);
@@ -517,7 +517,7 @@ public class SingleCard extends Card
                         else
                         {
                             Style symbolStyle = document.addStyle(symbol.get().toString(), null);
-                            StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE));
+                            StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TextSize()));
                             document.insertString(document.getLength(), symbol.get().toString(), symbolStyle);
                         }
                         start = i + 1;
@@ -574,7 +574,7 @@ public class SingleCard extends Card
                         else
                         {
                             Style symbolStyle = document.addStyle(symbol.get().toString(), null);
-                            StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE));
+                            StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TextSize()));
                             document.insertString(document.getLength(), " ", symbolStyle);
                         }
                         start = i + 1;

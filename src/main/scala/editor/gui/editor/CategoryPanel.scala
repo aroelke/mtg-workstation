@@ -155,7 +155,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   private val statsPanel = Box(BoxLayout.X_AXIS)
   private val countLabel = JLabel(s"Cards: ${list.total}")
   statsPanel.add(countLabel)
-  statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TEXT_SIZE))
+  statsPanel.add(ComponentUtils.createHorizontalSeparator(10, ComponentUtils.TextSize))
   private val avgManaValueLabel = JLabel("Average mana value: 0")
   statsPanel.add(avgManaValueLabel)
   statsPanel.add(Box.createHorizontalGlue)

@@ -569,7 +569,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     val typesPanel = new ChartPanel(typesChart)
     preview.add(typesPanel)
 
-    preview.setPreferredSize(Dimension(chooser.getPreferredSize.width - 3*ComponentUtils.TEXT_SIZE, chooser.getPreviewPanel.getPreferredSize().height*5/2))
+    preview.setPreferredSize(Dimension(chooser.getPreferredSize.width - 3*ComponentUtils.TextSize, chooser.getPreviewPanel.getPreferredSize().height*5/2))
     chooser.setPreviewPanel(preview)
   }
 

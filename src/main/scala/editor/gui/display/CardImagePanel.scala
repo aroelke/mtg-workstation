@@ -274,7 +274,7 @@ class CardImagePanel(private var card: Option[Card] = None) extends JPanel {
         val document = missingCardPane.getDocument.asInstanceOf[StyledDocument]
         val textStyle = document.addStyle("text", null)
         StyleConstants.setFontFamily(textStyle, UIManager.getFont("Label.font").getFamily)
-        StyleConstants.setFontSize(textStyle, ComponentUtils.TEXT_SIZE)
+        StyleConstants.setFontSize(textStyle, ComponentUtils.TextSize)
         val reminderStyle = document.addStyle("reminder", textStyle)
         StyleConstants.setItalic(reminderStyle, true)
         card.foreach(_.formatDocument(document, false, face))

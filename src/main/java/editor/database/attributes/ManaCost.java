@@ -278,7 +278,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     public String toHTMLString()
     {
         return cost.stream()
-            .map((sym) -> "<img src=\"" + Symbol.class.getResource("/images/icons/" + sym.getName()) + "\" width=\"" + ComponentUtils.TEXT_SIZE + "\" height=\"" + ComponentUtils.TEXT_SIZE + "\"/>")
+            .map((sym) -> "<img src=\"" + Symbol.class.getResource("/images/icons/" + sym.getName()) + "\" width=\"" + ComponentUtils.TextSize() + "\" height=\"" + ComponentUtils.TextSize() + "\"/>")
             .collect(Collectors.joining());
     }
 

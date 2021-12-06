@@ -1513,7 +1513,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     val oracleDocument = oracleTextPane.getDocument.asInstanceOf[StyledDocument]
     val oracleTextStyle = oracleDocument.addStyle("text", null)
     StyleConstants.setFontFamily(oracleTextStyle, UIManager.getFont("Label.font").getFamily)
-    StyleConstants.setFontSize(oracleTextStyle, ComponentUtils.TEXT_SIZE)
+    StyleConstants.setFontSize(oracleTextStyle, ComponentUtils.TextSize)
     var reminderStyle = oracleDocument.addStyle("reminder", oracleTextStyle)
     StyleConstants.setItalic(reminderStyle, true)
     card.formatDocument(oracleDocument, false)
@@ -1522,7 +1522,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     val printedDocument = printedTextPane.getDocument.asInstanceOf[StyledDocument]
     val printedTextStyle = printedDocument.addStyle("text", null)
     StyleConstants.setFontFamily(printedTextStyle, UIManager.getFont("Label.font").getFamily())
-    StyleConstants.setFontSize(printedTextStyle, ComponentUtils.TEXT_SIZE)
+    StyleConstants.setFontSize(printedTextStyle, ComponentUtils.TextSize)
     reminderStyle = printedDocument.addStyle("reminder", oracleTextStyle)
     StyleConstants.setItalic(reminderStyle, true)
     card.formatDocument(printedDocument, true)
@@ -1532,7 +1532,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     val rulingsDocument = rulingsPane.getDocument.asInstanceOf[StyledDocument]
     val rulingStyle = oracleDocument.addStyle("ruling", null)
     StyleConstants.setFontFamily(rulingStyle, UIManager.getFont("Label.font").getFamily())
-    StyleConstants.setFontSize(rulingStyle, ComponentUtils.TEXT_SIZE)
+    StyleConstants.setFontSize(rulingStyle, ComponentUtils.TextSize)
     val dateStyle = rulingsDocument.addStyle("date", rulingStyle)
     StyleConstants.setBold(dateStyle, true)
     if (!card.rulings.isEmpty) {
@@ -1555,7 +1555,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                     rulingsDocument.insertString(rulingsDocument.getLength, ruling.substring(start, i), rulingStyle)
                   } else {
                     val symbolStyle = rulingsDocument.addStyle(symbol.get.toString, null)
-                    StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TEXT_SIZE))
+                    StyleConstants.setIcon(symbolStyle, symbol.get().getIcon(ComponentUtils.TextSize))
                     rulingsDocument.insertString(rulingsDocument.getLength(), " ", symbolStyle)
                   }
                   start = i + 1
