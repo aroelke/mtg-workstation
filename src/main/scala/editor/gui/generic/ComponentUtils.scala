@@ -1,18 +1,29 @@
 package editor.gui.generic
 
-import javax.swing.UIManager
 import java.awt.Component
-import java.awt.Font
 import java.awt.Container
+import java.awt.Dimension
+import java.awt.Font
 import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JSeparator
 import javax.swing.SwingConstants
-import java.awt.Dimension
+import javax.swing.UIManager
 
+/**
+ * Constants and methods for creating and arranging components in the UI.
+ * @author Alec Roelke
+ */
 object ComponentUtils {
+  /** Default font size for text. */
   val TextSize = UIManager.getFont("Label.font").getSize
 
+  /**
+   * Change the font of a component and all of its child components, and so on.
+   * 
+   * @param component component to change
+   * @param font font to change to
+   */
   def changeFontRecursive(component: Component, font: Font): Unit = {
     component.setFont(font)
     component match {
@@ -21,6 +32,13 @@ object ComponentUtils {
     }
   }
 
+  /**
+   * Create a fixed-size component with a vertical bar in the center, useful for visually dividing things.
+   * 
+   * @param width width of the component
+   * @param height height of the component
+   * @return a new component that is empty except for a vertical separator in the middle
+   */
   def createHorizontalSeparator(width: Int, height: Int = 0) = {
     val panel = Box(BoxLayout.X_AXIS)
     panel.setAlignmentY(Component.CENTER_ALIGNMENT)
