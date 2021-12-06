@@ -356,16 +356,16 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   categoriesPanel.add(JScrollPane(categoriesList), BorderLayout.CENTER)
 
   // Category modification buttons
-  private val categoryModPanel = VerticalButtonList("+", UnicodeSymbols.ELLIPSIS.toString, UnicodeSymbols.MINUS.toString)
-  categoryModPanel.get("+").addActionListener((e) => CategoryEditorPanel.showCategoryEditor(this).foreach(categoriesList.addCategory(_)))
-  categoryModPanel.get(UnicodeSymbols.ELLIPSIS.toString).addActionListener((e) => {
+  private val categoryModPanel = VerticalButtonList(Seq("+", UnicodeSymbols.ELLIPSIS.toString, UnicodeSymbols.MINUS.toString))
+  categoryModPanel("+").addActionListener((e) => CategoryEditorPanel.showCategoryEditor(this).foreach(categoriesList.addCategory(_)))
+  categoryModPanel(UnicodeSymbols.ELLIPSIS.toString).addActionListener((e) => {
     if (categoriesList.getSelectedIndex >= 0) {
       CategoryEditorPanel.showCategoryEditor(this, Option(categoriesList.categories(categoriesList.getSelectedIndex))).foreach((s) => {
         categoriesList.setCategoryAt(categoriesList.getSelectedIndex, s)
       })
     }
   })
-  categoryModPanel.get(UnicodeSymbols.MINUS.toString).addActionListener((e) => {
+  categoryModPanel(UnicodeSymbols.MINUS.toString).addActionListener((e) => {
     if (categoriesList.getSelectedIndex >= 0)
       categoriesList.removeCategoryAt(categoriesList.getSelectedIndex)
   })

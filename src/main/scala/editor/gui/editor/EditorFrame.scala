@@ -736,10 +736,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   mainDeckPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED))
   mainPanel.add(mainDeckPane, BorderLayout.CENTER)
 
-  private val deckButtons = VerticalButtonList("+", UnicodeSymbols.MINUS.toString, "X")
-  deckButtons.get("+").addActionListener(_ => deck ++= parent.getSelectedCards -> 1)
-  deckButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => deck --= parent.getSelectedCards -> 1)
-  deckButtons.get("X").addActionListener(_ => deck --= parent.getSelectedCards -> parent.getSelectedCards.map(deck.current.getEntry(_).count).max)
+  private val deckButtons = VerticalButtonList(Seq("+", UnicodeSymbols.MINUS.toString, "X"))
+  deckButtons("+").addActionListener(_ => deck ++= parent.getSelectedCards -> 1)
+  deckButtons(UnicodeSymbols.MINUS.toString).addActionListener(_ => deck --= parent.getSelectedCards -> 1)
+  deckButtons("X").addActionListener(_ => deck --= parent.getSelectedCards -> parent.getSelectedCards.map(deck.current.getEntry(_).count).max)
   mainPanel.add(deckButtons, BorderLayout.WEST)
 
   private val southLayout = CardLayout()
@@ -750,10 +750,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   extrasPanel.setLayout(BorderLayout())
   southPanel.add(extrasPanel, "extras")
 
-  private val extrasButtons = VerticalButtonList("+", UnicodeSymbols.MINUS.toString, "X")
-  extrasButtons.get("+").addActionListener(_ => sideboard ++= parent.getSelectedCards -> 1)
-  extrasButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => sideboard --= parent.getSelectedCards -> 1)
-  extrasButtons.get("X").addActionListener(_ => sideboard --= parent.getSelectedCards -> parent.getSelectedCards.map(sideboard.current.getEntry(_).count).max)
+  private val extrasButtons = VerticalButtonList(Seq("+", UnicodeSymbols.MINUS.toString, "X"))
+  extrasButtons("+").addActionListener(_ => sideboard ++= parent.getSelectedCards -> 1)
+  extrasButtons(UnicodeSymbols.MINUS.toString).addActionListener(_ => sideboard --= parent.getSelectedCards -> 1)
+  extrasButtons("X").addActionListener(_ => sideboard --= parent.getSelectedCards -> parent.getSelectedCards.map(sideboard.current.getEntry(_).count).max)
   extrasPanel.add(extrasButtons, BorderLayout.WEST)
 
   private val extrasPane = JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT)
@@ -917,10 +917,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   }))
   categoriesPane.setComponentPopupMenu(categoriesMenu)
 
-  private val categoryButtons = VerticalButtonList("+", UnicodeSymbols.MINUS.toString, "X")
-  categoryButtons.get("+").addActionListener(_ => deck ++= parent.getSelectedCards -> 1)
-  categoryButtons.get(UnicodeSymbols.MINUS.toString).addActionListener(_ => deck --= parent.getSelectedCards -> 1)
-  categoryButtons.get("X").addActionListener(_ => deck --= parent.getSelectedCards -> parent.getSelectedCards.map(deck.current.getEntry(_).count).max)
+  private val categoryButtons = VerticalButtonList(Seq("+", UnicodeSymbols.MINUS.toString, "X"))
+  categoryButtons("+").addActionListener(_ => deck ++= parent.getSelectedCards -> 1)
+  categoryButtons(UnicodeSymbols.MINUS.toString).addActionListener(_ => deck --= parent.getSelectedCards -> 1)
+  categoryButtons("X").addActionListener(_ => deck --= parent.getSelectedCards -> parent.getSelectedCards.map(deck.current.getEntry(_).count).max)
   categoriesPanel.add(categoryButtons, BorderLayout.WEST)
 
   /* MANA ANALYSIS TAB */
