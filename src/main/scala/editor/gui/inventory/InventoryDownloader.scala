@@ -1,40 +1,53 @@
 package editor.gui.inventory
 
-import javax.swing.SwingWorker
-import java.net.URL
-import java.io.File
-import scala.util.Using
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
-import java.io.FileOutputStream
-import scala.jdk.CollectionConverters._
-import java.util.zip.ZipInputStream
-import java.io.FileInputStream
-import java.awt.Frame
-import java.io.IOException
-import javax.swing.JDialog
+import java.awt.BorderLayout
 import java.awt.Dialog
 import java.awt.Dimension
-import javax.swing.WindowConstants
-import javax.swing.JPanel
-import java.awt.BorderLayout
-import javax.swing.BorderFactory
-import javax.swing.JLabel
-import javax.swing.JProgressBar
-import javax.swing.JButton
+import java.awt.Frame
+import java.awt.event.KeyEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import javax.swing.KeyStroke
-import java.awt.event.KeyEvent
-import javax.swing.JComponent
-import java.util.concurrent.Executors
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException
-import javax.swing.JOptionPane
-import edu.emory.mathcs.backport.java.util.concurrent.CancellationException
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.net.URL
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.util.concurrent.CancellationException
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.zip.ZipInputStream
+import javax.swing.BorderFactory
+import javax.swing.JButton
+import javax.swing.JComponent
+import javax.swing.JDialog
+import javax.swing.JLabel
+import javax.swing.JOptionPane
+import javax.swing.JPanel
+import javax.swing.JProgressBar
+import javax.swing.KeyStroke
+import javax.swing.SwingWorker
+import javax.swing.WindowConstants
+import scala.jdk.CollectionConverters._
+import scala.util.Using
 
+/**
+ * Downloads and decompresses the card inventory, displaying progress in a popup dialog.
+ * @author Alec Roelke
+ */
 object InventoryDownloader {
+  /**
+   * Download the inventory from the internet and decompress it. Display a dialog showing progress and allowing cancellation.
+   * 
+   * @param owner frame creating the dialog, for positioning
+   * @param site where to download the inventory from
+   * @param file file to store the inventory to
+   * @return true if the file was successfully downloaded and decompressed, and false otherwise
+   */
+  @throws[IOException]("if the downloader can't connect to the inventory site")
   def downloadInventory(owner: Frame, site: URL, file: File) = {
     val zip = File(s"${file.getPath}.zip")
     val tmp = File(s"${zip.getPath}.tmp")
