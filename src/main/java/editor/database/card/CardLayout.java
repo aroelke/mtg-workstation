@@ -80,6 +80,11 @@ public enum CardLayout
      */
     MODAL_DFC("Modal DFC", true),
     /**
+     * Special double-faced card where both sides are the same, but one is full-art. Only
+     * the full-art side is shown here, so these aren't listed as double-faced.
+     */
+    REVERSIBLE_CARD("Reversible"),
+    /**
      * An extra-large card for use in the Planechase format.
      */
     PLANAR("Planar"),
