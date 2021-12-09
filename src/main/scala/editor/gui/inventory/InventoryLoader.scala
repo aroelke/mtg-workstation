@@ -65,6 +65,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.CancellationException
 import javax.swing.SwingUtilities
 import java.awt.BorderLayout
 import javax.swing.JCheckBox
+import scala.util.control.Breaks._
 
 object InventoryLoader {
   def loadInventory(owner: Frame, file: File) = {
@@ -285,8 +286,8 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
       val root = JsonParser().parse(reader).getAsJsonObject
       val version = if (root.has("meta")) DatabaseVersion.parseVersion(root.get("meta").getAsJsonObject.get("version").getAsString) else DatabaseVersion(0, 0, 0)
 
-      val entries = (if (version < v500) root else root.get("data").getAsJsonObject).entrySet.asScala.map((e) => e.getKey -> e.getValue).toMap
-      var numCards = entries.map{ case (_, e) => e.getAsJsonObject.get("cards").getAsJsonArray.size }.sum
+      val entries = (if (version < v500) root else root.get("data").getAsJsonObject).entrySet.asScala
+      val numCards = entries.foldLeft(0)(_ + _.getValue.getAsJsonObject.get("cards").getAsJsonArray.size)
 
       // We don't use String.intern() here because the String pool that is maintained must include extra data that adds several MB
       // to the overall memory consumption of the inventory
@@ -311,8 +312,14 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
 
       publish(s"Reading cards from ${file.getName}...")
       setProgress(0)
-      entries.foreach{ case (_, e) =>
-        val setProperties = e.getAsJsonObject
+      breakable { entries.foreach{ (e) =>
+        if (isCancelled) {
+          expansions.clear()
+          blockNames.clear()
+          break
+        }
+
+        val setProperties = e.getValue.getAsJsonObject
         val setCards = setProperties.get("cards").getAsJsonArray
         val set = Expansion(
           setProperties.get("name").getAsString,
@@ -331,7 +338,7 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
 
           // Card's multiverseid and Scryfall id
           val scryfallid = (if (version < v500) card.get("scryfallId") else card.get("identifiers").getAsJsonObject.get("scryfallId")).getAsString
-          val multiverseid = Option(if (version < v500) card.get("multiverseid") else card.get("identifiers").getAsJsonObject.get("multiverseid")).map(_.getAsInt).getOrElse(-1)
+          val multiverseid = Option(if (version < v500) card.get("multiverseId") else card.get("identifiers").getAsJsonObject.get("multiverseId")).map(_.getAsInt).getOrElse(-1)
 
           // Card's name
           val name = card.get(if (card.has("faceName")) "faceName" else "name").getAsString
@@ -427,64 +434,66 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
             setProgress(cards.size*100/numCards)
           } catch case e: IllegalArgumentException => errors += s"$name ($set): ${e.getMessage}"
         }
-      }
+      }}
 
-      publish("Processing multi-faced cards...")
-      if (version <= v500) {
-        val facesList = collection.mutable.ArrayBuffer(faces.keySet.toSeq:_*)
-        while (!facesList.isEmpty) {
-          val face = facesList.remove(0)
-          val otherFaces = collection.mutable.ArrayBuffer[Card]()
-          if (version < v500 || face.layout != CardLayout.MELD) {
-            val faceNames = faces(face)
-            facesList.foreach((c) => if (faceNames.contains(c.unifiedName) && c.expansion == face.expansion) {
-              otherFaces += c
-            })
-            facesList --= otherFaces
-            otherFaces += face
-            otherFaces.sortInPlaceBy((a) => faceNames.indexOf(a.unifiedName))
+      if (!isCancelled) {
+        publish("Processing multi-faced cards...")
+        if (version <= v500) {
+          val facesList = collection.mutable.ArrayBuffer(faces.keySet.toSeq:_*)
+          while (!facesList.isEmpty) {
+            val face = facesList.remove(0)
+            val otherFaces = collection.mutable.ArrayBuffer[Card]()
+            if (version < v500 || face.layout != CardLayout.MELD) {
+              val faceNames = faces(face)
+              facesList.foreach((c) => if (faceNames.contains(c.unifiedName) && c.expansion == face.expansion) {
+                otherFaces += c
+              })
+              facesList --= otherFaces
+              otherFaces += face
+              otherFaces.sortInPlaceBy((a) => faceNames.indexOf(a.unifiedName))
+            }
+            cards --= otherFaces
+
+            if (face.layout == CardLayout.MELD) {
+              val first = otherFaces(1)
+              val second = otherFaces(2)
+              otherFaces.remove(1, 2)
+              otherFaces.insertAll(1, Seq(second, first))
+            }
+            cards ++= createMultiFacedCard(face.layout, otherFaces.toSeq)
           }
-          cards --= otherFaces
+        } else {
+          cards --= facesNames.keys
+          faces.foreach{ case (face, names) =>
+            val cardFaces = collection.mutable.ArrayBuffer(otherFaceIds(face).map(multiUUIDs(_)).toSeq:_*)
+            cardFaces += face
+            cardFaces.sortInPlaceBy((c) => names.indexOf(c.unifiedName))
 
-          if (face.layout == CardLayout.MELD) {
-            val first = otherFaces(1)
-            val second = otherFaces(2)
-            otherFaces.remove(1, 2)
-            otherFaces.insertAll(1, Seq(second, first))
+            if (face.layout != CardLayout.MELD || cardFaces.size == 3)
+              cards ++= createMultiFacedCard(face.layout, cardFaces.toSeq)
           }
-          cards ++= createMultiFacedCard(face.layout, otherFaces.toSeq)
         }
-      } else {
-        cards --= facesNames.keys
-        faces.foreach{ case (face, names) =>
-          val cardFaces = collection.mutable.ArrayBuffer(otherFaceIds(face).map(multiUUIDs(_)).toSeq:_*)
-          cardFaces += face
-          cardFaces.sortInPlaceBy((c) => names.indexOf(c.unifiedName))
 
-          if (face.layout != CardLayout.MELD || cardFaces.size == 3)
-            cards ++= createMultiFacedCard(face.layout, cardFaces.toSeq)
-        }
+        publish("Removing duplicate entries...")
+        val unique = collection.mutable.Map[String, Card]()
+        cards.foreach((c) => if (!unique.contains(c.scryfallid.get(0))) {
+          unique += c.scryfallid.get(0) -> c
+        })
+        cards.clear()
+        cards ++= unique.values
+
+        // Store the lists of expansion and block names and types and sort them alphabetically
+        Expansion.expansions = expansions.toArray.sorted
+        Expansion.blocks = blockNames.toArray.sorted
+        SupertypeFilter.supertypeList = allSupertypes.values.toArray.sorted
+        CardTypeFilter.typeList = allTypes.values.toArray.sorted
+        SubtypeFilter.subtypeList = allSubtypes.values.toArray.sorted
       }
-
-      publish("Removing duplicate entries...")
-      val unique = collection.mutable.Map[String, Card]()
-      cards.foreach((c) => if (!unique.contains(c.scryfallid.get(0))) {
-        unique += c.scryfallid.get(0) -> c
-      })
-      cards.clear()
-      cards ++= unique.values
-
-      // Store the lists of expansion and block names and types and sort them alphabetically
-      Expansion.expansions = expansions.toArray.sorted
-      Expansion.blocks = blockNames.toArray.sorted
-      SupertypeFilter.supertypeList = allSupertypes.values.toArray.sorted
-      CardTypeFilter.typeList = allTypes.values.toArray.sorted
-      SubtypeFilter.subtypeList = allSubtypes.values.toArray.sorted
     }
 
     val inventory = Inventory(cards.asJava)
 
-    if (Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {
+    if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {
       val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
       val raw = MainFrame.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
       Card.tags.clear()
