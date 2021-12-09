@@ -912,14 +912,14 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
       override def getColumnCount = columns.length
       override def getColumnName(index: Int) = columns(index)
-      override def getRowCount = Expansion.expansions().size
+      override def getRowCount = Expansion.expansions.size
 
       override def getValueAt(rowIndex: Int, columnIndex: Int) = columnIndex match {
-        case 0 => Expansion.expansions()(rowIndex).name
-        case 1 => if (Expansion.expansions()(rowIndex).block == Expansion.NoBlock) "" else Expansion.expansions()(rowIndex).block
-        case 2 => Expansion.expansions()(rowIndex).code
-        case 3 => Expansion.expansions()(rowIndex).count
-        case 4 => Expansion.expansions()(rowIndex).released.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
+        case 0 => Expansion.expansions(rowIndex).name
+        case 1 => if (Expansion.expansions(rowIndex).block == Expansion.NoBlock) "" else Expansion.expansions(rowIndex).block
+        case 2 => Expansion.expansions(rowIndex).code
+        case 3 => Expansion.expansions(rowIndex).count
+        case 4 => Expansion.expansions(rowIndex).released.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
         case _ => throw IndexOutOfBoundsException()
       }
     }

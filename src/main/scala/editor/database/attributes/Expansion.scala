@@ -22,14 +22,14 @@ case class Expansion(name: String, block: String, code: String, count: Int, rele
 
 object Expansion {
   /** Array of expansions. */
-  private var _expansions = Array.empty[Expansion]
-  @deprecated def expansions() = _expansions
-  @deprecated def set_expansions(e: Array[Expansion]): Unit = { _expansions = e }
+  var expansions = Array.empty[Expansion]
+  @deprecated def get_expansions() = expansions
+  @deprecated def set_expansions(e: Array[Expansion]): Unit = { expansions = e }
 
   /** Array containing block names. */
-  private var _blocks = Array.empty[String]
-  @deprecated def blocks() = _blocks
-  @deprecated def set_blocks(b: Array[String]): Unit = { _blocks = b }
+  var blocks = Array.empty[String]
+  @deprecated def get_blocks() = blocks
+  @deprecated def set_blocks(b: Array[String]): Unit = { blocks = b }
 
   /** Text to show when an expansion isn't part of a block. */
   val NoBlock = "<No Block>"
