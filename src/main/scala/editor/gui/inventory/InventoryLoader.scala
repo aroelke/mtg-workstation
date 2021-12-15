@@ -464,7 +464,7 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
           }
         } else {
           cards --= facesNames.keys
-          faces.foreach{ case (face, names) =>
+          facesNames.foreach{ case (face, names) =>
             val cardFaces = collection.mutable.ArrayBuffer(otherFaceIds(face).map(multiUUIDs(_)).toSeq:_*)
             cardFaces += face
             cardFaces.sortInPlaceBy((c) => names.indexOf(c.unifiedName))
