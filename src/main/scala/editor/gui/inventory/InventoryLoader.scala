@@ -488,6 +488,10 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
         SupertypeFilter.supertypeList = allSupertypes.values.toArray.sorted
         CardTypeFilter.typeList = allTypes.values.toArray.sorted
         SubtypeFilter.subtypeList = allSubtypes.values.toArray.sorted
+
+        val missingFormats = formats.collect{ case (_, f) if !FormatConstraints.FormatNames.contains(f) => f }.toSeq.sorted
+        if (!missingFormats.isEmpty)
+          errors += s"""Could not find definitions for the following formats: ${missingFormats.mkString(", ")}"""
       }
     }
 
