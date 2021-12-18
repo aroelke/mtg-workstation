@@ -395,48 +395,64 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               formats.getOrElseUpdate(e.getKey, e.getKey)
             }.toSeq.sorted)
 
+            val cost = Option(card.get("manaCost")).map(_.getAsString).getOrElse("")
+            val colors = card.get("colors").getAsJsonArray
+            val identity = card.get("colorIdentity").getAsJsonArray
+            val supers = card.get("supertypes").getAsJsonArray
+            val types = card.get("types").getAsJsonArray
+            val subs = card.get("subtypes").getAsJsonArray
+            val oTypes = Option(card.get("originalType")).map(_.getAsString).getOrElse("")
+            val text = Option(card.get("text")).map(_.getAsString).getOrElse("")
+            val flavor = Option(card.get("flavorText")).map(_.getAsString).getOrElse("")
+            val printed = Option(card.get("originalText")).map(_.getAsString).getOrElse("")
+            val artist = Option(card.get("artist")).map(_.getAsString).getOrElse("")
+            val number = Option(card.get("number")).map(_.getAsString).getOrElse("")
+            val power = Option(card.get("power")).map(_.getAsString).getOrElse("")
+            val toughness = Option(card.get("toughness")).map(_.getAsString).getOrElse("")
+            val loyalty = Option(card.get("loyalty")).map(l => if (l.isJsonNull) "X" else l.getAsString).getOrElse("")
+
             val c = SingleCard(
               layout,
               name,
-              costs.getOrElseUpdate(Option(card.get("manaCost")).map(_.getAsString).getOrElse(""), ManaCost.parseManaCost(Option(card.get("manaCost")).map(_.getAsString).getOrElse(""))),
-              colorLists.getOrElseUpdate(card.get("colors").getAsJsonArray.toString, {
+              costs.getOrElseUpdate(cost, ManaCost.parseManaCost(cost)),
+              colorLists.getOrElseUpdate(colors.toString, {
                 val col = collection.mutable.ArrayBuffer[ManaType]()
-                card.get("colors").getAsJsonArray.asScala.foreach((e) => col += ManaType.parseManaType(e.getAsString))
+                colors.asScala.foreach((e) => col += ManaType.parseManaType(e.getAsString))
                 col.toSeq
               }).asJava,
-              colorLists.getOrElseUpdate(card.get("colorIdentity").getAsJsonArray.toString, {
+              colorLists.getOrElseUpdate(identity.toString, {
                 val col = collection.mutable.ArrayBuffer[ManaType]()
-                card.get("colorIdentity").getAsJsonArray.asScala.foreach((e) => col += ManaType.parseManaType(e.getAsString))
+                identity.asScala.foreach((e) => col += ManaType.parseManaType(e.getAsString))
                 col.toSeq
               }).asJava,
-              supertypeSets.getOrElseUpdate(card.get("supertypes").getAsJsonArray.toString, {
+              supertypeSets.getOrElseUpdate(supers.toString, {
                 val s = collection.mutable.LinkedHashSet[String]()
-                card.get("supertypes").getAsJsonArray.asScala.foreach((e) => s += allSupertypes.getOrElseUpdate(e.getAsString, e.getAsString))
+                supers.asScala.foreach((e) => s += allSupertypes.getOrElseUpdate(e.getAsString, e.getAsString))
                 s
               }).asJava,
-              typeSets.getOrElseUpdate(card.get("types").getAsJsonArray.toString, {
+              typeSets.getOrElseUpdate(types.toString, {
                 val s = collection.mutable.LinkedHashSet[String]()
-                card.get("types").getAsJsonArray.asScala.foreach((e) => s += allTypes.getOrElseUpdate(e.getAsString, e.getAsString))
+                types.asScala.foreach((e) => s += allTypes.getOrElseUpdate(e.getAsString, e.getAsString))
                 s
               }).asJava,
-              subtypeSets.getOrElseUpdate(card.get("subtypes").getAsJsonArray.toString, {
+              subtypeSets.getOrElseUpdate(subs.toString, {
                 val s = collection.mutable.LinkedHashSet[String]()
-                card.get("subtypes").getAsJsonArray.asScala.foreach((e) => s += allSubtypes.getOrElseUpdate(e.getAsString, e.getAsString))
+                subs.asScala.foreach((e) => s += allSubtypes.getOrElseUpdate(e.getAsString, e.getAsString))
                 s
               }).asJava,
-              printedTypes.getOrElseUpdate(Option(card.get("originalType")).map(_.getAsString).getOrElse(""), Option(card.get("originalType")).map(_.getAsString).getOrElse("")),
+              printedTypes.getOrElseUpdate(oTypes, oTypes),
               Rarity.parseRarity(card.get("rarity").getAsString),
               set,
-              texts.getOrElseUpdate(Option(card.get("text")).map(_.getAsString).getOrElse(""), Option(card.get("text")).map(_.getAsString).getOrElse("")),
-              flavors.getOrElseUpdate(Option(card.get("flavorText")).map(_.getAsString).getOrElse(""), Option(card.get("flavorText")).map(_.getAsString).getOrElse("")),
-              texts.getOrElseUpdate(Option(card.get("originalText")).map(_.getAsString).getOrElse(""), Option(card.get("originalText")).map(_.getAsString).getOrElse("")),
-              artists.getOrElseUpdate(Option(card.get("artist")).map(_.getAsString).getOrElse(""), Option(card.get("artist")).map(_.getAsString).getOrElse("")),
+              texts.getOrElseUpdate(text, text),
+              flavors.getOrElseUpdate(flavor, flavor),
+              texts.getOrElseUpdate(printed, printed),
+              artists.getOrElseUpdate(artist, artist),
               multiverseid,
               scryfallid,
-              numbers.getOrElseUpdate(Option(card.get("number")).map(_.getAsString).getOrElse(""), Option(card.get("number")).map(_.getAsString).getOrElse("")),
-              stats.getOrElseUpdate(Option(card.get("power")).map(_.getAsString).getOrElse(""), CombatStat(Option(card.get("power")).map(_.getAsString).getOrElse(""))),
-              stats.getOrElseUpdate(Option(card.get("tougness")).map(_.getAsString).getOrElse(""), CombatStat(Option(card.get("toughness")).map(_.getAsString).getOrElse(""))),
-              loyalties.getOrElseUpdate(Option(card.get("loyalty")).map(l => if (l.isJsonNull) "X" else l.getAsString).getOrElse(""), Loyalty(Option(card.get("loyalty")).map(l => if (l.isJsonNull) "X" else l.getAsString).getOrElse(""))),
+              numbers.getOrElseUpdate(number, number),
+              stats.getOrElseUpdate(power, CombatStat(power)),
+              stats.getOrElseUpdate(toughness, CombatStat(toughness)),
+              loyalties.getOrElseUpdate(loyalty, Loyalty(loyalty)),
               java.util.TreeMap(rulings.map{ case (d, r) => d -> r.asJava }.asJava),
               legality.asJava,
               commandFormats.asJava
