@@ -1216,9 +1216,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       performAction(() => createExtra(s"Sideboard $id", id, last), () => deleteExtra(id, last))
     }
   }
-  extrasPane.addMouseListener(MouseListenerFactory.createPressListener((e) => addSideboard(e)))
+  extrasPane.addMouseListener(MouseListenerFactory.createMouseListener(pressed = (e) => addSideboard(e)))
   extrasPane.addChangeListener(_ => sideboard = extras.find(_.name == extrasPane.getTitleAt(extrasPane.getSelectedIndex)))
-  emptyPanel.addMouseListener(MouseListenerFactory.createClickListener((e) => addSideboard(e)))
+  emptyPanel.addMouseListener(MouseListenerFactory.createMouseListener(clicked = (e) => addSideboard(e)))
 
   extrasPane.addTab("+", null)
   for ((name, list) <- manager.sideboards) {

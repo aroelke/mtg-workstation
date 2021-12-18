@@ -1072,7 +1072,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   inventoryTable.setDefaultRenderer(classOf[Rarity], InventoryTableCellRenderer())
   inventoryTable.setDefaultRenderer(classOf[java.util.List[?]], InventoryTableCellRenderer())
   inventoryTable.stripe = SettingsDialog.settings.inventory.stripe
-  inventoryTable.addMouseListener(MouseListenerFactory.createClickListener((e) => selectedFrame.foreach((f) => {
+  inventoryTable.addMouseListener(MouseListenerFactory.createMouseListener(clicked = (e) => selectedFrame.foreach((f) => {
     if (e.getClickCount % 2 == 0)
       f.deck ++= getSelectedCards -> 1
   })))

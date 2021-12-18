@@ -121,7 +121,7 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
 
         val deleteButton = JLabel(s"${UnicodeSymbols.MINUS} ")
         deleteButton.setForeground(Color.RED)
-        deleteButton.addMouseListener(MouseListenerFactory.createPressListener(_ => removeTag(tag)))
+        deleteButton.addMouseListener(MouseListenerFactory.createMouseListener(pressed = _ => removeTag(tag)))
         tagPanel.add(deleteButton, BorderLayout.EAST)
 
         preferredViewportHeight = Math.min(preferredViewportHeight + tagPanel.getPreferredSize.height, tagPanel.getPreferredSize.height*MaxPreferredRows)

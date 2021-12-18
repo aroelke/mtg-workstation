@@ -100,9 +100,9 @@ class EditablePanel(t: String, parent: Option[Component] = None) extends JPanel 
   field.getActionMap.put(Cancel, new AbstractAction { override def actionPerformed(e: ActionEvent) = finish(false) })
   add(field)
 
-  label.addMouseListener(MouseListenerFactory.composeListeners(
+  label.addMouseListener(MouseListenerFactory.compose(Seq(
     MouseListenerFactory.createUniversalListener((e) => {
-      parent.foreach(p => p.dispatchEvent(SwingUtilities.convertMouseEvent(e.getComponent, e, p)))
+      parent.foreach((p) => p.dispatchEvent(SwingUtilities.convertMouseEvent(e.getComponent, e, p)))
     }),
     MouseListenerFactory.createDoubleClickListener(_ => {
       front.setVisible(false)
@@ -111,7 +111,7 @@ class EditablePanel(t: String, parent: Option[Component] = None) extends JPanel 
       field.requestFocusInWindow()
       field.selectAll()
     })
-  ))
+  )))
 
   field.addFocusListener(new FocusListener {
     override def focusGained(e: FocusEvent) = {}

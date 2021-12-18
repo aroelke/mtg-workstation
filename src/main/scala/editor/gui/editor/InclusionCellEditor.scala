@@ -43,7 +43,7 @@ class InclusionCellEditor(frame: EditorFrame) extends AbstractCellEditor with Ta
       }
     }
   }
-  editor.addMouseListener(MouseListenerFactory.createPressListener(_ => {
+  editor.addMouseListener(MouseListenerFactory.createMouseListener(pressed = _ => {
     if (JOptionPane.showConfirmDialog(frame, JScrollPane(iePanel.get), "Set Categories", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION)
       fireEditingStopped()
     else
