@@ -1,10 +1,19 @@
 package editor.util
 
+import java.beans.PropertyChangeListener
+import java.beans.PropertyChangeSupport
 import java.io.FilterInputStream
 import java.io.InputStream
-import java.beans.PropertyChangeSupport
-import java.beans.PropertyChangeListener
 
+/**
+ * Input stream that notifies listeners about progress reading input. Changes to the number of bytes read are reported as a "bytesRead" event.
+ * 
+ * @constructor create a new progress-reporting input stream
+ * @param in stream to read from
+ * @param listener function operating on bytes read before and after an update
+ * 
+ * @author Alec Roelke
+ */
 class ProgressInputStream(in: InputStream, listener: (Long, Long) => Unit = (_, _) => {}) extends FilterInputStream(in) {
   private val propertySupport = PropertyChangeSupport(this)
   private var totalRead = 0L
@@ -18,8 +27,16 @@ class ProgressInputStream(in: InputStream, listener: (Long, Long) => Unit = (_, 
     }
   })
 
+  /**
+   * Add a listener to listen for updates to the number of bytes read.
+   * @param listener listener to add
+   */
   def addPropertyChangeListener(listener: PropertyChangeListener) = propertySupport.addPropertyChangeListener(listener)
 
+  /**
+   * Remove a listener so it no longer receives updates.
+   * @param listener listener to remove
+   */
   def removePropertyChangeListener(listener: PropertyChangeListener) = propertySupport.removePropertyChangeListener(listener)
 
   override def read() = {
