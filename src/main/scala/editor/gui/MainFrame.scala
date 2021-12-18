@@ -1028,7 +1028,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   oraclePopupMenu.add(oracleEditTagsItem)
 
   // Popup listener for oracle popup menu
-  oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+  oraclePopupMenu.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
     oracleCCP.copy.setEnabled(!getSelectedCards.isEmpty)
     oracleMenuCardItems.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     oracleMenuCardSeparators.foreach(_.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty))
@@ -1116,7 +1116,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   inventoryMenu.add(editTagsItem)
 
   // Inventory menu listener
-  inventoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+  inventoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
     inventoryMenuCardItems.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     inventoryMenuCardSeparators.foreach(_.setVisible(selectedFrame.isDefined && !getSelectedCards.isEmpty))
     inventoryMenuSBItems.setVisible(selectedFrame.fold(false)((f) => !f.extras.isEmpty) && !getSelectedCards.isEmpty)

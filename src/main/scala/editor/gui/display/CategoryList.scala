@@ -96,7 +96,7 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
   menu.add(ccp.copy)
   menu.add(ccp.paste)
 
-  menu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+  menu.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
     val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
     ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.categoryFlavor))
   }))

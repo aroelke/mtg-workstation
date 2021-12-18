@@ -403,7 +403,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       menu.add(JSeparator())
       cards.addRemoveItems(menu)
       menu.add(JSeparator())
-      menu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => setMenuEnables))
+      menu.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => setMenuEnables))
       menu
     }
 
@@ -801,7 +801,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   // Table memu popup listeners
   deck.popup.addPopupMenuListener(TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu, editCategoriesItem, categoriesSeparator, deck.table))
-  deck.popup.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+  deck.popup.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
     deck.setMenuEnables
     moveToMenu.setVisible(!extras.isEmpty)
     moveAllToMenu.setVisible(!extras.isEmpty)
@@ -907,7 +907,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private val categoriesCreateItem = JMenuItem("Add Category...")
   categoriesCreateItem.addActionListener(_ => createCategory.foreach(categories += _))
   categoriesMenu.add(categoriesCreateItem)
-  categoriesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+  categoriesMenu.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
     val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
     try {
       categoriesCCP.paste.setEnabled(!categories.contains((clipboard.getData(DataFlavors.categoryFlavor)).asInstanceOf[CategoryTransferData].spec.getName))
@@ -1136,7 +1136,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   notesMenu.add(notesCCP.cut)
   notesMenu.add(notesCCP.copy)
   notesMenu.add(notesCCP.paste)
-  notesMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+  notesMenu.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
     val text = Option(notesArea.getSelectedText)
     notesCCP.cut.setEnabled(text.map(!_.isEmpty).getOrElse(false))
     notesCCP.copy.setEnabled(text.map(!_.isEmpty).getOrElse(false))
@@ -1331,7 +1331,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       newExtra.popup.add(newExtra.editTags)
 
       // Item enables as menu becomes visible
-      newExtra.popup.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+      newExtra.popup.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
         moveToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
         moveAllToMainItem.setEnabled(!parent.getSelectedCards.isEmpty)
       }))
@@ -1551,7 +1551,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     // Table menu popup listeners
     tableMenu.addPopupMenuListener(TableCategoriesPopupListener(addToCategoryMenu, removeFromCategoryMenu, editCategoriesItem, categoriesSeparator, newCategory.table))
-    tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+    tableMenu.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
       cardCCP.cut.setEnabled(!parent.getSelectedCards.isEmpty)
       cardCCP.copy.setEnabled(!parent.getSelectedCards.isEmpty)
       val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
@@ -1598,7 +1598,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     addPresetItem.addActionListener(_ => parent.addPreset(deck.current.getCategorySpec(newCategory.name)))
     categoryMenu.add(addPresetItem)
 
-    categoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createVisibleListener(_ => {
+    categoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
       val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
       try {
         categoryCCP.paste.setEnabled(!categories.contains(clipboard.getData(DataFlavors.categoryFlavor).asInstanceOf[CategoryTransferData].spec.getName))
