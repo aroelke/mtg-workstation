@@ -19,10 +19,12 @@ object Stats {
       factorial(n)/(factorial(n - k)*factorial(k))
   }
 
+  implicit class IntToNCK(n: Int) { def choose(k: Int) = Stats.nchoosek(n, k) }
+
   def hypergeometric(n: Int, hand: Int, count: Int, total: Int) = {
     if (hand - (total - count) > n)
       0.0
     else
-      (BigDecimal(nchoosek(count, n)*nchoosek(total - count, hand - n))/BigDecimal(nchoosek(total, hand))).toDouble
+      (BigDecimal((count choose n)*((total - count) choose (hand - n)))/BigDecimal((total choose hand))).toDouble
   }
 }
