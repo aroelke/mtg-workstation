@@ -460,9 +460,8 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
 
             if (face.layout == CardLayout.MELD) {
               val first = otherFaces(1)
-              val second = otherFaces(2)
-              otherFaces.remove(1, 2)
-              otherFaces.insertAll(1, Seq(second, first))
+              otherFaces(1) = otherFaces(2)
+              otherFaces(2) = first
             }
             cards ++= createMultiFacedCard(face.layout, otherFaces.toSeq)
           }
