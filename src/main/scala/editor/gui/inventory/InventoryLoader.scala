@@ -270,7 +270,6 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
 
     publish(s"Opening ${file.getName}...")
 
-    val cards = collection.mutable.ArrayBuffer[Card]()
     val faces = collection.mutable.Map[Card, Seq[String]]()
     val expansions = collection.mutable.Set[Expansion]()
     val blockNames = collection.mutable.Set[String]()
@@ -279,7 +278,7 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
     val otherFaceIds = collection.mutable.Map[Card, Seq[String]]()
 
     // Read the inventory file
-    Using.resource(BufferedReader(InputStreamReader(FileInputStream(file), "UTF8"))){ reader =>
+    val cards = Using.resource(BufferedReader(InputStreamReader(FileInputStream(file), "UTF8"))){ reader =>
       publish(s"Parsing ${file.getName}...")
 
       val root = JsonParser().parse(reader).getAsJsonObject
@@ -310,10 +309,9 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
       val rulingContents = collection.mutable.Map[String, String]()
 
       publish(s"Reading cards from ${file.getName}...")
-      setProgress(0)
-      // Breaking out of loops is normally bad Scala code, but this loop needs to be breakable because it should
-      // exit when the user presses the cancel button and not finish looping through (but ignoring) all the cards
-      breakable { entries.foreach{ (e) =>
+      var progress = 0
+      setProgress(progress)
+      val cards = tryBreakable { entries.flatMap{ (e) =>
         if (isCancelled) {
           expansions.clear()
           blockNames.clear()
@@ -333,7 +331,7 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
         blockNames += set.block
 
         publish(s"Loading cards from $set...")
-        setCards.asScala.foreach{ cardElement =>
+        setCards.asScala.flatMap{ cardElement =>
           // Create the new card for the expansion
           val card = cardElement.getAsJsonObject
 
@@ -431,11 +429,16 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
               }
             }
 
-            cards += c
-            setProgress(cards.size*100/numCards)
-          } catch case e: IllegalArgumentException => errors += s"$name ($set): ${e.getMessage}"
+            progress += 1
+            setProgress(progress*100/numCards)
+            Some(c)
+          } catch {
+            case e: IllegalArgumentException =>
+              errors += s"$name ($set): ${e.getMessage}"
+              None
+          }
         }
-      }}
+      }}.catchBreak(collection.mutable.Set.empty[Card])
 
       if (!isCancelled) {
         publish("Processing multi-faced cards...")
@@ -483,6 +486,8 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
         if (!missingFormats.isEmpty)
           errors += s"""Could not find definitions for the following formats: ${missingFormats.mkString(", ")}"""
       }
+
+      cards
     }
 
     if (!isCancelled)
