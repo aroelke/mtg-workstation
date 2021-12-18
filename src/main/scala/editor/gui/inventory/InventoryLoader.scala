@@ -149,15 +149,14 @@ object InventoryLoader {
       SwingUtilities.invokeLater(() => {
         val warnings = ("Errors ocurred while loading the following card(s):<ul style=\"margin-top:0;margin-left:20pt\">" +: loader.warnings).mkString("<html>", "<li>", "</ul></html>")
         val warningPanel = JPanel(BorderLayout())
-        val warningLabel = JLabel(warnings)
-        warningPanel.add(warningLabel, BorderLayout.CENTER)
+        warningPanel.add(JLabel(warnings), BorderLayout.CENTER)
         val suppressBox = JCheckBox("Don't show this warning in the future", !SettingsDialog.settings.inventory.warn)
         warningPanel.add(suppressBox, BorderLayout.SOUTH)
         JOptionPane.showMessageDialog(null, warningPanel, "Warning", JOptionPane.WARNING_MESSAGE)
         SettingsDialog.settings = SettingsDialog.settings.copy(inventory = SettingsDialog.settings.inventory.copy(warn = !suppressBox.isSelected))
       })
     }
-    SettingsDialog.setInventoryWarnings(loader.warnings)
+    SettingsDialog.inventoryWarnings = loader.warnings
     result
   }
 }
@@ -169,35 +168,35 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
 
   def warnings = errors.toSeq
 
-  private def converToNormal(card: Card) = SingleCard(
-    CardLayout.NORMAL,
-    card.name.get(0),
-    card.manaCost.get(0),
-    card.colors,
-    card.colorIdentity,
-    card.supertypes,
-    card.types,
-    card.subtypes,
-    card.printedTypes.get(0),
-    card.rarity,
-    card.expansion,
-    card.oracleText.get(0),
-    card.flavorText.get(0),
-    card.printedText.get(0),
-    card.artist.get(0),
-    card.multiverseid.get(0),
-    card.scryfallid.get(0),
-    card.number.get(0),
-    card.power.get(0),
-    card.toughness.get(0),
-    card.loyalty.get(0),
-    java.util.TreeMap(card.rulings),
-    card.legality,
-    card.commandFormats
-  )
-
   private def createMultiFacedCard(layout: CardLayout, faces: Seq[Card]) = {
     import CardLayout._
+
+    def converToNormal(card: Card) = SingleCard(
+      CardLayout.NORMAL,
+      card.name.get(0),
+      card.manaCost.get(0),
+      card.colors,
+      card.colorIdentity,
+      card.supertypes,
+      card.types,
+      card.subtypes,
+      card.printedTypes.get(0),
+      card.rarity,
+      card.expansion,
+      card.oracleText.get(0),
+      card.flavorText.get(0),
+      card.printedText.get(0),
+      card.artist.get(0),
+      card.multiverseid.get(0),
+      card.scryfallid.get(0),
+      card.number.get(0),
+      card.power.get(0),
+      card.toughness.get(0),
+      card.loyalty.get(0),
+      java.util.TreeMap(card.rulings),
+      card.legality,
+      card.commandFormats
+    )
 
     var error = false
     val face = faces(0)
@@ -263,7 +262,7 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
         if (!error) Set(MeldCard(faces(0), faces(1), faces(2)), MeldCard(faces(1), faces(0), faces(2))) else Set.empty
       case _ => Set.empty
     }
-    if (error) faces.map(converToNormal(_)).toSet else result
+    if (error) faces.map(converToNormal).toSet else result
   }
 
   protected override def doInBackground() = {
@@ -312,6 +311,8 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
 
       publish(s"Reading cards from ${file.getName}...")
       setProgress(0)
+      // Breaking out of loops is normally bad Scala code, but this loop needs to be breakable because it should
+      // exit when the user presses the cancel button and not finish looping through (but ignoring) all the cards
       breakable { entries.foreach{ (e) =>
         if (isCancelled) {
           expansions.clear()
@@ -465,22 +466,11 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
         } else {
           cards --= facesNames.keys
           facesNames.foreach{ case (face, names) =>
-            val cardFaces = collection.mutable.ArrayBuffer(otherFaceIds(face).map(multiUUIDs(_)).toSeq:_*)
-            cardFaces += face
-            cardFaces.sortInPlaceBy((c) => names.indexOf(c.unifiedName))
-
+            val cardFaces = (otherFaceIds(face).map(multiUUIDs(_)).toSeq :+ face).sortBy((c) => names.indexOf(c.unifiedName))
             if (face.layout != CardLayout.MELD || cardFaces.size == 3)
-              cards ++= createMultiFacedCard(face.layout, cardFaces.toSeq)
+              cards ++= createMultiFacedCard(face.layout, cardFaces)
           }
         }
-
-        publish("Removing duplicate entries...")
-        val unique = collection.mutable.Map[String, Card]()
-        cards.foreach((c) => if (!unique.contains(c.scryfallid.get(0))) {
-          unique += c.scryfallid.get(0) -> c
-        })
-        cards.clear()
-        cards ++= unique.values
 
         // Store the lists of expansion and block names and types and sort them alphabetically
         Expansion.expansions = expansions.toArray.sorted
@@ -495,7 +485,9 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
       }
     }
 
-    val inventory = Inventory(cards.asJava)
+    if (!isCancelled)
+      publish("Removing duplicate entries...")
+    val inventory = Inventory(cards.map((c) => c.scryfallid.get(0) -> c).toMap.values.toSeq.asJava)
 
     if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {
       val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}

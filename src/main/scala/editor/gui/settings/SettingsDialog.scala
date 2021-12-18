@@ -862,16 +862,8 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
 }
 
 object SettingsDialog {
-  private val inventoryWarnings = ArrayBuffer[String]()
-  /**
-   * Store inventory warnings so they can be viewed later.  This overwrites any previous warnings.
-   * 
-   * @param warnings warnings to store
-   */
-  def setInventoryWarnings(warnings: Seq[String]): Unit = {
-    inventoryWarnings.clear
-    inventoryWarnings.addAll(warnings)
-  }
+  /** Warnings generated from the last time the inventory was loaded. */
+  var inventoryWarnings = Seq.empty[String]
 
   /** Location to store settings and default location for other data. */
   val EditorHome = Path.of(System.getProperty("user.home"), ".mtgworkstation")
@@ -964,13 +956,5 @@ object SettingsDialog {
     } else
       Files.deleteIfExists(Path.of(settings.inventory.tags))
     Files.writeString(PropertiesFile, MainFrame.Serializer.toJson(settings))
-  }
-
-  /**
-   * Set whether inventory warnings should be displayed after loading it or not.
-   * @param warn new inventory warning setting
-   */
-  @deprecated def setShowInventoryWarnings(warn: Boolean): Unit = {
-    settings = settings.copy(inventory = settings.inventory.copy(warn = warn))
   }
 }
