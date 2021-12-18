@@ -272,7 +272,6 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
 
     val faces = collection.mutable.Map[Card, Seq[String]]()
     val expansions = collection.mutable.Set[Expansion]()
-    val blockNames = collection.mutable.Set[String]()
     val multiUUIDs = collection.mutable.Map[String, Card]()
     val facesNames = collection.mutable.Map[Card, Seq[String]]()
     val otherFaceIds = collection.mutable.Map[Card, Seq[String]]()
@@ -314,7 +313,6 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
       val cards = tryBreakable { entries.flatMap{ (e) =>
         if (isCancelled) {
           expansions.clear()
-          blockNames.clear()
           break
         }
 
@@ -328,7 +326,6 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
           LocalDate.parse(setProperties.get("releaseDate").getAsString, Expansion.DateFormatter)
         )
         expansions += set
-        blockNames += set.block
 
         publish(s"Loading cards from $set...")
         setCards.asScala.flatMap{ cardElement =>
@@ -475,8 +472,7 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
         }
 
         // Store the lists of expansion and block names and types and sort them alphabetically
-        Expansion.expansions = expansions.toArray.sorted
-        Expansion.blocks = blockNames.toArray.sorted
+        Expansion.expansions = expansions.toSeq.sorted
         SupertypeFilter.supertypeList = allSupertypes.values.toArray.sorted
         CardTypeFilter.typeList = allTypes.values.toArray.sorted
         SubtypeFilter.subtypeList = allSubtypes.values.toArray.sorted
