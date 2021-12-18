@@ -1,7 +1,5 @@
 package editor.database.attributes
 
-import editor.util.Parsers
-
 /**
  * Starting loyalty of a planeswalker card. Some planeswalkers have variable loyalties,
  * either starting (X) or based on game state (*), instead of concrete numbers.
@@ -17,7 +15,7 @@ case class Loyalty(value: Double) extends OptionalAttribute with Ordered[Loyalty
     case "X" => Loyalty.X
     case "*" => Loyalty.STAR
     case ""  => Double.NaN
-    case u   => Parsers.tryParseDouble(s).orElse(Double.NaN)
+    case u   => u.toDoubleOption.getOrElse(Double.NaN)
   })
 
   /** Whether or not the card actually has loyalty (i.e. is a planeswalker) */
@@ -48,7 +46,7 @@ object Loyalty {
     case "X" => Loyalty.X
     case "*" => Loyalty.STAR
     case ""  => Double.NaN
-    case u   => Parsers.tryParseDouble(s).orElse(Double.NaN)
+    case u   => u.toDoubleOption.getOrElse(Double.NaN)
   })
 
   /** Number that represents a starting loyalty of X (determined as the planeswalker enters). */
