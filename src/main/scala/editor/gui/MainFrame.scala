@@ -707,7 +707,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   fileMenu.add(exitItem)
 
   // File menu listener
-  fileMenu.addMenuListener(MenuListenerFactory.createSelectedListener(_ => {
+  fileMenu.addMenuListener(MenuListenerFactory.createMenuListener(selected = _ => {
     closeItem.setEnabled(selectedFrame.isDefined)
     closeAllItem.setEnabled(!editors.isEmpty)
     saveItem.setEnabled(selectedFrame.map(_.unsaved).getOrElse(false))
@@ -716,7 +716,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     exportItem.setEnabled(selectedFrame.isDefined)
   }))
   // Items are enabled while hidden so their listeners can be used
-  fileMenu.addMenuListener(MenuListenerFactory.createDeselectedListener(_ => {
+  fileMenu.addMenuListener(MenuListenerFactory.createMenuListener(deselected = _ => {
     closeItem.setEnabled(true)
     closeAllItem.setEnabled(true)
     saveItem.setEnabled(true)
@@ -766,7 +766,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   editMenu.add(preferencesItem)
 
   // Edit menu listener
-  editMenu.addMenuListener(MenuListenerFactory.createSelectedListener(_ => {
+  editMenu.addMenuListener(MenuListenerFactory.createMenuListener(selected = _ => {
     editCCP.cut.setEnabled(selectedList.contains(inventory) && !getSelectedCards.isEmpty)
     editCCP.copy.setEnabled(!getSelectedCards.isEmpty)
     val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
@@ -776,7 +776,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     redoItem.setEnabled(selectedFrame.isDefined)
   }))
   // Items are enabled while hidden so their listeners can be used
-  editMenu.addMenuListener(MenuListenerFactory.createDeselectedListener(_ => {
+  editMenu.addMenuListener(MenuListenerFactory.createMenuListener(deselected = _ => {
     undoItem.setEnabled(true)
     redoItem.setEnabled(true)
   }))
@@ -848,14 +848,14 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   categoryMenu.add(presetMenu)
 
   // Deck menu listener
-  deckMenu.addMenuListener(MenuListenerFactory.createSelectedListener(_ => {
+  deckMenu.addMenuListener(MenuListenerFactory.createMenuListener(selected = _ => {
     addMenu.setEnabled(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     removeMenu.setEnabled(selectedFrame.isDefined && !getSelectedCards.isEmpty)
     sideboardMenu.setEnabled(selectedFrame.map(!_.sideboard.name.isEmpty).getOrElse(false) && !getSelectedCards.isEmpty)
     presetMenu.setEnabled(presetMenu.getMenuComponentCount > 0)
   }))
   // Items are enabled while hidden so their listeners can be used.
-  deckMenu.addMenuListener(MenuListenerFactory.createDeselectedListener(_ => {
+  deckMenu.addMenuListener(MenuListenerFactory.createMenuListener(deselected = _ => {
     addMenu.setEnabled(true)
     removeMenu.setEnabled(true)
   }))
