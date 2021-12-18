@@ -1,73 +1,86 @@
 package editor.gui.inventory
 
-import javax.swing.SwingWorker
-import editor.collection.Inventory
-import editor.database.version.DatabaseVersion
-import java.io.File
-import editor.database.card.Card
-import editor.database.card.SingleCard
-import editor.database.card.CardLayout
-import scala.collection.immutable.TreeMap
-import scala.jdk.CollectionConverters._
-import editor.database.card.SplitCard
-import editor.database.card.FlipCard
-import editor.database.card.TransformCard
-import editor.database.card.ModalCard
-import editor.database.card.MeldCard
-import java.text.SimpleDateFormat
-import editor.database.attributes.Expansion
-import scala.util.Using
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.FileInputStream
 import com.google.gson.JsonParser
-import editor.database.attributes.ManaCost
-import editor.database.attributes.ManaType
+import com.google.gson.reflect.TypeToken
+import editor.collection.Inventory
 import editor.database.FormatConstraints
 import editor.database.attributes.CombatStat
-import editor.database.attributes.Loyalty
-import java.util.Date
-import java.time.LocalDate
-import java.text.ParseException
+import editor.database.attributes.Expansion
 import editor.database.attributes.Legality
+import editor.database.attributes.Loyalty
+import editor.database.attributes.ManaCost
+import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
-import editor.filter.leaf.options.multi.SupertypeFilter
+import editor.database.card.Card
+import editor.database.card.CardLayout
+import editor.database.card.FlipCard
+import editor.database.card.MeldCard
+import editor.database.card.ModalCard
+import editor.database.card.SingleCard
+import editor.database.card.SplitCard
+import editor.database.card.TransformCard
+import editor.database.version.DatabaseVersion
 import editor.filter.leaf.options.multi.CardTypeFilter
 import editor.filter.leaf.options.multi.SubtypeFilter
-import java.nio.file.Files
-import java.nio.file.Path
-import editor.gui.settings.SettingsDialog
+import editor.filter.leaf.options.multi.SupertypeFilter
 import editor.gui.MainFrame
-import com.google.gson.reflect.TypeToken
-import java.awt.Frame
-import javax.swing.JDialog
-import java.awt.Dialog
-import javax.swing.WindowConstants
-import javax.swing.Box
-import javax.swing.BoxLayout
-import javax.swing.BorderFactory
-import javax.swing.JLabel
+import editor.gui.settings.SettingsDialog
+import edu.emory.mathcs.backport.java.util.concurrent.CancellationException
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException
+
+import java.awt.BorderLayout
 import java.awt.Component
-import javax.swing.JProgressBar
-import javax.swing.JTextArea
-import javax.swing.JScrollPane
-import javax.swing.JPanel
+import java.awt.Dialog
 import java.awt.FlowLayout
-import javax.swing.JButton
+import java.awt.Frame
+import java.awt.event.KeyEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import javax.swing.JComponent
-import javax.swing.KeyStroke
-import java.awt.event.KeyEvent
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException
-import javax.swing.JOptionPane
-import edu.emory.mathcs.backport.java.util.concurrent.CancellationException
-import javax.swing.SwingUtilities
-import java.awt.BorderLayout
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileInputStream
+import java.io.InputStreamReader
+import java.nio.file.Files
+import java.nio.file.Path
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.util.Date
+import javax.swing.BorderFactory
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.JButton
 import javax.swing.JCheckBox
+import javax.swing.JComponent
+import javax.swing.JDialog
+import javax.swing.JLabel
+import javax.swing.JOptionPane
+import javax.swing.JPanel
+import javax.swing.JProgressBar
+import javax.swing.JScrollPane
+import javax.swing.JTextArea
+import javax.swing.KeyStroke
+import javax.swing.SwingUtilities
+import javax.swing.SwingWorker
+import javax.swing.WindowConstants
+import scala.collection.immutable.TreeMap
+import scala.jdk.CollectionConverters._
+import scala.util.Using
 import scala.util.control.Breaks._
 
+/**
+ * Worker that loads inventory data from JSON along with metadata like expansions, blocks, and existing supertypes, card types, and subtypes.
+ * @author Alec Roelke
+ */
 object InventoryLoader {
+  /**
+   * Load the card inventory and metadata. While loading, a dialog will appear with a progress bar indicating overall progress
+   * of loading cards and a text field showing the expansions that are being processed.
+   * 
+   * @param owner frame performing the load, for positioning of dialogs
+   * @param file file to load from
+   * @return a [[LoadedData]] containing the inventory and metadata
+   */
   def loadInventory(owner: Frame, file: File) = {
     val Border = 10
 
@@ -161,7 +174,27 @@ object InventoryLoader {
   }
 }
 
-class InventoryLoader private(file: File, consumer: (String) => Unit, finished: () => Unit) extends SwingWorker[LoadedData, String] {
+/**
+ * Data loaded from the inventory JSON file.
+ * 
+ * @constructor create a new loaded inventory data structure
+ * @param inventory the loaded cards
+ * @param expansions list of all expansions the cards belong to
+ * @param supertypes list of all supertypes among all cards
+ * @param types list of all card types among all cards
+ * @param subtypes list of all subtypes among all cards
+ * @param warnings list of warnings that occurred while loading
+ */
+case class LoadedData(
+  inventory: Inventory = Inventory(),
+  expansions: Seq[Expansion] = Seq.empty,
+  supertypes: Seq[String] = Seq.empty,
+  types: Seq[String] = Seq.empty,
+  subtypes: Seq[String] = Seq.empty,
+  warnings: Seq[String] = Seq.empty
+)
+
+private class InventoryLoader(file: File, consumer: (String) => Unit, finished: () => Unit) extends SwingWorker[LoadedData, String] {
   private val v500 = DatabaseVersion(5, 0, 0)
 
   private val errors = collection.mutable.ArrayBuffer[String]()
@@ -491,12 +524,3 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
   protected override def process(chunks: java.util.List[String]) = chunks.asScala.foreach(consumer(_))
   protected override def done() = finished()
 }
-
-case class LoadedData(
-  inventory: Inventory = Inventory(),
-  expansions: Seq[Expansion] = Seq.empty,
-  supertypes: Seq[String] = Seq.empty,
-  types: Seq[String] = Seq.empty,
-  subtypes: Seq[String] = Seq.empty,
-  warnings: Seq[String] = Seq.empty
-)
