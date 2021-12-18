@@ -15,6 +15,9 @@ import _root_.editor.database.version.UpdateFrequency
 import _root_.editor.database.{symbol => mtg}
 import _root_.editor.filter.Filter
 import _root_.editor.filter.leaf.TextFilter
+import _root_.editor.filter.leaf.options.multi.CardTypeFilter
+import _root_.editor.filter.leaf.options.multi.SubtypeFilter
+import _root_.editor.filter.leaf.options.multi.SupertypeFilter
 import _root_.editor.gui.ccp.CCPItems
 import _root_.editor.gui.ccp.data.DataFlavors
 import _root_.editor.gui.ccp.handler.InventoryExportHandler
@@ -1359,7 +1362,14 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    */
   def loadInventory() = {
     setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR))
-    inventory = InventoryLoader.loadInventory(this, SettingsDialog.settings.inventory.inventoryFile)
+    val data = InventoryLoader.loadInventory(this, SettingsDialog.settings.inventory.inventoryFile)
+    inventory = data.inventory
+    Expansion.expansions = data.expansions.toArray
+    SupertypeFilter.supertypeList = data.supertypes.toArray
+    CardTypeFilter.typeList = data.types.toArray
+    SubtypeFilter.subtypeList = data.subtypes.toArray
+    SettingsDialog.inventoryWarnings = data.warnings
+
     inventory.sort(CardAttribute.NAME.comparingCard)
     inventoryModel.list = inventory
     inventoryModel.columns = SettingsDialog.settings.inventory.columns

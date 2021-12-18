@@ -142,12 +142,12 @@ object InventoryLoader {
       case e @ (_: InterruptedException | _: ExecutionException) =>
         JOptionPane.showMessageDialog(owner, s"Error loading inventory: ${e.getCause.getMessage}.", "Error", JOptionPane.ERROR_MESSAGE)
         e.printStackTrace()
-        Inventory()
-      case _: CancellationException => Inventory()
+        LoadedData()
+      case _: CancellationException => LoadedData()
     }
-    if (SettingsDialog.settings.inventory.warn && !loader.warnings.isEmpty) {
+    if (SettingsDialog.settings.inventory.warn && !result.warnings.isEmpty) {
       SwingUtilities.invokeLater(() => {
-        val warnings = ("Errors ocurred while loading the following card(s):<ul style=\"margin-top:0;margin-left:20pt\">" +: loader.warnings).mkString("<html>", "<li>", "</ul></html>")
+        val warnings = ("Errors ocurred while loading the following card(s):<ul style=\"margin-top:0;margin-left:20pt\">" +: result.warnings).mkString("<html>", "<li>", "</ul></html>")
         val warningPanel = JPanel(BorderLayout())
         warningPanel.add(JLabel(warnings), BorderLayout.CENTER)
         val suppressBox = JCheckBox("Don't show this warning in the future", !SettingsDialog.settings.inventory.warn)
@@ -156,17 +156,15 @@ object InventoryLoader {
         SettingsDialog.settings = SettingsDialog.settings.copy(inventory = SettingsDialog.settings.inventory.copy(warn = !suppressBox.isSelected))
       })
     }
-    SettingsDialog.inventoryWarnings = loader.warnings
+
     result
   }
 }
 
-class InventoryLoader private(file: File, consumer: (String) => Unit, finished: () => Unit) extends SwingWorker[Inventory, String] {
+class InventoryLoader private(file: File, consumer: (String) => Unit, finished: () => Unit) extends SwingWorker[LoadedData, String] {
   private val v500 = DatabaseVersion(5, 0, 0)
 
   private val errors = collection.mutable.ArrayBuffer[String]()
-
-  def warnings = errors.toSeq
 
   private def createMultiFacedCard(layout: CardLayout, faces: Seq[Card]) = {
     import CardLayout._
@@ -277,7 +275,7 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
     val otherFaceIds = collection.mutable.Map[Card, Seq[String]]()
 
     // Read the inventory file
-    val cards = Using.resource(BufferedReader(InputStreamReader(FileInputStream(file), "UTF8"))){ reader =>
+    val data = Using.resource(BufferedReader(InputStreamReader(FileInputStream(file), "UTF8"))){ reader =>
       publish(s"Parsing ${file.getName}...")
 
       val root = JsonParser().parse(reader).getAsJsonObject
@@ -471,33 +469,34 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
           }
         }
 
-        // Store the lists of expansion and block names and types and sort them alphabetically
-        Expansion.expansions = expansions.toSeq.sorted
-        SupertypeFilter.supertypeList = allSupertypes.values.toArray.sorted
-        CardTypeFilter.typeList = allTypes.values.toArray.sorted
-        SubtypeFilter.subtypeList = allSubtypes.values.toArray.sorted
-
         val missingFormats = formats.collect{ case (_, f) if !FormatConstraints.FormatNames.contains(f) => f }.toSeq.sorted
         if (!missingFormats.isEmpty)
           errors += s"""Could not find definitions for the following formats: ${missingFormats.mkString(", ")}"""
       }
 
-      cards.toSet
+      LoadedData(Inventory(cards.toSet.asJava), expansions.toSeq.sorted, allSupertypes.values.toSeq.sorted, allTypes.values.toSeq.sorted, allSubtypes.values.toSeq.sorted, errors.toSeq)
     }
-
-    val inventory = Inventory(cards.asJava)
 
     if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {
       publish("Processing tags...")
       val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
       val raw = MainFrame.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
       Card.tags.clear()
-      Card.tags.putAll(raw.map{ case (name, tags) => inventory.find(name) -> tags.asJava }.asJava)
+      Card.tags.putAll(raw.map{ case (name, tags) => data.inventory.find(name) -> tags.asJava }.asJava)
     }
 
-    inventory
+    data
   }
 
   protected override def process(chunks: java.util.List[String]) = chunks.asScala.foreach(consumer(_))
   protected override def done() = finished()
 }
+
+case class LoadedData(
+  inventory: Inventory = Inventory(),
+  expansions: Seq[Expansion] = Seq.empty,
+  supertypes: Seq[String] = Seq.empty,
+  types: Seq[String] = Seq.empty,
+  subtypes: Seq[String] = Seq.empty,
+  warnings: Seq[String] = Seq.empty
+)
