@@ -486,14 +486,13 @@ class InventoryLoader private(file: File, consumer: (String) => Unit, finished: 
           errors += s"""Could not find definitions for the following formats: ${missingFormats.mkString(", ")}"""
       }
 
-      cards
+      cards.toSet
     }
 
-    if (!isCancelled)
-      publish("Removing duplicate entries...")
-    val inventory = Inventory(cards.map((c) => c.scryfallid.get(0) -> c).toMap.values.toSeq.asJava)
+    val inventory = Inventory(cards.asJava)
 
     if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {
+      publish("Processing tags...")
       val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
       val raw = MainFrame.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
       Card.tags.clear()
