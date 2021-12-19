@@ -150,7 +150,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @param undo action to perform to undo the original
    * @return true if the action was successful, and false otherwise
    */
-  private def performAction(redo: () => Boolean, undo: () => Boolean): Boolean = performAction(UndoableAction.createAction(() => {
+  private def performAction(redo: () => Boolean, undo: () => Boolean): Boolean = performAction(UndoableAction(() => {
     val done = redo()
     unsaved = true
     update()
@@ -1903,17 +1903,17 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
             case Played =>
               var e = 0.0
               var q = 0.0
-              for (j <- 0 until i) {
-                val p = Stats.hypergeometric(j, Math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
+              for (j <- 0 until math.min(i, lands)) {
+                val p = Stats.hypergeometric(j, math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
                 q += p
                 e += j*p
               }
               e + i*(1 - q)
-            case Drawn => (lands.toDouble/deck.current.total.toDouble)*Math.min(handCalculations.handSize + i - 1, deck.current.total)
+            case Drawn => (lands.toDouble/deck.current.total.toDouble)*math.min(handCalculations.handSize + i - 1, deck.current.total)
             case Probability =>
               var q = 0.0
               for (j <- 0 until i)
-                q += Stats.hypergeometric(j, Math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
+                q += Stats.hypergeometric(j, math.min(handCalculations.handSize + i - 1, deck.current.size), lands, deck.current.total)
               1 - q
           }
           landDrops.addValue(v, choice.toString, i.toString)

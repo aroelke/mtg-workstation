@@ -10,7 +10,7 @@ object Stats {
    * if the number is 0).
    * 
    * @param n number to compute the factorial of
-   * @return n!, or the factorial of n; or 0 if n == 0
+   * @return n!, or the factorial of n; or 1 if n == 0
    */
   def factorial(n: Int) = {
     if (n < 0)
