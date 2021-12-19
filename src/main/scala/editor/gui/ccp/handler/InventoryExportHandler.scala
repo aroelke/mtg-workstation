@@ -17,5 +17,5 @@ import scala.jdk.CollectionConverters._
  */
 class InventoryExportHandler(cards: => Iterable[Card]) extends TransferHandler {
   override def getSourceActions(c: JComponent) = TransferHandler.COPY
-  override def createTransferable(c: JComponent) = CardTransferData(cards.toSeq.asJava)
+  override def createTransferable(c: JComponent) = CardTransferData(cards.toArray)
 }
