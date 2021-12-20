@@ -62,16 +62,16 @@ public class EditorTableTransferHandler extends EditorFrameTransferHandler
             switch (action)
             {
             case TransferHandler.MOVE:
-                if (d.source == d.target)
+                if (d.source() == d.target())
                 {
-                    d.source.moveCards(d.from, d.to, d.entries);
+                    d.source().moveCards(d.from(), d.to(), d.entries());
                     break;
                 }
                 else
-                    d.source.modifyCards(d.from, d.entries.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
+                    d.source().modifyCards(d.from(), d.entries().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> -e.getValue())));
             case TransferHandler.COPY:
-                if (d.target != null)
-                    d.target.modifyCards(d.to, d.entries);
+                if (d.target() != null)
+                    d.target().modifyCards(d.to(), d.entries());
                 break;
             default:
                 break;

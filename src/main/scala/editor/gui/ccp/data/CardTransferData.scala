@@ -24,7 +24,7 @@ class CardTransferData(cards: Array[Card]) extends Transferable {
     case _ => throw UnsupportedFlavorException(flavor)
   }
 
-  override val getTransferDataFlavors = Array(DataFlavors.cardFlavor, DataFlavor.stringFlavor)
+  override def getTransferDataFlavors = Array(DataFlavors.cardFlavor, DataFlavor.stringFlavor)
 
   override def isDataFlavorSupported(flavor: DataFlavor) = getTransferDataFlavors.contains(flavor)
 }

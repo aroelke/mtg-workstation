@@ -49,7 +49,7 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
             try
             {
                 EntryTransferData data = (EntryTransferData)supp.getTransferable().getTransferData(supportedFlavor());
-                if (data.source == editor && data.from == id && supp.isDrop())
+                if (data.source() == editor && data.from() == id && supp.isDrop())
                     return false;
             }
             catch (UnsupportedFlavorException | IOException e)
@@ -71,12 +71,12 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
                 if (supp.isDrop())
                 {
                     // Actually handle all list modification in the source handler; just tell it where the cards should go
-                    data.target = editor;
-                    data.to = id;
+                    data.target_$eq(editor);
+                    data.to_$eq(id);
                     return true;
                 }
                 else
-                    return editor.modifyCards(id, data.entries);
+                    return editor.modifyCards(id, data.entries());
             }
             catch (UnsupportedFlavorException | IOException e)
             {
