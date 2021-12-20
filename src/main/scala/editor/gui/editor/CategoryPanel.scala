@@ -38,6 +38,7 @@ import javax.swing.ScrollPaneConstants
 import javax.swing.SwingUtilities
 import javax.swing.Timer
 import javax.swing.event.MouseInputAdapter
+import scala.collection.immutable.ListMap
 import scala.jdk.CollectionConverters._
 
 /**
@@ -64,10 +65,10 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
 
     override def add(card: Card) = if (categorization.includes(card)) editor.deck ++= Seq(card) -> 1 else false
     override def add(card: Card, amount: Int) = if (categorization.includes(card)) editor.deck ++= Seq(card) -> amount else false
-    override def addAll(cards: CardList) = editor.deck %%= editor.deck.asScala.collect{ case card if categorization.includes(card) => card -> editor.deck.getEntry(card).count }.toMap
-    @deprecated override def addAll(amounts: java.util.Map[? <: Card, ? <: Integer]) = editor.deck %%= amounts.asScala.collect{ case (card, n) if categorization.includes(card) => card -> n.toInt }.toMap
-    @deprecated override def addAll(cards: java.util.Set[? <: Card]) = editor.deck %%= cards.asScala.collect{ case (card) if categorization.includes(card) => card -> 1 }.toMap
-    override def clear() = editor.deck %%= list.asScala.collect{ case card => card -> -list.getEntry(card).count }.toMap
+    override def addAll(cards: CardList) = editor.deck %%= ListMap.from(editor.deck.asScala.collect{ case card if categorization.includes(card) => card -> editor.deck.getEntry(card).count })
+    @deprecated override def addAll(amounts: java.util.Map[? <: Card, ? <: Integer]) = editor.deck %%= ListMap.from(amounts.asScala.collect{ case (card, n) if categorization.includes(card) => card -> n.toInt })
+    @deprecated override def addAll(cards: java.util.Set[? <: Card]) = editor.deck %%= ListMap.from(cards.asScala.collect{ case (card) if categorization.includes(card) => card -> 1 })
+    override def clear() = editor.deck %%= ListMap.from(list.asScala.collect{ case card => card -> -list.getEntry(card).count }.toMap)
     override def contains(card: Card) = categorization.includes(card) && editor.deck.contains(card)
     @deprecated override def containsAll(cards: java.util.Collection[? <: Card]) = cards.asScala.forall(contains(_))
     override def get(index: Int) = list.get(index)
@@ -77,12 +78,12 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
     override def isEmpty = list.isEmpty
     override def remove(card: Card) = if (categorization.includes(card)) editor.deck --= Seq(card) -> 1 else false
     override def remove(card: Card, amount: Int) = if (categorization.includes(card)) {
-      val prev = Math.min(amount, editor.deck.getEntry(card).count)
+      val prev = math.min(amount, editor.deck.getEntry(card).count)
       if (editor.deck --= Seq(card) -> amount) prev else 0
     } else 0
     @deprecated override def removeAll(cards: CardList) = {
-      val capped = cards.asScala.collect{ case (card) if categorization.includes(card) && editor.deck.contains(card) => card -> -Math.min(cards.getEntry(card).count, editor.deck.getEntry(card).count) }.toMap
-      (if (editor.deck %%= capped) capped else Map.empty[Card, Int]).map{ case (card, n) => card -> Integer(n) }.asJava
+      val capped = cards.asScala.collect{ case (card) if categorization.includes(card) && editor.deck.contains(card) => card -> -math.min(cards.getEntry(card).count, editor.deck.getEntry(card).count) }.toMap
+      (if (editor.deck %%= ListMap.from(capped)) capped else Map.empty[Card, Int]).map{ case (card, n) => card -> Integer(n) }.asJava
     }
     @deprecated override def removeAll(cards: java.util.Map[? <: Card, ? <: Integer]) = {
       val temp = new Deck()
@@ -259,9 +260,9 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
         val p = SwingUtilities.convertPoint(e.getSource.asInstanceOf[Component], e.getPoint, table)
         setCursor(Cursor(Cursor.S_RESIZE_CURSOR))
         val minRows = 1
-        val maxRows = Math.max(list.total, tableRows)
+        val maxRows = math.max(list.total, tableRows)
         if (p.y <= base - table.getRowHeight/2 && tableRows > minRows) {
-          val n = Math.min(((base - p.y) + table.getRowHeight - 1)/table.getRowHeight, tableRows - minRows)
+          val n = math.min(((base - p.y) + table.getRowHeight - 1)/table.getRowHeight, tableRows - minRows)
           tableRows -= n
           base -= n*table.getRowHeight
           table.revalidate()
@@ -269,7 +270,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
           revalidate()
           repaint()
         } else if (p.y >= base + table.getRowHeight/2 && tableRows < maxRows) {
-          val n = Math.min(((p.y - base) + table.getRowHeight - 1)/table.getRowHeight, maxRows - tableRows)
+          val n = math.min(((p.y - base) + table.getRowHeight - 1)/table.getRowHeight, maxRows - tableRows)
           tableRows += n
           base += n*table.getRowHeight
           table.revalidate()

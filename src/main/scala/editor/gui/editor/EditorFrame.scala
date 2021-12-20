@@ -107,6 +107,7 @@ import javax.swing.event.InternalFrameEvent
 import javax.swing.event.PopupMenuEvent
 import javax.swing.event.PopupMenuListener
 import javax.swing.table.AbstractTableModel
+import scala.collection.immutable.ListMap
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 import scala.util.Using
@@ -219,8 +220,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      * @param changes mapping of card onto the number of copies to change (positive numbers add cards, negative numbers remove cards)
      * @return true if the deck was modified, and false otherwise
      */
-    def %%=(changes: Map[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
-      val capped = changes.map{ case (card, n) => card -> Math.max(n, -current.getEntry(card).count) }
+    def %%=(changes: ListMap[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
+      val capped = changes.map{ case (card, n) => card -> math.max(n, -current.getEntry(card).count) }
+      println(capped.mkString(","))
       performAction(() => _lists(id).map(l => { // can't use this here because after redoing, reference is different
         val selected = parent.getSelectedCards
         val changed = capped.map{ case (card, n) =>
@@ -256,7 +258,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      * @param changes cards to add and number of copies of each one to add (the same number of copies of all cards are added)
      * @return true if the deck was modified, and false otherwise
      */
-    def ++=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %%= cards.map(_ -> n).toMap }
+    def ++=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %%= ListMap.from(cards.map(_ -> n)) }
 
     /**
      * Remove copies of cards from the deck.
@@ -264,7 +266,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      * @param changes cards to remove and number of copies of each one to remove (the same number of copies of all cards are removed)
      * @return true if the deck was modified, and false otherwise
      */
-    def --=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %%= cards.map((c) => c -> -n).toMap }
+    def --=(changes: (Iterable[Card], Int)) = changes match { case (cards, n) => this %%= ListMap.from(cards.map((c) => c -> -n)) }
 
     /**
      * Set the number of copies of a card in the deck to a specific amount.
@@ -276,7 +278,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     def update(card: Card, count: Int) = {
       val old = current.getEntry(card).count
       if (old != count)
-        this %%= Map(card -> (count - old))
+        this %%= ListMap(card -> (count - old))
       old
     }
 
@@ -422,7 +424,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     override def sort(c: java.util.Comparator[? >: CardList.Entry]) = throw UnsupportedOperationException()
   }
 
-  @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = _lists(id).map(_ %%= changes).getOrElse(throw NoSuchElementException(id.toString))
+  @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = _lists(id).map(_ %%= ListMap.from(changes)).getOrElse(throw NoSuchElementException(id.toString))
   @deprecated def modifyCards(id: Int, changes: java.util.Map[Card, Integer]): Boolean = modifyCards(id, changes.asScala.toMap.map{ case (c, n) => c -> n.toInt })
   @deprecated def addCards(id: Int, cards: Iterable[Card], n: Int) = _lists(id).map(_ ++= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
   @deprecated def removeCards(id: Int, cards: Iterable[Card], n: Int) = _lists(id).map(_ --= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
@@ -1885,10 +1887,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           })
           .flatMap((c) => Seq.tabulate(analyte.getEntry(c).count)(_ => SettingsDialog.settings.editor.getManaValue(c)))
           .toSeq.sorted
-          .map(Math.ceil(_))
+          .map(math.ceil)
       ).toMap
-      val minMV = Math.ceil(manaValue.head).toInt
-      val maxMV = Math.ceil(manaValue.last).toInt
+      val minMV = math.ceil(manaValue.head).toInt
+      val maxMV = math.ceil(manaValue.last).toInt
       for (i <- minMV to maxMV) {
         sections.foreach((s) => manaCurve.addValue(sectionManaValues(s).count(_ == i), s, i.toString))
       }

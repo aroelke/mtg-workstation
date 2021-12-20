@@ -12,6 +12,7 @@ import javax.swing.JOptionPane
 import javax.swing.JPanel
 import javax.swing.JSpinner
 import javax.swing.SpinnerNumberModel
+import scala.collection.immutable.ListMap
 
 /**
  * Convenience class that initializes a set of menu items that control adding cards to and removing them from a deck.
@@ -42,7 +43,7 @@ class CardMenuItems(monitor: => Option[EditorFrame], cards: => Iterable[? <: Car
   addOne.addActionListener(_ => add(1))
   fillPlayset.addActionListener(_ => monitor.foreach(f => {
     val l = if (main) f.deck else f.sideboard
-    l %%= cards.map((c) => c -> (if (l.contains(c)) Math.max(0, SettingsDialog.PlaysetSize - l.getEntry(c).count) else SettingsDialog.PlaysetSize)).toMap
+    l %%= ListMap.from(cards.map((c) => c -> (if (l.contains(c)) math.max(0, SettingsDialog.PlaysetSize - l.getEntry(c).count) else SettingsDialog.PlaysetSize)))
   }))
   addN.addActionListener(_ => {
     val contentPanel = JPanel(BorderLayout());
