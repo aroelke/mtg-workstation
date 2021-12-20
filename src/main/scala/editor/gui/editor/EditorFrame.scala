@@ -222,7 +222,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      */
     def %%=(changes: ListMap[Card, Int]) = if (changes.isEmpty || changes.forall{ case (_, n) => n == 0 }) false else {
       val capped = changes.map{ case (card, n) => card -> math.max(n, -current.getEntry(card).count) }
-      println(capped.mkString(","))
       performAction(() => _lists(id).map(l => { // can't use this here because after redoing, reference is different
         val selected = parent.getSelectedCards
         val changed = capped.map{ case (card, n) =>
