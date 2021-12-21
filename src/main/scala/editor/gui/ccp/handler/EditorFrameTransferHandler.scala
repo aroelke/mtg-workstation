@@ -12,4 +12,4 @@ import editor.gui.editor.EditorFrame
  * 
  * @author Alec Roelke
  */
-class EditorFrameTransferHandler(editor: EditorFrame, id: Int) extends EditorTransferHandler(EntryImportHandler(editor, id), CardImportHandler(editor, id))
+class EditorFrameTransferHandler(editor: EditorFrame, id: Int) extends EditorTransferHandler(Seq(EntryImportHandler(editor, id), CardImportHandler(editor, id)))

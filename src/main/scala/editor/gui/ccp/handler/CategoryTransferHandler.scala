@@ -19,7 +19,7 @@ import javax.swing.TransferHandler
  * 
  * @author Alec Roelke
  */
-class CategoryTransferHandler(supplier: () => Category, contains: (Category) => Boolean, add: (Category) => Boolean, remove: (Category) => Unit) extends EditorTransferHandler(CategoryImportHandler(contains, add)) {
+class CategoryTransferHandler(supplier: () => Category, contains: (Category) => Boolean, add: (Category) => Boolean, remove: (Category) => Unit) extends EditorTransferHandler(Seq(CategoryImportHandler(contains, add))) {
   override def getSourceActions(c: JComponent) = TransferHandler.COPY_OR_MOVE
   override def createTransferable(c: JComponent) = CategoryTransferData(supplier())
   override def exportDone(source: JComponent, data: Transferable, action: Int) = if (action == TransferHandler.MOVE) data match {
