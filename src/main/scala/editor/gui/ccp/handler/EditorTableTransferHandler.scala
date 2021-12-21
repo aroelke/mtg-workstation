@@ -1,12 +1,22 @@
 package editor.gui.ccp.handler
 
+import editor.gui.ccp.data.EntryTransferData
 import editor.gui.editor.EditorFrame
+
+import java.awt.datatransfer.Transferable
 import javax.swing.JComponent
 import javax.swing.TransferHandler
-import java.awt.datatransfer.Transferable
 import scala.collection.immutable.ListMap
-import editor.gui.ccp.data.EntryTransferData
 
+/**
+ * Handler for transferring data between [[CardTable]]s in an [[EditorFrame]].
+ * 
+ * @constructor create a new transfer handler for a particular table in a particular frame
+ * @param editor frame containing the table to transfer to or from
+ * @param id ID of the list/table to transfer to or from
+ * 
+ * @author Alec Roelke
+ */
 class EditorTableTransferHandler(editor: EditorFrame, id: Int) extends EditorFrameTransferHandler(editor, id) {
   override def createTransferable(c: JComponent) = {
     val data = editor.getSelectedCards.map((card) => card -> editor.lists(id).getEntry(card).count).toMap
