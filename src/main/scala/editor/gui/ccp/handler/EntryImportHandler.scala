@@ -1,13 +1,22 @@
 package editor.gui.ccp.handler
 
-import javax.swing.TransferHandler
-import editor.gui.editor.EditorFrame
 import editor.gui.ccp.data.DataFlavors
 import editor.gui.ccp.data.EntryTransferData
+import editor.gui.editor.EditorFrame
+
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException
+import javax.swing.TransferHandler
 import scala.collection.immutable.ListMap
 
+/**
+ * Handler for importing data from a list contained by an [[EditorFrame]] into another one. Data can't be movied or copied to and from the same
+ * list.
+ * 
+ * @constructor create a new import handler for a list in a particular [[EditorFrame]]
+ * @param editor frame containing the list to import into
+ * @param id ID of the list to import into
+ */
 class EntryImportHandler(editor: EditorFrame, id: Int) extends TransferHandler with ImportHandler {
   override def supportedFlavor = DataFlavors.entryFlavor
 
