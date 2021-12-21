@@ -38,7 +38,7 @@ public class EntryImportHandler extends TransferHandler implements ImportHandler
     @Override
     public DataFlavor supportedFlavor()
     {
-        return DataFlavors.entryFlavor;
+        return DataFlavors.entryFlavor();
     }
 
     @Override
