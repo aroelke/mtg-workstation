@@ -423,23 +423,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     override def sort(c: java.util.Comparator[? >: CardList.Entry]) = throw UnsupportedOperationException()
   }
 
-  @deprecated def modifyCards(id: Int, changes: Map[Card, Int]): Boolean = _lists(id).map(_ %%= ListMap.from(changes)).getOrElse(throw NoSuchElementException(id.toString))
-  @deprecated def modifyCards(id: Int, changes: java.util.Map[Card, Integer]): Boolean = modifyCards(id, changes.asScala.toMap.map{ case (c, n) => c -> n.toInt })
-  @deprecated def addCards(id: Int, cards: Iterable[Card], n: Int) = _lists(id).map(_ ++= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
-  @deprecated def removeCards(id: Int, cards: Iterable[Card], n: Int) = _lists(id).map(_ --= cards -> n).getOrElse(throw NoSuchElementException(id.toString))
-  @deprecated def hasCard(id: Int, card: Card) = _lists(id).map(_.current.contains(card)).getOrElse(throw ArrayIndexOutOfBoundsException(id))
-
-  @deprecated
-  def moveCards(from: Int, to: Int, moves: Map[Card, Int]): Boolean = (_lists(from), _lists(to)) match {
-    case (Some(moveFrom), Some(moveTo)) => moveFrom.move(moves)(moveTo)
-    case (Some(_), None) => throw ArrayIndexOutOfBoundsException(to)
-    case (None, Some(_)) => throw ArrayIndexOutOfBoundsException(from)
-    case (None, None) => throw ArrayIndexOutOfBoundsException(from)
-  }
-
-  @deprecated
-  def moveCards(from: Int, to: Int, moves: java.util.Map[Card, Integer]): Boolean = moveCards(from, to, moves.asScala.map{ case (c, n) => c -> n.toInt }.toMap)
-
   // Actual lists of DeckData. Index 0 will always be defined and will contain the main deck
   private val _lists = collection.mutable.ArrayBuffer[Option[DeckData]]()
   _lists += Some(DeckData(id = MainDeck, name = getTitle, deck = manager.deck))
@@ -582,26 +565,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     def iterator = deck.current.categories.iterator.asScala
   }
 
-  @deprecated def getCategories = categories.toSeq.asJava
-
-  @deprecated def modifyInclusion(include: Iterable[Card], exclude: Iterable[Card], spec: Category) = {
-    if (!categories.contains(spec.getName))
-      throw IllegalArgumentException("can't include a card in a category that doesn't exist")
-    if (deck.current.getCategorySpec(spec.getName) != spec)
-      throw IllegalArgumentException("category name matches, but specification doesn't")
-
-    val in = include.filter(!spec.includes(_))
-    val ex = exclude.filter(spec.includes(_))
-    if (in.isEmpty && ex.isEmpty) false else {
-      val mod = Category(spec)
-      val changed = include.map(mod.include(_)).fold(false)(_ || _) || exclude.map(mod.exclude(_)).fold(false)(_ || _)
-      categories(spec.getName) = mod
-      changed
-    }
-  }
-  @deprecated def includeIn(card: Card, spec: Category) = modifyInclusion(Seq(card), Seq.empty, spec)
-  @deprecated def excludeFrom(card: Card, spec: Category) = modifyInclusion(Seq.empty, Array(card), spec)
-
   /**
    * Change inclusion of cards in categories according to the given maps.
    *
@@ -651,7 +614,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           for (category <- deck.current.categories.asScala) {
             if (!category.includes(card)) {
               val categoryItem = JMenuItem(category.getName)
-              categoryItem.addActionListener(_ => includeIn(card, category))
+              categoryItem.addActionListener(_ => categories(category.getName) = {
+                val mod = Category(category)
+                mod.include(card)
+                mod
+              })
               addToCategoryMenu.add(categoryItem)
             }
           }
@@ -660,7 +627,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           for (category <- deck.current.categories.asScala) {
             if (category.includes(card)) {
               val categoryItem = JMenuItem(category.getName)
-              categoryItem.addActionListener(_ => excludeFrom(card, category))
+              categoryItem.addActionListener(_ => categories(category.getName) = {
+                val mod = Category(category)
+                mod.exclude(card)
+                mod
+              })
               removeFromCategoryMenu.add(categoryItem)
             }
           }
@@ -1529,7 +1500,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     val addToCategoryMenu = JMenu("Include in")
     tableMenu.add(addToCategoryMenu)
     val removeFromCategoryItem = JMenuItem(s"Exclude from ${spec.getName}")
-    removeFromCategoryItem.addActionListener(_ => modifyInclusion(Seq.empty, newCategory.selectedCards, deck.current.getCategorySpec(newCategory.name)))
+    removeFromCategoryItem.addActionListener(_ => categories(newCategory.name) = {
+      val mod = Category(deck.current.getCategorySpec(newCategory.name))
+      newCategory.selectedCards.filter(mod.includes).foreach(mod.exclude)
+      mod
+    })
     tableMenu.add(removeFromCategoryItem)
     val removeFromCategoryMenu = JMenu("Exclude from")
     tableMenu.add(removeFromCategoryMenu)

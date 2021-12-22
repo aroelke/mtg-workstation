@@ -29,7 +29,7 @@ class EditorTableTransferHandler(editor: EditorFrame, id: Int) extends EditorFra
     case d: EntryTransferData => action match {
       case TransferHandler.MOVE =>
         if (d.source == d.target)
-          d.source.moveCards(d.from, d.to, d.entries)
+          d.source.lists(d.from).move(d.cards)(d.source.lists(d.to))
         else {
           d.source.lists(d.from) %%= ListMap.from(d.cards.map{ case (c, i) => c -> -i })
           if (d.target != null)
