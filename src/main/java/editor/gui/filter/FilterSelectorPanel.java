@@ -103,7 +103,7 @@ public class FilterSelectorPanel extends FilterPanel<FilterLeaf<?>>
         // Button to create a new group with this in it
         JButton groupButton = new JButton(String.valueOf(UnicodeSymbols.ELLIPSIS));
         groupButton.addActionListener((e) -> {
-            group.group(this);
+            group.engroup(this);
             firePanelsChanged();
         });
         add(groupButton);
