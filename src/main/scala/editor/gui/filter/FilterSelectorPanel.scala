@@ -14,6 +14,16 @@ import javax.swing.Box
 import javax.swing.JButton
 import _root_.editor.util.UnicodeSymbols
 
+object FilterSelectorPanel {
+  def apply() = new FilterSelectorPanel
+
+  def apply(filter: FilterLeaf[?]) = {
+    val panel = new FilterSelectorPanel
+    panel.setContents(filter)
+    panel
+  }
+}
+
 class FilterSelectorPanel extends FilterPanel[FilterLeaf[?]] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 

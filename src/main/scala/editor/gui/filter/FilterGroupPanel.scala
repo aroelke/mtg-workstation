@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters._
  */
 object FilterGroupPanel {
   /** @return an empty [[FilterGroupPanel]] */
-  def apply() = new FilterGroupPanel()
+  def apply() = new FilterGroupPanel
 
   /**
    * Create a new [[FilterGroupPanel]] with preset contents.
@@ -33,7 +33,7 @@ object FilterGroupPanel {
    * @return a new [[FilterGroupPanel]] pre-populated with filters based on the given filter
    */
   def apply(filter: Filter) = {
-    val panel = new FilterGroupPanel()
+    val panel = new FilterGroupPanel
     panel.setContents(filter)
     panel
   }
@@ -45,7 +45,7 @@ object FilterGroupPanel {
    * @return a new [[FilterGroupPanel]] with the specified panels as children
    */
   def apply(panels: Seq[FilterPanel[?]]) = {
-    val panel = new FilterGroupPanel()
+    val panel = new FilterGroupPanel
     panel.clear()
     panels.foreach(panel += _)
     panel
@@ -207,10 +207,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
     border.setTitle(group.comment)
     group.asScala.foreach((f) => add(f match {
       case g: FilterGroup => FilterGroupPanel(g)
-      case l: FilterLeaf[?] =>
-        val panel = FilterSelectorPanel()
-        panel.setContents(l)
-        panel
+      case l: FilterLeaf[?] => FilterSelectorPanel(l)
     }))
   }
 }
