@@ -1,22 +1,32 @@
 package editor.gui.filter
 
-import _root_.editor.filter.leaf.FilterLeaf
-import javax.swing.BoxLayout
-import _root_.editor.gui.generic.ComboBoxPanel
 import _root_.editor.database.attributes.CardAttribute
-import _root_.editor.gui.filter.editor.FilterEditorPanel
-import javax.swing.JPanel
-import java.awt.CardLayout
 import _root_.editor.filter.FaceSearchOptions
-import javax.swing.JLabel
+import _root_.editor.filter.leaf.FilterLeaf
+import _root_.editor.gui.filter.editor.FilterEditorPanel
+import _root_.editor.gui.generic.ComboBoxPanel
 import _root_.editor.util.MouseListenerFactory
-import javax.swing.Box
-import javax.swing.JButton
 import _root_.editor.util.UnicodeSymbols
 
+import java.awt.CardLayout
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.JButton
+import javax.swing.JLabel
+import javax.swing.JPanel
+
+/** Alternate constructors for [[FilterSelectorPanel]]. */
 object FilterSelectorPanel {
+  /** @return a new, default [[FilterSelectorPanel]] */
   def apply() = new FilterSelectorPanel
 
+  /**
+   * Create a new [[FilterSelectorPanel]] pre-populated with the contents of a filter.
+   * 
+   * @param filter filter to use for populating contents
+   * @return a new [[FilterSelectorPanel]] showing the attribute from the filter and populated with its
+   * contents
+   */
   def apply(filter: FilterLeaf[?]) = {
     val panel = new FilterSelectorPanel
     panel.setContents(filter)
@@ -24,6 +34,13 @@ object FilterSelectorPanel {
   }
 }
 
+/**
+ * A panel with a drop-down on the left allowing a user to pick an attribute to filter by and controls
+ * on the right for adding, removing, and grouping filters, as well as an icon indicating how the filter
+ * applies to multi-faced cards.
+ * 
+ * @author Alec Roelke
+ */
 class FilterSelectorPanel extends FilterPanel[FilterLeaf[?]] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
