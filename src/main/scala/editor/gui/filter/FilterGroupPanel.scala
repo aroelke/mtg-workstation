@@ -19,6 +19,40 @@ import javax.swing.JPanel
 import scala.jdk.CollectionConverters._
 
 /**
+ * Convenience constructors for [[FilterGroupPanel]].
+ * @author Alec Roelke
+ */
+object FilterGroupPanel {
+  /** @return an empty [[FilterGroupPanel]] */
+  def apply() = new FilterGroupPanel()
+
+  /**
+   * Create a new [[FilterGroupPanel]] with preset contents.
+   * 
+   * @param filter contents of the filter
+   * @return a new [[FilterGroupPanel]] pre-populated with filters based on the given filter
+   */
+  def apply(filter: Filter) = {
+    val panel = new FilterGroupPanel()
+    panel.setContents(filter)
+    panel
+  }
+
+  /**
+   * Create a new [[FilterGroupPanel]] with preset contents.
+   * 
+   * @param panels children of the new [[FilterGroupPanel]]
+   * @return a new [[FilterGroupPanel]] with the specified panels as children
+   */
+  def apply(panels: Seq[FilterPanel[?]]) = {
+    val panel = new FilterGroupPanel()
+    panel.clear()
+    panels.foreach(panel += _)
+    panel
+  }
+}
+
+/**
  * A panel corresponding to a [[FilterGroup]], containing [[FilterPanel]] children to allow editing filters within
  * the group. Group controls are located at the top of the group; the filter group mode box is on the top left,
  * the add, remove, and group buttons are on the top right, and double-clicking the title (or top-left of the border)
@@ -148,9 +182,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
     val index = children.indexOf(panel)
     if (index >= 0) {
       filtersPanel.removeAll()
-      val newGroup = FilterGroupPanel()
-      newGroup.clear()
-      newGroup.add(panel)
+      val newGroup = FilterGroupPanel(Seq(panel))
       children(index) = newGroup
       newGroup.group = this
       children.foreach(filtersPanel.add)
@@ -174,10 +206,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
     modeBox.setSelectedItem(group.mode)
     border.setTitle(group.comment)
     group.asScala.foreach((f) => add(f match {
-      case g: FilterGroup =>
-        val panel = FilterGroupPanel()
-        panel.setContents(g)
-        panel
+      case g: FilterGroup => FilterGroupPanel(g)
       case l: FilterLeaf[?] =>
         val panel = FilterSelectorPanel()
         panel.setContents(l)
