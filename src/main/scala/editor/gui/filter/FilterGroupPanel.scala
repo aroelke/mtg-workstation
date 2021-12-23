@@ -1,22 +1,31 @@
 package editor.gui.filter
 
 import _root_.editor.filter.Filter
-import javax.swing.BorderFactory
-import java.awt.BorderLayout
-import javax.swing.JPanel
-import java.awt.GridLayout
 import _root_.editor.filter.FilterGroup
 import _root_.editor.filter.leaf.FilterLeaf
-import java.awt.FlowLayout
-import javax.swing.JComboBox
-import javax.swing.DefaultComboBoxModel
-import javax.swing.JButton
+import _root_.editor.gui.generic.ChangeTitleListener
 import _root_.editor.util.UnicodeSymbols
+
+import java.awt.BorderLayout
+import java.awt.FlowLayout
+import java.awt.GridLayout
+import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
-import _root_.editor.gui.generic.ChangeTitleListener
+import javax.swing.DefaultComboBoxModel
+import javax.swing.JButton
+import javax.swing.JComboBox
+import javax.swing.JPanel
 import scala.jdk.CollectionConverters._
 
+/**
+ * A panel corresponding to a [[FilterGroup]], containing [[FilterPanel]] children to allow editing filters within
+ * the group. Group controls are located at the top of the group; the filter group mode box is on the top left,
+ * the add, remove, and group buttons are on the top right, and double-clicking the title (or top-left of the border)
+ * of the panel allows for naming the group. If a group is removed, its contents are added to its parent group
+ * if any, or the entire filter is cleared if there isn't one.
+ * @author Alec Roelke
+ */
 class FilterGroupPanel extends FilterPanel[Filter] {
   private val Gap = 10
 
@@ -87,6 +96,10 @@ class FilterGroupPanel extends FilterPanel[Filter] {
     firePanelsChanged()
   }, _ => Gap, (s) => if (s.isEmpty) 0 else Gap))
 
+  /**
+   * Add a new filter to the group.
+   * @param panel filter panel to add
+   */
   def +=(panel: FilterPanel[?]) = {
     children += panel
     filtersPanel.add(panel)
@@ -94,6 +107,10 @@ class FilterGroupPanel extends FilterPanel[Filter] {
   }
   @deprecated def add(panel: FilterPanel[?]) = this += panel
 
+  /**
+   * Remove a filter from the group. If that filter is a [[FilterGroup]], add its children to this panel's group.
+   * @param panel filter to remove
+   */
   def -=(panel: FilterPanel[?]) = {
     if (children.contains(panel)) {
       panel match {
@@ -112,6 +129,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
   }
   @deprecated def remove(panel: FilterPanel[?]) = this -= panel
 
+  /** Remove all filters from the group and reset its mode and name. */
   def clear() = {
     children.clear()
     filtersPanel.removeAll()
@@ -119,7 +137,11 @@ class FilterGroupPanel extends FilterPanel[Filter] {
     border.setTitle("")
   }
 
-  def engroup(panel: FilterPanel[?]): Unit = {
+  /**
+   * Create a new group containing the given [[FilterPanel]], and replace the panel with the new group.
+   * @param panel filter to group
+   */
+  def engroup(panel: FilterPanel[?]) = {
     if (panel.group != this)
       add(panel)
 
