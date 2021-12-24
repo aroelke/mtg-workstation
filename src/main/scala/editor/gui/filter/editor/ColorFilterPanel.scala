@@ -1,23 +1,35 @@
 package editor.gui.filter.editor
 
-import editor.filter.leaf.ColorFilter
-import javax.swing.BoxLayout
-import editor.gui.generic.ComboBoxPanel
-import editor.util.Containment
-import javax.swing.JCheckBox
-import editor.database.attributes.ManaType
-import javax.swing.JLabel
-import editor.database.symbol.ColorSymbol
-import editor.gui.generic.ComponentUtils
-import javax.swing.Box
-import editor.database.symbol.StaticSymbol
 import editor.database.attributes.CardAttribute
-import scala.jdk.CollectionConverters._
+import editor.database.attributes.ManaType
+import editor.database.symbol.ColorSymbol
+import editor.database.symbol.StaticSymbol
+import editor.filter.leaf.ColorFilter
 import editor.filter.leaf.FilterLeaf
+import editor.gui.generic.ComboBoxPanel
+import editor.gui.generic.ComponentUtils
+import editor.util.Containment
 
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.JCheckBox
+import javax.swing.JLabel
+import scala.jdk.CollectionConverters._
+
+/**
+ * Convenience constructors for creating [[ColorFilterPanel]]s.
+ * @author Alec Roelke
+ */
 object ColorFilterPanel {
+  /** @return an empty [[ColorFilterPanel]] set to filter by color */
   def apply() = new ColorFilterPanel
 
+  /**
+   * Create a new [[ColorFilterPanel]], set its filter attribute, and set its contents.
+   * 
+   * @param filter filter to use to set the new panel's attribute and contents
+   * @return a new [[ColorFilterPanel]] with the given filter's attribute and contents
+   */
   def apply(filter: ColorFilter) = {
     val panel = new ColorFilterPanel
     panel.setContents(filter)
@@ -25,6 +37,10 @@ object ColorFilterPanel {
   }
 }
 
+/**
+ * A panel for customzing a filter that filters cards by color characteristic (e.g. color or color identity).
+ * @author Alec Roelke
+ */
 class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
   private val IconHeight = 13
 
