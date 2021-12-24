@@ -1,18 +1,30 @@
 package editor.gui.filter.editor
 
-import editor.filter.leaf.NumberFilter
-import javax.swing.BoxLayout
-import editor.gui.generic.ComboBoxPanel
-import editor.util.Comparison
-import javax.swing.JSpinner
-import javax.swing.SpinnerNumberModel
-import java.awt.Dimension
 import editor.database.attributes.CardAttribute
 import editor.filter.leaf.FilterLeaf
+import editor.filter.leaf.NumberFilter
+import editor.gui.generic.ComboBoxPanel
+import editor.util.Comparison
 
+import java.awt.Dimension
+import javax.swing.BoxLayout
+import javax.swing.JSpinner
+import javax.swing.SpinnerNumberModel
+
+/**
+ * Convenience constructors for [[NumberFilterPanel]].
+ * @author Alec Roelke
+ */
 object NumberFilterPanel {
+  /** @return a new, empty [[NumberFilterPanel]] */
   def apply() = new NumberFilterPanel
 
+  /**
+   * Create a new [[NumberFilterPanel]] and pre-populate it with the contents of a [[NumberFilter]].
+   * 
+   * @param filter filter to use to populate the new panel
+   * @return a new number filter panel set to compare with the value from the filter using the comparison from it
+   */
   def apply(filter: NumberFilter) = {
     val panel = new NumberFilterPanel
     panel.setContents(filter)
@@ -20,6 +32,12 @@ object NumberFilterPanel {
   }
 }
 
+/**
+ * A panel for customizing [[NumberFilter]]s. The comparison with the card's value is chosen using a combo box and
+ * the value to compare with is chosen using a spinner.
+ * 
+ * @author Alec Roelke
+ */
 class NumberFilterPanel extends FilterEditorPanel[NumberFilter] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
