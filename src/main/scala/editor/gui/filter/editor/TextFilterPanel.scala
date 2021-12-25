@@ -1,23 +1,35 @@
 package editor.gui.filter.editor
 
+import editor.database.attributes.CardAttribute
+import editor.filter.leaf.FilterLeaf
 import editor.filter.leaf.TextFilter
-import javax.swing.BoxLayout
 import editor.gui.generic.ComboBoxPanel
 import editor.util.Containment
-import javax.swing.JTextField
-import javax.swing.event.DocumentListener
-import javax.swing.event.DocumentEvent
+
 import java.awt.Color
-import javax.swing.JCheckBox
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
-import editor.database.attributes.CardAttribute
+import javax.swing.BoxLayout
+import javax.swing.JCheckBox
+import javax.swing.JTextField
+import javax.swing.event.DocumentEvent
+import javax.swing.event.DocumentListener
 import javax.swing.text.Document
-import editor.filter.leaf.FilterLeaf
 
+/**
+ * Convenience constructors for [[TextFilterPanel]].
+ * @author Alec Roelke
+ */
 object TextFilterPanel {
+  /** @return a new, empty [[TextFilterPanel]] for card names */
   def apply() = new TextFilterPanel
 
+  /**
+   * Create a new [[TextFilterPanel]] pre-populated with the contents of a filter.
+   * 
+   * @param filter filter to use to populate the panel
+   * @return a [[TextFilterPanel]] with the values and attribute from the filter
+   */
   def apply(filter: TextFilter) = {
     val panel = new TextFilterPanel
     panel.setContents(filter)
@@ -25,6 +37,13 @@ object TextFilterPanel {
   }
 }
 
+/**
+ * A filter editor panel for customizing the values of filters for text attributes. Contains a combo box
+ * indicating how the text of the filter should be matched by the card attribute, and a check box indicating
+ * if the text box is a regular expression instead.
+ * 
+ * @author Alec Roelke
+ */
 class TextFilterPanel extends FilterEditorPanel[TextFilter] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
