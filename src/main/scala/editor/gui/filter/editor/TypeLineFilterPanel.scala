@@ -1,16 +1,28 @@
 package editor.gui.filter.editor
 
-import editor.filter.leaf.TypeLineFilter
-import javax.swing.BoxLayout
-import editor.gui.generic.ComboBoxPanel
-import editor.util.Containment
-import javax.swing.JTextField
 import editor.database.attributes.CardAttribute
 import editor.filter.leaf.FilterLeaf
+import editor.filter.leaf.TypeLineFilter
+import editor.gui.generic.ComboBoxPanel
+import editor.util.Containment
 
+import javax.swing.BoxLayout
+import javax.swing.JTextField
+
+/**
+ * Convenience constructors for [[TypeLineFilterPanel]].
+ * @author Alec Roelke
+ */
 object TypeLineFilterPanel {
+  /** @return a new [[TypeLineFilterPanel]] with no text */
   def apply() = new TypeLineFilterPanel
 
+  /**
+   * Create a new [[TypeLineFilterPanel]] with pre-populated text.
+   * 
+   * @param filter filter to get the text and containment from
+   * @return a new [[TypeLineFilterPanel]] with the given filter's text and containment mode
+   */
   def apply(filter: TypeLineFilter) = {
     val panel = new TypeLineFilterPanel
     panel.setContents(filter)
@@ -18,6 +30,10 @@ object TypeLineFilterPanel {
   }
 }
 
+/**
+ * A filter editor panel for creating filters for all values that could appear on a card's type line.
+ * @author Alec Roelke
+ */
 class TypeLineFilterPanel extends FilterEditorPanel[TypeLineFilter] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
