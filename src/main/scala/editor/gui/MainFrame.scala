@@ -1159,7 +1159,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     panelPane.setBorder(BorderFactory.createEmptyBorder())
     if (JOptionPane.showConfirmDialog(this, panelPane, "Advanced Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
       nameFilterField.setText("")
-      inventory.updateFilter(panel.filter())
+      inventory.updateFilter(panel.filter)
       inventoryModel.fireTableDataChanged()
     }
   })
