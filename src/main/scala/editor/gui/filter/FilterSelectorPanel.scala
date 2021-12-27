@@ -79,18 +79,18 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf[?]] {
 
   // Button to remove this from the form
   private val removeButton = JButton(UnicodeSymbols.MINUS.toString)
-  removeButton.addActionListener(_ => {
-    group -= this
+  removeButton.addActionListener(_ => group.foreach((g) => {
+    g -= this
     firePanelsChanged()
-  })
+  }))
   add(removeButton)
 
   // Button to create a new group with this in it
   private val groupButton = JButton(UnicodeSymbols.ELLIPSIS.toString)
-  groupButton.addActionListener(_ => {
-    group.engroup(this)
+  groupButton.addActionListener(_ => group.foreach((g) => {
+    g.engroup(this)
     firePanelsChanged()
-  })
+  }))
   add(groupButton)
 
   facesLabel.setIcon(faces.getIcon(getPreferredSize.height/2))

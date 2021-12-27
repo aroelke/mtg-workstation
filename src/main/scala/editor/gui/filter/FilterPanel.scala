@@ -13,7 +13,7 @@ import javax.swing.event.ChangeListener
  * @author Alec Roelke
  */
 trait FilterPanel[F <: Filter] extends JPanel {
-  private[filter] var group: FilterGroupPanel = null
+  private[filter] var group: Option[FilterGroupPanel] = None
 
   /** Listeners for changes to the filter, such as if a group has children added or removed. */
   val listeners = collection.mutable.Set[ChangeListener]()
@@ -25,7 +25,7 @@ trait FilterPanel[F <: Filter] extends JPanel {
    * filter's parents.
    */
   def firePanelsChanged(): Unit = {
-    Option(group).foreach(_.firePanelsChanged())
+    group.foreach(_.firePanelsChanged())
     listeners.foreach(_.stateChanged(ChangeEvent(this)))
   }
 

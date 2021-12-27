@@ -90,28 +90,26 @@ class FilterGroupPanel extends FilterPanel[Filter] {
   editPanel.add(addButton)
   private val removeButton = JButton(UnicodeSymbols.MINUS.toString)
   removeButton.addActionListener(_ => {
-    if (group == null) {
+    group.map((g) => {
+      g -= this
+      g.firePanelsChanged()
+    }).getOrElse({
       clear()
       add(FilterSelectorPanel())
       firePanelsChanged()
-    } else {
-      group.remove(this)
-      group.firePanelsChanged()
-    }
+    })
   })
   editPanel.add(removeButton)
   private val groupButton = JButton(UnicodeSymbols.ELLIPSIS.toString)
   groupButton.addActionListener(_ => {
-    if (group == null) {
+    group.map(_.engroup(this)).getOrElse({
       val newGroup = FilterGroupPanel()
       newGroup.clear()
       newGroup.modeBox.setSelectedIndex(modeBox.getSelectedIndex)
       children.foreach(newGroup.add)
       clear()
       add(newGroup)
-    }
-    else
-      group.engroup(this)
+    })
     firePanelsChanged()
   })
   editPanel.add(groupButton)
@@ -137,7 +135,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
   def +=(panel: FilterPanel[?]) = {
     children += panel
     filtersPanel.add(panel)
-    panel.group = this
+    panel.group = Some(this)
   }
   @deprecated def add(panel: FilterPanel[?]) = this += panel
 
@@ -176,15 +174,15 @@ class FilterGroupPanel extends FilterPanel[Filter] {
    * @param panel filter to group
    */
   def engroup(panel: FilterPanel[?]) = {
-    if (panel.group != this)
-      add(panel)
+    if (!panel.group.exists(_ == this))
+      this += panel
 
     val index = children.indexOf(panel)
     if (index >= 0) {
       filtersPanel.removeAll()
       val newGroup = FilterGroupPanel(Seq(panel))
+      newGroup.group = Some(this)
       children(index) = newGroup
-      newGroup.group = this
       children.foreach(filtersPanel.add)
     }
   }
