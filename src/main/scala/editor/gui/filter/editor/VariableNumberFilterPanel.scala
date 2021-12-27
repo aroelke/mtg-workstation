@@ -64,7 +64,7 @@ class VariableNumberFilterPanel(v: String) extends FilterEditorPanel[VariableNum
   private val variable = JCheckBox(s"Contains $v")
   variable.addActionListener(_ => spinner.setEnabled(!variable.isSelected))
 
-  private[editor] override var attribute = CardAttribute.POWER
+  protected override var attribute = CardAttribute.POWER
 
   override def filter = (CardAttribute.createFilter(attribute), spinner.getValue) match {
     case (number: VariableNumberFilter, value: Double) =>

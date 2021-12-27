@@ -43,7 +43,7 @@ class TypeLineFilterPanel extends FilterEditorPanel[TypeLineFilter] {
   private val line = JTextField()
   add(line)
 
-  private[editor] override val attribute = CardAttribute.TYPE_LINE
+  protected override val attribute = CardAttribute.TYPE_LINE
 
   override def filter = CardAttribute.createFilter(CardAttribute.TYPE_LINE) match {
     case typeline: TypeLineFilter =>

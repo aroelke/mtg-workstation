@@ -51,7 +51,7 @@ class NumberFilterPanel extends FilterEditorPanel[NumberFilter] {
   spinner.setMaximumSize(Dimension(100, Int.MaxValue))
   add(spinner)
 
-  private[editor] override var attribute = CardAttribute.CARD_NUMBER
+  protected override var attribute = CardAttribute.CARD_NUMBER
 
   override def filter = (CardAttribute.createFilter(attribute), spinner.getValue) match {
     case (number: NumberFilter, value: Double) =>

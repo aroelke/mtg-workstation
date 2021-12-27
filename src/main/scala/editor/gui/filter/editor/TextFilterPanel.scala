@@ -71,7 +71,7 @@ class TextFilterPanel extends FilterEditorPanel[TextFilter] {
   regex.addActionListener(_ => contain.setVisible(!regex.isSelected))
   add(regex)
 
-  private[editor] override var attribute = CardAttribute.NAME
+  protected override var attribute = CardAttribute.NAME
 
   override def filter = CardAttribute.createFilter(attribute) match {
     case tf: TextFilter =>

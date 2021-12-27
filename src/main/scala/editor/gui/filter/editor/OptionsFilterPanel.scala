@@ -70,7 +70,7 @@ object OptionsFilterPanel {
  * 
  * @author Alec Roelke
  */
-class OptionsFilterPanel[T <: AnyRef](private[editor] override val attribute: CardAttribute, options: Array[T]) extends FilterEditorPanel[OptionsFilter[T]] {
+class OptionsFilterPanel[T <: AnyRef](protected override val attribute: CardAttribute, options: Array[T]) extends FilterEditorPanel[OptionsFilter[T]] {
   private val MaxComboWidth = 100
 
   setLayout(BorderLayout())
