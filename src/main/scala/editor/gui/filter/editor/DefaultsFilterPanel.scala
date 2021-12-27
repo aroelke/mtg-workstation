@@ -1,6 +1,7 @@
 package editor.gui.filter.editor
 
 import editor.collection.deck.Category
+import editor.database.attributes.CardAttribute
 import editor.filter.FilterGroup
 import editor.filter.leaf.FilterLeaf
 import editor.gui.generic.ComboBoxPanel
@@ -24,6 +25,7 @@ class DefaultsFilterPanel extends FilterEditorPanel[FilterLeaf[?]] {
   private val defaults = ComboBoxPanel(categories.keys.toArray)
   add(defaults)
 
+  override val attribute = CardAttribute.DEFAULTS
   override def filter = FilterGroup(Category(categories(defaults.getSelectedItem)).getFilter)
-  override def setContents(filter: FilterLeaf[?]) = {}
+  override def setFields(filter: FilterLeaf[?]) = throw UnsupportedOperationException("defaults filter panel should be replaced by contents")
 }

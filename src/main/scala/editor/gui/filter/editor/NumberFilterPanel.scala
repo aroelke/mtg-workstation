@@ -51,7 +51,7 @@ class NumberFilterPanel extends FilterEditorPanel[NumberFilter] {
   spinner.setMaximumSize(Dimension(100, Int.MaxValue))
   add(spinner)
 
-  private var attribute = CardAttribute.CARD_NUMBER
+  private[editor] override var attribute = CardAttribute.CARD_NUMBER
 
   override def filter = (CardAttribute.createFilter(attribute), spinner.getValue) match {
     case (number: NumberFilter, value: Double) =>
@@ -60,14 +60,9 @@ class NumberFilterPanel extends FilterEditorPanel[NumberFilter] {
       number
   }
 
-  override def setContents(filter: NumberFilter) = {
+  override def setFields(filter: NumberFilter) = {
     attribute = filter.`type`
     comparison.setSelectedItem(filter.operation)
     spinner.setValue(filter.operand)
-  }
-
-  override def setContents(filter: FilterLeaf[?]) = filter match {
-    case number: NumberFilter => setContents(number)
-    case _ => throw IllegalArgumentException(s"${filter.`type`} is not a number filter")
   }
 }

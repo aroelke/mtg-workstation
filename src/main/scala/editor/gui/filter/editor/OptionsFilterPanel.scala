@@ -70,7 +70,7 @@ object OptionsFilterPanel {
  * 
  * @author Alec Roelke
  */
-class OptionsFilterPanel[T <: AnyRef](attribute: CardAttribute, options: Array[T]) extends FilterEditorPanel[OptionsFilter[T]] {
+class OptionsFilterPanel[T <: AnyRef](private[editor] override val attribute: CardAttribute, options: Array[T]) extends FilterEditorPanel[OptionsFilter[T]] {
   private val MaxComboWidth = 100
 
   setLayout(BorderLayout())
@@ -140,7 +140,7 @@ class OptionsFilterPanel[T <: AnyRef](attribute: CardAttribute, options: Array[T
       of
   }
 
-  override def setContents(filter: OptionsFilter[T]) = if (filter.`type` == attribute) {
+  override def setFields(filter: OptionsFilter[T]) = if (filter.`type` == attribute) {
     contain.setSelectedItem(filter.contain)
     if (options.isEmpty)
       contain.setVisible(false)
@@ -151,9 +151,4 @@ class OptionsFilterPanel[T <: AnyRef](attribute: CardAttribute, options: Array[T
     else
       filter.selected.asScala.foreach(this += _)
   } else throw IllegalArgumentException(s"${filter.`type`} is not a $attribute filter")
-
-  override def setContents(filter: FilterLeaf[?]) = filter match {
-    case of: OptionsFilter[T] if filter.`type` == attribute => setContents(of)
-    case _ => throw IllegalArgumentException(s"${filter.`type`} is not a $attribute filter")
-  }
 }

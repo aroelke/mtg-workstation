@@ -71,7 +71,7 @@ class TextFilterPanel extends FilterEditorPanel[TextFilter] {
   regex.addActionListener(_ => contain.setVisible(!regex.isSelected))
   add(regex)
 
-  private var attribute = CardAttribute.NAME
+  private[editor] override var attribute = CardAttribute.NAME
 
   override def filter = CardAttribute.createFilter(attribute) match {
     case tf: TextFilter =>
@@ -81,16 +81,11 @@ class TextFilterPanel extends FilterEditorPanel[TextFilter] {
       tf
   }
 
-  override def setContents(filter: TextFilter) = {
+  override def setFields(filter: TextFilter) = {
     attribute = filter.`type`
     contain.setSelectedItem(filter.contain)
     text.setText(filter.text)
     regex.setSelected(filter.regex)
     contain.setVisible(!filter.regex)
-  }
-
-  override def setContents(filter: FilterLeaf[?]) = filter match {
-    case text: TextFilter => setContents(text)
-    case _ => throw IllegalArgumentException(s"${filter.`type`} is not a text filter")
   }
 }

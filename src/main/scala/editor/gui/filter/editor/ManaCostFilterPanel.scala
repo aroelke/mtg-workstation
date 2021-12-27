@@ -1,5 +1,6 @@
 package editor.gui.filter.editor
 
+import editor.database.attributes.CardAttribute
 import editor.database.attributes.ManaCost
 import editor.filter.leaf.FilterLeaf
 import editor.filter.leaf.ManaCostFilter
@@ -54,6 +55,8 @@ class ManaCostFilterPanel extends FilterEditorPanel[ManaCostFilter] {
   })
   add(cost)
 
+  private[editor] override val attribute = CardAttribute.MANA_COST
+
   override def filter = {
     val filter = ManaCostFilter()
     filter.contain = contain.getSelectedItem
@@ -61,13 +64,8 @@ class ManaCostFilterPanel extends FilterEditorPanel[ManaCostFilter] {
     filter
   }
 
-  override def setContents(filter: ManaCostFilter) = {
+  override def setFields(filter: ManaCostFilter) = {
     contain.setSelectedItem(filter.contain)
     cost.setText(filter.cost.toString)
-  }
-
-  override def setContents(filter: FilterLeaf[?]) = filter match {
-    case cost: ManaCostFilter => setContents(cost)
-    case _ => throw IllegalArgumentException(s"${filter.`type`} is not a mana cost filter")
   }
 }

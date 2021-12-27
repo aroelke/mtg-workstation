@@ -40,28 +40,16 @@ class LegalityFilterPanel extends OptionsFilterPanel(CardAttribute.LEGAL_IN, For
   private val restricted = JCheckBox("Restricted")
   add(restricted, BorderLayout.EAST)
 
-  /**
-   * Update the format selection box and restricted check box based on the contents of the filter.
-   * @param filter filter to use to update contents
-   */
-  def setContents(filter: LegalityFilter) = {
-    super.setContents(filter)
-    restricted.setSelected(filter.restricted)
-  }
-
   override def filter = super.filter match {
     case legality: LegalityFilter =>
       legality.restricted = restricted.isSelected
       legality
   }
 
-  override def setContents(filter: OptionsFilter[String]) = filter match {
-    case legality: LegalityFilter => setContents(legality)
-    case _ => throw IllegalArgumentException(s"${filter.`type`} is not a legality filter")
-  }
-
-  override def setContents(filter: FilterLeaf[?]) = filter match {
-    case legality: LegalityFilter => setContents(legality)
+  override def setFields(filter: OptionsFilter[String]) = filter match {
+    case legality: LegalityFilter =>
+      super.setFields(legality)
+      restricted.setSelected(legality.restricted)
     case _ => throw IllegalArgumentException(s"${filter.`type`} is not a legality filter")
   }
 }

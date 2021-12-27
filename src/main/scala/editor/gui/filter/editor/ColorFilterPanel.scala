@@ -79,7 +79,7 @@ class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
 
   add(Box.createHorizontalStrut(2))
 
-  private var attribute = CardAttribute.COLORS
+  private[editor] override var attribute = CardAttribute.COLORS
 
   override def filter = CardAttribute.createFilter(attribute) match {
     case filter: ColorFilter =>
@@ -89,16 +89,11 @@ class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
       filter
   }
 
-  override def setContents(filter: ColorFilter) = {
+  override def setFields(filter: ColorFilter) = {
     attribute = filter.`type`
     contain.setSelectedItem(filter.contain)
     filter.colors.asScala.foreach(colors(_).setSelected(true))
     multi.setSelected(filter.multicolored)
     colorless.setSelected(!filter.multicolored && filter.colors.isEmpty)
-  }
-
-  override def setContents(filter: FilterLeaf[?]) = filter match {
-    case f: ColorFilter => setContents(f)
-    case _ => throw IllegalArgumentException(s"illegal color filter type ${filter.`type`}")
   }
 }

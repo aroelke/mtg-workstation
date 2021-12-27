@@ -43,6 +43,8 @@ class TypeLineFilterPanel extends FilterEditorPanel[TypeLineFilter] {
   private val line = JTextField()
   add(line)
 
+  private[editor] override val attribute = CardAttribute.TYPE_LINE
+
   override def filter = CardAttribute.createFilter(CardAttribute.TYPE_LINE) match {
     case typeline: TypeLineFilter =>
       typeline.contain = contain.getSelectedItem
@@ -50,13 +52,8 @@ class TypeLineFilterPanel extends FilterEditorPanel[TypeLineFilter] {
       typeline
   }
 
-  override def setContents(filter: TypeLineFilter) = {
+  override def setFields(filter: TypeLineFilter) = {
     contain.setSelectedItem(filter.contain)
     line.setText(filter.line)
-  }
-
-  override def setContents(filter: FilterLeaf[?]) = filter match {
-    case line: TypeLineFilter => setContents(line)
-    case _ => throw IllegalArgumentException(s"${filter.`type`} is not a type line filter")
   }
 }
