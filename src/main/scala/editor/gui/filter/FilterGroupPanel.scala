@@ -84,7 +84,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
   private val editPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
   private val addButton = JButton("+")
   addButton.addActionListener(_ => {
-    add(FilterSelectorPanel())
+    this += FilterSelectorPanel()
     firePanelsChanged()
   })
   editPanel.add(addButton)
