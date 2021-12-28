@@ -95,7 +95,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
       g.firePanelsChanged()
     }).getOrElse({
       clear()
-      add(FilterSelectorPanel())
+      this += FilterSelectorPanel()
       firePanelsChanged()
     })
   })
