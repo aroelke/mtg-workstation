@@ -23,9 +23,6 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 object FilterGroupPanel {
-  /** @return an empty [[FilterGroupPanel]] */
-  def apply() = new FilterGroupPanel
-
   /**
    * Create a new [[FilterGroupPanel]] with preset contents.
    * 
@@ -44,12 +41,7 @@ object FilterGroupPanel {
    * @param panels children of the new [[FilterGroupPanel]]
    * @return a new [[FilterGroupPanel]] with the specified panels as children
    */
-  def apply(panels: Seq[FilterPanel[?]]) = {
-    val panel = new FilterGroupPanel
-    panel.clear()
-    panels.foreach(panel += _)
-    panel
-  }
+  def apply(panels: Seq[FilterPanel[?]] = Seq.empty) = new FilterGroupPanel(panels)
 }
 
 /**
@@ -58,9 +50,13 @@ object FilterGroupPanel {
  * the add, remove, and group buttons are on the top right, and double-clicking the title (or top-left of the border)
  * of the panel allows for naming the group. If a group is removed, its contents are added to its parent group
  * if any, or the entire filter is cleared if there isn't one.
+ * 
+ * @constructor create a new filter group panel with a list of panels in it
+ * @param panels panels to add to the new filter group panel
+ * 
  * @author Alec Roelke
  */
-class FilterGroupPanel extends FilterPanel[Filter] {
+class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPanel[Filter] {
   private val Gap = 10
 
   private val children = collection.mutable.Buffer[FilterPanel[?]]()
@@ -119,7 +115,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
   private val filtersPanel = Box(BoxLayout.Y_AXIS)
   add(filtersPanel, BorderLayout.CENTER)
 
-  this += FilterSelectorPanel()
+  if (panels.isEmpty) this += FilterSelectorPanel() else panels.foreach(this += _)
 
   addMouseListener(new ChangeTitleListener(this, border, (t) => {
     border.setTitle(t)
