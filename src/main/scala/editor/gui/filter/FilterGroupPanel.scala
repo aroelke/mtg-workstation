@@ -108,7 +108,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
       newGroup.modeBox.setSelectedIndex(modeBox.getSelectedIndex)
       children.foreach(newGroup += _)
       clear()
-      add(newGroup)
+      this += newGroup
     })
     firePanelsChanged()
   })
