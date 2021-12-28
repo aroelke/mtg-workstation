@@ -106,7 +106,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
       val newGroup = FilterGroupPanel()
       newGroup.clear()
       newGroup.modeBox.setSelectedIndex(modeBox.getSelectedIndex)
-      children.foreach(newGroup.add)
+      children.foreach(newGroup += _)
       clear()
       add(newGroup)
     })
