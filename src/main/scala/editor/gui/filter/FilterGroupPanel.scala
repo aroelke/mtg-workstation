@@ -158,7 +158,6 @@ class FilterGroupPanel extends FilterPanel[Filter] {
       }
     }
   }
-  @deprecated def remove(panel: FilterPanel[?]) = this -= panel
 
   /** Remove all filters from the group and reset its mode and name. */
   def clear() = {
