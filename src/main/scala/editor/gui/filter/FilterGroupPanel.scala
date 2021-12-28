@@ -119,7 +119,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
   private val filtersPanel = Box(BoxLayout.Y_AXIS)
   add(filtersPanel, BorderLayout.CENTER)
 
-  add(FilterSelectorPanel())
+  this += FilterSelectorPanel()
 
   addMouseListener(new ChangeTitleListener(this, border, (t) => {
     border.setTitle(t)
