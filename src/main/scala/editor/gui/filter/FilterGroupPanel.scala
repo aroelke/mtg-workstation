@@ -137,7 +137,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
     filtersPanel.add(panel)
     panel.group = Some(this)
   }
-  @deprecated def add(panel: FilterPanel[?]) = this += panel
+  @deprecated def add(panel: FilterPanel[?]) = { Exception().printStackTrace; this += panel }
 
   /**
    * Remove a filter from the group. If that filter is a [[FilterGroup]], add its children to this panel's group.
@@ -203,7 +203,7 @@ class FilterGroupPanel extends FilterPanel[Filter] {
     }
     modeBox.setSelectedItem(group.mode)
     border.setTitle(group.comment)
-    group.asScala.foreach((f) => add(f match {
+    group.asScala.foreach((f) => this += (f match {
       case g: FilterGroup => FilterGroupPanel(g)
       case l: FilterLeaf[?] => FilterSelectorPanel(l)
     }))
