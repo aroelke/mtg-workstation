@@ -1,20 +1,28 @@
 package editor.serialization
 
-import com.google.gson.JsonSerializer
-import editor.collection.deck.Deck
-import com.google.gson.JsonDeserializer
-import java.time.format.DateTimeFormatter
-import com.google.gson.JsonElement
-import java.lang.reflect.Type
-import com.google.gson.JsonDeserializationContext
-import scala.jdk.CollectionConverters._
-import editor.database.card.Card
-import java.time.LocalDate
-import editor.collection.deck.Category
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonObject
 import com.google.gson.JsonArray
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.google.gson.JsonSerializationContext
+import com.google.gson.JsonSerializer
+import editor.collection.deck.Category
+import editor.collection.deck.Deck
+import editor.database.card.Card
 
+import java.lang.reflect.Type
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import scala.jdk.CollectionConverters._
+
+/**
+ * JSON serializer/deserializer for [[Deck]]s.  Cards and categories are mapped to "cards" and "categories" keys,
+ * respectively.  Does not include the extra lists in an [[EditorFrame]]; those are considered entirely separate
+ * "decks" that are serialized (with this class) on their own.
+ * 
+ * @author Alec Roelke
+ */
 class DeckAdapter extends JsonSerializer[Deck] with JsonDeserializer[Deck] {
   private val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
