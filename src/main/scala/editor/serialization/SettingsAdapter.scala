@@ -1,29 +1,34 @@
 package editor.serialization
 
-import com.google.gson.JsonSerializer
-import editor.gui.settings.Settings
+import com.google.gson.JsonArray
+import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
-import java.lang.reflect.Type
-import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonObject
+import com.google.gson.JsonSerializationContext
+import com.google.gson.JsonSerializer
+import editor.collection.deck.Category
 import editor.database.attributes.CardAttribute
-import scala.jdk.CollectionConverters._
+import editor.database.card.CardLayout
 import editor.database.version.DatabaseVersion
 import editor.database.version.UpdateFrequency
-import java.awt.Color
-import editor.gui.settings.InventorySettings
-import editor.gui.settings.RecentsSettings
 import editor.gui.settings.CategoriesSettings
+import editor.gui.settings.EditorSettings
 import editor.gui.settings.HandSettings
+import editor.gui.settings.InventorySettings
 import editor.gui.settings.LegalitySettings
 import editor.gui.settings.ManaAnalysisSettings
-import editor.gui.settings.EditorSettings
-import editor.collection.deck.Category
-import editor.database.card.CardLayout
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonObject
-import com.google.gson.JsonArray
+import editor.gui.settings.RecentsSettings
+import editor.gui.settings.Settings
 
+import java.awt.Color
+import java.lang.reflect.Type
+import scala.jdk.CollectionConverters._
+
+/**
+ * JSON serializer/deserializer for [[Settings]].
+ * @author Alec Roelke
+ */
 class SettingsAdapter extends JsonSerializer[Settings] with JsonDeserializer[Settings] {
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
     val defaults = Settings()
