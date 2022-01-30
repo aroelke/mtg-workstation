@@ -53,7 +53,6 @@ import _root_.editor.serialization.DeckAdapter
 import _root_.editor.serialization.FilterAdapter
 import _root_.editor.serialization.SettingsAdapter
 import _root_.editor.serialization.VersionAdapter
-import _root_.editor.serialization.legacy.DeckDeserializer
 import _root_.editor.util.ColorAdapter
 import _root_.editor.util.MenuListenerFactory
 import _root_.editor.util.MouseListenerFactory
