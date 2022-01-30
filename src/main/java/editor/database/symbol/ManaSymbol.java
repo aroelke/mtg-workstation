@@ -26,6 +26,7 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
             GenericSymbol.class,
             HalfColorSymbol.class,
             TwobridSymbol.class,
+            PhyrexianHybridSymbol.class,
             HybridSymbol.class,
             PhyrexianSymbol.class,
             ColorSymbol.class);
@@ -74,6 +75,9 @@ public abstract class ManaSymbol extends Symbol implements Comparable<ManaSymbol
         var half = HalfColorSymbol.tryParseHalfColorSymbol(s);
         if (half.isPresent())
             return half;
+        var phyrexianHybrid = PhyrexianHybridSymbol.tryParsePhyrexianHybridSymbol(s);
+        if (phyrexianHybrid.isPresent())
+            return phyrexianHybrid;
         var hybrid = HybridSymbol.tryParseHybridSymbol(s);
         if (hybrid.isPresent())
             return hybrid;
