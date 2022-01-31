@@ -1,5 +1,6 @@
 package editor.database.symbol
 
+import editor.database.attributes.ManaType
 import editor.util.UnicodeSymbols
 
 import scala.jdk.CollectionConverters._
@@ -22,7 +23,7 @@ object StaticSymbol {
     UnicodeSymbols.ONE_HALF.toString -> StaticSymbol("half_mana.png", "1/2", 0.5),
     UnicodeSymbols.INFINITY.toString -> StaticSymbol("infinity_mana.png", UnicodeSymbols.INFINITY.toString, Double.PositiveInfinity),
     "S" -> StaticSymbol("snow_mana.png", "S", 1),
-    "M" -> StaticSymbol("multicolored.png", "M", 1)
+    "M" -> StaticSymbol("multicolored.png", "M", 0)
   )
 
   /**
@@ -49,5 +50,5 @@ object StaticSymbol {
  * @author Alec Roelke
  */
 class StaticSymbol private(icon: String, text: String, value: Double) extends ManaSymbol(icon, text, value) {
-  override def colorIntensity = ManaSymbol.createIntensity()
+  override def colorIntensity = ManaSymbol.createIntensity(ColorIntensity(ManaType.COLORLESS, value))
 }
