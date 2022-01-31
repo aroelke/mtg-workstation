@@ -65,6 +65,7 @@ class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
 
   // Check box for multicolored cards
   private val multi = JCheckBox()
+  add(multi)
   add(JLabel(StaticSymbol.SYMBOLS.get("M").getIcon(IconHeight)))
   multi.addActionListener(_ => if (multi.isSelected) colorless.setSelected(false))
 
