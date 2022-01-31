@@ -443,7 +443,7 @@ public class SingleCard extends Card
         Style textStyle = document.getStyle("text");
         Style reminderStyle = document.getStyle("reminder");
         Style chaosStyle = document.addStyle("CHAOS", null);
-        StyleConstants.setIcon(chaosStyle, FunctionalSymbol.CHAOS.getIcon(ComponentUtils.TextSize()));
+        StyleConstants.setIcon(chaosStyle, FunctionalSymbol.CHAOS().getIcon(ComponentUtils.TextSize()));
         try
         {
             document.insertString(document.getLength(), name + " ", textStyle);
@@ -539,6 +539,8 @@ public class SingleCard extends Card
                             document.insertString(document.getLength(), "CHAOS", chaosStyle);
                             start = i += 5;
                         }
+                        if (abilities.charAt(i) == '}')
+                            start++;
                         break;
                     case UnicodeSymbols.EM_DASH:
                         document.insertString(document.getLength(), abilities.substring(start, i), style);
