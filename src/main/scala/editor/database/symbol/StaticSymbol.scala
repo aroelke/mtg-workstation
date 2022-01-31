@@ -2,10 +2,21 @@ package editor.database.symbol
 
 import editor.util.UnicodeSymbols
 
-import scala.jdk.OptionConverters._
 import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 
+/**
+ * Companion containing all of the possible [[StaticSymbol]]s and method for parsing them from strings.
+ * @author Alec Roelke
+ */
 object StaticSymbol {
+  /**
+   * All of the possible [[StaticSymbol]]s:
+   * - 1/2 generic mana (both with the string "1/2" and [[UnicodeSymbols.ONE_HALF]])
+   * - Infinity generic mana
+   * - Snow mana
+   * - Multicolored symbol (not actually used in a mana cost)
+   */
   val values = Map(
     "1/2" -> StaticSymbol("half_mana.png", "1/2", 0.5),
     UnicodeSymbols.ONE_HALF.toString -> StaticSymbol("half_mana.png", "1/2", 0.5),
@@ -14,6 +25,12 @@ object StaticSymbol {
     "M" -> StaticSymbol("multicolored.png", "M", 1)
   )
 
+  /**
+   * Parse a [[StaticSymbol]] from a string.
+   * 
+   * @param s string to parse
+   * @return either the [[StaticSymbol]] corresponding to the string, or None
+   */
   def parse(s: String) = values.get(s.toUpperCase)
 
   @deprecated val SYMBOLS = values.asJava
@@ -21,6 +38,16 @@ object StaticSymbol {
   @deprecated def tryParseStaticSymbol(s: String) = parse(s).toJava
 }
 
-class StaticSymbol(icon: String, text: String, value: Double) extends ManaSymbol(icon, text, value) {
+/**
+ * A mana symbol with a special, specific meaning that isn't captured by any of the other generalized versions of mana symbols.
+ * 
+ * @constructor create a new statically-specified symbol
+ * @param icon icon for the new symbol
+ * @param text text used for parsing the symbol
+ * @param value mana value of the symbol
+ * 
+ * @author Alec Roelke
+ */
+class StaticSymbol private(icon: String, text: String, value: Double) extends ManaSymbol(icon, text, value) {
   override def colorIntensity = ManaSymbol.createIntensity()
 }
