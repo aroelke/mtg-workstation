@@ -21,7 +21,7 @@ object GenericSymbol {
   val Million = new GenericSymbol(1000000)
 
   /** All currently-used generic mana symbols: {0} through {[[Max]]}, {100}, and {1000000}. */
-  val values = (Contiguous.zipWithIndex.map{ case (a, b) => a -> b } ++ Seq(100 -> Hundred, 1000000 -> Million)).toMap
+  val values = (Contiguous.zipWithIndex.map{ case (a, b) => b -> a } ++ Seq(100 -> Hundred, 1000000 -> Million)).toMap
 
   /**
    * @param n amount of mana needed to pay for the symbol
