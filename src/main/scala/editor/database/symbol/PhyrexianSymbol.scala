@@ -10,7 +10,7 @@ import scala.jdk.OptionConverters._
  * @author Alec Roelke
  */
 object PhyrexianSymbol {
-  /** All possible [[PhyrexianSymbol]]s. Currently only colored ones exist. @see [[ManaType]] */
+  /** All possible [[PhyrexianSymbol]]s. Currently only colored ones exist. @see [[ManaType.color]] */
   val values = ManaType.colors.map(c => c -> PhyrexianSymbol(c)).toMap
 
   /**
