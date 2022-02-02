@@ -24,11 +24,13 @@ object PhyrexianHybridSymbol {
    * @return the [[PhyrexianHybridSymbol]] represented by the string, or None if there isn't one
    */
   def parse(s: String) = {
-    val colors = s.split("/").flatMap((t) => Option(ManaType.tryParseManaType(t)))
-    colors match {
-      case Array(col1, col2) => Some(values(col1)(col2))
-      case _ => None
-    }
+    val tokens = s.split("/")
+    if (tokens.size == 3 && tokens(2) == "P") {
+      tokens.slice(0, 2).flatMap((t) => Option(ManaType.tryParseManaType(t))) match {
+        case Array(c1, c2) => Some(values(c1)(c2))
+        case _ => None
+      }
+    } else None
   }
 
   @deprecated def SYMBOLS = values.map{ case (c, s) => c -> s.asJava }.asJava
@@ -49,7 +51,7 @@ object PhyrexianHybridSymbol {
  * @author Alec Roelke
  */
 class PhyrexianHybridSymbol private(private val first: ManaType, private val second: ManaType) extends ManaSymbol(s"phyrexian_${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png", s"${first.shorthand.toUpper}/${second.shorthand.toUpper}/P", 1) {
-  override def colorIntensity = ManaSymbol.createIntensity(ColorIntensity(first, 1.0/3.0), ColorIntensity(second, 1.0/3.0))
+  override def colorIntensity = ManaSymbol.createIntensity(Map(first -> 1.0/3.0, second -> 1.0/3.0))
 
   override def compareTo(o: ManaSymbol) = o match {
     case h: PhyrexianHybridSymbol => first.compareTo(h.first)*10 + second.compareTo(h.second)

@@ -35,7 +35,7 @@ object TwobridSymbol {
  * @author Alec Roelke
  */
 class TwobridSymbol private(private val color: ManaType) extends ManaSymbol(s"2_${color.toString.toLowerCase}_mana.png", s"2/${color.shorthand.toUpper}", 2) {
-  override def colorIntensity = ManaSymbol.createIntensity(ColorIntensity(color, 0.5))
+  override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 0.5))
 
   override def compareTo(o: ManaSymbol) = o match {
     case t: TwobridSymbol => color.compareTo(t.color)

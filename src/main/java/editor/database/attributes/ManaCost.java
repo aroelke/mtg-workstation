@@ -18,6 +18,8 @@ import editor.database.symbol.Symbol;
 import editor.gui.generic.ComponentUtils;
 import editor.util.Containment;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents a mana cost.  It contains a list of Symbols, which may contain duplicate elements.
  * It also calculates its mana value cost based on the number and types of Symbols it contains, and
@@ -96,8 +98,8 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
         cost = Collections.unmodifiableList(symbols);
         intensity = ManaSymbol.createIntensity();
         for (ManaSymbol sym : cost)
-            for (var e : sym.colorIntensity().entrySet())
-                intensity.compute(e.getKey(), (k, v) -> e.getValue() + v);
+            for (var e : CollectionConverters.asJava(sym.colorIntensity()).entrySet())
+                intensity.compute(e.getKey(), (k, v) -> (double)e.getValue() + v);
     }
 
     /**

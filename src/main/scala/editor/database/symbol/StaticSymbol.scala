@@ -50,5 +50,5 @@ object StaticSymbol {
  * @author Alec Roelke
  */
 class StaticSymbol private(icon: String, text: String, value: Double) extends ManaSymbol(icon, text, value) {
-  override def colorIntensity = ManaSymbol.createIntensity(ColorIntensity(ManaType.COLORLESS, value))
+  override def colorIntensity = ManaSymbol.createIntensity(Map(ManaType.COLORLESS -> value))
 }

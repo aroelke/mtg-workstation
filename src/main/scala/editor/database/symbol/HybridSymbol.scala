@@ -24,11 +24,13 @@ object HybridSymbol {
    * @return the [[HybridSymbol]] represented by the string, or None if there isn't one
    */
   def parse(s: String) = {
-    val colors = s.split("/").flatMap((t) => Option(ManaType.tryParseManaType(t)))
-    colors match {
-      case Array(col1, col2) => Some(values(col1)(col2))
-      case _ => None
-    }
+    val tokens = s.split("/")
+    if (tokens.size == 2) {
+      tokens.flatMap((t) => Option(ManaType.tryParseManaType(t))) match {
+        case Array(col1, col2) => Some(values(col1)(col2))
+        case _ => None
+      }
+    } else None
   }
 
   @deprecated def SYMBOLS = values.map{ case (c, s) => c -> s.asJava }.asJava
@@ -49,7 +51,7 @@ object HybridSymbol {
  * @author Alec Roelke
  */
 class HybridSymbol private(private val first: ManaType, private val second: ManaType) extends ManaSymbol(s"${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png", s"${first.shorthand.toUpper}/${second.shorthand.toUpper}", 1) {
-  override def colorIntensity = ManaSymbol.createIntensity(ColorIntensity(first, 0.5), ColorIntensity(second, 0.5))
+  override def colorIntensity = ManaSymbol.createIntensity(Map(first -> 0.5, second -> 0.5))
 
   override def compareTo(o: ManaSymbol) = o match {
     case h: HybridSymbol => first.compareTo(h.first)*10 + second.compareTo(h.second)
