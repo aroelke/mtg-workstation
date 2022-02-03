@@ -28,7 +28,8 @@ object ColorSymbol {
 }
 
 /**
- * Mana symbol representing a specific type of mana.
+ * Mana symbol representing a specific type of mana. Its intensity is 1 for its mana type, and 0 for all others, as it can only be paid for by that type,
+ * and its text representation is just the shorthand of its [[ManaType]].
  * 
  * @constructor create a new symbol for a mana type
  * @param color type of mana the symbol represents

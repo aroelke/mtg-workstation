@@ -42,7 +42,9 @@ object HybridSymbol {
 }
 
 /**
- * A mana symbol that can be paid with either of two colors of mana.
+ * A mana symbol that can be paid with either of two colors of mana. Its color intensity is 0.5 for each of its two colors, and 0 for all the
+ * rest of the types, as there are two ways to pay for it, and its text representation is the shorthand of its two [[ManaType]]s separated by
+ * a slash ("/").
  * 
  * @constructor create a new hybrid mana symbol
  * @param first first color that can be used to pay

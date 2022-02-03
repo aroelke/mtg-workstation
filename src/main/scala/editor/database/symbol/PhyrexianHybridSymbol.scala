@@ -42,7 +42,9 @@ object PhyrexianHybridSymbol {
 }
 
 /**
- * A "Phyrexian" mana symbol that can be paid with either of two colors of mana or 2 life.
+ * A "Phyrexian" mana symbol that can be paid with either of two colors of mana or 2 life. Its color intensity is 1/3 for each of its two colors of mana,
+ * and 0 for the rest, as it has three ways to pay for it (one of two colors or 2 life), and its text representation is the shorthand of its colors and a P
+ * separated by a slash ("/").
  * 
  * @constructor create a new Phyrexian hybrid mana symbol
  * @param first first color that can be used to pay

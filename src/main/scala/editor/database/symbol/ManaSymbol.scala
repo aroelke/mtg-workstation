@@ -77,9 +77,9 @@ abstract class ManaSymbol private[symbol](icon: String, text: String, val value:
   import ManaSymbol.Order
 
   /**
-   * Get the color intensity map of this symbol. Each mana type is mapped onto an "intensity," which is a value that represents how much it
-   * contributes to the symbol's mana value. This is used mainly for sorting symbols and mana costs. See each symbol for an explanation on its
-   * color intensity.
+   * Get the color intensity map of this symbol. Each mana type is mapped onto an "intensity," which is a value that loosely represents the fraction of
+   * the number of ways the symbol can be paid for that the mana type is. This is used mainly for sorting symbols and mana costs. See each symbol for an
+   * explanation on its color intensity.
    * 
    * @return the color intensity of this symbol
    * @see [[ColorIntensity]]

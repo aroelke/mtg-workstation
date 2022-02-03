@@ -27,7 +27,9 @@ object TwobridSymbol {
 }
 
 /**
- * A mana symbol that can be paid either with two mana of any type or one mana of a specific color.
+ * A mana symbol that can be paid either with two mana of any type or one mana of a specific color. Its color intensity is 0.5 for its color, and 0
+ * for the rest of the types, as there are two ways to pay for it (a specific color of mana or two of any type), and its text representation is a 2
+ * and its [[ManaType]]'s shorthand separated by a slash ("/").
  * 
  * @constructor create a new "twobrid" symbol
  * @param color color to use to get the discounted price

@@ -27,7 +27,9 @@ object PhyrexianSymbol {
 }
 
 /**
- * A "Phyrexian" mana symbol that can be paid either with a color of mana or 2 life.
+ * A "Phyrexian" mana symbol that can be paid either with a color of mana or 2 life. Its color intensity is 0.5 for its color of mana, and 0 for
+ * the rest, as there are two ways to pay for it (its color and 2 life), and its text representation is the shorthand of its [[ManaType]] and a P
+ * separated by a slash ("/").
  * 
  * @constructor create a new Phyrexian mana symbol
  * @param color color of the new symbol

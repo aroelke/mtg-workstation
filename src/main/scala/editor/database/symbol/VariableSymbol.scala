@@ -29,7 +29,8 @@ object VariableSymbol {
 }
 
 /**
- * A symbol that can be paid using any amount of mana, indicating using a letter like X.
+ * A symbol that can be paid using any amount of mana, indicating using a letter like X.  Its color intensity is 0 for all mana types, as
+ * any type of mana can be spent to pay for it, and its text representation is the letter used as the variable.
  * 
  * @constructor create a new variable symbol using a particular variable name
  * @param variable letter to use as the variable name

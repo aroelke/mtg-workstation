@@ -54,7 +54,8 @@ object GenericSymbol {
 }
 
 /**
- * A mana symbol that can be paid for using an amount of any type of mana in any combination.
+ * A mana symbol representing an amount of any combination of mana. Its color intensity is 0 for all mana types, as any type
+ * of mana can pay for it, and its text representation is simply the amount of mana it represents.
  * 
  * @constructor create a new generic mana symbol for a particular amount of mana
  * @param amount amount of mana needed to pay for the symbol

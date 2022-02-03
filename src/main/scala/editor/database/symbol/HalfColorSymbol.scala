@@ -27,7 +27,9 @@ object HalfColorSymbol {
 }
 
 /**
- * Mana symbol representing half of a specific type of mana (not to be confused with the generic 1/2 mana symbol, which is a [[StaticSymbol]]).
+ * Mana symbol representing half of a specific type of mana (not to be confused with the generic 1/2 mana symbol, which is a [[StaticSymbol]]). Its
+ * color intensity is 0.5 for its type of mana, and 0 for all others, as it is paid for by only half of that type of mana, and its text
+ * representation is an H followed by its [[ManaType]]'s shorthand.
  * 
  * @constructor create a new half-mana symbol
  * @param color type of mana the symbol represents

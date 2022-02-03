@@ -40,7 +40,8 @@ object StaticSymbol {
 }
 
 /**
- * A mana symbol with a special, specific meaning that isn't captured by any of the other generalized versions of mana symbols.
+ * A mana symbol with a special, specific meaning that isn't captured by any of the other generalized versions of mana symbols. Its color
+ * intensity and text representation depend on the symbol.
  * 
  * @constructor create a new statically-specified symbol
  * @param icon icon for the new symbol
