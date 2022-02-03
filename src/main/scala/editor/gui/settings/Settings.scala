@@ -66,7 +66,7 @@ case class InventorySettings(
   imageLimitEnable: Boolean = false,
   imageLimit: Int = 20,
   tags: String = SettingsDialog.EditorHome.resolve("tags.json").toString(),
-  update: UpdateFrequency = UpdateFrequency.DAILY,
+  update: UpdateFrequency = UpdateFrequency.Daily,
   warn: Boolean = true,
   columns: Seq[CardAttribute] = Seq(NAME, MANA_COST, TYPE_LINE, EXPANSION),
   background: Color = Color.WHITE,

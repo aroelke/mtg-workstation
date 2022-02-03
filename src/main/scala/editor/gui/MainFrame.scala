@@ -52,6 +52,7 @@ import _root_.editor.serialization.CategoryAdapter
 import _root_.editor.serialization.DeckAdapter
 import _root_.editor.serialization.FilterAdapter
 import _root_.editor.serialization.SettingsAdapter
+import _root_.editor.serialization.UpdateAdapter
 import _root_.editor.serialization.VersionAdapter
 import _root_.editor.util.ColorAdapter
 import _root_.editor.util.MenuListenerFactory
@@ -189,6 +190,7 @@ object MainFrame {
     .registerTypeAdapter(classOf[Deck], DeckAdapter())
     .registerTypeAdapter(classOf[DeckSerializer], DeckSerializer())
     .registerTypeAdapter(classOf[DatabaseVersion], VersionAdapter())
+    .registerTypeAdapter(classOf[UpdateFrequency], UpdateAdapter())
     .setPrettyPrinting
     .create()
   @deprecated def SERIALIZER() = Serializer
@@ -888,7 +890,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   // Inventory update item
   private val updateInventoryItem = JMenuItem("Check for inventory update...")
   updateInventoryItem.addActionListener(_ => {
-    checkForUpdate(UpdateFrequency.DAILY) match {
+    checkForUpdate(UpdateFrequency.Daily) match {
       case (version, UpdateNeeded) => if (updateInventory()) {
         SettingsDialog.settings = SettingsDialog.settings.copy(inventory = SettingsDialog.settings.inventory.copy(version = version))
         loadInventory()
@@ -1261,7 +1263,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       val data = (new JsonParser).parse(in.lines.collect(Collectors.joining)).getAsJsonObject
       in.close()
       (DatabaseVersion.parseVersion((if (data.has("data")) data.get("data").getAsJsonObject else data).get("version").getAsString), UpdateNeeded)
-    } else if (SettingsDialog.settings.inventory.update != UpdateFrequency.NEVER) {
+    } else if (SettingsDialog.settings.inventory.update != UpdateFrequency.Never) {
       val in = BufferedReader(InputStreamReader(SettingsDialog.settings.inventory.versionSite.openStream()))
       val data = (new JsonParser).parse(in.lines.collect(Collectors.joining)).getAsJsonObject
       in.close()
