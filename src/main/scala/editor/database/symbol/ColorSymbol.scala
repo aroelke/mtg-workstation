@@ -11,20 +11,9 @@ import scala.jdk.OptionConverters._
  * @author Alec Roelke
  */
 object ColorSymbol {
-  /** All possible mana type symbols. @see [[ManaType]] */
-  val values = ManaType.values.map(s => s -> ColorSymbol(s)).toMap
-
-  /**
-   * Parse a [[ColorSymbol]] from a string.
-   * 
-   * @param s string to parse
-   * @return the [[ColorSymbol]] corresponding to the string, or None if there isn't one
-   */
-  def parse(s: String) = Option(ManaType.tryParseManaType(s)).map(values)
-
-  @deprecated val SYMBOLS = values.asJava
-  @deprecated def tryParseColorSymbol(s: String) = parse(s).toJava
-  @deprecated def parseColorSymbol(s: String) = values(ManaType.parseManaType(s))
+  @deprecated val SYMBOLS = ColorSymbolGenerator.values.asJava
+  @deprecated def tryParseColorSymbol(s: String) = ColorSymbolGenerator.parse(s).toJava
+  @deprecated def parseColorSymbol(s: String) = ColorSymbolGenerator.values(ManaType.parseManaType(s))
 }
 
 /**
@@ -36,7 +25,7 @@ object ColorSymbol {
  * 
  * @author Alec Roelke
  */
-class ColorSymbol private(private val color: ManaType) extends ManaSymbol(s"${color.toString.toLowerCase}_mana.png", color.shorthand.toString, 1) {
+class ColorSymbol private[symbol](private val color: ManaType) extends ManaSymbol(s"${color.toString.toLowerCase}_mana.png", color.shorthand.toString, 1) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 1))
 
   override def compareTo(o: ManaSymbol) = o match {

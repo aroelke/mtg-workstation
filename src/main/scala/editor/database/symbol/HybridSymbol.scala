@@ -10,34 +10,11 @@ import scala.jdk.OptionConverters._
  * @author Alec Roelke
  */
 object HybridSymbol {
-  /**
-   * All possible hybrid symbols in all combinations of different colors, regardless of order. Pairs of colors
-   * in different orders will map to the same symbol.
-   * @see [[ManaType.colors]]
-   */
-  val values = ManaType.colors.map((c1) => c1 -> ManaType.colors.collect{ case c2 if c2 != c1 => c2 -> (if (c1.colorOrder(c2) < 0) HybridSymbol(c1, c2) else HybridSymbol(c2, c1)) }.toMap).toMap
-
-  /**
-   * Parse a [[HybridSymbol]] from a string.
-   * 
-   * @param s string to parse
-   * @return the [[HybridSymbol]] represented by the string, or None if there isn't one
-   */
-  def parse(s: String) = {
-    val tokens = s.split("/")
-    if (tokens.size == 2) {
-      tokens.flatMap((t) => Option(ManaType.tryParseManaType(t))) match {
-        case Array(col1, col2) => Some(values(col1)(col2))
-        case _ => None
-      }
-    } else None
-  }
-
-  @deprecated def SYMBOLS = values.map{ case (c, s) => c -> s.asJava }.asJava
-  @deprecated def tryParseHybridSymbol(s: String) = parse(s).toJava
+  @deprecated val SYMBOLS = ManaType.colors.map((c1) => c1 -> ManaType.colors.collect{ case (c2) if c2 != c1 => c2 -> HybridSymbolGenerator.values((c1, c2)) })
+  @deprecated def tryParseHybridSymbol(s: String) = HybridSymbolGenerator.parse(s).toJava
   @deprecated def parseHybridSymbol(s: String) = {
     val colors = s.split("/").map(ManaType.parseManaType)
-    values(colors(0))(colors(1))
+    HybridSymbolGenerator.values((colors(0), colors(1)))
   }
 }
 
@@ -52,7 +29,7 @@ object HybridSymbol {
  * 
  * @author Alec Roelke
  */
-class HybridSymbol private(private val first: ManaType, private val second: ManaType) extends ManaSymbol(s"${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png", s"${first.shorthand.toUpper}/${second.shorthand.toUpper}", 1) {
+class HybridSymbol private[symbol](private val first: ManaType, private val second: ManaType) extends ManaSymbol(s"${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png", s"${first.shorthand.toUpper}/${second.shorthand.toUpper}", 1) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(first -> 0.5, second -> 0.5))
 
   override def compareTo(o: ManaSymbol) = o match {

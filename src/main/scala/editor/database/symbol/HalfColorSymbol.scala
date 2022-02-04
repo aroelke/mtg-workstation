@@ -10,20 +10,9 @@ import scala.jdk.OptionConverters._
  * @author Alec Roelke
  */
 object HalfColorSymbol {
-  /** All possible half-color symbols. @see [[ManaType]] */
-  val values = ManaType.values.map((t) => t -> HalfColorSymbol(t)).toMap
-
-  /**
-   * Parse a [[HalfColorSymbol]] from a string.
-   * 
-   * @param s string to parse
-   * @return the [[HalfColorSymbol]] represented by the string, or None if there isn't one
-   */
-  def parse(s: String) = if (s.size == 2 && s(0).toUpper == 'H') Option(ManaType.tryParseManaType(s(1))).map(values) else None
-
-  @deprecated val SYMBOLS = values.asJava
-  @deprecated def tryParseHalfColorSymbol(s: String) = parse(s).toJava
-  @deprecated def parseHalfColorSymbol(s: String) = values(ManaType.parseManaType(s))
+  @deprecated val SYMBOLS = HalfColorSymbolGenerator.values.asJava
+  @deprecated def tryParseHalfColorSymbol(s: String) = HalfColorSymbolGenerator.parse(s).toJava
+  @deprecated def parseHalfColorSymbol(s: String) = HalfColorSymbolGenerator.values(ManaType.parseManaType(s))
 }
 
 /**
@@ -36,7 +25,7 @@ object HalfColorSymbol {
  * 
  * @author Alec Roelke
  */
-class HalfColorSymbol private(private val color: ManaType) extends ManaSymbol(s"half_${color.toString.toLowerCase}_mana.png", s"H${color.shorthand}", 0.5) {
+class HalfColorSymbol private[symbol](private val color: ManaType) extends ManaSymbol(s"half_${color.toString.toLowerCase}_mana.png", s"H${color.shorthand}", 0.5) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 0.5))
 
   override def compareTo(o: ManaSymbol) = o match {

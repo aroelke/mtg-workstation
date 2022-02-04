@@ -9,7 +9,7 @@ import scala.jdk.OptionConverters._
  * Companion to [[ManaSymbol]] containing methods for parsing them from strings and other utility.
  * @author Alec Roelke
  */
-object ManaSymbol {
+object ManaSymbol extends SymbolParser[ManaSymbol] {
   private val Order = Seq(
     classOf[VariableSymbol],
     classOf[StaticSymbol],
@@ -38,16 +38,13 @@ object ManaSymbol {
    * @return the [[ManaSymbol]] corresponding to the string, or None if there isn't one
    */
   def parse(s: String) = {
-    ColorSymbol.parse(s).orElse(
-    GenericSymbol.parse(s).orElse(
-    HalfColorSymbol.parse(s).orElse(
-    PhyrexianHybridSymbol.parse(s).orElse(
-    HybridSymbol.parse(s).orElse(
-    PhyrexianSymbol.parse(s).orElse(
-    TwobridSymbol.parse(s).orElse(
-    VariableSymbol.parse(s).orElse(
-    StaticSymbol.parse(s)
-    ))))))))
+/*
+    for (generator <- Generator.values)
+      println(s"  ${generator.toString}: $s -> ${generator.parse(s)}")
+*/
+    val result = Generator.values.flatMap(_.parse(s)).headOption
+//    println(s"parsed $s into $result")
+    result
   }
 
   /**

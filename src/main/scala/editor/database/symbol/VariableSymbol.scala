@@ -12,20 +12,9 @@ import scala.jdk.OptionConverters._
  * @author Alec Roelke
  */
 object VariableSymbol {
-  /** All the possible [[VariableSymbols]]: X, Y, and Z. */
-  val values = Seq('X', 'Y', 'Z').map((v) => v.toString -> VariableSymbol(v)).toMap
-
-  /**
-   * Parse a [[VariableSymbol]] from a string.
-   * 
-   * @param s string to parse
-   * @return a [[VariableSymbol]] using the letter in the string as its variable, or None if there isn't one
-   */
-  def parse(s: String) = values.get(s)
-
-  @deprecated val SYMBOLS = values.asJava
-  @deprecated def parseVariableSymbol(s: String) = values(s)
-  @deprecated def tryParseVariableSymbol(s: String) = parse(s).toJava
+  @deprecated val SYMBOLS = VariableSymbolGenerator.values.asJava
+  @deprecated def parseVariableSymbol(s: String) = VariableSymbolGenerator.values(s(0).toUpper)
+  @deprecated def tryParseVariableSymbol(s: String) = VariableSymbolGenerator.parse(s).toJava
 }
 
 /**
@@ -37,7 +26,7 @@ object VariableSymbol {
  * 
  * @author Alec Roelke
  */
-class VariableSymbol private(private val variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0) {
+class VariableSymbol private[symbol](private val variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(ManaType.COLORLESS -> 0.5))
 
   override def compareTo(other: ManaSymbol) = other match {

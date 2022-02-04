@@ -10,20 +10,9 @@ import scala.jdk.OptionConverters._
  * @author Alec Roelke
  */
 object PhyrexianSymbol {
-  /** All possible [[PhyrexianSymbol]]s. Currently only colored ones exist. @see [[ManaType.color]] */
-  val values = ManaType.colors.map(c => c -> PhyrexianSymbol(c)).toMap
-
-  /**
-   * Parse a [[PhyrexianSymbol]] from a string.
-   * 
-   * @param s string to parse
-   * @return the [[PhyrexianSymbol]] represented by the string, or None if there isn't one
-   */
-  def parse(s: String) = if (s.size == 3 && s(1) == '/' && s(2).toUpper == 'P') Option(ManaType.tryParseManaType(s(0))).map(values) else None
-
-  @deprecated val SYMBOLS = values.asJava
-  @deprecated def tryParsePhyrexianSymbol(s: String) = parse(s).toJava
-  @deprecated def parsePhyrexianSymbol(s: String) = values(ManaType.parseManaType(s))
+  @deprecated val SYMBOLS = PhyrexianSymbolGenerator.values.asJava
+  @deprecated def tryParsePhyrexianSymbol(s: String) = PhyrexianSymbolGenerator.parse(s).toJava
+  @deprecated def parsePhyrexianSymbol(s: String) = PhyrexianSymbolGenerator.values(ManaType.parseManaType(s))
 }
 
 /**
@@ -36,7 +25,7 @@ object PhyrexianSymbol {
  * 
  * @author Alec Roelke
  */
-class PhyrexianSymbol private(private val color: ManaType) extends ManaSymbol(s"phyrexian_${color.toString.toLowerCase}_mana.png", s"${color.shorthand.toUpper}/P", 1) {
+class PhyrexianSymbol private[symbol](private val color: ManaType) extends ManaSymbol(s"phyrexian_${color.toString.toLowerCase}_mana.png", s"${color.shorthand.toUpper}/P", 1) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 0.5))
 
   override def compareTo(o: ManaSymbol) = o match {
