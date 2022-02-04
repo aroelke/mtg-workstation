@@ -58,7 +58,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
     public static Optional<ManaCost> tryParseManaCost(String s)
     {
         var symbols = new ArrayList<ManaSymbol>();
-        for (final var m : Symbol.SYMBOL_PATTERN.matcher(s).results().collect(Collectors.toList()))
+        for (final var m : Symbol.SYMBOL_PATTERN().matcher(s).results().collect(Collectors.toList()))
         {
             s = s.replaceFirst(Pattern.quote(m.group()), "");
             var symbol = ManaSymbol.tryParseManaSymbol(m.group(1));
