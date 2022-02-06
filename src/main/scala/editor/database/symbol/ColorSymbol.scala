@@ -25,11 +25,6 @@ object ColorSymbol {
  * 
  * @author Alec Roelke
  */
-class ColorSymbol private[symbol](private val color: ManaType) extends ManaSymbol(s"${color.toString.toLowerCase}_mana.png", color.shorthand.toString, 1) {
+class ColorSymbol private[symbol](val color: ManaType) extends ManaSymbol(s"${color.toString.toLowerCase}_mana.png", color.shorthand.toString, 1, ColorSymbolGenerator) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 1))
-
-  override def compareTo(o: ManaSymbol) = o match {
-    case c: ColorSymbol => color.compareTo(c.color)
-    case _ => super.compareTo(o)
-  }
 }

@@ -29,11 +29,6 @@ object PhyrexianHybridSymbol {
  * 
  * @author Alec Roelke
  */
-class PhyrexianHybridSymbol private[symbol](private val first: ManaType, private val second: ManaType) extends ManaSymbol(s"phyrexian_${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png", s"${first.shorthand.toUpper}/${second.shorthand.toUpper}/P", 1) {
+class PhyrexianHybridSymbol private[symbol](val first: ManaType, val second: ManaType) extends ManaSymbol(s"phyrexian_${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png", s"${first.shorthand.toUpper}/${second.shorthand.toUpper}/P", 1, PhyrexianHybridSymbolGenerator) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(first -> 1.0/3.0, second -> 1.0/3.0))
-
-  override def compareTo(o: ManaSymbol) = o match {
-    case h: PhyrexianHybridSymbol => first.compareTo(h.first)*10 + second.compareTo(h.second)
-    case _ => super.compareTo(o)
-  }
 }

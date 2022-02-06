@@ -26,11 +26,6 @@ object VariableSymbol {
  * 
  * @author Alec Roelke
  */
-class VariableSymbol private[symbol](private val variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0) {
+class VariableSymbol private[symbol](val variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0, VariableSymbolGenerator) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(ManaType.COLORLESS -> 0.5))
-
-  override def compareTo(other: ManaSymbol) = other match {
-    case s: VariableSymbol => variable.toUpper - s.variable.toUpper
-    case _ => super.compareTo(other)
-  }
 }

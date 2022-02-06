@@ -25,11 +25,6 @@ object PhyrexianSymbol {
  * 
  * @author Alec Roelke
  */
-class PhyrexianSymbol private[symbol](private val color: ManaType) extends ManaSymbol(s"phyrexian_${color.toString.toLowerCase}_mana.png", s"${color.shorthand.toUpper}/P", 1) {
+class PhyrexianSymbol private[symbol](val color: ManaType) extends ManaSymbol(s"phyrexian_${color.toString.toLowerCase}_mana.png", s"${color.shorthand.toUpper}/P", 1, PhyrexianSymbolGenerator) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 0.5))
-
-  override def compareTo(o: ManaSymbol) = o match {
-    case p: PhyrexianSymbol => color.compareTo(p.color)
-    case _ => super.compareTo(o)
-  }
 }

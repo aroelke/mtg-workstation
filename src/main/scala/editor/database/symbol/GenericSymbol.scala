@@ -27,11 +27,6 @@ object GenericSymbol {
  * 
  * @author Alec Roelke
  */
-class GenericSymbol private[symbol](amount: Int) extends ManaSymbol(s"${amount}_mana.png", amount.toString, amount) {
+class GenericSymbol private[symbol](val amount: Int) extends ManaSymbol(s"${amount}_mana.png", amount.toString, amount, GenericSymbolGenerator) {
   override def colorIntensity = ManaSymbol.createIntensity(Map.empty)
-
-  override def compareTo(o: ManaSymbol) = o match {
-    case g: GenericSymbol => value.toInt - o.value.toInt
-    case _ => super.compareTo(o)
-  }
 }

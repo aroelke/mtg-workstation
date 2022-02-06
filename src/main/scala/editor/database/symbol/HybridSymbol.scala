@@ -29,11 +29,6 @@ object HybridSymbol {
  * 
  * @author Alec Roelke
  */
-class HybridSymbol private[symbol](private val first: ManaType, private val second: ManaType) extends ManaSymbol(s"${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png", s"${first.shorthand.toUpper}/${second.shorthand.toUpper}", 1) {
+class HybridSymbol private[symbol](val first: ManaType, val second: ManaType) extends ManaSymbol(s"${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png", s"${first.shorthand.toUpper}/${second.shorthand.toUpper}", 1, HybridSymbolGenerator) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(first -> 0.5, second -> 0.5))
-
-  override def compareTo(o: ManaSymbol) = o match {
-    case h: HybridSymbol => first.compareTo(h.first)*10 + second.compareTo(h.second)
-    case _ => super.compareTo(o)
-  }
 }

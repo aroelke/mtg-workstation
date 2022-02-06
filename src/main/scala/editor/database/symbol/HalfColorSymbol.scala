@@ -25,11 +25,6 @@ object HalfColorSymbol {
  * 
  * @author Alec Roelke
  */
-class HalfColorSymbol private[symbol](private val color: ManaType) extends ManaSymbol(s"half_${color.toString.toLowerCase}_mana.png", s"H${color.shorthand}", 0.5) {
+class HalfColorSymbol private[symbol](val color: ManaType) extends ManaSymbol(s"half_${color.toString.toLowerCase}_mana.png", s"H${color.shorthand}", 0.5, HalfColorSymbolGenerator) {
   override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 0.5))
-
-  override def compareTo(o: ManaSymbol) = o match {
-    case h: HalfColorSymbol => color.compareTo(h.color)
-    case _ => super.compareTo(o)
-  }
 }

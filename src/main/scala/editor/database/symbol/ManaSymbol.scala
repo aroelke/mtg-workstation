@@ -10,18 +10,6 @@ import scala.jdk.OptionConverters._
  * @author Alec Roelke
  */
 object ManaSymbol extends SymbolParser[ManaSymbol] {
-  private val Order = Seq(
-    classOf[VariableSymbol],
-    classOf[StaticSymbol],
-    classOf[GenericSymbol],
-    classOf[HalfColorSymbol],
-    classOf[TwobridSymbol],
-    classOf[PhyrexianHybridSymbol],
-    classOf[HybridSymbol],
-    classOf[PhyrexianSymbol],
-    classOf[ColorSymbol]
-  )
-
   /**
    * Convenience method for creating color intensity maps, as they should have all colors in them.  Mana types not explicitly
    * given weights will be set to 0 weight.
@@ -70,9 +58,7 @@ object ManaSymbol extends SymbolParser[ManaSymbol] {
  * 
  * @author Alec Roelke
  */
-abstract class ManaSymbol private[symbol](icon: String, text: String, val value: Double) extends Symbol(icon, text) with Comparable[ManaSymbol] {
-  import ManaSymbol.Order
-
+abstract class ManaSymbol private[symbol](icon: String, text: String, val value: Double, val generator: Generator[?, ? <: ManaSymbol]) extends Symbol(icon, text) with Ordered[ManaSymbol] {
   /**
    * Get the color intensity map of this symbol. Each mana type is mapped onto an "intensity," which is a value that loosely represents the fraction of
    * the number of ways the symbol can be paid for that the mana type is. This is used mainly for sorting symbols and mana costs. See each symbol for an
@@ -83,14 +69,5 @@ abstract class ManaSymbol private[symbol](icon: String, text: String, val value:
    */
   def colorIntensity: Map[ManaType, Double]
 
-  override def compareTo(other: ManaSymbol) = {
-    if (Order.contains(getClass) && Order.contains(other.getClass))
-      Order.indexOf(getClass) - Order.indexOf(other.getClass)
-    else if (!Order.contains(getClass))
-      1
-    else if (!Order.contains(other.getClass))
-      -1
-    else
-      0
-  }
+  override def compare(other: ManaSymbol) = if (generator.ordinal == other.generator.ordinal) generator.compare(this, other) else generator.ordinal - other.generator.ordinal
 }
