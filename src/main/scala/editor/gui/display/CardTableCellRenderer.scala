@@ -84,7 +84,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             val panel = JPanel()
             panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
             value match {
-              case s: java.util.List[?] => s.asScala.toSeq.foreach{ case t: ManaType => panel.add(JLabel(ColorSymbol.SYMBOLS.get(t).getIcon(13))) }
+              case s: java.util.List[?] => s.asScala.toSeq.foreach{ case t: ManaType => panel.add(JLabel(ColorSymbol(t).scaled(13))) }
               case _ =>
             }
             finishPanel(panel)

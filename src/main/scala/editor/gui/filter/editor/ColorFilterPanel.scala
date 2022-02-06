@@ -57,7 +57,7 @@ class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
   val colors = ManaType.colors.map(_ -> JCheckBox()).toMap
   colors.foreach{ case (color, box) =>
     add(box)
-    add(JLabel(ColorSymbol.SYMBOLS.get(color).getIcon(IconHeight)))
+    add(JLabel(ColorSymbol(color).getIcon(IconHeight)))
     box.addActionListener(_ => if (box.isSelected) colorless.setSelected(false))
   }
   add(Box.createHorizontalStrut(4))
@@ -66,13 +66,13 @@ class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
   // Check box for multicolored cards
   private val multi = JCheckBox()
   add(multi)
-  add(JLabel(StaticSymbol.SYMBOLS.get("M").getIcon(IconHeight)))
+  add(JLabel(StaticSymbol("M").getIcon(IconHeight)))
   multi.addActionListener(_ => if (multi.isSelected) colorless.setSelected(false))
 
   // Actually add the colorless box here
   colorless.setSelected(true)
   add(colorless)
-  add(JLabel(ColorSymbol.SYMBOLS.get(ManaType.COLORLESS).getIcon(IconHeight)))
+  add(JLabel(ColorSymbol(ManaType.COLORLESS).getIcon(IconHeight)))
   colorless.addActionListener(_ => if (colorless.isSelected) {
     colors.foreach{ case (_, box) => box.setSelected(false) }
     multi.setSelected(false)

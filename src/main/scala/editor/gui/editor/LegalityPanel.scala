@@ -215,7 +215,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
         (commander, partners)
       } else (false, false)
       if (!commanderSearch.isEmpty && constraints.hasCommander && !commander && !partners)
-        warnings(format) += s"""Could not find a $format-legal legendary creature whose color identity contains ${deckColorIdentity.toSeq.sortBy(_.ordinal).map(ColorSymbol.SYMBOLS.get(_).toString).mkString}"""
+        warnings(format) += s"""Could not find a $format-legal legendary creature whose color identity contains ${deckColorIdentity.toSeq.sortBy(_.ordinal).map(ColorSymbol(_).toString).mkString}"""
 
       // Deck size
       if (constraints.hasCommander) {
