@@ -38,16 +38,14 @@ case object VariableSymbol extends Generator[Char, VariableSymbol] {
  * 
  * @author Alec Roelke
  */
-case class VariableSymbol private[symbol](variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0, VariableSymbol) {
-  override def colorIntensity = ManaSymbol.createIntensity(Map(ManaType.COLORLESS -> 0.5))
-}
+case class VariableSymbol private[symbol](variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0, Map(ManaType.COLORLESS -> 0.5), VariableSymbol)
 
 case object StaticSymbol extends Generator[String, StaticSymbol] {
   override val values = Map(
     "1/2" -> new StaticSymbol("half_mana.png", "1/2", 0.5),
     UnicodeSymbols.ONE_HALF.toString -> new StaticSymbol("half_mana.png", "1/2", 0.5),
     UnicodeSymbols.INFINITY.toString -> new StaticSymbol("infinity_mana.png", UnicodeSymbols.INFINITY.toString, Double.PositiveInfinity),
-    "S" -> new StaticSymbol("snow_mana.png", "S", 1),
+    "S" -> new StaticSymbol("snow_mana.png", "S", 1, 1),
     "M" -> new StaticSymbol("multicolored.png", "M", 0)
   )
   override def parse(s: String) = values.get(s)
@@ -68,9 +66,7 @@ case object StaticSymbol extends Generator[String, StaticSymbol] {
  * 
  * @author Alec Roelke
  */
-class StaticSymbol private[symbol](icon: String, text: String, override val value: Double) extends ManaSymbol(icon, text, value, StaticSymbol) {
-  override def colorIntensity = ManaSymbol.createIntensity(Map(ManaType.COLORLESS -> value))
-}
+class StaticSymbol private[symbol](icon: String, text: String, value: Double, intensity: Double = 0) extends ManaSymbol(icon, text, value, Map(ManaType.COLORLESS -> intensity), StaticSymbol)
 
 case object GenericSymbol extends Generator[Int, GenericSymbol] {
   override val values = ((0 to 20).toSeq ++ Seq(100, 1000000)).map((n) => n -> new GenericSymbol(n)).toMap
@@ -97,9 +93,7 @@ case object GenericSymbol extends Generator[Int, GenericSymbol] {
  * 
  * @author Alec Roelke
  */
-case class GenericSymbol private[symbol](amount: Int) extends ManaSymbol(s"${amount}_mana.png", amount.toString, amount, GenericSymbol) {
-  override def colorIntensity = ManaSymbol.createIntensity(Map.empty)
-}
+case class GenericSymbol private[symbol](amount: Int) extends ManaSymbol(s"${amount}_mana.png", amount.toString, amount, Map.empty, GenericSymbol)
 
 case object HalfColorSymbol extends Generator[ManaType, HalfColorSymbol] {
   override val values = ManaType.values.map(s => s -> new HalfColorSymbol(s)).toMap
@@ -120,9 +114,7 @@ case object HalfColorSymbol extends Generator[ManaType, HalfColorSymbol] {
  * 
  * @author Alec Roelke
  */
-case class HalfColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"half_${color.toString.toLowerCase}_mana.png", s"H${color.shorthand}", 0.5, HalfColorSymbol) {
-  override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 0.5))
-}
+case class HalfColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"half_${color.toString.toLowerCase}_mana.png", s"H${color.shorthand}", 0.5, Map(color -> 0.5), HalfColorSymbol)
 
 case object TwobridSymbol extends Generator[ManaType, TwobridSymbol] {
   override val values = ManaType.colors.map(s => s -> new TwobridSymbol(s)).toMap
@@ -143,9 +135,7 @@ case object TwobridSymbol extends Generator[ManaType, TwobridSymbol] {
  * 
  * @author Alec Roelke
  */
-case class TwobridSymbol private[symbol](color: ManaType) extends ManaSymbol(s"2_${color.toString.toLowerCase}_mana.png", s"2/${color.shorthand.toUpper}", 2, TwobridSymbol) {
-  override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 0.5))
-}
+case class TwobridSymbol private[symbol](color: ManaType) extends ManaSymbol(s"2_${color.toString.toLowerCase}_mana.png", s"2/${color.shorthand.toUpper}", 2, Map(color -> 0.5), TwobridSymbol)
 
 case object PhyrexianHybridSymbol extends Generator[(ManaType, ManaType), PhyrexianHybridSymbol] {
   override val values = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new PhyrexianHybridSymbol(c1, c2) else new PhyrexianHybridSymbol(c2, c1))).toMap
@@ -175,9 +165,13 @@ case object PhyrexianHybridSymbol extends Generator[(ManaType, ManaType), Phyrex
  * 
  * @author Alec Roelke
  */
-case class PhyrexianHybridSymbol private[symbol](first: ManaType, second: ManaType) extends ManaSymbol(s"phyrexian_${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png", s"${first.shorthand.toUpper}/${second.shorthand.toUpper}/P", 1, PhyrexianHybridSymbol) {
-  override def colorIntensity = ManaSymbol.createIntensity(Map(first -> 1.0/3.0, second -> 1.0/3.0))
-}
+case class PhyrexianHybridSymbol private[symbol](first: ManaType, second: ManaType) extends ManaSymbol(
+  s"phyrexian_${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png",
+  s"${first.shorthand.toUpper}/${second.shorthand.toUpper}/P",
+  1,
+  Map(first -> 1.0/3.0, second -> 1.0/3.0),
+  PhyrexianHybridSymbol
+)
 
 case object HybridSymbol extends Generator[(ManaType, ManaType), HybridSymbol] {
   override val values = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new HybridSymbol(c1, c2) else new HybridSymbol(c2, c1))).toMap
@@ -207,9 +201,13 @@ case object HybridSymbol extends Generator[(ManaType, ManaType), HybridSymbol] {
  * 
  * @author Alec Roelke
  */
-case class HybridSymbol private[symbol](first: ManaType, second: ManaType) extends ManaSymbol(s"${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png", s"${first.shorthand.toUpper}/${second.shorthand.toUpper}", 1, HybridSymbol) {
-  override def colorIntensity = ManaSymbol.createIntensity(Map(first -> 0.5, second -> 0.5))
-}
+case class HybridSymbol private[symbol](first: ManaType, second: ManaType) extends ManaSymbol(
+  s"${first.toString.toLowerCase}_${second.toString.toLowerCase}_mana.png",
+  s"${first.shorthand.toUpper}/${second.shorthand.toUpper}",
+  1,
+  Map(first -> 0.5, second -> 0.5),
+  HybridSymbol
+)
 
 case object PhyrexianSymbol extends Generator[ManaType, PhyrexianSymbol] {
   override val values = ManaType.colors.map(s => s -> new PhyrexianSymbol(s)).toMap
@@ -230,9 +228,7 @@ case object PhyrexianSymbol extends Generator[ManaType, PhyrexianSymbol] {
  * 
  * @author Alec Roelke
  */
-case class PhyrexianSymbol private[symbol](color: ManaType) extends ManaSymbol(s"phyrexian_${color.toString.toLowerCase}_mana.png", s"${color.shorthand.toUpper}/P", 1, PhyrexianSymbol) {
-  override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 0.5))
-}
+case class PhyrexianSymbol private[symbol](color: ManaType) extends ManaSymbol(s"phyrexian_${color.toString.toLowerCase}_mana.png", s"${color.shorthand.toUpper}/P", 1, Map(color -> 1), PhyrexianSymbol)
 
 case object ColorSymbol extends Generator[ManaType, ColorSymbol] {
   override val values = ManaType.values.map(s => s -> new ColorSymbol(s)).toMap
@@ -252,9 +248,7 @@ case object ColorSymbol extends Generator[ManaType, ColorSymbol] {
  * 
  * @author Alec Roelke
  */
-case class ColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"${color.toString.toLowerCase}_mana.png", color.shorthand.toString, 1, ColorSymbol) {
-  override def colorIntensity = ManaSymbol.createIntensity(Map(color -> 1))
-}
+case class ColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"${color.toString.toLowerCase}_mana.png", color.shorthand.toString, 1, Map(color -> 1), ColorSymbol)
 
 object Generator {
   val values = Seq(VariableSymbol, StaticSymbol, GenericSymbol, HalfColorSymbol, TwobridSymbol, PhyrexianHybridSymbol, HybridSymbol, PhyrexianSymbol, ColorSymbol)
