@@ -7,7 +7,7 @@ import editor.database.attributes.Legality
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.card.Card
-import editor.database.symbol.ColorSymbol
+import editor.database.symbol.Generator.ColorSymbol
 import editor.gui.generic.ComponentUtils
 import editor.gui.settings.SettingsDialog
 import editor.util.UnicodeSymbols

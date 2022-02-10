@@ -2,8 +2,8 @@ package editor.gui.filter.editor
 
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.ManaType
-import editor.database.symbol.ColorSymbol
-import editor.database.symbol.StaticSymbol
+import editor.database.symbol.Generator.ColorSymbol
+import editor.database.symbol.Generator.StaticSymbol
 import editor.filter.leaf.ColorFilter
 import editor.filter.leaf.FilterLeaf
 import editor.gui.generic.ComboBoxPanel

@@ -13,20 +13,113 @@ trait HasDiscreteValues[K, S <: Symbol] {
   def apply(key: K) = values(key)
 }
 
-sealed trait Generator[K, S <: ManaSymbol : ClassTag] extends SymbolParser[S] with HasDiscreteValues[K, S] with Ordering[ManaSymbol] {
-  def ordinal = {
-    val i = Generator.values.indexOf(this)
-    if (i >= 0) i else throw IllegalAccessException(this.toString)
-  }
-}
+enum Generator[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String) => Option[K], comparator: Ordering[ManaSymbol]) extends SymbolParser[ManaSymbol] with HasDiscreteValues[K, S] with Ordering[ManaSymbol] {
+  override lazy val values = map
+  override def parse(s: String) = keygen(s).flatMap(values.get)
+  override def compare(a: ManaSymbol, b: ManaSymbol) = comparator.compare(a, b)
 
-case object VariableSymbol extends Generator[Char, VariableSymbol] {
-  override val values = Seq('X', 'Y', 'Z').map((v) => v -> new VariableSymbol(v)).toMap
-  override def parse(s: String) = Option.when(s.size == 1)(s(0).toUpper).flatMap(values.get)
-  override def compare(a: ManaSymbol, b: ManaSymbol) = (a, b) match {
-    case (va: VariableSymbol, vb: VariableSymbol) => va.variable.toUpper - vb.variable.toUpper
-    case _ => throw IllegalArgumentException(s"either $a or $b is not a VariableSymbol")
-  }
+  case VariableSymbol extends Generator[Char, editor.database.symbol.VariableSymbol](
+    map = Seq('X', 'Y', 'Z').map((v) => v -> new VariableSymbol(v)).toMap,
+    keygen = (s) => Option.when(s.size == 1)(s(0).toUpper),
+    comparator = (a, b) => (a, b) match {
+      case (va: VariableSymbol, vb: VariableSymbol) => va.variable.toUpper - vb.variable.toUpper
+      case _ => throw IllegalArgumentException(s"either $a or $b is not a VariableSymbol")
+    }
+  )
+
+  case StaticSymbol extends Generator(
+    map = Map(
+      "1/2" -> new StaticSymbol("half_mana.png", "1/2", 0.5),
+      UnicodeSymbols.ONE_HALF.toString -> new StaticSymbol("half_mana.png", "1/2", 0.5),
+      UnicodeSymbols.INFINITY.toString -> new StaticSymbol("infinity_mana.png", UnicodeSymbols.INFINITY.toString, Double.PositiveInfinity),
+      "S" -> new StaticSymbol("snow_mana.png", "S", 1, 1),
+      "M" -> new StaticSymbol("multicolored.png", "M", 0)
+    ),
+    keygen = Some(_),
+    comparator = (a, b) => (a, b) match {
+      case (sa: StaticSymbol, sb: StaticSymbol) => (sa.value - sb.value).toInt
+      case _ => throw IllegalArgumentException(s"either $a or $b is not a StaticSymbol")
+    }
+  )
+
+  case GenericSymbol extends Generator(
+    map = ((0 to 20).toSeq ++ Seq(100, 1000000)).map((n) => n -> new GenericSymbol(n)).toMap,
+    keygen = (s) => try Some(s.toInt) catch case _: NumberFormatException => None,
+    comparator = (a, b) => (a, b) match {
+      case (ga: GenericSymbol, gb: GenericSymbol) => (ga.value - gb.value).toInt
+      case _ => throw IllegalArgumentException(s"either $a or $b is not a GenericSymbol")
+    }
+  )
+
+  case HalfColorSymbol extends Generator(
+    map = ManaType.values.map(s => s -> new HalfColorSymbol(s)).toMap,
+    keygen = (s) => if (s.size == 3 && s.startsWith("2/")) Option(ManaType.tryParseManaType(s(2).toUpper)) else None,
+    comparator = (a, b) => (a, b) match {
+      case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compareTo(hb.color)
+      case _ => throw IllegalArgumentException(s"either $a or $b is not a HalfColorSymbol")
+    }
+  )
+
+  case TwobridSymbol extends Generator(
+    map = ManaType.colors.map(s => s -> new TwobridSymbol(s)).toMap,
+    keygen = (s) => if (s.size == 3 && s.startsWith("2/")) Option(ManaType.tryParseManaType(s(2).toUpper)) else None,
+    comparator = (a, b) => (a, b) match {
+      case (ta: TwobridSymbol, tb: TwobridSymbol) => ta.color.compareTo(tb.color)
+      case _ => throw IllegalArgumentException(s"either $a or $b is not a TwobridSymbol")
+    }
+  )
+
+  case PhyrexianHybridSymbol extends Generator(
+    map = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new PhyrexianHybridSymbol(c1, c2) else new PhyrexianHybridSymbol(c2, c1))).toMap,
+    keygen = (s) => {
+      val tokens = s.split("/")
+      if (tokens.size == 3 && tokens(2) == "P") {
+        tokens.flatMap((t) => Option(ManaType.tryParseManaType(t))) match {
+          case Array(c1, c2) => Some((c1, c2))
+          case _ => None
+        }
+      } else None
+    },
+    comparator = (a, b) => (a, b) match {
+      case (pa: PhyrexianHybridSymbol, pb: PhyrexianHybridSymbol) => pa.first.compareTo(pb.first)*10 + pa.second.compareTo(pb.second)
+      case _ => throw IllegalArgumentException(s"either $a or $b is not a PhyrexianHybridSymbol")
+    }
+  )
+
+  case HybridSymbol extends Generator(
+    map = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new HybridSymbol(c1, c2) else new HybridSymbol(c2, c1))).toMap,
+    keygen = (s) => {
+      val tokens = s.split("/")
+      if (tokens.size == 2) {
+        tokens.flatMap((t) => Option(ManaType.tryParseManaType(t))) match {
+          case Array(c1, c2) => Some((c1, c2))
+          case _ => None
+        }
+      } else None
+    },
+    comparator = (a, b) => (a, b) match {
+      case (ha: HybridSymbol, hb: HybridSymbol) => ha.first.compareTo(hb.first)*10 + ha.second.compareTo(hb.second)
+      case _ => throw IllegalArgumentException(s"either $a or $b is not a HybridSymbol")
+    }
+  )
+
+  case PhyrexianSymbol extends Generator(
+    map = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new PhyrexianHybridSymbol(c1, c2) else new PhyrexianHybridSymbol(c2, c1))).toMap,
+    keygen = (s) => if (s.size == 3 && s.toUpperCase.endsWith("/P")) Option(ManaType.tryParseManaType(s(0).toUpper)) else None,
+    comparator = (a, b) => (a, b) match {
+      case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compareTo(pb.color)
+      case _ => throw IllegalArgumentException(s"either $a or $b is not a PhyrexianSymbol")
+    }
+  )
+  
+  case ColorSymbol extends Generator(
+    map = ManaType.values.map(s => s -> new ColorSymbol(s)).toMap,
+    keygen = (s) => Option(ManaType.tryParseManaType(s)),
+    comparator = (a, b) => (a, b) match {
+      case (ca: ColorSymbol, cb: ColorSymbol) => ca.color.compareTo(cb.color)
+      case _ => throw IllegalArgumentException(s"either $a or $b is not a ColorSymbol")
+    }
+  )
 }
 
 /**
@@ -38,22 +131,7 @@ case object VariableSymbol extends Generator[Char, VariableSymbol] {
  * 
  * @author Alec Roelke
  */
-case class VariableSymbol private[symbol](variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0, Map(ManaType.COLORLESS -> 0.5), VariableSymbol)
-
-case object StaticSymbol extends Generator[String, StaticSymbol] {
-  override val values = Map(
-    "1/2" -> new StaticSymbol("half_mana.png", "1/2", 0.5),
-    UnicodeSymbols.ONE_HALF.toString -> new StaticSymbol("half_mana.png", "1/2", 0.5),
-    UnicodeSymbols.INFINITY.toString -> new StaticSymbol("infinity_mana.png", UnicodeSymbols.INFINITY.toString, Double.PositiveInfinity),
-    "S" -> new StaticSymbol("snow_mana.png", "S", 1, 1),
-    "M" -> new StaticSymbol("multicolored.png", "M", 0)
-  )
-  override def parse(s: String) = values.get(s)
-  override def compare(a: ManaSymbol, b: ManaSymbol) = (a, b) match {
-    case (sa: StaticSymbol, sb: StaticSymbol) => (sa.value - sb.value).toInt
-    case _ => throw IllegalArgumentException(s"either $a or $b is not a StaticSymbol")
-  }
-}
+case class VariableSymbol private[symbol](variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0, Map(ManaType.COLORLESS -> 0.5), Generator.VariableSymbol)
 
 /**
  * A mana symbol with a special, specific meaning that isn't captured by any of the other generalized versions of mana symbols. Its color
@@ -66,23 +144,7 @@ case object StaticSymbol extends Generator[String, StaticSymbol] {
  * 
  * @author Alec Roelke
  */
-class StaticSymbol private[symbol](icon: String, text: String, value: Double, intensity: Double = 0) extends ManaSymbol(icon, text, value, Map(ManaType.COLORLESS -> intensity), StaticSymbol)
-
-case object GenericSymbol extends Generator[Int, GenericSymbol] {
-  override val values = ((0 to 20).toSeq ++ Seq(100, 1000000)).map((n) => n -> new GenericSymbol(n)).toMap
-  override def parse(s: String) = {
-    try {
-      values.get(s.toInt)
-    } catch {
-      case _: NumberFormatException => None
-      case _: ArrayIndexOutOfBoundsException => None
-    }
-  }
-  override def compare(a: ManaSymbol, b: ManaSymbol) = (a, b) match {
-    case (ga: GenericSymbol, gb: GenericSymbol) => (ga.value - gb.value).toInt
-    case _ => throw IllegalArgumentException(s"either $a or $b is not a GenericSymbol")
-  }
-}
+case class StaticSymbol private[symbol](iconName: String, text: String, override val value: Double, intensity: Double = 0) extends ManaSymbol(iconName, text, value, Map(ManaType.COLORLESS -> intensity), Generator.StaticSymbol)
 
 /**
  * A mana symbol representing an amount of any combination of mana. Its color intensity is 0 for all mana types, as any type
@@ -93,16 +155,7 @@ case object GenericSymbol extends Generator[Int, GenericSymbol] {
  * 
  * @author Alec Roelke
  */
-case class GenericSymbol private[symbol](amount: Int) extends ManaSymbol(s"${amount}_mana.png", amount.toString, amount, Map.empty, GenericSymbol)
-
-case object HalfColorSymbol extends Generator[ManaType, HalfColorSymbol] {
-  override val values = ManaType.values.map(s => s -> new HalfColorSymbol(s)).toMap
-  override def parse(s: String) = if (s.size == 2 && s(0).toUpper == 'H') Option(ManaType.tryParseManaType(s(1).toUpper)).map(values) else None
-  override def compare(a: ManaSymbol, b: ManaSymbol) = (a, b) match {
-    case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compareTo(hb.color)
-    case _ => throw IllegalArgumentException(s"either $a or $b is not a HalfColorSymbol")
-  }
-}
+case class GenericSymbol private[symbol](amount: Int) extends ManaSymbol(s"${amount}_mana.png", amount.toString, amount, Map.empty, Generator.GenericSymbol)
 
 /**
  * Mana symbol representing half of a specific type of mana (not to be confused with the generic 1/2 mana symbol, which is a [[StaticSymbol]]). Its
@@ -114,16 +167,7 @@ case object HalfColorSymbol extends Generator[ManaType, HalfColorSymbol] {
  * 
  * @author Alec Roelke
  */
-case class HalfColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"half_${color.toString.toLowerCase}_mana.png", s"H${color.shorthand}", 0.5, Map(color -> 0.5), HalfColorSymbol)
-
-case object TwobridSymbol extends Generator[ManaType, TwobridSymbol] {
-  override val values = ManaType.colors.map(s => s -> new TwobridSymbol(s)).toMap
-  override def parse(s: String) = if (s.size == 3 && s.startsWith("2/")) Option(ManaType.tryParseManaType(s(2).toUpper)).map(values) else None
-  override def compare(a: ManaSymbol, b: ManaSymbol) = (a, b) match {
-    case (ta: TwobridSymbol, tb: TwobridSymbol) => ta.color.compareTo(tb.color)
-    case _ => throw IllegalArgumentException(s"either $a or $b is not a TwobridSymbol")
-  }
-}
+case class HalfColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"half_${color.toString.toLowerCase}_mana.png", s"H${color.shorthand}", 0.5, Map(color -> 0.5), Generator.HalfColorSymbol)
 
 /**
  * A mana symbol that can be paid either with two mana of any type or one mana of a specific color. Its color intensity is 0.5 for its color, and 0
@@ -135,24 +179,7 @@ case object TwobridSymbol extends Generator[ManaType, TwobridSymbol] {
  * 
  * @author Alec Roelke
  */
-case class TwobridSymbol private[symbol](color: ManaType) extends ManaSymbol(s"2_${color.toString.toLowerCase}_mana.png", s"2/${color.shorthand.toUpper}", 2, Map(color -> 0.5), TwobridSymbol)
-
-case object PhyrexianHybridSymbol extends Generator[(ManaType, ManaType), PhyrexianHybridSymbol] {
-  override val values = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new PhyrexianHybridSymbol(c1, c2) else new PhyrexianHybridSymbol(c2, c1))).toMap
-  override def parse(s: String) = {
-    val tokens = s.split("/")
-    if (tokens.size == 3 && tokens(2) == "P") {
-      tokens.flatMap((t) => Option(ManaType.tryParseManaType(t))) match {
-        case Array(c1, c2) => values.get((c1, c2))
-        case _ => None
-      }
-    } else None
-  }
-  override def compare(a: ManaSymbol, b: ManaSymbol) = (a, b) match {
-    case (pa: PhyrexianHybridSymbol, pb: PhyrexianHybridSymbol) => pa.first.compareTo(pb.first)*10 + pa.second.compareTo(pb.second)
-    case _ => throw IllegalArgumentException(s"either $a or $b is not a PhyrexianHybridSymbol")
-  }
-}
+case class TwobridSymbol private[symbol](color: ManaType) extends ManaSymbol(s"2_${color.toString.toLowerCase}_mana.png", s"2/${color.shorthand.toUpper}", 2, Map(color -> 0.5), Generator.TwobridSymbol)
 
 /**
  * A "Phyrexian" mana symbol that can be paid with either of two colors of mana or 2 life. Its color intensity is 1/3 for each of its two colors of mana,
@@ -170,25 +197,8 @@ case class PhyrexianHybridSymbol private[symbol](first: ManaType, second: ManaTy
   s"${first.shorthand.toUpper}/${second.shorthand.toUpper}/P",
   1,
   Map(first -> 1.0/3.0, second -> 1.0/3.0),
-  PhyrexianHybridSymbol
+  Generator.PhyrexianHybridSymbol
 )
-
-case object HybridSymbol extends Generator[(ManaType, ManaType), HybridSymbol] {
-  override val values = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new HybridSymbol(c1, c2) else new HybridSymbol(c2, c1))).toMap
-  override def parse(s: String) = {
-    val tokens = s.split("/")
-    if (tokens.size == 2) {
-      tokens.flatMap((t) => Option(ManaType.tryParseManaType(t))) match {
-        case Array(c1, c2) => values.get((c1, c2))
-        case _ => None
-      }
-    } else None
-  }
-  override def compare(a: ManaSymbol, b: ManaSymbol) = (a, b) match {
-    case (ha: HybridSymbol, hb: HybridSymbol) => ha.first.compareTo(hb.first)*10 + ha.second.compareTo(hb.second)
-    case _ => throw IllegalArgumentException(s"either $a or $b is not a HybridSymbol")
-  }
-}
 
 /**
  * A mana symbol that can be paid with either of two colors of mana. Its color intensity is 0.5 for each of its two colors, and 0 for all the
@@ -206,17 +216,8 @@ case class HybridSymbol private[symbol](first: ManaType, second: ManaType) exten
   s"${first.shorthand.toUpper}/${second.shorthand.toUpper}",
   1,
   Map(first -> 0.5, second -> 0.5),
-  HybridSymbol
+  Generator.HybridSymbol
 )
-
-case object PhyrexianSymbol extends Generator[ManaType, PhyrexianSymbol] {
-  override val values = ManaType.colors.map(s => s -> new PhyrexianSymbol(s)).toMap
-  override def parse(s: String) = if (s.size == 3 && s.toUpperCase.endsWith("/P")) Option(ManaType.tryParseManaType(s(0).toUpper)).map(values) else None
-  override def compare(a: ManaSymbol, b: ManaSymbol) = (a, b) match {
-    case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compareTo(pb.color)
-    case _ => throw IllegalArgumentException(s"either $a or $b is not a PhyrexianSymbol")
-  }
-}
 
 /**
  * A "Phyrexian" mana symbol that can be paid either with a color of mana or 2 life. Its color intensity is 0.5 for its color of mana, and 0 for
@@ -228,16 +229,7 @@ case object PhyrexianSymbol extends Generator[ManaType, PhyrexianSymbol] {
  * 
  * @author Alec Roelke
  */
-case class PhyrexianSymbol private[symbol](color: ManaType) extends ManaSymbol(s"phyrexian_${color.toString.toLowerCase}_mana.png", s"${color.shorthand.toUpper}/P", 1, Map(color -> 1), PhyrexianSymbol)
-
-case object ColorSymbol extends Generator[ManaType, ColorSymbol] {
-  override val values = ManaType.values.map(s => s -> new ColorSymbol(s)).toMap
-  override def parse(s: String) = Option(ManaType.tryParseManaType(s)).map(values)
-  override def compare(a: ManaSymbol, b: ManaSymbol) = (a, b) match {
-    case (ca: ColorSymbol, cb: ColorSymbol) => ca.color.compareTo(cb.color)
-    case _ => throw IllegalArgumentException(s"either $a or $b is not a ColorSymbol")
-  }
-}
+case class PhyrexianSymbol private[symbol](color: ManaType) extends ManaSymbol(s"phyrexian_${color.toString.toLowerCase}_mana.png", s"${color.shorthand.toUpper}/P", 1, Map(color -> 1), Generator.PhyrexianSymbol)
 
 /**
  * Mana symbol representing a specific type of mana. Its intensity is 1 for its mana type, and 0 for all others, as it can only be paid for by that type,
@@ -248,8 +240,4 @@ case object ColorSymbol extends Generator[ManaType, ColorSymbol] {
  * 
  * @author Alec Roelke
  */
-case class ColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"${color.toString.toLowerCase}_mana.png", color.shorthand.toString, 1, Map(color -> 1), ColorSymbol)
-
-object Generator {
-  val values = Seq(VariableSymbol, StaticSymbol, GenericSymbol, HalfColorSymbol, TwobridSymbol, PhyrexianHybridSymbol, HybridSymbol, PhyrexianSymbol, ColorSymbol)
-}
+case class ColorSymbol private[symbol](color: ManaType) extends ManaSymbol(s"${color.toString.toLowerCase}_mana.png", color.shorthand.toString, 1, Map(color -> 1), Generator.ColorSymbol)
