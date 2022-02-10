@@ -21,10 +21,7 @@ enum Generator[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String) => Option
   case VariableSymbol extends Generator[Char, editor.database.symbol.VariableSymbol](
     map = Seq('X', 'Y', 'Z').map((v) => v -> new VariableSymbol(v)).toMap,
     keygen = (s) => Option.when(s.size == 1)(s(0).toUpper),
-    comparator = (a, b) => (a, b) match {
-      case (va: VariableSymbol, vb: VariableSymbol) => va.variable.toUpper - vb.variable.toUpper
-      case _ => throw IllegalArgumentException(s"either $a or $b is not a VariableSymbol")
-    }
+    comparator = { case (va: VariableSymbol, vb: VariableSymbol) => va.variable.toUpper - vb.variable.toUpper }
   )
 
   case StaticSymbol extends Generator(
@@ -36,37 +33,25 @@ enum Generator[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String) => Option
       "M" -> new StaticSymbol("multicolored.png", "M", 0)
     ),
     keygen = Some(_),
-    comparator = (a, b) => (a, b) match {
-      case (sa: StaticSymbol, sb: StaticSymbol) => (sa.value - sb.value).toInt
-      case _ => throw IllegalArgumentException(s"either $a or $b is not a StaticSymbol")
-    }
+    comparator = { case (sa: StaticSymbol, sb: StaticSymbol) => (sa.value - sb.value).toInt }
   )
 
   case GenericSymbol extends Generator(
     map = ((0 to 20).toSeq ++ Seq(100, 1000000)).map((n) => n -> new GenericSymbol(n)).toMap,
     keygen = (s) => try Some(s.toInt) catch case _: NumberFormatException => None,
-    comparator = (a, b) => (a, b) match {
-      case (ga: GenericSymbol, gb: GenericSymbol) => (ga.value - gb.value).toInt
-      case _ => throw IllegalArgumentException(s"either $a or $b is not a GenericSymbol")
-    }
+    comparator = { case (ga: GenericSymbol, gb: GenericSymbol) => (ga.value - gb.value).toInt }
   )
 
   case HalfColorSymbol extends Generator(
     map = ManaType.values.map(s => s -> new HalfColorSymbol(s)).toMap,
     keygen = (s) => if (s.size == 3 && s.startsWith("2/")) Option(ManaType.tryParseManaType(s(2).toUpper)) else None,
-    comparator = (a, b) => (a, b) match {
-      case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compareTo(hb.color)
-      case _ => throw IllegalArgumentException(s"either $a or $b is not a HalfColorSymbol")
-    }
+    comparator = { case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compareTo(hb.color) }
   )
 
   case TwobridSymbol extends Generator(
     map = ManaType.colors.map(s => s -> new TwobridSymbol(s)).toMap,
     keygen = (s) => if (s.size == 3 && s.startsWith("2/")) Option(ManaType.tryParseManaType(s(2).toUpper)) else None,
-    comparator = (a, b) => (a, b) match {
-      case (ta: TwobridSymbol, tb: TwobridSymbol) => ta.color.compareTo(tb.color)
-      case _ => throw IllegalArgumentException(s"either $a or $b is not a TwobridSymbol")
-    }
+    comparator = { case (ta: TwobridSymbol, tb: TwobridSymbol) => ta.color.compareTo(tb.color) }
   )
 
   case PhyrexianHybridSymbol extends Generator(
@@ -80,10 +65,7 @@ enum Generator[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String) => Option
         }
       } else None
     },
-    comparator = (a, b) => (a, b) match {
-      case (pa: PhyrexianHybridSymbol, pb: PhyrexianHybridSymbol) => pa.first.compareTo(pb.first)*10 + pa.second.compareTo(pb.second)
-      case _ => throw IllegalArgumentException(s"either $a or $b is not a PhyrexianHybridSymbol")
-    }
+    comparator = { case (pa: PhyrexianHybridSymbol, pb: PhyrexianHybridSymbol) => pa.first.compareTo(pb.first)*10 + pa.second.compareTo(pb.second) }
   )
 
   case HybridSymbol extends Generator(
@@ -97,28 +79,19 @@ enum Generator[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String) => Option
         }
       } else None
     },
-    comparator = (a, b) => (a, b) match {
-      case (ha: HybridSymbol, hb: HybridSymbol) => ha.first.compareTo(hb.first)*10 + ha.second.compareTo(hb.second)
-      case _ => throw IllegalArgumentException(s"either $a or $b is not a HybridSymbol")
-    }
+    comparator = { case (ha: HybridSymbol, hb: HybridSymbol) => ha.first.compareTo(hb.first)*10 + ha.second.compareTo(hb.second) }
   )
 
   case PhyrexianSymbol extends Generator(
     map = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new PhyrexianHybridSymbol(c1, c2) else new PhyrexianHybridSymbol(c2, c1))).toMap,
     keygen = (s) => if (s.size == 3 && s.toUpperCase.endsWith("/P")) Option(ManaType.tryParseManaType(s(0).toUpper)) else None,
-    comparator = (a, b) => (a, b) match {
-      case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compareTo(pb.color)
-      case _ => throw IllegalArgumentException(s"either $a or $b is not a PhyrexianSymbol")
-    }
+    comparator = { case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compareTo(pb.color) }
   )
   
   case ColorSymbol extends Generator(
     map = ManaType.values.map(s => s -> new ColorSymbol(s)).toMap,
     keygen = (s) => Option(ManaType.tryParseManaType(s)),
-    comparator = (a, b) => (a, b) match {
-      case (ca: ColorSymbol, cb: ColorSymbol) => ca.color.compareTo(cb.color)
-      case _ => throw IllegalArgumentException(s"either $a or $b is not a ColorSymbol")
-    }
+    comparator = { case (ca: ColorSymbol, cb: ColorSymbol) => ca.color.compareTo(cb.color) }
   )
 }
 
