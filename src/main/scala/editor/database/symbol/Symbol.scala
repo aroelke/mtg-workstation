@@ -7,11 +7,20 @@ import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import scala.jdk.OptionConverters._
 
+trait SymbolParser[S <: Symbol] {
+  def parse(s: String): Option[S]
+}
+
+trait HasDiscreteValues[K, S <: Symbol] {
+  def values: Map[K, S]
+  def apply(key: K) = values(key)
+}
+
 /**
  * Companion to [[Symbol]] containing global data and methods for parsing from strings.
  * @author Alec Roelke
  */
-object Symbol {
+object Symbol extends SymbolParser[Symbol] {
   /** Regular expression for retrieving a [[Symbol]]'s text from its string representation. */
   val Regex = Pattern.compile(raw"\{([^}]+)\}")
 
@@ -24,11 +33,7 @@ object Symbol {
    * @param s string to parse
    * @return the [[Symbol]] represented by the string, or None if there isn't one
    */
-  def parse(s: String) = {
-    ManaSymbol.parse(s).orElse(
-    FunctionalSymbol.parse(s)
-    )
-  }
+  override def parse(s: String) = ManaSymbol.parse(s) orElse FunctionalSymbol.parse(s)
 
   @deprecated val SYMBOL_PATTERN = Regex
   @deprecated val UNKNOWN = Unknown

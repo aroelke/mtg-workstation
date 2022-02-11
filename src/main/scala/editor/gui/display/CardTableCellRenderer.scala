@@ -6,7 +6,7 @@ import editor.database.attributes.CardAttribute
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.card.Card
-import editor.database.symbol.Generator.ColorSymbol
+import editor.database.symbol.ManaSymbolInstances.ColorSymbol
 import editor.util.UnicodeSymbols
 
 import java.awt.Color
