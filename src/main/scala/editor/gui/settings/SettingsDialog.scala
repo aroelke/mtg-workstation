@@ -79,6 +79,7 @@ import javax.swing.tree.TreeSelectionModel
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 import java.net.MalformedURLException
+import java.awt.Frame
 
 /**
  * Application-modal dialog that allows the user to make global changes to UI elements, including various colors,
@@ -237,12 +238,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   suppressPanel.add(suppressCheckBox)
   suppressPanel.add(Box.createHorizontalStrut(5))
   private val viewWarningsButton = JButton("View Warnings")
-  viewWarningsButton.addActionListener((e) => {
-      val join = StringJoiner("<li>", "<html>", "</ul></html>")
-      join.add("Warnings from last inventory load:<ul style=\"margin-top:0margin-left:20pt\">")
-      inventoryWarnings.foreach(join.add(_))
-      JOptionPane.showMessageDialog(this, join.toString, "Inventory Warnings", JOptionPane.WARNING_MESSAGE)
-  })
+  viewWarningsButton.addActionListener(_ => showWarnings(parent, "Warnings from last inventory load:", inventoryWarnings, false))
   suppressPanel.add(viewWarningsButton)
   suppressPanel.setMaximumSize(Dimension(Int.MaxValue, suppressPanel.getPreferredSize.height))
   inventoryPanel.add(suppressPanel)
@@ -956,5 +952,35 @@ object SettingsDialog {
     } else
       Files.deleteIfExists(Path.of(settings.inventory.tags))
     Files.writeString(PropertiesFile, MainFrame.Serializer.toJson(settings))
+  }
+
+  /**
+   * Display warnings in a dialog box. The box's height will be constrained to half the height of its parent. It will also optionally
+   * contain a check box allowing the user to suppress automatic display in the future. The callee is responsible for determining what
+   * that means.
+   * 
+   * @param owner parent of the dialog
+   * @param header header string to display at the top of the list of warnings
+   * @param warnings list of strings to display, bulleted
+   * @param canSuppress whether or not this dialog can be suppressed in the future
+   * @return true if the dialog should be suppressed in the future, and false otherwise
+   */
+  def showWarnings(owner: Frame, header: String, warnings: Seq[String], canSuppress: Boolean) = {
+    val str = (s"""$header<ul style="margin-top:0;margin-left:20pt">""" +: warnings).mkString("<html>", "<li>", "</ul></html>")
+    val dialogPanel = JPanel(BorderLayout())
+    val warningPanel = ScrollablePanel(ScrollablePanel.TrackWidth)
+    warningPanel.add(JLabel(str))
+    if (warningPanel.getPreferredSize.height < owner.getHeight/2)
+      warningPanel.setPreferredScrollableViewportSize(warningPanel.getPreferredSize)
+    else
+      warningPanel.setPreferredScrollableViewportSize(Dimension(warningPanel.getPreferredSize.width, owner.getHeight/2))
+    val warningScroll = JScrollPane(warningPanel)
+    warningScroll.setBorder(BorderFactory.createEmptyBorder)
+    dialogPanel.add(warningScroll, BorderLayout.CENTER)
+    val suppressBox = JCheckBox("Don't show this warning in the future", !SettingsDialog.settings.inventory.warn)
+    if (canSuppress)
+      dialogPanel.add(suppressBox, BorderLayout.SOUTH)
+    JOptionPane.showMessageDialog(owner, dialogPanel, "Warning", JOptionPane.WARNING_MESSAGE)
+    canSuppress && suppressBox.isSelected
   }
 }

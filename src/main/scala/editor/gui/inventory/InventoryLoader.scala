@@ -24,6 +24,7 @@ import editor.filter.leaf.options.multi.CardTypeFilter
 import editor.filter.leaf.options.multi.SubtypeFilter
 import editor.filter.leaf.options.multi.SupertypeFilter
 import editor.gui.MainFrame
+import editor.gui.generic.ScrollablePanel
 import editor.gui.settings.SettingsDialog
 import edu.emory.mathcs.backport.java.util.concurrent.CancellationException
 import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException
@@ -31,6 +32,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dialog
+import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Frame
 import java.awt.event.KeyEvent
@@ -160,13 +162,8 @@ object InventoryLoader {
     }
     if (SettingsDialog.settings.inventory.warn && !result.warnings.isEmpty) {
       SwingUtilities.invokeLater(() => {
-        val warnings = ("Errors ocurred while loading the following card(s):<ul style=\"margin-top:0;margin-left:20pt\">" +: result.warnings).mkString("<html>", "<li>", "</ul></html>")
-        val warningPanel = JPanel(BorderLayout())
-        warningPanel.add(JLabel(warnings), BorderLayout.CENTER)
-        val suppressBox = JCheckBox("Don't show this warning in the future", !SettingsDialog.settings.inventory.warn)
-        warningPanel.add(suppressBox, BorderLayout.SOUTH)
-        JOptionPane.showMessageDialog(null, warningPanel, "Warning", JOptionPane.WARNING_MESSAGE)
-        SettingsDialog.settings = SettingsDialog.settings.copy(inventory = SettingsDialog.settings.inventory.copy(warn = !suppressBox.isSelected))
+        val suppress = SettingsDialog.showWarnings(owner, "Errors ocurred while loading the following card(s):", result.warnings, true)
+        SettingsDialog.settings = SettingsDialog.settings.copy(inventory = SettingsDialog.settings.inventory.copy(warn = !suppress))
       })
     }
 
