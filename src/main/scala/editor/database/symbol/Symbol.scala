@@ -36,9 +36,7 @@ object Symbol extends SymbolParser[Symbol] {
   override def parse(s: String) = ManaSymbol.parse(s) orElse FunctionalSymbol.parse(s)
 
   @deprecated val SYMBOL_PATTERN = Regex
-  @deprecated val UNKNOWN = Unknown
   @deprecated def tryParseSymbol(s: String) = parse(s).toJava
-  @deprecated def parseSymbol(s: String) = parse(s).getOrElse(throw IllegalArgumentException(s"$s is not a symbol"))
 }
 
 /**

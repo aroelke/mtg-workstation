@@ -28,7 +28,6 @@ object ManaSymbol extends SymbolParser[ManaSymbol] {
 
   @deprecated def createIntensity(): java.util.Map[ManaType, java.lang.Double] = collection.mutable.Map.from(ManaType.values.map(_ -> new java.lang.Double(0))).asJava
   @deprecated def tryParseManaSymbol(s: String) = parse(s).toJava
-  @deprecated def parseManaSymbol(s: String) = parse(s).getOrElse(throw IllegalArgumentException(s"$s is not a mana symbol"))
   @deprecated def sort(symbols: java.util.List[ManaSymbol]): Unit = sort(symbols.asScala)
 }
 
