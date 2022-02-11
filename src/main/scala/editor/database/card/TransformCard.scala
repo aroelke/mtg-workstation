@@ -1,7 +1,10 @@
 package editor.database.card
 
 import editor.database.attributes.ManaCost
+
 import scala.jdk.CollectionConverters._
+
+import CardLayout._
 
 /**
  * A [[Card]] with two faces that can transform back and forth between them during a game. Its mana value
@@ -14,8 +17,8 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-class TransformCard(front: Card, back: Card) extends MultiCard(CardLayout.TRANSFORM, front, back) {
-  if (front.layout != CardLayout.TRANSFORM || back.layout != CardLayout.TRANSFORM)
+class TransformCard(front: Card, back: Card) extends MultiCard(TRANSFORM, front, back) {
+  if (front.layout != TRANSFORM || back.layout != TRANSFORM)
     throw IllegalArgumentException("can't join non-transforming cards into transforming cards")
 
   override def manaValue = front.manaValue
