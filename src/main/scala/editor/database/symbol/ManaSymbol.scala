@@ -11,13 +11,7 @@ import scala.jdk.OptionConverters._
  * @author Alec Roelke
  */
 object ManaSymbol extends SymbolParser[ManaSymbol] {
-  /**
-   * Parse a [[ManaSymbol]] from a string.  The should contain only the symbol's text, not any braces.
-   * 
-   * @param s string to parse
-   * @return the [[ManaSymbol]] corresponding to the string, or None if there isn't one
-   */
-  def parse(s: String) = ManaSymbolInstances.values.flatMap(_.parse(s)).headOption
+  override def parse(s: String) = ManaSymbolInstances.values.flatMap(_.parse(s)).headOption
 
   /**
    * Not yet implemented.
@@ -39,11 +33,11 @@ object ManaSymbol extends SymbolParser[ManaSymbol] {
  * @param text shorthand text of the symbol to show between braces when printing it out
  * @param value mana value of the symbol
  * @param intensity defined color intensities of the symbol
- * @param generator object used for generating symbol instances and comparing them
+ * @param instances object used for getting and comparing instances of mana symbols
  * 
  * @author Alec Roelke
  */
-class ManaSymbol private[symbol](icon: String, text: String, val value: Double, intensity: Map[ManaType, Double], val instances: ManaSymbolInstances[?, ? <: ManaSymbol]) extends Symbol(icon, text) with Ordered[ManaSymbol] {
+class ManaSymbol private[symbol](icon: String, text: String, val value: Double, intensity: Map[ManaType, Double], val instances: ManaSymbolInstances[?, ?]) extends Symbol(icon, text) with Ordered[ManaSymbol] {
   /**
    * Get the color intensity map of this symbol. Each mana type is mapped onto an "intensity," which is a value that loosely represents the fraction of
    * the number of ways the symbol can be paid for that the mana type is. This is used mainly for sorting symbols and mana costs. See each symbol for an
@@ -57,17 +51,32 @@ class ManaSymbol private[symbol](icon: String, text: String, val value: Double, 
   override def compare(other: ManaSymbol) = if (instances.ordinal == other.instances.ordinal) instances.compare(this, other) else instances.ordinal - other.instances.ordinal
 }
 
-enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String) => Option[K], comparator: Ordering[ManaSymbol]) extends SymbolParser[ManaSymbol] with HasDiscreteValues[K, S] with Ordering[ManaSymbol] {
+/**
+ * Instances of the different types of possible [[ManaSymbols]]. Each case is also capable of comparing [[ManaSymbols]] of the corresponding type.
+ * 
+ * @tparam K type of key used for getting an instance of a type of [[ManaSymbol]]
+ * @tparam S the type of [[ManaSymbol]] contained
+ * 
+ * @constructor create a new [[ManaSymbol]] instance set and comparator
+ * @param map map of keys onto distinct [[ManaSymbols]]
+ * @param keygen function converting a string into a key
+ * @param comparator function used to compare [[ManaSymbol]]s
+ * 
+ * @author Alec Roelke
+ */
+enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String) => Option[K], comparator: Ordering[ManaSymbol]) extends SymbolParser[ManaSymbol] with HasSymbolValues[K, S] with Ordering[ManaSymbol] {
   override lazy val values = map
   override def parse(s: String) = keygen(s).flatMap(values.get)
   override def compare(a: ManaSymbol, b: ManaSymbol) = comparator.compare(a, b)
 
+  /** All possible [[VariableSymbol]]s: X, Y, and Z. */
   case VariableSymbol extends ManaSymbolInstances[Char, editor.database.symbol.VariableSymbol](
     map = Seq('X', 'Y', 'Z').map((v) => v -> new VariableSymbol(v)).toMap,
     keygen = (s) => Option.when(s.size == 1)(s(0).toUpper),
     comparator = { case (va: VariableSymbol, vb: VariableSymbol) => va.variable.toUpper - vb.variable.toUpper }
   )
 
+  /** All possible [[StaticSymbol]]s: 1/2, infinity, snow, and multicolored. */
   case StaticSymbol extends ManaSymbolInstances(
     map = Map(
       "1/2" -> new StaticSymbol("half_mana.png", "1/2", 0.5),
@@ -80,24 +89,28 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
     comparator = { case (sa: StaticSymbol, sb: StaticSymbol) => (sa.value - sb.value).toInt }
   )
 
+  /** All used [[GenericSymbol]]s: 0-20, 100, and one million. */
   case GenericSymbol extends ManaSymbolInstances(
     map = ((0 to 20).toSeq ++ Seq(100, 1000000)).map((n) => n -> new GenericSymbol(n)).toMap,
     keygen = (s) => try Some(s.toInt) catch case _: NumberFormatException => None,
     comparator = { case (ga: GenericSymbol, gb: GenericSymbol) => (ga.value - gb.value).toInt }
   )
 
+  /** All used [[HalfColorSymbol]]s. */
   case HalfColorSymbol extends ManaSymbolInstances(
     map = ManaType.values.map(s => s -> new HalfColorSymbol(s)).toMap,
     keygen = (s) => if (s.size == 3 && s.startsWith("2/")) Option(ManaType.tryParseManaType(s(2).toUpper)) else None,
     comparator = { case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compareTo(hb.color) }
   )
 
+  /** All used [[TwobridSymbol]]s: only colors, not colorless. */
   case TwobridSymbol extends ManaSymbolInstances(
     map = ManaType.colors.map(s => s -> new TwobridSymbol(s)).toMap,
     keygen = (s) => if (s.size == 3 && s.startsWith("2/")) Option(ManaType.tryParseManaType(s(2).toUpper)) else None,
     comparator = { case (ta: TwobridSymbol, tb: TwobridSymbol) => ta.color.compareTo(tb.color) }
   )
 
+  /** All possible [[PhyrexianHybridSymbol]]s except for colorless ones. */
   case PhyrexianHybridSymbol extends ManaSymbolInstances(
     map = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new PhyrexianHybridSymbol(c1, c2) else new PhyrexianHybridSymbol(c2, c1))).toMap,
     keygen = (s) => {
@@ -112,6 +125,7 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
     comparator = { case (pa: PhyrexianHybridSymbol, pb: PhyrexianHybridSymbol) => pa.first.compareTo(pb.first)*10 + pa.second.compareTo(pb.second) }
   )
 
+  /** All possible [[HybridSymbol]]s except for colorless ones. */
   case HybridSymbol extends ManaSymbolInstances(
     map = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new HybridSymbol(c1, c2) else new HybridSymbol(c2, c1))).toMap,
     keygen = (s) => {
@@ -126,12 +140,14 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
     comparator = { case (ha: HybridSymbol, hb: HybridSymbol) => ha.first.compareTo(hb.first)*10 + ha.second.compareTo(hb.second) }
   )
 
+  /** All possible [[PhyrexianSymbol]]s: only colors, not colorless. */
   case PhyrexianSymbol extends ManaSymbolInstances(
     map = (for (c1 <- ManaType.colors; c2 <- ManaType.colors if c1 != c2) yield (c1, c2) -> (if (c1.colorOrder(c2) < 0) new PhyrexianHybridSymbol(c1, c2) else new PhyrexianHybridSymbol(c2, c1))).toMap,
     keygen = (s) => if (s.size == 3 && s.toUpperCase.endsWith("/P")) Option(ManaType.tryParseManaType(s(0).toUpper)) else None,
     comparator = { case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compareTo(pb.color) }
   )
   
+  /** All possible [[ColorSymbol]]s. */
   case ColorSymbol extends ManaSymbolInstances(
     map = ManaType.values.map(s => s -> new ColorSymbol(s)).toMap,
     keygen = (s) => Option(ManaType.tryParseManaType(s)),
@@ -158,6 +174,7 @@ case class VariableSymbol private[symbol](variable: Char) extends ManaSymbol(s"$
  * @param icon icon for the new symbol
  * @param text text used for parsing the symbol
  * @param value mana value of the symbol
+ * @param intensity colorless intensity of the symbol; typically 0
  * 
  * @author Alec Roelke
  */

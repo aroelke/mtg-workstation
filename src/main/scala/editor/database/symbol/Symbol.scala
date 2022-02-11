@@ -7,12 +7,41 @@ import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import scala.jdk.OptionConverters._
 
+/**
+ * An object that is capable of parsing a [[Symbol]] from a string.
+ * 
+ * @tparam S type of [[Symbol]] being parsed
+ * 
+ * @author Alec Roelke
+ */
 trait SymbolParser[S <: Symbol] {
+  /**
+   * Parse a [[Symbol]] from a string.
+   * 
+   * @param s string to parse
+   * @return the [[Symbol]] corresponding to the string
+   */
   def parse(s: String): Option[S]
 }
 
-trait HasDiscreteValues[K, S <: Symbol] {
+/**
+ * An object that contains a set of distinct symbols, indexed by some key.
+ * 
+ * @tparam K key used for indexing
+ * @tparam S type of symbol contained
+ * 
+ * @author Alec Roelke
+ */
+trait HasSymbolValues[K, S <: Symbol] {
+  /** Mapping of keys onto their respective [[Symbol]]s. */
   def values: Map[K, S]
+
+  /**
+   * Shortcut for [[values.apply]] to get the symbol for a particular key.
+   * 
+   * @param key key of the [[Symbol]] to get
+   * @return the [[Symbol]] corresponding to the key
+   */
   def apply(key: K) = values(key)
 }
 

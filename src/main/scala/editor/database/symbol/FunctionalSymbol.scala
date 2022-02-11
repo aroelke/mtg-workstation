@@ -5,22 +5,20 @@ import scala.jdk.OptionConverters._
 
 /**
  * Companion to [[FunctionalSymbol]] that contains all the existing non-mana symbols and functions for parsing strings
- * into [[FunctionalSymbol]]s.
+ * into [[FunctionalSymbol]]s. The possible [[FunctionalSymbol]]s are:
+ * - The Chaos symbol
+ * - The Phyrexia symbol
+ * - The tap symbol
+ * - The untap symbol
+ * - The energy symbol
+ *
  * @author Alec Roelke
  */
-object FunctionalSymbol extends HasDiscreteValues[String, FunctionalSymbol] {
+object FunctionalSymbol extends SymbolParser[FunctionalSymbol] with HasSymbolValues[String, FunctionalSymbol] {
   /** The Chaos symbol used on Planes, which has a special string representation without braces. */
   val Chaos = new FunctionalSymbol("chaos.png", "CHAOS") { override val toString = "CHAOS" }
 
-  /**
-   * All of the possible [[FunctionalSymbol]]s:
-   * - The Chaos symbol
-   * - The Phyrexia symbol
-   * - The tap symbol
-   * - The untap symbol
-   * - The energy symbol
-   */
-  val values = Map(
+  override val values = Map(
     Chaos.toString -> Chaos,
     "PW" -> Chaos,
     "P" -> new FunctionalSymbol("phyrexia.png", "P"),
@@ -30,13 +28,7 @@ object FunctionalSymbol extends HasDiscreteValues[String, FunctionalSymbol] {
     "E" -> new FunctionalSymbol("energy.png", "E")
   )
 
-  /**
-   * Parse a string to get the corresponding [[FunctionalSymbol]].
-   * 
-   * @param s string to parse
-   * @return the [[FunctionalSymbol]] represented by the string, or None if there isn't one
-   */
-  def parse(s: String) = values.get(s.toUpperCase)
+  override def parse(s: String) = values.get(s.toUpperCase)
 
   @deprecated val CHAOS = Chaos
   @deprecated val SYMBOLS = values.asJava
