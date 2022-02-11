@@ -17,6 +17,7 @@ import CardLayout._
  * 
  * @author Alec Roelke
  */
+@throws[IllegalArgumentException]("if either face is not a transform card")
 class TransformCard(front: Card, back: Card) extends MultiCard(TRANSFORM, front, back) {
   if (front.layout != TRANSFORM || back.layout != TRANSFORM)
     throw IllegalArgumentException("can't join non-transforming cards into transforming cards")

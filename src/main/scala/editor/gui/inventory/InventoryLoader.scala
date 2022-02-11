@@ -239,7 +239,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             error = true
           }}
         }
-        if (!error) Set(SplitCard(faces.asJava)) else Set.empty
+        if (!error) Set(SplitCard(faces)) else Set.empty
       case FLIP =>
         if (faces.size < 2) {
           errors += s"$face: (${face.expansion}): Can't find other side of flip card."
