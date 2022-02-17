@@ -99,7 +99,7 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
   /** All used [[HalfColorSymbol]]s. */
   case HalfColorSymbol extends ManaSymbolInstances(
     map = ManaType.values.map(s => s -> new HalfColorSymbol(s)).toMap,
-    keygen = (s) => if (s.size == 3 && s.startsWith("2/")) Option(ManaType.tryParseManaType(s(2).toUpper)) else None,
+    keygen = (s) => if (s.size == 2 && s.startsWith("H")) Option(ManaType.tryParseManaType(s(1).toUpper)) else None,
     comparator = { case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compareTo(hb.color) }
   )
 
