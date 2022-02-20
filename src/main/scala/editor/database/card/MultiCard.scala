@@ -2,9 +2,17 @@ package editor.database.card
 
 import editor.database.attributes.ManaType
 
-import scala.jdk.CollectionConverters._
 import javax.swing.text.StyledDocument
+import scala.jdk.CollectionConverters._
 
+/**
+ * A card with multiple faces, or multiple mini-cards printed on the same side.
+ * 
+ * @constructor create a new multi-faced cad
+ * @param layout way the faces are arranged or accessed on the card
+ * @param faces single-faced cards making up the faces
+ * @author Alec Roelke
+ */
 abstract class MultiCard(layout: CardLayout, val faces: Seq[Card]) extends Card(faces(0).expansion, layout) {
   if (faces.exists(_.isInstanceOf[MultiCard]))
     throw IllegalArgumentException("only normal, single-faced cards can be joined into a multi-faced card")
