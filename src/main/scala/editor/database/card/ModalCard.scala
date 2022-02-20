@@ -12,7 +12,7 @@ import CardLayout._
  * @author Alec Roelke
  */
 @throws[IllegalArgumentException]("if both faces aren't modal double-faced cards")
-class ModalCard(front: Card, back: Card) extends MultiCard(MODAL_DFC, front, back) {
+class ModalCard(front: Card, back: Card) extends MultiCard(MODAL_DFC, Seq(front, back)) {
   if (front.layout != MODAL_DFC || back.layout != MODAL_DFC)
     IllegalArgumentException("can't join non-modal-double-faced cards into modal double-faced cards")
 

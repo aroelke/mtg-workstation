@@ -11,6 +11,8 @@ import editor.database.card.SingleCard;
 import editor.filter.FaceSearchOptions;
 import editor.filter.Filter;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents a leaf in the filter tree, which filters a single characteristic of a Card.
  *
@@ -74,10 +76,10 @@ public abstract class FilterLeaf<T> extends Filter
             return testFace(c);
         else if (c instanceof MultiCard m)
             return switch (faces) {
-                case ANY   -> m.faces().stream().anyMatch(this::testFace);
-                case ALL   -> m.faces().stream().allMatch(this::testFace);
-                case FRONT -> testFace(m.faces().get(0));
-                case BACK  -> testFace(m.faces().get(m.faces().size() - 1));
+                case ANY   -> CollectionConverters.asJava(m.faces()).stream().anyMatch(this::testFace);
+                case ALL   -> CollectionConverters.asJava(m.faces()).stream().allMatch(this::testFace);
+                case FRONT -> testFace(m.faces().apply(0));
+                case BACK  -> testFace(m.faces().apply(m.faces().size() - 1));
             };
         else
             return false;
