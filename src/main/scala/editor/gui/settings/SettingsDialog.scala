@@ -948,7 +948,7 @@ object SettingsDialog {
   def save(): Unit = {
     if (!Card.tags.isEmpty) {
       Files.createDirectories(Path.of(settings.inventory.tags).getParent)
-      Files.writeString(Path.of(settings.inventory.tags), MainFrame.Serializer.toJson(Card.tags.asScala.map{ case (card, tags) => card.scryfallid.get(0) -> tags }.toMap.asJava))
+      Files.writeString(Path.of(settings.inventory.tags), MainFrame.Serializer.toJson(Card.tagMap.asScala.map{ case (card, tags) => card.scryfallid.get(0) -> tags }.toMap.asJava))
     } else
       Files.deleteIfExists(Path.of(settings.inventory.tags))
     Files.writeString(PropertiesFile, MainFrame.Serializer.toJson(settings))

@@ -34,7 +34,7 @@ class MeldCard(front: Card, other: Card, back: Card) extends MultiCard(MELD, Seq
     super.formatDocument(document, printed, f);
     if (f == 0) {
       try {
-          document.insertString(document.getLength(), s"\nMelds with ${other.unifiedName()} (${other.expansion})", reminderStyle);
+          document.insertString(document.getLength(), s"\nMelds with ${other.unifiedName} (${other.expansion})", reminderStyle);
       } catch case e: BadLocationException => e.printStackTrace
     }
   }

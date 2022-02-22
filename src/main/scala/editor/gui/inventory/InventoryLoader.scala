@@ -528,7 +528,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
       val raw = MainFrame.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
       Card.tags.clear()
-      Card.tags.putAll(raw.map{ case (name, tags) => data.inventory.find(name) -> tags.asJava }.asJava)
+      Card.tagMap.putAll(raw.map{ case (name, tags) => data.inventory.find(name) -> tags.asJava }.asJava)
     }
 
     data

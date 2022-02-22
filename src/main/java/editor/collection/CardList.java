@@ -94,13 +94,13 @@ public interface CardList extends Iterable<Card>
                 case TOUGHNESS      -> card().toughness();
                 case LOYALTY        -> card().loyalty();
                 case ARTIST         -> card().artist().get(0);
-                case CARD_NUMBER    -> String.join(Card.FACE_SEPARATOR, card().number());
+                case CARD_NUMBER    -> String.join(Card.FACE_SEPARATOR(), card().number());
                 case LEGAL_IN       -> card().legalIn();
                 case COUNT          -> count();
                 case CATEGORIES     -> categories();
                 case DATE_ADDED     -> dateAdded();
                 case TAGS           -> {
-                    var tags = Card.tags.get(card());
+                    var tags = Card.tagMap().get(card());
                     if (tags == null)
                         yield "[]";
                     else

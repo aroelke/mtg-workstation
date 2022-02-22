@@ -61,11 +61,11 @@ object CardTagPanel {
       val tagged = cardTagPanel.tagged
       val untagged = cardTagPanel.untagged
       cards.foreach((c) => {
-        tagged.foreach((tag) => Card.tags.compute(c, (_, v) => (Option(v).getOrElse(java.util.HashSet()).asScala + tag).asJava))
-        untagged.foreach((tag) => Card.tags.compute(c, (_, v) => if (v == null || (v.size == 1 && v.contains(tag))) null else (v.asScala - tag).asJava))
+        tagged.foreach((tag) => Card.tagMap.compute(c, (_, v) => (Option(v).getOrElse(java.util.HashSet()).asScala + tag).asJava))
+        untagged.foreach((tag) => Card.tagMap.compute(c, (_, v) => if (v == null || (v.size == 1 && v.contains(tag))) null else (v.asScala - tag).asJava))
       })
       val removed = cardTagPanel.removed
-      Card.tags.keySet.asScala.foreach((c) => Card.tags.compute(c, (_, v) => if (v == null || v.asScala == removed) null else (v.asScala -- removed).asJava))
+      Card.tagMap.keySet.asScala.foreach((c) => Card.tagMap.compute(c, (_, v) => if (v == null || v.asScala == removed) null else (v.asScala -- removed).asJava))
     }
   }
 }
@@ -91,10 +91,10 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
   private val _removed = collection.mutable.HashSet[String]()
   private var preferredViewportHeight = 0
 
-  setTags(Card.tags().asScala.toSeq.sorted)
+  setTags(Card.tags.asScala.toSeq.sorted)
 
   tagBoxes.foreach((box) => {
-    val matches = cards.count((c) => Option(Card.tags.get(c)).exists(_.contains(box.getText)))
+    val matches = cards.count((c) => Option(Card.tagMap.get(c)).exists(_.contains(box.getText)))
     if (matches == 0)
       box.state = TristateCheckBoxState.Unselected
     else if (matches < cards.size)

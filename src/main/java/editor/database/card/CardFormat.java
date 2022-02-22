@@ -117,7 +117,7 @@ public class CardFormat
         {
             String replacement = '{' + type.toString().toLowerCase() + '}';
             pattern = pattern.replace(replacement, switch (type) {
-                case MANA_COST, POWER, TOUGHNESS, LOYALTY -> String.join(Card.FACE_SEPARATOR,
+                case MANA_COST, POWER, TOUGHNESS, LOYALTY -> String.join(Card.FACE_SEPARATOR(),
                     ((List<?>)card.get(type)).stream().map(String::valueOf).collect(Collectors.toList()));
                 case MANA_VALUE -> {
                     Double mv = (Double)card.get(type);
