@@ -23,11 +23,11 @@ import scala.jdk.CollectionConverters._
  * A single-faced [[Card]].  Each attribute that contains a list of items per face will only have one value.
  * 
  * @constructor create a new single-faced card.
- * @param layout layout of the card; does not have to be a single-faced layout, but multi-faced ones should later
+ * @param layout layout of the card does not have to be a single-faced layout, but multi-faced ones should later
  * be joined together using the corresponding class
  * @param _name name of the card
  * @param mana mana cost of the card
- * @param colors colors of the card; does not have to correspond with the colors of its mana cost (but usually does)
+ * @param colors colors of the card does not have to correspond with the colors of its mana cost (but usually does)
  * @param colorIdentity color identity of the card
  * @param supertypes supertype set of the card (preferably sorted in order of appearance)
  * @param types type set of the card (preferably sorted in order of appearance)
@@ -105,137 +105,137 @@ class SingleCard(
   override lazy val imageNames = Seq(_name.toLowerCase).asJava
 
   override def formatDocument(document: StyledDocument, printed: Boolean) = {
-    val textStyle = document.getStyle("text");
-    val reminderStyle = document.getStyle("reminder");
-    val chaosStyle = document.addStyle("CHAOS", null);
-    StyleConstants.setIcon(chaosStyle, FunctionalSymbol.Chaos.scaled(ComponentUtils.TextSize));
+    val textStyle = document.getStyle("text")
+    val reminderStyle = document.getStyle("reminder")
+    val chaosStyle = document.addStyle("CHAOS", null)
+    StyleConstants.setIcon(chaosStyle, FunctionalSymbol.Chaos.scaled(ComponentUtils.TextSize))
     try {
-      document.insertString(document.getLength(), s"${_name} ", textStyle);
+      document.insertString(document.getLength(), s"${_name} ", textStyle)
       if (!mana.isEmpty) {
         for (symbol <- mana.asScala) {
-          val style = document.addStyle(symbol.toString, null);
-          StyleConstants.setIcon(style, symbol.scaled(ComponentUtils.TextSize));
-          document.insertString(document.getLength, symbol.toString, style);
+          val style = document.addStyle(symbol.toString, null)
+          StyleConstants.setIcon(style, symbol.scaled(ComponentUtils.TextSize))
+          document.insertString(document.getLength, symbol.toString, style)
         }
-        document.insertString(document.getLength, " ", textStyle);
+        document.insertString(document.getLength, " ", textStyle)
       }
       if (mana.manaValue == mana.manaValue.toInt)
-        document.insertString(document.getLength(), s"(${mana.manaValue.toInt})\n", textStyle);
+        document.insertString(document.getLength(), s"(${mana.manaValue.toInt})\n", textStyle)
       else
-        document.insertString(document.getLength(), s"(${mana.manaValue})\n", textStyle);
+        document.insertString(document.getLength(), s"(${mana.manaValue})\n", textStyle)
       if (mana.colors != colors) {
         for (color <- colors.asScala) {
-          val indicatorStyle = document.addStyle("indicator", document.getStyle("text"));
-          StyleConstants.setForeground(indicatorStyle, color.color);
-          document.insertString(document.getLength, UnicodeSymbols.BULLET.toString, indicatorStyle);
+          val indicatorStyle = document.addStyle("indicator", document.getStyle("text"))
+          StyleConstants.setForeground(indicatorStyle, color.color)
+          document.insertString(document.getLength, UnicodeSymbols.BULLET.toString, indicatorStyle)
         }
         if (!colors.isEmpty)
-          document.insertString(document.getLength, " ", textStyle);
+          document.insertString(document.getLength, " ", textStyle)
       }
       if (printed)
-        document.insertString(document.getLength, s"$pTypes\n", textStyle);
+        document.insertString(document.getLength, s"$pTypes\n", textStyle)
       else
-        document.insertString(document.getLength, s"${typeLine.get(0)}\n", textStyle);
-      document.insertString(document.getLength, s"${expansion.name} $rarity\n", textStyle);
+        document.insertString(document.getLength, s"${typeLine.get(0)}\n", textStyle)
+      document.insertString(document.getLength, s"${expansion.name} $rarity\n", textStyle)
 
-      val abilities = if (printed) this.printed else oracle;
+      val abilities = if (printed) this.printed else oracle
       if (!abilities.isEmpty) {
         var i = 0
-        var start = 0;
-        var style = textStyle;
+        var start = 0
+        var style = textStyle
         while (i < abilities.size) {
           if (i == 0 || abilities(i) == '\n') {
-            val nextLine = abilities.substring(i + 1).indexOf('\n');
-            var dash = (if (nextLine > -1) abilities.substring(i, nextLine + i) else abilities.substring(i)).indexOf(UnicodeSymbols.EM_DASH);
+            val nextLine = abilities.substring(i + 1).indexOf('\n')
+            var dash = (if (nextLine > -1) abilities.substring(i, nextLine + i) else abilities.substring(i)).indexOf(UnicodeSymbols.EM_DASH)
             if (dash > -1) {
-              dash += i;
+              dash += i
               if (i > 0)
-                document.insertString(document.getLength, abilities.substring(start, i), style);
-              start = i;
+                document.insertString(document.getLength, abilities.substring(start, i), style)
+              start = i
               // Assume that the dash used for ability words is surrounded by spaces, but not
               // for keywords with cost parameters when the cost is nonmana cost
               if (abilities(dash - 1) == ' ' && abilities(dash + 1) == ' ')
-                style = reminderStyle;
+                style = reminderStyle
             }
           }
           abilities(i) match {
             case '{' =>
-              document.insertString(document.getLength, abilities.substring(start, i), style);
-              start = i + 1;
+              document.insertString(document.getLength, abilities.substring(start, i), style)
+              start = i + 1
             case '}' =>
-              val symbol = Symbol.parse(abilities.substring(start, i));
+              val symbol = Symbol.parse(abilities.substring(start, i))
               if (symbol.isEmpty) {
-                System.err.println(s"Unexpected symbol {${abilities.substring(start, i)}} in oracle text for $unifiedName.");
-                document.insertString(document.getLength, abilities.substring(start, i), textStyle);
+                System.err.println(s"Unexpected symbol {${abilities.substring(start, i)}} in oracle text for $unifiedName.")
+                document.insertString(document.getLength, abilities.substring(start, i), textStyle)
               } else {
-                val symbolStyle = document.addStyle(symbol.get.toString, null);
-                StyleConstants.setIcon(symbolStyle, symbol.get.scaled(ComponentUtils.TextSize));
-                document.insertString(document.getLength, symbol.get.toString, symbolStyle);
+                val symbolStyle = document.addStyle(symbol.get.toString, null)
+                StyleConstants.setIcon(symbolStyle, symbol.get.scaled(ComponentUtils.TextSize))
+                document.insertString(document.getLength, symbol.get.toString, symbolStyle)
               }
-              start = i + 1;
+              start = i + 1
             case '(' =>
-              document.insertString(document.getLength, abilities.substring(start, i), style);
-              style = reminderStyle;
-              start = i;
+              document.insertString(document.getLength, abilities.substring(start, i), style)
+              style = reminderStyle
+              start = i
             case ')' =>
-              document.insertString(document.getLength, abilities.substring(start, i + 1), style);
-              style = textStyle;
-              start = i + 1;
+              document.insertString(document.getLength, abilities.substring(start, i + 1), style)
+              style = textStyle
+              start = i + 1
             case 'C' =>
               if (i < abilities.size - 5 && abilities.substring(i, i + 5) == "CHAOS") {
-                document.insertString(document.getLength, abilities.substring(start, i), style);
-                document.insertString(document.getLength, "CHAOS", chaosStyle);
+                document.insertString(document.getLength, abilities.substring(start, i), style)
+                document.insertString(document.getLength, "CHAOS", chaosStyle)
                 i += 5
                 start = i
               }
               if (abilities(i) == '}')
                 start += 1
             case UnicodeSymbols.EM_DASH =>
-              document.insertString(document.getLength, abilities.substring(start, i), style);
-              style = textStyle;
-              start = i;
+              document.insertString(document.getLength, abilities.substring(start, i), style)
+              style = textStyle
+              start = i
             case _ =>
           }
           if (i == abilities.size - 1 && abilities(i) != '}' && abilities(i) != ')')
-            document.insertString(document.getLength, abilities.substring(start, i + 1), style);
+            document.insertString(document.getLength, abilities.substring(start, i + 1), style)
           i += 1
         }
-        document.insertString(document.getLength, "\n", textStyle);
+        document.insertString(document.getLength, "\n", textStyle)
       }
       if (!flavor.isEmpty()) {
         var i = 0
-        var start = 0;
+        var start = 0
         while (i < flavor.size) {
           flavor(i) match {
             case '{' =>
-              document.insertString(document.getLength, flavor.substring(start, i), reminderStyle);
-              start = i + 1;
+              document.insertString(document.getLength, flavor.substring(start, i), reminderStyle)
+              start = i + 1
             case '}' =>
-              val symbol = Symbol.parse(flavor.substring(start, i));
+              val symbol = Symbol.parse(flavor.substring(start, i))
               if (symbol.isEmpty) {
-                System.err.println(s"Unexpected symbol {${flavor.substring(start, i)}} in flavor text for $unifiedName.");
-                document.insertString(document.getLength, flavor.substring(start, i), reminderStyle);
+                System.err.println(s"Unexpected symbol {${flavor.substring(start, i)}} in flavor text for $unifiedName.")
+                document.insertString(document.getLength, flavor.substring(start, i), reminderStyle)
               } else {
-                val symbolStyle = document.addStyle(symbol.get.toString, null);
-                StyleConstants.setIcon(symbolStyle, symbol.get.scaled(ComponentUtils.TextSize));
-                document.insertString(document.getLength, " ", symbolStyle);
+                val symbolStyle = document.addStyle(symbol.get.toString, null)
+                StyleConstants.setIcon(symbolStyle, symbol.get.scaled(ComponentUtils.TextSize))
+                document.insertString(document.getLength, " ", symbolStyle)
               }
-              start = i + 1;
+              start = i + 1
             case _ =>
           }
           if (i == flavor.length - 1 && flavor(i) != '}')
-            document.insertString(document.getLength, flavor.substring(start, i + 1), reminderStyle);
+            document.insertString(document.getLength, flavor.substring(start, i + 1), reminderStyle)
           i += 1
         }
-        document.insertString(document.getLength, "\n", reminderStyle);
+        document.insertString(document.getLength, "\n", reminderStyle)
       }
 
       if (pow.exists && tough.exists)
-        document.insertString(document.getLength, s"$pow/$tough\n", textStyle);
+        document.insertString(document.getLength, s"$pow/$tough\n", textStyle)
       else if (loyal.exists)
-          document.insertString(document.getLength, s"$loyal\n", textStyle);
+          document.insertString(document.getLength, s"$loyal\n", textStyle)
 
-      document.insertString(document.getLength, s"$art $n/${expansion.count}", textStyle);
+      document.insertString(document.getLength, s"$art $n/${expansion.count}", textStyle)
     } catch case e: BadLocationException => e.printStackTrace()
   }
 
