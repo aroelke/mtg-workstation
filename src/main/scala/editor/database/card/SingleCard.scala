@@ -1,26 +1,53 @@
 package editor.database.card
 
+import editor.database.attributes.CombatStat
+import editor.database.attributes.Expansion
+import editor.database.attributes.Legality
+import editor.database.attributes.Loyalty
+import editor.database.attributes.ManaCost
+import editor.database.attributes.ManaType
+import editor.database.attributes.Rarity
+import editor.database.symbol.FunctionalSymbol
+import editor.database.symbol.Symbol
+import editor.gui.generic.ComponentUtils
+import editor.util.UnicodeSymbols
+
 import java.util.Date
-
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
-
-import editor.database.attributes.CombatStat;
-import editor.database.attributes.Expansion;
-import editor.database.attributes.Legality;
-import editor.database.attributes.Loyalty;
-import editor.database.attributes.ManaCost;
-import editor.database.attributes.ManaType;
-import editor.database.attributes.Rarity;
-import editor.database.symbol.FunctionalSymbol;
-import editor.database.symbol.Symbol;
-import editor.gui.generic.ComponentUtils;
-import editor.util.UnicodeSymbols;
-
+import javax.swing.text.BadLocationException
+import javax.swing.text.Style
+import javax.swing.text.StyleConstants
+import javax.swing.text.StyledDocument
 import scala.jdk.CollectionConverters._
 
+/**
+ * A single-faced [[Card]].  Each attribute that contains a list of items per face will only have one value.
+ * 
+ * @constructor create a new single-faced card.
+ * @param layout layout of the card; does not have to be a single-faced layout, but multi-faced ones should later
+ * be joined together using the corresponding class
+ * @param _name name of the card
+ * @param mana mana cost of the card
+ * @param colors colors of the card; does not have to correspond with the colors of its mana cost (but usually does)
+ * @param colorIdentity color identity of the card
+ * @param supertypes supertype set of the card (preferably sorted in order of appearance)
+ * @param types type set of the card (preferably sorted in order of appearance)
+ * @param subtypes subtype set of the card (preferably sorted in order of appearance)
+ * @param rarity rarity of the card
+ * @param set expansion to which the card belongs
+ * @param oracle Oracle text of the card
+ * @param flavor flavor text of the card
+ * @param printed printed text of the card using its original wording
+ * @param art artist who illustrated the card
+ * @param multiverse multiverseid of the card (unique ID used in Gatherer to identify cards)
+ * @param scryfall Scryfall ID of the card
+ * @param n collector number of the card
+ * @param pow power of the card, if it's a creature
+ * @param tough toughness of the card, if it's a creature
+ * @param loyal loyalty of the card, if it's a planeswalker
+ * @param rulings clarifications on how the card works and when they were made
+ * @param legality which formats the card is legal (or restricted) in
+ * @param commandFormats formats in which the card can be commander
+ */
 class SingleCard(
   layout: CardLayout,
   _name: String,
