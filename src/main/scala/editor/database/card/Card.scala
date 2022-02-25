@@ -41,6 +41,9 @@ object Card {
  * @param layout layout of the card; determines how many faces the card has
  * 
  * @author Alec Roelke
+ * 
+ * TODO: Change attribute methods to only return a single value, unified across all faces, and add a "faces"
+ * method that allows retrieval of face-specific data
  */
 abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   import Card._
