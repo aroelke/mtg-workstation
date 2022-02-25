@@ -360,28 +360,44 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
           // Create the new card for the expansion
           val card = cardElement.getAsJsonObject
 
-          // Card's multiverseid and Scryfall id
-          val scryfallid = (if (version < v500) card.get("scryfallId") else card.get("identifiers").getAsJsonObject.get("scryfallId")).getAsString
-          val multiverseid = Option(if (version < v500) card.get("multiverseId") else card.get("identifiers").getAsJsonObject.get("multiverseId")).map(_.getAsInt).getOrElse(-1)
-
           // Card's name
           val name = card.get(if (card.has("faceName")) "faceName" else "name").getAsString
 
+          // Card's multiverseid and Scryfall id
+          val scryfallid = {
+            if (version < v500) {
+              Option(card.get("scryfallId")).map(_.getAsString)
+            } else {
+              Option(card.get("identifiers")).map(_.getAsJsonObject).flatMap(id => Option(id.get("scryfallId")).map(_.getAsString))
+            }
+          }.getOrElse(throw CardLoadException(name, set, "no Scryfall ID"))
+          val multiverseid = {
+            if (version < v500) {
+              Option(card.get("multiverseId")).map(_.getAsInt)
+            } else {
+              Option(card.get("identifiers")).map(_.getAsJsonObject).flatMap(id => Option(id.get("multiverseId")).map(_.getAsInt))
+            }
+          }.getOrElse(-1)
+
           // If the card is a token, skip it
           try {
-            val layout = CardLayout.valueOf(card.get("layout").getAsString.toUpperCase.replaceAll("[^A-Z]", "_"))
+            val layout = Option(card.get("layout")).map(l => CardLayout.valueOf(l.getAsString.toUpperCase.replaceAll("[^A-Z]", "_"))).getOrElse(throw CardLoadException(name, set, "no valid layout"))
 
             // Rulings
             val rulings = collection.mutable.TreeMap[Date, collection.mutable.ArrayBuffer[String]]()
             Option(card.get("rulings")).toSeq.flatMap(_.getAsJsonArray.asScala.map(_.getAsJsonObject)).foreach{ o =>
-              val r = o.get("text").getAsString
-              val ruling = rulingContents.getOrElseUpdate(r, r)
-              try {
-                val date = rulingDates.getOrElseUpdate(o.get("date").getAsString, format.parse(o.get("date").getAsString))
-                if (!rulings.contains(date))
-                  rulings += date -> collection.mutable.ArrayBuffer[String]()
-                rulings(date) += ruling
-              } catch case x: ParseException => errors += s"$name ($set): ${x.getMessage}"
+              (Option(o.get("text")), Option(o.get("date"))) match {
+                case (Some(t), Some(d)) =>
+                  val r = t.getAsString
+                  val ruling = rulingContents.getOrElseUpdate(r, r)
+                  try {
+                    val date = rulingDates.getOrElseUpdate(d.getAsString, format.parse(d.getAsString))
+                    if (!rulings.contains(date))
+                      rulings += date -> collection.mutable.ArrayBuffer[String]()
+                    rulings(date) += ruling
+                  } catch case x: ParseException => errors += CardLoadException(name, set, x.getMessage).toString
+                case _ => errors += CardLoadException(name, set, "ruling missing date or text").toString
+              }
             }
 
             // Format legality
@@ -477,6 +493,9 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             case e: IllegalArgumentException =>
               errors += s"$name ($set): ${e.getMessage}"
               None
+            case e: CardLoadException =>
+              errors += e.toString
+              None
           }
         }
       }}.catchBreak(collection.mutable.Set.empty[Card])
@@ -537,3 +556,5 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
   protected override def process(chunks: java.util.List[String]) = chunks.asScala.foreach(consumer(_))
   protected override def done() = finished()
 }
+
+case class CardLoadException(name: String, expansion: Expansion, message: String, cause: Option[Throwable] = None) extends RuntimeException(s"$name ($expansion): $message", cause.getOrElse(null))
