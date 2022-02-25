@@ -69,6 +69,7 @@ import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 import scala.util.control.Breaks._
+import com.google.gson.JsonElement
 
 /**
  * Worker that loads inventory data from JSON along with metadata like expansions, blocks, and existing supertypes, card types, and subtypes.
@@ -361,7 +362,14 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
           val card = cardElement.getAsJsonObject
 
           // Card's name
-          val name = card.get(if (card.has("faceName")) "faceName" else "name").getAsString
+          val name = {
+            if (card.has("faceName"))
+              card.get("faceName").getAsString
+            else if (card.has("name"))
+              card.get("name").getAsString
+            else
+              throw CardLoadException("<unknown>", set, "card with missing name")
+          }
 
           // Card's multiverseid and Scryfall id
           val scryfallid = {
@@ -401,19 +409,22 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             }
 
             // Format legality
-            val legality = card.get("legalities").getAsJsonObject.entrySet.asScala.map((e) => formats.getOrElseUpdate(e.getKey, e.getKey) -> Legality.parseLegality(e.getValue.getAsString)).toMap
+            val legality = Option(card.get("legalities"))
+              .map(_.getAsJsonObject.entrySet.asScala.map((e) => formats.getOrElseUpdate(e.getKey, e.getKey) -> Legality.parseLegality(e.getValue.getAsString)).toMap)
+              .getOrElse(Map.empty)
 
             // Formats the card can be commander in
             val commandFormats = Option(card.get("leadershipSkills")).toSeq.flatMap(_.getAsJsonObject.entrySet.asScala.collect{ case e if e.getValue.getAsBoolean =>
               formats.getOrElseUpdate(e.getKey, e.getKey)
             }.toSeq.sorted)
 
+            def getOrError[T](key: String, value: (JsonElement) => T, error: String) = Option(card.get(key)).map(value).getOrElse(throw CardLoadException(name, set, error))
             val cost = Option(card.get("manaCost")).map(_.getAsString).getOrElse("")
-            val colors = card.get("colors").getAsJsonArray
-            val identity = card.get("colorIdentity").getAsJsonArray
-            val supers = card.get("supertypes").getAsJsonArray
-            val types = card.get("types").getAsJsonArray
-            val subs = card.get("subtypes").getAsJsonArray
+            val colors = getOrError("colors", _.getAsJsonArray, "invalid colors")
+            val identity = getOrError("colorIdentity", _.getAsJsonArray, "invalid color identity")
+            val supers = getOrError("supertypes", _.getAsJsonArray, "invalid supertypes")
+            val types = getOrError("types", _.getAsJsonArray, "invalid types")
+            val subs = getOrError("subtypes", _.getAsJsonArray, "invalid subtypes")
             val oTypes = Option(card.get("originalType")).map(_.getAsString).getOrElse("")
             val text = Option(card.get("text")).map(_.getAsString).getOrElse("")
             val flavor = Option(card.get("flavorText")).map(_.getAsString).getOrElse("")
@@ -473,7 +484,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
             // Collect unexpected card values
             if (c.artist.isEmpty)
-              errors += s"${c.unifiedName} (${c.expansion}): Missing artist!"
+              errors += s"${c.unifiedName} (${c.expansion}): missing artist"
 
             // Add to map of faces if the card has multiple faces
             if (layout.isMultiFaced) {
