@@ -404,7 +404,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                       rulings += date -> collection.mutable.ArrayBuffer[String]()
                     rulings(date) += ruling
                   } catch case x: ParseException => errors += CardLoadException(name, set, x.getMessage).toString
-                case _ => errors += CardLoadException(name, set, "ruling missing date or text").toString
+                case _ => errors += CardLoadException(name, set, "ruling missing date or text").getMessage
               }
             }
 
@@ -488,12 +488,18 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
             // Add to map of faces if the card has multiple faces
             if (layout.isMultiFaced) {
-              if (version < v500)
-                faces += c -> card.get("names").getAsJsonArray.asScala.map(_.getAsString).toSeq
-              else {
+              if (version < v500) {
+                if (card.has("names"))
+                  faces += c -> card.get("names").getAsJsonArray.asScala.map(_.getAsString).toSeq
+                else
+                  throw CardLoadException(name, set, "other faces of multi-faced card not defined")
+              } else {
                 multiUUIDs += card.get("uuid").getAsString -> c
                 facesNames += c -> card.get("name").getAsString.split(Card.FACE_SEPARATOR).toSeq
-                otherFaceIds += c -> card.get("otherFaceIds").getAsJsonArray.asScala.map(_.getAsString).toSeq
+                if (card.has("otherFaceIds"))
+                  otherFaceIds += c -> card.get("otherFaceIds").getAsJsonArray.asScala.map(_.getAsString).toSeq
+                else
+                  throw CardLoadException(name, set, "other faces of multi-faced card not defined")
               }
             }
 
@@ -502,10 +508,10 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             Some(c)
           } catch {
             case e: IllegalArgumentException =>
-              errors += s"$name ($set): ${e.getMessage}"
+              errors += CardLoadException(name, set, e.getMessage, Some(e)).getMessage
               None
             case e: CardLoadException =>
-              errors += e.toString
+              errors += e.getMessage
               None
           }
         }
@@ -539,9 +545,12 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
         } else {
           cards --= facesNames.keys
           facesNames.foreach{ case (face, names) =>
-            val cardFaces = (otherFaceIds(face).map(multiUUIDs(_)).toSeq :+ face).sortBy((c) => names.indexOf(c.unifiedName))
-            if (face.layout != CardLayout.MELD || cardFaces.size == 3)
-              cards ++= createMultiFacedCard(face.layout, cardFaces)
+            if (otherFaceIds.contains(face)) {
+              val cardFaces = (otherFaceIds(face).map(multiUUIDs(_)).toSeq :+ face).sortBy((c) => names.indexOf(c.unifiedName))
+              if (face.layout != CardLayout.MELD || cardFaces.size == 3)
+                cards ++= createMultiFacedCard(face.layout, cardFaces)
+            } else
+              errors += CardLoadException(face.unifiedName, face.expansion, "other faces not found").getMessage
           }
         }
 
