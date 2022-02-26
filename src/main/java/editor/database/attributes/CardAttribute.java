@@ -39,6 +39,8 @@ import editor.filter.leaf.options.single.LayoutFilter;
 import editor.filter.leaf.options.single.RarityFilter;
 import editor.util.CollectionUtils;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This enum represents an attribute of a Magic: The Gathering card such as name, power, toughness,
  * etc. It can create a {@link Filter} for values of the attribute and compare two different values
@@ -65,7 +67,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** Largest mana value of a card. */
     MAX_VALUE("Max Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.maxManaValue())), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Colors of all faces of a card. */
-    COLORS("Colors", List.class, (a) -> new ColorFilter(a, Card::colors), (a, b) -> {
+    COLORS("Colors", List.class, (a) -> new ColorFilter(a, (c) -> CollectionConverters.asJava(c.colors())), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);
         var second = CollectionUtils.convertToList(b, ManaType.class);
         int diff = first.size() - second.size();

@@ -443,7 +443,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                 val col = collection.mutable.ArrayBuffer[ManaType]()
                 colors.asScala.foreach((e) => col += ManaType.parseManaType(e.getAsString))
                 col.toSeq
-              }).asJava,
+              }),
               colorLists.getOrElseUpdate(identity.toString, {
                 val col = collection.mutable.ArrayBuffer[ManaType]()
                 identity.asScala.foreach((e) => col += ManaType.parseManaType(e.getAsString))

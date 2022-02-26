@@ -122,7 +122,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def avgManaValue: Double
 
   /** @return the colors of the card across all faces. */
-  def colors: java.util.List[ManaType]
+  def colors: Seq[ManaType]
 
   /** @return the colors of a particular face of the card. */
   def colors(face: Int): java.util.List[ManaType]

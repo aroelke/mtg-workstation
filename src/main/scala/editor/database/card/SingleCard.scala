@@ -52,7 +52,7 @@ class SingleCard(
   layout: CardLayout,
   _name: String,
   mana: ManaCost,
-  override val colors: java.util.List[ManaType],
+  override val colors: Seq[ManaType],
   override val colorIdentity: java.util.List[ManaType],
   override val supertypes: java.util.Set[String],
   override val types: java.util.Set[String],
@@ -88,7 +88,7 @@ class SingleCard(
   override def toughness = Seq(tough).asJava
   override def loyalty = Seq(loyal).asJava
 
-  override def colors(face: Int) = colors
+  override def colors(face: Int) = colors.asJava
   override def manaValue = mana.manaValue
   override def minManaValue = mana.manaValue
   override def maxManaValue = mana.manaValue
@@ -124,7 +124,7 @@ class SingleCard(
       else
         document.insertString(document.getLength(), s"(${mana.manaValue})\n", textStyle)
       if (mana.colors != colors) {
-        for (color <- colors.asScala) {
+        for (color <- colors) {
           val indicatorStyle = document.addStyle("indicator", document.getStyle("text"))
           StyleConstants.setForeground(indicatorStyle, color.color)
           document.insertString(document.getLength, UnicodeSymbols.BULLET.toString, indicatorStyle)

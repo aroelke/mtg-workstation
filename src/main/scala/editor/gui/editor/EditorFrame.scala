@@ -1849,11 +1849,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
             case ByNothing => true
             case ByColor => s match {
               case "Colorless"    => c.colors.size == 0
-              case "White"        => c.colors.size == 1 && c.colors.get(0) == ManaType.WHITE
-              case "Blue"         => c.colors.size == 1 && c.colors.get(0) == ManaType.BLUE
-              case "Black"        => c.colors.size == 1 && c.colors.get(0) == ManaType.BLACK
-              case "Red"          => c.colors.size == 1 && c.colors.get(0) == ManaType.RED
-              case "Green"        => c.colors.size == 1 && c.colors.get(0) == ManaType.GREEN
+              case "White"        => c.colors.size == 1 && c.colors.apply(0) == ManaType.WHITE
+              case "Blue"         => c.colors.size == 1 && c.colors.apply(0) == ManaType.BLUE
+              case "Black"        => c.colors.size == 1 && c.colors.apply(0) == ManaType.BLACK
+              case "Red"          => c.colors.size == 1 && c.colors.apply(0) == ManaType.RED
+              case "Green"        => c.colors.size == 1 && c.colors.apply(0) == ManaType.GREEN
               case "Multicolored" => c.colors.size > 1
               case _ => true
             }
