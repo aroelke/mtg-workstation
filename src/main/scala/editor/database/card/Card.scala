@@ -125,7 +125,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def colors: Seq[ManaType]
 
   /** @return the colors of a particular face of the card. */
-  def colors(face: Int): java.util.List[ManaType]
+  def colors(face: Int): Seq[ManaType]
 
   /** @return the color identity of the card, which is the set of colors across all of its faces plus those of any mana symbols in its text boxes. */
   def colorIdentity: java.util.List[ManaType]

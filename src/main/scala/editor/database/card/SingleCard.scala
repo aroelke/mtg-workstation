@@ -88,7 +88,7 @@ class SingleCard(
   override def toughness = Seq(tough).asJava
   override def loyalty = Seq(loyal).asJava
 
-  override def colors(face: Int) = colors.asJava
+  override def colors(face: Int) = colors
   override def manaValue = mana.manaValue
   override def minManaValue = mana.manaValue
   override def maxManaValue = mana.manaValue
