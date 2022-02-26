@@ -448,7 +448,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                 val col = collection.mutable.ArrayBuffer[ManaType]()
                 identity.asScala.foreach((e) => col += ManaType.parseManaType(e.getAsString))
                 col.toSeq
-              }).asJava,
+              }),
               supertypeSets.getOrElseUpdate(supers.toString, {
                 val s = collection.mutable.LinkedHashSet[String]()
                 supers.asScala.foreach((e) => s += allSupertypes.getOrElseUpdate(e.getAsString, e.getAsString))

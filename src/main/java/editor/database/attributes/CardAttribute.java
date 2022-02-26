@@ -77,7 +77,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
         return diff;
     }),
     /** Color identity of a card. */
-    COLOR_IDENTITY("Color Identity", List.class, (a) -> new ColorFilter(a, Card::colorIdentity), (a, b) -> {
+    COLOR_IDENTITY("Color Identity", List.class, (a) -> new ColorFilter(a, (c) -> CollectionConverters.asJava(c.colorIdentity())), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);
         var second = CollectionUtils.convertToList(b, ManaType.class);
         int diff = first.size() - second.size();

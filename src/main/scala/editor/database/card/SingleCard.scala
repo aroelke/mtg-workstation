@@ -53,7 +53,7 @@ class SingleCard(
   _name: String,
   mana: ManaCost,
   override val colors: Seq[ManaType],
-  override val colorIdentity: java.util.List[ManaType],
+  override val colorIdentity: Seq[ManaType],
   override val supertypes: java.util.Set[String],
   override val types: java.util.Set[String],
   override val subtypes: java.util.Set[String],

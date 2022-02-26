@@ -188,7 +188,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
       if (!counted)
         isoNameCounts.put(c, deck.getEntry(c).count())
     }
-    val deckColorIdentity = deck.asScala.flatMap(_.colorIdentity.asScala).toSet
+    val deckColorIdentity = deck.asScala.flatMap(_.colorIdentity).toSet
 
     warnings.foreach{ case (format, warning) =>
       warning.clear()
@@ -206,7 +206,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
         val partners = possiblePartners.exists{ case (card, partner) => possibleCommanders.exists{ commander =>
           val colorIdentity = if ((partner.isEmpty && commander.normalizedOracle.asScala.map(PartnerPattern.matcher(_)).exists((m) => m.find && m.group(1) == null)) ||
                                   partner.equalsIgnoreCase(commander.unifiedName))
-            (card.colorIdentity.asScala ++ commander.colorIdentity.asScala).toSet
+            (card.colorIdentity ++ commander.colorIdentity).toSet
           else
             Set.empty
 

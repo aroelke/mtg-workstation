@@ -24,11 +24,7 @@ abstract class MultiCard(layout: CardLayout, val faces: Seq[Card]) extends Card(
   override def avgManaValue = faces.map(_.manaValue).sum/faces.size
   override lazy val colors = faces.flatMap(_.colors).distinct
   override def colors(face: Int) = faces(face).colors
-  override lazy val colorIdentity = {
-    val colors = collection.mutable.Buffer.from(faces.flatMap(_.colorIdentity.asScala).distinct).asJava
-    ManaType.sort(colors)
-    colors
-  }
+  override lazy val colorIdentity = faces.flatMap(_.colorIdentity).distinct
   override lazy val supertypes = faces.flatMap(_.supertypes.asScala).toSet.asJava
   override lazy val types = faces.flatMap(_.types.asScala).toSet.asJava
   override lazy val subtypes = faces.flatMap(_.subtypes.asScala).toSet.asJava
