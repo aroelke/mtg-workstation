@@ -11,6 +11,7 @@ import scala.jdk.CollectionConverters._
   @deprecated def convertToList[E](obj: AnyRef, clazz: Class[E]) = {
     obj match {
       case l: java.util.List[?] => l.asScala.collect{ case e if clazz.isInstance(e) => clazz.cast(e) }.asJava
+      case s: Seq[?] => s.collect{ case e if clazz.isInstance(e) => clazz.cast(e) }.asJava
       case _ => throw IllegalArgumentException(s"expected list, got ${obj.getClass}")
     }
   }

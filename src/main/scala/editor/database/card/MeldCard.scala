@@ -25,7 +25,7 @@ class MeldCard(front: Card, other: Card, back: Card) extends MultiCard(MELD, Seq
   if (front.layout != MELD || other.layout != MELD || back.layout != MELD)
     throw IllegalArgumentException("can't join non-meld cards into meld cards")
   
-  override lazy val manaCost = Seq(front.manaCost.get(0), ManaCost()).asJava
+  override lazy val manaCost = Seq(front.manaCost(0), ManaCost())
 
   override def manaValue = front.manaValue
 

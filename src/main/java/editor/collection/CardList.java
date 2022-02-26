@@ -14,6 +14,8 @@ import editor.collection.deck.Category;
 import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents a collection of cards.  Each card should be represented by a single entry
  * that keeps track of information such as how many copies are in the CardList.  If an implementation
@@ -80,7 +82,7 @@ public interface CardList extends Iterable<Card>
             return switch (data) {
                 case NAME           -> card().unifiedName();
                 case LAYOUT         -> card().layout();
-                case MANA_COST      -> card().manaCost();
+                case MANA_COST      -> CollectionConverters.asJava(card().manaCost());
                 case MANA_VALUE     -> card().manaValue();
                 case MIN_VALUE      -> card().minManaValue();
                 case MAX_VALUE      -> card().maxManaValue();

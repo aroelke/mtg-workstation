@@ -107,7 +107,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def name: Seq[String]
 
   /** @return a list containing the mana cost of each face of the card. */
-  def manaCost: java.util.List[ManaCost]
+  def manaCost: Seq[ManaCost]
 
   /** @return the mana value of the card. */
   def manaValue: Double

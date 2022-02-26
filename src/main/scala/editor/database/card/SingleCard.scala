@@ -75,7 +75,7 @@ class SingleCard(
   override val commandFormats: java.util.List[String]
 ) extends Card(set, layout) {
   override def name = Seq(_name)
-  override def manaCost = Seq(mana).asJava
+  override def manaCost = Seq(mana)
   override def printedTypes = Seq(pTypes).asJava
   override def oracleText = Seq(oracle).asJava
   override def flavorText = Seq(flavor).asJava
