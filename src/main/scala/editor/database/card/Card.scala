@@ -49,7 +49,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   import Card._
 
   /** Names of the card faces with special characters changed to ASCII equivalents for searchability. @see [[Card.name]] */
-  lazy val normalizedName = name.asScala.map(UnicodeSymbols.normalize).asJava
+  lazy val normalizedName = name.map(UnicodeSymbols.normalize).asJava
 
   /** Name of the entity represented by a legendary card, or just the card name if it's not legendary. */
   lazy val legendName = {
@@ -104,7 +104,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   lazy val legalIn = legality.keySet.asScala.filter(legalityIn(_).isLegal).toSeq.asJava
 
   /** @return a list containing the name of each face of the card. */
-  def name: java.util.List[String]
+  def name: Seq[String]
 
   /** @return a list containing the mana cost of each face of the card. */
   def manaCost: java.util.List[ManaCost]
@@ -223,7 +223,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def compareName(other: Card) = Collator.getInstance(Locale.US).compare(unifiedName, other.unifiedName)
 
   /** @return the names of the card's faces joined together by [[Card.FaceSeparator]]. */
-  def unifiedName = name.asScala.mkString(FaceSeparator)
+  def unifiedName = name.mkString(FaceSeparator)
 
   /** @return the type lines of the card's faces joined together by [[Card.FaceSeparator]]. */
   def unifiedTypeLine = typeLine.asScala.mkString(FaceSeparator)

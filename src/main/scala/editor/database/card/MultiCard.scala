@@ -17,7 +17,7 @@ abstract class MultiCard(layout: CardLayout, val faces: Seq[Card]) extends Card(
   if (faces.exists(_.isInstanceOf[MultiCard]))
     throw IllegalArgumentException("only normal, single-faced cards can be joined into a multi-faced card")
 
-  override lazy val name = faces.map(_.name.get(0)).asJava
+  override lazy val name = faces.map(_.name(0))
   override lazy val manaCost = faces.map(_.manaCost.get(0)).asJava
   override def minManaValue = faces.map(_.manaValue).min
   override def maxManaValue = faces.map(_.manaValue).max

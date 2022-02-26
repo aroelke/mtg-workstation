@@ -202,7 +202,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
     def converToNormal(card: Card) = SingleCard(
       CardLayout.NORMAL,
-      card.name.get(0),
+      card.name(0),
       card.manaCost.get(0),
       card.colors,
       card.colorIdentity,
