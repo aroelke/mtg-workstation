@@ -98,7 +98,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   lazy val normalizedFlavor = flavorText.asScala.map(UnicodeSymbols.normalize).asJava
 
   /** Whether or not the card ignores the restriction on the number allowed in a deck. */
-  lazy val ignoreCountRestriction = supertypeContains("basic") || oracleText.asScala.exists(_.toLowerCase.contains("a deck can have any number"))
+  lazy val ignoreCountRestriction = supertypes.exists(_.equalsIgnoreCase("basic")) || oracleText.asScala.exists(_.toLowerCase.contains("a deck can have any number"))
 
   /** List of formats the card is legal in. */
   lazy val legalIn = legality.keySet.asScala.filter(legalityIn(_).isLegal).toSeq.asJava
@@ -238,18 +238,6 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
     if (s.matches(raw"\s"))
       throw IllegalArgumentException("types don't contain white space")
     types.asScala.exists(_.equalsIgnoreCase(s))
-  }
-
-  /**
-   * Search the card's supertypes, ignoring case.
-   * 
-   * @param s supertype to search for
-   * @return true if the card has the given supertype, and false otherwise.
-   */
-  def supertypeContains(s: String) = {
-    if (s.matches(raw"\s"))
-      throw IllegalArgumentException("supertypes don't contain white space")
-    supertypes.exists(_.equalsIgnoreCase(s))
   }
 
   /** @return true if the card has a power value and it's variable (contains *), or false otherwise. */
