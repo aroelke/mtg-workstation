@@ -78,7 +78,7 @@ class SingleCard(
   override def manaCost = Seq(mana)
   override def printedTypes = Seq(pTypes)
   override def oracleText = Seq(oracle)
-  override def flavorText = Seq(flavor).asJava
+  override def flavorText = Seq(flavor)
   override def printedText = Seq(printed)
   override def artist = Seq(art).asJava
   override def number = Seq(n).asJava

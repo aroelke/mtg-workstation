@@ -95,7 +95,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   lazy val normalizedPrinted = printedText.map(UnicodeSymbols.normalize).asJava
 
   /** Flavor text with special characters converted to ASCII equivalents for searchability. @see [[Card.flavorText]] */
-  lazy val normalizedFlavor = flavorText.asScala.map(UnicodeSymbols.normalize).asJava
+  lazy val normalizedFlavor = flavorText.map(UnicodeSymbols.normalize).asJava
 
   /** Whether or not the card ignores the restriction on the number allowed in a deck. */
   lazy val ignoreCountRestriction = supertypes.exists(_.equalsIgnoreCase("basic")) || oracleText.exists(_.toLowerCase.contains("a deck can have any number"))
@@ -158,7 +158,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def printedText: Seq[String]
 
   /** @return a list containing each face's flavor text. */
-  def flavorText: java.util.List[String]
+  def flavorText: Seq[String]
 
   /** @return a list containing each face's power, if it's a creature. */
   def power: java.util.List[CombatStat]
