@@ -89,7 +89,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** Type line of a card. */
     TYPE_LINE("Type Line", String.class, (a) -> new TypeLineFilter(), Collator.getInstance()),
     /** The type line physically printed on a card. */
-    PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, Card::printedTypes)),
+    PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.printedTypes()))),
     /** A card's types. */
     CARD_TYPE("Card Type", (a) -> new CardTypeFilter()),
     /** A card's subtypes. */

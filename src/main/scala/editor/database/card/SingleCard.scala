@@ -76,7 +76,7 @@ class SingleCard(
 ) extends Card(set, layout) {
   override def name = Seq(_name)
   override def manaCost = Seq(mana)
-  override def printedTypes = Seq(pTypes).asJava
+  override def printedTypes = Seq(pTypes)
   override def oracleText = Seq(oracle).asJava
   override def flavorText = Seq(flavor).asJava
   override def printedText = Seq(printed).asJava

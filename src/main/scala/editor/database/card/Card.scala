@@ -146,7 +146,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def allTypes: Seq[Set[String]]
 
   /** @return a list containing each face's printed type line. */
-  def printedTypes: java.util.List[String]
+  def printedTypes: Seq[String]
 
   /** @return the card's rarity. */
   def rarity: Rarity

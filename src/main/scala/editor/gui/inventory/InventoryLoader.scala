@@ -209,7 +209,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       card.supertypes,
       card.types,
       card.subtypes,
-      card.printedTypes.get(0),
+      card.printedTypes(0),
       card.rarity,
       card.expansion,
       card.oracleText.get(0),
