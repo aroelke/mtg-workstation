@@ -164,7 +164,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def power: Seq[CombatStat]
 
   /** @return a list containing each face's toughness, if it's a creature. */
-  def toughness: java.util.List[CombatStat]
+  def toughness: Seq[CombatStat]
 
   /** @return a list containing each face's loyalty, if it's a planeswalker. */
   def loyalty: java.util.List[Loyalty]
@@ -232,7 +232,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def powerVariable = power.exists(_.variable)
 
   /** @return true if the card has a toughness value and it's variable (contains *) or false otherwise. */
-  def toughnessVariable = toughness.asScala.exists(_.variable)
+  def toughnessVariable = toughness.exists(_.variable)
 
   /** @return true if the card has a loyalty value and it's variable (contains * or X) or false otherwise. */
   def loyaltyVariable = loyalty.asScala.exists(_.variable)

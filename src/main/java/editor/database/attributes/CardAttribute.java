@@ -103,7 +103,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
         return first.compareTo(second);
     }),
     /** Toughness of a creature card. */
-    TOUGHNESS("Toughness", List.class, (a) -> new VariableNumberFilter(a, (c) -> c.toughness().stream().map(CombatStat::value).collect(Collectors.toList()), Card::toughnessVariable), (a, b) -> {
+    TOUGHNESS("Toughness", List.class, (a) -> new VariableNumberFilter(a, (c) -> CollectionConverters.asJava(c.toughness()).stream().map(CombatStat::value).collect(Collectors.toList()), Card::toughnessVariable), (a, b) -> {
         CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT());
         CombatStat second = CollectionUtils.convertToList(b, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT());
         return first.compareTo(second);
