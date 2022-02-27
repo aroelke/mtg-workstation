@@ -93,7 +93,7 @@ class SingleCard(
   override def minManaValue = mana.manaValue
   override def maxManaValue = mana.manaValue
   override def avgManaValue = mana.manaValue
-  override lazy val typeLine = Seq(s"""${if (supertypes.isEmpty) "" else s"${supertypes.mkString(" ")} "}${types.mkString(" ")}${if (subtypes.isEmpty) "" else s" ${UnicodeSymbols.EM_DASH} ${subtypes.mkString(" ")}"}""").asJava
+  override lazy val typeLine = Seq(s"""${if (supertypes.isEmpty) "" else s"${supertypes.mkString(" ")} "}${types.mkString(" ")}${if (subtypes.isEmpty) "" else s" ${UnicodeSymbols.EM_DASH} ${subtypes.mkString(" ")}"}""")
   override lazy val allTypes = Seq((supertypes ++ types ++ subtypes).asJava).asJava
   override lazy val isLand = types.exists(_.equalsIgnoreCase("land"))
   override lazy val imageNames = Seq(_name.toLowerCase).asJava
@@ -129,7 +129,7 @@ class SingleCard(
       if (printed)
         document.insertString(document.getLength, s"$pTypes\n", textStyle)
       else
-        document.insertString(document.getLength, s"${typeLine.get(0)}\n", textStyle)
+        document.insertString(document.getLength, s"${typeLine(0)}\n", textStyle)
       document.insertString(document.getLength, s"${expansion.name} $rarity\n", textStyle)
 
       val abilities = if (printed) this.printed else oracle

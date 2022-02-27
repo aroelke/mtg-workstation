@@ -140,7 +140,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def subtypes: Set[String]
 
   /** @return a list containing each face's full type line. */
-  def typeLine: java.util.List[String]
+  def typeLine: Seq[String]
 
   /** @return a list containing each face's complete set of types. */
   def allTypes: java.util.List[java.util.Set[String]]
@@ -226,7 +226,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def unifiedName = name.mkString(FaceSeparator)
 
   /** @return the type lines of the card's faces joined together by [[Card.FaceSeparator]]. */
-  def unifiedTypeLine = typeLine.asScala.mkString(FaceSeparator)
+  def unifiedTypeLine = typeLine.mkString(FaceSeparator)
 
   /** @return true if the card has a power value and it's variable (contains *), or false otherwise. */
   def powerVariable = power.asScala.exists(_.variable)
