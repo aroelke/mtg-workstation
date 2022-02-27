@@ -137,7 +137,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def types: Set[String]
 
   /** @return the set of subtypes across all faces of the card. */
-  def subtypes: java.util.Set[String]
+  def subtypes: Set[String]
 
   /** @return a list containing each face's full type line. */
   def typeLine: java.util.List[String]

@@ -9,6 +9,8 @@ import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.filter.leaf.FilterLeaf;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents a filter that groups cards by subtype.
  *
@@ -26,7 +28,7 @@ public class SubtypeFilter extends MultiOptionsFilter<String>
      */
     public SubtypeFilter()
     {
-        super(CardAttribute.SUBTYPE, Card::subtypes);
+        super(CardAttribute.SUBTYPE, (c) -> CollectionConverters.asJava(c.subtypes()));
     }
 
     @Override

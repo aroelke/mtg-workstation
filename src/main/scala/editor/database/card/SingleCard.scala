@@ -56,7 +56,7 @@ class SingleCard(
   override val colorIdentity: Seq[ManaType],
   override val supertypes: Set[String],
   override val types: Set[String],
-  override val subtypes: java.util.Set[String],
+  override val subtypes: Set[String],
   pTypes: String,
   override val rarity: Rarity,
   set: Expansion,
@@ -93,14 +93,8 @@ class SingleCard(
   override def minManaValue = mana.manaValue
   override def maxManaValue = mana.manaValue
   override def avgManaValue = mana.manaValue
-  override lazy val typeLine = Seq(s"""${if (supertypes.isEmpty) "" else s"${supertypes.mkString(" ")} "}${types.mkString(" ")}${if (subtypes.isEmpty) "" else s" ${UnicodeSymbols.EM_DASH} ${subtypes.asScala.mkString(" ")}"}""").asJava
-  override lazy val allTypes = {
-    val tipes: java.util.Set[String] = java.util.HashSet[String]()
-    tipes.addAll(supertypes.asJava)
-    tipes.addAll(types.asJava)
-    tipes.addAll(subtypes)
-    Seq(tipes).asJava
-  }
+  override lazy val typeLine = Seq(s"""${if (supertypes.isEmpty) "" else s"${supertypes.mkString(" ")} "}${types.mkString(" ")}${if (subtypes.isEmpty) "" else s" ${UnicodeSymbols.EM_DASH} ${subtypes.mkString(" ")}"}""").asJava
+  override lazy val allTypes = Seq((supertypes ++ types ++ subtypes).asJava).asJava
   override lazy val isLand = types.exists(_.equalsIgnoreCase("land"))
   override lazy val imageNames = Seq(_name.toLowerCase).asJava
 

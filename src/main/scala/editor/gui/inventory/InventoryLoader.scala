@@ -463,7 +463,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                 val s = collection.mutable.LinkedHashSet[String]()
                 subs.asScala.foreach((e) => s += allSubtypes.getOrElseUpdate(e.getAsString, e.getAsString))
                 s
-              }).asJava,
+              }).toSet,
               printedTypes.getOrElseUpdate(oTypes, oTypes),
               Rarity.parseRarity(card.get("rarity").getAsString),
               set,
