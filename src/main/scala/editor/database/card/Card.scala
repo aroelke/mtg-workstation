@@ -134,7 +134,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def supertypes: Set[String]
 
   /** @return the set of card types across all faces of the card. */
-  def types: java.util.Set[String]
+  def types: Set[String]
 
   /** @return the set of subtypes across all faces of the card. */
   def subtypes: java.util.Set[String]
@@ -237,7 +237,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def typeContains(s: String) = {
     if (s.matches(raw"\s"))
       throw IllegalArgumentException("types don't contain white space")
-    types.asScala.exists(_.equalsIgnoreCase(s))
+    types.exists(_.equalsIgnoreCase(s))
   }
 
   /** @return true if the card has a power value and it's variable (contains *), or false otherwise. */

@@ -9,6 +9,8 @@ import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.filter.leaf.FilterLeaf;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents a filter that groups cards by card type.
  *
@@ -27,7 +29,7 @@ public class CardTypeFilter extends MultiOptionsFilter<String>
      */
     public CardTypeFilter()
     {
-        super(CardAttribute.CARD_TYPE, Card::types);
+        super(CardAttribute.CARD_TYPE, (c) -> CollectionConverters.asJava(c.types()));
     }
 
     @Override
