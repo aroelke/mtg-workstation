@@ -25,7 +25,7 @@ abstract class MultiCard(layout: CardLayout, val faces: Seq[Card]) extends Card(
   override lazy val colors = faces.flatMap(_.colors).distinct
   override def colors(face: Int) = faces(face).colors
   override lazy val colorIdentity = faces.flatMap(_.colorIdentity).distinct
-  override lazy val supertypes = faces.flatMap(_.supertypes.asScala).toSet.asJava
+  override lazy val supertypes = faces.flatMap(_.supertypes).toSet
   override lazy val types = faces.flatMap(_.types.asScala).toSet.asJava
   override lazy val subtypes = faces.flatMap(_.subtypes.asScala).toSet.asJava
   override lazy val allTypes = faces.map(_.allTypes.get(0)).asJava

@@ -131,7 +131,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def colorIdentity: Seq[ManaType]
 
   /** @return the set of supertypes across all faces of the card. */
-  def supertypes: java.util.Set[String]
+  def supertypes: Set[String]
 
   /** @return the set of card types across all faces of the card. */
   def types: java.util.Set[String]
@@ -249,7 +249,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def supertypeContains(s: String) = {
     if (s.matches(raw"\s"))
       throw IllegalArgumentException("supertypes don't contain white space")
-    supertypes.asScala.exists(_.equalsIgnoreCase(s))
+    supertypes.exists(_.equalsIgnoreCase(s))
   }
 
   /** @return true if the card has a power value and it's variable (contains *), or false otherwise. */

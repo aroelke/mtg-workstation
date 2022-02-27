@@ -453,7 +453,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                 val s = collection.mutable.LinkedHashSet[String]()
                 supers.asScala.foreach((e) => s += allSupertypes.getOrElseUpdate(e.getAsString, e.getAsString))
                 s
-              }).asJava,
+              }).toSet,
               typeSets.getOrElseUpdate(types.toString, {
                 val s = collection.mutable.LinkedHashSet[String]()
                 types.asScala.foreach((e) => s += allTypes.getOrElseUpdate(e.getAsString, e.getAsString))

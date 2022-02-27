@@ -54,7 +54,7 @@ class SingleCard(
   mana: ManaCost,
   override val colors: Seq[ManaType],
   override val colorIdentity: Seq[ManaType],
-  override val supertypes: java.util.Set[String],
+  override val supertypes: Set[String],
   override val types: java.util.Set[String],
   override val subtypes: java.util.Set[String],
   pTypes: String,
@@ -93,10 +93,10 @@ class SingleCard(
   override def minManaValue = mana.manaValue
   override def maxManaValue = mana.manaValue
   override def avgManaValue = mana.manaValue
-  override lazy val typeLine = Seq(s"""${if (supertypes.isEmpty) "" else s"${supertypes.asScala.mkString(" ")} "}${types.asScala.mkString(" ")}${if (subtypes.isEmpty) "" else s" ${UnicodeSymbols.EM_DASH} ${subtypes.asScala.mkString(" ")}"}""").asJava
+  override lazy val typeLine = Seq(s"""${if (supertypes.isEmpty) "" else s"${supertypes.mkString(" ")} "}${types.asScala.mkString(" ")}${if (subtypes.isEmpty) "" else s" ${UnicodeSymbols.EM_DASH} ${subtypes.asScala.mkString(" ")}"}""").asJava
   override lazy val allTypes = {
     val tipes: java.util.Set[String] = java.util.HashSet[String]()
-    tipes.addAll(supertypes)
+    tipes.addAll(supertypes.asJava)
     tipes.addAll(types)
     tipes.addAll(subtypes)
     Seq(tipes).asJava

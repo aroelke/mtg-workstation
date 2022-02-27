@@ -9,6 +9,8 @@ import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.filter.leaf.FilterLeaf;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents a filter that groups cards by supertype.
  *
@@ -26,7 +28,7 @@ public class SupertypeFilter extends MultiOptionsFilter<String>
      */
     public SupertypeFilter()
     {
-        super(CardAttribute.SUPERTYPE, Card::supertypes);
+        super(CardAttribute.SUPERTYPE, (c) -> CollectionConverters.asJava(c.supertypes()));
     }
 
     @Override
