@@ -84,7 +84,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   lazy val normalizedOracle = {
     val texts = new collection.mutable.ArrayBuffer[String](oracleText.size)
     for (i <- 0 until oracleText.size) {
-      var normal = UnicodeSymbols.normalize(oracleText.get(i).toLowerCase)
+      var normal = UnicodeSymbols.normalize(oracleText(i).toLowerCase)
       normal = normal.replace(legendName.get(i), This).replace(normalizedName.get(i), This)
       texts += normal
     }
@@ -98,7 +98,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   lazy val normalizedFlavor = flavorText.asScala.map(UnicodeSymbols.normalize).asJava
 
   /** Whether or not the card ignores the restriction on the number allowed in a deck. */
-  lazy val ignoreCountRestriction = supertypes.exists(_.equalsIgnoreCase("basic")) || oracleText.asScala.exists(_.toLowerCase.contains("a deck can have any number"))
+  lazy val ignoreCountRestriction = supertypes.exists(_.equalsIgnoreCase("basic")) || oracleText.exists(_.toLowerCase.contains("a deck can have any number"))
 
   /** List of formats the card is legal in. */
   lazy val legalIn = legality.keySet.asScala.filter(legalityIn(_).isLegal).toSeq.asJava
@@ -152,7 +152,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def rarity: Rarity
 
   /** @return a list containing each face's Oracle text. */
-  def oracleText: java.util.List[String]
+  def oracleText: Seq[String]
 
   /** @return a list containing each face's printed text. */
   def printedText: java.util.List[String]
