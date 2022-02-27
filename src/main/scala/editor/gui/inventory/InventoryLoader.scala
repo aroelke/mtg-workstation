@@ -219,7 +219,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       card.multiverseid.get(0),
       card.scryfallid.get(0),
       card.number.get(0),
-      card.power.get(0),
+      card.power(0),
       card.toughness.get(0),
       card.loyalty.get(0),
       java.util.TreeMap(card.rulings),

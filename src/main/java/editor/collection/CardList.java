@@ -92,7 +92,7 @@ public interface CardList extends Iterable<Card>
                 case EXPANSION      -> card().expansion().toString();
                 case BLOCK          -> card().expansion().block();
                 case RARITY         -> card().rarity();
-                case POWER          -> card().power();
+                case POWER          -> CollectionConverters.asJava(card().power());
                 case TOUGHNESS      -> card().toughness();
                 case LOYALTY        -> card().loyalty();
                 case ARTIST         -> card().artist().get(0);

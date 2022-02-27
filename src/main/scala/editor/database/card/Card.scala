@@ -161,7 +161,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def flavorText: Seq[String]
 
   /** @return a list containing each face's power, if it's a creature. */
-  def power: java.util.List[CombatStat]
+  def power: Seq[CombatStat]
 
   /** @return a list containing each face's toughness, if it's a creature. */
   def toughness: java.util.List[CombatStat]
@@ -229,7 +229,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def unifiedTypeLine = typeLine.mkString(FaceSeparator)
 
   /** @return true if the card has a power value and it's variable (contains *), or false otherwise. */
-  def powerVariable = power.asScala.exists(_.variable)
+  def powerVariable = power.exists(_.variable)
 
   /** @return true if the card has a toughness value and it's variable (contains *) or false otherwise. */
   def toughnessVariable = toughness.asScala.exists(_.variable)
