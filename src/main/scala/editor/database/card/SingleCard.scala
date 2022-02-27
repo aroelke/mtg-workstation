@@ -79,7 +79,7 @@ class SingleCard(
   override def printedTypes = Seq(pTypes)
   override def oracleText = Seq(oracle)
   override def flavorText = Seq(flavor).asJava
-  override def printedText = Seq(printed).asJava
+  override def printedText = Seq(printed)
   override def artist = Seq(art).asJava
   override def number = Seq(n).asJava
   override def multiverseid = Seq(Integer(multiverse)).asJava

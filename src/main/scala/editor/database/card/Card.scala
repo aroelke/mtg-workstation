@@ -92,7 +92,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   }
 
   /** Printed text with special characters converted to ASCII equivalents for searchability. @see [[Card.printedText]] */
-  lazy val normalizedPrinted = printedText.asScala.map(UnicodeSymbols.normalize).asJava
+  lazy val normalizedPrinted = printedText.map(UnicodeSymbols.normalize).asJava
 
   /** Flavor text with special characters converted to ASCII equivalents for searchability. @see [[Card.flavorText]] */
   lazy val normalizedFlavor = flavorText.asScala.map(UnicodeSymbols.normalize).asJava
@@ -155,7 +155,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def oracleText: Seq[String]
 
   /** @return a list containing each face's printed text. */
-  def printedText: java.util.List[String]
+  def printedText: Seq[String]
 
   /** @return a list containing each face's flavor text. */
   def flavorText: java.util.List[String]
