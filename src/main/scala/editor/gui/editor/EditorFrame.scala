@@ -1814,7 +1814,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     nonlandLabel.setText(s"Nonlands: ${(deck.current.total - lands)}")
 
     val manaValue = deck.current.asScala
-        .filter((c) => !c.typeContains("land"))
+        .filter((c) => !c.types.exists(_.equalsIgnoreCase("land")))
         .flatMap((c) => Seq.tabulate(deck.current.getEntry(c).count)(_ => SettingsDialog.settings.editor.getManaValue(c)))
         .toSeq.sorted
     val avgManaValue = if (manaValue.isEmpty) 0 else manaValue.sum/manaValue.size
@@ -1857,7 +1857,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
               case "Multicolored" => c.colors.size > 1
               case _ => true
             }
-            case ByType => c.typeContains(s) && !sections.slice(0, sections.indexOf(s)).exists(c.typeContains(_))
+            case ByType => c.types.exists(_.equalsIgnoreCase(s)) && !sections.slice(0, sections.indexOf(s)).exists(s => c.types.exists(_.equalsIgnoreCase(s)))
           })
           .flatMap((c) => Seq.tabulate(analyte.getEntry(c).count)(_ => SettingsDialog.settings.editor.getManaValue(c)))
           .toSeq.sorted

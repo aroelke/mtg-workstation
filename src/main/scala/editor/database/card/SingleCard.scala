@@ -101,7 +101,7 @@ class SingleCard(
     tipes.addAll(subtypes)
     Seq(tipes).asJava
   }
-  override lazy val isLand = typeContains("land")
+  override lazy val isLand = types.exists(_.equalsIgnoreCase("land"))
   override lazy val imageNames = Seq(_name.toLowerCase).asJava
 
   override def formatDocument(document: StyledDocument, printed: Boolean) = {

@@ -228,18 +228,6 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** @return the type lines of the card's faces joined together by [[Card.FaceSeparator]]. */
   def unifiedTypeLine = typeLine.asScala.mkString(FaceSeparator)
 
-  /**
-   * Search the card's card types, ignoring case.
-   * 
-   * @param s card type to search for
-   * @return true if the card has the given card type, and false otherwise.
-   */
-  def typeContains(s: String) = {
-    if (s.matches(raw"\s"))
-      throw IllegalArgumentException("types don't contain white space")
-    types.exists(_.equalsIgnoreCase(s))
-  }
-
   /** @return true if the card has a power value and it's variable (contains *), or false otherwise. */
   def powerVariable = power.asScala.exists(_.variable)
 
