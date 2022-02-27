@@ -12,6 +12,8 @@ import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.util.Containment;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents a filter that filters a card by its entire type line.
  *
@@ -33,7 +35,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
      */
     public TypeLineFilter()
     {
-        super(CardAttribute.TYPE_LINE, Card::allTypes);
+        super(CardAttribute.TYPE_LINE, (c) -> CollectionConverters.asJava(c.allTypes()).stream().map((s) -> CollectionConverters.asJava(s)).collect(Collectors.toList()));
         contain = Containment.CONTAINS_ANY_OF;
         line = "";
     }
@@ -69,7 +71,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     @Override
     protected boolean testFace(Card c)
     {
-        return !line.isEmpty() && contain.test(c.allTypes().stream().flatMap(Set::stream).map(String::toLowerCase).collect(Collectors.toSet()), Arrays.asList(line.toLowerCase().split("\\s")));
+        return !line.isEmpty() && contain.test(CollectionConverters.asJava(c.allTypes()).stream().flatMap((s) -> CollectionConverters.asJava(s).stream()).map(String::toLowerCase).collect(Collectors.toSet()), Arrays.asList(line.toLowerCase().split("\\s")));
     }
 
     @Override

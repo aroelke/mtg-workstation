@@ -143,7 +143,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def typeLine: Seq[String]
 
   /** @return a list containing each face's complete set of types. */
-  def allTypes: java.util.List[java.util.Set[String]]
+  def allTypes: Seq[Set[String]]
 
   /** @return a list containing each face's printed type line. */
   def printedTypes: java.util.List[String]
