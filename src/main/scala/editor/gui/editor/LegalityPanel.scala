@@ -200,11 +200,11 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
         val commander = possibleCommanders.exists(c => deckColorIdentity.forall(c.colorIdentity.contains(_)))
 
         val possiblePartners = possibleCommanders
-            .flatMap((c) => c.normalizedOracle.asScala.map(c -> PartnerPattern.matcher(_)))
+            .flatMap((c) => c.normalizedOracle.map(c -> PartnerPattern.matcher(_)))
             .collect{ case (c, m) if c.commandFormats.contains(format) && m.find => c -> Option(m.group(1)).map(_.toLowerCase).getOrElse("") }
             .toMap
         val partners = possiblePartners.exists{ case (card, partner) => possibleCommanders.exists{ commander =>
-          val colorIdentity = if ((partner.isEmpty && commander.normalizedOracle.asScala.map(PartnerPattern.matcher(_)).exists((m) => m.find && m.group(1) == null)) ||
+          val colorIdentity = if ((partner.isEmpty && commander.normalizedOracle.map(PartnerPattern.matcher(_)).exists((m) => m.find && m.group(1) == null)) ||
                                   partner.equalsIgnoreCase(commander.unifiedName))
             (card.colorIdentity ++ commander.colorIdentity).toSet
           else

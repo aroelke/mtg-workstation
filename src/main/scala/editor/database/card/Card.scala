@@ -88,7 +88,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
       normal = normal.replace(legendName(i), This).replace(normalizedName(i), This)
       texts += normal
     }
-    texts.asJava
+    texts.toSeq
   }
 
   /** Printed text with special characters converted to ASCII equivalents for searchability. @see [[Card.printedText]] */

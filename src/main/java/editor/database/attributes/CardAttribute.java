@@ -53,7 +53,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** Name of a card. */
     NAME("Name", String.class, (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.normalizedName())), Collator.getInstance()),
     /** A card's Oracle text. */
-    RULES_TEXT("Rules Text", (a) -> new TextFilter(a, Card::normalizedOracle)),
+    RULES_TEXT("Rules Text", (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.normalizedOracle()))),
     /** A card's flavor text. */
     FLAVOR_TEXT("Flavor Text", (a) -> new TextFilter(a, Card::normalizedFlavor)),
     /** The text physically printed on a card. */
