@@ -123,7 +123,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** Rarity of a card in its expansion. */
     RARITY("Rarity", Rarity.class, (a) -> new RarityFilter(), (a, b) -> ((Rarity)a).compareTo((Rarity)b)),
     /** Artist of a card. */
-    ARTIST("Artist", String.class,(a) -> new TextFilter(a, Card::artist), Collator.getInstance()),
+    ARTIST("Artist", String.class,(a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.artist())), Collator.getInstance()),
     /** Collector number of a card. */
     CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, (c) -> c.number().stream().map((v) -> Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""))).collect(Collectors.toList())), (a, b) -> {
         var first = String.join(Card.FACE_SEPARATOR(), CollectionUtils.convertToList(a, String.class));

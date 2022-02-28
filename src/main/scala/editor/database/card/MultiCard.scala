@@ -34,7 +34,7 @@ abstract class MultiCard(layout: CardLayout, val faces: Seq[Card]) extends Card(
   override lazy val oracleText = faces.map(_.oracleText(0))
   override lazy val flavorText = faces.map(_.flavorText(0))
   override lazy val printedText = faces.map(_.printedText(0))
-  override lazy val artist = faces.map(_.artist.get(0)).asJava
+  override lazy val artist = faces.map(_.artist(0))
   override lazy val number = faces.map(_.number.get(0)).asJava
   override lazy val power = faces.map(_.power(0))
   override lazy val toughness = faces.map(_.toughness(0))

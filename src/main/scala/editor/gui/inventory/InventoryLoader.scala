@@ -215,7 +215,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       card.oracleText(0),
       card.flavorText(0),
       card.printedText(0),
-      card.artist.get(0),
+      card.artist(0),
       card.multiverseid.get(0),
       card.scryfallid.get(0),
       card.number.get(0),

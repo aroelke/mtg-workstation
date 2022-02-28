@@ -170,7 +170,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def loyalty: Seq[Loyalty]
 
   /** @return a list containing the artist of each face. */
-  def artist: java.util.List[String]
+  def artist: Seq[String]
 
   /** @return a list containing the collector number of each face. */
   def number: java.util.List[String]

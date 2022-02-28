@@ -80,7 +80,7 @@ class SingleCard(
   override def oracleText = Seq(oracle)
   override def flavorText = Seq(flavor)
   override def printedText = Seq(printed)
-  override def artist = Seq(art).asJava
+  override def artist = Seq(art)
   override def number = Seq(n).asJava
   override def multiverseid = Seq(Integer(multiverse)).asJava
   override def scryfallid = Seq(scryfall).asJava
