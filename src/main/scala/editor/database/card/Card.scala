@@ -77,7 +77,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
         }
       }
     }
-    legendNames.asJava
+    legendNames.toSeq
   }
 
   /** Oracle text with special characters converted to ASCII equivalents for searchability. @see [[Card.oracleText]] */
@@ -85,7 +85,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
     val texts = new collection.mutable.ArrayBuffer[String](oracleText.size)
     for (i <- 0 until oracleText.size) {
       var normal = UnicodeSymbols.normalize(oracleText(i).toLowerCase)
-      normal = normal.replace(legendName.get(i), This).replace(normalizedName(i), This)
+      normal = normal.replace(legendName(i), This).replace(normalizedName(i), This)
       texts += normal
     }
     texts.asJava
