@@ -92,7 +92,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   }
 
   /** Printed text with special characters converted to ASCII equivalents for searchability. @see [[Card.printedText]] */
-  lazy val normalizedPrinted = printedText.map(UnicodeSymbols.normalize).asJava
+  lazy val normalizedPrinted = printedText.map(UnicodeSymbols.normalize)
 
   /** Flavor text with special characters converted to ASCII equivalents for searchability. @see [[Card.flavorText]] */
   lazy val normalizedFlavor = flavorText.map(UnicodeSymbols.normalize).asJava

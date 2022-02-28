@@ -57,7 +57,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** A card's flavor text. */
     FLAVOR_TEXT("Flavor Text", (a) -> new TextFilter(a, Card::normalizedFlavor)),
     /** The text physically printed on a card. */
-    PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, Card::normalizedPrinted)),
+    PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.normalizedPrinted()))),
     /** Mana cost of a card. */
     MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter(), Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0))),
     /** Mana value of a card. */
