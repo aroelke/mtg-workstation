@@ -95,7 +95,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   lazy val normalizedPrinted = printedText.map(UnicodeSymbols.normalize)
 
   /** Flavor text with special characters converted to ASCII equivalents for searchability. @see [[Card.flavorText]] */
-  lazy val normalizedFlavor = flavorText.map(UnicodeSymbols.normalize).asJava
+  lazy val normalizedFlavor = flavorText.map(UnicodeSymbols.normalize)
 
   /** Whether or not the card ignores the restriction on the number allowed in a deck. */
   lazy val ignoreCountRestriction = supertypes.exists(_.equalsIgnoreCase("basic")) || oracleText.exists(_.toLowerCase.contains("a deck can have any number"))
