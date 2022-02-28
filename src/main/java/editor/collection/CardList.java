@@ -96,7 +96,7 @@ public interface CardList extends Iterable<Card>
                 case TOUGHNESS      -> CollectionConverters.asJava(card().toughness());
                 case LOYALTY        -> CollectionConverters.asJava(card().loyalty());
                 case ARTIST         -> card().artist().apply(0);
-                case CARD_NUMBER    -> String.join(Card.FACE_SEPARATOR(), card().number());
+                case CARD_NUMBER    -> String.join(Card.FACE_SEPARATOR(), CollectionConverters.asJava(card().number()));
                 case LEGAL_IN       -> card().legalIn();
                 case COUNT          -> count();
                 case CATEGORIES     -> categories();

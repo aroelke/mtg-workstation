@@ -218,7 +218,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       card.artist(0),
       card.multiverseid.get(0),
       card.scryfallid.get(0),
-      card.number.get(0),
+      card.number(0),
       card.power(0),
       card.toughness(0),
       card.loyalty(0),

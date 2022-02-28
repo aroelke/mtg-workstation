@@ -173,7 +173,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def artist: Seq[String]
 
   /** @return a list containing the collector number of each face. */
-  def number: java.util.List[String]
+  def number: Seq[String]
 
   /** @return a mapping of each format onto this card's legality in that format as of the most recent inventory update. */
   def legality: java.util.Map[String, Legality]

@@ -125,7 +125,16 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** Artist of a card. */
     ARTIST("Artist", String.class,(a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.artist())), Collator.getInstance()),
     /** Collector number of a card. */
-    CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, (c) -> c.number().stream().map((v) -> Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""))).collect(Collectors.toList())), (a, b) -> {
+    CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, (c) -> CollectionConverters.asJava(c.number()).stream().map((v) -> {
+        try
+        {
+            return Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""));
+        }
+        catch (NumberFormatException e)
+        {
+            return 0.0;
+        }
+    }).collect(Collectors.toList())), (a, b) -> {
         var first = String.join(Card.FACE_SEPARATOR(), CollectionUtils.convertToList(a, String.class));
         var second = String.join(Card.FACE_SEPARATOR(), CollectionUtils.convertToList(b, String.class));
         return Collator.getInstance().compare(first, second);
