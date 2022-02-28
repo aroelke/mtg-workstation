@@ -72,7 +72,7 @@ class SingleCard(
   loyal: Loyalty,
   override val rulings: java.util.TreeMap[Date, java.util.List[String]],
   override val legality: Map[String, Legality],
-  override val commandFormats: java.util.List[String]
+  override val commandFormats: Seq[String]
 ) extends Card(set, layout) {
   override def name = Seq(_name)
   override def manaCost = Seq(mana)

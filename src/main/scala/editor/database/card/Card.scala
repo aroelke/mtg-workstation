@@ -185,7 +185,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def scryfallid: Seq[String]
 
   /** @return the list of formats this card can be commander in. */
-  def commandFormats: java.util.List[String]
+  def commandFormats: Seq[String]
 
   /** @return the Gatherer rulings for the card that clarify how it works. */
   def rulings: java.util.Map[Date, java.util.List[String]]

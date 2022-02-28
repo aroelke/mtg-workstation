@@ -43,7 +43,7 @@ abstract class MultiCard(layout: CardLayout, val faces: Seq[Card]) extends Card(
   override lazy val imageNames = faces.map(_.imageNames.get(0)).asJava
   override lazy val multiverseid = faces.map(_.multiverseid(0))
   override lazy val scryfallid = faces.map(_.scryfallid(0))
-  override lazy val commandFormats = faces.flatMap(_.commandFormats.asScala).distinct.sorted.asJava
+  override lazy val commandFormats = faces.flatMap(_.commandFormats).distinct.sorted
   override def rarity = faces.head.rarity
   override def legality = faces(0).legality
   override def isLand = throw UnsupportedOperationException(s"look at individual faces to determine if $unifiedName is a land")

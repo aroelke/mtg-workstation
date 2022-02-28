@@ -479,7 +479,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               loyalties.getOrElseUpdate(loyalty, Loyalty(loyalty)),
               java.util.TreeMap(rulings.map{ case (d, r) => d -> r.asJava }.asJava),
               legality,
-              commandFormats.asJava
+              commandFormats
             )
 
             // Collect unexpected card values
