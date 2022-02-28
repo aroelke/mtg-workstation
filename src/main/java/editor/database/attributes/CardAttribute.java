@@ -51,7 +51,7 @@ import scala.jdk.javaapi.CollectionConverters;
 public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
 {
     /** Name of a card. */
-    NAME("Name", String.class, (a) -> new TextFilter(a, Card::normalizedName), Collator.getInstance()),
+    NAME("Name", String.class, (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.normalizedName())), Collator.getInstance()),
     /** A card's Oracle text. */
     RULES_TEXT("Rules Text", (a) -> new TextFilter(a, Card::normalizedOracle)),
     /** A card's flavor text. */

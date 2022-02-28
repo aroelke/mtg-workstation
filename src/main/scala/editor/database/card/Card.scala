@@ -49,12 +49,12 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   import Card._
 
   /** Names of the card faces with special characters changed to ASCII equivalents for searchability. @see [[Card.name]] */
-  lazy val normalizedName = name.map(UnicodeSymbols.normalize).asJava
+  lazy val normalizedName = name.map(UnicodeSymbols.normalize)
 
   /** Name of the entity represented by a legendary card, or just the card name if it's not legendary. */
   lazy val legendName = {
     val legendNames = collection.mutable.Buffer[String]()
-    for (fullName <- normalizedName.asScala) {
+    for (fullName <- normalizedName) {
       if (!supertypes.contains("Legendary"))
         legendNames += fullName
       else {
@@ -85,7 +85,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
     val texts = new collection.mutable.ArrayBuffer[String](oracleText.size)
     for (i <- 0 until oracleText.size) {
       var normal = UnicodeSymbols.normalize(oracleText(i).toLowerCase)
-      normal = normal.replace(legendName.get(i), This).replace(normalizedName.get(i), This)
+      normal = normal.replace(legendName.get(i), This).replace(normalizedName(i), This)
       texts += normal
     }
     texts.asJava
