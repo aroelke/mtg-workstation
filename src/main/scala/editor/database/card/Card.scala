@@ -179,7 +179,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def legality: Map[String, Legality]
 
   /** @return the card's multiverse ID, which is a unique number used in Gatherer to identify the card. */
-  def multiverseid: java.util.List[Integer]
+  def multiverseid: Seq[Int]
 
   /** @return the car'd Scryfall ID, which is used to identify the card on Scryfall. */
   def scryfallid: java.util.List[String]

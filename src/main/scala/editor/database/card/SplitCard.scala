@@ -21,5 +21,5 @@ class SplitCard(faces: Seq[Card]) extends MultiCard(faces(0).layout, faces) {
   
   override lazy val manaValue = faces.map(_.manaValue).sum
   override lazy val imageNames = Seq(faces(0).imageNames.get(0)).asJava
-  override lazy val multiverseid = Seq(faces(0).multiverseid.get(0)).asJava
+  override lazy val multiverseid = Seq(faces(0).multiverseid(0))
 }

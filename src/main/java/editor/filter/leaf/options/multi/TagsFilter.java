@@ -21,7 +21,7 @@ public class TagsFilter extends MultiOptionsFilter<String>
      */
     public TagsFilter()
     {
-        super(CardAttribute.TAGS, (c) -> Card.tagMap().getOrDefault(c.multiverseid().get(0), new HashSet<String>()));
+        super(CardAttribute.TAGS, (c) -> Card.tagMap().getOrDefault((int)c.multiverseid().apply(0), new HashSet<String>()));
     }
 
     @Override

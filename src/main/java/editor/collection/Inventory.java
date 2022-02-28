@@ -195,7 +195,7 @@ public class Inventory implements CardList
      */
     public boolean contains(int id)
     {
-        return ids.values().stream().map((c) -> c.multiverseid().get(0)).anyMatch((i) -> i == id);
+        return ids.values().stream().map((c) -> (int)c.multiverseid().apply(0)).anyMatch((i) -> i == id);
     }
 
     /**
@@ -234,7 +234,7 @@ public class Inventory implements CardList
      */
     public Card find(int id)
     {
-        return ids.values().stream().filter((c) -> c.multiverseid().get(0) == id).findAny().orElse(null);
+        return ids.values().stream().filter((c) -> (int)c.multiverseid().apply(0) == id).findAny().orElse(null);
     }
 
     /**

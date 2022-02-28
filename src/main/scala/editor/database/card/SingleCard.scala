@@ -82,7 +82,7 @@ class SingleCard(
   override def printedText = Seq(printed)
   override def artist = Seq(art)
   override def number = Seq(n)
-  override def multiverseid = Seq(Integer(multiverse)).asJava
+  override def multiverseid = Seq(multiverse)
   override def scryfallid = Seq(scryfall).asJava
   override def power = Seq(pow)
   override def toughness = Seq(tough)

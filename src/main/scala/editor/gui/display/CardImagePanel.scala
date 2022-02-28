@@ -61,7 +61,7 @@ object CardImagePanel {
   /** @return the list of file names that will contain the image(s) to display for a card */
   def getFiles(card: Card): Seq[File] = SettingsDialog.settings.inventory.imageSource match {
     case "Scryfall" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card.scryfallid.get(i)}$i.jpg").toFile).toSeq
-    case "Gatherer" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card.multiverseid.get(i)}$i.jpg").toFile).toSeq
+    case "Gatherer" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card.multiverseid(i)}$i.jpg").toFile).toSeq
     case _ => Seq.empty
   }
 
@@ -73,12 +73,12 @@ object CardImagePanel {
       case _ => (0 until card.imageNames.size).map((i) => Some(URL(ScryfallFormat.format(card.scryfallid.get(i), if (i > 0 && i == card.imageNames.size - 1) "&face=back" else "")))).toSeq
     }
     case "Gatherer" => card.layout match {
-      case CardLayout.FLIP => card.multiverseid.asScala.toSeq.zipWithIndex.map{ case (id, i) => if (id >= 0) {
+      case CardLayout.FLIP => card.multiverseid.zipWithIndex.map{ case (id, i) => if (id >= 0) {
         Some(URL(GathererFormat.format(id, if (i > 0 && i == card.multiverseid.size - 1) "options=rotate180" else "")))
       } else {
         None
       }}
-      case _ => card.multiverseid.asScala.toSeq.map(id => Option.when(id >= 0)(URL(GathererFormat.format(id, ""))))
+      case _ => card.multiverseid.map(id => Option.when(id >= 0)(URL(GathererFormat.format(id, ""))))
     }
     case _ => Seq.empty
   }
