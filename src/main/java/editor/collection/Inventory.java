@@ -103,7 +103,7 @@ public class Inventory implements CardList
     public Inventory(Collection<Card> list)
     {
         cards = new ArrayList<>(list);
-        ids = cards.stream().collect(Collectors.toMap((c) -> c.scryfallid().get(0), Function.identity()));
+        ids = cards.stream().collect(Collectors.toMap((c) -> c.scryfallid().apply(0), Function.identity()));
         filter = new BinaryFilter(true);
         filtrate = cards;
     }

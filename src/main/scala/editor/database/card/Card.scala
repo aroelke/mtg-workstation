@@ -182,7 +182,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def multiverseid: Seq[Int]
 
   /** @return the car'd Scryfall ID, which is used to identify the card on Scryfall. */
-  def scryfallid: java.util.List[String]
+  def scryfallid: Seq[String]
 
   /** @return the list of formats this card can be commander in. */
   def commandFormats: java.util.List[String]

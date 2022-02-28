@@ -60,7 +60,7 @@ object CardImagePanel {
 
   /** @return the list of file names that will contain the image(s) to display for a card */
   def getFiles(card: Card): Seq[File] = SettingsDialog.settings.inventory.imageSource match {
-    case "Scryfall" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card.scryfallid.get(i)}$i.jpg").toFile).toSeq
+    case "Scryfall" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card.scryfallid(i)}$i.jpg").toFile).toSeq
     case "Gatherer" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card.multiverseid(i)}$i.jpg").toFile).toSeq
     case _ => Seq.empty
   }
@@ -68,9 +68,9 @@ object CardImagePanel {
   /** @return the URLs to download a card's image(s) if they are missing */
   def getURLs(card: Card): Seq[Option[URL]] = SettingsDialog.settings.inventory.imageSource match {
     case "Scryfall" => card.layout match {
-      case CardLayout.FLIP => Seq(Some(URL(ScryfallFormat.format(card.scryfallid.get(0), ""))))
-      case CardLayout.MELD => (0 until card.imageNames.size).map((i) => Some(URL(ScryfallFormat.format(card.scryfallid.get(i), ""))))
-      case _ => (0 until card.imageNames.size).map((i) => Some(URL(ScryfallFormat.format(card.scryfallid.get(i), if (i > 0 && i == card.imageNames.size - 1) "&face=back" else "")))).toSeq
+      case CardLayout.FLIP => Seq(Some(URL(ScryfallFormat.format(card.scryfallid(0), ""))))
+      case CardLayout.MELD => (0 until card.imageNames.size).map((i) => Some(URL(ScryfallFormat.format(card.scryfallid(i), ""))))
+      case _ => (0 until card.imageNames.size).map((i) => Some(URL(ScryfallFormat.format(card.scryfallid(i), if (i > 0 && i == card.imageNames.size - 1) "&face=back" else "")))).toSeq
     }
     case "Gatherer" => card.layout match {
       case CardLayout.FLIP => card.multiverseid.zipWithIndex.map{ case (id, i) => if (id >= 0) {
