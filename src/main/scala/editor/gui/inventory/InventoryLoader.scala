@@ -221,7 +221,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       card.number.get(0),
       card.power(0),
       card.toughness(0),
-      card.loyalty.get(0),
+      card.loyalty(0),
       java.util.TreeMap(card.rulings),
       card.legality,
       card.commandFormats

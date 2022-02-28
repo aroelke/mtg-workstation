@@ -38,7 +38,7 @@ abstract class MultiCard(layout: CardLayout, val faces: Seq[Card]) extends Card(
   override lazy val number = faces.map(_.number.get(0)).asJava
   override lazy val power = faces.map(_.power(0))
   override lazy val toughness = faces.map(_.toughness(0))
-  override lazy val loyalty = faces.map(_.loyalty.get(0)).asJava
+  override lazy val loyalty = faces.map(_.loyalty(0))
   override lazy val rulings = collection.mutable.TreeMap.from(faces.flatMap(_.rulings.asScala)).asJava
   override lazy val imageNames = faces.map(_.imageNames.get(0)).asJava
   override lazy val multiverseid = faces.map(_.multiverseid.get(0)).asJava

@@ -86,7 +86,7 @@ class SingleCard(
   override def scryfallid = Seq(scryfall).asJava
   override def power = Seq(pow)
   override def toughness = Seq(tough)
-  override def loyalty = Seq(loyal).asJava
+  override def loyalty = Seq(loyal)
 
   override def colors(face: Int) = colors
   override def manaValue = mana.manaValue
