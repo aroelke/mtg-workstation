@@ -96,7 +96,7 @@ class SingleCard(
   override lazy val typeLine = Seq(s"""${if (supertypes.isEmpty) "" else s"${supertypes.mkString(" ")} "}${types.mkString(" ")}${if (subtypes.isEmpty) "" else s" ${UnicodeSymbols.EM_DASH} ${subtypes.mkString(" ")}"}""")
   override lazy val allTypes = Seq(supertypes ++ types ++ subtypes)
   override lazy val isLand = types.exists(_.equalsIgnoreCase("land"))
-  override lazy val imageNames = Seq(_name.toLowerCase).asJava
+  override lazy val imageNames = Seq(_name.toLowerCase)
 
   override def formatDocument(document: StyledDocument, printed: Boolean) = {
     val textStyle = document.getStyle("text")

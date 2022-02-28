@@ -20,6 +20,6 @@ class SplitCard(faces: Seq[Card]) extends MultiCard(faces(0).layout, faces) {
     throw IllegalArgumentException("all faces of a split card must be of the same type")
   
   override lazy val manaValue = faces.map(_.manaValue).sum
-  override lazy val imageNames = Seq(faces(0).imageNames.get(0)).asJava
+  override lazy val imageNames = Seq(faces(0).imageNames(0))
   override lazy val multiverseid = Seq(faces(0).multiverseid(0))
 }

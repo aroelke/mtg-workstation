@@ -194,7 +194,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def isLand: Boolean
 
   /** @return the file names of the images to use to display the card. */
-  def imageNames: java.util.List[String]
+  def imageNames: Seq[String]
 
   /**
    * Add information about all of the faces of the card to a GUI element's document.
