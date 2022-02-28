@@ -65,7 +65,7 @@ public class LegalityFilter extends MultiOptionsFilter<String>
         {
             var formats = new ArrayList<>(c.legalIn());
             formats.retainAll(selected);
-            return formats.stream().noneMatch((f) -> c.legality().get(f) != Legality.RESTRICTED);
+            return formats.stream().noneMatch((f) -> c.legality().apply(f) != Legality.RESTRICTED);
         }
         else
             return true;

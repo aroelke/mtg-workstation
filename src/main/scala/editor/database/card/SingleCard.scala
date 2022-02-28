@@ -71,7 +71,7 @@ class SingleCard(
   tough: CombatStat,
   loyal: Loyalty,
   override val rulings: java.util.TreeMap[Date, java.util.List[String]],
-  override val legality: java.util.Map[String, Legality],
+  override val legality: Map[String, Legality],
   override val commandFormats: java.util.List[String]
 ) extends Card(set, layout) {
   override def name = Seq(_name)

@@ -101,7 +101,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   lazy val ignoreCountRestriction = supertypes.exists(_.equalsIgnoreCase("basic")) || oracleText.exists(_.toLowerCase.contains("a deck can have any number"))
 
   /** List of formats the card is legal in. */
-  lazy val legalIn = legality.keySet.asScala.filter(legalityIn(_).isLegal).toSeq.asJava
+  lazy val legalIn = legality.keys.filter(legalityIn(_).isLegal).toSeq.asJava
 
   /** @return a list containing the name of each face of the card. */
   def name: Seq[String]
@@ -176,7 +176,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def number: Seq[String]
 
   /** @return a mapping of each format onto this card's legality in that format as of the most recent inventory update. */
-  def legality: java.util.Map[String, Legality]
+  def legality: Map[String, Legality]
 
   /** @return the card's multiverse ID, which is a unique number used in Gatherer to identify the card. */
   def multiverseid: java.util.List[Integer]
@@ -243,7 +243,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
    * @param format format to check
    * @return the legality of the card in the given format.
    */
-  def legalityIn(format: String) = legality.getOrDefault(format, Legality.ILLEGAL)
+  def legalityIn(format: String) = legality.getOrElse(format, Legality.ILLEGAL)
 
   override def equals(other: Any) = other match {
     case c: Card => scryfallid == c.scryfallid

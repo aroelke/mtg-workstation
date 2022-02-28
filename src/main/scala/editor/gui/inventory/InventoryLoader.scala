@@ -478,7 +478,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               stats.getOrElseUpdate(toughness, CombatStat(toughness)),
               loyalties.getOrElseUpdate(loyalty, Loyalty(loyalty)),
               java.util.TreeMap(rulings.map{ case (d, r) => d -> r.asJava }.asJava),
-              legality.asJava,
+              legality,
               commandFormats.asJava
             )
 
