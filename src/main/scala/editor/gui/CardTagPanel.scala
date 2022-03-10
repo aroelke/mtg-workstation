@@ -61,11 +61,10 @@ object CardTagPanel {
       val tagged = cardTagPanel.tagged
       val untagged = cardTagPanel.untagged
       cards.foreach((c) => {
-        tagged.foreach((tag) => Card.tagMap.getOrElseUpdate(c, collection.mutable.Set[String]()) += tag)
-        untagged.foreach((tag) => Card.tagMap.getOrElseUpdate(c, collection.mutable.Set[String]()) -= tag)
+        tagged.foreach((tag) => Card.tags(c) += tag)
+        untagged.foreach((tag) => Card.tags(c) -= tag)
       })
-      val removed = cardTagPanel.removed
-      Card.tagMap.keys.foreach((c) => Card.tagMap.getOrElseUpdate(c, collection.mutable.Set[String]()) --= removed)
+      Card.tags.foreach((x: (Card, collection.mutable.Set[String])) => x match { case (_, t) => t --= cardTagPanel.removed })
     }
   }
 }
@@ -94,7 +93,7 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
   setTags(Card.tags.toSeq.sorted)
 
   tagBoxes.foreach((box) => {
-    val matches = cards.count((c) => Option(Card.tagMap.get(c)).exists(_.contains(box.getText)))
+    val matches = cards.count((c) => Option(Card.tags(c)).exists(_.contains(box.getText)))
     if (matches == 0)
       box.state = TristateCheckBoxState.Unselected
     else if (matches < cards.size)
