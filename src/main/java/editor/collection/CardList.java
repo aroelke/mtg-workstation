@@ -102,11 +102,11 @@ public interface CardList extends Iterable<Card>
                 case CATEGORIES     -> categories();
                 case DATE_ADDED     -> dateAdded();
                 case TAGS           -> {
-                    var tags = Card.tagMap().get(card());
+                    var tags = Card.tagMap().apply(card());
                     if (tags == null)
                         yield "[]";
                     else
-                        yield tags.stream().sorted().collect(Collectors.joining(", ", "[", "]"));
+                        yield CollectionConverters.asJava(tags).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
                 }
                 default -> throw new IllegalArgumentException("Unknown data type " + data);
             };

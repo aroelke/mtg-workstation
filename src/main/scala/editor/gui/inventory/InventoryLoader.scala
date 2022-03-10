@@ -566,8 +566,8 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       publish("Processing tags...")
       val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
       val raw = MainFrame.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
-      Card.tags.clear()
-      Card.tagMap.putAll(raw.map{ case (name, tags) => data.inventory.find(name) -> tags.asJava }.asJava)
+      Card.tagMap.clear()
+      Card.tagMap ++= raw.map{ case (name, tags) => data.inventory.find(name) -> collection.mutable.Set.from(tags) }
     }
 
     data

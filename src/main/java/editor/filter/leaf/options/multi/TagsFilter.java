@@ -9,6 +9,8 @@ import editor.database.attributes.CardAttribute;
 import editor.database.card.Card;
 import editor.filter.leaf.FilterLeaf;
 
+import scala.jdk.javaapi.CollectionConverters;
+
 /**
  * This class represents a filter that filters cards by user-controlled tags.
  *
@@ -21,7 +23,12 @@ public class TagsFilter extends MultiOptionsFilter<String>
      */
     public TagsFilter()
     {
-        super(CardAttribute.TAGS, (c) -> Card.tagMap().getOrDefault((int)c.multiverseid().apply(0), new HashSet<String>()));
+        super(CardAttribute.TAGS, (c) -> {
+            if (Card.tagMap().contains(c))
+                return CollectionConverters.asJava(Card.tagMap().apply(c));
+            else
+                return new HashSet<String>();
+        });
     }
 
     @Override

@@ -24,8 +24,9 @@ object Card {
   val TextSeparator = "-----"
   val This = "~"
 
-  val tagMap = java.util.HashMap[Card, java.util.Set[String]]
-  def tags = tagMap.asScala.flatMap{ case (_, t) => t.asScala }.toSet.asJava
+//  val tagMap = java.util.HashMap[Card, java.util.Set[String]]
+  val tagMap = collection.mutable.Map[Card, collection.mutable.Set[String]]()
+  def tags = tagMap.flatMap{ case (_, t) => t }.toSet
 
   @deprecated def FACE_SEPARATOR = FaceSeparator
   @deprecated def TEXT_SEPARATOR = TextSeparator
