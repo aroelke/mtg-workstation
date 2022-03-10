@@ -16,6 +16,7 @@ import java.util.Locale
 import java.util.Objects
 import java.util.regex.Pattern
 import javax.swing.text.StyledDocument
+import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
 
 object Card {
@@ -188,7 +189,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def commandFormats: Seq[String]
 
   /** @return the Gatherer rulings for the card that clarify how it works. */
-  def rulings: java.util.Map[Date, java.util.List[String]]
+  def rulings: TreeMap[Date, Seq[String]]
 
   /** @return true if this card is a land, or false otherwise. */
   def isLand: Boolean

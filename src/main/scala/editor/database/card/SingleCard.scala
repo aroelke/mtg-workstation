@@ -17,6 +17,7 @@ import javax.swing.text.BadLocationException
 import javax.swing.text.Style
 import javax.swing.text.StyleConstants
 import javax.swing.text.StyledDocument
+import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
 
 /**
@@ -70,7 +71,7 @@ class SingleCard(
   pow: CombatStat,
   tough: CombatStat,
   loyal: Loyalty,
-  override val rulings: java.util.TreeMap[Date, java.util.List[String]],
+  override val rulings: TreeMap[Date, Seq[String]],
   override val legality: Map[String, Legality],
   override val commandFormats: Seq[String]
 ) extends Card(set, layout) {

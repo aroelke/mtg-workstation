@@ -3,6 +3,7 @@ package editor.database.card
 import editor.database.attributes.ManaType
 
 import javax.swing.text.StyledDocument
+import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
 
 /**
@@ -39,7 +40,7 @@ abstract class MultiCard(layout: CardLayout, val faces: Seq[Card]) extends Card(
   override lazy val power = faces.map(_.power(0))
   override lazy val toughness = faces.map(_.toughness(0))
   override lazy val loyalty = faces.map(_.loyalty(0))
-  override lazy val rulings = collection.mutable.TreeMap.from(faces.flatMap(_.rulings.asScala)).asJava
+  override lazy val rulings = TreeMap.from(faces.flatMap(_.rulings))
   override lazy val imageNames = faces.map(_.imageNames(0))
   override lazy val multiverseid = faces.map(_.multiverseid(0))
   override lazy val scryfallid = faces.map(_.scryfallid(0))

@@ -1,5 +1,6 @@
 package editor.gui.inventory
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import editor.collection.Inventory
@@ -69,7 +70,6 @@ import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 import scala.util.control.Breaks._
-import com.google.gson.JsonElement
 
 /**
  * Worker that loads inventory data from JSON along with metadata like expansions, blocks, and existing supertypes, card types, and subtypes.
@@ -222,7 +222,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       card.power(0),
       card.toughness(0),
       card.loyalty(0),
-      java.util.TreeMap(card.rulings),
+      card.rulings,
       card.legality,
       card.commandFormats
     )
@@ -477,7 +477,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               stats.getOrElseUpdate(power, CombatStat(power)),
               stats.getOrElseUpdate(toughness, CombatStat(toughness)),
               loyalties.getOrElseUpdate(loyalty, Loyalty(loyalty)),
-              java.util.TreeMap(rulings.map{ case (d, r) => d -> r.asJava }.asJava),
+              TreeMap.from(rulings.map{ case (d, r) => d -> r.toSeq }),
               legality,
               commandFormats
             )

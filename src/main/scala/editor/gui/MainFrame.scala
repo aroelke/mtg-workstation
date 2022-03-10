@@ -1548,8 +1548,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     StyleConstants.setBold(dateStyle, true)
     if (!card.rulings.isEmpty) {
       try {
-        for ((date, rulings) <- card.rulings.asScala) {
-          for (ruling <- rulings.asScala) {
+        for ((date, rulings) <- card.rulings) {
+          for (ruling <- rulings) {
             rulingsDocument.insertString(rulingsDocument.getLength, s"${UnicodeSymbols.BULLET} ", rulingStyle)
             rulingsDocument.insertString(rulingsDocument.getLength, format.format(date), dateStyle)
             rulingsDocument.insertString(rulingsDocument.getLength, ": ", rulingStyle)
