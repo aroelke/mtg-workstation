@@ -90,7 +90,7 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
   private val _removed = collection.mutable.HashSet[String]()
   private var preferredViewportHeight = 0
 
-  setTags(Card.tags.toSeq.sorted)
+  setTags(Card.tags.flatMap{ case (_, s) => s }.toSeq.sorted)
 
   tagBoxes.foreach((box) => {
     val matches = cards.count((c) => Option(Card.tags(c)).exists(_.contains(box.getText)))

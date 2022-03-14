@@ -24,8 +24,8 @@ public class TagsFilter extends MultiOptionsFilter<String>
     public TagsFilter()
     {
         super(CardAttribute.TAGS, (c) -> {
-            if (Card.TAGS().contains(c))
-                return CollectionConverters.asJava(Card.TAGS().apply(c));
+            if (Card.tags().contains(c))
+                return CollectionConverters.asJava(Card.tags().apply(c));
             else
                 return new HashSet<String>();
         });

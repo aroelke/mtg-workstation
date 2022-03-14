@@ -946,9 +946,9 @@ object SettingsDialog {
   /** Save settings in JSON format to [[PropertiesFile]]. */
   @throws[IOException]
   def save(): Unit = {
-    if (!Card.tags.isEmpty) {
+    if (!Card.tags.flatMap{ case (_, s) => s }.isEmpty) {
       Files.createDirectories(Path.of(settings.inventory.tags).getParent)
-      Files.writeString(Path.of(settings.inventory.tags), MainFrame.Serializer.toJson(Card.tags.map{ case (card, tags) => card.scryfallid(0) -> tags.asJava }.toMap.asJava))
+      Files.writeString(Path.of(settings.inventory.tags), MainFrame.Serializer.toJson(Card.tags.collect{ case (card, tags) if !tags.isEmpty => card.scryfallid(0) -> tags.asJava }.toMap.asJava))
     } else
       Files.deleteIfExists(Path.of(settings.inventory.tags))
     Files.writeString(PropertiesFile, MainFrame.Serializer.toJson(settings))

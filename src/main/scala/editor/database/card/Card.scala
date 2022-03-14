@@ -28,30 +28,15 @@ object Card {
   val TextSeparator = "-----"
   val This = "~"
 
-  import collection.mutable.Set
-  object tags extends AbstractSet[String] with Growable[(Card, Set[String])] with Shrinkable[Card] {
-    private val tags = collection.mutable.Map[Card, Set[String]]()
-    private def flat = tags.flatMap{ case (_, t) => t.toSet }.toSet
+  val tags = new collection.mutable.AbstractMap[Card, collection.mutable.Set[String]] {
+    val tags = collection.mutable.Map[Card, collection.mutable.Set[String]]()
 
-    def apply(card: Card) = tags.getOrElseUpdate(card, Set[String]())
-    def keys = tags.keys
-    def contains(card: Card) = tags.contains(card)
-    def update(card: Card, set: Set[String]) = tags(card) = set
-    def map[T](f: ((Card, Set[String])) => T) = tags.map(f)
-    @targetName("foreach_map") def foreach[U](f: ((Card, Set[String])) => U) = tags.foreach(f)
-
-    override def iterator = flat.iterator
-    override def excl(elem: String) = flat - elem
-    override def incl(elem: String) = flat + elem
-    override def contains(elem: String) = flat.contains(elem)
-    override def knownSize = iterator.knownSize
-    override def foreach[U](f: (String) => U) = flat.foreach(f)
-
-    override def addOne(elem: (Card, Set[String])) = { elem match { case (card, set) => apply(card) ++= set }; this }
-    override def subtractOne(card: Card) = { tags -= card; this }
-    override def clear() = tags.clear()
+    override def iterator = tags.iterator
+    override def get(c: Card) = Some(tags.getOrElseUpdate(c, collection.mutable.Set[String]()))
+    override def addOne(e: (Card, collection.mutable.Set[String])) = { e match { case (c, s) => apply(c) ++= s }; this }
+    override def subtractOne(c: Card) = { tags.subtractOne(c); this }
   }
-  def tags_=(elems: IterableOnce[(Card, Set[String])]) = {
+  def tags_=(elems: IterableOnce[(Card, collection.mutable.Set[String])]) = {
     tags.clear()
     tags ++= elems
   }
@@ -59,7 +44,6 @@ object Card {
   @deprecated def FACE_SEPARATOR = FaceSeparator
   @deprecated def TEXT_SEPARATOR = TextSeparator
   @deprecated def THIS = This
-  @deprecated def TAGS = tags
 }
 
 /**

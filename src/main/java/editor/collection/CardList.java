@@ -102,7 +102,7 @@ public interface CardList extends Iterable<Card>
                 case CATEGORIES     -> categories();
                 case DATE_ADDED     -> dateAdded();
                 case TAGS           -> {
-                    var tags = Card.TAGS().apply(card());
+                    var tags = Card.tags().apply(card());
                     if (tags == null)
                         yield "[]";
                     else
