@@ -23,11 +23,24 @@ import scala.collection.mutable.Growable
 import scala.collection.mutable.Shrinkable
 import scala.annotation.targetName
 
+/**
+ * Object containing global card data and data to aid with displaying card information.
+ * @author Alec Roelke
+ */
 object Card {
+  /** String used to separate information per card face when that data is to be displayed on a single line, like a card's name. */
   val FaceSeparator = " // "
+
+  /** String used to separate information per card face when that data is to be displayed on multiple lines, like a card's text. */
   val TextSeparator = "-----"
+
+  /** String used to represent a card's own name in its text box. */
   val This = "~"
 
+  /**
+   * User-defined, per-card tags. Every card effectively starts with an empty tag set, and the user can add and remove them as
+   * they like, and apply filters based on them for categories or inventory searches.
+   */
   val tags = new collection.mutable.AbstractMap[Card, collection.mutable.Set[String]] {
     val tags = collection.mutable.Map[Card, collection.mutable.Set[String]]()
 
@@ -36,6 +49,13 @@ object Card {
     override def addOne(e: (Card, collection.mutable.Set[String])) = { e match { case (c, s) => apply(c) ++= s }; this }
     override def subtractOne(c: Card) = { tags.subtractOne(c); this }
   }
+
+  /**
+   * Reset the user-defined tags.
+   * 
+   * @param elems new set of tags to replace the old ones
+   * @return the tags after resetting to their new values
+   */
   def tags_=(elems: IterableOnce[(Card, collection.mutable.Set[String])]) = {
     tags.clear()
     tags ++= elems
