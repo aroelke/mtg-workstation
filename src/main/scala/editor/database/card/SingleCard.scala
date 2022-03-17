@@ -147,7 +147,7 @@ class SingleCard(
             case '}' =>
               val symbol = Symbol.parse(abilities.substring(start, i))
               if (symbol.isEmpty) {
-                System.err.println(s"Unexpected symbol {${abilities.substring(start, i)}} in oracle text for $unifiedName.")
+                System.err.println(s"Unexpected symbol {${abilities.substring(start, i)}} in oracle text for $name.")
                 document.insertString(document.getLength, abilities.substring(start, i), textStyle)
               } else {
                 val symbolStyle = document.addStyle(symbol.get.toString, null)
@@ -195,7 +195,7 @@ class SingleCard(
             case '}' =>
               val symbol = Symbol.parse(flavorText.substring(start, i))
               if (symbol.isEmpty) {
-                System.err.println(s"Unexpected symbol {${flavorText.substring(start, i)}} in flavor text for $unifiedName.")
+                System.err.println(s"Unexpected symbol {${flavorText.substring(start, i)}} in flavor text for $name.")
                 document.insertString(document.getLength, flavorText.substring(start, i), reminderStyle)
               } else {
                 val symbolStyle = document.addStyle(symbol.get.toString, null)

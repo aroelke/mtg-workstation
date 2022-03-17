@@ -45,7 +45,7 @@ abstract class MultiCard(layout: CardLayout, override val faces: Seq[Card]) exte
   override lazy val commandFormats = faces.flatMap(_.commandFormats).distinct.sorted
   override def rarity = faces(0).rarity
   override def legality = faces(0).legality
-  override def isLand = throw UnsupportedOperationException(s"look at individual faces to determine if $unifiedName is a land")
+  override def isLand = throw UnsupportedOperationException(s"look at individual faces to determine if $name is a land")
 
   override def formatDocument(document: StyledDocument, printed: Boolean) = {
     val textStyle = document.getStyle("text")

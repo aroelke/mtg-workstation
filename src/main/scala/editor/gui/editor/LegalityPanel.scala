@@ -205,7 +205,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
             .toMap
         val partners = possiblePartners.exists{ case (card, partner) => possibleCommanders.exists{ commander =>
           val colorIdentity = if ((partner.isEmpty && commander.normalizedOracle.map(PartnerPattern.matcher(_)).exists((m) => m.find && m.group(1) == null)) ||
-                                  partner.equalsIgnoreCase(commander.unifiedName))
+                                  partner.equalsIgnoreCase(commander.name))
             (card.colorIdentity ++ commander.colorIdentity).toSet
           else
             Set.empty
@@ -230,12 +230,12 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
       deck.asScala.foreach{ c =>
         val maxCopies = constraints.maxCopies
         if (!c.legalityIn(format).isLegal)
-          warnings(format) += s"${c.unifiedName} is illegal in $format"
+          warnings(format) += s"${c.name} is illegal in $format"
         else if (isoNameCounts.contains(c) && !c.ignoreCountRestriction) {
           if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts(c) > 1)
-            warnings(format) += s"${c.unifiedName} is restricted in $format"
+            warnings(format) += s"${c.name} is restricted in $format"
           else if (isoNameCounts(c) > maxCopies)
-            warnings(format) += s"Deck contains more than $maxCopies copies of ${c.unifiedName}"
+            warnings(format) += s"Deck contains more than $maxCopies copies of ${c.name}"
         }
       }
 

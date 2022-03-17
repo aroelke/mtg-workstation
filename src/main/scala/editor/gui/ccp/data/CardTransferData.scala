@@ -20,7 +20,7 @@ class CardTransferData(cards: Array[Card]) extends Transferable {
   @throws[UnsupportedFlavorException]
   override def getTransferData(flavor: DataFlavor) = flavor match {
     case DataFlavors.cardFlavor => cards
-    case DataFlavor.stringFlavor => cards.map(_.unifiedName).mkString("\n")
+    case DataFlavor.stringFlavor => cards.map(_.name).mkString("\n")
     case _ => throw UnsupportedFlavorException(flavor)
   }
 

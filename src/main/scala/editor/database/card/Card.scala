@@ -250,19 +250,13 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def formatDocument(document: StyledDocument, printed: Boolean, face: Int): Unit
 
   /**
-   * Compare this card's [[Card.unifiedName]] to that of another.
+   * Compare this card's [[Card.name]] to that of another.
    * 
    * @param other card to compare with
    * @return a negative number if this card's name comes lexicographically before the other one's name,
    * a positive number if it comes after, or 0 if they're the same, ignoring case.
    */
-  def compareName(other: Card) = Collator.getInstance(Locale.US).compare(unifiedName, other.unifiedName)
-
-  /** @return the names of the card's faces joined together by [[Card.FaceSeparator]]. */
-  @deprecated def unifiedName = name
-
-  /** @return the type lines of the card's faces joined together by [[Card.FaceSeparator]]. */
-  @deprecated def unifiedTypeLine = typeLine
+  def compareName(other: Card) = Collator.getInstance(Locale.US).compare(name, other.name)
 
   /** @return true if the card has a power value and it's variable (contains *), or false otherwise. */
   def powerVariable = faces.exists(_.power.variable)
@@ -286,5 +280,5 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
     case _ => false
   }
   override def hashCode = Objects.hash((faces.map(_.scryfallid)):_*)
-  override def toString = unifiedName
+  override def toString = name
 }

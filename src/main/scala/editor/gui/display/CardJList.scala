@@ -22,7 +22,7 @@ class CardJList(var cards: Seq[Card] = Seq.empty) extends JList[String] {
     override def setSelectionInterval(index0: Int, index1: Int) = super.setSelectionInterval(-1, -1)
   })
   setModel(new DefaultListModel[String] {
-    override def getElementAt(index: Int) = cards(index).unifiedName
+    override def getElementAt(index: Int) = cards(index).name
     override def getSize = cards.size
   })
   setVisibleRowCount(SettingsDialog.settings.editor.categories.explicits)

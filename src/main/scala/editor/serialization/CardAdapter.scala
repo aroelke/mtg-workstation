@@ -36,7 +36,7 @@ class CardAdapter extends JsonSerializer[Card] with JsonDeserializer[Card] {
   override def serialize(src: Card, typeOfSrc: Type, context: JsonSerializationContext) = {
     val card = JsonObject()
     card.addProperty("scryfallid", src.scryfallid(0))
-    card.addProperty("name", src.unifiedName)
+    card.addProperty("name", src.name)
     card.addProperty("expansion", src.expansion.name)
     card
   }

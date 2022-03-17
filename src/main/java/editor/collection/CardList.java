@@ -81,7 +81,7 @@ public interface CardList extends Iterable<Card>
         default Object get(CardAttribute data)
         {
             return switch (data) {
-                case NAME           -> card().unifiedName();
+                case NAME           -> card().name();
                 case LAYOUT         -> card().layout();
                 case MANA_COST      -> CollectionConverters.asJava(card().faces()).stream().map(Card::manaCost).collect(Collectors.toList());
                 case MANA_VALUE     -> card().manaValue();
@@ -89,7 +89,7 @@ public interface CardList extends Iterable<Card>
                 case MAX_VALUE      -> card().maxManaValue();
                 case COLORS         -> CollectionConverters.asJava(card().colors());
                 case COLOR_IDENTITY -> CollectionConverters.asJava(card().colorIdentity());
-                case TYPE_LINE      -> card().unifiedTypeLine();
+                case TYPE_LINE      -> card().typeLine();
                 case EXPANSION      -> card().expansion().toString();
                 case BLOCK          -> card().expansion().block();
                 case RARITY         -> card().rarity();

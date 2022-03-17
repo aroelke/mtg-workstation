@@ -484,7 +484,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
             // Collect unexpected card values
             if (c.artist.isEmpty)
-              errors += s"${c.unifiedName} (${c.expansion}): missing artist"
+              errors += s"${c.name} (${c.expansion}): missing artist"
 
             // Add to map of faces if the card has multiple faces
             if (layout.isMultiFaced) {
@@ -526,12 +526,12 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             val otherFaces = collection.mutable.ArrayBuffer[Card]()
             if (version < v500 || face.layout != CardLayout.MELD) {
               val faceNames = faces(face)
-              facesList.foreach((c) => if (faceNames.contains(c.unifiedName) && c.expansion == face.expansion) {
+              facesList.foreach((c) => if (faceNames.contains(c.name) && c.expansion == face.expansion) {
                 otherFaces += c
               })
               facesList --= otherFaces
               otherFaces += face
-              otherFaces.sortInPlaceBy((a) => faceNames.indexOf(a.unifiedName))
+              otherFaces.sortInPlaceBy((a) => faceNames.indexOf(a.name))
             }
             cards --= otherFaces
 
@@ -546,11 +546,11 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
           cards --= facesNames.keys
           facesNames.foreach{ case (face, names) =>
             if (otherFaceIds.contains(face)) {
-              val cardFaces = (otherFaceIds(face).map(multiUUIDs(_)).toSeq :+ face).sortBy((c) => names.indexOf(c.unifiedName))
+              val cardFaces = (otherFaceIds(face).map(multiUUIDs(_)).toSeq :+ face).sortBy((c) => names.indexOf(c.name))
               if (face.layout != CardLayout.MELD || cardFaces.size == 3)
                 cards ++= createMultiFacedCard(face.layout, cardFaces)
             } else
-              errors += CardLoadException(face.unifiedName, face.expansion, "other faces not found").getMessage
+              errors += CardLoadException(face.name, face.expansion, "other faces not found").getMessage
           }
         }
 

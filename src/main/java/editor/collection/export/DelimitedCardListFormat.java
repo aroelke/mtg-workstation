@@ -237,14 +237,14 @@ public class DelimitedCardListFormat implements CardListFormat
         line = line.replace(ESCAPE + ESCAPE, ESCAPE);
         String[] cells = split(delimiter, line);
 
-        var possibilities = MainFrame.inventory().stream().filter((c) -> c.unifiedName().equalsIgnoreCase(cells[indices.name])).collect(Collectors.toList());
+        var possibilities = MainFrame.inventory().stream().filter((c) -> c.name().equalsIgnoreCase(cells[indices.name])).collect(Collectors.toList());
         if (possibilities.size() > 1 && indices.expansion > -1)
             possibilities.removeIf((c) -> !c.expansion().name().equalsIgnoreCase(cells[indices.expansion]));
         if (possibilities.size() > 1 && indices.number > -1)
             possibilities.removeIf((c) -> !String.join(Card.FACE_SEPARATOR(), CollectionConverters.asJava(c.faces()).stream().map(Card::number).collect(Collectors.toList())).equals(cells[indices.number]));
 
         if (possibilities.size() > 1)
-            System.err.println("warning: cannot determine printing of " + possibilities.get(0).unifiedName());
+            System.err.println("warning: cannot determine printing of " + possibilities.get(0).name());
         if (possibilities.isEmpty())
             throw new ParseException("can't find card named " + cells[indices.name], pos);
         deck.add(possibilities.get(0), indices.count < 0 ? 1 : Integer.parseInt(cells[indices.count]), indices.date < 0 ? LocalDate.now() : LocalDate.parse(cells[indices.date], Deck.DATE_FORMATTER));

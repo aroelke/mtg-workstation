@@ -1562,7 +1562,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                 case '}'=>
                   val symbol = mtg.Symbol.tryParseSymbol(ruling.substring(start, i))
                   if (symbol.isEmpty) {
-                    System.err.println(s"Unexpected symbol {${ruling.substring(start, i)}} in ruling for ${card.unifiedName}.")
+                    System.err.println(s"Unexpected symbol {${ruling.substring(start, i)}} in ruling for ${card.name}.")
                     rulingsDocument.insertString(rulingsDocument.getLength, ruling.substring(start, i), rulingStyle)
                   } else {
                     val symbolStyle = rulingsDocument.addStyle(symbol.get.toString, null)

@@ -334,13 +334,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         val had = if (original.contains(c)) original.getEntry(c).count else 0
         val has = if (current.contains(c)) current.getEntry(c).count else 0
         if (has < had)
-          changes ++= s"-${had - has}x ${c.unifiedName} (${c.expansion.name})\n"
+          changes ++= s"-${had - has}x ${c.name} (${c.expansion.name})\n"
       })
       current.stream.forEach((c) => {
         val had = if (original.contains(c)) original.getEntry(c).count else 0
         val has = if (current.contains(c)) current.getEntry(c).count else 0
         if (had < has)
-          changes ++= s"+${has - had}x ${c.unifiedName} (${c.expansion.name})\n"
+          changes ++= s"+${has - had}x ${c.name} (${c.expansion.name})\n"
       })
       changes.result
     }

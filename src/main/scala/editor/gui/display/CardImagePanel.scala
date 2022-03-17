@@ -132,7 +132,7 @@ object CardImagePanel {
                     bar.setEnabled(true)
                     bar.setMaximum(size)
                   }
-                  progressLabels.foreach(_.setText(s"Downloading image of ${req.card.unifiedName} ..."))
+                  progressLabels.foreach(_.setText(s"Downloading image of ${req.card.name} ..."))
                 })
 
                 Using.resources(BufferedInputStream(connection.getInputStream), BufferedOutputStream(FileOutputStream(files(i)))){ (in, out) =>

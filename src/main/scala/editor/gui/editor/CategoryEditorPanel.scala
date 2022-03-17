@@ -127,7 +127,7 @@ class CategoryEditorPanel(specification: Option[Category] = None) extends JPanel
     nameField.setText(s.getName)
     colorButton.color = s.getColor
     filter.setContents(s.getFilter)
-    whitelist.cards = s.getWhitelist.asScala.toSeq.sortBy(_.unifiedName)
-    blacklist.cards = s.getBlacklist.asScala.toSeq.sortBy(_.unifiedName)
+    whitelist.cards = s.getWhitelist.asScala.toSeq.sortBy(_.name)
+    blacklist.cards = s.getBlacklist.asScala.toSeq.sortBy(_.name)
   }
 }
