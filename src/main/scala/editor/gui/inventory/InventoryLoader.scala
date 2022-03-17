@@ -200,33 +200,6 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
   private def createMultiFacedCard(layout: CardLayout, faces: Seq[Card]) = {
     import CardLayout._
 
-    def converToNormal(card: Card) = SingleCard(
-      CardLayout.NORMAL,
-      card(0).name,
-      card(0).manaCost,
-      card(0).colors,
-      card(0).colorIdentity,
-      card(0).supertypes,
-      card(0).types,
-      card(0).subtypes,
-      card(0).printedTypes,
-      card(0).rarity,
-      card(0).expansion,
-      card(0).oracleText,
-      card(0).flavorText,
-      card(0).printedText,
-      card(0).artist,
-      card(0).multiverseid,
-      card(0).scryfallid,
-      card(0).number,
-      card(0).power,
-      card(0).toughness,
-      card(0).loyalty,
-      card(0).rulings,
-      card(0).legality,
-      card(0).commandFormats
-    )
-
     var error = false
     val face = faces(0)
     val result = layout match {
@@ -291,7 +264,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
         if (!error) Set(MeldCard(faces(0), faces(1), faces(2)), MeldCard(faces(1), faces(0), faces(2))) else Set.empty
       case _ => Set.empty
     }
-    if (error) faces.map(converToNormal).toSet else result
+    if (error) faces.map{ case f: SingleCard => f.copy(layout = NORMAL) }.toSet else result
   }
 
   protected override def doInBackground() = {

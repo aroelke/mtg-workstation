@@ -49,31 +49,31 @@ import scala.jdk.CollectionConverters._
  * @param legality which formats the card is legal (or restricted) in
  * @param commandFormats formats in which the card can be commander
  */
-class SingleCard(
-  layout: CardLayout,
-  override val name: String,
-  override val manaCost: ManaCost,
-  override val colors: Seq[ManaType],
-  override val colorIdentity: Seq[ManaType],
-  override val supertypes: Set[String],
-  override val types: Set[String],
-  override val subtypes: Set[String],
-  override val printedTypes: String,
-  override val rarity: Rarity,
+case class SingleCard(
+  override val layout: CardLayout,
+  name: String,
+  manaCost: ManaCost,
+  colors: Seq[ManaType],
+  colorIdentity: Seq[ManaType],
+  supertypes: Set[String],
+  types: Set[String],
+  subtypes: Set[String],
+  printedTypes: String,
+  rarity: Rarity,
   set: Expansion,
-  override val oracleText: String,
-  override val flavorText: String,
-  override val printedText: String,
-  override val artist: String,
-  override val multiverseid: Int,
-  override val scryfallid: String,
-  override val number: String,
-  override val power: CombatStat,
-  override val toughness: CombatStat,
-  override val loyalty: Loyalty,
-  override val rulings: TreeMap[Date, Seq[String]],
-  override val legality: Map[String, Legality],
-  override val commandFormats: Seq[String]
+  oracleText: String,
+  flavorText: String,
+  printedText: String,
+  artist: String,
+  multiverseid: Int,
+  scryfallid: String,
+  number: String,
+  power: CombatStat,
+  toughness: CombatStat,
+  loyalty: Loyalty,
+  rulings: TreeMap[Date, Seq[String]],
+  legality: Map[String, Legality],
+  commandFormats: Seq[String]
 ) extends Card(set, layout) {
   override def faces = Seq(this)
 
