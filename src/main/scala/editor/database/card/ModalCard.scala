@@ -17,4 +17,5 @@ class ModalCard(front: Card, back: Card) extends MultiCard(MODAL_DFC, Seq(front,
     IllegalArgumentException("can't join non-modal-double-faced cards into modal double-faced cards")
 
   override lazy val manaValue = front.manaValue
+  override lazy val imageNames = front.imageNames ++ back.imageNames
 }

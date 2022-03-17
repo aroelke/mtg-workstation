@@ -124,6 +124,8 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
     CardAttribute.POWER,
     CardAttribute.TOUGHNESS,
     CardAttribute.LOYALTY,
+    CardAttribute.LEGAL_IN,
+    CardAttribute.TAGS,
     CardAttribute.CATEGORIES
   )
 
@@ -135,10 +137,12 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
         case CardAttribute.POWER | CardAttribute.TOUGHNESS | CardAttribute.LOYALTY => (a: AnyRef, b: AnyRef) => {
           val first = a match {
             case s: Seq[?] => s.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
+            case l: java.util.List[?] => l.asScala.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
             case _ => OptionalAttribute.empty
           }
           val second = b match {
             case s: Seq[?] => s.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
+            case l: java.util.List[?] => l.asScala.collect{ case o: OptionalAttribute if o.exists => o }.headOption.getOrElse(OptionalAttribute.empty)
             case _ => OptionalAttribute.empty
           }
           if (!first.exists && !second.exists)

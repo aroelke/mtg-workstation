@@ -35,7 +35,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
      */
     public TypeLineFilter()
     {
-        super(CardAttribute.TYPE_LINE, (c) -> CollectionConverters.asJava(c.allTypes()).stream().map((s) -> CollectionConverters.asJava(s)).collect(Collectors.toList()));
+        super(CardAttribute.TYPE_LINE, (c) -> CollectionConverters.asJava(c.faces()).stream().map((s) -> CollectionConverters.asJava(s.allTypes())).collect(Collectors.toList()));
         contain = Containment.CONTAINS_ANY_OF;
         line = "";
     }
@@ -71,7 +71,7 @@ public class TypeLineFilter extends FilterLeaf<List<Set<String>>>
     @Override
     protected boolean testFace(Card c)
     {
-        return !line.isEmpty() && contain.test(CollectionConverters.asJava(c.allTypes()).stream().flatMap((s) -> CollectionConverters.asJava(s).stream()).map(String::toLowerCase).collect(Collectors.toSet()), Arrays.asList(line.toLowerCase().split("\\s")));
+        return !line.isEmpty() && contain.test(CollectionConverters.asJava(c.faces()).stream().flatMap((s) -> CollectionConverters.asJava(s.allTypes()).stream()).map(String::toLowerCase).collect(Collectors.toSet()), Arrays.asList(line.toLowerCase().split("\\s")));
     }
 
     @Override

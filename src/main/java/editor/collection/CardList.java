@@ -3,6 +3,7 @@ package editor.collection;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,7 +83,7 @@ public interface CardList extends Iterable<Card>
             return switch (data) {
                 case NAME           -> card().unifiedName();
                 case LAYOUT         -> card().layout();
-                case MANA_COST      -> CollectionConverters.asJava(card().manaCost());
+                case MANA_COST      -> CollectionConverters.asJava(card().faces()).stream().map(Card::manaCost).collect(Collectors.toList());
                 case MANA_VALUE     -> card().manaValue();
                 case MIN_VALUE      -> card().minManaValue();
                 case MAX_VALUE      -> card().maxManaValue();
@@ -92,22 +93,16 @@ public interface CardList extends Iterable<Card>
                 case EXPANSION      -> card().expansion().toString();
                 case BLOCK          -> card().expansion().block();
                 case RARITY         -> card().rarity();
-                case POWER          -> CollectionConverters.asJava(card().power());
-                case TOUGHNESS      -> CollectionConverters.asJava(card().toughness());
-                case LOYALTY        -> CollectionConverters.asJava(card().loyalty());
-                case ARTIST         -> card().artist().apply(0);
-                case CARD_NUMBER    -> String.join(Card.FACE_SEPARATOR(), CollectionConverters.asJava(card().number()));
+                case POWER          -> CollectionConverters.asJava(card().faces()).stream().map(Card::power).collect(Collectors.toList());
+                case TOUGHNESS      -> CollectionConverters.asJava(card().faces()).stream().map(Card::toughness).collect(Collectors.toList());
+                case LOYALTY        -> CollectionConverters.asJava(card().faces()).stream().map(Card::loyalty).collect(Collectors.toList());
+                case ARTIST         -> card().faces().apply(0).artist();
+                case CARD_NUMBER    -> String.join(Card.FACE_SEPARATOR(), CollectionConverters.asJava(card().faces()).stream().map(Card::number).collect(Collectors.toList()));
                 case LEGAL_IN       -> card().legalIn();
                 case COUNT          -> count();
                 case CATEGORIES     -> categories();
                 case DATE_ADDED     -> dateAdded();
-                case TAGS           -> {
-                    var tags = Card.tags().apply(card());
-                    if (tags == null)
-                        yield "[]";
-                    else
-                        yield CollectionConverters.asJava(tags).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
-                }
+                case TAGS           -> new LinkedHashSet<>(CollectionConverters.asJava(Card.tags().apply(card())).stream().sorted().collect(Collectors.toList()));
                 default -> throw new IllegalArgumentException("Unknown data type " + data);
             };
         }

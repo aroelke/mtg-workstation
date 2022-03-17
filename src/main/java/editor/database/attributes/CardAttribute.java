@@ -89,7 +89,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** Type line of a card. */
     TYPE_LINE("Type Line", String.class, (a) -> new TypeLineFilter(), Collator.getInstance()),
     /** The type line physically printed on a card. */
-    PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.printedTypes()))),
+    PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.faces()).stream().map(Card::printedTypes).collect(Collectors.toList()))),
     /** A card's types. */
     CARD_TYPE("Card Type", (a) -> new CardTypeFilter()),
     /** A card's subtypes. */
@@ -97,23 +97,26 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** A card's supertypes. */
     SUPERTYPE("Supertype", (a) -> new SupertypeFilter()),
     /** Power of a creature card. */
-    POWER("Power", List.class, (a) -> new VariableNumberFilter(a, (c) -> CollectionConverters.asJava(c.power()).stream().map(CombatStat::value).collect(Collectors.toList()), Card::powerVariable), (a, b) -> {
-        CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT());
-        CombatStat second = CollectionUtils.convertToList(b, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT());
-        return first.compareTo(second);
-    }),
+    POWER(
+        "Power",
+        List.class,
+        (a) -> new VariableNumberFilter(a, (c) -> CollectionConverters.asJava(c.faces()).stream().map((f) -> f.power().value()).collect(Collectors.toList()), Card::powerVariable),
+        (a, b) -> ((CombatStat)a).compareTo((CombatStat)b)
+    ),
     /** Toughness of a creature card. */
-    TOUGHNESS("Toughness", List.class, (a) -> new VariableNumberFilter(a, (c) -> CollectionConverters.asJava(c.toughness()).stream().map(CombatStat::value).collect(Collectors.toList()), Card::toughnessVariable), (a, b) -> {
-        CombatStat first = CollectionUtils.convertToList(a, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT());
-        CombatStat second = CollectionUtils.convertToList(b, CombatStat.class).stream().filter(CombatStat::exists).findFirst().orElse(CombatStat.NO_COMBAT());
-        return first.compareTo(second);
-    }),
+    TOUGHNESS(
+        "Toughness",
+        List.class,
+        (a) -> new VariableNumberFilter(a, (c) -> CollectionConverters.asJava(c.faces()).stream().map((f) -> f.toughness().value()).collect(Collectors.toList()), Card::toughnessVariable),
+        (a, b) -> ((CombatStat)a).compareTo((CombatStat)b)
+    ),
     /** Loyalty of a planeswalker card. */
-    LOYALTY("Loyalty", List.class, (a) -> new VariableNumberFilter(a, (Card c) -> CollectionConverters.asJava(c.loyalty()).stream().map(Loyalty::value).collect(Collectors.toList()), Card::loyaltyVariable),(a, b) -> {
-        Loyalty first = CollectionUtils.convertToList(a, Loyalty.class).stream().filter(Loyalty::exists).findFirst().orElse(Loyalty.NO_LOYALTY());
-        Loyalty second = CollectionUtils.convertToList(b, Loyalty.class).stream().filter(Loyalty::exists).findFirst().orElse(Loyalty.NO_LOYALTY());
-        return first.compareTo(second);
-    }),
+    LOYALTY(
+        "Loyalty",
+        List.class,
+        (a) -> new VariableNumberFilter(a, (Card c) -> CollectionConverters.asJava(c.faces()).stream().map((f) -> f.loyalty().value()).collect(Collectors.toList()), Card::loyaltyVariable),
+        (a, b) -> ((Loyalty)a).compareTo((Loyalty)b)
+    ),
     /** {@link CardLayout} of a card. */
     LAYOUT("Layout", CardLayout.class, (a) -> new LayoutFilter(), (a, b) -> ((CardLayout)a).compareTo((CardLayout)b)),
     /** Name of the expansion a card was released in. */
@@ -123,9 +126,10 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** Rarity of a card in its expansion. */
     RARITY("Rarity", Rarity.class, (a) -> new RarityFilter(), (a, b) -> ((Rarity)a).compareTo((Rarity)b)),
     /** Artist of a card. */
-    ARTIST("Artist", String.class,(a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.artist())), Collator.getInstance()),
+    ARTIST("Artist", String.class,(a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.faces()).stream().map(Card::artist).collect(Collectors.toList())), Collator.getInstance()),
     /** Collector number of a card. */
-    CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, (c) -> CollectionConverters.asJava(c.number()).stream().map((v) -> {
+    CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, (c) -> CollectionConverters.asJava(c.faces()).stream().map((f) -> {
+        String v = f.number();
         try
         {
             return Double.valueOf(v.replace("--", "0").replaceAll("[\\D]", ""));
@@ -134,11 +138,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
         {
             return 0.0;
         }
-    }).collect(Collectors.toList())), (a, b) -> {
-        var first = String.join(Card.FACE_SEPARATOR(), CollectionUtils.convertToList(a, String.class));
-        var second = String.join(Card.FACE_SEPARATOR(), CollectionUtils.convertToList(b, String.class));
-        return Collator.getInstance().compare(first, second);
-    }),
+    }).collect(Collectors.toList())), Collator.getInstance()::compare),
     /** Set of formats a card is legal in. */
     LEGAL_IN("Format Legality", List.class, (a) -> new LegalityFilter(), (a, b) -> {
         var first = String.join(",", CollectionUtils.convertToList(a, String.class).stream().sorted().collect(Collectors.toList()));

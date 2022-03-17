@@ -25,9 +25,10 @@ class MeldCard(front: Card, other: Card, back: Card) extends MultiCard(MELD, Seq
   if (front.layout != MELD || other.layout != MELD || back.layout != MELD)
     throw IllegalArgumentException("can't join non-meld cards into meld cards")
   
-  override lazy val manaCost = Seq(front.manaCost(0), ManaCost())
+  override lazy val manaCost = front.manaCost
 
   override def manaValue = front.manaValue
+  override lazy val imageNames = front.imageNames ++ back.imageNames
 
   override def formatDocument(document: StyledDocument, printed: Boolean, f: Int) = {
     val reminderStyle = document.getStyle("reminder");

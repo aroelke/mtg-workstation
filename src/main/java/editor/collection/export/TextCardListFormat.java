@@ -75,7 +75,7 @@ public class TextCardListFormat implements CardListFormat
      */
     private void parseLine(Deck deck, String line) throws ParseException
     {
-        var possibilities = MainFrame.inventory().stream().filter((c) -> line.contains(c.unifiedName().toLowerCase()) || c.name().exists((n) -> line.contains(n.toLowerCase()))).collect(Collectors.toList());
+        var possibilities = MainFrame.inventory().stream().filter((c) -> line.contains(c.unifiedName().toLowerCase()) || c.faces().exists((f) -> line.contains(f.name().toLowerCase()))).collect(Collectors.toList());
         if (possibilities.isEmpty())
             throw new ParseException("Can't parse card name from \"" + line.trim() + '"', 0);
 

@@ -103,7 +103,7 @@ public class Inventory implements CardList
     public Inventory(Collection<Card> list)
     {
         cards = new ArrayList<>(list);
-        ids = cards.stream().collect(Collectors.toMap((c) -> c.scryfallid().apply(0), Function.identity()));
+        ids = cards.stream().collect(Collectors.toMap((c) -> c.faces().apply(0).scryfallid(), Function.identity()));
         filter = new BinaryFilter(true);
         filtrate = cards;
     }
@@ -195,7 +195,7 @@ public class Inventory implements CardList
      */
     public boolean contains(int id)
     {
-        return ids.values().stream().map((c) -> (int)c.multiverseid().apply(0)).anyMatch((i) -> i == id);
+        return ids.values().stream().mapToInt((c) -> (int)c.faces().apply(0).multiverseid()).anyMatch((i) -> i == id);
     }
 
     /**
@@ -234,7 +234,7 @@ public class Inventory implements CardList
      */
     public Card find(int id)
     {
-        return ids.values().stream().filter((c) -> (int)c.multiverseid().apply(0) == id).findAny().orElse(null);
+        return ids.values().stream().filter((c) -> (int)c.faces().apply(0).multiverseid() == id).findAny().orElse(null);
     }
 
     /**

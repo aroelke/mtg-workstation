@@ -83,8 +83,12 @@ object Card {
 abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   import Card._
 
+  def faces: Seq[Card]
+
+  def apply(i: Int) = faces(i)
+
   /** Names of the card faces with special characters changed to ASCII equivalents for searchability. @see [[Card.name]] */
-  lazy val normalizedName = name.map(UnicodeSymbols.normalize)
+  lazy val normalizedName = faces.map(f => UnicodeSymbols.normalize(f.name))
 
   /** Name of the entity represented by a legendary card, or just the card name if it's not legendary. */
   lazy val legendName = {
@@ -118,8 +122,8 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** Oracle text with special characters converted to ASCII equivalents for searchability. @see [[Card.oracleText]] */
   lazy val normalizedOracle = {
     val texts = new collection.mutable.ArrayBuffer[String](oracleText.size)
-    for (i <- 0 until oracleText.size) {
-      var normal = UnicodeSymbols.normalize(oracleText(i).toLowerCase)
+    for (i <- 0 until faces.size) {
+      var normal = UnicodeSymbols.normalize(faces(i).oracleText.toLowerCase)
       normal = normal.replace(legendName(i), This).replace(normalizedName(i), This)
       texts += normal
     }
@@ -127,22 +131,22 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   }
 
   /** Printed text with special characters converted to ASCII equivalents for searchability. @see [[Card.printedText]] */
-  lazy val normalizedPrinted = printedText.map(UnicodeSymbols.normalize)
+  lazy val normalizedPrinted = faces.map((f) => UnicodeSymbols.normalize(f.printedText))
 
   /** Flavor text with special characters converted to ASCII equivalents for searchability. @see [[Card.flavorText]] */
-  lazy val normalizedFlavor = flavorText.map(UnicodeSymbols.normalize)
+  lazy val normalizedFlavor = faces.map((f) => UnicodeSymbols.normalize(f.flavorText))
 
   /** Whether or not the card ignores the restriction on the number allowed in a deck. */
-  lazy val ignoreCountRestriction = supertypes.exists(_.equalsIgnoreCase("basic")) || oracleText.exists(_.toLowerCase.contains("a deck can have any number"))
+  lazy val ignoreCountRestriction = supertypes.exists(_.equalsIgnoreCase("basic")) || faces.exists(_.oracleText.toLowerCase.contains("a deck can have any number"))
 
   /** List of formats the card is legal in. */
   lazy val legalIn = legality.keys.filter(legalityIn(_).isLegal).toSeq.asJava
 
   /** @return a list containing the name of each face of the card. */
-  def name: Seq[String]
+  def name: String
 
   /** @return a list containing the mana cost of each face of the card. */
-  def manaCost: Seq[ManaCost]
+  def manaCost: ManaCost
 
   /** @return the mana value of the card. */
   def manaValue: Double
@@ -159,9 +163,6 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** @return the colors of the card across all faces. */
   def colors: Seq[ManaType]
 
-  /** @return the colors of a particular face of the card. */
-  def colors(face: Int): Seq[ManaType]
-
   /** @return the color identity of the card, which is the set of colors across all of its faces plus those of any mana symbols in its text boxes. */
   def colorIdentity: Seq[ManaType]
 
@@ -175,49 +176,49 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def subtypes: Set[String]
 
   /** @return a list containing each face's full type line. */
-  def typeLine: Seq[String]
+  def typeLine: String
 
   /** @return a list containing each face's complete set of types. */
-  def allTypes: Seq[Set[String]]
+  def allTypes: Set[String]
 
   /** @return a list containing each face's printed type line. */
-  def printedTypes: Seq[String]
+  def printedTypes: String
 
   /** @return the card's rarity. */
   def rarity: Rarity
 
   /** @return a list containing each face's Oracle text. */
-  def oracleText: Seq[String]
+  def oracleText: String
 
   /** @return a list containing each face's printed text. */
-  def printedText: Seq[String]
+  def printedText: String
 
   /** @return a list containing each face's flavor text. */
-  def flavorText: Seq[String]
+  def flavorText: String
 
   /** @return a list containing each face's power, if it's a creature. */
-  def power: Seq[CombatStat]
+  def power: CombatStat
 
   /** @return a list containing each face's toughness, if it's a creature. */
-  def toughness: Seq[CombatStat]
+  def toughness: CombatStat
 
   /** @return a list containing each face's loyalty, if it's a planeswalker. */
-  def loyalty: Seq[Loyalty]
+  def loyalty: Loyalty
 
   /** @return a list containing the artist of each face. */
-  def artist: Seq[String]
+  def artist: String
 
   /** @return a list containing the collector number of each face. */
-  def number: Seq[String]
+  def number: String
 
   /** @return a mapping of each format onto this card's legality in that format as of the most recent inventory update. */
   def legality: Map[String, Legality]
 
   /** @return the card's multiverse ID, which is a unique number used in Gatherer to identify the card. */
-  def multiverseid: Seq[Int]
+  def multiverseid: Int
 
   /** @return the car'd Scryfall ID, which is used to identify the card on Scryfall. */
-  def scryfallid: Seq[String]
+  def scryfallid: String
 
   /** @return the list of formats this card can be commander in. */
   def commandFormats: Seq[String]
@@ -258,19 +259,19 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def compareName(other: Card) = Collator.getInstance(Locale.US).compare(unifiedName, other.unifiedName)
 
   /** @return the names of the card's faces joined together by [[Card.FaceSeparator]]. */
-  def unifiedName = name.mkString(FaceSeparator)
+  @deprecated def unifiedName = name
 
   /** @return the type lines of the card's faces joined together by [[Card.FaceSeparator]]. */
-  def unifiedTypeLine = typeLine.mkString(FaceSeparator)
+  @deprecated def unifiedTypeLine = typeLine
 
   /** @return true if the card has a power value and it's variable (contains *), or false otherwise. */
-  def powerVariable = power.exists(_.variable)
+  def powerVariable = faces.exists(_.power.variable)
 
   /** @return true if the card has a toughness value and it's variable (contains *) or false otherwise. */
-  def toughnessVariable = toughness.exists(_.variable)
+  def toughnessVariable = faces.exists(_.toughness.variable)
 
   /** @return true if the card has a loyalty value and it's variable (contains * or X) or false otherwise. */
-  def loyaltyVariable = loyalty.exists(_.variable)
+  def loyaltyVariable = faces.exists(_.loyalty.variable)
 
   /**
    * Determine the card's legality in a particular format.
@@ -281,9 +282,9 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   def legalityIn(format: String) = legality.getOrElse(format, Legality.ILLEGAL)
 
   override def equals(other: Any) = other match {
-    case c: Card => scryfallid == c.scryfallid
+    case c: Card => faces.map(_.scryfallid) == c.faces.map(_.scryfallid)
     case _ => false
   }
-  override def hashCode = Objects.hash(name, scryfallid)
+  override def hashCode = Objects.hash((faces.map(_.scryfallid)):_*)
   override def toString = unifiedName
 }

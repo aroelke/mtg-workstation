@@ -20,6 +20,8 @@ class FlipCard(top: Card, bottom: Card) extends MultiCard(FLIP, Seq(top, bottom)
   if (top.layout != FLIP && bottom.layout != FLIP)
     throw IllegalArgumentException("can't join non-flip cards into flip cards")
   
-  override lazy val manaCost = Seq.fill(2)(top.manaCost(0))
+  override def manaCost = top.manaCost
   override def manaValue = top.manaValue
+  override def imageNames = top.imageNames ++ bottom.imageNames
+  override def scryfallid = top.scryfallid
 }

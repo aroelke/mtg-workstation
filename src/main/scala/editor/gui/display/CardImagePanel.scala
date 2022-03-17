@@ -60,25 +60,25 @@ object CardImagePanel {
 
   /** @return the list of file names that will contain the image(s) to display for a card */
   def getFiles(card: Card): Seq[File] = SettingsDialog.settings.inventory.imageSource match {
-    case "Scryfall" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card.scryfallid(i)}$i.jpg").toFile).toSeq
-    case "Gatherer" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card.multiverseid(i)}$i.jpg").toFile).toSeq
+    case "Scryfall" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card(i).scryfallid}$i.jpg").toFile).toSeq
+    case "Gatherer" => (0 until card.imageNames.size).map((i) => Paths.get(SettingsDialog.settings.inventory.scans, s"${card(i).multiverseid}$i.jpg").toFile).toSeq
     case _ => Seq.empty
   }
 
   /** @return the URLs to download a card's image(s) if they are missing */
   def getURLs(card: Card): Seq[Option[URL]] = SettingsDialog.settings.inventory.imageSource match {
     case "Scryfall" => card.layout match {
-      case CardLayout.FLIP => Seq(Some(URL(ScryfallFormat.format(card.scryfallid(0), ""))))
-      case CardLayout.MELD => (0 until card.imageNames.size).map((i) => Some(URL(ScryfallFormat.format(card.scryfallid(i), ""))))
-      case _ => (0 until card.imageNames.size).map((i) => Some(URL(ScryfallFormat.format(card.scryfallid(i), if (i > 0 && i == card.imageNames.size - 1) "&face=back" else "")))).toSeq
+      case CardLayout.FLIP => Seq(Some(URL(ScryfallFormat.format(card.scryfallid, ""))))
+      case CardLayout.MELD => (0 until card.imageNames.size).map((i) => Some(URL(ScryfallFormat.format(card(i).scryfallid, ""))))
+      case _ => (0 until card.imageNames.size).map((i) => Some(URL(ScryfallFormat.format(card(i).scryfallid, if (i > 0 && i == card.imageNames.size - 1) "&face=back" else "")))).toSeq
     }
     case "Gatherer" => card.layout match {
-      case CardLayout.FLIP => card.multiverseid.zipWithIndex.map{ case (id, i) => if (id >= 0) {
-        Some(URL(GathererFormat.format(id, if (i > 0 && i == card.multiverseid.size - 1) "options=rotate180" else "")))
+      case CardLayout.FLIP => card.faces.map(_.multiverseid).zipWithIndex.map{ case (id, i) => if (id >= 0) {
+        Some(URL(GathererFormat.format(id, if (i > 0 && i == card.faces.size - 1) "options=rotate180" else "")))
       } else {
         None
       }}
-      case _ => card.multiverseid.map(id => Option.when(id >= 0)(URL(GathererFormat.format(id, ""))))
+      case _ => card.faces.map((f) => Option.when(f.multiverseid >= 0)(URL(GathererFormat.format(f.multiverseid, ""))))
     }
     case _ => Seq.empty
   }

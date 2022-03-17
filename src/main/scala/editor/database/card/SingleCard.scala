@@ -27,8 +27,8 @@ import scala.jdk.CollectionConverters._
  * @param layout layout of the card does not have to be a single-faced layout, but multi-faced ones should later
  * be joined together using the corresponding class
  * @param _name name of the card
- * @param mana mana cost of the card
- * @param colors colors of the card does not have to correspond with the colors of its mana cost (but usually does)
+ * @param manaCost manaCost cost of the card
+ * @param colors colors of the card does not have to correspond with the colors of its manaCost cost (but usually does)
  * @param colorIdentity color identity of the card
  * @param supertypes supertype set of the card (preferably sorted in order of appearance)
  * @param types type set of the card (preferably sorted in order of appearance)
@@ -51,53 +51,40 @@ import scala.jdk.CollectionConverters._
  */
 class SingleCard(
   layout: CardLayout,
-  _name: String,
-  mana: ManaCost,
+  override val name: String,
+  override val manaCost: ManaCost,
   override val colors: Seq[ManaType],
   override val colorIdentity: Seq[ManaType],
   override val supertypes: Set[String],
   override val types: Set[String],
   override val subtypes: Set[String],
-  pTypes: String,
+  override val printedTypes: String,
   override val rarity: Rarity,
   set: Expansion,
-  oracle: String,
-  flavor: String,
-  printed: String,
-  art: String,
-  multiverse: Int,
-  scryfall: String,
-  n: String,
-  pow: CombatStat,
-  tough: CombatStat,
-  loyal: Loyalty,
+  override val oracleText: String,
+  override val flavorText: String,
+  override val printedText: String,
+  override val artist: String,
+  override val multiverseid: Int,
+  override val scryfallid: String,
+  override val number: String,
+  override val power: CombatStat,
+  override val toughness: CombatStat,
+  override val loyalty: Loyalty,
   override val rulings: TreeMap[Date, Seq[String]],
   override val legality: Map[String, Legality],
   override val commandFormats: Seq[String]
 ) extends Card(set, layout) {
-  override def name = Seq(_name)
-  override def manaCost = Seq(mana)
-  override def printedTypes = Seq(pTypes)
-  override def oracleText = Seq(oracle)
-  override def flavorText = Seq(flavor)
-  override def printedText = Seq(printed)
-  override def artist = Seq(art)
-  override def number = Seq(n)
-  override def multiverseid = Seq(multiverse)
-  override def scryfallid = Seq(scryfall)
-  override def power = Seq(pow)
-  override def toughness = Seq(tough)
-  override def loyalty = Seq(loyal)
+  override def faces = Seq(this)
 
-  override def colors(face: Int) = colors
-  override def manaValue = mana.manaValue
-  override def minManaValue = mana.manaValue
-  override def maxManaValue = mana.manaValue
-  override def avgManaValue = mana.manaValue
-  override lazy val typeLine = Seq(s"""${if (supertypes.isEmpty) "" else s"${supertypes.mkString(" ")} "}${types.mkString(" ")}${if (subtypes.isEmpty) "" else s" ${UnicodeSymbols.EM_DASH} ${subtypes.mkString(" ")}"}""")
-  override lazy val allTypes = Seq(supertypes ++ types ++ subtypes)
+  override def manaValue = manaCost.manaValue
+  override def minManaValue = manaCost.manaValue
+  override def maxManaValue = manaCost.manaValue
+  override def avgManaValue = manaCost.manaValue
+  override lazy val typeLine = s"""${if (supertypes.isEmpty) "" else s"${supertypes.mkString(" ")} "}${types.mkString(" ")}${if (subtypes.isEmpty) "" else s" ${UnicodeSymbols.EM_DASH} ${subtypes.mkString(" ")}"}"""
+  override lazy val allTypes = supertypes ++ types ++ subtypes
   override lazy val isLand = types.exists(_.equalsIgnoreCase("land"))
-  override lazy val imageNames = Seq(_name.toLowerCase)
+  override lazy val imageNames = Seq(name.toLowerCase)
 
   override def formatDocument(document: StyledDocument, printed: Boolean) = {
     val textStyle = document.getStyle("text")
@@ -105,20 +92,20 @@ class SingleCard(
     val chaosStyle = document.addStyle("CHAOS", null)
     StyleConstants.setIcon(chaosStyle, FunctionalSymbol.Chaos.scaled(ComponentUtils.TextSize))
     try {
-      document.insertString(document.getLength(), s"${_name} ", textStyle)
-      if (!mana.isEmpty) {
-        for (symbol <- mana.asScala) {
+      document.insertString(document.getLength(), s"${name} ", textStyle)
+      if (!manaCost.isEmpty) {
+        for (symbol <- manaCost.asScala) {
           val style = document.addStyle(symbol.toString, null)
           StyleConstants.setIcon(style, symbol.scaled(ComponentUtils.TextSize))
           document.insertString(document.getLength, symbol.toString, style)
         }
         document.insertString(document.getLength, " ", textStyle)
       }
-      if (mana.manaValue == mana.manaValue.toInt)
-        document.insertString(document.getLength(), s"(${mana.manaValue.toInt})\n", textStyle)
+      if (manaCost.manaValue == manaCost.manaValue.toInt)
+        document.insertString(document.getLength(), s"(${manaCost.manaValue.toInt})\n", textStyle)
       else
-        document.insertString(document.getLength(), s"(${mana.manaValue})\n", textStyle)
-      if (mana.colors != colors) {
+        document.insertString(document.getLength(), s"(${manaCost.manaValue})\n", textStyle)
+      if (manaCost.colors != colors) {
         for (color <- colors) {
           val indicatorStyle = document.addStyle("indicator", document.getStyle("text"))
           StyleConstants.setForeground(indicatorStyle, color.color)
@@ -128,12 +115,12 @@ class SingleCard(
           document.insertString(document.getLength, " ", textStyle)
       }
       if (printed)
-        document.insertString(document.getLength, s"$pTypes\n", textStyle)
+        document.insertString(document.getLength, s"$printedTypes\n", textStyle)
       else
-        document.insertString(document.getLength, s"${typeLine(0)}\n", textStyle)
+        document.insertString(document.getLength, s"${typeLine}\n", textStyle)
       document.insertString(document.getLength, s"${expansion.name} $rarity\n", textStyle)
 
-      val abilities = if (printed) this.printed else oracle
+      val abilities = if (printed) printedText else oracleText
       if (!abilities.isEmpty) {
         var i = 0
         var start = 0
@@ -197,19 +184,19 @@ class SingleCard(
         }
         document.insertString(document.getLength, "\n", textStyle)
       }
-      if (!flavor.isEmpty()) {
+      if (!flavorText.isEmpty) {
         var i = 0
         var start = 0
-        while (i < flavor.size) {
-          flavor(i) match {
+        while (i < flavorText.size) {
+          flavorText(i) match {
             case '{' =>
-              document.insertString(document.getLength, flavor.substring(start, i), reminderStyle)
+              document.insertString(document.getLength, flavorText.substring(start, i), reminderStyle)
               start = i + 1
             case '}' =>
-              val symbol = Symbol.parse(flavor.substring(start, i))
+              val symbol = Symbol.parse(flavorText.substring(start, i))
               if (symbol.isEmpty) {
-                System.err.println(s"Unexpected symbol {${flavor.substring(start, i)}} in flavor text for $unifiedName.")
-                document.insertString(document.getLength, flavor.substring(start, i), reminderStyle)
+                System.err.println(s"Unexpected symbol {${flavorText.substring(start, i)}} in flavor text for $unifiedName.")
+                document.insertString(document.getLength, flavorText.substring(start, i), reminderStyle)
               } else {
                 val symbolStyle = document.addStyle(symbol.get.toString, null)
                 StyleConstants.setIcon(symbolStyle, symbol.get.scaled(ComponentUtils.TextSize))
@@ -218,19 +205,19 @@ class SingleCard(
               start = i + 1
             case _ =>
           }
-          if (i == flavor.length - 1 && flavor(i) != '}')
-            document.insertString(document.getLength, flavor.substring(start, i + 1), reminderStyle)
+          if (i == flavorText.length - 1 && flavorText(i) != '}')
+            document.insertString(document.getLength, flavorText.substring(start, i + 1), reminderStyle)
           i += 1
         }
         document.insertString(document.getLength, "\n", reminderStyle)
       }
 
-      if (pow.exists && tough.exists)
-        document.insertString(document.getLength, s"$pow/$tough\n", textStyle)
-      else if (loyal.exists)
-          document.insertString(document.getLength, s"$loyal\n", textStyle)
+      if (power.exists && toughness.exists)
+        document.insertString(document.getLength, s"$power/$toughness\n", textStyle)
+      else if (loyalty.exists)
+          document.insertString(document.getLength, s"$loyalty\n", textStyle)
 
-      document.insertString(document.getLength, s"$art $n/${expansion.count}", textStyle)
+      document.insertString(document.getLength, s"$artist $number/${expansion.count}", textStyle)
     } catch case e: BadLocationException => e.printStackTrace()
   }
 

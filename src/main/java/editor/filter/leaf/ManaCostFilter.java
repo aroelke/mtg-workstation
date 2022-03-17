@@ -66,14 +66,14 @@ public class ManaCostFilter extends FilterLeaf<ManaCost>
     @Override
     public boolean testFace(Card c)
     {
-        return c.manaCost().exists((m) -> switch (contain) {
-            case CONTAINS_ANY_OF -> Containment.CONTAINS_ANY_OF.test(m, cost);
-            case CONTAINS_NONE_OF -> Containment.CONTAINS_NONE_OF.test(m, cost);
-            case CONTAINS_ALL_OF -> m.isSuperset(cost);
-            case CONTAINS_NOT_ALL_OF -> !m.isSuperset(cost);
-            case CONTAINS_EXACTLY -> m.equals(cost);
-            case CONTAINS_NOT_EXACTLY -> !m.equals(cost);
-        });
+        return switch (contain) {
+            case CONTAINS_ANY_OF -> Containment.CONTAINS_ANY_OF.test(c.manaCost(), cost);
+            case CONTAINS_NONE_OF -> Containment.CONTAINS_NONE_OF.test(c.manaCost(), cost);
+            case CONTAINS_ALL_OF -> c.manaCost().isSuperset(cost);
+            case CONTAINS_NOT_ALL_OF -> !c.manaCost().isSuperset(cost);
+            case CONTAINS_EXACTLY -> c.manaCost().equals(cost);
+            case CONTAINS_NOT_EXACTLY -> !c.manaCost().equals(cost);
+        };
     }
 
     @Override
