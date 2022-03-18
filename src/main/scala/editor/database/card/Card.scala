@@ -279,6 +279,6 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
     case c: Card => faces.map(_.scryfallid) == c.faces.map(_.scryfallid)
     case _ => false
   }
-  override def hashCode = Objects.hash((faces.map(_.scryfallid)):_*)
+  override def hashCode = Objects.hash((faces.map(_.name) ++ faces.map(_.scryfallid)):_*)
   override def toString = name
 }
