@@ -88,6 +88,13 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               case _ =>
             }
             finishPanel(panel)
+          case CardAttribute.TYPE_LINE =>
+            val panel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
+            value match {
+              case s: java.util.List[?] => panel.add(JLabel(s.asScala.toSeq.mkString(Card.FaceSeparator)))
+              case _ => ""
+            }
+            finishPanel(panel)
           case CardAttribute.POWER | CardAttribute.TOUGHNESS | CardAttribute.LOYALTY =>
             val panel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
             value match {

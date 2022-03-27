@@ -121,6 +121,7 @@ private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[Tabl
     CardAttribute.MANA_VALUE,
     CardAttribute.COLORS,
     CardAttribute.COLOR_IDENTITY,
+    CardAttribute.TYPE_LINE,
     CardAttribute.POWER,
     CardAttribute.TOUGHNESS,
     CardAttribute.LOYALTY,
