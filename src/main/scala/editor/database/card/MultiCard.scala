@@ -24,12 +24,8 @@ abstract class MultiCard(layout: CardLayout, override val faces: Seq[Card]) exte
   override def maxManaValue = faces.map(_.manaValue).max
   override def avgManaValue = faces.map(_.manaValue).sum/faces.size
   override lazy val colors = faces.flatMap(_.colors).distinct
-  override lazy val colorIdentity = faces.flatMap(_.colorIdentity).distinct
-  override lazy val supertypes = faces.flatMap(_.supertypes).toSet
-  override lazy val types = faces.flatMap(_.types).toSet
-  override lazy val subtypes = faces.flatMap(_.subtypes).toSet
-  override lazy val allTypes = faces.flatMap(_.allTypes).toSet
-  override lazy val typeLine = faces.map(_.typeLine).mkString(Card.FaceSeparator)
+  override lazy val colorIdentity = faces.flatMap(_.colorIdentity)
+  override lazy val typeLine = faces.map(_.typeLine).reduce(_ ++ _)
   override lazy val printedTypes = faces.map(_.printedTypes).mkString(Card.FaceSeparator)
   override lazy val oracleText = faces.map(_.oracleText).mkString(s"\n${Card.TextSeparator}\n")
   override lazy val flavorText = faces.map(_.flavorText).mkString(s"\n${Card.TextSeparator}\n")

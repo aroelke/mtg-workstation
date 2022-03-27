@@ -89,7 +89,7 @@ public interface CardList extends Iterable<Card>
                 case MAX_VALUE      -> card().maxManaValue();
                 case COLORS         -> CollectionConverters.asJava(card().colors());
                 case COLOR_IDENTITY -> CollectionConverters.asJava(card().colorIdentity());
-                case TYPE_LINE      -> card().typeLine();
+                case TYPE_LINE      -> CollectionConverters.asJava(card().faces()).stream().map((c) -> c.typeLine().toString()).collect(Collectors.joining(" " + Card.FaceSeparator() + " "));
                 case EXPANSION      -> card().expansion().toString();
                 case BLOCK          -> card().expansion().block();
                 case RARITY         -> card().rarity();

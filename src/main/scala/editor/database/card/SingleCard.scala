@@ -19,6 +19,8 @@ import javax.swing.text.StyleConstants
 import javax.swing.text.StyledDocument
 import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
+import scala.collection.immutable.ListSet
+import editor.database.attributes.TypeLine
 
 /**
  * A single-faced [[Card]].  Each attribute that contains a list of items per face will only have one value.
@@ -55,9 +57,9 @@ case class SingleCard(
   manaCost: ManaCost,
   colors: Seq[ManaType],
   colorIdentity: Seq[ManaType],
-  supertypes: Set[String],
-  types: Set[String],
-  subtypes: Set[String],
+  private val superts: ListSet[String],
+  private val cardts: ListSet[String],
+  private val subts: ListSet[String],
   printedTypes: String,
   rarity: Rarity,
   set: Expansion,
@@ -81,8 +83,7 @@ case class SingleCard(
   override def minManaValue = manaCost.manaValue
   override def maxManaValue = manaCost.manaValue
   override def avgManaValue = manaCost.manaValue
-  override lazy val typeLine = s"""${if (supertypes.isEmpty) "" else s"${supertypes.mkString(" ")} "}${types.mkString(" ")}${if (subtypes.isEmpty) "" else s" ${UnicodeSymbols.EM_DASH} ${subtypes.mkString(" ")}"}"""
-  override lazy val allTypes = supertypes ++ types ++ subtypes
+  override lazy val typeLine = TypeLine(cardts, subts, superts)
   override lazy val isLand = types.exists(_.equalsIgnoreCase("land"))
   override lazy val imageNames = Seq(name.toLowerCase)
 

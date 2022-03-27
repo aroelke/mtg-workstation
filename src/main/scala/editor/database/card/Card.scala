@@ -9,6 +9,7 @@ import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
 import editor.util.Lazy
 import editor.util.UnicodeSymbols
+import editor.database.attributes.TypeLine
 
 import java.text.Collator
 import java.util.Date
@@ -166,20 +167,14 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** @return the color identity of the card, which is the set of colors across all of its faces plus those of any mana symbols in its text boxes. */
   def colorIdentity: Seq[ManaType]
 
-  /** @return the set of supertypes across all faces of the card. */
-  def supertypes: Set[String]
-
-  /** @return the set of card types across all faces of the card. */
-  def types: Set[String]
-
-  /** @return the set of subtypes across all faces of the card. */
-  def subtypes: Set[String]
-
   /** @return a list containing each face's full type line. */
-  def typeLine: String
+  def typeLine: TypeLine
 
-  /** @return a list containing each face's complete set of types. */
-  def allTypes: Set[String]
+  final def supertypes = typeLine.supertypes
+
+  final def types = typeLine.types
+
+  final def subtypes = typeLine.subtypes
 
   /** @return a list containing each face's printed type line. */
   def printedTypes: String

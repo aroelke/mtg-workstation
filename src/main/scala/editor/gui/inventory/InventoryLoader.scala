@@ -70,6 +70,7 @@ import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 import scala.util.control.Breaks._
+import scala.collection.immutable.ListSet
 
 /**
  * Worker that loads inventory data from JSON along with metadata like expansions, blocks, and existing supertypes, card types, and subtypes.
@@ -293,11 +294,11 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
       val costs = collection.mutable.Map[String, ManaCost]()
       val colorLists = collection.mutable.Map[String, Seq[ManaType]]()
       val allSupertypes = collection.mutable.Map[String, String]()
-      val supertypeSets = collection.mutable.Map[String, collection.mutable.LinkedHashSet[String]]()
+      val supertypeSets = collection.mutable.Map[String, ListSet[String]]()
       val allTypes = collection.mutable.Map[String, String]()
-      val typeSets = collection.mutable.Map[String, collection.mutable.LinkedHashSet[String]]()
+      val typeSets = collection.mutable.Map[String, ListSet[String]]()
       val allSubtypes = collection.mutable.Map[String, String]()
-      val subtypeSets = collection.mutable.Map[String, collection.mutable.LinkedHashSet[String]]()
+      val subtypeSets = collection.mutable.Map[String, ListSet[String]]()
       val printedTypes = collection.mutable.Map[String, String]()
       val texts = collection.mutable.Map[String, String]()
       val flavors = collection.mutable.Map[String, String]()
@@ -423,20 +424,20 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                 col.toSeq
               }),
               supertypeSets.getOrElseUpdate(supers.toString, {
-                val s = collection.mutable.LinkedHashSet[String]()
+                val s = collection.mutable.Buffer[String]()
                 supers.asScala.foreach((e) => s += allSupertypes.getOrElseUpdate(e.getAsString, e.getAsString))
-                s
-              }).toSet,
+                ListSet.from(s)
+              }),
               typeSets.getOrElseUpdate(types.toString, {
-                val s = collection.mutable.LinkedHashSet[String]()
+                val s = collection.mutable.Buffer[String]()
                 types.asScala.foreach((e) => s += allTypes.getOrElseUpdate(e.getAsString, e.getAsString))
-                s
-              }).toSet,
+                ListSet.from(s)
+              }),
               subtypeSets.getOrElseUpdate(subs.toString, {
-                val s = collection.mutable.LinkedHashSet[String]()
+                val s = collection.mutable.Buffer[String]()
                 subs.asScala.foreach((e) => s += allSubtypes.getOrElseUpdate(e.getAsString, e.getAsString))
-                s
-              }).toSet,
+                ListSet.from(s)
+              }),
               printedTypes.getOrElseUpdate(oTypes, oTypes),
               Rarity.parseRarity(card.get("rarity").getAsString),
               set,
