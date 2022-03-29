@@ -23,30 +23,31 @@ import scala.collection.immutable.ListSet
 import editor.database.attributes.TypeLine
 
 /**
- * A single-faced [[Card]].  Each attribute that contains a list of items per face will only have one value.
+ * A single-faced [[Card]], or a single face of a [[MultiCard]].
  * 
  * @constructor create a new single-faced card.
  * @param layout layout of the card does not have to be a single-faced layout, but multi-faced ones should later
  * be joined together using the corresponding class
- * @param _name name of the card
+ * @param name name of the card
  * @param manaCost manaCost cost of the card
  * @param colors colors of the card does not have to correspond with the colors of its manaCost cost (but usually does)
  * @param colorIdentity color identity of the card
- * @param supertypes supertype set of the card (preferably sorted in order of appearance)
- * @param types type set of the card (preferably sorted in order of appearance)
- * @param subtypes subtype set of the card (preferably sorted in order of appearance)
+ * @param superts supertype set of the card (should be sorted in order of appearance)
+ * @param cardts type set of the card (should be sorted in order of appearance)
+ * @param subts subtype set of the card (should be sorted in order of appearance)
+ * @param printedTypes printed type line of the card using its original wording
  * @param rarity rarity of the card
  * @param set expansion to which the card belongs
- * @param oracle Oracle text of the card
- * @param flavor flavor text of the card
- * @param printed printed text of the card using its original wording
- * @param art artist who illustrated the card
- * @param multiverse multiverseid of the card (unique ID used in Gatherer to identify cards)
- * @param scryfall Scryfall ID of the card
- * @param n collector number of the card
- * @param pow power of the card, if it's a creature
- * @param tough toughness of the card, if it's a creature
- * @param loyal loyalty of the card, if it's a planeswalker
+ * @param oracleText Oracle text of the card
+ * @param flavorText flavor text of the card
+ * @param printedText printed text of the card using its original wording
+ * @param artist artist who illustrated the card
+ * @param multiverseid multiverseid of the card (unique ID used in Gatherer to identify cards)
+ * @param scryfallid Scryfall ID of the card
+ * @param number collector number of the card
+ * @param power power of the card, if it's a creature
+ * @param toughness toughness of the card, if it's a creature
+ * @param loyalty loyalty of the card, if it's a planeswalker
  * @param rulings clarifications on how the card works and when they were made
  * @param legality which formats the card is legal (or restricted) in
  * @param commandFormats formats in which the card can be commander

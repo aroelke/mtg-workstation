@@ -7,7 +7,10 @@ import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
 
 /**
- * A card with multiple faces, or multiple mini-cards printed on the same side.
+ * A card with multiple faces, or multiple mini-cards printed on the same side. Attributes are
+ * implemented by concatenating or otherwise combining values from among the faces where possible,
+ * such as with card name, but where not possible, like with power, an exception is thrown and
+ * access should be made through individual faces.
  * 
  * @constructor create a new multi-faced cad
  * @param layout way the faces are arranged or accessed on the card

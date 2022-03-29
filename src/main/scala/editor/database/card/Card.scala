@@ -7,9 +7,9 @@ import editor.database.attributes.Loyalty
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
+import editor.database.attributes.TypeLine
 import editor.util.Lazy
 import editor.util.UnicodeSymbols
-import editor.database.attributes.TypeLine
 
 import java.text.Collator
 import java.util.Date
@@ -17,12 +17,11 @@ import java.util.Locale
 import java.util.Objects
 import java.util.regex.Pattern
 import javax.swing.text.StyledDocument
-import scala.collection.immutable.TreeMap
-import scala.jdk.CollectionConverters._
 import scala.collection.immutable.AbstractSet
+import scala.collection.immutable.TreeMap
 import scala.collection.mutable.Growable
 import scala.collection.mutable.Shrinkable
-import scala.annotation.targetName
+import scala.jdk.CollectionConverters._
 
 /**
  * Object containing global card data and data to aid with displaying card information.
@@ -77,18 +76,22 @@ object Card {
  * @param layout layout of the card; determines how many faces the card has
  * 
  * @author Alec Roelke
- * 
- * TODO: Change attribute methods to only return a single value, unified across all faces, and add a "faces"
- * method that allows retrieval of face-specific data
  */
 abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   import Card._
 
+  /** @return the individual faces of the card. */
   def faces: Seq[Card]
 
+  /**
+   * Alias for [[faces.apply]].
+   * 
+   * @param i index of the face to get
+   * @return the face at the given index
+   */
   def apply(i: Int) = faces(i)
 
-  /** Names of the card faces with special characters changed to ASCII equivalents for searchability. @see [[Card.name]] */
+  /** Card name with special characters changed to ASCII equivalents for searchability. @see [[Card.name]] */
   lazy val normalizedName = faces.map(f => UnicodeSymbols.normalize(f.name))
 
   /** Name of the entity represented by a legendary card, or just the card name if it's not legendary. */
@@ -143,10 +146,10 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** List of formats the card is legal in. */
   lazy val legalIn = legality.keys.filter(legalityIn(_).isLegal).toSeq.asJava
 
-  /** @return a list containing the name of each face of the card. */
+  /** @return the name of the card. */
   def name: String
 
-  /** @return a list containing the mana cost of each face of the card. */
+  /** @return the mana cost of the card. */
   def manaCost: ManaCost
 
   /** @return the mana value of the card. */
@@ -161,49 +164,52 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** @return the average mana value of faces of the card. */
   def avgManaValue: Double
 
-  /** @return the colors of the card across all faces. */
+  /** @return the colors of the card. */
   def colors: Seq[ManaType]
 
   /** @return the color identity of the card, which is the set of colors across all of its faces plus those of any mana symbols in its text boxes. */
   def colorIdentity: Seq[ManaType]
 
-  /** @return a list containing each face's full type line. */
+  /** @return the card's type line. */
   def typeLine: TypeLine
 
+  /** @return all supertypes of the card. */
   final def supertypes = typeLine.supertypes
 
+  /** @return all card types of the card. */
   final def types = typeLine.types
 
+  /** @return all subtypes of the card. */
   final def subtypes = typeLine.subtypes
 
-  /** @return a list containing each face's printed type line. */
+  /** @return the card's printed type line. */
   def printedTypes: String
 
   /** @return the card's rarity. */
   def rarity: Rarity
 
-  /** @return a list containing each face's Oracle text. */
+  /** @return the card's Oracle text. */
   def oracleText: String
 
-  /** @return a list containing each face's printed text. */
+  /** @return the card's printed text. */
   def printedText: String
 
-  /** @return a list containing each face's flavor text. */
+  /** @return the card's flavor text. */
   def flavorText: String
 
-  /** @return a list containing each face's power, if it's a creature. */
+  /** @return the card's power, if it's a creature. */
   def power: CombatStat
 
-  /** @return a list containing each face's toughness, if it's a creature. */
+  /** @return the card's toughness, if it's a creature. */
   def toughness: CombatStat
 
-  /** @return a list containing each face's loyalty, if it's a planeswalker. */
+  /** @return the card's loyalty, if it's a planeswalker. */
   def loyalty: Loyalty
 
-  /** @return a list containing the artist of each face. */
+  /** @return the car'd artist. */
   def artist: String
 
-  /** @return a list containing the collector number of each face. */
+  /** @return the card's collector number. */
   def number: String
 
   /** @return a mapping of each format onto this card's legality in that format as of the most recent inventory update. */
@@ -212,7 +218,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   /** @return the card's multiverse ID, which is a unique number used in Gatherer to identify the card. */
   def multiverseid: Int
 
-  /** @return the car'd Scryfall ID, which is used to identify the card on Scryfall. */
+  /** @return the card's Scryfall ID, which is used to identify the card on Scryfall. */
   def scryfallid: String
 
   /** @return the list of formats this card can be commander in. */
