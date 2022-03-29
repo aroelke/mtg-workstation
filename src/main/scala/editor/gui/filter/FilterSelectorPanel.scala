@@ -65,13 +65,9 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf[?]] {
   private var faces = FaceSearchOptions.ANY
   private val facesLabel = JLabel()
   facesLabel.addMouseListener(MouseListenerFactory.createMouseListener(released = _ => {
-    faces = faces match {
-      case FaceSearchOptions.ANY   => FaceSearchOptions.ALL
-      case FaceSearchOptions.ALL   => FaceSearchOptions.FRONT
-      case FaceSearchOptions.FRONT => FaceSearchOptions.BACK
-      case FaceSearchOptions.BACK  => FaceSearchOptions.ANY
-    }
+    faces = FaceSearchOptions.values.apply((faces.ordinal + 1) % FaceSearchOptions.values.size)
     facesLabel.setIcon(faces.getIcon(getHeight/2))
+    facesLabel.setToolTipText(faces.tooltip)
   }))
   add(Box.createHorizontalStrut(1))
   add(facesLabel)
@@ -94,6 +90,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf[?]] {
   add(groupButton)
 
   facesLabel.setIcon(faces.getIcon(getPreferredSize.height/2))
+  facesLabel.setToolTipText(faces.tooltip)
 
   override def filter = filterPanels(filterTypes.getSelectedItem).filter match {
     case l: FilterLeaf[?] => l.faces = faces; l

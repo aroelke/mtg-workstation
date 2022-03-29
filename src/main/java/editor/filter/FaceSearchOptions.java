@@ -15,18 +15,19 @@ import javax.swing.ImageIcon;
 public enum FaceSearchOptions
 {
     /** Any face of a card can match the filter. */
-    ANY,
+    ANY("Can match any face"),
     /** All faces of a card must match the filter. */
-    ALL,
+    ALL("Must match all faces"),
     /** Front (or only) face of a card must match the filter. */
-    FRONT,
+    FRONT("Only search the front face"),
     /** Back (or only) face of a card must match the filter. */
-    BACK;
+    BACK("Only search the back face");
     
     /** Icon to display on a filter line to indicate which face to search for that line. */
     private final ImageIcon icon;
+    public final String tooltip;
 
-    private FaceSearchOptions()
+    private FaceSearchOptions(String tt)
     {
         ImageIcon img;
         try
@@ -39,6 +40,7 @@ public enum FaceSearchOptions
             e.printStackTrace();
         }
         icon = img;
+        tooltip = tt;
     }
 
     /**
