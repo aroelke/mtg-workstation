@@ -71,7 +71,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               }
             }
             finishPanel(panel, BorderFactory.createEmptyBorder(0, 1, if (icons.length == 1) -1 else 0, 0))
-          case CardAttribute.MANA_VALUE =>
+          case CardAttribute.MANA_VALUE | CardAttribute.MIN_VALUE | CardAttribute.MAX_VALUE =>
             val mv = Option(value) match {
               case Some(v: Double) => v
               case Some(v: Int) => v.toDouble
