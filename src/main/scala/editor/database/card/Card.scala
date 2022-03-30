@@ -60,10 +60,6 @@ object Card {
     tags.clear()
     tags ++= elems
   }
-
-  @deprecated def FACE_SEPARATOR = FaceSeparator
-  @deprecated def TEXT_SEPARATOR = TextSeparator
-  @deprecated def THIS = This
 }
 
 /**

@@ -97,7 +97,7 @@ public interface CardList extends Iterable<Card>
                 case TOUGHNESS      -> CollectionConverters.asJava(card().faces()).stream().map(Card::toughness).collect(Collectors.toList());
                 case LOYALTY        -> CollectionConverters.asJava(card().faces()).stream().map(Card::loyalty).collect(Collectors.toList());
                 case ARTIST         -> card().faces().apply(0).artist();
-                case CARD_NUMBER    -> String.join(Card.FACE_SEPARATOR(), CollectionConverters.asJava(card().faces()).stream().map(Card::number).collect(Collectors.toList()));
+                case CARD_NUMBER    -> String.join(Card.FaceSeparator(), CollectionConverters.asJava(card().faces()).stream().map(Card::number).collect(Collectors.toList()));
                 case LEGAL_IN       -> card().legalIn();
                 case COUNT          -> count();
                 case CATEGORIES     -> categories();

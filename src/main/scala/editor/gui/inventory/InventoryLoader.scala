@@ -469,7 +469,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                   throw CardLoadException(name, set, "other faces of multi-faced card not defined")
               } else {
                 multiUUIDs += card.get("uuid").getAsString -> c
-                facesNames += c -> card.get("name").getAsString.split(Card.FACE_SEPARATOR).toSeq
+                facesNames += c -> card.get("name").getAsString.split(Card.FaceSeparator).toSeq
                 if (card.has("otherFaceIds"))
                   otherFaceIds += c -> card.get("otherFaceIds").getAsJsonArray.asScala.map(_.getAsString).toSeq
                 else

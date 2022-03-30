@@ -52,7 +52,7 @@ abstract class MultiCard(layout: CardLayout, override val faces: Seq[Card]) exte
       for (i <- 0 until faces.size) {
         formatDocument(document, printed, i)
         if (i < faces.size - 1)
-          document.insertString(document.getLength, s"\n${Card.TEXT_SEPARATOR}\n", textStyle)
+          document.insertString(document.getLength, s"\n${Card.TextSeparator}\n", textStyle)
       }
     } catch case e: Exception => e.printStackTrace()
   }

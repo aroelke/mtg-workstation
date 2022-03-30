@@ -241,7 +241,7 @@ public class DelimitedCardListFormat implements CardListFormat
         if (possibilities.size() > 1 && indices.expansion > -1)
             possibilities.removeIf((c) -> !c.expansion().name().equalsIgnoreCase(cells[indices.expansion]));
         if (possibilities.size() > 1 && indices.number > -1)
-            possibilities.removeIf((c) -> !String.join(Card.FACE_SEPARATOR(), CollectionConverters.asJava(c.faces()).stream().map(Card::number).collect(Collectors.toList())).equals(cells[indices.number]));
+            possibilities.removeIf((c) -> !String.join(Card.FaceSeparator(), CollectionConverters.asJava(c.faces()).stream().map(Card::number).collect(Collectors.toList())).equals(cells[indices.number]));
 
         if (possibilities.size() > 1)
             System.err.println("warning: cannot determine printing of " + possibilities.get(0).name());

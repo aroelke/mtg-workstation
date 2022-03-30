@@ -66,7 +66,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             for (i <- 0 until icons.size) {
               if (!icons(i).isEmpty) {
                 if (i > 0)
-                  panel.add(JLabel(Card.FACE_SEPARATOR))
+                  panel.add(JLabel(Card.FaceSeparator))
                 icons(i).foreach{ icon => panel.add(JLabel(icon)) }
               }
             }
@@ -98,7 +98,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
           case CardAttribute.POWER | CardAttribute.TOUGHNESS | CardAttribute.LOYALTY =>
             val panel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
             value match {
-              case s: java.util.List[?] => panel.add(JLabel(s.asScala.mkString(Card.FACE_SEPARATOR)))
+              case s: java.util.List[?] => panel.add(JLabel(s.asScala.mkString(Card.FaceSeparator)))
               case _ =>
             }
             finishPanel(panel)
