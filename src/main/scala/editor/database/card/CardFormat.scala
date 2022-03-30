@@ -6,10 +6,25 @@ import editor.collection.deck.Deck
 import editor.database.attributes.CardAttribute
 import editor.util.CollectionUtils
 
-import scala.jdk.CollectionConverters._
 import java.time.LocalDate
+import scala.jdk.CollectionConverters._
 
+/**
+ * A string formatter for [[Card]].  Format strings are arbitrary text with card attribute names in
+ * lower case surrounded by braces.
+ * 
+ * @constructor create a new formatter for a string
+ * @param pattern string pattern to use for formatting a card
+ * 
+ * @author Alec Roelke
+ */
 class CardFormat(pattern: String) {
+  /**
+   * Generate a string based on the format's pattern from the values of the attributes of a deck entry.
+   * 
+   * @param card deck entry to format
+   * @return the formatted string
+   */
   def format(card: CardList.Entry): String = {
     import CardAttribute._
 
@@ -26,6 +41,13 @@ class CardFormat(pattern: String) {
     }))
   }
 
+  /**
+   * Generate a string based on the format's pattern from the values of the attributes of a card. Deck-specific
+   * attributes are replaced with their default values.
+   * 
+   * @param card card to format
+   * @return the formatted string
+   */
   def format(c: Card): String = format(new CardList.Entry {
     override val card = c
     override val categories = Set.empty[Category].asJava
