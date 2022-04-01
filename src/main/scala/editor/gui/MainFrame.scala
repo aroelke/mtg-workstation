@@ -340,7 +340,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           val dataPanel = JPanel(BorderLayout())
           val optionsPanel = JPanel(FlowLayout(FlowLayout.LEFT))
           optionsPanel.add(JLabel("Delimiter: "))
-          val delimiterBox = JComboBox(DelimitedCardListFormat.DELIMITERS)
+          val delimiterBox = JComboBox(DelimitedCardListFormat.Delimiters.toArray)
           delimiterBox.setEditable(true)
           optionsPanel.add(delimiterBox)
           val includeCheckBox = JCheckBox("Read Headers")
@@ -438,11 +438,11 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               val lines = Files.readAllLines(importChooser.getSelectedFile.toPath)
               if (includeCheckBox.isSelected) {
                 val columns = lines.remove(0).split(delimiterBox.getSelectedItem.toString).map(_.asInstanceOf[Object])
-                val data = lines.asScala.map((s) => DelimitedCardListFormat.split(delimiterBox.getSelectedItem.toString, s).map(_.asInstanceOf[Object])).toArray
+                val data = lines.asScala.map((s) => DelimitedCardListFormat.split(delimiterBox.getSelectedItem.toString, s).map(_.asInstanceOf[Object]).toArray).toArray
                 model.setDataVector(data, columns)
               } else {
                 val columns = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_).asInstanceOf[Object]).toArray
-                val data = lines.asScala.map((s) => DelimitedCardListFormat.split(delimiterBox.getSelectedItem.toString, s).map(_.asInstanceOf[Object])).toArray
+                val data = lines.asScala.map((s) => DelimitedCardListFormat.split(delimiterBox.getSelectedItem.toString, s).map(_.asInstanceOf[Object]).toArray).toArray
                 model.setDataVector(data, columns)
               }
               previewTable.setModel(model)
@@ -458,7 +458,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
           if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardResult.FinishOption) {
             val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_))
-            Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected.asJava, !includeCheckBox.isSelected()))
+            Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected, !includeCheckBox.isSelected()))
           }
           else None
         } else {
@@ -662,7 +662,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
             val optionsPanel = JPanel(FlowLayout(FlowLayout.LEFT))
             optionsPanel.add(JLabel("Delimiter: "))
-            val delimiterBox = JComboBox(DelimitedCardListFormat.DELIMITERS)
+            val delimiterBox = JComboBox(DelimitedCardListFormat.Delimiters.toArray)
             delimiterBox.setEditable(true)
             optionsPanel.add(delimiterBox)
             val includeCheckBox = JCheckBox("Include Headers")
@@ -678,7 +678,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
             if (WizardDialog.showWizardDialog(this, "Export Wizard", panels.toSeq:_*) == WizardResult.FinishOption) {
               val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_))
-              Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected.asJava, includeCheckBox.isSelected))
+              Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected, includeCheckBox.isSelected))
             } else None
           } else {
             JOptionPane.showMessageDialog(this, s"Could not export ${f.deck.name}.", "Error", JOptionPane.ERROR_MESSAGE)
