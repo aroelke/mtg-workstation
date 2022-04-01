@@ -23,13 +23,9 @@ object DelimitedCardListFormat {
 
   val Escape = "\""
 
-  def split(delimiter: String, line: String) = {
-    val cells = line.split(s"""$delimiter(?=(?:[^"]*"[^"]*")*[^"]*$$)""")
-    for (i <- 0 until cells.size) {
-      if (cells(i).substring(0, Escape.size) == Escape || cells(i).substring(cells(i).size - Escape.size) == Escape)
-        cells(i) = cells(i).substring(1, cells(i).size - 1)
-    }
-    cells.toSeq
+  def split(delimiter: String, line: String) = line.split(s"""$delimiter(?=(?:[^"]*"[^"]*")*[^"]*$$)""").collect{
+    case cell if cell.substring(0, Escape.size) == Escape || cell.substring(cell.size - Escape.size) == Escape => cell.substring(1, cell.size - 1)
+    case cell => cell
   }
 
   private case class Indices(name: Int, expansion: Int, number: Int, count: Int, date: Int) {
