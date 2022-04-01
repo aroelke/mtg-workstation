@@ -23,7 +23,7 @@ object DelimitedCardListFormat {
 
   val Escape = "\""
 
-  def split(delimiter: String, line: String) = line.split(s"""$delimiter(?=(?:[^"]*"[^"]*")*[^"]*$$)""").collect{
+  def split(delimiter: String, line: String) = line.split(s"$delimiter(?=(?:[^$Escape]*$Escape[^$Escape]*$Escape)*[^$Escape]*$$)").collect{
     case cell if cell.substring(0, Escape.size) == Escape || cell.substring(cell.size - Escape.size) == Escape => cell.substring(1, cell.size - 1)
     case cell => cell
   }
