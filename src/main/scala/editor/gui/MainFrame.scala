@@ -375,6 +375,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           headersPanel.add(headersPane)
           dataPanel.add(headersPanel, BorderLayout.CENTER)
           rearrangeButtons(UnicodeSymbols.UP_ARROW.toString).addActionListener(_ => {
+            val selected = selectedHeadersList.getSelectedValuesList.asScala
             var ignore = 0
             for (index <- selectedHeadersList.getSelectedIndices) {
               if (index == ignore) {
@@ -386,12 +387,10 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               }
             }
             selectedHeadersList.clearSelection()
-            for (tipe <- selectedHeadersList.getSelectedValuesList.asScala) {
-              val index = selectedHeadersModel.indexOf(tipe)
-              selectedHeadersList.addSelectionInterval(index, index)
-            }
+            selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
           })
           rearrangeButtons(UnicodeSymbols.DOWN_ARROW.toString).addActionListener(_ => {
+            val selected = selectedHeadersList.getSelectedValuesList.asScala
             val indices = selectedHeadersList.getSelectedIndices.reverse
             var ignore = selectedHeadersModel.size() - 1
             for (index <- indices) {
@@ -404,10 +403,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               }
             }
             selectedHeadersList.clearSelection()
-            for (tipe <- selectedHeadersList.getSelectedValuesList.asScala) {
-              val index = selectedHeadersModel.indexOf(tipe)
-              selectedHeadersList.addSelectionInterval(index, index)
-            }
+            selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
           })
           moveButtons(UnicodeSymbols.LEFT_ARROW.toString).addActionListener(_ => {
             for (selected <- headersList.getSelectedValuesList.asScala)
@@ -616,6 +612,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             dataPanel.add(headersPanel)
 
             rearrangeButtons(UnicodeSymbols.UP_ARROW.toString).addActionListener(_ => {
+              val selected = selectedHeadersList.getSelectedValuesList.asScala
               var ignore = 0
               for (index <- selectedHeadersList.getSelectedIndices) {
                 if (index == ignore) {
@@ -627,12 +624,10 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                 }
               }
               selectedHeadersList.clearSelection()
-              for (tipe <- selectedHeadersList.getSelectedValuesList.asScala) {
-                val index = selectedHeadersModel.indexOf(tipe)
-                selectedHeadersList.addSelectionInterval(index, index)
-              }
+              selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
             })
             rearrangeButtons(UnicodeSymbols.DOWN_ARROW.toString).addActionListener(_ => {
+              val selected = selectedHeadersList.getSelectedValuesList.asScala
               val indices = selectedHeadersList.getSelectedIndices.reverse
               var ignore = selectedHeadersModel.size - 1
               for (index <- indices) {
@@ -645,10 +640,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                 }
               }
               selectedHeadersList.clearSelection()
-              for (tipe <- selectedHeadersList.getSelectedValuesList.asScala) {
-                val index = selectedHeadersModel.indexOf(tipe)
-                selectedHeadersList.addSelectionInterval(index, index)
-              }
+              selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
             })
             moveButtons(UnicodeSymbols.LEFT_ARROW.toString).addActionListener(_ => {
               for (selected <- headersList.getSelectedValuesList.asScala)
