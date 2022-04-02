@@ -87,11 +87,11 @@ class DelimitedCardListFormat(delim: String, var attributes: Seq[CardAttribute],
 
   private def parseLine(deck: Deck, line: String) = {
     val cells = split(delimiter, line.replace(Escape*2, Escape))
-    var possibilities = MainFrame.inventory.asScala.filter(_.name.equalsIgnoreCase(cells(indices.name))).toSeq
-    if (possibilities.size > 1 && indices.expansion > -1)
-      possibilities = possibilities.filter(_.expansion.name.equalsIgnoreCase(cells(indices.expansion)))
-    if (possibilities.size > 1 && indices.number > -1)
-      possibilities = possibilities.filter(_.faces.map(_.number).mkString(Card.FaceSeparator) == cells(indices.number))
+    val possibilities = MainFrame.inventory.asScala
+        .filter(_.name.equalsIgnoreCase(cells(indices.name)))
+        .filter(_.expansion.name.equalsIgnoreCase(cells(indices.expansion)))
+        .filter(_.faces.map(_.number).mkString(Card.FaceSeparator) == cells(indices.number))
+        .toSeq
     
     if (possibilities.size > 1)
       System.err.println(s"warning: cannot determine printing of ${possibilities(0).name}")
