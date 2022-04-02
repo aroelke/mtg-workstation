@@ -73,6 +73,10 @@ public interface UnicodeSymbols
      * Upwards black arrow, '{@value #UP_ARROW}'.
      */
     char UP_ARROW = '\u2B06';
+    /**
+     * Substitute character, '{@value #SUBSTITUTE}'.
+     */
+    char SUBSTITUTE = '\u001A';
 
     /**
      * Create a string with ASCII approximations of special characters, in lower

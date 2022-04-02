@@ -13,6 +13,7 @@ import java.time.LocalDate
 import java.io.InputStream
 import editor.gui.editor.DeckSerializer
 import scala.collection.immutable.ListMap
+import editor.util.UnicodeSymbols
 
 object DelimitedCardListFormat {
   val DefaultDelimiter = ","
@@ -52,13 +53,13 @@ class DelimitedCardListFormat(delim: String, var attributes: Seq[CardAttribute],
     val columnFormats = attributes.map((a) => CardFormat(s"{$a}".toLowerCase))
     list.asScala.map((card) => {
       columnFormats.map((format) => {
-        val value = format.format(list.getEntry(card))
-        if (value.contains(delimiter)) s"$Escape${value.replace(Escape, Escape*2)}$Escape" else value
+        val value = format.format(list.getEntry(card)).replace(Escape, UnicodeSymbols.SUBSTITUTE.toString)
+        (if (value.contains(delimiter)) s"$Escape${value.replace(Escape, Escape*2)}$Escape" else value).replace(UnicodeSymbols.SUBSTITUTE.toString, Escape*2)
       }).mkString(delimiter)
     }).mkString(System.lineSeparator)
   }
 
-  override lazy val header = if (include) attributes.mkString(delimiter) else ""
+  override lazy val header = if (include) attributes.map(_.toString.replace(Escape, Escape*2)).mkString(delimiter) else ""
 
   private def parseHeader(line: String) = if (include) throw IllegalStateException("headers are already defined") else {
     val headers = line.split(delimiter)
