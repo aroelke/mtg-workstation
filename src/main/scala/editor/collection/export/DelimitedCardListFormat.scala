@@ -49,19 +49,13 @@ class DelimitedCardListFormat(delim: String, var attributes: Seq[CardAttribute],
   private var indices: Indices = null
 
   override def format(list: CardList) = {
-    val join = StringJoiner(System.lineSeparator)
     val columnFormats = attributes.map((a) => CardFormat(s"{$a}".toLowerCase))
-    for (card <- list.asScala) {
-      val line = StringJoiner(delimiter)
-      for (format <- columnFormats) {
-        var value = format.format(list.getEntry(card))
-        if (value.contains(delimiter))
-          value = s"$Escape${value.replace(Escape, Escape*2)}$Escape"
-        line.add(value)
-      }
-      join.add(line.toString)
-    }
-    join.toString
+    list.asScala.map((card) => {
+      columnFormats.map((format) => {
+        val value = format.format(list.getEntry(card))
+        if (value.contains(delimiter)) s"$Escape${value.replace(Escape, Escape*2)}$Escape" else value
+      }).mkString(delimiter)
+    }).mkString(System.lineSeparator)
   }
 
   override lazy val header = if (include) attributes.mkString(delimiter) else ""
