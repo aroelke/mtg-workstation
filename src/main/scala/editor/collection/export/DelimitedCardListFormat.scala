@@ -1,36 +1,64 @@
 package editor.collection.`export`
 
-import editor.database.attributes.CardAttribute
-import java.util.StringJoiner
 import editor.collection.CardList
-import editor.database.card.CardFormat
-import scala.jdk.CollectionConverters._
-import java.text.ParseException
 import editor.collection.deck.Deck
-import editor.gui.MainFrame
+import editor.database.attributes.CardAttribute
 import editor.database.card.Card
-import java.time.LocalDate
-import java.io.InputStream
+import editor.database.card.CardFormat
+import editor.gui.MainFrame
 import editor.gui.editor.DeckSerializer
-import scala.collection.immutable.ListMap
 import editor.util.UnicodeSymbols
-import scala.io.Source
 
+import java.io.InputStream
+import java.text.ParseException
+import java.time.LocalDate
+import java.util.StringJoiner
+import scala.collection.immutable.ListMap
+import scala.io.Source
+import scala.jdk.CollectionConverters._
+
+/**
+ * Object containing useful information and functions for formatting and parsing delimited files.
+ * @author Alec Roelke
+ */
 object DelimitedCardListFormat {
+  /** Default delimiter to use for separating table cells (a comma) */
   val DefaultDelimiter = ","
 
+  /** Default list of attributes to use for columns (name, expansion, and count) */
   val DefaultData = Seq(CardAttribute.NAME, CardAttribute.EXPANSION, CardAttribute.COUNT)
 
+  /** Common delimiters used for separating cells on a line (comma, semicolon, colon, tab, and space) */
   val Delimiters = Seq(",", ";", ":", "{tab}", "{space}")
 
+  /** String to use to escape delimiters (double quote) */
   val Escape = "\""
 
+  /**
+   * Split a string by a delimiter, ignoring delimiters contained inside [[Escape]] pairs.
+   * 
+   * @param delimiter delimiter to split by
+   * @param line string to split
+   * @return an array of strings containing the split line, with delimiters between tokens removed
+   */
   def split(delimiter: String, line: String) = line.split(s"$delimiter(?=(?:[^$Escape]*$Escape[^$Escape]*$Escape)*[^$Escape]*$$)").collect{
     case cell if cell.substring(0, Escape.size) == Escape || cell.substring(cell.size - Escape.size) == Escape => cell.substring(1, cell.size - 1)
     case cell => cell
   }
 }
 
+/**
+ * A card list formatter that formats cards into a table whose columns are [[CardAttribute]]s and whose rows
+ * are the values of those attributes for individual [[Card]]s. It can also parse such a table into a card list,
+ * making guesses about specific printings if the information provided doesn't narrow it down enough.
+ * 
+ * @constructor create a new card list formatter for a specific delimiter and list of attributes
+ * @param delim delimiter to use to separate cells; to use a space or a tab, "{space}" and "{tab}" can be used
+ * @param attributes list of attributes to include in the table in the order they should appear
+ * @param include whether or not to add headers to the table or to parse them when reading a table
+ * 
+ * @author Alec Roelke
+ */
 class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute], include: Boolean) extends CardListFormat {
   import DelimitedCardListFormat._
 
