@@ -54,12 +54,12 @@ object DelimitedCardListFormat {
  * 
  * @constructor create a new card list formatter for a specific delimiter and list of attributes
  * @param delim delimiter to use to separate cells; to use a space or a tab, "{space}" and "{tab}" can be used
- * @param attributes list of attributes to include in the table in the order they should appear
- * @param include whether or not to add headers to the table or to parse them when reading a table
+ * @param attributes list of attributes to include in the table in the order they should appear; use an empty list to elide headers from
+ * the output or infer them from input when parsing
  * 
  * @author Alec Roelke
  */
-class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute], include: Boolean) extends CardListFormat {
+class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) extends CardListFormat {
   import DelimitedCardListFormat._
 
   private val delimiter = delim match {
@@ -78,7 +78,7 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute], inc
     }).mkString(System.lineSeparator)
   }
 
-  override lazy val header = if (include) attributes.map(_.toString.replace(Escape, Escape*2)).mkString(delimiter) else ""
+  override lazy val header = attributes.map(_.toString.replace(Escape, Escape*2)).mkString(delimiter)
 
   override def parse(source: InputStream) = {
     val deck = Deck()
@@ -88,14 +88,14 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute], inc
 
     val (attrs, lines) = {
       val lines = Source.fromInputStream(source).getLines.toSeq
-      if (include) {
-        pos = 0
-        (attributes, lines)
-      } else {
+      if (attributes.isEmpty) {
         val headers = lines.head.split(delimiter)
         val attrs = headers.map((h) => CardAttribute.displayableValues.find(_.toString.compareToIgnoreCase(h) == 0).getOrElse(throw ParseException(s"unknown data type $header", pos))).toSeq
         pos = lines.head.size
         (attrs, lines.tail)
+      } else {
+        pos = 0
+        (attributes, lines)
       }
     }
     val name = attrs.indexOf(CardAttribute.NAME)

@@ -453,8 +453,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           updateTable.actionPerformed(null)
 
           if (WizardDialog.showWizardDialog(this, "Import Wizard", dataPanel, previewPanel) == WizardResult.FinishOption) {
-            val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_))
-            Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected, !includeCheckBox.isSelected()))
+            val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt)
+            Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, if (includeCheckBox.isSelected) Seq.empty else selected))
           }
           else None
         } else {
@@ -669,8 +669,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                 panels += extrasPanel
 
             if (WizardDialog.showWizardDialog(this, "Export Wizard", panels.toSeq:_*) == WizardResult.FinishOption) {
-              val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt(_))
-              Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, selected, includeCheckBox.isSelected))
+              val selected = (0 until selectedHeadersModel.size).map(selectedHeadersModel.getElementAt)
+              Some(DelimitedCardListFormat(delimiterBox.getSelectedItem.toString, if (includeCheckBox.isSelected) selected else Seq.empty))
             } else None
           } else {
             JOptionPane.showMessageDialog(this, s"Could not export ${f.deck.name}.", "Error", JOptionPane.ERROR_MESSAGE)
