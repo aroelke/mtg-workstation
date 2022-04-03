@@ -65,41 +65,25 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute], inc
     var extras = ListMap[String, Deck]()
     var pos = 0
 
-    val (indices, lines) = {
+    val (attrs, lines) = {
       val lines = Source.fromInputStream(source).getLines.toSeq
       if (include) {
         pos = 0
-        (Indices(
-          attributes.indexOf(CardAttribute.NAME),
-          attributes.indexOf(CardAttribute.EXPANSION),
-          attributes.indexOf(CardAttribute.CARD_NUMBER),
-          attributes.indexOf(CardAttribute.COUNT),
-          attributes.indexOf(CardAttribute.DATE_ADDED)
-        ), lines)
+        (attributes, lines)
       } else {
         val headers = lines.head.split(delimiter)
-        val attrs = collection.mutable.Buffer[CardAttribute]()
-        for (header <- headers) {
-          var success = false
-          for (attribute <- CardAttribute.displayableValues) {
-            if (header.compareToIgnoreCase(attribute.toString) == 0) {
-              attrs += attribute
-              success = true
-            }
-          }
-          if (!success)
-            throw ParseException(s"unknown data type $header", pos)
-        }
+        val attrs = headers.map((h) => CardAttribute.displayableValues.find(_.toString.compareToIgnoreCase(h) == 0).getOrElse(throw ParseException(s"unknown data type $header", pos))).toSeq
         pos = lines.head.size
-        (Indices(
-          attrs.indexOf(CardAttribute.NAME),
-          attrs.indexOf(CardAttribute.EXPANSION),
-          attrs.indexOf(CardAttribute.CARD_NUMBER),
-          attrs.indexOf(CardAttribute.COUNT),
-          attrs.indexOf(CardAttribute.DATE_ADDED)
-        ), lines.tail)
+        (attrs, lines.tail)
       }
     }
+    val indices = Indices(
+      attrs.indexOf(CardAttribute.NAME),
+      attrs.indexOf(CardAttribute.EXPANSION),
+      attrs.indexOf(CardAttribute.CARD_NUMBER),
+      attrs.indexOf(CardAttribute.COUNT),
+      attrs.indexOf(CardAttribute.DATE_ADDED)
+    )
 
     lines.foreach((line) => {
       try {
