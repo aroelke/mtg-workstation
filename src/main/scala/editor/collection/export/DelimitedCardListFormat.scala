@@ -14,6 +14,7 @@ import java.io.InputStream
 import editor.gui.editor.DeckSerializer
 import scala.collection.immutable.ListMap
 import editor.util.UnicodeSymbols
+import scala.io.Source
 
 object DelimitedCardListFormat {
   val DefaultDelimiter = ","
@@ -37,7 +38,7 @@ object DelimitedCardListFormat {
   }
 }
 
-class DelimitedCardListFormat(delim: String, var attributes: Seq[CardAttribute], include: Boolean) extends CardListFormat {
+class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute], include: Boolean) extends CardListFormat {
   import DelimitedCardListFormat._
 
   private val delimiter = delim match {
@@ -45,9 +46,6 @@ class DelimitedCardListFormat(delim: String, var attributes: Seq[CardAttribute],
     case "{tab}" => "\t"
     case _ => delim
   }
-
-  private var pos = 0
-  private var indices: Indices = null
 
   override def format(list: CardList) = {
     val columnFormats = attributes.map((a) => CardFormat(s"{$a}".toLowerCase))
@@ -61,78 +59,73 @@ class DelimitedCardListFormat(delim: String, var attributes: Seq[CardAttribute],
 
   override lazy val header = if (include) attributes.map(_.toString.replace(Escape, Escape*2)).mkString(delimiter) else ""
 
-  private def parseHeader(line: String) = if (include) throw IllegalStateException("headers are already defined") else {
-    val headers = line.split(delimiter)
-    val attrs = collection.mutable.Buffer[CardAttribute]()
-    for (header <- headers) {
-      var success = false
-      for (attribute <- CardAttribute.displayableValues) {
-        if (header.compareToIgnoreCase(attribute.toString) == 0) {
-          attrs += attribute
-          success = true
-        }
-      }
-      if (!success)
-        throw ParseException(s"unknown data type $header", pos)
-    }
-    attributes = attrs.toSeq
-    indices = Indices(
-      attributes.indexOf(CardAttribute.NAME),
-      attributes.indexOf(CardAttribute.EXPANSION),
-      attributes.indexOf(CardAttribute.CARD_NUMBER),
-      attributes.indexOf(CardAttribute.COUNT),
-      attributes.indexOf(CardAttribute.DATE_ADDED)
-    )
-  }
-
-  private def parseLine(deck: Deck, line: String) = {
-    val cells = split(delimiter, line.replace(Escape*2, Escape))
-    val possibilities = MainFrame.inventory.asScala
-        .filter(_.name.equalsIgnoreCase(cells(indices.name)))
-        .filter(_.expansion.name.equalsIgnoreCase(cells(indices.expansion)))
-        .filter(_.faces.map(_.number).mkString(Card.FaceSeparator) == cells(indices.number))
-        .toSeq
-    
-    if (possibilities.size > 1)
-      System.err.println(s"warning: cannot determine printing of ${possibilities(0).name}")
-    if (possibilities.isEmpty)
-      throw ParseException(s"can't find card named ${cells(indices.name)}", pos)
-    
-    deck.add(
-      possibilities(0),
-      if (indices.count < 0) 1 else cells(indices.count).toInt,
-      if (indices.date < 0) LocalDate.now else LocalDate.parse(cells(indices.date), Deck.DATE_FORMATTER)
-    )
-  }
-
   override def parse(source: InputStream) = {
     val deck = Deck()
     var extra: Option[String] = None
     var extras = ListMap[String, Deck]()
-    pos = 0
-    var c: Int = 0
-    val line = StringBuilder(128)
-    var headed = false
-    while (c >= 0) {
-      c = source.read()
-      if (c >= 0 && c != '\r' && c != '\n') {
-        line.append(c.toChar)
-      } else if (c == '\n' || c < 0) {
-        if (!headed && !include) {
-          parseHeader(line.toString)
-          headed = true
-        } else {
-          try {
-            parseLine(extra.map(extras).getOrElse(deck), line.toString)
-          } catch case e: ParseException => {
-            extra = Some(line.toString)
-            extras += extra.get -> Deck()
+    var pos = 0
+
+    val (indices, lines) = {
+      val lines = Source.fromInputStream(source).getLines.toSeq
+      if (include) {
+        pos = 0
+        (Indices(
+          attributes.indexOf(CardAttribute.NAME),
+          attributes.indexOf(CardAttribute.EXPANSION),
+          attributes.indexOf(CardAttribute.CARD_NUMBER),
+          attributes.indexOf(CardAttribute.COUNT),
+          attributes.indexOf(CardAttribute.DATE_ADDED)
+        ), lines)
+      } else {
+        val headers = lines.head.split(delimiter)
+        val attrs = collection.mutable.Buffer[CardAttribute]()
+        for (header <- headers) {
+          var success = false
+          for (attribute <- CardAttribute.displayableValues) {
+            if (header.compareToIgnoreCase(attribute.toString) == 0) {
+              attrs += attribute
+              success = true
+            }
           }
+          if (!success)
+            throw ParseException(s"unknown data type $header", pos)
         }
-        line.setLength(0)
+        pos = lines.head.size
+        (Indices(
+          attrs.indexOf(CardAttribute.NAME),
+          attrs.indexOf(CardAttribute.EXPANSION),
+          attrs.indexOf(CardAttribute.CARD_NUMBER),
+          attrs.indexOf(CardAttribute.COUNT),
+          attrs.indexOf(CardAttribute.DATE_ADDED)
+        ), lines.tail)
       }
-      pos += 1
     }
+
+    lines.foreach((line) => {
+      try {
+        val cells = split(delimiter, line.replace(Escape*2, Escape))
+        val possibilities = MainFrame.inventory.asScala
+            .filter(_.name.equalsIgnoreCase(cells(indices.name)))
+            .filter(_.expansion.name.equalsIgnoreCase(cells(indices.expansion)))
+            .filter(_.faces.map(_.number).mkString(Card.FaceSeparator) == cells(indices.number))
+            .toSeq
+        
+        if (possibilities.size > 1)
+          System.err.println(s"warning: cannot determine printing of ${possibilities(0).name}")
+        if (possibilities.isEmpty)
+          throw ParseException(s"can't find card named ${cells(indices.name)}", pos)
+        
+        extra.map(extras).getOrElse(deck).add(
+          possibilities(0),
+          if (indices.count < 0) 1 else cells(indices.count).toInt,
+          if (indices.date < 0) LocalDate.now else LocalDate.parse(cells(indices.date), Deck.DATE_FORMATTER)
+        )
+      } catch case e: ParseException => {
+        extra = Some(line.toString)
+        extras += extra.get -> Deck()
+      }
+      pos += line.size
+    })
     DeckSerializer(deck, extras, "", "")
   }
 }
