@@ -29,13 +29,6 @@ object DelimitedCardListFormat {
     case cell if cell.substring(0, Escape.size) == Escape || cell.substring(cell.size - Escape.size) == Escape => cell.substring(1, cell.size - 1)
     case cell => cell
   }
-
-  private case class Indices(name: Int, expansion: Int, number: Int, count: Int, date: Int) {
-    if (name < 0)
-      throw IllegalStateException("can't parse cards without names")
-    if (count < 0)
-      System.err.println("warning: missing card count in parse; assuming one copy of each card")
-  }
 }
 
 class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute], include: Boolean) extends CardListFormat {
@@ -77,32 +70,33 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute], inc
         (attrs, lines.tail)
       }
     }
-    val indices = Indices(
-      attrs.indexOf(CardAttribute.NAME),
-      attrs.indexOf(CardAttribute.EXPANSION),
-      attrs.indexOf(CardAttribute.CARD_NUMBER),
-      attrs.indexOf(CardAttribute.COUNT),
-      attrs.indexOf(CardAttribute.DATE_ADDED)
-    )
+    val name = attrs.indexOf(CardAttribute.NAME)
+    val expansion = attrs.indexOf(CardAttribute.EXPANSION)
+    val number = attrs.indexOf(CardAttribute.CARD_NUMBER)
+    val count = attrs.indexOf(CardAttribute.COUNT)
+    val date = attrs.indexOf(CardAttribute.DATE_ADDED)
+    if (name < 0)
+      throw IllegalStateException("can't parse cards without names")
+    if (count < 0)
+      System.err.println("warning: missing card count in parse; assuming one copy of each card")
 
     lines.foreach((line) => {
       try {
         val cells = split(delimiter, line.replace(Escape*2, Escape))
         val possibilities = MainFrame.inventory.asScala
-            .filter(_.name.equalsIgnoreCase(cells(indices.name)))
-            .filter(_.expansion.name.equalsIgnoreCase(cells(indices.expansion)))
-            .filter(_.faces.map(_.number).mkString(Card.FaceSeparator) == cells(indices.number))
-            .toSeq
+            .filter(_.name.equalsIgnoreCase(cells(name)))
+            .filter(_.expansion.name.equalsIgnoreCase(cells(expansion)))
+            .filter(_.faces.map(_.number).mkString(Card.FaceSeparator) == cells(number))
         
         if (possibilities.size > 1)
-          System.err.println(s"warning: cannot determine printing of ${possibilities(0).name}")
+          System.err.println(s"warning: cannot determine printing of \"$line\"")
         if (possibilities.isEmpty)
-          throw ParseException(s"can't find card named ${cells(indices.name)}", pos)
+          throw ParseException(s"can't find card named ${cells(name)}", pos)
         
         extra.map(extras).getOrElse(deck).add(
-          possibilities(0),
-          if (indices.count < 0) 1 else cells(indices.count).toInt,
-          if (indices.date < 0) LocalDate.now else LocalDate.parse(cells(indices.date), Deck.DATE_FORMATTER)
+          possibilities.head,
+          if (count < 0) 1 else cells(count).toInt,
+          if (date < 0) LocalDate.now else LocalDate.parse(cells(date), Deck.DATE_FORMATTER)
         )
       } catch case e: ParseException => {
         extra = Some(line.toString)
