@@ -461,7 +461,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           JOptionPane.showMessageDialog(this, "Could not import " + importChooser.getSelectedFile() + '.', "Error", JOptionPane.ERROR_MESSAGE)
           None
         }
-        format.foreach(fmt => {
+        format.foreach((fmt) => {
           val manager = try {
             DeckSerializer.importList(fmt, importChooser.getSelectedFile, this)
           } catch case x: DeckLoadException => {
@@ -531,7 +531,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             val wizardPanel = Box(BoxLayout.Y_AXIS)
             val fieldPanel = Box(BoxLayout.Y_AXIS)
             fieldPanel.setBorder(BorderFactory.createTitledBorder("List Format:"))
-            val formatField = JTextField(TextCardListFormat.DEFAULT_FORMAT)
+            val formatField = JTextField(TextCardListFormat.DefaultFormat)
             formatField.setFont(Font(Font.MONOSPACED, Font.PLAIN, formatField.getFont().getSize()))
             formatField.setColumns(50)
             fieldPanel.add(formatField)

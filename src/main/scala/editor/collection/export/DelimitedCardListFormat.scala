@@ -117,7 +117,7 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
             .filter(_.faces.map(_.number).mkString(Card.FaceSeparator) == cells(number))
         
         if (possibilities.size > 1)
-          System.err.println(s"warning: cannot determine printing of \"$line\"")
+          System.err.println(s"warning: cannot determine printing of \"${line.trim}\"")
         if (possibilities.isEmpty)
           throw ParseException(s"can't find card named ${cells(name)}", pos)
         
