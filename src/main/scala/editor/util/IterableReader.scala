@@ -17,34 +17,31 @@ import java.util.NoSuchElementException
  * @author Alec Roelke
  */
 class IterableReader(is: InputStream) extends IterableOnce[String] {
-  private var line: Option[collection.mutable.StringBuilder] = None
+  private var line: Option[String] = None
   private var c = 0
+  private def nextLine = {
+    line = line.orElse{ Option.when(c >= 0){
+      val builder = collection.mutable.StringBuilder()
+      while (c >= 0 && c != '\n') {
+        c = is.read()
+        if (c >= 0 && c != '\r' && c != '\n')
+          builder += c.toChar
+      }
+      if (c >= 0)
+        c = 0
+      builder.toString
+    }}
+    line
+  }
+  private def nextLine_=(s: Option[String]) = line = s
 
   override lazy val iterator = new collection.Iterator {
-    override def hasNext = {
-      if (line.isDefined)
-        true
-      else if (c < 0)
-        false
-      else {
-        line = Some(collection.mutable.StringBuilder())
-        while (c >= 0 && c != '\n') {
-          c = is.read()
-          if (c >= 0 && c != '\r' && c != '\n')
-            line.foreach(_ += c.toChar)
-        }
-        if (c >= 0)
-          c = 0
-        true
-      }
-    }
+    override def hasNext = nextLine.isDefined
 
     override def next() = {
-      if (hasNext) {
-        val l = line.get.toString // intentional Option.get as it will always be defined here
-        line = None
-        l
-      } else throw NoSuchElementException()
+      val line = nextLine.getOrElse(throw NoSuchElementException())
+      nextLine = None
+      line
     }
   }
 }
