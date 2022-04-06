@@ -13,6 +13,7 @@ import java.util.regex.Pattern
 import java.io.InputStream
 import scala.collection.immutable.ListMap
 import editor.gui.editor.DeckSerializer
+import editor.util.IterableReader
 
 object TextCardListFormat {
   val DefaultFormat = "{count}x {name} ({expansion})"
@@ -60,24 +61,15 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
     val deck = Deck()
     var extra: Option[String] = None
     var extras = ListMap[String, Deck]()
-    var c = 0
-    val line = StringBuilder(128)
 
-    while (c >= 0) {
-      c = source.read()
-      if (c >= 0 && c != '\r' && c != '\n') {
-        line.append(c.toChar)
+    IterableReader(source).foreach((line) => {
+      try {
+        parseLine(extra.map(extras).getOrElse(deck), line.trim.toLowerCase)
+      } catch case e: ParseException => {
+        extra = Some(line.trim)
+        extras += extra.get -> Deck()
       }
-      if (c == '\n' || c < 0) {
-        try {
-          parseLine(extra.map(extras).getOrElse(deck), line.toString.trim.toLowerCase)
-        } catch case e: ParseException => {
-          extra = Some(line.toString.trim)
-          extras += extra.get -> Deck()
-        }
-        line.setLength(0)
-      }
-    }
+    })
     DeckSerializer(deck, extras, "", "")
   }
 }

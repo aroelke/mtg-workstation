@@ -127,8 +127,8 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
           if (date < 0) LocalDate.now else LocalDate.parse(cells(date), Deck.DATE_FORMATTER)
         )
       } catch case e: ParseException => {
-        extra = Some(line.toString)
-        extras += extra.get -> Deck()
+        extra = Some(line)
+        extras += line -> Deck()
       }
       pos += line.size
     })
