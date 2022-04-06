@@ -1,9 +1,21 @@
 package editor.util
 
 import java.io.InputStream
-import java.util.NoSuchElementException
 import java.io.InputStreamReader
+import java.util.NoSuchElementException
 
+/**
+ * Input stream reader that presents in iterable interface to a character stream, allowing for
+ * iteration over lines and guaranteeing that no bytes are consumed beyond the current line.
+ * Useful for iterating over a file's lines while tracking progress through the file. Once used,
+ * the reader is no longer valid and attempts to get the next line will result in a
+ * [[NoSuchElementException]]. Currently assumes Unicode character encoding.
+ * 
+ * @constructor create a new iterable stream reader for a character stream
+ * @param is input stream to read from
+ * 
+ * @author Alec Roelke
+ */
 class IterableReader(is: InputStream) extends IterableOnce[String] {
   private var line: Option[collection.mutable.StringBuilder] = None
   private var c = 0
