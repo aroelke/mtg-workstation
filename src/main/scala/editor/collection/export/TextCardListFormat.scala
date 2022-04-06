@@ -38,9 +38,6 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
     var filtered = possibilities.filter((c) => line.contains(c.expansion.name.toLowerCase))
     if (!filtered.isEmpty)
       possibilities = filtered
-    filtered = possibilities.filter((c) => !c.name.equalsIgnoreCase(c.expansion.name))
-    if (!filtered.isEmpty)
-      possibilities = filtered
     
     if (possibilities.size > 1)
       System.err.println(s"multiple matches for \"${line.trim}\"")
