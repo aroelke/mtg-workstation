@@ -30,30 +30,6 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
 
   override def format(list: CardList) = list.asScala.map((c) => formatter.format(list.getEntry(c))).mkString(System.lineSeparator)
 
-  private def parseLine(deck: Deck, line: String) = {
-    var possibilities = MainFrame.inventory.asScala.filter((c) => line.contains(c.name.toLowerCase) || c.faces.exists((f) => line.contains(f.name.toLowerCase)))
-    if (possibilities.isEmpty)
-      throw ParseException(s"Can't parse card name from \"${line.trim}\"", 0)
-
-    var filtered = possibilities.filter((c) => line.contains(c.expansion.name.toLowerCase))
-    if (!filtered.isEmpty)
-      possibilities = filtered
-    
-    if (possibilities.size > 1)
-      System.err.println(s"multiple matches for \"${line.trim}\"")
-
-    val countMatcher = CountPattern.matcher(line)
-    // com.joelstelmach.natty.Parser().parse() can throw a NullPointerException on some inputs; probably a bug that won't be fixed (no updates since 2017)
-    val date = (try {
-      Parser().parse(line).asScala.flatMap(_.getDates.asScala).headOption.getOrElse(Date())
-    } catch case e: NullPointerException => {
-      e.printStackTrace
-      Date()
-    }).toInstant.atZone(ZoneId.systemDefault).toLocalDate
-
-    deck.add(possibilities.head, if (countMatcher.find) countMatcher.group.replace("x", "").toInt else 1, date)
-  }
-
   override def parse(source: InputStream) = {
     val deck = Deck()
     var extra: Option[String] = None
@@ -61,7 +37,28 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
 
     IterableReader(source).foreach((line) => {
       try {
-        parseLine(extra.map(extras).getOrElse(deck), line.trim.toLowerCase)
+        val trimmed = line.trim.toLowerCase
+        var possibilities = MainFrame.inventory.asScala.filter((c) => trimmed.contains(c.name.toLowerCase) || c.faces.exists((f) => trimmed.contains(f.name.toLowerCase)))
+        if (possibilities.isEmpty)
+          throw ParseException(s"Can't parse card name from \"${line.trim}\"", 0)
+
+        var filtered = possibilities.filter((c) => trimmed.contains(c.expansion.name.toLowerCase))
+        if (!filtered.isEmpty)
+          possibilities = filtered
+        
+        if (possibilities.size > 1)
+          System.err.println(s"multiple matches for \"${line.trim}\"")
+
+        val countMatcher = CountPattern.matcher(trimmed)
+        // com.joelstelmach.natty.Parser().parse() can throw a NullPointerException on some inputs; probably a bug that won't be fixed (no updates since 2017)
+        val date = (try {
+          Parser().parse(trimmed).asScala.flatMap(_.getDates.asScala).headOption.getOrElse(Date())
+        } catch case e: NullPointerException => {
+          e.printStackTrace
+          Date()
+        }).toInstant.atZone(ZoneId.systemDefault).toLocalDate
+
+        extra.map(extras).getOrElse(deck).add(possibilities.head, if (countMatcher.find) countMatcher.group.replace("x", "").toInt else 1, date)
       } catch case e: ParseException => {
         extra = Some(line.trim)
         extras += extra.get -> Deck()
