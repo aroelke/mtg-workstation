@@ -1,5 +1,6 @@
 package editor.collection.`export`
 
+import com.mdimension.jchronic.Chronic
 import editor.collection.CardList
 import editor.collection.deck.Deck
 import editor.database.attributes.CardAttribute
@@ -12,6 +13,7 @@ import editor.util.UnicodeSymbols
 import java.io.InputStream
 import java.text.ParseException
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.StringJoiner
 import scala.collection.immutable.ListMap
 import scala.io.Source
@@ -124,7 +126,11 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
         extra.map(extras).getOrElse(deck).add(
           possibilities.head,
           if (count < 0) 1 else cells(count).toInt,
-          if (date < 0) LocalDate.now else LocalDate.parse(cells(date), Deck.DATE_FORMATTER)
+          if (date < 0) LocalDate.now else try {
+            Option(Chronic.parse(cells(date)))
+                .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
+                .getOrElse(LocalDate.now)
+          } catch case _: IllegalStateException => LocalDate.now
         )
       } catch case e: ParseException => {
         extra = Some(line)

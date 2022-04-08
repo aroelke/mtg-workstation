@@ -3,6 +3,7 @@ package editor.gui.inventory
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
+import com.mdimension.jchronic.Chronic
 import editor.collection.Inventory
 import editor.database.FormatConstraints
 import editor.database.attributes.CombatStat
@@ -46,6 +47,7 @@ import java.nio.file.Path
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Date
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
@@ -326,7 +328,11 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
           Option(setProperties.get("block")).map(_.getAsString).getOrElse(Expansion.NoBlock),
           setProperties.get("code").getAsString,
           setCards.size,
-          LocalDate.parse(setProperties.get("releaseDate").getAsString, Expansion.DateFormatter)
+          try {
+            Option(Chronic.parse(setProperties.get("releaseDate").getAsString))
+                .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
+                .getOrElse(LocalDate.now)
+          } catch case _: IllegalStateException => LocalDate.now
         )
         expansions += set
 
