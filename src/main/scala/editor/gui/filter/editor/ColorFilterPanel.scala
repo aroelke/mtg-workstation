@@ -14,6 +14,7 @@ import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JCheckBox
 import javax.swing.JLabel
+import scala.collection.immutable.ListMap
 import scala.jdk.CollectionConverters._
 
 /**
@@ -54,7 +55,7 @@ class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
   private val colorless = JCheckBox()
 
   // Check boxes for selecting colors
-  val colors = ManaType.colors.map(_ -> JCheckBox()).toMap
+  val colors = ListMap(ManaType.colors.map(_ -> JCheckBox()):_*)
   colors.foreach{ case (color, box) =>
     add(box)
     add(JLabel(ColorSymbol(color).getIcon(IconHeight)))
