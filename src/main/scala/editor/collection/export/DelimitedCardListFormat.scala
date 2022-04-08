@@ -113,8 +113,8 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
         val cells = split(delimiter, line.replace(Escape*2, Escape))
         val possibilities = MainFrame.inventory.asScala
             .filter(_.name.equalsIgnoreCase(cells(name)))
-            .filter(_.expansion.name.equalsIgnoreCase(cells(expansion)))
-            .filter(_.faces.map(_.number).mkString(Card.FaceSeparator) == cells(number))
+            .filter(expansion < 0 || _.expansion.name.equalsIgnoreCase(cells(expansion)))
+            .filter(number < 0 || _.faces.map(_.number).mkString(Card.FaceSeparator) == cells(number))
         
         if (possibilities.size > 1)
           System.err.println(s"warning: cannot determine printing of \"${line.trim}\"")
