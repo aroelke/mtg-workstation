@@ -6,7 +6,6 @@ import scala.jdk.CollectionConverters._
 import editor.gui.MainFrame
 import java.text.ParseException
 import editor.collection.deck.Deck
-import com.joestelmach.natty.Parser
 import java.util.Date
 import java.time.ZoneId
 import java.util.regex.Pattern
@@ -14,6 +13,8 @@ import java.io.InputStream
 import scala.collection.immutable.ListMap
 import editor.gui.editor.DeckSerializer
 import editor.util.IterableReader
+import com.mdimension.jchronic.Chronic
+import java.time.LocalDate
 
 object TextCardListFormat {
   val DefaultFormat = "{count}x {name} ({expansion})"
@@ -48,17 +49,14 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
         
         if (possibilities.size > 1)
           System.err.println(s"multiple matches for \"${line.trim}\"")
+        val choice = possibilities.head
 
         val countMatcher = CountPattern.matcher(trimmed)
-        // com.joelstelmach.natty.Parser().parse() can throw a NullPointerException on some inputs; probably a bug that won't be fixed (no updates since 2017)
-        val date = (try {
-          Parser().parse(trimmed).asScala.flatMap(_.getDates.asScala).headOption.getOrElse(Date())
-        } catch case e: NullPointerException => {
-          e.printStackTrace
-          Date()
-        }).toInstant.atZone(ZoneId.systemDefault).toLocalDate
+        val date = Option(Chronic.parse(trimmed.replace(choice.name.toLowerCase, "").replace(choice.expansion.name.toLowerCase, "")))
+            .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
+            .getOrElse(LocalDate.now)
 
-        extra.map(extras).getOrElse(deck).add(possibilities.head, if (countMatcher.find) countMatcher.group.replace("x", "").toInt else 1, date)
+        extra.map(extras).getOrElse(deck).add(choice, if (countMatcher.find) countMatcher.group.replace("x", "").toInt else 1, date)
       } catch case e: ParseException => {
         extra = Some(line.trim)
         extras += extra.get -> Deck()
