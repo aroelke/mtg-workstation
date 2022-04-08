@@ -1,27 +1,44 @@
 package editor.collection.`export`
 
-import editor.database.card.CardFormat
+import com.mdimension.jchronic.Chronic
 import editor.collection.CardList
-import scala.jdk.CollectionConverters._
-import editor.gui.MainFrame
-import java.text.ParseException
 import editor.collection.deck.Deck
-import java.util.Date
-import java.time.ZoneId
-import java.util.regex.Pattern
-import java.io.InputStream
-import scala.collection.immutable.ListMap
+import editor.database.card.CardFormat
+import editor.gui.MainFrame
 import editor.gui.editor.DeckSerializer
 import editor.util.IterableReader
-import com.mdimension.jchronic.Chronic
-import java.time.LocalDate
 
+import java.io.InputStream
+import java.text.ParseException
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
+import java.util.regex.Pattern
+import scala.collection.immutable.ListMap
+import scala.jdk.CollectionConverters._
+
+/**
+ * Object containing constants used for formatting cards.
+ * @author Alec Roelke
+ */
 object TextCardListFormat {
+  /** Default format string. */
   val DefaultFormat = "{count}x {name} ({expansion})"
 
+  /** Regex pattern for recognizing card counts in text. */
   val CountPattern = Pattern.compile(raw"(?:^(?:\d+x|x\d+|\d+)|(?:\d+x|x\d+|\d+)$$)")
 }
 
+/**
+ * Formatter that formats a [[CardList]] using an arbitrary text format. Attributes to include in the list
+ * are formatted according to [[CardFormat]].  Parsing from text is not performed according to the format; it
+ * tries to guess card identites, counts, and insertion dates based on the contents of each line.
+ * 
+ * @constructor create a new card list formatter with a particular format
+ * @param pattern format for converting cards in the list into text
+ * 
+ * @author Alec Roelke
+ */
 class TextCardListFormat(pattern: String) extends CardListFormat {
   import TextCardListFormat._
 
