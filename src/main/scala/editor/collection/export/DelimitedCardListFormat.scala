@@ -8,6 +8,7 @@ import editor.database.card.Card
 import editor.database.card.CardFormat
 import editor.gui.MainFrame
 import editor.gui.editor.DeckSerializer
+import editor.util.IterableReader
 import editor.util.UnicodeSymbols
 
 import java.io.InputStream
@@ -88,56 +89,54 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
     var extras = ListMap[String, Deck]()
     var pos = 0
 
-    val (attrs, lines) = {
-      val lines = Source.fromInputStream(source).getLines.toSeq
-      if (attributes.isEmpty) {
-        val headers = lines.head.split(delimiter)
+    var name = attributes.indexOf(CardAttribute.NAME)
+    var expansion = attributes.indexOf(CardAttribute.EXPANSION)
+    var number = attributes.indexOf(CardAttribute.CARD_NUMBER)
+    var count = attributes.indexOf(CardAttribute.COUNT)
+    var date = attributes.indexOf(CardAttribute.DATE_ADDED)
+    IterableReader(source).foreach((line) => {
+      if (name < 0) {
+        val headers = line.split(delimiter)
         val attrs = headers.map((h) => CardAttribute.displayableValues.find(_.toString.compareToIgnoreCase(h) == 0).getOrElse(throw ParseException(s"unknown data type $header", pos))).toSeq
-        pos = lines.head.size
-        (attrs, lines.tail)
+        name = attrs.indexOf(CardAttribute.NAME)
+        expansion = attrs.indexOf(CardAttribute.EXPANSION)
+        number = attrs.indexOf(CardAttribute.CARD_NUMBER)
+        count = attrs.indexOf(CardAttribute.COUNT)
+        date = attrs.indexOf(CardAttribute.DATE_ADDED)
+        if (name < 0)
+          throw IllegalStateException("can't parse cards without names")
+        if (count < 0)
+          System.err.println("warning: missing card count in parse; assuming one copy of each card")
       } else {
-        pos = 0
-        (attributes, lines)
-      }
-    }
-    val name = attrs.indexOf(CardAttribute.NAME)
-    val expansion = attrs.indexOf(CardAttribute.EXPANSION)
-    val number = attrs.indexOf(CardAttribute.CARD_NUMBER)
-    val count = attrs.indexOf(CardAttribute.COUNT)
-    val date = attrs.indexOf(CardAttribute.DATE_ADDED)
-    if (name < 0)
-      throw IllegalStateException("can't parse cards without names")
-    if (count < 0)
-      System.err.println("warning: missing card count in parse; assuming one copy of each card")
-
-    lines.foreach((line) => {
-      try {
-        val cells = split(delimiter, line.replace(Escape*2, Escape))
-        val possibilities = MainFrame.inventory.asScala
-            .filter(_.name.equalsIgnoreCase(cells(name)))
-            .filter(expansion < 0 || _.expansion.name.equalsIgnoreCase(cells(expansion)))
-            .filter(number < 0 || _.faces.map(_.number).mkString(Card.FaceSeparator) == cells(number))
-        
-        if (possibilities.size > 1)
-          System.err.println(s"warning: cannot determine printing of \"${line.trim}\"")
-        if (possibilities.isEmpty)
-          throw ParseException(s"can't find card named ${cells(name)}", pos)
-        
-        extra.map(extras).getOrElse(deck).add(
-          possibilities.head,
-          if (count < 0) 1 else cells(count).toInt,
-          if (date < 0) LocalDate.now else try {
-            Option(Chronic.parse(cells(date)))
-                .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
-                .getOrElse(LocalDate.now)
-          } catch case _: IllegalStateException => LocalDate.now
-        )
-      } catch case e: ParseException => {
-        extra = Some(line)
-        extras += line -> Deck()
+        try {
+          val cells = split(delimiter, line.replace(Escape*2, Escape))
+          val possibilities = MainFrame.inventory.asScala
+              .filter(_.name.equalsIgnoreCase(cells(name)))
+              .filter(expansion < 0 || _.expansion.name.equalsIgnoreCase(cells(expansion)))
+              .filter(number < 0 || _.faces.map(_.number).mkString(Card.FaceSeparator) == cells(number))
+          
+          if (possibilities.size > 1)
+            System.err.println(s"warning: cannot determine printing of \"${line.trim}\"")
+          if (possibilities.isEmpty)
+            throw ParseException(s"can't find card named ${cells(name)}", pos)
+          
+          extra.map(extras).getOrElse(deck).add(
+            possibilities.head,
+            if (count < 0) 1 else cells(count).toInt,
+            if (date < 0) LocalDate.now else try {
+              Option(Chronic.parse(cells(date)))
+                  .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
+                  .getOrElse(LocalDate.now)
+            } catch case _: IllegalStateException => LocalDate.now
+          )
+        } catch case e: ParseException => {
+          extra = Some(line)
+          extras += line -> Deck()
+        }
       }
       pos += line.size
     })
+
     DeckSerializer(deck, extras, "", "")
   }
 }
