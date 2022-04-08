@@ -1359,7 +1359,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     inventory = data.inventory
     Expansion.expansions = data.expansions.toArray
     SupertypeFilter.supertypeList = data.supertypes.toArray
-    CardTypeFilter.typeList = data.types.toArray
+    CardTypeFilter.typeList = data.types
     SubtypeFilter.subtypeList = data.subtypes.toArray
     SettingsDialog.inventoryWarnings = data.warnings
 
