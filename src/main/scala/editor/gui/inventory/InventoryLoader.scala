@@ -27,8 +27,6 @@ import editor.filter.leaf.options.multi.SupertypeFilter
 import editor.gui.MainFrame
 import editor.gui.generic.ScrollablePanel
 import editor.gui.settings.SettingsDialog
-import edu.emory.mathcs.backport.java.util.concurrent.CancellationException
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutionException
 
 import java.awt.BorderLayout
 import java.awt.Component
@@ -49,6 +47,8 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Date
+import java.util.concurrent.CancellationException
+import java.util.concurrent.ExecutionException
 import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
@@ -66,11 +66,11 @@ import javax.swing.KeyStroke
 import javax.swing.SwingUtilities
 import javax.swing.SwingWorker
 import javax.swing.WindowConstants
+import scala.collection.immutable.ListSet
 import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 import scala.util.control.Breaks._
-import scala.collection.immutable.ListSet
 
 /**
  * Worker that loads inventory data from JSON along with metadata like expansions, blocks, and existing supertypes, card types, and subtypes.
