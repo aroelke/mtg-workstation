@@ -69,9 +69,13 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
         val choice = possibilities.head
 
         val countMatcher = CountPattern.matcher(trimmed)
-        val date = Option(Chronic.parse(trimmed.replace(choice.name.toLowerCase, "").replace(choice.expansion.name.toLowerCase, "")))
+        val date = try {
+          Option(Chronic.parse(trimmed.replace(choice.name.toLowerCase, "").replace(choice.expansion.name.toLowerCase, "")))
             .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
             .getOrElse(LocalDate.now)
+        } catch case _: IllegalStateException => {
+          LocalDate.now
+        }
 
         extra.map(extras).getOrElse(deck).add(choice, if (countMatcher.find) countMatcher.group.replace("x", "").toInt else 1, date)
       } catch case e: ParseException => {
