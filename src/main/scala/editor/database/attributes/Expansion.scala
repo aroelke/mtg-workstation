@@ -41,8 +41,4 @@ object Expansion {
 
   /** Text to show when an expansion isn't part of a block. */
   val NoBlock = "<No Block>"
-
-  /** Date format used to decode expansion release dates. */
-  val DateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-  @deprecated def DATE_FORMATTER() = DateFormatter
 }
