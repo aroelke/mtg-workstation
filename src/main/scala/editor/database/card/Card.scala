@@ -140,7 +140,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
   lazy val ignoreCountRestriction = supertypes.exists(_.equalsIgnoreCase("basic")) || faces.exists(_.oracleText.toLowerCase.contains("a deck can have any number"))
 
   /** List of formats the card is legal in. */
-  lazy val legalIn = legality.keys.filter(legalityIn(_).isLegal).toSeq.asJava
+  lazy val legalIn = legality.keys.filter(legalityIn(_).isLegal).toSet
 
   /** @return the name of the card. */
   def name: String
