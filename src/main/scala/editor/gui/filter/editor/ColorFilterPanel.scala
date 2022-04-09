@@ -86,7 +86,7 @@ class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
   override def filter = CardAttribute.createFilter(attribute) match {
     case filter: ColorFilter =>
       filter.contain = contain.getSelectedItem
-      filter.colors.addAll(colors.collect{ case (c, b) if b.isSelected => c }.toSet.asJava)
+      filter.colors ++= colors.collect{ case (c, b) if b.isSelected => c }
       filter.multicolored = multi.isSelected
       filter
   }
@@ -94,7 +94,7 @@ class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
   override def setFields(filter: ColorFilter) = {
     attribute = filter.`type`
     contain.setSelectedItem(filter.contain)
-    filter.colors.asScala.foreach(colors(_).setSelected(true))
+    filter.colors.foreach(colors(_).setSelected(true))
     multi.setSelected(filter.multicolored)
     colorless.setSelected(!filter.multicolored && filter.colors.isEmpty)
   }

@@ -67,7 +67,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** Largest mana value of a card. */
     MAX_VALUE("Max Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.maxManaValue())), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Colors of all faces of a card. */
-    COLORS("Colors", List.class, (a) -> new ColorFilter(a, (c) -> CollectionConverters.asJava(c.colors())), (a, b) -> {
+    COLORS("Colors", List.class, (a) -> new ColorFilter(a, (c) -> c.colors()), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);
         var second = CollectionUtils.convertToList(b, ManaType.class);
         int diff = first.size() - second.size();
@@ -77,7 +77,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
         return diff;
     }),
     /** Color identity of a card. */
-    COLOR_IDENTITY("Color Identity", List.class, (a) -> new ColorFilter(a, (c) -> CollectionConverters.asJava(c.colorIdentity())), (a, b) -> {
+    COLOR_IDENTITY("Color Identity", List.class, (a) -> new ColorFilter(a, (c) -> c.colorIdentity()), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);
         var second = CollectionUtils.convertToList(b, ManaType.class);
         int diff = first.size() - second.size();
