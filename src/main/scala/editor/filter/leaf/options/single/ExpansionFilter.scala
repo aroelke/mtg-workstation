@@ -13,7 +13,7 @@ class ExpansionFilter extends SingletonOptionsFilter[Expansion](CardAttribute.EX
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.EXPANSION).asInstanceOf[ExpansionFilter]
     filter.contain = contain
-    filter.selected = java.util.HashSet(selected)
+    filter.selected = selected
     filter
   }
 

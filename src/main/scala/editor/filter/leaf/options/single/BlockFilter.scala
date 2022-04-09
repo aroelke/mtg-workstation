@@ -12,7 +12,7 @@ class BlockFilter extends SingletonOptionsFilter[String](CardAttribute.BLOCK, _.
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.BLOCK).asInstanceOf[BlockFilter]
     filter.contain = contain
-    filter.selected = java.util.HashSet(selected)
+    filter.selected = selected
     filter
   }
 

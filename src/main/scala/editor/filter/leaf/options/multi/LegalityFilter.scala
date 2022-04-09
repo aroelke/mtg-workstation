@@ -29,7 +29,7 @@ class LegalityFilter extends MultiOptionsFilter[String](CardAttribute.LEGAL_IN, 
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.LEGAL_IN).asInstanceOf[LegalityFilter]
     filter.contain = contain
-    filter.selected = java.util.HashSet(selected)
+    filter.selected = selected
     filter.restricted = restricted
     filter
   }

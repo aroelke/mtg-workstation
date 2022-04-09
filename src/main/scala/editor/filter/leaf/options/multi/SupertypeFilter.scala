@@ -23,7 +23,7 @@ class SupertypeFilter extends MultiOptionsFilter[String](CardAttribute.SUPERTYPE
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.SUPERTYPE).asInstanceOf[SupertypeFilter]
     filter.contain = contain
-    filter.selected = java.util.HashSet(selected)
+    filter.selected = selected
     filter
   }
 

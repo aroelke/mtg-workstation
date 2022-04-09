@@ -14,7 +14,7 @@ class LayoutFilter extends SingletonOptionsFilter[CardLayout](CardAttribute.LAYO
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.LAYOUT).asInstanceOf[LayoutFilter]
     filter.contain = contain
-    filter.selected = java.util.HashSet(selected)
+    filter.selected = selected
     filter
   }
 

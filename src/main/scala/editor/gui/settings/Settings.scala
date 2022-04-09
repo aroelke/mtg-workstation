@@ -172,7 +172,7 @@ case class CategoriesSettings(
     "Instants/Sorceries" -> Seq("Instant", "Sorcery")
   ).map{ case (name, types) => {
     val filter = CardAttribute.createFilter(CardAttribute.CARD_TYPE).asInstanceOf[CardTypeFilter]
-    filter.selected.addAll(types.asJava)
+    filter.selected ++= types
     new Category(name, Seq.empty.asJava, Seq.empty.asJava, Color.WHITE, filter)
   }}.toSeq,
   rows: Int = 6,

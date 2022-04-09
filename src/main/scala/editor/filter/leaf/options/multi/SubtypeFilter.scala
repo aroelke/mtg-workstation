@@ -22,7 +22,7 @@ class SubtypeFilter extends MultiOptionsFilter[String](CardAttribute.SUBTYPE, _.
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.SUBTYPE).asInstanceOf[SubtypeFilter]
     filter.contain = contain
-    filter.selected = java.util.HashSet(selected)
+    filter.selected = selected
     filter
   }
 

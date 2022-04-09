@@ -137,7 +137,7 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag](protected override val attribut
   override def filter = CardAttribute.createFilter(attribute) match {
     case of: OptionsFilter[T] =>
       of.contain = contain.getSelectedItem
-      of.selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet.asJava
+      of.selected = boxes.map((b) => b.getItemAt(b.getSelectedIndex)).toSet
       of
   }
 
@@ -150,6 +150,6 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag](protected override val attribut
     if (filter.selected.isEmpty && !options.isEmpty)
       this += options(0)
     else
-      filter.selected.asScala.foreach(this += _)
+      filter.selected.foreach(this += _)
   } else throw IllegalArgumentException(s"${filter.`type`} is not a $attribute filter")
 }

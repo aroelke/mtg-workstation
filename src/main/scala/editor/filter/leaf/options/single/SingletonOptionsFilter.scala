@@ -16,6 +16,6 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-abstract class SingletonOptionsFilter[T](t: CardAttribute, f: (Card) => T) extends OptionsFilter[T](t, (c) => f(c)) {
-  override protected def testFace(c: Card) = contain.test(selected, Seq(function.apply(c)).asJava)
+abstract class SingletonOptionsFilter[T](t: CardAttribute, f: (Card) => T) extends OptionsFilter[T](t, f) {
+  override protected def testFace(c: Card) = contain.test(selected.asJava, Seq(function.apply(c)).asJava)
 }

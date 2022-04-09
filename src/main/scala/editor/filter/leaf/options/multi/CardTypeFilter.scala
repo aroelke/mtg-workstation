@@ -23,7 +23,7 @@ class CardTypeFilter extends MultiOptionsFilter[String](CardAttribute.CARD_TYPE,
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.CARD_TYPE).asInstanceOf[CardTypeFilter]
     filter.contain = contain
-    filter.selected = java.util.HashSet(selected)
+    filter.selected = selected
     filter
   }
 

@@ -15,7 +15,7 @@ class TagsFilter extends MultiOptionsFilter[String](CardAttribute.TAGS, (c) => C
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.TAGS).asInstanceOf[TagsFilter]
     filter.contain = contain
-    filter.selected = java.util.HashSet(selected)
+    filter.selected = selected
     filter
   }
 

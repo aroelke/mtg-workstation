@@ -13,7 +13,7 @@ class RarityFilter extends SingletonOptionsFilter[Rarity](CardAttribute.RARITY, 
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.RARITY).asInstanceOf[RarityFilter]
     filter.contain = contain
-    filter.selected = java.util.HashSet(selected)
+    filter.selected = selected
     filter
   }
 

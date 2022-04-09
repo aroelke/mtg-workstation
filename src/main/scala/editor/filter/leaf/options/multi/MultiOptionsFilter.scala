@@ -16,7 +16,7 @@ import scala.jdk.CollectionConverters._
  * @tparam T type of the data that is being filtered
  */
 abstract class MultiOptionsFilter[T](t: CardAttribute, protected val multifunction: (Card) => Set[T]) extends OptionsFilter[T](t, null) {
-  override protected def testFace(c: Card) = contain.test(multifunction(c).asJava, selected)
+  override protected def testFace(c: Card) = contain.test(multifunction(c).asJava, selected.asJava)
 
   override def hashCode = Objects.hash(`type`, function, contain, selected)
 }
