@@ -12,6 +12,7 @@ import scala.jdk.CollectionConverters._
  * @constructor create a new singleton options filter
  * @param t attribute to filter by
  * @param f function for getting the value of the attribute from a card
+ * @tparam T type of data that is being filtered
  * 
  * @author Alec Roelke
  */

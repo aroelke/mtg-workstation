@@ -19,7 +19,7 @@ object CardTypeFilter {
  * Filter that groups cards based on card types.
  * @author Alec Roelke
  */
-class CardTypeFilter extends MultiOptionsFilter[String](CardAttribute.CARD_TYPE, _.types.asJava) {
+class CardTypeFilter extends MultiOptionsFilter[String](CardAttribute.CARD_TYPE, _.types) {
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.CARD_TYPE).asInstanceOf[CardTypeFilter]
     filter.contain = contain
