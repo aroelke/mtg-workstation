@@ -54,7 +54,7 @@ object FilterPanelFactory {
     case layout: LayoutFilter => OptionsFilterPanel(layout, CardLayout.values.toSeq)
     case cost: ManaCostFilter => ManaCostFilterPanel(cost)
     case line: TypeLineFilter => TypeLineFilterPanel(line)
-    case supertype: SupertypeFilter => OptionsFilterPanel(supertype, SupertypeFilter.supertypeList.toSeq)
+    case supertype: SupertypeFilter => OptionsFilterPanel(supertype, SupertypeFilter.supertypeList)
     case cardtype: CardTypeFilter => OptionsFilterPanel(cardtype, CardTypeFilter.typeList)
     case subtype: SubtypeFilter => OptionsFilterPanel(subtype, SubtypeFilter.subtypeList)
     case expansion: ExpansionFilter => OptionsFilterPanel(expansion, Expansion.expansions)
