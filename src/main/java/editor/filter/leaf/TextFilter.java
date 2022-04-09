@@ -43,7 +43,7 @@ public class TextFilter extends FilterLeaf<Collection<String>>
     public static final List<Token> TOKENS = List.of(
         new Token(List.of("\\supertype"), () -> Arrays.asList(SupertypeFilter.supertypeList)),
         new Token(List.of("\\cardtype"), () -> CollectionConverters.asJava(CardTypeFilter.typeList())),
-        new Token(List.of("\\subtype"), () -> Arrays.asList(SubtypeFilter.subtypeList))
+        new Token(List.of("\\subtype"), () -> CollectionConverters.asJava(SubtypeFilter.subtypeList()))
     );
 
     /**
