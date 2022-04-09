@@ -27,6 +27,7 @@ import javax.swing.SwingConstants
 import javax.swing.SwingUtilities
 import javax.swing.plaf.basic.BasicComboPopup
 import scala.jdk.CollectionConverters._
+import scala.reflect.ClassTag
 
 /**
  * Convenience constructors for [[OptionsFilterPanel]].
@@ -40,7 +41,7 @@ object OptionsFilterPanel {
    * @param options values of the attribute that can be chosen
    * @return an [[OptionsFilterPanel]] for a filter of the given attribute with the given possible values
    */
-  def apply[T <: AnyRef](attribute: CardAttribute, options: Array[T]) = new OptionsFilterPanel(attribute, options)
+  def apply[T <: AnyRef : ClassTag](attribute: CardAttribute, options: Seq[T]) = new OptionsFilterPanel(attribute, options)
 
   /**
    * Create a new [[OptionsFilterPanel]] with the given filter and possible options to choose from. The attribute
@@ -50,7 +51,7 @@ object OptionsFilterPanel {
    * @param options values of the attribute that can be chosen
    * @return an [[OptionsFilterPanel]] populated with the contents of the filter
    */
-  def apply[T <: AnyRef](filter: OptionsFilter[T], options: Array[T]) = {
+  def apply[T <: AnyRef : ClassTag](filter: OptionsFilter[T], options: Seq[T]) = {
     val panel = new OptionsFilterPanel(filter.`type`, options)
     panel.setContents(filter)
     panel
@@ -70,7 +71,7 @@ object OptionsFilterPanel {
  * 
  * @author Alec Roelke
  */
-class OptionsFilterPanel[T <: AnyRef](protected override val attribute: CardAttribute, options: Array[T]) extends FilterEditorPanel[OptionsFilter[T]] {
+class OptionsFilterPanel[T <: AnyRef : ClassTag](protected override val attribute: CardAttribute, options: Seq[T]) extends FilterEditorPanel[OptionsFilter[T]] {
   private val MaxComboWidth = 100
 
   setLayout(BorderLayout())
@@ -88,7 +89,7 @@ class OptionsFilterPanel[T <: AnyRef](protected override val attribute: CardAttr
 
   private def +=(value: T): Unit = {
     val boxPanel = JPanel(BorderLayout())
-    val box = JComboBox(options)
+    val box = JComboBox(options.toArray)
     box.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => if (!options.isEmpty) {
       box.getAccessibleContext.getAccessibleChild(0) match {
         case popup: BasicComboPopup => SwingUtilities.invokeLater(() => SwingUtilities.getAncestorOfClass(classOf[JScrollPane], popup.getList) match {
