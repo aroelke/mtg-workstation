@@ -51,13 +51,13 @@ import scala.jdk.javaapi.CollectionConverters;
 public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
 {
     /** Name of a card. */
-    NAME("Name", String.class, (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.normalizedName())), Collator.getInstance()),
+    NAME("Name", String.class, (a) -> new TextFilter(a, (c) -> c.normalizedName()), Collator.getInstance()),
     /** A card's Oracle text. */
-    RULES_TEXT("Rules Text", (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.normalizedOracle()))),
+    RULES_TEXT("Rules Text", (a) -> new TextFilter(a, (c) -> c.normalizedOracle())),
     /** A card's flavor text. */
-    FLAVOR_TEXT("Flavor Text", (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.normalizedFlavor()))),
+    FLAVOR_TEXT("Flavor Text", (a) -> new TextFilter(a, (c) -> c.normalizedFlavor())),
     /** The text physically printed on a card. */
-    PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.normalizedPrinted()))),
+    PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, (c) -> c.normalizedPrinted())),
     /** Mana cost of a card. */
     MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter(), Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0))),
     /** Mana value of a card. */
@@ -106,7 +106,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
         return 0;
     }),
     /** The type line physically printed on a card. */
-    PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.faces()).stream().map(Card::printedTypes).collect(Collectors.toList()))),
+    PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, (c) -> c.faces().map(Card::printedTypes))),
     /** A card's types. */
     CARD_TYPE("Card Type", (a) -> new CardTypeFilter()),
     /** A card's subtypes. */
@@ -143,7 +143,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /** Rarity of a card in its expansion. */
     RARITY("Rarity", Rarity.class, (a) -> new RarityFilter(), (a, b) -> ((Rarity)a).compareTo((Rarity)b)),
     /** Artist of a card. */
-    ARTIST("Artist", String.class,(a) -> new TextFilter(a, (c) -> CollectionConverters.asJava(c.faces()).stream().map(Card::artist).collect(Collectors.toList())), Collator.getInstance()),
+    ARTIST("Artist", String.class,(a) -> new TextFilter(a, (c) -> c.faces().map(Card::artist)), Collator.getInstance()),
     /** Collector number of a card. */
     CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, (c) -> CollectionConverters.asJava(c.faces()).stream().map((f) -> {
         String v = f.number();
