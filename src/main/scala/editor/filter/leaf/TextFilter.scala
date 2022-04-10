@@ -80,20 +80,13 @@ object TextFilter {
     val m = WordPattern.matcher(pattern)
     val strs = collection.mutable.Buffer[String]()
     while (m.find()) {
-      strs += replaceTokens((
-        if (m.group(1) != null)
-          m.group(1)
-        else if (m.group(2) != null)
-          m.group(2)
-        else
-          m.group
-      ).replace("*", raw"\E\w*\Q"), raw"\E", raw"\Q")
+      strs += replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.group).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
     }
     val p = Pattern.compile(
       strs.mkString("^(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W)).*$"),
       Pattern.MULTILINE | Pattern.CASE_INSENSITIVE
     )
-    (s: String) => p.matcher(s).find
+    (s: String) => p.matcher(s).find()
   }
 
   private case class Data(contain: Containment, regex: Boolean, text: String)
