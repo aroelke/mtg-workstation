@@ -136,23 +136,22 @@ class TextFilter(t: CardAttribute, f: (Card) => Iterable[String]) extends Filter
           case CONTAINS_ALL_OF => createSimpleMatcher(text)
           case CONTAINS_ANY_OF | CONTAINS_NONE_OF =>
             val m = WordPattern.matcher(text)
-            val str = java.util.StringJoiner("\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))")
+            val strs = collection.mutable.Buffer[String]()
             while (m.find()) {
-              val toAdd = if (m.group(1) != null) m.group(1) else if (m.group(2) != null) m.group(2) else m.group
-              str.add(replaceTokens(toAdd.replace("*", "\\E\\w*\\Q"), "\\E", "\\Q"))
+              strs += replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.group).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
             }
-            val p = Pattern.compile(str.toString.replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE)
-            if (contain == Containment.CONTAINS_NONE_OF)
+            val p = Pattern.compile(strs.mkString("((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))").replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE)
+            if (contain == CONTAINS_NONE_OF)
               !p.matcher(_).find()
             else
               p.matcher(_).find()
           case CONTAINS_NOT_ALL_OF => !createSimpleMatcher(text)(_)
-          case CONTAINS_NOT_EXACTLY =>
+          case CONTAINS_EXACTLY | CONTAINS_NOT_EXACTLY =>
             val p = Pattern.compile(replaceTokens(text), Pattern.CASE_INSENSITIVE)
-            !p.matcher(_).matches
-          case CONTAINS_EXACTLY =>
-            val p = Pattern.compile(replaceTokens(text), Pattern.CASE_INSENSITIVE)
-            p.matcher(_).matches
+            if (contain == CONTAINS_EXACTLY)
+              p.matcher(_).matches
+            else
+              !p.matcher(_).matches
         }
       }
     }
