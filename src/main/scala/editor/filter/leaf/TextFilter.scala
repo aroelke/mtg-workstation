@@ -7,6 +7,7 @@ import editor.filter.leaf.options.multi.CardTypeFilter
 import editor.filter.leaf.options.multi.SubtypeFilter
 import editor.filter.leaf.options.multi.SupertypeFilter
 import editor.util.Containment
+import scala.util.matching._
 
 import java.util.Objects
 import java.util.regex.Pattern
@@ -28,7 +29,7 @@ object TextFilter {
   case class Token(tokens: Seq[String], replacements: () => Seq[String])
 
   /** Regex pattern matching a word. */
-  val WordPattern = Pattern.compile(raw""""([^"]*)"|'([^']*)'|[^\s]+""")
+  val WordPattern = """"([^"]*)"|'([^']*)'|[^\s]+""".r
 
   /**
    * List of tokens that can be used to generically match card attributes in text. Currently supports supertypes ("\supertype"), card types ("\cardtype"),
@@ -77,16 +78,10 @@ object TextFilter {
    * any order, and returns false otherwise
    */
   def createSimpleMatcher(pattern: String) = {
-    val m = WordPattern.matcher(pattern)
-    val strs = collection.mutable.Buffer[String]()
-    while (m.find()) {
-      strs += replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.group).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
-    }
-    val p = Pattern.compile(
-      strs.mkString("^(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W)).*$"),
-      Pattern.MULTILINE | Pattern.CASE_INSENSITIVE
-    )
-    (s: String) => p.matcher(s).find()
+    val r = WordPattern.findAllMatchIn(pattern).map((m) => {
+      replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
+    }).mkString("(?mi)^(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))(?=.*(?:^|$|\\W)\\Q", "\\E(?:^|$|\\W)).*$").r
+    (s: String) => r.findFirstIn(s).isDefined
   }
 
   private case class Data(contain: Containment, regex: Boolean, text: String)
@@ -135,11 +130,7 @@ class TextFilter(t: CardAttribute, f: (Card) => Iterable[String]) extends Filter
         patternCache = contain match {
           case CONTAINS_ALL_OF => createSimpleMatcher(text)
           case CONTAINS_ANY_OF | CONTAINS_NONE_OF =>
-            val m = WordPattern.matcher(text)
-            val strs = collection.mutable.Buffer[String]()
-            while (m.find()) {
-              strs += replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.group).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
-            }
+            val strs = WordPattern.findAllMatchIn(text).map((m) => replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q"))
             val p = Pattern.compile(strs.mkString("((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))").replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE)
             if (contain == CONTAINS_NONE_OF)
               !p.matcher(_).find()
