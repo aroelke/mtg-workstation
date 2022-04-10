@@ -66,9 +66,7 @@ object TextFilter {
    * @return a string containing a regex with the replaced matching values
    */
   def replaceTokens(text: String, prefix: String = "", suffix: String = "") = if (!text.contains("\\")) text else {
-    Tokens.foldLeft(text)((t, token) => token.tokens.foldLeft(t)((s, element) => {
-      s.replace(element, token.replacements().mkString(s"$prefix(?:", "|", s")$suffix"))
-    }))
+    Tokens.foldLeft(text)((t, token) => token.tokens.foldLeft(t)(_.replace(_, token.replacements().mkString(s"$prefix(?:", "|", s")$suffix"))))
   }
 
   /**
