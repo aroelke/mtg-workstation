@@ -15,6 +15,7 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 class LegalityFilter extends MultiOptionsFilter[String](CardAttribute.LEGAL_IN, _.legalIn) {
+  /** Whether or not matching cards should be restricted in the formats they're legal in. */
   var restricted = false
 
   override protected def testFace(c: Card) = {

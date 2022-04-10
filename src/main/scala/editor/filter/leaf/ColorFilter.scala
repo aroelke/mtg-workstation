@@ -20,8 +20,11 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 class ColorFilter(t: CardAttribute, f: (Card) => Seq[ManaType]) extends FilterLeaf[Seq[ManaType]](t, f(_)) {
+  /** Function to use to compare colors. */
   var contain = Containment.CONTAINS_ANY_OF
-  var colors = Set[ManaType]()
+  /** Colors to compare cards with. */
+  var colors = Set[ManaType]() // Using an immutable var here guarantees that copies don't reflect changes in each others' color sets
+  /** Whether or not to only match multicolored cards. */
   var multicolored = false
 
   override protected def testFace(c: Card) = contain.test(function.apply(c).asJava, colors.asJava) && (!multicolored || function.apply(c).size > 1)

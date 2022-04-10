@@ -22,9 +22,10 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 abstract class OptionsFilter[T](t: CardAttribute, f: (Card) => T) extends FilterLeaf[T](t, f(_)) {
+  /** Function to use to compare card attributes. */
   var contain = Containment.CONTAINS_ANY_OF
-  // Using an immutable var guarantees that changing this in a copy doesn't change this filter's version
-  var selected = Set[T]()
+  /** Set of items to look for in cards. */
+  var selected = Set[T]() // Using an immutable var guarantees that changing this in a copy doesn't change this filter's version
 
   /**
    * Convert a string to a value of the type of data being used for filtering.
