@@ -7,7 +7,6 @@ import editor.gui.generic.ComboBoxPanel
 import editor.util.Containment
 
 import java.awt.Color
-import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 import javax.swing.BoxLayout
 import javax.swing.JCheckBox
@@ -15,6 +14,8 @@ import javax.swing.JTextField
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.text.Document
+import scala.util.Try
+import scala.util.matching._
 
 /**
  * Convenience constructors for [[TextFilterPanel]].
@@ -52,23 +53,20 @@ class TextFilterPanel extends FilterEditorPanel[TextFilter] {
 
   private val text = JTextField()
   private val regex = JCheckBox("regex")
-  text.getDocument.addDocumentListener(new DocumentListener {
-    def update(e: DocumentEvent) = {
-      text.setBackground(Color.WHITE)
-      if (regex.isSelected) {
-        try {
-          Pattern.compile(text.getText, Pattern.DOTALL | Pattern.CASE_INSENSITIVE)
-        } catch case _: PatternSyntaxException => text.setBackground(Color.PINK)
-      }
+  private def showError() = {
+    text.setBackground(Color.WHITE)
+    if (regex.isSelected && Try(text.getText.r).isFailure) {
+      text.setBackground(Color.PINK)
     }
-
-    override def changedUpdate(e: DocumentEvent) = update(e)
-    override def insertUpdate(e: DocumentEvent) = update(e)
-    override def removeUpdate(e: DocumentEvent) = update(e)
+  }
+  text.getDocument.addDocumentListener(new DocumentListener {
+    override def changedUpdate(e: DocumentEvent) = showError()
+    override def insertUpdate(e: DocumentEvent) = showError()
+    override def removeUpdate(e: DocumentEvent) = showError()
   })
   add(text)
 
-  regex.addActionListener(_ => contain.setVisible(!regex.isSelected))
+  regex.addActionListener(_ => { contain.setVisible(!regex.isSelected); showError() })
   add(regex)
 
   protected override var attribute = CardAttribute.NAME
@@ -76,7 +74,7 @@ class TextFilterPanel extends FilterEditorPanel[TextFilter] {
   override def filter = CardAttribute.createFilter(attribute) match {
     case tf: TextFilter =>
       tf.contain = contain.getSelectedItem
-      tf.text = text.getText
+      tf.text = Try(text.getText.r).map(_ => text.getText).getOrElse("")
       tf.regex = regex.isSelected
       tf
   }
