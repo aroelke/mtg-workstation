@@ -122,8 +122,8 @@ class TextFilter(t: CardAttribute, f: (Card) => Iterable[String]) extends Filter
     if (compilePattern) {
       prev = Some(Data(contain, regex, text))
       if (regex) {
-        val p = Pattern.compile(replaceTokens(text), Pattern.DOTALL | Pattern.CASE_INSENSITIVE)
-        patternCache = p.matcher(_).find()
+        val r = s"(?si)${replaceTokens(text)}".r
+        patternCache = r.findFirstIn(_).isDefined
       } else {
         // If the filter is a "simple" string, then the characteristic matches if it matches the
         // filter text in any order with the specified set containment
