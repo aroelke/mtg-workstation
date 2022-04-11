@@ -13,9 +13,9 @@ import java.text.ParseException
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
-import java.util.regex.Pattern
 import scala.collection.immutable.ListMap
 import scala.jdk.CollectionConverters._
+import scala.util.matching._
 
 /**
  * Object containing constants used for formatting cards.
@@ -26,7 +26,7 @@ object TextCardListFormat {
   val DefaultFormat = "{count}x {name} ({expansion})"
 
   /** Regex pattern for recognizing card counts in text. */
-  val CountPattern = Pattern.compile(raw"(?:^(?:\d+x|x\d+|\d+)|(?:\d+x|x\d+|\d+)$$)")
+  val CountPattern = raw"(?:^(?:\d+x|x\d+|\d+)|(?:\d+x|x\d+|\d+)$$)".r
 }
 
 /**
@@ -68,14 +68,13 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
           System.err.println(s"multiple matches for \"${line.trim}\"")
         val choice = possibilities.head
 
-        val countMatcher = CountPattern.matcher(trimmed)
         val date = try {
           Option(Chronic.parse(trimmed.replace(choice.name.toLowerCase, "").replace(choice.expansion.name.toLowerCase, "")))
               .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
               .getOrElse(LocalDate.now)
         } catch case _: IllegalStateException => LocalDate.now
 
-        extra.map(extras).getOrElse(deck).add(choice, if (countMatcher.find) countMatcher.group.replace("x", "").toInt else 1, date)
+        extra.map(extras).getOrElse(deck).add(choice, CountPattern.findFirstIn(trimmed).map(_.replace("x", "").toInt).getOrElse(1), date)
       } catch case e: ParseException => {
         extra = Some(line.trim)
         extras += extra.get -> Deck()
