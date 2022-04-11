@@ -4,7 +4,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Date
-import java.util.regex.Pattern
+import scala.util.matching._
 
 import UpdateFrequency._
 
@@ -60,7 +60,7 @@ case class DatabaseVersion(major: Int = 0, minor: Int = 0, revision: Int = 0, da
 
 object DatabaseVersion {
   /** Regular expression pattern used to match version info. */
-  lazy val VersionPattern = Pattern.compile("""^(\d+)\.(\d+)\.(\d+)(?:(?:\+|-)(\d{4}\d{2}\d{2}))?$""")
+  lazy val VersionPattern = """^(\d+)\.(\d+)\.(\d+)(?:(?:\+|-)(\d{4}\d{2}\d{2}))?$""".r
 
   /** Date formatter for parsing and formatting dates to strings. */
   lazy val VersionDate = new SimpleDateFormat("yyyyMMdd")
@@ -77,10 +77,8 @@ object DatabaseVersion {
     */
   @throws[ParseException]("if the version isn't major.minor.rev[-YYYYMMDD]")
   def parseVersion(s: String) = {
-    val m = VersionPattern.matcher(s)
-    if (m.matches)
+    VersionPattern.findFirstMatchIn(s).map((m) => {
       DatabaseVersion(m.group(1).toInt, m.group(2).toInt, m.group(3).toInt, Option.unless(m.group(4) == null)(VersionDate.parse(m.group(4))))
-    else
-      throw new ParseException(s, 0)
+    }).getOrElse(throw ParseException(s, 0))
   }
 }
