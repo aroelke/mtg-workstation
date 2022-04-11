@@ -76,5 +76,10 @@ object FilterPanelFactory {
    * @param attribute attribute to create the filter panel for
    * @return a new filter panel for the given attribute
    */
-  def createFilterPanel(attribute: CardAttribute): FilterEditorPanel[?] = if (attribute == CardAttribute.DEFAULTS) DefaultsFilterPanel() else createFilterPanel(attribute.get)
+  def createFilterPanel(attribute: CardAttribute): FilterEditorPanel[?] = attribute match {
+    case CardAttribute.ANY => BinaryFilterPanel(true)
+    case CardAttribute.NONE => BinaryFilterPanel(false)
+    case CardAttribute.DEFAULTS => DefaultsFilterPanel()
+    case _ => createFilterPanel(attribute.get)
+  }
 }

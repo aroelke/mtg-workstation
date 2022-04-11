@@ -187,9 +187,9 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
     DATE_ADDED("Date Added", LocalDate.class, (a, b) -> ((LocalDate)a).compareTo((LocalDate)b)),
 
     /** No filter applied. */
-    ANY("<Any Card>", (a) -> new BinaryFilter(true)),
+    ANY("<Any Card>", (a) -> null),
     /** Filter all cards. */
-    NONE("<No Card>", (a) -> new BinaryFilter(false)),
+    NONE("<No Card>", (a) -> null),
     /** Filter using one of the predefined filters.  This should not be used to create a filter. */
     DEFAULTS("Defaults", (a) -> null),
     /** Group of filters.  This should not be used to create a filter. */
@@ -223,7 +223,11 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
      */
     public static Filter createFilter(CardAttribute attribute)
     {
-        return attribute.get();
+        return switch(attribute) {
+            case ANY -> new BinaryFilter(true);
+            case NONE -> new BinaryFilter(false);
+            default -> attribute.get();
+        };
     }
 
     /**
