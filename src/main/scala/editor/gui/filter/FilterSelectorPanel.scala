@@ -27,7 +27,7 @@ object FilterSelectorPanel {
    * @return a new [[FilterSelectorPanel]] showing the attribute from the filter and populated with its
    * contents
    */
-  def apply(filter: FilterLeaf[?]) = {
+  def apply(filter: FilterLeaf) = {
     val panel = new FilterSelectorPanel
     panel.setContents(filter)
     panel
@@ -41,7 +41,7 @@ object FilterSelectorPanel {
  * 
  * @author Alec Roelke
  */
-class FilterSelectorPanel extends FilterPanel[FilterLeaf[?]] {
+class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   // Filter type selector
@@ -93,11 +93,11 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf[?]] {
   facesLabel.setToolTipText(faces.tooltip)
 
   override def filter = filterPanels(filterTypes.getSelectedItem).filter match {
-    case l: FilterLeaf[?] => l.faces = faces; l
+    case l: FilterLeaf => l.faces = faces; l
     case f => f
   }
 
-  override def setContents(filter: FilterLeaf[?]) = {
+  override def setContents(filter: FilterLeaf) = {
     filterTypes.setSelectedItem(filter.`type`)
     filterPanels(filter.`type`).setContents(filter)
     faces = filter.faces

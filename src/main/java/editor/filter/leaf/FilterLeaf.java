@@ -17,7 +17,7 @@ import scala.jdk.javaapi.CollectionConverters;
  * @param <T> Type of characteristic being filtered
  * @author Alec Roelke
  */
-public abstract class FilterLeaf<T> extends Filter
+public abstract class FilterLeaf extends Filter
 {
     /**
      * Which face(s) to search on a card when filtering.
@@ -42,7 +42,7 @@ public abstract class FilterLeaf<T> extends Filter
      * 
      * @return A copy of this FilterLeaf containing only unique fields.
      */
-    protected abstract FilterLeaf<T> copyLeaf();
+    protected abstract FilterLeaf copyLeaf();
 
     @Override
     public final Filter copy()
@@ -83,7 +83,7 @@ public abstract class FilterLeaf<T> extends Filter
     @Override
     public boolean equals(Object other)
     {
-        return other != null && (other == this || other.getClass() == getClass() && faces == ((FilterLeaf<?>)other).faces && leafEquals(other));
+        return other != null && (other == this || other.getClass() == getClass() && faces == ((FilterLeaf)other).faces && leafEquals(other));
     }
 
     /**

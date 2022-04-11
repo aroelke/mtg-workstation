@@ -20,7 +20,7 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-abstract class OptionsFilter[T](t: CardAttribute) extends FilterLeaf[T](t) {
+abstract class OptionsFilter[T](t: CardAttribute) extends FilterLeaf(t) {
   /** Function to use to compare card attributes. */
   var contain = Containment.CONTAINS_ANY_OF
   /** Set of items to look for in cards. */

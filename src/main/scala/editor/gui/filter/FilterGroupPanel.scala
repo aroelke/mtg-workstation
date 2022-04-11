@@ -199,7 +199,7 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     border.setTitle(group.comment)
     group.asScala.foreach((f) => this += (f match {
       case g: FilterGroup => FilterGroupPanel(g)
-      case l: FilterLeaf[?] => FilterSelectorPanel(l)
+      case l: FilterLeaf => FilterSelectorPanel(l)
     }))
   }
 }

@@ -46,7 +46,7 @@ object FilterPanelFactory {
    * @param filter filter to use to create a new panel
    * @return a filter panel of the type corresponding to the filter and containing its contents
    */
-  def createFilterPanel(filter: FilterLeaf[?]): FilterEditorPanel[?] = filter match {
+  def createFilterPanel(filter: FilterLeaf): FilterEditorPanel[?] = filter match {
     case text: TextFilter => TextFilterPanel(text)
     case variable: VariableNumberFilter => VariableNumberFilterPanel(variable)
     case number: NumberFilter => NumberFilterPanel(number)

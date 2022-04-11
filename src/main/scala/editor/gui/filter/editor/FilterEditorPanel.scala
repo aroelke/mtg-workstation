@@ -14,7 +14,7 @@ import scala.reflect.ClassTag
  * 
  * @author Alec Roelke
  */
-trait FilterEditorPanel[L <: FilterLeaf[?] : ClassTag] extends FilterPanel[FilterLeaf[?]] {
+trait FilterEditorPanel[L <: FilterLeaf : ClassTag] extends FilterPanel[FilterLeaf] {
   /** @return the card attribute filtered by the generated filter */
   protected def attribute: CardAttribute
 
@@ -31,7 +31,7 @@ trait FilterEditorPanel[L <: FilterLeaf[?] : ClassTag] extends FilterPanel[Filte
    */
   def setFields(filter: L): Unit
 
-  override def setContents(filter: FilterLeaf[?]) = filter match {
+  override def setContents(filter: FilterLeaf) = filter match {
     case leaf: L => setFields(leaf)
     case _ => throw IllegalArgumentException(s"${filter.`type`} is not a/n ${attribute} filter")
   }

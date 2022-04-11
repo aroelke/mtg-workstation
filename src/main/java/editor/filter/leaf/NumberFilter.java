@@ -15,7 +15,7 @@ import editor.util.Comparison;
  *
  * @author Alec Roelke
  */
-public class NumberFilter extends FilterLeaf<Collection<Double>>
+public class NumberFilter extends FilterLeaf
 {
     private Function<Card, Collection<Double>> function;
     /**
@@ -65,7 +65,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      * @return A new NumberFilter that is a copy of this one.
      */
     @Override
-    protected FilterLeaf<Collection<Double>> copyLeaf()
+    protected FilterLeaf copyLeaf()
     {
         NumberFilter filter = (NumberFilter)CardAttribute.createFilter(type());
         filter.operation = operation;

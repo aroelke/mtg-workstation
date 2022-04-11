@@ -12,7 +12,7 @@ import editor.database.card.Card;
  *
  * @author Alec Roelke
  */
-public class BinaryFilter extends FilterLeaf<Void>
+public class BinaryFilter extends FilterLeaf
 {
     /**
      * Whether or not to let all Cards through the filter.
@@ -40,7 +40,7 @@ public class BinaryFilter extends FilterLeaf<Void>
     }
 
     @Override
-    protected FilterLeaf<Void> copyLeaf()
+    protected FilterLeaf copyLeaf()
     {
         return (BinaryFilter)CardAttribute.createFilter(type());
     }

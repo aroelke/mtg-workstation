@@ -18,7 +18,7 @@ import scala.collection.immutable.ListMap
  *
  * @author Alec Roelke
  */
-class DefaultsFilterPanel extends FilterEditorPanel[FilterLeaf[?]] {
+class DefaultsFilterPanel extends FilterEditorPanel[FilterLeaf] {
   setLayout(FlowLayout(FlowLayout.LEFT, 0, 0))
 
   private val categories = ListMap.from(SettingsDialog.settings.editor.categories.presets.map((p) => p.getName -> p))
@@ -27,5 +27,5 @@ class DefaultsFilterPanel extends FilterEditorPanel[FilterLeaf[?]] {
 
   override val attribute = CardAttribute.DEFAULTS
   override def filter = FilterGroup(Category(categories(defaults.getSelectedItem)).getFilter)
-  override def setFields(filter: FilterLeaf[?]) = throw UnsupportedOperationException("defaults filter panel should be replaced by contents")
+  override def setFields(filter: FilterLeaf) = throw UnsupportedOperationException("defaults filter panel should be replaced by contents")
 }

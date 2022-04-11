@@ -19,7 +19,7 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-class ColorFilter(t: CardAttribute, value: (Card) => Seq[ManaType]) extends FilterLeaf[Seq[ManaType]](t) {
+class ColorFilter(t: CardAttribute, value: (Card) => Seq[ManaType]) extends FilterLeaf(t) {
   /** Function to use to compare colors. */
   var contain = Containment.CONTAINS_ANY_OF
   /** Colors to compare cards with. */

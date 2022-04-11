@@ -12,7 +12,7 @@ import scala.jdk.CollectionConverters._
  * Filter that groups cards by all of their types.
  * @author Alec Roelke
  */
-class TypeLineFilter extends FilterLeaf[Seq[Set[String]]](CardAttribute.TYPE_LINE) {
+class TypeLineFilter extends FilterLeaf(CardAttribute.TYPE_LINE) {
   var contain = Containment.CONTAINS_ANY_OF
   var line = ""
 

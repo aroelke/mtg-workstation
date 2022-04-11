@@ -48,7 +48,7 @@ import scala.jdk.javaapi.CollectionConverters;
  *
  * @author Alec Roelke
  */
-public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
+public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
 {
     /** Name of a card. */
     NAME("Name", String.class, (a) -> new TextFilter(a, (c) -> c.normalizedName()), Collator.getInstance()),
@@ -266,7 +266,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
     /**
      * Function for creating a new filter for the attribute if it can be filtered.
      */
-    private final Optional<Function<CardAttribute, FilterLeaf<?>>> filter;
+    private final Optional<Function<CardAttribute, FilterLeaf>> filter;
     /**
      * Function for comparing the values of two attributes.
      */
@@ -280,7 +280,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
      * @param f function for generating a filter on the attribute, if it can be filtered
      * @param comp function for comparing attributes, if it can be compared
      */
-    private CardAttribute(String n, Optional<Class<?>> c, Optional<Function<CardAttribute, FilterLeaf<?>>> f, Optional<Comparator<Object>> comp)
+    private CardAttribute(String n, Optional<Class<?>> c, Optional<Function<CardAttribute, FilterLeaf>> f, Optional<Comparator<Object>> comp)
     {
         name = n;
         dataType = c;
@@ -295,7 +295,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
      * @param f function for generating a filter on the attribute
      * @param comp function for comparing attributes
      */
-    CardAttribute(String n, Class<?> c, Function<CardAttribute, FilterLeaf<?>> f, Comparator<Object> comp)
+    CardAttribute(String n, Class<?> c, Function<CardAttribute, FilterLeaf> f, Comparator<Object> comp)
     {
         this(n, Optional.of(c), Optional.of(f), Optional.of(comp));
     }
@@ -320,7 +320,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
      * @param n name of the new CardAttribute
      * @param f function for generating a filter on the attribute
      */
-    CardAttribute(String n, Function<CardAttribute, FilterLeaf<?>> f)
+    CardAttribute(String n, Function<CardAttribute, FilterLeaf> f)
     {
         this(n, Optional.empty(), Optional.of(f), Optional.empty());
     }
@@ -345,7 +345,7 @@ public enum CardAttribute implements Supplier<FilterLeaf<?>>, Comparator<Object>
      * @throws NoSuchElementException if this attribute shouldn't be used for filtering
      */
     @Override
-    public FilterLeaf<?> get() throws NoSuchElementException
+    public FilterLeaf get() throws NoSuchElementException
     {
         return filter.orElseThrow().apply(this);
     }

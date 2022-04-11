@@ -95,7 +95,7 @@ object TextFilter {
  * 
  * @author Alec Roelke
  */
-class TextFilter(t: CardAttribute, value: (Card) => Iterable[String]) extends FilterLeaf[Iterable[String]](t) {
+class TextFilter(t: CardAttribute, value: (Card) => Iterable[String]) extends FilterLeaf(t) {
   import Containment._
   import TextFilter._
 

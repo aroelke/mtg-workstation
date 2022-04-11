@@ -15,7 +15,7 @@ import javax.swing.JLabel
  * 
  * @author Alec Roelke
  */
-class BinaryFilterPanel(allow: Boolean) extends FilterEditorPanel[FilterLeaf[?]] {
+class BinaryFilterPanel(allow: Boolean) extends FilterEditorPanel[FilterLeaf] {
   val All = "This clause will match every card."
   val None = "This clause will not match any card."
 
@@ -25,5 +25,5 @@ class BinaryFilterPanel(allow: Boolean) extends FilterEditorPanel[FilterLeaf[?]]
 
   protected override val attribute = if (allow) CardAttribute.ANY else CardAttribute.NONE
   override lazy val filter = CardAttribute.createFilter(if (allow) CardAttribute.ANY else CardAttribute.NONE)
-  override def setFields(filter: FilterLeaf[?]) = {}
+  override def setFields(filter: FilterLeaf) = {}
 }
