@@ -18,6 +18,7 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 class VariableNumberFilter(t: CardAttribute, value: (Card) => Iterable[Double], variable: (Card) => Boolean) extends NumberFilter(t, value(_).map(java.lang.Double(_)).toSeq.asJava) {
+  /** Whether or not the value of the attribute should be variable during a game. */
   var varies = false
 
   override protected def testFace(c: Card) = if (varies) variable(c) else super.testFace(c)
