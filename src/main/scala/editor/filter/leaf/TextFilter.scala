@@ -47,7 +47,7 @@ object TextFilter {
    * @param s string to search for
    * @return a filter that filters by the attribute using the given string
    */
-  def createQuickFilter(t: CardAttribute, s: String) = {
+  def apply(t: CardAttribute, s: String) = {
     try {
       val filter = CardAttribute.createFilter(t).asInstanceOf[TextFilter]
       filter.text = Regex.quote(s)
@@ -113,37 +113,29 @@ class TextFilter(t: CardAttribute, f: (Card) => Iterable[String]) extends Filter
   /** @param t new pattern to match the attribute using */
   def text_=(t: String) = current = current.copy(text = t)
 
-  private var prev: Option[Data] = None
-  private var patternCache: (String) => Boolean = null
-  private def compilePattern = patternCache == null || !prev.exists(_ == current)
+  private var prev = current
+  private var patternCache: (String) => Boolean = _ => true
 
   override protected def testFace(c: Card) = {
-    if (compilePattern) {
-      prev = Some(Data(contain, regex, text))
-      if (regex) {
-        val r = s"(?si)${replaceTokens(text)}".r
-        patternCache = r.findFirstIn(_).isDefined
-      } else {
-        // If the filter is a "simple" string, then the characteristic matches if it matches the
-        // filter text in any order with the specified set containment
-        patternCache = contain match {
-          case CONTAINS_ALL_OF => createSimpleMatcher(text)
-          case CONTAINS_ANY_OF | CONTAINS_NONE_OF =>
-            val r = WordPattern.findAllMatchIn(text).map((m) => {
-              replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
-            }).mkString("(?mi)((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))").replace("\\Q\\E", "").r
-            if (contain == CONTAINS_ANY_OF)
-              r.findFirstIn(_).isDefined
-            else
-              !r.findFirstIn(_).isDefined
-          case CONTAINS_NOT_ALL_OF => !createSimpleMatcher(text)(_)
-          case CONTAINS_EXACTLY | CONTAINS_NOT_EXACTLY =>
-            val r = s"(?i)${replaceTokens(text)}".r
-            if (contain == CONTAINS_EXACTLY)
-              r.findFirstIn(_).isDefined
-            else
-              !r.findFirstIn(_).isDefined
-        }
+    if (prev != current) {
+      prev = current
+      patternCache = if (regex) s"(?si)${replaceTokens(text)}".r.findFirstIn(_).isDefined else contain match {
+        case CONTAINS_ALL_OF => createSimpleMatcher(text)
+        case CONTAINS_ANY_OF | CONTAINS_NONE_OF =>
+          val r = WordPattern.findAllMatchIn(text).map((m) => {
+            replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
+          }).mkString("(?mi)((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))").replace("\\Q\\E", "").r
+          if (contain == CONTAINS_ANY_OF)
+            r.findFirstIn(_).isDefined
+          else
+            !r.findFirstIn(_).isDefined
+        case CONTAINS_NOT_ALL_OF => !createSimpleMatcher(text)(_)
+        case CONTAINS_EXACTLY | CONTAINS_NOT_EXACTLY =>
+          val r = s"(?i)${replaceTokens(text)}".r
+          if (contain == CONTAINS_EXACTLY)
+            r.findFirstIn(_).isDefined
+          else
+            !r.findFirstIn(_).isDefined
       }
     }
     function.apply(c).exists(patternCache)

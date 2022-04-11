@@ -1119,7 +1119,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
   // Action to be taken when the user presses the Enter key after entering text into the quick-filter bar
   nameFilterField.addActionListener(_ => {
-    inventory.updateFilter(TextFilter.createQuickFilter(CardAttribute.NAME, nameFilterField.getText.toLowerCase))
+    inventory.updateFilter(TextFilter(CardAttribute.NAME, nameFilterField.getText.toLowerCase))
     inventoryModel.fireTableDataChanged()
   })
 
