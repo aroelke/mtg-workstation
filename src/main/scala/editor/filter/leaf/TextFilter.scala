@@ -7,10 +7,9 @@ import editor.filter.leaf.options.multi.CardTypeFilter
 import editor.filter.leaf.options.multi.SubtypeFilter
 import editor.filter.leaf.options.multi.SupertypeFilter
 import editor.util.Containment
-import scala.util.matching._
 
 import java.util.Objects
-import java.util.regex.Pattern
+import scala.util.matching._
 
 /**
  * Object containing global data and convenience functions for filtering text attributes.
@@ -51,7 +50,7 @@ object TextFilter {
   def createQuickFilter(t: CardAttribute, s: String) = {
     try {
       val filter = CardAttribute.createFilter(t).asInstanceOf[TextFilter]
-      filter.text = Pattern.quote(s)
+      filter.text = Regex.quote(s)
       filter.regex = true
       filter
     } catch case _: ClassCastException => throw IllegalArgumentException(s"illegal text filter type $t")
