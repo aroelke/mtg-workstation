@@ -139,11 +139,11 @@ class TextFilter(t: CardAttribute, f: (Card) => Iterable[String]) extends Filter
               !r.findFirstIn(_).isDefined
           case CONTAINS_NOT_ALL_OF => !createSimpleMatcher(text)(_)
           case CONTAINS_EXACTLY | CONTAINS_NOT_EXACTLY =>
-            val p = Pattern.compile(replaceTokens(text), Pattern.CASE_INSENSITIVE)
+            val r = s"(?i)${replaceTokens(text)}".r
             if (contain == CONTAINS_EXACTLY)
-              p.matcher(_).matches
+              r.findFirstIn(_).isDefined
             else
-              !p.matcher(_).matches
+              !r.findFirstIn(_).isDefined
         }
       }
     }
