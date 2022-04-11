@@ -130,12 +130,13 @@ class TextFilter(t: CardAttribute, f: (Card) => Iterable[String]) extends Filter
         patternCache = contain match {
           case CONTAINS_ALL_OF => createSimpleMatcher(text)
           case CONTAINS_ANY_OF | CONTAINS_NONE_OF =>
-            val strs = WordPattern.findAllMatchIn(text).map((m) => replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q"))
-            val p = Pattern.compile(strs.mkString("((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))").replace("\\Q\\E", ""), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE)
-            if (contain == CONTAINS_NONE_OF)
-              !p.matcher(_).find()
+            val r = WordPattern.findAllMatchIn(text).map((m) => {
+              replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
+            }).mkString("(?mi)((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))").replace("\\Q\\E", "").r
+            if (contain == CONTAINS_ANY_OF)
+              r.findFirstIn(_).isDefined
             else
-              p.matcher(_).find()
+              !r.findFirstIn(_).isDefined
           case CONTAINS_NOT_ALL_OF => !createSimpleMatcher(text)(_)
           case CONTAINS_EXACTLY | CONTAINS_NOT_EXACTLY =>
             val p = Pattern.compile(replaceTokens(text), Pattern.CASE_INSENSITIVE)
