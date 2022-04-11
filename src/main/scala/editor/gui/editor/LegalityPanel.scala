@@ -17,7 +17,6 @@ import java.awt.Dimension
 import java.awt.GridLayout
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
-import java.util.regex.Pattern
 import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
@@ -30,6 +29,7 @@ import javax.swing.JPanel
 import javax.swing.JScrollPane
 import javax.swing.ListSelectionModel
 import scala.jdk.CollectionConverters._
+import scala.util.matching._
 
 /**
  * Panel for showing the format legality of the deck, optionally including a sideboard (if
@@ -45,7 +45,7 @@ import scala.jdk.CollectionConverters._
 class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
   private val MainDeck = "Main Deck"
   private val AllLists = "All Lists"
-  private val PartnerPattern = Pattern.compile("partner(?: with (.+) \\()?")
+  private val PartnerPattern = "partner(?: with (.+) \\()?".r
 
   setPreferredSize(Dimension(400, 250))
 
@@ -200,11 +200,11 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
         val commander = possibleCommanders.exists(c => deckColorIdentity.forall(c.colorIdentity.contains(_)))
 
         val possiblePartners = possibleCommanders
-            .flatMap((c) => c.normalizedOracle.map(c -> PartnerPattern.matcher(_)))
-            .collect{ case (c, m) if c.commandFormats.contains(format) && m.find => c -> Option(m.group(1)).map(_.toLowerCase).getOrElse("") }
+            .flatMap((c) => c.normalizedOracle.map(c -> PartnerPattern.findFirstMatchIn(_)))
+            .collect{ case (c, Some(m)) if c.commandFormats.contains(format) => c -> Option(m.group(1)).map(_.toLowerCase).getOrElse("") }
             .toMap
         val partners = possiblePartners.exists{ case (card, partner) => possibleCommanders.exists{ commander =>
-          val colorIdentity = if ((partner.isEmpty && commander.normalizedOracle.map(PartnerPattern.matcher(_)).exists((m) => m.find && m.group(1) == null)) ||
+          val colorIdentity = if ((partner.isEmpty && commander.normalizedOracle.flatMap(PartnerPattern.findFirstMatchIn(_)).exists(_.group(1) == null)) ||
                                   partner.equalsIgnoreCase(commander.name))
             (card.colorIdentity ++ commander.colorIdentity).toSet
           else
