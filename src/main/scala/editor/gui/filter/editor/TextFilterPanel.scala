@@ -53,12 +53,8 @@ class TextFilterPanel extends FilterEditorPanel[TextFilter] {
 
   private val text = JTextField()
   private val regex = JCheckBox("regex")
-  private def showError() = {
-    text.setBackground(Color.WHITE)
-    if (regex.isSelected && Try(text.getText.r).isFailure) {
-      text.setBackground(Color.PINK)
-    }
-  }
+  private def isError = regex.isSelected && Try(text.getText.r).isFailure
+  private def showError() = text.setBackground(if (isError) Color.PINK else Color.WHITE)
   text.getDocument.addDocumentListener(new DocumentListener {
     override def changedUpdate(e: DocumentEvent) = showError()
     override def insertUpdate(e: DocumentEvent) = showError()
@@ -74,7 +70,7 @@ class TextFilterPanel extends FilterEditorPanel[TextFilter] {
   override def filter = CardAttribute.createFilter(attribute) match {
     case tf: TextFilter =>
       tf.contain = contain.getSelectedItem
-      tf.text = Try(text.getText.r).map(_ => text.getText).getOrElse("")
+      tf.text = if (isError) "" else text.getText
       tf.regex = regex.isSelected
       tf
   }
