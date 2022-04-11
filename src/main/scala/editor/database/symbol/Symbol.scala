@@ -2,10 +2,10 @@ package editor.database.symbol
 
 import java.awt.Image
 import java.io.IOException
-import java.util.regex.Pattern
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import scala.jdk.OptionConverters._
+import scala.util.matching._
 
 /**
  * An object that is capable of parsing a [[Symbol]] from a string.
@@ -51,7 +51,7 @@ trait HasSymbolValues[K, S <: Symbol] {
  */
 object Symbol extends SymbolParser[Symbol] {
   /** Regular expression for retrieving a [[Symbol]]'s text from its string representation. */
-  val Regex = Pattern.compile(raw"\{([^}]+)\}")
+  val Regex = raw"\{([^}]+)\}".r
 
   /** Icon name to use for [[Symbol]]s whose icons are unknown. */
   val Unknown = "unknown.png"
@@ -64,7 +64,7 @@ object Symbol extends SymbolParser[Symbol] {
    */
   override def parse(s: String) = ManaSymbol.parse(s) orElse FunctionalSymbol.parse(s)
 
-  @deprecated val SYMBOL_PATTERN = Regex
+  @deprecated val SYMBOL_PATTERN = Regex.pattern
   @deprecated def tryParseSymbol(s: String) = parse(s).toJava
 }
 

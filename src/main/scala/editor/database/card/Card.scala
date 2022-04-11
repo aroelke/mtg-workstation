@@ -15,7 +15,6 @@ import java.text.Collator
 import java.util.Date
 import java.util.Locale
 import java.util.Objects
-import java.util.regex.Pattern
 import javax.swing.text.StyledDocument
 import scala.collection.immutable.AbstractSet
 import scala.collection.immutable.TreeMap
