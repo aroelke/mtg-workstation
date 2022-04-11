@@ -15,11 +15,11 @@ import scala.jdk.CollectionConverters._
  * 
  * @constructor create a new filter for a color attribute
  * @param t attribute to filter by
- * @param f function retrieving the value of the attribute from a card
+ * @param value function retrieving the value of the attribute from a card
  * 
  * @author Alec Roelke
  */
-class ColorFilter(t: CardAttribute, f: (Card) => Seq[ManaType]) extends FilterLeaf[Seq[ManaType]](t, f(_)) {
+class ColorFilter(t: CardAttribute, value: (Card) => Seq[ManaType]) extends FilterLeaf[Seq[ManaType]](t) {
   /** Function to use to compare colors. */
   var contain = Containment.CONTAINS_ANY_OF
   /** Colors to compare cards with. */
@@ -27,7 +27,7 @@ class ColorFilter(t: CardAttribute, f: (Card) => Seq[ManaType]) extends FilterLe
   /** Whether or not to only match multicolored cards. */
   var multicolored = false
 
-  override protected def testFace(c: Card) = contain.test(function.apply(c).asJava, colors.asJava) && (!multicolored || function.apply(c).size > 1)
+  override protected def testFace(c: Card) = contain.test(value(c).asJava, colors.asJava) && (!multicolored || value(c).size > 1)
 
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(`type`).asInstanceOf[ColorFilter]
@@ -56,5 +56,5 @@ class ColorFilter(t: CardAttribute, f: (Card) => Seq[ManaType]) extends FilterLe
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, function, colors, contain, multicolored)
+  override def hashCode = Objects.hash(`type`, colors, contain, multicolored)
 }

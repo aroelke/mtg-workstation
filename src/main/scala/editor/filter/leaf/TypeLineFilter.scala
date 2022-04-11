@@ -12,7 +12,7 @@ import scala.jdk.CollectionConverters._
  * Filter that groups cards by all of their types.
  * @author Alec Roelke
  */
-class TypeLineFilter extends FilterLeaf[Seq[Set[String]]](CardAttribute.TYPE_LINE, _.faces.map(_.typeLine.toSet)) {
+class TypeLineFilter extends FilterLeaf[Seq[Set[String]]](CardAttribute.TYPE_LINE) {
   var contain = Containment.CONTAINS_ANY_OF
   var line = ""
 
@@ -40,5 +40,5 @@ class TypeLineFilter extends FilterLeaf[Seq[Set[String]]](CardAttribute.TYPE_LIN
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, function, contain, line)
+  override def hashCode = Objects.hash(`type`, contain, line)
 }

@@ -17,6 +17,7 @@ import editor.util.Comparison;
  */
 public class NumberFilter extends FilterLeaf<Collection<Double>>
 {
+    private Function<Card, Collection<Double>> function;
     /**
      * Operation to compare the characteristic with this NumberFilter's
      * operand.
@@ -35,7 +36,8 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
      */
     public NumberFilter(CardAttribute t, Function<Card, Collection<Double>> f)
     {
-        super(t, f);
+        super(t);
+        function = f;
         operation = Comparison.EQ;
         operand = 0.0;
     }
@@ -56,7 +58,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
     @Override
     protected boolean testFace(Card c)
     {
-        return function().apply(c).stream().anyMatch((v) -> !v.isNaN() && operation.test(v, operand));
+        return function.apply(c).stream().anyMatch((v) -> !v.isNaN() && operation.test(v, operand));
     }
 
     /**
@@ -92,7 +94,7 @@ public class NumberFilter extends FilterLeaf<Collection<Double>>
     @Override
     public int hashCode()
     {
-        return Objects.hash(type(), function(), operation, operand);
+        return Objects.hash(type(), operation, operand);
     }
 
     @Override

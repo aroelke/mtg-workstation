@@ -11,11 +11,11 @@ import scala.jdk.CollectionConverters._
  * 
  * @constructor create a new singleton options filter
  * @param t attribute to filter by
- * @param f function for getting the value of the attribute from a card
+ * @param value function for getting the value of the attribute from a card
  * @tparam T type of data that is being filtered
  * 
  * @author Alec Roelke
  */
-abstract class SingletonOptionsFilter[T](t: CardAttribute, f: (Card) => T) extends OptionsFilter[T](t, f) {
-  override protected def testFace(c: Card) = contain.test(selected.asJava, Seq(function.apply(c)).asJava)
+abstract class SingletonOptionsFilter[T](t: CardAttribute, value: (Card) => T) extends OptionsFilter[T](t) {
+  override protected def testFace(c: Card) = contain.test(selected.asJava, Seq(value(c)).asJava)
 }

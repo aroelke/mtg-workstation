@@ -1,7 +1,5 @@
 package editor.filter.leaf;
 
-import java.util.function.Function;
-
 import com.google.gson.JsonObject;
 
 import editor.database.attributes.CardAttribute;
@@ -22,10 +20,6 @@ import scala.jdk.javaapi.CollectionConverters;
 public abstract class FilterLeaf<T> extends Filter
 {
     /**
-     * Function representing the characteristic of the cards to be filtered.
-     */
-    private Function<Card, T> function;
-    /**
      * Which face(s) to search on a card when filtering.
      */
     public FaceSearchOptions faces;
@@ -36,10 +30,9 @@ public abstract class FilterLeaf<T> extends Filter
      * @param t type of the new FilterLeaf
      * @param f function of the new FilterLeaf
      */
-    public FilterLeaf(CardAttribute t, Function<Card, T> f)
+    public FilterLeaf(CardAttribute t)
     {
         super(t);
-        function = f;
         faces = FaceSearchOptions.ANY;
     }
 
@@ -83,16 +76,6 @@ public abstract class FilterLeaf<T> extends Filter
             };
         else
             return false;
-    }
-
-    /**
-     * Get the attribute to be filtered.
-     *
-     * @return a {@link Function} representing the attribute of a card to be filtered.
-     */
-    protected Function<Card, T> function()
-    {
-        return function;
     }
 
     protected abstract boolean leafEquals(Object other);

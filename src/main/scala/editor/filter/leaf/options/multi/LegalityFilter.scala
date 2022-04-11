@@ -56,5 +56,5 @@ class LegalityFilter extends MultiOptionsFilter[String](CardAttribute.LEGAL_IN, 
     case _ => false
   }
 
-  override def hashCode = Objects.hash(contain, multifunction, selected, restricted)
+  override def hashCode = Objects.hash(contain, selected, restricted)
 }

@@ -35,7 +35,7 @@ public class BinaryFilter extends FilterLeaf<Void>
      */
     public BinaryFilter(boolean a)
     {
-        super(a ? CardAttribute.ANY : CardAttribute.NONE, null);
+        super(a ? CardAttribute.ANY : CardAttribute.NONE);
         all = a;
     }
 
@@ -76,6 +76,6 @@ public class BinaryFilter extends FilterLeaf<Void>
     @Override
     public int hashCode()
     {
-        return Objects.hash(type(), function(), all);
+        return Objects.hash(type(), all);
     }
 }

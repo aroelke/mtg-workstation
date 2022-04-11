@@ -16,12 +16,11 @@ import scala.jdk.CollectionConverters._
  * 
  * @constructor create a new options filter
  * @param t attribute to filter by
- * @param f function used to get the value of the attribute from a card
  * @tparam T type of data used for filtering
  * 
  * @author Alec Roelke
  */
-abstract class OptionsFilter[T](t: CardAttribute, f: (Card) => T) extends FilterLeaf[T](t, f(_)) {
+abstract class OptionsFilter[T](t: CardAttribute) extends FilterLeaf[T](t) {
   /** Function to use to compare card attributes. */
   var contain = Containment.CONTAINS_ANY_OF
   /** Set of items to look for in cards. */
@@ -66,5 +65,5 @@ abstract class OptionsFilter[T](t: CardAttribute, f: (Card) => T) extends Filter
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, function, contain, selected)
+  override def hashCode = Objects.hash(`type`, contain, selected)
 }

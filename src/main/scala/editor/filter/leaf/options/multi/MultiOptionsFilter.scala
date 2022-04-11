@@ -12,11 +12,9 @@ import scala.jdk.CollectionConverters._
  * 
  * @constructor create a new multi-item options filter
  * @param t attribute to be filtered by
- * @param multifunction function to use to get the value of the attribute from a card
+ * @param values function to use to get the value of the attribute from a card
  * @tparam T type of the data that is being filtered
  */
-abstract class MultiOptionsFilter[T](t: CardAttribute, protected val multifunction: (Card) => Set[T]) extends OptionsFilter[T](t, null) {
-  override protected def testFace(c: Card) = contain.test(multifunction(c).asJava, selected.asJava)
-
-  override def hashCode = Objects.hash(`type`, function, contain, selected)
+abstract class MultiOptionsFilter[T](t: CardAttribute, values: (Card) => Set[T]) extends OptionsFilter[T](t) {
+  override protected def testFace(c: Card) = contain.test(values(c).asJava, selected.asJava)
 }

@@ -66,14 +66,13 @@ public class VariableNumberFilter extends NumberFilter
         if (other.getClass() != getClass())
             return false;
         VariableNumberFilter o = (VariableNumberFilter)other;
-        return o.type().equals(type()) && o.varies == varies && o.variable.equals(variable)
-                && o.operation.equals(operation)&o.operand == operand;
+        return o.type().equals(type()) && o.varies == varies && o.operation.equals(operation) && o.operand == operand;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(type(), function(), varies, variable, operation, operand);
+        return Objects.hash(type(), varies, variable, operation, operand);
     }
 
     /**

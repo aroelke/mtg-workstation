@@ -91,11 +91,11 @@ object TextFilter {
  * 
  * @constructor create a new text filter for an attribute
  * @param t attribute to filter by
- * @param f function to use to get the value of the attribute from a card
+ * @param value function to use to get the value of the attribute from a card
  * 
  * @author Alec Roelke
  */
-class TextFilter(t: CardAttribute, f: (Card) => Iterable[String]) extends FilterLeaf[Iterable[String]](t, f(_)) {
+class TextFilter(t: CardAttribute, value: (Card) => Iterable[String]) extends FilterLeaf[Iterable[String]](t) {
   import Containment._
   import TextFilter._
 
@@ -138,7 +138,7 @@ class TextFilter(t: CardAttribute, f: (Card) => Iterable[String]) extends Filter
             !r.findFirstIn(_).isDefined
       }
     }
-    function.apply(c).exists(patternCache)
+    value(c).exists(patternCache)
   }
 
   override protected def copyLeaf = {
@@ -162,5 +162,5 @@ class TextFilter(t: CardAttribute, f: (Card) => Iterable[String]) extends Filter
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, function, current)
+  override def hashCode = Objects.hash(`type`, current)
 }
