@@ -51,21 +51,21 @@ import scala.jdk.javaapi.CollectionConverters;
 public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
 {
     /** Name of a card. */
-    NAME("Name", String.class, (a) -> new TextFilter(a, (c) -> c.normalizedName()), Collator.getInstance()),
+    NAME("Name", "Card name", String.class, (a) -> new TextFilter(a, (c) -> c.normalizedName()), Collator.getInstance()),
     /** A card's Oracle text. */
-    RULES_TEXT("Rules Text", (a) -> new TextFilter(a, (c) -> c.normalizedOracle())),
+    RULES_TEXT("Rules Text", "Up-to-date Oracle text", (a) -> new TextFilter(a, (c) -> c.normalizedOracle())),
     /** A card's flavor text. */
-    FLAVOR_TEXT("Flavor Text", (a) -> new TextFilter(a, (c) -> c.normalizedFlavor())),
+    FLAVOR_TEXT("Flavor Text", "Flavor text", (a) -> new TextFilter(a, (c) -> c.normalizedFlavor())),
     /** The text physically printed on a card. */
-    PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, (c) -> c.normalizedPrinted())),
+    PRINTED_TEXT("Printed Text", "Rules text as printed on the card", (a) -> new TextFilter(a, (c) -> c.normalizedPrinted())),
     /** Mana cost of a card. */
-    MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter(), Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0))),
+    MANA_COST("Mana Cost", "Mana cost, including symbols", List.class, (a) -> new ManaCostFilter(), Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0))),
     /** Real mana value of a card, as defined by the rules. */
-    REAL_MANA_VALUE("Real Mana Value", Double.class, (a) -> new NumberFilter(a, true, (c) -> c.manaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
+    REAL_MANA_VALUE("Real Mana Value", "Card mana value as defined by the rules", Double.class, (a) -> new NumberFilter(a, true, (c) -> c.manaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Mana value of each face of the card, which affects its mana value on the stack or battlefield. */
-    EFF_MANA_VALUE("Eff. Mana Value", List.class, (a) -> new NumberFilter(a, false, (f) -> f.manaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
+    EFF_MANA_VALUE("Eff. Mana Value", "Spell or permanent mana value on the stack or battlefield of each face", List.class, (a) -> new NumberFilter(a, false, (f) -> f.manaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Colors of all faces of a card. */
-    COLORS("Colors", List.class, (a) -> new ColorFilter(a, (c) -> c.colors()), (a, b) -> {
+    COLORS("Colors", "Card colors derived from mana cost or color indicator", List.class, (a) -> new ColorFilter(a, (c) -> c.colors()), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);
         var second = CollectionUtils.convertToList(b, ManaType.class);
         int diff = first.size() - second.size();
@@ -75,7 +75,7 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
         return diff;
     }),
     /** Color identity of a card. */
-    COLOR_IDENTITY("Color Identity", List.class, (a) -> new ColorFilter(a, (c) -> c.colorIdentity()), (a, b) -> {
+    COLOR_IDENTITY("Color Identity", "Card colors plus the colors of any mana symbols that appear in its Oracle text", List.class, (a) -> new ColorFilter(a, (c) -> c.colorIdentity()), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);
         var second = CollectionUtils.convertToList(b, ManaType.class);
         int diff = first.size() - second.size();
@@ -85,7 +85,7 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
         return diff;
     }),
     /** Type line of a card. */
-    TYPE_LINE("Type Line", List.class, (a) -> new TypeLineFilter(), (a, b) -> {
+    TYPE_LINE("Type Line", "Full type line, including supertypes, card types, and subtypes", List.class, (a) -> new TypeLineFilter(), (a, b) -> {
         var first = CollectionUtils.convertToList(a, TypeLine.class);
         var second = CollectionUtils.convertToList(b, TypeLine.class);
         for (int i = 0; i < Math.max(first.size(), second.size()); i++)
@@ -104,46 +104,46 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
         return 0;
     }),
     /** The type line physically printed on a card. */
-    PRINTED_TYPES("Printed Type Line", (a) -> new TextFilter(a, (c) -> c.faces().map(Card::printedTypes))),
+    PRINTED_TYPES("Printed Type Line", "Type line as printed on the card", (a) -> new TextFilter(a, (c) -> c.faces().map(Card::printedTypes))),
     /** A card's types. */
-    CARD_TYPE("Card Type", (a) -> new CardTypeFilter()),
+    CARD_TYPE("Card Type", "Card types only", (a) -> new CardTypeFilter()),
     /** A card's subtypes. */
-    SUBTYPE("Subtype", (a) -> new SubtypeFilter()),
+    SUBTYPE("Subtype", "Subtypes only", (a) -> new SubtypeFilter()),
     /** A card's supertypes. */
-    SUPERTYPE("Supertype", (a) -> new SupertypeFilter()),
+    SUPERTYPE("Supertype", "Supertypes only", (a) -> new SupertypeFilter()),
     /** Power of a creature card. */
     POWER(
-        "Power",
+        "Power", "Creature power",
         List.class,
         (a) -> new VariableNumberFilter(a, (c) -> c.faces().map((f) -> f.power().value()), Card::powerVariable),
         (a, b) -> ((CombatStat)a).compareTo((CombatStat)b)
     ),
     /** Toughness of a creature card. */
     TOUGHNESS(
-        "Toughness",
+        "Toughness", "Creature toughness",
         List.class,
         (a) -> new VariableNumberFilter(a, (c) -> c.faces().map((f) -> f.toughness().value()), Card::toughnessVariable),
         (a, b) -> ((CombatStat)a).compareTo((CombatStat)b)
     ),
     /** Loyalty of a planeswalker card. */
     LOYALTY(
-        "Loyalty",
+        "Loyalty", "Planeswalker starting loyalty",
         List.class,
         (a) -> new VariableNumberFilter(a, (Card c) -> c.faces().map((f) -> f.loyalty().value()), Card::loyaltyVariable),
         (a, b) -> ((Loyalty)a).compareTo((Loyalty)b)
     ),
     /** {@link CardLayout} of a card. */
-    LAYOUT("Layout", CardLayout.class, (a) -> new LayoutFilter(), (a, b) -> ((CardLayout)a).compareTo((CardLayout)b)),
+    LAYOUT("Layout", "Layout of card faces", CardLayout.class, (a) -> new LayoutFilter(), (a, b) -> ((CardLayout)a).compareTo((CardLayout)b)),
     /** Name of the expansion a card was released in. */
-    EXPANSION("Expansion", String.class, (a) -> new ExpansionFilter(), Collator.getInstance()),
+    EXPANSION("Expansion", "Expansion a card belongs to", String.class, (a) -> new ExpansionFilter(), Collator.getInstance()),
     /** Name of the block containing the expansion the card was released in. */
-    BLOCK("Block", String.class, (a) -> new BlockFilter(), Collator.getInstance()),
+    BLOCK("Block", "Block of expansions, if any, a card's expansion belongs to", String.class, (a) -> new BlockFilter(), Collator.getInstance()),
     /** Rarity of a card in its expansion. */
-    RARITY("Rarity", Rarity.class, (a) -> new RarityFilter(), (a, b) -> ((Rarity)a).compareTo((Rarity)b)),
+    RARITY("Rarity", "Printed rarity", Rarity.class, (a) -> new RarityFilter(), (a, b) -> ((Rarity)a).compareTo((Rarity)b)),
     /** Artist of a card. */
-    ARTIST("Artist", String.class,(a) -> new TextFilter(a, (c) -> c.faces().map(Card::artist)), Collator.getInstance()),
+    ARTIST("Artist", "Credited artist", String.class,(a) -> new TextFilter(a, (c) -> c.faces().map(Card::artist)), Collator.getInstance()),
     /** Collector number of a card. */
-    CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, false, (f) -> {
+    CARD_NUMBER("Card Number", "Collector number in expansion", List.class, (a) -> new NumberFilter(a, false, (f) -> {
         String v = f.number();
         try
         {
@@ -155,20 +155,20 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
         }
     }), Collator.getInstance()::compare),
     /** Set of formats a card is legal in. */
-    LEGAL_IN("Format Legality", List.class, (a) -> new LegalityFilter(), (a, b) -> {
+    LEGAL_IN("Format Legality", "Formats a card can be legally played in and if it is restricted", List.class, (a) -> new LegalityFilter(), (a, b) -> {
         var first = String.join(",", CollectionUtils.convertToList(a, String.class).stream().sorted().collect(Collectors.toList()));
         var second = String.join(",", CollectionUtils.convertToList(b, String.class).stream().sorted().collect(Collectors.toList()));
         return first.compareTo(second);
     }),
     /** Tags that have been applied to a card. */
-    TAGS("Tags", Set.class, (a) -> new TagsFilter(), (a, b) -> {
+    TAGS("Tags", "Tags you have created and assigned", Set.class, (a) -> new TagsFilter(), (a, b) -> {
         var first = String.join(",", CollectionUtils.convertToSet(a, String.class).stream().sorted().collect(Collectors.toList()));
         var second = String.join(",", CollectionUtils.convertToSet(b, String.class).stream().sorted().collect(Collectors.toList()));
         return Collator.getInstance().compare(first, second);
     }),
 
     /** Categories in a deck in which a card belongs.*/
-    CATEGORIES("Categories", Set.class, (a, b) -> {
+    CATEGORIES("Categories", null, Set.class, (a, b) -> {
         var first = CollectionUtils.convertToSet(a, Category.class).stream().sorted(Comparator.comparing(Category::getName)).collect(Collectors.toList());
         var second = CollectionUtils.convertToSet(b, Category.class).stream().sorted(Comparator.comparing(Category::getName)).collect(Collectors.toList());
         for (int i = 0; i < Math.min(first.size(), second.size()); i++)
@@ -180,18 +180,18 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
         return Integer.compare(first.size(), second.size());
     }),
     /** Number of copies of a card in a deck. */
-    COUNT("Count", Integer.class, (a, b) -> (Integer)b - (Integer)a),
+    COUNT("Count", null, Integer.class, (a, b) -> (Integer)b - (Integer)a),
     /** Date a card was added to a deck. */
-    DATE_ADDED("Date Added", LocalDate.class, (a, b) -> ((LocalDate)a).compareTo((LocalDate)b)),
+    DATE_ADDED("Date Added", null, LocalDate.class, (a, b) -> ((LocalDate)a).compareTo((LocalDate)b)),
 
     /** No filter applied. */
-    ANY("<Any Card>", (a) -> null),
+    ANY("<Any Card>", "Match any card", (a) -> null),
     /** Filter all cards. */
-    NONE("<No Card>", (a) -> null),
+    NONE("<No Card>", "Match no card", (a) -> null),
     /** Filter using one of the predefined filters.  This should not be used to create a filter. */
-    DEFAULTS("Defaults", (a) -> null),
+    DEFAULTS("Defaults", "Filters of predefined categories", (a) -> null),
     /** Group of filters.  This should not be used to create a filter. */
-    GROUP("Group", Optional.empty(), Optional.empty(), Optional.empty());
+    GROUP("Group", null, Optional.empty(), Optional.empty(), Optional.empty());
 
     /**
      * Parse a String for a CardAttribute.
@@ -260,6 +260,7 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
      * Name of the characteristic
      */
     private final String name;
+    public final String description;
     /**
      * Class of the data that will appear in table columns containing data of this characteristic
      * if it can be displayed.
@@ -282,9 +283,10 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
      * @param f function for generating a filter on the attribute, if it can be filtered
      * @param comp function for comparing attributes, if it can be compared
      */
-    private CardAttribute(String n, Optional<Class<?>> c, Optional<Function<CardAttribute, FilterLeaf>> f, Optional<Comparator<Object>> comp)
+    private CardAttribute(String n, String desc, Optional<Class<?>> c, Optional<Function<CardAttribute, FilterLeaf>> f, Optional<Comparator<Object>> comp)
     {
         name = n;
+        description = desc;
         dataType = c;
         filter = f;
         comparing = comp;
@@ -297,9 +299,9 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
      * @param f function for generating a filter on the attribute
      * @param comp function for comparing attributes
      */
-    CardAttribute(String n, Class<?> c, Function<CardAttribute, FilterLeaf> f, Comparator<Object> comp)
+    CardAttribute(String n, String desc, Class<?> c, Function<CardAttribute, FilterLeaf> f, Comparator<Object> comp)
     {
-        this(n, Optional.of(c), Optional.of(f), Optional.of(comp));
+        this(n, desc, Optional.of(c), Optional.of(f), Optional.of(comp));
     }
 
     /**
@@ -310,9 +312,9 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
      * @param c class of the corresponding information on a card, if it can be displayed in a table
      * @param comp function for comparing attributes
      */
-    CardAttribute(String n, Class<?> c, Comparator<Object> comp)
+    CardAttribute(String n, String desc, Class<?> c, Comparator<Object> comp)
     {
-        this(n, Optional.of(c), Optional.empty(), Optional.of(comp));
+        this(n, desc, Optional.of(c), Optional.empty(), Optional.of(comp));
     }
 
     /**
@@ -322,9 +324,9 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
      * @param n name of the new CardAttribute
      * @param f function for generating a filter on the attribute
      */
-    CardAttribute(String n, Function<CardAttribute, FilterLeaf> f)
+    CardAttribute(String n, String desc, Function<CardAttribute, FilterLeaf> f)
     {
-        this(n, Optional.empty(), Optional.of(f), Optional.empty());
+        this(n, desc, Optional.empty(), Optional.of(f), Optional.empty());
     }
 
     @Override

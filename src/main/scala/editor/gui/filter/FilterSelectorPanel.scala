@@ -12,8 +12,11 @@ import java.awt.CardLayout
 import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JButton
+import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.JList
 import javax.swing.JPanel
+import javax.swing.ListCellRenderer
 
 /** Alternate constructors for [[FilterSelectorPanel]]. */
 object FilterSelectorPanel {
@@ -46,6 +49,15 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
 
   // Filter type selector
   private val filterTypes = ComboBoxPanel(CardAttribute.filterableValues)
+  filterTypes.setToolTipText(filterTypes.getSelectedItem.description)
+  private val renderer = filterTypes.getRenderer
+  filterTypes.setRenderer(new ListCellRenderer[CardAttribute] {
+    override def getListCellRendererComponent(list: JList[? <: CardAttribute], value: CardAttribute, index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
+      val component = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
+      component match { case j: JComponent => j.setToolTipText(value.description) }
+      component
+    }
+  })
   add(filterTypes)
 
   // Panel containing each editor panel
@@ -58,7 +70,9 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
     filtersPanel.add(panel, attribute.toString)
   })
   filterTypes.addItemListener(_ => filtersPanel.getLayout match {
-    case cards: CardLayout => cards.show(filtersPanel, filterTypes.getSelectedItem.toString)
+    case cards: CardLayout =>
+      cards.show(filtersPanel, filterTypes.getSelectedItem.toString)
+      filterTypes.setToolTipText(filterTypes.getSelectedItem.description)
   })
 
   // Small button to choose which faces to look at when filtering

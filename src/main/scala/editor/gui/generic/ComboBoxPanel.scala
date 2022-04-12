@@ -5,6 +5,7 @@ import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JComboBox
 import javax.swing.JPanel
+import javax.swing.ListCellRenderer
 
 /**
  * Panel containing a combo box that is sized to fit its contents and vertically
@@ -33,4 +34,13 @@ class ComboBoxPanel[E <: AnyRef](items: Array[E]) extends JPanel {
 
   /** @param item new selected value of the combo box */
   def setSelectedItem(item: E) = options.setSelectedItem(item)
+
+  def getRenderer = options.getRenderer
+
+  def setRenderer(renderer: ListCellRenderer[? >: E]) = options.setRenderer(renderer)
+
+  override def setToolTipText(text: String) = {
+    super.setToolTipText(text)
+    options.setToolTipText(text)
+  }
 }
