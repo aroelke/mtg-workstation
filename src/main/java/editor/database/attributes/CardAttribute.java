@@ -61,11 +61,11 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
     /** Mana cost of a card. */
     MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter(), Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0))),
     /** Mana value of a card. */
-    MANA_VALUE("Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.manaValue())), (a, b) -> ((Double)a).compareTo((Double)b)),
+    MANA_VALUE("Mana Value", Double.class, (a) -> NumberFilter.singleton_apply(a, (c) -> c.manaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Smallest mana value of a card. */
-    MIN_VALUE("Min Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.minManaValue())), (a, b) -> ((Double)a).compareTo((Double)b)),
+    MIN_VALUE("Min Mana Value", Double.class, (a) -> NumberFilter.singleton_apply(a, (c) -> c.minManaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Largest mana value of a card. */
-    MAX_VALUE("Max Mana Value", Double.class, (a) -> new NumberFilter(a, (c) -> Collections.singleton(c.maxManaValue())), (a, b) -> ((Double)a).compareTo((Double)b)),
+    MAX_VALUE("Max Mana Value", Double.class, (a) -> NumberFilter.singleton_apply(a, (c) -> c.maxManaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Colors of all faces of a card. */
     COLORS("Colors", List.class, (a) -> new ColorFilter(a, (c) -> c.colors()), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);
@@ -145,7 +145,7 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
     /** Artist of a card. */
     ARTIST("Artist", String.class,(a) -> new TextFilter(a, (c) -> c.faces().map(Card::artist)), Collator.getInstance()),
     /** Collector number of a card. */
-    CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, (c) -> CollectionConverters.asJava(c.faces()).stream().map((f) -> {
+    CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, (c) -> c.faces().map((f) -> {
         String v = f.number();
         try
         {
@@ -155,7 +155,7 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
         {
             return 0.0;
         }
-    }).collect(Collectors.toList())), Collator.getInstance()::compare),
+    })), Collator.getInstance()::compare),
     /** Set of formats a card is legal in. */
     LEGAL_IN("Format Legality", List.class, (a) -> new LegalityFilter(), (a, b) -> {
         var first = String.join(",", CollectionUtils.convertToList(a, String.class).stream().sorted().collect(Collectors.toList()));
