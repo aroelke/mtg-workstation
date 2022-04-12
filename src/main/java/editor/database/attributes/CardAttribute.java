@@ -60,12 +60,10 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
     PRINTED_TEXT("Printed Text", (a) -> new TextFilter(a, (c) -> c.normalizedPrinted())),
     /** Mana cost of a card. */
     MANA_COST("Mana Cost", List.class, (a) -> new ManaCostFilter(), Comparator.comparing((a) -> CollectionUtils.convertToList(a, ManaCost.class).get(0))),
-    /** Mana value of a card. */
-    MANA_VALUE("Mana Value", Double.class, (a) -> NumberFilter.singleton_apply(a, (c) -> c.manaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
-    /** Smallest mana value of a card. */
-    MIN_VALUE("Min Mana Value", Double.class, (a) -> NumberFilter.singleton_apply(a, (c) -> c.minManaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
-    /** Largest mana value of a card. */
-    MAX_VALUE("Max Mana Value", Double.class, (a) -> NumberFilter.singleton_apply(a, (c) -> c.maxManaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
+    /** Real mana value of a card, as defined by the rules. */
+    REAL_MANA_VALUE("Real Mana Value", Double.class, (a) -> new NumberFilter(a, true, (c) -> c.manaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
+    /** Mana value of each face of the card, which affects its mana value on the stack or battlefield. */
+    EFF_MANA_VALUE("Eff. Mana Value", List.class, (a) -> new NumberFilter(a, false, (f) -> f.manaValue()), (a, b) -> ((Double)a).compareTo((Double)b)),
     /** Colors of all faces of a card. */
     COLORS("Colors", List.class, (a) -> new ColorFilter(a, (c) -> c.colors()), (a, b) -> {
         var first = CollectionUtils.convertToList(a, ManaType.class);
@@ -145,7 +143,7 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
     /** Artist of a card. */
     ARTIST("Artist", String.class,(a) -> new TextFilter(a, (c) -> c.faces().map(Card::artist)), Collator.getInstance()),
     /** Collector number of a card. */
-    CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, (c) -> c.faces().map((f) -> {
+    CARD_NUMBER("Card Number", List.class, (a) -> new NumberFilter(a, false, (f) -> {
         String v = f.number();
         try
         {
@@ -155,7 +153,7 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
         {
             return 0.0;
         }
-    })), Collator.getInstance()::compare),
+    }), Collator.getInstance()::compare),
     /** Set of formats a card is legal in. */
     LEGAL_IN("Format Legality", List.class, (a) -> new LegalityFilter(), (a, b) -> {
         var first = String.join(",", CollectionUtils.convertToList(a, String.class).stream().sorted().collect(Collectors.toList()));
@@ -210,8 +208,8 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
         // Mana value special case for old converted mana cost terminology
         // (since this is the only case of this so far, it's not worth creating
         // a new field for it)
-        if (s.equalsIgnoreCase("cmc"))
-            return MANA_VALUE;
+        if (s.equalsIgnoreCase("cmc") || s.toLowerCase().contains("mana value"))
+            return REAL_MANA_VALUE;
         throw new IllegalArgumentException("Unknown attribute \"" + s + "\"");
     }
 

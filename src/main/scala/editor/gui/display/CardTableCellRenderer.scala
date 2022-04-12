@@ -79,7 +79,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               }
             }
             panel
-          case CardAttribute.MANA_VALUE | CardAttribute.MIN_VALUE | CardAttribute.MAX_VALUE =>
+          case CardAttribute.REAL_MANA_VALUE =>
             val mv = Option(value) match {
               case Some(v: Double) => v
               case Some(v: Int) => v.toDouble
@@ -87,6 +87,15 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             }
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             panel.add(setColors(tableLabel(if (mv == mv.toInt) mv.toInt.toString else mv.toString)))
+            panel
+          case CardAttribute.EFF_MANA_VALUE =>
+            val mvs = value match {
+              case s: java.util.List[?] => s.asScala.toSeq.collect{ case mv: Double => mv }
+              case _ => Seq.empty
+            }
+            val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
+            panel.add(setColors(tableLabel(mvs.map((mv) => if (mv == mv.toInt) mv.toInt.toString else mv.toString).mkString(Card.FaceSeparator))))
+            panel
           case CardAttribute.COLORS | CardAttribute.COLOR_IDENTITY =>
             val panel = tablePanel()
             panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))

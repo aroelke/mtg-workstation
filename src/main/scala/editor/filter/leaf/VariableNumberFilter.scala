@@ -17,7 +17,7 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-class VariableNumberFilter(t: CardAttribute, value: (Card) => Iterable[Double], variable: (Card) => Boolean) extends NumberFilter(t, value) {
+class VariableNumberFilter(t: CardAttribute, value: (Card) => Double, variable: (Card) => Boolean) extends NumberFilter(t, false, value) {
   /** Whether or not the value of the attribute should be variable during a game. */
   var varies = false
 

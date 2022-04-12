@@ -29,8 +29,8 @@ class CardFormat(pattern: String) {
     import CardAttribute._
 
     CardAttribute.displayableValues.foldLeft(pattern)((p, a) => p.replace(s"{$a}".toLowerCase, a match {
-      case MANA_COST | TYPE_LINE | POWER | TOUGHNESS | LOYALTY => card.get(a) match { case l: java.util.List[?] => l.asScala.mkString(Card.FaceSeparator) }
-      case MANA_VALUE | MIN_VALUE | MAX_VALUE => card.get(a) match {
+      case MANA_COST | EFF_MANA_VALUE | TYPE_LINE | POWER | TOUGHNESS | LOYALTY => card.get(a) match { case l: java.util.List[?] => l.asScala.mkString(Card.FaceSeparator) }
+      case REAL_MANA_VALUE => card.get(a) match {
         case v: Double if v == v.intValue => v.intValue.toString
         case v: Double if v != v.intValue => v.toString
       }

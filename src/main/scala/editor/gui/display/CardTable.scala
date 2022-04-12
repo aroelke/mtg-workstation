@@ -118,7 +118,7 @@ class CardTable(model: TableModel) extends JTable(model) {
 private class EmptyTableRowSorter(model: TableModel) extends TableRowSorter[TableModel](model) {
   private val NoString = Set(
     CardAttribute.MANA_COST,
-    CardAttribute.MANA_VALUE,
+    CardAttribute.EFF_MANA_VALUE,
     CardAttribute.COLORS,
     CardAttribute.COLOR_IDENTITY,
     CardAttribute.TYPE_LINE,

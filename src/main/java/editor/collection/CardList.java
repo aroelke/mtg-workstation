@@ -84,9 +84,8 @@ public interface CardList extends Iterable<Card>
                 case NAME           -> card().name();
                 case LAYOUT         -> card().layout();
                 case MANA_COST      -> CollectionConverters.asJava(card().faces()).stream().map(Card::manaCost).collect(Collectors.toList());
-                case MANA_VALUE     -> card().manaValue();
-                case MIN_VALUE      -> card().minManaValue();
-                case MAX_VALUE      -> card().maxManaValue();
+                case REAL_MANA_VALUE-> card().manaValue();
+                case EFF_MANA_VALUE -> CollectionConverters.asJava(card().faces()).stream().map(Card::manaValue).collect(Collectors.toList());
                 case COLORS         -> CollectionConverters.asJava(card().colors());
                 case COLOR_IDENTITY -> CollectionConverters.asJava(card().colorIdentity());
                 case TYPE_LINE      -> CollectionConverters.asJava(card().faces()).stream().map(Card::typeLine).collect(Collectors.toList());
