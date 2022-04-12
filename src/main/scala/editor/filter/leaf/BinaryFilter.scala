@@ -14,7 +14,7 @@ import java.util.Objects
  * 
  * @author Alec Roelke
  */
-class BinaryFilter(all: Boolean) extends FilterLeaf(if (all) CardAttribute.ANY else CardAttribute.NONE) {
+class BinaryFilter(all: Boolean) extends FilterLeaf(if (all) CardAttribute.ANY else CardAttribute.NONE, true) {
   override protected def testFace(c: Card) = all
 
   override protected def copyLeaf = CardAttribute.createFilter(`type`).asInstanceOf[BinaryFilter]

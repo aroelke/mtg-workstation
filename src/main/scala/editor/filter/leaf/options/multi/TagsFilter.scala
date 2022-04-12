@@ -11,7 +11,7 @@ import scala.jdk.CollectionConverters._
  * Filter that groups cards by user-defined tags.
  * @author Alec Roelke
  */
-class TagsFilter extends MultiOptionsFilter[String](CardAttribute.TAGS, (c) => Card.tags.get(c).map(_.toSet).getOrElse(Set.empty)) {
+class TagsFilter extends MultiOptionsFilter[String](CardAttribute.TAGS, true, Card.tags.get(_).map(_.toSet).getOrElse(Set.empty)) {
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.TAGS).asInstanceOf[TagsFilter]
     filter.contain = contain

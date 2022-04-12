@@ -12,7 +12,7 @@ import java.util.Objects
  * Filter that groups cards by mana cost.
  * @author Alec Roelke
  */
-class ManaCostFilter extends FilterLeaf(CardAttribute.MANA_COST) {
+class ManaCostFilter extends FilterLeaf(CardAttribute.MANA_COST, false) {
   import Containment._
 
   /** Function used for comparing costs. */

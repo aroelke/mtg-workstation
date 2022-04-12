@@ -14,7 +14,7 @@ import scala.jdk.CollectionConverters._
  * Filter that groups cards by format legality and, optionally, by whether or not they are restricted in those formats (if applicable).
  * @author Alec Roelke
  */
-class LegalityFilter extends MultiOptionsFilter[String](CardAttribute.LEGAL_IN, _.legalIn) {
+class LegalityFilter extends MultiOptionsFilter[String](CardAttribute.LEGAL_IN, true, _.legalIn) {
   /** Whether or not matching cards should be restricted in the formats they're legal in. */
   var restricted = false
 

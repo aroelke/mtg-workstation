@@ -19,7 +19,7 @@ object SupertypeFilter {
  * Filter that groups cards by supertype.
  * @author Alec Roelke
  */
-class SupertypeFilter extends MultiOptionsFilter[String](CardAttribute.SUPERTYPE, _.supertypes) {
+class SupertypeFilter extends MultiOptionsFilter[String](CardAttribute.SUPERTYPE, false, _.supertypes) {
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.SUPERTYPE).asInstanceOf[SupertypeFilter]
     filter.contain = contain

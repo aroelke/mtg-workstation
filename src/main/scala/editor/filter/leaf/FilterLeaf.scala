@@ -8,12 +8,12 @@ import editor.database.card.SingleCard
 import editor.filter.FaceSearchOptions
 import editor.filter.Filter
 
-abstract class FilterLeaf(t: CardAttribute) extends Filter(t) {
+abstract class FilterLeaf(t: CardAttribute, unified: Boolean) extends Filter(t) {
   var faces = FaceSearchOptions.ANY
 
   protected def testFace(c: Card): Boolean
 
-  final override def test(c: Card) = c match {
+  final override def test(c: Card) = if (unified) testFace(c) else c match {
     case s: SingleCard => testFace(c)
     case m: MultiCard => faces match {
       case FaceSearchOptions.ANY   => c.faces.exists(testFace)

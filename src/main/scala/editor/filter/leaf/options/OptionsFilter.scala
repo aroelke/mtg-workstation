@@ -16,11 +16,12 @@ import scala.jdk.CollectionConverters._
  * 
  * @constructor create a new options filter
  * @param t attribute to filter by
+ * @param unified whether or not the value of an attribute is the same across all card faces
  * @tparam T type of data used for filtering
  * 
  * @author Alec Roelke
  */
-abstract class OptionsFilter[T](t: CardAttribute) extends FilterLeaf(t) {
+abstract class OptionsFilter[T](t: CardAttribute, unified: Boolean) extends FilterLeaf(t, unified) {
   /** Function to use to compare card attributes. */
   var contain = Containment.CONTAINS_ANY_OF
   /** Set of items to look for in cards. */

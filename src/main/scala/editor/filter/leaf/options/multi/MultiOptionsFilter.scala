@@ -13,8 +13,9 @@ import scala.jdk.CollectionConverters._
  * @constructor create a new multi-item options filter
  * @param t attribute to be filtered by
  * @param values function to use to get the value of the attribute from a card
+ * @param unified whether or not the value of an attribute is the same across all card faces
  * @tparam T type of the data that is being filtered
  */
-abstract class MultiOptionsFilter[T](t: CardAttribute, values: (Card) => Set[T]) extends OptionsFilter[T](t) {
+abstract class MultiOptionsFilter[T](t: CardAttribute, unified: Boolean, values: (Card) => Set[T]) extends OptionsFilter[T](t, unified) {
   override protected def testFace(c: Card) = contain.test(values(c).asJava, selected.asJava)
 }

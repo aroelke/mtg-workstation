@@ -39,7 +39,7 @@ object NumberFilter {
  * 
  * @author Alec Roelke
  */
-class NumberFilter(t: CardAttribute, value: (Card) => Iterable[Double]) extends FilterLeaf(t) {
+class NumberFilter(t: CardAttribute, value: (Card) => Iterable[Double]) extends FilterLeaf(t, false) {
   var operation = Comparison.EQ
   var operand = 0.0
 
