@@ -863,27 +863,21 @@ object SettingsDialog {
 
   /** Location to store settings and default location for other data. */
   val EditorHome = Path.of(System.getProperty("user.home"), ".mtgworkstation")
-  @deprecated def EDITOR_HOME() = EditorHome
 
   /** Pattern to use for parsing an ARGB [[java.awt.Color]] from a string. */
   val ColorPattern = Pattern.compile("^#([0-9a-fA-F]{2})?([0-9a-fA-F]{6})$")
-  @deprecated def COLOR_PATTERN() = ColorPattern
 
   /** Number of cards that's considered a "playset," that is, the max allowed in a normal constructed deck. */
   val PlaysetSize = 4
-  @deprecated def PLAYSET_SIZE() = PlaysetSize
 
   /** Full path of the file storing settings. */
   val PropertiesFile = EditorHome.resolve("settings.json")
-  @deprecated def PROPERTIES_FILE() = PropertiesFile
 
   /** Possible locations to download card images from. */
   val ImageSources = Seq("Scryfall", "Gatherer")
-  @deprecated def IMAGE_SOURCES() = ImageSources.asJava
 
   /** Possible options for how to count the mana values of multi-faced cards. */
   val ManaValueOptions = Seq("Minimum", "Maximum", "Average", "Real")
-  @deprecated def MANA_VALUE_OPTIONS() = ManaValueOptions.asJava
 
   private[settings] val observers = collection.mutable.ArrayBuffer[SettingsObserver]()
   private var _settings = Settings()
