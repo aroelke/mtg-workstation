@@ -16,7 +16,6 @@ import javax.swing.DefaultComboBoxModel
 import javax.swing.JButton
 import javax.swing.JComboBox
 import javax.swing.JPanel
-import scala.jdk.CollectionConverters._
 
 /**
  * Convenience constructors for [[FilterGroupPanel]].
@@ -193,11 +192,11 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     clear()
     val group = filter match {
       case g: FilterGroup => g
-      case f => FilterGroup(f)
+      case f => FilterGroup(Seq(f))
     }
     modeBox.setSelectedItem(group.mode)
     border.setTitle(group.comment)
-    group.asScala.foreach((f) => this += (f match {
+    group.foreach((f) => this += (f match {
       case g: FilterGroup => FilterGroupPanel(g)
       case l: FilterLeaf => FilterSelectorPanel(l)
     }))

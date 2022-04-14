@@ -26,6 +26,6 @@ class DefaultsFilterPanel extends FilterEditorPanel[FilterLeaf] {
   add(defaults)
 
   override val attribute = CardAttribute.DEFAULTS
-  override def filter = FilterGroup(Category(categories(defaults.getSelectedItem)).getFilter)
+  override def filter = FilterGroup(Seq(Category(categories(defaults.getSelectedItem)).getFilter))
   override def setFields(filter: FilterLeaf) = throw UnsupportedOperationException("defaults filter panel should be replaced by contents")
 }
