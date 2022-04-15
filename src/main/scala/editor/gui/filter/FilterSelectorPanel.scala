@@ -80,7 +80,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   private val facesLabel = JLabel()
   facesLabel.addMouseListener(MouseListenerFactory.createMouseListener(released = _ => {
     faces = FaceSearchOptions.values.apply((faces.ordinal + 1) % FaceSearchOptions.values.size)
-    facesLabel.setIcon(faces.getIcon(getHeight/2))
+    facesLabel.setIcon(faces.scaled(getHeight/2))
     facesLabel.setToolTipText(faces.tooltip)
   }))
   add(Box.createHorizontalStrut(1))
@@ -103,7 +103,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   }))
   add(groupButton)
 
-  facesLabel.setIcon(faces.getIcon(getPreferredSize.height/2))
+  facesLabel.setIcon(faces.scaled(getPreferredSize.height/2))
   facesLabel.setToolTipText(faces.tooltip)
 
   override def filter = filterPanels(filterTypes.getSelectedItem).filter match {
@@ -115,7 +115,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
     filterTypes.setSelectedItem(filter.`type`)
     filterPanels(filter.`type`).setContents(filter)
     faces = filter.faces
-    facesLabel.setIcon(faces.getIcon(getPreferredSize.height/2))
+    facesLabel.setIcon(faces.scaled(getPreferredSize.height/2))
     filtersPanel.getLayout match {
       case card: CardLayout => card.show(filtersPanel, filter.`type`.toString)
     }
