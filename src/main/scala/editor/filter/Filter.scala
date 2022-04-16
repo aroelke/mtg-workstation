@@ -5,8 +5,6 @@ import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 
 trait Filter(val attribute: CardAttribute) extends Function1[Card, Boolean] with java.util.function.Predicate[Card] {
-  var parent: FilterGroup = null
-
   def copy: Filter
 
   protected def serializeFields(fields: JsonObject): Unit

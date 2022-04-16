@@ -56,15 +56,10 @@ class FilterGroup(filters: Iterable[Filter] = Seq.empty) extends Filter(CardAttr
   private val children = collection.mutable.Buffer[Filter]()
 
   /**
-   * Add a new filter to the group, moving it from its old group if applicable.
+   * Add a new filter to the group.
    * @param filter filter to add
    */
-  def addChild(filter: Filter) = {
-    children += filter
-    if (filter.parent != null)
-      filter.parent.children -= filter
-    filter.parent = this
-  }
+  def addChild(filter: Filter) = children += filter
 
   filters.foreach(addChild)
 
