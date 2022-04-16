@@ -76,7 +76,7 @@ class TextFilterPanel extends FilterEditorPanel[TextFilter] {
   }
 
   override def setFields(filter: TextFilter) = {
-    attribute = filter.`type`
+    attribute = filter.attribute
     contain.setSelectedItem(filter.contain)
     text.setText(filter.text)
     regex.setSelected(filter.regex)

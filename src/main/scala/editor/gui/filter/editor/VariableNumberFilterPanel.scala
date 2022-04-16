@@ -33,7 +33,7 @@ object VariableNumberFilterPanel {
    * from its attribute
    */
   def apply(filter: VariableNumberFilter) = {
-    val panel = new VariableNumberFilterPanel(if (filter.`type` == CardAttribute.LOYALTY) "X or *" else "*")
+    val panel = new VariableNumberFilterPanel(if (filter.attribute == CardAttribute.LOYALTY) "X or *" else "*")
     panel.setContents(filter)
     panel
   }
@@ -76,7 +76,7 @@ class VariableNumberFilterPanel(v: String) extends FilterEditorPanel[VariableNum
   }
 
   override def setFields(filter: VariableNumberFilter) = {
-    attribute = filter.`type`
+    attribute = filter.attribute
     comparison.setSelectedItem(filter.operation)
     spinner.setValue(filter.operand)
     variable.setSelected(filter.varies)

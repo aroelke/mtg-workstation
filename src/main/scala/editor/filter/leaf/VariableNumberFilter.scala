@@ -44,5 +44,5 @@ class VariableNumberFilter(t: CardAttribute, value: (Card) => Double, variable: 
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, varies, operation, operand)
+  override def hashCode = Objects.hash(attribute, varies, operation, operand)
 }

@@ -62,7 +62,7 @@ object FilterPanelFactory {
     case rarity: RarityFilter => OptionsFilterPanel(rarity, Rarity.values.toSeq)
     case legality: LegalityFilter => LegalityFilterPanel(legality)
     case tags: TagsFilter => OptionsFilterPanel(tags, Card.tags.flatMap{ case (_, s) => s }.toArray.sorted)
-    case _ => filter.`type` match {
+    case _ => filter.attribute match {
       case CardAttribute.DEFAULTS => DefaultsFilterPanel()
       case CardAttribute.NONE => BinaryFilterPanel(false)
       case CardAttribute.ANY => BinaryFilterPanel(true)

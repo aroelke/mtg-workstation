@@ -62,9 +62,9 @@ abstract class OptionsFilter[T](t: CardAttribute, unified: Boolean) extends Filt
   }
 
   override def leafEquals(other: Any) = other match {
-    case o: OptionsFilter[?] if o.getClass == getClass => o.`type` == `type` && o.contain == contain && o.selected == selected
+    case o: OptionsFilter[?] if o.getClass == getClass => o.attribute == attribute && o.contain == contain && o.selected == selected
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, contain, selected)
+  override def hashCode = Objects.hash(attribute, contain, selected)
 }

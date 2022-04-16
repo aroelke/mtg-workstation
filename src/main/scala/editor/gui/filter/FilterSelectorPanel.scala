@@ -112,12 +112,12 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   }
 
   override def setContents(filter: FilterLeaf) = {
-    filterTypes.setSelectedItem(filter.`type`)
-    filterPanels(filter.`type`).setContents(filter)
+    filterTypes.setSelectedItem(filter.attribute)
+    filterPanels(filter.attribute).setContents(filter)
     faces = filter.faces
     facesLabel.setIcon(faces.scaled(getPreferredSize.height/2))
     filtersPanel.getLayout match {
-      case card: CardLayout => card.show(filtersPanel, filter.`type`.toString)
+      case card: CardLayout => card.show(filtersPanel, filter.attribute.toString)
     }
   }
 }

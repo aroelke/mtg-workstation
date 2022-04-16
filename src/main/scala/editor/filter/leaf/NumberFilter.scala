@@ -25,7 +25,7 @@ class NumberFilter(t: CardAttribute, unified: Boolean, value: (Card) => Double) 
   override protected def testFace(c: Card) = { val v = value(c); !v.isNaN && operation.test(v, operand) }
 
   override protected def copyLeaf = {
-    val filter = CardAttribute.createFilter(`type`).asInstanceOf[NumberFilter]
+    val filter = CardAttribute.createFilter(attribute).asInstanceOf[NumberFilter]
     filter.operation = operation
     filter.operand = operand
     filter
@@ -42,9 +42,9 @@ class NumberFilter(t: CardAttribute, unified: Boolean, value: (Card) => Double) 
   }
 
   override def leafEquals(other: Any) = other match {
-    case o: NumberFilter => o.`type` == `type` && o.operation == operation && o.operand == operand
+    case o: NumberFilter => o.attribute == attribute && o.operation == operation && o.operand == operand
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, operation, operand)
+  override def hashCode = Objects.hash(attribute, operation, operand)
 }

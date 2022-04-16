@@ -92,7 +92,7 @@ class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
   }
 
   override def setFields(filter: ColorFilter) = {
-    attribute = filter.`type`
+    attribute = filter.attribute
     contain.setSelectedItem(filter.contain)
     filter.colors.foreach(colors(_).setSelected(true))
     multi.setSelected(filter.multicolored)

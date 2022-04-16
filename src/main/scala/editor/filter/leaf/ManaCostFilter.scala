@@ -51,5 +51,5 @@ class ManaCostFilter extends FilterLeaf(CardAttribute.MANA_COST, false) {
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, contain, cost)
+  override def hashCode = Objects.hash(attribute, contain, cost)
 }

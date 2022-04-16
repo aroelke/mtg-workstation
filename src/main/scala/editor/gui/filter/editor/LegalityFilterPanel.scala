@@ -50,6 +50,6 @@ class LegalityFilterPanel extends OptionsFilterPanel(CardAttribute.LEGAL_IN, For
     case legality: LegalityFilter =>
       super.setFields(legality)
       restricted.setSelected(legality.restricted)
-    case _ => throw IllegalArgumentException(s"${filter.`type`} is not a legality filter")
+    case _ => throw IllegalArgumentException(s"${filter.attribute} is not a legality filter")
   }
 }

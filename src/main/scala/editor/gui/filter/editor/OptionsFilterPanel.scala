@@ -52,7 +52,7 @@ object OptionsFilterPanel {
    * @return an [[OptionsFilterPanel]] populated with the contents of the filter
    */
   def apply[T <: AnyRef : ClassTag](filter: OptionsFilter[T], options: Seq[T]) = {
-    val panel = new OptionsFilterPanel(filter.`type`, options)
+    val panel = new OptionsFilterPanel(filter.attribute, options)
     panel.setContents(filter)
     panel
   }
@@ -141,7 +141,7 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag](protected override val attribut
       of
   }
 
-  override def setFields(filter: OptionsFilter[T]) = if (filter.`type` == attribute) {
+  override def setFields(filter: OptionsFilter[T]) = if (filter.attribute == attribute) {
     contain.setSelectedItem(filter.contain)
     if (options.isEmpty)
       contain.setVisible(false)
@@ -151,5 +151,5 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag](protected override val attribut
       this += options(0)
     else
       filter.selected.foreach(this += _)
-  } else throw IllegalArgumentException(s"${filter.`type`} is not a $attribute filter")
+  } else throw IllegalArgumentException(s"${filter.attribute} is not a $attribute filter")
 }

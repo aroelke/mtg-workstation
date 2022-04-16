@@ -30,7 +30,7 @@ class ColorFilter(t: CardAttribute, value: (Card) => Seq[ManaType]) extends Filt
   override protected def testFace(c: Card) = contain.test(value(c).asJava, colors.asJava) && (!multicolored || value(c).size > 1)
 
   override protected def copyLeaf = {
-    val filter = CardAttribute.createFilter(`type`).asInstanceOf[ColorFilter]
+    val filter = CardAttribute.createFilter(attribute).asInstanceOf[ColorFilter]
     filter.contain = contain
     filter.colors = colors
     filter.multicolored = multicolored
@@ -52,9 +52,9 @@ class ColorFilter(t: CardAttribute, value: (Card) => Seq[ManaType]) extends Filt
   }
 
   override def leafEquals(other: Any) = other match {
-    case o: ColorFilter if o.`type` == `type` => o.colors == colors && o.contain == contain && o.multicolored == multicolored
+    case o: ColorFilter if o.attribute == attribute => o.colors == colors && o.contain == contain && o.multicolored == multicolored
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, colors, contain, multicolored)
+  override def hashCode = Objects.hash(attribute, colors, contain, multicolored)
 }

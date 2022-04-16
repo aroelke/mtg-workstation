@@ -23,7 +23,7 @@ object FilterGroup {
    * @author Alec Roelke
    */
   enum Mode(mode: String, function: (Iterable[? <: Filter], (? >: Filter) => Boolean) => Boolean) extends Function2[Iterable[? <: Filter], Card, Boolean] {
-    override def apply(filters: Iterable[? <: Filter], card: Card) = function(filters, _.test(card))
+    override def apply(filters: Iterable[? <: Filter], card: Card) = function(filters, _(card))
 
     override val toString = mode
     
@@ -68,7 +68,7 @@ class FilterGroup(filters: Iterable[Filter] = Seq.empty) extends Filter(CardAttr
 
   filters.foreach(addChild)
 
-  override def test(c: Card) = mode(children, c)
+  override def apply(c: Card) = mode(children, c)
 
   override def copy = {
     val filter = FilterGroup()

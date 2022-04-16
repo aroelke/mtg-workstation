@@ -142,7 +142,7 @@ class TextFilter(t: CardAttribute, value: (Card) => Iterable[String]) extends Fi
   }
 
   override protected def copyLeaf = {
-    val filter = CardAttribute.createFilter(`type`).asInstanceOf[TextFilter]
+    val filter = CardAttribute.createFilter(attribute).asInstanceOf[TextFilter]
     filter.current = current.copy()
     filter
   }
@@ -158,9 +158,9 @@ class TextFilter(t: CardAttribute, value: (Card) => Iterable[String]) extends Fi
   }
 
   override def leafEquals(other: Any) = other match {
-    case o: TextFilter => o.`type` == `type` && o.contain == contain && o.regex == regex && o.text == text
+    case o: TextFilter => o.attribute == attribute && o.contain == contain && o.regex == regex && o.text == text
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, current)
+  override def hashCode = Objects.hash(attribute, current)
 }

@@ -17,16 +17,16 @@ import java.util.Objects
 class BinaryFilter(all: Boolean) extends FilterLeaf(if (all) CardAttribute.ANY else CardAttribute.NONE, true) {
   override protected def testFace(c: Card) = all
 
-  override protected def copyLeaf = CardAttribute.createFilter(`type`).asInstanceOf[BinaryFilter]
+  override protected def copyLeaf = CardAttribute.createFilter(attribute).asInstanceOf[BinaryFilter]
 
   override def serializeLeaf(fields: JsonObject) = fields.addProperty("all", all)
 
   override def deserializeLeaf(fields: JsonObject) = require(fields.get("all").getAsBoolean == all)
 
   override def leafEquals(other: Any) = other match {
-    case o: BinaryFilter => o.`type` == `type`
+    case o: BinaryFilter => o.attribute == attribute
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`)
+  override def hashCode = Objects.hash(attribute)
 }

@@ -61,7 +61,7 @@ class NumberFilterPanel extends FilterEditorPanel[NumberFilter] {
   }
 
   override def setFields(filter: NumberFilter) = {
-    attribute = filter.`type`
+    attribute = filter.attribute
     comparison.setSelectedItem(filter.operation)
     spinner.setValue(filter.operand)
   }

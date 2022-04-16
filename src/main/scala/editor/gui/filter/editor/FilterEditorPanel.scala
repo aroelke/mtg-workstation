@@ -33,6 +33,6 @@ trait FilterEditorPanel[L <: FilterLeaf : ClassTag] extends FilterPanel[FilterLe
 
   override def setContents(filter: FilterLeaf) = filter match {
     case leaf: L => setFields(leaf)
-    case _ => throw IllegalArgumentException(s"${filter.`type`} is not a/n ${attribute} filter")
+    case _ => throw IllegalArgumentException(s"${filter.attribute} is not a/n ${attribute} filter")
   }
 }

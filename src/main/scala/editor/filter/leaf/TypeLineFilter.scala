@@ -40,5 +40,5 @@ class TypeLineFilter extends FilterLeaf(CardAttribute.TYPE_LINE, false) {
     case _ => false
   }
 
-  override def hashCode = Objects.hash(`type`, contain, line)
+  override def hashCode = Objects.hash(attribute, contain, line)
 }
