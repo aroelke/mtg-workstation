@@ -17,7 +17,7 @@ import java.lang.reflect.Type
  */
 class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter] {
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
-    val attribute = CardAttribute.fromString(json.getAsJsonObject.get("type").getAsString)
+    val attribute = context.deserialize[CardAttribute](json.getAsJsonObject.get("type"), classOf[CardAttribute])
     val filter = if (attribute == CardAttribute.GROUP) FilterGroup() else CardAttribute.createFilter(attribute)
     filter.fromJsonObject(json.getAsJsonObject)
     filter
