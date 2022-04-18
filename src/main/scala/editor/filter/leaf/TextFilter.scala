@@ -40,6 +40,9 @@ object TextFilter {
     Token(Seq(raw"\subtype"), () => SubtypeFilter.subtypeList)
   )
 
+  /** Convenience method for creating a [[TextFilter]] without "new." */
+  def apply(t: CardAttribute, value: (Card) => Iterable[String]) = new TextFilter(t, value)
+
   /**
    * Convenience method for creating a filter that searches the attribute for the given string.
    * 
