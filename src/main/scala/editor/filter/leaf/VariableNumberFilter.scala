@@ -34,11 +34,6 @@ class VariableNumberFilter(t: CardAttribute, value: (Card) => Double, variable: 
     fields.addProperty("varies", varies)
   }
 
-  override protected def deserializeLeaf(fields: JsonObject) = {
-    super.deserializeLeaf(fields)
-    varies = fields.get("varies").getAsBoolean
-  }
-
   override def leafEquals(other: Any) = other match {
     case o: VariableNumberFilter => super.leafEquals(o) && o.varies == varies
     case _ => false

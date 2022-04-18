@@ -38,13 +38,6 @@ abstract class FilterLeaf(t: CardAttribute, unified: Boolean) extends Filter(t) 
     fields.addProperty("faces", faces.toString)
   }
 
-  protected def deserializeLeaf(fields: JsonObject): Unit
-
-  final override def deserializeFields(fields: JsonObject) = {
-    deserializeLeaf(fields)
-    faces = if (fields.has("faces")) FaceSearchOptions.valueOf(fields.get("faces").getAsString) else FaceSearchOptions.ANY
-  }
-
   protected def leafEquals(other: Any): Boolean
 
   override def equals(other: Any) = other match {

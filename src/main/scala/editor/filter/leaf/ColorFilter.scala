@@ -45,12 +45,6 @@ class ColorFilter(t: CardAttribute, value: (Card) => Seq[ManaType]) extends Filt
     fields.addProperty("multicolored", multicolored)
   }
 
-  override protected def deserializeLeaf(fields: JsonObject) = {
-    contain = Containment.parseContainment(fields.get("contains").getAsString)
-    colors = fields.get("colors").getAsJsonArray.asScala.map((e) => ManaType.parseManaType(e.getAsString)).toSet
-    multicolored = fields.get("multicolored").getAsBoolean()
-  }
-
   override def leafEquals(other: Any) = other match {
     case o: ColorFilter if o.attribute == attribute => o.colors == colors && o.contain == contain && o.multicolored == multicolored
     case _ => false

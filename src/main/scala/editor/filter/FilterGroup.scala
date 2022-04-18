@@ -83,18 +83,6 @@ class FilterGroup(filters: Iterable[Filter] = Seq.empty) extends Filter(CardAttr
     fields.add("children", array)
   }
 
-  override protected def deserializeFields(fields: JsonObject) = {
-    mode = Mode.values.find(_.toString == fields.get("mode").getAsString).getOrElse(Mode.And)
-    comment = Option(fields.get("comment")).map(_.getAsString).getOrElse("")
-    children.clear()
-    fields.get("children").getAsJsonArray.asScala.foreach((element) => {
-      val attr = CardAttribute.fromString(element.getAsJsonObject.get("type").getAsString)
-      val child = if (attr == CardAttribute.GROUP) FilterGroup() else CardAttribute.createFilter(attr)
-      child.fromJsonObject(element.getAsJsonObject)
-      children += child
-    })
-  }
-
   override def equals(other: Any) = other match {
     case o: FilterGroup => o.mode == mode && o.comment == comment && o.children == children
     case _ => false

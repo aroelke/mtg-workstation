@@ -46,11 +46,6 @@ class LegalityFilter extends MultiOptionsFilter[String](CardAttribute.LEGAL_IN, 
     fields.addProperty("restricted", restricted)
   }
 
-  override protected def deserializeLeaf(fields: JsonObject) = {
-    super.deserializeLeaf(fields)
-    restricted = fields.get("restricted").getAsBoolean
-  }
-
   override def leafEquals(other: Any) = other match {
     case o: LegalityFilter => o.contain == contain && o.selected == selected && o.restricted == restricted
     case _ => false

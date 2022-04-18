@@ -41,11 +41,6 @@ class ManaCostFilter extends FilterLeaf(CardAttribute.MANA_COST, false) {
     fields.addProperty("cost", cost.toString)
   }
 
-  override protected def deserializeLeaf(fields: JsonObject) = {
-    contain = Containment.parseContainment(fields.get("contains").getAsString)
-    cost = ManaCost.parseManaCost(fields.get("cost").getAsString)
-  }
-
   override def leafEquals(other: Any) = other match {
     case o: ManaCostFilter => o.contain == contain && o.cost == cost
     case _ => false

@@ -21,8 +21,6 @@ class BinaryFilter(all: Boolean) extends FilterLeaf(if (all) CardAttribute.ANY e
 
   override def serializeLeaf(fields: JsonObject) = fields.addProperty("all", all)
 
-  override def deserializeLeaf(fields: JsonObject) = require(fields.get("all").getAsBoolean == all)
-
   override def leafEquals(other: Any) = other match {
     case o: BinaryFilter => o.attribute == attribute
     case _ => false

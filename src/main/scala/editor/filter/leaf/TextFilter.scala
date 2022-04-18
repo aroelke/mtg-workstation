@@ -156,10 +156,6 @@ class TextFilter(t: CardAttribute, value: (Card) => Iterable[String]) extends Fi
     fields.addProperty("pattern", text)
   }
 
-  override protected def deserializeLeaf(fields: JsonObject) = {
-    current = Data(Containment.parseContainment(fields.get("contains").getAsString), fields.get("regex").getAsBoolean, fields.get("pattern").getAsString)
-  }
-
   override def leafEquals(other: Any) = other match {
     case o: TextFilter => o.attribute == attribute && o.contain == contain && o.regex == regex && o.text == text
     case _ => false
