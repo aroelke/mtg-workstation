@@ -75,14 +75,6 @@ class FilterGroup(filters: Iterable[Filter] = Seq.empty) extends Filter(CardAttr
 
   override def iterator = children.iterator
 
-  override protected def serializeFields(fields: JsonObject) = {
-    fields.addProperty("mode", mode.toString)
-    fields.addProperty("comment", comment)
-    val array = JsonArray()
-    children.foreach((f) => array.add(f.toJsonObject))
-    fields.add("children", array)
-  }
-
   override def equals(other: Any) = other match {
     case o: FilterGroup => o.mode == mode && o.comment == comment && o.children == children
     case _ => false

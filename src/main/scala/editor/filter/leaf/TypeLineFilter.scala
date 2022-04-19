@@ -25,11 +25,6 @@ class TypeLineFilter extends FilterLeaf(CardAttribute.TYPE_LINE, false) {
     filter
   }
 
-  override protected def serializeLeaf(fields: JsonObject) = {
-    fields.addProperty("contains", contain.toString)
-    fields.addProperty("pattern", line)
-  }
-
   override def leafEquals(other: Any) = other match {
     case o: TypeLineFilter => o.contain == contain && o.line == line
     case _ => false

@@ -31,13 +31,6 @@ abstract class FilterLeaf(t: CardAttribute, unified: Boolean) extends Filter(t) 
     filter
   }
 
-  protected def serializeLeaf(fields: JsonObject): Unit
-
-  final override def serializeFields(fields: JsonObject) = {
-    serializeLeaf(fields)
-    fields.addProperty("faces", faces.toString)
-  }
-
   protected def leafEquals(other: Any): Boolean
 
   override def equals(other: Any) = other match {

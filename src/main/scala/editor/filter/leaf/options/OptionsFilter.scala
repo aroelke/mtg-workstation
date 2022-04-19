@@ -51,11 +51,6 @@ abstract class OptionsFilter[T](t: CardAttribute, unified: Boolean) extends Filt
    */
   protected def convertFromJson(item: JsonElement): T
 
-  override protected def serializeLeaf(fields: JsonObject) = {
-    fields.addProperty("contains", contain.toString)
-    fields.add("selected", { val array = JsonArray(); selected.foreach((i) => array.add(convertToJson(i))); array })
-  }
-
   override def leafEquals(other: Any) = other match {
     case o: OptionsFilter[?] if o.getClass == getClass => o.attribute == attribute && o.contain == contain && o.selected == selected
     case _ => false

@@ -37,14 +37,6 @@ class ColorFilter(t: CardAttribute, value: (Card) => Seq[ManaType]) extends Filt
     filter
   }
 
-  override protected def serializeLeaf(fields: JsonObject) = {
-    val array = JsonArray()
-    colors.foreach((c) => array.add(c.toString))
-    fields.addProperty("contains", contain.toString)
-    fields.add("colors", array)
-    fields.addProperty("multicolored", multicolored)
-  }
-
   override def leafEquals(other: Any) = other match {
     case o: ColorFilter if o.attribute == attribute => o.colors == colors && o.contain == contain && o.multicolored == multicolored
     case _ => false

@@ -19,8 +19,6 @@ class BinaryFilter(all: Boolean) extends FilterLeaf(if (all) CardAttribute.ANY e
 
   override protected def copyLeaf = CardAttribute.createFilter(attribute).asInstanceOf[BinaryFilter]
 
-  override def serializeLeaf(fields: JsonObject) = fields.addProperty("all", all)
-
   override def leafEquals(other: Any) = other match {
     case o: BinaryFilter => o.attribute == attribute
     case _ => false

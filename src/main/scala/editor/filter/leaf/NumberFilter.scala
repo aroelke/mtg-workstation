@@ -31,11 +31,6 @@ class NumberFilter(t: CardAttribute, unified: Boolean, value: (Card) => Double) 
     filter
   }
 
-  override protected def serializeLeaf(fields: JsonObject) = {
-    fields.addProperty("operation", operation.toString)
-    fields.addProperty("operand", operand)
-  }
-
   override def leafEquals(other: Any) = other match {
     case o: NumberFilter => o.attribute == attribute && o.operation == operation && o.operand == operand
     case _ => false
