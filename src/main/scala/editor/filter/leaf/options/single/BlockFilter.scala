@@ -1,7 +1,5 @@
 package editor.filter.leaf.options.single
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
 import editor.database.attributes.CardAttribute
 
 /**
@@ -15,10 +13,4 @@ class BlockFilter extends SingletonOptionsFilter[String](CardAttribute.BLOCK, tr
     filter.selected = selected
     filter
   }
-
-  override protected def convertFromString(str: String) = str
-
-  override protected def convertToJson(item: String) = JsonPrimitive(item)
-
-  override protected def convertFromJson(item: JsonElement) = item.getAsString
 }

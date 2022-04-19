@@ -1,7 +1,5 @@
 package editor.filter.leaf.options.single
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.Expansion
 
@@ -16,9 +14,4 @@ class ExpansionFilter extends SingletonOptionsFilter[Expansion](CardAttribute.EX
     filter.selected = selected
     filter
   }
-
-  override protected def convertFromString(str: String) = Expansion.expansions.find(_.name.equalsIgnoreCase(str)).getOrElse(throw IllegalArgumentException(s"unknown expansion \"$str\""))
-
-  override protected def convertToJson(item: Expansion) = JsonPrimitive(item.name)
-  override protected def convertFromJson(item: JsonElement) = Expansion.expansions.find(_.name.equalsIgnoreCase(item.getAsString)).getOrElse(throw IllegalArgumentException(s"unknown expansion \"${item.getAsString}\""))
 }

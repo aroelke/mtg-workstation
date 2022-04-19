@@ -1,7 +1,5 @@
 package editor.filter.leaf.options.multi
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
 import editor.database.attributes.CardAttribute
 
 import scala.jdk.CollectionConverters._
@@ -26,10 +24,4 @@ class CardTypeFilter extends MultiOptionsFilter[String](CardAttribute.CARD_TYPE,
     filter.selected = selected
     filter
   }
-
-  override protected def convertFromString(str: String) = str
-
-  override protected def convertToJson(item: String) = JsonPrimitive(item)
-
-  override protected def convertFromJson(item: JsonElement) = item.getAsString
 }

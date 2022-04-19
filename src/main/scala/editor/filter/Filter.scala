@@ -1,6 +1,5 @@
 package editor.filter
 
-import com.google.gson.JsonObject
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 

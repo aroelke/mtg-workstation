@@ -1,6 +1,5 @@
 package editor.filter.leaf
 
-import com.google.gson.JsonObject
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 import editor.util.Comparison

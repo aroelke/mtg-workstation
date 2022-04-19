@@ -1,7 +1,5 @@
 package editor.filter.leaf.options.single
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 import editor.database.card.CardLayout
@@ -17,10 +15,4 @@ class LayoutFilter extends SingletonOptionsFilter[CardLayout](CardAttribute.LAYO
     filter.selected = selected
     filter
   }
-
-  override protected def convertFromString(str: String) = CardLayout.valueOf(str.replace(' ', '_').toUpperCase)
-
-  override protected def convertToJson(item: CardLayout) = JsonPrimitive(item.toString)
-
-  override protected def convertFromJson(item: JsonElement) = CardLayout.valueOf(item.getAsString.replace(' ', '_').toUpperCase)
 }

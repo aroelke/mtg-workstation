@@ -1,7 +1,5 @@
 package editor.filter.leaf
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.ManaType
 import editor.database.card.Card

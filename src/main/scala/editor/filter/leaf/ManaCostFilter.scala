@@ -1,6 +1,5 @@
 package editor.filter.leaf
 
-import com.google.gson.JsonObject
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.ManaCost
 import editor.database.card.Card

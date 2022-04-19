@@ -1,7 +1,5 @@
 package editor.filter.leaf.options.single
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.Rarity
 
@@ -16,10 +14,4 @@ class RarityFilter extends SingletonOptionsFilter[Rarity](CardAttribute.RARITY, 
     filter.selected = selected
     filter
   }
-
-  override protected def convertFromString(str: String) = Rarity.parseRarity(str)
-
-  override protected def convertToJson(item: Rarity) = JsonPrimitive(item.toString)
-
-  override protected def convertFromJson(item: JsonElement) = Rarity.parseRarity(item.getAsString)
 }

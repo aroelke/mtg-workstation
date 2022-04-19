@@ -1,8 +1,5 @@
 package editor.filter.leaf.options.multi
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonPrimitive
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.Legality
 import editor.database.card.Card
@@ -22,7 +19,7 @@ class LegalityFilter extends MultiOptionsFilter[String](CardAttribute.LEGAL_IN, 
     if (!super.testFace(c))
       false
     else if (restricted)
-      c.legalIn.filter(selected.contains).forall((f) => c.legality(f) == Legality.RESTRICTED)
+      c.legalIn.filter(selected.contains).forall(c.legality(_) == Legality.RESTRICTED)
     else
       true
   }
@@ -34,12 +31,6 @@ class LegalityFilter extends MultiOptionsFilter[String](CardAttribute.LEGAL_IN, 
     filter.restricted = restricted
     filter
   }
-
-  override protected def convertFromString(str: String) = str
-
-  override protected def convertToJson(item: String) = JsonPrimitive(item)
-
-  override protected def convertFromJson(item: JsonElement) = item.getAsString
 
   override def leafEquals(other: Any) = other match {
     case o: LegalityFilter => o.contain == contain && o.selected == selected && o.restricted == restricted
