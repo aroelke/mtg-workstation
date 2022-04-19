@@ -1,8 +1,10 @@
 package editor.serialization
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
@@ -135,5 +137,57 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
     }
   }
 
-  override def serialize(src: Filter, typeOfSrc: Type, context: JsonSerializationContext) = src.toJsonObject
+  override def serialize(src: Filter, typeOfSrc: Type, context: JsonSerializationContext) = {
+    val json = JsonObject()
+    json.addProperty("type", src.attribute.toString)
+    src match {
+      case l: FilterLeaf => json.addProperty("faces", l.faces.toString)
+      case g: FilterGroup =>
+        json.addProperty("mode", g.mode.toString)
+        json.addProperty("comment", g.comment)
+        val array = JsonArray()
+        g.foreach((f) => array.add(context.serialize(f)))
+        json.add("children", array)
+    }
+    src match {
+      case o: OptionsFilter[?] => json.addProperty("contains", o.contain.toString)
+      case _ =>
+    }
+    src match {
+      case v: VariableNumberFilter =>
+        json.addProperty("operation", v.operation.toString)
+        json.addProperty("operand", v.operand)
+        json.addProperty("varies", v.varies)
+      case t: TypeLineFilter =>
+        json.addProperty("contains", t.contain.toString)
+        json.addProperty("pattern", t.line)
+      case t: TextFilter =>
+        json.addProperty("contains", t.contain.toString)
+        json.addProperty("regex", t.regex)
+        json.addProperty("pattern", t.text)
+      case n: NumberFilter =>
+        json.addProperty("operation", n.operation.toString)
+        json.addProperty("operand", n.operand)
+      case m: ManaCostFilter =>
+        json.addProperty("contains", m.contain.toString)
+        json.addProperty("cost", m.cost.toString)
+      case c: ColorFilter =>
+        json.addProperty("contains", c.contain.toString)
+        val array = JsonArray()
+        c.colors.foreach((t) => array.add(t.toString))
+        json.add("colors", array)
+        json.addProperty("multicolored", c.multicolored)
+      case _: BinaryFilter => // Nothing additional actually needs to be serialized
+      case o: OptionsFilter[?] =>
+        val array = JsonArray()
+        o.selected.foreach((i) => array.add(i match {
+          case e @ (_: Rarity | _: CardLayout) => e.toString
+          case e: Expansion => e.toString
+          case s: String => s
+        }))
+        json.add("selected", array)
+      case _ =>
+    }
+    json
+  }
 }
