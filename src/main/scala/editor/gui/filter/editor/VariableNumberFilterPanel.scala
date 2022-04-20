@@ -1,15 +1,17 @@
 package editor.gui.filter.editor
 
-import editor.filter.leaf.VariableNumberFilter
-import javax.swing.BoxLayout
-import editor.gui.generic.ComboBoxPanel
-import editor.util.Comparison
-import javax.swing.JSpinner
-import javax.swing.SpinnerNumberModel
-import java.awt.Dimension
-import javax.swing.JCheckBox
 import editor.database.attributes.CardAttribute
 import editor.filter.leaf.FilterLeaf
+import editor.filter.leaf.VariableNumberFilter
+import editor.gui.filter.FilterSelectorPanel
+import editor.gui.generic.ComboBoxPanel
+import editor.util.Comparison
+
+import java.awt.Dimension
+import javax.swing.BoxLayout
+import javax.swing.JCheckBox
+import javax.swing.JSpinner
+import javax.swing.SpinnerNumberModel
 
 /**
  * Convenience constructors for [[VariableNumberFilterPanel]].
@@ -22,7 +24,7 @@ object VariableNumberFilterPanel {
    * @param v string to display indicating what "variable" means
    * @return an empty [[VariableNumberFilter]] with the given string in its variable check box label
    */
-  def apply(v: String) = new VariableNumberFilterPanel(v)
+  def apply(v: String, selector: FilterSelectorPanel) = new VariableNumberFilterPanel(v, selector)
 
   /**
    * Create a new [[VariableNumberFilterPanel]] pre-populated with values from a filter. Its variable string
@@ -32,8 +34,8 @@ object VariableNumberFilterPanel {
    * @return a [[VariableNumberFilterPanel]] with values taken from the given filter and variable string inferred
    * from its attribute
    */
-  def apply(filter: VariableNumberFilter) = {
-    val panel = new VariableNumberFilterPanel(if (filter.attribute == CardAttribute.LOYALTY) "X or *" else "*")
+  def apply(filter: VariableNumberFilter, selector: FilterSelectorPanel) = {
+    val panel = new VariableNumberFilterPanel(if (filter.attribute == CardAttribute.LOYALTY) "X or *" else "*", selector)
     panel.setContents(filter)
     panel
   }
@@ -50,7 +52,7 @@ object VariableNumberFilterPanel {
  * 
  * @author Alec Roelke
  */
-class VariableNumberFilterPanel(v: String) extends FilterEditorPanel[VariableNumberFilter] {
+class VariableNumberFilterPanel(v: String, selector: FilterSelectorPanel) extends FilterEditorPanel[VariableNumberFilter] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   private val comparison = ComboBoxPanel(Comparison.values)

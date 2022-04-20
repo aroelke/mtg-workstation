@@ -3,6 +3,7 @@ package editor.gui.filter.editor
 import editor.database.attributes.CardAttribute
 import editor.filter.leaf.FilterLeaf
 import editor.filter.leaf.NumberFilter
+import editor.gui.filter.FilterSelectorPanel
 import editor.gui.generic.ComboBoxPanel
 import editor.util.Comparison
 
@@ -17,7 +18,7 @@ import javax.swing.SpinnerNumberModel
  */
 object NumberFilterPanel {
   /** @return a new, empty [[NumberFilterPanel]] */
-  def apply() = new NumberFilterPanel
+  def apply(selector: FilterSelectorPanel) = new NumberFilterPanel(selector)
 
   /**
    * Create a new [[NumberFilterPanel]] and pre-populate it with the contents of a [[NumberFilter]].
@@ -25,8 +26,8 @@ object NumberFilterPanel {
    * @param filter filter to use to populate the new panel
    * @return a new number filter panel set to compare with the value from the filter using the comparison from it
    */
-  def apply(filter: NumberFilter) = {
-    val panel = new NumberFilterPanel
+  def apply(filter: NumberFilter, selector: FilterSelectorPanel) = {
+    val panel = new NumberFilterPanel(selector)
     panel.setContents(filter)
     panel
   }
@@ -38,7 +39,7 @@ object NumberFilterPanel {
  * 
  * @author Alec Roelke
  */
-class NumberFilterPanel extends FilterEditorPanel[NumberFilter] {
+class NumberFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[NumberFilter] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   // Combo box for choosing the type of comparison to make
@@ -55,6 +56,7 @@ class NumberFilterPanel extends FilterEditorPanel[NumberFilter] {
 
   override def filter = (CardAttribute.createFilter(attribute), spinner.getValue) match {
     case (number: NumberFilter, value: Double) =>
+      number.faces = selector.faces
       number.operation = comparison.getSelectedItem
       number.operand = value
       number

@@ -6,6 +6,7 @@ import editor.database.symbol.ManaSymbolInstances.ColorSymbol
 import editor.database.symbol.ManaSymbolInstances.StaticSymbol
 import editor.filter.leaf.ColorFilter
 import editor.filter.leaf.FilterLeaf
+import editor.gui.filter.FilterSelectorPanel
 import editor.gui.generic.ComboBoxPanel
 import editor.gui.generic.ComponentUtils
 import editor.util.Containment
@@ -23,7 +24,7 @@ import scala.jdk.CollectionConverters._
  */
 object ColorFilterPanel {
   /** @return an empty [[ColorFilterPanel]] set to filter by color */
-  def apply() = new ColorFilterPanel
+  def apply(selector: FilterSelectorPanel) = new ColorFilterPanel(selector)
 
   /**
    * Create a new [[ColorFilterPanel]], set its filter attribute, and set its contents.
@@ -31,8 +32,8 @@ object ColorFilterPanel {
    * @param filter filter to use to set the new panel's attribute and contents
    * @return a new [[ColorFilterPanel]] with the given filter's attribute and contents
    */
-  def apply(filter: ColorFilter) = {
-    val panel = new ColorFilterPanel
+  def apply(filter: ColorFilter, selector: FilterSelectorPanel) = {
+    val panel = new ColorFilterPanel(selector)
     panel.setContents(filter)
     panel
   }
@@ -42,7 +43,7 @@ object ColorFilterPanel {
  * A panel for customzing a filter that filters cards by color characteristic (e.g. color or color identity).
  * @author Alec Roelke
  */
-class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
+class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[ColorFilter] {
   private val IconHeight = 13
 
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
@@ -85,6 +86,7 @@ class ColorFilterPanel extends FilterEditorPanel[ColorFilter] {
 
   override def filter = CardAttribute.createFilter(attribute) match {
     case filter: ColorFilter =>
+      filter.faces = selector.faces
       filter.contain = contain.getSelectedItem
       filter.colors ++= colors.collect{ case (c, b) if b.isSelected => c }
       filter.multicolored = multi.isSelected

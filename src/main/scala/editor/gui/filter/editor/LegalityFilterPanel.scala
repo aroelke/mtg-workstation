@@ -5,6 +5,7 @@ import editor.database.attributes.CardAttribute
 import editor.filter.leaf.FilterLeaf
 import editor.filter.leaf.options.OptionsFilter
 import editor.filter.leaf.options.multi.LegalityFilter
+import editor.gui.filter.FilterSelectorPanel
 
 import java.awt.BorderLayout
 import javax.swing.JCheckBox
@@ -15,7 +16,7 @@ import javax.swing.JCheckBox
  */
 object LegalityFilterPanel {
   /** @return a new, empty [[LegalityFilterPanel]]. */
-  def apply() = new LegalityFilterPanel
+  def apply(selector: FilterSelectorPanel) = new LegalityFilterPanel(selector)
 
   /**
    * Create a new [[LegalityFilterPanel]] pre-populated with the contents of a filter.
@@ -23,8 +24,8 @@ object LegalityFilterPanel {
    * @param filter filter to use for populating the new panel
    * @return a format legality filter with its contents taken from the filter
    */
-  def apply(filter: LegalityFilter) = {
-    val panel = new LegalityFilterPanel
+  def apply(filter: LegalityFilter, selector: FilterSelectorPanel) = {
+    val panel = new LegalityFilterPanel(selector)
     panel.setContents(filter)
     panel
   }
@@ -36,7 +37,7 @@ object LegalityFilterPanel {
  * 
  * @author Alec Roelke
  */
-class LegalityFilterPanel extends OptionsFilterPanel(CardAttribute.LEGAL_IN, FormatConstraints.FormatNames.toArray) {
+class LegalityFilterPanel(selector: FilterSelectorPanel) extends OptionsFilterPanel(CardAttribute.LEGAL_IN, FormatConstraints.FormatNames.toArray, selector) {
   private val restricted = JCheckBox("Restricted")
   add(restricted, BorderLayout.EAST)
 

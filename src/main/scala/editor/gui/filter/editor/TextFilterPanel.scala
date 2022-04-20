@@ -3,6 +3,7 @@ package editor.gui.filter.editor
 import editor.database.attributes.CardAttribute
 import editor.filter.leaf.FilterLeaf
 import editor.filter.leaf.TextFilter
+import editor.gui.filter.FilterSelectorPanel
 import editor.gui.generic.ComboBoxPanel
 import editor.util.Containment
 
@@ -23,7 +24,7 @@ import scala.util.matching._
  */
 object TextFilterPanel {
   /** @return a new, empty [[TextFilterPanel]] for card names */
-  def apply() = new TextFilterPanel
+  def apply(selector: FilterSelectorPanel) = new TextFilterPanel(selector)
 
   /**
    * Create a new [[TextFilterPanel]] pre-populated with the contents of a filter.
@@ -31,8 +32,8 @@ object TextFilterPanel {
    * @param filter filter to use to populate the panel
    * @return a [[TextFilterPanel]] with the values and attribute from the filter
    */
-  def apply(filter: TextFilter) = {
-    val panel = new TextFilterPanel
+  def apply(filter: TextFilter, selector: FilterSelectorPanel) = {
+    val panel = new TextFilterPanel(selector)
     panel.setContents(filter)
     panel
   }
@@ -45,7 +46,7 @@ object TextFilterPanel {
  * 
  * @author Alec Roelke
  */
-class TextFilterPanel extends FilterEditorPanel[TextFilter] {
+class TextFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[TextFilter] {
   setLayout(BoxLayout(this, BoxLayout.X_AXIS))
 
   private val contain = ComboBoxPanel(Containment.values)
@@ -69,6 +70,7 @@ class TextFilterPanel extends FilterEditorPanel[TextFilter] {
 
   override def filter = CardAttribute.createFilter(attribute) match {
     case tf: TextFilter =>
+      tf.faces = selector.faces
       tf.contain = contain.getSelectedItem
       tf.text = if (isError) "" else text.getText
       tf.regex = regex.isSelected
