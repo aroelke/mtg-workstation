@@ -7,7 +7,7 @@ import editor.database.card.SingleCard
 import editor.filter.FaceSearchOptions
 import editor.filter.Filter
 
-abstract class FilterLeaf(t: CardAttribute, unified: Boolean) extends Filter(t) {
+abstract class FilterLeaf(t: CardAttribute, val unified: Boolean) extends Filter(t) {
   var faces = FaceSearchOptions.ANY
 
   protected def testFace(c: Card): Boolean

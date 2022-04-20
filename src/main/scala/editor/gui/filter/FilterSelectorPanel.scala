@@ -97,20 +97,11 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
     filterPanels.put(attribute, panel)
     filtersPanel.add(panel, attribute.toString)
   })
-  filterTypes.addItemListener(_ => filtersPanel.getLayout match {
-    case cards: java.awt.CardLayout =>
-      cards.show(filtersPanel, filterTypes.getSelectedItem.toString)
-      filterTypes.setToolTipText(filterTypes.getSelectedItem.description)
-  })
 
   // Small button to choose which faces to look at when filtering
   private var _faces = FaceSearchOptions.ANY
   private val facesLabel = JLabel()
-  facesLabel.addMouseListener(MouseListenerFactory.createMouseListener(released = _ => {
-    _faces = FaceSearchOptions.values.apply((faces.ordinal + 1) % FaceSearchOptions.values.size)
-    facesLabel.setIcon(faces.scaled(getHeight/2))
-    facesLabel.setToolTipText(faces.tooltip)
-  }))
+  facesLabel.addMouseListener(MouseListenerFactory.createMouseListener(released = _ => faces = FaceSearchOptions.values.apply((faces.ordinal + 1) % FaceSearchOptions.values.size)))
   add(Box.createHorizontalStrut(1))
   add(facesLabel)
   add(Box.createHorizontalStrut(1))
@@ -133,16 +124,31 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
 
   facesLabel.setIcon(faces.scaled(getPreferredSize.height/2))
   facesLabel.setToolTipText(faces.tooltip)
+
+  filterTypes.addItemListener(_ => filtersPanel.getLayout match {
+    case cards: java.awt.CardLayout =>
+      cards.show(filtersPanel, filterTypes.getSelectedItem.toString)
+      filterTypes.setToolTipText(filterTypes.getSelectedItem.description)
+      facesLabel.setVisible(CardAttribute.createFilter(filterTypes.getSelectedItem) match {
+        case l: FilterLeaf => !l.unified
+        case _ => false
+      })
+  })
+
   /** @return the current selection for which faces the filter should search */
   def faces = _faces
+  private def faces_=(f: FaceSearchOptions) = {
+    _faces = FaceSearchOptions.values.apply((f.ordinal + 1) % FaceSearchOptions.values.size)
+    facesLabel.setIcon(f.scaled((if (getHeight == 0) getPreferredSize.height else getHeight)/2))
+    facesLabel.setToolTipText(f.tooltip)
+  }
 
   override def filter = filterPanels(filterTypes.getSelectedItem).filter
 
   override def setContents(filter: FilterLeaf) = {
     filterTypes.setSelectedItem(filter.attribute)
     filterPanels(filter.attribute).setContents(filter)
-    _faces = filter.faces
-    facesLabel.setIcon(faces.scaled(getPreferredSize.height/2))
+    faces = filter.faces
     filtersPanel.getLayout match {
       case card: java.awt.CardLayout => card.show(filtersPanel, filter.attribute.toString)
     }
