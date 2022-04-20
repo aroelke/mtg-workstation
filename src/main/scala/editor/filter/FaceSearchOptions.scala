@@ -15,6 +15,8 @@ import javax.swing.ImageIcon
  * @author Alec Roelke
  */
 enum FaceSearchOptions(val tooltip: String) {
+  private val iconCache = collection.mutable.Map[Int, ImageIcon]()
+
   /** Icon to display to indicate the current way to filter faces for a filter. */
   lazy val icon = try {
     ImageIcon(ImageIO.read(getClass.getResourceAsStream(s"/images/faces/${toString.toLowerCase}.png")))
@@ -29,7 +31,7 @@ enum FaceSearchOptions(val tooltip: String) {
    * @param width new side size of the icon
    * @return a scaled instance of the option's icon
    */
-  def scaled(width: Int) = ImageIcon(icon.getImage.getScaledInstance(width, -1, Image.SCALE_SMOOTH))
+  def scaled(width: Int) = iconCache.getOrElseUpdate(width, ImageIcon(icon.getImage.getScaledInstance(width, -1, Image.SCALE_SMOOTH)))
 
   /** A card passes the filter if any of its faces pass. */
   case ANY   extends FaceSearchOptions("Can match any face")
