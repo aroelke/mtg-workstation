@@ -24,6 +24,13 @@ abstract class OptionsFilter[T](t: CardAttribute, unified: Boolean) extends Filt
   /** Set of items to look for in cards. */
   var selected = Set[T]() // Using an immutable var guarantees that changing this in a copy doesn't change this filter's version
 
+  override protected def copyLeaf = {
+    val filter = CardAttribute.createFilter(CardAttribute.RARITY).asInstanceOf[OptionsFilter[T]]
+    filter.contain = contain
+    filter.selected = selected
+    filter
+  }
+
   override def leafEquals(other: Any) = other match {
     case o: OptionsFilter[?] if o.getClass == getClass => o.attribute == attribute && o.contain == contain && o.selected == selected
     case _ => false

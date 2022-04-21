@@ -16,11 +16,4 @@ object SubtypeFilter {
  * Filter for grouping cards by subtype.
  * @author Alec Roelke
  */
-class SubtypeFilter extends MultiOptionsFilter[String](CardAttribute.SUBTYPE, false, _.subtypes) {
-  override protected def copyLeaf = {
-    val filter = CardAttribute.createFilter(CardAttribute.SUBTYPE).asInstanceOf[SubtypeFilter]
-    filter.contain = contain
-    filter.selected = selected
-    filter
-  }
-}
+class SubtypeFilter extends MultiOptionsFilter[String](CardAttribute.SUBTYPE, false, _.subtypes)
