@@ -115,21 +115,21 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
     POWER(
         "Power", "Creature power",
         List.class,
-        (a) -> new VariableNumberFilter(a, (c) -> c.faces().map((f) -> f.power().value()), Card::powerVariable),
+        (a) -> new VariableNumberFilter(a, (f) -> f.power().value(), Card::powerVariable),
         (a, b) -> ((CombatStat)a).compareTo((CombatStat)b)
     ),
     /** Toughness of a creature card. */
     TOUGHNESS(
         "Toughness", "Creature toughness",
         List.class,
-        (a) -> new VariableNumberFilter(a, (c) -> c.faces().map((f) -> f.toughness().value()), Card::toughnessVariable),
+        (a) -> new VariableNumberFilter(a, (f) -> f.toughness().value(), Card::toughnessVariable),
         (a, b) -> ((CombatStat)a).compareTo((CombatStat)b)
     ),
     /** Loyalty of a planeswalker card. */
     LOYALTY(
         "Loyalty", "Planeswalker starting loyalty",
         List.class,
-        (a) -> new VariableNumberFilter(a, (Card c) -> c.faces().map((f) -> f.loyalty().value()), Card::loyaltyVariable),
+        (a) -> new VariableNumberFilter(a, (f) -> f.loyalty().value(), Card::loyaltyVariable),
         (a, b) -> ((Loyalty)a).compareTo((Loyalty)b)
     ),
     /** {@link CardLayout} of a card. */
