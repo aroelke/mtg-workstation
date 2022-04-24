@@ -117,12 +117,12 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         c.multicolored = obj.get("multicolored").getAsBoolean()
         c
       case v: VariableNumberFilter =>
-        v.operation = Comparison.valueOf(obj.get("operation").getAsString.apply(0))
+        v.operation = Comparison.valueOf(obj.get("operation").getAsString)
         v.operand = obj.get("operand").getAsDouble
         v.varies = obj.get("varies").getAsBoolean
         v
       case n: NumberFilter =>
-        n.operation = Comparison.valueOf(obj.get("operation").getAsString.apply(0))
+        n.operation = Comparison.valueOf(obj.get("operation").getAsString)
         n.operand = obj.get("operand").getAsDouble
         n
       case o: OptionsFilter[?] =>

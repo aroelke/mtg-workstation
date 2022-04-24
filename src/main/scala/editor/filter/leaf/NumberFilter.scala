@@ -21,7 +21,7 @@ class NumberFilter(t: CardAttribute, unified: Boolean, value: (Card) => Double) 
   var operation = Comparison.EQ
   var operand = 0.0
 
-  override protected def testFace(c: Card) = { val v = value(c); !v.isNaN && operation.test(v, operand) }
+  override protected def testFace(c: Card) = { val v = value(c); !v.isNaN && operation(v, operand) }
 
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(attribute).asInstanceOf[NumberFilter]
