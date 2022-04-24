@@ -5,7 +5,7 @@ object Comparison {
 }
 
 enum Comparison(private val operation: Char, comparison: (Int) => Boolean) {
-  def apply[T](a: T, b: T)(implicit order: Ordering[T]) = comparison(order.compare(a, b))
+  def apply[T](a: T, b: T)(using order: Ordering[T]) = comparison(order.compare(a, b))
 
   override def toString = operation.toString
 
