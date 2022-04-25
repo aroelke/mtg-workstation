@@ -110,7 +110,7 @@ public class ManaCost extends AbstractList<ManaSymbol> implements Comparable<Man
      */
     public List<ManaType> colors()
     {
-        return intensity.entrySet().stream().filter((e) -> e.getKey() != ManaType.COLORLESS && e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
+        return intensity.entrySet().stream().filter((e) -> e.getKey() != ManaType.COLORLESS() && e.getValue() > 0).map(Map.Entry::getKey).sorted().collect(Collectors.toList());
     }
 
     /**

@@ -110,7 +110,7 @@ case class SingleCard(
       if (manaCost.colors != colors) {
         for (color <- colors) {
           val indicatorStyle = document.addStyle("indicator", document.getStyle("text"))
-          StyleConstants.setForeground(indicatorStyle, color.color)
+          color.color.foreach(StyleConstants.setForeground(indicatorStyle, _))
           document.insertString(document.getLength, UnicodeSymbols.BULLET.toString, indicatorStyle)
         }
         if (!colors.isEmpty)

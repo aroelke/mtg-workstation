@@ -74,7 +74,7 @@ class ColorFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPanel[
   // Actually add the colorless box here
   colorless.setSelected(true)
   add(colorless)
-  add(JLabel(ColorSymbol(ManaType.COLORLESS).getIcon(IconHeight)))
+  add(JLabel(ColorSymbol(ManaType.Colorless).getIcon(IconHeight)))
   colorless.addActionListener(_ => if (colorless.isSelected) {
     colors.foreach{ case (_, box) => box.setSelected(false) }
     multi.setSelected(false)

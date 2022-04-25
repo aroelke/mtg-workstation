@@ -99,15 +99,15 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
   /** All used [[HalfColorSymbol]]s. */
   case HalfColorSymbol extends ManaSymbolInstances(
     map = ManaType.values.map(s => s -> new HalfColorSymbol(s)).toMap,
-    keygen = (s) => if (s.size == 2 && s.startsWith("H")) Option(ManaType.tryParseManaType(s(1).toUpper)) else None,
-    comparator = { case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compareTo(hb.color) }
+    keygen = (s) => if (s.size == 2 && s.startsWith("H")) Option(ManaType.parse(s(1).toString)) else None,
+    comparator = { case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compare(hb.color) }
   )
 
   /** All used [[TwobridSymbol]]s: only colors, not colorless. */
   case TwobridSymbol extends ManaSymbolInstances(
     map = ManaType.colors.map(s => s -> new TwobridSymbol(s)).toMap,
-    keygen = (s) => if (s.size == 3 && s.startsWith("2/")) Option(ManaType.tryParseManaType(s(2).toUpper)) else None,
-    comparator = { case (ta: TwobridSymbol, tb: TwobridSymbol) => ta.color.compareTo(tb.color) }
+    keygen = (s) => if (s.size == 3 && s.startsWith("2/")) ManaType.parse(s(2).toString) else None,
+    comparator = { case (ta: TwobridSymbol, tb: TwobridSymbol) => ta.color.compare(tb.color) }
   )
 
   /** All possible [[PhyrexianHybridSymbol]]s except for colorless ones. */
@@ -116,13 +116,13 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
     keygen = (s) => {
       val tokens = s.split("/")
       if (tokens.size == 3 && tokens(2) == "P") {
-        tokens.flatMap((t) => Option(ManaType.tryParseManaType(t))) match {
+        tokens.flatMap((t) => ManaType.parse(t)) match {
           case Array(c1, c2) => Some((c1, c2))
           case _ => None
         }
       } else None
     },
-    comparator = { case (pa: PhyrexianHybridSymbol, pb: PhyrexianHybridSymbol) => pa.first.compareTo(pb.first)*10 + pa.second.compareTo(pb.second) }
+    comparator = { case (pa: PhyrexianHybridSymbol, pb: PhyrexianHybridSymbol) => pa.first.compare(pb.first)*10 + pa.second.compare(pb.second) }
   )
 
   /** All possible [[HybridSymbol]]s except for colorless ones. */
@@ -131,27 +131,27 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
     keygen = (s) => {
       val tokens = s.split("/")
       if (tokens.size == 2) {
-        tokens.flatMap((t) => Option(ManaType.tryParseManaType(t))) match {
+        tokens.flatMap((t) => ManaType.parse(t)) match {
           case Array(c1, c2) => Some((c1, c2))
           case _ => None
         }
       } else None
     },
-    comparator = { case (ha: HybridSymbol, hb: HybridSymbol) => ha.first.compareTo(hb.first)*10 + ha.second.compareTo(hb.second) }
+    comparator = { case (ha: HybridSymbol, hb: HybridSymbol) => ha.first.compare(hb.first)*10 + ha.second.compare(hb.second) }
   )
 
   /** All possible [[PhyrexianSymbol]]s: only colors, not colorless. */
   case PhyrexianSymbol extends ManaSymbolInstances(
     map = ManaType.colors.map(s => s -> new PhyrexianSymbol(s)).toMap,
-    keygen = (s) => if (s.size == 3 && s.toUpperCase.endsWith("/P")) Option(ManaType.tryParseManaType(s(0).toUpper)) else None,
-    comparator = { case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compareTo(pb.color) }
+    keygen = (s) => if (s.size == 3 && s.toUpperCase.endsWith("/P")) ManaType.parse(s(0).toString) else None,
+    comparator = { case (pa: PhyrexianSymbol, pb: PhyrexianSymbol) => pa.color.compare(pb.color) }
   )
   
   /** All possible [[ColorSymbol]]s. */
   case ColorSymbol extends ManaSymbolInstances(
     map = ManaType.values.map(s => s -> new ColorSymbol(s)).toMap,
-    keygen = (s) => Option(ManaType.tryParseManaType(s)),
-    comparator = { case (ca: ColorSymbol, cb: ColorSymbol) => ca.color.compareTo(cb.color) }
+    keygen = ManaType.parse,
+    comparator = { case (ca: ColorSymbol, cb: ColorSymbol) => ca.color.compare(cb.color) }
   )
 }
 
@@ -164,7 +164,7 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
  * 
  * @author Alec Roelke
  */
-case class VariableSymbol private[symbol](variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0, Map(ManaType.COLORLESS -> 0.5), ManaSymbolInstances.VariableSymbol)
+case class VariableSymbol private[symbol](variable: Char) extends ManaSymbol(s"${variable.toLower}_mana.png", variable.toString.toUpperCase, 0, Map(ManaType.Colorless -> 0.5), ManaSymbolInstances.VariableSymbol)
 
 /**
  * A mana symbol with a special, specific meaning that isn't captured by any of the other generalized versions of mana symbols. Its color
@@ -178,7 +178,7 @@ case class VariableSymbol private[symbol](variable: Char) extends ManaSymbol(s"$
  * 
  * @author Alec Roelke
  */
-case class StaticSymbol private[symbol](iconName: String, text: String, override val value: Double, intensity: Double = 0) extends ManaSymbol(iconName, text, value, Map(ManaType.COLORLESS -> intensity), ManaSymbolInstances.StaticSymbol)
+case class StaticSymbol private[symbol](iconName: String, text: String, override val value: Double, intensity: Double = 0) extends ManaSymbol(iconName, text, value, Map(ManaType.Colorless -> intensity), ManaSymbolInstances.StaticSymbol)
 
 /**
  * A mana symbol representing an amount of any combination of mana. Its color intensity is 0 for all mana types, as any type

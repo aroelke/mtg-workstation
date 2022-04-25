@@ -421,12 +421,12 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
               costs.getOrElseUpdate(cost, ManaCost.parseManaCost(cost)),
               colorLists.getOrElseUpdate(colors.toString, {
                 val col = collection.mutable.ArrayBuffer[ManaType]()
-                colors.asScala.foreach((e) => col += ManaType.parseManaType(e.getAsString))
+                colors.asScala.foreach((e) => col += ManaType.parse(e.getAsString).get)
                 col.toSeq
               }),
               colorLists.getOrElseUpdate(identity.toString, {
                 val col = collection.mutable.ArrayBuffer[ManaType]()
-                identity.asScala.foreach((e) => col += ManaType.parseManaType(e.getAsString))
+                identity.asScala.foreach((e) => col += ManaType.parse(e.getAsString).get)
                 col.toSeq
               }),
               supertypeSets.getOrElseUpdate(supers.toString, {

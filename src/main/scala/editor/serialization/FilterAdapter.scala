@@ -113,7 +113,7 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         m
       case c: ColorFilter =>
         c.contain = Containment.parseContainment(obj.get("contains").getAsString)
-        c.colors = obj.get("colors").getAsJsonArray.asScala.map((e) => ManaType.parseManaType(e.getAsString)).toSet
+        c.colors = obj.get("colors").getAsJsonArray.asScala.map((e) => ManaType.parse(e.getAsString).get).toSet
         c.multicolored = obj.get("multicolored").getAsBoolean()
         c
       case v: VariableNumberFilter =>
