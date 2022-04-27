@@ -145,16 +145,12 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
     override def getSelectionMode = ListSelectionModel.SINGLE_SELECTION
     override def setSelectionInterval(index0: Int, index1: Int) = super.setSelectionInterval(-1, -1)
   })
-  warningsList.setCellRenderer((_, v, _, _, _) => {
-    val m = ManaCost.MANA_COST_PATTERN.matcher(v)
-    if (m.find) {
-      val cell = Box.createHorizontalBox
-      cell.add(JLabel(v.substring(0, m.start)))
-      ManaCost.parseManaCost(m.group).asScala.foreach((symbol) => cell.add(JLabel(symbol.getIcon(ComponentUtils.TextSize))))
-      cell
-    }
-    else JLabel(v)
-  })
+  warningsList.setCellRenderer((_, v, _, _, _) => s"(?:${ManaCost.Pattern.regex})+".r.findFirstMatchIn(v).map((m) => {
+    val cell = Box.createHorizontalBox
+    cell.add(JLabel(v.substring(0, m.start(0))))
+    ManaCost.parse(m.group(0)).get.foreach((symbol) => cell.add(JLabel(symbol.getIcon(ComponentUtils.TextSize))))
+    cell
+  }).getOrElse(JLabel(v)))
   warningsPanel.add(JScrollPane(warningsList), BorderLayout.CENTER)
 
   // Click on a list element to show why it is illegal

@@ -7,6 +7,7 @@ import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.card.Card
 import editor.database.symbol.ManaSymbolInstances.ColorSymbol
+import editor.gui.generic.ComponentUtils
 import editor.util.UnicodeSymbols
 
 import java.awt.Color
@@ -68,7 +69,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               case s: java.util.List[?] => s.asScala.toSeq.collect{ case cost: ManaCost => cost }
               case _ => Seq.empty
             }
-            val icons = cache.getOrElseUpdate(costs, costs.map(_.asScala.toSeq.map(_.getIcon(13))))
+            val icons = cache.getOrElseUpdate(costs, costs.map(_.map(_.getIcon(ComponentUtils.TextSize))))
             val panel = tablePanel(border = BorderFactory.createEmptyBorder(0, 1, if (icons.length == 1) -1 else 0, 0))
             panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
             for (i <- 0 until icons.size) {

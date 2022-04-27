@@ -7,6 +7,7 @@ import editor.database.attributes.Loyalty
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType
 import editor.database.attributes.Rarity
+import editor.database.attributes.TypeLine
 import editor.database.symbol.FunctionalSymbol
 import editor.database.symbol.Symbol
 import editor.gui.generic.ComponentUtils
@@ -17,10 +18,9 @@ import javax.swing.text.BadLocationException
 import javax.swing.text.Style
 import javax.swing.text.StyleConstants
 import javax.swing.text.StyledDocument
+import scala.collection.immutable.ListSet
 import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters._
-import scala.collection.immutable.ListSet
-import editor.database.attributes.TypeLine
 
 /**
  * A single-faced [[Card]], or a single face of a [[MultiCard]].
@@ -96,7 +96,7 @@ case class SingleCard(
     try {
       document.insertString(document.getLength(), s"${name} ", textStyle)
       if (!manaCost.isEmpty) {
-        for (symbol <- manaCost.asScala) {
+        for (symbol <- manaCost) {
           val style = document.addStyle(symbol.toString, null)
           StyleConstants.setIcon(style, symbol.scaled(ComponentUtils.TextSize))
           document.insertString(document.getLength, symbol.toString, style)

@@ -109,7 +109,7 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         t
       case m: ManaCostFilter =>
         m.contain = Containment.parseContainment(obj.get("contains").getAsString)
-        m.cost = ManaCost.parseManaCost(obj.get("cost").getAsString)
+        m.cost = ManaCost.parse(obj.get("cost").getAsString).get
         m
       case c: ColorFilter =>
         c.contain = Containment.parseContainment(obj.get("contains").getAsString)

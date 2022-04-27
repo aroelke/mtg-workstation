@@ -4,7 +4,6 @@ import editor.database.attributes.ManaType
 import editor.util.UnicodeSymbols
 
 import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
 
 /**
  * Companion to [[ManaSymbol]] containing methods for parsing them from strings and other utility.
@@ -46,7 +45,7 @@ class ManaSymbol private[symbol](icon: String, text: String, val value: Double, 
    * @return the color intensity of this symbol
    * @see [[ColorIntensity]]
    */
-  val colorIntensity = intensity.withDefaultValue(0)
+  val colorIntensity = intensity.withDefaultValue(0.0)
 
   override def compare(other: ManaSymbol) = if (instances.ordinal == other.instances.ordinal) instances.compare(this, other) else instances.ordinal - other.instances.ordinal
 }
@@ -99,7 +98,7 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
   /** All used [[HalfColorSymbol]]s. */
   case HalfColorSymbol extends ManaSymbolInstances(
     map = ManaType.values.map(s => s -> new HalfColorSymbol(s)).toMap,
-    keygen = (s) => if (s.size == 2 && s.startsWith("H")) Option(ManaType.parse(s(1).toString)) else None,
+    keygen = (s) => if (s.size == 2 && s.startsWith("H")) ManaType.parse(s(1).toString) else None,
     comparator = { case (ha: HalfColorSymbol, hb: HalfColorSymbol) => ha.color.compare(hb.color) }
   )
 

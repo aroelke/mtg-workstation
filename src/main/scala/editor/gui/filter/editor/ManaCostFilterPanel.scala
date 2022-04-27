@@ -13,7 +13,6 @@ import java.awt.Color
 import javax.swing.BoxLayout
 import javax.swing.JTextField
 import javax.swing.event.DocumentEvent
-import scala.jdk.OptionConverters._
 
 /**
  * Convenience constructors for [[ManaCostFilterPanel]].
@@ -52,7 +51,7 @@ class ManaCostFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPan
   add(contain)
   private val cost = JTextField()
   cost.getDocument.addDocumentListener(new DocumentChangeListener {
-    override def update(e: DocumentEvent) = cost.setBackground(ManaCost.tryParseManaCost(cost.getText).toScala.map(_ => Valid).getOrElse(Invalid))
+    override def update(e: DocumentEvent) = cost.setBackground(ManaCost.parse(cost.getText).map(_ => Valid).getOrElse(Invalid))
   })
   add(cost)
 
@@ -62,7 +61,7 @@ class ManaCostFilterPanel(selector: FilterSelectorPanel) extends FilterEditorPan
     val filter = ManaCostFilter()
     filter.faces = selector.faces
     filter.contain = contain.getSelectedItem
-    filter.cost = ManaCost.tryParseManaCost(cost.getText).toScala.getOrElse(ManaCost())
+    filter.cost = ManaCost.parse(cost.getText).getOrElse(ManaCost())
     filter
   }
 

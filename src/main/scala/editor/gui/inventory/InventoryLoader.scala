@@ -418,7 +418,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
             val c = SingleCard(
               layout,
               name,
-              costs.getOrElseUpdate(cost, ManaCost.parseManaCost(cost)),
+              costs.getOrElseUpdate(cost, ManaCost.parse(cost).get),
               colorLists.getOrElseUpdate(colors.toString, {
                 val col = collection.mutable.ArrayBuffer[ManaType]()
                 colors.asScala.foreach((e) => col += ManaType.parse(e.getAsString).get)
