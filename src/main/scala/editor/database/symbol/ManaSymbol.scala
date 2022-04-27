@@ -11,17 +11,6 @@ import scala.jdk.CollectionConverters._
  */
 object ManaSymbol extends SymbolParser[ManaSymbol] {
   override def parse(s: String) = ManaSymbolInstances.values.flatMap(_.parse(s)).headOption
-
-  /**
-   * Not yet implemented.
-   * 
-   * @param symbols collection of symbols to sort in place
-   */
-  def sort(symbols: collection.mutable.Seq[ManaSymbol]): Unit = {}
-
-  @deprecated def createIntensity(): java.util.Map[ManaType, java.lang.Double] = collection.mutable.Map.from(ManaType.values.map(_ -> new java.lang.Double(0))).asJava
-  @deprecated def tryParseManaSymbol(s: String) = parse(s).toJava
-  @deprecated def sort(symbols: java.util.List[ManaSymbol]): Unit = sort(symbols.asScala)
 }
 
 /**
