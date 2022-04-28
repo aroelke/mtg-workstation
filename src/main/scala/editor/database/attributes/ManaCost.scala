@@ -2,6 +2,7 @@ package editor.database.attributes
 
 import editor.database.symbol.ManaSymbol
 import editor.gui.generic.ComponentUtils
+
 import scala.util.matching._
 
 object ManaCost {
@@ -42,11 +43,11 @@ case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[M
       if (diff == 0) {
         val sortedIntensities = intensity.values.toSeq.sorted
         val otherIntensities = other.intensity.values.toSeq.sorted
-        diff = sortedIntensities.zipAll(otherIntensities, 0.0, 0.0).zipWithIndex.map{ case ((x, y), i) => math.abs(x - y)*math.pow(10, i) }.sum.toInt
+        diff = sortedIntensities.zipAll(otherIntensities, 0.0, 0.0).reverse.zipWithIndex.map{ case ((x, y), i) => (x - y)*math.pow(10, i) }.sum.toInt
       }
-      if (diff == 0) {
+      if (diff == 0)
         diff = zip(other).filter{ case (a, b) => a != b }.map(_.compare(_)).headOption.getOrElse(0)
-      }
+
       diff
     }
   }
