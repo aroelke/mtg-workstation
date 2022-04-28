@@ -27,7 +27,6 @@ import javax.swing.UIManager
 import javax.swing.border.Border
 import javax.swing.table.DefaultTableCellRenderer
 import scala.jdk.CollectionConverters._
-import java.awt.Panel
 
 private object CardTableCellRenderer {
   val cache = collection.mutable.Map[Seq[ManaCost], Seq[Seq[Icon]]]()
@@ -70,13 +69,13 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
               case _ => Seq.empty
             }
             val icons = cache.getOrElseUpdate(costs, costs.map(_.map(_.getIcon(ComponentUtils.TextSize))))
-            val panel = tablePanel(border = BorderFactory.createEmptyBorder(0, 1, if (icons.length == 1) -1 else 0, 0))
+            val panel = tablePanel()
             panel.setLayout(BoxLayout(panel, BoxLayout.X_AXIS))
             for (i <- 0 until icons.size) {
               if (!icons(i).isEmpty) {
                 if (i > 0)
                   panel.add(tableLabel(Card.FaceSeparator))
-                icons(i).foreach{ icon => panel.add(tableLabel(icon)) }
+                icons(i).foreach((icon) => panel.add(tableLabel(icon)))
               }
             }
             panel
