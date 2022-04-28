@@ -67,8 +67,8 @@ case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[M
     else {
       var diff = (2*(manaValue - other.manaValue)).toInt
       if (diff == 0) {
-        val sortedIntensities = intensity.values.toSeq.sorted
-        val otherIntensities = other.intensity.values.toSeq.sorted
+        val sortedIntensities = intensity.values.toSeq.sorted.reverse
+        val otherIntensities = other.intensity.values.toSeq.sorted.reverse
         diff = sortedIntensities.zipAll(otherIntensities, 0.0, 0.0).reverse.zipWithIndex.map{ case ((x, y), i) => (x - y)*math.pow(10, i) }.sum.toInt
       }
       if (diff == 0)
