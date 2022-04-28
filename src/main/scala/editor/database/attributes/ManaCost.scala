@@ -65,15 +65,18 @@ case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[M
     else if (isEmpty) -1
     else if (other.isEmpty) 1
     else {
+      // First, compare by mana value
       var diff = (2*(manaValue - other.manaValue)).toInt
       if (diff == 0) {
+        // If mana value is the same, compare by greatest color intensity
         val sortedIntensities = intensity.values.toSeq.sorted.reverse
         val otherIntensities = other.intensity.values.toSeq.sorted.reverse
         diff = sortedIntensities.zipAll(otherIntensities, 0.0, 0.0).reverse.zipWithIndex.map{ case ((x, y), i) => (x - y)*math.pow(10, i) }.sum.toInt
       }
+      // If intensities are the same, compare by color
       if (diff == 0)
         diff = zip(other).filter{ case (a, b) => a != b }.map(_.compare(_)).headOption.getOrElse(0)
-
+      // If color is the same, the mana values are the same
       diff
     }
   }
