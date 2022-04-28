@@ -15,19 +15,45 @@ object ManaCost {
   }
 }
 
+/**
+ * A list of zero or more [[ManaSymbol]]s which also has a numerical "mana value" which is the sum of those of
+ * those symbols.
+ * 
+ * @constructor create a new mana cost
+ * @param cost list of symbols in the new cost
+ * 
+ * @author Alec Roelke
+ */
 case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[ManaSymbol] with Ordered[ManaCost] {
+  /** Total color intensity of the mana cost. @see [[ManaSymbol.colorIntensity]] */
   lazy val intensity = ManaType.values.map((t) => t -> cost.map(_.colorIntensity(t)).sum).filter{ case (_, c) => c > 0 }.toMap.withDefaultValue(0.0)
 
+  /** Set of all of the colors in the mana cost. */
   lazy val colors = intensity.keys.toSet - ManaType.Colorless
 
+  /** Mana value of the mana cost, determined by the sum of the mana values of its symbols. */
   lazy val manaValue = cost.map(_.value).sum
 
+  /**
+   * Determine if this mana cost is a subset of the other one.
+   * 
+   * @param other mana cost to compare with
+   * @return true if the other mana cost contains all of the symbols of this one, including counts of duplicates, or
+   * false otherwise
+   */
   def isSubset(other: ManaCost) = {
     val myCounts = groupBy(identity).map{ case (s, ss) => s -> ss.size }.toMap
     val oCounts = other.groupBy(identity).map{ case (s, ss) => s -> ss.size }.toMap.withDefaultValue(0)
     myCounts.forall{ case (s, n) => n <= oCounts(s) }
   }
 
+  /**
+   * Determine if this mana cost is a superset of the other one.
+   * 
+   * @param other mana cost to compare with
+   * @return true if this mana cost contains all of the symbols of the other one, including counts of duplicates,
+   * or false otherwise.
+   */
   def isSuperset(other: ManaCost) = other.isSubset(this)
 
   override def apply(i: Int) = cost(i)
@@ -52,6 +78,7 @@ case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[M
     }
   }
 
+  /** String containing HTML code to display this mana cost in HTML documents. */
   lazy val toHTMLString = cost.map((s) => s"""<img src="${getClass.getResource(s"/images/icons/${s.name}")}" width="${ComponentUtils.TextSize}" height="${ComponentUtils.TextSize}"/>""").mkString
 
   override lazy val toString = map(_.toString).mkString
