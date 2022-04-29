@@ -75,7 +75,7 @@ case class ManaCost(private val cost: Seq[ManaSymbol] = Seq.empty) extends Seq[M
       }
       // If intensities are the same, compare by color
       if (diff == 0)
-        diff = zip(other).filter{ case (a, b) => a != b }.map(_.compare(_)).headOption.getOrElse(0)
+        diff = zip(other).collect{ case (a, b) if a != b => a.compare(b) }.headOption.getOrElse(0)
       // If color is the same, the mana values are the same
       diff
     }
