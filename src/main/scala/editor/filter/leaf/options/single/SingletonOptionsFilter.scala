@@ -4,8 +4,6 @@ import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 import editor.filter.leaf.options.OptionsFilter
 
-import scala.jdk.CollectionConverters._
-
 /**
  * A type of filter that groups cards by an attribute that has only one of a set of possible values.
  * 
@@ -18,5 +16,5 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 abstract class SingletonOptionsFilter[T](t: CardAttribute, unified: Boolean, value: (Card) => T) extends OptionsFilter[T](t, unified) {
-  override protected def testFace(c: Card) = contain.test(selected.asJava, Seq(value(c)).asJava)
+  override protected def testFace(c: Card) = contain(selected, Seq(value(c)))
 }

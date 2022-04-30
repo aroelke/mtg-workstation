@@ -4,9 +4,6 @@ import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 import editor.filter.leaf.options.OptionsFilter
 
-import java.util.Objects
-import scala.jdk.CollectionConverters._
-
 /**
  * A type of filter that groups cards by an attribute that can have zero or more of a set of distinct vales.
  * 
@@ -17,5 +14,5 @@ import scala.jdk.CollectionConverters._
  * @tparam T type of the data that is being filtered
  */
 abstract class MultiOptionsFilter[T](t: CardAttribute, unified: Boolean, values: (Card) => Set[T]) extends OptionsFilter[T](t, unified) {
-  override protected def testFace(c: Card) = contain.test(values(c).asJava, selected.asJava)
+  override protected def testFace(c: Card) = contain(values(c), selected)
 }

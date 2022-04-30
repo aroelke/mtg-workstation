@@ -99,20 +99,20 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
       case x => throw JsonParseException(s"attribute $x can't be used to filter")
     } match {
       case t: TextFilter =>
-        t.contain = Containment.parseContainment(obj.get("contains").getAsString)
+        t.contain = Containment.parse(obj.get("contains").getAsString).get
         t.regex = obj.get("regex").getAsBoolean
         t.text = obj.get("pattern").getAsString
         t
       case t: TypeLineFilter =>
-        t.contain = Containment.parseContainment(obj.get("contains").getAsString)
+        t.contain = Containment.parse(obj.get("contains").getAsString).get
         t.line = obj.get("pattern").getAsString
         t
       case m: ManaCostFilter =>
-        m.contain = Containment.parseContainment(obj.get("contains").getAsString)
+        m.contain = Containment.parse(obj.get("contains").getAsString).get
         m.cost = ManaCost.parse(obj.get("cost").getAsString).get
         m
       case c: ColorFilter =>
-        c.contain = Containment.parseContainment(obj.get("contains").getAsString)
+        c.contain = Containment.parse(obj.get("contains").getAsString).get
         c.colors = obj.get("colors").getAsJsonArray.asScala.map((e) => ManaType.parse(e.getAsString).get).toSet
         c.multicolored = obj.get("multicolored").getAsBoolean()
         c
@@ -126,7 +126,7 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         n.operand = obj.get("operand").getAsDouble
         n
       case o: OptionsFilter[?] =>
-        o.contain = Containment.parseContainment(obj.get("contains").getAsString)
+        o.contain = Containment.parse(obj.get("contains").getAsString).get
         o
       case f => f
     } match {

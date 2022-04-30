@@ -6,7 +6,6 @@ import editor.filter.leaf.FilterLeaf
 import editor.util.Containment
 
 import java.util.Objects
-import scala.jdk.CollectionConverters._
 
 /**
  * A type of filter that groups cards by attributes that have values taken from a set of discreet possibiliies.
@@ -20,7 +19,7 @@ import scala.jdk.CollectionConverters._
  */
 abstract class OptionsFilter[T](t: CardAttribute, unified: Boolean) extends FilterLeaf(t, unified) {
   /** Function to use to compare card attributes. */
-  var contain = Containment.CONTAINS_ANY_OF
+  var contain = Containment.AnyOf
   /** Set of items to look for in cards. */
   var selected = Set[T]() // Using an immutable var guarantees that changing this in a copy doesn't change this filter's version
 

@@ -5,17 +5,16 @@ import editor.database.card.Card
 import editor.util.Containment
 
 import java.util.Objects
-import scala.jdk.CollectionConverters._
 
 /**
  * Filter that groups cards by all of their types.
  * @author Alec Roelke
  */
 class TypeLineFilter extends FilterLeaf(CardAttribute.TYPE_LINE, false) {
-  var contain = Containment.CONTAINS_ANY_OF
+  var contain = Containment.AnyOf
   var line = ""
 
-  override protected def testFace(c: Card) = !line.isEmpty && contain.test(c.typeLine.toSet.map(_.toLowerCase).asJava, line.toLowerCase.split("\\s").toSeq.asJava)
+  override protected def testFace(c: Card) = !line.isEmpty && contain(c.typeLine.toSet.map(_.toLowerCase), line.toLowerCase.split("\\s").toSeq)
 
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(CardAttribute.TYPE_LINE).asInstanceOf[TypeLineFilter]

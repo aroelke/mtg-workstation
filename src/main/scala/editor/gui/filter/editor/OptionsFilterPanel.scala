@@ -79,7 +79,7 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag](protected override val attribut
 
   private val boxes = collection.mutable.Buffer[JComboBox[T]]()
 
-  private val contain = ComboBoxPanel(Containment.values)
+  private val contain = ComboBoxPanel(Containment.values.toArray)
   add(contain, BorderLayout.WEST)
 
   private val optionsPanel = ScrollablePanel(ScrollablePanel.TrackHeight)

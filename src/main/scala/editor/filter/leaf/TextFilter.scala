@@ -101,7 +101,7 @@ class TextFilter(t: CardAttribute, value: (Card) => Iterable[String]) extends Fi
   import Containment._
   import TextFilter._
 
-  private var current = Data(CONTAINS_ANY_OF, false, "")
+  private var current = Data(AnyOf, false, "")
   /** @return the method of containment used to determine if a non-regex pattern matches */
   def contain = current.contain
   /** @param c new method of containment to use for matching text */
@@ -122,19 +122,19 @@ class TextFilter(t: CardAttribute, value: (Card) => Iterable[String]) extends Fi
     if (prev != current) {
       prev = current
       patternCache = if (regex) s"(?si)${replaceTokens(text)}".r.findFirstIn(_).isDefined else contain match {
-        case CONTAINS_ALL_OF => createSimpleMatcher(text)
-        case CONTAINS_ANY_OF | CONTAINS_NONE_OF =>
+        case AllOf => createSimpleMatcher(text)
+        case AnyOf | NoneOf =>
           val r = WordPattern.findAllMatchIn(text).map((m) => {
             replaceTokens(Option(m.group(1)).orElse(Option(m.group(2))).getOrElse(m.matched).replace("*", "\\E\\w*\\Q"), "\\E", "\\Q")
           }).mkString("(?mi)((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))|((?:^|$|\\W)\\Q", "\\E(?:^|$|\\W))").replace("\\Q\\E", "").r
-          if (contain == CONTAINS_ANY_OF)
+          if (contain == AnyOf)
             r.findFirstIn(_).isDefined
           else
             !r.findFirstIn(_).isDefined
-        case CONTAINS_NOT_ALL_OF => !createSimpleMatcher(text)(_)
-        case CONTAINS_EXACTLY | CONTAINS_NOT_EXACTLY =>
+        case SomeOf => !createSimpleMatcher(text)(_)
+        case Exactly | NotExactly =>
           val r = s"(?i)${replaceTokens(text)}".r
-          if (contain == CONTAINS_EXACTLY)
+          if (contain == Exactly)
             r.findFirstIn(_).isDefined
           else
             !r.findFirstIn(_).isDefined

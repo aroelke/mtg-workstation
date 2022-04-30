@@ -6,7 +6,6 @@ import editor.database.card.Card
 import editor.util.Containment
 
 import java.util.Objects
-import scala.jdk.CollectionConverters._
 
 /**
  * Filter that groups cards by a color attribute.
@@ -19,13 +18,13 @@ import scala.jdk.CollectionConverters._
  */
 class ColorFilter(t: CardAttribute, value: (Card) => Seq[ManaType]) extends FilterLeaf(t, false) {
   /** Function to use to compare colors. */
-  var contain = Containment.CONTAINS_ANY_OF
+  var contain = Containment.AnyOf
   /** Colors to compare cards with. */
   var colors = Set[ManaType]() // Using an immutable var here guarantees that copies don't reflect changes in each others' color sets
   /** Whether or not to only match multicolored cards. */
   var multicolored = false
 
-  override protected def testFace(c: Card) = contain.test(value(c).asJava, colors.asJava) && (!multicolored || value(c).size > 1)
+  override protected def testFace(c: Card) = contain(value(c), colors) && (!multicolored || value(c).size > 1)
 
   override protected def copyLeaf = {
     val filter = CardAttribute.createFilter(attribute).asInstanceOf[ColorFilter]
