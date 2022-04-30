@@ -169,9 +169,9 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   buttonPanel.add(rankBox)
   val colorButton = ColorButton(deck.getCategorySpec(name).getColor())
   buttonPanel.add(colorButton)
-  val editButton = JButton(UnicodeSymbols.ELLIPSIS.toString)
+  val editButton = JButton(UnicodeSymbols.Ellipsis.toString)
   buttonPanel.add(editButton)
-  val removeButton = JButton(UnicodeSymbols.MINUS.toString)
+  val removeButton = JButton(UnicodeSymbols.Minus.toString)
   buttonPanel.add(removeButton)
   topPanel.add(buttonPanel, BorderLayout.EAST)
 

@@ -75,8 +75,8 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
     val columnFormats = attributes.map((a) => CardFormat(s"{$a}".toLowerCase))
     list.asScala.map((card) => {
       columnFormats.map((format) => {
-        val value = format.format(list.getEntry(card)).replace(Escape, UnicodeSymbols.SUBSTITUTE.toString)
-        (if (value.contains(delimiter)) s"$Escape${value.replace(Escape, Escape*2)}$Escape" else value).replace(UnicodeSymbols.SUBSTITUTE.toString, Escape*2)
+        val value = format.format(list.getEntry(card)).replace(Escape, UnicodeSymbols.Substitute.toString)
+        (if (value.contains(delimiter)) s"$Escape${value.replace(Escape, Escape*2)}$Escape" else value).replace(UnicodeSymbols.Substitute.toString, Escape*2)
       }).mkString(delimiter)
     }).mkString(System.lineSeparator)
   }

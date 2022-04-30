@@ -111,7 +111,7 @@ case class SingleCard(
         for (color <- colors) {
           val indicatorStyle = document.addStyle("indicator", document.getStyle("text"))
           color.color.foreach(StyleConstants.setForeground(indicatorStyle, _))
-          document.insertString(document.getLength, UnicodeSymbols.BULLET.toString, indicatorStyle)
+          document.insertString(document.getLength, UnicodeSymbols.Bullet.toString, indicatorStyle)
         }
         if (!colors.isEmpty)
           document.insertString(document.getLength, " ", textStyle)
@@ -130,7 +130,7 @@ case class SingleCard(
         while (i < abilities.size) {
           if (i == 0 || abilities(i) == '\n') {
             val nextLine = abilities.substring(i + 1).indexOf('\n')
-            var dash = (if (nextLine > -1) abilities.substring(i, nextLine + i) else abilities.substring(i)).indexOf(UnicodeSymbols.EM_DASH)
+            var dash = (if (nextLine > -1) abilities.substring(i, nextLine + i) else abilities.substring(i)).indexOf(UnicodeSymbols.EmDash)
             if (dash > -1) {
               dash += i
               if (i > 0)
@@ -174,7 +174,7 @@ case class SingleCard(
               }
               if (abilities(i) == '}')
                 start += 1
-            case UnicodeSymbols.EM_DASH =>
+            case UnicodeSymbols.EmDash =>
               document.insertString(document.getLength, abilities.substring(start, i), style)
               style = textStyle
               start = i

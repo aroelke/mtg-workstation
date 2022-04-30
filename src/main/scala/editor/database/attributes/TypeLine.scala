@@ -56,5 +56,5 @@ final case class TypeLine(types: ListSet[String], subtypes: ListSet[String] = Li
       subtypes.mkString.compare(that.subtypes.mkString)
   }
 
-  override lazy val toString = s"""${if (supertypes.isEmpty) "" else supertypes.mkString("", " ", " ")}${types.mkString(" ")}${if (subtypes.isEmpty) "" else subtypes.mkString(s" ${UnicodeSymbols.EM_DASH} ", " ", "")}"""
+  override lazy val toString = s"""${if (supertypes.isEmpty) "" else supertypes.mkString("", " ", " ")}${types.mkString(" ")}${if (subtypes.isEmpty) "" else subtypes.mkString(s" ${UnicodeSymbols.EmDash} ", " ", "")}"""
 }

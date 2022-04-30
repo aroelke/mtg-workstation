@@ -68,8 +68,8 @@ enum ManaSymbolInstances[K, S <: ManaSymbol](map: => Map[K, S], keygen: (String)
   case StaticSymbol extends ManaSymbolInstances(
     map = Map(
       "1/2" -> new StaticSymbol("half_mana.png", "1/2", 0.5),
-      UnicodeSymbols.ONE_HALF.toString -> new StaticSymbol("half_mana.png", "1/2", 0.5),
-      UnicodeSymbols.INFINITY.toString -> new StaticSymbol("infinity_mana.png", UnicodeSymbols.INFINITY.toString, Double.PositiveInfinity),
+      UnicodeSymbols.OneHalf.toString -> new StaticSymbol("half_mana.png", "1/2", 0.5),
+      UnicodeSymbols.Infinity.toString -> new StaticSymbol("infinity_mana.png", UnicodeSymbols.Infinity.toString, Double.PositiveInfinity),
       "S" -> new StaticSymbol("snow_mana.png", "S", 1, 1),
       "M" -> new StaticSymbol("multicolored.png", "M", 0)
     ),

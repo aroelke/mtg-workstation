@@ -83,7 +83,7 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     firePanelsChanged()
   })
   editPanel.add(addButton)
-  private val removeButton = JButton(UnicodeSymbols.MINUS.toString)
+  private val removeButton = JButton(UnicodeSymbols.Minus.toString)
   removeButton.addActionListener(_ => {
     group.map((g) => {
       g -= this
@@ -95,7 +95,7 @@ class FilterGroupPanel(panels: Seq[FilterPanel[?]] = Seq.empty) extends FilterPa
     })
   })
   editPanel.add(removeButton)
-  private val groupButton = JButton(UnicodeSymbols.ELLIPSIS.toString)
+  private val groupButton = JButton(UnicodeSymbols.Ellipsis.toString)
   groupButton.addActionListener(_ => {
     group.map(_.engroup(this)).getOrElse({
       val newGroup = FilterGroupPanel()

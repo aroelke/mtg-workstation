@@ -118,7 +118,7 @@ class CardTagPanel(cards: Iterable[Card]) extends ScrollablePanel(ScrollablePane
         tagPanel.add(tagBox, BorderLayout.WEST)
         tagBoxes += tagBox
 
-        val deleteButton = JLabel(s"${UnicodeSymbols.MINUS} ")
+        val deleteButton = JLabel(s"${UnicodeSymbols.Minus} ")
         deleteButton.setForeground(Color.RED)
         deleteButton.addMouseListener(MouseListenerFactory.createMouseListener(pressed = _ => removeTag(tag)))
         tagPanel.add(deleteButton, BorderLayout.EAST)

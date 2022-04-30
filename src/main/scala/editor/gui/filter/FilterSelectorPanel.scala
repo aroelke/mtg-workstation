@@ -107,7 +107,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   add(Box.createHorizontalStrut(1))
 
   // Button to remove this from the form
-  private val removeButton = JButton(UnicodeSymbols.MINUS.toString)
+  private val removeButton = JButton(UnicodeSymbols.Minus.toString)
   removeButton.addActionListener(_ => group.foreach((g) => {
     g -= this
     firePanelsChanged()
@@ -115,7 +115,7 @@ class FilterSelectorPanel extends FilterPanel[FilterLeaf] {
   add(removeButton)
 
   // Button to create a new group with this in it
-  private val groupButton = JButton(UnicodeSymbols.ELLIPSIS.toString)
+  private val groupButton = JButton(UnicodeSymbols.Ellipsis.toString)
   groupButton.addActionListener(_ => group.foreach((g) => {
     g.engroup(this)
     firePanelsChanged()

@@ -165,7 +165,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   inventoryChooser.setAcceptAllFileFilterUsed(false)
   inventoryDirPanel.add(inventoryDirField)
   inventoryDirPanel.add(Box.createHorizontalStrut(5))
-  private val inventoryDirButton = JButton(UnicodeSymbols.ELLIPSIS.toString)
+  private val inventoryDirButton = JButton(UnicodeSymbols.Ellipsis.toString)
   inventoryDirButton.addActionListener((e) => {
     if (inventoryChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION) {
       val f = relativize(inventoryChooser.getSelectedFile)
@@ -188,7 +188,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   scansChooser.setAcceptAllFileFilterUsed(false)
   scansDirPanel.add(scansDirField)
   scansDirPanel.add(Box.createHorizontalStrut(5))
-  private val scansDirButton = JButton(UnicodeSymbols.ELLIPSIS.toString)
+  private val scansDirButton = JButton(UnicodeSymbols.Ellipsis.toString)
   scansDirButton.addActionListener((e) => {
     if (scansChooser.showDialog(null, "Select Folder") == JFileChooser.APPROVE_OPTION) {
       val f = relativize(scansChooser.getSelectedFile)
@@ -352,16 +352,16 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   categoriesPanel.add(JScrollPane(categoriesList), BorderLayout.CENTER)
 
   // Category modification buttons
-  private val categoryModPanel = VerticalButtonList(Seq("+", UnicodeSymbols.ELLIPSIS.toString, UnicodeSymbols.MINUS.toString))
+  private val categoryModPanel = VerticalButtonList(Seq("+", UnicodeSymbols.Ellipsis.toString, UnicodeSymbols.Minus.toString))
   categoryModPanel("+").addActionListener((e) => CategoryEditorPanel.showCategoryEditor(this).foreach(categoriesList.addCategory(_)))
-  categoryModPanel(UnicodeSymbols.ELLIPSIS.toString).addActionListener((e) => {
+  categoryModPanel(UnicodeSymbols.Ellipsis.toString).addActionListener((e) => {
     if (categoriesList.getSelectedIndex >= 0) {
       CategoryEditorPanel.showCategoryEditor(this, Option(categoriesList.categories(categoriesList.getSelectedIndex))).foreach((s) => {
         categoriesList.setCategoryAt(categoriesList.getSelectedIndex, s)
       })
     }
   })
-  categoryModPanel(UnicodeSymbols.MINUS.toString).addActionListener((e) => {
+  categoryModPanel(UnicodeSymbols.Minus.toString).addActionListener((e) => {
     if (categoriesList.getSelectedIndex >= 0)
       categoriesList.removeCategoryAt(categoriesList.getSelectedIndex)
   })

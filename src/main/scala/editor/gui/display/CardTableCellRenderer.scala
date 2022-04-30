@@ -138,8 +138,8 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             })
             if (!categories.isEmpty) {
               panel.setToolTipText(categories.map(_.getName).mkString(
-                s"<html>Categories:<br>${UnicodeSymbols.BULLET} ",
-                s"<br>${UnicodeSymbols.BULLET} ",
+                s"<html>Categories:<br>${UnicodeSymbols.Bullet} ",
+                s"<br>${UnicodeSymbols.Bullet} ",
                 "</html>"
               ))
             }

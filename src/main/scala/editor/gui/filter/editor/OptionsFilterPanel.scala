@@ -119,7 +119,7 @@ class OptionsFilterPanel[T <: AnyRef : ClassTag](protected override val attribut
       this += options(0)
       optionsPanel.revalidate()
     }))
-    val removeButton = JLabel(UnicodeSymbols.MULTIPLY.toString, SwingConstants.CENTER)
+    val removeButton = JLabel(UnicodeSymbols.Multiply.toString, SwingConstants.CENTER)
     removeButton.setForeground(Color.RED)
     removeButton.setAlignmentX(Component.CENTER_ALIGNMENT)
     removeButton.setFont(buttonFont)

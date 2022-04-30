@@ -352,7 +352,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
           val headersPane = JScrollPane(headersList)
           val headersPanel = Box(BoxLayout.X_AXIS)
           headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"))
-          val rearrangeButtons = VerticalButtonList(Seq(UnicodeSymbols.UP_ARROW.toString, UnicodeSymbols.DOWN_ARROW.toString))
+          val rearrangeButtons = VerticalButtonList(Seq(UnicodeSymbols.UpArrow.toString, UnicodeSymbols.DownArrow.toString))
           rearrangeButtons.foreach(_.setEnabled(!includeCheckBox.isSelected))
           headersPanel.add(rearrangeButtons)
           headersPanel.add(Box.createHorizontalStrut(5))
@@ -368,13 +368,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               override def getPreferredSize = headersPane.getPreferredSize
           })
           headersPanel.add(Box.createHorizontalStrut(5))
-          val moveButtons = VerticalButtonList(Seq(UnicodeSymbols.LEFT_ARROW.toString, UnicodeSymbols.RIGHT_ARROW.toString))
+          val moveButtons = VerticalButtonList(Seq(UnicodeSymbols.LeftArrow.toString, UnicodeSymbols.RightArrow.toString))
           moveButtons.foreach(_.setEnabled(!includeCheckBox.isSelected))
           headersPanel.add(moveButtons)
           headersPanel.add(Box.createHorizontalStrut(5))
           headersPanel.add(headersPane)
           dataPanel.add(headersPanel, BorderLayout.CENTER)
-          rearrangeButtons(UnicodeSymbols.UP_ARROW.toString).addActionListener(_ => {
+          rearrangeButtons(UnicodeSymbols.UpArrow.toString).addActionListener(_ => {
             val selected = selectedHeadersList.getSelectedValuesList.asScala
             var ignore = 0
             for (index <- selectedHeadersList.getSelectedIndices) {
@@ -389,7 +389,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             selectedHeadersList.clearSelection()
             selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
           })
-          rearrangeButtons(UnicodeSymbols.DOWN_ARROW.toString).addActionListener(_ => {
+          rearrangeButtons(UnicodeSymbols.DownArrow.toString).addActionListener(_ => {
             val selected = selectedHeadersList.getSelectedValuesList.asScala
             val indices = selectedHeadersList.getSelectedIndices.reverse
             var ignore = selectedHeadersModel.size() - 1
@@ -405,13 +405,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             selectedHeadersList.clearSelection()
             selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
           })
-          moveButtons(UnicodeSymbols.LEFT_ARROW.toString).addActionListener(_ => {
+          moveButtons(UnicodeSymbols.LeftArrow.toString).addActionListener(_ => {
             for (selected <- headersList.getSelectedValuesList.asScala)
               if (!selectedHeadersModel.contains(selected))
                 selectedHeadersModel.addElement(selected)
             headersList.clearSelection()
           })
-          moveButtons(UnicodeSymbols.RIGHT_ARROW.toString).addActionListener(_ => selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_)))
+          moveButtons(UnicodeSymbols.RightArrow.toString).addActionListener(_ => selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_)))
           includeCheckBox.addActionListener(_ => {
             headersList.setEnabled(!includeCheckBox.isSelected)
             selectedHeadersList.setEnabled(!includeCheckBox.isSelected)
@@ -591,7 +591,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             val headersPane = JScrollPane(headersList)
             val headersPanel = Box(BoxLayout.X_AXIS)
             headersPanel.setBorder(BorderFactory.createTitledBorder("Column Data:"))
-            val rearrangeButtons = VerticalButtonList(Seq(UnicodeSymbols.UP_ARROW.toString, UnicodeSymbols.DOWN_ARROW.toString))
+            val rearrangeButtons = VerticalButtonList(Seq(UnicodeSymbols.UpArrow.toString, UnicodeSymbols.DownArrow.toString))
             headersPanel.add(rearrangeButtons)
             headersPanel.add(Box.createHorizontalStrut(5))
             val selectedHeadersModel = DefaultListModel[CardAttribute]()
@@ -605,13 +605,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               override def getPreferredSize = headersPane.getPreferredSize
             })
             headersPanel.add(Box.createHorizontalStrut(5))
-            val moveButtons = VerticalButtonList(Seq(UnicodeSymbols.LEFT_ARROW.toString, UnicodeSymbols.RIGHT_ARROW.toString))
+            val moveButtons = VerticalButtonList(Seq(UnicodeSymbols.LeftArrow.toString, UnicodeSymbols.RightArrow.toString))
             headersPanel.add(moveButtons)
             headersPanel.add(Box.createHorizontalStrut(5))
             headersPanel.add(headersPane)
             dataPanel.add(headersPanel)
 
-            rearrangeButtons(UnicodeSymbols.UP_ARROW.toString).addActionListener(_ => {
+            rearrangeButtons(UnicodeSymbols.UpArrow.toString).addActionListener(_ => {
               val selected = selectedHeadersList.getSelectedValuesList.asScala
               var ignore = 0
               for (index <- selectedHeadersList.getSelectedIndices) {
@@ -626,7 +626,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               selectedHeadersList.clearSelection()
               selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
             })
-            rearrangeButtons(UnicodeSymbols.DOWN_ARROW.toString).addActionListener(_ => {
+            rearrangeButtons(UnicodeSymbols.DownArrow.toString).addActionListener(_ => {
               val selected = selectedHeadersList.getSelectedValuesList.asScala
               val indices = selectedHeadersList.getSelectedIndices.reverse
               var ignore = selectedHeadersModel.size - 1
@@ -642,13 +642,13 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
               selectedHeadersList.clearSelection()
               selected.map(selectedHeadersModel.indexOf).foreach((i) => selectedHeadersList.addSelectionInterval(i, i))
             })
-            moveButtons(UnicodeSymbols.LEFT_ARROW.toString).addActionListener(_ => {
+            moveButtons(UnicodeSymbols.LeftArrow.toString).addActionListener(_ => {
               for (selected <- headersList.getSelectedValuesList.asScala)
                 if (!selectedHeadersModel.contains(selected))
                   selectedHeadersModel.addElement(selected)
               headersList.clearSelection()
             })
-            moveButtons(UnicodeSymbols.RIGHT_ARROW.toString).addActionListener(_ => {
+            moveButtons(UnicodeSymbols.RightArrow.toString).addActionListener(_ => {
               selectedHeadersList.getSelectedValuesList.asScala.foreach(selectedHeadersModel.removeElement(_))
             })
 
@@ -1264,8 +1264,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
         if (JOptionPane.showConfirmDialog(
           this,
           s"""|Inventory is out of date:
-              |${UnicodeSymbols.BULLET} Current version: ${SettingsDialog.settings.inventory.version}
-              |${UnicodeSymbols.BULLET} Latest version: $latest
+              |${UnicodeSymbols.Bullet} Current version: ${SettingsDialog.settings.inventory.version}
+              |${UnicodeSymbols.Bullet} Latest version: $latest
               |
               |Download update?""".stripMargin,
           "Update",
@@ -1542,7 +1542,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
       try {
         for ((date, rulings) <- card.rulings) {
           for (ruling <- rulings) {
-            rulingsDocument.insertString(rulingsDocument.getLength, s"${UnicodeSymbols.BULLET} ", rulingStyle)
+            rulingsDocument.insertString(rulingsDocument.getLength, s"${UnicodeSymbols.Bullet} ", rulingStyle)
             rulingsDocument.insertString(rulingsDocument.getLength, format.format(date), dateStyle)
             rulingsDocument.insertString(rulingsDocument.getLength, ": ", rulingStyle)
             var start = 0

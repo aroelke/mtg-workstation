@@ -15,10 +15,10 @@ import editor.util.UnicodeSymbols
 case class CombatStat(expression: String, value: Double) extends OptionalAttribute with Ordered[CombatStat] {
   @deprecated def this(v: Double) = this(if (v.isNaN) "" else v.toString, v)
   @deprecated def this(e: String) = this(e.replaceAll("\\s+", ""), if (e.isEmpty) Double.NaN else {
-    val x = e.replaceAll("[*?" + UnicodeSymbols.SUPERSCRIPT_TWO + "]+", "").replaceAll("[+-]$", "").replace(String.valueOf(UnicodeSymbols.ONE_HALF), ".5")
+    val x = e.replaceAll("[*?" + UnicodeSymbols.SuperscriptTwo + "]+", "").replaceAll("[+-]$", "").replace(String.valueOf(UnicodeSymbols.OneHalf), ".5")
     if (x.isEmpty)
       0
-    else if (x == UnicodeSymbols.INFINITY.toString)
+    else if (x == UnicodeSymbols.Infinity.toString)
       Double.PositiveInfinity
     else
       x.toDouble
@@ -62,10 +62,10 @@ object CombatStat {
   def apply(expression: String): CombatStat = {
     val e = expression.replaceAll("\\s+", "")
     val value = if (e.isEmpty) Double.NaN else {
-      val x = e.replaceAll("[*?" + UnicodeSymbols.SUPERSCRIPT_TWO + "]+", "").replaceAll("[+-]$", "").replace(String.valueOf(UnicodeSymbols.ONE_HALF), ".5")
+      val x = e.replaceAll("[*?" + UnicodeSymbols.SuperscriptTwo + "]+", "").replaceAll("[+-]$", "").replace(String.valueOf(UnicodeSymbols.OneHalf), ".5")
       if (x.isEmpty)
         0
-      else if (x == UnicodeSymbols.INFINITY.toString)
+      else if (x == UnicodeSymbols.Infinity.toString)
         Double.PositiveInfinity
       else
         x.toDouble
