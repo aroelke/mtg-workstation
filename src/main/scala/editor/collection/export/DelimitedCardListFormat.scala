@@ -81,7 +81,7 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
     }).mkString(System.lineSeparator)
   }
 
-  override lazy val header = attributes.map(_.toString.replace(Escape, Escape*2)).mkString(delimiter)
+  override lazy val header = Option.when(!attributes.isEmpty)(attributes.map(_.toString.replace(Escape, Escape*2)).mkString(delimiter))
 
   override def parse(source: InputStream) = {
     val deck = Deck()
@@ -97,7 +97,7 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
     IterableReader(source).foreach((line) => {
       if (name < 0) {
         val headers = line.split(delimiter)
-        val attrs = headers.map((h) => CardAttribute.displayableValues.find(_.toString.compareToIgnoreCase(h) == 0).getOrElse(throw ParseException(s"unknown data type $header", pos))).toSeq
+        val attrs = headers.map((h) => CardAttribute.displayableValues.find(_.toString.equalsIgnoreCase(h)).getOrElse(throw ParseException(s"unknown data type $h", pos))).toSeq
         name = attrs.indexOf(CardAttribute.NAME)
         expansion = attrs.indexOf(CardAttribute.EXPANSION)
         number = attrs.indexOf(CardAttribute.CARD_NUMBER)

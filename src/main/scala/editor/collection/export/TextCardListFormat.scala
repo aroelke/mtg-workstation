@@ -44,7 +44,7 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
 
   private val formatter = CardFormat(pattern)
 
-  override val header = ""
+  override val header = None
 
   override def format(list: CardList) = list.asScala.map((c) => formatter.format(list.getEntry(c))).mkString(System.lineSeparator)
 

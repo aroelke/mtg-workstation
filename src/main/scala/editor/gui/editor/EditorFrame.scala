@@ -1667,8 +1667,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         wr.print(format.format(copy))
       }
 
-      if (format.hasHeader)
-        wr.println(format.header)
+      format.header.foreach(wr.println)
       if (!deck.current.isEmpty)
         write(deck.current)
       extraNames.foreach((name) => {

@@ -19,11 +19,8 @@ trait CardListFormat {
    */
   def format(list: CardList): String
 
-  /** The header of the string version of the list, or the empty string if there isn't one. */
-  def header: String
-
-  /** @return true if there is a header, and false otherwise */
-  def hasHeader = !header.isEmpty
+  /** The header of the string version of the list, or the None string if there isn't one. */
+  def header: Option[String]
 
   /**
    * Parse a stream into a new deck. The format of the file is implementation-dependent.
