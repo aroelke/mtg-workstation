@@ -1,6 +1,7 @@
 package editor.gui.editor
 
 import editor.collection.CardList
+import editor.collection.CardListEntry
 import editor.collection.deck.Deck
 import editor.database.card.Card
 import editor.gui.display.CardTable
@@ -65,10 +66,10 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
 
     override def add(card: Card) = if (categorization.includes(card)) editor.deck ++= Seq(card) -> 1 else false
     override def add(card: Card, amount: Int) = if (categorization.includes(card)) editor.deck ++= Seq(card) -> amount else false
-    override def addAll(cards: CardList) = editor.deck %%= ListMap.from(editor.deck.asScala.collect{ case card if categorization.includes(card) => card -> editor.deck.getEntry(card).count })
+    override def addAll(cards: CardList) = editor.deck %%= ListMap.from(editor.deck.collect{ case card if categorization.includes(card) => card -> editor.deck.getEntry(card).count })
     @deprecated override def addAll(amounts: java.util.Map[? <: Card, ? <: Integer]) = editor.deck %%= ListMap.from(amounts.asScala.collect{ case (card, n) if categorization.includes(card) => card -> n.toInt })
     @deprecated override def addAll(cards: java.util.Set[? <: Card]) = editor.deck %%= ListMap.from(cards.asScala.collect{ case (card) if categorization.includes(card) => card -> 1 })
-    override def clear() = editor.deck %%= ListMap.from(list.asScala.collect{ case card => card -> -list.getEntry(card).count }.toMap)
+    override def clear() = editor.deck %%= ListMap.from(list.collect{ case card => card -> -list.getEntry(card).count }.toMap)
     override def contains(card: Card) = categorization.includes(card) && editor.deck.contains(card)
     @deprecated override def containsAll(cards: java.util.Collection[? <: Card]) = cards.asScala.forall(contains(_))
     override def get(index: Int) = list.get(index)
@@ -81,22 +82,22 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
       val prev = math.min(amount, editor.deck.getEntry(card).count)
       if (editor.deck --= Seq(card) -> amount) prev else 0
     } else 0
-    @deprecated override def removeAll(cards: CardList) = {
-      val capped = cards.asScala.collect{ case (card) if categorization.includes(card) && editor.deck.contains(card) => card -> -math.min(cards.getEntry(card).count, editor.deck.getEntry(card).count) }.toMap
-      (if (editor.deck %%= ListMap.from(capped)) capped else Map.empty[Card, Int]).map{ case (card, n) => card -> Integer(n) }.asJava
+    @deprecated override def removeAll(cards: CardList): Map[Card, Int] = {
+      val capped = cards.collect{ case (card) if categorization.includes(card) && editor.deck.contains(card) => card -> -math.min(cards.getEntry(card).count, editor.deck.getEntry(card).count) }.toMap
+      if (editor.deck %%= ListMap.from(capped)) capped else Map.empty[Card, Int]
     }
-    @deprecated override def removeAll(cards: java.util.Map[? <: Card, ? <: Integer]) = {
+    @deprecated override def removeAll(cards: Map[? <: Card, Int]): Map[Card, Int] = {
       val temp = new Deck()
       temp.addAll(cards)
       removeAll(temp)
     }
-    @deprecated override def removeAll(cards: java.util.Set[? <: Card]) = removeAll(cards.asScala.map((c) => c -> Integer(1)).toMap.asJava).keySet
+    @deprecated override def removeAll(cards: Set[? <: Card]) = removeAll(cards.map(_ -> 1).toMap).keys.toSet
     override def set(card: Card, amount: Int) = if (categorization.includes(card)) editor.deck.set(card, amount) else false
     override def set(index: Int, amount: Int) = if (categorization.includes(list.get(index))) editor.deck.set(list.get(index), amount) else false
     override def size = list.size
     override def toArray = list.toArray
     override def total = list.total
-    @deprecated override def sort(c: java.util.Comparator[? >: CardList.Entry]) = list.sort(c)
+    @deprecated override def sort(comp: Ordering[? >: CardListEntry]) = list.sort(comp)
     override def iterator = list.iterator
   }
 
@@ -314,12 +315,8 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   def update() = {
     countLabel.setText(s"Cards: ${list.total}")
 
-    val avgManaValue = deck.stream
-      .filter(deck.getCategorySpec(name).includes(_))
-      .flatMap((c) => Collections.nCopies(deck.getEntry(c).count, c.manaValue).stream)
-      .mapToDouble(_.toDouble)
-      .average.orElse(0)
-    avgManaValueLabel.setText(s"Average mana value: ${StringUtils.formatDouble(avgManaValue, 2)}")
+    val flatManaValues = deck.filter(deck.getCategorySpec(name).includes).flatMap((c) => Seq.fill(deck.getEntry(c).count)(c.manaValue))
+    avgManaValueLabel.setText(s"Average mana value: ${StringUtils.formatDouble(flatManaValues.sum/flatManaValues.size, 2)}")
 
     border.setTitle(name)
     table.revalidate()

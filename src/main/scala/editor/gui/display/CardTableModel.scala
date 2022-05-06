@@ -24,7 +24,7 @@ class CardTableModel(private var cards: CardList, private var characteristics: S
   override def getColumnName(column: Int) = characteristics(column).toString
   override def getColumnClass(column: Int) = characteristics(column).dataType
   override def getRowCount = cards.size
-  override def getValueAt(row: Int, column: Int) = cards.getEntry(row).get(characteristics(column))
+  override def getValueAt(row: Int, column: Int) = cards.getEntry(row)(characteristics(column))
   override def isCellEditable(row: Int, column: Int) = editor.isDefined && (characteristics(column) == CardAttribute.COUNT || characteristics(column) == CardAttribute.CATEGORIES)
 
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {

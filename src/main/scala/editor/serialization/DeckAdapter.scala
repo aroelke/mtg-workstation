@@ -45,7 +45,7 @@ class DeckAdapter extends JsonSerializer[Deck] with JsonDeserializer[Deck] {
     val deck = JsonObject()
 
     val cards = JsonArray()
-    src.asScala.foreach((card) => {
+    src.foreach((card) => {
       val entry = JsonObject()
       entry.add("card", context.serialize(card))
       entry.addProperty("count", src.getEntry(card).count)

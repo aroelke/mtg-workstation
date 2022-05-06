@@ -46,7 +46,7 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
 
   override val header = None
 
-  override def format(list: CardList) = list.asScala.map((c) => formatter.format(list.getEntry(c))).mkString(System.lineSeparator)
+  override def format(list: CardList) = list.map((c) => formatter.format(list.getEntry(c))).mkString(System.lineSeparator)
 
   override def parse(source: InputStream) = {
     val deck = Deck()
@@ -56,7 +56,7 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
     IterableReader(source).foreach((line) => {
       try {
         val trimmed = line.trim.toLowerCase
-        var possibilities = MainFrame.inventory.asScala.filter((c) => trimmed.contains(c.name.toLowerCase) || c.faces.exists((f) => trimmed.contains(f.name.toLowerCase)))
+        var possibilities = MainFrame.inventory.filter((c) => trimmed.contains(c.name.toLowerCase) || c.faces.exists((f) => trimmed.contains(f.name.toLowerCase)))
         if (possibilities.isEmpty)
           throw ParseException(s"Can't parse card name from \"${line.trim}\"", 0)
 

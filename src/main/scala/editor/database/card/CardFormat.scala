@@ -1,6 +1,7 @@
 package editor.database.card
 
 import editor.collection.CardList
+import editor.collection.CardListEntry
 import editor.collection.deck.Category
 import editor.collection.deck.Deck
 import editor.database.attributes.CardAttribute
@@ -25,19 +26,19 @@ class CardFormat(pattern: String) {
    * @param card deck entry to format
    * @return the formatted string
    */
-  def format(card: CardList.Entry): String = {
+  def format(card: CardListEntry): String = {
     import CardAttribute._
 
     CardAttribute.displayableValues.foldLeft(pattern)((p, a) => p.replace(s"{$a}".toLowerCase, a match {
-      case MANA_COST | EFF_MANA_VALUE | TYPE_LINE | POWER | TOUGHNESS | LOYALTY => card.get(a) match { case l: java.util.List[?] => l.asScala.mkString(Card.FaceSeparator) }
-      case REAL_MANA_VALUE => card.get(a) match {
+      case MANA_COST | EFF_MANA_VALUE | TYPE_LINE | POWER | TOUGHNESS | LOYALTY => card(a) match { case l: java.util.List[?] => l.asScala.mkString(Card.FaceSeparator) }
+      case REAL_MANA_VALUE => card(a) match {
         case v: Double if v == v.intValue => v.intValue.toString
         case v: Double if v != v.intValue => v.toString
       }
-      case COLORS | COLOR_IDENTITY => card.get(a) match { case l: java.util.List[?] => l.asScala.mkString(",") }
-      case CATEGORIES => card.get(a) match { case s: java.util.Set[?] => s.asScala.collect{ case c: Category => c }.map(_.getName).toSeq.sorted.mkString(",") }
-      case DATE_ADDED => card.get(a) match { case d: LocalDate => Deck.DATE_FORMATTER.format(d) }
-      case _ => card.get(a).toString
+      case COLORS | COLOR_IDENTITY => card(a) match { case l: java.util.List[?] => l.asScala.mkString(",") }
+      case CATEGORIES => card(a) match { case s: java.util.Set[?] => s.asScala.collect{ case c: Category => c }.map(_.getName).toSeq.sorted.mkString(",") }
+      case DATE_ADDED => card(a) match { case d: LocalDate => Deck.DATE_FORMATTER.format(d) }
+      case _ => card(a).toString
     }))
   }
 
@@ -48,9 +49,9 @@ class CardFormat(pattern: String) {
    * @param card card to format
    * @return the formatted string
    */
-  def format(c: Card): String = format(new CardList.Entry {
+  def format(c: Card): String = format(new CardListEntry {
     override val card = c
-    override val categories = Set.empty[Category].asJava
+    override val categories = Set.empty[Category]
     override val count = 1
     override def dateAdded = card.expansion.released
   })

@@ -1,6 +1,7 @@
 package editor.gui
 
 import _root_.editor.collection.CardList
+import _root_.editor.collection.CardListEntry
 import _root_.editor.collection.Inventory
 import _root_.editor.collection.deck.Category
 import _root_.editor.collection.deck.Deck
@@ -677,8 +678,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
             None
           }
           format.foreach((fmt) => {
-            val sorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingCard.compare(a, b) }
-            val unsorted = new Ordering[CardList.Entry] { def compare(a: CardList.Entry, b: CardList.Entry) = 0 }
+            val sorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = sortBox.getItemAt(sortBox.getSelectedIndex).comparingCard.compare(a, b) }
+            val unsorted = new Ordering[CardListEntry] { def compare(a: CardListEntry, b: CardListEntry) = 0 }
             f.exportList(fmt, if (sortCheck.isSelected) sorted else unsorted, extras.collect{ case (e, s) if s => e }.toSeq, exportChooser.getSelectedFile) match {
               case Success(_) =>
               case Failure(x) => JOptionPane.showMessageDialog(this, s"Could not export ${f.deck.name}: ${x.getMessage}", "Error", JOptionPane.ERROR_MESSAGE)

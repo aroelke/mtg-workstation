@@ -73,7 +73,7 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
 
   override def format(list: CardList) = {
     val columnFormats = attributes.map((a) => CardFormat(s"{$a}".toLowerCase))
-    list.asScala.map((card) => {
+    list.map((card) => {
       columnFormats.map((format) => {
         val value = format.format(list.getEntry(card)).replace(Escape, UnicodeSymbols.Substitute.toString)
         (if (value.contains(delimiter)) s"$Escape${value.replace(Escape, Escape*2)}$Escape" else value).replace(UnicodeSymbols.Substitute.toString, Escape*2)
@@ -110,7 +110,7 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
       } else {
         try {
           val cells = split(delimiter, line.replace(Escape*2, Escape))
-          val possibilities = MainFrame.inventory.asScala
+          val possibilities = MainFrame.inventory
               .filter(_.name.equalsIgnoreCase(cells(name)))
               .filter(expansion < 0 || _.expansion.name.equalsIgnoreCase(cells(expansion)))
               .filter(number < 0 || _.faces.map(_.number).mkString(Card.FaceSeparator) == cells(number))

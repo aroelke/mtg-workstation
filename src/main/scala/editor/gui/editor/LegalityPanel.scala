@@ -173,7 +173,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
    */
   def checkLegality(deck: CardList, commanderSearch: CardList, sideboard: Option[CardList]) = {
     val isoNameCounts = collection.mutable.Map[Card, Int]()
-    deck.asScala.foreach{ c =>
+    deck.foreach{ c =>
       var counted = false
       isoNameCounts.keySet.foreach{ name =>
         if (!counted && name.compareName(c) == 0) {
@@ -182,9 +182,9 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
         }
       }
       if (!counted)
-        isoNameCounts.put(c, deck.getEntry(c).count())
+        isoNameCounts.put(c, deck.getEntry(c).count)
     }
-    val deckColorIdentity = deck.asScala.flatMap(_.colorIdentity).toSet
+    val deckColorIdentity = deck.flatMap(_.colorIdentity).toSet
 
     warnings.foreach{ case (format, warning) =>
       warning.clear()
@@ -192,7 +192,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
 
       // Commander(s) exist(s) and deck matches color identity
       val (commander, partners) = if (!commanderSearch.isEmpty && constraints.hasCommander) {
-        val possibleCommanders = commanderSearch.asScala.filter(_.commandFormats.contains(format))
+        val possibleCommanders = commanderSearch.filter(_.commandFormats.contains(format))
         val commander = possibleCommanders.exists(c => deckColorIdentity.forall(c.colorIdentity.contains(_)))
 
         val possiblePartners = possibleCommanders
@@ -223,7 +223,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
         warnings(format) += s"Deck contains fewer than ${constraints.deckSize} cards"
 
       // Individual card legality and count
-      deck.asScala.foreach{ c =>
+      deck.foreach{ c =>
         val maxCopies = constraints.maxCopies
         if (!c.legalityIn(format).isLegal)
           warnings(format) += s"${c.name} is illegal in $format"
