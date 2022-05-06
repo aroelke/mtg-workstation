@@ -539,7 +539,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
           errors += s"""Could not find definitions for the following formats: ${missingFormats.mkString(", ")}"""
       }
 
-      LoadedData(Inventory(cards.toSet.asJava), expansions.toSeq.sorted, allSupertypes.values.toSeq.sorted, allTypes.values.toSeq.sorted, allSubtypes.values.toSeq.sorted, errors.toSeq)
+      LoadedData(Inventory(cards.toSet.toSeq), expansions.toSeq.sorted, allSupertypes.values.toSeq.sorted, allTypes.values.toSeq.sorted, allSubtypes.values.toSeq.sorted, errors.toSeq)
     }
 
     if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {
