@@ -37,7 +37,7 @@ class CardFormat(pattern: String) {
       }
       case COLORS | COLOR_IDENTITY => card(a) match { case l: java.util.List[?] => l.asScala.mkString(",") }
       case CATEGORIES => card(a) match { case s: java.util.Set[?] => s.asScala.collect{ case c: Category => c }.map(_.getName).toSeq.sorted.mkString(",") }
-      case DATE_ADDED => card(a) match { case d: LocalDate => Deck.DATE_FORMATTER.format(d) }
+      case DATE_ADDED => card(a) match { case d: LocalDate => Deck.DateFormatter.format(d) }
       case _ => card(a).toString
     }))
   }

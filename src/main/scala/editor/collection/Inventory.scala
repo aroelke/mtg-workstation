@@ -5,7 +5,7 @@ import editor.database.card.Card
 import editor.filter.Filter
 import editor.filter.leaf.BinaryFilter
 
-case class InventoryEntry(card: Card) extends CardListEntry {
+case class InventoryEntry(override val card: Card) extends CardListEntry {
   override def categories = throw UnsupportedOperationException("inventory doesn't have categories")
   override def count = throw UnsupportedOperationException("inventory doesn't count cards")
   override def dateAdded = card.expansion.released

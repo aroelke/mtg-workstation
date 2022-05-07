@@ -147,7 +147,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
           case CardAttribute.DATE_ADDED =>
             val panel = tablePanel(JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)))
             value match {
-              case d: LocalDate => panel.add(setColors(tableLabel(Deck.DATE_FORMATTER.format(d))))
+              case d: LocalDate => panel.add(setColors(tableLabel(Deck.DateFormatter.format(d))))
               case _ =>
             }
             panel

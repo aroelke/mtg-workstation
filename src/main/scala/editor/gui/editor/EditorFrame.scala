@@ -1,6 +1,7 @@
 package editor.gui.editor
 
 import editor.collection.CardList
+import editor.collection.CardListEntry
 import editor.collection.deck.Category
 import editor.collection.deck.Deck
 import editor.collection.deck.Hand
@@ -294,10 +295,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         case (Some(from), Some(to)) =>
           val selected = parent.getSelectedCards
           val preserve = parent.getSelectedTable.contains(table) && moves.forall{ case (card, n) => from.current.getEntry(card).count == n }
-          if (from.current.removeAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava).asScala.toMap != moves)
-            throw CardException(s"error moving cards from list $id", moves.keySet.toSeq:_*)
-          if (!to.current.addAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava))
-            throw CardException(s"could not move cards to list $t}", moves.keySet.toSeq:_*)
+          if (from.current.removeAll(moves) != moves)
+            throw CardException(s"error moving cards from list $id", moves.keys.toSeq:_*)
+          if (!to.current.addAll(moves))
+            throw CardException(s"could not move cards to list $t}", moves.keys.toSeq:_*)
           if (preserve)
             parent.setSelectedComponents(to.table, to.current)
           updateTables(selected)
@@ -311,10 +312,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         case (Some(from), Some(to)) =>
           val selected = parent.getSelectedCards
           val preserve = parent.getSelectedTable.contains(to.table) && moves.forall{ case (card, n) => to.current.getEntry(card).count == n }
-          if (!from.current.addAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava))
-            throw CardException(s"could not undo move from list $id", moves.keySet.toSeq:_*)
-          if (to.current.removeAll(moves.map{ case (c, n) => c -> Integer(n) }.asJava).asScala.toMap != moves)
-            throw CardException(s"error undoing move to list $t", moves.keySet.toSeq:_*)
+          if (!from.current.addAll(moves))
+            throw CardException(s"could not undo move from list $id", moves.keys.toSeq:_*)
+          if (to.current.removeAll(moves) != moves)
+            throw CardException(s"error undoing move to list $t", moves.keys.toSeq:_*)
           if (preserve)
             parent.setSelectedComponents(table, from.current)
           updateTables(selected)
@@ -330,13 +331,13 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     /** @return a String detailing the numbers of copies of cards that have been added or removed since the last time the deck was saved */
     def changes = {
       val changes: StringBuilder = StringBuilder()
-      original.stream.forEach((c) => {
+      original.foreach((c) => {
         val had = if (original.contains(c)) original.getEntry(c).count else 0
         val has = if (current.contains(c)) current.getEntry(c).count else 0
         if (has < had)
           changes ++= s"-${had - has}x ${c.name} (${c.expansion.name})\n"
       })
-      current.stream.forEach((c) => {
+      current.foreach((c) => {
         val had = if (original.contains(c)) original.getEntry(c).count else 0
         val has = if (current.contains(c)) current.getEntry(c).count else 0
         if (had < has)
@@ -420,7 +421,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     @deprecated override def removeAll(cards: java.util.Set[? <: Card]): java.util.Set[Card] = throw UnsupportedOperationException()
     @deprecated override def set(index: Int, amount: Int): Boolean = throw UnsupportedOperationException()
     override def clear() = throw UnsupportedOperationException()
-    override def sort(c: java.util.Comparator[? >: CardList.Entry]) = throw UnsupportedOperationException()
+    override def sort(c: java.util.Comparator[? >: CardListEntry]) = throw UnsupportedOperationException()
   }
 
   // Actual lists of DeckData. Index 0 will always be defined and will contain the main deck
@@ -562,7 +563,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      */
     def contains(name: String) = deck.current.containsCategory(name)
 
-    def iterator = deck.current.categories.iterator.asScala
+    def iterator = deck.current.categories.iterator
   }
 
   /**
@@ -611,7 +612,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         if (parent.getSelectedCards.size == 1) {
           val card = parent.getSelectedCards(0)
 
-          for (category <- deck.current.categories.asScala) {
+          for (category <- deck.current.categories) {
             if (!category.includes(card)) {
               val categoryItem = JMenuItem(category.getName)
               categoryItem.addActionListener(_ => categories(category.getName) = {
@@ -624,7 +625,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           }
           addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount > 0)
 
-          for (category <- deck.current.categories.asScala) {
+          for (category <- deck.current.categories) {
             if (category.includes(card)) {
               val categoryItem = JMenuItem(category.getName)
               categoryItem.addActionListener(_ => categories(category.getName) = {
@@ -759,7 +760,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   // Edit categories item
   private val editCategoriesItem = JMenuItem("Edit Categories...")
   editCategoriesItem.addActionListener(_ => {
-    val iePanel = IncludeExcludePanel(deck.current.categories.asScala.toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards)
+    val iePanel = IncludeExcludePanel(deck.current.categories.toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards)
     if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
       editInclusion(iePanel.included, iePanel.excluded)
   })
@@ -1004,7 +1005,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     hand.newHand(SettingsDialog.settings.editor.hand.size)
 
     imagePanel.removeAll()
-    hand.stream.forEach(c => {
+    hand.foreach((c) => {
       val panel = CardImagePanel()
       panel.setCard(c)
       panel.setBackground(SettingsDialog.settings.editor.hand.background)
@@ -1020,7 +1021,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     hand.mulligan()
 
     imagePanel.removeAll()
-    hand.stream.forEach((c) => {
+    hand.foreach((c) => {
       val panel = CardImagePanel()
       imagePanel.add(panel)
       panel.setCard(c)
@@ -1174,7 +1175,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   setTransferHandler(EditorFrameTransferHandler(this, MainDeck))
 
-  for (spec <- deck.current.categories.asScala)
+  for (spec <- deck.current.categories)
     categoryPanels += createCategoryPanel(spec)
   updateCategoryPanel()
   handCalculations.update()
@@ -1512,7 +1513,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     // Edit categories item
     val editCategoriesItem = JMenuItem("Edit Categories...")
     editCategoriesItem.addActionListener(_ => {
-      val iePanel = IncludeExcludePanel(deck.current.categories.asScala.toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards)
+      val iePanel = IncludeExcludePanel(deck.current.categories.toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards)
       if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
         editInclusion(iePanel.included, iePanel.excluded)
     })
@@ -1658,7 +1659,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @return a [[Try]] containing an exception if the file couldn't be written or any of the named extra lists
    * doesn't exist, or nothing if the file was written successfully
    */
-  def exportList(format: CardListFormat, comp: Ordering[? >: CardList.Entry], extraNames: Seq[String], file: File) = {
+  def exportList(format: CardListFormat, comp: Ordering[? >: CardListEntry], extraNames: Seq[String], file: File) = {
     Using(PrintWriter(OutputStreamWriter(FileOutputStream(file, false), "UTF8")))(wr => {
       def write(d: Deck, n: Option[String] = None) = {
         val copy = Deck(d)
@@ -1776,7 +1777,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       switchCategoryBox.setEnabled(false)
     else {
       switchCategoryBox.setEnabled(true)
-      deck.current.categories.asScala.toSeq.sorted(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex)(deck.current)).foreach((c) => {
+      deck.current.categories.toSeq.sorted(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex)(deck.current)).foreach((c) => {
         categoriesContainer.add(getCategoryPanel(c.getName).get)
         switchCategoryModel.addElement(c.getName)
       })
@@ -1789,7 +1790,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     else {
       val selectedForAnalysis = analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)
       analyzeCategoryCombo.removeAllItems()
-      deck.current.categories.asScala.foreach((c) => analyzeCategoryCombo.addItem(c.getName))
+      deck.current.categories.foreach((c) => analyzeCategoryCombo.addItem(c.getName))
       analyzeCategoryCombo.setMaximumSize(analyzeCategoryCombo.getPreferredSize())
       val indexForAnalysis = analyzeCategoryCombo.getModel.asInstanceOf[DefaultComboBoxModel[String]].getIndexOf(selectedForAnalysis)
       if (indexForAnalysis < 0) {
@@ -1807,12 +1808,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   /** Update the card statistics to reflect the cards in the deck. */
   @throws[IllegalStateException]("if there are cards but no upper bound on mana values")
   def updateStats() = {
-    val lands = deck.current.stream.filter(SettingsDialog.settings.editor.isLand(_)).mapToInt((c) => deck.current.getEntry(c).count).sum
+    val lands = deck.current.collect{ case c if SettingsDialog.settings.editor.isLand(c) => deck.current.getEntry(c).count }.sum
     countLabel.setText(s"Total cards: ${deck.current.total}")
     landLabel.setText(s"Lands: $lands")
     nonlandLabel.setText(s"Nonlands: ${(deck.current.total - lands)}")
 
-    val manaValue = deck.current.asScala
+    val manaValue = deck.current
         .filter((c) => !c.types.exists(_.equalsIgnoreCase("land")))
         .flatMap((c) => Seq.tabulate(deck.current.getEntry(c).count)(_ => SettingsDialog.settings.editor.getManaValue(c)))
         .toSeq.sorted
@@ -1835,14 +1836,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       case ByType    => SettingsDialog.settings.editor.manaAnalysis.typeColors
     }).zipWithIndex.foreach{ case (color, i) => manaCurveRenderer.setSeriesPaint(i, color) }
     val analyte = if (analyzeCategoryBox.isSelected) deck.current.getCategoryList(analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)) else deck.current
-    val analyteLands = analyte.asScala.filter(SettingsDialog.settings.editor.isLand(_)).map((c) => deck.current.getEntry(c).count).sum
+    val analyteLands = analyte.filter(SettingsDialog.settings.editor.isLand).map((c) => deck.current.getEntry(c).count).sum
     if (analyte.total - analyteLands > 0) {
       var sections = sectionsBox.getItemAt(sectionsBox.getSelectedIndex()) match {
         case ByNothing => Seq(if (analyzeCategoryBox.isSelected) analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex) else "Main Deck")
         case ByColor   => Seq("Colorless", "White", "Blue", "Black", "Red", "Green", "Multicolored")
         case ByType    => Seq("Creature", "Artifact", "Enchantment", "Planeswalker", "Instant", "Sorcery"); // Land is omitted because we don't count them here
       }
-      var sectionManaValues = sections.map((s) => s -> analyte.asScala
+      var sectionManaValues = sections.map((s) => s -> analyte
           .filter((c) => !SettingsDialog.settings.editor.isLand(c))
           .filter((c) => sectionsBox.getItemAt(sectionsBox.getSelectedIndex) match {
             case ByNothing => true
