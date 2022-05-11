@@ -347,7 +347,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
 
     override def contains(c: Card) = current.contains(c)
-    @deprecated override def containsAll(cards: java.util.Collection[? <: Card]) = cards.asScala.forall(contains(_))
+    @deprecated override def containsAll(cards: Iterable[? <: Card]) = cards.forall(contains)
     @deprecated override def get(index: Int) = current.get(index)
     @deprecated override def set(card: Card, amount: Int): Boolean = update(card, amount) != amount
     override def getEntry(index: Int) = current.getEntry(index)
@@ -357,7 +357,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     override def size = current.size
     override def total = current.total
     override def iterator = current.iterator
-    override def toArray = current.toArray
 
     private[EditorFrame] lazy val model = CardTableModel(this, SettingsDialog.settings.editor.columns, Some(EditorFrame.this))
     private[EditorFrame] lazy val table = {
@@ -412,16 +411,16 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     @deprecated override def add(card: Card): Boolean = throw UnsupportedOperationException()
     @deprecated override def add(card: Card, amount: Int): Boolean = throw UnsupportedOperationException()
     @deprecated override def addAll(cards: CardList): Boolean = throw UnsupportedOperationException()
-    @deprecated override def addAll(amounts: java.util.Map[? <: Card, ? <: Integer]): Boolean = throw UnsupportedOperationException()
-    @deprecated override def addAll(cards: java.util.Set[? <: Card]): Boolean = throw UnsupportedOperationException()
+    @deprecated override def addAll(amounts: Map[? <: Card, Int]): Boolean = throw UnsupportedOperationException()
+    @deprecated override def addAll(cards: Set[? <: Card]): Boolean = throw UnsupportedOperationException()
     @deprecated override def remove(card: Card): Boolean = throw UnsupportedOperationException()
     @deprecated override def remove(card: Card, amount: Int): Int = throw UnsupportedOperationException()
-    @deprecated override def removeAll(cards: CardList): java.util.Map[Card, Integer] = throw UnsupportedOperationException()
-    @deprecated override def removeAll(cards: java.util.Map[? <: Card, ? <: Integer]): java.util.Map[Card, Integer] = throw UnsupportedOperationException()
-    @deprecated override def removeAll(cards: java.util.Set[? <: Card]): java.util.Set[Card] = throw UnsupportedOperationException()
+    @deprecated override def removeAll(cards: CardList): Map[Card, Int] = throw UnsupportedOperationException()
+    @deprecated override def removeAll(cards: Map[? <: Card, Int]) = throw UnsupportedOperationException()
+    @deprecated override def removeAll(cards: Set[? <: Card]) = throw UnsupportedOperationException()
     @deprecated override def set(index: Int, amount: Int): Boolean = throw UnsupportedOperationException()
     override def clear() = throw UnsupportedOperationException()
-    override def sort(c: java.util.Comparator[? >: CardListEntry]) = throw UnsupportedOperationException()
+    override def sort(comp: Ordering[? >: CardListEntry]) = throw UnsupportedOperationException()
   }
 
   // Actual lists of DeckData. Index 0 will always be defined and will contain the main deck
@@ -1814,7 +1813,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     nonlandLabel.setText(s"Nonlands: ${(deck.current.total - lands)}")
 
     val manaValue = deck.current
-        .filter((c) => !c.types.exists(_.equalsIgnoreCase("land")))
+        .filterNot(_.types.exists(_.equalsIgnoreCase("land")))
         .flatMap((c) => Seq.tabulate(deck.current.getEntry(c).count)(_ => SettingsDialog.settings.editor.getManaValue(c)))
         .toSeq.sorted
     val avgManaValue = if (manaValue.isEmpty) 0 else manaValue.sum/manaValue.size

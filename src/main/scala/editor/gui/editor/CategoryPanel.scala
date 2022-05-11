@@ -67,11 +67,11 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
     override def add(card: Card) = if (categorization.includes(card)) editor.deck ++= Seq(card) -> 1 else false
     override def add(card: Card, amount: Int) = if (categorization.includes(card)) editor.deck ++= Seq(card) -> amount else false
     override def addAll(cards: CardList) = editor.deck %%= ListMap.from(editor.deck.collect{ case card if categorization.includes(card) => card -> editor.deck.getEntry(card).count })
-    @deprecated override def addAll(amounts: java.util.Map[? <: Card, ? <: Integer]) = editor.deck %%= ListMap.from(amounts.asScala.collect{ case (card, n) if categorization.includes(card) => card -> n.toInt })
-    @deprecated override def addAll(cards: java.util.Set[? <: Card]) = editor.deck %%= ListMap.from(cards.asScala.collect{ case (card) if categorization.includes(card) => card -> 1 })
+    @deprecated override def addAll(amounts: Map[? <: Card, Int]) = editor.deck %%= ListMap.from(amounts.collect{ case (card, n) if categorization.includes(card) => card -> n.toInt })
+    @deprecated override def addAll(cards: Set[? <: Card]) = editor.deck %%= ListMap.from(cards.collect{ case (card) if categorization.includes(card) => card -> 1 })
     override def clear() = editor.deck %%= ListMap.from(list.collect{ case card => card -> -list.getEntry(card).count }.toMap)
     override def contains(card: Card) = categorization.includes(card) && editor.deck.contains(card)
-    @deprecated override def containsAll(cards: java.util.Collection[? <: Card]) = cards.asScala.forall(contains(_))
+    @deprecated override def containsAll(cards: Iterable[? <: Card]) = cards.forall(contains)
     override def get(index: Int) = list.get(index)
     override def getEntry(card: Card) = list.getEntry(card)
     override def getEntry(index: Int) = list.getEntry(index)
@@ -95,7 +95,6 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
     override def set(card: Card, amount: Int) = if (categorization.includes(card)) editor.deck.set(card, amount) else false
     override def set(index: Int, amount: Int) = if (categorization.includes(list.get(index))) editor.deck.set(list.get(index), amount) else false
     override def size = list.size
-    override def toArray = list.toArray
     override def total = list.total
     @deprecated override def sort(comp: Ordering[? >: CardListEntry]) = list.sort(comp)
     override def iterator = list.iterator
