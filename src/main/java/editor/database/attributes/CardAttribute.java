@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import editor.collection.CardList;
+import editor.collection.CardListEntry;
 import editor.collection.Inventory;
 import editor.collection.deck.Category;
 import editor.database.card.Card;
@@ -363,8 +364,8 @@ public enum CardAttribute implements Supplier<FilterLeaf>, Comparator<Object>
     /**
      * @return A comparator that compares two card list entries according to this attribute.
      */
-    public Comparator<CardList.Entry> comparingCard()
+    public Comparator<CardListEntry> comparingCard()
     {
-        return (a, b) -> comparing.map((c) -> c.compare(a.get(this), b.get(this))).orElse(0);
+        return (a, b) -> comparing.map((c) -> c.compare(a.apply(this), b.apply(this))).orElse(0);
     }
 }
