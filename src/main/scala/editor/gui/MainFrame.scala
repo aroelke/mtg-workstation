@@ -1364,7 +1364,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
     SubtypeFilter.subtypeList = data.subtypes.toArray
     SettingsDialog.inventoryWarnings = data.warnings
 
-    inventory.sort(CardAttribute.NAME.comparingCard)
+    inventory.sort(math.Ordering.comparatorToOrdering(CardAttribute.NAME.comparingCard))
     inventoryModel.list = inventory
     inventoryModel.columns = SettingsDialog.settings.inventory.columns
     setCursor(Cursor.getDefaultCursor)
