@@ -14,7 +14,7 @@ case class InventoryEntry(override val card: Card) extends CardListEntry {
 class Inventory(private var cards: Seq[Card] = Seq.empty) extends CardList {
   private val ids = cards.flatMap((c) => c.faces.map((f) => f.scryfallid -> c)).toMap
   private var filter: Filter = BinaryFilter(true)
-  private var filtrate = cards
+  private var filtrate = cards.toIndexedSeq
 
   def contains(id: String) = ids.contains(id)
   def contains(id: Int) = cards.exists(_.faces.exists(_.multiverseid == id))
@@ -23,7 +23,7 @@ class Inventory(private var cards: Seq[Card] = Seq.empty) extends CardList {
   def getFilter = filter.copy
   def updateFilter(f: Filter) = {
     filter = f
-    filtrate = cards.filter(f)
+    filtrate = cards.filter(f).toIndexedSeq
   }
 
   override def contains(card: Card) = ids.values.toSet.contains(card)
@@ -37,7 +37,7 @@ class Inventory(private var cards: Seq[Card] = Seq.empty) extends CardList {
   override def size = filtrate.size
   override def sort(comp: Ordering[? >: CardListEntry]) = {
     cards = cards.sorted((a, b) => comp.compare(InventoryEntry(a), InventoryEntry(b)))
-    filtrate = cards.filter(filter)
+    filtrate = cards.filter(filter).toIndexedSeq
   }
   override def total = cards.size
 
