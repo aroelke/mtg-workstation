@@ -8,17 +8,21 @@ import java.time.format.DateTimeFormatter
 import java.util.Objects
 import java.util.NoSuchElementException
 
-case class DeckEntry(card: Card, override var count: Int, override val dateAdded: LocalDate, categorizations: collection.mutable.LinkedHashSet[Category] = collection.mutable.LinkedHashSet[Category]()) extends CardListEntry {
-  private[deck] def add(amount: Int) = if (amount < 1) false else {
-    count += amount
+case class DeckEntry(card: Card, private var amount: Int, override val dateAdded: LocalDate, categorizations: collection.mutable.LinkedHashSet[Category] = collection.mutable.LinkedHashSet[Category]()) extends CardListEntry {
+  private[deck] def add(amt: Int) = if (amt < 1) false else {
+    amount += amt
     true
   }
 
-  private[deck] def remove(amount: Int) = if (amount < 1) 0 else {
+  private[deck] def remove(amt: Int) = if (amt < 1) 0 else {
     val old = count
-    count -= math.min(amount, count)
+    amount -= math.min(amt, count)
     old - count
   }
+
+  def count_=(n: Int) = amount = count
+
+  override def count = amount
 
   override def categories = categorizations.toSet
 }
@@ -39,6 +43,7 @@ class Deck extends CardList {
   private class CategoryCache(var spec: Category) extends CardList {
     var rank: Int = caches.size
     var filtrate = collection.mutable.ArrayBuffer[Card]()
+    update(spec)
 
     def update(s: Category) = {
       spec = s
@@ -58,6 +63,7 @@ class Deck extends CardList {
     override def addAll(cards: Set[? <: Card]) = Deck.this.addAll(cards.filter(spec.includes))
     override def clear() = Deck.this.removeAll(this)
     override def contains(card: Card) = filtrate.contains(card)
+    override def containsAll(cards: Iterable[? <: Card]) = cards.forall(filtrate.contains)
     override def get(index: Int) = filtrate(index)
     override def getEntry(card: Card) = if (spec.includes(card)) Deck.this.getEntry(card) else DeckEntry(card, 0, null)
     override def getEntry(index: Int) = getEntry(get(index))
@@ -76,7 +82,7 @@ class Deck extends CardList {
 
     override def toString = spec.toString
 
-    override def sort(comp: Ordering[? <: Card]) = throw UnsupportedOperationException("only the main deck can be sorted")
+    override def sort(comp: Ordering[? >: CardListEntry]) = throw UnsupportedOperationException("only the main deck can be sorted")
   }
 
   private val masterList = collection.mutable.ArrayBuffer[DeckEntry]()
@@ -164,6 +170,15 @@ class Deck extends CardList {
     }).getOrElse(false)
   }
 
+  def updateCategory(name: String, spec: Category) = if (caches.contains(name)) {
+    val c = caches(name)
+    val old = Category(c.spec)
+    caches -= name
+    c.update(spec)
+    caches(spec.getName) = c
+    old
+  } else throw NoSuchElementException(name)
+
   override def add(card: Card) = add(card, 1)
   override def add(card: Card, amount: Int) = add(card, amount, LocalDate.now)
   override def addAll(list: CardList) = {
@@ -193,6 +208,7 @@ class Deck extends CardList {
   override def get(index: Int) = masterList(index).card
   override def getEntry(card: Card) = masterList.find(_.card == card).getOrElse(DeckEntry(card, 0, LocalDate.now))
   override def getEntry(index: Int) = masterList(index)
+  override def indexOf(card: Card) = masterList.indexOf(getEntry(card))
   override def isEmpty = size == 0
   override def iterator = masterList.map(_.card).iterator
   override def remove(card: Card) = remove(card, Int.MaxValue) > 0
@@ -253,14 +269,6 @@ class Deck extends CardList {
   override def set(index: Int, amount: Int) = set(masterList(index).card, amount)
   override def size = masterList.size
   override def total = ttl
-  override def updateCategory(name: String, spec: Category) = if (caches.contains(name)) {
-    val c = caches(name)
-    val old = Category(c.spec)
-    caches -= name
-    c.update(spec)
-    caches(spec.getName) = c
-    old
-  } else throw NoSuchElementException(name)
   override def sort(comp: Ordering[? >: CardListEntry]) = {
     masterList.sortInPlace()(comp)
     caches.values.foreach((category) => category.filtrate.sortInPlace()((a, b) => comp.compare(getEntry(a), getEntry(b))))
