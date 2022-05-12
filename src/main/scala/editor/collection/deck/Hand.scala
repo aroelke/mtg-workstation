@@ -6,7 +6,7 @@ import editor.database.card.Card
 import scala.util.Random
 
 class Hand(deck: Deck, cards: Set[? <: Card] = Set.empty) extends CardList {
-  private val hand = collection.mutable.ArrayBuffer[Card]()
+  private var hand = IndexedSeq.empty[Card]
   private val exclusion = collection.mutable.Set.from(cards)
   private var inHand = 0
 
@@ -14,15 +14,12 @@ class Hand(deck: Deck, cards: Set[? <: Card] = Set.empty) extends CardList {
 
   def refresh() = {
     clear()
-    deck.foreach((c) => {
-      if (!exclusion.contains(c))
-        hand ++= Seq.fill(deck.getEntry(c).count)(c)
-    })
+    hand = deck.filterNot(exclusion.contains).flatMap((c) => Seq.fill(deck.getEntry(c).count)(c)).toIndexedSeq
   }
 
   def newHand(n: Int) = {
     refresh()
-    Random.shuffle(hand)
+    hand = Random.shuffle(hand)
     inHand = math.min(n, hand.size)
   }
 
@@ -34,17 +31,17 @@ class Hand(deck: Deck, cards: Set[? <: Card] = Set.empty) extends CardList {
 
   def excluded = exclusion.toSet
 
-  def getHand = hand.slice(0, inHand).toSeq
+  def getHand = hand.slice(0, inHand)
   
   def mulligan() = if (inHand > 0) {
-    Random.shuffle(hand)
+    hand = Random.shuffle(hand)
     inHand -= 1
   }
 
   override def contains(card: Card) = getHand.contains(card)
   override def containsAll(cards: Iterable[? <: Card]) = { val slice = getHand; cards.forall(slice.contains) }
   override def clear() = {
-    hand.clear()
+    hand = IndexedSeq.empty
     inHand = 0
   }
   override def get(index: Int) = if (index < inHand) hand(index) else throw IndexOutOfBoundsException(index)
@@ -55,7 +52,7 @@ class Hand(deck: Deck, cards: Set[? <: Card] = Set.empty) extends CardList {
   override def iterator = getHand.iterator
   override def size = math.min(inHand, hand.size)
   override def total = size
-  override def sort(comp: Ordering[? >: CardListEntry]) = hand.sortInPlace()((a, b) => comp.compare(deck.getEntry(a), deck.getEntry(b)))
+  override def sort(comp: Ordering[? >: CardListEntry]) = hand = hand.sortWith((a, b) => comp.compare(deck.getEntry(a), deck.getEntry(b)) < 0)
 
   override def add(card: Card) = throw UnsupportedOperationException("hand is only an immutable view")
   override def add(card: Card, amount: Int) = throw UnsupportedOperationException("hand is only an immutable view")
