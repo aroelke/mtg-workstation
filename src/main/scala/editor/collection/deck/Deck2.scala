@@ -9,8 +9,9 @@ import java.util.NoSuchElementException
 import scala.collection.mutable.Clearable
 import scala.collection.mutable.Growable
 import scala.collection.mutable.Shrinkable
+import editor.collection.MutableCardList
 
-class Deck2 extends CardList2 with collection.mutable.IndexedSeq[CardListEntry] with collection.mutable.Clearable {
+class Deck2 extends CardList2 with MutableCardList {
   private val entries = collection.mutable.ArrayBuffer[Entry]()
 
   class Entry private[Deck2](override val card: Card, private var amount: Int = 0, override val dateAdded: LocalDate = LocalDate.now) extends CardListEntry {
@@ -48,32 +49,29 @@ class Deck2 extends CardList2 with collection.mutable.IndexedSeq[CardListEntry] 
 
   def apply(card: Card) = entries.find(_.card == card).getOrElse(Entry(card))
 
-  def addOne(card: CardListEntry) = {
+  override def addOne(card: CardListEntry) = {
     add(card.card, card.count, card.dateAdded)
     this
   }
-  def +=(card: CardListEntry) = addOne(card)
 
-  def addAll(cards: IterableOnce[CardListEntry]) = {
+  override def addAll(cards: IterableOnce[CardListEntry]) = {
     cards.foreach((e) => add(e.card, e.count, e.dateAdded))
     this
   }
-  def ++=(cards: IterableOnce[CardListEntry]) = addAll(cards)
 
-  def subtractOne(card: CardListEntry) = {
+  override def subtractOne(card: CardListEntry) = {
     if (contains(card.card)) remove(card.card, card.count)
     this
   }
-  def -=(card: CardListEntry) = subtractOne(card)
 
   def subtractAll(cards: IterableOnce[CardListEntry]) = {
     cards.filter((e) => contains(e.card)).foreach((e) => remove(e.card, e.count))
     this
   }
-  def --=(cards: IterableOnce[CardListEntry]) = subtractAll(cards)
+
+  override def update(index: Int, card: CardListEntry) = entries(index) = Entry(card.card, card.count, card.dateAdded)
 
   override def apply(index: Int): Entry = entries(index)
-  override def update(index: Int, card: CardListEntry) = entries(index) = Entry(card.card, card.count, card.dateAdded)
   override def length = entries.size
   override def total = entries.map(_.count).sum
 
