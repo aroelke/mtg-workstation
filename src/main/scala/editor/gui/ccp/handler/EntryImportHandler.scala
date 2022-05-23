@@ -1,5 +1,6 @@
 package editor.gui.ccp.handler
 
+import editor.collection.StandaloneEntry
 import editor.gui.ccp.data.DataFlavors
 import editor.gui.ccp.data.EntryTransferData
 import editor.gui.editor.EditorFrame
@@ -8,6 +9,7 @@ import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException
 import javax.swing.TransferHandler
 import scala.collection.immutable.ListMap
+import java.time.LocalDate
 
 /**
  * Handler for importing data from a list contained by an [[EditorFrame]] into another one. Data can't be movied or copied to and from the same
@@ -42,7 +44,8 @@ class EntryImportHandler(editor: EditorFrame, id: Int) extends TransferHandler w
             data.to = id
             true
           } else {
-            editor.lists(id) %%= ListMap.from(data.cards)
+            editor.lists(id) ++= data.cards.map{ case (c, i) => StandaloneEntry(c, i, LocalDate.now) }
+            true
           }
         case _ => false
       }

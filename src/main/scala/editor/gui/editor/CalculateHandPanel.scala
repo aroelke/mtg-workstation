@@ -1,6 +1,6 @@
 package editor.gui.editor
 
-import editor.collection.deck.Deck
+import editor.collection.deck.Deck2
 import editor.gui.settings.SettingsDialog
 import editor.util.Stats
 
@@ -53,7 +53,7 @@ object CalculateHandPanel {
  * 
  * @author Alec Roelke
  */
-class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extends JPanel(BorderLayout()) {
+class CalculateHandPanel(deck: Deck2, recalculateFunction: ChangeListener) extends JPanel(BorderLayout()) {
   import CalculateHandPanel._
   import RelationChoice._
 
@@ -68,7 +68,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
 
     case DesiredProbability extends DisplayMode("Probabilities", Seq(
       ColumnInfo("Kind of Card", classOf[String], identity),
-      ColumnInfo("Count", classOf[Int], deck.getCategoryList(_).total),
+      ColumnInfo("Count", classOf[Int], deck.categories(_).list.total),
       ColumnInfo("Desired", classOf[Int], desiredBoxes(_).getSelectedItem, Some((c) => DefaultCellEditor(desiredBoxes(c)))),
       ColumnInfo("Relation", classOf[RelationChoice], relationBoxes(_).getSelectedItem, Some((c) => DefaultCellEditor(relationBoxes(c)))),
       ColumnInfo("Initial Hand", classOf[String], (c) => f"${probabilities(c)(0)*100}%.2f%%")
@@ -124,7 +124,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
   rightControlPanel.add(modeBox)
 
   private object model extends AbstractTableModel {
-    override def getRowCount = deck.numCategories
+    override def getRowCount = deck.categories.size
 
     override def getColumnCount = drawsSpinner.getValue match {
       case n: Int => n + modeBox.getItemAt(modeBox.getSelectedIndex).columns
@@ -136,13 +136,13 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
     override def getColumnClass(column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex).clazz(column)
 
     override def getValueAt(row: Int, column: Int) = {
-      val category = deck.categories.map(_.getName).toSeq.sorted.apply(row)
+      val category = deck.categories.map(_.categorization.getName).toSeq.sorted.apply(row)
       modeBox.getItemAt(modeBox.getSelectedIndex).value(column)(category)
     }
   }
   private val table = new JTable(model) {
     override def getCellEditor(row: Int, column: Int) = {
-      val category = deck.categories.map(_.getName).toSeq.sorted.apply(row)
+      val category = deck.categories.map(_.categorization.getName).toSeq.sorted.apply(row)
       modeBox.getItemAt(modeBox.getSelectedIndex).editor(column).map(_(category)).getOrElse(super.getCellEditor(row, column))
     }
 
@@ -185,7 +185,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
 
   /** Recalculate category probabilities and update the table accordingly. */
   def recalculate() = {
-    val categories = deck.categories.map(_.getName).toSeq.sorted
+    val categories = deck.categories.map(_.categorization.getName).toSeq.sorted
 
     probabilities.clear()
     drawsSpinner.getValue match {
@@ -197,11 +197,11 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
           val r = box.getItemAt(box.getSelectedIndex)
           for (j <- 0 to draws) {
             probabilities(category)(j) = r match {
-              case AtLeast => 1 - (0 until desiredBoxes(category).getSelectedIndex).map(Stats.hypergeometric(_, handSize + j, deck.getCategoryList(category).total, deck.total)).sum
-              case Exactly => Stats.hypergeometric(desiredBoxes(category).getSelectedIndex, handSize + j, deck.getCategoryList(category).total, deck.total)
-              case AtMost => (0 to desiredBoxes(category).getSelectedIndex).map(Stats.hypergeometric(_, handSize + j, deck.getCategoryList(category).total, deck.total)).sum
+              case AtLeast => 1 - (0 until desiredBoxes(category).getSelectedIndex).map(Stats.hypergeometric(_, handSize + j, deck.categories(category).list.total, deck.total)).sum
+              case Exactly => Stats.hypergeometric(desiredBoxes(category).getSelectedIndex, handSize + j, deck.categories(category).list.total, deck.total)
+              case AtMost => (0 to desiredBoxes(category).getSelectedIndex).map(Stats.hypergeometric(_, handSize + j, deck.categories(category).list.total, deck.total)).sum
             }
-            expectedCounts(category)(j) = deck.getCategoryList(category).total.toDouble/deck.total.toDouble*(handSize + j).toDouble
+            expectedCounts(category)(j) = deck.categories(category).list.total.toDouble/deck.total.toDouble*(handSize + j).toDouble
           }
         }
       case _ => throw IllegalStateException(s"unexpected value of type ${handSpinner.getValue.getClass}")
@@ -211,7 +211,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
 
   /** Update the available categories, recalculate their probabilities,and then update the table. */
   def update() = {
-    val categories = deck.categories.map(_.getName).toSeq.sorted
+    val categories = deck.categories.map(_.categorization.getName).toSeq.sorted
 
     val oldDesired = desiredBoxes.map{ case (c, b) => c -> b.getSelectedIndex }
     val oldRelations = relationBoxes.map{ case (c, b) => c -> b.getItemAt(b.getSelectedIndex) }
@@ -222,9 +222,9 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
 
     categories.foreach{ category =>
       val desiredBox = JComboBox[Int]()
-      for (i <- 0 to deck.getCategoryList(category).total)
+      for (i <- 0 to deck.categories(category).list.total)
         desiredBox.addItem(i)
-      if (oldDesired.contains(category) && oldDesired(category) < deck.getCategoryList(category).total)
+      if (oldDesired.contains(category) && oldDesired(category) < deck.categories(category).list.total)
         desiredBox.setSelectedIndex(oldDesired(category))
       desiredBox.addActionListener(_ => recalculate())
       desiredBoxes(category) = desiredBox

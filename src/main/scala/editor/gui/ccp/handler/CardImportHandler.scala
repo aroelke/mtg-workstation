@@ -1,5 +1,6 @@
 package editor.gui.ccp.handler
 
+import editor.collection.StandaloneEntry
 import editor.database.card.Card
 import editor.gui.ccp.data.DataFlavors
 import editor.gui.editor.EditorFrame
@@ -7,6 +8,7 @@ import editor.gui.editor.EditorFrame
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException
 import javax.swing.TransferHandler
+import java.time.LocalDate
 
 /**
  * Import handler for [[Card]]s, which adds one copy of each to the deck.
@@ -25,7 +27,8 @@ class CardImportHandler(editor: EditorFrame, id: Int) extends TransferHandler wi
         case a: Array[?] => a.toSeq.collect{ case c: Card => c }
         case x => throw ClassCastException(s"needed ${classOf[Card]}, got ${x.getClass}")
       }
-      editor.lists(id) ++= data -> 1
+      editor.lists(id) ++= data.map(StandaloneEntry(_, 1, LocalDate.now))
+      true
     } catch {
       case _: UnsupportedFlavorException => false
       case _: IOException => false

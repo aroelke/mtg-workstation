@@ -1,6 +1,6 @@
 package editor.collection.`export`
 
-import editor.collection.CardList
+import editor.collection.CardList2
 import editor.gui.editor.DeckSerializer
 
 import java.io.InputStream
@@ -17,7 +17,7 @@ trait CardListFormat {
    * @param list list to convert
    * @return the formatted string representing the card list
    */
-  def format(list: CardList): String
+  def format(list: CardList2): String
 
   /** The header of the string version of the list, or the None string if there isn't one. */
   def header: Option[String]

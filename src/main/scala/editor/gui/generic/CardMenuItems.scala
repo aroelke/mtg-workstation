@@ -1,5 +1,6 @@
 package editor.gui.generic
 
+import editor.collection.StandaloneEntry
 import editor.database.card.Card
 import editor.gui.editor.EditorFrame
 import editor.gui.settings.SettingsDialog
@@ -13,6 +14,7 @@ import javax.swing.JPanel
 import javax.swing.JSpinner
 import javax.swing.SpinnerNumberModel
 import scala.collection.immutable.ListMap
+import java.time.LocalDate
 
 /**
  * Convenience class that initializes a set of menu items that control adding cards to and removing them from a deck.
@@ -32,8 +34,8 @@ import scala.collection.immutable.ListMap
  * @author Alec Roelke
  */
 class CardMenuItems(monitor: => Option[EditorFrame], cards: => Iterable[? <: Card], main: Boolean) extends Iterable[JMenuItem] {
-  private val add = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) ++= (cards -> n))
-  private val remove = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) --= (cards -> n))
+  private val add = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) ++= cards.map(StandaloneEntry(_, n, LocalDate.now)))
+  private val remove = (n: Int) => monitor.foreach(f => (if (main) f.deck else f.sideboard) --= cards.map(StandaloneEntry(_, n, LocalDate.now)))
 
   private val items = Seq(
     JMenuItem("Add Single Copy"), JMenuItem("Fill Playset"), JMenuItem("Add Copies..."),
@@ -43,7 +45,11 @@ class CardMenuItems(monitor: => Option[EditorFrame], cards: => Iterable[? <: Car
   addOne.addActionListener(_ => add(1))
   fillPlayset.addActionListener(_ => monitor.foreach(f => {
     val l = if (main) f.deck else f.sideboard
-    l %%= ListMap.from(cards.map((c) => c -> (if (l.contains(c)) math.max(0, SettingsDialog.PlaysetSize - l.getEntry(c).count) else SettingsDialog.PlaysetSize)))
+    l ++= cards.map((c) => StandaloneEntry(
+      c,
+      math.max(SettingsDialog.PlaysetSize - l.find(_.card == c).map(_.count).getOrElse(0), SettingsDialog.PlaysetSize),
+      LocalDate.now
+    ))
   }))
   addN.addActionListener(_ => {
     val contentPanel = JPanel(BorderLayout());

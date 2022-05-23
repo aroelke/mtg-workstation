@@ -56,7 +56,7 @@ class InclusionCellEditor(frame: EditorFrame) extends AbstractCellEditor with Ta
   override def getTableCellEditorComponent(table: JTable, value: AnyRef, isSelected: Boolean, row: Int, column: Int) = {
     table match {
       case cTable: CardTable =>
-        iePanel = Some(IncludeExcludePanel(frame.categories.toSeq.sortBy(_.getName.toLowerCase), Seq(frame.getCardAt(cTable, row))))
+        iePanel = Some(IncludeExcludePanel(frame.categories.toSeq.sortBy(_.getName.toLowerCase), Seq(frame.getCardAt(cTable, row).card)))
         included = value match {
           case c: java.util.Collection[?] => c.asScala.collect{ case category: Category => category }.toSeq
           case _ => Seq.empty
@@ -68,7 +68,7 @@ class InclusionCellEditor(frame: EditorFrame) extends AbstractCellEditor with Ta
           if (cTable.hasFocus)
             editor.setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"))
         }
-      case _ => iePanel = Some(IncludeExcludePanel(frame.categories.toSeq.sortBy(_.getName.toLowerCase), frame.getSelectedCards))
+      case _ => iePanel = Some(IncludeExcludePanel(frame.categories.toSeq.sortBy(_.getName.toLowerCase), frame.getSelectedCards.map(_.card)))
     }
     editor
   }

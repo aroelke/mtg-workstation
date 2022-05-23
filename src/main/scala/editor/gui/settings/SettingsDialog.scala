@@ -740,7 +740,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
           imageLimit = limitImageSpinner.getValue.asInstanceOf[Int],
           update = updateBox.getItemAt(updateBox.getSelectedIndex),
           warn = suppressCheckBox.isSelected,
-          columns = inventoryColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toSeq.sortBy(_.ordinal),
+          columns = inventoryColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toIndexedSeq.sortBy(_.ordinal),
           background = scanBGChooser.getColor,
           stripe = inventoryStripeColor.getColor
         ),
@@ -763,7 +763,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
             sideboard = if (sideCheck.isSelected) sideField.getText else ""
           ),
           manaAnalysis = ManaAnalysisSettings(sectionChoosers.map{ case (s, c) => s -> c.getColor }.toMap).copy(line = landLineChooser.getColor),
-          columns = editorColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toSeq.sortBy(_.ordinal),
+          columns = editorColumnCheckBoxes.collect{ case (a, b) if b.isSelected => a }.toIndexedSeq.sortBy(_.ordinal),
           stripe = editorStripeColor.getColor,
           manaValue = manaValueBox.getItemAt(manaValueBox.getSelectedIndex),
           backFaceLands = landsCheckBoxes.filter(_.isSelected).map(b => editor.database.card.CardLayout.values.find(_.toString == b.getText).get).toSet

@@ -1,7 +1,7 @@
 package editor.gui.editor
 
-import editor.collection.CardList
-import editor.collection.deck.Deck
+import editor.collection.CardList2
+import editor.collection.deck.Deck2
 import editor.database.FormatConstraints
 import editor.database.attributes.Legality
 import editor.database.attributes.ManaCost
@@ -123,11 +123,11 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
 
     cmdrCheck.setText(s"""Search for commander${if (cmdrCheck.isSelected) " in:" else ""}""")
     cmdrBox.setVisible(cmdrCheck.isSelected)
-    checkLegality(editor.lists(EditorFrame.MainDeck), if (!cmdrCheck.isSelected) Deck() else (cmdrBox.getSelectedItem.toString match {
+    checkLegality(editor.lists(EditorFrame.MainDeck), if (!cmdrCheck.isSelected) Deck2() else (cmdrBox.getSelectedItem.toString match {
         case MainDeck => editor.lists(EditorFrame.MainDeck)
         case AllLists => editor.allExtras
         case _ => editor.lists(cmdrBox.getSelectedItem.toString)
-    }), Option.when(!editor.extras.isEmpty && sideCheck.exists(_.isSelected))(sideCombo.map((c) => editor.lists(c.getItemAt(c.getSelectedIndex))).getOrElse(Deck())))
+    }), Option.when(!editor.extras.isEmpty && sideCheck.exists(_.isSelected))(sideCombo.map((c) => editor.lists(c.getItemAt(c.getSelectedIndex))).getOrElse(Deck2())))
   }
   sideCheck.foreach(_.addActionListener(listener))
   sideCombo.foreach(_.addActionListener(listener))
@@ -171,20 +171,20 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
    * a search in all lists in the frame
    * @param sideboard which list to use as sideboard if applicable
    */
-  def checkLegality(deck: CardList, commanderSearch: CardList, sideboard: Option[CardList]) = {
+  def checkLegality(deck: CardList2, commanderSearch: CardList2, sideboard: Option[CardList2]) = {
     val isoNameCounts = collection.mutable.Map[Card, Int]()
-    deck.foreach{ c =>
+    deck.foreach((e) => {
       var counted = false
-      isoNameCounts.keySet.foreach{ name =>
-        if (!counted && name.compareName(c) == 0) {
-          isoNameCounts(name) += deck.getEntry(name).count
+      isoNameCounts.keySet.foreach((name) => {
+        if (!counted && name.compareName(e.card) == 0) {
+          isoNameCounts(name) += deck.find(_.card == name).map(_.count).get
           counted = true
         }
-      }
+      })
       if (!counted)
-        isoNameCounts.put(c, deck.getEntry(c).count)
-    }
-    val deckColorIdentity = deck.flatMap(_.colorIdentity).toSet
+        isoNameCounts += e.card -> e.count
+    })
+    val deckColorIdentity = deck.flatMap(_.card.colorIdentity).toSet
 
     warnings.foreach{ case (format, warning) =>
       warning.clear()
@@ -192,14 +192,14 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
 
       // Commander(s) exist(s) and deck matches color identity
       val (commander, partners) = if (!commanderSearch.isEmpty && constraints.hasCommander) {
-        val possibleCommanders = commanderSearch.filter(_.commandFormats.contains(format))
-        val commander = possibleCommanders.exists(c => deckColorIdentity.forall(c.colorIdentity.contains(_)))
+        val possibleCommanders = commanderSearch.filter(_.card.commandFormats.contains(format)).map(_.card)
+        val commander = possibleCommanders.exists((c) => deckColorIdentity.forall(c.colorIdentity.contains))
 
         val possiblePartners = possibleCommanders
             .flatMap((c) => c.normalizedOracle.map(c -> PartnerPattern.findFirstMatchIn(_)))
             .collect{ case (c, Some(m)) if c.commandFormats.contains(format) => c -> Option(m.group(1)).map(_.toLowerCase).getOrElse("") }
             .toMap
-        val partners = possiblePartners.exists{ case (card, partner) => possibleCommanders.exists{ commander =>
+        val partners = possiblePartners.exists{ case (card, partner) => possibleCommanders.exists((commander) => {
           val colorIdentity = if ((partner.isEmpty && commander.normalizedOracle.flatMap(PartnerPattern.findFirstMatchIn(_)).exists(_.group(1) == null)) ||
                                   partner.equalsIgnoreCase(commander.name))
             (card.colorIdentity ++ commander.colorIdentity).toSet
@@ -207,7 +207,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
             Set.empty
 
           deckColorIdentity.forall(colorIdentity.contains(_))
-        }}
+        }) }
         (commander, partners)
       } else (false, false)
       if (!commanderSearch.isEmpty && constraints.hasCommander && !commander && !partners)
@@ -223,17 +223,17 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
         warnings(format) += s"Deck contains fewer than ${constraints.deckSize} cards"
 
       // Individual card legality and count
-      deck.foreach{ c =>
+      deck.foreach((e) => {
         val maxCopies = constraints.maxCopies
-        if (!c.legalityIn(format).isLegal)
-          warnings(format) += s"${c.name} is illegal in $format"
-        else if (isoNameCounts.contains(c) && !c.ignoreCountRestriction) {
-          if (c.legalityIn(format) == Legality.RESTRICTED && isoNameCounts(c) > 1)
-            warnings(format) += s"${c.name} is restricted in $format"
-          else if (isoNameCounts(c) > maxCopies)
-            warnings(format) += s"Deck contains more than $maxCopies copies of ${c.name}"
+        if (!e.card.legalityIn(format).isLegal)
+          warnings(format) += s"${e.card.name} is illegal in $format"
+        else if (isoNameCounts.contains(e.card) && !e.card.ignoreCountRestriction) {
+          if (e.card.legalityIn(format) == Legality.RESTRICTED && isoNameCounts(e.card) > 1)
+            warnings(format) += s"${e.card.name} is restricted in $format"
+          else if (isoNameCounts(e.card) > maxCopies)
+            warnings(format) += s"Deck contains more than $maxCopies copies of ${e.card.name}"
         }
-      }
+      })
 
       // Sideboard size
       sideboard.foreach{ sb =>

@@ -1,5 +1,6 @@
 package editor.gui.ccp.handler
 
+import editor.collection.StandaloneEntry
 import editor.gui.ccp.data.EntryTransferData
 import editor.gui.editor.EditorFrame
 
@@ -7,6 +8,7 @@ import java.awt.datatransfer.Transferable
 import javax.swing.JComponent
 import javax.swing.TransferHandler
 import scala.collection.immutable.ListMap
+import java.time.LocalDate
 
 /**
  * Handler for transferring data between [[CardTable]]s in an [[EditorFrame]].
@@ -19,7 +21,7 @@ import scala.collection.immutable.ListMap
  */
 class EditorTableTransferHandler(editor: EditorFrame, id: Int) extends EditorFrameTransferHandler(editor, id) {
   override def createTransferable(c: JComponent) = {
-    val data = editor.getSelectedCards.map((card) => card -> editor.lists(id).getEntry(card).count).toMap
+    val data = editor.getSelectedCards.map((e) => e.card -> e.count).toMap
     EntryTransferData(editor, id, data)
   }
 
@@ -31,13 +33,13 @@ class EditorTableTransferHandler(editor: EditorFrame, id: Int) extends EditorFra
         if (d.source == d.target)
           d.source.lists(d.from).move(d.cards)(d.source.lists(d.to))
         else {
-          d.source.lists(d.from) %%= ListMap.from(d.cards.map{ case (c, i) => c -> -i })
+          d.source.lists(d.from) --= d.cards.map{ case (c, i) => StandaloneEntry(c, i, LocalDate.now) }
           if (d.target != null)
-            d.target.lists(d.to) %%= ListMap.from(d.cards)
+            d.target.lists(d.to) ++= d.cards.map{ case (c, i) => StandaloneEntry(c, i, LocalDate.now) }
         }
       case TransferHandler.COPY =>
         if (d.target != null)
-          d.target.lists(d.to) %%= ListMap.from(d.cards)
+          d.target.lists(d.to) ++= d.cards.map{ case (c, i) => StandaloneEntry(c, i, LocalDate.now) }
       case _ =>
     }
     case _ =>

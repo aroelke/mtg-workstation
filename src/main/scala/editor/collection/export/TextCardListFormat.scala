@@ -1,8 +1,8 @@
 package editor.collection.`export`
 
 import com.mdimension.jchronic.Chronic
-import editor.collection.CardList
-import editor.collection.deck.Deck
+import editor.collection.CardList2
+import editor.collection.deck.Deck2
 import editor.database.card.CardFormat
 import editor.gui.MainFrame
 import editor.gui.editor.DeckSerializer
@@ -46,21 +46,21 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
 
   override val header = None
 
-  override def format(list: CardList) = list.map((c) => formatter.format(list.getEntry(c))).mkString(System.lineSeparator)
+  override def format(list: CardList2) = list.map(formatter.format).mkString(System.lineSeparator)
 
   override def parse(source: InputStream) = {
-    val deck = Deck()
+    val deck = Deck2()
     var extra: Option[String] = None
-    var extras = ListMap[String, Deck]()
+    var extras = ListMap[String, Deck2]()
 
     IterableReader(source).foreach((line) => {
       try {
         val trimmed = line.trim.toLowerCase
-        var possibilities = MainFrame.inventory.filter((c) => trimmed.contains(c.name.toLowerCase) || c.faces.exists((f) => trimmed.contains(f.name.toLowerCase)))
+        var possibilities = MainFrame.inventory.filter((e) => trimmed.contains(e.card.name.toLowerCase) || e.card.faces.exists((f) => trimmed.contains(f.name.toLowerCase)))
         if (possibilities.isEmpty)
           throw ParseException(s"Can't parse card name from \"${line.trim}\"", 0)
 
-        var filtered = possibilities.filter((c) => trimmed.contains(c.expansion.name.toLowerCase))
+        var filtered = possibilities.filter((e) => trimmed.contains(e.card.expansion.name.toLowerCase))
         if (!filtered.isEmpty)
           possibilities = filtered
         
@@ -69,15 +69,15 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
         val choice = possibilities.head
 
         val date = try {
-          Option(Chronic.parse(trimmed.replace(choice.name.toLowerCase, "").replace(choice.expansion.name.toLowerCase, "")))
+          Option(Chronic.parse(trimmed.replace(choice.card.name.toLowerCase, "").replace(choice.card.expansion.name.toLowerCase, "")))
               .map(_.getBeginCalendar.getTime.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
               .getOrElse(LocalDate.now)
         } catch case _: IllegalStateException => LocalDate.now
 
-        extra.map(extras).getOrElse(deck).add(choice, CountPattern.findFirstIn(trimmed).map(_.replace("x", "").toInt).getOrElse(1), date)
+        extra.map(extras).getOrElse(deck).add(choice.card, CountPattern.findFirstIn(trimmed).map(_.replace("x", "").toInt).getOrElse(1), date)
       } catch case e: ParseException => {
         extra = Some(line.trim)
-        extras += extra.get -> Deck()
+        extras += extra.get -> Deck2()
       }
     })
     DeckSerializer(deck, extras, "", "")

@@ -8,7 +8,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import editor.collection.deck.Category
-import editor.collection.deck.Deck
+import editor.collection.deck.Deck2
 import editor.database.card.Card
 
 import java.lang.reflect.Type
@@ -23,11 +23,11 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-class DeckAdapter extends JsonSerializer[Deck] with JsonDeserializer[Deck] {
+class DeckAdapter extends JsonSerializer[Deck2] with JsonDeserializer[Deck2] {
   private val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
-    val d = Deck()
+    val d = Deck2()
     val obj = json.getAsJsonObject
     obj.get("cards").getAsJsonArray.asScala.foreach((e) => {
       val entry = e.getAsJsonObject
@@ -37,27 +37,27 @@ class DeckAdapter extends JsonSerializer[Deck] with JsonDeserializer[Deck] {
         LocalDate.parse(entry.get("date").getAsString, Formatter)
       )
     })
-    obj.get("categories").getAsJsonArray.asScala.foreach((e) => d.addCategory(context.deserialize(e, classOf[Category]), e.getAsJsonObject.get("rank").getAsInt))
+    obj.get("categories").getAsJsonArray.asScala.map((e) => context.deserialize[Category](e, classOf[Category]) -> e.getAsJsonObject.get("rank").getAsInt).toSeq.sortBy{ case(_, r) => r }.foreach{ case (c, _) => d.categories += c }
     d
   }
 
-  override def serialize(src: Deck, typeOfSrc: Type, context: JsonSerializationContext) = {
+  override def serialize(src: Deck2, typeOfSrc: Type, context: JsonSerializationContext) = {
     val deck = JsonObject()
 
     val cards = JsonArray()
-    src.foreach((card) => {
+    src.foreach((e) => {
       val entry = JsonObject()
-      entry.add("card", context.serialize(card))
-      entry.addProperty("count", src.getEntry(card).count)
-      entry.addProperty("date", src.getEntry(card).dateAdded.format(Formatter))
+      entry.add("card", context.serialize(e.card))
+      entry.addProperty("count", e.count)
+      entry.addProperty("date", e.dateAdded.format(Formatter))
       cards.add(entry)
     })
     deck.add("cards", cards)
 
     val categories = JsonArray()
-    src.categories.foreach((spec) => {
-      val category = context.serialize(spec).getAsJsonObject
-      category.addProperty("rank", src.getCategoryRank(spec.getName))
+    src.categories.foreach((c) => {
+      val category = context.serialize(c.categorization).getAsJsonObject
+      category.addProperty("rank", c.rank)
       categories.add(category)
     })
     deck.add("categories", categories)

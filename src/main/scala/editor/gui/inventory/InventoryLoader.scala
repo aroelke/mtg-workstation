@@ -4,23 +4,11 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.mdimension.jchronic.Chronic
-import editor.collection.Inventory
+import editor.collection.card2Entry
+import editor.collection.Inventory2
 import editor.database.FormatConstraints
-import editor.database.attributes.CombatStat
-import editor.database.attributes.Expansion
-import editor.database.attributes.Legality
-import editor.database.attributes.Loyalty
-import editor.database.attributes.ManaCost
-import editor.database.attributes.ManaType
-import editor.database.attributes.Rarity
-import editor.database.card.Card
-import editor.database.card.CardLayout
-import editor.database.card.FlipCard
-import editor.database.card.MeldCard
-import editor.database.card.ModalCard
-import editor.database.card.SingleCard
-import editor.database.card.SplitCard
-import editor.database.card.TransformCard
+import editor.database.attributes._
+import editor.database.card._
 import editor.database.version.DatabaseVersion
 import editor.filter.leaf.options.multi.CardTypeFilter
 import editor.filter.leaf.options.multi.SubtypeFilter
@@ -187,7 +175,7 @@ object InventoryLoader {
  * @param warnings list of warnings that occurred while loading
  */
 case class LoadedData(
-  inventory: Inventory = Inventory(),
+  inventory: Inventory2 = Inventory2(),
   expansions: Seq[Expansion] = Seq.empty,
   supertypes: Seq[String] = Seq.empty,
   types: Seq[String] = Seq.empty,
@@ -539,14 +527,14 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
           errors += s"""Could not find definitions for the following formats: ${missingFormats.mkString(", ")}"""
       }
 
-      LoadedData(Inventory(cards.toSet.toSeq), expansions.toSeq.sorted, allSupertypes.values.toSeq.sorted, allTypes.values.toSeq.sorted, allSubtypes.values.toSeq.sorted, errors.toSeq)
+      LoadedData(Inventory2(cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.NAME.comparingCard.compare(a, b) < 0)), expansions.toSeq.sorted, allSupertypes.values.toSeq.sorted, allTypes.values.toSeq.sorted, allSubtypes.values.toSeq.sorted, errors.toSeq)
     }
 
     if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {
       publish("Processing tags...")
       val tk = new TypeToken[java.util.Map[String, java.util.Set[String]]] {}
       val raw = MainFrame.Serializer.fromJson(Files.readAllLines(Path.of(SettingsDialog.settings.inventory.tags)).asScala.mkString("\n"), tk.getType).asInstanceOf[java.util.Map[String, java.util.Set[String]]].asScala.map{ case (n, t) => n -> t.asScala.toSet }.toMap
-      Card.tags = raw.map{ case (name, tags) => data.inventory.find(name) -> collection.mutable.Set.from(tags) }
+      Card.tags = raw.map{ case (id, tags) => data.inventory(id).card -> collection.mutable.Set.from(tags) }
     }
 
     data
