@@ -223,8 +223,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     override def addOne(card: CardListEntry) = {
       if (card.count > 0) {
         performAction(
-          () => preserveTables{ _lists(id).foreach(_ += card); true },
-          () => preserveTables{ _lists(id).foreach(_ -= card); true }
+          () => preserveTables{ _lists(id).foreach(_.current += card); true },
+          () => preserveTables{ _lists(id).foreach(_.current -= card); true }
         )
       }
       this
@@ -234,8 +234,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       val added = cards.filter(_.count > 0)
       if (!added.isEmpty) {
         performAction(
-          () => preserveTables{ _lists(id).foreach(_ ++= added); true },
-          () => preserveTables{ _lists(id).foreach(_ --= added); true }
+          () => preserveTables{ _lists(id).foreach(_.current ++= added); true },
+          () => preserveTables{ _lists(id).foreach(_.current --= added); true }
         )
       }
       this
@@ -249,8 +249,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       )
       if (capped.count > 0) {
         performAction(
-          () => preserveTables{ _lists(id).foreach(_ -= capped); true },
-          () => preserveTables{ _lists(id).foreach(_ += capped); true }
+          () => preserveTables{ _lists(id).foreach(_.current -= capped); true },
+          () => preserveTables{ _lists(id).foreach(_.current += capped); true }
         )
       }
       this
@@ -264,8 +264,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       )).filter(_.count > 0)
       if (!capped.isEmpty) {
         performAction(
-          () => preserveTables{ _lists(id).foreach(_ --= capped); true },
-          () => preserveTables{ _lists(id).foreach(_ ++= capped); true }
+          () => preserveTables{ _lists(id).foreach(_.current --= capped); true },
+          () => preserveTables{ _lists(id).foreach(_.current ++= capped); true }
         )
       }
       this
@@ -274,8 +274,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     override def update(index: Int, card: CardListEntry) = if (card != current(index)) {
       val orig = current(index)
       performAction(
-        () => preserveTables{ _lists(id).foreach(_(index) = card); true },
-        () => preserveTables{ _lists(id).foreach(_(index) = orig); true }
+        () => preserveTables{ _lists(id).foreach(_.current(index) = card); true },
+        () => preserveTables{ _lists(id).foreach(_.current(index) = orig); true }
       )
     }
 
@@ -299,12 +299,12 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       )).getOrElse(StandaloneEntry(card, 0, LocalDate.now)) }.filter(_.count > 0)
       if (!capped.isEmpty) {
         performAction(() => preserveTables{
-          _lists(id).foreach(_ --= capped)
-          _lists(tid).foreach(_ ++= capped)
+          _lists(id).foreach(_.current --= capped)
+          _lists(tid).foreach(_.current ++= capped)
           true
         }, () => preserveTables{
-          _lists(tid).foreach(_ --= capped)
-          _lists(id).foreach(_ ++= capped)
+          _lists(tid).foreach(_.current --= capped)
+          _lists(id).foreach(_.current ++= capped)
           true
         })
       }
