@@ -2,8 +2,9 @@ package editor.collection.deck
 
 import editor.database.card.Card
 import scala.util.Random
+import editor.collection.CardList2
 
-class Hand2(deck: Deck2) extends IndexedSeq[Card] {
+class Hand2(deck: CardList2) extends IndexedSeq[Card] {
   private var hand = 0
   private def shuffled = Random.shuffle(deck.flatMap((e) => Seq.fill(e.count)(e.card)).toIndexedSeq)
   private var cards = shuffled

@@ -41,8 +41,6 @@ class Deck2 extends CardList2 with MutableCardList {
     override def categories = _categories.toSet
   }
 
-  def contains(card: Card) = entries.exists(_.card == card)
-
   def add(card: Card, n: Int = 1, date: LocalDate = LocalDate.now) = entries.find(_.card == card).map(_ += n).getOrElse(entries += Entry(card, n, date))
 
   def remove(card: Card, n: Int = 1) = entries.find(_.card == card).map(_ -= n).getOrElse(throw NoSuchElementException(card.toString))
@@ -137,6 +135,8 @@ class Deck2 extends CardList2 with MutableCardList {
     } else throw IllegalArgumentException(s"there is already a category named ${next.getName}")
 
     def contains(name: String) = caches.contains(name)
+
+    def apply(name: String) = CategoryData(caches(name))
 
     override def clear() = {
       caches.clear()
