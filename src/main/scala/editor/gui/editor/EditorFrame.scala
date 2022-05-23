@@ -231,7 +231,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
 
     override def addAll(cards: IterableOnce[CardListEntry]) = {
-      val added = cards.filter(_.count > 0)
+      val added = cards.filter(_.count > 0).toSeq
       if (!added.isEmpty) {
         performAction(
           () => preserveTables{ _lists(id).foreach(_.current ++= added); true },
@@ -261,7 +261,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         e.card,
         math.min(e.count, current.find(_.card == e.card).map(_.count).getOrElse(0)),
         e.dateAdded
-      )).filter(_.count > 0)
+      )).filter(_.count > 0).toSeq
       if (!capped.isEmpty) {
         performAction(
           () => preserveTables{ _lists(id).foreach(_.current --= capped); true },
@@ -296,7 +296,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
         card,
         math.min(count, e.count),
         e.dateAdded
-      )).getOrElse(StandaloneEntry(card, 0, LocalDate.now)) }.filter(_.count > 0)
+      )).getOrElse(StandaloneEntry(card, 0, LocalDate.now)) }.filter(_.count > 0).toSeq
       if (!capped.isEmpty) {
         performAction(() => preserveTables{
           _lists(id).foreach(_.current --= capped)
