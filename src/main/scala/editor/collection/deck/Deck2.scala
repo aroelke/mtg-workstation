@@ -15,11 +15,11 @@ class Deck2 extends CardList2 with MutableCardList {
   private val entries = collection.mutable.ArrayBuffer[Entry]()
 
   case class Entry private[Deck2](override val card: Card, private var amount: Int = 0, override val dateAdded: LocalDate = LocalDate.now) extends CardListEntry {
-    private[Deck2] val _categories = collection.mutable.Set[Category]()
+    private[Deck2] val _categories = collection.mutable.Map[String, Category]()
     if (amount > 0) {
       Deck2.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization.includes(card)) {
         cache.filtrate += this
-        _categories += cache.categorization
+        _categories += cache.categorization.getName -> cache.categorization
       }}
     }
 
@@ -32,7 +32,7 @@ class Deck2 extends CardList2 with MutableCardList {
           entries -= this
           Deck2.this.categories.caches.foreach{ case (_, cache) =>
             cache.filtrate -= this
-            _categories -= cache.categorization
+            _categories -= cache.categorization.getName
           }
         }
       } else if (n > 0) {
@@ -40,7 +40,7 @@ class Deck2 extends CardList2 with MutableCardList {
         entries += this
         Deck2.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization.includes(card)) {
           cache.filtrate += this
-          _categories += cache.categorization
+          _categories += cache.categorization.getName -> cache.categorization
         }}
       }
     }
@@ -48,7 +48,7 @@ class Deck2 extends CardList2 with MutableCardList {
     def +=(n: Int) = count += n
     def -=(n: Int) = count -= math.min(n, count)
 
-    override def categories = _categories.toSet
+    override def categories = _categories.values.toSet
   }
 
   def add(card: Card, n: Int = 1, date: LocalDate = LocalDate.now) = entries.find(_.card == card).map(_ += n).getOrElse(entries += Entry(card, n, date))
@@ -97,7 +97,7 @@ class Deck2 extends CardList2 with MutableCardList {
     def categorization_=(c: Category) = {
       spec = c
       filtrate = entries.filter((e) => spec.includes(e.card))
-      filtrate.foreach((e) => if (spec.includes(e.card)) e._categories += spec else e._categories -= spec)
+      filtrate.foreach((e) => if (spec.includes(e.card)) e._categories += spec.getName -> spec else e._categories -= spec.getName)
     }
 
     override def apply(index: Int) = filtrate(index)
@@ -132,7 +132,7 @@ class Deck2 extends CardList2 with MutableCardList {
         val removed = caches(name)
         caches -= name
         caches.foreach{ case (_, cache) => if (cache.rank > removed.rank) cache.rank -= 1 }
-        entries.foreach(_._categories -= removed.categorization)
+        entries.foreach(_._categories -= removed.categorization.getName)
       }
       this
     }
