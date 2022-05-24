@@ -14,10 +14,14 @@ import editor.collection.MutableCardList
 class Deck2 extends CardList2 with MutableCardList {
   private val entries = collection.mutable.ArrayBuffer[Entry]()
 
-  class Entry private[Deck2](override val card: Card, private var amount: Int = 0, override val dateAdded: LocalDate = LocalDate.now) extends CardListEntry {
+  case class Entry private[Deck2](override val card: Card, private var amount: Int = 0, override val dateAdded: LocalDate = LocalDate.now) extends CardListEntry {
     private[Deck2] val _categories = collection.mutable.Set[Category]()
-    if (amount > 0)
-      Deck2.this.categories.caches.foreach{ case (_, cache) if cache.categorization.includes(card) => cache.filtrate += this }
+    if (amount > 0) {
+      Deck2.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization.includes(card)) {
+        cache.filtrate += this
+        _categories += cache.categorization
+      }}
+    }
 
     override def count = amount
     def count_=(n: Int) = {
@@ -26,12 +30,18 @@ class Deck2 extends CardList2 with MutableCardList {
         amount = math.max(n, 0)
         if (amount == 0) {
           entries -= this
-          Deck2.this.categories.caches.foreach{ case (_, cache) => cache.filtrate -= this }
+          Deck2.this.categories.caches.foreach{ case (_, cache) =>
+            cache.filtrate -= this
+            _categories -= cache.categorization
+          }
         }
       } else if (n > 0) {
         amount = n
         entries += this
-        Deck2.this.categories.caches.foreach{ case (_, cache) if cache.categorization.includes(card) => cache.filtrate += this }
+        Deck2.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization.includes(card)) {
+          cache.filtrate += this
+          _categories += cache.categorization
+        }}
       }
     }
 
@@ -121,7 +131,7 @@ class Deck2 extends CardList2 with MutableCardList {
       if (caches.contains(name)) {
         val removed = caches(name)
         caches -= name
-        caches.foreach{ case (_, cache) if cache.rank > removed.rank => cache.rank -= 1 }
+        caches.foreach{ case (_, cache) => if (cache.rank > removed.rank) cache.rank -= 1 }
         entries.foreach(_._categories -= removed.categorization)
       }
       this

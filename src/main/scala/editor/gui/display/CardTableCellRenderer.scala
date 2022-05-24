@@ -120,7 +120,7 @@ class CardTableCellRenderer extends DefaultTableCellRenderer {
             panel
           case CardAttribute.CATEGORIES =>
             val categories = value match {
-              case s: java.util.Set[?] => s.asScala.toSeq.collect{ case category: Category => category }.sortBy(_.getName)
+              case s: Set[?] => s.toSeq.collect{ case category: Category => category }.sortBy(_.getName)
               case _ => Seq.empty
             }
             val panel = tablePanel(new JPanel {
