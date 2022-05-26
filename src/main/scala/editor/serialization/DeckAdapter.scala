@@ -8,7 +8,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import editor.collection.deck.Category
-import editor.collection.deck.Deck2
+import editor.collection.deck.Deck
 import editor.database.card.Card
 
 import java.lang.reflect.Type
@@ -23,11 +23,11 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-class DeckAdapter extends JsonSerializer[Deck2] with JsonDeserializer[Deck2] {
+class DeckAdapter extends JsonSerializer[Deck] with JsonDeserializer[Deck] {
   private val Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
-    val d = Deck2()
+    val d = Deck()
     val obj = json.getAsJsonObject
     obj.get("cards").getAsJsonArray.asScala.foreach((e) => {
       val entry = e.getAsJsonObject
@@ -41,7 +41,7 @@ class DeckAdapter extends JsonSerializer[Deck2] with JsonDeserializer[Deck2] {
     d
   }
 
-  override def serialize(src: Deck2, typeOfSrc: Type, context: JsonSerializationContext) = {
+  override def serialize(src: Deck, typeOfSrc: Type, context: JsonSerializationContext) = {
     val deck = JsonObject()
 
     val cards = JsonArray()

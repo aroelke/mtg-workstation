@@ -1,7 +1,7 @@
 package editor.gui.editor
 
-import editor.collection.CardList2
-import editor.collection.deck.Deck2
+import editor.collection.CardList
+import editor.collection.deck.Deck
 import editor.database.FormatConstraints
 import editor.database.attributes.Legality
 import editor.database.attributes.ManaCost
@@ -123,11 +123,11 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
 
     cmdrCheck.setText(s"""Search for commander${if (cmdrCheck.isSelected) " in:" else ""}""")
     cmdrBox.setVisible(cmdrCheck.isSelected)
-    checkLegality(editor.lists(EditorFrame.MainDeck), if (!cmdrCheck.isSelected) Deck2() else (cmdrBox.getSelectedItem.toString match {
+    checkLegality(editor.lists(EditorFrame.MainDeck), if (!cmdrCheck.isSelected) Deck() else (cmdrBox.getSelectedItem.toString match {
         case MainDeck => editor.lists(EditorFrame.MainDeck)
         case AllLists => editor.allExtras
         case _ => editor.lists(cmdrBox.getSelectedItem.toString)
-    }), Option.when(!editor.extras.isEmpty && sideCheck.exists(_.isSelected))(sideCombo.map((c) => editor.lists(c.getItemAt(c.getSelectedIndex))).getOrElse(Deck2())))
+    }), Option.when(!editor.extras.isEmpty && sideCheck.exists(_.isSelected))(sideCombo.map((c) => editor.lists(c.getItemAt(c.getSelectedIndex))).getOrElse(Deck())))
   }
   sideCheck.foreach(_.addActionListener(listener))
   sideCombo.foreach(_.addActionListener(listener))
@@ -171,7 +171,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
    * a search in all lists in the frame
    * @param sideboard which list to use as sideboard if applicable
    */
-  def checkLegality(deck: CardList2, commanderSearch: CardList2, sideboard: Option[CardList2]) = {
+  def checkLegality(deck: CardList, commanderSearch: CardList, sideboard: Option[CardList]) = {
     val isoNameCounts = collection.mutable.Map[Card, Int]()
     deck.foreach((e) => {
       var counted = false

@@ -1,8 +1,8 @@
 package editor.collection.`export`
 
 import com.mdimension.jchronic.Chronic
-import editor.collection.CardList2
-import editor.collection.deck.Deck2
+import editor.collection.CardList
+import editor.collection.deck.Deck
 import editor.database.card.CardFormat
 import editor.gui.MainFrame
 import editor.gui.editor.DeckSerializer
@@ -46,12 +46,12 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
 
   override val header = None
 
-  override def format(list: CardList2) = list.map(formatter.format).mkString(System.lineSeparator)
+  override def format(list: CardList) = list.map(formatter.format).mkString(System.lineSeparator)
 
   override def parse(source: InputStream) = {
-    val deck = Deck2()
+    val deck = Deck()
     var extra: Option[String] = None
-    var extras = ListMap[String, Deck2]()
+    var extras = ListMap[String, Deck]()
 
     IterableReader(source).foreach((line) => {
       try {
@@ -77,7 +77,7 @@ class TextCardListFormat(pattern: String) extends CardListFormat {
         extra.map(extras).getOrElse(deck).add(choice.card, CountPattern.findFirstIn(trimmed).map(_.replace("x", "").toInt).getOrElse(1), date)
       } catch case e: ParseException => {
         extra = Some(line.trim)
-        extras += extra.get -> Deck2()
+        extras += extra.get -> Deck()
       }
     })
     DeckSerializer(deck, extras, "", "")

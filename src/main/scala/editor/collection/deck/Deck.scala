@@ -4,279 +4,162 @@ import editor.collection.CardList
 import editor.collection.CardListEntry
 import editor.database.card.Card
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Objects
+import editor.collection.deck.Category
 import java.util.NoSuchElementException
-
-case class DeckEntry(card: Card, private var amount: Int, override val dateAdded: LocalDate, categorizations: collection.mutable.LinkedHashSet[Category] = collection.mutable.LinkedHashSet[Category]()) extends CardListEntry {
-  private[deck] def add(amt: Int) = if (amt < 1) false else {
-    amount += amt
-    true
-  }
-
-  private[deck] def remove(amt: Int) = if (amt < 1) 0 else {
-    val old = count
-    amount -= math.min(amt, count)
-    old - count
-  }
-
-  def count_=(n: Int) = amount = count
-
-  override def count = amount
-
-  override def categories = categorizations.toSet
-}
+import scala.collection.mutable.Clearable
+import scala.collection.mutable.Growable
+import scala.collection.mutable.Shrinkable
+import editor.collection.MutableCardList
+import java.time.format.DateTimeFormatter
 
 object Deck {
   val DateFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy")
-
-  def apply() = new Deck()
-  def apply(original: Deck) = {
-    val d = new Deck()
-    original.masterList.foreach((e) => d.add(e.card, e.count, e.dateAdded))
-    original.caches.values.foreach((c) => d.addCategory(c.spec))
-    d
-  }
 }
 
-class Deck extends CardList {
-  private class CategoryCache(var spec: Category) extends CardList {
-    var rank: Int = caches.size
-    var filtrate = collection.mutable.ArrayBuffer[Card]()
-    update(spec)
+class Deck extends CardList with MutableCardList {
+  private val entries = collection.mutable.ArrayBuffer[Entry]()
 
-    def update(s: Category) = {
-      spec = s
-      filtrate = collection.mutable.ArrayBuffer.from(masterList.collect{ case e if spec.includes(e.card) => e.card })
-      masterList.foreach((e) => {
-        if (spec.includes(e.card))
-          e.categorizations += spec
-        else
-          e.categorizations -= spec
-      })
+  case class Entry private[Deck](override val card: Card, private var amount: Int = 0, override val dateAdded: LocalDate = LocalDate.now) extends CardListEntry {
+    private[Deck] val _categories = collection.mutable.Map[String, Category]()
+    if (amount > 0) {
+      Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization.includes(card)) {
+        cache.filtrate += this
+        _categories += cache.categorization.getName -> cache.categorization
+      }}
     }
 
-    override def add(card: Card) = add(card, 1)
-    override def add(card: Card, amount: Int) = spec.includes(card) && Deck.this.add(card, amount)
-    override def addAll(cards: CardList) = Deck.this.addAll(cards.collect{ case c if spec.includes(c) => c -> cards.getEntry(c).count }.toMap)
-    override def addAll(cards: Map[? <: Card, Int]) = Deck.this.addAll(cards.filter{ case (c, _) => spec.includes(c) })
-    override def addAll(cards: Set[? <: Card]) = Deck.this.addAll(cards.filter(spec.includes))
-    override def clear() = Deck.this.removeAll(this)
-    override def contains(card: Card) = filtrate.contains(card)
-    override def containsAll(cards: Iterable[? <: Card]) = cards.forall(filtrate.contains)
-    override def get(index: Int) = filtrate(index)
-    override def getEntry(card: Card) = if (spec.includes(card)) Deck.this.getEntry(card) else DeckEntry(card, 0, null)
-    override def getEntry(index: Int) = getEntry(get(index))
-    override def indexOf(card: Card) = if (spec.includes(card)) filtrate.indexOf(card) else -1
-    override def isEmpty = size == 0
-    override def iterator = filtrate.iterator
-    override def remove(card: Card) = remove(card, 1) > 0
-    override def remove(card: Card, amount: Int) = if (contains(card)) Deck.this.remove(card, amount) else 0
-    override def removeAll(cards: CardList) = Deck.this.removeAll(cards.collect{ case c if spec.includes(c) => c -> cards.getEntry(c).count }.toMap)
-    override def removeAll(cards: Map[? <: Card, Int]) = Deck.this.removeAll(cards.filter{ case (c, _) => spec.includes(c) })
-    override def removeAll(cards: Set[? <: Card]) = Deck.this.removeAll(cards.filter(spec.includes))
-    override def set(card: Card, amount: Int) = spec.includes(card) && Deck.this.set(card, amount)
-    override def set(index: Int, amount: Int) = set(get(index), amount)
-    override def size = filtrate.size
-    override def total = filtrate.map(Deck.this.getEntry(_).count).sum
-
-    override def toString = spec.toString
-
-    override def sort(comp: Ordering[? >: CardListEntry]) = throw UnsupportedOperationException("only the main deck can be sorted")
-  }
-
-  private val masterList = collection.mutable.ArrayBuffer[DeckEntry]()
-  private val caches = collection.mutable.LinkedHashMap[String, CategoryCache]()
-  private var ttl = 0
-
-  private def createCategory(spec: Category) = {
-    if (!caches.contains(spec.getName)) {
-      val c = CategoryCache(spec)
-      caches(spec.getName) = c
-      true
-    } else false
-  }
-
-  def add(card: Card, amount: Int, date: LocalDate) = if (amount < 1) false else {
-    var entry = getEntry(card).asInstanceOf[DeckEntry]
-    if (entry.count == 0) {
-      entry = DeckEntry(card, 0, date)
-      masterList += entry
-      caches.values.foreach((cache) => if (cache.spec.includes(card)) {
-        cache.filtrate += card
-        entry.categorizations += cache.spec
-      })
-    }
-    entry.add(amount)
-    ttl += amount
-    true
-  }
-
-  def addCategory(spec: Category): CardList = {
-    createCategory(spec)
-    caches(spec.getName)
-  }
-
-  def addCategory(spec: Category, rank: Int): CardList = {
-    if (createCategory(spec)) {
-      val c = caches(spec.getName)
-      c.rank = rank
-      c
-    } else if (caches(spec.getName).rank == rank) {
-      caches(spec.getName)
-    } else if (swapCategoryRanks(spec.getName, rank)) {
-      caches(spec.getName)
-    } else throw IllegalArgumentException(s"could not add category ${spec.getName} at rank $rank")
-  }
-
-  def categories = caches.values.map(_.spec)
-
-  def containsCategory(name: String) = caches.contains(name)
-
-  def exclude(name: String, card: Card) = contains(card) && caches(name).spec.exclude(card)
-
-  def getCategoryList(name: String): CardList = caches(name)
-
-  def getCategoryRank(name: String) = if (containsCategory(name)) caches(name).rank else -1
-
-  def getCategorySpec(name: String) = Category(caches(name).spec)
-
-  def numCategories = caches.size
-
-  def removeCategory(spec: Category): Boolean = if (!caches.contains(spec.getName)) false else {
-    val c = caches(spec.getName)
-    masterList.foreach(_.categorizations -= c.spec)
-    val oldRanks = collection.mutable.HashMap[String, Int]()
-    caches.values.foreach((category) => if (category.rank > c.rank) {
-      oldRanks(category.spec.getName) = category.rank
-      category.rank -= 1
-    })
-    caches -= spec.getName
-    if (!oldRanks.isEmpty)
-      oldRanks(c.spec.getName) = c.rank
-    true
-  }
-
-  def removeCategory(name: String): Boolean = if (caches.contains(name)) removeCategory(getCategorySpec(name)) else false
-
-  def swapCategoryRanks(name: String, target: Int) = if (!caches.contains(name) || caches(name).rank == target || target >= caches.size || target < 0) false else {
-    caches.values.find(_.rank == target).map((second) => {
-      val oldRanks = collection.mutable.HashMap[String, Int]()
-      oldRanks(name) = caches(name).rank
-      oldRanks(second.spec.getName) = second.rank
-      second.rank = caches(name).rank
-      caches(name).rank = target
-      true
-    }).getOrElse(false)
-  }
-
-  def updateCategory(name: String, spec: Category) = if (caches.contains(name)) {
-    val c = caches(name)
-    val old = Category(c.spec)
-    caches -= name
-    c.update(spec)
-    caches(spec.getName) = c
-    old
-  } else throw NoSuchElementException(name)
-
-  override def add(card: Card) = add(card, 1)
-  override def add(card: Card, amount: Int) = add(card, amount, LocalDate.now)
-  override def addAll(list: CardList) = {
-    val added = collection.mutable.HashMap[Card, Int]()
-    list.foreach((card) => {
-      if (add(card, list.getEntry(card).count, list.getEntry(card).dateAdded))
-        added(card) = list.getEntry(card).count
-    })
-    !added.isEmpty
-  }
-  override def addAll(list: Map[? <: Card, Int]) = {
-    val added = collection.mutable.HashMap[Card, Int]()
-    list.foreach{ case (card, amount) =>
-      if (add(card, amount, LocalDate.now))
-        added(card) = amount
-    }
-    !added.isEmpty
-  }
-  override def addAll(list: Set[? <: Card]) = addAll(list.map(_ -> 1).toMap)
-  override def clear() = {
-    masterList.clear()
-    caches.clear()
-    ttl = 0
-  }
-  override def contains(card: Card) = getEntry(card).count > 0
-  override def containsAll(cards: Iterable[? <: Card]) = cards.forall(getEntry(_).count > 0)
-  override def get(index: Int) = masterList(index).card
-  override def getEntry(card: Card) = masterList.find(_.card == card).getOrElse(DeckEntry(card, 0, LocalDate.now))
-  override def getEntry(index: Int) = masterList(index)
-  override def indexOf(card: Card) = masterList.indexOf(getEntry(card))
-  override def isEmpty = size == 0
-  override def iterator = masterList.map(_.card).iterator
-  override def remove(card: Card) = remove(card, Int.MaxValue) > 0
-  override def remove(card: Card, amount: Int) = if (amount < 1) 0 else {
-    val entry = getEntry(card).asInstanceOf[DeckEntry]
-    if (entry.count == 0) 0 else {
-      val removed = entry.remove(amount)
-      if (removed > 0) {
-        if (entry.count == 0) {
-          caches.values.foreach((category) => {
-            if (category.spec.getWhitelist.contains(card))
-              category.spec.exclude(card)
-            if (category.spec.getBlacklist.contains(card))
-              category.spec.include(card)
-            category.filtrate -= card
-          })
-          masterList -= entry
+    override def count = amount
+    def count_=(n: Int) = {
+      if (amount > 0) {
+        val old = amount
+        amount = math.max(n, 0)
+        if (amount == 0) {
+          entries -= this
+          Deck.this.categories.caches.foreach{ case (_, cache) =>
+            cache.filtrate -= this
+            _categories -= cache.categorization.getName
+          }
         }
-        ttl -= removed
+      } else if (n > 0) {
+        amount = n
+        entries += this
+        Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization.includes(card)) {
+          cache.filtrate += this
+          _categories += cache.categorization.getName -> cache.categorization
+        }}
       }
-      removed
     }
-  }
-  override def removeAll(cards: CardList) = removeAll(cards.map((c) => c -> cards.getEntry(c).count).toMap)
-  override def removeAll(cards: Map[? <: Card, Int]) = {
-    val removed = collection.mutable.HashMap[Card, Int]()
-    cards.foreach{ case (card, amount) =>
-      val r = remove(card, amount)
-      if (r > 0)
-        removed(card) = r
-    }
-    removed.toMap
-  }
-  override def removeAll(cards: Set[? <: Card]) = removeAll(cards.map(_ -> 1).toMap).keySet
-  override def set(card: Card, amount: Int) = {
-    val amt = math.max(amount, 0)
-    val e = getEntry(card).asInstanceOf[DeckEntry]
-    if (e.count == 0)
-      add(card, amount)
-    else if (e.count == amt)
-      false
-    else {
-      ttl += amt - e.count
-      val change = collection.mutable.HashMap[Card, Int]()
-      change(card) = amt - e.count
-      e.count = amt
-      if (e.count == 0) {
-        masterList -= e
-        caches.values.foreach((category) => {
-          category.filtrate -= e.card
-          category.spec.getWhitelist.remove(e.card)
-          category.spec.getBlacklist.remove(e.card)
-        })
-      }
-      true
-    }
-  }
-  override def set(index: Int, amount: Int) = set(masterList(index).card, amount)
-  override def size = masterList.size
-  override def total = ttl
-  override def sort(comp: Ordering[? >: CardListEntry]) = {
-    masterList.sortInPlace()(comp)
-    caches.values.foreach((category) => category.filtrate.sortInPlace()((a, b) => comp.compare(getEntry(a), getEntry(b))))
+
+    def +=(n: Int) = count += n
+    def -=(n: Int) = count -= math.min(n, count)
+
+    override def categories = _categories.values.toSet
   }
 
-  override def equals(other: Any) = other match {
-    case o: Deck => masterList == o.masterList && caches == o.caches
-    case _ => false
+  def add(card: Card, n: Int = 1, date: LocalDate = LocalDate.now) = entries.find(_.card == card).map(_ += n).getOrElse(entries += Entry(card, n, date))
+
+  def remove(card: Card, n: Int = 1) = entries.find(_.card == card).map(_ -= n).getOrElse(throw NoSuchElementException(card.toString))
+
+  def apply(card: Card) = entries.find(_.card == card).getOrElse(Entry(card))
+
+  override def addOne(card: CardListEntry) = {
+    add(card.card, card.count, card.dateAdded)
+    this
   }
-  override def hashCode = Objects.hash(masterList, caches)
+
+  override def addAll(cards: IterableOnce[CardListEntry]) = {
+    cards.foreach((e) => add(e.card, e.count, e.dateAdded))
+    this
+  }
+
+  override def subtractOne(card: CardListEntry) = {
+    if (contains(card.card)) remove(card.card, card.count)
+    this
+  }
+
+  def subtractAll(cards: IterableOnce[CardListEntry]) = {
+    cards.filter((e) => contains(e.card)).foreach((e) => remove(e.card, e.count))
+    this
+  }
+
+  override def update(index: Int, card: CardListEntry) = entries(index) = Entry(card.card, card.count, card.dateAdded)
+
+  override def apply(index: Int): Entry = entries(index)
+  override def length = entries.size
+  override def total = entries.map(_.count).sum
+
+  override def clear() = {
+    entries.clear()
+    categories.caches.foreach{ case (_, cache) => cache.filtrate.clear() }
+  }
+
+  private class Cache(private var spec: Category) extends CardList {
+    var filtrate = collection.mutable.ArrayBuffer[Entry]()
+    var rank = categories.size
+    categorization = spec
+
+    def categorization = spec
+    def categorization_=(c: Category) = {
+      spec = c
+      filtrate = entries.filter((e) => spec.includes(e.card))
+      filtrate.foreach((e) => if (spec.includes(e.card)) e._categories += spec.getName -> spec else e._categories -= spec.getName)
+    }
+
+    override def apply(index: Int) = filtrate(index)
+    override def length = filtrate.length
+    override def total = filtrate.map(_.count).sum
+  }
+
+  class CategoryData private[Deck](cache: Cache) {
+    def list: CardList = cache
+
+    def categorization = cache.categorization
+    def categorization_=(next: Category) = categories(categorization.getName) = next
+
+    def rank = cache.rank
+    def rank_=(r: Int) = if (r != rank) categories.caches.find{ case (_, c) => c.rank == r }.map{ case (_, c) =>
+      val temp = c.rank
+      c.rank = r
+      cache.rank = temp
+    }.getOrElse(throw ArrayIndexOutOfBoundsException(r))
+  }
+
+  object categories extends Iterable[CategoryData] with Growable[Category] with Shrinkable[String] with Clearable {
+    private[Deck] val caches = collection.mutable.Map[String, Cache]()
+
+    override def addOne(categorization: Category) = if (!caches.contains(categorization.getName)) {
+      caches += categorization.getName -> Cache(categorization)
+      this
+    } else throw IllegalArgumentException(s"there is already a category named ${categorization.getName}")
+
+    override def subtractOne(name: String) = {
+      if (caches.contains(name)) {
+        val removed = caches(name)
+        caches -= name
+        caches.foreach{ case (_, cache) => if (cache.rank > removed.rank) cache.rank -= 1 }
+        entries.foreach(_._categories -= removed.categorization.getName)
+      }
+      this
+    }
+
+    def update(name: String, next: Category): Unit = if (next.getName == name || !caches.contains(next.getName)) {
+      val cache = caches(name)
+      caches -= name
+      cache.categorization = next
+      caches += next.getName -> cache
+    } else throw IllegalArgumentException(s"there is already a category named ${next.getName}")
+
+    def contains(name: String) = caches.contains(name)
+
+    def apply(name: String) = CategoryData(caches(name))
+
+    override def clear() = {
+      caches.clear()
+      entries.foreach(_._categories.clear())
+    }
+
+    override def knownSize = caches.size
+
+    override def iterator = caches.map{ case (_, cache) => CategoryData(cache) }.iterator
+  }
 }

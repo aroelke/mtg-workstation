@@ -5,7 +5,7 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.mdimension.jchronic.Chronic
 import editor.collection.StandaloneEntry
-import editor.collection.Inventory2
+import editor.collection.Inventory
 import editor.database.FormatConstraints
 import editor.database.attributes._
 import editor.database.card._
@@ -175,7 +175,7 @@ object InventoryLoader {
  * @param warnings list of warnings that occurred while loading
  */
 case class LoadedData(
-  inventory: Inventory2 = Inventory2(),
+  inventory: Inventory = Inventory(),
   expansions: Seq[Expansion] = Seq.empty,
   supertypes: Seq[String] = Seq.empty,
   types: Seq[String] = Seq.empty,
@@ -527,7 +527,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
           errors += s"""Could not find definitions for the following formats: ${missingFormats.mkString(", ")}"""
       }
 
-      LoadedData(Inventory2(cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.NAME.comparingCard.compare(StandaloneEntry(a, 1, LocalDate.now), StandaloneEntry(b, 1, LocalDate.now)) < 0)), expansions.toSeq.sorted, allSupertypes.values.toSeq.sorted, allTypes.values.toSeq.sorted, allSubtypes.values.toSeq.sorted, errors.toSeq)
+      LoadedData(Inventory(cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.NAME.comparingCard.compare(StandaloneEntry(a, 1, LocalDate.now), StandaloneEntry(b, 1, LocalDate.now)) < 0)), expansions.toSeq.sorted, allSupertypes.values.toSeq.sorted, allTypes.values.toSeq.sorted, allSubtypes.values.toSeq.sorted, errors.toSeq)
     }
 
     if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {

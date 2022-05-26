@@ -1,6 +1,6 @@
 package editor.gui.editor
 
-import editor.collection.deck.Deck2
+import editor.collection.deck.Deck
 import editor.gui.settings.SettingsDialog
 import editor.util.Stats
 
@@ -53,7 +53,7 @@ object CalculateHandPanel {
  * 
  * @author Alec Roelke
  */
-class CalculateHandPanel(deck: Deck2, recalculateFunction: ChangeListener) extends JPanel(BorderLayout()) {
+class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extends JPanel(BorderLayout()) {
   import CalculateHandPanel._
   import RelationChoice._
 

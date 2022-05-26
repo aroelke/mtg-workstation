@@ -1,8 +1,7 @@
 package editor.gui.editor
 
-import editor.collection.CardList2
 import editor.collection.CardListEntry
-import editor.collection.deck.Deck2
+import editor.collection.deck.Deck
 import editor.database.card.Card
 import editor.gui.display.CardTable
 import editor.gui.display.CardTableModel
@@ -56,7 +55,7 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */ 
-class CategoryPanel(private val deck: Deck2, private var _name: String, private val editor: EditorFrame, flashDuration: Int = 20, flashColor: Color = SystemColor.textHighlight) extends JPanel
+class CategoryPanel(private val deck: Deck, private var _name: String, private val editor: EditorFrame, flashDuration: Int = 20, flashColor: Color = SystemColor.textHighlight) extends JPanel
   with SettingsObserver
 {
   /** @return the name of the category corresponding to this CategoryPanel */

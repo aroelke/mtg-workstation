@@ -8,7 +8,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import editor.collection.deck.Deck2
+import editor.collection.deck.Deck
 import editor.collection.`export`.CardListFormat
 import editor.gui.MainFrame
 import editor.util.ProgressInputStream
@@ -105,7 +105,7 @@ object DeckSerializer {
  * 
  * @author Alec Roelke
  */
-case class DeckSerializer(deck: Deck2 = Deck2(), sideboards: Map[String, Deck2] = Map.empty, notes: String = "", changelog: String = "", file: Option[File] = None)
+case class DeckSerializer(deck: Deck = Deck(), sideboards: Map[String, Deck] = Map.empty, notes: String = "", changelog: String = "", file: Option[File] = None)
   extends JsonSerializer[DeckSerializer] with JsonDeserializer[DeckSerializer]
 {
   /** Save the serialized deck to a JSON file, if the file is defined. */
@@ -133,11 +133,11 @@ case class DeckSerializer(deck: Deck2 = Deck2(), sideboards: Map[String, Deck2] 
   @throws[JsonParseException]("if the JSON could not be parsed")
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
     val obj = json.getAsJsonObject
-    val deck = context.deserialize[Deck2](obj.get("main"), classOf[Deck2])
+    val deck = context.deserialize[Deck](obj.get("main"), classOf[Deck])
     val notes = if (obj.has("notes")) obj.get("notes").getAsString else ""
-    val sideboard = collection.mutable.Map[String, Deck2]()
+    val sideboard = collection.mutable.Map[String, Deck]()
     obj.get("sideboards").getAsJsonArray.asScala.foreach((entry) => {
-      sideboard(entry.getAsJsonObject.get("name").getAsString) = context.deserialize[Deck2](entry, classOf[Deck2])
+      sideboard(entry.getAsJsonObject.get("name").getAsString) = context.deserialize[Deck](entry, classOf[Deck])
     })
     val changelog = obj.get("changelog").getAsString
     DeckSerializer(deck, sideboard.toMap, notes, changelog)

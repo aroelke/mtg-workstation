@@ -38,28 +38,26 @@ trait CardListEntry {
   }
 }
 
-trait CardList extends Iterable[Card] {
-  def add(card: Card): Boolean
-  def add(card: Card, amount: Int): Boolean
-  def addAll(cards: CardList): Boolean
-  def addAll(amounts: Map[? <: Card, Int]): Boolean
-  def addAll(cards: Set[? <: Card]): Boolean
-  def clear(): Unit
-  def contains(card: Card): Boolean
-  def containsAll(cards: Iterable[? <: Card]): Boolean
-  def get(index: Int): Card
-  def getEntry(card: Card): CardListEntry
-  def getEntry(index: Int): CardListEntry
-  def indexOf(card: Card): Int
-  def isEmpty: Boolean
-  def remove(card: Card): Boolean
-  def remove(card: Card, amount: Int): Int
-  def removeAll(cards: CardList): Map[Card, Int]
-  def removeAll(cards: Map[? <: Card, Int]): Map[Card, Int]
-  def removeAll(cards: Set[? <: Card]): Set[Card]
-  def set(card: Card, amount: Int): Boolean
-  def set(index: Int, amount: Int): Boolean
-  def size: Int
+case class StandaloneEntry(card: Card, count: Int, dateAdded: LocalDate) extends CardListEntry {
+  override val categories = Set.empty
+}
+
+trait CardList extends collection.IndexedSeq[CardListEntry] {
+  def contains(card: Card) = exists(_.card == card)
+  def indexOf(card: Card) = indexWhere(_.card == card)
   def total: Int
-  def sort(comp: Ordering[? >: CardListEntry]): Unit
+}
+
+trait MutableCardList extends collection.mutable.IndexedSeq[CardListEntry] with collection.mutable.Clearable {
+  def addOne(card: CardListEntry): this.type
+  final def +=(card: CardListEntry) = addOne(card)
+
+  def addAll(cards: IterableOnce[CardListEntry]): this.type
+  final def ++=(cards: IterableOnce[CardListEntry]) = addAll(cards)
+
+  def subtractOne(card: CardListEntry): this.type
+  final def -=(card: CardListEntry) = subtractOne(card)
+
+  def subtractAll(cards: IterableOnce[CardListEntry]): this.type
+  final def --=(cards: IterableOnce[CardListEntry]) = subtractAll(cards)
 }

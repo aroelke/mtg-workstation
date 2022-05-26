@@ -1,12 +1,12 @@
 package editor.gui.editor
 
-import editor.collection.CardList2
+import editor.collection.CardList
 import editor.collection.StandaloneEntry
 import editor.collection.MutableCardList
 import editor.collection.CardListEntry
 import editor.collection.deck.Category
-import editor.collection.deck.Deck2
-import editor.collection.deck.Hand2
+import editor.collection.deck.Deck
+import editor.collection.deck.Hand
 import editor.collection.`export`.CardListFormat
 import editor.database.attributes.ManaType
 import editor.database.card.Card
@@ -197,8 +197,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * DECK MANIPULATION
    ********************/
   private object DeckData {
-    def apply(id: Int, name: String, deck: Deck2 = Deck2()): DeckData = {
-      val original = Deck2()
+    def apply(id: Int, name: String, deck: Deck = Deck()): DeckData = {
+      val original = Deck()
       original.addAll(deck)
       DeckData(id, name, deck, original)
     }
@@ -207,9 +207,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   case class DeckData private[EditorFrame](
     private[EditorFrame] val id: Int,
     private var _name: String,
-    private[EditorFrame] val current: Deck2,
-    private[EditorFrame] val original: Deck2
-  ) extends CardList2 with MutableCardList {
+    private[EditorFrame] val current: Deck,
+    private[EditorFrame] val original: Deck
+  ) extends CardList with MutableCardList {
     def name = _name
     private[EditorFrame] def name_=(n: String) = _name = n
 
@@ -280,7 +280,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
 
     override def clear() = {
-      val cleared = Deck2()
+      val cleared = Deck()
       cleared ++= current
       cleared.categories ++= current.categories.map(_.categorization)
       performAction(() => preserveTables{ current.clear(); true }, () => preserveTables{
@@ -410,8 +410,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   @deprecated def getExtraNames = extras.map(_.name)
 
   /** @return a [[CardList]] containing all of the cards in extra lists */
-  def allExtras: CardList2 = {
-    val sideboard = Deck2()
+  def allExtras: CardList = {
+    val sideboard = Deck()
     extras.foreach(e => sideboard.addAll(e.current))
     sideboard
   }
@@ -776,8 +776,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoryHeaderPanel.add(addCategoryPanel)
 
   // Combo box to change category sort order
-  private enum CategoryOrder(override val toString: String, order: (Deck2) => Ordering[Category]) {
-    def apply(d: Deck2) = order(d)
+  private enum CategoryOrder(override val toString: String, order: (Deck) => Ordering[Category]) {
+    def apply(d: Deck) = order(d)
 
     case AtoZ       extends CategoryOrder("A-Z", (d) => (a, b) => a.getName.compare(b.getName))
     case ZtoA       extends CategoryOrder("Z-A", (d) => (a, b) => -a.getName.compare(b.getName))
@@ -946,7 +946,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   private val handPanel = JPanel(BorderLayout())
 
   // Table showing the cards in hand
-  private val hand = Hand2(deck.current)
+  private val hand = Hand(deck.current)
 
   private val imagePanel = ScrollablePanel(ScrollablePanel.TrackHeight)
   imagePanel.setLayout(BoxLayout(imagePanel, BoxLayout.X_AXIS))
@@ -1616,9 +1616,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    */
   def exportList(format: CardListFormat, comp: Ordering[? >: CardListEntry], extraNames: Seq[String], file: File) = {
     Using(PrintWriter(OutputStreamWriter(FileOutputStream(file, false), "UTF8")))(wr => {
-      def write(d: CardList2, n: Option[String] = None) = {
+      def write(d: CardList, n: Option[String] = None) = {
         n.foreach(wr.println(_))
-        val copy = Deck2()
+        val copy = Deck()
         copy ++= d.sorted(comp)
         wr.print(format.format(copy))
       }

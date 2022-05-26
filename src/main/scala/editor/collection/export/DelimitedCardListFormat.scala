@@ -1,8 +1,8 @@
 package editor.collection.`export`
 
 import com.mdimension.jchronic.Chronic
-import editor.collection.CardList2
-import editor.collection.deck.Deck2
+import editor.collection.CardList
+import editor.collection.deck.Deck
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 import editor.database.card.CardFormat
@@ -71,7 +71,7 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
     case _ => delim
   }
 
-  override def format(list: CardList2) = {
+  override def format(list: CardList) = {
     val columnFormats = attributes.map((a) => CardFormat(s"{$a}".toLowerCase))
     list.map((e) => {
       columnFormats.map((format) => {
@@ -84,9 +84,9 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
   override lazy val header = Option.when(!attributes.isEmpty)(attributes.map(_.toString.replace(Escape, Escape*2)).mkString(delimiter))
 
   override def parse(source: InputStream) = {
-    val deck = Deck2()
+    val deck = Deck()
     var extra: Option[String] = None
-    var extras = ListMap[String, Deck2]()
+    var extras = ListMap[String, Deck]()
     var pos = 0
 
     var name = attributes.indexOf(CardAttribute.NAME)
@@ -131,7 +131,7 @@ class DelimitedCardListFormat(delim: String, attributes: Seq[CardAttribute]) ext
           )
         } catch case e: ParseException => {
           extra = Some(line)
-          extras += line -> Deck2()
+          extras += line -> Deck()
         }
       }
       pos += line.size

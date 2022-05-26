@@ -1,7 +1,7 @@
 package editor.gui.display
 
-import editor.collection.CardList2
-import editor.collection.deck.Deck2
+import editor.collection.CardList
+import editor.collection.deck.Deck
 import editor.database.attributes.CardAttribute
 import editor.gui.editor.EditorFrame
 import editor.gui.editor.IncludeExcludePanel
@@ -20,7 +20,7 @@ import javax.swing.table.AbstractTableModel
  * 
  * @author Alec Roelke
  */
-class CardTableModel(private var cards: CardList2, private var characteristics: IndexedSeq[CardAttribute], editor: Option[EditorFrame] = None) extends AbstractTableModel {
+class CardTableModel(private var cards: CardList, private var characteristics: IndexedSeq[CardAttribute], editor: Option[EditorFrame] = None) extends AbstractTableModel {
   override def getColumnCount = characteristics.size
   override def getColumnName(column: Int) = characteristics(column).toString
   override def getColumnClass(column: Int) = characteristics(column).dataType
@@ -30,8 +30,8 @@ class CardTableModel(private var cards: CardList2, private var characteristics: 
 
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {
     (cards, characteristics(column), value) match {
-      case (deck: Deck2, CardAttribute.COUNT, i: java.lang.Integer) => deck(row).count = i
-      case (deck: Deck2, CardAttribute.CATEGORIES, ie: IncludeExcludePanel) => editor.foreach(_.editInclusion(ie.included, ie.excluded))
+      case (deck: Deck, CardAttribute.COUNT, i: java.lang.Integer) => deck(row).count = i
+      case (deck: Deck, CardAttribute.CATEGORIES, ie: IncludeExcludePanel) => editor.foreach(_.editInclusion(ie.included, ie.excluded))
       case _ => throw IllegalArgumentException(s"cannot edit data type ${characteristics(column)} to $value")
     }
     fireTableDataChanged()
@@ -56,7 +56,7 @@ class CardTableModel(private var cards: CardList2, private var characteristics: 
    * Change the list of cards to be displayed by the table.  Updates the table to show the new cards.
    * @param l new list to show
    */
-  def list_=(l: CardList2) = {
+  def list_=(l: CardList) = {
     cards = l
     fireTableDataChanged()
   }

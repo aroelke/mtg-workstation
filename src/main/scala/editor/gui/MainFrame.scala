@@ -1,11 +1,11 @@
 package editor.gui
 
-import _root_.editor.collection.CardList2
+import _root_.editor.collection.CardList
 import _root_.editor.collection.CardListEntry
 import _root_.editor.collection.StandaloneEntry
-import _root_.editor.collection.Inventory2
+import _root_.editor.collection.Inventory
 import _root_.editor.collection.deck.Category
-import _root_.editor.collection.deck.Deck2
+import _root_.editor.collection.deck.Deck
 import _root_.editor.collection.`export`.DelimitedCardListFormat
 import _root_.editor.collection.`export`.TextCardListFormat
 import _root_.editor.database.attributes.CardAttribute
@@ -176,11 +176,11 @@ object MainFrame {
   /** Maximum height of a filter panel before a scroll bar is activated. */
   val MaxFilterHeight = 300
 
-  private var _inventory: Option[Inventory2] = None
+  private var _inventory: Option[Inventory] = None
   /** @return the inventory of all cards. */
   def inventory = _inventory.get
   /** @param i new inventory */
-  def inventory_=(i: Inventory2) = _inventory = Some(i)
+  def inventory_=(i: Inventory) = _inventory = Some(i)
 
   /** Serializer for saving and loading external information. */
   def Serializer = (new GsonBuilder)
@@ -190,7 +190,7 @@ object MainFrame {
     .registerTypeAdapter(classOf[Color], ColorAdapter())
     .registerTypeHierarchyAdapter(classOf[Card], CardAdapter())
     .registerTypeAdapter(classOf[CardAttribute], AttributeAdapter())
-    .registerTypeAdapter(classOf[Deck2], DeckAdapter())
+    .registerTypeAdapter(classOf[Deck], DeckAdapter())
     .registerTypeAdapter(classOf[DeckSerializer], DeckSerializer())
     .registerTypeAdapter(classOf[DatabaseVersion], VersionAdapter())
     .registerTypeAdapter(classOf[UpdateFrequency], UpdateAdapter())
@@ -233,7 +233,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   }
 
   private var selectedTable: Option[CardTable] = None
-  private var selectedList: Option[CardList2] = None
+  private var selectedList: Option[CardList] = None
   private var untitled = 0
   private var selectedFrame: Option[EditorFrame] = None
   private val editors = collection.mutable.ArrayBuffer[EditorFrame]()
@@ -1061,7 +1061,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   tablePanel.add(filterPanel, BorderLayout.NORTH)
 
   // Create the inventory and put it in the table
-  private val inventoryModel = CardTableModel(Inventory2(), Settings().inventory.columns)
+  private val inventoryModel = CardTableModel(Inventory(), Settings().inventory.columns)
   private val inventoryTable = CardTable(inventoryModel)
   inventoryTable.setDefaultRenderer(classOf[String], InventoryTableCellRenderer())
   inventoryTable.setDefaultRenderer(classOf[Int], InventoryTableCellRenderer())
@@ -1500,7 +1500,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    * @param table table that contains the selection
    * @param list list backing that table
    */
-  def setSelectedComponents(table: CardTable, list: CardList2) = {
+  def setSelectedComponents(table: CardTable, list: CardList) = {
     selectedList = Some(list)
     selectedTable = Some(table)
     if (table != inventoryTable)
