@@ -1,7 +1,7 @@
 package editor.gui.editor
 
 import editor.collection.CardList
-import editor.collection.StandaloneEntry
+import editor.collection.CardListEntry
 import editor.collection.MutableCardList
 import editor.collection.CardListEntry
 import editor.collection.deck.Category
@@ -242,11 +242,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
 
     override def subtractOne(card: CardListEntry) = {
-      val capped = StandaloneEntry(
-        card.card,
-        math.min(card.count, current.find(_.card == card.card).map(_.count).getOrElse(0)),
-        card.dateAdded
-      )
+      val capped = card.copy(count = math.min(card.count, current.find(_.card == card.card).map(_.count).getOrElse(0)))
       if (capped.count > 0) {
         performAction(
           () => preserveTables{ _lists(id).foreach(_.current -= capped); true },
@@ -257,11 +253,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     }
 
     override def subtractAll(cards: IterableOnce[CardListEntry]) = {
-      val capped = cards.map((e) => StandaloneEntry(
-        e.card,
-        math.min(e.count, current.find(_.card == e.card).map(_.count).getOrElse(0)),
-        e.dateAdded
-      )).filter(_.count > 0).toSeq
+      val capped = cards.map((e) => e.copy(count = math.min(e.count, current.find(_.card == e.card).map(_.count).getOrElse(0)))).filter(_.count > 0).toSeq
       if (!capped.isEmpty) {
         performAction(
           () => preserveTables{ _lists(id).foreach(_.current --= capped); true },
@@ -292,11 +284,11 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     def move(moves: IterableOnce[(Card, Int)])(target: DeckData) = {
       val tid = target.id
-      val capped = moves.map{ case (card, count) => current.find(_.card == card).map((e) => StandaloneEntry(
+      val capped = moves.flatMap{ case (card, count) => current.find(_.card == card).map((e) => CardListEntry(
         card,
         math.min(count, e.count),
         e.dateAdded
-      )).getOrElse(StandaloneEntry(card, 0, LocalDate.now)) }.filter(_.count > 0).toSeq
+      )) }.filter(_.count > 0).toSeq
       if (!capped.isEmpty) {
         performAction(() => preserveTables{
           _lists(id).foreach(_.current --= capped)
@@ -666,9 +658,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   mainPanel.add(mainDeckPane, BorderLayout.CENTER)
 
   private val deckButtons = VerticalButtonList(Seq("+", UnicodeSymbols.Minus.toString, "X"))
-  deckButtons("+").addActionListener(_ => deck ++= parent.getSelectedCards.map((e) => StandaloneEntry(e.card, 1, LocalDate.now)))
-  deckButtons(UnicodeSymbols.Minus.toString).addActionListener(_ => deck --= parent.getSelectedCards.map((e) => StandaloneEntry(e.card, 1, LocalDate.now)))
-  deckButtons("X").addActionListener(_ => deck --= parent.getSelectedCards.map((e) => StandaloneEntry(e.card, Int.MaxValue, LocalDate.now)))
+  deckButtons("+").addActionListener(_ => deck ++= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
+  deckButtons(UnicodeSymbols.Minus.toString).addActionListener(_ => deck --= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
+  deckButtons("X").addActionListener(_ => deck --= parent.getSelectedCards.map((e) => CardListEntry(e.card, Int.MaxValue)))
   mainPanel.add(deckButtons, BorderLayout.WEST)
 
   private val southLayout = CardLayout()
@@ -680,9 +672,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   southPanel.add(extrasPanel, "extras")
 
   private val extrasButtons = VerticalButtonList(Seq("+", UnicodeSymbols.Minus.toString, "X"))
-  extrasButtons("+").addActionListener(_ => sideboard ++= parent.getSelectedCards.map((e) => StandaloneEntry(e.card, 1, LocalDate.now)))
-  extrasButtons(UnicodeSymbols.Minus.toString).addActionListener(_ => sideboard --= parent.getSelectedCards.map((e) => StandaloneEntry(e.card, 1, LocalDate.now)))
-  extrasButtons("X").addActionListener(_ => sideboard --= parent.getSelectedCards.map((e) => StandaloneEntry(e.card, Int.MaxValue, LocalDate.now)))
+  extrasButtons("+").addActionListener(_ => sideboard ++= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
+  extrasButtons(UnicodeSymbols.Minus.toString).addActionListener(_ => sideboard --= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
+  extrasButtons("X").addActionListener(_ => sideboard --= parent.getSelectedCards.map((e) => CardListEntry(e.card, Int.MaxValue)))
   extrasPanel.add(extrasButtons, BorderLayout.WEST)
 
   private val extrasPane = JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT)
@@ -847,9 +839,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoriesPane.setComponentPopupMenu(categoriesMenu)
 
   private val categoryButtons = VerticalButtonList(Seq("+", UnicodeSymbols.Minus.toString, "X"))
-  categoryButtons("+").addActionListener(_ => deck ++= parent.getSelectedCards.map((e) => StandaloneEntry(e.card, 1, LocalDate.now)))
-  categoryButtons(UnicodeSymbols.Minus.toString).addActionListener(_ => deck --= parent.getSelectedCards.map((e) => StandaloneEntry(e.card, 1, LocalDate.now)))
-  categoryButtons("X").addActionListener(_ => deck --= parent.getSelectedCards.map((e) => StandaloneEntry(e.card, Int.MaxValue, LocalDate.now)))
+  categoryButtons("+").addActionListener(_ => deck ++= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
+  categoryButtons(UnicodeSymbols.Minus.toString).addActionListener(_ => deck --= parent.getSelectedCards.map((e) => CardListEntry(e.card, 1)))
+  categoryButtons("X").addActionListener(_ => deck --= parent.getSelectedCards.map((e) => CardListEntry(e.card, Int.MaxValue)))
   categoriesPanel.add(categoryButtons, BorderLayout.WEST)
 
   /* MANA ANALYSIS TAB */

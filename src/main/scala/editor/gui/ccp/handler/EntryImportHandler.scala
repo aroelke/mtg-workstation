@@ -1,6 +1,6 @@
 package editor.gui.ccp.handler
 
-import editor.collection.StandaloneEntry
+import editor.collection.CardListEntry
 import editor.gui.ccp.data.DataFlavors
 import editor.gui.ccp.data.EntryTransferData
 import editor.gui.editor.EditorFrame
@@ -44,7 +44,7 @@ class EntryImportHandler(editor: EditorFrame, id: Int) extends TransferHandler w
             data.to = id
             true
           } else {
-            editor.lists(id) ++= data.cards.map{ case (c, i) => StandaloneEntry(c, i, LocalDate.now) }
+            editor.lists(id) ++= data.cards.map{ case (c, i) => CardListEntry(c, i) }
             true
           }
         case _ => false

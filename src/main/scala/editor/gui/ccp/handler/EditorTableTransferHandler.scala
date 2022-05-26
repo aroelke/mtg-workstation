@@ -1,6 +1,6 @@
 package editor.gui.ccp.handler
 
-import editor.collection.StandaloneEntry
+import editor.collection.CardListEntry
 import editor.gui.ccp.data.EntryTransferData
 import editor.gui.editor.EditorFrame
 
@@ -33,13 +33,13 @@ class EditorTableTransferHandler(editor: EditorFrame, id: Int) extends EditorFra
         if (d.source == d.target)
           d.source.lists(d.from).move(d.cards)(d.source.lists(d.to))
         else {
-          d.source.lists(d.from) --= d.cards.map{ case (c, i) => StandaloneEntry(c, i, LocalDate.now) }
+          d.source.lists(d.from) --= d.cards.map{ case (c, i) => CardListEntry(c, i) }
           if (d.target != null)
-            d.target.lists(d.to) ++= d.cards.map{ case (c, i) => StandaloneEntry(c, i, LocalDate.now) }
+            d.target.lists(d.to) ++= d.cards.map{ case (c, i) => CardListEntry(c, i) }
         }
       case TransferHandler.COPY =>
         if (d.target != null)
-          d.target.lists(d.to) ++= d.cards.map{ case (c, i) => StandaloneEntry(c, i, LocalDate.now) }
+          d.target.lists(d.to) ++= d.cards.map{ case (c, i) => CardListEntry(c, i) }
       case _ =>
     }
     case _ =>

@@ -5,11 +5,12 @@ import editor.filter.Filter
 import editor.filter.leaf.BinaryFilter
 import scala.collection.immutable.MapOps
 import scala.annotation.targetName
+import java.time.LocalDate
 
-case class InventoryEntry(override val card: Card) extends CardListEntry {
-  override def categories = throw UnsupportedOperationException("inventory doesn't have categories")
+class InventoryEntry(override val card: Card) extends CardListEntry {
   override def count = throw UnsupportedOperationException("inventory doesn't count cards")
   override def dateAdded = card.expansion.released
+  override def categories = throw UnsupportedOperationException("inventory doesn't have categories")
 }
 
 class Inventory(val cards: Iterable[Card] = IndexedSeq.empty) extends CardList {

@@ -6,13 +6,24 @@ import editor.database.card.Card
 import java.time.LocalDate
 import scala.jdk.CollectionConverters._
 
-trait CardListEntry {
+object CardListEntry {
+  private class StandaloneEntry(override val card: Card, override val count: Int, override val dateAdded: LocalDate) extends CardListEntry {
+    override val categories = Set.empty
+  }
+
+  def apply(card: Card, count: Int = 1, added: LocalDate = LocalDate.now): CardListEntry = StandaloneEntry(card, count, added)
+  def unapply(entry: CardListEntry): Option[(Card, Int, LocalDate)] = Some((entry.card, entry.count, entry.dateAdded))
+}
+
+trait CardListEntry extends Equals {
   import CardAttribute._
 
   def card: Card
-  def categories: Set[Category]
   def count: Int
   def dateAdded: LocalDate
+
+  def categories: Set[Category]
+
   def apply(data: CardAttribute) = data match {
     case NAME => card.name
     case LAYOUT => card.layout
@@ -36,10 +47,16 @@ trait CardListEntry {
     case DATE_ADDED => dateAdded
     case TAGS => java.util.LinkedHashSet(Card.tags(card).toSeq.sorted.asJava)
   }
-}
 
-case class StandaloneEntry(card: Card, count: Int, dateAdded: LocalDate) extends CardListEntry {
-  override val categories = Set.empty
+  override def canEqual(that: Any) = that.isInstanceOf[CardListEntry]
+
+  def copy(count: Int = this.count, dateAdded: LocalDate = this.dateAdded) = CardListEntry(card, count, dateAdded)
+  override def equals(that: Any) = that match {
+    case e: CardListEntry => e.canEqual(this) && card == e.card && count == e.count && dateAdded == e.dateAdded
+    case _ => false
+  }
+  override def hashCode = Seq(card, count, dateAdded).map(_.##).fold(0)(31*_ + _)
+  override def toString = s"${card.name} (${card.expansion.name}) x$count @$dateAdded"
 }
 
 trait CardList extends collection.IndexedSeq[CardListEntry] {

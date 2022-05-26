@@ -4,7 +4,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.mdimension.jchronic.Chronic
-import editor.collection.StandaloneEntry
+import editor.collection.CardListEntry
 import editor.collection.Inventory
 import editor.database.FormatConstraints
 import editor.database.attributes._
@@ -527,7 +527,14 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
           errors += s"""Could not find definitions for the following formats: ${missingFormats.mkString(", ")}"""
       }
 
-      LoadedData(Inventory(cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.NAME.comparingCard.compare(StandaloneEntry(a, 1, LocalDate.now), StandaloneEntry(b, 1, LocalDate.now)) < 0)), expansions.toSeq.sorted, allSupertypes.values.toSeq.sorted, allTypes.values.toSeq.sorted, allSubtypes.values.toSeq.sorted, errors.toSeq)
+      LoadedData(
+        Inventory(cards.toSet.toIndexedSeq.sortWith((a, b) => CardAttribute.NAME.comparingCard.compare(CardListEntry(a), CardListEntry(b)) < 0)),
+        expansions.toSeq.sorted,
+        allSupertypes.values.toSeq.sorted,
+        allTypes.values.toSeq.sorted,
+        allSubtypes.values.toSeq.sorted,
+        errors.toSeq
+      )
     }
 
     if (!isCancelled && Files.exists(Path.of(SettingsDialog.settings.inventory.tags))) {

@@ -19,7 +19,7 @@ object Deck {
 class Deck extends CardList with MutableCardList {
   private val entries = collection.mutable.ArrayBuffer[Entry]()
 
-  case class Entry private[Deck](override val card: Card, private var amount: Int = 0, override val dateAdded: LocalDate = LocalDate.now) extends CardListEntry {
+  class Entry private[Deck](override val card: Card, private var amount: Int = 0, override val dateAdded: LocalDate = LocalDate.now) extends CardListEntry {
     private[Deck] val _categories = collection.mutable.Map[String, Category]()
     if (amount > 0) {
       Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization.includes(card)) {
@@ -54,6 +54,12 @@ class Deck extends CardList with MutableCardList {
     def -=(n: Int) = count -= math.min(n, count)
 
     override def categories = _categories.values.toSet
+
+    override def canEqual(that: Any) = that match {
+      case e: Deck#Entry => e.isInstanceOf[this.type]
+      case e: CardListEntry => true
+      case _ => false
+    }
   }
 
   def add(card: Card, n: Int = 1, date: LocalDate = LocalDate.now) = entries.find(_.card == card).map(_ += n).getOrElse(entries += Entry(card, n, date))

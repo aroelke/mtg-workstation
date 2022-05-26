@@ -18,8 +18,6 @@ import scala.jdk.CollectionConverters._
  * @author Alec Roelke
  */
 class EntryTransferData(val source: EditorFrame, val from: Int, val cards: Map[Card, Int]) extends CardTransferData(cards.keys.toSeq.sortBy(_.name).toArray) {
-  @deprecated def this(source: EditorFrame, from: Int, cards: java.util.Map[Card, Integer]) = this(source, from, cards.asScala.map{ case (c, i) => c -> i.toInt }.toMap)
-
   /** Target frame containing the list to transfer to. */
   var target: EditorFrame = null
   /** ID of the list to transfer to. */

@@ -1,6 +1,6 @@
 package editor.gui.ccp.handler
 
-import editor.collection.StandaloneEntry
+import editor.collection.CardListEntry
 import editor.database.card.Card
 import editor.gui.ccp.data.DataFlavors
 import editor.gui.editor.EditorFrame
@@ -27,7 +27,7 @@ class CardImportHandler(editor: EditorFrame, id: Int) extends TransferHandler wi
         case a: Array[?] => a.toSeq.collect{ case c: Card => c }
         case x => throw ClassCastException(s"needed ${classOf[Card]}, got ${x.getClass}")
       }
-      editor.lists(id) ++= data.map(StandaloneEntry(_, 1, LocalDate.now))
+      editor.lists(id) ++= data.map(CardListEntry(_))
       true
     } catch {
       case _: UnsupportedFlavorException => false

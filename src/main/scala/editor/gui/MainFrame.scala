@@ -2,7 +2,6 @@ package editor.gui
 
 import _root_.editor.collection.CardList
 import _root_.editor.collection.CardListEntry
-import _root_.editor.collection.StandaloneEntry
 import _root_.editor.collection.Inventory
 import _root_.editor.collection.deck.Category
 import _root_.editor.collection.deck.Deck
@@ -1070,7 +1069,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   inventoryTable.stripe = SettingsDialog.settings.inventory.stripe
   inventoryTable.addMouseListener(MouseListenerFactory.createMouseListener(clicked = (e) => selectedFrame.foreach((f) => {
     if (e.getClickCount % 2 == 0)
-      f.deck ++= getSelectedCards.map((c) => StandaloneEntry(c.card, 1, LocalDate.now))
+      f.deck ++= getSelectedCards.map((c) => CardListEntry(c.card, 1))
   })))
   inventoryTable.setTransferHandler(InventoryExportHandler(getSelectedCards.map(_.card)))
   inventoryTable.setDragEnabled(true)
