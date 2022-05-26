@@ -220,7 +220,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   private class InventoryTableCellRenderer extends CardTableCellRenderer {
     override def getTableCellRendererComponent(table: JTable, value: Object, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int) = {
       val c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
-      val card = inventory(table.convertRowIndexToModel(row))
+      val card = inventory(table.convertRowIndexToModel(row)).card
       val main = selectedFrame.exists(_.deck.contains(card))
       val extra = selectedFrame.exists(_.extras.exists(_.contains(card)))
       try {
