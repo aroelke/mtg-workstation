@@ -3,7 +3,6 @@ package editor.gui.editor
 import editor.collection.CardList
 import editor.collection.CardListEntry
 import editor.collection.MutableCardList
-import editor.collection.CardListEntry
 import editor.collection.deck.Category
 import editor.collection.deck.Deck
 import editor.collection.deck.Hand
@@ -72,6 +71,7 @@ import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.io.UnsupportedEncodingException
 import java.text.DecimalFormat
+import java.time.LocalDate
 import java.util.Comparator
 import java.util.Date
 import java.util.NoSuchElementException
@@ -114,7 +114,6 @@ import scala.collection.immutable.ListMap
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 import scala.util.Using
-import java.time.LocalDate
 
 object EditorFrame {
   val MainDeck = 0

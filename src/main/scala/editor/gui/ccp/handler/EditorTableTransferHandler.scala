@@ -5,10 +5,10 @@ import editor.gui.ccp.data.EntryTransferData
 import editor.gui.editor.EditorFrame
 
 import java.awt.datatransfer.Transferable
+import java.time.LocalDate
 import javax.swing.JComponent
 import javax.swing.TransferHandler
 import scala.collection.immutable.ListMap
-import java.time.LocalDate
 
 /**
  * Handler for transferring data between [[CardTable]]s in an [[EditorFrame]].

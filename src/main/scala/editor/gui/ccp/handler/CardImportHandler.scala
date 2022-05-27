@@ -7,8 +7,8 @@ import editor.gui.editor.EditorFrame
 
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException
-import javax.swing.TransferHandler
 import java.time.LocalDate
+import javax.swing.TransferHandler
 
 /**
  * Import handler for [[Card]]s, which adds one copy of each to the deck.

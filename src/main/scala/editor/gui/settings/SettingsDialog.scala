@@ -35,6 +35,7 @@ import java.awt.Dialog
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Font
+import java.awt.Frame
 import java.awt.Graphics
 import java.awt.GridLayout
 import java.awt.event.ActionListener
@@ -42,6 +43,7 @@ import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.io.File
 import java.io.IOException
+import java.net.MalformedURLException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.text.ParseException
@@ -78,8 +80,6 @@ import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
-import java.net.MalformedURLException
-import java.awt.Frame
 
 /**
  * Application-modal dialog that allows the user to make global changes to UI elements, including various colors,

@@ -7,9 +7,9 @@ import editor.gui.editor.EditorFrame
 
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException
+import java.time.LocalDate
 import javax.swing.TransferHandler
 import scala.collection.immutable.ListMap
-import java.time.LocalDate
 
 /**
  * Handler for importing data from a list contained by an [[EditorFrame]] into another one. Data can't be movied or copied to and from the same

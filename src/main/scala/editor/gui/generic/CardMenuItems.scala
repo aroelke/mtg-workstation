@@ -7,6 +7,7 @@ import editor.gui.settings.SettingsDialog
 
 import java.awt.BorderLayout
 import java.awt.Container
+import java.time.LocalDate
 import javax.swing.JLabel
 import javax.swing.JMenuItem
 import javax.swing.JOptionPane
@@ -14,7 +15,6 @@ import javax.swing.JPanel
 import javax.swing.JSpinner
 import javax.swing.SpinnerNumberModel
 import scala.collection.immutable.ListMap
-import java.time.LocalDate
 
 /**
  * Convenience class that initializes a set of menu items that control adding cards to and removing them from a deck.

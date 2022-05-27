@@ -92,6 +92,7 @@ import java.net.URL
 import java.nio.file.Files
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Properties
@@ -152,7 +153,6 @@ import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 import scala.util.Failure
 import scala.util.Success
-import java.time.LocalDate
 
 /** Possible result of checking for an inventory update. */
 sealed trait UpdateStatus
