@@ -27,7 +27,7 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
   setBackground(Color.WHITE)
 
   private val categoryBoxes = categories.map((category) => {
-    val matches = cards.count(category.includes(_))
+    val matches = cards.count(category.includes)
     val categoryBox = TristateCheckBox(category.getName, 
       if (matches == 0)
         TristateCheckBoxState.Unselected
