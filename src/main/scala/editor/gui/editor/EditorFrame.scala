@@ -528,14 +528,14 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
       for ((card, in) <- include) {
         for (category <- in) {
           if (!mods.contains(category.getName))
-            mods(category.getName) = deck.current.categories(category.getName).categorization
+            mods(category.getName) = Category(deck.current.categories(category.getName).categorization)
           mods(category.getName).include(card)
         }
       }
       for ((card, out) <- exclude) {
         for (category <- out) {
           if (!mods.contains(category.getName))
-            mods(category.getName) = deck.current.categories(category.getName).categorization
+            mods(category.getName) = Category(deck.current.categories(category.getName).categorization)
           mods(category.getName).exclude(card)
         }
       }

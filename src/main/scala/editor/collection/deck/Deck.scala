@@ -162,7 +162,7 @@ class Deck extends CardList with MutableCardList {
     def categorization_=(c: Category) = {
       spec = c
       filtrate = entries.filter((e) => spec.includes(e.card))
-      filtrate.foreach((e) => if (spec.includes(e.card)) e._categories += spec.getName -> spec else e._categories -= spec.getName)
+      entries.foreach((e) => if (spec.includes(e.card)) e._categories += spec.getName -> spec else e._categories -= spec.getName)
     }
 
     override def apply(index: Int) = filtrate(index)
