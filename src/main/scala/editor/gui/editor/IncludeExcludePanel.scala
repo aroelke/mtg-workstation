@@ -41,10 +41,16 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
   }).toMap
   categories.foreach((c) => add(categoryBoxes(c)))
 
-  /** @return a mapping of cards onto the categories they should be included in */
+  /**
+   * Get the categories that should have cards included in them. Categories are not actually updated.
+   * @return a mapping of cards onto the categories they should be included in
+   */
   def included = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Selected && !category.includes(c)) => category }.toSet).toMap
 
-  /** @return a mapping of cards onto the categories they should be excluded from */
+  /**
+   * Get the categories that should have cards excluded from them. Categories are not actually updated.
+   * @return a mapping of cards onto the categories they should be excluded from
+   */
   def excluded = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Unselected && category.includes(c)) => category }.toSet).toMap
 
   override def getPreferredScrollableViewportSize = {
