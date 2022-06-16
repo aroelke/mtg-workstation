@@ -106,7 +106,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
 
     add(Box.createVerticalStrut(2))
     val sideboardBox = Box.createHorizontalBox
-    val check = JCheckBox("", !sb.isEmpty && editor.getExtraNames.contains(sb))
+    val check = JCheckBox("", !sb.isEmpty && editor.extras.map(_.name).contains(sb))
     sideboardBox.add(check)
     val combo = JComboBox(editor.extras.map(_.name).toArray)
     combo.setSelectedIndex(math.max(0, editor.extras.map(_.name).indexOf(sb)))
