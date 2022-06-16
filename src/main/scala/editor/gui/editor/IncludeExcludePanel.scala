@@ -45,18 +45,18 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
    * Get the categories that should have cards included in them. Categories are not actually updated.
    * @return a mapping of cards onto the categories they should be included in
    */
-  def included = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Selected && !category.includes(c)) => category }.toSet).toMap
+  def toInclude = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Selected && !category.includes(c)) => category }.toSet).toMap
 
   /**
    * Get the categories that should have cards excluded from them. Categories are not actually updated.
    * @return a mapping of cards onto the categories they should be excluded from
    */
-  def excluded = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Unselected && category.includes(c)) => category }.toSet).toMap
+  def toExclude = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Unselected && category.includes(c)) => category }.toSet).toMap
 
   /** @return copies of the provided categories, updated to include or exclude cards as selected by the user. */
   def updates = {
-    val inc = included
-    val exc = excluded
+    val inc = toInclude
+    val exc = toExclude
     categories.collect{ case category if inc.values.exists(_.contains(category)) || exc.values.exists(_.contains(category)) =>
       val c = Category(category)
       inc.foreach{ case (card, in) => if (in.contains(category)) c.include(card) }
