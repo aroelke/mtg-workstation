@@ -397,7 +397,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   /** @return the extra list currently displayed by the bottom pane, or an empty list if there isn't one */
   def sideboard = _sideboard.getOrElse(DeckData(-1, ""))
   private def sideboard_=(d: Option[DeckData]) = _sideboard = d
-  @deprecated def getSelectedExtraID = Option.when(sideboard.id >= 0)(sideboard.id)
 
   /** @return a [[CardList]] containing all of the cards in extra lists */
   def allExtras: CardList = {
