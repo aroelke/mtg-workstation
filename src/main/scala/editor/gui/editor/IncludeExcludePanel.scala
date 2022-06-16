@@ -53,6 +53,18 @@ class IncludeExcludePanel(categories: Seq[Category], cards: Seq[Card]) extends S
    */
   def excluded = cards.map((c) => c -> categoryBoxes.collect{ case (category, box) if (box.state == TristateCheckBoxState.Unselected && category.includes(c)) => category }.toSet).toMap
 
+  /** @return copies of the provided categories, updated to include or exclude cards as selected by the user. */
+  def updates = {
+    val inc = included
+    val exc = excluded
+    categories.collect{ case category if inc.values.exists(_.contains(category)) || exc.values.exists(_.contains(category)) =>
+      val c = Category(category)
+      inc.foreach{ case (card, in) => if (in.contains(category)) c.include(card) }
+      exc.foreach{ case (card, ex) => if (ex.contains(category)) c.exclude(card) }
+      c
+    }
+  }
+
   override def getPreferredScrollableViewportSize = {
     val size = getPreferredSize
     if (!categoryBoxes.isEmpty)

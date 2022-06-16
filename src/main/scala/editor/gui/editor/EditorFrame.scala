@@ -511,37 +511,6 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     def iterator = deck.current.categories.map(_.categorization).iterator
   }
 
-  /**
-   * Change inclusion of cards in categories according to the given maps.
-   *
-   * @param included map of cards onto the set of categories they should become included in
-   * @param excluded map of cards onto the set of categories they should become excluded from
-   * @return true if any categories were modified, and false otherwise
-   */
-  @deprecated def editInclusion(included: Map[Card, Set[Category]], excluded: Map[Card, Set[Category]]): Boolean = {
-    val include = included.map{ case (card, in) => card -> in.filter(!_.includes(card)) }.filter{ case (_, in) => !in.isEmpty }
-    val exclude = excluded.map{ case (card, out) => card -> out.filter(_.includes(card)) }.filter{ case (_, out) => !out.isEmpty }
-    if (included.isEmpty && excluded.isEmpty) false else {
-      val mods = collection.mutable.HashMap[String, Category]()
-      for ((card, in) <- include) {
-        for (category <- in) {
-          if (!mods.contains(category.getName))
-            mods(category.getName) = Category(deck.current.categories(category.getName).categorization)
-          mods(category.getName).include(card)
-        }
-      }
-      for ((card, out) <- exclude) {
-        for (category <- out) {
-          if (!mods.contains(category.getName))
-            mods(category.getName) = Category(deck.current.categories(category.getName).categorization)
-          mods(category.getName).exclude(card)
-        }
-      }
-      categories.update(mods.toMap)
-      true
-    }
-  }
-
   /*****************
    * GUI DEFINITION
    *****************/
@@ -707,7 +676,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   editCategoriesItem.addActionListener(_ => {
     val iePanel = IncludeExcludePanel(deck.current.categories.map(_.categorization).toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards.map(_.card))
     if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-      editInclusion(iePanel.included, iePanel.excluded)
+      categories.update(iePanel.updates.map((c) => c.getName -> c).toMap)
   })
   deck.popup.add(editCategoriesItem)
 
@@ -1459,7 +1428,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     editCategoriesItem.addActionListener(_ => {
       val iePanel = IncludeExcludePanel(deck.current.categories.map(_.categorization).toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards.map(_.card))
       if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-        editInclusion(iePanel.included, iePanel.excluded)
+        categories.update(iePanel.updates.map((c) => c.getName -> c).toMap)
     })
     tableMenu.add(editCategoriesItem)
 
