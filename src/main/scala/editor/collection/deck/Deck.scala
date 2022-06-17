@@ -127,18 +127,8 @@ class Deck extends CardList with MutableCardList {
     this
   }
 
-  override def addAll(cards: IterableOnce[CardListEntry]) = {
-    cards.foreach((e) => add(e.card, e.count, e.dateAdded))
-    this
-  }
-
   override def subtractOne(card: CardListEntry) = {
     if (contains(card.card)) remove(card.card, card.count)
-    this
-  }
-
-  def subtractAll(cards: IterableOnce[CardListEntry]) = {
-    cards.filter((e) => contains(e.card)).foreach((e) => remove(e.card, e.count))
     this
   }
 

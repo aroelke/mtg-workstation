@@ -108,31 +108,16 @@ trait CardList extends collection.IndexedSeq[CardListEntry] {
 }
 
 /**
- * Mutable list of [[CardListEntry]]s. As with [[CardList]], there is only one entry for any card; attempting to add another should either fail or increase the
- * number of copies in the existing entry.
+ * Mutable list of [[CardListEntry]]s. Adding and removing entries should only create new entries (and increase [[size]]) if there is not
+ * already an entry with the same card. Otherwise, the existing entry should be modified instead, changing [[total]] but not [[size]] unless
+ * the modification causes the entry to be removed (for example, if its count reaches 0).
  * 
  * @author Alec Roelke
- * @note this class is not a subclass of [[Growable]] or [[Shrinkable]] because those classes most likely expect the list's [[size]] to change when adding and
- * removing elements, which may not happen with this class.
  */
-trait MutableCardList extends collection.mutable.IndexedSeq[CardListEntry] with CardList with collection.mutable.Clearable {
-  /** Add a [[CardListEntry]] to the list, or modify the existing one if it has the same card. */
-  def addOne(card: CardListEntry): this.type
-  /** Alias for [[addOne]]. */
-  final def +=(card: CardListEntry) = addOne(card)
-
-  /** Add all entries to the list, or modify existing ones with matching cards. */
-  def addAll(cards: IterableOnce[CardListEntry]): this.type
-  /** Alias for [[addAll]]. */
-  final def ++=(cards: IterableOnce[CardListEntry]) = addAll(cards)
-
-  /** Modify an existing entry of the list to remove copies of the matching card, and/or the entry entirely if applicable. */
-  def subtractOne(card: CardListEntry): this.type
-  /** Alias for [[subtractOne]]. */
-  final def -=(card: CardListEntry) = subtractOne(card)
-
-  /** Modify several entries to remove copies of matching cards, and/or the corresponding entries entirely if applicable. */
-  def subtractAll(cards: IterableOnce[CardListEntry]): this.type
-  /** Alias for [[subtractAll]]. */
-  final def --=(cards: IterableOnce[CardListEntry]) = subtractAll(cards)
+trait MutableCardList extends CardList
+    with collection.mutable.IndexedSeq[CardListEntry]
+    with collection.mutable.Growable[CardListEntry]
+    with collection.mutable.Shrinkable[CardListEntry]
+    with collection.mutable.Clearable {
+  override def knownSize: Int = size
 }
