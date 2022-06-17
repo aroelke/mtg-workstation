@@ -83,10 +83,10 @@ trait CardListEntry extends Equals {
 }
 
 /**
- * Trait containing common operations that all card lists should have.
+ * Immutable list of [[CardListEntry]]s. There is only up to one entry for any card.
  * @author Alec Roelke
  */
-trait CardListOps[+A <: CardListEntry, +CC[_], +C] extends IndexedSeqOps[A, CC, C] {
+trait CardList extends collection.IndexedSeq[CardListEntry] {
   /**
    * Determine if the list contains an entry for a card.
    * 
@@ -108,12 +108,6 @@ trait CardListOps[+A <: CardListEntry, +CC[_], +C] extends IndexedSeqOps[A, CC, 
 }
 
 /**
- * Immutable list of [[CardListEntry]]s. There is only up to one entry for any card.
- * @author Alec Roelke
- */
-trait CardList extends collection.IndexedSeq[CardListEntry] with CardListOps[CardListEntry, collection.IndexedSeq, collection.IndexedSeq[CardListEntry]]
-
-/**
  * Mutable list of [[CardListEntry]]s. As with [[CardList]], there is only one entry for any card; attempting to add another should either fail or increase the
  * number of copies in the existing entry.
  * 
@@ -121,9 +115,7 @@ trait CardList extends collection.IndexedSeq[CardListEntry] with CardListOps[Car
  * @note this class is not a subclass of [[Growable]] or [[Shrinkable]] because those classes most likely expect the list's [[size]] to change when adding and
  * removing elements, which may not happen with this class.
  */
-trait MutableCardList extends collection.mutable.IndexedSeq[CardListEntry]
-    with collection.mutable.Clearable
-    with CardListOps[CardListEntry, collection.mutable.IndexedSeq, collection.mutable.IndexedSeq[CardListEntry]] {
+trait MutableCardList extends collection.mutable.IndexedSeq[CardListEntry] with CardList with collection.mutable.Clearable {
   /** Add a [[CardListEntry]] to the list, or modify the existing one if it has the same card. */
   def addOne(card: CardListEntry): this.type
   /** Alias for [[addOne]]. */
