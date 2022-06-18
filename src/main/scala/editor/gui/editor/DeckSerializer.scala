@@ -8,8 +8,8 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import editor.collection.deck.Deck
 import editor.collection.`export`.CardListFormat
+import editor.collection.mutable.Deck
 import editor.gui.MainFrame
 import editor.util.ProgressInputStream
 

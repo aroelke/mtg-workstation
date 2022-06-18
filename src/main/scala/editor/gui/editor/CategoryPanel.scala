@@ -1,7 +1,7 @@
 package editor.gui.editor
 
 import editor.collection.CardListEntry
-import editor.collection.deck.Deck
+import editor.collection.mutable.Deck
 import editor.database.card.Card
 import editor.gui.display.CardTable
 import editor.gui.display.CardTableModel

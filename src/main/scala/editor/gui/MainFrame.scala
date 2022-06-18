@@ -2,11 +2,11 @@ package editor.gui
 
 import _root_.editor.collection.CardList
 import _root_.editor.collection.CardListEntry
-import _root_.editor.collection.Inventory
 import _root_.editor.collection.deck.Category
-import _root_.editor.collection.deck.Deck
 import _root_.editor.collection.`export`.DelimitedCardListFormat
 import _root_.editor.collection.`export`.TextCardListFormat
+import _root_.editor.collection.immutable.Inventory
+import _root_.editor.collection.mutable.Deck
 import _root_.editor.database.attributes.CardAttribute
 import _root_.editor.database.attributes.Expansion
 import _root_.editor.database.attributes.Rarity

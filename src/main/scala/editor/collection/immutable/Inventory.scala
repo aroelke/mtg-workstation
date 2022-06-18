@@ -1,11 +1,11 @@
-package editor.collection
+package editor.collection.immutable
 
+import editor.collection.CardListEntry
 import editor.database.card.Card
 import editor.filter.Filter
 import editor.filter.leaf.BinaryFilter
 
 import java.time.LocalDate
-import scala.collection.immutable.MapOps
 
 /**
  * An entry in the [[Inventory]]. Since the inventory is just a source for cards, it doesn't track card counts and attempting

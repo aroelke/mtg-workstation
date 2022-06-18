@@ -8,7 +8,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import editor.collection.deck.Category
-import editor.collection.deck.Deck
+import editor.collection.mutable.Deck
 import editor.database.card.Card
 
 import java.lang.reflect.Type

@@ -1,9 +1,8 @@
 package editor.database.card
 
-import editor.collection.CardList
 import editor.collection.CardListEntry
 import editor.collection.deck.Category
-import editor.collection.deck.Deck
+import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
 import editor.util.CollectionUtils
 

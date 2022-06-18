@@ -1,7 +1,7 @@
 package editor.gui.editor
 
 import editor.collection.CardList
-import editor.collection.deck.Deck
+import editor.collection.mutable.Deck
 import editor.database.FormatConstraints
 import editor.database.attributes.Legality
 import editor.database.attributes.ManaCost

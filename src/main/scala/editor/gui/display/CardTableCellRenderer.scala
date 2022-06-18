@@ -1,7 +1,7 @@
 package editor.gui.display
 
 import editor.collection.deck.Category
-import editor.collection.deck.Deck
+import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.ManaCost
 import editor.database.attributes.ManaType

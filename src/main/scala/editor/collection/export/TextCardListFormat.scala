@@ -2,7 +2,7 @@ package editor.collection.`export`
 
 import com.mdimension.jchronic.Chronic
 import editor.collection.CardList
-import editor.collection.deck.Deck
+import editor.collection.mutable.Deck
 import editor.database.card.CardFormat
 import editor.gui.MainFrame
 import editor.gui.editor.DeckSerializer

@@ -2,11 +2,10 @@ package editor.gui.editor
 
 import editor.collection.CardList
 import editor.collection.CardListEntry
-import editor.collection.MutableCardList
 import editor.collection.deck.Category
-import editor.collection.deck.Deck
-import editor.collection.deck.Hand
 import editor.collection.`export`.CardListFormat
+import editor.collection.mutable.Deck
+import editor.collection.mutable.Hand
 import editor.database.attributes.ManaType
 import editor.database.card.Card
 import editor.gui.CardTagPanel
@@ -208,7 +207,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     private var _name: String,
     private[EditorFrame] val current: Deck,
     private[EditorFrame] val original: Deck
-  ) extends CardList with MutableCardList {
+  ) extends editor.collection.mutable.CardList {
     def name = _name
     private[EditorFrame] def name_=(n: String) = _name = n
 

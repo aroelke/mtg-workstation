@@ -1,7 +1,7 @@
 package editor.gui.display
 
 import editor.collection.CardList
-import editor.collection.deck.Deck
+import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
 import editor.gui.editor.EditorFrame
 import editor.gui.editor.IncludeExcludePanel

@@ -1,6 +1,5 @@
-package editor.collection.deck
+package editor.collection.mutable
 
-import editor.collection.CardList
 import editor.database.card.Card
 
 import scala.util.Random

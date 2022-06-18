@@ -1,8 +1,6 @@
-package editor.collection.deck
+package editor.collection.mutable
 
-import editor.collection.CardList
 import editor.collection.CardListEntry
-import editor.collection.MutableCardList
 import editor.collection.deck.Category
 import editor.database.card.Card
 
@@ -30,7 +28,7 @@ object Deck {
  * 
  * @author Alec Roelke
  */
-class Deck extends CardList with MutableCardList {
+class Deck extends CardList {
   private val entries = collection.mutable.ArrayBuffer[Entry]()
 
   /**
@@ -143,7 +141,7 @@ class Deck extends CardList with MutableCardList {
     categories.caches.foreach{ case (_, cache) => cache.filtrate.clear() }
   }
 
-  private class Cache(private var spec: Category) extends CardList {
+  private class Cache(private var spec: Category) extends editor.collection.immutable.CardList {
     var filtrate = collection.mutable.ArrayBuffer[Entry]()
     var rank = categories.size
     categorization = spec
@@ -170,7 +168,7 @@ class Deck extends CardList with MutableCardList {
    */
   class CategoryData private[Deck](cache: Cache) {
     /** @return the list of cards in the category */
-    def list: CardList = cache
+    def list: editor.collection.immutable.CardList = cache
 
     /** @return the [[Category]] of the category. */
     def categorization = cache.categorization

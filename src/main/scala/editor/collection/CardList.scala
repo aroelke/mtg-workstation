@@ -6,7 +6,6 @@ import editor.database.card.Card
 
 import java.time.LocalDate
 import scala.jdk.CollectionConverters._
-import scala.collection.IndexedSeqOps
 
 /**
  * Global data and functions for [[CardListEntry]]s.
@@ -82,42 +81,4 @@ trait CardListEntry extends Equals {
   override def toString = s"${card.name} (${card.expansion.name}) x$count @$dateAdded"
 }
 
-/**
- * Immutable list of [[CardListEntry]]s. There is only up to one entry for any card.
- * @author Alec Roelke
- */
-trait CardList extends collection.IndexedSeq[CardListEntry] {
-  /**
-   * Determine if the list contains an entry for a card.
-   * 
-   * @param card card to search for
-   * @return true if there is an entry for the card, and false otherwise
-   */
-  def contains(card: Card) = exists(_.card == card)
-
-  /**
-   * Get the index in the list of the entry for a card.
-   * 
-   * @param card card to search for
-   * @return the index of the entry for the card, or -1 if there isn't one
-   */
-  def indexOf(card: Card) = indexWhere(_.card == card)
-
-  /** @return the total number of copies of cards in the list, or the sum of the count in each entry */
-  def total: Int
-}
-
-/**
- * Mutable list of [[CardListEntry]]s. Adding and removing entries should only create new entries (and increase [[size]]) if there is not
- * already an entry with the same card. Otherwise, the existing entry should be modified instead, changing [[total]] but not [[size]] unless
- * the modification causes the entry to be removed (for example, if its count reaches 0).
- * 
- * @author Alec Roelke
- */
-trait MutableCardList extends CardList
-    with collection.mutable.IndexedSeq[CardListEntry]
-    with collection.mutable.Growable[CardListEntry]
-    with collection.mutable.Shrinkable[CardListEntry]
-    with collection.mutable.Clearable {
-  override def knownSize: Int = size
-}
+type CardList = immutable.CardList

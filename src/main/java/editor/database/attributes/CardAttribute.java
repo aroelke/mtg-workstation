@@ -14,9 +14,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import editor.collection.CardList;
+import editor.collection.immutable.CardList;
 import editor.collection.CardListEntry;
-import editor.collection.Inventory;
+import editor.collection.immutable.Inventory;
 import editor.collection.deck.Category;
 import editor.database.card.Card;
 import editor.database.card.CardLayout;

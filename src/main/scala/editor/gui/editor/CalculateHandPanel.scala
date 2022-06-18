@@ -1,6 +1,6 @@
 package editor.gui.editor
 
-import editor.collection.deck.Deck
+import editor.collection.mutable.Deck
 import editor.gui.settings.SettingsDialog
 import editor.util.Stats
 

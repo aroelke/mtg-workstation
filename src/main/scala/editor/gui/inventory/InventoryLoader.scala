@@ -5,7 +5,7 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.mdimension.jchronic.Chronic
 import editor.collection.CardListEntry
-import editor.collection.Inventory
+import editor.collection.immutable.Inventory
 import editor.database.FormatConstraints
 import editor.database.attributes._
 import editor.database.card._
