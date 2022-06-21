@@ -1,6 +1,6 @@
 package editor.gui.settings
 
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.database.FormatConstraints
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
@@ -351,7 +351,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   private val categoriesList = CategoryList("<html><i>&lt;Double-click to add or edit&gt;</i></html>")
   categoriesPanel.add(JScrollPane(categoriesList), BorderLayout.CENTER)
 
-  // Category modification buttons
+  // Categorization modification buttons
   private val categoryModPanel = VerticalButtonList(Seq("+", UnicodeSymbols.Ellipsis.toString, UnicodeSymbols.Minus.toString))
   categoryModPanel("+").addActionListener((e) => CategoryEditorPanel.showCategoryEditor(this).foreach(categoriesList.addCategory(_)))
   categoryModPanel(UnicodeSymbols.Ellipsis.toString).addActionListener((e) => {
@@ -432,7 +432,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
   // Expected counts round mode
   private val expectedRoundPanel = Box(BoxLayout.X_AXIS)
   expectedRoundPanel.add(Box.createHorizontalStrut(5))
-  expectedRoundPanel.add(JLabel("Expected Category Count Round Mode:"))
+  expectedRoundPanel.add(JLabel("Expected Categorization Count Round Mode:"))
   expectedRoundPanel.add(Box.createHorizontalStrut(5))
   private val roundGroup = ButtonGroup()
   private val modeButtons = collection.mutable.ArrayBuffer[JRadioButton]()
@@ -725,7 +725,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
       rowsSpinner.commitEdit()
       startingSizeSpinner.commitEdit()
 
-      val presets = new ArrayBuffer[Category](categoriesList.getCount)
+      val presets = new ArrayBuffer[Categorization](categoriesList.getCount)
       for (i <- 0 until categoriesList.getCount)
         presets += categoriesList.categories(i)
       
@@ -817,8 +817,7 @@ class SettingsDialog(parent: MainFrame) extends JDialog(parent, "Preferences", D
     explicitsSpinner.getModel.setValue(settings.editor.categories.explicits)
     manaValueBox.setSelectedIndex(Math.max(ManaValueOptions.indexOf(settings.editor.manaValue), 0))
     categoriesList.clear()
-    for (preset <- settings.editor.categories.presets)
-      categoriesList.addCategory(Category(preset))
+    settings.editor.categories.presets.foreach(categoriesList.addCategory)
     rowsSpinner.getModel().setValue(settings.editor.categories.rows)
     for ((a, b) <- editorColumnCheckBoxes)
       b.setSelected(settings.editor.columns.contains(a))
@@ -923,7 +922,7 @@ object SettingsDialog {
    * Add a new preset category.  Make sure its whitelist and blacklist are empty.
    * @param category specification for the category to add
    */
-  def addPresetCategory(category: Category): Unit = {
+  def addPresetCategory(category: Categorization): Unit = {
     settings = settings.copy(editor = settings.editor.copy(categories = settings.editor.categories.copy(presets = settings.editor.categories.presets :+ category)))
   }
 

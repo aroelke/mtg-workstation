@@ -1,7 +1,7 @@
 package editor.collection.mutable
 
 import editor.collection.CardListEntry
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.database.card.Card
 
 import java.time.LocalDate
@@ -24,7 +24,7 @@ object Deck {
  * A mutable list of [[CardListEntry]]s and collection of categories that can be used to filter them.  Adding duplicates of
  * individual cards or removing them causes the 'count' field of the existing entry to increase or decrease rather than adding or
  * removing whole entries. Entries are only removed when their 'count' fields are reduced to 0. Categories are added, removed, and updated using
- * their [[Category]] specifications and their names, respectively.
+ * their [[Categorization]] specifications and their names, respectively.
  * 
  * @author Alec Roelke
  */
@@ -42,11 +42,11 @@ class Deck extends CardList {
    * @author Alec Roelke
    */
   class Entry private[Deck](override val card: Card, private var amount: Int = 0, override val dateAdded: LocalDate = LocalDate.now) extends CardListEntry {
-    private[Deck] val _categories = collection.mutable.Map[String, Category]()
+    private[Deck] val _categories = collection.mutable.Map[String, Categorization]()
     if (amount > 0) {
-      Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization.includes(card)) {
+      Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization(card)) {
         cache.filtrate += this
-        _categories += cache.categorization.getName -> cache.categorization
+        _categories += cache.categorization.name -> cache.categorization
       }}
     }
 
@@ -66,15 +66,15 @@ class Deck extends CardList {
           entries -= this
           Deck.this.categories.caches.foreach{ case (_, cache) =>
             cache.filtrate -= this
-            _categories -= cache.categorization.getName
+            _categories -= cache.categorization.name
           }
         }
       } else if (n > 0) {
         amount = n
         entries += this
-        Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization.includes(card)) {
+        Deck.this.categories.caches.foreach{ case (_, cache) => if (cache.categorization(card)) {
           cache.filtrate += this
-          _categories += cache.categorization.getName -> cache.categorization
+          _categories += cache.categorization.name -> cache.categorization
         }}
       }
     }
@@ -141,16 +141,16 @@ class Deck extends CardList {
     categories.caches.foreach{ case (_, cache) => cache.filtrate.clear() }
   }
 
-  private class Cache(private var spec: Category) extends editor.collection.immutable.CardList {
+  private class Cache(private var spec: Categorization) extends editor.collection.immutable.CardList {
     var filtrate = collection.mutable.ArrayBuffer[Entry]()
     var rank = categories.size
     categorization = spec
 
     def categorization = spec
-    def categorization_=(c: Category) = {
+    def categorization_=(c: Categorization) = {
       spec = c
-      filtrate = entries.filter((e) => spec.includes(e.card))
-      entries.foreach((e) => if (spec.includes(e.card)) e._categories += spec.getName -> spec else e._categories -= spec.getName)
+      filtrate = entries.filter((e) => spec(e.card))
+      entries.foreach((e) => if (spec(e.card)) e._categories += spec.name -> spec else e._categories -= spec.name)
     }
 
     override def apply(index: Int) = filtrate(index)
@@ -170,14 +170,14 @@ class Deck extends CardList {
     /** @return the list of cards in the category */
     def list: editor.collection.immutable.CardList = cache
 
-    /** @return the [[Category]] of the category. */
+    /** @return the [[Categorization]] of the category. */
     def categorization = cache.categorization
 
     /**
-     * Update the [[Category]] of the category.  The name is allowed to change this way.
-     * @param next new [[Category]]
+     * Update the [[Categorization]] of the category.  The name is allowed to change this way.
+     * @param next new [[Categorization]]
      */
-    def categorization_=(next: Category) = categories(categorization.getName) = next
+    def categorization_=(next: Categorization) = categories(categorization.name) = next
 
     /** @return the category's rank. */
     def rank = cache.rank
@@ -194,41 +194,41 @@ class Deck extends CardList {
   }
 
   /**
-   * Collection of categories in the deck. Categories are added using their [[Category]]s, which contain their names, and
+   * Collection of categories in the deck. Categories are added using their [[Categorization]]s, which contain their names, and
    * removed using their names only. Categories with duplicate names are not allowed.
    *
    * @author Alec Roelke
    */
-  object categories extends Iterable[CategoryData] with Growable[Category] with Shrinkable[String] with Clearable {
+  object categories extends Iterable[CategoryData] with Growable[Categorization] with Shrinkable[String] with Clearable {
     private[Deck] val caches = collection.mutable.Map[String, Cache]()
 
-    override def addOne(categorization: Category) = if (!caches.contains(categorization.getName)) {
-      caches += categorization.getName -> Cache(categorization)
+    override def addOne(categorization: Categorization) = if (!caches.contains(categorization.name)) {
+      caches += categorization.name -> Cache(categorization)
       this
-    } else throw IllegalArgumentException(s"there is already a category named ${categorization.getName}")
+    } else throw IllegalArgumentException(s"there is already a category named ${categorization.name}")
 
     override def subtractOne(name: String) = {
       if (caches.contains(name)) {
         val removed = caches(name)
         caches -= name
         caches.foreach{ case (_, cache) => if (cache.rank > removed.rank) cache.rank -= 1 }
-        entries.foreach(_._categories -= removed.categorization.getName)
+        entries.foreach(_._categories -= removed.categorization.name)
       }
       this
     }
 
     /**
-     * Update a category with a new [[Category]]. The new [[Category]] may have a different name than the old one.
+     * Update a category with a new [[Categorization]]. The new [[Categorization]] may have a different name than the old one.
      * 
      * @param name name of the category to update
-     * @param next new [[Category]] to use
+     * @param next new [[Categorization]] to use
      */
-    def update(name: String, next: Category): Unit = if (next.getName == name || !caches.contains(next.getName)) {
+    def update(name: String, next: Categorization): Unit = if (next.name == name || !caches.contains(next.name)) {
       val cache = caches(name)
       caches -= name
       cache.categorization = next
-      caches += next.getName -> cache
-    } else throw IllegalArgumentException(s"there is already a category named ${next.getName}")
+      caches += next.name -> cache
+    } else throw IllegalArgumentException(s"there is already a category named ${next.name}")
 
     /** @return true if there is a category with the given name and false otherwise. */
     def contains(name: String) = caches.contains(name)

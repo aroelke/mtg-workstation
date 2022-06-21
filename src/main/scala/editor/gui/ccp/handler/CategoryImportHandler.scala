@@ -1,6 +1,6 @@
 package editor.gui.ccp.handler
 
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.gui.ccp.data.CategoryTransferData
 import editor.gui.ccp.data.DataFlavors
 
@@ -9,7 +9,7 @@ import java.io.IOException
 import javax.swing.TransferHandler
 
 /**
- * Import handler for [[Category]]s.  Used only for cut/copy/paste; does not support drag-and-drop.
+ * Import handler for [[Categorization]]s.  Used only for cut/copy/paste; does not support drag-and-drop.
  * 
  * @constructor create a new category import handler that processes categories with arbitrary predicates
  * @param contains predicate indicating if the category is already contained by the target element; duplicate categories
@@ -18,8 +18,8 @@ import javax.swing.TransferHandler
  * 
  * @author Alec Roelke
  */
-class CategoryImportHandler(contains: (Category) => Boolean, add: (Category) => Boolean) extends TransferHandler with ImportHandler {
-  @deprecated def this(contains: java.util.function.Predicate[Category], add: java.util.function.Predicate[Category]) = this(contains.test, add.test)
+class CategoryImportHandler(contains: (Categorization) => Boolean, add: (Categorization) => Boolean) extends TransferHandler with ImportHandler {
+  @deprecated def this(contains: java.util.function.Predicate[Categorization], add: java.util.function.Predicate[Categorization]) = this(contains.test, add.test)
 
   override def supportedFlavor = DataFlavors.categoryFlavor
 

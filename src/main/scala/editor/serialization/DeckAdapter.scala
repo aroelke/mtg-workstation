@@ -7,7 +7,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.collection.mutable.Deck
 import editor.database.card.Card
 
@@ -37,7 +37,7 @@ class DeckAdapter extends JsonSerializer[Deck] with JsonDeserializer[Deck] {
         LocalDate.parse(entry.get("date").getAsString, Formatter)
       )
     })
-    obj.get("categories").getAsJsonArray.asScala.map((e) => context.deserialize[Category](e, classOf[Category]) -> e.getAsJsonObject.get("rank").getAsInt).toSeq.sortBy{ case(_, r) => r }.foreach{ case (c, _) => d.categories += c }
+    obj.get("categories").getAsJsonArray.asScala.map((e) => context.deserialize[Categorization](e, classOf[Categorization]) -> e.getAsJsonObject.get("rank").getAsInt).toSeq.sortBy{ case(_, r) => r }.foreach{ case (c, _) => d.categories += c }
     d
   }
 

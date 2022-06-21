@@ -125,7 +125,7 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   val rankBox = JComboBox((0 until deck.categories.size).toArray.map(Integer.valueOf(_)))
   rankBox.setSelectedIndex(deck.categories(name).rank)
   buttonPanel.add(rankBox)
-  val colorButton = ColorButton(deck.categories(name).categorization.getColor)
+  val colorButton = ColorButton(deck.categories(name).categorization.color)
   buttonPanel.add(colorButton)
   val editButton = JButton(UnicodeSymbols.Ellipsis.toString)
   buttonPanel.add(editButton)
@@ -272,13 +272,13 @@ class CategoryPanel(private val deck: Deck, private var _name: String, private v
   def update() = {
     countLabel.setText(s"Cards: ${deck.categories(name).list.total}")
 
-    val flatManaValues = deck.filter((e) => deck.categories(name).categorization.includes(e.card)).flatMap((e) => Seq.fill(e.count)(e.card.manaValue))
+    val flatManaValues = deck.filter((e) => deck.categories(name).categorization(e.card)).flatMap((e) => Seq.fill(e.count)(e.card.manaValue))
     avgManaValueLabel.setText(s"Average mana value: ${StringUtils.formatDouble(flatManaValues.sum/flatManaValues.size, 2)}")
 
     border.setTitle(name)
     table.revalidate()
     table.repaint()
-    colorButton.color = deck.categories(name).categorization.getColor
+    colorButton.color = deck.categories(name).categorization.color
     revalidate()
     repaint()
   }

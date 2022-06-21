@@ -1,6 +1,6 @@
 package editor.gui.display
 
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.gui.ccp.CCPItems
 import editor.gui.ccp.data.DataFlavors
 import editor.gui.ccp.handler.CategoryTransferHandler
@@ -30,10 +30,10 @@ import scala.jdk.CollectionConverters._
  * 
  * @author Alec Roelke
  */
-class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[String] {
+class CategoryList(hint: String, c: Seq[Categorization] = Seq.empty) extends JList[String] {
   setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
 
-  private val _categories = collection.mutable.ArrayBuffer[Category](c:_*)
+  private val _categories = collection.mutable.ArrayBuffer[Categorization](c:_*)
 
   /** @return the categorizations being displayed */
   def categories = _categories.toSeq
@@ -41,7 +41,7 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
   private object model extends DefaultListModel[String] {
     override def getElementAt(index: Int) = {
       if (index < _categories.size)
-        _categories(index).getName
+        _categories(index).name
       else if (!hint.isEmpty && index == _categories.size)
         hint
       else
@@ -69,7 +69,7 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
         _categories += cat
       else {
         _categories.insert(row, cat)
-        model.add(row, cat.getName)
+        model.add(row, cat.name)
       }
       true
     },
@@ -101,10 +101,10 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
     ccp.paste.setEnabled(clipboard.isDataFlavorAvailable(DataFlavors.categoryFlavor))
   }))
 
-  private def confirmListClean(spec: Category) = {
-    if (!spec.getWhitelist.isEmpty || !spec.getBlacklist.isEmpty) {
+  private def confirmListClean(spec: Categorization) = {
+    if (!spec.whitelist.isEmpty || !spec.blacklist.isEmpty) {
       JOptionPane.showConfirmDialog(this,
-        s"Category ${spec.getName} contains cards in its whitelist or blacklist which will not be present in the preset category. Continue?",
+        s"Categorization ${spec.name} contains cards in its whitelist or blacklist which will not be present in the preset category. Continue?",
         "Add to Presets",
         JOptionPane.YES_NO_OPTION
       ) == JOptionPane.YES_OPTION
@@ -121,12 +121,9 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
    * 
    * @param spec categorization to add
    */
-  def addCategory(spec: Category) = if (confirmListClean(spec)) {
-    val copy = Category(spec)
-    copy.getBlacklist.asScala.foreach(copy.include(_))
-    copy.getWhitelist.asScala.foreach(copy.exclude(_))
-    _categories += copy
-    model.addElement(copy.getName)
+  def addCategory(spec: Categorization) = if (confirmListClean(spec)) {
+    _categories += spec
+    model.addElement(spec.name)
   }
 
   /**
@@ -146,12 +143,9 @@ class CategoryList(hint: String, c: Seq[Category] = Seq.empty) extends JList[Str
    * @param index index to set to a new categorization
    * @param spec new categorization to display there
    */
-  def setCategoryAt(index: Int, spec: Category) = if (confirmListClean(spec)) {
-    val copy = Category(spec)
-    copy.getBlacklist.asScala.foreach(copy.include(_))
-    copy.getWhitelist.asScala.foreach(copy.exclude(_))
-    _categories(index) = copy
-    model.setElementAt(copy.getName, index)
+  def setCategoryAt(index: Int, spec: Categorization) = if (confirmListClean(spec)) {
+    _categories(index) = spec
+    model.setElementAt(spec.name, index)
   }
 
   /** Remove all categorizations from the list. */

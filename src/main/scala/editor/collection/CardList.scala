@@ -1,6 +1,6 @@
 package editor.collection
 
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.database.attributes.CardAttribute
 import editor.database.card.Card
 
@@ -41,8 +41,8 @@ trait CardListEntry extends Equals {
   /** The date the card was added to the list. */
   def dateAdded: LocalDate
 
-  /** If applicable, the [[Category]]s that match the card in the list. */
-  def categories: Set[Category]
+  /** If applicable, the [[Categorization]]s that match the card in the list. */
+  def categories: Set[Categorization]
 
   /** @return the value of the given attribute for the card */
   def apply(data: CardAttribute) = data match {

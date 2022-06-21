@@ -136,13 +136,13 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
     override def getColumnClass(column: Int) = modeBox.getItemAt(modeBox.getSelectedIndex).clazz(column)
 
     override def getValueAt(row: Int, column: Int) = {
-      val category = deck.categories.map(_.categorization.getName).toSeq.sorted.apply(row)
+      val category = deck.categories.map(_.categorization.name).toSeq.sorted.apply(row)
       modeBox.getItemAt(modeBox.getSelectedIndex).value(column)(category)
     }
   }
   private val table = new JTable(model) {
     override def getCellEditor(row: Int, column: Int) = {
-      val category = deck.categories.map(_.categorization.getName).toSeq.sorted.apply(row)
+      val category = deck.categories.map(_.categorization.name).toSeq.sorted.apply(row)
       modeBox.getItemAt(modeBox.getSelectedIndex).editor(column).map(_(category)).getOrElse(super.getCellEditor(row, column))
     }
 
@@ -185,7 +185,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
 
   /** Recalculate category probabilities and update the table accordingly. */
   def recalculate() = {
-    val categories = deck.categories.map(_.categorization.getName).toSeq.sorted
+    val categories = deck.categories.map(_.categorization.name).toSeq.sorted
 
     probabilities.clear()
     drawsSpinner.getValue match {
@@ -211,7 +211,7 @@ class CalculateHandPanel(deck: Deck, recalculateFunction: ChangeListener) extend
 
   /** Update the available categories, recalculate their probabilities,and then update the table. */
   def update() = {
-    val categories = deck.categories.map(_.categorization.getName).toSeq.sorted
+    val categories = deck.categories.map(_.categorization.name).toSeq.sorted
 
     val oldDesired = desiredBoxes.map{ case (c, b) => c -> b.getSelectedIndex }
     val oldRelations = relationBoxes.map{ case (c, b) => c -> b.getItemAt(b.getSelectedIndex) }

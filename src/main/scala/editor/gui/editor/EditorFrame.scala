@@ -2,7 +2,7 @@ package editor.gui.editor
 
 import editor.collection.CardList
 import editor.collection.CardListEntry
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.collection.`export`.CardListFormat
 import editor.collection.mutable.Deck
 import editor.collection.mutable.Hand
@@ -408,17 +408,17 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * Auxiliary object for controlling the categories of the deck.
    * @author Alec Roelke
    */
-  object categories extends Iterable[Category] {
+  object categories extends Iterable[Categorization] {
     /**
      * Add a new category to the main deck.
      * 
      * @param spec specification for the new category
      * @return true if adding the category was successful, and false otherwise
      */
-    def +=(spec: Category) = if (contains(spec.getName)) false else {
+    def +=(spec: Categorization) = if (contains(spec.name)) false else {
       performAction(() => {
-        if (contains(spec.getName))
-          throw RuntimeException(s"attempting to add duplicate category ${spec.getName}")
+        if (contains(spec.name))
+          throw RuntimeException(s"attempting to add duplicate category ${spec.name}")
         else
           do_addCategory(spec)
       }, () => do_removeCategory(spec))
@@ -449,7 +449,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      * @return the old category specification, even if no change were made
      */
     @throws[NoSuchElementException]("if no category with the given name exists")
-    def update(name: String, spec: Category): Option[Category] = update(Map(name -> spec)).get(name)
+    def update(name: String, spec: Categorization): Option[Categorization] = update(Map(name -> spec)).get(name)
 
     /**
      * Change several categories in the deck at once, updating UI elements as necessary. All changes
@@ -459,7 +459,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
      * @return a mapping of the old category names onto their old specifications before the change
      */
     @throws[NoSuchElementException]("if any names don't have corresponding categories in the deck")
-    def update(specs: Map[String, Category]): Map[String, Category] = if (specs.forall{ case (name, _) => contains(name) }) {
+    def update(specs: Map[String, Categorization]): Map[String, Categorization] = if (specs.forall{ case (name, _) => contains(name) }) {
       val changes = specs.filter{ case (name, spec) => apply(name) != spec }
       val old = specs.map{ case (name, _) => name -> apply(name) }
       if (!changes.isEmpty) {
@@ -467,17 +467,17 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           changes.foreach{ case (name, spec) => deck.current.categories(name) = spec }
           for (panel <- categoryPanels) {
             if (changes.contains(panel.name)) {
-              panel.name = changes(panel.name).getName
+              panel.name = changes(panel.name).name
               panel.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
             }
           }
           updateCategoryPanel()
           true
         }, () => {
-          changes.foreach{ case (name, spec) => deck.current.categories(spec.getName) = old(name) }
+          changes.foreach{ case (name, spec) => deck.current.categories(spec.name) = old(name) }
           for (panel <- categoryPanels) {
-            if (changes.map{ case (_, spec) => spec.getName }.toSet.contains(panel.name)) {
-              specs.find{ case (_, spec) => spec.getName == panel.name }.foreach{ case (name, _) => panel.name = name }
+            if (changes.map{ case (_, spec) => spec.name }.toSet.contains(panel.name)) {
+              specs.find{ case (_, spec) => spec.name == panel.name }.foreach{ case (name, _) => panel.name = name }
               panel.table.getModel.asInstanceOf[AbstractTableModel].fireTableDataChanged()
             }
           }
@@ -526,26 +526,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
           val card = parent.getSelectedCards(0)
 
           for (category <- deck.current.categories.map(_.categorization)) {
-            if (!category.includes(card.card)) {
-              val categoryItem = JMenuItem(category.getName)
-              categoryItem.addActionListener(_ => categories(category.getName) = {
-                val mod = Category(category)
-                mod.include(card.card)
-                mod
-              })
+            if (!category(card.card)) {
+              val categoryItem = JMenuItem(category.name)
+              categoryItem.addActionListener(_ => categories(category.name) = category + card.card)
               addToCategoryMenu.add(categoryItem)
             }
           }
           addToCategoryMenu.setVisible(addToCategoryMenu.getItemCount > 0)
 
           for (category <- deck.current.categories.map(_.categorization)) {
-            if (category.includes(card.card)) {
-              val categoryItem = JMenuItem(category.getName)
-              categoryItem.addActionListener(_ => categories(category.getName) = {
-                val mod = Category(category)
-                mod.exclude(card.card)
-                mod
-              })
+            if (category(card.card)) {
+              val categoryItem = JMenuItem(category.name)
+              categoryItem.addActionListener(_ => categories(category.name) = category - card.card)
               removeFromCategoryMenu.add(categoryItem)
             }
           }
@@ -673,9 +665,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   // Edit categories item
   private val editCategoriesItem = JMenuItem("Edit Categories...")
   editCategoriesItem.addActionListener(_ => {
-    val iePanel = IncludeExcludePanel(deck.current.categories.map(_.categorization).toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards.map(_.card))
+    val iePanel = IncludeExcludePanel(deck.current.categories.map(_.categorization).toSeq.sortBy(_.name.toLowerCase), parent.getSelectedCards.map(_.card))
     if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-      categories.update(iePanel.updates.map((c) => c.getName -> c).toMap)
+      categories.update(iePanel.updates.map((c) => c.name -> c).toMap)
   })
   deck.popup.add(editCategoriesItem)
 
@@ -733,15 +725,15 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   categoryHeaderPanel.add(addCategoryPanel)
 
   // Combo box to change category sort order
-  private enum CategoryOrder(override val toString: String, order: (Deck) => Ordering[Category]) {
+  private enum CategoryOrder(override val toString: String, order: (Deck) => Ordering[Categorization]) {
     def apply(d: Deck) = order(d)
 
-    case AtoZ       extends CategoryOrder("A-Z", (d) => (a, b) => a.getName.compare(b.getName))
-    case ZtoA       extends CategoryOrder("Z-A", (d) => (a, b) => -a.getName.compare(b.getName))
-    case Ascending  extends CategoryOrder("Ascending Size", (d) => (a, b) => d.categories(a.getName).list.total.compare(d.categories(b.getName).list.total))
-    case Descending extends CategoryOrder("Descending Size", (d) => (a, b) => -d.categories(a.getName).list.total.compare(d.categories(b.getName).list.total))
-    case Priority   extends CategoryOrder("Increasing Rank", (d) => (a, b) => d.categories(a.getName).rank.compare(d.categories(b.getName).rank))
-    case Reverse    extends CategoryOrder("Decreasing Rank", (d) => (a, b) => -d.categories(a.getName).rank.compare(d.categories(b.getName).rank))
+    case AtoZ       extends CategoryOrder("A-Z", (d) => (a, b) => a.name.compare(b.name))
+    case ZtoA       extends CategoryOrder("Z-A", (d) => (a, b) => -a.name.compare(b.name))
+    case Ascending  extends CategoryOrder("Ascending Size", (d) => (a, b) => d.categories(a.name).list.total.compare(d.categories(b.name).list.total))
+    case Descending extends CategoryOrder("Descending Size", (d) => (a, b) => -d.categories(a.name).list.total.compare(d.categories(b.name).list.total))
+    case Priority   extends CategoryOrder("Increasing Rank", (d) => (a, b) => d.categories(a.name).rank.compare(d.categories(b.name).rank))
+    case Reverse    extends CategoryOrder("Decreasing Rank", (d) => (a, b) => -d.categories(a.name).rank.compare(d.categories(b.name).rank))
   }
   private val sortCategoriesPanel = JPanel(FlowLayout(FlowLayout.CENTER))
   sortCategoriesPanel.add(JLabel("Display order:"))
@@ -782,21 +774,21 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
   // Transfer handler for the category box
   // We explicitly use null here to cause exceptions if cutting or copying, as that should never happen
-  categoriesPane.setTransferHandler(CategoryTransferHandler(null, (c) => categories.contains(c.getName), categories += _, null))
+  categoriesPane.setTransferHandler(CategoryTransferHandler(null, (c) => categories.contains(c.name), categories += _, null))
 
   // Popup menu for category container
   private val categoriesMenu = JPopupMenu()
   private val categoriesCCP = CCPItems(categoriesPane, false)
-  categoriesCCP.paste.setText("Paste Category")
+  categoriesCCP.paste.setText("Paste Categorization")
   categoriesMenu.add(categoriesCCP.paste)
   categoriesMenu.add(JSeparator())
-  private val categoriesCreateItem = JMenuItem("Add Category...")
+  private val categoriesCreateItem = JMenuItem("Add Categorization...")
   categoriesCreateItem.addActionListener(_ => createCategory.foreach(categories += _))
   categoriesMenu.add(categoriesCreateItem)
   categoriesMenu.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
     val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
     try {
-      categoriesCCP.paste.setEnabled(!categories.contains((clipboard.getData(DataFlavors.categoryFlavor)).asInstanceOf[CategoryTransferData].spec.getName))
+      categoriesCCP.paste.setEnabled(!categories.contains((clipboard.getData(DataFlavors.categoryFlavor)).asInstanceOf[CategoryTransferData].spec.name))
     } catch {
       case _ @ (_: UnsupportedFlavorException | _: IOException) => categoriesCCP.paste.setEnabled(false)
     }
@@ -1304,18 +1296,18 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
   /**
    * Open the dialog to create a new specification for a deck category.
    *
-   * @return the {@link Category} created by the dialog, or null if it was
+   * @return the {@link Categorization} created by the dialog, or null if it was
    * canceled.
    */
   def createCategory = {
-    var spec: Option[Category] = None
+    var spec: Option[Categorization] = None
     while {{
       spec = CategoryEditorPanel.showCategoryEditor(this, spec)
       spec.foreach((s) => {
-      if (categories.contains(s.getName))
+      if (categories.contains(s.name))
         JOptionPane.showMessageDialog(this, "Categories must have unique names.", "Error", JOptionPane.ERROR_MESSAGE)
       })
-    }; spec.exists((s) => categories.contains(s.getName)) } do ()
+    }; spec.exists((s) => categories.contains(s.name)) } do ()
     spec
   }
 
@@ -1325,8 +1317,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @param spec specification for the category of the new {@link CategoryPanel}
    * @return the new {@link CategoryPanel}.
    */
-  private def createCategoryPanel(spec: Category) = {
-    val newCategory = CategoryPanel(deck.current, spec.getName, this)
+  private def createCategoryPanel(spec: Categorization) = {
+    val newCategory = CategoryPanel(deck.current, spec.name, this)
     // When a card is selected in a category, the others should deselect
     val listener = TableSelectionListener(parent, newCategory.table, deck.current.categories(newCategory.name).list)
     newCategory.table.addMouseListener(listener)
@@ -1338,29 +1330,21 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     // Add the behavior for the color edit button
     newCategory.colorButton.addActionListener(_ => {
       Option(JColorChooser.showDialog(this, "Choose a Color", newCategory.colorButton.color)).foreach{ newColor =>
-        val oldColor = deck.current.categories(newCategory.name).categorization.getColor
+        val oldColor = deck.current.categories(newCategory.name).categorization.color
         val name = newCategory.name
         performAction(() => {
-          val mod = deck.current.categories(name).categorization
-          mod.setColor(newColor)
-          deck.current.categories(newCategory.name) = mod
+          deck.current.categories(newCategory.name) = deck.current.categories(name).categorization.copy(color = newColor)
           listTabs.setSelectedIndex(Categories.ordinal)
           true
         }, () => {
-          val mod = deck.current.categories(name).categorization
-          mod.setColor(oldColor)
-          deck.current.categories(newCategory.name) = mod
+          deck.current.categories(newCategory.name) = deck.current.categories(name).categorization.copy(color = oldColor)
           listTabs.setSelectedIndex(Categories.ordinal)
           true
         })
       }
     })
     // Add the behavior for double-clicking the category title
-    newCategory.addMouseListener(ChangeTitleListener(newCategory, (title) => categories(newCategory.name) = {
-      val spec = Category(categories(newCategory.name))
-      spec.setName(title)
-      spec
-    }))
+    newCategory.addMouseListener(ChangeTitleListener(newCategory, (title) => categories(newCategory.name) = categories(newCategory.name).copy(name = title)))
     // Add behavior for the rank box
     newCategory.rankBox.addActionListener(_ => {
       if (newCategory.rankBox.isPopupVisible) {
@@ -1412,11 +1396,10 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     // Quick edit categories
     val addToCategoryMenu = JMenu("Include in")
     tableMenu.add(addToCategoryMenu)
-    val removeFromCategoryItem = JMenuItem(s"Exclude from ${spec.getName}")
+    val removeFromCategoryItem = JMenuItem(s"Exclude from ${spec.name}")
     removeFromCategoryItem.addActionListener(_ => categories(newCategory.name) = {
-      val mod = Category(deck.current.categories(newCategory.name).categorization)
-      newCategory.selectedCards.filter((e) => mod.includes(e.card)).foreach((e) => mod.exclude(e.card))
-      mod
+      val category = deck.current.categories(newCategory.name).categorization
+      newCategory.selectedCards.filter((e) => category(e.card)).foldLeft(category)((cat, e) => cat - e.card)
     })
     tableMenu.add(removeFromCategoryItem)
     val removeFromCategoryMenu = JMenu("Exclude from")
@@ -1425,9 +1408,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     // Edit categories item
     val editCategoriesItem = JMenuItem("Edit Categories...")
     editCategoriesItem.addActionListener(_ => {
-      val iePanel = IncludeExcludePanel(deck.current.categories.map(_.categorization).toSeq.sortBy(_.getName.toLowerCase), parent.getSelectedCards.map(_.card))
+      val iePanel = IncludeExcludePanel(deck.current.categories.map(_.categorization).toSeq.sortBy(_.name.toLowerCase), parent.getSelectedCards.map(_.card))
       if (JOptionPane.showConfirmDialog(this, JScrollPane(iePanel), "Set Categories", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
-        categories.update(iePanel.updates.map((c) => c.getName -> c).toMap)
+        categories.update(iePanel.updates.map((c) => c.name -> c).toMap)
     })
     tableMenu.add(editCategoriesItem)
 
@@ -1453,22 +1436,22 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
 
     newCategory.setTransferHandler(CategoryTransferHandler(
       () => categories(newCategory.name),
-      (c) => categories.contains(c.getName),
+      (c) => categories.contains(c.name),
       categories += _,
-      (c) => categories -= c.getName
+      (c) => categories -= c.name
     ))
 
-    // Category popup menu
+    // Categorization popup menu
     val categoryMenu = JPopupMenu()
     newCategory.setComponentPopupMenu(categoryMenu)
 
     // Cut, copy, paste
     val categoryCCP = CCPItems(newCategory, false)
-    categoryCCP.cut.setText("Cut Category")
+    categoryCCP.cut.setText("Cut Categorization")
     categoryMenu.add(categoryCCP.cut)
-    categoryCCP.copy.setText("Copy Category")
+    categoryCCP.copy.setText("Copy Categorization")
     categoryMenu.add(categoryCCP.copy)
-    categoryCCP.paste.setText("Paste Category")
+    categoryCCP.paste.setText("Paste Categorization")
     categoryMenu.add(categoryCCP.paste)
     categoryMenu.add(JSeparator())
 
@@ -1490,7 +1473,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     categoryMenu.addPopupMenuListener(PopupMenuListenerFactory.createPopupListener(visible = _ => {
       val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
       try {
-        categoryCCP.paste.setEnabled(!categories.contains(clipboard.getData(DataFlavors.categoryFlavor).asInstanceOf[CategoryTransferData].spec.getName))
+        categoryCCP.paste.setEnabled(!categories.contains(clipboard.getData(DataFlavors.categoryFlavor).asInstanceOf[CategoryTransferData].spec.name))
       } catch {
         case _ @ (_: UnsupportedFlavorException | _: IOException) =>
           // Technically using exceptions as control flow (as with unsupported flavors here) is bad
@@ -1522,7 +1505,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @param spec specification of the new category
    * @return true if the category was successfully added, and false otherwise
    */
-  private def do_addCategory(spec: Category): Boolean = if (deck.current.categories.contains(spec.getName)) false else {
+  private def do_addCategory(spec: Categorization): Boolean = if (deck.current.categories.contains(spec.name)) false else {
     deck.current.categories += spec
     val category = createCategoryPanel(spec)
     category.startObserving()
@@ -1549,9 +1532,9 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
    * @param spec specification of the category to remove
    * @return true if the category was removed, and false otherwise.
    */
-  private def do_removeCategory(spec: Category) = if (deck.current.categories.contains(spec.getName)) {
-    deck.current.categories -= spec.getName
-    val category = getCategoryPanel(spec.getName).get
+  private def do_removeCategory(spec: Categorization) = if (deck.current.categories.contains(spec.name)) {
+    deck.current.categories -= spec.name
+    val category = getCategoryPanel(spec.name).get
     categoryPanels -= category
     category.stopObserving()
     categoryPanels.foreach(_.rankBox.removeItemAt(categoryPanels.size))
@@ -1690,8 +1673,8 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     else {
       switchCategoryBox.setEnabled(true)
       deck.current.categories.map(_.categorization).toSeq.sorted(sortCategoriesBox.getItemAt(sortCategoriesBox.getSelectedIndex)(deck.current)).foreach((c) => {
-        categoriesContainer.add(getCategoryPanel(c.getName).get)
-        switchCategoryModel.addElement(c.getName)
+        categoriesContainer.add(getCategoryPanel(c.name).get)
+        switchCategoryModel.addElement(c.name)
       })
     }
 
@@ -1702,7 +1685,7 @@ class EditorFrame(parent: MainFrame, u: Int, manager: DeckSerializer = DeckSeria
     else {
       val selectedForAnalysis = analyzeCategoryCombo.getItemAt(analyzeCategoryCombo.getSelectedIndex)
       analyzeCategoryCombo.removeAllItems()
-      deck.current.categories.foreach((c) => analyzeCategoryCombo.addItem(c.categorization.getName))
+      deck.current.categories.foreach((c) => analyzeCategoryCombo.addItem(c.categorization.name))
       analyzeCategoryCombo.setMaximumSize(analyzeCategoryCombo.getPreferredSize())
       val indexForAnalysis = analyzeCategoryCombo.getModel.asInstanceOf[DefaultComboBoxModel[String]].getIndexOf(selectedForAnalysis)
       if (indexForAnalysis < 0) {

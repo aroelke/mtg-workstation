@@ -6,7 +6,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.database.card.Card
 import editor.filter.Filter
 
@@ -15,28 +15,28 @@ import java.lang.reflect.Type
 import scala.jdk.CollectionConverters._
 
 /**
- * JSON serializer/deserializer for [[Category]]s.
+ * JSON serializer/deserializer for [[Categorization]]s.
  * @author Alec Roelke
  */
-class CategoryAdapter extends JsonSerializer[Category] with JsonDeserializer[Category] {
+class CategoryAdapter extends JsonSerializer[Categorization] with JsonDeserializer[Categorization] {
   override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext) = {
     val obj = json.getAsJsonObject
-    val category = Category()
-    category.setName(obj.get("name").getAsString)
-    category.setFilter(context.deserialize(obj.get("filter"), classOf[Filter]))
-    obj.get("whitelist").getAsJsonArray.asScala.foreach((e) => category.include(context.deserialize(e, classOf[Card])))
-    obj.get("blacklist").getAsJsonArray.asScala.foreach((e) => category.exclude(context.deserialize(e, classOf[Card])))
-    category.setColor(context.deserialize(obj.get("color"), classOf[Color]))
-    category
+    Categorization(
+      obj.get("name").getAsString,
+      context.deserialize(obj.get("filter"), classOf[Filter]),
+      obj.get("whitelist").getAsJsonArray.asScala.map((e) => context.deserialize[Card](e, classOf[Card])).toSet,
+      obj.get("blacklist").getAsJsonArray.asScala.map((e) => context.deserialize[Card](e, classOf[Card])).toSet,
+      context.deserialize(obj.get("color"), classOf[Color])
+    )
   }
 
-  override def serialize(src: Category, typeOfSrc: Type, context: JsonSerializationContext) = {
+  override def serialize(src: Categorization, typeOfSrc: Type, context: JsonSerializationContext) = {
     val category = JsonObject()
-    category.addProperty("name", src.getName)
-    category.add("filter", context.serialize(src.getFilter))
-    category.add("whitelist", context.serialize(src.getWhitelist))
-    category.add("blacklist", context.serialize(src.getBlacklist))
-    category.add("color", context.serialize(src.getColor))
+    category.addProperty("name", src.name)
+    category.add("filter", context.serialize(src.filter))
+    category.add("whitelist", context.serialize(src.whitelist.asJava))
+    category.add("blacklist", context.serialize(src.blacklist.asJava))
+    category.add("color", context.serialize(src.color))
     category
   }
 }

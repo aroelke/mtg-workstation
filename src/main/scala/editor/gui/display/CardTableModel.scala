@@ -31,7 +31,7 @@ class CardTableModel(private var cards: CardList, private var characteristics: I
   override def setValueAt(value: Object, row: Int, column: Int) = if (isCellEditable(row, column)) {
     (cards, characteristics(column), value) match {
       case (deck: Deck, CardAttribute.COUNT, i: java.lang.Integer) => deck(row).count = i
-      case (deck: Deck, CardAttribute.CATEGORIES, ie: IncludeExcludePanel) => editor.foreach(_.categories.update(ie.updates.map((c) => c.getName -> c).toMap))
+      case (deck: Deck, CardAttribute.CATEGORIES, ie: IncludeExcludePanel) => editor.foreach(_.categories.update(ie.updates.map((c) => c.name -> c).toMap))
       case _ => throw IllegalArgumentException(s"cannot edit data type ${characteristics(column)} to $value")
     }
     fireTableDataChanged()

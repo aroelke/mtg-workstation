@@ -1,7 +1,7 @@
 package editor.database.card
 
 import editor.collection.CardListEntry
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.collection.mutable.Deck
 import editor.database.attributes.CardAttribute
 import editor.util.CollectionUtils
@@ -35,7 +35,7 @@ class CardFormat(pattern: String) {
         case v: Double if v != v.intValue => v.toString
       }
       case COLORS | COLOR_IDENTITY => card(a) match { case l: java.util.List[?] => l.asScala.mkString(",") }
-      case CATEGORIES => card(a) match { case s: java.util.Set[?] => s.asScala.collect{ case c: Category => c }.map(_.getName).toSeq.sorted.mkString(",") }
+      case CATEGORIES => card(a) match { case s: java.util.Set[?] => s.asScala.collect{ case c: Categorization => c }.map(_.name).toSeq.sorted.mkString(",") }
       case DATE_ADDED => card(a) match { case d: LocalDate => Deck.DateFormatter.format(d) }
       case _ => card(a).toString
     }))
@@ -50,7 +50,7 @@ class CardFormat(pattern: String) {
    */
   def format(c: Card): String = format(new CardListEntry {
     override val card = c
-    override val categories = Set.empty[Category]
+    override val categories = Set.empty[Categorization]
     override val count = 1
     override def dateAdded = card.expansion.released
   })

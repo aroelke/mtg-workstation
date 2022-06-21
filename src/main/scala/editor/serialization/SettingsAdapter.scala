@@ -7,7 +7,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.database.attributes.CardAttribute
 import editor.database.card.CardLayout
 import editor.database.version.DatabaseVersion
@@ -87,7 +87,7 @@ class SettingsAdapter extends JsonSerializer[Settings] with JsonDeserializer[Set
       val categoriesSettings = if (editor.has("categories")) {
         val categories = editor.get("categories").getAsJsonObject
 
-        val presets = if (categories.has("presets")) categories.get("presets").getAsJsonArray.asScala.map((p) => context.deserialize[Category](p, classOf[Category])).toSeq else defaults.editor.categories.presets
+        val presets = if (categories.has("presets")) categories.get("presets").getAsJsonArray.asScala.map((p) => context.deserialize[Categorization](p, classOf[Categorization])).toSeq else defaults.editor.categories.presets
         val rows = if (categories.has("rows")) categories.get("rows").getAsInt else defaults.editor.categories.rows
         val explicits = if (categories.has("explicits")) categories.get("explicits").getAsInt else defaults.editor.categories.explicits
         

@@ -1,6 +1,6 @@
 package editor.gui.settings
 
-import editor.collection.deck.Category
+import editor.collection.Categorization
 import editor.database.attributes.CardAttribute
 import editor.database.attributes.CardAttribute._
 import editor.database.card.Card
@@ -165,7 +165,7 @@ case class RecentsSettings(count: Int = 4, files: Seq[String] = Nil)
  * @author Alec Roelke
  */
 case class CategoriesSettings(
-  presets: Seq[Category] = Map(
+  presets: Seq[Categorization] = Map(
     "Artifacts" -> Seq("Artifact"),
     "Creatures" -> Seq("Creature"),
     "Lands" -> Seq("Land"),
@@ -173,7 +173,7 @@ case class CategoriesSettings(
   ).map{ case (name, types) => {
     val filter = CardAttribute.createFilter(CardAttribute.CARD_TYPE).asInstanceOf[CardTypeFilter]
     filter.selected ++= types
-    new Category(name, Seq.empty.asJava, Seq.empty.asJava, Color.WHITE, filter)
+    Categorization(name, filter, Set.empty, Set.empty, Color.WHITE)
   }}.toSeq,
   rows: Int = 6,
   explicits: Int = 3

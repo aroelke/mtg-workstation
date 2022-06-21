@@ -2,7 +2,7 @@ package editor.gui
 
 import _root_.editor.collection.CardList
 import _root_.editor.collection.CardListEntry
-import _root_.editor.collection.deck.Category
+import _root_.editor.collection.Categorization
 import _root_.editor.collection.`export`.DelimitedCardListFormat
 import _root_.editor.collection.`export`.TextCardListFormat
 import _root_.editor.collection.immutable.Inventory
@@ -184,7 +184,7 @@ object MainFrame {
   /** Serializer for saving and loading external information. */
   def Serializer = (new GsonBuilder)
     .registerTypeAdapter(classOf[Settings], SettingsAdapter())
-    .registerTypeAdapter(classOf[Category], CategoryAdapter())
+    .registerTypeAdapter(classOf[Categorization], CategoryAdapter())
     .registerTypeHierarchyAdapter(classOf[Filter], FilterAdapter())
     .registerTypeAdapter(classOf[Color], ColorAdapter())
     .registerTypeHierarchyAdapter(classOf[Card], CardAdapter())
@@ -803,8 +803,8 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   sideboardMenu.add(sideboardMenuItems.removeOne)
   sideboardMenu.add(sideboardMenuItems.removeAll)
 
-  // Category menu
-  private val categoryMenu = JMenu("Category")
+  // Categorization menu
+  private val categoryMenu = JMenu("Categorization")
   deckMenu.add(categoryMenu)
 
   // Add category item
@@ -817,10 +817,10 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   editCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => {
     val contentPanel = JPanel(BorderLayout())
     contentPanel.add(JLabel("Choose a category to edit:"), BorderLayout.NORTH)
-    val categories = JList(f.categories.map(_.getName).toArray.sorted)
+    val categories = JList(f.categories.map(_.name).toArray.sorted)
     categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     contentPanel.add(JScrollPane(categories), BorderLayout.CENTER)
-    if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+    if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Categorization", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
       f.editCategory(categories.getSelectedValue)
   }))
   categoryMenu.add(editCategoryItem)
@@ -830,10 +830,10 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
   removeCategoryItem.addActionListener(_ => selectedFrame.foreach((f) => {
     val contentPanel = JPanel(BorderLayout())
     contentPanel.add(JLabel("Choose a category to remove:"), BorderLayout.NORTH)
-    val categories = JList(f.categories.map(_.getName).toArray.sorted)
+    val categories = JList(f.categories.map(_.name).toArray.sorted)
     categories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     contentPanel.add(JScrollPane(categories), BorderLayout.CENTER)
-    if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
+    if (JOptionPane.showConfirmDialog(this, contentPanel, "Edit Categorization", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION)
       f.categories -= categories.getSelectedValue
   }))
   categoryMenu.add(removeCategoryItem)
@@ -1193,7 +1193,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
 
       if (!inventory.isEmpty) {
         for (spec <- SettingsDialog.settings.editor.categories.presets) {
-          val categoryItem = JMenuItem(spec.getName)
+          val categoryItem = JMenuItem(spec.name)
           categoryItem.addActionListener(_ => selectedFrame.foreach(_.categories += spec))
           presetMenu.add(categoryItem)
         }
@@ -1210,18 +1210,16 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
    *
    * @param category new preset category to add
    */
-  def addPreset(category: Category) = {
-    if (!((!category.getWhitelist.isEmpty || !category.getBlacklist.isEmpty) && JOptionPane.showConfirmDialog(
+  def addPreset(category: Categorization) = {
+    if (!((!category.whitelist.isEmpty || !category.blacklist.isEmpty) && JOptionPane.showConfirmDialog(
       this,
-      s"Category ${category.getName()} contains cards in its whitelist or blacklist which will not be included in the preset category. Make this category a preset category?",
+      s"Categorization ${category.name} contains cards in its whitelist or blacklist which will not be included in the preset category. Make this category a preset category?",
       "Add to Presets",
       JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION
     )) {
-      val spec = Category(category)
-      spec.getBlacklist.asScala.foreach(spec.include(_))
-      spec.getWhitelist.asScala.foreach(spec.exclude(_))
+      val spec = category.copy(whitelist = Set.empty, blacklist = Set.empty)
       SettingsDialog.addPresetCategory(spec)
-      val categoryItem = JMenuItem(spec.getName)
+      val categoryItem = JMenuItem(spec.name)
       categoryItem.addActionListener(_ => selectedFrame.foreach(_.categories += spec))
       presetMenu.add(categoryItem)
     }
@@ -1233,7 +1231,7 @@ class MainFrame(files: Seq[File]) extends JFrame with SettingsObserver {
                                           (_.editor.categories.presets){ presets =>
                                             presetMenu.removeAll()
                                             for (spec <- presets) {
-                                              val categoryItem = JMenuItem(spec.getName)
+                                              val categoryItem = JMenuItem(spec.name)
                                               categoryItem.addActionListener(_ => selectedFrame.foreach(_.categories += spec))
                                               presetMenu.add(categoryItem)
                                             }
