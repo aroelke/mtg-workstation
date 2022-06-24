@@ -76,7 +76,7 @@ class FilterAdapter extends JsonSerializer[Filter] with JsonDeserializer[Filter]
         filter
       case RARITY =>
         val filter = RarityFilter()
-        filter.selected = obj.get("selected").getAsJsonArray.asScala.map((v) => Rarity.parseRarity(v.getAsString)).toSet
+        filter.selected = obj.get("selected").getAsJsonArray.asScala.map((v) => Rarity.parse(v.getAsString).getOrElse(Rarity.UNKNOWN)).toSet
         filter
       case ARTIST => TextFilter(ARTIST, _.faces.map(_.artist))
       case CARD_NUMBER => NumberFilter(CARD_NUMBER, false, (f) => try f.number.replace("--", "0").replaceAll("[\\D]", "").toInt catch case _: NumberFormatException => 0.0)
