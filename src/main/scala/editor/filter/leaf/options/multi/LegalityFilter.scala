@@ -19,7 +19,7 @@ class LegalityFilter extends MultiOptionsFilter[String](CardAttribute.LEGAL_IN, 
     if (!super.testFace(c))
       false
     else if (restricted)
-      c.legalIn.filter(selected.contains).forall(c.legality(_) == Legality.RESTRICTED)
+      c.legalIn.filter(selected.contains).forall(c.legality(_) == Legality.Restricted)
     else
       true
   }

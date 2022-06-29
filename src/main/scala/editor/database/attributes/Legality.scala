@@ -18,11 +18,11 @@ object Legality {
  */
 enum Legality(override val toString: String, val isLegal: Boolean) {
   /** A card that has been banned from a format. */
-  case BANNED extends Legality("Banned", false)
+  case Banned extends Legality("Banned", false)
   /** A card that is legal in a format. */
-  case LEGAL extends Legality("Legal", true)
+  case Legal extends Legality("Legal", true)
   /** A card that is legal, but restricted in a format. */
-  case RESTRICTED extends Legality("Restricted", true)
+  case Restricted extends Legality("Restricted", true)
   /** A card that is illegal in a format. */
-  case ILLEGAL extends Legality("Illegal", false)
+  case Illegal extends Legality("Illegal", false)
 }

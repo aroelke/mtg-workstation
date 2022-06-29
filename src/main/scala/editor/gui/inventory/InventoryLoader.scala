@@ -433,7 +433,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
                 ListSet.from(s)
               }),
               printedTypes.getOrElseUpdate(oTypes, oTypes),
-              Rarity.parse(card.get("rarity").getAsString).getOrElse(Rarity.UNKNOWN),
+              Rarity.parse(card.get("rarity").getAsString).getOrElse(Rarity.Unknown),
               set,
               texts.getOrElseUpdate(text, text),
               flavors.getOrElseUpdate(flavor, flavor),

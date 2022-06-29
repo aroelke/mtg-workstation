@@ -29,20 +29,20 @@ object Rarity {
 enum Rarity(override val toString: String, val unique: String, val shorthand: Char) extends Ordered[Rarity] {
   override def compare(that: Rarity) = ordinal - that.ordinal
 
-  /** Formerly used for basic lands, which are now [[COMMON]]. */
+  /** Formerly used for basic lands, which are now [[Common]]. */
   @deprecated case BASIC_LAND extends Rarity("Basic Land", "basic", 'B')
   /** Common rarity. Appears 10-11 times per normal booster pack, including the basic land. */
-  case COMMON extends Rarity("Common", "common", 'C')
+  case Common extends Rarity("Common", "common", 'C')
   /** Uncommon rarity. Appears 3-4 times per normal booster pack. */
-  case UNCOMMON extends Rarity("Uncommon", "uncommon", 'U')
+  case Uncommon extends Rarity("Uncommon", "uncommon", 'U')
   /** Rare rarity. Appears once per normal booster pack. */
-  case RARE extends Rarity("Rare", "rare", 'R')
+  case Rare extends Rarity("Rare", "rare", 'R')
   /** Mythic rare rarity. Has a 1/8 chnce of replacing the rare in a normal booster pack. */
-  case MYTHIC_RARE extends Rarity("Mythic Rare", "mythic", 'M')
+  case MythicRare extends Rarity("Mythic Rare", "mythic", 'M')
   /** Special rarity. Some expansions have additional cards that might replace a common in a booster pack. */
-  case SPECIAL extends Rarity("Special", "special", 'S')
+  case Special extends Rarity("Special", "special", 'S')
   /** Bonus rarity. Used for extremely rare cards in certain online booster packs. */
-  case BONUS extends Rarity("Bonus", "bonus", 'O')
+  case Bonus extends Rarity("Bonus", "bonus", 'O')
   /** Rarity couldn't be determined. */
-  case UNKNOWN extends Rarity("Unknown", "unknown", 0)
+  case Unknown extends Rarity("Unknown", "unknown", 0)
 }

@@ -228,7 +228,7 @@ class LegalityPanel(editor: EditorFrame) extends Box(BoxLayout.Y_AXIS) {
         if (!e.card.legalityIn(format).isLegal)
           warnings(format) += s"${e.card.name} is illegal in $format"
         else if (isoNameCounts.contains(e.card) && !e.card.ignoreCountRestriction) {
-          if (e.card.legalityIn(format) == Legality.RESTRICTED && isoNameCounts(e.card) > 1)
+          if (e.card.legalityIn(format) == Legality.Restricted && isoNameCounts(e.card) > 1)
             warnings(format) += s"${e.card.name} is restricted in $format"
           else if (isoNameCounts(e.card) > maxCopies)
             warnings(format) += s"Deck contains more than $maxCopies copies of ${e.card.name}"

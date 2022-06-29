@@ -269,7 +269,7 @@ abstract class Card(val expansion: Expansion, val layout: CardLayout) {
    * @param format format to check
    * @return the legality of the card in the given format.
    */
-  def legalityIn(format: String) = legality.getOrElse(format, Legality.ILLEGAL)
+  def legalityIn(format: String) = legality.getOrElse(format, Legality.Illegal)
 
   override def equals(other: Any) = other match {
     case c: Card => faces.map(_.scryfallid) == c.faces.map(_.scryfallid)
