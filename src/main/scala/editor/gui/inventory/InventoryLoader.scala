@@ -378,7 +378,7 @@ private class InventoryLoader(file: File, consumer: (String) => Unit, finished: 
 
             // Format legality
             val legality = Option(card.get("legalities"))
-              .map(_.getAsJsonObject.entrySet.asScala.map((e) => formats.getOrElseUpdate(e.getKey, e.getKey) -> Legality.parseLegality(e.getValue.getAsString)).toMap)
+              .map(_.getAsJsonObject.entrySet.asScala.map((e) => formats.getOrElseUpdate(e.getKey, e.getKey) -> Legality.parse(e.getValue.getAsString).get).toMap)
               .getOrElse(Map.empty)
 
             // Formats the card can be commander in
